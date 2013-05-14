@@ -63,7 +63,7 @@ func New(configFile string) (e exporter, err error) {
 	registry := prometheus.NewRegistry()
 	e = exporter{
 		configFile:       configFile,
-		scrapeDurations:   prometheus.NewDefaultHistogram(),
+		scrapeDurations:  prometheus.NewDefaultHistogram(),
 		metricsUpdated:   prometheus.NewGauge(),
 		listeningAddress: ":8080",
 		scrapeInterval:   60 * time.Second,

@@ -8,8 +8,8 @@ import (
 	"github.com/prometheus/node_exporter/exporter/ganglia"
 	"io"
 	"net"
-	"time"
 	"strings"
+	"time"
 )
 
 const (
