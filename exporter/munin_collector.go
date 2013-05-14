@@ -169,7 +169,7 @@ func (c *muninCollector) registerMetrics() (err error) {
 		}
 
 		for metric, config := range configs {
-			metricName := name + "-" + metric
+			metricName := strings.Replace(name+"-"+metric, ".", "_", -1)
 			desc := graphConfig["graph_title"] + ": " + config["label"]
 			if config["info"] != "" {
 				desc = desc + ", " + config["info"]
