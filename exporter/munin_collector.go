@@ -155,38 +155,36 @@ func (c *muninCollector) muninConfig(name string) (config map[string]map[string]
 	return config, graphConfig, err
 }
 
-func (c *muninCollector) registerMetrics() (err error) {
+
+func (c *muninCollector) registerMetric(name string) (err error) {
+	configs, graphConfig, err := c.muninConfig(name)
+	if err != nil {
+		return fmt.Errorf("Couldn't get config for graph %s: %s", name, err)
+	}
+
+	for metric, config := range configs {
+		metricName := strings.Replace(name+"-"+metric, ".", "_", -1)
+		desc := graphConfig["graph_title"] + ": " + config["label"]
+		if config["info"] != "" {
+			desc = desc + ", " + config["info"]
+		}
+		gauge := prometheus.NewGauge()
+		debug(c.Name(), "Register %s: %s", metricName, desc)
+		c.gaugePerMetric[metricName] = gauge
+		c.registry.Register(metricName, desc, prometheus.NilLabels, gauge)
+	}
+	return nil
+}
+
+
+func (c *muninCollector) Update() (updates int, err error) {
 	items, err := c.muninList()
 	if err != nil {
-		return fmt.Errorf("Couldn't get graph list: %s", err)
+		return updates, fmt.Errorf("Couldn't get graph list: %s", err)
 	}
 
 	for _, name := range items {
 		c.graphs = append(c.graphs, name)
-		configs, graphConfig, err := c.muninConfig(name)
-		if err != nil {
-			return fmt.Errorf("Couldn't get config for graph %s: %s", name, err)
-		}
-
-		for metric, config := range configs {
-			metricName := strings.Replace(name+"-"+metric, ".", "_", -1)
-			desc := graphConfig["graph_title"] + ": " + config["label"]
-			if config["info"] != "" {
-				desc = desc + ", " + config["info"]
-			}
-			gauge := prometheus.NewGauge()
-			debug(c.Name(), "Register %s: %s", metricName, desc)
-			c.gaugePerMetric[metricName] = gauge
-			c.registry.Register(metricName, desc, prometheus.NilLabels, gauge)
-		}
-	}
-	return err
-}
-
-func (c *muninCollector) Update() (updates int, err error) {
-	err = c.registerMetrics()
-	if err != nil {
-		return updates, fmt.Errorf("Couldn't register metrics: %s", err)
 	}
 
 	for _, graph := range c.graphs {
@@ -215,6 +213,12 @@ func (c *muninCollector) Update() (updates int, err error) {
 				continue
 			}
 			key, value_s := strings.Split(parts[0], ".")[0], parts[1]
+			name := graph + "-" + key
+			if _, ok := c.gaugePerMetric[name]; !ok {
+				if err := c.registerMetric(name); err != nil {
+					return updates, err
+				}
+			}
 			value, err := strconv.ParseFloat(value_s, 64)
 			if err != nil {
 				debug(c.Name(), "Couldn't parse value in line %s, malformed?", line)
@@ -223,7 +227,6 @@ func (c *muninCollector) Update() (updates int, err error) {
 			labels := map[string]string{
 				"hostname": c.hostname,
 			}
-			name := graph + "-" + key
 			debug(c.Name(), "Set %s{%s}: %f\n", name, labels, value)
 			c.gaugePerMetric[name].Set(labels, value)
 			updates++
