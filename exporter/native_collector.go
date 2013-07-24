@@ -6,7 +6,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -28,11 +27,6 @@ type nativeCollector struct {
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
 func NewNativeCollector(config config, registry prometheus.Registry) (collector nativeCollector, err error) {
-	hostname, err := os.Hostname()
-	if err != nil {
-		return nativeCollector{}, fmt.Errorf("Couldn't get hostname: %s", err)
-	}
-
 	collector = nativeCollector{
 		name:       "native_collector",
 		config:     config,
@@ -44,21 +38,21 @@ func NewNativeCollector(config config, registry prometheus.Registry) (collector 
 	registry.Register(
 		"node_load",
 		"node_exporter: system load.",
-		map[string]string{"hostname": hostname},
+		prometheus.NilLabels,
 		collector.loadAvg,
 	)
 
 	registry.Register(
 		"node_last_login_seconds",
 		"node_exporter: seconds since last login.",
-		map[string]string{"hostname": hostname},
+		prometheus.NilLabels,
 		collector.lastSeen,
 	)
 
 	registry.Register(
 		"node_attributes",
 		"node_exporter: system attributes.",
-		map[string]string{"hostname": hostname},
+		prometheus.NilLabels,
 		collector.attributes,
 	)
 
