@@ -85,12 +85,7 @@ func New(configFile string) (e exporter, err error) {
 		log.Fatalf("Couldn't attach collector: %s", err)
 	}
 
-	cm, err := NewMuninCollector(e.config, e.registry)
-	if err != nil {
-		log.Fatalf("Couldn't attach collector: %s", err)
-	}
-
-	e.collectors = []Collector{&cn, &cg, &cm}
+	e.collectors = []Collector{&cn, &cg}
 
 	if e.config.ListeningAddress != "" {
 		e.listeningAddress = e.config.ListeningAddress
