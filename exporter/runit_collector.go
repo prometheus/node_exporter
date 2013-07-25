@@ -5,26 +5,42 @@ import (
 	"github.com/soundcloud/go-runit/runit"
 )
 
-var ()
-
 type runitCollector struct {
-	name          string
-	config        config
-	serviceStatus prometheus.Gauge
+	name         string
+	config       config
+	state        prometheus.Gauge
+	stateDesired prometheus.Gauge
+	stateNormal  prometheus.Gauge
 }
 
 func NewRunitCollector(config config, registry prometheus.Registry) (runitCollector, error) {
 	c := runitCollector{
-		name:          "runit_collector",
-		config:        config,
-		serviceStatus: prometheus.NewGauge(),
+		name:         "runit_collector",
+		config:       config,
+		state:        prometheus.NewGauge(),
+		stateDesired: prometheus.NewGauge(),
+		stateNormal:  prometheus.NewGauge(),
 	}
 
 	registry.Register(
-		"node_service_status",
+		"node_service_state",
+		"node_exporter: state of runit service.",
+		prometheus.NilLabels,
+		c.state,
+	)
+
+	registry.Register(
+		"node_service_desired_state",
+		"node_exporter: desired status of runit service.",
+		prometheus.NilLabels,
+		c.stateDesired,
+	)
+
+	registry.Register(
+		"node_service_normal_state",
 		"node_exporter: status of runit service.",
 		prometheus.NilLabels,
-		c.serviceStatus,
+		c.stateNormal,
 	)
 
 	return c, nil
@@ -43,21 +59,21 @@ func (c *runitCollector) Update() (updates int, err error) {
 		if err != nil {
 			return 0, err
 		}
+
 		debug(c.Name(), "%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
 		labels := map[string]string{
-			"name":  service.Name,
-			"state": runit.StateToString[status.State],
-			"want":  runit.StateToString[status.Want],
+			"service": service.Name,
 		}
 
+		c.state.Set(labels, float64(status.State))
+		c.stateDesired.Set(labels, float64(status.Want))
 		if status.NormallyUp {
-			labels["normally_up"] = "yes"
+			c.stateNormal.Set(labels, 1)
 		} else {
-			labels["normally_up"] = "no"
+			c.stateNormal.Set(labels, 1)
 		}
-
-		c.serviceStatus.Set(labels, float64(status.Duration))
-		updates++
+		updates += 3
 	}
+
 	return updates, err
 }
