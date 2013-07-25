@@ -80,12 +80,17 @@ func New(configFile string) (e exporter, err error) {
 		log.Fatalf("Couldn't attach collector: %s", err)
 	}
 
+	cr, err := NewRunitCollector(e.config, e.registry)
+	if err != nil {
+		log.Fatalf("Couldn't attach collector: %s", err)
+	}
+
 	cg, err := NewGmondCollector(e.config, e.registry)
 	if err != nil {
 		log.Fatalf("Couldn't attach collector: %s", err)
 	}
 
-	e.collectors = []Collector{&cn, &cg}
+	e.collectors = []Collector{&cn, &cr, &cg}
 
 	if e.config.ListeningAddress != "" {
 		e.listeningAddress = e.config.ListeningAddress
