@@ -31,14 +31,14 @@ func NewRunitCollector(config config, registry prometheus.Registry) (runitCollec
 
 	registry.Register(
 		"node_service_desired_state",
-		"node_exporter: desired status of runit service.",
+		"node_exporter: desired state of runit service.",
 		prometheus.NilLabels,
 		c.stateDesired,
 	)
 
 	registry.Register(
 		"node_service_normal_state",
-		"node_exporter: status of runit service.",
+		"node_exporter: normal state of runit service.",
 		prometheus.NilLabels,
 		c.stateNormal,
 	)
@@ -57,7 +57,8 @@ func (c *runitCollector) Update() (updates int, err error) {
 	for _, service := range services {
 		status, err := service.Status()
 		if err != nil {
-			return 0, err
+			debug(c.Name(), "Couldn't get status for %s: %s, skipping...", service.Name, err)
+			continue
 		}
 
 		debug(c.Name(), "%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
