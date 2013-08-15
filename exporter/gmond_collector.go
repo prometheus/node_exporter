@@ -8,7 +8,7 @@ import (
 	"github.com/prometheus/node_exporter/exporter/ganglia"
 	"io"
 	"net"
-	"strings"
+	"regexp"
 	"time"
 )
 
@@ -24,6 +24,8 @@ type gmondCollector struct {
 	config   config
 	registry prometheus.Registry
 }
+
+var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
 // Takes a config struct and prometheus registry and returns a new Collector scraping ganglia.
 func NewGmondCollector(config config, registry prometheus.Registry) (collector gmondCollector, err error) {
@@ -84,7 +86,7 @@ func (c *gmondCollector) Update() (updates int, err error) {
 		for _, host := range cluster.Hosts {
 
 			for _, metric := range host.Metrics {
-				name := strings.Replace(strings.ToLower(metric.Name), ".", "_", -1)
+				name := illegalCharsRE.ReplaceAllString(metric.Name, "_")
 
 				var labels = map[string]string{
 					"cluster": cluster.Name,
