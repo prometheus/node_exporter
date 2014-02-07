@@ -1,4 +1,4 @@
-// Exporter is a prometheus exporter using multiple collectors to collect and export system metrics.
+// Exporter is a prometheus exporter using multiple collectorFactories to collect and export system metrics.
 package exporter
 
 import (
@@ -19,6 +19,7 @@ import (
 )
 
 var verbose = flag.Bool("verbose", false, "Verbose output.")
+var collectorFactories []func(config, prometheus.Registry) (Collector, error)
 
 // Interface a collector has to implement.
 type Collector interface {
@@ -33,7 +34,6 @@ type config struct {
 	Attributes       map[string]string `json:"attributes"`
 	ListeningAddress string            `json:"listeningAddress"`
 	ScrapeInterval   int               `json:"scrapeInterval"`
-	Collectors       []string          `json:"collectors"`
 }
 
 func (e *exporter) loadConfig() (err error) {
@@ -54,7 +54,7 @@ type exporter struct {
 	metricsUpdated   prometheus.Gauge
 	config           config
 	registry         prometheus.Registry
-	collectors       []Collector
+	Collectors       []Collector
 	MemProfile       string
 }
 
@@ -74,23 +74,13 @@ func New(configFile string) (e exporter, err error) {
 	if err != nil {
 		return e, fmt.Errorf("Couldn't read config: %s", err)
 	}
-
-	cn, err := NewNativeCollector(e.config, e.registry)
-	if err != nil {
-		log.Fatalf("Couldn't attach collector: %s", err)
+	for _, fn := range collectorFactories {
+		c, err := fn(e.config, e.registry)
+		if err != nil {
+			return e, err
+		}
+		e.Collectors = append(e.Collectors, c)
 	}
-
-	cr, err := NewRunitCollector(e.config, e.registry)
-	if err != nil {
-		log.Fatalf("Couldn't attach collector: %s", err)
-	}
-
-	cg, err := NewGmondCollector(e.config, e.registry)
-	if err != nil {
-		log.Fatalf("Couldn't attach collector: %s", err)
-	}
-
-	e.collectors = []Collector{&cn, &cr, &cg}
 
 	if e.config.ListeningAddress != "" {
 		e.listeningAddress = e.config.ListeningAddress
@@ -152,8 +142,8 @@ func (e *exporter) Loop() {
 		case <-tick:
 			log.Printf("Starting new scrape interval")
 			wg := sync.WaitGroup{}
-			wg.Add(len(e.collectors))
-			for _, c := range e.collectors {
+			wg.Add(len(e.Collectors))
+			for _, c := range e.Collectors {
 				go func(c Collector) {
 					e.Execute(c)
 					wg.Done()

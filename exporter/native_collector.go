@@ -1,3 +1,5 @@
+// +build !nonative
+
 package exporter
 
 import (
@@ -24,10 +26,14 @@ type nativeCollector struct {
 	config     config
 }
 
+func init() {
+	collectorFactories = append(collectorFactories, NewNativeCollector)
+}
+
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
-func NewNativeCollector(config config, registry prometheus.Registry) (collector nativeCollector, err error) {
-	collector = nativeCollector{
+func NewNativeCollector(config config, registry prometheus.Registry) (Collector, error) {
+	c := nativeCollector{
 		name:       "native_collector",
 		config:     config,
 		loadAvg:    prometheus.NewGauge(),
@@ -39,24 +45,24 @@ func NewNativeCollector(config config, registry prometheus.Registry) (collector 
 		"node_load",
 		"node_exporter: system load.",
 		prometheus.NilLabels,
-		collector.loadAvg,
+		c.loadAvg,
 	)
 
 	registry.Register(
 		"node_last_login_seconds",
 		"node_exporter: seconds since last login.",
 		prometheus.NilLabels,
-		collector.lastSeen,
+		c.lastSeen,
 	)
 
 	registry.Register(
 		"node_attributes",
 		"node_exporter: system attributes.",
 		prometheus.NilLabels,
-		collector.attributes,
+		c.attributes,
 	)
 
-	return collector, nil
+	return &c, nil
 }
 
 func (c *nativeCollector) Name() string { return c.name }

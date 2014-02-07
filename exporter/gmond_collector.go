@@ -1,3 +1,5 @@
+// +build ganglia
+
 package exporter
 
 import (
@@ -25,18 +27,22 @@ type gmondCollector struct {
 	registry prometheus.Registry
 }
 
+func init() {
+	collectors = append(collectors, NewGmondCollector)
+}
+
 var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
 // Takes a config struct and prometheus registry and returns a new Collector scraping ganglia.
-func NewGmondCollector(config config, registry prometheus.Registry) (collector gmondCollector, err error) {
-	collector = gmondCollector{
+func NewGmondCollector(config config, registry prometheus.Registry) (Collector, error) {
+	c := gmondCollector{
 		name:     "gmond_collector",
 		config:   config,
 		Metrics:  make(map[string]prometheus.Gauge),
 		registry: registry,
 	}
 
-	return collector, nil
+	return &c, nil
 }
 
 func (c *gmondCollector) Name() string { return c.name }
