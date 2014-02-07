@@ -49,7 +49,7 @@ func NewRunitCollector(config config, registry prometheus.Registry) (runitCollec
 func (c *runitCollector) Name() string { return c.name }
 
 func (c *runitCollector) Update() (updates int, err error) {
-	services, err := runit.GetServices()
+	services, err := runit.GetServices("/etc/service")
 	if err != nil {
 		return 0, err
 	}
