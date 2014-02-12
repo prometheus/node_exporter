@@ -16,7 +16,7 @@ type runitCollector struct {
 }
 
 func init() {
-	collectors = append(collectors, NewRunitCollector)
+	collectorFactories = append(collectorFactories, NewRunitCollector)
 }
 
 func NewRunitCollector(config config, registry prometheus.Registry) (Collector, error) {
