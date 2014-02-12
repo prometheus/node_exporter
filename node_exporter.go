@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/prometheus/node_exporter/exporter"
 	"log"
+
+	"github.com/prometheus/node_exporter/exporter"
 )
 
 var (
@@ -17,6 +18,10 @@ func main() {
 	exporter, err := exporter.New(*configFile)
 	if err != nil {
 		log.Fatalf("Couldn't instantiate exporter: %s", err)
+	}
+	log.Printf("Registered collectors:")
+	for _, c := range exporter.Collectors {
+		log.Print(" - ", c.Name())
 	}
 	exporter.Loop()
 }

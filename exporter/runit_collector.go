@@ -1,3 +1,5 @@
+// +build runit
+
 package exporter
 
 import (
@@ -13,7 +15,11 @@ type runitCollector struct {
 	stateNormal  prometheus.Gauge
 }
 
-func NewRunitCollector(config config, registry prometheus.Registry) (runitCollector, error) {
+func init() {
+	collectors = append(collectors, NewRunitCollector)
+}
+
+func NewRunitCollector(config config, registry prometheus.Registry) (Collector, error) {
 	c := runitCollector{
 		name:         "runit_collector",
 		config:       config,
@@ -43,7 +49,7 @@ func NewRunitCollector(config config, registry prometheus.Registry) (runitCollec
 		c.stateNormal,
 	)
 
-	return c, nil
+	return &c, nil
 }
 
 func (c *runitCollector) Name() string { return c.name }
