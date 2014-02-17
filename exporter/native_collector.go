@@ -8,6 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -15,13 +16,15 @@ import (
 )
 
 const (
-	procLoad = "/proc/loadavg"
+	procLoad    = "/proc/loadavg"
+	procMemInfo = "/proc/meminfo"
 )
 
 type nativeCollector struct {
 	loadAvg    prometheus.Gauge
 	attributes prometheus.Gauge
 	lastSeen   prometheus.Gauge
+	memInfo    prometheus.Gauge
 	name       string
 	config     config
 }
@@ -39,6 +42,7 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		loadAvg:    prometheus.NewGauge(),
 		attributes: prometheus.NewGauge(),
 		lastSeen:   prometheus.NewGauge(),
+		memInfo:    prometheus.NewGauge(),
 	}
 
 	registry.Register(
@@ -62,6 +66,13 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		c.attributes,
 	)
 
+	registry.Register(
+		"node_mem",
+		"node_exporter: memory details.",
+		prometheus.NilLabels,
+		c.memInfo,
+	)
+
 	return &c, nil
 }
 
@@ -71,22 +82,35 @@ func (c *nativeCollector) Update() (updates int, err error) {
 	last, err := getSecondsSinceLastLogin()
 	if err != nil {
 		return updates, fmt.Errorf("Couldn't get last seen: %s", err)
-	} else {
-		updates++
-		debug(c.Name(), "Set node_last_login_seconds: %f", last)
-		c.lastSeen.Set(nil, last)
 	}
+	updates++
+	debug(c.Name(), "Set node_last_login_seconds: %f", last)
+	c.lastSeen.Set(nil, last)
 
 	load, err := getLoad()
 	if err != nil {
 		return updates, fmt.Errorf("Couldn't get load: %s", err)
-	} else {
-		updates++
-		debug(c.Name(), "Set node_load: %f", load)
-		c.loadAvg.Set(nil, load)
 	}
+	updates++
+	debug(c.Name(), "Set node_load: %f", load)
+	c.loadAvg.Set(nil, load)
+
 	debug(c.Name(), "Set node_attributes{%v}: 1", c.config.Attributes)
 	c.attributes.Set(c.config.Attributes, 1)
+
+	memInfo, err := getMemInfo()
+	if err != nil {
+		return updates, fmt.Errorf("Couldn't get meminfo: %s", err)
+	}
+	debug(c.Name(), "Set node_mem: %#v", memInfo)
+	for k, v := range memInfo {
+		updates++
+		fv, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return updates, fmt.Errorf("Invalid value in meminfo: %s", err)
+		}
+		c.memInfo.Set(map[string]string{"type": k}, fv)
+	}
 	return updates, err
 }
 
@@ -151,4 +175,30 @@ func getSecondsSinceLastLogin() (float64, error) {
 	}
 
 	return float64(time.Now().Sub(last).Seconds()), nil
+}
+
+func getMemInfo() (map[string]string, error) {
+	memInfo := map[string]string{}
+	fh, err := os.Open(procMemInfo)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	scanner := bufio.NewScanner(fh)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Fields(string(line))
+		key := ""
+		switch len(parts) {
+		case 2: // no unit
+			key = parts[0][:len(parts[0])-1] // remove trailing : from key
+		case 3: // has unit
+			key = fmt.Sprintf("%s_%s", parts[0][:len(parts[0])-1], parts[2])
+		default:
+			return nil, fmt.Errorf("Invalid line in %s: %s", procMemInfo, line)
+		}
+		memInfo[key] = parts[1]
+	}
+	return memInfo, nil
+
 }
