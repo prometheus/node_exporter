@@ -19,6 +19,7 @@ const (
 	procLoad       = "/proc/loadavg"
 	procMemInfo    = "/proc/meminfo"
 	procInterrupts = "/proc/interrupts"
+	procNetDev     = "/proc/net/dev"
 )
 
 type nativeCollector struct {
@@ -27,6 +28,7 @@ type nativeCollector struct {
 	lastSeen   prometheus.Gauge
 	memInfo    prometheus.Gauge
 	interrupts prometheus.Counter
+	netStats   prometheus.Counter
 	name       string
 	config     config
 }
@@ -46,6 +48,7 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		lastSeen:   prometheus.NewGauge(),
 		memInfo:    prometheus.NewGauge(),
 		interrupts: prometheus.NewCounter(),
+		netStats:   prometheus.NewCounter(),
 	}
 
 	registry.Register(
@@ -81,6 +84,13 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		"node_exporter: interrupt details.",
 		prometheus.NilLabels,
 		c.interrupts,
+	)
+
+	registry.Register(
+		"node_net",
+		"node_exporter: network stats.",
+		prometheus.NilLabels,
+		c.netStats,
 	)
 
 	return &c, nil
@@ -131,7 +141,7 @@ func (c *nativeCollector) Update() (updates int, err error) {
 			updates++
 			fv, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return updates, fmt.Errorf("Invalid value in interrupts: %s", err)
+				return updates, fmt.Errorf("Invalid value in interrupts: %s", fv, err)
 			}
 			labels := map[string]string{
 				"CPU":     strconv.Itoa(cpuNo),
@@ -140,6 +150,28 @@ func (c *nativeCollector) Update() (updates int, err error) {
 				"devices": interrupt.devices,
 			}
 			c.interrupts.Set(labels, fv)
+		}
+	}
+
+	netStats, err := getNetStats()
+	if err != nil {
+		return updates, fmt.Errorf("Couldn't get netstats: %s", err)
+	}
+	for direction, devStats := range netStats {
+		for dev, stats := range devStats {
+			for t, value := range stats {
+				updates++
+				v, err := strconv.ParseFloat(value, 64)
+				if err != nil {
+					return updates, fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
+				}
+				labels := map[string]string{
+					"device":    dev,
+					"direction": direction,
+					"type":      t,
+				}
+				c.netStats.Set(labels, v)
+			}
 		}
 	}
 	return updates, err
@@ -273,4 +305,53 @@ func getInterrupts() (map[string]interrupt, error) {
 		interrupts[intName] = intr
 	}
 	return interrupts, nil
+}
+
+func getNetStats() (map[string]map[string]map[string]string, error) {
+	netStats := map[string]map[string]map[string]string{}
+	netStats["transmit"] = map[string]map[string]string{}
+	netStats["receive"] = map[string]map[string]string{}
+	fh, err := os.Open(procNetDev)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	scanner := bufio.NewScanner(fh)
+	scanner.Scan() // skip first header
+	scanner.Scan()
+	parts := strings.Split(string(scanner.Text()), "|")
+	if len(parts) != 3 { // interface + receive + transmit
+		return nil, fmt.Errorf("Invalid header line in %s: %s",
+			procNetDev, scanner.Text())
+	}
+	header := strings.Fields(parts[1])
+	for scanner.Scan() {
+		parts := strings.Fields(string(scanner.Text()))
+		if len(parts) != 2*len(header)+1 {
+			return nil, fmt.Errorf("Invalid line in %s: %s",
+				procNetDev, scanner.Text())
+		}
+
+		dev := parts[0][:len(parts[0])-1]
+		receive, err := parseNetDevLine(parts[1:len(header)+1], header)
+		if err != nil {
+			return nil, err
+		}
+
+		transmit, err := parseNetDevLine(parts[len(header)+1:], header)
+		if err != nil {
+			return nil, err
+		}
+		netStats["transmit"][dev] = transmit
+		netStats["receive"][dev] = receive
+	}
+	return netStats, nil
+}
+
+func parseNetDevLine(parts []string, header []string) (map[string]string, error) {
+	devStats := map[string]string{}
+	for i, v := range parts {
+		devStats[header[i]] = v
+	}
+	return devStats, nil
 }
