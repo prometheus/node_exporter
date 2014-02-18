@@ -1,11 +1,14 @@
-package exporter
+package collector
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 )
+
+var verbose = flag.Bool("verbose", false, "Verbose output.")
 
 func debug(name string, format string, a ...interface{}) {
 	if *verbose {
