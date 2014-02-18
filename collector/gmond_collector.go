@@ -1,17 +1,18 @@
 // +build ganglia
 
-package exporter
+package collector
 
 import (
 	"bufio"
 	"encoding/xml"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/node_exporter/exporter/ganglia"
 	"io"
 	"net"
 	"regexp"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/node_exporter/collector/ganglia"
 )
 
 const (
@@ -23,18 +24,18 @@ const (
 type gmondCollector struct {
 	name     string
 	Metrics  map[string]prometheus.Gauge
-	config   config
+	config   Config
 	registry prometheus.Registry
 }
 
 func init() {
-	collectorFactories = append(collectorFactories, NewGmondCollector)
+	Factories = append(Factories, NewGmondCollector)
 }
 
 var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
 // Takes a config struct and prometheus registry and returns a new Collector scraping ganglia.
-func NewGmondCollector(config config, registry prometheus.Registry) (Collector, error) {
+func NewGmondCollector(config Config, registry prometheus.Registry) (Collector, error) {
 	c := gmondCollector{
 		name:     "gmond_collector",
 		config:   config,

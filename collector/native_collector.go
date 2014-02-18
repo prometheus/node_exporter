@@ -1,11 +1,10 @@
 // +build !nonative
 
-package exporter
+package collector
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"io/ioutil"
 	"os"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -42,16 +43,16 @@ type nativeCollector struct {
 	netStats   prometheus.Counter
 	diskStats  prometheus.Counter
 	name       string
-	config     config
+	config     Config
 }
 
 func init() {
-	collectorFactories = append(collectorFactories, NewNativeCollector)
+	Factories = append(Factories, NewNativeCollector)
 }
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
-func NewNativeCollector(config config, registry prometheus.Registry) (Collector, error) {
+func NewNativeCollector(config Config, registry prometheus.Registry) (Collector, error) {
 	c := nativeCollector{
 		name:       "native_collector",
 		config:     config,
@@ -160,7 +161,7 @@ func (c *nativeCollector) Update() (updates int, err error) {
 			updates++
 			fv, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return updates, fmt.Errorf("Invalid value in interrupts: %s", fv, err)
+				return updates, fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
 			}
 			labels := map[string]string{
 				"CPU":     strconv.Itoa(cpuNo),
