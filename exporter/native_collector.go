@@ -20,6 +20,17 @@ const (
 	procMemInfo    = "/proc/meminfo"
 	procInterrupts = "/proc/interrupts"
 	procNetDev     = "/proc/net/dev"
+	procDiskStats  = "/proc/diskstats"
+)
+
+var (
+	diskStatsHeader = []string{
+		"reads_completed", "reads_merged",
+		"sectors_read", "read_time_ms",
+		"writes_completed", "writes_merged",
+		"sectors_written", "write_time_ms",
+		"io_now", "io_time_ms", "io_time_weighted",
+	}
 )
 
 type nativeCollector struct {
@@ -29,6 +40,7 @@ type nativeCollector struct {
 	memInfo    prometheus.Gauge
 	interrupts prometheus.Counter
 	netStats   prometheus.Counter
+	diskStats  prometheus.Counter
 	name       string
 	config     config
 }
@@ -49,6 +61,7 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		memInfo:    prometheus.NewGauge(),
 		interrupts: prometheus.NewCounter(),
 		netStats:   prometheus.NewCounter(),
+		diskStats:  prometheus.NewCounter(),
 	}
 
 	registry.Register(
@@ -93,6 +106,12 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		c.netStats,
 	)
 
+	registry.Register(
+		"node_disk",
+		"node_exporter: disk stats.",
+		prometheus.NilLabels,
+		c.diskStats,
+	)
 	return &c, nil
 }
 
@@ -172,6 +191,22 @@ func (c *nativeCollector) Update() (updates int, err error) {
 				}
 				c.netStats.Set(labels, v)
 			}
+		}
+	}
+
+	diskStats, err := getDiskStats()
+	if err != nil {
+		return updates, fmt.Errorf("Couldn't get diskstats: %s", err)
+	}
+	for dev, stats := range diskStats {
+		for k, value := range stats {
+			updates++
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return updates, fmt.Errorf("Invalid value %s in diskstats: %s", value, err)
+			}
+			labels := map[string]string{"device": dev, "type": k}
+			c.diskStats.Set(labels, v)
 		}
 	}
 	return updates, err
@@ -354,4 +389,26 @@ func parseNetDevLine(parts []string, header []string) (map[string]string, error)
 		devStats[header[i]] = v
 	}
 	return devStats, nil
+}
+
+func getDiskStats() (map[string]map[string]string, error) {
+	diskStats := map[string]map[string]string{}
+	fh, err := os.Open(procDiskStats)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	scanner := bufio.NewScanner(fh)
+	for scanner.Scan() {
+		parts := strings.Fields(string(scanner.Text()))
+		if len(parts) != len(diskStatsHeader)+3 { // we strip major, minor and dev
+			return nil, fmt.Errorf("Invalid line in %s: %s", procDiskStats, scanner.Text())
+		}
+		dev := parts[2]
+		diskStats[dev] = map[string]string{}
+		for i, v := range parts[3:] {
+			diskStats[dev][diskStatsHeader[i]] = v
+		}
+	}
+	return diskStats, nil
 }
