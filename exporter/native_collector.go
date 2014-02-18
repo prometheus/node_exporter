@@ -8,6 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -15,13 +16,31 @@ import (
 )
 
 const (
-	procLoad = "/proc/loadavg"
+	procLoad       = "/proc/loadavg"
+	procMemInfo    = "/proc/meminfo"
+	procInterrupts = "/proc/interrupts"
+	procNetDev     = "/proc/net/dev"
+	procDiskStats  = "/proc/diskstats"
+)
+
+var (
+	diskStatsHeader = []string{
+		"reads_completed", "reads_merged",
+		"sectors_read", "read_time_ms",
+		"writes_completed", "writes_merged",
+		"sectors_written", "write_time_ms",
+		"io_now", "io_time_ms", "io_time_weighted",
+	}
 )
 
 type nativeCollector struct {
 	loadAvg    prometheus.Gauge
 	attributes prometheus.Gauge
 	lastSeen   prometheus.Gauge
+	memInfo    prometheus.Gauge
+	interrupts prometheus.Counter
+	netStats   prometheus.Counter
+	diskStats  prometheus.Counter
 	name       string
 	config     config
 }
@@ -39,6 +58,10 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		loadAvg:    prometheus.NewGauge(),
 		attributes: prometheus.NewGauge(),
 		lastSeen:   prometheus.NewGauge(),
+		memInfo:    prometheus.NewGauge(),
+		interrupts: prometheus.NewCounter(),
+		netStats:   prometheus.NewCounter(),
+		diskStats:  prometheus.NewCounter(),
 	}
 
 	registry.Register(
@@ -62,6 +85,33 @@ func NewNativeCollector(config config, registry prometheus.Registry) (Collector,
 		c.attributes,
 	)
 
+	registry.Register(
+		"node_mem",
+		"node_exporter: memory details.",
+		prometheus.NilLabels,
+		c.memInfo,
+	)
+
+	registry.Register(
+		"node_interrupts",
+		"node_exporter: interrupt details.",
+		prometheus.NilLabels,
+		c.interrupts,
+	)
+
+	registry.Register(
+		"node_net",
+		"node_exporter: network stats.",
+		prometheus.NilLabels,
+		c.netStats,
+	)
+
+	registry.Register(
+		"node_disk",
+		"node_exporter: disk stats.",
+		prometheus.NilLabels,
+		c.diskStats,
+	)
 	return &c, nil
 }
 
@@ -71,22 +121,94 @@ func (c *nativeCollector) Update() (updates int, err error) {
 	last, err := getSecondsSinceLastLogin()
 	if err != nil {
 		return updates, fmt.Errorf("Couldn't get last seen: %s", err)
-	} else {
-		updates++
-		debug(c.Name(), "Set node_last_login_seconds: %f", last)
-		c.lastSeen.Set(nil, last)
 	}
+	updates++
+	debug(c.Name(), "Set node_last_login_seconds: %f", last)
+	c.lastSeen.Set(nil, last)
 
 	load, err := getLoad()
 	if err != nil {
 		return updates, fmt.Errorf("Couldn't get load: %s", err)
-	} else {
-		updates++
-		debug(c.Name(), "Set node_load: %f", load)
-		c.loadAvg.Set(nil, load)
 	}
+	updates++
+	debug(c.Name(), "Set node_load: %f", load)
+	c.loadAvg.Set(nil, load)
+
 	debug(c.Name(), "Set node_attributes{%v}: 1", c.config.Attributes)
 	c.attributes.Set(c.config.Attributes, 1)
+
+	memInfo, err := getMemInfo()
+	if err != nil {
+		return updates, fmt.Errorf("Couldn't get meminfo: %s", err)
+	}
+	debug(c.Name(), "Set node_mem: %#v", memInfo)
+	for k, v := range memInfo {
+		updates++
+		fv, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return updates, fmt.Errorf("Invalid value in meminfo: %s", err)
+		}
+		c.memInfo.Set(map[string]string{"type": k}, fv)
+	}
+
+	interrupts, err := getInterrupts()
+	if err != nil {
+		return updates, fmt.Errorf("Couldn't get interrupts: %s", err)
+	}
+	for name, interrupt := range interrupts {
+		for cpuNo, value := range interrupt.values {
+			updates++
+			fv, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return updates, fmt.Errorf("Invalid value in interrupts: %s", fv, err)
+			}
+			labels := map[string]string{
+				"CPU":     strconv.Itoa(cpuNo),
+				"type":    name,
+				"info":    interrupt.info,
+				"devices": interrupt.devices,
+			}
+			c.interrupts.Set(labels, fv)
+		}
+	}
+
+	netStats, err := getNetStats()
+	if err != nil {
+		return updates, fmt.Errorf("Couldn't get netstats: %s", err)
+	}
+	for direction, devStats := range netStats {
+		for dev, stats := range devStats {
+			for t, value := range stats {
+				updates++
+				v, err := strconv.ParseFloat(value, 64)
+				if err != nil {
+					return updates, fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
+				}
+				labels := map[string]string{
+					"device":    dev,
+					"direction": direction,
+					"type":      t,
+				}
+				c.netStats.Set(labels, v)
+			}
+		}
+	}
+
+	diskStats, err := getDiskStats()
+	if err != nil {
+		return updates, fmt.Errorf("Couldn't get diskstats: %s", err)
+	}
+	for dev, stats := range diskStats {
+		for k, value := range stats {
+			updates++
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return updates, fmt.Errorf("Invalid value %s in diskstats: %s", value, err)
+			}
+			labels := map[string]string{"device": dev, "type": k}
+			c.diskStats.Set(labels, v)
+		}
+	}
 	return updates, err
 }
 
@@ -151,4 +273,142 @@ func getSecondsSinceLastLogin() (float64, error) {
 	}
 
 	return float64(time.Now().Sub(last).Seconds()), nil
+}
+
+func getMemInfo() (map[string]string, error) {
+	memInfo := map[string]string{}
+	fh, err := os.Open(procMemInfo)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	scanner := bufio.NewScanner(fh)
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Fields(string(line))
+		key := ""
+		switch len(parts) {
+		case 2: // no unit
+			key = parts[0][:len(parts[0])-1] // remove trailing : from key
+		case 3: // has unit
+			key = fmt.Sprintf("%s_%s", parts[0][:len(parts[0])-1], parts[2])
+		default:
+			return nil, fmt.Errorf("Invalid line in %s: %s", procMemInfo, line)
+		}
+		memInfo[key] = parts[1]
+	}
+	return memInfo, nil
+
+}
+
+type interrupt struct {
+	info    string
+	devices string
+	values  []string
+}
+
+func getInterrupts() (map[string]interrupt, error) {
+	interrupts := map[string]interrupt{}
+	fh, err := os.Open(procInterrupts)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	scanner := bufio.NewScanner(fh)
+	if !scanner.Scan() {
+		return nil, fmt.Errorf("%s empty", procInterrupts)
+	}
+	cpuNum := len(strings.Fields(string(scanner.Text()))) // one header per cpu
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := strings.Fields(string(line))
+		if len(parts) < cpuNum+2 { // irq + one column per cpu + details,
+			continue // we ignore ERR and MIS for now
+		}
+		intName := parts[0][:len(parts[0])-1] // remove trailing :
+		intr := interrupt{
+			values: parts[1:cpuNum],
+		}
+
+		if _, err := strconv.Atoi(intName); err == nil { // numeral interrupt
+			intr.info = parts[cpuNum+1]
+			intr.devices = strings.Join(parts[cpuNum+2:], " ")
+		} else {
+			intr.info = strings.Join(parts[cpuNum+1:], " ")
+		}
+		interrupts[intName] = intr
+	}
+	return interrupts, nil
+}
+
+func getNetStats() (map[string]map[string]map[string]string, error) {
+	netStats := map[string]map[string]map[string]string{}
+	netStats["transmit"] = map[string]map[string]string{}
+	netStats["receive"] = map[string]map[string]string{}
+	fh, err := os.Open(procNetDev)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	scanner := bufio.NewScanner(fh)
+	scanner.Scan() // skip first header
+	scanner.Scan()
+	parts := strings.Split(string(scanner.Text()), "|")
+	if len(parts) != 3 { // interface + receive + transmit
+		return nil, fmt.Errorf("Invalid header line in %s: %s",
+			procNetDev, scanner.Text())
+	}
+	header := strings.Fields(parts[1])
+	for scanner.Scan() {
+		parts := strings.Fields(string(scanner.Text()))
+		if len(parts) != 2*len(header)+1 {
+			return nil, fmt.Errorf("Invalid line in %s: %s",
+				procNetDev, scanner.Text())
+		}
+
+		dev := parts[0][:len(parts[0])-1]
+		receive, err := parseNetDevLine(parts[1:len(header)+1], header)
+		if err != nil {
+			return nil, err
+		}
+
+		transmit, err := parseNetDevLine(parts[len(header)+1:], header)
+		if err != nil {
+			return nil, err
+		}
+		netStats["transmit"][dev] = transmit
+		netStats["receive"][dev] = receive
+	}
+	return netStats, nil
+}
+
+func parseNetDevLine(parts []string, header []string) (map[string]string, error) {
+	devStats := map[string]string{}
+	for i, v := range parts {
+		devStats[header[i]] = v
+	}
+	return devStats, nil
+}
+
+func getDiskStats() (map[string]map[string]string, error) {
+	diskStats := map[string]map[string]string{}
+	fh, err := os.Open(procDiskStats)
+	if err != nil {
+		return nil, err
+	}
+	defer fh.Close()
+	scanner := bufio.NewScanner(fh)
+	for scanner.Scan() {
+		parts := strings.Fields(string(scanner.Text()))
+		if len(parts) != len(diskStatsHeader)+3 { // we strip major, minor and dev
+			return nil, fmt.Errorf("Invalid line in %s: %s", procDiskStats, scanner.Text())
+		}
+		dev := parts[2]
+		diskStats[dev] = map[string]string{}
+		for i, v := range parts[3:] {
+			diskStats[dev][diskStatsHeader[i]] = v
+		}
+	}
+	return diskStats, nil
 }
