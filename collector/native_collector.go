@@ -1,11 +1,10 @@
 // +build !nonative
 
-package exporter
+package collector
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"io/ioutil"
 	"os"
@@ -13,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -42,16 +43,16 @@ type nativeCollector struct {
 	netStats   prometheus.Counter
 	diskStats  prometheus.Counter
 	name       string
-	config     config
+	config     Config
 }
 
 func init() {
-	collectorFactories = append(collectorFactories, NewNativeCollector)
+	Factories = append(Factories, NewNativeCollector)
 }
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
-func NewNativeCollector(config config, registry prometheus.Registry) (Collector, error) {
+func NewNativeCollector(config Config, registry prometheus.Registry) (Collector, error) {
 	c := nativeCollector{
 		name:       "native_collector",
 		config:     config,
@@ -160,7 +161,7 @@ func (c *nativeCollector) Update() (updates int, err error) {
 			updates++
 			fv, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return updates, fmt.Errorf("Invalid value in interrupts: %s", fv, err)
+				return updates, fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
 			}
 			labels := map[string]string{
 				"CPU":     strconv.Itoa(cpuNo),
@@ -217,7 +218,11 @@ func getLoad() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	parts := strings.Fields(string(data))
+	return parseLoad(string(data))
+}
+
+func parseLoad(data string) (float64, error) {
+	parts := strings.Fields(data)
 	load, err := strconv.ParseFloat(parts[0], 64)
 	if err != nil {
 		return 0, fmt.Errorf("Could not parse load '%s': %s", parts[0], err)
@@ -276,13 +281,17 @@ func getSecondsSinceLastLogin() (float64, error) {
 }
 
 func getMemInfo() (map[string]string, error) {
-	memInfo := map[string]string{}
-	fh, err := os.Open(procMemInfo)
+	file, err := os.Open(procMemInfo)
 	if err != nil {
 		return nil, err
 	}
-	defer fh.Close()
-	scanner := bufio.NewScanner(fh)
+	return parseMemInfo(file)
+}
+
+func parseMemInfo(r io.ReadCloser) (map[string]string, error) {
+	defer r.Close()
+	memInfo := map[string]string{}
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Fields(string(line))
@@ -308,13 +317,17 @@ type interrupt struct {
 }
 
 func getInterrupts() (map[string]interrupt, error) {
-	interrupts := map[string]interrupt{}
-	fh, err := os.Open(procInterrupts)
+	file, err := os.Open(procInterrupts)
 	if err != nil {
 		return nil, err
 	}
-	defer fh.Close()
-	scanner := bufio.NewScanner(fh)
+	return parseInterrupts(file)
+}
+
+func parseInterrupts(r io.ReadCloser) (map[string]interrupt, error) {
+	defer r.Close()
+	interrupts := map[string]interrupt{}
+	scanner := bufio.NewScanner(r)
 	if !scanner.Scan() {
 		return nil, fmt.Errorf("%s empty", procInterrupts)
 	}
@@ -343,15 +356,20 @@ func getInterrupts() (map[string]interrupt, error) {
 }
 
 func getNetStats() (map[string]map[string]map[string]string, error) {
-	netStats := map[string]map[string]map[string]string{}
-	netStats["transmit"] = map[string]map[string]string{}
-	netStats["receive"] = map[string]map[string]string{}
-	fh, err := os.Open(procNetDev)
+	file, err := os.Open(procNetDev)
 	if err != nil {
 		return nil, err
 	}
-	defer fh.Close()
-	scanner := bufio.NewScanner(fh)
+	return parseNetStats(file)
+}
+
+func parseNetStats(r io.ReadCloser) (map[string]map[string]map[string]string, error) {
+	defer r.Close()
+	netStats := map[string]map[string]map[string]string{}
+	netStats["transmit"] = map[string]map[string]string{}
+	netStats["receive"] = map[string]map[string]string{}
+
+	scanner := bufio.NewScanner(r)
 	scanner.Scan() // skip first header
 	scanner.Scan()
 	parts := strings.Split(string(scanner.Text()), "|")
@@ -392,13 +410,17 @@ func parseNetDevLine(parts []string, header []string) (map[string]string, error)
 }
 
 func getDiskStats() (map[string]map[string]string, error) {
-	diskStats := map[string]map[string]string{}
-	fh, err := os.Open(procDiskStats)
+	file, err := os.Open(procDiskStats)
 	if err != nil {
 		return nil, err
 	}
-	defer fh.Close()
-	scanner := bufio.NewScanner(fh)
+	return parseDiskStats(file)
+}
+
+func parseDiskStats(r io.ReadCloser) (map[string]map[string]string, error) {
+	defer r.Close()
+	diskStats := map[string]map[string]string{}
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		parts := strings.Fields(string(scanner.Text()))
 		if len(parts) != len(diskStatsHeader)+3 { // we strip major, minor and dev

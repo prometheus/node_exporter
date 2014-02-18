@@ -1,6 +1,6 @@
 // +build runit
 
-package exporter
+package collector
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
@@ -9,17 +9,17 @@ import (
 
 type runitCollector struct {
 	name         string
-	config       config
+	config       Config
 	state        prometheus.Gauge
 	stateDesired prometheus.Gauge
 	stateNormal  prometheus.Gauge
 }
 
 func init() {
-	collectorFactories = append(collectorFactories, NewRunitCollector)
+	Factories = append(Factories, NewRunitCollector)
 }
 
-func NewRunitCollector(config config, registry prometheus.Registry) (Collector, error) {
+func NewRunitCollector(config Config, registry prometheus.Registry) (Collector, error) {
 	c := runitCollector{
 		name:         "runit_collector",
 		config:       config,
