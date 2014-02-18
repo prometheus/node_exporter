@@ -1,0 +1,8 @@
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+  tun0:    1888      24    0    0    0     0          0         0    67120     934    0    0    0     0       0          0
+veth4B09XN:     648       8    0    0    0     0          0         0  1943284   10640    0    0    0     0       0          0
+    lo: 435303245 1832522    0    0    0     0          0         0 435303245 1832522    0    0    0     0       0          0
+lxcbr0:       0       0    0    0    0     0          0         0  2630299   28339    0    0    0     0       0          0
+ wlan0: 10437182923 13899359    0    0    0     0          0         0 2851649360 11726200    0    0    0     0       0          0
+docker0: 64910168 1065585    0    0    0     0          0         0 2681662018 1929779    0    0    0     0       0          0

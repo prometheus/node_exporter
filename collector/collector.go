@@ -12,7 +12,7 @@ type Collector interface {
 	// Get new metrics and expose them via prometheus registry.
 	Update() (n int, err error)
 
-	// Returns the name of the collector
+	// Returns the name of the collector.
 	Name() string
 }
 

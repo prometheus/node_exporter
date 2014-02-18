@@ -58,7 +58,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("Couldn't load config and collectors: %s", err)
 			}
-			log.Printf("Reload collectors and config")
+			log.Printf("Reloaded collectors and config")
 			tick = time.Tick(*interval)
 
 		case <-tick:
