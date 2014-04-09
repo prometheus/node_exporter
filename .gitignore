@@ -21,3 +21,5 @@ _testmain.go
 
 *.exe
 node_exporter
+.deps
+*.tar.gz
