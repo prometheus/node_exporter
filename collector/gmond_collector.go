@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	gangliaAddress = "127.0.0.1:8649"
-	gangliaProto   = "tcp"
-	gangliaTimeout = 30 * time.Second
+	gangliaAddress       = "127.0.0.1:8649"
+	gangliaProto         = "tcp"
+	gangliaTimeout       = 30 * time.Second
+	gangliaMetricsPrefix = "ganglia_"
 )
 
 type gmondCollector struct {
@@ -93,7 +94,7 @@ func (c *gmondCollector) Update() (updates int, err error) {
 		for _, host := range cluster.Hosts {
 
 			for _, metric := range host.Metrics {
-				name := illegalCharsRE.ReplaceAllString(metric.Name, "_")
+				name := gangliaMetricsPrefix + illegalCharsRE.ReplaceAllString(metric.Name, "_")
 
 				var labels = map[string]string{
 					"cluster": cluster.Name,
