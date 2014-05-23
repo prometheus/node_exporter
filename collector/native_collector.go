@@ -34,17 +34,17 @@ type diskStat struct {
 var (
 	// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 	diskStatsMetrics = []diskStat{
-		{"reads_completed", prometheus.NewCounter(), "# of reads completed"},
-		{"reads_merged", prometheus.NewCounter(), "# of reads merged"},
-		{"sectors_read", prometheus.NewCounter(), "# of sectors read"},
-		{"read_time_ms", prometheus.NewCounter(), "# of milliseconds spent reading"},
-		{"writes_completed", prometheus.NewCounter(), "# of writes completed"},
-		{"writes_merged", prometheus.NewCounter(), "# of writes merges"},
-		{"sectors_written", prometheus.NewCounter(), "# of sectors written"},
-		{"write_time_ms", prometheus.NewCounter(), "# of milliseconds spent writing"},
-		{"io_now", prometheus.NewGauge(), "# of I/Os currently in progress"},
-		{"io_time_ms", prometheus.NewCounter(), "# of milliseconds spent doing I/Os"},
-		{"io_time_weighted", prometheus.NewCounter(), "weighted # of milliseconds spent doing I/Os"},
+		{"reads_completed", prometheus.NewCounter(), "The total number of reads completed successfully."},
+		{"reads_merged", prometheus.NewCounter(), "The number of reads merged. Reads and writes which are adjacent to each other may be merged for efficiency. Thus two 4K reads may become one 8K read before it is ultimately handed to the disk, and so it will be counted (and queued) as only one I/O. This metric lets you know how often this was done."},
+		{"sectors_read", prometheus.NewCounter(), "The total number of sectors read successfully."},
+		{"read_time_ms", prometheus.NewCounter(), "the total number of milliseconds spent by all reads (as measured from __make_request() to end_that_request_last())."},
+		{"writes_completed", prometheus.NewCounter(), "The total number of writes completed successfully."},
+		{"writes_merged", prometheus.NewCounter(), "The number of writes merged. Reads and writes which are adjacent to each other may be merged for efficiency. Thus two 4K reads may become one 8K read before it is ultimately handed to the disk, and so it will be counted (and queued) as only one I/O. This metric lets you know how often this was done."},
+		{"sectors_written", prometheus.NewCounter(), "The total number of sectors written successfully."},
+		{"write_time_ms", prometheus.NewCounter(), "This is the total number of milliseconds spent by all writes (as measured from __make_request() to end_that_request_last())."},
+		{"io_now", prometheus.NewGauge(), "The number of I/Os currently in progress. Incremented as requests are given to appropriate struct request_queue and decremented as they finish."},
+		{"io_time_ms", prometheus.NewCounter(), "Milliseconds spent doing I/Os. This metric increases so long as node_disk_io_now is nonzero."},
+		{"io_time_weighted", prometheus.NewCounter(), "The weighted # of milliseconds spent doing I/Os. This metric is incremented at each I/O start, I/O completion, I/O merge, or read of these stats by the number of I/Os in progress (node_disk_io_now) times the number of milliseconds spent doing I/O since the last update of this field.  This can provide an easy measure of both I/O completion time and the backlog that may be accumulating."},
 	}
 	lastSeen         = prometheus.NewGauge()
 	load1            = prometheus.NewGauge()
@@ -82,7 +82,7 @@ func NewNativeCollector(config Config, registry prometheus.Registry) (Collector,
 
 	registry.Register(
 		"node_last_login_time",
-		"The time of the last login",
+		"The time of the last login.",
 		prometheus.NilLabels,
 		lastSeen,
 	)
