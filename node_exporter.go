@@ -50,6 +50,9 @@ func main() {
 
 	go serveStatus(registry)
 
+	log.Printf("Starting initial collection")
+	collect(collectors)
+
 	tick := time.Tick(*interval)
 	for {
 		select {
@@ -63,15 +66,7 @@ func main() {
 
 		case <-tick:
 			log.Printf("Starting new interval")
-			wg := sync.WaitGroup{}
-			wg.Add(len(collectors))
-			for _, c := range collectors {
-				go func(c collector.Collector) {
-					Execute(c)
-					wg.Done()
-				}(c)
-			}
-			wg.Wait()
+			collect(collectors)
 
 		case <-sigUsr1:
 			log.Printf("got signal")
@@ -118,6 +113,18 @@ func getConfig(file string) (*collector.Config, error) {
 func serveStatus(registry prometheus.Registry) {
 	exp.Handle(prometheus.ExpositionResource, registry.Handler())
 	http.ListenAndServe(*listeningAddress, exp.DefaultCoarseMux)
+}
+
+func collect(collectors []collector.Collector) {
+	wg := sync.WaitGroup{}
+	wg.Add(len(collectors))
+	for _, c := range collectors {
+		go func(c collector.Collector) {
+			Execute(c)
+			wg.Done()
+		}(c)
+	}
+	wg.Wait()
 }
 
 func Execute(c collector.Collector) {
