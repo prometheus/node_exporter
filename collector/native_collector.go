@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -24,26 +25,39 @@ const (
 	procDiskStats  = "/proc/diskstats"
 )
 
+type diskStat struct {
+	name          string
+	metric        prometheus.Metric
+	documentation string
+}
+
 var (
-	diskStatsHeader = []string{
-		"reads_completed", "reads_merged",
-		"sectors_read", "read_time_ms",
-		"writes_completed", "writes_merged",
-		"sectors_written", "write_time_ms",
-		"io_now", "io_time_ms", "io_time_weighted",
+	// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
+	diskStatsMetrics = []diskStat{
+		{"reads_completed", prometheus.NewCounter(), "# of reads completed"},
+		{"reads_merged", prometheus.NewCounter(), "# of reads merged"},
+		{"sectors_read", prometheus.NewCounter(), "# of sectors read"},
+		{"read_time_ms", prometheus.NewCounter(), "# of milliseconds spent reading"},
+		{"writes_completed", prometheus.NewCounter(), "# of writes completed"},
+		{"writes_merged", prometheus.NewCounter(), "# of writes merges"},
+		{"sectors_written", prometheus.NewCounter(), "# of sectors written"},
+		{"write_time_ms", prometheus.NewCounter(), "# of milliseconds spent writing"},
+		{"io_now", prometheus.NewGauge(), "# of I/Os currently in progress"},
+		{"io_time_ms", prometheus.NewCounter(), "# of milliseconds spent doing I/Os"},
+		{"io_time_weighted", prometheus.NewCounter(), "weighted # of milliseconds spent doing I/Os"},
 	}
+	lastSeen         = prometheus.NewGauge()
+	load1            = prometheus.NewGauge()
+	attributes       = prometheus.NewGauge()
+	memInfoMetrics   = map[string]prometheus.Gauge{}
+	netStatsMetrics  = map[string]prometheus.Gauge{}
+	interruptsMetric = prometheus.NewCounter()
 )
 
 type nativeCollector struct {
-	loadAvg    prometheus.Gauge
-	attributes prometheus.Gauge
-	lastSeen   prometheus.Gauge
-	memInfo    prometheus.Gauge
-	interrupts prometheus.Counter
-	netStats   prometheus.Counter
-	diskStats  prometheus.Counter
-	name       string
-	config     Config
+	registry prometheus.Registry
+	name     string
+	config   Config
 }
 
 func init() {
@@ -54,89 +68,71 @@ func init() {
 // load, seconds since last login and a list of tags as specified by config.
 func NewNativeCollector(config Config, registry prometheus.Registry) (Collector, error) {
 	c := nativeCollector{
-		name:       "native_collector",
-		config:     config,
-		loadAvg:    prometheus.NewGauge(),
-		attributes: prometheus.NewGauge(),
-		lastSeen:   prometheus.NewGauge(),
-		memInfo:    prometheus.NewGauge(),
-		interrupts: prometheus.NewCounter(),
-		netStats:   prometheus.NewCounter(),
-		diskStats:  prometheus.NewCounter(),
+		name:     "native_collector",
+		config:   config,
+		registry: registry,
 	}
 
 	registry.Register(
-		"node_load",
-		"node_exporter: system load.",
+		"node_load1",
+		"1m load average",
 		prometheus.NilLabels,
-		c.loadAvg,
+		load1,
 	)
 
 	registry.Register(
-		"node_last_login_seconds",
-		"node_exporter: seconds since last login.",
+		"node_last_login_time",
+		"The time of the last login",
 		prometheus.NilLabels,
-		c.lastSeen,
+		lastSeen,
 	)
 
 	registry.Register(
 		"node_attributes",
-		"node_exporter: system attributes.",
+		"node_exporter attributes",
 		prometheus.NilLabels,
-		c.attributes,
-	)
-
-	registry.Register(
-		"node_mem",
-		"node_exporter: memory details.",
-		prometheus.NilLabels,
-		c.memInfo,
+		attributes,
 	)
 
 	registry.Register(
 		"node_interrupts",
-		"node_exporter: interrupt details.",
+		"Interrupt details from /proc/interrupts",
 		prometheus.NilLabels,
-		c.interrupts,
+		interruptsMetric,
 	)
 
-	registry.Register(
-		"node_net",
-		"node_exporter: network stats.",
-		prometheus.NilLabels,
-		c.netStats,
-	)
-
-	registry.Register(
-		"node_disk",
-		"node_exporter: disk stats.",
-		prometheus.NilLabels,
-		c.diskStats,
-	)
+	for _, v := range diskStatsMetrics {
+		registry.Register(
+			"node_disk_"+v.name,
+			v.documentation,
+			prometheus.NilLabels,
+			v.metric,
+		)
+	}
 	return &c, nil
 }
 
 func (c *nativeCollector) Name() string { return c.name }
 
 func (c *nativeCollector) Update() (updates int, err error) {
-	last, err := getSecondsSinceLastLogin()
+	last, err := getLastLoginTime()
 	if err != nil {
 		return updates, fmt.Errorf("Couldn't get last seen: %s", err)
 	}
 	updates++
-	debug(c.Name(), "Set node_last_login_seconds: %f", last)
-	c.lastSeen.Set(nil, last)
+	debug(c.Name(), "Set node_last_login_time: %f", last)
+	lastSeen.Set(nil, last)
 
-	load, err := getLoad()
+	load, err := getLoad1()
 	if err != nil {
 		return updates, fmt.Errorf("Couldn't get load: %s", err)
 	}
 	updates++
 	debug(c.Name(), "Set node_load: %f", load)
-	c.loadAvg.Set(nil, load)
+	load1.Set(nil, load)
 
 	debug(c.Name(), "Set node_attributes{%v}: 1", c.config.Attributes)
-	c.attributes.Set(c.config.Attributes, 1)
+	attributes.Set(c.config.Attributes, 1)
 
 	memInfo, err := getMemInfo()
 	if err != nil {
@@ -144,12 +140,17 @@ func (c *nativeCollector) Update() (updates int, err error) {
 	}
 	debug(c.Name(), "Set node_mem: %#v", memInfo)
 	for k, v := range memInfo {
-		updates++
-		fv, err := strconv.ParseFloat(v, 64)
-		if err != nil {
-			return updates, fmt.Errorf("Invalid value in meminfo: %s", err)
+		if _, ok := memInfoMetrics[k]; !ok {
+			memInfoMetrics[k] = prometheus.NewGauge()
+			c.registry.Register(
+				"node_memory_"+k,
+				k+" from /proc/meminfo",
+				prometheus.NilLabels,
+				memInfoMetrics[k],
+			)
 		}
-		c.memInfo.Set(map[string]string{"type": k}, fv)
+		updates++
+		memInfoMetrics[k].Set(nil, v)
 	}
 
 	interrupts, err := getInterrupts()
@@ -169,7 +170,7 @@ func (c *nativeCollector) Update() (updates int, err error) {
 				"info":    interrupt.info,
 				"devices": interrupt.devices,
 			}
-			c.interrupts.Set(labels, fv)
+			interruptsMetric.Set(labels, fv)
 		}
 	}
 
@@ -180,17 +181,22 @@ func (c *nativeCollector) Update() (updates int, err error) {
 	for direction, devStats := range netStats {
 		for dev, stats := range devStats {
 			for t, value := range stats {
+				key := direction + "_" + t
+				if _, ok := netStatsMetrics[key]; !ok {
+					netStatsMetrics[key] = prometheus.NewGauge()
+					c.registry.Register(
+						"node_network_"+key,
+						t+" "+direction+" from /proc/net/dev",
+						prometheus.NilLabels,
+						netStatsMetrics[key],
+					)
+				}
 				updates++
 				v, err := strconv.ParseFloat(value, 64)
 				if err != nil {
-					return updates, fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
+					return updates, fmt.Errorf("Invalid value %s in netstats: %s", value, err)
 				}
-				labels := map[string]string{
-					"device":    dev,
-					"direction": direction,
-					"type":      t,
-				}
-				c.netStats.Set(labels, v)
+				netStatsMetrics[key].Set(map[string]string{"device": dev}, v)
 			}
 		}
 	}
@@ -206,14 +212,20 @@ func (c *nativeCollector) Update() (updates int, err error) {
 			if err != nil {
 				return updates, fmt.Errorf("Invalid value %s in diskstats: %s", value, err)
 			}
-			labels := map[string]string{"device": dev, "type": k}
-			c.diskStats.Set(labels, v)
+			labels := map[string]string{"device": dev}
+			counter, ok := diskStatsMetrics[k].metric.(prometheus.Counter)
+			if ok {
+				counter.Set(labels, v)
+			} else {
+				var gauge = diskStatsMetrics[k].metric.(prometheus.Gauge)
+				gauge.Set(labels, v)
+			}
 		}
 	}
 	return updates, err
 }
 
-func getLoad() (float64, error) {
+func getLoad1() (float64, error) {
 	data, err := ioutil.ReadFile(procLoad)
 	if err != nil {
 		return 0, err
@@ -230,7 +242,7 @@ func parseLoad(data string) (float64, error) {
 	return load, nil
 }
 
-func getSecondsSinceLastLogin() (float64, error) {
+func getLastLoginTime() (float64, error) {
 	who := exec.Command("who", "/var/log/wtmp", "-l", "-u", "-s")
 
 	output, err := who.StdoutPipe()
@@ -277,10 +289,10 @@ func getSecondsSinceLastLogin() (float64, error) {
 		return 0, err
 	}
 
-	return float64(time.Now().Sub(last).Seconds()), nil
+	return float64(last.Unix()), nil
 }
 
-func getMemInfo() (map[string]string, error) {
+func getMemInfo() (map[string]float64, error) {
 	file, err := os.Open(procMemInfo)
 	if err != nil {
 		return nil, err
@@ -288,23 +300,29 @@ func getMemInfo() (map[string]string, error) {
 	return parseMemInfo(file)
 }
 
-func parseMemInfo(r io.ReadCloser) (map[string]string, error) {
+func parseMemInfo(r io.ReadCloser) (map[string]float64, error) {
 	defer r.Close()
-	memInfo := map[string]string{}
+	memInfo := map[string]float64{}
 	scanner := bufio.NewScanner(r)
+	re := regexp.MustCompile("\\((.*)\\)")
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Fields(string(line))
-		key := ""
+		fv, err := strconv.ParseFloat(parts[1], 64)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid value in meminfo: %s", err)
+		}
 		switch len(parts) {
 		case 2: // no unit
-			key = parts[0][:len(parts[0])-1] // remove trailing : from key
-		case 3: // has unit
-			key = fmt.Sprintf("%s_%s", parts[0][:len(parts[0])-1], parts[2])
+		case 3: // has unit, we presume kB
+			fv *= 1024
 		default:
 			return nil, fmt.Errorf("Invalid line in %s: %s", procMemInfo, line)
 		}
-		memInfo[key] = parts[1]
+		key := parts[0][:len(parts[0])-1] // remove trailing : from key
+		// Active(anon) -> Active_anon
+		key = re.ReplaceAllString(key, "_${1}")
+		memInfo[key] = fv
 	}
 	return memInfo, nil
 
@@ -409,7 +427,7 @@ func parseNetDevLine(parts []string, header []string) (map[string]string, error)
 	return devStats, nil
 }
 
-func getDiskStats() (map[string]map[string]string, error) {
+func getDiskStats() (map[string]map[int]string, error) {
 	file, err := os.Open(procDiskStats)
 	if err != nil {
 		return nil, err
@@ -417,19 +435,19 @@ func getDiskStats() (map[string]map[string]string, error) {
 	return parseDiskStats(file)
 }
 
-func parseDiskStats(r io.ReadCloser) (map[string]map[string]string, error) {
+func parseDiskStats(r io.ReadCloser) (map[string]map[int]string, error) {
 	defer r.Close()
-	diskStats := map[string]map[string]string{}
+	diskStats := map[string]map[int]string{}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		parts := strings.Fields(string(scanner.Text()))
-		if len(parts) != len(diskStatsHeader)+3 { // we strip major, minor and dev
+		if len(parts) != len(diskStatsMetrics)+3 { // we strip major, minor and dev
 			return nil, fmt.Errorf("Invalid line in %s: %s", procDiskStats, scanner.Text())
 		}
 		dev := parts[2]
-		diskStats[dev] = map[string]string{}
+		diskStats[dev] = map[int]string{}
 		for i, v := range parts[3:] {
-			diskStats[dev][diskStatsHeader[i]] = v
+			diskStats[dev][i] = v
 		}
 	}
 	return diskStats, nil
