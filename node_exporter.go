@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -24,7 +25,8 @@ var (
 	configFile        = flag.String("config", "node_exporter.conf", "config file.")
 	memProfile        = flag.String("memprofile", "", "write memory profile to this file")
 	listeningAddress  = flag.String("listen", ":8080", "address to listen on")
-	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,loadavg,meminfo,netdev", "comma seperated list of collectors to use")
+	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,loadavg,meminfo,netdev", "comma-seperated list of collectors to use")
+	printCollectors   = flag.Bool("printCollectors", false, "If true, print available collectors and exit")
 	interval          = flag.Duration("interval", 60*time.Second, "refresh interval")
 	scrapeDurations   = prometheus.NewDefaultHistogram()
 	metricsUpdated    = prometheus.NewGauge()
@@ -32,6 +34,13 @@ var (
 
 func main() {
 	flag.Parse()
+	if *printCollectors {
+		fmt.Printf("Available collectors:\n")
+		for n, _ := range collector.Factories {
+			fmt.Printf(" - %s\n", n)
+		}
+		return
+	}
 	registry := prometheus.NewRegistry()
 	collectors, err := loadCollectors(*configFile, registry)
 	if err != nil {
