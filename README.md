@@ -14,7 +14,7 @@ To include other collectors, specify the build tags lile this:
     go build -tags 'ganglia runit' node_exporter.go
 
 
-Which collectors are used is controled by the --enabledCollectors flag.
+Which collectors are used is controlled by the --enabledCollectors flag.
 
 ### NativeCollector
 
