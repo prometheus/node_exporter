@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/node_exporter/collector/ganglia"
 )
@@ -23,14 +24,13 @@ const (
 )
 
 type gmondCollector struct {
-	name     string
 	Metrics  map[string]prometheus.Gauge
 	config   Config
 	registry prometheus.Registry
 }
 
 func init() {
-	Factories = append(Factories, NewGmondCollector)
+	Factories["gmond"] = NewGmondCollector
 }
 
 var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
@@ -38,7 +38,6 @@ var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 // Takes a config struct and prometheus registry and returns a new Collector scraping ganglia.
 func NewGmondCollector(config Config, registry prometheus.Registry) (Collector, error) {
 	c := gmondCollector{
-		name:     "gmond_collector",
 		config:   config,
 		Metrics:  make(map[string]prometheus.Gauge),
 		registry: registry,
@@ -46,8 +45,6 @@ func NewGmondCollector(config Config, registry prometheus.Registry) (Collector, 
 
 	return &c, nil
 }
-
-func (c *gmondCollector) Name() string { return c.name }
 
 func (c *gmondCollector) setMetric(name string, labels map[string]string, metric ganglia.Metric) {
 	if _, ok := c.Metrics[name]; !ok {
@@ -64,18 +61,18 @@ func (c *gmondCollector) setMetric(name string, labels map[string]string, metric
 				break
 			}
 		}
-		debug(c.Name(), "Register %s: %s", name, desc)
+		glog.V(1).Infof("Register %s: %s", name, desc)
 		gauge := prometheus.NewGauge()
 		c.Metrics[name] = gauge
 		c.registry.Register(name, desc, prometheus.NilLabels, gauge) // one gauge per metric!
 	}
-	debug(c.Name(), "Set %s{%s}: %f", name, labels, metric.Value)
+	glog.V(1).Infof("Set %s{%s}: %f", name, labels, metric.Value)
 	c.Metrics[name].Set(labels, metric.Value)
 }
 
 func (c *gmondCollector) Update() (updates int, err error) {
 	conn, err := net.Dial(gangliaProto, gangliaAddress)
-	debug(c.Name(), "gmondCollector Update")
+	glog.V(1).Infof("gmondCollector Update")
 	if err != nil {
 		return updates, fmt.Errorf("Can't connect to gmond: %s", err)
 	}

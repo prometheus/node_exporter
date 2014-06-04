@@ -3,12 +3,12 @@
 package collector
 
 import (
+	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/soundcloud/go-runit/runit"
 )
 
 type runitCollector struct {
-	name         string
 	config       Config
 	state        prometheus.Gauge
 	stateDesired prometheus.Gauge
@@ -16,12 +16,11 @@ type runitCollector struct {
 }
 
 func init() {
-	Factories = append(Factories, NewRunitCollector)
+	Factories["runit"] = NewRunitCollector
 }
 
 func NewRunitCollector(config Config, registry prometheus.Registry) (Collector, error) {
 	c := runitCollector{
-		name:         "runit_collector",
 		config:       config,
 		state:        prometheus.NewGauge(),
 		stateDesired: prometheus.NewGauge(),
@@ -52,8 +51,6 @@ func NewRunitCollector(config Config, registry prometheus.Registry) (Collector, 
 	return &c, nil
 }
 
-func (c *runitCollector) Name() string { return c.name }
-
 func (c *runitCollector) Update() (updates int, err error) {
 	services, err := runit.GetServices("/etc/service")
 	if err != nil {
@@ -63,11 +60,11 @@ func (c *runitCollector) Update() (updates int, err error) {
 	for _, service := range services {
 		status, err := service.Status()
 		if err != nil {
-			debug(c.Name(), "Couldn't get status for %s: %s, skipping...", service.Name, err)
+			glog.V(1).Infof("Couldn't get status for %s: %s, skipping...", service.Name, err)
 			continue
 		}
 
-		debug(c.Name(), "%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
+		glog.V(1).Infof("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
 		labels := map[string]string{
 			"service": service.Name,
 		}
