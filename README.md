@@ -1,24 +1,25 @@
 # node_exporter
 
-Prometheus exporter with plugable metric collectors.
+Prometheus exporter with pluggable metric collectors.
 
 
 
 ## Available collectors
 
-By default it will only include the NativeCollector.
+By default the build will only include the native collectors
+that expose information from /proc.
 
 To include other collectors, specify the build tags lile this:
 
     go build -tags 'ganglia runit' node_exporter.go
 
 
+Which collectors are used is controlled by the --enabledCollectors flag.
+
 ### NativeCollector
 
 Provides metrics for load, seconds since last login and a list of tags
 read from `node_exporter.conf`.
-
-To disable the native collector, use build tag `nonative`.
 
 
 ### GmondCollector (tag: ganglia)
