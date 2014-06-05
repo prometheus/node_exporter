@@ -27,7 +27,7 @@ type diskStat struct {
 }
 
 var (
-	ignoredDevices = flag.String("diskstatsIgnoredDevices", "^(ram|loop|[hs]d[a-z])\\d+$", "Regexp of devices to ignore for diskstats.")
+	ignoredDevices = flag.String("diskstatsIgnoredDevices", "^(ram|loop|(h|s|xv)d[a-z])\\d+$", "Regexp of devices to ignore for diskstats.")
 
 	// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 	diskStatsMetrics = []diskStat{
