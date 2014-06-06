@@ -11,6 +11,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+/*
+#include <unistd.h>
+*/
+import "C"
+
 const (
 	procStat = "/proc/stat"
 )
@@ -99,7 +104,7 @@ func (c *statCollector) Update() (updates int, err error) {
 		parts := strings.Fields(scanner.Text())
 		switch {
 		case strings.HasPrefix(parts[0], "cpu"):
-			// Export only per-cpu stats, it can be aggregted up in prometheus.
+			// Export only per-cpu stats, it can be aggregated up in prometheus.
 			if parts[0] == "cpu" {
 				break
 			}
@@ -110,7 +115,8 @@ func (c *statCollector) Update() (updates int, err error) {
 				if err != nil {
 					return updates, err
 				}
-				value /= 100 // Convert from ticks to seconds
+                                // Convert from ticks to seconds
+				value /= float64(C.sysconf(C._SC_CLK_TCK))
 				cpuMetrics.Set(map[string]string{"cpu": parts[0], "mode": cpuFields[i]}, value)
 			}
 		case parts[0] == "intr":
