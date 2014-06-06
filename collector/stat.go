@@ -11,9 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-/*
-#include <unistd.h>
-*/
+// #include <unistd.h>
 import "C"
 
 const (
