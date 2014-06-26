@@ -8,45 +8,57 @@ import (
 	"github.com/soundcloud/go-runit/runit"
 )
 
+var (
+	runitLabelNames = []string{"service"}
+
+	runitState = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "service_state",
+			Help:      "node_exporter: state of runit service.",
+		},
+		runitLabelNames,
+	)
+	runitStateDesired = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "service_desired_state",
+			Help:      "node_exporter: desired state of runit service.",
+		},
+		runitLabelNames,
+	)
+	runitStateNormal = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "service_normal_state",
+			Help:      "node_exporter: normal state of runit service.",
+		},
+		runitLabelNames,
+	)
+)
+
 type runitCollector struct {
-	config       Config
-	state        prometheus.Gauge
-	stateDesired prometheus.Gauge
-	stateNormal  prometheus.Gauge
+	config Config
 }
 
 func init() {
 	Factories["runit"] = NewRunitCollector
 }
 
-func NewRunitCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewRunitCollector(config Config) (Collector, error) {
 	c := runitCollector{
-		config:       config,
-		state:        prometheus.NewGauge(),
-		stateDesired: prometheus.NewGauge(),
-		stateNormal:  prometheus.NewGauge(),
+		config: config,
 	}
 
-	registry.Register(
-		"node_service_state",
-		"node_exporter: state of runit service.",
-		prometheus.NilLabels,
-		c.state,
-	)
-
-	registry.Register(
-		"node_service_desired_state",
-		"node_exporter: desired state of runit service.",
-		prometheus.NilLabels,
-		c.stateDesired,
-	)
-
-	registry.Register(
-		"node_service_normal_state",
-		"node_exporter: normal state of runit service.",
-		prometheus.NilLabels,
-		c.stateNormal,
-	)
+	if _, err := prometheus.RegisterOrGet(runitState); err != nil {
+		return nil, err
+	}
+	if _, err := prometheus.RegisterOrGet(runitStateDesired); err != nil {
+		return nil, err
+	}
+	if _, err := prometheus.RegisterOrGet(runitStateNormal); err != nil {
+		return nil, err
+	}
 
 	return &c, nil
 }
@@ -65,16 +77,12 @@ func (c *runitCollector) Update() (updates int, err error) {
 		}
 
 		glog.V(1).Infof("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
-		labels := map[string]string{
-			"service": service.Name,
-		}
-
-		c.state.Set(labels, float64(status.State))
-		c.stateDesired.Set(labels, float64(status.Want))
+		runitState.WithLabelValues(service.Name).Set(float64(status.State))
+		runitStateDesired.WithLabelValues(service.Name).Set(float64(status.Want))
 		if status.NormallyUp {
-			c.stateNormal.Set(labels, 1)
+			runitStateNormal.WithLabelValues(service.Name).Set(1)
 		} else {
-			c.stateNormal.Set(labels, 1)
+			runitStateNormal.WithLabelValues(service.Name).Set(1)
 		}
 		updates += 3
 	}

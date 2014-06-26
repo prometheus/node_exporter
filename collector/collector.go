@@ -11,6 +11,12 @@ type Collector interface {
 	Update() (n int, err error)
 }
 
+// TODO: Instead of periodically call Update, a Collector could be implemented
+// as a real prometheus.Collector that only gathers metrics when
+// scraped. (However, for metric gathering that takes very long, it might
+// actually be better to do them proactively before scraping to minimize scrape
+// time.)
+
 type Config struct {
 	Attributes map[string]string `json:"attributes"`
 }
