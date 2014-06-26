@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	procMemInfo = "/proc/meminfo"
+	procMemInfo      = "/proc/meminfo"
+	memInfoSubsystem = "memory"
 )
 
 var (
@@ -24,8 +25,7 @@ var (
 )
 
 type meminfoCollector struct {
-	registry prometheus.Registry
-	config   Config
+	config Config
 }
 
 func init() {
@@ -34,10 +34,9 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // memory stats.
-func NewMeminfoCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewMeminfoCollector(config Config) (Collector, error) {
 	c := meminfoCollector{
-		config:   config,
-		registry: registry,
+		config: config,
 	}
 	return &c, nil
 }
@@ -50,16 +49,16 @@ func (c *meminfoCollector) Update() (updates int, err error) {
 	glog.V(1).Infof("Set node_mem: %#v", memInfo)
 	for k, v := range memInfo {
 		if _, ok := memInfoMetrics[k]; !ok {
-			memInfoMetrics[k] = prometheus.NewGauge()
-			c.registry.Register(
-				"node_memory_"+k,
-				k+" from /proc/meminfo",
-				prometheus.NilLabels,
-				memInfoMetrics[k],
-			)
+			gauge := prometheus.NewGauge(prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Subsystem: memInfoSubsystem,
+				Name:      k,
+				Help:      k + " from /proc/meminfo.",
+			})
+			memInfoMetrics[k] = prometheus.MustRegisterOrGet(gauge).(prometheus.Gauge)
 		}
 		updates++
-		memInfoMetrics[k].Set(nil, v)
+		memInfoMetrics[k].Set(v)
 	}
 	return updates, err
 }

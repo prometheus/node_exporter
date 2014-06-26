@@ -14,13 +14,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+const lastLoginSubsystem = "last_login"
+
 var (
-	lastSeen = prometheus.NewGauge()
+	lastSeen = prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: Namespace,
+		Subsystem: lastLoginSubsystem,
+		Name:      "time",
+		Help:      "The time of the last login.",
+	})
 )
 
 type lastLoginCollector struct {
-	registry prometheus.Registry
-	config   Config
+	config Config
 }
 
 func init() {
@@ -29,17 +35,13 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
-func NewLastLoginCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewLastLoginCollector(config Config) (Collector, error) {
 	c := lastLoginCollector{
-		config:   config,
-		registry: registry,
+		config: config,
 	}
-	registry.Register(
-		"node_last_login_time",
-		"The time of the last login.",
-		prometheus.NilLabels,
-		lastSeen,
-	)
+	if _, err := prometheus.RegisterOrGet(lastSeen); err != nil {
+		return nil, err
+	}
 	return &c, nil
 }
 
@@ -50,7 +52,7 @@ func (c *lastLoginCollector) Update() (updates int, err error) {
 	}
 	updates++
 	glog.V(1).Infof("Set node_last_login_time: %f", last)
-	lastSeen.Set(nil, last)
+	lastSeen.Set(last)
 	return updates, err
 }
 

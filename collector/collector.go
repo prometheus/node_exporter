@@ -1,11 +1,9 @@
 // Exporter is a prometheus exporter using multiple Factories to collect and export system metrics.
 package collector
 
-import (
-	"github.com/prometheus/client_golang/prometheus"
-)
+const Namespace = "node"
 
-var Factories = make(map[string]func(Config, prometheus.Registry) (Collector, error))
+var Factories = make(map[string]func(Config) (Collector, error))
 
 // Interface a collector has to implement.
 type Collector interface {

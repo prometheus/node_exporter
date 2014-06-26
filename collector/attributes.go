@@ -8,12 +8,11 @@ import (
 )
 
 var (
-	attributes = prometheus.NewGauge()
+	attributes *prometheus.GaugeVec
 )
 
 type attributesCollector struct {
-	registry prometheus.Registry
-	config   Config
+	config Config
 }
 
 func init() {
@@ -22,22 +21,33 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // labels from the config.
-func NewAttributesCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewAttributesCollector(config Config) (Collector, error) {
 	c := attributesCollector{
-		config:   config,
-		registry: registry,
+		config: config,
 	}
-	registry.Register(
-		"node_attributes",
-		"node_exporter attributes",
-		prometheus.NilLabels,
-		attributes,
+	labelNames := []string{}
+	for l := range c.config.Attributes {
+		labelNames = append(labelNames, l)
+	}
+	gv := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "attributes",
+			Help:      "The node_exporter attributes.",
+		},
+		labelNames,
 	)
+	collector, err := prometheus.RegisterOrGet(gv)
+	if err != nil {
+		return nil, err
+	}
+	attributes = collector.(*prometheus.GaugeVec)
 	return &c, nil
 }
 
 func (c *attributesCollector) Update() (updates int, err error) {
 	glog.V(1).Info("Set node_attributes{%v}: 1", c.config.Attributes)
-	attributes.Set(c.config.Attributes, 1)
+	attributes.Reset()
+	attributes.With(c.config.Attributes).Set(1)
 	return updates, err
 }

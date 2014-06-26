@@ -11,26 +11,68 @@ import (
 	"strings"
 	"syscall"
 
-        "github.com/golang/glog"
+	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
-	procMounts = "/proc/mounts"
+	procMounts          = "/proc/mounts"
+	filesystemSubsystem = "filesystem"
 )
 
 var (
-	fsSizeMetric      = prometheus.NewGauge()
-	fsFreeMetric      = prometheus.NewGauge()
-	fsAvailMetric     = prometheus.NewGauge()
-	fsFilesMetric     = prometheus.NewGauge()
-	fsFilesFreeMetric = prometheus.NewGauge()
+	filesystemLabelNames = []string{"filesystem"}
+
+	fsSizeMetric = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Subsystem: filesystemSubsystem,
+			Name:      "size",
+			Help:      "Filesystem size in bytes.",
+		},
+		filesystemLabelNames,
+	)
+	fsFreeMetric = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Subsystem: filesystemSubsystem,
+			Name:      "free",
+			Help:      "Filesystem free space in bytes.",
+		},
+		filesystemLabelNames,
+	)
+	fsAvailMetric = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Subsystem: filesystemSubsystem,
+			Name:      "avail",
+			Help:      "Filesystem space available to non-root users in bytes.",
+		},
+		filesystemLabelNames,
+	)
+	fsFilesMetric = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Subsystem: filesystemSubsystem,
+			Name:      "files",
+			Help:      "Filesystem total file nodes.",
+		},
+		filesystemLabelNames,
+	)
+	fsFilesFreeMetric = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Subsystem: filesystemSubsystem,
+			Name:      "files_free",
+			Help:      "Filesystem total free file nodes.",
+		},
+		filesystemLabelNames,
+	)
 
 	ignoredMountPoints = flag.String("filesystemIgnoredMountPoints", "^/(sys|proc|dev)($|/)", "Regexp of mount points to ignore for filesystem collector.")
 )
 
 type filesystemCollector struct {
-	registry                  prometheus.Registry
 	config                    Config
 	ignoredMountPointsPattern *regexp.Regexp
 }
@@ -41,42 +83,26 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // network device filesystems.
-func NewFilesystemCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewFilesystemCollector(config Config) (Collector, error) {
 	c := filesystemCollector{
-		config:                    config,
-		registry:                  registry,
+		config: config,
 		ignoredMountPointsPattern: regexp.MustCompile(*ignoredMountPoints),
 	}
-	registry.Register(
-		"node_filesystem_size",
-		"Filesystem size in bytes.",
-		prometheus.NilLabels,
-		fsSizeMetric,
-	)
-	registry.Register(
-		"node_filesystem_free",
-		"Filesystem free space in bytes.",
-		prometheus.NilLabels,
-		fsFreeMetric,
-	)
-	registry.Register(
-		"node_filesystem_avail",
-		"Filesystem space available to non-root users in bytes.",
-		prometheus.NilLabels,
-		fsAvailMetric,
-	)
-	registry.Register(
-		"node_filesystem_files",
-		"Filesystem total file nodes.",
-		prometheus.NilLabels,
-		fsFilesMetric,
-	)
-	registry.Register(
-		"node_filesystem_files_free",
-		"Filesystem total free file nodes.",
-		prometheus.NilLabels,
-		fsFilesFreeMetric,
-	)
+	if _, err := prometheus.RegisterOrGet(fsSizeMetric); err != nil {
+		return nil, err
+	}
+	if _, err := prometheus.RegisterOrGet(fsFreeMetric); err != nil {
+		return nil, err
+	}
+	if _, err := prometheus.RegisterOrGet(fsAvailMetric); err != nil {
+		return nil, err
+	}
+	if _, err := prometheus.RegisterOrGet(fsFilesMetric); err != nil {
+		return nil, err
+	}
+	if _, err := prometheus.RegisterOrGet(fsFilesFreeMetric); err != nil {
+		return nil, err
+	}
 	return &c, nil
 }
 
@@ -96,11 +122,11 @@ func (c *filesystemCollector) Update() (updates int, err error) {
 		if err != nil {
 			return updates, fmt.Errorf("Statfs on %s returned %s", mp, err)
 		}
-		fsSizeMetric.Set(map[string]string{"filesystem": mp}, float64(buf.Blocks)*float64(buf.Bsize))
-		fsFreeMetric.Set(map[string]string{"filesystem": mp}, float64(buf.Bfree)*float64(buf.Bsize))
-		fsAvailMetric.Set(map[string]string{"filesystem": mp}, float64(buf.Bavail)*float64(buf.Bsize))
-		fsFilesMetric.Set(map[string]string{"filesystem": mp}, float64(buf.Files))
-		fsFilesFreeMetric.Set(map[string]string{"filesystem": mp}, float64(buf.Ffree))
+		fsSizeMetric.WithLabelValues(mp).Set(float64(buf.Blocks) * float64(buf.Bsize))
+		fsFreeMetric.WithLabelValues(mp).Set(float64(buf.Bfree) * float64(buf.Bsize))
+		fsAvailMetric.WithLabelValues(mp).Set(float64(buf.Bavail) * float64(buf.Bsize))
+		fsFilesMetric.WithLabelValues(mp).Set(float64(buf.Files))
+		fsFilesFreeMetric.WithLabelValues(mp).Set(float64(buf.Ffree))
 		updates++
 	}
 	return updates, err
