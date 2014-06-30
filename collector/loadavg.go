@@ -17,12 +17,15 @@ const (
 )
 
 var (
-	load1 = prometheus.NewGauge()
+	load1 = prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: Namespace,
+		Name:      "load1",
+		Help:      "1m load average.",
+	})
 )
 
 type loadavgCollector struct {
-	registry prometheus.Registry
-	config   Config
+	config Config
 }
 
 func init() {
@@ -31,18 +34,14 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
-func NewLoadavgCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewLoadavgCollector(config Config) (Collector, error) {
 	c := loadavgCollector{
-		config:   config,
-		registry: registry,
+		config: config,
 	}
 
-	registry.Register(
-		"node_load1",
-		"1m load average",
-		prometheus.NilLabels,
-		load1,
-	)
+	if _, err := prometheus.RegisterOrGet(load1); err != nil {
+		return nil, err
+	}
 	return &c, nil
 }
 
@@ -53,7 +52,7 @@ func (c *loadavgCollector) Update() (updates int, err error) {
 	}
 	updates++
 	glog.V(1).Infof("Set node_load: %f", load)
-	load1.Set(nil, load)
+	load1.Set(load)
 
 	return updates, err
 }

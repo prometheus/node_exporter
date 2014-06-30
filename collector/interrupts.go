@@ -18,12 +18,18 @@ const (
 )
 
 var (
-	interruptsMetric = prometheus.NewCounter()
+	interruptsMetric = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: Namespace,
+			Name:      "interrupts",
+			Help:      "Interrupt details from /proc/interrupts.",
+		},
+		[]string{"CPU", "type", "info", "devices"},
+	)
 )
 
 type interruptsCollector struct {
-	registry prometheus.Registry
-	config   Config
+	config Config
 }
 
 func init() {
@@ -32,17 +38,13 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // interrupts stats
-func NewInterruptsCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewInterruptsCollector(config Config) (Collector, error) {
 	c := interruptsCollector{
-		config:   config,
-		registry: registry,
+		config: config,
 	}
-	registry.Register(
-		"node_interrupts",
-		"Interrupt details from /proc/interrupts",
-		prometheus.NilLabels,
-		interruptsMetric,
-	)
+	if _, err := prometheus.RegisterOrGet(interruptsMetric); err != nil {
+		return nil, err
+	}
 	return &c, nil
 }
 
@@ -58,13 +60,13 @@ func (c *interruptsCollector) Update() (updates int, err error) {
 			if err != nil {
 				return updates, fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
 			}
-			labels := map[string]string{
+			labels := prometheus.Labels{
 				"CPU":     strconv.Itoa(cpuNo),
 				"type":    name,
 				"info":    interrupt.info,
 				"devices": interrupt.devices,
 			}
-			interruptsMetric.Set(labels, fv)
+			interruptsMetric.With(labels).Set(fv)
 		}
 	}
 	return updates, err

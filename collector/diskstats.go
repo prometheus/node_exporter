@@ -18,35 +18,119 @@ import (
 
 const (
 	procDiskStats = "/proc/diskstats"
+	diskSubsystem = "disk"
 )
-
-type diskStat struct {
-	name          string
-	metric        prometheus.Metric
-	documentation string
-}
 
 var (
 	ignoredDevices = flag.String("diskstatsIgnoredDevices", "^(ram|loop|(h|s|xv)d[a-z])\\d+$", "Regexp of devices to ignore for diskstats.")
 
+	diskLabelNames = []string{"device"}
+
 	// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-	diskStatsMetrics = []diskStat{
-		{"reads_completed", prometheus.NewCounter(), "The total number of reads completed successfully."},
-		{"reads_merged", prometheus.NewCounter(), "The number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt"},
-		{"sectors_read", prometheus.NewCounter(), "The total number of sectors read successfully."},
-		{"read_time_ms", prometheus.NewCounter(), "the total number of milliseconds spent by all reads."},
-		{"writes_completed", prometheus.NewCounter(), "The total number of writes completed successfully."},
-		{"writes_merged", prometheus.NewCounter(), "The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt"},
-		{"sectors_written", prometheus.NewCounter(), "The total number of sectors written successfully."},
-		{"write_time_ms", prometheus.NewCounter(), "This is the total number of milliseconds spent by all writes."},
-		{"io_now", prometheus.NewGauge(), "The number of I/Os currently in progress."},
-		{"io_time_ms", prometheus.NewCounter(), "Milliseconds spent doing I/Os."},
-		{"io_time_weighted", prometheus.NewCounter(), "The weighted # of milliseconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt"},
+	diskStatsMetrics = []prometheus.Collector{
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "reads_completed",
+				Help:      "The total number of reads completed successfully.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "reads_merged",
+				Help:      "The number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "sectors_read",
+				Help:      "The total number of sectors read successfully.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "read_time_ms",
+				Help:      "The total number of milliseconds spent by all reads.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "writes_completed",
+				Help:      "The total number of writes completed successfully.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "writes_merged",
+				Help:      "The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "sectors_written",
+				Help:      "The total number of sectors written successfully.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "write_time_ms",
+				Help:      "This is the total number of milliseconds spent by all writes.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "io_now",
+				Help:      "The number of I/Os currently in progress.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "io_time_ms",
+				Help:      "Milliseconds spent doing I/Os.",
+			},
+			diskLabelNames,
+		),
+		prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Subsystem: diskSubsystem,
+				Name:      "io_time_weighted",
+				Help:      "The weighted # of milliseconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.",
+			},
+			diskLabelNames,
+		),
 	}
 )
 
 type diskstatsCollector struct {
-	registry              prometheus.Registry
 	config                Config
 	ignoredDevicesPattern *regexp.Regexp
 }
@@ -57,20 +141,16 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // disk device stats.
-func NewDiskstatsCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewDiskstatsCollector(config Config) (Collector, error) {
 	c := diskstatsCollector{
 		config:                config,
-		registry:              registry,
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
 	}
 
-	for _, v := range diskStatsMetrics {
-		registry.Register(
-			"node_disk_"+v.name,
-			v.documentation,
-			prometheus.NilLabels,
-			v.metric,
-		)
+	for _, c := range diskStatsMetrics {
+		if _, err := prometheus.RegisterOrGet(c); err != nil {
+			return nil, err
+		}
 	}
 	return &c, nil
 }
@@ -91,13 +171,12 @@ func (c *diskstatsCollector) Update() (updates int, err error) {
 			if err != nil {
 				return updates, fmt.Errorf("Invalid value %s in diskstats: %s", value, err)
 			}
-			labels := map[string]string{"device": dev}
-			counter, ok := diskStatsMetrics[k].metric.(prometheus.Counter)
+			counter, ok := diskStatsMetrics[k].(*prometheus.CounterVec)
 			if ok {
-				counter.Set(labels, v)
+				counter.WithLabelValues(dev).Set(v)
 			} else {
-				var gauge = diskStatsMetrics[k].metric.(prometheus.Gauge)
-				gauge.Set(labels, v)
+				var gauge = diskStatsMetrics[k].(*prometheus.GaugeVec)
+				gauge.WithLabelValues(dev).Set(v)
 			}
 		}
 	}

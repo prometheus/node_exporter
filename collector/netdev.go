@@ -14,16 +14,16 @@ import (
 )
 
 const (
-	procNetDev = "/proc/net/dev"
+	procNetDev        = "/proc/net/dev"
+	netStatsSubsystem = "network"
 )
 
 var (
-	netStatsMetrics = map[string]prometheus.Gauge{}
+	netStatsMetrics = map[string]*prometheus.GaugeVec{}
 )
 
 type netDevCollector struct {
-	registry prometheus.Registry
-	config   Config
+	config Config
 }
 
 func init() {
@@ -32,10 +32,9 @@ func init() {
 
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // network device stats.
-func NewNetDevCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewNetDevCollector(config Config) (Collector, error) {
 	c := netDevCollector{
-		config:   config,
-		registry: registry,
+		config: config,
 	}
 	return &c, nil
 }
@@ -50,20 +49,23 @@ func (c *netDevCollector) Update() (updates int, err error) {
 			for t, value := range stats {
 				key := direction + "_" + t
 				if _, ok := netStatsMetrics[key]; !ok {
-					netStatsMetrics[key] = prometheus.NewGauge()
-					c.registry.Register(
-						"node_network_"+key,
-						t+" "+direction+" from /proc/net/dev",
-						prometheus.NilLabels,
-						netStatsMetrics[key],
+					gv := prometheus.NewGaugeVec(
+						prometheus.GaugeOpts{
+							Namespace: Namespace,
+							Subsystem: netStatsSubsystem,
+							Name:      key,
+							Help:      fmt.Sprintf("%s %s from /proc/net/dev.", t, direction),
+						},
+						[]string{"device"},
 					)
+					netStatsMetrics[key] = prometheus.MustRegisterOrGet(gv).(*prometheus.GaugeVec)
 				}
 				updates++
 				v, err := strconv.ParseFloat(value, 64)
 				if err != nil {
 					return updates, fmt.Errorf("Invalid value %s in netstats: %s", value, err)
 				}
-				netStatsMetrics[key].Set(map[string]string{"device": dev}, v)
+				netStatsMetrics[key].WithLabelValues(dev).Set(v)
 			}
 		}
 	}

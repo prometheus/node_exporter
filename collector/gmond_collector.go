@@ -24,9 +24,8 @@ const (
 )
 
 type gmondCollector struct {
-	Metrics  map[string]prometheus.Gauge
-	config   Config
-	registry prometheus.Registry
+	Metrics map[string]*prometheus.GaugeVec
+	config  Config
 }
 
 func init() {
@@ -36,17 +35,16 @@ func init() {
 var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
 // Takes a config struct and prometheus registry and returns a new Collector scraping ganglia.
-func NewGmondCollector(config Config, registry prometheus.Registry) (Collector, error) {
+func NewGmondCollector(config Config) (Collector, error) {
 	c := gmondCollector{
-		config:   config,
-		Metrics:  make(map[string]prometheus.Gauge),
-		registry: registry,
+		config:  config,
+		Metrics: map[string]*prometheus.GaugeVec{},
 	}
 
 	return &c, nil
 }
 
-func (c *gmondCollector) setMetric(name string, labels map[string]string, metric ganglia.Metric) {
+func (c *gmondCollector) setMetric(name, cluster string, metric ganglia.Metric) {
 	if _, ok := c.Metrics[name]; !ok {
 		var desc string
 		var title string
@@ -62,12 +60,18 @@ func (c *gmondCollector) setMetric(name string, labels map[string]string, metric
 			}
 		}
 		glog.V(1).Infof("Register %s: %s", name, desc)
-		gauge := prometheus.NewGauge()
-		c.Metrics[name] = gauge
-		c.registry.Register(name, desc, prometheus.NilLabels, gauge) // one gauge per metric!
+		gv := prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: gangliaMetricsPrefix,
+				Name:      name,
+				Help:      desc,
+			},
+			[]string{"cluster"},
+		)
+		c.Metrics[name] = prometheus.MustRegisterOrGet(gv).(*prometheus.GaugeVec)
 	}
-	glog.V(1).Infof("Set %s{%s}: %f", name, labels, metric.Value)
-	c.Metrics[name].Set(labels, metric.Value)
+	glog.V(1).Infof("Set %s{cluster=%q}: %f", name, cluster, metric.Value)
+	c.Metrics[name].WithLabelValues(cluster).Set(metric.Value)
 }
 
 func (c *gmondCollector) Update() (updates int, err error) {
@@ -91,12 +95,9 @@ func (c *gmondCollector) Update() (updates int, err error) {
 		for _, host := range cluster.Hosts {
 
 			for _, metric := range host.Metrics {
-				name := gangliaMetricsPrefix + illegalCharsRE.ReplaceAllString(metric.Name, "_")
+				name := illegalCharsRE.ReplaceAllString(metric.Name, "_")
 
-				var labels = map[string]string{
-					"cluster": cluster.Name,
-				}
-				c.setMetric(name, labels, metric)
+				c.setMetric(name, cluster.Name, metric)
 				updates++
 			}
 		}
