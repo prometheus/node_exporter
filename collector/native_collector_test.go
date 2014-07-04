@@ -9,8 +9,8 @@ import (
 const (
 	loadExpected = 0.21
 
-	memTotalExpected       = "3742148"
-	memDirectMap2MExpected = "3698688"
+	memTotalExpected       = 3831959552
+	memDirectMap2MExpected = 3787456512
 
 	interruptsNmi1Expected = "5031"
 
@@ -51,11 +51,11 @@ func TestMemInfo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if memInfo["MemTotal_kB"] != memTotalExpected {
-		t.Fatalf("Unexpected memory: %s != %s", memInfo["MemTotal_kB"], memTotalExpected)
+	if memInfo["MemTotal"] != memTotalExpected {
+		t.Fatalf("Unexpected memory: %s != %s", memInfo["MemTotal"], memTotalExpected)
 	}
-	if memInfo["DirectMap2M_kB"] != memDirectMap2MExpected {
-		t.Fatalf("Unexpected memory: %s != %s", memInfo["MemTotal_kB"], memTotalExpected)
+	if memInfo["DirectMap2M"] != memDirectMap2MExpected {
+		t.Fatalf("Unexpected memory: %s != %s", memInfo["MemTotal"], memTotalExpected)
 	}
 
 }
@@ -105,14 +105,13 @@ func TestDiskStats(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	if diskStats["sda4"]["reads_completed"] != diskSda4ReadsCompleted {
-		t.Fatalf("Unexpected diskstats: %s != %s", diskStats["sda4"]["reads_completed"],
+	if diskStats["sda4"][0] != diskSda4ReadsCompleted {
+		t.Fatalf("Unexpected diskstats: %s != %s", diskStats["sda4"][0],
 			diskSda4ReadsCompleted)
 	}
 
-	if diskStats["mmcblk0p2"]["io_time_weighted"] != diskMmcIoTimeWeighted {
+	if diskStats["mmcblk0p2"][10] != diskMmcIoTimeWeighted {
 		t.Fatalf("Unexpected diskstats: %s != %s",
-			diskStats["mmcblk0p2"]["io_time_weighted"], diskMmcIoTimeWeighted)
+			diskStats["mmcblk0p2"][10], diskMmcIoTimeWeighted)
 	}
 }
