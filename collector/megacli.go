@@ -20,19 +20,19 @@ const (
 var (
 	driveTemperature = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: Namespace,
-		Name:      "raid_drive_temperature_celsius",
+		Name:      "megacli_drive_temperature_celsius",
 		Help:      "megacli: drive temperature",
 	}, []string{"enclosure", "slot"})
 
 	driveCounters = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: Namespace,
-		Name:      "raid_drive_count",
+		Name:      "megacli_drive_count",
 		Help:      "megacli: drive error and event counters",
 	}, []string{"enclosure", "slot", "type"})
 
 	drivePresence = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: Namespace,
-		Name:      "raid_adapter_disk_presence",
+		Name:      "megacli_adapter_disk_presence",
 		Help:      "megacli: disk presence per adapter",
 	}, []string{"type"})
 
