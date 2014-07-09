@@ -18,5 +18,6 @@ type Collector interface {
 // time.)
 
 type Config struct {
+	Config     map[string]string `json:"config"`
 	Attributes map[string]string `json:"attributes"`
 }
