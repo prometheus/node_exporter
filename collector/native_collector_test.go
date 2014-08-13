@@ -52,10 +52,10 @@ func TestMemInfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	if memInfo["MemTotal"] != memTotalExpected {
-		t.Fatalf("Unexpected memory: %s != %s", memInfo["MemTotal"], memTotalExpected)
+		t.Fatalf("Unexpected memory: %f != %d", memInfo["MemTotal"], memTotalExpected)
 	}
 	if memInfo["DirectMap2M"] != memDirectMap2MExpected {
-		t.Fatalf("Unexpected memory: %s != %s", memInfo["MemTotal"], memTotalExpected)
+		t.Fatalf("Unexpected memory: %f != %d", memInfo["MemTotal"], memTotalExpected)
 	}
 
 }
