@@ -5,6 +5,7 @@ package collector
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 	"strings"
 
@@ -78,7 +79,11 @@ func readBondingStats(root string) (status map[string][2]int, err error) {
 		}
 		sstat := [2]int{0, 0}
 		for _, slave := range strings.Fields(string(slaves)) {
-			state, err := ioutil.ReadFile(path.Join(root, master, fmt.Sprintf("slave_%s", slave), "operstate"))
+			state, err := ioutil.ReadFile(path.Join(root, master, fmt.Sprintf("lower_%s", slave), "operstate"))
+			if os.IsNotExist(err) {
+				// some older? kernels use slave_ prefix
+				state, err = ioutil.ReadFile(path.Join(root, master, fmt.Sprintf("slave_%s", slave), "operstate"))
+			}
 			if err != nil {
 				return nil, err
 			}
