@@ -68,17 +68,16 @@ func (c *gmondCollector) setMetric(name, cluster string, metric ganglia.Metric) 
 			},
 			[]string{"cluster"},
 		)
-		c.Metrics[name] = prometheus.MustRegisterOrGet(gv).(*prometheus.GaugeVec)
 	}
 	glog.V(1).Infof("Set %s{cluster=%q}: %f", name, cluster, metric.Value)
 	c.Metrics[name].WithLabelValues(cluster).Set(metric.Value)
 }
 
-func (c *gmondCollector) Update() (updates int, err error) {
+func (c *gmondCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	conn, err := net.Dial(gangliaProto, gangliaAddress)
 	glog.V(1).Infof("gmondCollector Update")
 	if err != nil {
-		return updates, fmt.Errorf("Can't connect to gmond: %s", err)
+		return fmt.Errorf("Can't connect to gmond: %s", err)
 	}
 	conn.SetDeadline(time.Now().Add(gangliaTimeout))
 
@@ -88,7 +87,7 @@ func (c *gmondCollector) Update() (updates int, err error) {
 
 	err = decoder.Decode(&ganglia)
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't parse xml: %s", err)
+		return fmt.Errorf("Couldn't parse xml: %s", err)
 	}
 
 	for _, cluster := range ganglia.Clusters {
@@ -98,11 +97,13 @@ func (c *gmondCollector) Update() (updates int, err error) {
 				name := illegalCharsRE.ReplaceAllString(metric.Name, "_")
 
 				c.setMetric(name, cluster.Name, metric)
-				updates++
 			}
 		}
 	}
-	return updates, err
+	for _, m := range c.Metrics {
+		m.Collect(ch)
+	}
+	return err
 }
 
 func toUtf8(charset string, input io.Reader) (io.Reader, error) {

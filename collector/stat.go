@@ -73,35 +73,14 @@ func NewStatCollector(config Config) (Collector, error) {
 	c := statCollector{
 		config: config,
 	}
-	if _, err := prometheus.RegisterOrGet(cpuMetrics); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(intrMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(ctxtMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(forksMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(btimeMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(procsRunningMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(procsBlockedMetric); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
 // Expose a variety of stats from /proc/stats.
-func (c *statCollector) Update() (updates int, err error) {
+func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	file, err := os.Open(procStat)
 	if err != nil {
-		return updates, err
+		return err
 	}
 	defer file.Close()
 
@@ -119,7 +98,7 @@ func (c *statCollector) Update() (updates int, err error) {
 			for i, v := range parts[1 : len(cpuFields)+1] {
 				value, err := strconv.ParseFloat(v, 64)
 				if err != nil {
-					return updates, err
+					return err
 				}
 				// Convert from ticks to seconds
 				value /= float64(C.sysconf(C._SC_CLK_TCK))
@@ -129,40 +108,47 @@ func (c *statCollector) Update() (updates int, err error) {
 			// Only expose the overall number, use the 'interrupts' collector for more detail.
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return updates, err
+				return err
 			}
 			intrMetric.Set(value)
 		case parts[0] == "ctxt":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return updates, err
+				return err
 			}
 			ctxtMetric.Set(value)
 		case parts[0] == "processes":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return updates, err
+				return err
 			}
 			forksMetric.Set(value)
 		case parts[0] == "btime":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return updates, err
+				return err
 			}
 			btimeMetric.Set(value)
 		case parts[0] == "procs_running":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return updates, err
+				return err
 			}
 			procsRunningMetric.Set(value)
 		case parts[0] == "procs_blocked":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return updates, err
+				return err
 			}
 			procsBlockedMetric.Set(value)
 		}
 	}
-	return updates, err
+	cpuMetrics.Collect(ch)
+	ctxtMetric.Collect(ch)
+	intrMetric.Collect(ch)
+	forksMetric.Collect(ch)
+	btimeMetric.Collect(ch)
+	procsRunningMetric.Collect(ch)
+	procsBlockedMetric.Collect(ch)
+	return err
 }

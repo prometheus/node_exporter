@@ -41,29 +41,22 @@ func init() {
 // It exposes the number of configured and active slave of linux bonding interfaces.
 func NewBondingCollector(config Config) (Collector, error) {
 	c := bondingCollector{}
-	if _, err := prometheus.RegisterOrGet(bondingSlaves); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(bondingSlavesActive); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
 // Update reads and exposes bonding states, implements Collector interface. Caution: This works only on linux.
-func (c *bondingCollector) Update() (int, error) {
+func (c *bondingCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	bondingStats, err := readBondingStats(sysfsNet)
 	if err != nil {
-		return 0, err
+		return err
 	}
-	updates := 0
 	for master, status := range bondingStats {
 		bondingSlaves.WithLabelValues(master).Set(float64(status[0]))
-		updates++
 		bondingSlavesActive.WithLabelValues(master).Set(float64(status[1]))
-		updates++
 	}
-	return updates, nil
+	bondingSlaves.Collect(ch)
+	bondingSlavesActive.Collect(ch)
+	return nil
 }
 
 func readBondingStats(root string) (status map[string][2]int, err error) {

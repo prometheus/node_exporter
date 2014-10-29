@@ -88,29 +88,14 @@ func NewFilesystemCollector(config Config) (Collector, error) {
 		config: config,
 		ignoredMountPointsPattern: regexp.MustCompile(*ignoredMountPoints),
 	}
-	if _, err := prometheus.RegisterOrGet(fsSizeMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(fsFreeMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(fsAvailMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(fsFilesMetric); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(fsFilesFreeMetric); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
 // Expose filesystem fullness.
-func (c *filesystemCollector) Update() (updates int, err error) {
+func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	mps, err := mountPoints()
 	if err != nil {
-		return updates, err
+		return err
 	}
 	for _, mp := range mps {
 		if c.ignoredMountPointsPattern.MatchString(mp) {
@@ -120,16 +105,20 @@ func (c *filesystemCollector) Update() (updates int, err error) {
 		buf := new(syscall.Statfs_t)
 		err := syscall.Statfs(mp, buf)
 		if err != nil {
-			return updates, fmt.Errorf("Statfs on %s returned %s", mp, err)
+			return fmt.Errorf("Statfs on %s returned %s", mp, err)
 		}
 		fsSizeMetric.WithLabelValues(mp).Set(float64(buf.Blocks) * float64(buf.Bsize))
 		fsFreeMetric.WithLabelValues(mp).Set(float64(buf.Bfree) * float64(buf.Bsize))
 		fsAvailMetric.WithLabelValues(mp).Set(float64(buf.Bavail) * float64(buf.Bsize))
 		fsFilesMetric.WithLabelValues(mp).Set(float64(buf.Files))
 		fsFilesFreeMetric.WithLabelValues(mp).Set(float64(buf.Ffree))
-		updates++
 	}
-	return updates, err
+	fsSizeMetric.Collect(ch)
+	fsFreeMetric.Collect(ch)
+	fsAvailMetric.Collect(ch)
+	fsFilesMetric.Collect(ch)
+	fsFilesFreeMetric.Collect(ch)
+	return err
 }
 
 func mountPoints() ([]string, error) {
