@@ -39,21 +39,18 @@ func NewLastLoginCollector(config Config) (Collector, error) {
 	c := lastLoginCollector{
 		config: config,
 	}
-	if _, err := prometheus.RegisterOrGet(lastSeen); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
-func (c *lastLoginCollector) Update() (updates int, err error) {
+func (c *lastLoginCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	last, err := getLastLoginTime()
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't get last seen: %s", err)
+		return fmt.Errorf("Couldn't get last seen: %s", err)
 	}
-	updates++
 	glog.V(1).Infof("Set node_last_login_time: %f", last)
 	lastSeen.Set(last)
-	return updates, err
+	lastSeen.Collect(ch)
+	return err
 }
 
 func getLastLoginTime() (float64, error) {

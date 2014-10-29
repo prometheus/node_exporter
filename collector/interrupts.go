@@ -42,23 +42,19 @@ func NewInterruptsCollector(config Config) (Collector, error) {
 	c := interruptsCollector{
 		config: config,
 	}
-	if _, err := prometheus.RegisterOrGet(interruptsMetric); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
-func (c *interruptsCollector) Update() (updates int, err error) {
+func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	interrupts, err := getInterrupts()
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't get interrupts: %s", err)
+		return fmt.Errorf("Couldn't get interrupts: %s", err)
 	}
 	for name, interrupt := range interrupts {
 		for cpuNo, value := range interrupt.values {
-			updates++
 			fv, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return updates, fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
+				return fmt.Errorf("Invalid value %s in interrupts: %s", value, err)
 			}
 			labels := prometheus.Labels{
 				"CPU":     strconv.Itoa(cpuNo),
@@ -69,7 +65,8 @@ func (c *interruptsCollector) Update() (updates int, err error) {
 			interruptsMetric.With(labels).Set(fv)
 		}
 	}
-	return updates, err
+	interruptsMetric.Collect(ch)
+	return err
 }
 
 type interrupt struct {

@@ -146,19 +146,13 @@ func NewDiskstatsCollector(config Config) (Collector, error) {
 		config:                config,
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
 	}
-
-	for _, c := range diskStatsMetrics {
-		if _, err := prometheus.RegisterOrGet(c); err != nil {
-			return nil, err
-		}
-	}
 	return &c, nil
 }
 
-func (c *diskstatsCollector) Update() (updates int, err error) {
+func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	diskStats, err := getDiskStats()
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't get diskstats: %s", err)
+		return fmt.Errorf("Couldn't get diskstats: %s", err)
 	}
 	for dev, stats := range diskStats {
 		if c.ignoredDevicesPattern.MatchString(dev) {
@@ -166,10 +160,9 @@ func (c *diskstatsCollector) Update() (updates int, err error) {
 			continue
 		}
 		for k, value := range stats {
-			updates++
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return updates, fmt.Errorf("Invalid value %s in diskstats: %s", value, err)
+				return fmt.Errorf("Invalid value %s in diskstats: %s", value, err)
 			}
 			counter, ok := diskStatsMetrics[k].(*prometheus.CounterVec)
 			if ok {
@@ -180,7 +173,10 @@ func (c *diskstatsCollector) Update() (updates int, err error) {
 			}
 		}
 	}
-	return updates, err
+	for _, c := range diskStatsMetrics {
+		c.Collect(ch)
+	}
+	return err
 }
 
 func getDiskStats() (map[string]map[int]string, error) {

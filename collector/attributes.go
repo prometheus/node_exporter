@@ -29,7 +29,7 @@ func NewAttributesCollector(config Config) (Collector, error) {
 	for l := range c.config.Attributes {
 		labelNames = append(labelNames, l)
 	}
-	gv := prometheus.NewGaugeVec(
+	attributes = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Name:      "attributes",
@@ -37,17 +37,13 @@ func NewAttributesCollector(config Config) (Collector, error) {
 		},
 		labelNames,
 	)
-	collector, err := prometheus.RegisterOrGet(gv)
-	if err != nil {
-		return nil, err
-	}
-	attributes = collector.(*prometheus.GaugeVec)
 	return &c, nil
 }
 
-func (c *attributesCollector) Update() (updates int, err error) {
+func (c *attributesCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	glog.V(1).Info("Set node_attributes{%v}: 1", c.config.Attributes)
 	attributes.Reset()
 	attributes.With(c.config.Attributes).Set(1)
-	return updates, err
+	attributes.Collect(ch)
+	return err
 }

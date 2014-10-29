@@ -32,16 +32,13 @@ func NewTimeCollector(config Config) (Collector, error) {
 		config: config,
 	}
 
-	if _, err := prometheus.RegisterOrGet(systemTime); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
-func (c *timeCollector) Update() (updates int, err error) {
-	updates++
+func (c *timeCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	now := time.Now()
 	glog.V(1).Infof("Set time: %f", now.Unix())
 	systemTime.Set(float64(now.Unix()))
-	return updates, err
+	systemTime.Collect(ch)
+	return err
 }

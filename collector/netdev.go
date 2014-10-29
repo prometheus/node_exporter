@@ -39,17 +39,17 @@ func NewNetDevCollector(config Config) (Collector, error) {
 	return &c, nil
 }
 
-func (c *netDevCollector) Update() (updates int, err error) {
+func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	netStats, err := getNetStats()
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't get netstats: %s", err)
+		return fmt.Errorf("Couldn't get netstats: %s", err)
 	}
 	for direction, devStats := range netStats {
 		for dev, stats := range devStats {
 			for t, value := range stats {
 				key := direction + "_" + t
 				if _, ok := netStatsMetrics[key]; !ok {
-					gv := prometheus.NewGaugeVec(
+					netStatsMetrics[key] = prometheus.NewGaugeVec(
 						prometheus.GaugeOpts{
 							Namespace: Namespace,
 							Subsystem: netStatsSubsystem,
@@ -58,18 +58,19 @@ func (c *netDevCollector) Update() (updates int, err error) {
 						},
 						[]string{"device"},
 					)
-					netStatsMetrics[key] = prometheus.MustRegisterOrGet(gv).(*prometheus.GaugeVec)
 				}
-				updates++
 				v, err := strconv.ParseFloat(value, 64)
 				if err != nil {
-					return updates, fmt.Errorf("Invalid value %s in netstats: %s", value, err)
+					return fmt.Errorf("Invalid value %s in netstats: %s", value, err)
 				}
 				netStatsMetrics[key].WithLabelValues(dev).Set(v)
 			}
 		}
 	}
-	return updates, err
+	for _, m := range netStatsMetrics {
+		m.Collect(ch)
+	}
+	return err
 }
 
 func getNetStats() (map[string]map[string]map[string]string, error) {

@@ -38,23 +38,18 @@ func NewLoadavgCollector(config Config) (Collector, error) {
 	c := loadavgCollector{
 		config: config,
 	}
-
-	if _, err := prometheus.RegisterOrGet(load1); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
-func (c *loadavgCollector) Update() (updates int, err error) {
+func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	load, err := getLoad1()
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't get load: %s", err)
+		return fmt.Errorf("Couldn't get load: %s", err)
 	}
-	updates++
 	glog.V(1).Infof("Set node_load: %f", load)
 	load1.Set(load)
-
-	return updates, err
+	load1.Collect(ch)
+	return err
 }
 
 func getLoad1() (float64, error) {

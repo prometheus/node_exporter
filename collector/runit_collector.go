@@ -50,23 +50,13 @@ func NewRunitCollector(config Config) (Collector, error) {
 		config: config,
 	}
 
-	if _, err := prometheus.RegisterOrGet(runitState); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(runitStateDesired); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(runitStateNormal); err != nil {
-		return nil, err
-	}
-
 	return &c, nil
 }
 
-func (c *runitCollector) Update() (updates int, err error) {
+func (c *runitCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	services, err := runit.GetServices("/etc/service")
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	for _, service := range services {
@@ -84,8 +74,9 @@ func (c *runitCollector) Update() (updates int, err error) {
 		} else {
 			runitStateNormal.WithLabelValues(service.Name).Set(1)
 		}
-		updates += 3
 	}
-
-	return updates, err
+	runitState.Collect(ch)
+	runitStateDesired.Collect(ch)
+	runitStateNormal.Collect(ch)
+	return err
 }

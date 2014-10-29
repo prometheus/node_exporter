@@ -41,26 +41,25 @@ func NewMeminfoCollector(config Config) (Collector, error) {
 	return &c, nil
 }
 
-func (c *meminfoCollector) Update() (updates int, err error) {
+func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	memInfo, err := getMemInfo()
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't get meminfo: %s", err)
+		return fmt.Errorf("Couldn't get meminfo: %s", err)
 	}
 	glog.V(1).Infof("Set node_mem: %#v", memInfo)
 	for k, v := range memInfo {
 		if _, ok := memInfoMetrics[k]; !ok {
-			gauge := prometheus.NewGauge(prometheus.GaugeOpts{
+			memInfoMetrics[k] = prometheus.NewGauge(prometheus.GaugeOpts{
 				Namespace: Namespace,
 				Subsystem: memInfoSubsystem,
 				Name:      k,
 				Help:      k + " from /proc/meminfo.",
 			})
-			memInfoMetrics[k] = prometheus.MustRegisterOrGet(gauge).(prometheus.Gauge)
 		}
-		updates++
 		memInfoMetrics[k].Set(v)
+		memInfoMetrics[k].Collect(ch)
 	}
-	return updates, err
+	return err
 }
 
 func getMemInfo() (map[string]float64, error) {

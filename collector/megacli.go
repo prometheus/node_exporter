@@ -130,104 +130,92 @@ func NewMegaCliCollector(config Config) (Collector, error) {
 		config: config,
 		cli:    cli,
 	}
-
-	if _, err := prometheus.RegisterOrGet(driveTemperature); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(driveCounters); err != nil {
-		return nil, err
-	}
-	if _, err := prometheus.RegisterOrGet(drivePresence); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
-func (c *megaCliCollector) Update() (updates int, err error) {
-	au, err := c.updateAdapter()
+func (c *megaCliCollector) Update(ch chan<- prometheus.Metric) (err error) {
+	err = c.updateAdapter()
 	if err != nil {
-		return au, err
+		return err
 	}
-	du, err := c.updateDisks()
-	return au + du, err
+	err = c.updateDisks()
+	driveTemperature.Collect(ch)
+	driveCounters.Collect(ch)
+	drivePresence.Collect(ch)
+	return err
 }
 
-func (c *megaCliCollector) updateAdapter() (int, error) {
+func (c *megaCliCollector) updateAdapter() error {
 	cmd := exec.Command(c.cli, "-AdpAllInfo", "-aALL")
 	pipe, err := cmd.StdoutPipe()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	if err := cmd.Start(); err != nil {
-		return 0, err
+		return err
 	}
 
 	stats, err := parseMegaCliAdapter(pipe)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		return 0, err
+		return err
 	}
 
-	updates := 0
 	for k, v := range stats["Device Present"] {
 		value, err := strconv.ParseFloat(v, 64)
 		if err != nil {
-			return updates, err
+			return err
 		}
 		drivePresence.WithLabelValues(k).Set(value)
-		updates++
 	}
-	return updates, nil
+	return nil
 }
 
-func (c *megaCliCollector) updateDisks() (int, error) {
+func (c *megaCliCollector) updateDisks() error {
 	cmd := exec.Command(c.cli, "-PDList", "-aALL")
 	pipe, err := cmd.StdoutPipe()
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	if err := cmd.Start(); err != nil {
-		return 0, err
+		return err
 	}
 
 	stats, err := parseMegaCliDisks(pipe)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	if err := cmd.Wait(); err != nil {
-		return 0, err
+		return err
 	}
 
-	updates := 0
 	for enc, encStats := range stats {
 		for slot, slotStats := range encStats {
 			tStr := slotStats["Drive Temperature"]
 			tStr = tStr[:strings.Index(tStr, "C")]
 			t, err := strconv.ParseFloat(tStr, 64)
 			if err != nil {
-				return updates, err
+				return err
 			}
 
 			encStr := strconv.Itoa(enc)
 			slotStr := strconv.Itoa(slot)
 
 			driveTemperature.WithLabelValues(encStr, slotStr).Set(t)
-			updates++
 
 			for _, c := range counters {
 				counter, err := strconv.ParseFloat(slotStats[c], 64)
 				if err != nil {
-					return updates, err
+					return err
 				}
 
 				driveCounters.WithLabelValues(encStr, slotStr, c).Set(counter)
-				updates++
 			}
 		}
 	}
-	return updates, nil
+	return nil
 }

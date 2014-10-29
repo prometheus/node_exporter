@@ -36,21 +36,17 @@ func NewNtpCollector(config Config) (Collector, error) {
 	}
 	c := ntpCollector{}
 
-	if _, err := prometheus.RegisterOrGet(ntpDrift); err != nil {
-		return nil, err
-	}
 	return &c, nil
 }
 
-func (c *ntpCollector) Update() (updates int, err error) {
+func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	t, err := ntp.Time(*ntpServer)
 	if err != nil {
-		return updates, fmt.Errorf("Couldn't get ntp drift: %s", err)
+		return fmt.Errorf("Couldn't get ntp drift: %s", err)
 	}
 	drift := t.Sub(time.Now())
-	updates++
 	glog.V(1).Infof("Set ntp_drift_seconds: %f", drift.Seconds())
 	ntpDrift.Set(drift.Seconds())
-
-	return updates, err
+	ntpDrift.Collect(ch)
+	return err
 }

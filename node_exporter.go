@@ -28,7 +28,6 @@ var (
 	listeningAddress  = flag.String("listen", ":8080", "address to listen on")
 	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,time,netdev", "comma-seperated list of collectors to use")
 	printCollectors   = flag.Bool("printCollectors", false, "If true, print available collectors and exit")
-	interval          = flag.Duration("interval", 60*time.Second, "refresh interval")
 
 	collectorLabelNames = []string{"collector", "result"}
 
@@ -41,78 +40,56 @@ var (
 		},
 		collectorLabelNames,
 	)
-	metricsUpdated = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: collector.Namespace,
-			Subsystem: subsystem,
-			Name:      "metrics_updated",
-			Help:      "node_exporter: Number of metrics updated.",
-		},
-		collectorLabelNames,
-	)
 )
 
-func main() {
-	flag.Parse()
-	if *printCollectors {
-		fmt.Printf("Available collectors:\n")
-		for n, _ := range collector.Factories {
-			fmt.Printf(" - %s\n", n)
-		}
-		return
+// Implements Collector.
+type NodeCollector struct {
+	collectors map[string]collector.Collector
+}
+
+// Implements Collector.
+func (n NodeCollector) Describe(ch chan<- *prometheus.Desc) {
+	scrapeDurations.Describe(ch)
+}
+
+// Implements Collector.
+func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
+	wg := sync.WaitGroup{}
+	wg.Add(len(n.collectors))
+	for name, c := range n.collectors {
+		go func(name string, c collector.Collector) {
+			Execute(name, c, ch)
+			wg.Done()
+		}(name, c)
 	}
-	collectors, err := loadCollectors(*configFile)
+	wg.Wait()
+	scrapeDurations.Collect(ch)
+}
+
+func Execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
+	begin := time.Now()
+	err := c.Update(ch)
+	duration := time.Since(begin)
+	var result string
+
 	if err != nil {
-		log.Fatalf("Couldn't load config and collectors: %s", err)
+		glog.Infof("ERROR: %s failed after %fs: %s", name, duration.Seconds(), err)
+		result = "error"
+	} else {
+		glog.Infof("OK: %s success after %fs.", name, duration.Seconds())
+		result = "success"
 	}
+	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
+}
 
-	prometheus.MustRegister(scrapeDurations)
-	prometheus.MustRegister(metricsUpdated)
-
-	glog.Infof("Enabled collectors:")
-	for n, _ := range collectors {
-		glog.Infof(" - %s", n)
+func getConfig(file string) (*collector.Config, error) {
+	config := &collector.Config{}
+	glog.Infof("Reading config %s", *configFile)
+	bytes, err := ioutil.ReadFile(*configFile)
+	if err != nil {
+		return nil, err
 	}
-
-	sigHup := make(chan os.Signal)
-	sigUsr1 := make(chan os.Signal)
-	signal.Notify(sigHup, syscall.SIGHUP)
-	signal.Notify(sigUsr1, syscall.SIGUSR1)
-
-	go serveStatus()
-
-	glog.Infof("Starting initial collection")
-	collect(collectors)
-
-	tick := time.Tick(*interval)
-	for {
-		select {
-		case <-sigHup:
-			collectors, err = loadCollectors(*configFile)
-			if err != nil {
-				log.Fatalf("Couldn't load config and collectors: %s", err)
-			}
-			glog.Infof("Reloaded collectors and config")
-			tick = time.Tick(*interval)
-
-		case <-tick:
-			glog.Infof("Starting new interval")
-			collect(collectors)
-
-		case <-sigUsr1:
-			glog.Infof("got signal")
-			if *memProfile != "" {
-				glog.Infof("Writing memory profile to %s", *memProfile)
-				f, err := os.Create(*memProfile)
-				if err != nil {
-					log.Fatal(err)
-				}
-				pprof.WriteHeapProfile(f)
-				f.Close()
-			}
-		}
-	}
-
+	return config, json.Unmarshal(bytes, &config)
 }
 
 func loadCollectors(file string) (map[string]collector.Collector, error) {
@@ -135,46 +112,50 @@ func loadCollectors(file string) (map[string]collector.Collector, error) {
 	return collectors, nil
 }
 
-func getConfig(file string) (*collector.Config, error) {
-	config := &collector.Config{}
-	glog.Infof("Reading config %s", *configFile)
-	bytes, err := ioutil.ReadFile(*configFile)
+func main() {
+	flag.Parse()
+	if *printCollectors {
+		fmt.Printf("Available collectors:\n")
+		for n, _ := range collector.Factories {
+			fmt.Printf(" - %s\n", n)
+		}
+		return
+	}
+	collectors, err := loadCollectors(*configFile)
 	if err != nil {
-		return nil, err
+		log.Fatalf("Couldn't load config and collectors: %s", err)
 	}
-	return config, json.Unmarshal(bytes, &config)
-}
 
-func serveStatus() {
-	http.Handle("/metrics", prometheus.Handler())
-	http.ListenAndServe(*listeningAddress, nil)
-}
-
-func collect(collectors map[string]collector.Collector) {
-	wg := sync.WaitGroup{}
-	wg.Add(len(collectors))
-	for n, c := range collectors {
-		go func(n string, c collector.Collector) {
-			Execute(n, c)
-			wg.Done()
-		}(n, c)
+	glog.Infof("Enabled collectors:")
+	for n, _ := range collectors {
+		glog.Infof(" - %s", n)
 	}
-	wg.Wait()
-}
 
-func Execute(name string, c collector.Collector) {
-	begin := time.Now()
-	updates, err := c.Update()
-	duration := time.Since(begin)
-	var result string
+	nodeCollector := NodeCollector{collectors: collectors}
+	prometheus.MustRegister(nodeCollector)
 
-	if err != nil {
-		glog.Infof("ERROR: %s failed after %fs: %s", name, duration.Seconds(), err)
-		result = "error"
-	} else {
-		glog.Infof("OK: %s success after %fs.", name, duration.Seconds())
-		result = "success"
+	sigUsr1 := make(chan os.Signal)
+	signal.Notify(sigUsr1, syscall.SIGUSR1)
+
+	go func() {
+		http.Handle("/metrics", prometheus.Handler())
+		http.ListenAndServe(*listeningAddress, nil)
+	}()
+
+	for {
+		select {
+		case <-sigUsr1:
+			glog.Infof("got signal")
+			if *memProfile != "" {
+				glog.Infof("Writing memory profile to %s", *memProfile)
+				f, err := os.Create(*memProfile)
+				if err != nil {
+					log.Fatal(err)
+				}
+				pprof.WriteHeapProfile(f)
+				f.Close()
+			}
+		}
 	}
-	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
-	metricsUpdated.WithLabelValues(name, result).Set(float64(updates))
+
 }
