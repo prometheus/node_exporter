@@ -26,7 +26,7 @@ var (
 	configFile        = flag.String("config", "node_exporter.conf", "config file.")
 	memProfile        = flag.String("memprofile", "", "write memory profile to this file")
 	listeningAddress  = flag.String("listen", ":8080", "address to listen on")
-	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,time,netdev", "comma-seperated list of collectors to use")
+	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,time,netdev,netstat", "comma-seperated list of collectors to use")
 	printCollectors   = flag.Bool("printCollectors", false, "If true, print available collectors and exit")
 
 	collectorLabelNames = []string{"collector", "result"}
