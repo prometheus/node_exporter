@@ -14,12 +14,12 @@ import (
 )
 
 const (
-	procNetDev        = "/proc/net/dev"
-	netStatsSubsystem = "network"
+	procNetDev      = "/proc/net/dev"
+	netDevSubsystem = "network"
 )
 
 var (
-	netStatsMetrics = map[string]*prometheus.GaugeVec{}
+	netDevMetrics = map[string]*prometheus.GaugeVec{}
 )
 
 type netDevCollector struct {
@@ -40,19 +40,19 @@ func NewNetDevCollector(config Config) (Collector, error) {
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	netStats, err := getNetStats()
+	netDev, err := getNetDevStats()
 	if err != nil {
 		return fmt.Errorf("Couldn't get netstats: %s", err)
 	}
-	for direction, devStats := range netStats {
+	for direction, devStats := range netDev {
 		for dev, stats := range devStats {
 			for t, value := range stats {
 				key := direction + "_" + t
-				if _, ok := netStatsMetrics[key]; !ok {
-					netStatsMetrics[key] = prometheus.NewGaugeVec(
+				if _, ok := netDevMetrics[key]; !ok {
+					netDevMetrics[key] = prometheus.NewGaugeVec(
 						prometheus.GaugeOpts{
 							Namespace: Namespace,
-							Subsystem: netStatsSubsystem,
+							Subsystem: netDevSubsystem,
 							Name:      key,
 							Help:      fmt.Sprintf("%s %s from /proc/net/dev.", t, direction),
 						},
@@ -63,29 +63,29 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				if err != nil {
 					return fmt.Errorf("Invalid value %s in netstats: %s", value, err)
 				}
-				netStatsMetrics[key].WithLabelValues(dev).Set(v)
+				netDevMetrics[key].WithLabelValues(dev).Set(v)
 			}
 		}
 	}
-	for _, m := range netStatsMetrics {
+	for _, m := range netDevMetrics {
 		m.Collect(ch)
 	}
 	return err
 }
 
-func getNetStats() (map[string]map[string]map[string]string, error) {
+func getNetDevStats() (map[string]map[string]map[string]string, error) {
 	file, err := os.Open(procNetDev)
 	if err != nil {
 		return nil, err
 	}
-	return parseNetStats(file)
+	return parseNetDevStats(file)
 }
 
-func parseNetStats(r io.ReadCloser) (map[string]map[string]map[string]string, error) {
+func parseNetDevStats(r io.ReadCloser) (map[string]map[string]map[string]string, error) {
 	defer r.Close()
-	netStats := map[string]map[string]map[string]string{}
-	netStats["transmit"] = map[string]map[string]string{}
-	netStats["receive"] = map[string]map[string]string{}
+	netDev := map[string]map[string]map[string]string{}
+	netDev["transmit"] = map[string]map[string]string{}
+	netDev["receive"] = map[string]map[string]string{}
 
 	scanner := bufio.NewScanner(r)
 	scanner.Scan() // skip first header
@@ -113,10 +113,10 @@ func parseNetStats(r io.ReadCloser) (map[string]map[string]map[string]string, er
 		if err != nil {
 			return nil, err
 		}
-		netStats["transmit"][dev] = transmit
-		netStats["receive"][dev] = receive
+		netDev["transmit"][dev] = transmit
+		netDev["receive"][dev] = receive
 	}
-	return netStats, nil
+	return netDev, nil
 }
 
 func parseNetDevLine(parts []string, header []string) (map[string]string, error) {
