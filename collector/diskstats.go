@@ -1,4 +1,4 @@
-// +build !nonative
+// +build !nodiskstats
 
 package collector
 

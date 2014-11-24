@@ -1,4 +1,4 @@
-// +build !nonetDev
+// +build !nonetdev
 
 package collector
 
