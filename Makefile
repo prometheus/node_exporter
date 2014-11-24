@@ -1,4 +1,4 @@
-VERSION  := 0.4.0
+VERSION  := 0.6.0
 
 SRC      := $(wildcard *.go)
 TARGET   := node_exporter
@@ -8,7 +8,7 @@ ARCH := $(subst x86_64,amd64,$(shell uname -m))
 
 GOOS   ?= $(OS)
 GOARCH ?= $(ARCH)
-GOPKG  := go1.2.1.$(OS)-$(ARCH).tar.gz
+GOPKG  := go1.3.3.$(OS)-$(ARCH).tar.gz
 GOROOT ?= $(CURDIR)/.deps/go
 GOPATH ?= $(CURDIR)/.deps/gopath
 GOCC   := $(GOROOT)/bin/go
@@ -24,7 +24,7 @@ default:
 
 .deps/$(GOPKG):
 	mkdir -p .deps
-	curl -o .deps/$(GOPKG) http://go.googlecode.com/files/$(GOPKG)
+	curl -o .deps/$(GOPKG) https://storage.googleapis.com/golang/$(GOPKG)
 
 $(GOCC): .deps/$(GOPKG)
 	tar -C .deps -xzf .deps/$(GOPKG)
