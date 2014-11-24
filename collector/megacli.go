@@ -43,13 +43,14 @@ func init() {
 	Factories["megacli"] = NewMegaCliCollector
 }
 
-func parseMegaCliDisks(r io.ReadCloser) (map[int]map[int]map[string]string, error) {
-	defer r.Close()
-	stats := map[int]map[int]map[string]string{}
-	scanner := bufio.NewScanner(r)
+func parseMegaCliDisks(r io.Reader) (map[int]map[int]map[string]string, error) {
+	var (
+		stats   = map[int]map[int]map[string]string{}
+		scanner = bufio.NewScanner(r)
+		curEnc  = -1
+		curSlot = -1
+	)
 
-	curEnc := -1
-	curSlot := -1
 	for scanner.Scan() {
 		var err error
 		text := strings.TrimSpace(scanner.Text())
@@ -80,15 +81,18 @@ func parseMegaCliDisks(r io.ReadCloser) (map[int]map[int]map[string]string, erro
 			stats[curEnc][curSlot][key] = value
 		}
 	}
+
 	return stats, nil
 }
 
-func parseMegaCliAdapter(r io.ReadCloser) (map[string]map[string]string, error) {
-	defer r.Close()
-	raidStats := map[string]map[string]string{}
-	scanner := bufio.NewScanner(r)
-	header := ""
-	last := ""
+func parseMegaCliAdapter(r io.Reader) (map[string]map[string]string, error) {
+	var (
+		raidStats = map[string]map[string]string{}
+		scanner   = bufio.NewScanner(r)
+		header    = ""
+		last      = ""
+	)
+
 	for scanner.Scan() {
 		text := strings.TrimSpace(scanner.Text())
 		if text == adapterHeaderSep {
@@ -110,6 +114,7 @@ func parseMegaCliAdapter(r io.ReadCloser) (map[string]map[string]string, error) 
 		raidStats[header][key] = value
 
 	}
+
 	return raidStats, nil
 }
 

@@ -184,13 +184,17 @@ func getDiskStats() (map[string]map[int]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
+
 	return parseDiskStats(file)
 }
 
-func parseDiskStats(r io.ReadCloser) (map[string]map[int]string, error) {
-	defer r.Close()
-	diskStats := map[string]map[int]string{}
-	scanner := bufio.NewScanner(r)
+func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
+	var (
+		diskStats = map[string]map[int]string{}
+		scanner   = bufio.NewScanner(r)
+	)
+
 	for scanner.Scan() {
 		parts := strings.Fields(string(scanner.Text()))
 		if len(parts) != len(diskStatsMetrics)+3 { // we strip major, minor and dev
@@ -202,5 +206,6 @@ func parseDiskStats(r io.ReadCloser) (map[string]map[int]string, error) {
 			diskStats[dev][i] = v
 		}
 	}
+
 	return diskStats, nil
 }

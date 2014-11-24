@@ -80,13 +80,17 @@ func getInterrupts() (map[string]interrupt, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
+
 	return parseInterrupts(file)
 }
 
-func parseInterrupts(r io.ReadCloser) (map[string]interrupt, error) {
-	defer r.Close()
-	interrupts := map[string]interrupt{}
-	scanner := bufio.NewScanner(r)
+func parseInterrupts(r io.Reader) (map[string]interrupt, error) {
+	var (
+		interrupts = map[string]interrupt{}
+		scanner    = bufio.NewScanner(r)
+	)
+
 	if !scanner.Scan() {
 		return nil, fmt.Errorf("%s empty", procInterrupts)
 	}
@@ -111,5 +115,6 @@ func parseInterrupts(r io.ReadCloser) (map[string]interrupt, error) {
 		}
 		interrupts[intName] = intr
 	}
+
 	return interrupts, nil
 }

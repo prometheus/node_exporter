@@ -78,11 +78,12 @@ func getNetDevStats() (map[string]map[string]map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
+
 	return parseNetDevStats(file)
 }
 
-func parseNetDevStats(r io.ReadCloser) (map[string]map[string]map[string]string, error) {
-	defer r.Close()
+func parseNetDevStats(r io.Reader) (map[string]map[string]map[string]string, error) {
 	netDev := map[string]map[string]map[string]string{}
 	netDev["transmit"] = map[string]map[string]string{}
 	netDev["receive"] = map[string]map[string]string{}

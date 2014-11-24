@@ -67,14 +67,18 @@ func getMemInfo() (map[string]float64, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
+
 	return parseMemInfo(file)
 }
 
-func parseMemInfo(r io.ReadCloser) (map[string]float64, error) {
-	defer r.Close()
-	memInfo := map[string]float64{}
-	scanner := bufio.NewScanner(r)
-	re := regexp.MustCompile("\\((.*)\\)")
+func parseMemInfo(r io.Reader) (map[string]float64, error) {
+	var (
+		memInfo = map[string]float64{}
+		scanner = bufio.NewScanner(r)
+		re      = regexp.MustCompile("\\((.*)\\)")
+	)
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Fields(string(line))
@@ -94,6 +98,6 @@ func parseMemInfo(r io.ReadCloser) (map[string]float64, error) {
 		key = re.ReplaceAllString(key, "_${1}")
 		memInfo[key] = fv
 	}
-	return memInfo, nil
 
+	return memInfo, nil
 }

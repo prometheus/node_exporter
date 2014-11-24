@@ -75,14 +75,17 @@ func getNetStats() (map[string]map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
+
 	return parseNetStats(file)
 }
 
-func parseNetStats(r io.ReadCloser) (map[string]map[string]string, error) {
-	defer r.Close()
-	netStats := map[string]map[string]string{}
+func parseNetStats(r io.Reader) (map[string]map[string]string, error) {
+	var (
+		netStats = map[string]map[string]string{}
+		scanner  = bufio.NewScanner(r)
+	)
 
-	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		nameParts := strings.Split(string(scanner.Text()), " ")
 		scanner.Scan()
@@ -98,5 +101,6 @@ func parseNetStats(r io.ReadCloser) (map[string]map[string]string, error) {
 			netStats[protocol][nameParts[i]] = valueParts[i]
 		}
 	}
+
 	return netStats, nil
 }

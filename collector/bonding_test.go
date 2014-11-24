@@ -13,10 +13,10 @@ func TestBonding(t *testing.T) {
 		t.Fatal("bond0 in unexpected state")
 	}
 
-	t.Logf("int: %v", bondingStats["int"])
 	if bondingStats["int"][0] != 2 || bondingStats["int"][1] != 1 {
 		t.Fatal("int in unexpected state")
 	}
+
 	if bondingStats["dmz"][0] != 2 || bondingStats["dmz"][1] != 2 {
 		t.Fatal("dmz in unexpected state")
 	}
