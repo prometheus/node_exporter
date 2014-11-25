@@ -1,4 +1,4 @@
-// +build runit
+// +build !norunit
 
 package collector
 
@@ -6,10 +6,6 @@ import (
 	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/soundcloud/go-runit/runit"
-)
-
-const (
-	runitSubsystem = "runit"
 )
 
 type runitCollector struct {
@@ -23,36 +19,43 @@ func init() {
 }
 
 func NewRunitCollector(config Config) (Collector, error) {
-	var labels = []string{"service"}
+	var (
+		subsystem   = "service"
+		constLabels = prometheus.Labels{"supervisor": "runit"}
+		labelNames  = []string{"service"}
+	)
 
 	return &runitCollector{
 		config: config,
 		state: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: runitSubsystem,
-				Name:      "state",
-				Help:      "state of runit service.",
+				Namespace:   Namespace,
+				Subsystem:   subsystem,
+				Name:        "state",
+				Help:        "state of runit service.",
+				ConstLabels: constLabels,
 			},
-			labels,
+			labelNames,
 		),
 		stateDesired: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: runitSubsystem,
-				Name:      "desired_state",
-				Help:      "desired state of runit service.",
+				Namespace:   Namespace,
+				Subsystem:   subsystem,
+				Name:        "desired_state",
+				Help:        "desired state of runit service.",
+				ConstLabels: constLabels,
 			},
-			labels,
+			labelNames,
 		),
 		stateNormal: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: runitSubsystem,
-				Name:      "normal_state",
-				Help:      "normal state of runit service.",
+				Namespace:   Namespace,
+				Subsystem:   subsystem,
+				Name:        "normal_state",
+				Help:        "normal state of runit service.",
+				ConstLabels: constLabels,
 			},
-			labels,
+			labelNames,
 		),
 	}, nil
 }

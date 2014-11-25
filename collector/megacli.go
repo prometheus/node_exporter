@@ -1,4 +1,4 @@
-// +build megacli
+// +build !nomegacli
 
 package collector
 

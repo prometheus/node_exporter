@@ -96,12 +96,12 @@ func loadCollectors(file string) (map[string]collector.Collector, error) {
 	collectors := map[string]collector.Collector{}
 	config, err := getConfig(file)
 	if err != nil {
-		log.Fatalf("Couldn't read config %s: %s", file, err)
+		return nil, fmt.Errorf("couldn't read config %s: %s", file, err)
 	}
 	for _, name := range strings.Split(*enabledCollectors, ",") {
 		fn, ok := collector.Factories[name]
 		if !ok {
-			log.Fatalf("Collector '%s' not available", name)
+			return nil, fmt.Errorf("collector '%s' not available", name)
 		}
 		c, err := fn(*config)
 		if err != nil {
