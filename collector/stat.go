@@ -18,49 +18,15 @@ const (
 	procStat = "/proc/stat"
 )
 
-var (
-	cpuMetrics = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: Namespace,
-			Name:      "cpu",
-			Help:      "Seconds the cpus spent in each mode.",
-		},
-		[]string{"cpu", "mode"},
-	)
-	intrMetric = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: Namespace,
-		Name:      "intr",
-		Help:      "Total number of interrupts serviced.",
-	})
-	ctxtMetric = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: Namespace,
-		Name:      "context_switches",
-		Help:      "Total number of context switches.",
-	})
-	forksMetric = prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: Namespace,
-		Name:      "forks",
-		Help:      "Total number of forks.",
-	})
-	btimeMetric = prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: Namespace,
-		Name:      "boot_time",
-		Help:      "Node boot time, in unixtime.",
-	})
-	procsRunningMetric = prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: Namespace,
-		Name:      "procs_running",
-		Help:      "Number of processes in runnable state.",
-	})
-	procsBlockedMetric = prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: Namespace,
-		Name:      "procs_blocked",
-		Help:      "Number of processes blocked waiting for I/O to complete.",
-	})
-)
-
 type statCollector struct {
-	config Config
+	config       Config
+	cpu          *prometheus.CounterVec
+	intr         prometheus.Counter
+	ctxt         prometheus.Counter
+	forks        prometheus.Counter
+	btime        prometheus.Gauge
+	procsRunning prometheus.Gauge
+	procsBlocked prometheus.Gauge
 }
 
 func init() {
@@ -70,10 +36,47 @@ func init() {
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // network device stats.
 func NewStatCollector(config Config) (Collector, error) {
-	c := statCollector{
+	return &statCollector{
 		config: config,
-	}
-	return &c, nil
+		cpu: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Name:      "cpu",
+				Help:      "Seconds the cpus spent in each mode.",
+			},
+			[]string{"cpu", "mode"},
+		),
+		intr: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: Namespace,
+			Name:      "intr",
+			Help:      "Total number of interrupts serviced.",
+		}),
+		ctxt: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: Namespace,
+			Name:      "context_switches",
+			Help:      "Total number of context switches.",
+		}),
+		forks: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: Namespace,
+			Name:      "forks",
+			Help:      "Total number of forks.",
+		}),
+		btime: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "boot_time",
+			Help:      "Node boot time, in unixtime.",
+		}),
+		procsRunning: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "procs_running",
+			Help:      "Number of processes in runnable state.",
+		}),
+		procsBlocked: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "procs_blocked",
+			Help:      "Number of processes blocked waiting for I/O to complete.",
+		}),
+	}, nil
 }
 
 // Expose a variety of stats from /proc/stats.
@@ -102,7 +105,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				}
 				// Convert from ticks to seconds
 				value /= float64(C.sysconf(C._SC_CLK_TCK))
-				cpuMetrics.With(prometheus.Labels{"cpu": parts[0], "mode": cpuFields[i]}).Set(value)
+				c.cpu.With(prometheus.Labels{"cpu": parts[0], "mode": cpuFields[i]}).Set(value)
 			}
 		case parts[0] == "intr":
 			// Only expose the overall number, use the 'interrupts' collector for more detail.
@@ -110,45 +113,45 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			if err != nil {
 				return err
 			}
-			intrMetric.Set(value)
+			c.intr.Set(value)
 		case parts[0] == "ctxt":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			ctxtMetric.Set(value)
+			c.ctxt.Set(value)
 		case parts[0] == "processes":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			forksMetric.Set(value)
+			c.forks.Set(value)
 		case parts[0] == "btime":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			btimeMetric.Set(value)
+			c.btime.Set(value)
 		case parts[0] == "procs_running":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			procsRunningMetric.Set(value)
+			c.procsRunning.Set(value)
 		case parts[0] == "procs_blocked":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			procsBlockedMetric.Set(value)
+			c.procsBlocked.Set(value)
 		}
 	}
-	cpuMetrics.Collect(ch)
-	ctxtMetric.Collect(ch)
-	intrMetric.Collect(ch)
-	forksMetric.Collect(ch)
-	btimeMetric.Collect(ch)
-	procsRunningMetric.Collect(ch)
-	procsBlockedMetric.Collect(ch)
+	c.cpu.Collect(ch)
+	c.ctxt.Collect(ch)
+	c.intr.Collect(ch)
+	c.forks.Collect(ch)
+	c.btime.Collect(ch)
+	c.procsRunning.Collect(ch)
+	c.procsBlocked.Collect(ch)
 	return err
 }

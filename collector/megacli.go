@@ -17,30 +17,58 @@ const (
 	adapterHeaderSep = "================"
 )
 
-var (
-	driveTemperature = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: Namespace,
-		Name:      "megacli_drive_temperature_celsius",
-		Help:      "megacli: drive temperature",
-	}, []string{"enclosure", "slot"})
+type megaCliCollector struct {
+	config Config
+	cli    string
 
-	driveCounters = prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: Namespace,
-		Name:      "megacli_drive_count",
-		Help:      "megacli: drive error and event counters",
-	}, []string{"enclosure", "slot", "type"})
-
-	drivePresence = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: Namespace,
-		Name:      "megacli_adapter_disk_presence",
-		Help:      "megacli: disk presence per adapter",
-	}, []string{"type"})
-
-	counters = []string{"Media Error Count", "Other Error Count", "Predictive Failure Count"}
-)
+	driveTemperature *prometheus.GaugeVec
+	driveCounters    *prometheus.CounterVec
+	drivePresence    *prometheus.GaugeVec
+}
 
 func init() {
 	Factories["megacli"] = NewMegaCliCollector
+}
+
+// Takes a config struct and prometheus registry and returns a new Collector exposing
+// RAID status through megacli.
+func NewMegaCliCollector(config Config) (Collector, error) {
+	cli := defaultMegaCli
+	if config.Config["megacli_command"] != "" {
+		cli = config.Config["megacli_command"]
+	}
+
+	return &megaCliCollector{
+		config: config,
+		cli:    cli,
+		driveTemperature: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "megacli_drive_temperature_celsius",
+			Help:      "megacli: drive temperature",
+		}, []string{"enclosure", "slot"}),
+		driveCounters: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Namespace: Namespace,
+			Name:      "megacli_drive_count",
+			Help:      "megacli: drive error and event counters",
+		}, []string{"enclosure", "slot", "type"}),
+		drivePresence: prometheus.NewGaugeVec(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "megacli_adapter_disk_presence",
+			Help:      "megacli: disk presence per adapter",
+		}, []string{"type"}),
+	}, nil
+}
+
+func (c *megaCliCollector) Update(ch chan<- prometheus.Metric) (err error) {
+	err = c.updateAdapter()
+	if err != nil {
+		return err
+	}
+	err = c.updateDisks()
+	c.driveTemperature.Collect(ch)
+	c.driveCounters.Collect(ch)
+	c.drivePresence.Collect(ch)
+	return err
 }
 
 func parseMegaCliDisks(r io.Reader) (map[int]map[int]map[string]string, error) {
@@ -118,38 +146,6 @@ func parseMegaCliAdapter(r io.Reader) (map[string]map[string]string, error) {
 	return raidStats, nil
 }
 
-type megaCliCollector struct {
-	config Config
-	cli    string
-}
-
-// Takes a config struct and prometheus registry and returns a new Collector exposing
-// RAID status through megacli.
-func NewMegaCliCollector(config Config) (Collector, error) {
-	cli := defaultMegaCli
-	if config.Config["megacli_command"] != "" {
-		cli = config.Config["megacli_command"]
-	}
-
-	c := megaCliCollector{
-		config: config,
-		cli:    cli,
-	}
-	return &c, nil
-}
-
-func (c *megaCliCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	err = c.updateAdapter()
-	if err != nil {
-		return err
-	}
-	err = c.updateDisks()
-	driveTemperature.Collect(ch)
-	driveCounters.Collect(ch)
-	drivePresence.Collect(ch)
-	return err
-}
-
 func (c *megaCliCollector) updateAdapter() error {
 	cmd := exec.Command(c.cli, "-AdpAllInfo", "-aALL")
 	pipe, err := cmd.StdoutPipe()
@@ -174,12 +170,14 @@ func (c *megaCliCollector) updateAdapter() error {
 		if err != nil {
 			return err
 		}
-		drivePresence.WithLabelValues(k).Set(value)
+		c.drivePresence.WithLabelValues(k).Set(value)
 	}
 	return nil
 }
 
 func (c *megaCliCollector) updateDisks() error {
+	var counters = []string{"Media Error Count", "Other Error Count", "Predictive Failure Count"}
+
 	cmd := exec.Command(c.cli, "-PDList", "-aALL")
 	pipe, err := cmd.StdoutPipe()
 	if err != nil {
@@ -210,15 +208,15 @@ func (c *megaCliCollector) updateDisks() error {
 			encStr := strconv.Itoa(enc)
 			slotStr := strconv.Itoa(slot)
 
-			driveTemperature.WithLabelValues(encStr, slotStr).Set(t)
+			c.driveTemperature.WithLabelValues(encStr, slotStr).Set(t)
 
-			for _, c := range counters {
-				counter, err := strconv.ParseFloat(slotStats[c], 64)
+			for _, i := range counters {
+				counter, err := strconv.ParseFloat(slotStats[i], 64)
 				if err != nil {
 					return err
 				}
 
-				driveCounters.WithLabelValues(encStr, slotStr, c).Set(counter)
+				c.driveCounters.WithLabelValues(encStr, slotStr, i).Set(counter)
 			}
 		}
 	}
