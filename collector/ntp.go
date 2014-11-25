@@ -14,14 +14,10 @@ import (
 
 var (
 	ntpServer = flag.String("ntpServer", "", "NTP server to use for ntp collector.")
-	ntpDrift  = prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: Namespace,
-		Name:      "ntp_drift_seconds",
-		Help:      "Time between system time and ntp time.",
-	})
 )
 
 type ntpCollector struct {
+	drift prometheus.Gauge
 }
 
 func init() {
@@ -34,9 +30,14 @@ func NewNtpCollector(config Config) (Collector, error) {
 	if *ntpServer == "" {
 		return nil, fmt.Errorf("No NTP server specifies, see --ntpServer")
 	}
-	c := ntpCollector{}
 
-	return &c, nil
+	return &ntpCollector{
+		drift: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "ntp_drift_seconds",
+			Help:      "Time between system time and ntp time.",
+		}),
+	}, nil
 }
 
 func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -46,7 +47,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 	drift := t.Sub(time.Now())
 	glog.V(1).Infof("Set ntp_drift_seconds: %f", drift.Seconds())
-	ntpDrift.Set(drift.Seconds())
-	ntpDrift.Collect(ch)
+	c.drift.Set(drift.Seconds())
+	c.drift.Collect(ch)
 	return err
 }

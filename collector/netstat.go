@@ -18,12 +18,9 @@ const (
 	netStatsSubsystem = "netstat"
 )
 
-var (
-	netStatsMetrics = map[string]prometheus.Gauge{}
-)
-
 type netStatCollector struct {
-	config Config
+	config  Config
+	metrics map[string]prometheus.Gauge
 }
 
 func init() {
@@ -33,10 +30,10 @@ func init() {
 // NewNetStatCollector takes a config struct and returns
 // a new Collector exposing network stats.
 func NewNetStatCollector(config Config) (Collector, error) {
-	c := netStatCollector{
-		config: config,
-	}
-	return &c, nil
+	return &netStatCollector{
+		config:  config,
+		metrics: map[string]prometheus.Gauge{},
+	}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -47,8 +44,8 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	for protocol, protocolStats := range netStats {
 		for name, value := range protocolStats {
 			key := protocol + "_" + name
-			if _, ok := netStatsMetrics[key]; !ok {
-				netStatsMetrics[key] = prometheus.NewGauge(
+			if _, ok := c.metrics[key]; !ok {
+				c.metrics[key] = prometheus.NewGauge(
 					prometheus.GaugeOpts{
 						Namespace: Namespace,
 						Subsystem: netStatsSubsystem,
@@ -61,10 +58,10 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			if err != nil {
 				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
 			}
-			netStatsMetrics[key].Set(v)
+			c.metrics[key].Set(v)
 		}
 	}
-	for _, m := range netStatsMetrics {
+	for _, m := range c.metrics {
 		m.Collect(ch)
 	}
 	return err

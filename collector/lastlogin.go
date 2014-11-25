@@ -16,17 +16,9 @@ import (
 
 const lastLoginSubsystem = "last_login"
 
-var (
-	lastSeen = prometheus.NewGauge(prometheus.GaugeOpts{
-		Namespace: Namespace,
-		Subsystem: lastLoginSubsystem,
-		Name:      "time",
-		Help:      "The time of the last login.",
-	})
-)
-
 type lastLoginCollector struct {
 	config Config
+	metric prometheus.Gauge
 }
 
 func init() {
@@ -36,10 +28,15 @@ func init() {
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
 func NewLastLoginCollector(config Config) (Collector, error) {
-	c := lastLoginCollector{
+	return &lastLoginCollector{
 		config: config,
-	}
-	return &c, nil
+		metric: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Subsystem: lastLoginSubsystem,
+			Name:      "time",
+			Help:      "The time of the last login.",
+		}),
+	}, nil
 }
 
 func (c *lastLoginCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -48,8 +45,8 @@ func (c *lastLoginCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return fmt.Errorf("Couldn't get last seen: %s", err)
 	}
 	glog.V(1).Infof("Set node_last_login_time: %f", last)
-	lastSeen.Set(last)
-	lastSeen.Collect(ch)
+	c.metric.Set(last)
+	c.metric.Collect(ch)
 	return err
 }
 

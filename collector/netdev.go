@@ -18,12 +18,9 @@ const (
 	netDevSubsystem = "network"
 )
 
-var (
-	netDevMetrics = map[string]*prometheus.GaugeVec{}
-)
-
 type netDevCollector struct {
-	config Config
+	config  Config
+	metrics map[string]*prometheus.GaugeVec
 }
 
 func init() {
@@ -33,10 +30,10 @@ func init() {
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // network device stats.
 func NewNetDevCollector(config Config) (Collector, error) {
-	c := netDevCollector{
-		config: config,
-	}
-	return &c, nil
+	return &netDevCollector{
+		config:  config,
+		metrics: map[string]*prometheus.GaugeVec{},
+	}, nil
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -48,8 +45,8 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		for dev, stats := range devStats {
 			for t, value := range stats {
 				key := direction + "_" + t
-				if _, ok := netDevMetrics[key]; !ok {
-					netDevMetrics[key] = prometheus.NewGaugeVec(
+				if _, ok := c.metrics[key]; !ok {
+					c.metrics[key] = prometheus.NewGaugeVec(
 						prometheus.GaugeOpts{
 							Namespace: Namespace,
 							Subsystem: netDevSubsystem,
@@ -63,11 +60,11 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				if err != nil {
 					return fmt.Errorf("Invalid value %s in netstats: %s", value, err)
 				}
-				netDevMetrics[key].WithLabelValues(dev).Set(v)
+				c.metrics[key].WithLabelValues(dev).Set(v)
 			}
 		}
 	}
-	for _, m := range netDevMetrics {
+	for _, m := range c.metrics {
 		m.Collect(ch)
 	}
 	return err

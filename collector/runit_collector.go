@@ -8,37 +8,14 @@ import (
 	"github.com/soundcloud/go-runit/runit"
 )
 
-var (
-	runitLabelNames = []string{"service"}
-
-	runitState = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "service_state",
-			Help:      "node_exporter: state of runit service.",
-		},
-		runitLabelNames,
-	)
-	runitStateDesired = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "service_desired_state",
-			Help:      "node_exporter: desired state of runit service.",
-		},
-		runitLabelNames,
-	)
-	runitStateNormal = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "service_normal_state",
-			Help:      "node_exporter: normal state of runit service.",
-		},
-		runitLabelNames,
-	)
+const (
+	runitSubsystem = "runit"
 )
 
 type runitCollector struct {
 	config Config
+
+	state, stateDesired, stateNormal *prometheus.GaugeVec
 }
 
 func init() {
@@ -46,14 +23,41 @@ func init() {
 }
 
 func NewRunitCollector(config Config) (Collector, error) {
-	c := runitCollector{
-		config: config,
-	}
+	var labels = []string{"service"}
 
-	return &c, nil
+	return &runitCollector{
+		config: config,
+		state: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Subsystem: runitSubsystem,
+				Name:      "state",
+				Help:      "state of runit service.",
+			},
+			labels,
+		),
+		stateDesired: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Subsystem: runitSubsystem,
+				Name:      "desired_state",
+				Help:      "desired state of runit service.",
+			},
+			labels,
+		),
+		stateNormal: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Subsystem: runitSubsystem,
+				Name:      "normal_state",
+				Help:      "normal state of runit service.",
+			},
+			labels,
+		),
+	}, nil
 }
 
-func (c *runitCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
 	services, err := runit.GetServices("/etc/service")
 	if err != nil {
 		return err
@@ -67,16 +71,17 @@ func (c *runitCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		}
 
 		glog.V(1).Infof("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
-		runitState.WithLabelValues(service.Name).Set(float64(status.State))
-		runitStateDesired.WithLabelValues(service.Name).Set(float64(status.Want))
+		c.state.WithLabelValues(service.Name).Set(float64(status.State))
+		c.stateDesired.WithLabelValues(service.Name).Set(float64(status.Want))
 		if status.NormallyUp {
-			runitStateNormal.WithLabelValues(service.Name).Set(1)
+			c.stateNormal.WithLabelValues(service.Name).Set(1)
 		} else {
-			runitStateNormal.WithLabelValues(service.Name).Set(1)
+			c.stateNormal.WithLabelValues(service.Name).Set(0)
 		}
 	}
-	runitState.Collect(ch)
-	runitStateDesired.Collect(ch)
-	runitStateNormal.Collect(ch)
-	return err
+	c.state.Collect(ch)
+	c.stateDesired.Collect(ch)
+	c.stateNormal.Collect(ch)
+
+	return nil
 }

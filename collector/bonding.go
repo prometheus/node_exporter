@@ -16,22 +16,9 @@ const (
 	sysfsNet = "/sys/class/net"
 )
 
-var (
-	bondingSlaves = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "net_bonding_slaves",
-			Help:      "Number of configured slaves per bonding interface.",
-		}, []string{"master"})
-	bondingSlavesActive = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "net_bonding_slaves_active",
-			Help:      "Number of active slaves per bonding interface.",
-		}, []string{"master"})
-)
-
-type bondingCollector struct{}
+type bondingCollector struct {
+	slaves, active *prometheus.GaugeVec
+}
 
 func init() {
 	Factories["bonding"] = NewBondingCollector
@@ -40,8 +27,24 @@ func init() {
 // NewBondingCollector returns a newly allocated bondingCollector.
 // It exposes the number of configured and active slave of linux bonding interfaces.
 func NewBondingCollector(config Config) (Collector, error) {
-	c := bondingCollector{}
-	return &c, nil
+	return &bondingCollector{
+		slaves: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "net_bonding_slaves",
+				Help:      "Number of configured slaves per bonding interface.",
+			},
+			[]string{"master"},
+		),
+		active: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "net_bonding_slaves_active",
+				Help:      "Number of active slaves per bonding interface.",
+			},
+			[]string{"master"},
+		),
+	}, nil
 }
 
 // Update reads and exposes bonding states, implements Collector interface. Caution: This works only on linux.
@@ -51,11 +54,11 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 	for master, status := range bondingStats {
-		bondingSlaves.WithLabelValues(master).Set(float64(status[0]))
-		bondingSlavesActive.WithLabelValues(master).Set(float64(status[1]))
+		c.slaves.WithLabelValues(master).Set(float64(status[0]))
+		c.active.WithLabelValues(master).Set(float64(status[1]))
 	}
-	bondingSlaves.Collect(ch)
-	bondingSlavesActive.Collect(ch)
+	c.slaves.Collect(ch)
+	c.active.Collect(ch)
 	return nil
 }
 

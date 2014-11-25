@@ -17,19 +17,9 @@ const (
 	procInterrupts = "/proc/interrupts"
 )
 
-var (
-	interruptsMetric = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: Namespace,
-			Name:      "interrupts",
-			Help:      "Interrupt details from /proc/interrupts.",
-		},
-		[]string{"CPU", "type", "info", "devices"},
-	)
-)
-
 type interruptsCollector struct {
 	config Config
+	metric *prometheus.CounterVec
 }
 
 func init() {
@@ -39,10 +29,17 @@ func init() {
 // Takes a config struct and prometheus registry and returns a new Collector exposing
 // interrupts stats
 func NewInterruptsCollector(config Config) (Collector, error) {
-	c := interruptsCollector{
+	return &interruptsCollector{
 		config: config,
-	}
-	return &c, nil
+		metric: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: Namespace,
+				Name:      "interrupts",
+				Help:      "Interrupt details from /proc/interrupts.",
+			},
+			[]string{"CPU", "type", "info", "devices"},
+		),
+	}, nil
 }
 
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -62,10 +59,10 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				"info":    interrupt.info,
 				"devices": interrupt.devices,
 			}
-			interruptsMetric.With(labels).Set(fv)
+			c.metric.With(labels).Set(fv)
 		}
 	}
-	interruptsMetric.Collect(ch)
+	c.metric.Collect(ch)
 	return err
 }
 
