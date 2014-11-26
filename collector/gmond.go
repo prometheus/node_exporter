@@ -17,10 +17,10 @@ import (
 )
 
 const (
-	gangliaAddress       = "127.0.0.1:8649"
-	gangliaProto         = "tcp"
-	gangliaTimeout       = 30 * time.Second
-	gangliaMetricsPrefix = "ganglia_"
+	gangliaAddress   = "127.0.0.1:8649"
+	gangliaProto     = "tcp"
+	gangliaTimeout   = 30 * time.Second
+	gangliaNamespace = "ganglia"
 )
 
 type gmondCollector struct {
@@ -95,7 +95,7 @@ func (c *gmondCollector) setMetric(name, cluster string, metric ganglia.Metric) 
 		glog.V(1).Infof("Register %s: %s", name, desc)
 		c.metrics[name] = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
-				Namespace: gangliaMetricsPrefix,
+				Namespace: gangliaNamespace,
 				Name:      name,
 				Help:      desc,
 			},
