@@ -23,11 +23,13 @@ import (
 const subsystem = "exporter"
 
 var (
-	configFile        = flag.String("config", "node_exporter.conf", "config file.")
-	memProfile        = flag.String("memprofile", "", "write memory profile to this file")
-	listeningAddress  = flag.String("listen", ":8080", "address to listen on")
-	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,time,netdev,netstat", "comma-seperated list of collectors to use")
-	printCollectors   = flag.Bool("printCollectors", false, "If true, print available collectors and exit")
+	configFile        = flag.String("config", "node_exporter.conf", "Path to config file.")
+	memProfile        = flag.String("memprofile", "", "Write memory profile to this file.")
+	listeningAddress  = flag.String("listen", ":8080", "Address to listen on.")
+	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,time,netdev,netstat", "Comma-separated list of collectors to use.")
+	printCollectors   = flag.Bool("printCollectors", false, "If true, print available collectors and exit.")
+	authUser          = flag.String("auth.user", "", "Username for basic auth.")
+	authPass          = flag.String("auth.pass", "", "Password for basic auth.")
 
 	collectorLabelNames = []string{"collector", "result"}
 
@@ -64,6 +66,23 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	wg.Wait()
 	scrapeDurations.Collect(ch)
+}
+
+type basicAuthHandler struct {
+	handler  http.HandlerFunc
+	user     string
+	password string
+}
+
+func (h *basicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	user, password, ok := r.BasicAuth()
+	if !ok || password != h.password || user != h.user {
+		w.Header().Set("WWW-Authenticate", "Basic realm=\"metrics\"")
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+	h.handler(w, r)
+	return
 }
 
 func Execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
@@ -137,9 +156,23 @@ func main() {
 	sigUsr1 := make(chan os.Signal)
 	signal.Notify(sigUsr1, syscall.SIGUSR1)
 
+	handler := prometheus.Handler()
+	if *authUser != "" || *authPass != "" {
+		if *authUser == "" || *authPass == "" {
+			glog.Fatal("You need to specify -auth.user and -auth.pass to enable basic auth")
+		}
+		handler = &basicAuthHandler{
+			handler:  prometheus.Handler().ServeHTTP,
+			user:     *authUser,
+			password: *authPass,
+		}
+	}
 	go func() {
-		http.Handle("/metrics", prometheus.Handler())
-		http.ListenAndServe(*listeningAddress, nil)
+		http.Handle("/metrics", handler)
+		err := http.ListenAndServe(*listeningAddress, nil)
+		if err != nil {
+			glog.Fatal(err)
+		}
 	}()
 
 	for {
