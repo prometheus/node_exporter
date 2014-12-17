@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -142,7 +141,7 @@ func main() {
 	}
 	collectors, err := loadCollectors(*configFile)
 	if err != nil {
-		log.Fatalf("Couldn't load config and collectors: %s", err)
+		glog.Fatalf("Couldn't load config and collectors: %s", err)
 	}
 
 	glog.Infof("Enabled collectors:")
@@ -183,7 +182,7 @@ func main() {
 				glog.Infof("Writing memory profile to %s", *memProfile)
 				f, err := os.Create(*memProfile)
 				if err != nil {
-					log.Fatal(err)
+					glog.Fatal(err)
 				}
 				pprof.WriteHeapProfile(f)
 				f.Close()
