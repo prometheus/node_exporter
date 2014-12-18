@@ -22,7 +22,7 @@ import (
 const subsystem = "exporter"
 
 var (
-	configFile        = flag.String("config", "node_exporter.conf", "Path to config file.")
+	configFile        = flag.String("config", "", "Path to config file.")
 	memProfile        = flag.String("memprofile", "", "Write memory profile to this file.")
 	listeningAddress  = flag.String("listen", ":8080", "Address to listen on.")
 	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,time,netdev,netstat", "Comma-separated list of collectors to use.")
@@ -112,9 +112,13 @@ func getConfig(file string) (*collector.Config, error) {
 
 func loadCollectors(file string) (map[string]collector.Collector, error) {
 	collectors := map[string]collector.Collector{}
-	config, err := getConfig(file)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't read config %s: %s", file, err)
+	config := &collector.Config{}
+	if file != "" {
+		var err error
+		config, err = getConfig(file)
+		if err != nil {
+			return nil, fmt.Errorf("couldn't read config %s: %s", file, err)
+		}
 	}
 	for _, name := range strings.Split(*enabledCollectors, ",") {
 		fn, ok := collector.Factories[name]
