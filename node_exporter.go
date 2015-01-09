@@ -172,6 +172,15 @@ func main() {
 	}
 	go func() {
 		http.Handle("/metrics", handler)
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(`<html>
+                       <head><title>Node Exporter</title></head>
+                       <body>
+                       <h1>Node Exporter</h1>
+                       <p><a href="/metrics">Metrics</a></p>
+                       </body>
+                       </html>`))
+		})
 		err := http.ListenAndServe(*listeningAddress, nil)
 		if err != nil {
 			glog.Fatal(err)
