@@ -25,7 +25,7 @@ var (
 	configFile        = flag.String("config", "", "Path to config file.")
 	memProfile        = flag.String("memprofile", "", "Write memory profile to this file.")
 	listeningAddress  = flag.String("listen", ":8080", "Address to listen on.")
-	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,time,netdev,netstat", "Comma-separated list of collectors to use.")
+	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,textfile,time,netdev,netstat", "Comma-separated list of collectors to use.")
 	printCollectors   = flag.Bool("printCollectors", false, "If true, print available collectors and exit.")
 	authUser          = flag.String("auth.user", "", "Username for basic auth.")
 	authPass          = flag.String("auth.pass", "", "Password for basic auth.")
