@@ -8,9 +8,9 @@ ARCH := $(subst x86_64,amd64,$(shell uname -m))
 
 GOOS   ?= $(OS)
 GOARCH ?= $(ARCH)
-GOPKG  := go1.3.3.$(OS)-$(ARCH).tar.gz
-GOROOT ?= $(CURDIR)/.deps/go
-GOPATH ?= $(CURDIR)/.deps/gopath
+GOPKG  := go1.4.1.$(OS)-$(ARCH).tar.gz
+GOROOT := $(CURDIR)/.deps/go
+GOPATH := $(CURDIR)/.deps/gopath
 GOCC   := $(GOROOT)/bin/go
 GOLIB  := $(GOROOT)/pkg/$(GOOS)_$(GOARCH)
 GO     := GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
@@ -18,9 +18,9 @@ GO     := GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
 SUFFIX  := $(GOOS)-$(GOARCH)
 BINARY  := $(TARGET)
 ARCHIVE := $(TARGET)-$(VERSION).$(SUFFIX).tar.gz
+SELFLINK := $(GOPATH)/src/github.com/prometheus/node_exporter
 
-default:
-	go build $(GOFLAGS)
+default: $(BINARY)
 
 .deps/$(GOPKG):
 	mkdir -p .deps
@@ -30,7 +30,11 @@ $(GOCC): .deps/$(GOPKG)
 	tar -C .deps -xzf .deps/$(GOPKG)
 	touch $@
 
-dependencies: $(SRC)
+$(SELFLINK):
+	mkdir -p $(GOPATH)/src/github.com/prometheus
+	ln -s $(CURDIR) $(SELFLINK)
+
+dependencies: $(SRC) $(SELFLINK)
 	$(GO) get -d
 
 $(BINARY): $(GOCC) $(SRC) dependencies
@@ -45,6 +49,6 @@ release: $(ARCHIVE)
 	scp $< $(REMOTE):$(REMOTE_DIR)/$(ARCHIVE)
 
 clean:
-	rm -rf bin
+	rm -rf node_exporter .deps
 
 .PHONY: dependencies clean release
