@@ -20,7 +20,7 @@ RELEASE_SUFFIX ?=
 endif
 	
 GO_VERSION ?= 1.4.1
-GOURL      ?= http://golang.org/dl
+GOURL      ?= https://golang.org/dl
 GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH)$(RELEASE_SUFFIX).tar.gz
 GOROOT     := $(CURDIR)/.deps/go
 GOPATH     := $(CURDIR)/.deps/gopath
