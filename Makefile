@@ -3,8 +3,8 @@ VERSION  := 0.7.1
 SRC      := $(wildcard *.go)
 TARGET   := node_exporter
 
-OS         := $(subst Darwin,darwin,$(subst Linux,linux,$(shell uname)))
-ARCH       := $(subst x86_64,amd64,$(shell uname -m))
+OS         := $(subst Darwin,darwin,$(subst Linux,linux,$(subst FreeBSD,freebsd,$(shell uname))))
+ARCH       := $(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m)))
 
 # The release engineers apparently need to key their binary artifacts to the
 # Mac OS X release family.
@@ -18,7 +18,7 @@ RELEASE_SUFFIX ?= -osx$(MAC_OS_X_VERSION)
 else
 RELEASE_SUFFIX ?=
 endif
-	
+
 GO_VERSION ?= 1.4.1
 GOURL      ?= https://golang.org/dl
 GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH)$(RELEASE_SUFFIX).tar.gz
