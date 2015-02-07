@@ -90,6 +90,9 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+		if len(parts) == 0 {
+			continue
+		}
 		switch {
 		case strings.HasPrefix(parts[0], "cpu"):
 			// Export only per-cpu stats, it can be aggregated up in prometheus.
@@ -98,7 +101,12 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			}
 			// Only some of these may be present, depending on kernel version.
 			cpuFields := []string{"user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest"}
-			for i, v := range parts[1 : len(cpuFields)+1] {
+			// OpenVZ guests lack the "guest" CPU field, which needs to be ignored.
+			expectedFieldNum := len(cpuFields)+1
+			if expectedFieldNum > len(parts) {
+				expectedFieldNum = len(parts)
+			}
+			for i, v := range parts[1 : expectedFieldNum] {
 				value, err := strconv.ParseFloat(v, 64)
 				if err != nil {
 					return err
