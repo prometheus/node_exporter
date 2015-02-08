@@ -22,11 +22,12 @@ import (
 const subsystem = "exporter"
 
 var (
-	configFile        = flag.String("config", "", "Path to config file.")
-	memProfile        = flag.String("memprofile", "", "Write memory profile to this file.")
-	listeningAddress  = flag.String("listen", ":8080", "Address to listen on.")
-	enabledCollectors = flag.String("enabledCollectors", "attributes,diskstats,filesystem,loadavg,meminfo,stat,textfile,time,netdev,netstat", "Comma-separated list of collectors to use.")
-	printCollectors   = flag.Bool("printCollectors", false, "If true, print available collectors and exit.")
+	configFile        = flag.String("config.file", "", "Path to config file.")
+	memProfile        = flag.String("debug.memprofile-file", "", "Write memory profile to this file upon receipt of SIGUSR1.")
+	listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
+	metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+	enabledCollectors = flag.String("collectors.enabled", "attributes,diskstats,filesystem,loadavg,meminfo,stat,textfile,time,netdev,netstat", "Comma-separated list of collectors to use.")
+	printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 	authUser          = flag.String("auth.user", "", "Username for basic auth.")
 	authPass          = flag.String("auth.pass", "", "Password for basic auth.")
 
@@ -171,17 +172,17 @@ func main() {
 		}
 	}
 	go func() {
-		http.Handle("/metrics", handler)
+		http.Handle(*metricsPath, handler)
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(`<html>
                        <head><title>Node Exporter</title></head>
                        <body>
                        <h1>Node Exporter</h1>
-                       <p><a href="/metrics">Metrics</a></p>
+                       <p><a href="` + *metricsPath + `">Metrics</a></p>
                        </body>
                        </html>`))
 		})
-		err := http.ListenAndServe(*listeningAddress, nil)
+		err := http.ListenAndServe(*listenAddress, nil)
 		if err != nil {
 			glog.Fatal(err)
 		}
