@@ -47,7 +47,7 @@ should be used for service-level metrics. The textfile module is for metrics
 that are tied to a machine.
 
 To use set the `--textfile.directory` flag on the Node exporter. The collector
-will pares all files in that directory matching the glob `*.prom` using the
+will parse all files in that directory matching the glob `*.prom` using the
 [text format](http://prometheus.io/docs/instrumenting/exposition_formats/).
 
 To atomically push completion time for a cron job:
