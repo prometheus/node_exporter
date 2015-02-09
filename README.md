@@ -3,6 +3,15 @@
 Prometheus exporter for machine metrics, written in Go with pluggable metric
 collectors.
 
+## Building and running
+
+    make
+    ./node_exporter <flags>
+
+## Running tests
+
+    make test
+
 ## Available collectors
 
 By default the build will include the native collectors that expose information
