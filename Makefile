@@ -61,7 +61,10 @@ release: REMOTE_DIR ?= $(error "can't release, REMOTE_DIR not set")
 release: $(ARCHIVE)
 	scp $< $(REMOTE):$(REMOTE_DIR)/$(ARCHIVE)
 
+test: $(GOCC) dependencies
+	$(GO) test ./...
+
 clean:
 	rm -rf node_exporter .deps
 
-.PHONY: dependencies clean release
+.PHONY: clean default dependencies release test
