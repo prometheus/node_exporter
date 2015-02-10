@@ -3,4 +3,4 @@ MAINTAINER Prometheus Team <prometheus-developers@googlegroups.com>
 
 ENTRYPOINT [ "go-wrapper", "run" ]
 CMD        [ "-logtostderr" ]
-EXPOSE     8080
+EXPOSE     9100
