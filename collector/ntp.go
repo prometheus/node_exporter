@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ntpServer = flag.String("ntpServer", "", "NTP server to use for ntp collector.")
+	ntpServer = flag.String("collector.ntp.server", "", "NTP server to use for ntp collector.")
 )
 
 type ntpCollector struct {

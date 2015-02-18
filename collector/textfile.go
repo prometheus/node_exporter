@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	textFileDirectory = flag.String("textfile.directory", "", "Directory to read text files with metrics from.")
+	textFileDirectory = flag.String("collector.textfile.directory", "", "Directory to read text files with metrics from.")
 )
 
 type textFileCollector struct {
