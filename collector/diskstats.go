@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	ignoredDevices = flag.String("diskstatsIgnoredDevices", "^(ram|loop|fd|(h|s|v|xv)d[a-z])\\d+$", "Regexp of devices to ignore for diskstats.")
+	ignoredDevices = flag.String("collector.diskstats.ignored-devices", "^(ram|loop|fd|(h|s|v|xv)d[a-z])\\d+$", "Regexp of devices to ignore for diskstats.")
 )
 
 type diskstatsCollector struct {

@@ -17,7 +17,7 @@ collectors.
 By default the build will include the native collectors that expose information
 from /proc.
 
-Which collectors are used is controlled by the `--enabledCollectors` flag.
+Which collectors are used is controlled by the `--collectors.enabled` flag.
 
 ### Enabled by default
 
@@ -31,7 +31,7 @@ meminfo | Exposes memory statistics from /proc/meminfo.
 netdev | Exposes network interface statistics from /proc/netstat, such as bytes transferred.
 netstat | Exposes network statistics from /proc/net/netstat. This is the same information as `netstat -s`.
 stat | Exposes various statistics from /proc/stat. This includes CPU usage, boot time, forks and interrupts.
-textfile | Exposes statistics read from local disk. The `--textfile.directory` flag must be set.
+textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set.
 time | Exposes the current system time.
 
 
@@ -55,9 +55,10 @@ to export static metrics, such as what role a machine has. The Pushgateway
 should be used for service-level metrics. The textfile module is for metrics
 that are tied to a machine.
 
-To use set the `--textfile.directory` flag on the Node exporter. The collector
-will parse all files in that directory matching the glob `*.prom` using the
-[text format](http://prometheus.io/docs/instrumenting/exposition_formats/).
+To use set the `--collector.textfile.directory` flag on the Node exporter. The
+collector will parse all files in that directory matching the glob `*.prom`
+using the [text
+format](http://prometheus.io/docs/instrumenting/exposition_formats/).
 
 To atomically push completion time for a cron job:
 ```
