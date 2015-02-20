@@ -46,6 +46,7 @@ lastlogin | Exposes the last time there was a login.
 megacli | Exposes RAID statistics from MegaCLI.
 ntp | Exposes time drift from an NTP server.
 runit | Exposes service status from [runit](http://smarden.org/runit/).
+mysql | Query status of mysql database (only on localhost). Connection string must be defined in node_exporter.conf
 
 ## Textfile Collector
 
