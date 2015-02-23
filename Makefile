@@ -1,5 +1,8 @@
 VERSION  := 0.7.1
 
+NICE_GIT_VERSION	:= $(shell ./gitversion.sh)
+FULL_VERSION := $(VERSION)-$(NICE_GIT_VERSION)
+
 SRC      := $(wildcard *.go)
 TARGET   := node_exporter
 
@@ -30,7 +33,7 @@ GO         := GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
 
 SUFFIX  := $(GOOS)-$(GOARCH)
 BINARY  := $(TARGET)
-ARCHIVE := $(TARGET)-$(VERSION).$(SUFFIX).tar.gz
+ARCHIVE := $(TARGET)-$(FULL_VERSION).$(SUFFIX).tar.gz
 SELFLINK := $(GOPATH)/src/github.com/prometheus/node_exporter
 
 default: $(BINARY)
@@ -56,9 +59,11 @@ $(BINARY): $(GOCC) $(SRC) dependencies
 $(ARCHIVE): $(BINARY)
 	tar -czf $@ $<
 
+archive: $(ARCHIVE)
+
 release: REMOTE     ?= $(error "can't release, REMOTE not set")
 release: REMOTE_DIR ?= $(error "can't release, REMOTE_DIR not set")
-release: $(ARCHIVE)
+release: archive
 	scp $< $(REMOTE):$(REMOTE_DIR)/$(ARCHIVE)
 
 test: $(GOCC) dependencies
