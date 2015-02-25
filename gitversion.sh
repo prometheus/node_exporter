@@ -1,4 +1,7 @@
 #!/bin/bash
-_tag=`git describe`
-another_var=`expr index "$_tag" "-"`
-echo ${_tag:$another_var}
+
+# We strip the tag part of git describe and append it to the currently defined
+# version in the makefile
+DESCRIBE=`git describe`
+FROM_TAG_INDEX=`expr index "$DESCRIBE" "-"`
+echo ${DESCRIBE:$FROM_TAG_INDEX}
