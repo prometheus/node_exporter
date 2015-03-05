@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
-	"runtime/pprof"
 	"strings"
 	"sync"
 	"syscall"
@@ -171,37 +171,19 @@ func main() {
 			password: *authPass,
 		}
 	}
-	go func() {
-		http.Handle(*metricsPath, handler)
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(`<html>
-                       <head><title>Node Exporter</title></head>
-                       <body>
-                       <h1>Node Exporter</h1>
-                       <p><a href="` + *metricsPath + `">Metrics</a></p>
-                       </body>
-                       </html>`))
-		})
-		err := http.ListenAndServe(*listenAddress, nil)
-		if err != nil {
-			glog.Fatal(err)
-		}
-	}()
 
-	for {
-		select {
-		case <-sigUsr1:
-			glog.Infof("got signal")
-			if *memProfile != "" {
-				glog.Infof("Writing memory profile to %s", *memProfile)
-				f, err := os.Create(*memProfile)
-				if err != nil {
-					glog.Fatal(err)
-				}
-				pprof.WriteHeapProfile(f)
-				f.Close()
-			}
-		}
+	http.Handle(*metricsPath, handler)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html>
+			<head><title>Node Exporter</title></head>
+			<body>
+			<h1>Node Exporter</h1>
+			<p><a href="` + *metricsPath + `">Metrics</a></p>
+			</body>
+			</html>`))
+	})
+	err = http.ListenAndServe(*listenAddress, nil)
+	if err != nil {
+		glog.Fatal(err)
 	}
-
 }
