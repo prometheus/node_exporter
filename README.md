@@ -1,6 +1,6 @@
 # Node exporter
 
-![build status](https://travis-ci.org/prometheus/node_exporter.svg?branch=master)
+[![Build Status](https://travis-ci.org/prometheus/node_exporter.svg)](https://travis-ci.org/prometheus/node_exporter)
 
 Prometheus exporter for machine metrics, written in Go with pluggable metric
 collectors.
