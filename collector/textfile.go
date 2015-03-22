@@ -13,8 +13,9 @@ import (
 
 	dto "github.com/prometheus/client_model/go"
 
-	"code.google.com/p/goprotobuf/proto"
 	"github.com/golang/glog"
+	"github.com/golang/protobuf/proto"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/text"
 )
