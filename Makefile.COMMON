@@ -41,26 +41,27 @@ VERSION ?= $(error VERSION not set in including Makefile)
 TARGET  ?= $(error TARGET not set in including Makefile)
 
 SRC    ?= $(shell find . -type f -name "*.go" ! -path "./.build/*")
-GOOS   := $(shell uname | tr A-Z a-z)
-GOARCH := $(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m)))
+GOOS   ?= $(shell uname | tr A-Z a-z)
+GOARCH ?= $(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m)))
 
 ifeq ($(GOOS),darwin)
 	RELEASE_SUFFIX ?= -osx$(shell sw_vers -productVersion)
 endif
 
 GO_VERSION ?= 1.4.2
-GOURL      ?= https://golang.org/dl
-GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH)$(RELEASE_SUFFIX).tar.gz
-GOPATH     := $(CURDIR)/.build/gopath
-GOCC       ?= $(GOROOT)/bin/go
-GO         ?= GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
-GOFMT      ?= $(GOROOT)/bin/gofmt
 
 ifeq ($(shell type go >/dev/null && go version | sed 's/.*go\([0-9.]*\).*/\1/'), $(GO_VERSION))
 	GOROOT := $(shell go env GOROOT)
 else
 	GOROOT := $(CURDIR)/.build/go$(GO_VERSION)
 endif
+
+GOURL      ?= https://golang.org/dl
+GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH)$(RELEASE_SUFFIX).tar.gz
+GOPATH     := $(CURDIR)/.build/gopath
+GOCC       ?= $(GOROOT)/bin/go
+GO         ?= GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
+GOFMT      ?= $(GOROOT)/bin/gofmt
 
 # Never honor GOBIN, should it be set at all.
 unexport GOBIN
