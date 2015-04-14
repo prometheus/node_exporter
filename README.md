@@ -17,7 +17,7 @@ collectors.
 ## Available collectors
 
 By default the build will include the native collectors that expose information
-from /proc.
+from `/proc`.
 
 Which collectors are used is controlled by the `--collectors.enabled` flag.
 
@@ -26,13 +26,13 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 Name     | Description
 ---------|------------
 attributes | Exposes attributes from the configuration file. Deprecated, use textfile module instead.
-diskstats | Exposes disk I/O statistics from /proc/diskstats.
+diskstats | Exposes disk I/O statistics from `/proc/diskstats`.
 filesystem | Exposes filesystem statistics, such as disk space used.
 loadavg | Exposes load average.
-meminfo | Exposes memory statistics from /proc/meminfo.
-netdev | Exposes network interface statistics from /proc/netstat, such as bytes transferred.
-netstat | Exposes network statistics from /proc/net/netstat. This is the same information as `netstat -s`.
-stat | Exposes various statistics from /proc/stat. This includes CPU usage, boot time, forks and interrupts.
+meminfo | Exposes memory statistics from `/proc/meminfo`.
+netdev | Exposes network interface statistics from `/proc/netstat`, such as bytes transferred.
+netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`.
+stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts.
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set.
 time | Exposes the current system time.
 
@@ -43,12 +43,12 @@ Name     | Description
 ---------|------------
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces.
 gmond | Exposes statistics from Ganglia.
-interrupts | Exposes detailed interrupts statistics from /proc/interrupts.
+interrupts | Exposes detailed interrupts statistics from `/proc/interrupts`.
 lastlogin | Exposes the last time there was a login.
 megacli | Exposes RAID statistics from MegaCLI.
 ntp | Exposes time drift from an NTP server.
 runit | Exposes service status from [runit](http://smarden.org/runit/).
-tcpstat | Exposes TCP connection status information from /proc/net/tcp and /proc/net/tcp6. (Warning: the current version has potential performance issues in high load situations.)
+tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.)
 
 ## Textfile Collector
 
