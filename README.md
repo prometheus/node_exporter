@@ -10,6 +10,12 @@ collectors.
     make
     ./node_exporter <flags>
 
+The node_exporter uses the [glog][glog] library for logging. With the default
+parameters, nothing will be logged. Use `-logtostderr` to enable logging to
+stderr and `--help` to see more options about logging.
+
+[glog]: https://godoc.org/github.com/golang/glog
+
 ## Running tests
 
     make test
