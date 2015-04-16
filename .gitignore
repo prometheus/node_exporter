@@ -20,6 +20,8 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+dependencies-stamp
 node_exporter
+.build
 .deps
 *.tar.gz
