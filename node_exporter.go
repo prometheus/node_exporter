@@ -22,6 +22,9 @@ import (
 const subsystem = "exporter"
 
 var (
+	// set at build time
+	Version = "0.0.0.dev"
+
 	configFile        = flag.String("config.file", "", "Path to config file.")
 	memProfile        = flag.String("debug.memprofile-file", "", "Write memory profile to this file upon receipt of SIGUSR1.")
 	listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
@@ -137,6 +140,7 @@ func loadCollectors(file string) (map[string]collector.Collector, error) {
 
 func main() {
 	flag.Parse()
+
 	if *printCollectors {
 		fmt.Printf("Available collectors:\n")
 		for n, _ := range collector.Factories {
@@ -182,6 +186,8 @@ func main() {
 			</body>
 			</html>`))
 	})
+
+	glog.Infof("Starting node_exporter v%s at %s", Version, *listenAddress)
 	err = http.ListenAndServe(*listenAddress, nil)
 	if err != nil {
 		glog.Fatal(err)

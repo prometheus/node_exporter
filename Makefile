@@ -13,5 +13,6 @@
 
 VERSION  := 0.8.0
 TARGET   := node_exporter
+GOFLAGS  := -ldflags "-X main.Version $(VERSION)"
 
 include Makefile.COMMON
