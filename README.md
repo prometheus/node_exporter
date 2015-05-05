@@ -50,6 +50,7 @@ Name     | Description
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces.
 gmond | Exposes statistics from Ganglia.
 interrupts | Exposes detailed interrupts statistics from `/proc/interrupts`.
+ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`.
 lastlogin | Exposes the last time there was a login.
 megacli | Exposes RAID statistics from MegaCLI.
 ntp | Exposes time drift from an NTP server.

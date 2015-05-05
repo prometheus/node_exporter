@@ -1,0 +1,45 @@
+# HELP node_ipvs_backend_connections_active The current active connections by local and remote address.
+# TYPE node_ipvs_backend_connections_active gauge
+node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 248
+node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 248
+node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 248
+node_ipvs_backend_connections_active{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 0
+node_ipvs_backend_connections_active{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
+node_ipvs_backend_connections_active{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 1498
+node_ipvs_backend_connections_active{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 1499
+node_ipvs_backend_connections_active{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
+# HELP node_ipvs_backend_connections_inactive The current inactive connections by local and remote address.
+# TYPE node_ipvs_backend_connections_inactive gauge
+node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 2
+node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 1
+node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 2
+node_ipvs_backend_connections_inactive{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
+# HELP node_ipvs_backend_weight The current backend weight by local and remote address.
+# TYPE node_ipvs_backend_weight gauge
+node_ipvs_backend_weight{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
+node_ipvs_backend_weight{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
+# HELP node_ipvs_connections_total The total number of connections made.
+# TYPE node_ipvs_connections_total counter
+node_ipvs_connections_total 2.3765872e+07
+# HELP node_ipvs_incoming_bytes_total The total amount of incoming data.
+# TYPE node_ipvs_incoming_bytes_total counter
+node_ipvs_incoming_bytes_total 8.9991519156915e+13
+# HELP node_ipvs_incoming_packets_total The total number of incoming packets.
+# TYPE node_ipvs_incoming_packets_total counter
+node_ipvs_incoming_packets_total 3.811989221e+09
+# HELP node_ipvs_outgoing_bytes_total The total amount of outgoing data.
+# TYPE node_ipvs_outgoing_bytes_total counter
+node_ipvs_outgoing_bytes_total 0
+# HELP node_ipvs_outgoing_packets_total The total number of outgoing packets.
+# TYPE node_ipvs_outgoing_packets_total counter
+node_ipvs_outgoing_packets_total 0
