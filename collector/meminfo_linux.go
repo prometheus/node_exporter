@@ -1,4 +1,4 @@
-// +build linux,!nomeminfo
+// +build !nomeminfo
 
 package collector
 

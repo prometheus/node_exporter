@@ -1,4 +1,4 @@
-// +build linux,!nobonding
+// +build !nobonding
 
 package collector
 

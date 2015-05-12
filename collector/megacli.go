@@ -1,4 +1,4 @@
-// +build linux,!nomegacli
+// +build !nomegacli
 
 package collector
 

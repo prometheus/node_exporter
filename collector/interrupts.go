@@ -1,4 +1,4 @@
-// +build linux,!nointerrupts
+// +build !nointerrupts
 
 package collector
 

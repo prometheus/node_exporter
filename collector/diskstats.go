@@ -1,4 +1,4 @@
-// +build linux,!nodiskstats
+// +build !nodiskstats
 
 package collector
 

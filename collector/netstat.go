@@ -1,4 +1,4 @@
-// +build linux,!nonetstat
+// +build !nonetstat
 
 package collector
 

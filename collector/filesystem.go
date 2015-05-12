@@ -1,4 +1,4 @@
-// +build linux,!nofilesystem
+// +build !nofilesystem
 
 package collector
 
