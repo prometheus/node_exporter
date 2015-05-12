@@ -1,4 +1,4 @@
-// +build freebsd,!nomeminfo
+// +build !nomeminfo
 
 package collector
 

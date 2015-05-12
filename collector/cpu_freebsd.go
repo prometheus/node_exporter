@@ -1,4 +1,4 @@
-// +build freebsd,!nostat
+// +build !nostat
 
 package collector
 
