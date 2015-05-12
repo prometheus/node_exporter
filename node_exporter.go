@@ -9,6 +9,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -142,8 +143,13 @@ func main() {
 	flag.Parse()
 
 	if *printCollectors {
-		fmt.Printf("Available collectors:\n")
+		collectorNames := make(sort.StringSlice, 0, len(collector.Factories))
 		for n, _ := range collector.Factories {
+			collectorNames = append(collectorNames, n)
+		}
+		collectorNames.Sort()
+		fmt.Printf("Available collectors:\n")
+		for _, n := range collectorNames {
 			fmt.Printf(" - %s\n", n)
 		}
 		return
