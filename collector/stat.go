@@ -11,11 +11,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// #include <unistd.h>
-import "C"
-
 const (
 	procStat = "/proc/stat"
+	userHz   = 100
 )
 
 type statCollector struct {
@@ -102,17 +100,17 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			// Only some of these may be present, depending on kernel version.
 			cpuFields := []string{"user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest"}
 			// OpenVZ guests lack the "guest" CPU field, which needs to be ignored.
-			expectedFieldNum := len(cpuFields)+1
+			expectedFieldNum := len(cpuFields) + 1
 			if expectedFieldNum > len(parts) {
 				expectedFieldNum = len(parts)
 			}
-			for i, v := range parts[1 : expectedFieldNum] {
+			for i, v := range parts[1:expectedFieldNum] {
 				value, err := strconv.ParseFloat(v, 64)
 				if err != nil {
 					return err
 				}
 				// Convert from ticks to seconds
-				value /= float64(C.sysconf(C._SC_CLK_TCK))
+				value /= userHz
 				c.cpu.With(prometheus.Labels{"cpu": parts[0], "mode": cpuFields[i]}).Set(value)
 			}
 		case parts[0] == "intr":
