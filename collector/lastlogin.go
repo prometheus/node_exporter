@@ -1,4 +1,4 @@
-// +build !nolastlogin
+// +build linux,!nolastlogin
 
 package collector
 

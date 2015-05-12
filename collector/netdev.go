@@ -1,4 +1,4 @@
-// +build !nonetdev
+// +build linux,!nonetdev
 
 package collector
 

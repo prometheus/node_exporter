@@ -1,4 +1,4 @@
-// +build !notcpstat
+// +build linux,!notcpstat
 
 package collector
 

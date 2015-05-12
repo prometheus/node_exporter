@@ -1,4 +1,4 @@
-// +build !nostat
+// +build linux,!nostat
 
 package collector
 
