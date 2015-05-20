@@ -3,11 +3,16 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+)
+
+var (
+	ipvsProcfsMountPoint = flag.String("collector.ipvs.procfs", procfs.DefaultMountPoint, "procfs mountpoint.")
 )
 
 type ipvsCollector struct {
@@ -23,11 +28,11 @@ func init() {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector(config Config) (Collector, error) {
-	return newIPVSCollector(config)
+func NewIPVSCollector() (Collector, error) {
+	return newIPVSCollector()
 }
 
-func newIPVSCollector(config Config) (*ipvsCollector, error) {
+func newIPVSCollector() (*ipvsCollector, error) {
 	var (
 		ipvsBackendLabelNames = []string{
 			"local_address",
@@ -37,22 +42,13 @@ func newIPVSCollector(config Config) (*ipvsCollector, error) {
 			"proto",
 		}
 		c         ipvsCollector
-		subsystem string
 		err       error
+		subsystem = "ipvs"
 	)
 
-	if p, ok := config.Config["procfs"]; !ok {
-		c.fs, err = procfs.NewFS(procfs.DefaultMountPoint)
-	} else {
-		c.fs, err = procfs.NewFS(p)
-	}
+	c.fs, err = procfs.NewFS(*ipvsProcfsMountPoint)
 	if err != nil {
 		return nil, err
-	}
-	if s, ok := config.Config["ipvs_subsystem"]; ok {
-		subsystem = s
-	} else {
-		subsystem = "ipvs"
 	}
 
 	c.connections = prometheus.NewCounter(

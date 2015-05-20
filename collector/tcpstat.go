@@ -35,7 +35,7 @@ const (
 )
 
 type tcpStatCollector struct {
-	config Config
+	
 	metric *prometheus.GaugeVec
 }
 
@@ -43,11 +43,11 @@ func init() {
 	Factories["tcpstat"] = NewTCPStatCollector
 }
 
-// NewTCPStatCollector takes a config struct and returns
+// NewTCPStatCollector takes a returns
 // a new Collector exposing network stats.
-func NewTCPStatCollector(config Config) (Collector, error) {
+func NewTCPStatCollector() (Collector, error) {
 	return &tcpStatCollector{
-		config: config,
+		
 		metric: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: Namespace,

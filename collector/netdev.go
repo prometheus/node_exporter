@@ -19,7 +19,7 @@ const (
 )
 
 type netDevCollector struct {
-	config  Config
+	
 	metrics map[string]*prometheus.GaugeVec
 }
 
@@ -27,11 +27,10 @@ func init() {
 	Factories["netdev"] = NewNetDevCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // network device stats.
-func NewNetDevCollector(config Config) (Collector, error) {
+func NewNetDevCollector() (Collector, error) {
 	return &netDevCollector{
-		config:  config,
 		metrics: map[string]*prometheus.GaugeVec{},
 	}, nil
 }

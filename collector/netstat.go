@@ -19,7 +19,7 @@ const (
 )
 
 type netStatCollector struct {
-	config  Config
+	
 	metrics map[string]prometheus.Gauge
 }
 
@@ -27,11 +27,10 @@ func init() {
 	Factories["netstat"] = NewNetStatCollector
 }
 
-// NewNetStatCollector takes a config struct and returns
+// NewNetStatCollector takes a returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(config Config) (Collector, error) {
+func NewNetStatCollector() (Collector, error) {
 	return &netStatCollector{
-		config:  config,
 		metrics: map[string]prometheus.Gauge{},
 	}, nil
 }

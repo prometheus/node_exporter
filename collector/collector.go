@@ -7,7 +7,7 @@ import (
 
 const Namespace = "node"
 
-var Factories = make(map[string]func(Config) (Collector, error))
+var Factories = make(map[string]func() (Collector, error))
 
 // Interface a collector has to implement.
 type Collector interface {
@@ -20,8 +20,3 @@ type Collector interface {
 // scraped. (However, for metric gathering that takes very long, it might
 // actually be better to do them proactively before scraping to minimize scrape
 // time.)
-
-type Config struct {
-	Config     map[string]string `json:"config"`
-	Attributes map[string]string `json:"attributes"`
-}

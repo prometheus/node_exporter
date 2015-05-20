@@ -25,7 +25,7 @@ const (
 
 type gmondCollector struct {
 	metrics map[string]*prometheus.GaugeVec
-	config  Config
+	
 }
 
 func init() {
@@ -34,10 +34,9 @@ func init() {
 
 var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
-// Takes a config struct and prometheus registry and returns a new Collector scraping ganglia.
-func NewGmondCollector(config Config) (Collector, error) {
+// Takes a prometheus registry and returns a new Collector scraping ganglia.
+func NewGmondCollector() (Collector, error) {
 	c := gmondCollector{
-		config:  config,
 		metrics: map[string]*prometheus.GaugeVec{},
 	}
 

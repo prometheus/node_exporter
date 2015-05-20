@@ -18,7 +18,7 @@ const (
 )
 
 type interruptsCollector struct {
-	config Config
+	
 	metric *prometheus.CounterVec
 }
 
@@ -26,11 +26,11 @@ func init() {
 	Factories["interrupts"] = NewInterruptsCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // interrupts stats
-func NewInterruptsCollector(config Config) (Collector, error) {
+func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
-		config: config,
+		
 		metric: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: Namespace,

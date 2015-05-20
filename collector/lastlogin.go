@@ -17,7 +17,7 @@ import (
 const lastLoginSubsystem = "last_login"
 
 type lastLoginCollector struct {
-	config Config
+	
 	metric prometheus.Gauge
 }
 
@@ -25,11 +25,11 @@ func init() {
 	Factories["lastlogin"] = NewLastLoginCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // load, seconds since last login and a list of tags as specified by config.
-func NewLastLoginCollector(config Config) (Collector, error) {
+func NewLastLoginCollector() (Collector, error) {
 	return &lastLoginCollector{
-		config: config,
+		
 		metric: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Subsystem: lastLoginSubsystem,
