@@ -21,6 +21,10 @@ func TestNetDevStats(t *testing.T) {
 		t.Errorf("want netstat wlan0 bytes %s, got %s", want, got)
 	}
 
+	if want, got := "68210035552", netStats["receive"]["eth0"]["bytes"]; want != got {
+		t.Errorf("want netstat eth0 bytes %s, got %s", want, got)
+	}
+
 	if want, got := "934", netStats["transmit"]["tun0"]["packets"]; want != got {
 		t.Errorf("want netstat tun0 packets %s, got %s", want, got)
 	}
