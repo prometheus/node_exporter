@@ -4,6 +4,7 @@ package collector
 
 import (
 	"errors"
+	"os"
 	"strconv"
 	"unsafe"
 
@@ -49,6 +50,10 @@ func NewStatCollector(config Config) (Collector, error) {
 
 // Expose cpu stats using kvm
 func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
+	if os.Geteuid() != 0 && os.Getegid() != 2 {
+		return errors.New("Caller should be either root user or kmem group to access /dev/mem")
+	}
+
 	var errbuf *C.char
 	kd := C.kvm_open(nil, nil, nil, C.O_RDONLY, errbuf)
 	if errbuf != nil {
