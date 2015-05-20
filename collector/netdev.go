@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -16,6 +17,10 @@ import (
 const (
 	procNetDev      = "/proc/net/dev"
 	netDevSubsystem = "network"
+)
+
+var (
+	fieldSep = regexp.MustCompile("[ :] *")
 )
 
 type netDevCollector struct {
@@ -95,13 +100,14 @@ func parseNetDevStats(r io.Reader) (map[string]map[string]map[string]string, err
 	}
 	header := strings.Fields(parts[1])
 	for scanner.Scan() {
-		parts := strings.Fields(string(scanner.Text()))
+		line := strings.TrimLeft(string(scanner.Text()), " ")
+		parts := fieldSep.Split(line, -1)
 		if len(parts) != 2*len(header)+1 {
 			return nil, fmt.Errorf("Invalid line in %s: %s",
 				procNetDev, scanner.Text())
 		}
 
-		dev := parts[0][:len(parts[0])-1]
+		dev := parts[0][:len(parts[0])]
 		receive, err := parseNetDevLine(parts[1:len(header)+1], header)
 		if err != nil {
 			return nil, err
