@@ -26,7 +26,7 @@ var (
 )
 
 type diskstatsCollector struct {
-	config                Config
+	
 	ignoredDevicesPattern *regexp.Regexp
 	metrics               []prometheus.Collector
 }
@@ -35,13 +35,12 @@ func init() {
 	Factories["diskstats"] = NewDiskstatsCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // disk device stats.
-func NewDiskstatsCollector(config Config) (Collector, error) {
+func NewDiskstatsCollector() (Collector, error) {
 	var diskLabelNames = []string{"device"}
 
 	return &diskstatsCollector{
-		config:                config,
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
 		// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 		metrics: []prometheus.Collector{

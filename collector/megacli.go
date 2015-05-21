@@ -4,6 +4,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"io"
 	"os/exec"
 	"strconv"
@@ -17,9 +18,12 @@ const (
 	adapterHeaderSep = "================"
 )
 
+var (
+	megacliCommand = flag.String("collector.megacli.command", defaultMegaCli, "Command to run megacli.")
+)
+
 type megaCliCollector struct {
-	config Config
-	cli    string
+	cli string
 
 	driveTemperature *prometheus.GaugeVec
 	driveCounters    *prometheus.CounterVec
@@ -30,17 +34,12 @@ func init() {
 	Factories["megacli"] = NewMegaCliCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // RAID status through megacli.
-func NewMegaCliCollector(config Config) (Collector, error) {
-	cli := defaultMegaCli
-	if config.Config["megacli_command"] != "" {
-		cli = config.Config["megacli_command"]
-	}
-
+func NewMegaCliCollector() (Collector, error) {
 	return &megaCliCollector{
-		config: config,
-		cli:    cli,
+		
+		cli:    *megacliCommand,
 		driveTemperature: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Name:      "megacli_drive_temperature_celsius",

@@ -10,7 +10,7 @@ import (
 )
 
 type timeCollector struct {
-	config Config
+	
 	metric prometheus.Counter
 }
 
@@ -18,11 +18,11 @@ func init() {
 	Factories["time"] = NewTimeCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // the current system time in seconds since epoch.
-func NewTimeCollector(config Config) (Collector, error) {
+func NewTimeCollector() (Collector, error) {
 	return &timeCollector{
-		config: config,
+		
 		metric: prometheus.NewCounter(prometheus.CounterOpts{
 			Namespace: Namespace,
 			Name:      "time",

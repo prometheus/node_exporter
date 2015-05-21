@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"flag"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -106,7 +107,10 @@ var (
 )
 
 func TestIPVSCollector(t *testing.T) {
-	collector, err := newIPVSCollector(Config{Config: map[string]string{"procfs": "fixtures"}})
+	if err := flag.Set("collector.ipvs.procfs", "fixtures"); err != nil {
+		t.Fatal(err)
+	}
+	collector, err := newIPVSCollector()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -165,7 +169,10 @@ func (c miniCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func TestIPVSCollectorResponse(t *testing.T) {
-	collector, err := NewIPVSCollector(Config{Config: map[string]string{"procfs": "fixtures"}})
+	if err := flag.Set("collector.ipvs.procfs", "fixtures"); err != nil {
+		t.Fatal(err)
+	}
+	collector, err := NewIPVSCollector()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,6 +190,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	wantLines := strings.Split(string(wantMetrics), "\n")
 	gotLines := strings.Split(string(rw.Body.String()), "\n")
 	gotLinesIdx := 0
+	t.Log(gotLines)
 
 	// Until the Prometheus Go client library offers better testability
 	// (https://github.com/prometheus/client_golang/issues/58), we simply compare

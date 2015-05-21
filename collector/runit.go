@@ -9,7 +9,7 @@ import (
 )
 
 type runitCollector struct {
-	config Config
+	
 
 	state, stateDesired, stateNormal *prometheus.GaugeVec
 }
@@ -18,7 +18,7 @@ func init() {
 	Factories["runit"] = NewRunitCollector
 }
 
-func NewRunitCollector(config Config) (Collector, error) {
+func NewRunitCollector() (Collector, error) {
 	var (
 		subsystem   = "service"
 		constLabels = prometheus.Labels{"supervisor": "runit"}
@@ -26,7 +26,7 @@ func NewRunitCollector(config Config) (Collector, error) {
 	)
 
 	return &runitCollector{
-		config: config,
+		
 		state: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   Namespace,

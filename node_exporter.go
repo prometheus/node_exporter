@@ -1,10 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -26,11 +24,10 @@ var (
 	// set at build time
 	Version = "0.0.0.dev"
 
-	configFile        = flag.String("config.file", "", "Path to config file.")
 	memProfile        = flag.String("debug.memprofile-file", "", "Write memory profile to this file upon receipt of SIGUSR1.")
 	listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
 	metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-	enabledCollectors = flag.String("collectors.enabled", "attributes,diskstats,filesystem,loadavg,meminfo,stat,textfile,time,netdev,netstat", "Comma-separated list of collectors to use.")
+	enabledCollectors = flag.String("collectors.enabled", "diskstats,filesystem,loadavg,meminfo,stat,textfile,time,netdev,netstat", "Comma-separated list of collectors to use.")
 	printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 	authUser          = flag.String("auth.user", "", "Username for basic auth.")
 	authPass          = flag.String("auth.pass", "", "Password for basic auth.")
@@ -105,32 +102,14 @@ func Execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
 }
 
-func getConfig(file string) (*collector.Config, error) {
-	config := &collector.Config{}
-	glog.Infof("Reading config %s", *configFile)
-	bytes, err := ioutil.ReadFile(*configFile)
-	if err != nil {
-		return nil, err
-	}
-	return config, json.Unmarshal(bytes, &config)
-}
-
-func loadCollectors(file string) (map[string]collector.Collector, error) {
+func loadCollectors() (map[string]collector.Collector, error) {
 	collectors := map[string]collector.Collector{}
-	config := &collector.Config{}
-	if file != "" {
-		var err error
-		config, err = getConfig(file)
-		if err != nil {
-			return nil, fmt.Errorf("couldn't read config %s: %s", file, err)
-		}
-	}
 	for _, name := range strings.Split(*enabledCollectors, ",") {
 		fn, ok := collector.Factories[name]
 		if !ok {
 			return nil, fmt.Errorf("collector '%s' not available", name)
 		}
-		c, err := fn(*config)
+		c, err := fn()
 		if err != nil {
 			return nil, err
 		}
@@ -154,9 +133,9 @@ func main() {
 		}
 		return
 	}
-	collectors, err := loadCollectors(*configFile)
+	collectors, err := loadCollectors()
 	if err != nil {
-		glog.Fatalf("Couldn't load config and collectors: %s", err)
+		glog.Fatalf("Couldn't load collectors: %s", err)
 	}
 
 	glog.Infof("Enabled collectors:")

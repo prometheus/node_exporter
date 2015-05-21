@@ -26,7 +26,7 @@ func init() {
 
 // NewBondingCollector returns a newly allocated bondingCollector.
 // It exposes the number of configured and active slave of linux bonding interfaces.
-func NewBondingCollector(config Config) (Collector, error) {
+func NewBondingCollector() (Collector, error) {
 	return &bondingCollector{
 		slaves: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{

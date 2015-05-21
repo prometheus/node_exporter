@@ -24,9 +24,9 @@ func init() {
 	Factories["ntp"] = NewNtpCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // the offset between ntp and the current system time.
-func NewNtpCollector(config Config) (Collector, error) {
+func NewNtpCollector() (Collector, error) {
 	if *ntpServer == "" {
 		return nil, fmt.Errorf("No NTP server specifies, see --ntpServer")
 	}

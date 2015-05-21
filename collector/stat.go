@@ -17,7 +17,7 @@ const (
 )
 
 type statCollector struct {
-	config       Config
+	
 	cpu          *prometheus.CounterVec
 	intr         prometheus.Counter
 	ctxt         prometheus.Counter
@@ -31,11 +31,11 @@ func init() {
 	Factories["stat"] = NewStatCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
+// Takes a prometheus registry and returns a new Collector exposing
 // network device stats.
-func NewStatCollector(config Config) (Collector, error) {
+func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		config: config,
+		
 		cpu: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: Namespace,

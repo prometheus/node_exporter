@@ -31,7 +31,6 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 
 Name     | Description
 ---------|------------
-attributes | Exposes attributes from the configuration file. Deprecated, use textfile module instead.
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`.
 filesystem | Exposes filesystem statistics, such as disk space used.
 loadavg | Exposes load average.

@@ -31,9 +31,9 @@ func init() {
 	Factories["textfile"] = NewTextFileCollector
 }
 
-// Takes a config struct and registers a
+// Takes a registers a
 // SetMetricFamilyInjectionHook.
-func NewTextFileCollector(config Config) (Collector, error) {
+func NewTextFileCollector() (Collector, error) {
 	if *textFileDirectory == "" {
 		// This collector is enabled by default, so do not fail if
 		// the flag is not passed.
