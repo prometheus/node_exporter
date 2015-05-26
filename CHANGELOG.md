@@ -1,4 +1,4 @@
-## 0.9.0 / unreleased
+## 0.9.0 / 2015-05-26
 
 * [BUGFIX] Fix `/proc/net/dev` parsing.
 * [CLEANUP] Remove the `attributes` collector, use `textfile` instead.
