@@ -24,7 +24,6 @@ var (
 )
 
 type netDevCollector struct {
-	
 	metrics map[string]*prometheus.GaugeVec
 }
 

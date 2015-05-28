@@ -9,8 +9,6 @@ import (
 )
 
 type runitCollector struct {
-	
-
 	state, stateDesired, stateNormal *prometheus.GaugeVec
 }
 
@@ -26,7 +24,6 @@ func NewRunitCollector() (Collector, error) {
 	)
 
 	return &runitCollector{
-		
 		state: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   Namespace,

@@ -19,7 +19,6 @@ const (
 )
 
 type netStatCollector struct {
-	
 	metrics map[string]prometheus.Gauge
 }
 

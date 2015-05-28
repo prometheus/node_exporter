@@ -18,7 +18,6 @@ const (
 )
 
 type interruptsCollector struct {
-	
 	metric *prometheus.CounterVec
 }
 
@@ -30,7 +29,6 @@ func init() {
 // interrupts stats
 func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
-		
 		metric: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: Namespace,

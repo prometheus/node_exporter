@@ -17,7 +17,6 @@ const (
 )
 
 type loadavgCollector struct {
-	
 	metric prometheus.Gauge
 }
 
@@ -29,7 +28,6 @@ func init() {
 // load, seconds since last login and a list of tags as specified by config.
 func NewLoadavgCollector() (Collector, error) {
 	return &loadavgCollector{
-		
 		metric: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Name:      "load1",

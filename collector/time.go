@@ -10,7 +10,6 @@ import (
 )
 
 type timeCollector struct {
-	
 	metric prometheus.Counter
 }
 
@@ -22,7 +21,6 @@ func init() {
 // the current system time in seconds since epoch.
 func NewTimeCollector() (Collector, error) {
 	return &timeCollector{
-		
 		metric: prometheus.NewCounter(prometheus.CounterOpts{
 			Namespace: Namespace,
 			Name:      "time",

@@ -17,7 +17,6 @@ import (
 const lastLoginSubsystem = "last_login"
 
 type lastLoginCollector struct {
-	
 	metric prometheus.Gauge
 }
 

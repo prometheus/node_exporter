@@ -26,7 +26,6 @@ var (
 )
 
 type diskstatsCollector struct {
-	
 	ignoredDevicesPattern *regexp.Regexp
 	metrics               []prometheus.Collector
 }

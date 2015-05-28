@@ -25,7 +25,6 @@ const (
 
 type gmondCollector struct {
 	metrics map[string]*prometheus.GaugeVec
-	
 }
 
 func init() {

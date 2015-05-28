@@ -25,7 +25,6 @@ var (
 )
 
 type filesystemCollector struct {
-	
 	ignoredMountPointsPattern *regexp.Regexp
 
 	size, free, avail, files, filesFree *prometheus.GaugeVec

@@ -38,8 +38,7 @@ func init() {
 // RAID status through megacli.
 func NewMegaCliCollector() (Collector, error) {
 	return &megaCliCollector{
-		
-		cli:    *megacliCommand,
+		cli: *megacliCommand,
 		driveTemperature: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Name:      "megacli_drive_temperature_celsius",
