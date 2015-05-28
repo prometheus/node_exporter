@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/beevik/ntp"
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 var (
@@ -46,7 +46,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return fmt.Errorf("Couldn't get ntp drift: %s", err)
 	}
 	drift := t.Sub(time.Now())
-	glog.V(1).Infof("Set ntp_drift_seconds: %f", drift.Seconds())
+	log.Debugf("Set ntp_drift_seconds: %f", drift.Seconds())
 	c.drift.Set(drift.Seconds())
 	c.drift.Collect(ch)
 	return err

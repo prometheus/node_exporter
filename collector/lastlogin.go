@@ -10,14 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 const lastLoginSubsystem = "last_login"
 
 type lastLoginCollector struct {
-	
 	metric prometheus.Gauge
 }
 
@@ -29,7 +28,6 @@ func init() {
 // load, seconds since last login and a list of tags as specified by config.
 func NewLastLoginCollector() (Collector, error) {
 	return &lastLoginCollector{
-		
 		metric: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Subsystem: lastLoginSubsystem,
@@ -44,7 +42,7 @@ func (c *lastLoginCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return fmt.Errorf("Couldn't get last seen: %s", err)
 	}
-	glog.V(1).Infof("Set node_last_login_time: %f", last)
+	log.Debugf("Set node_last_login_time: %f", last)
 	c.metric.Set(last)
 	c.metric.Collect(ch)
 	return err

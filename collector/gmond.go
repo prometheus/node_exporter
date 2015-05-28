@@ -11,8 +11,9 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
+
 	"github.com/prometheus/node_exporter/collector/ganglia"
 )
 
@@ -25,7 +26,6 @@ const (
 
 type gmondCollector struct {
 	metrics map[string]*prometheus.GaugeVec
-	
 }
 
 func init() {
@@ -45,7 +45,7 @@ func NewGmondCollector() (Collector, error) {
 
 func (c *gmondCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	conn, err := net.Dial(gangliaProto, gangliaAddress)
-	glog.V(1).Infof("gmondCollector Update")
+	log.Debugf("gmondCollector Update")
 	if err != nil {
 		return fmt.Errorf("Can't connect to gmond: %s", err)
 	}
@@ -91,7 +91,7 @@ func (c *gmondCollector) setMetric(name, cluster string, metric ganglia.Metric) 
 				break
 			}
 		}
-		glog.V(1).Infof("Register %s: %s", name, desc)
+		log.Debugf("Register %s: %s", name, desc)
 		c.metrics[name] = prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: gangliaNamespace,
@@ -101,7 +101,7 @@ func (c *gmondCollector) setMetric(name, cluster string, metric ganglia.Metric) 
 			[]string{"cluster"},
 		)
 	}
-	glog.V(1).Infof("Set %s{cluster=%q}: %f", name, cluster, metric.Value)
+	log.Debugf("Set %s{cluster=%q}: %f", name, cluster, metric.Value)
 	c.metrics[name].WithLabelValues(cluster).Set(metric.Value)
 }
 

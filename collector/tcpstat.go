@@ -35,7 +35,6 @@ const (
 )
 
 type tcpStatCollector struct {
-	
 	metric *prometheus.GaugeVec
 }
 
@@ -47,7 +46,6 @@ func init() {
 // a new Collector exposing network stats.
 func NewTCPStatCollector() (Collector, error) {
 	return &tcpStatCollector{
-		
 		metric: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: Namespace,

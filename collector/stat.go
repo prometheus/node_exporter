@@ -17,7 +17,6 @@ const (
 )
 
 type statCollector struct {
-	
 	cpu          *prometheus.CounterVec
 	intr         prometheus.Counter
 	ctxt         prometheus.Counter
@@ -35,7 +34,6 @@ func init() {
 // network device stats.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		
 		cpu: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: Namespace,

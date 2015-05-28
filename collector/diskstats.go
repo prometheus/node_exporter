@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 const (
@@ -26,7 +26,6 @@ var (
 )
 
 type diskstatsCollector struct {
-	
 	ignoredDevicesPattern *regexp.Regexp
 	metrics               []prometheus.Collector
 }
@@ -155,7 +154,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	for dev, stats := range diskStats {
 		if c.ignoredDevicesPattern.MatchString(dev) {
-			glog.V(1).Infof("Ignoring device: %s", dev)
+			log.Debugf("Ignoring device: %s", dev)
 			continue
 		}
 

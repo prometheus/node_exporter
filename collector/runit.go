@@ -3,14 +3,12 @@
 package collector
 
 import (
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 	"github.com/soundcloud/go-runit/runit"
 )
 
 type runitCollector struct {
-	
-
 	state, stateDesired, stateNormal *prometheus.GaugeVec
 }
 
@@ -26,7 +24,6 @@ func NewRunitCollector() (Collector, error) {
 	)
 
 	return &runitCollector{
-		
 		state: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace:   Namespace,
@@ -69,11 +66,11 @@ func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, service := range services {
 		status, err := service.Status()
 		if err != nil {
-			glog.V(1).Infof("Couldn't get status for %s: %s, skipping...", service.Name, err)
+			log.Debugf("Couldn't get status for %s: %s, skipping...", service.Name, err)
 			continue
 		}
 
-		glog.V(1).Infof("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
+		log.Debugf("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
 		c.state.WithLabelValues(service.Name).Set(float64(status.State))
 		c.stateDesired.WithLabelValues(service.Name).Set(float64(status.Want))
 		if status.NormallyUp {

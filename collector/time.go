@@ -5,12 +5,11 @@ package collector
 import (
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 type timeCollector struct {
-	
 	metric prometheus.Counter
 }
 
@@ -22,7 +21,6 @@ func init() {
 // the current system time in seconds since epoch.
 func NewTimeCollector() (Collector, error) {
 	return &timeCollector{
-		
 		metric: prometheus.NewCounter(prometheus.CounterOpts{
 			Namespace: Namespace,
 			Name:      "time",
@@ -33,7 +31,7 @@ func NewTimeCollector() (Collector, error) {
 
 func (c *timeCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	now := time.Now()
-	glog.V(1).Infof("Set time: %f", now.Unix())
+	log.Debugf("Set time: %f", now.Unix())
 	c.metric.Set(float64(now.Unix()))
 	c.metric.Collect(ch)
 	return err
