@@ -11,8 +11,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 const (
@@ -40,7 +40,6 @@ func NewFilesystemCollector() (Collector, error) {
 	var filesystemLabelNames = []string{"filesystem"}
 
 	return &filesystemCollector{
-		
 		ignoredMountPointsPattern: regexp.MustCompile(*ignoredMountPoints),
 		size: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
@@ -98,7 +97,7 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 	for _, mp := range mps {
 		if c.ignoredMountPointsPattern.MatchString(mp) {
-			glog.V(1).Infof("Ignoring mount point: %s", mp)
+			log.Debugf("Ignoring mount point: %s", mp)
 			continue
 		}
 		buf := new(syscall.Statfs_t)

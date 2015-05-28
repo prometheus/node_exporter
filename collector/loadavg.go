@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 const (
@@ -41,7 +41,7 @@ func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return fmt.Errorf("Couldn't get load: %s", err)
 	}
-	glog.V(1).Infof("Set node_load: %f", load)
+	log.Debugf("Set node_load: %f", load)
 	c.metric.Set(load)
 	c.metric.Collect(ch)
 	return err

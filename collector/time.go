@@ -5,8 +5,8 @@ package collector
 import (
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 type timeCollector struct {
@@ -31,7 +31,7 @@ func NewTimeCollector() (Collector, error) {
 
 func (c *timeCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	now := time.Now()
-	glog.V(1).Infof("Set time: %f", now.Unix())
+	log.Debugf("Set time: %f", now.Unix())
 	c.metric.Set(float64(now.Unix()))
 	c.metric.Collect(ch)
 	return err

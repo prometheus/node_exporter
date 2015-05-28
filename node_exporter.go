@@ -13,8 +13,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
+
 	"github.com/prometheus/node_exporter/collector"
 )
 
@@ -93,10 +94,10 @@ func Execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	var result string
 
 	if err != nil {
-		glog.Infof("ERROR: %s failed after %fs: %s", name, duration.Seconds(), err)
+		log.Infof("ERROR: %s failed after %fs: %s", name, duration.Seconds(), err)
 		result = "error"
 	} else {
-		glog.Infof("OK: %s success after %fs.", name, duration.Seconds())
+		log.Infof("OK: %s success after %fs.", name, duration.Seconds())
 		result = "success"
 	}
 	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
@@ -135,12 +136,12 @@ func main() {
 	}
 	collectors, err := loadCollectors()
 	if err != nil {
-		glog.Fatalf("Couldn't load collectors: %s", err)
+		log.Fatalf("Couldn't load collectors: %s", err)
 	}
 
-	glog.Infof("Enabled collectors:")
+	log.Infof("Enabled collectors:")
 	for n, _ := range collectors {
-		glog.Infof(" - %s", n)
+		log.Infof(" - %s", n)
 	}
 
 	nodeCollector := NodeCollector{collectors: collectors}
@@ -152,7 +153,7 @@ func main() {
 	handler := prometheus.Handler()
 	if *authUser != "" || *authPass != "" {
 		if *authUser == "" || *authPass == "" {
-			glog.Fatal("You need to specify -auth.user and -auth.pass to enable basic auth")
+			log.Fatal("You need to specify -auth.user and -auth.pass to enable basic auth")
 		}
 		handler = &basicAuthHandler{
 			handler:  prometheus.Handler().ServeHTTP,
@@ -172,9 +173,9 @@ func main() {
 			</html>`))
 	})
 
-	glog.Infof("Starting node_exporter v%s at %s", Version, *listenAddress)
+	log.Infof("Starting node_exporter v%s at %s", Version, *listenAddress)
 	err = http.ListenAndServe(*listenAddress, nil)
 	if err != nil {
-		glog.Fatal(err)
+		log.Fatal(err)
 	}
 }

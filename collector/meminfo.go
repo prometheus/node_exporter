@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 const (
@@ -21,7 +21,6 @@ const (
 )
 
 type meminfoCollector struct {
-	
 	metrics map[string]prometheus.Gauge
 }
 
@@ -42,7 +41,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return fmt.Errorf("Couldn't get meminfo: %s", err)
 	}
-	glog.V(1).Infof("Set node_mem: %#v", memInfo)
+	log.Debugf("Set node_mem: %#v", memInfo)
 	for k, v := range memInfo {
 		if _, ok := c.metrics[k]; !ok {
 			c.metrics[k] = prometheus.NewGauge(prometheus.GaugeOpts{

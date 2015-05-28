@@ -13,8 +13,8 @@ import (
 
 	dto "github.com/prometheus/client_model/go"
 
-	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
+	"github.com/prometheus/log"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/text"
@@ -37,7 +37,7 @@ func NewTextFileCollector() (Collector, error) {
 	if *textFileDirectory == "" {
 		// This collector is enabled by default, so do not fail if
 		// the flag is not passed.
-		glog.Infof("No directory specified, see --textfile.directory")
+		log.Infof("No directory specified, see --textfile.directory")
 	} else {
 		prometheus.SetMetricFamilyInjectionHook(parseTextFiles)
 	}
@@ -65,13 +65,13 @@ func parseTextFiles() []*dto.MetricFamily {
 		path := filepath.Join(*textFileDirectory, f.Name())
 		file, err := os.Open(path)
 		if err != nil {
-			glog.Errorf("Error opening %s: %v", path, err)
+			log.Errorf("Error opening %s: %v", path, err)
 			error = 1.0
 			continue
 		}
 		parsedFamilies, err := parser.TextToMetricFamilies(file)
 		if err != nil {
-			glog.Errorf("Error parsing %s: %v", path, err)
+			log.Errorf("Error parsing %s: %v", path, err)
 			error = 1.0
 			continue
 		}
