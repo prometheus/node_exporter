@@ -25,7 +25,7 @@ const (
 
 type netDevCollector struct {
 	config  Config
-	metrics map[string]*prometheus.GaugeVec
+	metrics map[string]*prometheus.CounterVec
 }
 
 func init() {
@@ -37,7 +37,7 @@ func init() {
 func NewNetDevCollector(config Config) (Collector, error) {
 	return &netDevCollector{
 		config:  config,
-		metrics: map[string]*prometheus.GaugeVec{},
+		metrics: map[string]*prometheus.CounterVec{},
 	}, nil
 }
 
@@ -51,8 +51,8 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			for t, value := range stats {
 				key := direction + "_" + t
 				if _, ok := c.metrics[key]; !ok {
-					c.metrics[key] = prometheus.NewGaugeVec(
-						prometheus.GaugeOpts{
+					c.metrics[key] = prometheus.NewCounterVec(
+						prometheus.CounterOpts{
 							Namespace: Namespace,
 							Subsystem: netDevSubsystem,
 							Name:      key,
