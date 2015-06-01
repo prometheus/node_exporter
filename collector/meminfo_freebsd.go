@@ -91,7 +91,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			})
 		}
 		// Convert metrics to kB ( same as Linux meminfo)
-		c.metrics[k].Set(float64(v * size / 1024))
+		c.metrics[k].Set(float64(v) * float64(size))
 		c.metrics[k].Collect(ch)
 	}
 	return err
