@@ -1,5 +1,4 @@
-FROM       golang:onbuild
-MAINTAINER Prometheus Team <prometheus-developers@googlegroups.com>
+FROM        sdurrheimer/alpine-golang-make-onbuild
+MAINTAINER  The Prometheus Authors <prometheus-developers@googlegroups.com>
 
-ENTRYPOINT [ "go-wrapper", "run" ]
-EXPOSE     9100
+EXPOSE      9100
