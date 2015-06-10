@@ -1,3 +1,6 @@
+## 0.10.0 / 2015-06-10
+* [CHANGE] Change logging output format and flags.
+
 ## 0.9.0 / 2015-05-26
 
 * [BUGFIX] Fix `/proc/net/dev` parsing.
