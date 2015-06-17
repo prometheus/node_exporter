@@ -15,6 +15,7 @@ import (
 
 const (
 	procNetStat       = "/proc/net/netstat"
+	procSNMPStat      = "/proc/net/snmp"
 	netStatsSubsystem = "netstat"
 )
 
@@ -35,9 +36,18 @@ func NewNetStatCollector() (Collector, error) {
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	netStats, err := getNetStats()
+	netStats, err := getNetStats(procNetStat)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)
+	}
+	snmpStats, err := getNetStats(procSNMPStat)
+	if err != nil {
+		return fmt.Errorf("couldn't get SNMP stats: %s", err)
+	}
+	// Merge the results of snmpStats into netStats (collisions are possible, but
+	// we know that the keys are always unique for the given use case)
+	for k, v := range snmpStats {
+		netStats[k] = v
 	}
 	for protocol, protocolStats := range netStats {
 		for name, value := range protocolStats {
@@ -48,7 +58,7 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 						Namespace: Namespace,
 						Subsystem: netStatsSubsystem,
 						Name:      key,
-						Help:      fmt.Sprintf("%s %s from /proc/net/netstat.", protocol, name),
+						Help:      fmt.Sprintf("%s %s from /proc/net/{netstat,snmp}.", protocol, name),
 					},
 				)
 			}
@@ -65,17 +75,17 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return err
 }
 
-func getNetStats() (map[string]map[string]string, error) {
-	file, err := os.Open(procNetStat)
+func getNetStats(fileName string) (map[string]map[string]string, error) {
+	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return parseNetStats(file)
+	return parseNetStats(file, fileName)
 }
 
-func parseNetStats(r io.Reader) (map[string]map[string]string, error) {
+func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, error) {
 	var (
 		netStats = map[string]map[string]string{}
 		scanner  = bufio.NewScanner(r)
@@ -90,7 +100,7 @@ func parseNetStats(r io.Reader) (map[string]map[string]string, error) {
 		netStats[protocol] = map[string]string{}
 		if len(nameParts) != len(valueParts) {
 			return nil, fmt.Errorf("mismatch field count mismatch in %s: %s",
-				procNetStat, protocol)
+				fileName, protocol)
 		}
 		for i := 1; i < len(nameParts); i++ {
 			netStats[protocol][nameParts[i]] = valueParts[i]
