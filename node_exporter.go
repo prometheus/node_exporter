@@ -94,10 +94,10 @@ func Execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	var result string
 
 	if err != nil {
-		log.Infof("ERROR: %s failed after %fs: %s", name, duration.Seconds(), err)
+		log.Errorf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
 		result = "error"
 	} else {
-		log.Infof("OK: %s success after %fs.", name, duration.Seconds())
+		log.Debugf("OK: %s collector succeeded after %fs.", name, duration.Seconds())
 		result = "success"
 	}
 	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
