@@ -1,4 +1,4 @@
-// +build !nostat
+// +build !cpu
 
 package collector
 
@@ -21,8 +21,6 @@ import (
 */
 import "C"
 
-const ()
-
 type statCollector struct {
 	cpu *prometheus.CounterVec
 }
@@ -31,30 +29,31 @@ func init() {
 	Factories["cpu"] = NewStatCollector
 }
 
-// cpu stats.
+// Takes a prometheus registry and returns a new Collector exposing
+// CPU stats.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: Namespace,
-				Name:      "cpu",
-				Help:      "Seconds the cpus spent in each mode.",
+				Name:      "cpu_seconds_total",
+				Help:      "Seconds the CPU spent in each mode.",
 			},
 			[]string{"cpu", "mode"},
 		),
 	}, nil
 }
 
-// Expose cpu stats using kvm
+// Expose CPU stats using KVM.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if os.Geteuid() != 0 && os.Getegid() != 2 {
-		return errors.New("Caller should be either root user or kmem group to access /dev/mem")
+		return errors.New("caller should be either root user or kmem group to access /dev/mem")
 	}
 
 	var errbuf *C.char
 	kd := C.kvm_open(nil, nil, nil, C.O_RDONLY, errbuf)
 	if errbuf != nil {
-		return errors.New("Failed to call kvm_open().")
+		return errors.New("failed to call kvm_open().")
 	}
 	defer C.kvm_close(kd)
 
