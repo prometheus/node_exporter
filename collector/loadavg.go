@@ -24,8 +24,7 @@ func init() {
 	loadavg[0] = 0
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// load, seconds since last login and a list of tags as specified by config.
+// load1 stat.
 func NewLoadavgCollector() (Collector, error) {
 	return &loadavgCollector{
 		metric: prometheus.NewGauge(prometheus.GaugeOpts{

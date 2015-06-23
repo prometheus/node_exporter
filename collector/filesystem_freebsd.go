@@ -30,7 +30,6 @@ var (
 )
 
 type filesystemCollector struct {
-	config                    Config
 	ignoredMountPointsPattern *regexp.Regexp
 
 	size, free, avail, files, filesFree *prometheus.GaugeVec
@@ -40,13 +39,11 @@ func init() {
 	Factories["filesystem"] = NewFilesystemCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
-// network device filesystems.
-func NewFilesystemCollector(config Config) (Collector, error) {
+// filesystems stats.
+func NewFilesystemCollector() (Collector, error) {
 	var filesystemLabelNames = []string{"filesystem"}
 
 	return &filesystemCollector{
-		config: config,
 		ignoredMountPointsPattern: regexp.MustCompile(*ignoredMountPoints),
 		size: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{

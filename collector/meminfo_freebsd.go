@@ -33,7 +33,6 @@ const (
 )
 
 type meminfoCollector struct {
-	config  Config
 	metrics map[string]prometheus.Gauge
 }
 
@@ -41,11 +40,9 @@ func init() {
 	Factories["meminfo"] = NewMeminfoCollector
 }
 
-// Takes a config struct and prometheus registry and returns a new Collector exposing
 // memory stats.
-func NewMeminfoCollector(config Config) (Collector, error) {
+func NewMeminfoCollector() (Collector, error) {
 	return &meminfoCollector{
-		config:  config,
 		metrics: map[string]prometheus.Gauge{},
 	}, nil
 }
