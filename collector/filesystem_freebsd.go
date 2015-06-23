@@ -21,7 +21,6 @@ import (
 import "C"
 
 const (
-	procMounts          = "/proc/mounts"
 	filesystemSubsystem = "filesystem"
 )
 
