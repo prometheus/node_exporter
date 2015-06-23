@@ -13,15 +13,12 @@ import (
 // #include <stdlib.h>
 import "C"
 
-var loadavg [1]C.double
-
 type loadavgCollector struct {
 	metric prometheus.Gauge
 }
 
 func init() {
 	Factories["loadavg"] = NewLoadavgCollector
-	loadavg[0] = 0
 }
 
 // load1 stat.
@@ -47,6 +44,7 @@ func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
 }
 
 func getLoad1() (float64, error) {
+	var loadavg [1]C.double
 	samples := C.getloadavg(&loadavg[0], 1)
 	if samples > 0 {
 		return float64(loadavg[0]), nil
