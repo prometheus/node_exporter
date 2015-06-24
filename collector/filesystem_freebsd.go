@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"unsafe"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 /*
@@ -38,7 +38,8 @@ func init() {
 	Factories["filesystem"] = NewFilesystemCollector
 }
 
-// filesystems stats.
+// Takes a prometheus registry and returns a new Collector exposing
+// Filesystems stats.
 func NewFilesystemCollector() (Collector, error) {
 	var filesystemLabelNames = []string{"filesystem"}
 
@@ -48,7 +49,7 @@ func NewFilesystemCollector() (Collector, error) {
 			prometheus.GaugeOpts{
 				Namespace: Namespace,
 				Subsystem: filesystemSubsystem,
-				Name:      "size",
+				Name:      "size_bytes",
 				Help:      "Filesystem size in bytes.",
 			},
 			filesystemLabelNames,
@@ -57,7 +58,7 @@ func NewFilesystemCollector() (Collector, error) {
 			prometheus.GaugeOpts{
 				Namespace: Namespace,
 				Subsystem: filesystemSubsystem,
-				Name:      "free",
+				Name:      "free_bytes",
 				Help:      "Filesystem free space in bytes.",
 			},
 			filesystemLabelNames,
@@ -66,7 +67,7 @@ func NewFilesystemCollector() (Collector, error) {
 			prometheus.GaugeOpts{
 				Namespace: Namespace,
 				Subsystem: filesystemSubsystem,
-				Name:      "avail",
+				Name:      "avail_bytes",
 				Help:      "Filesystem space available to non-root users in bytes.",
 			},
 			filesystemLabelNames,
@@ -75,7 +76,7 @@ func NewFilesystemCollector() (Collector, error) {
 			prometheus.GaugeOpts{
 				Namespace: Namespace,
 				Subsystem: filesystemSubsystem,
-				Name:      "files",
+				Name:      "file_nodes",
 				Help:      "Filesystem total file nodes.",
 			},
 			filesystemLabelNames,
@@ -84,7 +85,7 @@ func NewFilesystemCollector() (Collector, error) {
 			prometheus.GaugeOpts{
 				Namespace: Namespace,
 				Subsystem: filesystemSubsystem,
-				Name:      "files_free",
+				Name:      "file_free_nodes",
 				Help:      "Filesystem total free file nodes.",
 			},
 			filesystemLabelNames,
@@ -102,10 +103,9 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	mnt := (*[1 << 30]C.struct_statfs)(unsafe.Pointer(mntbuf))
 	for i := 0; i < int(count); i++ {
-		//printf("path: %s\t%lu\n", mntbuf[i].f_mntonname, mntbuf[i].f_bfree)
 		name := C.GoString(&mnt[i].f_mntonname[0])
 		if c.ignoredMountPointsPattern.MatchString(name) {
-			glog.V(1).Infof("Ignoring mount point: %s", name)
+			log.Debugf("Ignoring mount point: %s", name)
 			continue
 		}
 		c.size.WithLabelValues(name).Set(float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize))
