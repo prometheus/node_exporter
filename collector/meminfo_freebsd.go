@@ -5,8 +5,8 @@ package collector
 import (
 	"errors"
 
-	"github.com/golang/glog"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 /*
@@ -40,7 +40,8 @@ func init() {
 	Factories["meminfo"] = NewMeminfoCollector
 }
 
-// memory stats.
+// Takes a prometheus registry and returns a new Collector exposing
+// Memory stats.
 func NewMeminfoCollector() (Collector, error) {
 	return &meminfoCollector{
 		metrics: map[string]prometheus.Gauge{},
@@ -77,7 +78,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		}
 	}
 
-	glog.V(1).Infof("Set node_mem: %#v", pages)
+	log.Debugf("Set node_mem: %#v", pages)
 	for k, v := range pages {
 		if _, ok := c.metrics[k]; !ok {
 			c.metrics[k] = prometheus.NewGauge(prometheus.GaugeOpts{
@@ -87,7 +88,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				Help:      k + " from sysctl()",
 			})
 		}
-		// Convert metrics to kB ( same as Linux meminfo)
+		// Convert metrics to kB ( same as Linux meminfo).
 		c.metrics[k].Set(float64(v) * float64(size))
 		c.metrics[k].Collect(ch)
 	}
