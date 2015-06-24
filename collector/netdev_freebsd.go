@@ -11,6 +11,7 @@ import (
 )
 
 /*
+#cgo CFLAGS: -D_IFI_OQDROPS
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -31,7 +32,8 @@ func init() {
 	Factories["netdev"] = NewNetDevCollector
 }
 
-// network device stats.
+// Takes a prometheus registry and returns a new Collector exposing
+// Network device stats.
 func NewNetDevCollector() (Collector, error) {
 	return &netDevCollector{
 		metrics: map[string]*prometheus.CounterVec{},
@@ -41,7 +43,7 @@ func NewNetDevCollector() (Collector, error) {
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	netDev, err := getNetDevStats()
 	if err != nil {
-		return fmt.Errorf("Couldn't get netstats: %s", err)
+		return fmt.Errorf("couldn't get netstats: %s", err)
 	}
 	for direction, devStats := range netDev {
 		for dev, stats := range devStats {
@@ -60,7 +62,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				}
 				v, err := strconv.ParseFloat(value, 64)
 				if err != nil {
-					return fmt.Errorf("Invalid value %s in netstats: %s", value, err)
+					return fmt.Errorf("invalid value %s in netstats: %s", value, err)
 				}
 				c.metrics[key].WithLabelValues(dev).Set(v)
 			}
@@ -81,11 +83,12 @@ func getNetDevStats() (map[string]map[string]map[string]string, error) {
 	if C.getifaddrs(&ifap) == -1 {
 		return nil, errors.New("getifaddrs() failed!")
 	}
+	defer C.freeifaddrs(ifap)
+
 	for ifa = ifap; ifa != nil; ifa = ifa.ifa_next {
 		if ifa.ifa_addr.sa_family == C.AF_LINK {
 			receive := map[string]string{}
 			transmit := map[string]string{}
-			//var data *C.struct_if_data
 			data := (*C.struct_if_data)(ifa.ifa_data)
 			receive["packets"] = strconv.Itoa(int(data.ifi_ipackets))
 			transmit["packets"] = strconv.Itoa(int(data.ifi_opackets))
@@ -96,13 +99,12 @@ func getNetDevStats() (map[string]map[string]map[string]string, error) {
 			receive["multicast"] = strconv.Itoa(int(data.ifi_imcasts))
 			transmit["multicast"] = strconv.Itoa(int(data.ifi_omcasts))
 			receive["drop"] = strconv.Itoa(int(data.ifi_iqdrops))
-			//transmit["drops"] = strconv.Itoa(int(data.ifi_oqdrops))
+			transmit["drop"] = strconv.Itoa(int(data.ifi_oqdrops))
 
 			netDev["receive"][C.GoString(ifa.ifa_name)] = receive
 			netDev["transmit"][C.GoString(ifa.ifa_name)] = transmit
 		}
 	}
-	defer C.freeifaddrs(ifap)
 
 	return netDev, nil
 }
