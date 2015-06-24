@@ -1,4 +1,4 @@
-// +build !cpu
+// +build !nocpu
 
 package collector
 
