@@ -1,4 +1,5 @@
-// +build !linux !noloadavg
+// +build !noloadavg
+// +build !linux
 
 package collector
 
