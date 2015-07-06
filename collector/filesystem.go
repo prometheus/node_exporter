@@ -43,7 +43,7 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // network device filesystems.
 func NewFilesystemCollector() (Collector, error) {
-	var filesystemLabelNames = []string{"device", "filesystem", "fstype"}
+	var filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
 
 	return &filesystemCollector{
 		ignoredMountPointsPattern: regexp.MustCompile(*ignoredMountPoints),
