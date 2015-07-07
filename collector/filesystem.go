@@ -24,6 +24,12 @@ var (
 	ignoredMountPoints = flag.String("collector.filesystem.ignored-mount-points", "^/(sys|proc|dev)($|/)", "Regexp of mount points to ignore for filesystem collector.")
 )
 
+type filesystemDetails struct {
+	device     string
+	mountPoint string
+	fsType     string
+}
+
 type filesystemCollector struct {
 	ignoredMountPointsPattern *regexp.Regexp
 
@@ -37,7 +43,7 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // network device filesystems.
 func NewFilesystemCollector() (Collector, error) {
-	var filesystemLabelNames = []string{"filesystem"}
+	var filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
 
 	return &filesystemCollector{
 		ignoredMountPointsPattern: regexp.MustCompile(*ignoredMountPoints),
@@ -91,25 +97,26 @@ func NewFilesystemCollector() (Collector, error) {
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	mps, err := mountPoints()
+	mpds, err := mountPointDetails()
 	if err != nil {
 		return err
 	}
-	for _, mp := range mps {
-		if c.ignoredMountPointsPattern.MatchString(mp) {
-			log.Debugf("Ignoring mount point: %s", mp)
+	for _, mpd := range mpds {
+		if c.ignoredMountPointsPattern.MatchString(mpd.mountPoint) {
+			log.Debugf("Ignoring mount point: %s", mpd.mountPoint)
 			continue
 		}
 		buf := new(syscall.Statfs_t)
-		err := syscall.Statfs(mp, buf)
+		err := syscall.Statfs(mpd.mountPoint, buf)
 		if err != nil {
-			return fmt.Errorf("Statfs on %s returned %s", mp, err)
+			return fmt.Errorf("Statfs on %s returned %s", mpd.mountPoint, err)
 		}
-		c.size.WithLabelValues(mp).Set(float64(buf.Blocks) * float64(buf.Bsize))
-		c.free.WithLabelValues(mp).Set(float64(buf.Bfree) * float64(buf.Bsize))
-		c.avail.WithLabelValues(mp).Set(float64(buf.Bavail) * float64(buf.Bsize))
-		c.files.WithLabelValues(mp).Set(float64(buf.Files))
-		c.filesFree.WithLabelValues(mp).Set(float64(buf.Ffree))
+
+		c.size.WithLabelValues(mpd.device, mpd.mountPoint, mpd.fsType).Set(float64(buf.Blocks) * float64(buf.Bsize))
+		c.free.WithLabelValues(mpd.device, mpd.mountPoint, mpd.fsType).Set(float64(buf.Bfree) * float64(buf.Bsize))
+		c.avail.WithLabelValues(mpd.device, mpd.mountPoint, mpd.fsType).Set(float64(buf.Bavail) * float64(buf.Bsize))
+		c.files.WithLabelValues(mpd.device, mpd.mountPoint, mpd.fsType).Set(float64(buf.Files))
+		c.filesFree.WithLabelValues(mpd.device, mpd.mountPoint, mpd.fsType).Set(float64(buf.Ffree))
 	}
 	c.size.Collect(ch)
 	c.free.Collect(ch)
@@ -119,18 +126,19 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return err
 }
 
-func mountPoints() ([]string, error) {
+func mountPointDetails() ([]filesystemDetails, error) {
 	file, err := os.Open(procMounts)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	mountPoints := []string{}
+	filesystems := []filesystemDetails{}
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
-		mountPoints = append(mountPoints, parts[1])
+		filesystems = append(filesystems, filesystemDetails{parts[0], parts[1], parts[2]})
 	}
-	return mountPoints, nil
+	return filesystems, nil
 }
