@@ -49,19 +49,22 @@ ifeq ($(GOOS),darwin)
 endif
 
 GO_VERSION ?= 1.4.2
-
-ifeq ($(shell type go >/dev/null && go version | sed 's/.*go\([0-9.]*\).*/\1/'), $(GO_VERSION))
-	GOROOT := $(shell go env GOROOT)
-else
-	GOROOT := $(CURDIR)/.build/go$(GO_VERSION)
-endif
-
 GOURL      ?= https://golang.org/dl
 GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH)$(RELEASE_SUFFIX).tar.gz
 GOPATH     := $(CURDIR)/.build/gopath
-GOCC       ?= $(GOROOT)/bin/go
-GO         ?= GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
-GOFMT      ?= $(GOROOT)/bin/gofmt
+
+# Check for the correct version of go in the path. If we find it, use it.
+# Otherwise, prepare to build go locally.
+ifeq ($(shell command -v "go" >/dev/null && go version | sed -e 's/^[^0-9.]*\([0-9.]*\).*/\1/'), $(GO_VERSION))
+	GOCC   ?= $(shell command -v "go")
+	GOFMT  ?= $(shell command -v "gofmt")
+	GO     ?= GOPATH=$(GOPATH) $(GOCC)
+else
+	GOROOT ?= $(CURDIR)/.build/go$(GO_VERSION)
+	GOCC   ?= $(GOROOT)/bin/go
+	GOFMT  ?= $(GOROOT)/bin/gofmt
+	GO     ?= GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
+endif
 
 # Never honor GOBIN, should it be set at all.
 unexport GOBIN

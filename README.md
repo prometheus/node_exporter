@@ -74,3 +74,15 @@ To statically set roles for a machine using labels:
 echo 'role{role="application_server"} 1' > /path/to/directory/role.prom.$$
 mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 ```
+
+## Using Docker
+
+You can deploy this exporter using the [prom/node-exporter](https://registry.hub.docker.com/u/prom/node-exporter/) Docker image.
+
+For example:
+
+```bash
+docker pull prom/node-exporter
+
+docker run -d -p 9100:9100 --net="host" prom/node-exporter
+```
