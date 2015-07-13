@@ -1,4 +1,4 @@
-// +build !nodiskstats
+// +build !nodevstat
 
 package collector
 
@@ -124,66 +124,64 @@ const (
 )
 
 type devstatCollector struct {
-	bytes     *prometheus.GaugeVec
-	transfers *prometheus.GaugeVec
-	duration  *prometheus.GaugeVec
-	busyTime  *prometheus.GaugeVec
-	blocks    *prometheus.GaugeVec
+	bytes       *prometheus.CounterVec
+	bytes_total *prometheus.CounterVec
+	transfers   *prometheus.CounterVec
+	duration    *prometheus.CounterVec
+	busyTime    *prometheus.CounterVec
+	blocks      *prometheus.CounterVec
 }
 
 func init() {
 	Factories["devstat"] = NewDevstatCollector
 }
 
-// device stats.
+// Takes a prometheus registry and returns a new Collector exposing
+// Device stats.
 func NewDevstatCollector() (Collector, error) {
-	//var diskLabelNames = []string{"device"}
-	//var ioType = []string{"type"}
-
 	return &devstatCollector{
-		// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-		bytes: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
+		bytes: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
 				Namespace: Namespace,
 				Subsystem: devstatSubsystem,
-				Name:      "bytes",
-				Help:      "The total number of bytes transferred",
+				Name:      "bytes_total",
+				Help:      "The total number of bytes in transactions.",
 			},
 			[]string{"device", "type"},
 		),
-		transfers: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
+		transfers: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
 				Namespace: Namespace,
 				Subsystem: devstatSubsystem,
-				Name:      "transfers",
-				Help:      "The total number of transactions",
+				Name:      "transfers_total",
+				Help:      "The total number of transactions.",
 			},
 			[]string{"device", "type"},
 		),
-		duration: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
+		duration: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
 				Namespace: Namespace,
 				Subsystem: devstatSubsystem,
-				Name:      "duration",
-				Help:      "The total duration of transactions",
+				Name:      "duration_seconds_total",
+				Help:      "The total duration of transactions in seconds.",
 			},
 			[]string{"device", "type"},
 		),
-		busyTime: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
+		busyTime: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
 				Namespace: Namespace,
 				Subsystem: devstatSubsystem,
-				Name:      "busy_time",
-				Help:      "Total time the device had one or more transactions outstanding",
+				Name:      "busy_time_seconds_total",
+				Help:      "Total time the device had one or more transactions outstanding in seconds.",
 			},
 			[]string{"device"},
 		),
-		blocks: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
+		blocks: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
 				Namespace: Namespace,
 				Subsystem: devstatSubsystem,
-				Name:      "blocks",
-				Help:      "The total number of blocks transferred",
+				Name:      "blocks_transferred_total",
+				Help:      "The total number of blocks transferred.",
 			},
 			[]string{"device"},
 		),
@@ -191,18 +189,6 @@ func NewDevstatCollector() (Collector, error) {
 }
 
 func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	/*
-		var busyTime [3]C.longlong
-		var blocks [3]C.uint64_t
-		var kbPerTransfer [3]C.longlong
-		var transfersPerSecond [3]C.longlong
-		var mbPerSecond [3]C.longlong
-		var blocksPerSecond [3]C.longlong
-		var msPerTransaction [3]C.longlong
-		var busyPCT C.longlong
-		var queueLength C.uint64_t
-
-	*/
 	count := C._get_ndevs()
 	if count == -1 {
 		return errors.New("devstat_getdevs() failed!")
@@ -214,17 +200,18 @@ func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	for i := C.int(0); i < count; i++ {
 		stats := C._get_stats(i)
 		device := fmt.Sprintf("%s%d", C.GoString(&stats.device[0]), stats.unit)
+		// Free metrics are disabled for now, please see PR #88 for more details.
 		c.bytes.With(prometheus.Labels{"device": device, "type": "read"}).Set(float64(stats.bytes.read))
 		c.bytes.With(prometheus.Labels{"device": device, "type": "write"}).Set(float64(stats.bytes.write))
-		c.bytes.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.bytes.free))
+		//c.bytes.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.bytes.free))
 		c.transfers.With(prometheus.Labels{"device": device, "type": "other"}).Set(float64(stats.transfers.other))
 		c.transfers.With(prometheus.Labels{"device": device, "type": "read"}).Set(float64(stats.transfers.read))
 		c.transfers.With(prometheus.Labels{"device": device, "type": "write"}).Set(float64(stats.transfers.write))
-		c.transfers.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.transfers.free))
+		//c.transfers.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.transfers.free))
 		c.duration.With(prometheus.Labels{"device": device, "type": "other"}).Set(float64(stats.duration.other))
 		c.duration.With(prometheus.Labels{"device": device, "type": "read"}).Set(float64(stats.duration.read))
 		c.duration.With(prometheus.Labels{"device": device, "type": "write"}).Set(float64(stats.duration.write))
-		c.duration.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.duration.free))
+		//c.duration.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.duration.free))
 		c.busyTime.With(prometheus.Labels{"device": device}).Set(float64(stats.busyTime))
 		c.blocks.With(prometheus.Labels{"device": device}).Set(float64(stats.blocks))
 	}
