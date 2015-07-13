@@ -4,6 +4,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/log"
 )
 
 const (
@@ -20,10 +22,13 @@ const (
 )
 
 var (
-	fieldSep = regexp.MustCompile("[ :] *")
+	fieldSep             = regexp.MustCompile("[ :] *")
+	netdevIgnoredDevices = flag.String("collector.netdev.ignored-devices", "^$", "Regexp of net devices to ignore for netdev collector.")
 )
 
 type netDevCollector struct {
+	ignoredDevicesPattern *regexp.Regexp
+
 	metrics map[string]*prometheus.GaugeVec
 }
 
@@ -35,12 +40,13 @@ func init() {
 // network device stats.
 func NewNetDevCollector() (Collector, error) {
 	return &netDevCollector{
-		metrics: map[string]*prometheus.GaugeVec{},
+		ignoredDevicesPattern: regexp.MustCompile(*netdevIgnoredDevices),
+		metrics:               map[string]*prometheus.GaugeVec{},
 	}, nil
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	netDev, err := getNetDevStats()
+	netDev, err := getNetDevStats(c.ignoredDevicesPattern)
 	if err != nil {
 		return fmt.Errorf("Couldn't get netstats: %s", err)
 	}
@@ -73,17 +79,17 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return err
 }
 
-func getNetDevStats() (map[string]map[string]map[string]string, error) {
+func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]map[string]string, error) {
 	file, err := os.Open(procNetDev)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return parseNetDevStats(file)
+	return parseNetDevStats(file, ignore)
 }
 
-func parseNetDevStats(r io.Reader) (map[string]map[string]map[string]string, error) {
+func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string]map[string]string, error) {
 	netDev := map[string]map[string]map[string]string{}
 	netDev["transmit"] = map[string]map[string]string{}
 	netDev["receive"] = map[string]map[string]string{}
@@ -114,6 +120,11 @@ func parseNetDevStats(r io.Reader) (map[string]map[string]map[string]string, err
 		transmit, err := parseNetDevLine(parts[len(header)+1:], header)
 		if err != nil {
 			return nil, err
+		}
+
+		if ignore.MatchString(dev) {
+			log.Debugf("Ignoring device: %s", dev)
+			continue
 		}
 		netDev["transmit"][dev] = transmit
 		netDev["receive"][dev] = receive
