@@ -53,7 +53,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	var errbuf *C.char
 	kd := C.kvm_open(nil, nil, nil, C.O_RDONLY, errbuf)
 	if errbuf != nil {
-		return errors.New("failed to call kvm_open().")
+		return errors.New("failed to call kvm_open()")
 	}
 	defer C.kvm_close(kd)
 

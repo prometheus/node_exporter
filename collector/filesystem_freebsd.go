@@ -98,7 +98,7 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	var mntbuf *C.struct_statfs
 	count := C.getmntinfo(&mntbuf, C.MNT_NOWAIT)
 	if count == 0 {
-		return errors.New("getmntinfo() failed!")
+		return errors.New("getmntinfo() failed")
 	}
 
 	mnt := (*[1 << 30]C.struct_statfs)(unsafe.Pointer(mntbuf))

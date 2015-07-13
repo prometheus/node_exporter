@@ -81,7 +81,7 @@ func getNetDevStats() (map[string]map[string]map[string]string, error) {
 
 	var ifap, ifa *C.struct_ifaddrs
 	if C.getifaddrs(&ifap) == -1 {
-		return nil, errors.New("getifaddrs() failed!")
+		return nil, errors.New("getifaddrs() failed")
 	}
 	defer C.freeifaddrs(ifap)
 

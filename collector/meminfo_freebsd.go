@@ -54,10 +54,10 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	size := C._sysctl(C.CString("vm.stats.vm.v_page_size"))
 	if size == -1 {
-		return errors.New("sysctl(vm.stats.vm.v_page_size) failed!")
+		return errors.New("sysctl(vm.stats.vm.v_page_size) failed")
 	}
 	if size == -2 {
-		return errors.New("sysctl(vm.stats.vm.v_page_size) failed, wrong buffer size!")
+		return errors.New("sysctl(vm.stats.vm.v_page_size) failed, wrong buffer size")
 	}
 
 	pages["active"] = C._sysctl(C.CString("vm.stats.vm.v_active_count"))
@@ -74,7 +74,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			return errors.New("sysctl() failed for " + key)
 		}
 		if pages[key] == -2 {
-			return errors.New("sysctl() failed for " + key + ", wrong buffer size!")
+			return errors.New("sysctl() failed for " + key + ", wrong buffer size")
 		}
 	}
 
@@ -88,7 +88,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				Help:      k + " from sysctl()",
 			})
 		}
-		// Convert metrics to kB ( same as Linux meminfo).
+		// Convert metrics to kB (same as Linux meminfo).
 		c.metrics[k].Set(float64(v) * float64(size))
 		c.metrics[k].Collect(ch)
 	}

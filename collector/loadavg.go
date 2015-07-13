@@ -51,7 +51,7 @@ func getLoad1() (float64, error) {
 	if samples > 0 {
 		return float64(loadavg[0]), nil
 	} else {
-		return 0, errors.New("Failed to get load average!")
+		return 0, errors.New("failed to get load average")
 	}
 
 }

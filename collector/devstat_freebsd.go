@@ -191,10 +191,10 @@ func NewDevstatCollector() (Collector, error) {
 func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	count := C._get_ndevs()
 	if count == -1 {
-		return errors.New("devstat_getdevs() failed!")
+		return errors.New("devstat_getdevs() failed")
 	}
 	if count == -2 {
-		return errors.New("calloc() failed!")
+		return errors.New("calloc() failed")
 	}
 
 	for i := C.int(0); i < count; i++ {
