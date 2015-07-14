@@ -98,11 +98,11 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			// Only some of these may be present, depending on kernel version.
 			cpuFields := []string{"user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest"}
 			// OpenVZ guests lack the "guest" CPU field, which needs to be ignored.
-			expectedFieldNum := len(cpuFields)+1
+			expectedFieldNum := len(cpuFields) + 1
 			if expectedFieldNum > len(parts) {
 				expectedFieldNum = len(parts)
 			}
-			for i, v := range parts[1 : expectedFieldNum] {
+			for i, v := range parts[1:expectedFieldNum] {
 				value, err := strconv.ParseFloat(v, 64)
 				if err != nil {
 					return err
