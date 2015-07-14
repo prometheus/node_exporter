@@ -1,18 +1,20 @@
 // +build !noloadavg
-// +build !linux
 
 package collector
 
 import (
-	"errors"
 	"fmt"
+	"io/ioutil"
+	"strconv"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/log"
 )
 
-// #include <stdlib.h>
-import "C"
+const (
+	procLoad = "/proc/loadavg"
+)
 
 type loadavgCollector struct {
 	metric prometheus.Gauge
@@ -23,7 +25,7 @@ func init() {
 }
 
 // Takes a prometheus registry and returns a new Collector exposing
-// load1 stat.
+// load, seconds since last login and a list of tags as specified by config.
 func NewLoadavgCollector() (Collector, error) {
 	return &loadavgCollector{
 		metric: prometheus.NewGauge(prometheus.GaugeOpts{
@@ -46,12 +48,18 @@ func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
 }
 
 func getLoad1() (float64, error) {
-	var loadavg [1]C.double
-	samples := C.getloadavg(&loadavg[0], 1)
-	if samples > 0 {
-		return float64(loadavg[0]), nil
-	} else {
-		return 0, errors.New("failed to get load average")
+	data, err := ioutil.ReadFile(procLoad)
+	if err != nil {
+		return 0, err
 	}
+	return parseLoad(string(data))
+}
 
+func parseLoad(data string) (float64, error) {
+	parts := strings.Fields(data)
+	load, err := strconv.ParseFloat(parts[0], 64)
+	if err != nil {
+		return 0, fmt.Errorf("Could not parse load '%s': %s", parts[0], err)
+	}
+	return load, nil
 }
