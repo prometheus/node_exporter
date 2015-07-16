@@ -5,14 +5,16 @@ import (
 	"testing"
 )
 
+var fileName = "fixtures/netstat"
+
 func TestNetStats(t *testing.T) {
-	file, err := os.Open("fixtures/netstat")
+	file, err := os.Open(fileName)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer file.Close()
 
-	netStats, err := parseNetStats(file)
+	netStats, err := parseNetStats(file, fileName)
 	if err != nil {
 		t.Fatal(err)
 	}
