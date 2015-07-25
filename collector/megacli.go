@@ -196,17 +196,18 @@ func (c *megaCliCollector) updateDisks() error {
 
 	for enc, encStats := range stats {
 		for slot, slotStats := range encStats {
-			tStr := slotStats["Drive Temperature"]
-			tStr = tStr[:strings.Index(tStr, "C")]
-			t, err := strconv.ParseFloat(tStr, 64)
-			if err != nil {
-				return err
-			}
-
 			encStr := strconv.Itoa(enc)
 			slotStr := strconv.Itoa(slot)
 
-			c.driveTemperature.WithLabelValues(encStr, slotStr).Set(t)
+			tStr := slotStats["Drive Temperature"]
+			if strings.Index(tStr, "C") > 0 {
+				tStr = tStr[:strings.Index(tStr, "C")]
+				t, err := strconv.ParseFloat(tStr, 64)
+				if err != nil {
+					return err
+				}
+				c.driveTemperature.WithLabelValues(encStr, slotStr).Set(t)
+			}
 
 			for _, i := range counters {
 				counter, err := strconv.ParseFloat(slotStats[i], 64)

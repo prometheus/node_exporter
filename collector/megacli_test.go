@@ -3,8 +3,11 @@
 package collector
 
 import (
+	"flag"
 	"os"
 	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -48,7 +51,32 @@ func TestMegaCliDisks(t *testing.T) {
 		t.Fatalf("Unexpected drive temperature: %s", stats[32][0]["Drive Temperature"])
 	}
 
+	if stats[32][1]["Drive Temperature"] != "N/A" {
+		t.Fatalf("Unexpected drive temperature: %s", stats[32][2]["Drive Temperature"])
+	}
+
 	if stats[32][3]["Predictive Failure Count"] != "23" {
 		t.Fatal()
+	}
+}
+
+func TestMegaCliCollectorDoesntCrash(t *testing.T) {
+	if err := flag.Set("collector.megacli.command", "./fixtures/megacli"); err != nil {
+		t.Fatal(err)
+	}
+	collector, err := NewMegaCliCollector()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sink := make(chan prometheus.Metric)
+	go func() {
+		for {
+			<-sink
+		}
+	}()
+
+	err = collector.Update(sink)
+	if err != nil {
+		t.Fatal(err)
 	}
 }

@@ -83,7 +83,7 @@ Foreign State: None
 Device Speed: Unknown 
 Link Speed: Unknown 
 Media Type: Hard Disk Device
-Drive Temperature :37C (98.60 F)
+Drive Temperature : N/A
 PI Eligibility:  No 
 Drive is formatted for PI information:  No
 PI: No PI
