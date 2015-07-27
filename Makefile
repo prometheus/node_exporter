@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION  := 0.10.0
+VERSION  := 0.11.0
 TARGET   := node_exporter
 GOFLAGS  := -ldflags "-X main.Version $(VERSION)"
 
