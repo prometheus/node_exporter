@@ -1,4 +1,14 @@
+## 0.11.0 / 2015-07-27
+
+* [FEATURE] Add stats from /proc/net/snmp.
+* [FEATURE] Add support for FreeBSD.
+* [FEATURE] Allow netdev devices to be ignored.
+* [MAINTENANCE] New Dockerfile for unified way to dockerize Prometheus exporters.
+* [FEATURE] Add device,fstype collection to the filesystem exporter.
+* [IMPROVEMENT] Make logging of collector executions less verbose.
+
 ## 0.10.0 / 2015-06-10
+
 * [CHANGE] Change logging output format and flags.
 
 ## 0.9.0 / 2015-05-26
