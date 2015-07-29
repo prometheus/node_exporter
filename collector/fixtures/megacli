@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+cat fixtures/megacli_disks.txt
