@@ -13,6 +13,6 @@
 
 VERSION  := 0.11.0
 TARGET   := node_exporter
-GOFLAGS  := -ldflags "-X main.Version $(VERSION)"
+GOFLAGS  := -ldflags "-X main.Version=$(VERSION)"
 
 include Makefile.COMMON
