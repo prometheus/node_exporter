@@ -30,9 +30,9 @@ func NewTimeCollector() (Collector, error) {
 }
 
 func (c *timeCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	now := time.Now()
-	log.Debugf("Set time: %f", now.Unix())
-	c.metric.Set(float64(now.Unix()))
+	now := float64(time.Now().Unix())
+	log.Debugf("Set time: %f", now)
+	c.metric.Set(now)
 	c.metric.Collect(ch)
 	return err
 }
