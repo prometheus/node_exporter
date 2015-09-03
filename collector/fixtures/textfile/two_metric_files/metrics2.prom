@@ -1,0 +1,2 @@
+testmetric2_1{foo="bar"} 30 1441205977284
+testmetric2_2{foo="baz"} 40 1441205977284

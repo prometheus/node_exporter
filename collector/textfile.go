@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -25,6 +26,7 @@ var (
 )
 
 type textFileCollector struct {
+	path string
 }
 
 func init() {
@@ -34,15 +36,19 @@ func init() {
 // Takes a registers a
 // SetMetricFamilyInjectionHook.
 func NewTextFileCollector() (Collector, error) {
-	if *textFileDirectory == "" {
+	c := &textFileCollector{
+		path: *textFileDirectory,
+	}
+
+	if c.path == "" {
 		// This collector is enabled by default, so do not fail if
 		// the flag is not passed.
 		log.Infof("No directory specified, see --textfile.directory")
 	} else {
-		prometheus.SetMetricFamilyInjectionHook(parseTextFiles)
+		prometheus.SetMetricFamilyInjectionHook(c.parseTextFiles)
 	}
 
-	return &textFileCollector{}, nil
+	return c, nil
 }
 
 // textFile collector works via SetMetricFamilyInjectionHook in parseTextFiles.
@@ -50,26 +56,29 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return nil
 }
 
-func parseTextFiles() []*dto.MetricFamily {
-	var parser text.Parser
+func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 	error := 0.0
 	metricFamilies := make([]*dto.MetricFamily, 0)
 	mtimes := map[string]time.Time{}
 
 	// Iterate over files and accumulate their metrics.
-	files, _ := ioutil.ReadDir(*textFileDirectory)
+	files, err := ioutil.ReadDir(c.path)
+	if err != nil && c.path != "" {
+		log.Errorf("Error reading textfile collector directory %s: %s", c.path, err)
+		error = 1.0
+	}
 	for _, f := range files {
 		if !strings.HasSuffix(f.Name(), ".prom") {
 			continue
 		}
-		path := filepath.Join(*textFileDirectory, f.Name())
+		path := filepath.Join(c.path, f.Name())
 		file, err := os.Open(path)
 		if err != nil {
 			log.Errorf("Error opening %s: %v", path, err)
 			error = 1.0
 			continue
 		}
-		parsedFamilies, err := parser.TextToMetricFamilies(file)
+		parsedFamilies, err := (&text.Parser{}).TextToMetricFamilies(file)
 		if err != nil {
 			log.Errorf("Error parsing %s: %v", path, err)
 			error = 1.0
@@ -95,16 +104,24 @@ func parseTextFiles() []*dto.MetricFamily {
 			Type:   dto.MetricType_GAUGE.Enum(),
 			Metric: []*dto.Metric{},
 		}
-		for name, mtime := range mtimes {
+
+		// Sorting is needed for predictable output comparison in tests.
+		filenames := make([]string, 0, len(mtimes))
+		for filename := range mtimes {
+			filenames = append(filenames, filename)
+		}
+		sort.Strings(filenames)
+
+		for _, filename := range filenames {
 			mtimeMetricFamily.Metric = append(mtimeMetricFamily.Metric,
 				&dto.Metric{
 					Label: []*dto.LabelPair{
 						&dto.LabelPair{
 							Name:  proto.String("file"),
-							Value: &name,
+							Value: proto.String(filename),
 						},
 					},
-					Gauge: &dto.Gauge{Value: proto.Float64(float64(mtime.UnixNano()) / 1e9)},
+					Gauge: &dto.Gauge{Value: proto.Float64(float64(mtimes[filename].UnixNano()) / 1e9)},
 				},
 			)
 		}

@@ -1,0 +1,79 @@
+name: "node_textfile_mtime"
+help: "Unixtime mtime of textfiles successfully read."
+type: GAUGE
+metric: <
+  label: <
+    name: "file"
+    value: "metrics1.prom"
+  >
+  gauge: <
+    value: 1
+  >
+>
+metric: <
+  label: <
+    name: "file"
+    value: "metrics2.prom"
+  >
+  gauge: <
+    value: 2
+  >
+>
+name: "node_textfile_scrape_error"
+help: "1 if there was an error opening or reading a file, 0 otherwise"
+type: GAUGE
+metric: <
+  gauge: <
+    value: 0
+  >
+>
+name: "testmetric1_1"
+help: "Metric read from fixtures/textfile/two_metric_files/metrics1.prom"
+type: UNTYPED
+metric: <
+  label: <
+    name: "foo"
+    value: "bar"
+  >
+  untyped: <
+    value: 10
+  >
+>
+name: "testmetric1_2"
+help: "Metric read from fixtures/textfile/two_metric_files/metrics1.prom"
+type: UNTYPED
+metric: <
+  label: <
+    name: "foo"
+    value: "baz"
+  >
+  untyped: <
+    value: 20
+  >
+>
+name: "testmetric2_1"
+help: "Metric read from fixtures/textfile/two_metric_files/metrics2.prom"
+type: UNTYPED
+metric: <
+  label: <
+    name: "foo"
+    value: "bar"
+  >
+  untyped: <
+    value: 30
+  >
+  timestamp_ms: 1441205977284
+>
+name: "testmetric2_2"
+help: "Metric read from fixtures/textfile/two_metric_files/metrics2.prom"
+type: UNTYPED
+metric: <
+  label: <
+    name: "foo"
+    value: "baz"
+  >
+  untyped: <
+    value: 40
+  >
+  timestamp_ms: 1441205977284
+>
