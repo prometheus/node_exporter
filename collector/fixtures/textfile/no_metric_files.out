@@ -1,0 +1,8 @@
+name: "node_textfile_scrape_error"
+help: "1 if there was an error opening or reading a file, 0 otherwise"
+type: GAUGE
+metric: <
+  gauge: <
+    value: 0
+  >
+>
