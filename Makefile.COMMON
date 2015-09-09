@@ -48,7 +48,7 @@ ifeq ($(GOOS),darwin)
 	RELEASE_SUFFIX ?= -osx$(shell sw_vers -productVersion)
 endif
 
-GO_VERSION ?= 1.4.2
+GO_VERSION ?= 1.5.1
 GOURL      ?= https://golang.org/dl
 GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH)$(RELEASE_SUFFIX).tar.gz
 GOPATH     := $(CURDIR)/.build/gopath
