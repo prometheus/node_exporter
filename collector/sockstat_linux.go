@@ -17,7 +17,7 @@ const (
 	sockStatSubsystem = "sockstat"
 )
 
-// Used for calculating the total memory bytes on TCP and UDP
+// Used for calculating the total memory bytes on TCP and UDP.
 var pageSize = os.Getpagesize()
 
 type sockStatCollector struct {
@@ -25,10 +25,10 @@ type sockStatCollector struct {
 }
 
 func init() {
-	Factories["sockstat"] = NewSockStatCollector
+	Factories[sockStatSubsystem] = NewSockStatCollector
 }
 
-// NewSockStatCollector returns a new Collector exposing socket stats
+// NewSockStatCollector returns a new Collector exposing socket stats.
 func NewSockStatCollector() (Collector, error) {
 	return &sockStatCollector{
 		metrics: map[string]prometheus.Gauge{},
@@ -84,7 +84,7 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 
 	for scanner.Scan() {
 		line := strings.Split(string(scanner.Text()), " ")
-		// Remove trailing :
+		// Remove trailing :.
 		protocol := line[0][:len(line[0])-1]
 		sockStat[protocol] = map[string]string{}
 
@@ -94,21 +94,25 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 		}
 	}
 
-	// The mem options are reported in pages
-	// Multiply them by the pagesize to get bytes
-	// Update TCP Mem
+	/*
+	The mem metrics is the count of pages used.
+	Multiply the mem metrics by the page size from the kernal to get the number
+	of bytes used.
+
+	Update the TCP mem from page count to bytes.
+	*/
 	pageCount, err := strconv.Atoi(sockStat["TCP"]["mem"])
 	if err != nil {
 		return nil, fmt.Errorf("invalid value %s in sockstats: %s", sockStat["TCP"]["mem"], err)
 	}
-	sockStat["TCP"]["mem"] = strconv.Itoa(pageCount * pageSize)
+	sockStat["TCP"]["mem_bytes"] = strconv.Itoa(pageCount * pageSize)
 
-	// Update UDP Mem
+	// Update the UDP mem from page count to bytes.
 	pageCount, err = strconv.Atoi(sockStat["UDP"]["mem"])
 	if err != nil {
 		return nil, fmt.Errorf("invalid value %s in sockstats: %s", sockStat["UDP"]["mem"], err)
 	}
-	sockStat["UDP"]["mem"] = strconv.Itoa(pageCount * pageSize)
+	sockStat["UDP"]["mem_bytes"] = strconv.Itoa(pageCount * pageSize)
 
 	return sockStat, nil
 }

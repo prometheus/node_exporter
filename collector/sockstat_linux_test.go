@@ -35,7 +35,7 @@ func TestSockStats(t *testing.T) {
 	// page size in bytes back from sockstat_linux.  We get the page size from
 	// os here because this value can change from system to system.  The value is
 	// 4096 by default from linux 2.4 onward.
-	if want, got := strconv.Itoa(os.Getpagesize()), sockStats["TCP"]["mem"]; want != got {
+	if want, got := strconv.Itoa(os.Getpagesize()), sockStats["TCP"]["mem_bytes"]; want != got {
 		t.Errorf("want sockstat sockets used %s, got %s", want, got)
 	}
 }
