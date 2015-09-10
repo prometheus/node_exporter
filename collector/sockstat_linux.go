@@ -84,7 +84,7 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 
 	for scanner.Scan() {
 		line := strings.Split(string(scanner.Text()), " ")
-		// Remove trailing :.
+		// Remove trailing ':'.
 		protocol := line[0][:len(line[0])-1]
 		sockStat[protocol] = map[string]string{}
 
@@ -94,13 +94,10 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 		}
 	}
 
-	/*
-	The mem metrics is the count of pages used.
-	Multiply the mem metrics by the page size from the kernal to get the number
-	of bytes used.
-
-	Update the TCP mem from page count to bytes.
-	*/
+	// The mem metrics is the count of pages used. Multiply the mem metrics by
+	// the page size from the kernel to get the number of bytes used.
+	//
+	// Update the TCP mem from page count to bytes.
 	pageCount, err := strconv.Atoi(sockStat["TCP"]["mem"])
 	if err != nil {
 		return nil, fmt.Errorf("invalid value %s in sockstats: %s", sockStat["TCP"]["mem"], err)
