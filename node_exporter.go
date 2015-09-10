@@ -28,7 +28,7 @@ var (
 	memProfile        = flag.String("debug.memprofile-file", "", "Write memory profile to this file upon receipt of SIGUSR1.")
 	listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
 	metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-	enabledCollectors = flag.String("collectors.enabled", "diskstats,filesystem,loadavg,meminfo,stat,textfile,time,netdev,netstat,sockstat", "Comma-separated list of collectors to use.")
+	enabledCollectors = flag.String("collectors.enabled", "diskstats,filesystem,loadavg,meminfo,stat,textfile,time,netdev,netstat,sockstat,filefd", "Comma-separated list of collectors to use.")
 	printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 	authUser          = flag.String("auth.user", "", "Username for basic auth.")
 	authPass          = flag.String("auth.pass", "", "Password for basic auth.")
