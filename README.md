@@ -34,7 +34,7 @@ netstat | Exposes network statistics from `/proc/net/netstat`. This is the same 
 stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts.
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set.
 time | Exposes the current system time.
-mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no /proc/mdstat present)
+mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no /proc/mdstat present).
 
 
 ### Disabled by default
