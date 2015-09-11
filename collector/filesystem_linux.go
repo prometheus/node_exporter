@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	ignoredMountPoints = flag.String("collector.filesystem.ignored-mount-points", "^/(sys|proc|dev)($|/)", "Regexp of mount points to ignore for filesystem collector.")
+	ignoredMountPoints = flag.String("collector.filesystem.ignored-mount-points", "^/(sys|proc|dev|run)($|/)", "Regexp of mount points to ignore for filesystem collector.")
 )
 
 type filesystemDetails struct {
