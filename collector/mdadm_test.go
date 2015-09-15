@@ -28,6 +28,6 @@ func TestMdadm(t *testing.T) {
 	}
 
 	if len(mdStates) != len(refs) {
-		t.Errorf("expected number of parsed md-device to be %s, but was %s", len(refs), len(mdStates))
+		t.Errorf("expected number of parsed md-device to be %d, but was %d", len(refs), len(mdStates))
 	}
 }
