@@ -21,11 +21,11 @@ import (
 import "C"
 
 const (
-	netDevSubsystem = "network"
+	subsystem  = "network"
 )
 
 type netDevCollector struct {
-	metrics map[string]*prometheus.CounterVec
+	metricDescs map[string]*prometheus.Desc
 }
 
 func init() {
@@ -36,7 +36,7 @@ func init() {
 // Network device stats.
 func NewNetDevCollector() (Collector, error) {
 	return &netDevCollector{
-		metrics: map[string]*prometheus.CounterVec{},
+		metricDescs: map[string]*prometheus.Desc{},
 	}, nil
 }
 
@@ -45,39 +45,35 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)
 	}
-	for direction, devStats := range netDev {
-		for dev, stats := range devStats {
-			for t, value := range stats {
-				key := direction + "_" + t
-				if _, ok := c.metrics[key]; !ok {
-					c.metrics[key] = prometheus.NewCounterVec(
-						prometheus.CounterOpts{
-							Namespace: Namespace,
-							Subsystem: netDevSubsystem,
-							Name:      key,
-							Help:      fmt.Sprintf("%s %s from getifaddrs().", t, direction),
-						},
-						[]string{"device"},
-					)
-				}
-				v, err := strconv.ParseFloat(value, 64)
-				if err != nil {
-					return fmt.Errorf("invalid value %s in netstats: %s", value, err)
-				}
-				c.metrics[key].WithLabelValues(dev).Set(v)
+	for dev, devStats := range netDev {
+		for key, value := range devStats {
+                        desc, ok := c.metricDescs[key]
+                        if !ok {
+                                desc = prometheus.NewDesc(
+                                        prometheus.BuildFQName(
+                                                Namespace, subsystem, key),
+                                        fmt.Sprintf(
+                                                "%s from getifaddrs().", key),
+                                        []string{"device"},
+                                        nil,
+                                )
+                                c.metricDescs[key] = desc
+                        }
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return fmt.Errorf(
+					"Invalid value %s in netstats: %s",
+					value, err)
 			}
+			ch <- prometheus.MustNewConstMetric(
+				desc, prometheus.GaugeValue, v, dev)
 		}
 	}
-	for _, m := range c.metrics {
-		m.Collect(ch)
-	}
-	return err
+	return nil
 }
 
-func getNetDevStats() (map[string]map[string]map[string]string, error) {
-	netDev := map[string]map[string]map[string]string{}
-	netDev["transmit"] = map[string]map[string]string{}
-	netDev["receive"] = map[string]map[string]string{}
+func getNetDevStats() (map[string]map[string]string, error) {
+	netDev := map[string]map[string]string{}
 
 	var ifap, ifa *C.struct_ifaddrs
 	if C.getifaddrs(&ifap) == -1 {
@@ -87,22 +83,20 @@ func getNetDevStats() (map[string]map[string]map[string]string, error) {
 
 	for ifa = ifap; ifa != nil; ifa = ifa.ifa_next {
 		if ifa.ifa_addr.sa_family == C.AF_LINK {
-			receive := map[string]string{}
-			transmit := map[string]string{}
+			devStats := map[string]string{}
 			data := (*C.struct_if_data)(ifa.ifa_data)
-			receive["packets"] = strconv.Itoa(int(data.ifi_ipackets))
-			transmit["packets"] = strconv.Itoa(int(data.ifi_opackets))
-			receive["errs"] = strconv.Itoa(int(data.ifi_ierrors))
-			transmit["errs"] = strconv.Itoa(int(data.ifi_oerrors))
-			receive["bytes"] = strconv.Itoa(int(data.ifi_ibytes))
-			transmit["bytes"] = strconv.Itoa(int(data.ifi_obytes))
-			receive["multicast"] = strconv.Itoa(int(data.ifi_imcasts))
-			transmit["multicast"] = strconv.Itoa(int(data.ifi_omcasts))
-			receive["drop"] = strconv.Itoa(int(data.ifi_iqdrops))
-			transmit["drop"] = strconv.Itoa(int(data.ifi_oqdrops))
 
-			netDev["receive"][C.GoString(ifa.ifa_name)] = receive
-			netDev["transmit"][C.GoString(ifa.ifa_name)] = transmit
+			devStats["receive_packets"] = strconv.Itoa(int(data.ifi_ipackets))
+			devStats["transmit_packets"] = strconv.Itoa(int(data.ifi_opackets))
+			devStats["receive_errs"] = strconv.Itoa(int(data.ifi_ierrors))
+			devStats["transmit_errs"] = strconv.Itoa(int(data.ifi_oerrors))
+			devStats["receive_bytes"] = strconv.Itoa(int(data.ifi_ibytes))
+			devStats["transmit_bytes"] = strconv.Itoa(int(data.ifi_obytes))
+			devStats["receive_multicast"] = strconv.Itoa(int(data.ifi_imcasts))
+			devStats["transmit_multicast"] = strconv.Itoa(int(data.ifi_omcasts))
+			devStats["receive_drop"] = strconv.Itoa(int(data.ifi_iqdrops))
+			devStats["transmit_drop"] = strconv.Itoa(int(data.ifi_oqdrops))
+                        netDev[C.GoString(ifa.ifa_name)] = devStats
 		}
 	}
 
