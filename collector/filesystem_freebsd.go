@@ -21,77 +21,64 @@ import (
 import "C"
 
 const (
-	filesystemSubsystem = "filesystem"
+	subsystem = "filesystem"
 )
 
 var (
-	ignoredMountPoints = flag.String("collector.filesystem.ignored-mount-points", "^/(dev)($|/)", "Regexp of mount points to ignore for filesystem collector.")
+	ignoredMountPoints = flag.String(
+		"collector.filesystem.ignored-mount-points",
+		"^/(dev)($|/)",
+		"Regexp of mount points to ignore for filesystem collector.")
 )
 
 type filesystemCollector struct {
 	ignoredMountPointsPattern *regexp.Regexp
-
-	size, free, avail, files, filesFree *prometheus.GaugeVec
 }
 
 func init() {
 	Factories["filesystem"] = NewFilesystemCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// Filesystems stats.
 func NewFilesystemCollector() (Collector, error) {
-	var filesystemLabelNames = []string{"filesystem"}
-
+	pattern := regexp.MustCompile(*ignoredMountPoints)
 	return &filesystemCollector{
-		ignoredMountPointsPattern: regexp.MustCompile(*ignoredMountPoints),
-		size: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: filesystemSubsystem,
-				Name:      "size_bytes",
-				Help:      "Filesystem size in bytes.",
-			},
-			filesystemLabelNames,
-		),
-		free: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: filesystemSubsystem,
-				Name:      "free_bytes",
-				Help:      "Filesystem free space in bytes.",
-			},
-			filesystemLabelNames,
-		),
-		avail: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: filesystemSubsystem,
-				Name:      "avail_bytes",
-				Help:      "Filesystem space available to non-root users in bytes.",
-			},
-			filesystemLabelNames,
-		),
-		files: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: filesystemSubsystem,
-				Name:      "file_nodes",
-				Help:      "Filesystem total file nodes.",
-			},
-			filesystemLabelNames,
-		),
-		filesFree: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: filesystemSubsystem,
-				Name:      "file_free_nodes",
-				Help:      "Filesystem total free file nodes.",
-			},
-			filesystemLabelNames,
-		),
+		ignoredMountPointsPattern: pattern,
 	}, nil
 }
+
+var (
+	filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
+
+	sizeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "size"),
+		"Filesystem size in bytes.",
+		filesystemLabelNames, nil,
+	)
+
+	freeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "free"),
+		"Filesystem free space in bytes.",
+		filesystemLabelNames, nil,
+	)
+
+	availDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "avail"),
+		"Filesystem space available to non-root users in bytes.",
+		filesystemLabelNames, nil,
+	)
+
+	filesDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "files"),
+		"Filesystem total file nodes.",
+		filesystemLabelNames, nil,
+	)
+
+	filesFreeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "files_free"),
+		"Filesystem total free file nodes.",
+		filesystemLabelNames, nil,
+	)
+)
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -108,17 +95,40 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			log.Debugf("Ignoring mount point: %s", name)
 			continue
 		}
-		c.size.WithLabelValues(name).Set(float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize))
-		c.free.WithLabelValues(name).Set(float64(mnt[i].f_bfree) * float64(mnt[i].f_bsize))
-		c.avail.WithLabelValues(name).Set(float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize))
-		c.files.WithLabelValues(name).Set(float64(mnt[i].f_files))
-		c.filesFree.WithLabelValues(name).Set(float64(mnt[i].f_ffree))
-	}
+		ch <- prometheus.MustNewConstMetric(
+			sizeDesc,
+			prometheus.GaugeValue,
+			float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
+			mpd.device, mpd.mountPoint, mpd.fsType,
+		)
 
-	c.size.Collect(ch)
-	c.free.Collect(ch)
-	c.avail.Collect(ch)
-	c.files.Collect(ch)
-	c.filesFree.Collect(ch)
-	return err
+		ch <- prometheus.MustNewConstMetric(
+			freeDesc,
+			prometheus.GaugeValue,
+			float64(mnt[i].f_bfree) * float64(mnt[i].f_bsize),
+			mpd.device, mpd.mountPoint, mpd.fsType,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			availDesc,
+			prometheus.GaugeValue,
+			float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
+			mpd.device, mpd.mountPoint, mpd.fsType,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			filesDesc,
+			prometheus.GaugeValue,
+			float64(mnt[i].f_files),
+			mpd.device, mpd.mountPoint, mpd.fsType,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			filesFreeDesc,
+			prometheus.GaugeValue,
+			float64(mnt[i].f_ffree),
+			mpd.device, mpd.mountPoint, mpd.fsType,
+		)
+	}
+	return nil
 }
