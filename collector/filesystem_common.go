@@ -1,4 +1,5 @@
 // +build !nofilesystem
+// +build linux freebsd
 
 package collector
 
