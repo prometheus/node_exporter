@@ -9,7 +9,7 @@ import (
 )
 
 type runitCollector struct {
-	state, stateDesired, stateNormal *prometheus.GaugeVec
+	state, stateDesired, stateNormal, stateTimestamp *prometheus.GaugeVec
 }
 
 func init() {
@@ -29,7 +29,7 @@ func NewRunitCollector() (Collector, error) {
 				Namespace:   Namespace,
 				Subsystem:   subsystem,
 				Name:        "state",
-				Help:        "state of runit service.",
+				Help:        "State of runit service.",
 				ConstLabels: constLabels,
 			},
 			labelNames,
@@ -39,7 +39,7 @@ func NewRunitCollector() (Collector, error) {
 				Namespace:   Namespace,
 				Subsystem:   subsystem,
 				Name:        "desired_state",
-				Help:        "desired state of runit service.",
+				Help:        "Desired state of runit service.",
 				ConstLabels: constLabels,
 			},
 			labelNames,
@@ -49,7 +49,17 @@ func NewRunitCollector() (Collector, error) {
 				Namespace:   Namespace,
 				Subsystem:   subsystem,
 				Name:        "normal_state",
-				Help:        "normal state of runit service.",
+				Help:        "Normal state of runit service.",
+				ConstLabels: constLabels,
+			},
+			labelNames,
+		),
+		stateTimestamp: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace:   Namespace,
+				Subsystem:   subsystem,
+				Name:        "state_last_change_timestamp_seconds",
+				Help:        "Unix timestamp of the last runit service state change.",
 				ConstLabels: constLabels,
 			},
 			labelNames,
@@ -73,6 +83,7 @@ func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Debugf("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
 		c.state.WithLabelValues(service.Name).Set(float64(status.State))
 		c.stateDesired.WithLabelValues(service.Name).Set(float64(status.Want))
+		c.stateTimestamp.WithLabelValues(service.Name).Set(float64(status.Timestamp.Unix()))
 		if status.NormallyUp {
 			c.stateNormal.WithLabelValues(service.Name).Set(1)
 		} else {
@@ -82,6 +93,7 @@ func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
 	c.state.Collect(ch)
 	c.stateDesired.Collect(ch)
 	c.stateNormal.Collect(ch)
+	c.stateTimestamp.Collect(ch)
 
 	return nil
 }
