@@ -18,19 +18,19 @@ import (
 
 const (
 	procNetDev = "/proc/net/dev"
-	subsystem  = "network"
 )
 
 var (
-	fieldSep	     = regexp.MustCompile("[ :] *")
+	procNetDevFieldSep   = regexp.MustCompile("[ :] *")
 	netdevIgnoredDevices = flag.String(
 		"collector.netdev.ignored-devices", "^$",
 		"Regexp of net devices to ignore for netdev collector.")
 )
 
 type netDevCollector struct {
+	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
-	metricDescs map[string]*prometheus.Desc
+	metricDescs           map[string]*prometheus.Desc
 }
 
 func init() {
@@ -42,38 +42,34 @@ func init() {
 func NewNetDevCollector() (Collector, error) {
 	pattern := regexp.MustCompile(*netdevIgnoredDevices)
 	return &netDevCollector{
+		subsystem:             "network",
 		ignoredDevicesPattern: pattern,
-		metricDescs:	       map[string]*prometheus.Desc{},
+		metricDescs:           map[string]*prometheus.Desc{},
 	}, nil
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	netDev, err := getNetDevStats(c.ignoredDevicesPattern)
 	if err != nil {
-		return fmt.Errorf("Couldn't get netstats: %s", err)
+		return fmt.Errorf("couldn't get netstats: %s", err)
 	}
 	for dev, devStats := range netDev {
 		for key, value := range devStats {
-                        desc, ok := c.metricDescs[key]
-                        if !ok {
-                                desc = prometheus.NewDesc(
-                                        prometheus.BuildFQName(
-                                                Namespace, subsystem, key),
-                                        fmt.Sprintf(
-                                                "%s from /proc/net/dev.", key),
-                                        []string{"device"},
-                                        nil,
-                                )
-                                c.metricDescs[key] = desc
-                        }
+			desc, ok := c.metricDescs[key]
+			if !ok {
+				desc = prometheus.NewDesc(
+					prometheus.BuildFQName(Namespace, c.subsystem, key),
+					fmt.Sprintf("%s from /proc/net/dev.", key),
+					[]string{"device"},
+					nil,
+				)
+				c.metricDescs[key] = desc
+			}
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return fmt.Errorf(
-					"Invalid value %s in netstats: %s",
-					value, err)
+				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
 			}
-			ch <- prometheus.MustNewConstMetric(
-				desc, prometheus.GaugeValue, v, dev)
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, v, dev)
 		}
 	}
 	return nil
@@ -95,7 +91,7 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 	scanner.Scan()
 	parts := strings.Split(string(scanner.Text()), "|")
 	if len(parts) != 3 { // interface + receive + transmit
-		return nil, fmt.Errorf("Invalid header line in %s: %s",
+		return nil, fmt.Errorf("invalid header line in %s: %s",
 			procNetDev, scanner.Text())
 	}
 
@@ -103,10 +99,9 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 	netDev := map[string]map[string]string{}
 	for scanner.Scan() {
 		line := strings.TrimLeft(string(scanner.Text()), " ")
-		parts := fieldSep.Split(line, -1)
+		parts := procNetDevFieldSep.Split(line, -1)
 		if len(parts) != 2*len(header)+1 {
-			return nil, fmt.Errorf("Invalid line in %s: %s",
-				procNetDev, scanner.Text())
+			return nil, fmt.Errorf("invalid line in %s: %s", procNetDev, scanner.Text())
 		}
 
 		dev := parts[0][:len(parts[0])]
@@ -116,8 +111,8 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 		}
 		netDev[dev] = map[string]string{}
 		for i, v := range header {
-			netDev[dev]["receive_" + v] = parts[i+1]
-			netDev[dev]["transmit_" + v] = parts[i+1+len(header)]
+			netDev[dev]["receive_"+v] = parts[i+1]
+			netDev[dev]["transmit_"+v] = parts[i+1+len(header)]
 		}
 	}
 	return netDev, nil
