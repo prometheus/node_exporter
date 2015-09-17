@@ -29,11 +29,11 @@ func TestMegaCliAdapter(t *testing.T) {
 	}
 
 	if stats["Device Present"]["Physical Devices"] != physicalDevicesExpected {
-		t.Fatalf("Unexpected device count: %d != %d", stats["Device Present"]["Physical Devices"], physicalDevicesExpected)
+		t.Fatalf("Unexpected device count: %s != %s", stats["Device Present"]["Physical Devices"], physicalDevicesExpected)
 	}
 
 	if stats["Device Present"]["Degraded"] != virtualDevicesDegraded {
-		t.Fatal()
+		t.Fatalf("Unexpected degraded device count: %s != %s", stats["Device Present"]["Degraded"], virtualDevicesDegraded)
 	}
 }
 
@@ -56,7 +56,7 @@ func TestMegaCliDisks(t *testing.T) {
 	}
 
 	if stats[32][3]["Predictive Failure Count"] != "23" {
-		t.Fatal()
+		t.Fatalf("Unexpected predictive failure count: %s", stats[32][3]["Predictive Failure Count"])
 	}
 }
 
