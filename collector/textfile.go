@@ -12,13 +12,12 @@ import (
 	"strings"
 	"time"
 
-	dto "github.com/prometheus/client_model/go"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/log"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/text"
+	dto "github.com/prometheus/client_model/go"
 )
 
 var (
@@ -78,7 +77,8 @@ func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 			error = 1.0
 			continue
 		}
-		parsedFamilies, err := (&text.Parser{}).TextToMetricFamilies(file)
+		var parser expfmt.TextParser
+		parsedFamilies, err := parser.TextToMetricFamilies(file)
 		if err != nil {
 			log.Errorf("Error parsing %s: %v", path, err)
 			error = 1.0
