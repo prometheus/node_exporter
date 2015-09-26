@@ -107,7 +107,7 @@ var (
 )
 
 func TestIPVSCollector(t *testing.T) {
-	if err := flag.Set("collector.ipvs.procfs", "fixtures"); err != nil {
+	if err := flag.Set("collector.procfs", "fixtures"); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := newIPVSCollector()
@@ -169,7 +169,7 @@ func (c miniCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func TestIPVSCollectorResponse(t *testing.T) {
-	if err := flag.Set("collector.ipvs.procfs", "fixtures"); err != nil {
+	if err := flag.Set("collector.procfs", "fixtures"); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := NewIPVSCollector()

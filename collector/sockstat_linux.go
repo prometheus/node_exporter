@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	procSockStat      = "/proc/net/sockstat"
 	sockStatSubsystem = "sockstat"
 )
 
@@ -36,7 +35,7 @@ func NewSockStatCollector() (Collector, error) {
 }
 
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	sockStats, err := getSockStats(procSockStat)
+	sockStats, err := getSockStats(procFilePath("net/sockstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get sockstats: %s", err)
 	}
@@ -49,7 +48,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 						Namespace: Namespace,
 						Subsystem: sockStatSubsystem,
 						Name:      key,
-						Help:      fmt.Sprintf("%s %s from /proc/net/sockstat.", protocol, name),
+						Help:      fmt.Sprintf("Number of %s sockets in state %s.", protocol, name),
 					},
 				)
 			}

@@ -4,6 +4,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -11,10 +12,6 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
-)
-
-const (
-	procInterrupts = "/proc/interrupts"
 )
 
 type interruptsCollector struct {
@@ -33,7 +30,7 @@ func NewInterruptsCollector() (Collector, error) {
 			prometheus.CounterOpts{
 				Namespace: Namespace,
 				Name:      "interrupts",
-				Help:      "Interrupt details from /proc/interrupts.",
+				Help:      "Interrupt details.",
 			},
 			[]string{"CPU", "type", "info", "devices"},
 		),
@@ -71,7 +68,7 @@ type interrupt struct {
 }
 
 func getInterrupts() (map[string]interrupt, error) {
-	file, err := os.Open(procInterrupts)
+	file, err := os.Open(procFilePath("interrupts"))
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +84,7 @@ func parseInterrupts(r io.Reader) (map[string]interrupt, error) {
 	)
 
 	if !scanner.Scan() {
-		return nil, fmt.Errorf("%s empty", procInterrupts)
+		return nil, errors.New("interrupts empty")
 	}
 	cpuNum := len(strings.Fields(string(scanner.Text()))) // one header per cpu
 

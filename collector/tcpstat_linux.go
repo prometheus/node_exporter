@@ -13,11 +13,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-const (
-	procTCPStat  = "/proc/net/tcp"
-	procTCP6Stat = "/proc/net/tcp6"
-)
-
 type TCPConnectionState int
 
 const (
@@ -58,14 +53,15 @@ func NewTCPStatCollector() (Collector, error) {
 }
 
 func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	tcpStats, err := getTCPStats(procTCPStat)
+	tcpStats, err := getTCPStats(procFilePath("net/tcp"))
 	if err != nil {
 		return fmt.Errorf("couldn't get tcpstats: %s", err)
 	}
 
 	// if enabled ipv6 system
-	if _, hasIPv6 := os.Stat(procTCP6Stat); hasIPv6 == nil {
-		tcp6Stats, err := getTCPStats(procTCP6Stat)
+	tcp6File := procFilePath("net/tcp6")
+	if _, hasIPv6 := os.Stat(tcp6File); hasIPv6 == nil {
+		tcp6Stats, err := getTCPStats(tcp6File)
 		if err != nil {
 			return fmt.Errorf("couldn't get tcp6stats: %s", err)
 		}

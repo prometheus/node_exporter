@@ -12,10 +12,6 @@ import (
 	"github.com/prometheus/log"
 )
 
-const (
-	procLoad = "/proc/loadavg"
-)
-
 type loadavgCollector struct {
 	metric prometheus.Gauge
 }
@@ -48,7 +44,7 @@ func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
 }
 
 func getLoad1() (float64, error) {
-	data, err := ioutil.ReadFile(procLoad)
+	data, err := ioutil.ReadFile(procFilePath("loadavg"))
 	if err != nil {
 		return 0, err
 	}

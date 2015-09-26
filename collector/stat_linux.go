@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	procStat = "/proc/stat"
-	userHz   = 100
+	userHz = 100
 )
 
 type statCollector struct {
@@ -75,9 +74,9 @@ func NewStatCollector() (Collector, error) {
 	}, nil
 }
 
-// Expose a variety of stats from /proc/stats.
+// Expose kernel and system statistics.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	file, err := os.Open(procStat)
+	file, err := os.Open(procFilePath("stat"))
 	if err != nil {
 		return err
 	}

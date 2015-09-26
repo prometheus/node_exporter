@@ -15,7 +15,6 @@ import (
 )
 
 var (
-	statusfile   = "/proc/mdstat"
 	statuslineRE = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
 	buildlineRE  = regexp.MustCompile(`\((\d+)/\d+\)`)
 )
@@ -90,7 +89,7 @@ func evalBuildline(buildline string) (int64, error) {
 func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 	content, err := ioutil.ReadFile(mdStatusFilePath)
 	if err != nil {
-		return []mdStatus{}, fmt.Errorf("error parsing %s: %s", statusfile, err)
+		return []mdStatus{}, fmt.Errorf("error parsing mdstatus: %s", err)
 	}
 
 	mdStatusFile := string(content)
@@ -128,13 +127,13 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		isActive := (mainLine[2] == "active") // activity status of said md-device
 
 		if len(lines) <= i+3 {
-			return mdStates, fmt.Errorf("error parsing %s: entry for %s has fewer lines than expected", statusfile, currentMD)
+			return mdStates, fmt.Errorf("error parsing mdstatus: entry for %s has fewer lines than expected", currentMD)
 		}
 
 		active, total, size, err := evalStatusline(lines[i+1]) // parse statusline, always present
 
 		if err != nil {
-			return mdStates, fmt.Errorf("error parsing %s: %s", statusfile, err)
+			return mdStates, fmt.Errorf("error parsing mdstatus: %s", err)
 		}
 
 		// Now get the number of synced blocks.
@@ -153,7 +152,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		if strings.Contains(lines[j], "recovery") || strings.Contains(lines[j], "resync") {
 			syncedBlocks, err = evalBuildline(lines[j])
 			if err != nil {
-				return mdStates, fmt.Errorf("error parsing %s: %s", statusfile, err)
+				return mdStates, fmt.Errorf("error parsing mdstatus: %s", err)
 			}
 		} else {
 			syncedBlocks = size
@@ -209,6 +208,7 @@ var (
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) (err error) {
+	statusfile := procFilePath("mdstatus")
 	// take care we don't crash on non-existent statusfiles
 	_, err = os.Stat(statusfile)
 	if os.IsNotExist(err) {
@@ -223,7 +223,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	// First parse mdstat-file...
 	mdstate, err := parseMdstat(statusfile)
 	if err != nil {
-		return fmt.Errorf("error parsing %s: %s", statusfile, err)
+		return fmt.Errorf("error parsing mdstatus: %s", err)
 	}
 
 	// ... and then plug the result into the metrics to be exported.

@@ -14,7 +14,6 @@ import (
 
 const (
 	defIgnoredMountPoints = "^/(sys|proc|dev)($|/)"
-	procMounts            = "/proc/mounts"
 )
 
 var (
@@ -60,7 +59,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 }
 
 func mountPointDetails() ([]filesystemDetails, error) {
-	file, err := os.Open(procMounts)
+	file, err := os.Open(procFilePath("mounts"))
 	if err != nil {
 		return nil, err
 	}
