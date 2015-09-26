@@ -102,7 +102,7 @@ func evalBuildline(buildline string) (int64, error) {
 func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 	content, err := ioutil.ReadFile(mdStatusFilePath)
 	if err != nil {
-		return []mdStatus{}, fmt.Errorf("error parsing mdstatus: %s", err)
+		return []mdStatus{}, fmt.Errorf("error parsing mdstat: %s", err)
 	}
 
 	mdStatusFile := string(content)
@@ -140,13 +140,13 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		isActive := (mainLine[2] == "active") // activity status of said md-device
 
 		if len(lines) <= i+3 {
-			return mdStates, fmt.Errorf("error parsing mdstatus: entry for %s has fewer lines than expected", currentMD)
+			return mdStates, fmt.Errorf("error parsing mdstat: entry for %s has fewer lines than expected", currentMD)
 		}
 
 		active, total, size, err := evalStatusline(lines[i+1]) // parse statusline, always present
 
 		if err != nil {
-			return mdStates, fmt.Errorf("error parsing mdstatus: %s", err)
+			return mdStates, fmt.Errorf("error parsing mdstat: %s", err)
 		}
 
 		// Now get the number of synced blocks.
@@ -165,7 +165,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		if strings.Contains(lines[j], "recovery") || strings.Contains(lines[j], "resync") {
 			syncedBlocks, err = evalBuildline(lines[j])
 			if err != nil {
-				return mdStates, fmt.Errorf("error parsing mdstatus: %s", err)
+				return mdStates, fmt.Errorf("error parsing mdstat: %s", err)
 			}
 		} else {
 			syncedBlocks = size
@@ -221,7 +221,7 @@ var (
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	statusfile := procFilePath("mdstatus")
+	statusfile := procFilePath("mdstat")
 	// take care we don't crash on non-existent statusfiles
 	_, err = os.Stat(statusfile)
 	if os.IsNotExist(err) {
