@@ -17,7 +17,6 @@ import (
 )
 
 const (
-	procDiskStats = "/proc/diskstats"
 	diskSubsystem = "disk"
 )
 
@@ -147,6 +146,7 @@ func NewDiskstatsCollector() (Collector, error) {
 }
 
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) (err error) {
+	procDiskStats := procFilePath("diskstats")
 	diskStats, err := getDiskStats()
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %s", err)
@@ -184,7 +184,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 }
 
 func getDiskStats() (map[string]map[int]string, error) {
-	file, err := os.Open(procDiskStats)
+	file, err := os.Open(procFilePath("diskstats"))
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +202,7 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 	for scanner.Scan() {
 		parts := strings.Fields(string(scanner.Text()))
 		if len(parts) < 4 { // we strip major, minor and dev
-			return nil, fmt.Errorf("invalid line in %s: %s", procDiskStats, scanner.Text())
+			return nil, fmt.Errorf("invalid line in %s: %s", procFilePath("diskstats"), scanner.Text())
 		}
 		dev := parts[2]
 		diskStats[dev] = map[int]string{}

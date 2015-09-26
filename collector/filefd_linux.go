@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	procFileFDStat      = "/proc/sys/fs/file-nr"
 	fileFDStatSubsystem = "filefd"
 )
 
@@ -33,7 +32,7 @@ func NewFileFDStatCollector() (Collector, error) {
 }
 
 func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	fileFDStat, err := getFileFDStats(procFileFDStat)
+	fileFDStat, err := getFileFDStats(procFilePath("sys/fs/file-nr"))
 	if err != nil {
 		return fmt.Errorf("couldn't get file-nr: %s", err)
 	}
@@ -44,7 +43,7 @@ func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 					Namespace: Namespace,
 					Subsystem: fileFDStatSubsystem,
 					Name:      name,
-					Help:      fmt.Sprintf("filefd %s from %s.", name, procFileFDStat),
+					Help:      fmt.Sprintf("File descriptor statistics: %s.", name),
 				},
 			)
 			v, err := strconv.ParseFloat(value, 64)

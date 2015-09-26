@@ -14,8 +14,6 @@ import (
 )
 
 const (
-	procNetStat       = "/proc/net/netstat"
-	procSNMPStat      = "/proc/net/snmp"
 	netStatsSubsystem = "netstat"
 )
 
@@ -36,11 +34,11 @@ func NewNetStatCollector() (Collector, error) {
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	netStats, err := getNetStats(procNetStat)
+	netStats, err := getNetStats(procFilePath("net/netstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)
 	}
-	snmpStats, err := getNetStats(procSNMPStat)
+	snmpStats, err := getNetStats(procFilePath("net/snmp"))
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP stats: %s", err)
 	}
@@ -58,7 +56,7 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 						Namespace: Namespace,
 						Subsystem: netStatsSubsystem,
 						Name:      key,
-						Help:      fmt.Sprintf("%s %s from /proc/net/{netstat,snmp}.", protocol, name),
+						Help:      fmt.Sprintf("Protocol %s statistic %s.", protocol, name),
 					},
 				)
 			}

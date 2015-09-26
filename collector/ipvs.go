@@ -3,16 +3,11 @@
 package collector
 
 import (
-	"flag"
 	"fmt"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
-)
-
-var (
-	ipvsProcfsMountPoint = flag.String("collector.ipvs.procfs", procfs.DefaultMountPoint, "procfs mountpoint.")
 )
 
 type ipvsCollector struct {
@@ -46,7 +41,7 @@ func newIPVSCollector() (*ipvsCollector, error) {
 		subsystem = "ipvs"
 	)
 
-	c.fs, err = procfs.NewFS(*ipvsProcfsMountPoint)
+	c.fs, err = procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, err
 	}

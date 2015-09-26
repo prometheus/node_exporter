@@ -16,7 +16,6 @@ import (
 )
 
 const (
-	procMemInfo      = "/proc/meminfo"
 	memInfoSubsystem = "memory"
 )
 
@@ -48,7 +47,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				Namespace: Namespace,
 				Subsystem: memInfoSubsystem,
 				Name:      k,
-				Help:      k + " from /proc/meminfo.",
+				Help:      fmt.Sprintf("Memory information field %s.", k),
 			})
 		}
 		c.metrics[k].Set(v)
@@ -58,7 +57,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 }
 
 func getMemInfo() (map[string]float64, error) {
-	file, err := os.Open(procMemInfo)
+	file, err := os.Open(procFilePath("meminfo"))
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +85,7 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 		case 3: // has unit, we presume kB
 			fv *= 1024
 		default:
-			return nil, fmt.Errorf("Invalid line in %s: %s", procMemInfo, line)
+			return nil, fmt.Errorf("Invalid line in meminfo: %s", line)
 		}
 		key := parts[0][:len(parts[0])-1] // remove trailing : from key
 		// Active(anon) -> Active_anon

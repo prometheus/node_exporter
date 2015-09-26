@@ -16,10 +16,6 @@ import (
 	"github.com/prometheus/log"
 )
 
-const (
-	procNetDev = "/proc/net/dev"
-)
-
 var (
 	procNetDevFieldSep   = regexp.MustCompile("[ :] *")
 	netdevIgnoredDevices = flag.String(
@@ -59,7 +55,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			if !ok {
 				desc = prometheus.NewDesc(
 					prometheus.BuildFQName(Namespace, c.subsystem, key),
-					fmt.Sprintf("%s from /proc/net/dev.", key),
+					fmt.Sprintf("Network device statistic %s.", key),
 					[]string{"device"},
 					nil,
 				)
@@ -76,7 +72,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 }
 
 func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
-	file, err := os.Open(procNetDev)
+	file, err := os.Open(procFilePath("net/dev"))
 	if err != nil {
 		return nil, err
 	}
@@ -91,8 +87,8 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 	scanner.Scan()
 	parts := strings.Split(string(scanner.Text()), "|")
 	if len(parts) != 3 { // interface + receive + transmit
-		return nil, fmt.Errorf("invalid header line in %s: %s",
-			procNetDev, scanner.Text())
+		return nil, fmt.Errorf("invalid header line in net/dev: %s",
+			scanner.Text())
 	}
 
 	header := strings.Fields(parts[1])
@@ -101,7 +97,7 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 		line := strings.TrimLeft(string(scanner.Text()), " ")
 		parts := procNetDevFieldSep.Split(line, -1)
 		if len(parts) != 2*len(header)+1 {
-			return nil, fmt.Errorf("invalid line in %s: %s", procNetDev, scanner.Text())
+			return nil, fmt.Errorf("invalid line in net/dev: %s", scanner.Text())
 		}
 
 		dev := parts[0][:len(parts[0])]
