@@ -1,4 +1,13 @@
+sudo: false
+
 language: go
+go:
+  - 1.4.3
+  - 1.5.1
+  - tip
+
+install:
+  - go get -d
 
 script:
- - make test
+  - go test -v ./...
