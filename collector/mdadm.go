@@ -226,6 +226,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	_, err = os.Stat(statusfile)
 	if os.IsNotExist(err) {
 		// no such file or directory, nothing to do, just return
+		log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
 		return nil
 	}
 

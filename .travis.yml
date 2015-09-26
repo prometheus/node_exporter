@@ -11,3 +11,5 @@ install:
 
 script:
   - go test -v ./...
+  - go build
+  - ./end-to-end-test.sh -v
