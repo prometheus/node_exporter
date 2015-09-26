@@ -20,7 +20,7 @@ import (
 )
 
 func TestSockStats(t *testing.T) {
-	file, err := os.Open("fixtures/sockstat")
+	file, err := os.Open("fixtures/proc/net/sockstat")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -19,7 +19,7 @@ import (
 )
 
 func TestMemInfo(t *testing.T) {
-	file, err := os.Open("fixtures/meminfo")
+	file, err := os.Open("fixtures/proc/meminfo")
 	if err != nil {
 		t.Fatal(err)
 	}
