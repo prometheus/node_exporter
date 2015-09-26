@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"flag"
 	"io/ioutil"
 	"sort"
 	"strings"
@@ -44,6 +45,13 @@ func TestParseTextFiles(t *testing.T) {
 	for i, test := range tests {
 		c := textFileCollector{
 			path: test.path,
+		}
+
+		// Suppress a log message about `nonexistent_path` not existing, this is
+		// expected and clutters the test output.
+		err := flag.Set("log.level", "fatal")
+		if err != nil {
+			t.Fatal(err)
 		}
 
 		mfs := c.parseTextFiles()
