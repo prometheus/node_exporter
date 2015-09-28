@@ -20,7 +20,7 @@ import (
 )
 
 func TestNetDevStats(t *testing.T) {
-	file, err := os.Open("fixtures/net-dev")
+	file, err := os.Open("fixtures/proc/net/dev")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -19,7 +19,7 @@ import (
 )
 
 func TestFileFDStats(t *testing.T) {
-	file, err := os.Open("fixtures/file-nr")
+	file, err := os.Open("fixtures/proc/sys/fs/file-nr")
 	if err != nil {
 		t.Fatal(err)
 	}

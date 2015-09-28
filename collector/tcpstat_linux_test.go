@@ -19,7 +19,7 @@ import (
 )
 
 func TestTCPStat(t *testing.T) {
-	file, err := os.Open("fixtures/tcpstat")
+	file, err := os.Open("fixtures/proc/net/tcpstat")
 	if err != nil {
 		t.Fatal(err)
 	}

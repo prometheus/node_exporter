@@ -19,7 +19,7 @@ import (
 )
 
 func TestDiskStats(t *testing.T) {
-	file, err := os.Open("fixtures/diskstats")
+	file, err := os.Open("fixtures/proc/diskstats")
 	if err != nil {
 		t.Fatal(err)
 	}

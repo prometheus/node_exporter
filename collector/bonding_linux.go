@@ -25,10 +25,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-const (
-	sysfsNet = "/sys/class/net"
-)
-
 type bondingCollector struct {
 	slaves, active *prometheus.GaugeVec
 }
@@ -62,7 +58,7 @@ func NewBondingCollector() (Collector, error) {
 
 // Update reads and exposes bonding states, implements Collector interface. Caution: This works only on linux.
 func (c *bondingCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	bondingStats, err := readBondingStats(sysfsNet)
+	bondingStats, err := readBondingStats(sysFilePath("class/net"))
 	if err != nil {
 		return err
 	}

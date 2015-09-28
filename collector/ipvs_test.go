@@ -120,7 +120,7 @@ var (
 )
 
 func TestIPVSCollector(t *testing.T) {
-	if err := flag.Set("collector.procfs", "fixtures"); err != nil {
+	if err := flag.Set("collector.procfs", "fixtures/proc"); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := newIPVSCollector()
@@ -182,7 +182,7 @@ func (c miniCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func TestIPVSCollectorResponse(t *testing.T) {
-	if err := flag.Set("collector.procfs", "fixtures"); err != nil {
+	if err := flag.Set("collector.procfs", "fixtures/proc"); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := NewIPVSCollector()
@@ -194,7 +194,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	rw := httptest.NewRecorder()
 	prometheus.Handler().ServeHTTP(rw, &http.Request{})
 
-	metricsFile := "fixtures/net/ip_vs_result.txt"
+	metricsFile := "fixtures/ip_vs_result.txt"
 	wantMetrics, err := ioutil.ReadFile(metricsFile)
 	if err != nil {
 		t.Fatalf("unable to read input test file %s: %s", metricsFile, err)

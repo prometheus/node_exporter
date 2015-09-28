@@ -18,7 +18,7 @@ import (
 )
 
 func TestBonding(t *testing.T) {
-	bondingStats, err := readBondingStats("fixtures/bonding")
+	bondingStats, err := readBondingStats("fixtures/sys/class/net")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -19,7 +19,7 @@ import (
 )
 
 func TestInterrupts(t *testing.T) {
-	file, err := os.Open("fixtures/interrupts")
+	file, err := os.Open("fixtures/proc/interrupts")
 	if err != nil {
 		t.Fatal(err)
 	}

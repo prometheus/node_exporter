@@ -18,7 +18,7 @@ import (
 	"testing"
 )
 
-var fileName = "fixtures/netstat"
+var fileName = "fixtures/proc/net/netstat"
 
 func TestNetStats(t *testing.T) {
 	file, err := os.Open(fileName)

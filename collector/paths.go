@@ -23,8 +23,13 @@ import (
 var (
 	// The path of the proc filesystem.
 	procPath = flag.String("collector.procfs", procfs.DefaultMountPoint, "procfs mountpoint.")
+	sysPath  = flag.String("collector.sysfs", "/sys", "sysfs mountpoint.")
 )
 
 func procFilePath(name string) string {
 	return path.Join(*procPath, name)
+}
+
+func sysFilePath(name string) string {
+	return path.Join(*sysPath, name)
 }
