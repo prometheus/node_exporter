@@ -43,7 +43,7 @@ func init() {
 }
 
 // Takes a prometheus registry and returns a new Collector exposing
-// network device stats.
+// kernel/system statistics.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewCounterVec(
