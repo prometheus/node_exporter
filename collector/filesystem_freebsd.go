@@ -17,7 +17,6 @@ package collector
 
 import (
 	"errors"
-	"regexp"
 	"unsafe"
 
 	"github.com/prometheus/log"
