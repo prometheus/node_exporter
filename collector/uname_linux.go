@@ -46,31 +46,19 @@ func newUnameCollector() (Collector, error) {
 	return &unameCollector{}, nil
 }
 
-func intArrayToString(array [65]int8) string {
-	var str string
-	for _, a := range array {
-		if a == 0 {
-			break
-		}
-		str += string(a)
-	}
-	return str
-}
-
 func (c unameCollector) Update(ch chan<- prometheus.Metric) error {
 	var uname syscall.Utsname
 	if err := syscall.Uname(&uname); err != nil {
 		return err
 	}
 
-	labelValues := []string{
-		intArrayToString(uname.Sysname),
-		intArrayToString(uname.Release),
-		intArrayToString(uname.Version),
-		intArrayToString(uname.Machine),
-		intArrayToString(uname.Nodename),
-		intArrayToString(uname.Domainname),
-	}
-	ch <- prometheus.MustNewConstMetric(unameDesc, prometheus.GaugeValue, 1, labelValues...)
+	ch <- prometheus.MustNewConstMetric(unameDesc, prometheus.GaugeValue, 1,
+		unameToString(uname.Sysname),
+		unameToString(uname.Release),
+		unameToString(uname.Version),
+		unameToString(uname.Machine),
+		unameToString(uname.Nodename),
+		unameToString(uname.Domainname),
+	)
 	return nil
 }
