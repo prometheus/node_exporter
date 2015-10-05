@@ -33,8 +33,7 @@ func init() {
 	Factories["loadavg"] = NewLoadavgCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// load, seconds since last login and a list of tags as specified by config.
+// Takes a prometheus registry and returns a new Collector exposing load average
 func NewLoadavgCollector() (Collector, error) {
 	return &loadavgCollector{
 		metric: []prometheus.Gauge{
@@ -70,6 +69,7 @@ func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return err
 }
 
+// Read loadavg from /proc
 func getLoad() (loads []float64, err error) {
 	data, err := ioutil.ReadFile(procFilePath("loadavg"))
 	if err != nil {
@@ -82,6 +82,7 @@ func getLoad() (loads []float64, err error) {
 	return loads, nil
 }
 
+// Parse /proc loadavg and return 1m, 5m and 15m
 func parseLoad(data string) (loads []float64, err error) {
 	loads = make([]float64, 3)
 	parts := strings.Fields(data)
