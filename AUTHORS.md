@@ -21,6 +21,7 @@ The following individuals have contributed code to this repository
 * Fabian Reinartz <fabian@soundcloud.com>
 * Franklin Wise <franklin@krave.io>
 * Ian Hansen
+* Ilia Choly <ilia.choly@gmail.com>
 * Jari Takkala <jtakkala@gmail.com>
 * Johannes 'fish' Ziemke <github@freigeist.org>
 * Jonas Große Sundrup <cherti@letopolis.de>
