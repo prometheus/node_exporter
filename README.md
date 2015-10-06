@@ -49,6 +49,7 @@ lastlogin | Exposes the last time there was a login.
 megacli | Exposes RAID statistics from MegaCLI.
 ntp | Exposes time drift from an NTP server.
 runit | Exposes service status from [runit](http://smarden.org/runit/).
+supervisord | Exposes service status from [supervisord](http://supervisord.org/).
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.)
 
 ## Textfile Collector
