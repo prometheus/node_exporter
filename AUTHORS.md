@@ -5,7 +5,7 @@ Maintainers of this repository:
 
 * Brian Brazil <brian.brazil@boxever.com>
 * Johannes 'fish' Ziemke <github@freigeist.org>
-* Tobias Schmidt <ts@soundcloud.com>
+* Tobias Schmidt <tobidt@gmail.com>
 
 The following individuals have contributed code to this repository
 (listed in alphabetical order):
@@ -30,5 +30,5 @@ The following individuals have contributed code to this repository
 * Siavash Safi <siavash.safi@gmail.com>
 * Stephen Shirley <kormat@gmail.com>
 * Steve Durrheimer <s.durrheimer@gmail.com>
-* Tobias Schmidt <ts@soundcloud.com>
+* Tobias Schmidt <tobidt@gmail.com>
 * Will Rouesnel <w.rouesnel@gmail.com>
