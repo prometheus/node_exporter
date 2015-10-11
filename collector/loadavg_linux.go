@@ -48,7 +48,7 @@ func NewLoadavgCollector() (Collector, error) {
 func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	load, err := getLoad1()
 	if err != nil {
-		return fmt.Errorf("Couldn't get load: %s", err)
+		return fmt.Errorf("couldn't get load: %s", err)
 	}
 	log.Debugf("Set node_load: %f", load)
 	c.metric.Set(load)
@@ -68,7 +68,7 @@ func parseLoad(data string) (float64, error) {
 	parts := strings.Fields(data)
 	load, err := strconv.ParseFloat(parts[0], 64)
 	if err != nil {
-		return 0, fmt.Errorf("Could not parse load '%s': %s", parts[0], err)
+		return 0, fmt.Errorf("could not parse load '%s': %s", parts[0], err)
 	}
 	return load, nil
 }

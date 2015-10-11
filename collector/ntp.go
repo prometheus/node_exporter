@@ -41,7 +41,7 @@ func init() {
 // the offset between ntp and the current system time.
 func NewNtpCollector() (Collector, error) {
 	if *ntpServer == "" {
-		return nil, fmt.Errorf("No NTP server specifies, see --ntpServer")
+		return nil, fmt.Errorf("no NTP server specifies, see --ntpServer")
 	}
 
 	return &ntpCollector{
@@ -56,7 +56,7 @@ func NewNtpCollector() (Collector, error) {
 func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	t, err := ntp.Time(*ntpServer)
 	if err != nil {
-		return fmt.Errorf("Couldn't get ntp drift: %s", err)
+		return fmt.Errorf("couldn't get ntp drift: %s", err)
 	}
 	drift := t.Sub(time.Now())
 	log.Debugf("Set ntp_drift_seconds: %f", drift.Seconds())

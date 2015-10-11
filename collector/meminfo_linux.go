@@ -51,7 +51,7 @@ func NewMeminfoCollector() (Collector, error) {
 func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	memInfo, err := getMemInfo()
 	if err != nil {
-		return fmt.Errorf("Couldn't get meminfo: %s", err)
+		return fmt.Errorf("couldn't get meminfo: %s", err)
 	}
 	log.Debugf("Set node_mem: %#v", memInfo)
 	for k, v := range memInfo {
@@ -91,14 +91,14 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 		parts := strings.Fields(string(line))
 		fv, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
-			return nil, fmt.Errorf("Invalid value in meminfo: %s", err)
+			return nil, fmt.Errorf("invalid value in meminfo: %s", err)
 		}
 		switch len(parts) {
 		case 2: // no unit
 		case 3: // has unit, we presume kB
 			fv *= 1024
 		default:
-			return nil, fmt.Errorf("Invalid line in meminfo: %s", line)
+			return nil, fmt.Errorf("invalid line in meminfo: %s", line)
 		}
 		key := parts[0][:len(parts[0])-1] // remove trailing : from key
 		// Active(anon) -> Active_anon
