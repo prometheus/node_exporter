@@ -70,7 +70,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 	error := 0.0
-	metricFamilies := make([]*dto.MetricFamily, 0)
+	var metricFamilies []*dto.MetricFamily
 	mtimes := map[string]time.Time{}
 
 	// Iterate over files and accumulate their metrics.
