@@ -53,7 +53,7 @@ func NewLastLoginCollector() (Collector, error) {
 func (c *lastLoginCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	last, err := getLastLoginTime()
 	if err != nil {
-		return fmt.Errorf("Couldn't get last seen: %s", err)
+		return fmt.Errorf("couldn't get last seen: %s", err)
 	}
 	log.Debugf("Set node_last_login_time: %f", last)
 	c.metric.Set(last)
@@ -92,12 +92,12 @@ func getLastLoginTime() (float64, error) {
 
 		dateParts, err := splitToInts(lastDate, "-") // 2013-04-16
 		if err != nil {
-			return 0, fmt.Errorf("Couldn't parse date in line '%s': %s", fields, err)
+			return 0, fmt.Errorf("couldn't parse date in line '%s': %s", fields, err)
 		}
 
 		timeParts, err := splitToInts(lastTime, ":") // 11:33
 		if err != nil {
-			return 0, fmt.Errorf("Couldn't parse time in line '%s': %s", fields, err)
+			return 0, fmt.Errorf("couldn't parse time in line '%s': %s", fields, err)
 		}
 
 		last_t := time.Date(dateParts[0], time.Month(dateParts[1]), dateParts[2], timeParts[0], timeParts[1], 0, 0, time.UTC)
