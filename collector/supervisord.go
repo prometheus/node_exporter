@@ -12,6 +12,7 @@
 // limitations under the License.
 
 // +build !nosupervisord
+
 package collector
 
 import (

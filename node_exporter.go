@@ -35,7 +35,7 @@ import (
 const subsystem = "exporter"
 
 var (
-	// set at build time
+	// Version of node_exporter. Set at build time.
 	Version = "0.0.0.dev"
 
 	memProfile        = flag.String("debug.memprofile-file", "", "Write memory profile to this file upon receipt of SIGUSR1.")
@@ -59,23 +59,23 @@ var (
 	)
 )
 
-// Implements Collector.
+// NodeCollector implements the prometheus.Collector interface.
 type NodeCollector struct {
 	collectors map[string]collector.Collector
 }
 
-// Implements Collector.
+// Describe implements the prometheus.Collector interface.
 func (n NodeCollector) Describe(ch chan<- *prometheus.Desc) {
 	scrapeDurations.Describe(ch)
 }
 
-// Implements Collector.
+// Collect implements the prometheus.Collector interface.
 func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(n.collectors))
 	for name, c := range n.collectors {
 		go func(name string, c collector.Collector) {
-			Execute(name, c, ch)
+			execute(name, c, ch)
 			wg.Done()
 		}(name, c)
 	}
@@ -100,7 +100,7 @@ func (h *basicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func Execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
+func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	begin := time.Now()
 	err := c.Update(ch)
 	duration := time.Since(begin)
@@ -137,7 +137,7 @@ func main() {
 
 	if *printCollectors {
 		collectorNames := make(sort.StringSlice, 0, len(collector.Factories))
-		for n, _ := range collector.Factories {
+		for n := range collector.Factories {
 			collectorNames = append(collectorNames, n)
 		}
 		collectorNames.Sort()
@@ -153,7 +153,7 @@ func main() {
 	}
 
 	log.Infof("Enabled collectors:")
-	for n, _ := range collectors {
+	for n := range collectors {
 		log.Infof(" - %s", n)
 	}
 

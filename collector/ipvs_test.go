@@ -203,7 +203,6 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	wantLines := strings.Split(string(wantMetrics), "\n")
 	gotLines := strings.Split(string(rw.Body.String()), "\n")
 	gotLinesIdx := 0
-	t.Log(gotLines)
 
 	// Until the Prometheus Go client library offers better testability
 	// (https://github.com/prometheus/client_golang/issues/58), we simply compare
