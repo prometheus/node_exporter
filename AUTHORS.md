@@ -15,7 +15,7 @@ The following individuals have contributed code to this repository
 * Benjamin Staffin <benley@gmail.com>
 * Björn Rabenstein <beorn@soundcloud.com>
 * Brian Brazil <brian.brazil@boxever.com>
-* chosenken
+* Ken Herner <ken@modulus.io>
 * Daniel Speichert <daniel@speichert.pro>
 * Eric Ripa
 * Fabian Reinartz <fabian@soundcloud.com>
