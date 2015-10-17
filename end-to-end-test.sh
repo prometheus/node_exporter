@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euf +o pipefail
+set -euf -o pipefail
 
 cd "$(dirname $0)"
 
