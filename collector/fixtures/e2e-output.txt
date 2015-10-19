@@ -9,16 +9,16 @@ go_gc_duration_seconds_sum 0
 go_gc_duration_seconds_count 0
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
-go_goroutines 15
+go_goroutines 23
 # HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
 # TYPE go_memstats_alloc_bytes gauge
-go_memstats_alloc_bytes 1.03544e+06
+go_memstats_alloc_bytes 1.4502e+06
 # HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
 # TYPE go_memstats_alloc_bytes_total counter
-go_memstats_alloc_bytes_total 1.03544e+06
+go_memstats_alloc_bytes_total 1.4502e+06
 # HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table.
 # TYPE go_memstats_buck_hash_sys_bytes gauge
-go_memstats_buck_hash_sys_bytes 1.443595e+06
+go_memstats_buck_hash_sys_bytes 1.443627e+06
 # HELP go_memstats_frees_total Total number of frees.
 # TYPE go_memstats_frees_total counter
 go_memstats_frees_total 0
@@ -27,31 +27,31 @@ go_memstats_frees_total 0
 go_memstats_gc_sys_bytes 98304
 # HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
 # TYPE go_memstats_heap_alloc_bytes gauge
-go_memstats_heap_alloc_bytes 1.03544e+06
+go_memstats_heap_alloc_bytes 1.4502e+06
 # HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used.
 # TYPE go_memstats_heap_idle_bytes gauge
-go_memstats_heap_idle_bytes 761856
+go_memstats_heap_idle_bytes 172032
 # HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use.
 # TYPE go_memstats_heap_inuse_bytes gauge
-go_memstats_heap_inuse_bytes 1.892352e+06
+go_memstats_heap_inuse_bytes 2.351104e+06
 # HELP go_memstats_heap_objects Number of allocated objects.
 # TYPE go_memstats_heap_objects gauge
-go_memstats_heap_objects 4073
+go_memstats_heap_objects 5482
 # HELP go_memstats_heap_released_bytes_total Total number of heap bytes released to OS.
 # TYPE go_memstats_heap_released_bytes_total counter
 go_memstats_heap_released_bytes_total 0
 # HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system.
 # TYPE go_memstats_heap_sys_bytes gauge
-go_memstats_heap_sys_bytes 2.654208e+06
+go_memstats_heap_sys_bytes 2.523136e+06
 # HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
 # TYPE go_memstats_last_gc_time_seconds gauge
 go_memstats_last_gc_time_seconds 9
 # HELP go_memstats_lookups_total Total number of pointer lookups.
 # TYPE go_memstats_lookups_total counter
-go_memstats_lookups_total 10
+go_memstats_lookups_total 26
 # HELP go_memstats_mallocs_total Total number of mallocs.
 # TYPE go_memstats_mallocs_total counter
-go_memstats_mallocs_total 4073
+go_memstats_mallocs_total 5482
 # HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures.
 # TYPE go_memstats_mcache_inuse_bytes gauge
 go_memstats_mcache_inuse_bytes 9664
@@ -60,7 +60,7 @@ go_memstats_mcache_inuse_bytes 9664
 go_memstats_mcache_sys_bytes 16384
 # HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures.
 # TYPE go_memstats_mspan_inuse_bytes gauge
-go_memstats_mspan_inuse_bytes 18144
+go_memstats_mspan_inuse_bytes 22400
 # HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system.
 # TYPE go_memstats_mspan_sys_bytes gauge
 go_memstats_mspan_sys_bytes 32768
@@ -69,13 +69,13 @@ go_memstats_mspan_sys_bytes 32768
 go_memstats_next_gc_bytes 4.194304e+06
 # HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations.
 # TYPE go_memstats_other_sys_bytes gauge
-go_memstats_other_sys_bytes 1.065453e+06
+go_memstats_other_sys_bytes 1.065421e+06
 # HELP go_memstats_stack_inuse_bytes Number of bytes in use by the stack allocator.
 # TYPE go_memstats_stack_inuse_bytes gauge
-go_memstats_stack_inuse_bytes 491520
+go_memstats_stack_inuse_bytes 622592
 # HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator.
 # TYPE go_memstats_stack_sys_bytes gauge
-go_memstats_stack_sys_bytes 491520
+go_memstats_stack_sys_bytes 622592
 # HELP go_memstats_sys_bytes Number of bytes obtained by system. Sum of all system allocations.
 # TYPE go_memstats_sys_bytes gauge
 go_memstats_sys_bytes 5.802232e+06
@@ -336,65 +336,65 @@ node_disk_writes_merged{device="sr0"} 0
 node_disk_writes_merged{device="vda"} 2.0711856e+07
 # HELP node_exporter_scrape_duration_seconds node_exporter: Duration of a scrape job.
 # TYPE node_exporter_scrape_duration_seconds summary
-node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.5"} 0.003508526
-node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.9"} 0.003508526
-node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.99"} 0.003508526
-node_exporter_scrape_duration_seconds_sum{collector="bonding",result="success"} 0.003508526
+node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.5"} 0.000887339
+node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.9"} 0.000887339
+node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.99"} 0.000887339
+node_exporter_scrape_duration_seconds_sum{collector="bonding",result="success"} 0.000887339
 node_exporter_scrape_duration_seconds_count{collector="bonding",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="diskstats",result="success",quantile="0.5"} 0.00553251
-node_exporter_scrape_duration_seconds{collector="diskstats",result="success",quantile="0.9"} 0.00553251
-node_exporter_scrape_duration_seconds{collector="diskstats",result="success",quantile="0.99"} 0.00553251
-node_exporter_scrape_duration_seconds_sum{collector="diskstats",result="success"} 0.00553251
+node_exporter_scrape_duration_seconds{collector="diskstats",result="success",quantile="0.5"} 0.002223042
+node_exporter_scrape_duration_seconds{collector="diskstats",result="success",quantile="0.9"} 0.002223042
+node_exporter_scrape_duration_seconds{collector="diskstats",result="success",quantile="0.99"} 0.002223042
+node_exporter_scrape_duration_seconds_sum{collector="diskstats",result="success"} 0.002223042
 node_exporter_scrape_duration_seconds_count{collector="diskstats",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="filefd",result="success",quantile="0.5"} 0.00027980400000000003
-node_exporter_scrape_duration_seconds{collector="filefd",result="success",quantile="0.9"} 0.00027980400000000003
-node_exporter_scrape_duration_seconds{collector="filefd",result="success",quantile="0.99"} 0.00027980400000000003
-node_exporter_scrape_duration_seconds_sum{collector="filefd",result="success"} 0.00027980400000000003
+node_exporter_scrape_duration_seconds{collector="filefd",result="success",quantile="0.5"} 9.285100000000001e-05
+node_exporter_scrape_duration_seconds{collector="filefd",result="success",quantile="0.9"} 9.285100000000001e-05
+node_exporter_scrape_duration_seconds{collector="filefd",result="success",quantile="0.99"} 9.285100000000001e-05
+node_exporter_scrape_duration_seconds_sum{collector="filefd",result="success"} 9.285100000000001e-05
 node_exporter_scrape_duration_seconds_count{collector="filefd",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="loadavg",result="success",quantile="0.5"} 0.000181632
-node_exporter_scrape_duration_seconds{collector="loadavg",result="success",quantile="0.9"} 0.000181632
-node_exporter_scrape_duration_seconds{collector="loadavg",result="success",quantile="0.99"} 0.000181632
-node_exporter_scrape_duration_seconds_sum{collector="loadavg",result="success"} 0.000181632
+node_exporter_scrape_duration_seconds{collector="loadavg",result="success",quantile="0.5"} 0.00034298300000000005
+node_exporter_scrape_duration_seconds{collector="loadavg",result="success",quantile="0.9"} 0.00034298300000000005
+node_exporter_scrape_duration_seconds{collector="loadavg",result="success",quantile="0.99"} 0.00034298300000000005
+node_exporter_scrape_duration_seconds_sum{collector="loadavg",result="success"} 0.00034298300000000005
 node_exporter_scrape_duration_seconds_count{collector="loadavg",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="mdadm",result="success",quantile="0.5"} 0.004071681000000001
-node_exporter_scrape_duration_seconds{collector="mdadm",result="success",quantile="0.9"} 0.004071681000000001
-node_exporter_scrape_duration_seconds{collector="mdadm",result="success",quantile="0.99"} 0.004071681000000001
-node_exporter_scrape_duration_seconds_sum{collector="mdadm",result="success"} 0.004071681000000001
+node_exporter_scrape_duration_seconds{collector="mdadm",result="success",quantile="0.5"} 0.002383572
+node_exporter_scrape_duration_seconds{collector="mdadm",result="success",quantile="0.9"} 0.002383572
+node_exporter_scrape_duration_seconds{collector="mdadm",result="success",quantile="0.99"} 0.002383572
+node_exporter_scrape_duration_seconds_sum{collector="mdadm",result="success"} 0.002383572
 node_exporter_scrape_duration_seconds_count{collector="mdadm",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="megacli",result="success",quantile="0.5"} 0.016829594
-node_exporter_scrape_duration_seconds{collector="megacli",result="success",quantile="0.9"} 0.016829594
-node_exporter_scrape_duration_seconds{collector="megacli",result="success",quantile="0.99"} 0.016829594
-node_exporter_scrape_duration_seconds_sum{collector="megacli",result="success"} 0.016829594
+node_exporter_scrape_duration_seconds{collector="megacli",result="success",quantile="0.5"} 0.050494332
+node_exporter_scrape_duration_seconds{collector="megacli",result="success",quantile="0.9"} 0.050494332
+node_exporter_scrape_duration_seconds{collector="megacli",result="success",quantile="0.99"} 0.050494332
+node_exporter_scrape_duration_seconds_sum{collector="megacli",result="success"} 0.050494332
 node_exporter_scrape_duration_seconds_count{collector="megacli",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="meminfo",result="success",quantile="0.5"} 0.004264479
-node_exporter_scrape_duration_seconds{collector="meminfo",result="success",quantile="0.9"} 0.004264479
-node_exporter_scrape_duration_seconds{collector="meminfo",result="success",quantile="0.99"} 0.004264479
-node_exporter_scrape_duration_seconds_sum{collector="meminfo",result="success"} 0.004264479
+node_exporter_scrape_duration_seconds{collector="meminfo",result="success",quantile="0.5"} 0.0021957210000000003
+node_exporter_scrape_duration_seconds{collector="meminfo",result="success",quantile="0.9"} 0.0021957210000000003
+node_exporter_scrape_duration_seconds{collector="meminfo",result="success",quantile="0.99"} 0.0021957210000000003
+node_exporter_scrape_duration_seconds_sum{collector="meminfo",result="success"} 0.0021957210000000003
 node_exporter_scrape_duration_seconds_count{collector="meminfo",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.5"} 0.0031302350000000003
-node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.9"} 0.0031302350000000003
-node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.99"} 0.0031302350000000003
-node_exporter_scrape_duration_seconds_sum{collector="netdev",result="success"} 0.0031302350000000003
+node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.5"} 0.001722343
+node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.9"} 0.001722343
+node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.99"} 0.001722343
+node_exporter_scrape_duration_seconds_sum{collector="netdev",result="success"} 0.001722343
 node_exporter_scrape_duration_seconds_count{collector="netdev",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="netstat",result="success",quantile="0.5"} 0.006607648000000001
-node_exporter_scrape_duration_seconds{collector="netstat",result="success",quantile="0.9"} 0.006607648000000001
-node_exporter_scrape_duration_seconds{collector="netstat",result="success",quantile="0.99"} 0.006607648000000001
-node_exporter_scrape_duration_seconds_sum{collector="netstat",result="success"} 0.006607648000000001
+node_exporter_scrape_duration_seconds{collector="netstat",result="success",quantile="0.5"} 0.0030769110000000003
+node_exporter_scrape_duration_seconds{collector="netstat",result="success",quantile="0.9"} 0.0030769110000000003
+node_exporter_scrape_duration_seconds{collector="netstat",result="success",quantile="0.99"} 0.0030769110000000003
+node_exporter_scrape_duration_seconds_sum{collector="netstat",result="success"} 0.0030769110000000003
 node_exporter_scrape_duration_seconds_count{collector="netstat",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="sockstat",result="success",quantile="0.5"} 0.000237652
-node_exporter_scrape_duration_seconds{collector="sockstat",result="success",quantile="0.9"} 0.000237652
-node_exporter_scrape_duration_seconds{collector="sockstat",result="success",quantile="0.99"} 0.000237652
-node_exporter_scrape_duration_seconds_sum{collector="sockstat",result="success"} 0.000237652
+node_exporter_scrape_duration_seconds{collector="sockstat",result="success",quantile="0.5"} 0.000420661
+node_exporter_scrape_duration_seconds{collector="sockstat",result="success",quantile="0.9"} 0.000420661
+node_exporter_scrape_duration_seconds{collector="sockstat",result="success",quantile="0.99"} 0.000420661
+node_exporter_scrape_duration_seconds_sum{collector="sockstat",result="success"} 0.000420661
 node_exporter_scrape_duration_seconds_count{collector="sockstat",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="stat",result="success",quantile="0.5"} 0.001057388
-node_exporter_scrape_duration_seconds{collector="stat",result="success",quantile="0.9"} 0.001057388
-node_exporter_scrape_duration_seconds{collector="stat",result="success",quantile="0.99"} 0.001057388
-node_exporter_scrape_duration_seconds_sum{collector="stat",result="success"} 0.001057388
+node_exporter_scrape_duration_seconds{collector="stat",result="success",quantile="0.5"} 0.001113649
+node_exporter_scrape_duration_seconds{collector="stat",result="success",quantile="0.9"} 0.001113649
+node_exporter_scrape_duration_seconds{collector="stat",result="success",quantile="0.99"} 0.001113649
+node_exporter_scrape_duration_seconds_sum{collector="stat",result="success"} 0.001113649
 node_exporter_scrape_duration_seconds_count{collector="stat",result="success"} 1
-node_exporter_scrape_duration_seconds{collector="textfile",result="success",quantile="0.5"} 6.25e-07
-node_exporter_scrape_duration_seconds{collector="textfile",result="success",quantile="0.9"} 6.25e-07
-node_exporter_scrape_duration_seconds{collector="textfile",result="success",quantile="0.99"} 6.25e-07
-node_exporter_scrape_duration_seconds_sum{collector="textfile",result="success"} 6.25e-07
+node_exporter_scrape_duration_seconds{collector="textfile",result="success",quantile="0.5"} 3.9e-07
+node_exporter_scrape_duration_seconds{collector="textfile",result="success",quantile="0.9"} 3.9e-07
+node_exporter_scrape_duration_seconds{collector="textfile",result="success",quantile="0.99"} 3.9e-07
+node_exporter_scrape_duration_seconds_sum{collector="textfile",result="success"} 3.9e-07
 node_exporter_scrape_duration_seconds_count{collector="textfile",result="success"} 1
 # HELP node_filefd_allocated File descriptor statistics: allocated.
 # TYPE node_filefd_allocated gauge
@@ -411,6 +411,12 @@ node_intr 8.885917e+06
 # HELP node_load1 1m load average.
 # TYPE node_load1 gauge
 node_load1 0.21
+# HELP node_load15 15m load average.
+# TYPE node_load15 gauge
+node_load15 0.39
+# HELP node_load5 5m load average.
+# TYPE node_load5 gauge
+node_load5 0.37
 # HELP node_md_blocks Total number of blocks on device.
 # TYPE node_md_blocks gauge
 node_md_blocks{device="md0"} 248896
@@ -1318,8 +1324,8 @@ node_sockstat_UDP_mem_bytes 0
 node_sockstat_sockets_used 229
 # HELP node_textfile_mtime Unixtime mtime of textfiles successfully read.
 # TYPE node_textfile_mtime gauge
-node_textfile_mtime{file="metrics1.prom"} 1.443740509423451e+09
-node_textfile_mtime{file="metrics2.prom"} 1.443740509423451e+09
+node_textfile_mtime{file="metrics1.prom"} 1.4450870579790444e+09
+node_textfile_mtime{file="metrics2.prom"} 1.4450870579790444e+09
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
@@ -1328,19 +1334,19 @@ node_textfile_scrape_error 0
 process_cpu_seconds_total 0
 # HELP process_max_fds Maximum number of open file descriptors.
 # TYPE process_max_fds gauge
-process_max_fds 1024
+process_max_fds 65536
 # HELP process_open_fds Number of open file descriptors.
 # TYPE process_open_fds gauge
-process_open_fds 8
+process_open_fds 7
 # HELP process_resident_memory_bytes Resident memory size in bytes.
 # TYPE process_resident_memory_bytes gauge
-process_resident_memory_bytes 1.0084352e+07
+process_resident_memory_bytes 9.129984e+06
 # HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
 # TYPE process_start_time_seconds gauge
-process_start_time_seconds 1.44502463961e+09
+process_start_time_seconds 1.44528171118e+09
 # HELP process_virtual_memory_bytes Virtual memory size in bytes.
 # TYPE process_virtual_memory_bytes gauge
-process_virtual_memory_bytes 2.72871424e+08
+process_virtual_memory_bytes 1.28520192e+08
 # HELP testmetric1_1 Metric read from collector/fixtures/textfile/two_metric_files/metrics1.prom
 # TYPE testmetric1_1 untyped
 testmetric1_1{foo="bar"} 10
