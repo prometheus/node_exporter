@@ -17,7 +17,6 @@ package collector
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 	"syscall"
@@ -54,8 +53,9 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		buf := new(syscall.Statfs_t)
 		err := syscall.Statfs(mpd.mountPoint, buf)
 		if err != nil {
-			return nil, fmt.Errorf("Statfs on %s returned %s",
+			log.Debugf("Statfs on %s returned %s",
 				mpd.mountPoint, err)
+			continue
 		}
 
 		labelValues := []string{mpd.device, mpd.mountPoint, mpd.fsType}
