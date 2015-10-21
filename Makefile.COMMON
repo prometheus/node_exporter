@@ -44,13 +44,9 @@ SRC    ?= $(shell find . -type f -name "*.go" ! -path "./.build/*")
 GOOS   ?= $(shell uname | tr A-Z a-z)
 GOARCH ?= $(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m)))
 
-ifeq ($(GOOS),darwin)
-	RELEASE_SUFFIX ?= -osx$(shell sw_vers -productVersion)
-endif
-
 GO_VERSION ?= 1.5.1
 GOURL      ?= https://golang.org/dl
-GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH)$(RELEASE_SUFFIX).tar.gz
+GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH).tar.gz
 GOPATH     := $(CURDIR)/.build/gopath
 
 # Check for the correct version of go in the path. If we find it, use it.
@@ -101,7 +97,7 @@ $(BINARY): $(GOCC) $(SRC) dependencies-stamp Makefile Makefile.COMMON
 archive: $(ARCHIVE)
 
 $(ARCHIVE): $(BINARY)
-	tar -czf $@ $<
+	tar --owner=root --group=root -czf $@ $<
 
 .PHONY: tag
 tag:
