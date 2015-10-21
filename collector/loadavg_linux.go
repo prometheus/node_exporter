@@ -26,49 +26,74 @@ import (
 )
 
 type loadavgCollector struct {
-	metric prometheus.Gauge
+	metric []prometheus.Gauge
 }
 
 func init() {
 	Factories["loadavg"] = NewLoadavgCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// load, seconds since last login and a list of tags as specified by config.
+// Take a prometheus registry and return a new Collector exposing load average.
 func NewLoadavgCollector() (Collector, error) {
 	return &loadavgCollector{
-		metric: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "load1",
-			Help:      "1m load average.",
-		}),
+		metric: []prometheus.Gauge{
+			prometheus.NewGauge(prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "load1",
+				Help:      "1m load average.",
+			}),
+			prometheus.NewGauge(prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "load5",
+				Help:      "5m load average.",
+			}),
+			prometheus.NewGauge(prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "load15",
+				Help:      "15m load average.",
+			}),
+		},
 	}, nil
 }
 
 func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	load, err := getLoad1()
+	loads, err := getLoad()
 	if err != nil {
 		return fmt.Errorf("couldn't get load: %s", err)
 	}
-	log.Debugf("Set node_load: %f", load)
-	c.metric.Set(load)
-	c.metric.Collect(ch)
+	for i, load := range loads {
+		log.Debugf("Set load %d: %f", i, load)
+		c.metric[i].Set(load)
+		c.metric[i].Collect(ch)
+	}
 	return err
 }
 
-func getLoad1() (float64, error) {
+// Read loadavg from /proc.
+func getLoad() (loads []float64, err error) {
 	data, err := ioutil.ReadFile(procFilePath("loadavg"))
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return parseLoad(string(data))
+	loads, err = parseLoad(string(data))
+	if err != nil {
+		return nil, err
+	}
+	return loads, nil
 }
 
-func parseLoad(data string) (float64, error) {
+// Parse /proc loadavg and return 1m, 5m and 15m.
+func parseLoad(data string) (loads []float64, err error) {
+	loads = make([]float64, 3)
 	parts := strings.Fields(data)
-	load, err := strconv.ParseFloat(parts[0], 64)
-	if err != nil {
-		return 0, fmt.Errorf("could not parse load '%s': %s", parts[0], err)
+	if len(parts) < 3 {
+		return nil, fmt.Errorf("unexpected content in %s", procFilePath("loadavg"))
 	}
-	return load, nil
+	for i, load := range parts[0:3] {
+		loads[i], err = strconv.ParseFloat(load, 64)
+		if err != nil {
+			return nil, fmt.Errorf("could not parse load '%s': %s", load, err)
+		}
+	}
+	return loads, nil
 }
