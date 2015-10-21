@@ -18,7 +18,7 @@ import (
 	"github.com/prometheus/log"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/text"
+	"github.com/prometheus/common/expfmt"
 )
 
 var (
@@ -78,7 +78,7 @@ func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 			error = 1.0
 			continue
 		}
-		parsedFamilies, err := (&text.Parser{}).TextToMetricFamilies(file)
+		parsedFamilies, err := (&expfmt.TextParser{}).TextToMetricFamilies(file)
 		if err != nil {
 			log.Errorf("Error parsing %s: %v", path, err)
 			error = 1.0
