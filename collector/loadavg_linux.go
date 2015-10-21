@@ -86,15 +86,14 @@ func getLoad() (loads []float64, err error) {
 func parseLoad(data string) (loads []float64, err error) {
 	loads = make([]float64, 3)
 	parts := strings.Fields(data)
-	if len(parts) >= 3 {
-		for i, load := range parts[0:3] {
-			loads[i], err = strconv.ParseFloat(load, 64)
-			if err != nil {
-				return nil, fmt.Errorf("could not parse load '%s': %s", load, err)
-			}
-		}
-	} else {
+	if len(parts) < 3 {
 		return nil, fmt.Errorf("unexpected content in %s", procFilePath("loadavg"))
+	}
+	for i, load := range parts[0:3] {
+		loads[i], err = strconv.ParseFloat(load, 64)
+		if err != nil {
+			return nil, fmt.Errorf("could not parse load '%s': %s", load, err)
+		}
 	}
 	return loads, nil
 }
