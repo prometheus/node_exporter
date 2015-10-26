@@ -26,7 +26,8 @@ import (
 )
 
 var (
-	ntpServer = flag.String("collector.ntp.server", "", "NTP server to use for ntp collector.")
+	ntpServer          = flag.String("collector.ntp.server", "", "NTP server to use for ntp collector.")
+	ntpProtocolVersion = flag.Int("collector.ntp.protocol-version", 4, "NTP protocol version")
 )
 
 type ntpCollector struct {
@@ -34,6 +35,7 @@ type ntpCollector struct {
 }
 
 func init() {
+	ntp.Version = byte(*ntpProtocolVersion)
 	Factories["ntp"] = NewNtpCollector
 }
 
