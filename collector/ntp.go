@@ -22,7 +22,7 @@ import (
 
 	"github.com/beevik/ntp"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/log"
+	"github.com/prometheus/common/log"
 )
 
 var (

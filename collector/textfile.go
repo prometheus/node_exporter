@@ -27,10 +27,9 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/expfmt"
-	"github.com/prometheus/log"
-
 	dto "github.com/prometheus/client_model/go"
+	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/common/log"
 )
 
 var (

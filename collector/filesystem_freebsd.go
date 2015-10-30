@@ -19,7 +19,7 @@ import (
 	"errors"
 	"unsafe"
 
-	"github.com/prometheus/log"
+	"github.com/prometheus/common/log"
 )
 
 /*
