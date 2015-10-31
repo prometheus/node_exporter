@@ -20,54 +20,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
-
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
-
-type loadavgCollector struct {
-	metric []prometheus.Gauge
-}
-
-func init() {
-	Factories["loadavg"] = NewLoadavgCollector
-}
-
-// Take a prometheus registry and return a new Collector exposing load average.
-func NewLoadavgCollector() (Collector, error) {
-	return &loadavgCollector{
-		metric: []prometheus.Gauge{
-			prometheus.NewGauge(prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Name:      "load1",
-				Help:      "1m load average.",
-			}),
-			prometheus.NewGauge(prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Name:      "load5",
-				Help:      "5m load average.",
-			}),
-			prometheus.NewGauge(prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Name:      "load15",
-				Help:      "15m load average.",
-			}),
-		},
-	}, nil
-}
-
-func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	loads, err := getLoad()
-	if err != nil {
-		return fmt.Errorf("couldn't get load: %s", err)
-	}
-	for i, load := range loads {
-		log.Debugf("Set load %d: %f", i, load)
-		c.metric[i].Set(load)
-		c.metric[i].Collect(ch)
-	}
-	return err
-}
 
 // Read loadavg from /proc.
 func getLoad() (loads []float64, err error) {
