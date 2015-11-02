@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nofilesystem
-// +build linux freebsd
+// +build linux freebsd openbsd
 
 package collector
 
