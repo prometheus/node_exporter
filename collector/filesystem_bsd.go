@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build freebsd openbsd
 // +build !nofilesystem
 
 package collector
@@ -54,6 +55,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			log.Debugf("Ignoring mount point: %s", name)
 			continue
 		}
+
 		labelValues := []string{name}
 		stats = append(stats, filesystemStats{
 			labelValues: labelValues,
