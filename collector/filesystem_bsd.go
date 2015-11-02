@@ -35,10 +35,6 @@ const (
 	defIgnoredMountPoints = "^/(dev)($|/)"
 )
 
-var (
-	filesystemLabelNames = []string{"filesystem"}
-)
-
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	var mntbuf *C.struct_statfs
@@ -50,13 +46,16 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	mnt := (*[1 << 30]C.struct_statfs)(unsafe.Pointer(mntbuf))
 	stats = []filesystemStats{}
 	for i := 0; i < int(count); i++ {
-		name := C.GoString(&mnt[i].f_mntonname[0])
-		if c.ignoredMountPointsPattern.MatchString(name) {
-			log.Debugf("Ignoring mount point: %s", name)
+		mountpoint := C.GoString(&mnt[i].f_mntonname[0])
+		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
+			log.Debugf("Ignoring mount point: %s", mountpoint)
 			continue
 		}
 
-		labelValues := []string{name}
+		device := C.GoString(&mnt[i].f_mntfromname[0])
+		fstype := C.GoString(&mnt[i].f_fstypename[0])
+
+		labelValues := []string{device, mountpoint, fstype}
 		stats = append(stats, filesystemStats{
 			labelValues: labelValues,
 			size:        float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
