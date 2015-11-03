@@ -28,10 +28,6 @@ const (
 	defIgnoredMountPoints = "^/(sys|proc|dev)($|/)"
 )
 
-var (
-	filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
-)
-
 type filesystemDetails struct {
 	device     string
 	mountPoint string

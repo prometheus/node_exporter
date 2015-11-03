@@ -33,6 +33,8 @@ var (
 		"collector.filesystem.ignored-mount-points",
 		defIgnoredMountPoints,
 		"Regexp of mount points to ignore for filesystem collector.")
+
+	filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
 )
 
 type filesystemCollector struct {
