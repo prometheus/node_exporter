@@ -17,72 +17,18 @@ package collector
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"io"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 )
 
 var (
 	procNetDevFieldSep   = regexp.MustCompile("[ :] *")
-	netdevIgnoredDevices = flag.String(
-		"collector.netdev.ignored-devices", "^$",
-		"Regexp of net devices to ignore for netdev collector.")
 )
-
-type netDevCollector struct {
-	subsystem             string
-	ignoredDevicesPattern *regexp.Regexp
-	metricDescs           map[string]*prometheus.Desc
-}
-
-func init() {
-	Factories["netdev"] = NewNetDevCollector
-}
-
-// Takes a prometheus registry and returns a new Collector exposing
-// network device stats.
-func NewNetDevCollector() (Collector, error) {
-	pattern := regexp.MustCompile(*netdevIgnoredDevices)
-	return &netDevCollector{
-		subsystem:             "network",
-		ignoredDevicesPattern: pattern,
-		metricDescs:           map[string]*prometheus.Desc{},
-	}, nil
-}
-
-func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	netDev, err := getNetDevStats(c.ignoredDevicesPattern)
-	if err != nil {
-		return fmt.Errorf("couldn't get netstats: %s", err)
-	}
-	for dev, devStats := range netDev {
-		for key, value := range devStats {
-			desc, ok := c.metricDescs[key]
-			if !ok {
-				desc = prometheus.NewDesc(
-					prometheus.BuildFQName(Namespace, c.subsystem, key),
-					fmt.Sprintf("Network device statistic %s.", key),
-					[]string{"device"},
-					nil,
-				)
-				c.metricDescs[key] = desc
-			}
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
-			}
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, v, dev)
-		}
-	}
-	return nil
-}
 
 func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
 	file, err := os.Open(procFilePath("net/dev"))

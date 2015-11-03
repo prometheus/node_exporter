@@ -24,8 +24,6 @@ import (
 )
 
 /*
-#cgo CFLAGS: -D_IFI_OQDROPS
-#include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <ifaddrs.h>
@@ -62,7 +60,6 @@ func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error)
 			devStats["receive_multicast"] = strconv.Itoa(int(data.ifi_imcasts))
 			devStats["transmit_multicast"] = strconv.Itoa(int(data.ifi_omcasts))
 			devStats["receive_drop"] = strconv.Itoa(int(data.ifi_iqdrops))
-			devStats["transmit_drop"] = strconv.Itoa(int(data.ifi_oqdrops))
 			netDev[dev] = devStats
 		}
 	}
