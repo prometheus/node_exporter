@@ -43,8 +43,6 @@ var (
 	metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	enabledCollectors = flag.String("collectors.enabled", "diskstats,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname", "Comma-separated list of collectors to use.")
 	printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
-	authUser          = flag.String("auth.user", "", "Username for basic auth.")
-	authPass          = flag.String("auth.pass", "", "Password for basic auth.")
 
 	collectorLabelNames = []string{"collector", "result"}
 
@@ -81,23 +79,6 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	wg.Wait()
 	scrapeDurations.Collect(ch)
-}
-
-type basicAuthHandler struct {
-	handler  http.HandlerFunc
-	user     string
-	password string
-}
-
-func (h *basicAuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	user, password, ok := r.BasicAuth()
-	if !ok || password != h.password || user != h.user {
-		w.Header().Set("WWW-Authenticate", "Basic realm=\"metrics\"")
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		return
-	}
-	h.handler(w, r)
-	return
 }
 
 func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
@@ -164,16 +145,6 @@ func main() {
 	signal.Notify(sigUsr1, syscall.SIGUSR1)
 
 	handler := prometheus.Handler()
-	if *authUser != "" || *authPass != "" {
-		if *authUser == "" || *authPass == "" {
-			log.Fatal("You need to specify -auth.user and -auth.pass to enable basic auth")
-		}
-		handler = &basicAuthHandler{
-			handler:  prometheus.Handler().ServeHTTP,
-			user:     *authUser,
-			password: *authPass,
-		}
-	}
 
 	http.Handle(*metricsPath, handler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
