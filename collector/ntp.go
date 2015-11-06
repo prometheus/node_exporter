@@ -35,7 +35,6 @@ type ntpCollector struct {
 }
 
 func init() {
-	ntp.Version = byte(*ntpProtocolVersion)
 	Factories["ntp"] = NewNtpCollector
 }
 
@@ -45,6 +44,7 @@ func NewNtpCollector() (Collector, error) {
 	if *ntpServer == "" {
 		return nil, fmt.Errorf("no NTP server specifies, see --ntpServer")
 	}
+	ntp.Version = byte(*ntpProtocolVersion)
 
 	return &ntpCollector{
 		drift: prometheus.NewGauge(prometheus.GaugeOpts{
