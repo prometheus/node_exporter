@@ -40,12 +40,12 @@ var (
 type filesystemCollector struct {
 	ignoredMountPointsPattern *regexp.Regexp
 	sizeDesc, freeDesc, availDesc,
-	filesDesc, filesFreeDesc *prometheus.Desc
+	filesDesc, filesFreeDesc, roDesc *prometheus.Desc
 }
 
 type filesystemStats struct {
-	labelValues                         []string
-	size, free, avail, files, filesFree float64
+	labelValues                             []string
+	size, free, avail, files, filesFree, ro float64
 }
 
 func init() {
@@ -88,6 +88,12 @@ func NewFilesystemCollector() (Collector, error) {
 		filesystemLabelNames, nil,
 	)
 
+	roDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "readonly"),
+		"Filesystem read-only status.",
+		filesystemLabelNames, nil,
+	)
+
 	return &filesystemCollector{
 		ignoredMountPointsPattern: pattern,
 		sizeDesc:                  sizeDesc,
@@ -95,6 +101,7 @@ func NewFilesystemCollector() (Collector, error) {
 		availDesc:                 availDesc,
 		filesDesc:                 filesDesc,
 		filesFreeDesc:             filesFreeDesc,
+		roDesc:                    roDesc,
 	}, nil
 }
 
@@ -123,6 +130,10 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		ch <- prometheus.MustNewConstMetric(
 			c.filesFreeDesc, prometheus.GaugeValue,
 			s.filesFree, s.labelValues...,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.roDesc, prometheus.GaugeValue,
+			s.ro, s.labelValues...,
 		)
 	}
 	return nil

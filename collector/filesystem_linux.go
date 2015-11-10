@@ -26,6 +26,7 @@ import (
 
 const (
 	defIgnoredMountPoints = "^/(sys|proc|dev)($|/)"
+	ST_RDONLY             = 0x1
 )
 
 type filesystemDetails struct {
@@ -54,6 +55,11 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			continue
 		}
 
+		var ro float64
+		if buf.Flags & ST_RDONLY != 0 {
+			ro = 1
+		}
+
 		labelValues := []string{mpd.device, mpd.mountPoint, mpd.fsType}
 		stats = append(stats, filesystemStats{
 			labelValues: labelValues,
@@ -62,6 +68,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			avail:       float64(buf.Bavail) * float64(buf.Bsize),
 			files:       float64(buf.Files),
 			filesFree:   float64(buf.Ffree),
+			ro:          ro,
 		})
 	}
 	return stats, nil
