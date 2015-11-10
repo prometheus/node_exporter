@@ -54,7 +54,7 @@ func NewTextFileCollector() (Collector, error) {
 	if c.path == "" {
 		// This collector is enabled by default, so do not fail if
 		// the flag is not passed.
-		log.Infof("No directory specified, see --textfile.directory")
+		log.Infof("No directory specified, see --collector.textfile.directory")
 	} else {
 		prometheus.SetMetricFamilyInjectionHook(c.parseTextFiles)
 	}
