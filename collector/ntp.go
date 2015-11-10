@@ -44,7 +44,9 @@ func NewNtpCollector() (Collector, error) {
 	if *ntpServer == "" {
 		return nil, fmt.Errorf("no NTP server specifies, see --ntpServer")
 	}
-	ntp.Version = byte(*ntpProtocolVersion)
+	if *ntpProtocolVersion < 2 || *ntpProtocolVersion > 4 {
+		return nil, fmt.Errorf("invalid NTP protocol version %d; must be 2, 3, or 4")
+	}
 
 	return &ntpCollector{
 		drift: prometheus.NewGauge(prometheus.GaugeOpts{
@@ -56,9 +58,9 @@ func NewNtpCollector() (Collector, error) {
 }
 
 func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	t, err := ntp.Time(*ntpServer)
+	t, err := ntp.TimeV(*ntpServer, byte(*ntpProtocolVersion))
 	if err != nil {
-		return fmt.Errorf("couldn't get ntp drift: %s", err)
+		return fmt.Errorf("couldn't get NTP drift: %s", err)
 	}
 	drift := t.Sub(time.Now())
 	log.Debugf("Set ntp_drift_seconds: %f", drift.Seconds())
