@@ -444,6 +444,33 @@ node_forks 26442
 # HELP node_intr Total number of interrupts serviced.
 # TYPE node_intr counter
 node_intr 8.885917e+06
+# HELP node_ksmd_full_scans_total ksmd 'full_scans' file.
+# TYPE node_ksmd_full_scans_total counter
+node_ksmd_full_scans_total 323
+# HELP node_ksmd_merge_across_nodes ksmd 'merge_across_nodes' file.
+# TYPE node_ksmd_merge_across_nodes gauge
+node_ksmd_merge_across_nodes 1
+# HELP node_ksmd_pages_shared ksmd 'pages_shared' file.
+# TYPE node_ksmd_pages_shared gauge
+node_ksmd_pages_shared 1
+# HELP node_ksmd_pages_sharing ksmd 'pages_sharing' file.
+# TYPE node_ksmd_pages_sharing gauge
+node_ksmd_pages_sharing 255
+# HELP node_ksmd_pages_to_scan ksmd 'pages_to_scan' file.
+# TYPE node_ksmd_pages_to_scan gauge
+node_ksmd_pages_to_scan 100
+# HELP node_ksmd_pages_unshared ksmd 'pages_unshared' file.
+# TYPE node_ksmd_pages_unshared gauge
+node_ksmd_pages_unshared 0
+# HELP node_ksmd_pages_volatile ksmd 'pages_volatile' file.
+# TYPE node_ksmd_pages_volatile gauge
+node_ksmd_pages_volatile 0
+# HELP node_ksmd_run ksmd 'run' file.
+# TYPE node_ksmd_run gauge
+node_ksmd_run 1
+# HELP node_ksmd_sleep_seconds ksmd 'sleep_millisecs' file.
+# TYPE node_ksmd_sleep_seconds gauge
+node_ksmd_sleep_seconds 0.02
 # HELP node_load1 1m load average.
 # TYPE node_load1 gauge
 node_load1 0.21
