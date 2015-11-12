@@ -12,6 +12,7 @@
 // limitations under the License.
 
 // +build !nointerrupts
+// +build !darwin
 
 package collector
 
