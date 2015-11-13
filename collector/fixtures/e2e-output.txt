@@ -643,6 +643,122 @@ node_memory_Writeback 0
 # HELP node_memory_WritebackTmp Memory information field WritebackTmp.
 # TYPE node_memory_WritebackTmp gauge
 node_memory_WritebackTmp 0
+# HELP node_memory_numa_Active Memory information field Active.
+# TYPE node_memory_numa_Active gauge
+node_memory_numa_Active{node="0"} 5.58733312e+09
+node_memory_numa_Active{node="1"} 5.739003904e+09
+# HELP node_memory_numa_Active_anon Memory information field Active_anon.
+# TYPE node_memory_numa_Active_anon gauge
+node_memory_numa_Active_anon{node="0"} 7.07915776e+08
+node_memory_numa_Active_anon{node="1"} 6.04635136e+08
+# HELP node_memory_numa_Active_file Memory information field Active_file.
+# TYPE node_memory_numa_Active_file gauge
+node_memory_numa_Active_file{node="0"} 4.879417344e+09
+node_memory_numa_Active_file{node="1"} 5.134368768e+09
+# HELP node_memory_numa_AnonHugePages Memory information field AnonHugePages.
+# TYPE node_memory_numa_AnonHugePages gauge
+node_memory_numa_AnonHugePages{node="0"} 1.50994944e+08
+node_memory_numa_AnonHugePages{node="1"} 9.2274688e+07
+# HELP node_memory_numa_AnonPages Memory information field AnonPages.
+# TYPE node_memory_numa_AnonPages gauge
+node_memory_numa_AnonPages{node="0"} 8.07112704e+08
+node_memory_numa_AnonPages{node="1"} 6.88058368e+08
+# HELP node_memory_numa_Bounce Memory information field Bounce.
+# TYPE node_memory_numa_Bounce gauge
+node_memory_numa_Bounce{node="0"} 0
+node_memory_numa_Bounce{node="1"} 0
+# HELP node_memory_numa_Dirty Memory information field Dirty.
+# TYPE node_memory_numa_Dirty gauge
+node_memory_numa_Dirty{node="0"} 20480
+node_memory_numa_Dirty{node="1"} 122880
+# HELP node_memory_numa_FilePages Memory information field FilePages.
+# TYPE node_memory_numa_FilePages gauge
+node_memory_numa_FilePages{node="0"} 7.1855017984e+10
+node_memory_numa_FilePages{node="1"} 8.5585088512e+10
+# HELP node_memory_numa_HugePages_Free Memory information field HugePages_Free.
+# TYPE node_memory_numa_HugePages_Free gauge
+node_memory_numa_HugePages_Free{node="0"} 0
+node_memory_numa_HugePages_Free{node="1"} 0
+# HELP node_memory_numa_HugePages_Surp Memory information field HugePages_Surp.
+# TYPE node_memory_numa_HugePages_Surp gauge
+node_memory_numa_HugePages_Surp{node="0"} 0
+node_memory_numa_HugePages_Surp{node="1"} 0
+# HELP node_memory_numa_HugePages_Total Memory information field HugePages_Total.
+# TYPE node_memory_numa_HugePages_Total gauge
+node_memory_numa_HugePages_Total{node="0"} 0
+node_memory_numa_HugePages_Total{node="1"} 0
+# HELP node_memory_numa_Inactive Memory information field Inactive.
+# TYPE node_memory_numa_Inactive gauge
+node_memory_numa_Inactive{node="0"} 6.0569788416e+10
+node_memory_numa_Inactive{node="1"} 7.3165406208e+10
+# HELP node_memory_numa_Inactive_anon Memory information field Inactive_anon.
+# TYPE node_memory_numa_Inactive_anon gauge
+node_memory_numa_Inactive_anon{node="0"} 3.48626944e+08
+node_memory_numa_Inactive_anon{node="1"} 2.91930112e+08
+# HELP node_memory_numa_Inactive_file Memory information field Inactive_file.
+# TYPE node_memory_numa_Inactive_file gauge
+node_memory_numa_Inactive_file{node="0"} 6.0221161472e+10
+node_memory_numa_Inactive_file{node="1"} 7.2873476096e+10
+# HELP node_memory_numa_KernelStack Memory information field KernelStack.
+# TYPE node_memory_numa_KernelStack gauge
+node_memory_numa_KernelStack{node="0"} 3.4832384e+07
+node_memory_numa_KernelStack{node="1"} 3.1850496e+07
+# HELP node_memory_numa_Mapped Memory information field Mapped.
+# TYPE node_memory_numa_Mapped gauge
+node_memory_numa_Mapped{node="0"} 9.1570176e+08
+node_memory_numa_Mapped{node="1"} 8.84850688e+08
+# HELP node_memory_numa_MemFree Memory information field MemFree.
+# TYPE node_memory_numa_MemFree gauge
+node_memory_numa_MemFree{node="0"} 5.4303100928e+10
+node_memory_numa_MemFree{node="1"} 4.0586022912e+10
+# HELP node_memory_numa_MemTotal Memory information field MemTotal.
+# TYPE node_memory_numa_MemTotal gauge
+node_memory_numa_MemTotal{node="0"} 1.3740271616e+11
+node_memory_numa_MemTotal{node="1"} 1.37438953472e+11
+# HELP node_memory_numa_MemUsed Memory information field MemUsed.
+# TYPE node_memory_numa_MemUsed gauge
+node_memory_numa_MemUsed{node="0"} 8.3099615232e+10
+node_memory_numa_MemUsed{node="1"} 9.685293056e+10
+# HELP node_memory_numa_Mlocked Memory information field Mlocked.
+# TYPE node_memory_numa_Mlocked gauge
+node_memory_numa_Mlocked{node="0"} 0
+node_memory_numa_Mlocked{node="1"} 0
+# HELP node_memory_numa_NFS_Unstable Memory information field NFS_Unstable.
+# TYPE node_memory_numa_NFS_Unstable gauge
+node_memory_numa_NFS_Unstable{node="0"} 0
+node_memory_numa_NFS_Unstable{node="1"} 0
+# HELP node_memory_numa_PageTables Memory information field PageTables.
+# TYPE node_memory_numa_PageTables gauge
+node_memory_numa_PageTables{node="0"} 1.46743296e+08
+node_memory_numa_PageTables{node="1"} 1.27254528e+08
+# HELP node_memory_numa_SReclaimable Memory information field SReclaimable.
+# TYPE node_memory_numa_SReclaimable gauge
+node_memory_numa_SReclaimable{node="0"} 4.580478976e+09
+node_memory_numa_SReclaimable{node="1"} 4.724822016e+09
+# HELP node_memory_numa_SUnreclaim Memory information field SUnreclaim.
+# TYPE node_memory_numa_SUnreclaim gauge
+node_memory_numa_SUnreclaim{node="0"} 2.23352832e+09
+node_memory_numa_SUnreclaim{node="1"} 2.464391168e+09
+# HELP node_memory_numa_Shmem Memory information field Shmem.
+# TYPE node_memory_numa_Shmem gauge
+node_memory_numa_Shmem{node="0"} 4.900864e+07
+node_memory_numa_Shmem{node="1"} 8.968192e+07
+# HELP node_memory_numa_Slab Memory information field Slab.
+# TYPE node_memory_numa_Slab gauge
+node_memory_numa_Slab{node="0"} 6.814007296e+09
+node_memory_numa_Slab{node="1"} 7.189213184e+09
+# HELP node_memory_numa_Unevictable Memory information field Unevictable.
+# TYPE node_memory_numa_Unevictable gauge
+node_memory_numa_Unevictable{node="0"} 0
+node_memory_numa_Unevictable{node="1"} 0
+# HELP node_memory_numa_Writeback Memory information field Writeback.
+# TYPE node_memory_numa_Writeback gauge
+node_memory_numa_Writeback{node="0"} 0
+node_memory_numa_Writeback{node="1"} 0
+# HELP node_memory_numa_WritebackTmp Memory information field WritebackTmp.
+# TYPE node_memory_numa_WritebackTmp gauge
+node_memory_numa_WritebackTmp{node="0"} 0
+node_memory_numa_WritebackTmp{node="1"} 0
 # HELP node_net_bonding_slaves Number of configured slaves per bonding interface.
 # TYPE node_net_bonding_slaves gauge
 node_net_bonding_slaves{master="bond0"} 0
