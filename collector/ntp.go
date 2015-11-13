@@ -45,7 +45,7 @@ func NewNtpCollector() (Collector, error) {
 		return nil, fmt.Errorf("no NTP server specifies, see --ntpServer")
 	}
 	if *ntpProtocolVersion < 2 || *ntpProtocolVersion > 4 {
-		return nil, fmt.Errorf("invalid NTP protocol version %d; must be 2, 3, or 4")
+		return nil, fmt.Errorf("invalid NTP protocol version %d; must be 2, 3, or 4", *ntpProtocolVersion)
 	}
 
 	return &ntpCollector{
