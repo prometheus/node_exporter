@@ -41,8 +41,10 @@ var (
 	memProfile        = flag.String("debug.memprofile-file", "", "Write memory profile to this file upon receipt of SIGUSR1.")
 	listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
 	metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-	enabledCollectors = flag.String("collectors.enabled", "diskstats,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname", "Comma-separated list of collectors to use.")
-	printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
+	enabledCollectors = flag.String("collectors.enabled",
+		filterAvailableCollectors("diskstats,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname"),
+		"Comma-separated list of collectors to use.")
+	printCollectors = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 
 	collectorLabelNames = []string{"collector", "result"}
 
@@ -79,6 +81,17 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	wg.Wait()
 	scrapeDurations.Collect(ch)
+}
+
+func filterAvailableCollectors(collectors string) string {
+	availableCollectors := make([]string, 0)
+	for _, c := range strings.Split(collectors, ",") {
+		_, ok := collector.Factories[c]
+		if ok {
+			availableCollectors = append(availableCollectors, c)
+		}
+	}
+	return strings.Join(availableCollectors, ",")
 }
 
 func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
