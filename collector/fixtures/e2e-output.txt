@@ -462,6 +462,7 @@ node_md_blocks{device="md4"} 4.883648e+06
 node_md_blocks{device="md6"} 1.95310144e+08
 node_md_blocks{device="md7"} 7.813735424e+09
 node_md_blocks{device="md8"} 1.95310144e+08
+node_md_blocks{device="md9"} 523968
 # HELP node_md_blocks_synced Number of blocks synced on device.
 # TYPE node_md_blocks_synced gauge
 node_md_blocks_synced{device="md0"} 248896
@@ -471,6 +472,7 @@ node_md_blocks_synced{device="md4"} 4.883648e+06
 node_md_blocks_synced{device="md6"} 1.6775552e+07
 node_md_blocks_synced{device="md7"} 7.813735424e+09
 node_md_blocks_synced{device="md8"} 1.6775552e+07
+node_md_blocks_synced{device="md9"} 523968
 # HELP node_md_disks Total number of disks of device.
 # TYPE node_md_disks gauge
 node_md_disks{device="md0"} 2
@@ -480,6 +482,7 @@ node_md_disks{device="md4"} 2
 node_md_disks{device="md6"} 2
 node_md_disks{device="md7"} 4
 node_md_disks{device="md8"} 2
+node_md_disks{device="md9"} 4
 # HELP node_md_disks_active Number of active disks of device.
 # TYPE node_md_disks_active gauge
 node_md_disks_active{device="md0"} 2
@@ -489,6 +492,7 @@ node_md_disks_active{device="md4"} 2
 node_md_disks_active{device="md6"} 1
 node_md_disks_active{device="md7"} 3
 node_md_disks_active{device="md8"} 2
+node_md_disks_active{device="md9"} 4
 # HELP node_md_is_active Indicator whether the md-device is active or not.
 # TYPE node_md_is_active gauge
 node_md_is_active{device="md0"} 1
@@ -498,6 +502,7 @@ node_md_is_active{device="md4"} 0
 node_md_is_active{device="md6"} 1
 node_md_is_active{device="md7"} 1
 node_md_is_active{device="md8"} 1
+node_md_is_active{device="md9"} 1
 # HELP node_megacli_drive_count megacli: drive error and event counters
 # TYPE node_megacli_drive_count counter
 node_megacli_drive_count{enclosure="32",slot="0",type="Media Error Count"} 0
