@@ -23,4 +23,9 @@ md7 : active raid6 sdb1[0] sde1[3] sdd1[2] sdc1[1]
       7813735424 blocks super 1.2 level 6, 512k chunk, algorithm 2 [4/3] [U_UU]
       bitmap: 0/30 pages [0KB], 65536KB chunk
 
+md9 : active raid1 sdc2[2] sdd2[3] sdb2[1] sda2[0]
+      523968 blocks super 1.2 [4/4] [UUUU]
+            resync=DELAYED
+
+
 unused devices: <none>
