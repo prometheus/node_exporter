@@ -13,6 +13,16 @@
 
 VERSION  := 0.12.0rc1
 TARGET   := node_exporter
-GOFLAGS  := -ldflags "-X main.Version=$(VERSION)"
+
+REVISION := $(shell git rev-parse --short HEAD 2> /dev/null || echo 'unknown')
+BRANCH   := $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null || echo 'unknown')
+
+REPO_PATH := "github.com/prometheus/node_exporter"
+LDFLAGS   := -X main.Version=$(VERSION)
+LDFLAGS   += -X $(REPO_PATH)/collector.Version=$(VERSION)
+LDFLAGS   += -X $(REPO_PATH)/collector.Revision=$(REVISION)
+LDFLAGS   += -X $(REPO_PATH)/collector.Branch=$(BRANCH)
+
+GOFLAGS   := -ldflags "$(LDFLAGS)"
 
 include Makefile.COMMON
