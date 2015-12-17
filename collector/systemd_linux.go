@@ -23,7 +23,8 @@ import (
 )
 
 type systemdCollector struct {
-	unitDesc *prometheus.Desc
+	unitDesc          *prometheus.Desc
+	systemRunningDesc *prometheus.Desc
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
@@ -35,13 +36,21 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // systemd statistics.
 func NewSystemdCollector() (Collector, error) {
+	const subsystem = "systemd"
+
 	unitDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "systemd", "unit_state"),
+		prometheus.BuildFQName(Namespace, subsystem, "unit_state"),
 		"Systemd unit", []string{"name", "state"}, nil,
+	)
+	systemRunningDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "system_running"),
+		"Whether the system is operational (see 'systemctl is-system-running')",
+		nil, nil,
 	)
 
 	return &systemdCollector{
-		unitDesc: unitDesc,
+		unitDesc:          unitDesc,
+		systemRunningDesc: systemRunningDesc,
 	}, nil
 }
 
@@ -50,13 +59,18 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return fmt.Errorf("couldn't get units states: %s", err)
 	}
+	c.collectUnitStatusMetrics(ch, units)
 
-	c.collectMetrics(ch, units)
+	systemState, err := c.getSystemState()
+	if err != nil {
+		return fmt.Errorf("couldn't get system state: %s", err)
+	}
+	c.collectSystemState(ch, systemState)
 
 	return nil
 }
 
-func (c *systemdCollector) collectMetrics(ch chan<- prometheus.Metric, units []dbus.UnitStatus) {
+func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric, units []dbus.UnitStatus) {
 	for _, unit := range units {
 		for _, stateName := range unitStatesName {
 			isActive := 0.0
@@ -70,6 +84,14 @@ func (c *systemdCollector) collectMetrics(ch chan<- prometheus.Metric, units []d
 	}
 }
 
+func (c *systemdCollector) collectSystemState(ch chan<- prometheus.Metric, systemState string) {
+	isSystemRunning := 0.0
+	if systemState == `"running"` {
+		isSystemRunning = 1.0
+	}
+	ch <- prometheus.MustNewConstMetric(c.systemRunningDesc, prometheus.GaugeValue, isSystemRunning)
+}
+
 func (c *systemdCollector) listUnits() ([]dbus.UnitStatus, error) {
 	conn, err := dbus.New()
 	if err != nil {
@@ -78,4 +100,14 @@ func (c *systemdCollector) listUnits() ([]dbus.UnitStatus, error) {
 	units, err := conn.ListUnits()
 	conn.Close()
 	return units, err
+}
+
+func (c *systemdCollector) getSystemState() (state string, err error) {
+	conn, err := dbus.New()
+	if err != nil {
+		return "", fmt.Errorf("couldn't get dbus connection: %s", err)
+	}
+	state, err = conn.GetManagerProperty("SystemState")
+	conn.Close()
+	return state, err
 }

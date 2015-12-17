@@ -69,6 +69,6 @@ func TestSystemdCollectorDoesntCrash(t *testing.T) {
 	fixtures := getUnitListFixtures()
 	collector := (c).(*systemdCollector)
 	for _, units := range fixtures {
-		collector.collectMetrics(sink, units)
+		collector.collectUnitStatusMetrics(sink, units)
 	}
 }
