@@ -38,7 +38,6 @@ type statCollector struct {
 	procsBlocked *prometheus.Desc
 }
 
-
 func init() {
 	Factories["stat"] = NewStatCollector
 }
@@ -48,39 +47,39 @@ func init() {
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewDesc(
-      prometheus.BuildFQName(Namespace, "", "cpu"),
-		  "Seconds the cpus spent in each mode.",
+			prometheus.BuildFQName(Namespace, "", "cpu"),
+			"Seconds the cpus spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
 		intr: prometheus.NewDesc(
-      prometheus.BuildFQName(Namespace, "", "intr"),
+			prometheus.BuildFQName(Namespace, "", "intr"),
 			"Total number of interrupts serviced.",
-      nil, nil,
+			nil, nil,
 		),
 		ctxt: prometheus.NewDesc(
-      prometheus.BuildFQName(Namespace, "", "context_switches"),
+			prometheus.BuildFQName(Namespace, "", "context_switches"),
 			"Total number of context switches.",
-      nil, nil,
+			nil, nil,
 		),
 		forks: prometheus.NewDesc(
-      prometheus.BuildFQName(Namespace, "", "forks"),
+			prometheus.BuildFQName(Namespace, "", "forks"),
 			"Total number of forks.",
-      nil, nil,
+			nil, nil,
 		),
 		btime: prometheus.NewDesc(
-      prometheus.BuildFQName(Namespace, "", "boot_time"),
+			prometheus.BuildFQName(Namespace, "", "boot_time"),
 			"Node boot time, in unixtime.",
-      nil, nil,
+			nil, nil,
 		),
-    procsRunning: prometheus.NewDesc(
-      prometheus.BuildFQName(Namespace, "", "procs_running"),
+		procsRunning: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "", "procs_running"),
 			"Number of processes in runnable state.",
-      nil, nil,
+			nil, nil,
 		),
-    procsBlocked: prometheus.NewDesc(
-      prometheus.BuildFQName(Namespace, "", "procs_blocked"),
+		procsBlocked: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "", "procs_blocked"),
 			"Number of processes blocked waiting for I/O to complete.",
-      nil, nil,
+			nil, nil,
 		),
 	}, nil
 }
@@ -119,7 +118,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				}
 				// Convert from ticks to seconds
 				value /= userHz
-      ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, parts[0], cpuFields[i])
+				ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, parts[0], cpuFields[i])
 			}
 		case parts[0] == "intr":
 			// Only expose the overall number, use the 'interrupts' collector for more detail.
@@ -127,37 +126,37 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			if err != nil {
 				return err
 			}
-      ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, value)
+			ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, value)
 		case parts[0] == "ctxt":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-      ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, value)
+			ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, value)
 		case parts[0] == "processes":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-      ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value)
+			ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value)
 		case parts[0] == "btime":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-      ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value)
+			ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value)
 		case parts[0] == "procs_running":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-      ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, value)
+			ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, value)
 		case parts[0] == "procs_blocked":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-      ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value)
+			ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value)
 		}
 	}
 	return err

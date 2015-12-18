@@ -77,4 +77,3 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 	return nil
 }
-

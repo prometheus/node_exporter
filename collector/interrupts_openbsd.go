@@ -94,7 +94,6 @@ sysctl_intr(struct intr *intr, int idx)
 */
 import "C"
 
-
 var (
 	interruptLabelNames = []string{"CPU", "type", "devices"}
 )
@@ -126,7 +125,7 @@ type interrupt struct {
 
 func getInterrupts() (map[string]interrupt, error) {
 	var (
-		cintr C.struct_intr
+		cintr      C.struct_intr
 		interrupts = map[string]interrupt{}
 	)
 

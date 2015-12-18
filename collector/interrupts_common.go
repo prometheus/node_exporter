@@ -40,4 +40,3 @@ func NewInterruptsCollector() (Collector, error) {
 		),
 	}, nil
 }
-
