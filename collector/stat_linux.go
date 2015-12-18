@@ -29,14 +29,15 @@ const (
 )
 
 type statCollector struct {
-	cpu          *prometheus.CounterVec
-	intr         prometheus.Counter
-	ctxt         prometheus.Counter
-	forks        prometheus.Counter
-	btime        prometheus.Gauge
-	procsRunning prometheus.Gauge
-	procsBlocked prometheus.Gauge
+	cpu          *prometheus.Desc
+	intr         *prometheus.Desc
+	ctxt         *prometheus.Desc
+	forks        *prometheus.Desc
+	btime        *prometheus.Desc
+	procsRunning *prometheus.Desc
+	procsBlocked *prometheus.Desc
 }
+
 
 func init() {
 	Factories["stat"] = NewStatCollector
@@ -46,44 +47,41 @@ func init() {
 // kernel/system statistics.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		cpu: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Name:      "cpu",
-				Help:      "Seconds the cpus spent in each mode.",
-			},
-			[]string{"cpu", "mode"},
+		cpu: prometheus.NewDesc(
+      prometheus.BuildFQName(Namespace, "", "cpu"),
+		  "Seconds the cpus spent in each mode.",
+			[]string{"cpu", "mode"}, nil,
 		),
-		intr: prometheus.NewCounter(prometheus.CounterOpts{
-			Namespace: Namespace,
-			Name:      "intr",
-			Help:      "Total number of interrupts serviced.",
-		}),
-		ctxt: prometheus.NewCounter(prometheus.CounterOpts{
-			Namespace: Namespace,
-			Name:      "context_switches",
-			Help:      "Total number of context switches.",
-		}),
-		forks: prometheus.NewCounter(prometheus.CounterOpts{
-			Namespace: Namespace,
-			Name:      "forks",
-			Help:      "Total number of forks.",
-		}),
-		btime: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "boot_time",
-			Help:      "Node boot time, in unixtime.",
-		}),
-		procsRunning: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "procs_running",
-			Help:      "Number of processes in runnable state.",
-		}),
-		procsBlocked: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "procs_blocked",
-			Help:      "Number of processes blocked waiting for I/O to complete.",
-		}),
+		intr: prometheus.NewDesc(
+      prometheus.BuildFQName(Namespace, "", "intr"),
+			"Total number of interrupts serviced.",
+      nil, nil,
+		),
+		ctxt: prometheus.NewDesc(
+      prometheus.BuildFQName(Namespace, "", "context_switches"),
+			"Total number of context switches.",
+      nil, nil,
+		),
+		forks: prometheus.NewDesc(
+      prometheus.BuildFQName(Namespace, "", "forks"),
+			"Total number of forks.",
+      nil, nil,
+		),
+		btime: prometheus.NewDesc(
+      prometheus.BuildFQName(Namespace, "", "boot_time"),
+			"Node boot time, in unixtime.",
+      nil, nil,
+		),
+    procsRunning: prometheus.NewDesc(
+      prometheus.BuildFQName(Namespace, "", "procs_running"),
+			"Number of processes in runnable state.",
+      nil, nil,
+		),
+    procsBlocked: prometheus.NewDesc(
+      prometheus.BuildFQName(Namespace, "", "procs_blocked"),
+			"Number of processes blocked waiting for I/O to complete.",
+      nil, nil,
+		),
 	}, nil
 }
 
@@ -121,7 +119,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				}
 				// Convert from ticks to seconds
 				value /= userHz
-				c.cpu.With(prometheus.Labels{"cpu": parts[0], "mode": cpuFields[i]}).Set(value)
+      ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, parts[0], cpuFields[i])
 			}
 		case parts[0] == "intr":
 			// Only expose the overall number, use the 'interrupts' collector for more detail.
@@ -129,45 +127,38 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			if err != nil {
 				return err
 			}
-			c.intr.Set(value)
+      ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, value)
 		case parts[0] == "ctxt":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			c.ctxt.Set(value)
+      ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, value)
 		case parts[0] == "processes":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			c.forks.Set(value)
+      ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value)
 		case parts[0] == "btime":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			c.btime.Set(value)
+      ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value)
 		case parts[0] == "procs_running":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			c.procsRunning.Set(value)
+      ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, value)
 		case parts[0] == "procs_blocked":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return err
 			}
-			c.procsBlocked.Set(value)
+      ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value)
 		}
 	}
-	c.cpu.Collect(ch)
-	c.ctxt.Collect(ch)
-	c.intr.Collect(ch)
-	c.forks.Collect(ch)
-	c.btime.Collect(ch)
-	c.procsRunning.Collect(ch)
-	c.procsBlocked.Collect(ch)
 	return err
 }
