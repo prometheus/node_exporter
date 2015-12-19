@@ -50,6 +50,7 @@ megacli | Exposes RAID statistics from MegaCLI.
 ntp | Exposes time drift from an NTP server.
 runit | Exposes service status from [runit](http://smarden.org/runit/).
 supervisord | Exposes service status from [supervisord](http://supervisord.org/).
+systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/).
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.)
 
 ## Textfile Collector
