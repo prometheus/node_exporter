@@ -17,8 +17,8 @@ package collector
 
 import (
 	"errors"
-	"strconv"
 	"regexp"
+	"strconv"
 
 	"github.com/prometheus/common/log"
 )

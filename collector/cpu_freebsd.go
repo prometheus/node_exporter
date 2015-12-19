@@ -100,11 +100,11 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	for i := 0; i < int(ncpus); i++ {
 		pcpu := C.kvm_getpcpu(kd, C.int(i))
 		cp_time := ((*C.struct_pcpu)(unsafe.Pointer(pcpu))).pc_cp_time
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "user"}).Set(float64(cp_time[C.CP_USER])/clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "nice"}).Set(float64(cp_time[C.CP_NICE])/clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "system"}).Set(float64(cp_time[C.CP_SYS])/clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "interrupt"}).Set(float64(cp_time[C.CP_INTR])/clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "idle"}).Set(float64(cp_time[C.CP_IDLE])/clockrate)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "user"}).Set(float64(cp_time[C.CP_USER]) / clockrate)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "nice"}).Set(float64(cp_time[C.CP_NICE]) / clockrate)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "system"}).Set(float64(cp_time[C.CP_SYS]) / clockrate)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "interrupt"}).Set(float64(cp_time[C.CP_INTR]) / clockrate)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "idle"}).Set(float64(cp_time[C.CP_IDLE]) / clockrate)
 	}
 	c.cpu.Collect(ch)
 	return err

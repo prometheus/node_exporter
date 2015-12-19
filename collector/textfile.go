@@ -128,7 +128,7 @@ func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 			mtimeMetricFamily.Metric = append(mtimeMetricFamily.Metric,
 				&dto.Metric{
 					Label: []*dto.LabelPair{
-						&dto.LabelPair{
+						{
 							Name:  proto.String("file"),
 							Value: proto.String(filename),
 						},
@@ -145,7 +145,7 @@ func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 		Help: proto.String("1 if there was an error opening or reading a file, 0 otherwise"),
 		Type: dto.MetricType_GAUGE.Enum(),
 		Metric: []*dto.Metric{
-			&dto.Metric{
+			{
 				Gauge: &dto.Gauge{Value: &error},
 			},
 		},

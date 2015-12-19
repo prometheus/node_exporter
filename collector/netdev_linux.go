@@ -27,7 +27,7 @@ import (
 )
 
 var (
-	procNetDevFieldSep   = regexp.MustCompile("[ :] *")
+	procNetDevFieldSep = regexp.MustCompile("[ :] *")
 )
 
 func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
