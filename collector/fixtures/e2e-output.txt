@@ -1274,6 +1274,12 @@ node_network_transmit_packets{device="lxcbr0"} 28339
 node_network_transmit_packets{device="tun0"} 934
 node_network_transmit_packets{device="veth4B09XN"} 10640
 node_network_transmit_packets{device="wlan0"} 1.17262e+07
+# HELP node_nf_conntrack_entries Number of currently allocated flow entries for connection tracking.
+# TYPE node_nf_conntrack_entries gauge
+node_nf_conntrack_entries 123
+# HELP node_nf_conntrack_entries_limit Maximum size of connection tracking table.
+# TYPE node_nf_conntrack_entries_limit gauge
+node_nf_conntrack_entries_limit 65536
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
