@@ -37,4 +37,12 @@ func TestDiskStats(t *testing.T) {
 	if want, got := "68", diskStats["mmcblk0p2"][10]; want != got {
 		t.Errorf("want diskstats mmcblk0p2 %s, got %s", want, got)
 	}
+
+	if want, got := "513713216512", diskStats["sda"][11]; want != got {
+		t.Errorf("want diskstats sda read bytes %s, got %s", want, got)
+	}
+
+	if want, got := "258916880384", diskStats["sda"][12]; want != got {
+		t.Errorf("want diskstats sda write bytes %s, got %s", want, got)
+	}
 }

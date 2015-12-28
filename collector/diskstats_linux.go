@@ -30,7 +30,8 @@ import (
 )
 
 const (
-	diskSubsystem = "disk"
+	diskSubsystem         = "disk"
+	diskSectorSize uint64 = 512
 )
 
 var (
@@ -154,6 +155,24 @@ func NewDiskstatsCollector() (Collector, error) {
 				},
 				diskLabelNames,
 			),
+			prometheus.NewCounterVec(
+				prometheus.CounterOpts{
+					Namespace: Namespace,
+					Subsystem: diskSubsystem,
+					Name:      "bytes_read",
+					Help:      "The total number of bytes read successfully.",
+				},
+				diskLabelNames,
+			),
+			prometheus.NewCounterVec(
+				prometheus.CounterOpts{
+					Namespace: Namespace,
+					Subsystem: diskSubsystem,
+					Name:      "bytes_written",
+					Help:      "The total number of bytes written successfully.",
+				},
+				diskLabelNames,
+			),
 		},
 	}, nil
 }
@@ -206,6 +225,15 @@ func getDiskStats() (map[string]map[int]string, error) {
 	return parseDiskStats(file)
 }
 
+func convertDiskSectorsToBytes(sectorCount string) (string, error) {
+	sectors, err := strconv.ParseUint(sectorCount, 10, 64)
+	if err != nil {
+		return "", err
+	}
+
+	return strconv.FormatUint(sectors*diskSectorSize, 10), nil
+}
+
 func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 	var (
 		diskStats = map[string]map[int]string{}
@@ -222,6 +250,17 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 		for i, v := range parts[3:] {
 			diskStats[dev][i] = v
 		}
+		bytesRead, err := convertDiskSectorsToBytes(diskStats[dev][2])
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for sectors read in %s: %s", procFilePath("diskstats"), scanner.Text())
+		}
+		diskStats[dev][11] = bytesRead
+
+		bytesWritten, err := convertDiskSectorsToBytes(diskStats[dev][6])
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for sectors read in %s: %s", procFilePath("diskstats"), scanner.Text())
+		}
+		diskStats[dev][12] = bytesWritten
 	}
 
 	return diskStats, nil
