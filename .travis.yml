@@ -2,8 +2,7 @@ sudo: false
 
 language: go
 go:
-  - 1.4.3
-  - 1.5.1
+  - 1.5.2
   - tip
 
 install:
@@ -11,6 +10,7 @@ install:
   - go get golang.org/x/tools/cmd/vet
 
 script:
+  - '! gofmt -l **/*.go | read nothing'
   - go vet
   - go test -v ./...
   - go build
