@@ -13,6 +13,7 @@
 
 // +build !nointerrupts
 // +build !darwin
+// +build !freebsd
 
 package collector
 
