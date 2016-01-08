@@ -18,12 +18,9 @@ import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
-	"os/signal"
 	"sort"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -153,9 +150,6 @@ func main() {
 
 	nodeCollector := NodeCollector{collectors: collectors}
 	prometheus.MustRegister(nodeCollector)
-
-	sigUsr1 := make(chan os.Signal)
-	signal.Notify(sigUsr1, syscall.SIGUSR1)
 
 	handler := prometheus.Handler()
 

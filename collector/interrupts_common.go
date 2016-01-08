@@ -14,6 +14,7 @@
 // +build !nointerrupts
 // +build !darwin
 // +build !freebsd
+// +build !windows
 
 package collector
 
