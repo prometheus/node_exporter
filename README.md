@@ -35,6 +35,7 @@ stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, bo
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set.
 time | Exposes the current system time.
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no /proc/mdstat present).
+vmstat | Exposes statistics from`/proc/vmstat`.
 
 
 ### Disabled by default
