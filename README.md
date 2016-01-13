@@ -25,17 +25,20 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 
 Name     | Description
 ---------|------------
+conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present).
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`.
+filefd | Exposes file descriptor statistics.
 filesystem | Exposes filesystem statistics, such as disk space used.
 loadavg | Exposes load average.
+mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no /proc/mdstat present).
 meminfo | Exposes memory statistics from `/proc/meminfo`.
 netdev | Exposes network interface statistics from `/proc/netstat`, such as bytes transferred.
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`.
 stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts.
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set.
 time | Exposes the current system time.
-mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no /proc/mdstat present).
-vmstat | Exposes statistics from`/proc/vmstat`.
+vmstat | Exposes statistics from `/proc/vmstat`.
+version | Exposes node\_exporter version.
 
 
 ### Disabled by default
