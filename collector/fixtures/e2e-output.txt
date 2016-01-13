@@ -362,6 +362,9 @@ node_disk_writes_merged{device="mmcblk0p2"} 0
 node_disk_writes_merged{device="sda"} 1.1134226e+07
 node_disk_writes_merged{device="sr0"} 0
 node_disk_writes_merged{device="vda"} 2.0711856e+07
+# HELP node_entropy_avail Bits of available entropy.
+# TYPE node_entropy_avail gauge
+node_entropy_avail 1337
 # HELP node_exporter_scrape_duration_seconds node_exporter: Duration of a scrape job.
 # TYPE node_exporter_scrape_duration_seconds summary
 node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.5"} 7.481600000000001e-05

@@ -42,7 +42,7 @@ fi
 ./node_exporter \
   -collector.procfs="collector/fixtures/proc" \
   -collector.sysfs="collector/fixtures/sys" \
-  -collectors.enabled="conntrack,diskstats,filefd,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,bonding,megacli" \
+  -collectors.enabled="conntrack,diskstats,entropy,filefd,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,bonding,megacli" \
   -collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   -collector.megacli.command="collector/fixtures/megacli" \
   -web.listen-address "127.0.0.1:${port}" \
