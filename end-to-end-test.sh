@@ -2,6 +2,24 @@
 
 set -euf -o pipefail
 
+collectors=$(cat << COLLECTORS
+  conntrack
+  diskstats
+  entropy
+  filefd
+  loadavg
+  mdadm
+  meminfo
+  netdev
+  netstat
+  sockstat
+  stat
+  textfile
+  bonding
+  megacli
+COLLECTORS
+)
+
 cd "$(dirname $0)"
 
 port="$((10000 + (RANDOM % 10000)))"
@@ -42,7 +60,7 @@ fi
 ./node_exporter \
   -collector.procfs="collector/fixtures/proc" \
   -collector.sysfs="collector/fixtures/sys" \
-  -collectors.enabled="conntrack,diskstats,entropy,filefd,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,bonding,megacli" \
+  -collectors.enabled="$(echo ${collectors} | tr ' ' ',')" \
   -collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   -collector.megacli.command="collector/fixtures/megacli" \
   -web.listen-address "127.0.0.1:${port}" \
