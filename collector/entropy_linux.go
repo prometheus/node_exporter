@@ -34,7 +34,7 @@ func init() {
 func NewEntropyCollector() (Collector, error) {
 	return &entropyCollector{
 		entropy_avail: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "entropy_avail"),
+			prometheus.BuildFQName(Namespace, "", "entropy_available_bits"),
 			"Bits of available entropy.",
 			nil, nil,
 		),
