@@ -59,12 +59,12 @@ func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 					Help:      fmt.Sprintf("File descriptor statistics: %s.", name),
 				},
 			)
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return fmt.Errorf("invalid value %s in file-nr: %s", value, err)
-			}
-			c.metrics[name].Set(v)
 		}
+		v, err := strconv.ParseFloat(value, 64)
+		if err != nil {
+			return fmt.Errorf("invalid value %s in file-nr: %s", value, err)
+		}
+		c.metrics[name].Set(v)
 	}
 	for _, m := range c.metrics {
 		m.Collect(ch)
