@@ -15,6 +15,7 @@ package collector
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strconv"
 	"strings"
 )
@@ -28,4 +29,16 @@ func splitToInts(str string, sep string) (ints []int, err error) {
 		ints = append(ints, i)
 	}
 	return ints, nil
+}
+
+func readUintFromFile(path string) (uint64, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return 0, err
+	}
+	value, err := strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return value, nil
 }
