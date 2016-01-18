@@ -17,4 +17,4 @@ RUN go build -o /bin/node-exporter
 RUN apk del --purge build-deps && rm -rf $GOPATH
 
 EXPOSE      9100
-ENTRYPOINT ["/bin/node-exporter", "-collector.filesystem.ignored-mount-points", "^/(sys|proc|dev|host|etc)($|/)"]
+ENTRYPOINT ["/bin/node-exporter", "-collector.filesystem.ignored-mount-points", ".*/(sys|proc|dev|etc|docker)($|/)"]
