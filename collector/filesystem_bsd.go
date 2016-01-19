@@ -43,7 +43,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		return nil, errors.New("getmntinfo() failed")
 	}
 
-	mnt := (*[1 << 30]C.struct_statfs)(unsafe.Pointer(mntbuf))
+	mnt := (*[1 << 20]C.struct_statfs)(unsafe.Pointer(mntbuf))
 	stats = []filesystemStats{}
 	for i := 0; i < int(count); i++ {
 		mountpoint := C.GoString(&mnt[i].f_mntonname[0])
