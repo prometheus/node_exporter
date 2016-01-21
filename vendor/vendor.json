@@ -1,0 +1,91 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "f7f79f729e0fbe2fcc061db48a9ba0263f588252",
+			"revisionTime": "2016-01-18T19:00:32-05:00"
+		},
+		{
+			"path": "github.com/beevik/ntp",
+			"revision": "283ed9d548825a1dae0994311560e8dbf8efac68",
+			"revisionTime": "2015-11-09T15:30:19-08:00"
+		},
+		{
+			"path": "github.com/beorn7/perks/quantile",
+			"revision": "b965b613227fddccbfffe13eae360ed3fa822f8d",
+			"revisionTime": "2015-02-23T14:51:52+01:00"
+		},
+		{
+			"path": "github.com/coreos/go-systemd/dbus",
+			"revision": "2ed5b5012ccde5f057c197890a2c801295941149",
+			"revisionTime": "2016-01-14T00:34:31+01:00"
+		},
+		{
+			"path": "github.com/godbus/dbus",
+			"revision": "e4593d66e29678c26f84166fe231a03e0268ced5",
+			"revisionTime": "2016-01-07T17:08:41+05:30"
+		},
+		{
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "2402d76f3d41f928c7902a765dfc872356dd3aad",
+			"revisionTime": "2016-01-06T12:58:00+11:00"
+		},
+		{
+			"path": "github.com/kolo/xmlrpc",
+			"revision": "0826b98aaa29c0766956cb40d45cf7482a597671",
+			"revisionTime": "2015-04-13T22:18:30+03:00"
+		},
+		{
+			"path": "github.com/matttproud/golang_protobuf_extensions/pbutil",
+			"revision": "d0c3fe89de86839aecf2e0579c40ba3bb336a453",
+			"revisionTime": "2015-10-11T12:25:29+02:00"
+		},
+		{
+			"path": "github.com/prometheus/client_golang/prometheus",
+			"revision": "67994f177195311c3ea3d4407ed0175e34a4256f",
+			"revisionTime": "2015-11-27T19:24:33+01:00"
+		},
+		{
+			"path": "github.com/prometheus/client_model/go",
+			"revision": "fa8ad6fec33561be4280a8f0514318c79d7f6cb6",
+			"revisionTime": "2015-02-12T10:17:44Z"
+		},
+		{
+			"path": "github.com/prometheus/common/expfmt",
+			"revision": "0a3005bb37bc411040083a55372e77c405f6464c",
+			"revisionTime": "2016-01-04T14:47:38+01:00"
+		},
+		{
+			"path": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
+			"revision": "0a3005bb37bc411040083a55372e77c405f6464c",
+			"revisionTime": "2016-01-04T14:47:38+01:00"
+		},
+		{
+			"path": "github.com/prometheus/common/log",
+			"revision": "0a3005bb37bc411040083a55372e77c405f6464c",
+			"revisionTime": "2016-01-04T14:47:38+01:00"
+		},
+		{
+			"path": "github.com/prometheus/common/model",
+			"revision": "0a3005bb37bc411040083a55372e77c405f6464c",
+			"revisionTime": "2016-01-04T14:47:38+01:00"
+		},
+		{
+			"path": "github.com/prometheus/procfs",
+			"revision": "406e5b7bfd8201a36e2bb5f7bdae0b03380c2ce8",
+			"revisionTime": "2015-10-29T15:50:50-04:00"
+		},
+		{
+			"path": "github.com/soundcloud/go-runit/runit",
+			"revision": "06ad41a06c4a586951fb8040a697ecd39729640b",
+			"revisionTime": "2015-06-30T15:56:10-04:00"
+		},
+		{
+			"path": "golang.org/x/sys/unix",
+			"revision": "833a04a10549a95dc34458c195cbad61bbb6cb4d",
+			"revisionTime": "2015-12-10T17:34:15-08:00"
+		}
+	]
+}

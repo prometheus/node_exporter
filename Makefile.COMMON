@@ -45,21 +45,32 @@ GOOS   ?= $(shell uname | tr A-Z a-z)
 GOARCH ?= $(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m)))
 
 GO_VERSION ?= 1.5.3
-GOURL      ?= https://golang.org/dl
-GOPKG      ?= go$(GO_VERSION).$(GOOS)-$(GOARCH).tar.gz
-GOPATH     := $(CURDIR)/.build/gopath
 
 # Check for the correct version of go in the path. If we find it, use it.
 # Otherwise, prepare to build go locally.
 ifeq ($(shell command -v "go" >/dev/null && go version | sed -e 's/^[^0-9.]*\([0-9.]*\).*/\1/'), $(GO_VERSION))
 	GOCC   ?= $(shell command -v "go")
 	GOFMT  ?= $(shell command -v "gofmt")
-	GO     ?= GOPATH=$(GOPATH) $(GOCC)
+	GO     ?= $(GOCC)
 else
+	GOURL  ?= https://golang.org/dl
+	GOPKG  ?= go$(GO_VERSION).$(GOOS)-$(GOARCH).tar.gz
 	GOROOT ?= $(CURDIR)/.build/go$(GO_VERSION)
 	GOCC   ?= $(GOROOT)/bin/go
 	GOFMT  ?= $(GOROOT)/bin/gofmt
-	GO     ?= GOROOT=$(GOROOT) GOPATH=$(GOPATH) $(GOCC)
+	GO     ?= GOROOT=$(GOROOT) $(GOCC)
+endif
+
+# Use vendored dependencies if available. Otherwise try to download them.
+ifneq (,$(wildcard vendor))
+	DEPENDENCIES := $(shell find vendor/ -type f -iname '*.go')
+	GO           := GO15VENDOREXPERIMENT=1 $(GO)
+else
+	GOPATH       := $(CURDIR)/.build/gopath
+	ROOTPKG      ?= github.com/prometheus/$(TARGET)
+	SELFLINK     ?= $(GOPATH)/src/$(ROOTPKG)
+	DEPENDENCIES := dependencies-stamp
+	GO           := GOPATH=$(GOPATH) $(GO)
 endif
 
 # Never honor GOBIN, should it be set at all.
@@ -68,10 +79,36 @@ unexport GOBIN
 SUFFIX   ?= $(GOOS)-$(GOARCH)
 BINARY   ?= $(TARGET)
 ARCHIVE  ?= $(TARGET)-$(VERSION).$(SUFFIX).tar.gz
-ROOTPKG  ?= github.com/prometheus/$(TARGET)
-SELFLINK ?= $(GOPATH)/src/$(ROOTPKG)
 
 default: $(BINARY)
+
+$(BINARY): $(GOCC) $(SRC) $(DEPENDENCIES) Makefile Makefile.COMMON
+	$(GO) build $(GOFLAGS) -o $@
+
+.PHONY: archive
+archive: $(ARCHIVE)
+
+$(ARCHIVE): $(BINARY)
+	tar -czf $@ $<
+
+.PHONY: tag
+tag:
+	git tag $(VERSION)
+	git push --tags
+
+.PHONY: test
+test: $(GOCC) $(DEPENDENCIES)
+	$(GO) test $$($(GO) list ./... | grep -v /vendor/)
+
+.PHONY: format
+format: $(GOCC)
+	find . -iname '*.go' | egrep -v "^\./\.build|./generated|\./vendor|\.(l|y)\.go" | xargs -n1 $(GOFMT) -w -s=true
+
+.PHONY: clean
+clean:
+	rm -rf $(BINARY) $(ARCHIVE) .build *-stamp
+
+
 
 $(GOCC):
 	@echo Go version $(GO_VERSION) required but not found in PATH.
@@ -89,32 +126,7 @@ $(SELFLINK):
 	mkdir -p $(dir $@)
 	ln -s $(CURDIR) $@
 
+# Download dependencies if project doesn't vendor them.
 dependencies-stamp: $(GOCC) $(SRC) | $(SELFLINK)
 	$(GO) get -d
 	touch $@
-
-$(BINARY): $(GOCC) $(SRC) dependencies-stamp Makefile Makefile.COMMON
-	$(GO) build $(GOFLAGS) -o $@
-
-.PHONY: archive
-archive: $(ARCHIVE)
-
-$(ARCHIVE): $(BINARY)
-	tar -czf $@ $<
-
-.PHONY: tag
-tag:
-	git tag $(VERSION)
-	git push --tags
-
-.PHONY: test
-test: $(GOCC) dependencies-stamp
-	$(GO) test ./...
-
-.PHONY: format
-format: $(GOCC)
-	find . -iname '*.go' | egrep -v "^\./\.build|./generated|\./Godeps|\.(l|y)\.go" | xargs -n1 $(GOFMT) -w -s=true
-
-.PHONY: clean
-clean:
-	rm -rf $(BINARY) $(ARCHIVE) .build *-stamp

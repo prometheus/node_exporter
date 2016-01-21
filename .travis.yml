@@ -2,16 +2,18 @@ sudo: false
 
 language: go
 go:
-  - 1.5.2
-  - tip
+- 1.5.3
+- tip
+
+env:
+- GO15VENDOREXPERIMENT=1
 
 install:
-  - go get -d
-  - go get golang.org/x/tools/cmd/vet
+- go get golang.org/x/tools/cmd/vet
 
 script:
-  - '! gofmt -l **/*.go | read nothing'
-  - go vet
-  - go test -v ./...
-  - go build
-  - ./end-to-end-test.sh
+- "! gofmt -l $(find . -path ./vendor -prune -o -name '*.go' -print) | read nothing"
+- go vet
+- go test -v $(go list ./... | grep -v /vendor/)
+- go build
+- ./end-to-end-test.sh
