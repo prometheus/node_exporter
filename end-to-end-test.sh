@@ -10,6 +10,7 @@ collectors=$(cat << COLLECTORS
   loadavg
   mdadm
   meminfo
+  meminfo_numa
   netdev
   netstat
   sockstat
