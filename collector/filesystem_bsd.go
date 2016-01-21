@@ -33,6 +33,7 @@ import "C"
 
 const (
 	defIgnoredMountPoints = "^/(dev)($|/)"
+	MNT_RDONLY            = 0x1
 )
 
 // Expose filesystem fullness.
@@ -55,6 +56,11 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		device := C.GoString(&mnt[i].f_mntfromname[0])
 		fstype := C.GoString(&mnt[i].f_fstypename[0])
 
+		var ro float64
+		if mnt[i].f_flags & MNT_RDONLY {
+			ro = 1
+		}
+
 		labelValues := []string{device, mountpoint, fstype}
 		stats = append(stats, filesystemStats{
 			labelValues: labelValues,
@@ -63,6 +69,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			avail:       float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
 			files:       float64(mnt[i].f_files),
 			filesFree:   float64(mnt[i].f_ffree),
+			ro:          ro,
 		})
 	}
 	return stats, nil
