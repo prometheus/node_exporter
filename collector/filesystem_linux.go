@@ -56,7 +56,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		}
 
 		var ro float64
-		if buf.Flags & ST_RDONLY != 0 {
+		if buf.Flags&ST_RDONLY != 0 {
 			ro = 1
 		}
 
