@@ -5,60 +5,55 @@
 Prometheus exporter for machine metrics, written in Go with pluggable metric
 collectors.
 
-## Building and running
+## Collectors
 
-    make
-    ./node_exporter <flags>
-
-## Running tests
-
-    make test
-
-## Available collectors
-
-By default the build will include the native collectors that expose information
-from `/proc`.
+There is varying support for collectors on each operating system. The tables
+below list all existing collectors and the supported systems.
 
 Which collectors are used is controlled by the `--collectors.enabled` flag.
 
 ### Enabled by default
 
-Name     | Description
----------|------------
-conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present).
-diskstats | Exposes disk I/O statistics from `/proc/diskstats`.
-entropy | Exposes available entropy.
-filefd | Exposes file descriptor statistics.
-filesystem | Exposes filesystem statistics, such as disk space used.
-loadavg | Exposes load average.
-mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present).
-meminfo | Exposes memory statistics from `/proc/meminfo`.
-netdev | Exposes network interface statistics from `/proc/netstat`, such as bytes transferred.
-netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`.
-stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts.
-textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set.
-time | Exposes the current system time.
-vmstat | Exposes statistics from `/proc/vmstat`.
-version | Exposes node\_exporter version.
+Name     | Description | OS
+---------|-------------|----
+conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
+diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
+entropy | Exposes available entropy. | Linux
+filefd | Exposes file descriptor statistics. | Linux
+filesystem | Exposes filesystem statistics, such as disk space used. | FreeBSD, Linux, OpenBSD
+loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
+mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
+meminfo | Exposes memory statistics. | FreeBSD, Linux
+netdev | Exposes network interface statistics such as bytes transferred. | FreeBSD, Linux, OpenBSD
+netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
+stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts. | Linux
+textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
+time | Exposes the current system time. | _any_
+vmstat | Exposes statistics from `/proc/vmstat`. | Linux
+version | Exposes node\_exporter version. | _any_
 
 
 ### Disabled by default
 
-Name     | Description
----------|------------
-bonding | Exposes the number of configured and active slaves of Linux bonding interfaces.
-gmond | Exposes statistics from Ganglia.
-interrupts | Exposes detailed interrupts statistics from `/proc/interrupts`.
-ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`.
-lastlogin | Exposes the last time there was a login.
-megacli | Exposes RAID statistics from MegaCLI.
-ntp | Exposes time drift from an NTP server.
-runit | Exposes service status from [runit](http://smarden.org/runit/).
-supervisord | Exposes service status from [supervisord](http://supervisord.org/).
-systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/).
-tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.)
+Name     | Description | OS
+---------|-------------|----
+cpu | Exposes CPU statistics | FreeBSD
+bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
+devstat | Exposes device statistics | FreeBSD
+gmond | Exposes statistics from Ganglia. | _any_
+interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
+ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
+ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
+lastlogin | Exposes the last time there was a login. | _any_
+megacli | Exposes RAID statistics from MegaCLI. | Linux
+meminfo_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
+ntp | Exposes time drift from an NTP server. | _any_
+runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
+supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
+systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
+tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 
-## Textfile Collector
+### Textfile Collector
 
 The textfile collector is similar to the [Pushgateway](https://github.com/prometheus/pushgateway),
 in that it allows exporting of statistics from batch jobs. It can also be used
@@ -82,6 +77,16 @@ To statically set roles for a machine using labels:
 echo 'role{role="application_server"} 1' > /path/to/directory/role.prom.$$
 mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 ```
+
+## Building and running
+
+    make
+    ./node_exporter <flags>
+
+## Running tests
+
+    make test
+
 
 ## Using Docker
 
