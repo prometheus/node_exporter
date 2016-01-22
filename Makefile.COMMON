@@ -45,20 +45,23 @@ GOOS   ?= $(shell uname | tr A-Z a-z)
 GOARCH ?= $(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m)))
 
 GO_VERSION ?= 1.5.3
+GOPATH     ?= $(CURDIR)/.build/gopath
+ROOTPKG    ?= github.com/prometheus/$(TARGET)
+SELFLINK   ?= $(GOPATH)/src/$(ROOTPKG)
 
 # Check for the correct version of go in the path. If we find it, use it.
 # Otherwise, prepare to build go locally.
 ifeq ($(shell command -v "go" >/dev/null && go version | sed -e 's/^[^0-9.]*\([0-9.]*\).*/\1/'), $(GO_VERSION))
 	GOCC   ?= $(shell command -v "go")
 	GOFMT  ?= $(shell command -v "gofmt")
-	GO     ?= $(GOCC)
+	GO     ?= GOPATH=$(GOPATH) $(GOCC)
 else
 	GOURL  ?= https://golang.org/dl
 	GOPKG  ?= go$(GO_VERSION).$(GOOS)-$(GOARCH).tar.gz
 	GOROOT ?= $(CURDIR)/.build/go$(GO_VERSION)
 	GOCC   ?= $(GOROOT)/bin/go
 	GOFMT  ?= $(GOROOT)/bin/gofmt
-	GO     ?= GOROOT=$(GOROOT) $(GOCC)
+	GO     ?= GOPATH=$(GOPATH) GOROOT=$(GOROOT) $(GOCC)
 endif
 
 # Use vendored dependencies if available. Otherwise try to download them.
@@ -66,11 +69,7 @@ ifneq (,$(wildcard vendor))
 	DEPENDENCIES := $(shell find vendor/ -type f -iname '*.go')
 	GO           := GO15VENDOREXPERIMENT=1 $(GO)
 else
-	GOPATH       := $(CURDIR)/.build/gopath
-	ROOTPKG      ?= github.com/prometheus/$(TARGET)
-	SELFLINK     ?= $(GOPATH)/src/$(ROOTPKG)
 	DEPENDENCIES := dependencies-stamp
-	GO           := GOPATH=$(GOPATH) $(GO)
 endif
 
 # Never honor GOBIN, should it be set at all.
@@ -82,8 +81,8 @@ ARCHIVE  ?= $(TARGET)-$(VERSION).$(SUFFIX).tar.gz
 
 default: $(BINARY)
 
-$(BINARY): $(GOCC) $(SRC) $(DEPENDENCIES) Makefile Makefile.COMMON
-	$(GO) build $(GOFLAGS) -o $@
+$(BINARY): $(GOCC) $(SRC) $(DEPENDENCIES) Makefile Makefile.COMMON | $(SELFLINK)
+	cd $(SELFLINK) && $(GO) build $(GOFLAGS) -o $@
 
 .PHONY: archive
 archive: $(ARCHIVE)
@@ -97,8 +96,8 @@ tag:
 	git push --tags
 
 .PHONY: test
-test: $(GOCC) $(DEPENDENCIES)
-	$(GO) test $$($(GO) list ./... | grep -v /vendor/)
+test: $(GOCC) $(DEPENDENCIES) | $(SELFLINK)
+	cd $(SELFLINK) && $(GO) test $$($(GO) list ./... | grep -v /vendor/)
 
 .PHONY: format
 format: $(GOCC)
