@@ -1,6 +1,9 @@
-# Node exporter
+# Node exporter [![Build Status](https://travis-ci.org/prometheus/node_exporter.svg)][travis]
 
-[![Build Status](https://travis-ci.org/prometheus/node_exporter.svg)](https://travis-ci.org/prometheus/node_exporter)
+[![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
+[![Image Size & Layers](https://imagelayers.io/badge/prom/node-exporter:master.svg)][imagelayers]
+[![Docker Stars](https://img.shields.io/docker/stars/prom/node-exporter.svg)][hub]
+[![Docker Pulls](https://img.shields.io/docker/pulls/prom/node-exporter.svg)][hub]
 
 Prometheus exporter for machine metrics, written in Go with pluggable metric
 collectors.
@@ -99,3 +102,9 @@ docker pull prom/node-exporter
 
 docker run -d -p 9100:9100 --net="host" prom/node-exporter
 ```
+
+
+[travis]: https://travis-ci.org/prometheus/node_exporter
+[hub]: https://hub.docker.com/r/prom/node-exporter/
+[circleci]: https://circleci.com/gh/prometheus/node_exporter
+[imagelayers]: https://imagelayers.io/?images=prom/node-exporter:master

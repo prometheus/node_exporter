@@ -21,7 +21,8 @@ _testmain.go
 
 *.exe
 dependencies-stamp
-node_exporter
-.build
-.deps
-*.tar.gz
+/node_exporter
+/.build
+/.deps
+/.release
+/.tarballs
