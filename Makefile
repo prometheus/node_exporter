@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION  := 0.12.0rc2
+VERSION  := 0.12.0rc3
 TARGET   := node_exporter
 
 REVISION := $(shell git rev-parse --short HEAD 2> /dev/null || echo 'unknown')
