@@ -106,7 +106,10 @@ func parseMemInfoNuma(r io.Reader) (map[meminfoKey]float64, error) {
 	)
 
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
 		parts := strings.Fields(string(line))
 
 		fv, err := strconv.ParseFloat(parts[3], 64)
