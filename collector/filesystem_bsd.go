@@ -57,7 +57,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		fstype := C.GoString(&mnt[i].f_fstypename[0])
 
 		var ro float64
-		if mnt[i].f_flags & MNT_RDONLY {
+		if (mnt[i].f_flags & MNT_RDONLY) != 0 {
 			ro = 1
 		}
 
