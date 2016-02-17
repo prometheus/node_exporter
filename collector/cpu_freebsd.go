@@ -17,7 +17,6 @@ package collector
 
 import (
 	"errors"
-	"os"
 	"strconv"
 	"unsafe"
 
@@ -25,9 +24,8 @@ import (
 )
 
 /*
-#cgo LDFLAGS: -lkvm
+#cgo LDFLAGS:
 #include <fcntl.h>
-#include <kvm.h>
 #include <stdlib.h>
 #include <sys/param.h>
 #include <sys/pcpu.h>
@@ -35,17 +33,71 @@ import (
 #include <sys/sysctl.h>
 #include <sys/time.h>
 
-long _clockrate() {
-	struct clockinfo clockrate;
-	size_t size = sizeof(clockrate);
-	int res = sysctlbyname("kern.clockrate", &clockrate, &size, NULL, 0);
-	if (res == -1) {
+static int mibs_set_up = 0;
+
+static int mib_kern_cp_times[2];
+static size_t mib_kern_cp_times_len = 2;
+
+static const int mib_hw_ncpu[] = {CTL_HW, HW_NCPU};
+static const size_t mib_hw_ncpu_len = 2;
+
+static const int mib_kern_clockrate[] = {CTL_KERN, KERN_CLOCKRATE};
+static size_t mib_kern_clockrate_len = 2;
+
+// Setup method for MIBs not available as constants.
+// Calls to this method must be synchronized externally.
+int setupSysctlMIBs() {
+	int ret = sysctlnametomib("kern.cp_times", mib_kern_cp_times, &mib_kern_cp_times_len);
+	if (ret == 0) mibs_set_up = 1;
+	return ret;
+}
+
+int getCPUTimes(int *ncpu, double **cpu_times, size_t *cp_times_length) {
+
+	// Assert that mibs are set up through setupSysctlMIBs
+	if (!mibs_set_up) {
 		return -1;
 	}
-	if (size != sizeof(clockrate)) {
-		return -2;
+
+	// Retrieve number of cpu cores
+	size_t ncpu_size = sizeof(*ncpu);
+	if (sysctl(mib_hw_ncpu, mib_hw_ncpu_len, ncpu, &ncpu_size, NULL, 0) == -1 ||
+	    sizeof(*ncpu) != ncpu_size) {
+		return -1;
 	}
-	return clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
+
+	// Retrieve clockrate
+	struct clockinfo clockrate;
+	size_t clockrate_size = sizeof(clockrate);
+	if (sysctl(mib_kern_clockrate, mib_kern_clockrate_len, &clockrate, &clockrate_size, NULL, 0) == -1 ||
+	    sizeof(clockrate) != clockrate_size) {
+		return -1;
+	}
+
+	// Retrieve cp_times values
+	*cp_times_length = (*ncpu) * CPUSTATES;
+
+	long cp_times[*cp_times_length];
+	size_t cp_times_size = sizeof(cp_times);
+
+	if (sysctl(mib_kern_cp_times, mib_kern_cp_times_len, &cp_times, &cp_times_size, NULL, 0) == -1 ||
+	    sizeof(cp_times) != cp_times_size) {
+		return -1;
+	}
+
+	// Compute absolute time for different CPU states
+	long cpufreq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
+	*cpu_times = (double *) malloc(sizeof(double)*(*cp_times_length));
+	for (int i = 0; i < (*cp_times_length); i++) {
+		(*cpu_times)[i] = ((double) cp_times[i]) / cpufreq;
+	}
+
+	return 0;
+
+}
+
+void freeCPUTimes(double *cpu_times) {
+	free(cpu_times);
 }
 
 */
@@ -62,6 +114,9 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // CPU stats.
 func NewStatCollector() (Collector, error) {
+	if C.setupSysctlMIBs() == -1 {
+		return nil, errors.New("could not initialize sysctl MIBs")
+	}
 	return &statCollector{
 		cpu: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -74,50 +129,40 @@ func NewStatCollector() (Collector, error) {
 	}, nil
 }
 
-// Expose CPU stats using KVM.
+// Expose CPU stats using sysctl.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	if os.Geteuid() != 0 && os.Getegid() != 2 {
-		return errors.New("caller should be either root user or kmem group to access /dev/mem")
+
+	// We want time spent per-cpu per CPUSTATE.
+	// CPUSTATES (number of CPUSTATES) is defined as 5U.
+	// Order: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
+	// sysctl kern.cp_times provides hw.ncpu * CPUSTATES long integers:
+	//   hw.ncpu * (space-separated list of the above variables)
+	//
+	// Each value is a counter incremented at frequency
+	//   kern.clockrate.(stathz | hz)
+	//
+	// Look into sys/kern/kern_clock.c for details.
+
+	var ncpu C.int
+	var cpuTimesC *C.double
+	var cpuTimesLength C.size_t
+	if C.getCPUTimes(&ncpu, &cpuTimesC, &cpuTimesLength) == -1 {
+		return errors.New("could not retrieve CPU times")
+	}
+	defer C.freeCPUTimes(cpuTimesC)
+
+	// Convert C.double array to Go array (https://github.com/golang/go/wiki/cgo#turning-c-arrays-into-go-slices).
+	cpuTimes := (*[1 << 30]C.double)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
+
+	for cpu := 0; cpu < int(ncpu); cpu++ {
+		base_idx := C.CPUSTATES * cpu
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "user"}).Set(float64(cpuTimes[base_idx+C.CP_USER]))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "nice"}).Set(float64(cpuTimes[base_idx+C.CP_NICE]))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "system"}).Set(float64(cpuTimes[base_idx+C.CP_SYS]))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "interrupt"}).Set(float64(cpuTimes[base_idx+C.CP_INTR]))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "idle"}).Set(float64(cpuTimes[base_idx+C.CP_IDLE]))
 	}
 
-	var errbuf *C.char
-	kd := C.kvm_open(nil, nil, nil, C.O_RDONLY, errbuf)
-	if errbuf != nil {
-		return errors.New("failed to call kvm_open()")
-	}
-	defer C.kvm_close(kd)
-
-	// The cp_time variable is an array of CPUSTATES long integers -- in
-	// the same format as the kern.cp_time sysctl.  According to the
-	// comments in sys/kern/kern_clock.c, the frequency of this timer will
-	// be stathz (or hz, if stathz is zero).
-	clockrate, err := getClockRate()
-	if err != nil {
-		return err
-	}
-
-	ncpus := C.kvm_getncpus(kd)
-	for i := 0; i < int(ncpus); i++ {
-		pcpu := C.kvm_getpcpu(kd, C.int(i))
-		cp_time := ((*C.struct_pcpu)(unsafe.Pointer(pcpu))).pc_cp_time
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "user"}).Set(float64(cp_time[C.CP_USER]) / clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "nice"}).Set(float64(cp_time[C.CP_NICE]) / clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "system"}).Set(float64(cp_time[C.CP_SYS]) / clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "interrupt"}).Set(float64(cp_time[C.CP_INTR]) / clockrate)
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "idle"}).Set(float64(cp_time[C.CP_IDLE]) / clockrate)
-	}
 	c.cpu.Collect(ch)
 	return err
-}
-
-func getClockRate() (float64, error) {
-	clockrate := C._clockrate()
-	if clockrate == -1 {
-		return 0, errors.New("sysctl(kern.clockrate) failed")
-	} else if clockrate == -2 {
-		return 0, errors.New("sysctl(kern.clockrate) failed, wrong buffer size")
-	} else if clockrate <= 0 {
-		return 0, errors.New("sysctl(kern.clockrate) bad clocktime")
-	}
-	return float64(clockrate), nil
 }
