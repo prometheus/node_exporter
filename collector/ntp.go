@@ -42,7 +42,7 @@ func init() {
 // the offset between ntp and the current system time.
 func NewNtpCollector() (Collector, error) {
 	if *ntpServer == "" {
-		return nil, fmt.Errorf("no NTP server specifies, see --ntpServer")
+		return nil, fmt.Errorf("no NTP server specified, see -collector.ntp.server")
 	}
 	if *ntpProtocolVersion < 2 || *ntpProtocolVersion > 4 {
 		return nil, fmt.Errorf("invalid NTP protocol version %d; must be 2, 3, or 4", *ntpProtocolVersion)
