@@ -40,15 +40,15 @@ func (c *zfsMetricProvider) PrepareUpdate() error {
 	return nil
 }
 
-func (p *zfsMetricProvider) handleFetchedMetricCacheMiss(c zfsSysctl) (zfsMetricValue, error) {
+func (p *zfsMetricProvider) handleMiss(s zfsSysctl) (zfsMetricValue, error) {
 
-	sysctlCString := C.CString(string(c))
+	sysctlCString := C.CString(string(s))
 	defer C.free(unsafe.Pointer(sysctlCString))
 
 	value := int(C.zfsIntegerSysctl(sysctlCString))
 
 	if value == -1 {
-		return zfsErrorValue, fmt.Errorf("Could not retrieve sysctl '%s'", c)
+		return zfsErrorValue, fmt.Errorf("Could not retrieve sysctl '%s'", s)
 	}
 
 	return zfsMetricValue(value), nil
