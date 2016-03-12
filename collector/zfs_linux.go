@@ -34,8 +34,7 @@ func (p *zfsMetricProvider) PrepareUpdate() (err error) {
 	return nil
 }
 
-func (p *zfsMetricProvider) handleFetchedMetricCacheMiss(s zfsSysctl) (value zfsMetricValue, err error) {
-
+func (p *zfsMetricProvider) handleMiss(s zfsSysctl) (value zfsMetricValue, err error) {
 	// all values are fetched in PrepareUpdate()
 	return zfsErrorValue, fmt.Errorf("sysctl '%s' found")
 }
@@ -73,7 +72,7 @@ func (p *zfsMetricProvider) prepareUpdateArcstats(zfsArcstatsProcpath string) (e
 			return fmt.Errorf("could not parse expected integer value for '%s'", key)
 		}
 		log.Debugf("%s = %d", key, value)
-		p.fetchedResults[zfsSysctl(key)] = zfsMetricValue(value)
+		p.values[zfsSysctl(key)] = zfsMetricValue(value)
 	}
 	if !parseLine {
 		return errors.New("did not parse a single arcstat metrics")
