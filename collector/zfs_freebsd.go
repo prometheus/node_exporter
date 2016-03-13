@@ -3,6 +3,8 @@ package collector
 import (
 	"fmt"
 	"unsafe"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 /*
@@ -36,24 +38,28 @@ int zfsModuleLoaded() {
 */
 import "C"
 
-func (c *zfsMetricProvider) PrepareUpdate() error {
+func (c *zfsCollector) PrepareUpdate() error {
 	if C.zfsModuleLoaded() == 0 {
 		return zfsNotAvailableError
 	}
 	return nil
 }
 
-func (p *zfsMetricProvider) handleMiss(s zfsSysctl) (zfsMetricValue, error) {
+func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 
-	sysctlCString := C.CString(string(s))
-	defer C.free(unsafe.Pointer(sysctlCString))
+	for _, metric := range c.zfsMetrics {
 
-	value := int(C.zfsIntegerSysctl(sysctlCString))
+		sysctlCString := C.CString(string(metric.sysctl))
+		defer C.free(unsafe.Pointer(sysctlCString))
 
-	if value == -1 {
-		return zfsErrorValue, fmt.Errorf("Could not retrieve sysctl '%s'", s)
+		value := int(C.zfsIntegerSysctl(sysctlCString))
+
+		if value == -1 {
+			return fmt.Errorf("Could not retrieve value for metric '%v'", metric)
+		}
+
+		ch <- metric.ConstMetric(zfsMetricValue(value))
 	}
 
-	return zfsMetricValue(value), nil
-
+	return err
 }

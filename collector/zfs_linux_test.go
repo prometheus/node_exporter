@@ -13,21 +13,32 @@ func TestArcstatsParsing(t *testing.T) {
 	}
 	defer arcstatsFile.Close()
 
-	p := NewZFSMetricProvider()
-	err = p.parseArcstatsProcfsFile(arcstatsFile)
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	err = c.parseArcstatsProcfsFile(arcstatsFile, func(s zfsSysctl, v zfsMetricValue) {
+
+		if s != zfsSysctl("kstat.zfs.misc.arcstats.hits") {
+			return
+		}
+
+		handlerCalled = true
+
+		if v != zfsMetricValue(8772612) {
+			t.Fatalf("Incorrect value parsed from procfs data")
+		}
+
+	})
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	value, err := p.Value(zfsSysctl("kstat.zfs.misc.arcstats.hits"))
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if value != zfsMetricValue(8772612) {
-		t.Fatalf("Incorrect value parsed from procfs data")
+	if !handlerCalled {
+		t.Fatal("Arcstats parsing handler was not called for some expected sysctls")
 	}
 
 }

@@ -31,12 +31,22 @@ type zfsMetric struct {
 	sysctl    zfsSysctl        // The sysctl of the ZFS metric.
 }
 
-func (m *zfsMetric) BuildFQName() string {
-	return prometheus.BuildFQName(Namespace, string(m.subsystem), m.name)
+func (m *zfsMetric) ConstMetric(value zfsMetricValue) prometheus.Metric {
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, string(m.subsystem), m.name),
+			m.name,
+			nil,
+			nil,
+		),
+		prometheus.UntypedValue,
+		float64(value),
+	)
 }
 
-func (m *zfsMetric) HelpString() string {
-	return m.name
+type datasetMetric struct {
+	subsystem zfsSubsystemName
+	name      string
 }
 
 // Collector
@@ -65,10 +75,7 @@ func NewZFSCollector() (Collector, error) {
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
-	metricProvider := NewZFSMetricProvider()
-
-	log.Debug("Preparing metrics update")
-	err = metricProvider.PrepareUpdate()
+	err = c.PrepareUpdate()
 	switch {
 	case err == zfsNotAvailableError:
 		log.Debug(err)
@@ -77,56 +84,12 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 
-	log.Debugf("Fetching %d metrics", len(c.zfsMetrics))
-	for _, metric := range c.zfsMetrics {
+	// Arcstats
 
-		value, err := metricProvider.Value(metric.sysctl)
-		if err != nil {
-			return err
-		}
-
-		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
-				metric.BuildFQName(),
-				metric.HelpString(),
-				nil,
-				nil,
-			),
-			prometheus.UntypedValue,
-			float64(value),
-		)
-
+	err = c.updateArcstats(ch)
+	if err != nil {
+		return err
 	}
 
 	return err
-}
-
-// Metrics Provider
-// Platform-dependend parts implemented in zfs_${os} files.
-
-type zfsMetricProvider struct {
-	values map[zfsSysctl]zfsMetricValue
-}
-
-func NewZFSMetricProvider() zfsMetricProvider {
-	return zfsMetricProvider{
-		values: make(map[zfsSysctl]zfsMetricValue),
-	}
-
-}
-
-func (p *zfsMetricProvider) Value(s zfsSysctl) (value zfsMetricValue, err error) {
-
-	var ok bool
-	value = zfsErrorValue
-
-	value, ok = p.values[s]
-	if !ok {
-		value, err = p.handleMiss(s)
-		if err != nil {
-			return value, err
-		}
-	}
-
-	return value, err
 }

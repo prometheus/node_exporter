@@ -9,38 +9,52 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 )
 
-const zfsArcstatsProcpath = "spl/kstat/zfs/arcstats"
+const (
+	zfsArcstatsProcpath = "spl/kstat/zfs/arcstats"
+)
 
-func (p *zfsMetricProvider) PrepareUpdate() (err error) {
-
-	err = p.prepareUpdateArcstats(zfsArcstatsProcpath)
+func (c *zfsCollector) PrepareUpdate() (err error) {
+	file, err := c.openArcstatsFile()
 	if err != nil {
-		return
+		file.Close()
 	}
-	return nil
+	return err
 }
 
-func (p *zfsMetricProvider) handleMiss(s zfsSysctl) (value zfsMetricValue, err error) {
-	// all values are fetched in PrepareUpdate().
-	return zfsErrorValue, fmt.Errorf("sysctl '%s' found")
+func (c *zfsCollector) openArcstatsFile() (file *os.File, err error) {
+	file, err = os.Open(procFilePath(zfsArcstatsProcpath))
+	if err != nil {
+		log.Debugf("Cannot open '%s' for reading.Is the kernel module loaded?", procFilePath(zfsArcstatsProcpath))
+		err = zfsNotAvailableError
+	}
+	return
 }
 
-func (p *zfsMetricProvider) prepareUpdateArcstats(zfsArcstatsProcpath string) (err error) {
+func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 
-	file, err := os.Open(procFilePath(zfsArcstatsProcpath))
-	if err != nil {
-		log.Debugf("Cannot open ZFS arcstats procfs file for reading. " +
-			" Is the kernel module loaded?")
-		return zfsNotAvailableError
-	}
+	file, err := c.openArcstatsFile()
 	defer file.Close()
-	return p.parseArcstatsProcfsFile(file)
+
+	return c.parseArcstatsProcfsFile(file, func(s zfsSysctl, v zfsMetricValue) {
+		// TODO: Find corresponding metric in a more efficient way
+		for _, metric := range c.zfsMetrics {
+			if metric.subsystem != arc {
+				continue
+			}
+			if metric.sysctl != s {
+				continue
+			}
+			ch <- metric.ConstMetric(v)
+		}
+	})
+
 }
 
-func (p *zfsMetricProvider) parseArcstatsProcfsFile(reader io.Reader) (err error) {
+func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zfsSysctl, zfsMetricValue)) (err error) {
 
 	scanner := bufio.NewScanner(reader)
 
@@ -65,7 +79,7 @@ func (p *zfsMetricProvider) parseArcstatsProcfsFile(reader io.Reader) (err error
 			return fmt.Errorf("could not parse expected integer value for '%s'", key)
 		}
 		log.Debugf("%s = %d", key, value)
-		p.values[zfsSysctl(key)] = zfsMetricValue(value)
+		handler(zfsSysctl(key), zfsMetricValue(value))
 	}
 	if !parseLine {
 		return errors.New("did not parse a single arcstat metrics")
