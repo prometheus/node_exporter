@@ -34,6 +34,10 @@ func (m *zfsMetric) BuildFQName() string {
 	return prometheus.BuildFQName(Namespace, string(m.subsystem), m.name)
 }
 
+func (m *zfsMetric) HelpString() string {
+	return m.name
+}
+
 // Collector
 
 func init() {
@@ -42,7 +46,6 @@ func init() {
 
 type zfsCollector struct {
 	zfsMetrics     []zfsMetric
-	metricProvider zfsMetricProvider
 }
 
 func NewZFSCollector() (Collector, error) {
@@ -56,14 +59,15 @@ func NewZFSCollector() (Collector, error) {
 			zfsMetric{arc, "hits", zfsSysctl("kstat.zfs.misc.arcstats.hits")},
 			zfsMetric{arc, "misses", zfsSysctl("kstat.zfs.misc.arcstats.misses")},
 		},
-		metricProvider: NewZFSMetricProvider(),
 	}, nil
 }
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
+	metricProvider := NewZFSMetricProvider()
+
 	log.Debug("Preparing metrics update")
-	err = c.metricProvider.PrepareUpdate()
+	err = metricProvider.PrepareUpdate()
 	switch {
 	case err == zfsNotAvailableError:
 		log.Debug(err)
@@ -71,12 +75,11 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	case err != nil:
 		return err
 	}
-	defer c.metricProvider.InvalidateCache()
 
 	log.Debugf("Fetching %d metrics", len(c.zfsMetrics))
 	for _, metric := range c.zfsMetrics {
 
-		value, err := c.metricProvider.Value(metric.sysctl)
+		value, err := metricProvider.Value(metric.sysctl)
 		if err != nil {
 			return err
 		}
@@ -109,10 +112,6 @@ func NewZFSMetricProvider() zfsMetricProvider {
 		values: make(map[zfsSysctl]zfsMetricValue),
 	}
 
-}
-
-func (p *zfsMetricProvider) InvalidateCache() {
-	p.values = make(map[zfsSysctl]zfsMetricValue)
 }
 
 func (p *zfsMetricProvider) Value(s zfsSysctl) (value zfsMetricValue, err error) {
