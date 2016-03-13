@@ -1,7 +1,5 @@
 package collector
 
-// +build linux
-
 import (
 	"bufio"
 	"errors"

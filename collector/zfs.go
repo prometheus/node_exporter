@@ -1,6 +1,5 @@
 package collector
 
-// +build !nofilesystem
 // +build !nozfs
 
 import (

@@ -1,7 +1,5 @@
 package collector
 
-// +build freebsd
-
 import (
 	"fmt"
 	"unsafe"
