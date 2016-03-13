@@ -30,19 +30,8 @@ type zfsMetric struct {
 	sysctl    zfsSysctl        // The sysctl of the ZFS metric.
 }
 
-func NewZFSMetric(subsystem zfsSubsystemName, sysctl, name string) zfsMetric {
-	return zfsMetric{
-		sysctl:    zfsSysctl(sysctl),
-		subsystem: subsystem,
-		name:      name,
-	}
-}
 func (m *zfsMetric) BuildFQName() string {
 	return prometheus.BuildFQName(Namespace, string(m.subsystem), m.name)
-}
-
-func (m *zfsMetric) HelpString() string {
-	return m.name
 }
 
 // Collector
@@ -59,13 +48,13 @@ type zfsCollector struct {
 func NewZFSCollector() (Collector, error) {
 	return &zfsCollector{
 		zfsMetrics: []zfsMetric{
-			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.p", "mru_size"),
-			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.size", "size"),
-			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.c_min", "target_min_size"),
-			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.c", "target_size"),
-			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.c_max", "target_max_size"),
-			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.hits", "hits"),
-			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.misses", "misses"),
+			zfsMetric{arc, "mru_size", zfsSysctl("kstat.zfs.misc.arcstats.p")},
+			zfsMetric{arc, "size", zfsSysctl("kstat.zfs.misc.arcstats.size")},
+			zfsMetric{arc, "target_min_size", zfsSysctl("kstat.zfs.misc.arcstats.c_min")},
+			zfsMetric{arc, "target_size", zfsSysctl("kstat.zfs.misc.arcstats.c")},
+			zfsMetric{arc, "target_max_size", zfsSysctl("kstat.zfs.misc.arcstats.c_max")},
+			zfsMetric{arc, "hits", zfsSysctl("kstat.zfs.misc.arcstats.hits")},
+			zfsMetric{arc, "misses", zfsSysctl("kstat.zfs.misc.arcstats.misses")},
 		},
 		metricProvider: NewZFSMetricProvider(),
 	}, nil
