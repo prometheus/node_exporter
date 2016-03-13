@@ -29,7 +29,7 @@ func (p *zfsMetricProvider) PrepareUpdate() (err error) {
 }
 
 func (p *zfsMetricProvider) handleMiss(s zfsSysctl) (value zfsMetricValue, err error) {
-	// all values are fetched in PrepareUpdate()
+	// all values are fetched in PrepareUpdate().
 	return zfsErrorValue, fmt.Errorf("sysctl '%s' found")
 }
 
@@ -50,7 +50,7 @@ func (p *zfsMetricProvider) prepareUpdateArcstats(zfsArcstatsProcpath string) (e
 		parts := strings.Fields(scanner.Text())
 
 		if !parseLine && parts[0] == "name" && parts[1] == "type" && parts[2] == "data" {
-			// Start parsing from here
+			// Start parsing from here.
 			parseLine = true
 			continue
 		}

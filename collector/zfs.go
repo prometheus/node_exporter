@@ -23,14 +23,12 @@ const (
 	arc = zfsSubsystemName("zfs_arc")
 )
 
-//------------------------------------------------------------------------------
-//                                    Metrics
-//------------------------------------------------------------------------------
+// Metrics
 
 type zfsMetric struct {
-	subsystem zfsSubsystemName // The Prometheus subsystem name
-	name      string           // The Prometheus name of the metric
-	sysctl    zfsSysctl        // The sysctl of the ZFS metric
+	subsystem zfsSubsystemName // The Prometheus subsystem name.
+	name      string           // The Prometheus name of the metric.
+	sysctl    zfsSysctl        // The sysctl of the ZFS metric.
 }
 
 func NewZFSMetric(subsystem zfsSubsystemName, sysctl, name string) zfsMetric {
@@ -48,9 +46,7 @@ func (m *zfsMetric) HelpString() string {
 	return m.name
 }
 
-//------------------------------------------------------------------------------
-//                                 Collector
-//------------------------------------------------------------------------------
+// Collector
 
 func init() {
 	Factories["zfs"] = NewZFSCollector
@@ -120,10 +116,8 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return err
 }
 
-//------------------------------------------------------------------------------
-//                                 Metrics Provider
-// Platform-dependend parts implemented in zfs_${platform} files.
-//------------------------------------------------------------------------------
+// Metrics Provider
+// Platform-dependend parts implemented in zfs_${os} files.
 
 type zfsMetricProvider struct {
 	values map[zfsSysctl]zfsMetricValue
