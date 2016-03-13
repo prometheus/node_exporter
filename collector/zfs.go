@@ -68,6 +68,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	case err == zfsNotAvailableError:
 		log.Debug(err)
 		return nil
+	case err != nil:
 		return err
 	}
 	defer c.metricProvider.InvalidateCache()
