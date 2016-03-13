@@ -1,5 +1,6 @@
 package collector
 
+// +build linux freebsd
 // +build !nozfs
 
 import (
