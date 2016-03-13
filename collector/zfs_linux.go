@@ -16,13 +16,7 @@ import (
 const zfsArcstatsProcpath = "spl/kstat/zfs/arcstats"
 
 func zfsInitialize() error {
-	path := procFilePath(zfsArcstatsProcpath)
-	fd, err := os.Open(path)
-	if err != nil {
-		log.Errorf("Cannot open ZFS arcstats logpath: %s", path)
-		return err
-	}
-	return fd.Close()
+	return nil
 }
 
 func (p *zfsMetricProvider) PrepareUpdate() (err error) {
@@ -43,9 +37,9 @@ func (p *zfsMetricProvider) prepareUpdateArcstats(zfsArcstatsProcpath string) (e
 
 	file, err := os.Open(procFilePath(zfsArcstatsProcpath))
 	if err != nil {
-		log.Errorf("Cannot open ZFS arcstats procfs file for reading. " +
-			" Is the kernel module mounted?")
-		return err
+		log.Debugf("Cannot open ZFS arcstats procfs file for reading. " +
+			" Is the kernel module loaded?")
+		return zfsNotAvailableError
 	}
 	defer file.Close()
 
