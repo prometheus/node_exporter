@@ -11,16 +11,17 @@ import (
 )
 
 type zfsMetricValue int
+
 const zfsErrorValue = zfsMetricValue(-1)
 
 var zfsNotAvailableError = errors.New("ZFS / ZFS statistics are not available")
 
 type zfsSysctl string
 type zfsSubsystemName string
+
 const (
 	arc = zfsSubsystemName("zfs_arc")
 )
-
 
 //------------------------------------------------------------------------------
 //                                    Metrics
@@ -28,15 +29,15 @@ const (
 
 type zfsMetric struct {
 	subsystem zfsSubsystemName // The Prometheus subsystem name
-	name string // The Prometheus name of the metric
-	sysctl zfsSysctl // The sysctl of the ZFS metric
+	name      string           // The Prometheus name of the metric
+	sysctl    zfsSysctl        // The sysctl of the ZFS metric
 }
 
 func NewZFSMetric(subsystem zfsSubsystemName, sysctl, name string) zfsMetric {
 	return zfsMetric{
-		sysctl: zfsSysctl(sysctl),
+		sysctl:    zfsSysctl(sysctl),
 		subsystem: subsystem,
-		name: name,
+		name:      name,
 	}
 }
 func (m *zfsMetric) BuildFQName() string {
@@ -56,16 +57,16 @@ func init() {
 }
 
 type zfsCollector struct {
-	zfsMetrics []zfsMetric
+	zfsMetrics     []zfsMetric
 	metricProvider zfsMetricProvider
 }
 
 func NewZFSCollector() (Collector, error) {
 	err := zfsInitialize()
 	switch {
-		case err == zfsNotAvailableError:
-			log.Debug(err)
-			break
+	case err == zfsNotAvailableError:
+		log.Debug(err)
+		break
 		return &zfsCollector{}, err
 	}
 
@@ -88,9 +89,9 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	log.Debug("Preparing metrics update")
 	err = c.metricProvider.PrepareUpdate()
 	switch {
-		case err == zfsNotAvailableError:
-			log.Debug(err)
-			return nil
+	case err == zfsNotAvailableError:
+		log.Debug(err)
+		return nil
 		return err
 	}
 	defer c.metricProvider.InvalidateCache()
@@ -114,7 +115,6 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			float64(value),
 		)
 
-
 	}
 
 	return err
@@ -131,7 +131,7 @@ type zfsMetricProvider struct {
 
 func NewZFSMetricProvider() zfsMetricProvider {
 	return zfsMetricProvider{
-		values:  make(map[zfsSysctl]zfsMetricValue),
+		values: make(map[zfsSysctl]zfsMetricValue),
 	}
 
 }
@@ -155,4 +155,3 @@ func (p *zfsMetricProvider) Value(s zfsSysctl) (value zfsMetricValue, err error)
 
 	return value, err
 }
-

@@ -43,7 +43,7 @@ func zfsInitialize() error {
 }
 
 func (c *zfsMetricProvider) PrepareUpdate() error {
-	if (C.zfsModuleLoaded() == 0) {
+	if C.zfsModuleLoaded() == 0 {
 		return zfsNotAvailableError
 	}
 	return nil
