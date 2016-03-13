@@ -36,10 +36,6 @@ int zfsModuleLoaded() {
 */
 import "C"
 
-func zfsInitialize() error {
-	return nil
-}
-
 func (c *zfsMetricProvider) PrepareUpdate() error {
 	if C.zfsModuleLoaded() == 0 {
 		return zfsNotAvailableError

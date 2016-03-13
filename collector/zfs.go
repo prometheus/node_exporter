@@ -57,14 +57,6 @@ type zfsCollector struct {
 }
 
 func NewZFSCollector() (Collector, error) {
-	err := zfsInitialize()
-	switch {
-	case err == zfsNotAvailableError:
-		log.Debug(err)
-		break
-		return &zfsCollector{}, err
-	}
-
 	return &zfsCollector{
 		zfsMetrics: []zfsMetric{
 			NewZFSMetric(arc, "kstat.zfs.misc.arcstats.p", "mru_size"),
