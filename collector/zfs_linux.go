@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"io"
 
 	"github.com/prometheus/common/log"
 )
@@ -27,6 +28,7 @@ func (p *zfsMetricProvider) handleMiss(s zfsSysctl) (value zfsMetricValue, err e
 	return zfsErrorValue, fmt.Errorf("sysctl '%s' found")
 }
 
+
 func (p *zfsMetricProvider) prepareUpdateArcstats(zfsArcstatsProcpath string) (err error) {
 
 	file, err := os.Open(procFilePath(zfsArcstatsProcpath))
@@ -36,8 +38,12 @@ func (p *zfsMetricProvider) prepareUpdateArcstats(zfsArcstatsProcpath string) (e
 		return zfsNotAvailableError
 	}
 	defer file.Close()
+	return p.parseArcstatsProcfsFile(file)
+}
 
-	scanner := bufio.NewScanner(file)
+func (p *zfsMetricProvider) parseArcstatsProcfsFile(reader io.Reader) (err error) {
+
+	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
 	for scanner.Scan() {
