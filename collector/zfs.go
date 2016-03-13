@@ -45,19 +45,19 @@ func init() {
 }
 
 type zfsCollector struct {
-	zfsMetrics     []zfsMetric
+	zfsMetrics []zfsMetric
 }
 
 func NewZFSCollector() (Collector, error) {
 	return &zfsCollector{
 		zfsMetrics: []zfsMetric{
-			zfsMetric{arc, "mru_size", zfsSysctl("kstat.zfs.misc.arcstats.p")},
-			zfsMetric{arc, "size", zfsSysctl("kstat.zfs.misc.arcstats.size")},
-			zfsMetric{arc, "target_min_size", zfsSysctl("kstat.zfs.misc.arcstats.c_min")},
-			zfsMetric{arc, "target_size", zfsSysctl("kstat.zfs.misc.arcstats.c")},
-			zfsMetric{arc, "target_max_size", zfsSysctl("kstat.zfs.misc.arcstats.c_max")},
-			zfsMetric{arc, "hits", zfsSysctl("kstat.zfs.misc.arcstats.hits")},
-			zfsMetric{arc, "misses", zfsSysctl("kstat.zfs.misc.arcstats.misses")},
+			{arc, "mru_size", zfsSysctl("kstat.zfs.misc.arcstats.p")},
+			{arc, "size", zfsSysctl("kstat.zfs.misc.arcstats.size")},
+			{arc, "target_min_size", zfsSysctl("kstat.zfs.misc.arcstats.c_min")},
+			{arc, "target_size", zfsSysctl("kstat.zfs.misc.arcstats.c")},
+			{arc, "target_max_size", zfsSysctl("kstat.zfs.misc.arcstats.c_max")},
+			{arc, "hits", zfsSysctl("kstat.zfs.misc.arcstats.hits")},
+			{arc, "misses", zfsSysctl("kstat.zfs.misc.arcstats.misses")},
 		},
 	}, nil
 }

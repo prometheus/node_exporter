@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
-	"io"
 
 	"github.com/prometheus/common/log"
 )
@@ -27,7 +27,6 @@ func (p *zfsMetricProvider) handleMiss(s zfsSysctl) (value zfsMetricValue, err e
 	// all values are fetched in PrepareUpdate().
 	return zfsErrorValue, fmt.Errorf("sysctl '%s' found")
 }
-
 
 func (p *zfsMetricProvider) prepareUpdateArcstats(zfsArcstatsProcpath string) (err error) {
 

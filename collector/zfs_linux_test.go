@@ -13,7 +13,6 @@ func TestArcstatsParsing(t *testing.T) {
 	}
 	defer arcstatsFile.Close()
 
-
 	p := NewZFSMetricProvider()
 	err = p.parseArcstatsProcfsFile(arcstatsFile)
 
