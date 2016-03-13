@@ -49,7 +49,7 @@ func (p *zfsMetricProvider) parseArcstatsProcfsFile(reader io.Reader) (err error
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
 
-		if !parseLine && parts[0] == "name" && parts[1] == "type" && parts[2] == "data" {
+		if !parseLine && len(parts) == 3 && parts[0] == "name" && parts[1] == "type" && parts[2] == "data" {
 			// Start parsing from here.
 			parseLine = true
 			continue
