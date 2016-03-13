@@ -13,10 +13,6 @@ import (
 
 const zfsArcstatsProcpath = "spl/kstat/zfs/arcstats"
 
-func zfsInitialize() error {
-	return nil
-}
-
 func (p *zfsMetricProvider) PrepareUpdate() (err error) {
 
 	err = p.prepareUpdateArcstats(zfsArcstatsProcpath)
