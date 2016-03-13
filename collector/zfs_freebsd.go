@@ -12,6 +12,7 @@ import (
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/param.h>
+#include <sys/module.h>
 #include <sys/pcpu.h>
 #include <sys/resource.h>
 #include <sys/sysctl.h>
@@ -29,6 +30,11 @@ int zfsIntegerSysctl(const char *name) {
 
 }
 
+int zfsModuleLoaded() {
+	int modid = modfind("zfs");
+	return modid < 0 ? 0 : -1;
+}
+
 */
 import "C"
 
@@ -37,6 +43,9 @@ func zfsInitialize() error {
 }
 
 func (c *zfsMetricProvider) PrepareUpdate() error {
+	if (C.zfsModuleLoaded() == 0) {
+		return zfsNotAvailableError
+	}
 	return nil
 }
 

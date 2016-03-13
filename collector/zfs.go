@@ -4,12 +4,16 @@ package collector
 // +build !nozfs
 
 import (
+	"errors"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 )
 
 type zfsMetricValue int
 const zfsErrorValue = zfsMetricValue(-1)
+
+var zfsNotAvailableError = errors.New("ZFS / ZFS statistics are not available")
 
 type zfsSysctl string
 type zfsSubsystemName string
@@ -57,7 +61,11 @@ type zfsCollector struct {
 }
 
 func NewZFSCollector() (Collector, error) {
-	if err := zfsInitialize(); err != nil {
+	err := zfsInitialize()
+	switch {
+		case err == zfsNotAvailableError:
+			log.Debug(err)
+			break
 		return &zfsCollector{}, err
 	}
 
@@ -78,7 +86,11 @@ func NewZFSCollector() (Collector, error) {
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	log.Debug("Preparing metrics update")
-	if err := c.metricProvider.PrepareUpdate(); err != nil {
+	err = c.metricProvider.PrepareUpdate()
+	switch {
+		case err == zfsNotAvailableError:
+			log.Debug(err)
+			return nil
 		return err
 	}
 	defer c.metricProvider.InvalidateCache()
