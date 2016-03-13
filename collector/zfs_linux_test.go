@@ -20,8 +20,6 @@ func TestArcstatsParsing(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Logf("Parsed values mapped to sysctls:\n%v", p.values)
-
 	value, err := p.Value(zfsSysctl("kstat.zfs.misc.arcstats.hits"))
 
 	if err != nil {
