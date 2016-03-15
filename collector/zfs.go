@@ -20,7 +20,7 @@ type zfsSysctl string
 type zfsSubsystemName string
 
 const (
-	arc = zfsSubsystemName("zfs_arc")
+	arc = zfsSubsystemName("zfsArc")
 )
 
 // Metrics
