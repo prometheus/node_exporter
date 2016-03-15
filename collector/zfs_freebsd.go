@@ -1,34 +1,20 @@
 package collector
 
 import (
-	"fmt"
-	"unsafe"
+	"bufio"
+	"io"
+	"os/exec"
+	"strconv"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 /*
 #cgo LDFLAGS:
-#include <fcntl.h>
-#include <stdlib.h>
 #include <sys/param.h>
 #include <sys/module.h>
-#include <sys/pcpu.h>
-#include <sys/resource.h>
-#include <sys/sysctl.h>
-#include <sys/time.h>
-
-int zfsIntegerSysctl(const char *name) {
-
-	int value;
-	size_t value_size = sizeof(value);
-	if (sysctlbyname(name,  &value, &value_size, NULL, 0) != -1 ||
-	    value_size != sizeof(value)) {
-		return -1;
-	}
-	return value;
-
-}
 
 int zfsModuleLoaded() {
 	int modid = modfind("zfs");
@@ -45,21 +31,59 @@ func (c *zfsCollector) PrepareUpdate() error {
 	return nil
 }
 
+const zfsArcstatsSysctl = "kstat.zfs.misc.arcstats"
+
 func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 
-	for _, metric := range c.zfsMetrics {
+	cmd := exec.Command("sysctl", zfsArcstatsSysctl)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return
+	}
 
-		sysctlCString := C.CString(string(metric.sysctl))
-		defer C.free(unsafe.Pointer(sysctlCString))
+	if err = cmd.Start(); err != nil {
+		return
+	}
 
-		value := int(C.zfsIntegerSysctl(sysctlCString))
+	err = c.parseArcstatsSysctlOutput(stdout, func(sysctl zfsSysctl, value zfsMetricValue) {
+		ch <- c.ConstSysctlMetric(arc, sysctl, zfsMetricValue(value))
+	})
+	if err != nil {
+		return
+	}
 
-		if value == -1 {
-			return fmt.Errorf("Could not retrieve value for metric '%v'", metric)
-		}
-
-		ch <- metric.ConstMetric(zfsMetricValue(value))
+	if err = cmd.Wait(); err != nil {
+		return
 	}
 
 	return err
+}
+
+func (c *zfsCollector) parseArcstatsSysctlOutput(reader io.Reader, handler func(zfsSysctl, zfsMetricValue)) (err error) {
+
+	// Decode values
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+
+		fields := strings.Fields(scanner.Text())
+
+		if len(fields) != 2 ||
+			!strings.HasPrefix(fields[0], zfsArcstatsSysctl) ||
+			!strings.HasSuffix(fields[0], ":") {
+
+			log.Debugf("Skipping line of unknown format: %s", scanner.Text())
+			continue
+
+		}
+
+		sysctl := zfsSysctl(strings.TrimSuffix(fields[0], ":"))
+		value, err := strconv.Atoi(fields[1])
+		if err != nil {
+			return err
+		}
+
+		handler(sysctl, zfsMetricValue(value))
+	}
+	return scanner.Err()
+
 }

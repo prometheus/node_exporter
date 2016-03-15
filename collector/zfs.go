@@ -5,6 +5,7 @@ package collector
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -31,19 +32,6 @@ type zfsMetric struct {
 	sysctl    zfsSysctl        // The sysctl of the ZFS metric.
 }
 
-func (m *zfsMetric) ConstMetric(value zfsMetricValue) prometheus.Metric {
-	return prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, string(m.subsystem), m.name),
-			m.name,
-			nil,
-			nil,
-		),
-		prometheus.UntypedValue,
-		float64(value),
-	)
-}
-
 type datasetMetric struct {
 	subsystem zfsSubsystemName
 	name      string
@@ -60,17 +48,7 @@ type zfsCollector struct {
 }
 
 func NewZFSCollector() (Collector, error) {
-	return &zfsCollector{
-		zfsMetrics: []zfsMetric{
-			{arc, "mru_size", zfsSysctl("kstat.zfs.misc.arcstats.p")},
-			{arc, "size", zfsSysctl("kstat.zfs.misc.arcstats.size")},
-			{arc, "target_min_size", zfsSysctl("kstat.zfs.misc.arcstats.c_min")},
-			{arc, "target_size", zfsSysctl("kstat.zfs.misc.arcstats.c")},
-			{arc, "target_max_size", zfsSysctl("kstat.zfs.misc.arcstats.c_max")},
-			{arc, "hits", zfsSysctl("kstat.zfs.misc.arcstats.hits")},
-			{arc, "misses", zfsSysctl("kstat.zfs.misc.arcstats.misses")},
-		},
-	}, nil
+	return &zfsCollector{}, nil
 }
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -92,4 +70,25 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 
 	return err
+}
+
+func (s zfsSysctl) metricName() string {
+	parts := strings.Split(string(s), ".")
+	return parts[len(parts)-1]
+}
+
+func (c *zfsCollector) ConstSysctlMetric(subsystem zfsSubsystemName, sysctl zfsSysctl, value zfsMetricValue) prometheus.Metric {
+
+	metricName := sysctl.metricName()
+
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, string(subsystem), metricName),
+			string(sysctl),
+			nil,
+			nil,
+		),
+		prometheus.UntypedValue,
+		float64(value),
+	)
 }
