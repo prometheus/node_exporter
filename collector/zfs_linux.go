@@ -28,7 +28,7 @@ func (c *zfsCollector) PrepareUpdate() (err error) {
 func (c *zfsCollector) openArcstatsFile() (file *os.File, err error) {
 	file, err = os.Open(procFilePath(zfsArcstatsProcpath))
 	if err != nil {
-		log.Debugf("Cannot open '%s' for reading.Is the kernel module loaded?", procFilePath(zfsArcstatsProcpath))
+		log.Debugf("Cannot open '%s' for reading. Is the kernel module loaded?", procFilePath(zfsArcstatsProcpath))
 		err = zfsNotAvailableError
 	}
 	return
@@ -40,16 +40,7 @@ func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 	defer file.Close()
 
 	return c.parseArcstatsProcfsFile(file, func(s zfsSysctl, v zfsMetricValue) {
-		// TODO: Find corresponding metric in a more efficient way
-		for _, metric := range c.zfsMetrics {
-			if metric.subsystem != arc {
-				continue
-			}
-			if metric.sysctl != s {
-				continue
-			}
-			ch <- metric.ConstMetric(v)
-		}
+		ch <- c.ConstSysctlMetric(arc, s, v)
 	})
 
 }
@@ -60,6 +51,7 @@ func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zf
 
 	parseLine := false
 	for scanner.Scan() {
+
 		parts := strings.Fields(scanner.Text())
 
 		if !parseLine && len(parts) == 3 && parts[0] == "name" && parts[1] == "type" && parts[2] == "data" {
@@ -78,8 +70,8 @@ func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zf
 		if err != nil {
 			return fmt.Errorf("could not parse expected integer value for '%s'", key)
 		}
-		log.Debugf("%s = %d", key, value)
 		handler(zfsSysctl(key), zfsMetricValue(value))
+
 	}
 	if !parseLine {
 		return errors.New("did not parse a single arcstat metrics")
