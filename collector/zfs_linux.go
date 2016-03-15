@@ -17,7 +17,7 @@ const (
 	zfsArcstatsProcpath = "spl/kstat/zfs/arcstats"
 )
 
-func (c *zfsCollector) PrepareUpdate() (err error) {
+func (c *zfsCollector) zfsAvailable() (err error) {
 	file, err := c.openArcstatsFile()
 	if err != nil {
 		file.Close()
@@ -37,6 +37,9 @@ func (c *zfsCollector) openArcstatsFile() (file *os.File, err error) {
 func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 
 	file, err := c.openArcstatsFile()
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 
 	return c.parseArcstatsProcfsFile(file, func(s zfsSysctl, v zfsMetricValue) {

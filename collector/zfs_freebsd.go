@@ -24,7 +24,7 @@ int zfsModuleLoaded() {
 */
 import "C"
 
-func (c *zfsCollector) PrepareUpdate() error {
+func (c *zfsCollector) zfsAvailable() error {
 	if C.zfsModuleLoaded() == 0 {
 		return zfsNotAvailableError
 	}
