@@ -53,7 +53,7 @@ func NewZFSCollector() (Collector, error) {
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
-	err = c.PrepareUpdate()
+	err = c.zfsAvailable()
 	switch {
 	case err == zfsNotAvailableError:
 		log.Debug(err)
@@ -63,7 +63,6 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 
 	// Arcstats
-
 	err = c.updateArcstats(ch)
 	if err != nil {
 		return err
