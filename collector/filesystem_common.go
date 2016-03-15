@@ -25,6 +25,7 @@ import (
 
 // Arch-dependent implementation must define:
 // * defIgnoredMountPoints
+// * defIgnoredFsTypes
 // * filesystemLabelNames
 // * filesystemCollector.GetStats
 
@@ -34,11 +35,17 @@ var (
 		defIgnoredMountPoints,
 		"Regexp of mount points to ignore for filesystem collector.")
 
+	ignoredFsTypes = flag.String(
+		"collector.filesystem.ignored-fs-types",
+		defIgnoredFsTypes,
+		"Regexp of filesystem types to ignore for filesystem collector.")
+
 	filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
 )
 
 type filesystemCollector struct {
 	ignoredMountPointsPattern *regexp.Regexp
+	ignoredFsTypesPattern     *regexp.Regexp
 	sizeDesc, freeDesc, availDesc,
 	filesDesc, filesFreeDesc, roDesc *prometheus.Desc
 }
@@ -56,7 +63,8 @@ func init() {
 // Filesystems stats.
 func NewFilesystemCollector() (Collector, error) {
 	subsystem := "filesystem"
-	pattern := regexp.MustCompile(*ignoredMountPoints)
+	mountPointPattern := regexp.MustCompile(*ignoredMountPoints)
+	fsTypePatter := regexp.MustCompile(*ignoredFsTypes)
 
 	sizeDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, subsystem, "size"),
@@ -95,7 +103,8 @@ func NewFilesystemCollector() (Collector, error) {
 	)
 
 	return &filesystemCollector{
-		ignoredMountPointsPattern: pattern,
+		ignoredMountPointsPattern: mountPointPattern,
+		ignoredFsTypesPattern:     fsTypesPattern,
 		sizeDesc:                  sizeDesc,
 		freeDesc:                  freeDesc,
 		availDesc:                 availDesc,

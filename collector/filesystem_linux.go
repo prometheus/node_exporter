@@ -26,6 +26,7 @@ import (
 
 const (
 	defIgnoredMountPoints = "^/(sys|proc|dev)($|/)"
+	defIgnoredFsTypes     = "^(sys|proc)fs$"
 	ST_RDONLY             = 0x1
 )
 
@@ -45,6 +46,10 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	for _, mpd := range mpds {
 		if c.ignoredMountPointsPattern.MatchString(mpd.mountPoint) {
 			log.Debugf("Ignoring mount point: %s", mpd.mountPoint)
+			continue
+		}
+		if c.ignoredFsTypesPatter.MatchString(mpd.fsType) {
+			log.Debugf("Ignoring fs type: %s", mpd.fsType)
 			continue
 		}
 		buf := new(syscall.Statfs_t)
