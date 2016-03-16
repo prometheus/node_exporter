@@ -32,7 +32,7 @@ textfile | Exposes statistics read from local disk. The `--collector.textfile.di
 time | Exposes the current system time. | _any_
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 version | Exposes node\_exporter version. | _any_
-zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics (ARC-only for now) | [FreeBSD](https://www.freebsd.org/doc/handbook/zfs.html),[Linux](http://zfsonlinux.org/)
+zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics.<br/> FreeBSD (ARC, zpool), Linux (ARC) | [FreeBSD](https://www.freebsd.org/doc/handbook/zfs.html), [Linux](http://zfsonlinux.org/)
 
 ### Disabled by default
 
