@@ -33,9 +33,8 @@ func (c *zfsCollector) zfsAvailable() error {
 
 const zfsArcstatsSysctl = "kstat.zfs.misc.arcstats"
 
-func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) RunOnStdout(cmd *exec.Cmd, handler func(io.Reader) error) (err error) {
 
-	cmd := exec.Command("sysctl", zfsArcstatsSysctl)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return
@@ -45,9 +44,7 @@ func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 		return
 	}
 
-	err = c.parseArcstatsSysctlOutput(stdout, func(sysctl zfsSysctl, value zfsMetricValue) {
-		ch <- c.ConstSysctlMetric(arc, sysctl, zfsMetricValue(value))
-	})
+	err = handler(stdout)
 	if err != nil {
 		return
 	}
@@ -57,6 +54,20 @@ func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 	}
 
 	return err
+
+}
+
+func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
+
+	cmd := exec.Command("sysctl", zfsArcstatsSysctl)
+
+	err = c.RunOnStdout(cmd, func(stdout io.Reader) error {
+		return c.parseArcstatsSysctlOutput(stdout, func(sysctl zfsSysctl, value zfsMetricValue) {
+			ch <- c.ConstSysctlMetric(arc, sysctl, zfsMetricValue(value))
+		})
+	})
+	return err
+
 }
 
 func (c *zfsCollector) parseArcstatsSysctlOutput(reader io.Reader, handler func(zfsSysctl, zfsMetricValue)) (err error) {
@@ -86,4 +97,19 @@ func (c *zfsCollector) parseArcstatsSysctlOutput(reader io.Reader, handler func(
 	}
 	return scanner.Err()
 
+}
+
+func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) {
+
+	poolProperties := []string{"size", "free", "allocated", "capacity", "dedupratio", "fragmentation"}
+
+	cmd := exec.Command("zpool", "get", "-pH", strings.Join(poolProperties, ","))
+
+	err = c.RunOnStdout(cmd, func(stdout io.Reader) error {
+		return c.parseZpoolOutput(stdout, func(pool, name string, value float64) {
+			ch <- c.ConstZpoolMetric(pool, name, value)
+		})
+	})
+
+	return err
 }

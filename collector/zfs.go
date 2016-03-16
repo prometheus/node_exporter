@@ -21,7 +21,8 @@ type zfsSysctl string
 type zfsSubsystemName string
 
 const (
-	arc = zfsSubsystemName("zfsArc")
+	arc            = zfsSubsystemName("zfsArc")
+	zpoolSubsystem = zfsSubsystemName("zfsPool")
 )
 
 // Metrics
@@ -68,6 +69,12 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 
+	// Pool stats
+	err = c.updatePoolStats(ch)
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -89,5 +96,19 @@ func (c *zfsCollector) ConstSysctlMetric(subsystem zfsSubsystemName, sysctl zfsS
 		),
 		prometheus.UntypedValue,
 		float64(value),
+	)
+}
+
+func (c *zfsCollector) ConstZpoolMetric(pool, name string, value float64) prometheus.Metric {
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, string(zpoolSubsystem), name),
+			name,
+			[]string{"pool"},
+			nil,
+		),
+		prometheus.UntypedValue,
+		float64(value),
+		pool,
 	)
 }
