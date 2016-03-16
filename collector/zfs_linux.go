@@ -82,3 +82,7 @@ func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zf
 
 	return scanner.Err()
 }
+
+func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) {
+	return nil
+}
