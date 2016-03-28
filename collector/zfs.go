@@ -70,12 +70,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 
 	// Pool stats
-	err = c.updatePoolStats(ch)
-	if err != nil {
-		return err
-	}
-
-	return err
+	return c.updatePoolStats(ch)
 }
 
 func (s zfsSysctl) metricName() string {

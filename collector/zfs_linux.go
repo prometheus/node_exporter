@@ -28,7 +28,7 @@ func (c *zfsCollector) zfsAvailable() (err error) {
 func (c *zfsCollector) openArcstatsFile() (file *os.File, err error) {
 	file, err = os.Open(procFilePath(zfsArcstatsProcpath))
 	if err != nil {
-		log.Debugf("Cannot open '%s' for reading. Is the kernel module loaded?", procFilePath(zfsArcstatsProcpath))
+		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(zfsArcstatsProcpath))
 		err = zfsNotAvailableError
 	}
 	return
@@ -71,13 +71,13 @@ func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zf
 
 		value, err := strconv.Atoi(parts[2])
 		if err != nil {
-			return fmt.Errorf("could not parse expected integer value for '%s'", key)
+			return fmt.Errorf("could not parse expected integer value for %q", key)
 		}
 		handler(zfsSysctl(key), zfsMetricValue(value))
 
 	}
 	if !parseLine {
-		return errors.New("did not parse a single arcstat metrics")
+		return errors.New("did not parse a single arcstat metric")
 	}
 
 	return scanner.Err()
