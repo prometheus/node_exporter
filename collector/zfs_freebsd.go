@@ -49,12 +49,7 @@ func (c *zfsCollector) RunOnStdout(cmd *exec.Cmd, handler func(io.Reader) error)
 		return
 	}
 
-	if err = cmd.Wait(); err != nil {
-		return
-	}
-
-	return err
-
+	return cmd.Wait()
 }
 
 func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
@@ -82,7 +77,7 @@ func (c *zfsCollector) parseArcstatsSysctlOutput(reader io.Reader, handler func(
 			!strings.HasPrefix(fields[0], zfsArcstatsSysctl) ||
 			!strings.HasSuffix(fields[0], ":") {
 
-			log.Debugf("Skipping line of unknown format: %s", scanner.Text())
+			log.Debugf("Skipping line of unknown format: %q", scanner.Text())
 			continue
 
 		}
