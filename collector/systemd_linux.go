@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/coreos/go-systemd/dbus"
@@ -28,6 +29,14 @@ type systemdCollector struct {
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
+
+var (
+	systemdPrivate = flag.Bool(
+		"collector.systemd.private",
+		false,
+		"Establish a private, direct connection to systemd without dbus.",
+	)
+)
 
 func init() {
 	Factories["systemd"] = NewSystemdCollector
@@ -92,8 +101,15 @@ func (c *systemdCollector) collectSystemState(ch chan<- prometheus.Metric, syste
 	ch <- prometheus.MustNewConstMetric(c.systemRunningDesc, prometheus.GaugeValue, isSystemRunning)
 }
 
+func (c *systemdCollector) newDbus() (*dbus.Conn, error) {
+	if *systemdPrivate {
+		return dbus.NewSystemdConnection()
+	}
+	return dbus.New()
+}
+
 func (c *systemdCollector) listUnits() ([]dbus.UnitStatus, error) {
-	conn, err := dbus.New()
+	conn, err := c.newDbus()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get dbus connection: %s", err)
 	}
@@ -103,7 +119,7 @@ func (c *systemdCollector) listUnits() ([]dbus.UnitStatus, error) {
 }
 
 func (c *systemdCollector) getSystemState() (state string, err error) {
-	conn, err := dbus.New()
+	conn, err := c.newDbus()
 	if err != nil {
 		return "", fmt.Errorf("couldn't get dbus connection: %s", err)
 	}
