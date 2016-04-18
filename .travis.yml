@@ -8,9 +8,6 @@ go:
 env:
 - GO15VENDOREXPERIMENT=1
 
-install:
-- go get golang.org/x/tools/cmd/vet
-
 script:
 - "! gofmt -l $(find . -path ./vendor -prune -o -name '*.go' -print) | read nothing"
 - go vet
