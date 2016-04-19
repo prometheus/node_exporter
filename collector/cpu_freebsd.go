@@ -103,7 +103,7 @@ void freeCPUTimes(double *cpu_times) {
 */
 import "C"
 
-const MAXCPUTIMESLEN = C.MAXCPU * C.CPUSTATES;
+const MAXCPUTIMESLEN = C.MAXCPU * C.CPUSTATES
 
 type statCollector struct {
 	cpu *prometheus.CounterVec
@@ -151,13 +151,13 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if C.getCPUTimes(&ncpu, &cpuTimesC, &cpuTimesLength) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
-	defer C.free(unsafe.Pointer(cpuTimesC))
+	defer C.freeCPUTimes(cpuTimesC)
 	if cpuTimesLength > MAXCPUTIMESLEN {
 		return errors.New("more CPU's than MAXCPU?")
 	}
 
 	// Convert C.double array to Go array (https://github.com/golang/go/wiki/cgo#turning-c-arrays-into-go-slices).
-	cpuTimes := (*[maxCpuTimes]C.double)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
+	cpuTimes := (*[MAXCPUTIMESLEN]C.double)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
 
 	for cpu := 0; cpu < int(ncpu); cpu++ {
 		base_idx := C.CPUSTATES * cpu
