@@ -2,6 +2,7 @@ go: 1.5.4
 repository:
     path: github.com/prometheus/node_exporter
 build:
+    flags: -tags cgo
     ldflags: |
         -X main.Version={{.Version}}
         -X {{repoPath}}/collector.Version={{.Version}}
