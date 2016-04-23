@@ -29,11 +29,9 @@ const (
 )
 
 type statCollector struct {
-	cpu          *prometheus.Desc
 	intr         *prometheus.Desc
 	ctxt         *prometheus.Desc
 	forks        *prometheus.Desc
-	btime        *prometheus.Desc
 	procsRunning *prometheus.Desc
 	procsBlocked *prometheus.Desc
 }
@@ -46,11 +44,6 @@ func init() {
 // kernel/system statistics.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "cpu"),
-			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode"}, nil,
-		),
 		intr: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "intr"),
 			"Total number of interrupts serviced.",
@@ -64,11 +57,6 @@ func NewStatCollector() (Collector, error) {
 		forks: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "forks"),
 			"Total number of forks.",
-			nil, nil,
-		),
-		btime: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "boot_time"),
-			"Node boot time, in unixtime.",
 			nil, nil,
 		),
 		procsRunning: prometheus.NewDesc(
@@ -139,12 +127,6 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				return err
 			}
 			ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, value)
-		case parts[0] == "btime":
-			value, err := strconv.ParseFloat(parts[1], 64)
-			if err != nil {
-				return err
-			}
-			ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, value)
 		case parts[0] == "procs_running":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
