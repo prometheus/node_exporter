@@ -44,7 +44,6 @@ gmond | Exposes statistics from Ganglia. | _any_
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
-lastlogin | Exposes the last time there was a login. | _any_
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 megacli | Exposes RAID statistics from MegaCLI. | Linux
 meminfo_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
