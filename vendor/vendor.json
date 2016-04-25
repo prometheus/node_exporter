@@ -8,6 +8,12 @@
 			"revisionTime": "2016-01-18T19:00:32-05:00"
 		},
 		{
+			"checksumSHA1": "K3IjadQQFTDSMib8tbdhpUCdvKY=",
+			"path": "github.com/StackExchange/wmi",
+			"revision": "f3e2bae1e0cb5aef83e319133eabfee30013a4a5",
+			"revisionTime": "2015-05-20T19:46:26Z"
+		},
+		{
 			"path": "github.com/beevik/ntp",
 			"revision": "283ed9d548825a1dae0994311560e8dbf8efac68",
 			"revisionTime": "2015-11-09T15:30:19-08:00"
@@ -21,6 +27,18 @@
 			"path": "github.com/coreos/go-systemd/dbus",
 			"revision": "2ed5b5012ccde5f057c197890a2c801295941149",
 			"revisionTime": "2016-01-14T00:34:31+01:00"
+		},
+		{
+			"checksumSHA1": "chuH+rt7NcP0fte9Gj3L4gigNh4=",
+			"path": "github.com/go-ole/go-ole",
+			"revision": "572eabb84c424e76a0d39d31510dd7dfd62f70b2",
+			"revisionTime": "2016-03-11T03:06:26Z"
+		},
+		{
+			"checksumSHA1": "qLYVTQDhgrVIeZ2KI9eZV51mmug=",
+			"path": "github.com/go-ole/go-ole/oleutil",
+			"revision": "572eabb84c424e76a0d39d31510dd7dfd62f70b2",
+			"revisionTime": "2016-03-11T03:06:26Z"
 		},
 		{
 			"path": "github.com/godbus/dbus",
@@ -78,6 +96,56 @@
 			"revisionTime": "2015-10-29T15:50:50-04:00"
 		},
 		{
+			"origin": "github.com/prometheus/node_exporter/vendor/github.com/shirou/gopsutil",
+			"path": "github.com/shirou/gopsutil",
+			"revision": "9ef341037b1bcadeeee79e77da4f6baf63de4feb",
+			"revisionTime": "2016-04-20T04:29:54Z"
+		},
+		{
+			"checksumSHA1": "dtcffK/n1nDKPtvHg2GnU1C194s=",
+			"path": "github.com/shirou/gopsutil/cpu",
+			"revision": "f8c7af556592720f3dfc7098ca55953261c0f02a",
+			"revisionTime": "2016-04-24T07:53:57Z"
+		},
+		{
+			"checksumSHA1": "D58d1qBEERyFSWgnl4rcZ0m5EXw=",
+			"path": "github.com/shirou/gopsutil/host",
+			"origin": "github.com/discordianfish/gopsutil/host",
+			"revision": "28001eaffd04b4a30c539dbc74604e52499e085a",
+			"revisionTime": "2016-04-28T19:53:25Z",
+			"version": "fish/add-arm64"
+		},
+		{
+			"checksumSHA1": "xrMuUxCr8UckY5oI2lwCerYwIhk=",
+			"path": "github.com/shirou/gopsutil/internal/common",
+			"revision": "f8c7af556592720f3dfc7098ca55953261c0f02a",
+			"revisionTime": "2016-04-24T07:53:57Z"
+		},
+		{
+			"checksumSHA1": "bHTDi2QAN4SmdZpHOtyQ6fQeCnQ=",
+			"path": "github.com/shirou/gopsutil/mem",
+			"revision": "f8c7af556592720f3dfc7098ca55953261c0f02a",
+			"revisionTime": "2016-04-24T07:53:57Z"
+		},
+		{
+			"checksumSHA1": "LHJDMUXWamoP/yje0R42k96OPG8=",
+			"path": "github.com/shirou/gopsutil/net",
+			"revision": "f8c7af556592720f3dfc7098ca55953261c0f02a",
+			"revisionTime": "2016-04-24T07:53:57Z"
+		},
+		{
+			"checksumSHA1": "o544bXejDPLi6qpjHav8a91W4Ks=",
+			"path": "github.com/shirou/gopsutil/process",
+			"revision": "f8c7af556592720f3dfc7098ca55953261c0f02a",
+			"revisionTime": "2016-04-24T07:53:57Z"
+		},
+		{
+			"checksumSHA1": "1eyDAmLQeWwdVKmfPzCGo28u4kw=",
+			"path": "github.com/shirou/w32",
+			"revision": "3c9377fc6748f222729a8270fe2775d149a249ad",
+			"revisionTime": "2016-02-04T00:35:29Z"
+		},
+		{
 			"path": "github.com/soundcloud/go-runit/runit",
 			"revision": "06ad41a06c4a586951fb8040a697ecd39729640b",
 			"revisionTime": "2015-06-30T15:56:10-04:00"
@@ -87,5 +155,6 @@
 			"revision": "833a04a10549a95dc34458c195cbad61bbb6cb4d",
 			"revisionTime": "2015-12-10T17:34:15-08:00"
 		}
-	]
+	],
+	"rootPath": "github.com/prometheus/node_exporter"
 }
