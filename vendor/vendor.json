@@ -111,7 +111,7 @@
 			"checksumSHA1": "D58d1qBEERyFSWgnl4rcZ0m5EXw=",
 			"path": "github.com/shirou/gopsutil/host",
 			"origin": "github.com/discordianfish/gopsutil/host",
-			"revision": "28001eaffd04b4a30c539dbc74604e52499e085a",
+			"revision": "2a69690d625d4e658c95ab6d2c6402de6a287cb6",
 			"revisionTime": "2016-04-28T19:53:25Z",
 			"version": "fish/add-arm64"
 		},
