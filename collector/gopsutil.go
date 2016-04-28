@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !netbsd
 // +build !nogops
 
 package collector
@@ -173,7 +174,6 @@ func (c *gopsCollector) updateMemory(ch chan<- prometheus.Metric) error {
 		return err
 	}
 	for k, v := range map[string]uint64{
-		"used":     vmstat.Used,
 		"free":     vmstat.Free,
 		"active":   vmstat.Active,
 		"inactive": vmstat.Inactive,
