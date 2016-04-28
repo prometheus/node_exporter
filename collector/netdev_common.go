@@ -17,18 +17,11 @@
 package collector
 
 import (
-	"flag"
 	"fmt"
 	"regexp"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
-)
-
-var (
-	netdevIgnoredDevices = flag.String(
-		"collector.netdev.ignored-devices", "^$",
-		"Regexp of net devices to ignore for netdev collector.")
 )
 
 type netDevCollector struct {
