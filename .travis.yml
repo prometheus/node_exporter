@@ -2,15 +2,9 @@ sudo: false
 
 language: go
 go:
-- 1.5.3
+- 1.5
 - tip
 
-env:
-- GO15VENDOREXPERIMENT=1
-
 script:
-- "! gofmt -l $(find . -path ./vendor -prune -o -name '*.go' -print) | read nothing"
-- go vet
-- go test -v $(go list ./... | grep -v /vendor/)
-- go build
+- make
 - ./end-to-end-test.sh
