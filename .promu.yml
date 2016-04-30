@@ -1,7 +1,8 @@
-go: 1.5.4
+go: 1.6.2
 repository:
     path: github.com/prometheus/node_exporter
 build:
+    flags: -a -tags 'netgo static_build'
     ldflags: |
         -X main.Version={{.Version}}
         -X {{repoPath}}/collector.Version={{.Version}}
@@ -24,4 +25,5 @@ crossbuild:
         - linux/arm
         - linux/arm64
         - netbsd/arm
+        - linux/ppc64
         - linux/ppc64le
