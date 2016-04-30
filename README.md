@@ -34,7 +34,6 @@ stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, bo
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 time | Exposes the current system time. | _any_
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
-version | Exposes node\_exporter version. | _any_
 
 
 ### Disabled by default

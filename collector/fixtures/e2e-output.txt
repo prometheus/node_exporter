@@ -365,6 +365,9 @@ node_disk_writes_merged{device="vda"} 2.0711856e+07
 # HELP node_entropy_available_bits Bits of available entropy.
 # TYPE node_entropy_available_bits gauge
 node_entropy_available_bits 1337
+# HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built.
+# TYPE node_exporter_build_info gauge
+node_exporter_build_info{branch="master",goversion="go1.5.4",revision="252feb6",version="0.12.0rc3"} 1
 # HELP node_exporter_scrape_duration_seconds node_exporter: Duration of a scrape job.
 # TYPE node_exporter_scrape_duration_seconds summary
 node_exporter_scrape_duration_seconds{collector="bonding",result="success",quantile="0.5"} 7.481600000000001e-05
