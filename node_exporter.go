@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -25,17 +26,15 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
 )
 
 const (
-	defaultCollectors = "conntrack,cpu,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,version,vmstat"
+	defaultCollectors = "conntrack,cpu,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,vmstat"
 )
 
 var (
-	// Version of node_exporter. Set at build time.
-	Version = "0.0.0.dev"
-
 	scrapeDurations = prometheus.NewSummaryVec(
 		prometheus.SummaryOpts{
 			Namespace: collector.Namespace,
@@ -114,14 +113,27 @@ func loadCollectors(list string) (map[string]collector.Collector, error) {
 	return collectors, nil
 }
 
+func init() {
+	prometheus.MustRegister(version.NewCollector("node_exporter"))
+}
+
 func main() {
 	var (
+		showVersion       = flag.Bool("version", false, "Print version information.")
 		listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
 		metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 		enabledCollectors = flag.String("collectors.enabled", filterAvailableCollectors(defaultCollectors), "Comma-separated list of collectors to use.")
 		printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 	)
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Fprintln(os.Stdout, version.Print("node_exporter"))
+		os.Exit(0)
+	}
+
+	log.Infoln("Starting node_exporter", version.Info())
+	log.Infoln("Build context", version.BuildContext())
 
 	if *printCollectors {
 		collectorNames := make(sort.StringSlice, 0, len(collector.Factories))
@@ -161,7 +173,7 @@ func main() {
 			</html>`))
 	})
 
-	log.Infof("Starting node_exporter v%s at %s", Version, *listenAddress)
+	log.Infoln("Listening on", *listenAddress)
 	err = http.ListenAndServe(*listenAddress, nil)
 	if err != nil {
 		log.Fatal(err)
