@@ -1,3 +1,47 @@
+## 0.12.0 / 2016-05-05
+
+* [CHANGE] Remove lastlogin collector.
+* [CHANGE] Remove -debug.memprofile-file flag.
+* [CHANGE] Sync BSD filesystem collector labels with Linux.
+* [CHANGE] Remove HTTP Basic Auth support.
+* [FEATURE] Add -version flag.
+* [FEATURE] Add Linux logind collector.
+* [FEATURE] Add Linux ksmd collector.
+* [FEATURE] Add Linux memory NUMA collector.
+* [FEATURE] Add Linux entropy collector.
+* [FEATURE] Add Linux vmstat collector.
+* [FEATURE] Add Linux conntrack collector.
+* [FEATURE] Add systemd collector.
+* [FEATURE] Add OpenBSD support for filesystem, interrupt and netdev collectors.
+* [FEATURE] Add supervisord collector.
+* [FEATURE] Add Linux /proc/mdstat collector.
+* [FEATURE] Add Linux uname collector.
+* [FEATURE] Add Linux /proc/sys/fs/file-nr collector.
+* [FEATURE] Add Linux /proc/net/sockstat collector.
+* [IMPROVEMENT] Provide statically linked Linux binaries.
+* [IMPROVEMENT] Remove root requirement for FreeBSD CPU metrics.
+* [IMPROVEMENT] Add node_exporter build info metric.
+* [IMPROVEMENT] Add disk bytes read/written metrics on Linux.
+* [IMPROVEMENT] Add filesystem read-only metric.
+* [IMPROVEMENT] Use common Prometheus log formatting.
+* [IMPROVEMENT] Add option to specify NTP protocol version.
+* [IMPROVEMENT] Handle statfs errors gracefully for individual filesystems.
+* [IMPROVEMENT] Add load5 and load15 metrics to loadavg collector.
+* [IMPROVEMENT] Add end-to-end tests.
+* [IMPROVEMENT] Export FreeBSD CPU metrics to seconds.
+* [IMPROVEMENT] Add flag to configure sysfs mountpoint.
+* [IMPROVEMENT] Add flag to configure procfs mountpoint.
+* [IMPROVEMENT] Add metric for last service state change to runit collector.
+* [BUGFIX] Fix FreeBSD netdev metrics on 64 bit systems.
+* [BUGFIX] Fix mdstat for devices in delayed resync state.
+* [BUGFIX] Fix Linux stat metrics on parallel scrapes.
+* [BUGFIX] Remove unavailable collectors from defaults.
+* [BUGFIX] Fix build errors on FreeBSD, OpenBSD, Darwin and Windows.
+* [BUGFIX] Fix build errors on 386, arm, arm64, ppc64 and ppc64le architectures.
+* [BUGFIX] Fix export of stale metrics for removed filesystem and network devices.
+* [BUGFIX] textfile: Fix mtime reporting.
+* [BUGFIX] megacli: prevent crash when drive temperature is N/A
+
 ## 0.11.0 / 2015-07-27
 
 * [FEATURE] Add stats from /proc/net/snmp.
