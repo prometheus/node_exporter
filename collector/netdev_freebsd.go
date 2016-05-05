@@ -53,19 +53,23 @@ func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error)
 			devStats := map[string]string{}
 			data := (*C.struct_if_data)(ifa.ifa_data)
 
-			devStats["receive_packets"] = strconv.FormatUint(uint64(data.ifi_ipackets), 10)
-			devStats["transmit_packets"] = strconv.FormatUint(uint64(data.ifi_opackets), 10)
-			devStats["receive_errs"] = strconv.FormatUint(uint64(data.ifi_ierrors), 10)
-			devStats["transmit_errs"] = strconv.FormatUint(uint64(data.ifi_oerrors), 10)
-			devStats["receive_bytes"] = strconv.FormatUint(uint64(data.ifi_ibytes), 10)
-			devStats["transmit_bytes"] = strconv.FormatUint(uint64(data.ifi_obytes), 10)
-			devStats["receive_multicast"] = strconv.FormatUint(uint64(data.ifi_imcasts), 10)
-			devStats["transmit_multicast"] = strconv.FormatUint(uint64(data.ifi_omcasts), 10)
-			devStats["receive_drop"] = strconv.FormatUint(uint64(data.ifi_iqdrops), 10)
-			devStats["transmit_drop"] = strconv.FormatUint(uint64(data.ifi_oqdrops), 10)
+			devStats["receive_packets"] = convertFreeBSDCPUTime(uint64(data.ifi_ipackets))
+			devStats["transmit_packets"] = convertFreeBSDCPUTime(uint64(data.ifi_opackets))
+			devStats["receive_errs"] = convertFreeBSDCPUTime(uint64(data.ifi_ierrors))
+			devStats["transmit_errs"] = convertFreeBSDCPUTime(uint64(data.ifi_oerrors))
+			devStats["receive_bytes"] = convertFreeBSDCPUTime(uint64(data.ifi_ibytes))
+			devStats["transmit_bytes"] = convertFreeBSDCPUTime(uint64(data.ifi_obytes))
+			devStats["receive_multicast"] = convertFreeBSDCPUTime(uint64(data.ifi_imcasts))
+			devStats["transmit_multicast"] = convertFreeBSDCPUTime(uint64(data.ifi_omcasts))
+			devStats["receive_drop"] = convertFreeBSDCPUTime(uint64(data.ifi_iqdrops))
+			devStats["transmit_drop"] = convertFreeBSDCPUTime(uint64(data.ifi_oqdrops))
 			netDev[dev] = devStats
 		}
 	}
 
 	return netDev, nil
+}
+
+func convertFreeBSDCPUTime(counter uint64) string {
+	return strconv.FormatUint(counter, 10)
 }
