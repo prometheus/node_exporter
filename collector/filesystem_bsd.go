@@ -33,7 +33,7 @@ import "C"
 
 const (
 	defIgnoredMountPoints = "^/(dev)($|/)"
-	defIgnoredFsTypes     = "^devfs$"
+	defIgnoredFSTypes     = "^devfs$"
 	MNT_RDONLY            = 0x1
 )
 
@@ -56,7 +56,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 
 		device := C.GoString(&mnt[i].f_mntfromname[0])
 		fstype := C.GoString(&mnt[i].f_fstypename[0])
-		if c.ignoredFsTypesPattern.MatchString(fstype) {
+		if c.ignoredFSTypesPattern.MatchString(fstype) {
 			log.Debugf("Ignoring fs type: %s", fstype)
 			continue
 		}
