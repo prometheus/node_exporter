@@ -26,3 +26,8 @@ dependencies-stamp
 /.deps
 /.release
 /.tarballs
+
+# Intellij
+
+/.idea
+*.iml
