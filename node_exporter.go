@@ -123,17 +123,17 @@ func init() {
 
 func main() {
 	var (
-		showVersion       = flag.Bool("version", false, "Print version information.")
-		listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
-		metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-		tlsCert           = flag.String("web.tls-cert", "", "Path to PEM file that conains the certificate (and opionally also the private key in PEM format).\n" +
-		                                "\tThis should include the whole certificate chain.\n" +
-		                                "\tIf provided: The web socket will be a HTTPS socket.\n" +
-		                                "\tIf not provided: Only HTTP.")
-		tlsPrivateKey     = flag.String("web.tls-private-key", "", "Path to PEM file that conains the private key (if not contained in web.tls-cert file).")
-		tlsClientCa       = flag.String("web.tls-client-ca", "", "Path to PEM file that conains the CAs that are trused for client connections.\n" +
-		                                "\tIf provided: Connecting clients should present a certificate signed by one of this CAs.\n" +
-		                                "\tIf not provided: Every client will be accepted.")
+		showVersion   = flag.Bool("version", false, "Print version information.")
+		listenAddress = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
+		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+		tlsCert       = flag.String("web.tls-cert", "", "Path to PEM file that conains the certificate (and opionally also the private key in PEM format).\n"+
+			"\tThis should include the whole certificate chain.\n"+
+			"\tIf provided: The web socket will be a HTTPS socket.\n"+
+			"\tIf not provided: Only HTTP.")
+		tlsPrivateKey = flag.String("web.tls-private-key", "", "Path to PEM file that conains the private key (if not contained in web.tls-cert file).")
+		tlsClientCa   = flag.String("web.tls-client-ca", "", "Path to PEM file that conains the CAs that are trused for client connections.\n"+
+			"\tIf provided: Connecting clients should present a certificate signed by one of this CAs.\n"+
+			"\tIf not provided: Every client will be accepted.")
 		enabledCollectors = flag.String("collectors.enabled", filterAvailableCollectors(defaultCollectors), "Comma-separated list of collectors to use.")
 		printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 	)
@@ -173,7 +173,7 @@ func main() {
 	prometheus.MustRegister(nodeCollector)
 
 	server := &http.Server{
-		Addr: *listenAddress,
+		Addr:     *listenAddress,
 		ErrorLog: createHttpServerLogWrapper(),
 	}
 
@@ -190,25 +190,25 @@ func main() {
 			</html>`))
 	})
 
-	if (len(*tlsCert) > 0) {
+	if len(*tlsCert) > 0 {
 		clientValidation := "no"
-		if (len(*tlsClientCa) > 0 && len(*tlsCert) > 0) {
-			certificates, err := loadCertificatesFrom(*tlsClientCa);
+		if len(*tlsClientCa) > 0 && len(*tlsCert) > 0 {
+			certificates, err := loadCertificatesFrom(*tlsClientCa)
 			if err != nil {
 				log.Fatalf("Couldn't load client CAs from %s. Got: %s", *tlsClientCa, err)
 			}
 			server.TLSConfig = &tls.Config{
-				ClientCAs: certificates,
+				ClientCAs:  certificates,
 				ClientAuth: tls.RequireAndVerifyClientCert,
 			}
 			clientValidation = "yes"
 		}
 		targetTlsPrivateKey := *tlsPrivateKey
-		if (len(targetTlsPrivateKey) <= 0) {
-			targetTlsPrivateKey = *tlsCert;
+		if len(targetTlsPrivateKey) <= 0 {
+			targetTlsPrivateKey = *tlsCert
 		}
 		log.Infof("Listening on %s (scheme=HTTPS, secured=TLS, clientValidation=%s)", server.Addr, clientValidation)
-		err = server.ListenAndServeTLS(*tlsCert, targetTlsPrivateKey);
+		err = server.ListenAndServeTLS(*tlsCert, targetTlsPrivateKey)
 	} else {
 		log.Infof("Listening on %s (scheme=HTTP, secured=no, clientValidation=no)", server.Addr)
 		err = server.ListenAndServe()
