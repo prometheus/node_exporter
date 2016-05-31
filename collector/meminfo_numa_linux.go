@@ -33,8 +33,13 @@ const (
 	memInfoNumaSubsystem = "memory_numa"
 )
 
-type meminfoKey struct {
-	metricName, numaNode string
+var meminfoNodeRE = regexp.MustCompile(`.*devices/system/node/node([0-9]*)`)
+
+type meminfoMetric struct {
+	metricName string
+	metricType prometheus.ValueType
+	numaNode   string
+	value      float64
 }
 
 type meminfoNumaCollector struct {
@@ -54,26 +59,28 @@ func NewMeminfoNumaCollector() (Collector, error) {
 }
 
 func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	memInfoNuma, err := getMemInfoNuma()
+	metrics, err := getMemInfoNuma()
 	if err != nil {
 		return fmt.Errorf("couldn't get NUMA meminfo: %s", err)
 	}
-	for k, v := range memInfoNuma {
-		desc, ok := c.metricDescs[k.metricName]
+	for _, v := range metrics {
+		desc, ok := c.metricDescs[v.metricName]
 		if !ok {
 			desc = prometheus.NewDesc(
-				prometheus.BuildFQName(Namespace, memInfoNumaSubsystem, k.metricName),
-				fmt.Sprintf("Memory information field %s.", k.metricName),
+				prometheus.BuildFQName(Namespace, memInfoNumaSubsystem, v.metricName),
+				fmt.Sprintf("Memory information field %s.", v.metricName),
 				[]string{"node"}, nil)
-			c.metricDescs[k.metricName] = desc
+			c.metricDescs[v.metricName] = desc
 		}
-		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, v, k.numaNode)
+		ch <- prometheus.MustNewConstMetric(desc, v.metricType, v.value, v.numaNode)
 	}
 	return nil
 }
 
-func getMemInfoNuma() (map[meminfoKey]float64, error) {
-	info := make(map[meminfoKey]float64)
+func getMemInfoNuma() ([]meminfoMetric, error) {
+	var (
+		metrics []meminfoMetric
+	)
 
 	nodes, err := filepath.Glob(sysFilePath("devices/system/node/node[0-9]*"))
 	if err != nil {
@@ -90,17 +97,31 @@ func getMemInfoNuma() (map[meminfoKey]float64, error) {
 		if err != nil {
 			return nil, err
 		}
-		for k, v := range numaInfo {
-			info[k] = v
+		metrics = append(metrics, numaInfo...)
+
+		file, err = os.Open(path.Join(node, "numastat"))
+		if err != nil {
+			return nil, err
 		}
+
+		nodeNumber := meminfoNodeRE.FindStringSubmatch(node)
+		if nodeNumber == nil {
+			return nil, fmt.Errorf("device node string didn't match regexp: %s", node)
+		}
+
+		numaStat, err := parseMemInfoNumaStat(file, nodeNumber[1])
+		if err != nil {
+			return nil, err
+		}
+		metrics = append(metrics, numaStat...)
 	}
 
-	return info, nil
+	return metrics, nil
 }
 
-func parseMemInfoNuma(r io.Reader) (map[meminfoKey]float64, error) {
+func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 	var (
-		memInfo = map[meminfoKey]float64{}
+		memInfo []meminfoMetric
 		scanner = bufio.NewScanner(r)
 		re      = regexp.MustCompile("\\((.*)\\)")
 	)
@@ -127,8 +148,37 @@ func parseMemInfoNuma(r io.Reader) (map[meminfoKey]float64, error) {
 
 		// Active(anon) -> Active_anon
 		metric = re.ReplaceAllString(metric, "_${1}")
-		memInfo[meminfoKey{metric, parts[1]}] = fv
+		memInfo = append(memInfo, meminfoMetric{metric, prometheus.GaugeValue, parts[1], fv})
 	}
 
 	return memInfo, nil
+}
+
+func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, error) {
+	var (
+		numaStat []meminfoMetric
+		scanner  = bufio.NewScanner(r)
+	)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+		parts := strings.Fields(string(line))
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("line scan did not return 2 fields: %s", line)
+		}
+
+		fv, err := strconv.ParseFloat(parts[1], 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value in numastat: %s", err)
+		}
+
+		numaStat = append(numaStat, meminfoMetric{parts[0], prometheus.CounterValue, nodeNumber, fv})
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("reading standard input:", err)
+	}
+	return numaStat, nil
 }
