@@ -8,9 +8,10 @@
 			"revisionTime": "2016-01-18T19:00:32-05:00"
 		},
 		{
+			"checksumSHA1": "JhaYHdVIj52Fpdcb7DuDjr/gk0Q=",
 			"path": "github.com/beevik/ntp",
-			"revision": "283ed9d548825a1dae0994311560e8dbf8efac68",
-			"revisionTime": "2015-11-09T15:30:19-08:00"
+			"revision": "f0545e6f2c3cb0d0a2ed115b88c539d8e5247ef3",
+			"revisionTime": "2016-05-31T23:09:58Z"
 		},
 		{
 			"path": "github.com/beorn7/perks/quantile",
