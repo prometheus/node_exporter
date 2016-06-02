@@ -18,7 +18,6 @@ package collector
 import (
 	"flag"
 	"fmt"
-	"time"
 
 	"github.com/beevik/ntp"
 	"github.com/prometheus/client_golang/prometheus"
@@ -58,13 +57,13 @@ func NewNtpCollector() (Collector, error) {
 }
 
 func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	t, err := ntp.TimeV(*ntpServer, byte(*ntpProtocolVersion))
+	resp, err := ntp.Query(*ntpServer, *ntpProtocolVersion)
 	if err != nil {
 		return fmt.Errorf("couldn't get NTP drift: %s", err)
 	}
-	drift := t.Sub(time.Now())
-	log.Debugf("Set ntp_drift_seconds: %f", drift.Seconds())
-	c.drift.Set(drift.Seconds())
+	driftSeconds := resp.ClockOffset.Seconds()
+	log.Debugf("Set ntp_drift_seconds: %f", driftSeconds)
+	c.drift.Set(driftSeconds)
 	c.drift.Collect(ch)
 	return err
 }
