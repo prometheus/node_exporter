@@ -46,3 +46,11 @@ func TestMdadm(t *testing.T) {
 		t.Errorf("expected number of parsed md-device to be %d, but was %d", len(refs), len(mdStates))
 	}
 }
+
+func TestInvalidMdstat(t *testing.T) {
+	_, err := parseMdstat("fixtures/proc/mdstat_invalid")
+
+	if err == nil {
+		t.Fatalf("parsing of invalid reference file did not find any errors")
+	}
+}
