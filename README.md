@@ -24,6 +24,7 @@ diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
 entropy | Exposes available entropy. | Linux
 filefd | Exposes file descriptor statistics. | Linux
 filesystem | Exposes filesystem statistics, such as disk space used. | FreeBSD, Linux, OpenBSD
+inodestate | Exposes inode statistics from `/proc/sys/fs/inode-state`. | Linux
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
 meminfo | Exposes memory statistics. | FreeBSD, Linux

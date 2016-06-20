@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	defaultCollectors = "conntrack,cpu,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,vmstat"
+	defaultCollectors = "conntrack,cpu,diskstats,entropy,filefd,filesystem,inodestate,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,vmstat"
 )
 
 var (
