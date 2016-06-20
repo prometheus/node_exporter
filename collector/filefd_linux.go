@@ -89,7 +89,7 @@ func parseFileFDStats(r io.Reader, fileName string) (map[string]string, error) {
 	var fileFDStat = map[string]string{}
 	// The file-nr proc is only 1 line with 3 values.
 	fileFDStat["allocated"] = line[0]
-	// The second value is skipped as it will alwasy be zero in linux 2.6.
+	// The second value is skipped as it will always be zero in linux 2.6.
 	fileFDStat["maximum"] = line[2]
 
 	return fileFDStat, nil
