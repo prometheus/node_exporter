@@ -91,6 +91,7 @@ func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 		}
 		var parser expfmt.TextParser
 		parsedFamilies, err := parser.TextToMetricFamilies(file)
+		file.Close()
 		if err != nil {
 			log.Errorf("Error parsing %s: %v", path, err)
 			error = 1.0
