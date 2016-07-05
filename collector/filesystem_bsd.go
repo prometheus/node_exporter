@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build freebsd openbsd
+// +build freebsd openbsd darwin,amd64
 // +build !nofilesystem
 
 package collector
