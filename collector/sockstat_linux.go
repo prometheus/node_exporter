@@ -117,11 +117,13 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 	sockStat["TCP"]["mem_bytes"] = strconv.Itoa(pageCount * pageSize)
 
 	// Update the UDP mem from page count to bytes.
-	pageCount, err = strconv.Atoi(sockStat["UDP"]["mem"])
-	if err != nil {
-		return nil, fmt.Errorf("invalid value %s in sockstats: %s", sockStat["UDP"]["mem"], err)
+	if udpMem := sockStat["UDP"]["mem"]; udpMem != "" {
+		pageCount, err = strconv.Atoi(udpMem)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value %s in sockstats: %s", sockStat["UDP"]["mem"], err)
+		}
+		sockStat["UDP"]["mem_bytes"] = strconv.Itoa(pageCount * pageSize)
 	}
-	sockStat["UDP"]["mem_bytes"] = strconv.Itoa(pageCount * pageSize)
 
 	return sockStat, nil
 }
