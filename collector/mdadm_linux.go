@@ -142,7 +142,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 			continue
 		}
 
-		if l[0] == ' ' {
+		if l[0] == ' ' || l[0] == '\t' {
 			// Those lines are not the beginning of a md-section.
 			continue
 		}
