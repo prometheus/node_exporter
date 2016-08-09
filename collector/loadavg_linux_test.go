@@ -13,14 +13,23 @@
 
 package collector
 
-import "testing"
+import (
+	"runtime"
+	"testing"
+)
 
 func TestLoad(t *testing.T) {
-	want := []float64{0.21, 0.37, 0.39}
+	numCpu := float64(runtime.NumCPU())
+	want := []float64{0.21, 0.37, 0.39, 0.21 / numCpu, 0.37 / numCpu, 0.39 / numCpu}
 	loads, err := parseLoad("0.21 0.37 0.39 1/719 19737")
 	if err != nil {
 		t.Fatal(err)
 	}
+	normLoads, err := calcNormLoad(loads)
+	if err != nil {
+		t.Fatal(err)
+	}
+	loads = append(loads, normLoads...)
 
 	for i, load := range loads {
 		if want[i] != load {

@@ -18,21 +18,39 @@ package collector
 import (
 	"fmt"
 	"io/ioutil"
+	"runtime"
 	"strconv"
 	"strings"
 )
 
 // Read loadavg from /proc.
-func getLoad() (loads []float64, err error) {
+func getLoad() ([]float64, error) {
 	data, err := ioutil.ReadFile(procFilePath("loadavg"))
 	if err != nil {
 		return nil, err
 	}
-	loads, err = parseLoad(string(data))
+	loads, err := parseLoad(string(data))
 	if err != nil {
 		return nil, err
 	}
-	return loads, nil
+	normLoads, err := calcNormLoad(loads)
+	if err != nil {
+		return nil, err
+	}
+	return append(loads, normLoads...), nil
+}
+
+// Calculate normalized loadavg values
+func calcNormLoad(loads []float64) (normLoads []float64, err error) {
+	normLoads = make([]float64, 3)
+	numCpu := runtime.NumCPU()
+	if len(loads) < 3 {
+		return nil, fmt.Errorf("unexpected content in %v", loads)
+	}
+	for i, load := range loads {
+		normLoads[i] = load / float64(numCpu)
+	}
+	return normLoads, nil
 }
 
 // Parse /proc loadavg and return 1m, 5m and 15m.
