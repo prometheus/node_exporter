@@ -30,20 +30,16 @@ const (
 	netStatsSubsystem = "netstat"
 )
 
-type netStatCollector struct {
-	metrics map[string]prometheus.Gauge
-}
+type netStatCollector struct{}
 
 func init() {
 	Factories["netstat"] = NewNetStatCollector
 }
 
-// NewNetStatCollector takes a returns
+// NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
 func NewNetStatCollector() (Collector, error) {
-	return &netStatCollector{
-		metrics: map[string]prometheus.Gauge{},
-	}, nil
+	return &netStatCollector{}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -56,34 +52,28 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return fmt.Errorf("couldn't get SNMP stats: %s", err)
 	}
 	// Merge the results of snmpStats into netStats (collisions are possible, but
-	// we know that the keys are always unique for the given use case)
+	// we know that the keys are always unique for the given use case).
 	for k, v := range snmpStats {
 		netStats[k] = v
 	}
 	for protocol, protocolStats := range netStats {
 		for name, value := range protocolStats {
 			key := protocol + "_" + name
-			if _, ok := c.metrics[key]; !ok {
-				c.metrics[key] = prometheus.NewGauge(
-					prometheus.GaugeOpts{
-						Namespace: Namespace,
-						Subsystem: netStatsSubsystem,
-						Name:      key,
-						Help:      fmt.Sprintf("Protocol %s statistic %s.", protocol, name),
-					},
-				)
-			}
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
 				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
 			}
-			c.metrics[key].Set(v)
+			ch <- prometheus.MustNewConstMetric(
+				prometheus.NewDesc(
+					prometheus.BuildFQName(Namespace, netStatsSubsystem, key),
+					fmt.Sprintf("Protocol %s statistic %s.", protocol, name),
+					nil, nil,
+				),
+				prometheus.UntypedValue, v,
+			)
 		}
 	}
-	for _, m := range c.metrics {
-		m.Collect(ch)
-	}
-	return err
+	return nil
 }
 
 func getNetStats(fileName string) (map[string]map[string]string, error) {
