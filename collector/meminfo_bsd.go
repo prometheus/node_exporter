@@ -20,7 +20,6 @@ import (
 	"errors"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 /*
@@ -46,9 +45,7 @@ const (
 	memInfoSubsystem = "memory"
 )
 
-type meminfoCollector struct {
-	metrics map[string]prometheus.Gauge
-}
+type meminfoCollector struct{}
 
 func init() {
 	Factories["meminfo"] = NewMeminfoCollector
@@ -57,9 +54,7 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // Memory stats.
 func NewMeminfoCollector() (Collector, error) {
-	return &meminfoCollector{
-		metrics: map[string]prometheus.Gauge{},
-	}, nil
+	return &meminfoCollector{}, nil
 }
 
 func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -92,19 +87,16 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		}
 	}
 
-	log.Debugf("Set node_mem: %#v", pages)
 	for k, v := range pages {
-		if _, ok := c.metrics[k]; !ok {
-			c.metrics[k] = prometheus.NewGauge(prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: memInfoSubsystem,
-				Name:      k,
-				Help:      k + " from sysctl()",
-			})
-		}
-		// Convert metrics to kB (same as Linux meminfo).
-		c.metrics[k].Set(float64(v) * float64(size))
-		c.metrics[k].Collect(ch)
+		ch <- prometheus.MustNewConstMetric(
+			prometheus.NewDesc(
+				prometheus.BuildFQName(Namespace, memInfoSubsystem, k),
+				k+" from sysctl()",
+				nil, nil,
+			),
+			// Convert metrics to kB (same as Linux meminfo).
+			prometheus.UntypedValue, float64(v)*float64(size),
+		)
 	}
 	return err
 }
