@@ -18,11 +18,12 @@ package collector
 import (
 	"bufio"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -32,9 +33,7 @@ const (
 // Used for calculating the total memory bytes on TCP and UDP.
 var pageSize = os.Getpagesize()
 
-type sockStatCollector struct {
-	metrics map[string]prometheus.Gauge
-}
+type sockStatCollector struct{}
 
 func init() {
 	Factories[sockStatSubsystem] = NewSockStatCollector
@@ -42,9 +41,7 @@ func init() {
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
 func NewSockStatCollector() (Collector, error) {
-	return &sockStatCollector{
-		metrics: map[string]prometheus.Gauge{},
-	}, nil
+	return &sockStatCollector{}, nil
 }
 
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -54,26 +51,19 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 	for protocol, protocolStats := range sockStats {
 		for name, value := range protocolStats {
-			key := protocol + "_" + name
-			if _, ok := c.metrics[key]; !ok {
-				c.metrics[key] = prometheus.NewGauge(
-					prometheus.GaugeOpts{
-						Namespace: Namespace,
-						Subsystem: sockStatSubsystem,
-						Name:      key,
-						Help:      fmt.Sprintf("Number of %s sockets in state %s.", protocol, name),
-					},
-				)
-			}
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
 				return fmt.Errorf("invalid value %s in sockstats: %s", value, err)
 			}
-			c.metrics[key].Set(v)
+			ch <- prometheus.MustNewConstMetric(
+				prometheus.NewDesc(
+					prometheus.BuildFQName(Namespace, sockStatSubsystem, protocol+"_"+name),
+					fmt.Sprintf("Number of %s sockets in state %s.", protocol, name),
+					nil, nil,
+				),
+				prometheus.GaugeValue, v,
+			)
 		}
-	}
-	for _, m := range c.metrics {
-		m.Collect(ch)
 	}
 	return err
 }
