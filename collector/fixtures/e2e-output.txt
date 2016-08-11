@@ -823,517 +823,517 @@ node_net_bonding_slaves_active{master="bond0"} 0
 node_net_bonding_slaves_active{master="dmz"} 2
 node_net_bonding_slaves_active{master="int"} 1
 # HELP node_netstat_IcmpMsg_InType3 Protocol IcmpMsg statistic InType3.
-# TYPE node_netstat_IcmpMsg_InType3 gauge
+# TYPE node_netstat_IcmpMsg_InType3 untyped
 node_netstat_IcmpMsg_InType3 104
 # HELP node_netstat_IcmpMsg_OutType3 Protocol IcmpMsg statistic OutType3.
-# TYPE node_netstat_IcmpMsg_OutType3 gauge
+# TYPE node_netstat_IcmpMsg_OutType3 untyped
 node_netstat_IcmpMsg_OutType3 120
 # HELP node_netstat_Icmp_InAddrMaskReps Protocol Icmp statistic InAddrMaskReps.
-# TYPE node_netstat_Icmp_InAddrMaskReps gauge
+# TYPE node_netstat_Icmp_InAddrMaskReps untyped
 node_netstat_Icmp_InAddrMaskReps 0
 # HELP node_netstat_Icmp_InAddrMasks Protocol Icmp statistic InAddrMasks.
-# TYPE node_netstat_Icmp_InAddrMasks gauge
+# TYPE node_netstat_Icmp_InAddrMasks untyped
 node_netstat_Icmp_InAddrMasks 0
 # HELP node_netstat_Icmp_InCsumErrors Protocol Icmp statistic InCsumErrors.
-# TYPE node_netstat_Icmp_InCsumErrors gauge
+# TYPE node_netstat_Icmp_InCsumErrors untyped
 node_netstat_Icmp_InCsumErrors 0
 # HELP node_netstat_Icmp_InDestUnreachs Protocol Icmp statistic InDestUnreachs.
-# TYPE node_netstat_Icmp_InDestUnreachs gauge
+# TYPE node_netstat_Icmp_InDestUnreachs untyped
 node_netstat_Icmp_InDestUnreachs 104
 # HELP node_netstat_Icmp_InEchoReps Protocol Icmp statistic InEchoReps.
-# TYPE node_netstat_Icmp_InEchoReps gauge
+# TYPE node_netstat_Icmp_InEchoReps untyped
 node_netstat_Icmp_InEchoReps 0
 # HELP node_netstat_Icmp_InEchos Protocol Icmp statistic InEchos.
-# TYPE node_netstat_Icmp_InEchos gauge
+# TYPE node_netstat_Icmp_InEchos untyped
 node_netstat_Icmp_InEchos 0
 # HELP node_netstat_Icmp_InErrors Protocol Icmp statistic InErrors.
-# TYPE node_netstat_Icmp_InErrors gauge
+# TYPE node_netstat_Icmp_InErrors untyped
 node_netstat_Icmp_InErrors 0
 # HELP node_netstat_Icmp_InMsgs Protocol Icmp statistic InMsgs.
-# TYPE node_netstat_Icmp_InMsgs gauge
+# TYPE node_netstat_Icmp_InMsgs untyped
 node_netstat_Icmp_InMsgs 104
 # HELP node_netstat_Icmp_InParmProbs Protocol Icmp statistic InParmProbs.
-# TYPE node_netstat_Icmp_InParmProbs gauge
+# TYPE node_netstat_Icmp_InParmProbs untyped
 node_netstat_Icmp_InParmProbs 0
 # HELP node_netstat_Icmp_InRedirects Protocol Icmp statistic InRedirects.
-# TYPE node_netstat_Icmp_InRedirects gauge
+# TYPE node_netstat_Icmp_InRedirects untyped
 node_netstat_Icmp_InRedirects 0
 # HELP node_netstat_Icmp_InSrcQuenchs Protocol Icmp statistic InSrcQuenchs.
-# TYPE node_netstat_Icmp_InSrcQuenchs gauge
+# TYPE node_netstat_Icmp_InSrcQuenchs untyped
 node_netstat_Icmp_InSrcQuenchs 0
 # HELP node_netstat_Icmp_InTimeExcds Protocol Icmp statistic InTimeExcds.
-# TYPE node_netstat_Icmp_InTimeExcds gauge
+# TYPE node_netstat_Icmp_InTimeExcds untyped
 node_netstat_Icmp_InTimeExcds 0
 # HELP node_netstat_Icmp_InTimestampReps Protocol Icmp statistic InTimestampReps.
-# TYPE node_netstat_Icmp_InTimestampReps gauge
+# TYPE node_netstat_Icmp_InTimestampReps untyped
 node_netstat_Icmp_InTimestampReps 0
 # HELP node_netstat_Icmp_InTimestamps Protocol Icmp statistic InTimestamps.
-# TYPE node_netstat_Icmp_InTimestamps gauge
+# TYPE node_netstat_Icmp_InTimestamps untyped
 node_netstat_Icmp_InTimestamps 0
 # HELP node_netstat_Icmp_OutAddrMaskReps Protocol Icmp statistic OutAddrMaskReps.
-# TYPE node_netstat_Icmp_OutAddrMaskReps gauge
+# TYPE node_netstat_Icmp_OutAddrMaskReps untyped
 node_netstat_Icmp_OutAddrMaskReps 0
 # HELP node_netstat_Icmp_OutAddrMasks Protocol Icmp statistic OutAddrMasks.
-# TYPE node_netstat_Icmp_OutAddrMasks gauge
+# TYPE node_netstat_Icmp_OutAddrMasks untyped
 node_netstat_Icmp_OutAddrMasks 0
 # HELP node_netstat_Icmp_OutDestUnreachs Protocol Icmp statistic OutDestUnreachs.
-# TYPE node_netstat_Icmp_OutDestUnreachs gauge
+# TYPE node_netstat_Icmp_OutDestUnreachs untyped
 node_netstat_Icmp_OutDestUnreachs 120
 # HELP node_netstat_Icmp_OutEchoReps Protocol Icmp statistic OutEchoReps.
-# TYPE node_netstat_Icmp_OutEchoReps gauge
+# TYPE node_netstat_Icmp_OutEchoReps untyped
 node_netstat_Icmp_OutEchoReps 0
 # HELP node_netstat_Icmp_OutEchos Protocol Icmp statistic OutEchos.
-# TYPE node_netstat_Icmp_OutEchos gauge
+# TYPE node_netstat_Icmp_OutEchos untyped
 node_netstat_Icmp_OutEchos 0
 # HELP node_netstat_Icmp_OutErrors Protocol Icmp statistic OutErrors.
-# TYPE node_netstat_Icmp_OutErrors gauge
+# TYPE node_netstat_Icmp_OutErrors untyped
 node_netstat_Icmp_OutErrors 0
 # HELP node_netstat_Icmp_OutMsgs Protocol Icmp statistic OutMsgs.
-# TYPE node_netstat_Icmp_OutMsgs gauge
+# TYPE node_netstat_Icmp_OutMsgs untyped
 node_netstat_Icmp_OutMsgs 120
 # HELP node_netstat_Icmp_OutParmProbs Protocol Icmp statistic OutParmProbs.
-# TYPE node_netstat_Icmp_OutParmProbs gauge
+# TYPE node_netstat_Icmp_OutParmProbs untyped
 node_netstat_Icmp_OutParmProbs 0
 # HELP node_netstat_Icmp_OutRedirects Protocol Icmp statistic OutRedirects.
-# TYPE node_netstat_Icmp_OutRedirects gauge
+# TYPE node_netstat_Icmp_OutRedirects untyped
 node_netstat_Icmp_OutRedirects 0
 # HELP node_netstat_Icmp_OutSrcQuenchs Protocol Icmp statistic OutSrcQuenchs.
-# TYPE node_netstat_Icmp_OutSrcQuenchs gauge
+# TYPE node_netstat_Icmp_OutSrcQuenchs untyped
 node_netstat_Icmp_OutSrcQuenchs 0
 # HELP node_netstat_Icmp_OutTimeExcds Protocol Icmp statistic OutTimeExcds.
-# TYPE node_netstat_Icmp_OutTimeExcds gauge
+# TYPE node_netstat_Icmp_OutTimeExcds untyped
 node_netstat_Icmp_OutTimeExcds 0
 # HELP node_netstat_Icmp_OutTimestampReps Protocol Icmp statistic OutTimestampReps.
-# TYPE node_netstat_Icmp_OutTimestampReps gauge
+# TYPE node_netstat_Icmp_OutTimestampReps untyped
 node_netstat_Icmp_OutTimestampReps 0
 # HELP node_netstat_Icmp_OutTimestamps Protocol Icmp statistic OutTimestamps.
-# TYPE node_netstat_Icmp_OutTimestamps gauge
+# TYPE node_netstat_Icmp_OutTimestamps untyped
 node_netstat_Icmp_OutTimestamps 0
 # HELP node_netstat_IpExt_InBcastOctets Protocol IpExt statistic InBcastOctets.
-# TYPE node_netstat_IpExt_InBcastOctets gauge
+# TYPE node_netstat_IpExt_InBcastOctets untyped
 node_netstat_IpExt_InBcastOctets 0
 # HELP node_netstat_IpExt_InBcastPkts Protocol IpExt statistic InBcastPkts.
-# TYPE node_netstat_IpExt_InBcastPkts gauge
+# TYPE node_netstat_IpExt_InBcastPkts untyped
 node_netstat_IpExt_InBcastPkts 0
 # HELP node_netstat_IpExt_InMcastOctets Protocol IpExt statistic InMcastOctets.
-# TYPE node_netstat_IpExt_InMcastOctets gauge
+# TYPE node_netstat_IpExt_InMcastOctets untyped
 node_netstat_IpExt_InMcastOctets 0
 # HELP node_netstat_IpExt_InMcastPkts Protocol IpExt statistic InMcastPkts.
-# TYPE node_netstat_IpExt_InMcastPkts gauge
+# TYPE node_netstat_IpExt_InMcastPkts untyped
 node_netstat_IpExt_InMcastPkts 0
 # HELP node_netstat_IpExt_InNoRoutes Protocol IpExt statistic InNoRoutes.
-# TYPE node_netstat_IpExt_InNoRoutes gauge
+# TYPE node_netstat_IpExt_InNoRoutes untyped
 node_netstat_IpExt_InNoRoutes 0
 # HELP node_netstat_IpExt_InOctets Protocol IpExt statistic InOctets.
-# TYPE node_netstat_IpExt_InOctets gauge
+# TYPE node_netstat_IpExt_InOctets untyped
 node_netstat_IpExt_InOctets 6.28639697e+09
 # HELP node_netstat_IpExt_InTruncatedPkts Protocol IpExt statistic InTruncatedPkts.
-# TYPE node_netstat_IpExt_InTruncatedPkts gauge
+# TYPE node_netstat_IpExt_InTruncatedPkts untyped
 node_netstat_IpExt_InTruncatedPkts 0
 # HELP node_netstat_IpExt_OutBcastOctets Protocol IpExt statistic OutBcastOctets.
-# TYPE node_netstat_IpExt_OutBcastOctets gauge
+# TYPE node_netstat_IpExt_OutBcastOctets untyped
 node_netstat_IpExt_OutBcastOctets 0
 # HELP node_netstat_IpExt_OutBcastPkts Protocol IpExt statistic OutBcastPkts.
-# TYPE node_netstat_IpExt_OutBcastPkts gauge
+# TYPE node_netstat_IpExt_OutBcastPkts untyped
 node_netstat_IpExt_OutBcastPkts 0
 # HELP node_netstat_IpExt_OutMcastOctets Protocol IpExt statistic OutMcastOctets.
-# TYPE node_netstat_IpExt_OutMcastOctets gauge
+# TYPE node_netstat_IpExt_OutMcastOctets untyped
 node_netstat_IpExt_OutMcastOctets 0
 # HELP node_netstat_IpExt_OutMcastPkts Protocol IpExt statistic OutMcastPkts.
-# TYPE node_netstat_IpExt_OutMcastPkts gauge
+# TYPE node_netstat_IpExt_OutMcastPkts untyped
 node_netstat_IpExt_OutMcastPkts 0
 # HELP node_netstat_IpExt_OutOctets Protocol IpExt statistic OutOctets.
-# TYPE node_netstat_IpExt_OutOctets gauge
+# TYPE node_netstat_IpExt_OutOctets untyped
 node_netstat_IpExt_OutOctets 2.786264347e+09
 # HELP node_netstat_Ip_DefaultTTL Protocol Ip statistic DefaultTTL.
-# TYPE node_netstat_Ip_DefaultTTL gauge
+# TYPE node_netstat_Ip_DefaultTTL untyped
 node_netstat_Ip_DefaultTTL 64
 # HELP node_netstat_Ip_ForwDatagrams Protocol Ip statistic ForwDatagrams.
-# TYPE node_netstat_Ip_ForwDatagrams gauge
+# TYPE node_netstat_Ip_ForwDatagrams untyped
 node_netstat_Ip_ForwDatagrams 397750
 # HELP node_netstat_Ip_Forwarding Protocol Ip statistic Forwarding.
-# TYPE node_netstat_Ip_Forwarding gauge
+# TYPE node_netstat_Ip_Forwarding untyped
 node_netstat_Ip_Forwarding 1
 # HELP node_netstat_Ip_FragCreates Protocol Ip statistic FragCreates.
-# TYPE node_netstat_Ip_FragCreates gauge
+# TYPE node_netstat_Ip_FragCreates untyped
 node_netstat_Ip_FragCreates 0
 # HELP node_netstat_Ip_FragFails Protocol Ip statistic FragFails.
-# TYPE node_netstat_Ip_FragFails gauge
+# TYPE node_netstat_Ip_FragFails untyped
 node_netstat_Ip_FragFails 0
 # HELP node_netstat_Ip_FragOKs Protocol Ip statistic FragOKs.
-# TYPE node_netstat_Ip_FragOKs gauge
+# TYPE node_netstat_Ip_FragOKs untyped
 node_netstat_Ip_FragOKs 0
 # HELP node_netstat_Ip_InAddrErrors Protocol Ip statistic InAddrErrors.
-# TYPE node_netstat_Ip_InAddrErrors gauge
+# TYPE node_netstat_Ip_InAddrErrors untyped
 node_netstat_Ip_InAddrErrors 25
 # HELP node_netstat_Ip_InDelivers Protocol Ip statistic InDelivers.
-# TYPE node_netstat_Ip_InDelivers gauge
+# TYPE node_netstat_Ip_InDelivers untyped
 node_netstat_Ip_InDelivers 5.7340175e+07
 # HELP node_netstat_Ip_InDiscards Protocol Ip statistic InDiscards.
-# TYPE node_netstat_Ip_InDiscards gauge
+# TYPE node_netstat_Ip_InDiscards untyped
 node_netstat_Ip_InDiscards 0
 # HELP node_netstat_Ip_InHdrErrors Protocol Ip statistic InHdrErrors.
-# TYPE node_netstat_Ip_InHdrErrors gauge
+# TYPE node_netstat_Ip_InHdrErrors untyped
 node_netstat_Ip_InHdrErrors 0
 # HELP node_netstat_Ip_InReceives Protocol Ip statistic InReceives.
-# TYPE node_netstat_Ip_InReceives gauge
+# TYPE node_netstat_Ip_InReceives untyped
 node_netstat_Ip_InReceives 5.7740232e+07
 # HELP node_netstat_Ip_InUnknownProtos Protocol Ip statistic InUnknownProtos.
-# TYPE node_netstat_Ip_InUnknownProtos gauge
+# TYPE node_netstat_Ip_InUnknownProtos untyped
 node_netstat_Ip_InUnknownProtos 0
 # HELP node_netstat_Ip_OutDiscards Protocol Ip statistic OutDiscards.
-# TYPE node_netstat_Ip_OutDiscards gauge
+# TYPE node_netstat_Ip_OutDiscards untyped
 node_netstat_Ip_OutDiscards 0
 # HELP node_netstat_Ip_OutNoRoutes Protocol Ip statistic OutNoRoutes.
-# TYPE node_netstat_Ip_OutNoRoutes gauge
+# TYPE node_netstat_Ip_OutNoRoutes untyped
 node_netstat_Ip_OutNoRoutes 54
 # HELP node_netstat_Ip_OutRequests Protocol Ip statistic OutRequests.
-# TYPE node_netstat_Ip_OutRequests gauge
+# TYPE node_netstat_Ip_OutRequests untyped
 node_netstat_Ip_OutRequests 5.5365537e+07
 # HELP node_netstat_Ip_ReasmFails Protocol Ip statistic ReasmFails.
-# TYPE node_netstat_Ip_ReasmFails gauge
+# TYPE node_netstat_Ip_ReasmFails untyped
 node_netstat_Ip_ReasmFails 0
 # HELP node_netstat_Ip_ReasmOKs Protocol Ip statistic ReasmOKs.
-# TYPE node_netstat_Ip_ReasmOKs gauge
+# TYPE node_netstat_Ip_ReasmOKs untyped
 node_netstat_Ip_ReasmOKs 0
 # HELP node_netstat_Ip_ReasmReqds Protocol Ip statistic ReasmReqds.
-# TYPE node_netstat_Ip_ReasmReqds gauge
+# TYPE node_netstat_Ip_ReasmReqds untyped
 node_netstat_Ip_ReasmReqds 0
 # HELP node_netstat_Ip_ReasmTimeout Protocol Ip statistic ReasmTimeout.
-# TYPE node_netstat_Ip_ReasmTimeout gauge
+# TYPE node_netstat_Ip_ReasmTimeout untyped
 node_netstat_Ip_ReasmTimeout 0
 # HELP node_netstat_TcpExt_ArpFilter Protocol TcpExt statistic ArpFilter.
-# TYPE node_netstat_TcpExt_ArpFilter gauge
+# TYPE node_netstat_TcpExt_ArpFilter untyped
 node_netstat_TcpExt_ArpFilter 0
 # HELP node_netstat_TcpExt_DelayedACKLocked Protocol TcpExt statistic DelayedACKLocked.
-# TYPE node_netstat_TcpExt_DelayedACKLocked gauge
+# TYPE node_netstat_TcpExt_DelayedACKLocked untyped
 node_netstat_TcpExt_DelayedACKLocked 17
 # HELP node_netstat_TcpExt_DelayedACKLost Protocol TcpExt statistic DelayedACKLost.
-# TYPE node_netstat_TcpExt_DelayedACKLost gauge
+# TYPE node_netstat_TcpExt_DelayedACKLost untyped
 node_netstat_TcpExt_DelayedACKLost 9
 # HELP node_netstat_TcpExt_DelayedACKs Protocol TcpExt statistic DelayedACKs.
-# TYPE node_netstat_TcpExt_DelayedACKs gauge
+# TYPE node_netstat_TcpExt_DelayedACKs untyped
 node_netstat_TcpExt_DelayedACKs 102471
 # HELP node_netstat_TcpExt_EmbryonicRsts Protocol TcpExt statistic EmbryonicRsts.
-# TYPE node_netstat_TcpExt_EmbryonicRsts gauge
+# TYPE node_netstat_TcpExt_EmbryonicRsts untyped
 node_netstat_TcpExt_EmbryonicRsts 0
 # HELP node_netstat_TcpExt_IPReversePathFilter Protocol TcpExt statistic IPReversePathFilter.
-# TYPE node_netstat_TcpExt_IPReversePathFilter gauge
+# TYPE node_netstat_TcpExt_IPReversePathFilter untyped
 node_netstat_TcpExt_IPReversePathFilter 0
 # HELP node_netstat_TcpExt_ListenDrops Protocol TcpExt statistic ListenDrops.
-# TYPE node_netstat_TcpExt_ListenDrops gauge
+# TYPE node_netstat_TcpExt_ListenDrops untyped
 node_netstat_TcpExt_ListenDrops 0
 # HELP node_netstat_TcpExt_ListenOverflows Protocol TcpExt statistic ListenOverflows.
-# TYPE node_netstat_TcpExt_ListenOverflows gauge
+# TYPE node_netstat_TcpExt_ListenOverflows untyped
 node_netstat_TcpExt_ListenOverflows 0
 # HELP node_netstat_TcpExt_LockDroppedIcmps Protocol TcpExt statistic LockDroppedIcmps.
-# TYPE node_netstat_TcpExt_LockDroppedIcmps gauge
+# TYPE node_netstat_TcpExt_LockDroppedIcmps untyped
 node_netstat_TcpExt_LockDroppedIcmps 0
 # HELP node_netstat_TcpExt_OfoPruned Protocol TcpExt statistic OfoPruned.
-# TYPE node_netstat_TcpExt_OfoPruned gauge
+# TYPE node_netstat_TcpExt_OfoPruned untyped
 node_netstat_TcpExt_OfoPruned 0
 # HELP node_netstat_TcpExt_OutOfWindowIcmps Protocol TcpExt statistic OutOfWindowIcmps.
-# TYPE node_netstat_TcpExt_OutOfWindowIcmps gauge
+# TYPE node_netstat_TcpExt_OutOfWindowIcmps untyped
 node_netstat_TcpExt_OutOfWindowIcmps 0
 # HELP node_netstat_TcpExt_PAWSActive Protocol TcpExt statistic PAWSActive.
-# TYPE node_netstat_TcpExt_PAWSActive gauge
+# TYPE node_netstat_TcpExt_PAWSActive untyped
 node_netstat_TcpExt_PAWSActive 0
 # HELP node_netstat_TcpExt_PAWSEstab Protocol TcpExt statistic PAWSEstab.
-# TYPE node_netstat_TcpExt_PAWSEstab gauge
+# TYPE node_netstat_TcpExt_PAWSEstab untyped
 node_netstat_TcpExt_PAWSEstab 6
 # HELP node_netstat_TcpExt_PAWSPassive Protocol TcpExt statistic PAWSPassive.
-# TYPE node_netstat_TcpExt_PAWSPassive gauge
+# TYPE node_netstat_TcpExt_PAWSPassive untyped
 node_netstat_TcpExt_PAWSPassive 0
 # HELP node_netstat_TcpExt_PruneCalled Protocol TcpExt statistic PruneCalled.
-# TYPE node_netstat_TcpExt_PruneCalled gauge
+# TYPE node_netstat_TcpExt_PruneCalled untyped
 node_netstat_TcpExt_PruneCalled 0
 # HELP node_netstat_TcpExt_RcvPruned Protocol TcpExt statistic RcvPruned.
-# TYPE node_netstat_TcpExt_RcvPruned gauge
+# TYPE node_netstat_TcpExt_RcvPruned untyped
 node_netstat_TcpExt_RcvPruned 0
 # HELP node_netstat_TcpExt_SyncookiesFailed Protocol TcpExt statistic SyncookiesFailed.
-# TYPE node_netstat_TcpExt_SyncookiesFailed gauge
+# TYPE node_netstat_TcpExt_SyncookiesFailed untyped
 node_netstat_TcpExt_SyncookiesFailed 2
 # HELP node_netstat_TcpExt_SyncookiesRecv Protocol TcpExt statistic SyncookiesRecv.
-# TYPE node_netstat_TcpExt_SyncookiesRecv gauge
+# TYPE node_netstat_TcpExt_SyncookiesRecv untyped
 node_netstat_TcpExt_SyncookiesRecv 0
 # HELP node_netstat_TcpExt_SyncookiesSent Protocol TcpExt statistic SyncookiesSent.
-# TYPE node_netstat_TcpExt_SyncookiesSent gauge
+# TYPE node_netstat_TcpExt_SyncookiesSent untyped
 node_netstat_TcpExt_SyncookiesSent 0
 # HELP node_netstat_TcpExt_TCPAbortFailed Protocol TcpExt statistic TCPAbortFailed.
-# TYPE node_netstat_TcpExt_TCPAbortFailed gauge
+# TYPE node_netstat_TcpExt_TCPAbortFailed untyped
 node_netstat_TcpExt_TCPAbortFailed 0
 # HELP node_netstat_TcpExt_TCPAbortOnClose Protocol TcpExt statistic TCPAbortOnClose.
-# TYPE node_netstat_TcpExt_TCPAbortOnClose gauge
+# TYPE node_netstat_TcpExt_TCPAbortOnClose untyped
 node_netstat_TcpExt_TCPAbortOnClose 4
 # HELP node_netstat_TcpExt_TCPAbortOnData Protocol TcpExt statistic TCPAbortOnData.
-# TYPE node_netstat_TcpExt_TCPAbortOnData gauge
+# TYPE node_netstat_TcpExt_TCPAbortOnData untyped
 node_netstat_TcpExt_TCPAbortOnData 41
 # HELP node_netstat_TcpExt_TCPAbortOnLinger Protocol TcpExt statistic TCPAbortOnLinger.
-# TYPE node_netstat_TcpExt_TCPAbortOnLinger gauge
+# TYPE node_netstat_TcpExt_TCPAbortOnLinger untyped
 node_netstat_TcpExt_TCPAbortOnLinger 0
 # HELP node_netstat_TcpExt_TCPAbortOnMemory Protocol TcpExt statistic TCPAbortOnMemory.
-# TYPE node_netstat_TcpExt_TCPAbortOnMemory gauge
+# TYPE node_netstat_TcpExt_TCPAbortOnMemory untyped
 node_netstat_TcpExt_TCPAbortOnMemory 0
 # HELP node_netstat_TcpExt_TCPAbortOnTimeout Protocol TcpExt statistic TCPAbortOnTimeout.
-# TYPE node_netstat_TcpExt_TCPAbortOnTimeout gauge
+# TYPE node_netstat_TcpExt_TCPAbortOnTimeout untyped
 node_netstat_TcpExt_TCPAbortOnTimeout 0
 # HELP node_netstat_TcpExt_TCPBacklogDrop Protocol TcpExt statistic TCPBacklogDrop.
-# TYPE node_netstat_TcpExt_TCPBacklogDrop gauge
+# TYPE node_netstat_TcpExt_TCPBacklogDrop untyped
 node_netstat_TcpExt_TCPBacklogDrop 0
 # HELP node_netstat_TcpExt_TCPChallengeACK Protocol TcpExt statistic TCPChallengeACK.
-# TYPE node_netstat_TcpExt_TCPChallengeACK gauge
+# TYPE node_netstat_TcpExt_TCPChallengeACK untyped
 node_netstat_TcpExt_TCPChallengeACK 2
 # HELP node_netstat_TcpExt_TCPDSACKIgnoredNoUndo Protocol TcpExt statistic TCPDSACKIgnoredNoUndo.
-# TYPE node_netstat_TcpExt_TCPDSACKIgnoredNoUndo gauge
+# TYPE node_netstat_TcpExt_TCPDSACKIgnoredNoUndo untyped
 node_netstat_TcpExt_TCPDSACKIgnoredNoUndo 1
 # HELP node_netstat_TcpExt_TCPDSACKIgnoredOld Protocol TcpExt statistic TCPDSACKIgnoredOld.
-# TYPE node_netstat_TcpExt_TCPDSACKIgnoredOld gauge
+# TYPE node_netstat_TcpExt_TCPDSACKIgnoredOld untyped
 node_netstat_TcpExt_TCPDSACKIgnoredOld 0
 # HELP node_netstat_TcpExt_TCPDSACKOfoRecv Protocol TcpExt statistic TCPDSACKOfoRecv.
-# TYPE node_netstat_TcpExt_TCPDSACKOfoRecv gauge
+# TYPE node_netstat_TcpExt_TCPDSACKOfoRecv untyped
 node_netstat_TcpExt_TCPDSACKOfoRecv 0
 # HELP node_netstat_TcpExt_TCPDSACKOfoSent Protocol TcpExt statistic TCPDSACKOfoSent.
-# TYPE node_netstat_TcpExt_TCPDSACKOfoSent gauge
+# TYPE node_netstat_TcpExt_TCPDSACKOfoSent untyped
 node_netstat_TcpExt_TCPDSACKOfoSent 0
 # HELP node_netstat_TcpExt_TCPDSACKOldSent Protocol TcpExt statistic TCPDSACKOldSent.
-# TYPE node_netstat_TcpExt_TCPDSACKOldSent gauge
+# TYPE node_netstat_TcpExt_TCPDSACKOldSent untyped
 node_netstat_TcpExt_TCPDSACKOldSent 9
 # HELP node_netstat_TcpExt_TCPDSACKRecv Protocol TcpExt statistic TCPDSACKRecv.
-# TYPE node_netstat_TcpExt_TCPDSACKRecv gauge
+# TYPE node_netstat_TcpExt_TCPDSACKRecv untyped
 node_netstat_TcpExt_TCPDSACKRecv 5
 # HELP node_netstat_TcpExt_TCPDSACKUndo Protocol TcpExt statistic TCPDSACKUndo.
-# TYPE node_netstat_TcpExt_TCPDSACKUndo gauge
+# TYPE node_netstat_TcpExt_TCPDSACKUndo untyped
 node_netstat_TcpExt_TCPDSACKUndo 0
 # HELP node_netstat_TcpExt_TCPDeferAcceptDrop Protocol TcpExt statistic TCPDeferAcceptDrop.
-# TYPE node_netstat_TcpExt_TCPDeferAcceptDrop gauge
+# TYPE node_netstat_TcpExt_TCPDeferAcceptDrop untyped
 node_netstat_TcpExt_TCPDeferAcceptDrop 0
 # HELP node_netstat_TcpExt_TCPDirectCopyFromBacklog Protocol TcpExt statistic TCPDirectCopyFromBacklog.
-# TYPE node_netstat_TcpExt_TCPDirectCopyFromBacklog gauge
+# TYPE node_netstat_TcpExt_TCPDirectCopyFromBacklog untyped
 node_netstat_TcpExt_TCPDirectCopyFromBacklog 0
 # HELP node_netstat_TcpExt_TCPDirectCopyFromPrequeue Protocol TcpExt statistic TCPDirectCopyFromPrequeue.
-# TYPE node_netstat_TcpExt_TCPDirectCopyFromPrequeue gauge
+# TYPE node_netstat_TcpExt_TCPDirectCopyFromPrequeue untyped
 node_netstat_TcpExt_TCPDirectCopyFromPrequeue 168808
 # HELP node_netstat_TcpExt_TCPFACKReorder Protocol TcpExt statistic TCPFACKReorder.
-# TYPE node_netstat_TcpExt_TCPFACKReorder gauge
+# TYPE node_netstat_TcpExt_TCPFACKReorder untyped
 node_netstat_TcpExt_TCPFACKReorder 0
 # HELP node_netstat_TcpExt_TCPFastRetrans Protocol TcpExt statistic TCPFastRetrans.
-# TYPE node_netstat_TcpExt_TCPFastRetrans gauge
+# TYPE node_netstat_TcpExt_TCPFastRetrans untyped
 node_netstat_TcpExt_TCPFastRetrans 1
 # HELP node_netstat_TcpExt_TCPForwardRetrans Protocol TcpExt statistic TCPForwardRetrans.
-# TYPE node_netstat_TcpExt_TCPForwardRetrans gauge
+# TYPE node_netstat_TcpExt_TCPForwardRetrans untyped
 node_netstat_TcpExt_TCPForwardRetrans 0
 # HELP node_netstat_TcpExt_TCPFullUndo Protocol TcpExt statistic TCPFullUndo.
-# TYPE node_netstat_TcpExt_TCPFullUndo gauge
+# TYPE node_netstat_TcpExt_TCPFullUndo untyped
 node_netstat_TcpExt_TCPFullUndo 0
 # HELP node_netstat_TcpExt_TCPHPAcks Protocol TcpExt statistic TCPHPAcks.
-# TYPE node_netstat_TcpExt_TCPHPAcks gauge
+# TYPE node_netstat_TcpExt_TCPHPAcks untyped
 node_netstat_TcpExt_TCPHPAcks 3.744565e+06
 # HELP node_netstat_TcpExt_TCPHPHits Protocol TcpExt statistic TCPHPHits.
-# TYPE node_netstat_TcpExt_TCPHPHits gauge
+# TYPE node_netstat_TcpExt_TCPHPHits untyped
 node_netstat_TcpExt_TCPHPHits 4.471289e+06
 # HELP node_netstat_TcpExt_TCPHPHitsToUser Protocol TcpExt statistic TCPHPHitsToUser.
-# TYPE node_netstat_TcpExt_TCPHPHitsToUser gauge
+# TYPE node_netstat_TcpExt_TCPHPHitsToUser untyped
 node_netstat_TcpExt_TCPHPHitsToUser 26
 # HELP node_netstat_TcpExt_TCPLoss Protocol TcpExt statistic TCPLoss.
-# TYPE node_netstat_TcpExt_TCPLoss gauge
+# TYPE node_netstat_TcpExt_TCPLoss untyped
 node_netstat_TcpExt_TCPLoss 0
 # HELP node_netstat_TcpExt_TCPLossFailures Protocol TcpExt statistic TCPLossFailures.
-# TYPE node_netstat_TcpExt_TCPLossFailures gauge
+# TYPE node_netstat_TcpExt_TCPLossFailures untyped
 node_netstat_TcpExt_TCPLossFailures 0
 # HELP node_netstat_TcpExt_TCPLossUndo Protocol TcpExt statistic TCPLossUndo.
-# TYPE node_netstat_TcpExt_TCPLossUndo gauge
+# TYPE node_netstat_TcpExt_TCPLossUndo untyped
 node_netstat_TcpExt_TCPLossUndo 48
 # HELP node_netstat_TcpExt_TCPLostRetransmit Protocol TcpExt statistic TCPLostRetransmit.
-# TYPE node_netstat_TcpExt_TCPLostRetransmit gauge
+# TYPE node_netstat_TcpExt_TCPLostRetransmit untyped
 node_netstat_TcpExt_TCPLostRetransmit 0
 # HELP node_netstat_TcpExt_TCPMD5NotFound Protocol TcpExt statistic TCPMD5NotFound.
-# TYPE node_netstat_TcpExt_TCPMD5NotFound gauge
+# TYPE node_netstat_TcpExt_TCPMD5NotFound untyped
 node_netstat_TcpExt_TCPMD5NotFound 0
 # HELP node_netstat_TcpExt_TCPMD5Unexpected Protocol TcpExt statistic TCPMD5Unexpected.
-# TYPE node_netstat_TcpExt_TCPMD5Unexpected gauge
+# TYPE node_netstat_TcpExt_TCPMD5Unexpected untyped
 node_netstat_TcpExt_TCPMD5Unexpected 0
 # HELP node_netstat_TcpExt_TCPMemoryPressures Protocol TcpExt statistic TCPMemoryPressures.
-# TYPE node_netstat_TcpExt_TCPMemoryPressures gauge
+# TYPE node_netstat_TcpExt_TCPMemoryPressures untyped
 node_netstat_TcpExt_TCPMemoryPressures 0
 # HELP node_netstat_TcpExt_TCPMinTTLDrop Protocol TcpExt statistic TCPMinTTLDrop.
-# TYPE node_netstat_TcpExt_TCPMinTTLDrop gauge
+# TYPE node_netstat_TcpExt_TCPMinTTLDrop untyped
 node_netstat_TcpExt_TCPMinTTLDrop 0
 # HELP node_netstat_TcpExt_TCPPartialUndo Protocol TcpExt statistic TCPPartialUndo.
-# TYPE node_netstat_TcpExt_TCPPartialUndo gauge
+# TYPE node_netstat_TcpExt_TCPPartialUndo untyped
 node_netstat_TcpExt_TCPPartialUndo 0
 # HELP node_netstat_TcpExt_TCPPrequeueDropped Protocol TcpExt statistic TCPPrequeueDropped.
-# TYPE node_netstat_TcpExt_TCPPrequeueDropped gauge
+# TYPE node_netstat_TcpExt_TCPPrequeueDropped untyped
 node_netstat_TcpExt_TCPPrequeueDropped 0
 # HELP node_netstat_TcpExt_TCPPrequeued Protocol TcpExt statistic TCPPrequeued.
-# TYPE node_netstat_TcpExt_TCPPrequeued gauge
+# TYPE node_netstat_TcpExt_TCPPrequeued untyped
 node_netstat_TcpExt_TCPPrequeued 80568
 # HELP node_netstat_TcpExt_TCPPureAcks Protocol TcpExt statistic TCPPureAcks.
-# TYPE node_netstat_TcpExt_TCPPureAcks gauge
+# TYPE node_netstat_TcpExt_TCPPureAcks untyped
 node_netstat_TcpExt_TCPPureAcks 1.43394e+06
 # HELP node_netstat_TcpExt_TCPRcvCollapsed Protocol TcpExt statistic TCPRcvCollapsed.
-# TYPE node_netstat_TcpExt_TCPRcvCollapsed gauge
+# TYPE node_netstat_TcpExt_TCPRcvCollapsed untyped
 node_netstat_TcpExt_TCPRcvCollapsed 0
 # HELP node_netstat_TcpExt_TCPRenoFailures Protocol TcpExt statistic TCPRenoFailures.
-# TYPE node_netstat_TcpExt_TCPRenoFailures gauge
+# TYPE node_netstat_TcpExt_TCPRenoFailures untyped
 node_netstat_TcpExt_TCPRenoFailures 0
 # HELP node_netstat_TcpExt_TCPRenoRecovery Protocol TcpExt statistic TCPRenoRecovery.
-# TYPE node_netstat_TcpExt_TCPRenoRecovery gauge
+# TYPE node_netstat_TcpExt_TCPRenoRecovery untyped
 node_netstat_TcpExt_TCPRenoRecovery 0
 # HELP node_netstat_TcpExt_TCPRenoRecoveryFail Protocol TcpExt statistic TCPRenoRecoveryFail.
-# TYPE node_netstat_TcpExt_TCPRenoRecoveryFail gauge
+# TYPE node_netstat_TcpExt_TCPRenoRecoveryFail untyped
 node_netstat_TcpExt_TCPRenoRecoveryFail 0
 # HELP node_netstat_TcpExt_TCPRenoReorder Protocol TcpExt statistic TCPRenoReorder.
-# TYPE node_netstat_TcpExt_TCPRenoReorder gauge
+# TYPE node_netstat_TcpExt_TCPRenoReorder untyped
 node_netstat_TcpExt_TCPRenoReorder 0
 # HELP node_netstat_TcpExt_TCPReqQFullDoCookies Protocol TcpExt statistic TCPReqQFullDoCookies.
-# TYPE node_netstat_TcpExt_TCPReqQFullDoCookies gauge
+# TYPE node_netstat_TcpExt_TCPReqQFullDoCookies untyped
 node_netstat_TcpExt_TCPReqQFullDoCookies 0
 # HELP node_netstat_TcpExt_TCPReqQFullDrop Protocol TcpExt statistic TCPReqQFullDrop.
-# TYPE node_netstat_TcpExt_TCPReqQFullDrop gauge
+# TYPE node_netstat_TcpExt_TCPReqQFullDrop untyped
 node_netstat_TcpExt_TCPReqQFullDrop 0
 # HELP node_netstat_TcpExt_TCPSACKDiscard Protocol TcpExt statistic TCPSACKDiscard.
-# TYPE node_netstat_TcpExt_TCPSACKDiscard gauge
+# TYPE node_netstat_TcpExt_TCPSACKDiscard untyped
 node_netstat_TcpExt_TCPSACKDiscard 0
 # HELP node_netstat_TcpExt_TCPSACKReneging Protocol TcpExt statistic TCPSACKReneging.
-# TYPE node_netstat_TcpExt_TCPSACKReneging gauge
+# TYPE node_netstat_TcpExt_TCPSACKReneging untyped
 node_netstat_TcpExt_TCPSACKReneging 0
 # HELP node_netstat_TcpExt_TCPSACKReorder Protocol TcpExt statistic TCPSACKReorder.
-# TYPE node_netstat_TcpExt_TCPSACKReorder gauge
+# TYPE node_netstat_TcpExt_TCPSACKReorder untyped
 node_netstat_TcpExt_TCPSACKReorder 0
 # HELP node_netstat_TcpExt_TCPSYNChallenge Protocol TcpExt statistic TCPSYNChallenge.
-# TYPE node_netstat_TcpExt_TCPSYNChallenge gauge
+# TYPE node_netstat_TcpExt_TCPSYNChallenge untyped
 node_netstat_TcpExt_TCPSYNChallenge 2
 # HELP node_netstat_TcpExt_TCPSackFailures Protocol TcpExt statistic TCPSackFailures.
-# TYPE node_netstat_TcpExt_TCPSackFailures gauge
+# TYPE node_netstat_TcpExt_TCPSackFailures untyped
 node_netstat_TcpExt_TCPSackFailures 1
 # HELP node_netstat_TcpExt_TCPSackMerged Protocol TcpExt statistic TCPSackMerged.
-# TYPE node_netstat_TcpExt_TCPSackMerged gauge
+# TYPE node_netstat_TcpExt_TCPSackMerged untyped
 node_netstat_TcpExt_TCPSackMerged 2
 # HELP node_netstat_TcpExt_TCPSackRecovery Protocol TcpExt statistic TCPSackRecovery.
-# TYPE node_netstat_TcpExt_TCPSackRecovery gauge
+# TYPE node_netstat_TcpExt_TCPSackRecovery untyped
 node_netstat_TcpExt_TCPSackRecovery 1
 # HELP node_netstat_TcpExt_TCPSackRecoveryFail Protocol TcpExt statistic TCPSackRecoveryFail.
-# TYPE node_netstat_TcpExt_TCPSackRecoveryFail gauge
+# TYPE node_netstat_TcpExt_TCPSackRecoveryFail untyped
 node_netstat_TcpExt_TCPSackRecoveryFail 0
 # HELP node_netstat_TcpExt_TCPSackShiftFallback Protocol TcpExt statistic TCPSackShiftFallback.
-# TYPE node_netstat_TcpExt_TCPSackShiftFallback gauge
+# TYPE node_netstat_TcpExt_TCPSackShiftFallback untyped
 node_netstat_TcpExt_TCPSackShiftFallback 5
 # HELP node_netstat_TcpExt_TCPSackShifted Protocol TcpExt statistic TCPSackShifted.
-# TYPE node_netstat_TcpExt_TCPSackShifted gauge
+# TYPE node_netstat_TcpExt_TCPSackShifted untyped
 node_netstat_TcpExt_TCPSackShifted 0
 # HELP node_netstat_TcpExt_TCPSchedulerFailed Protocol TcpExt statistic TCPSchedulerFailed.
-# TYPE node_netstat_TcpExt_TCPSchedulerFailed gauge
+# TYPE node_netstat_TcpExt_TCPSchedulerFailed untyped
 node_netstat_TcpExt_TCPSchedulerFailed 0
 # HELP node_netstat_TcpExt_TCPSlowStartRetrans Protocol TcpExt statistic TCPSlowStartRetrans.
-# TYPE node_netstat_TcpExt_TCPSlowStartRetrans gauge
+# TYPE node_netstat_TcpExt_TCPSlowStartRetrans untyped
 node_netstat_TcpExt_TCPSlowStartRetrans 1
 # HELP node_netstat_TcpExt_TCPSpuriousRTOs Protocol TcpExt statistic TCPSpuriousRTOs.
-# TYPE node_netstat_TcpExt_TCPSpuriousRTOs gauge
+# TYPE node_netstat_TcpExt_TCPSpuriousRTOs untyped
 node_netstat_TcpExt_TCPSpuriousRTOs 0
 # HELP node_netstat_TcpExt_TCPTSReorder Protocol TcpExt statistic TCPTSReorder.
-# TYPE node_netstat_TcpExt_TCPTSReorder gauge
+# TYPE node_netstat_TcpExt_TCPTSReorder untyped
 node_netstat_TcpExt_TCPTSReorder 0
 # HELP node_netstat_TcpExt_TCPTimeWaitOverflow Protocol TcpExt statistic TCPTimeWaitOverflow.
-# TYPE node_netstat_TcpExt_TCPTimeWaitOverflow gauge
+# TYPE node_netstat_TcpExt_TCPTimeWaitOverflow untyped
 node_netstat_TcpExt_TCPTimeWaitOverflow 0
 # HELP node_netstat_TcpExt_TCPTimeouts Protocol TcpExt statistic TCPTimeouts.
-# TYPE node_netstat_TcpExt_TCPTimeouts gauge
+# TYPE node_netstat_TcpExt_TCPTimeouts untyped
 node_netstat_TcpExt_TCPTimeouts 115
 # HELP node_netstat_TcpExt_TW Protocol TcpExt statistic TW.
-# TYPE node_netstat_TcpExt_TW gauge
+# TYPE node_netstat_TcpExt_TW untyped
 node_netstat_TcpExt_TW 388812
 # HELP node_netstat_TcpExt_TWKilled Protocol TcpExt statistic TWKilled.
-# TYPE node_netstat_TcpExt_TWKilled gauge
+# TYPE node_netstat_TcpExt_TWKilled untyped
 node_netstat_TcpExt_TWKilled 0
 # HELP node_netstat_TcpExt_TWRecycled Protocol TcpExt statistic TWRecycled.
-# TYPE node_netstat_TcpExt_TWRecycled gauge
+# TYPE node_netstat_TcpExt_TWRecycled untyped
 node_netstat_TcpExt_TWRecycled 0
 # HELP node_netstat_Tcp_ActiveOpens Protocol Tcp statistic ActiveOpens.
-# TYPE node_netstat_Tcp_ActiveOpens gauge
+# TYPE node_netstat_Tcp_ActiveOpens untyped
 node_netstat_Tcp_ActiveOpens 3556
 # HELP node_netstat_Tcp_AttemptFails Protocol Tcp statistic AttemptFails.
-# TYPE node_netstat_Tcp_AttemptFails gauge
+# TYPE node_netstat_Tcp_AttemptFails untyped
 node_netstat_Tcp_AttemptFails 341
 # HELP node_netstat_Tcp_CurrEstab Protocol Tcp statistic CurrEstab.
-# TYPE node_netstat_Tcp_CurrEstab gauge
+# TYPE node_netstat_Tcp_CurrEstab untyped
 node_netstat_Tcp_CurrEstab 0
 # HELP node_netstat_Tcp_EstabResets Protocol Tcp statistic EstabResets.
-# TYPE node_netstat_Tcp_EstabResets gauge
+# TYPE node_netstat_Tcp_EstabResets untyped
 node_netstat_Tcp_EstabResets 161
 # HELP node_netstat_Tcp_InCsumErrors Protocol Tcp statistic InCsumErrors.
-# TYPE node_netstat_Tcp_InCsumErrors gauge
+# TYPE node_netstat_Tcp_InCsumErrors untyped
 node_netstat_Tcp_InCsumErrors 0
 # HELP node_netstat_Tcp_InErrs Protocol Tcp statistic InErrs.
-# TYPE node_netstat_Tcp_InErrs gauge
+# TYPE node_netstat_Tcp_InErrs untyped
 node_netstat_Tcp_InErrs 5
 # HELP node_netstat_Tcp_InSegs Protocol Tcp statistic InSegs.
-# TYPE node_netstat_Tcp_InSegs gauge
+# TYPE node_netstat_Tcp_InSegs untyped
 node_netstat_Tcp_InSegs 5.7252008e+07
 # HELP node_netstat_Tcp_MaxConn Protocol Tcp statistic MaxConn.
-# TYPE node_netstat_Tcp_MaxConn gauge
+# TYPE node_netstat_Tcp_MaxConn untyped
 node_netstat_Tcp_MaxConn -1
 # HELP node_netstat_Tcp_OutRsts Protocol Tcp statistic OutRsts.
-# TYPE node_netstat_Tcp_OutRsts gauge
+# TYPE node_netstat_Tcp_OutRsts untyped
 node_netstat_Tcp_OutRsts 1003
 # HELP node_netstat_Tcp_OutSegs Protocol Tcp statistic OutSegs.
-# TYPE node_netstat_Tcp_OutSegs gauge
+# TYPE node_netstat_Tcp_OutSegs untyped
 node_netstat_Tcp_OutSegs 5.4915039e+07
 # HELP node_netstat_Tcp_PassiveOpens Protocol Tcp statistic PassiveOpens.
-# TYPE node_netstat_Tcp_PassiveOpens gauge
+# TYPE node_netstat_Tcp_PassiveOpens untyped
 node_netstat_Tcp_PassiveOpens 230
 # HELP node_netstat_Tcp_RetransSegs Protocol Tcp statistic RetransSegs.
-# TYPE node_netstat_Tcp_RetransSegs gauge
+# TYPE node_netstat_Tcp_RetransSegs untyped
 node_netstat_Tcp_RetransSegs 227
 # HELP node_netstat_Tcp_RtoAlgorithm Protocol Tcp statistic RtoAlgorithm.
-# TYPE node_netstat_Tcp_RtoAlgorithm gauge
+# TYPE node_netstat_Tcp_RtoAlgorithm untyped
 node_netstat_Tcp_RtoAlgorithm 1
 # HELP node_netstat_Tcp_RtoMax Protocol Tcp statistic RtoMax.
-# TYPE node_netstat_Tcp_RtoMax gauge
+# TYPE node_netstat_Tcp_RtoMax untyped
 node_netstat_Tcp_RtoMax 120000
 # HELP node_netstat_Tcp_RtoMin Protocol Tcp statistic RtoMin.
-# TYPE node_netstat_Tcp_RtoMin gauge
+# TYPE node_netstat_Tcp_RtoMin untyped
 node_netstat_Tcp_RtoMin 200
 # HELP node_netstat_UdpLite_InCsumErrors Protocol UdpLite statistic InCsumErrors.
-# TYPE node_netstat_UdpLite_InCsumErrors gauge
+# TYPE node_netstat_UdpLite_InCsumErrors untyped
 node_netstat_UdpLite_InCsumErrors 0
 # HELP node_netstat_UdpLite_InDatagrams Protocol UdpLite statistic InDatagrams.
-# TYPE node_netstat_UdpLite_InDatagrams gauge
+# TYPE node_netstat_UdpLite_InDatagrams untyped
 node_netstat_UdpLite_InDatagrams 0
 # HELP node_netstat_UdpLite_InErrors Protocol UdpLite statistic InErrors.
-# TYPE node_netstat_UdpLite_InErrors gauge
+# TYPE node_netstat_UdpLite_InErrors untyped
 node_netstat_UdpLite_InErrors 0
 # HELP node_netstat_UdpLite_NoPorts Protocol UdpLite statistic NoPorts.
-# TYPE node_netstat_UdpLite_NoPorts gauge
+# TYPE node_netstat_UdpLite_NoPorts untyped
 node_netstat_UdpLite_NoPorts 0
 # HELP node_netstat_UdpLite_OutDatagrams Protocol UdpLite statistic OutDatagrams.
-# TYPE node_netstat_UdpLite_OutDatagrams gauge
+# TYPE node_netstat_UdpLite_OutDatagrams untyped
 node_netstat_UdpLite_OutDatagrams 0
 # HELP node_netstat_UdpLite_RcvbufErrors Protocol UdpLite statistic RcvbufErrors.
-# TYPE node_netstat_UdpLite_RcvbufErrors gauge
+# TYPE node_netstat_UdpLite_RcvbufErrors untyped
 node_netstat_UdpLite_RcvbufErrors 0
 # HELP node_netstat_UdpLite_SndbufErrors Protocol UdpLite statistic SndbufErrors.
-# TYPE node_netstat_UdpLite_SndbufErrors gauge
+# TYPE node_netstat_UdpLite_SndbufErrors untyped
 node_netstat_UdpLite_SndbufErrors 0
 # HELP node_netstat_Udp_InCsumErrors Protocol Udp statistic InCsumErrors.
-# TYPE node_netstat_Udp_InCsumErrors gauge
+# TYPE node_netstat_Udp_InCsumErrors untyped
 node_netstat_Udp_InCsumErrors 0
 # HELP node_netstat_Udp_InDatagrams Protocol Udp statistic InDatagrams.
-# TYPE node_netstat_Udp_InDatagrams gauge
+# TYPE node_netstat_Udp_InDatagrams untyped
 node_netstat_Udp_InDatagrams 88542
 # HELP node_netstat_Udp_InErrors Protocol Udp statistic InErrors.
-# TYPE node_netstat_Udp_InErrors gauge
+# TYPE node_netstat_Udp_InErrors untyped
 node_netstat_Udp_InErrors 0
 # HELP node_netstat_Udp_NoPorts Protocol Udp statistic NoPorts.
-# TYPE node_netstat_Udp_NoPorts gauge
+# TYPE node_netstat_Udp_NoPorts untyped
 node_netstat_Udp_NoPorts 120
 # HELP node_netstat_Udp_OutDatagrams Protocol Udp statistic OutDatagrams.
-# TYPE node_netstat_Udp_OutDatagrams gauge
+# TYPE node_netstat_Udp_OutDatagrams untyped
 node_netstat_Udp_OutDatagrams 53028
 # HELP node_netstat_Udp_RcvbufErrors Protocol Udp statistic RcvbufErrors.
-# TYPE node_netstat_Udp_RcvbufErrors gauge
+# TYPE node_netstat_Udp_RcvbufErrors untyped
 node_netstat_Udp_RcvbufErrors 0
 # HELP node_netstat_Udp_SndbufErrors Protocol Udp statistic SndbufErrors.
-# TYPE node_netstat_Udp_SndbufErrors gauge
+# TYPE node_netstat_Udp_SndbufErrors untyped
 node_netstat_Udp_SndbufErrors 0
 # HELP node_network_receive_bytes Network device statistic receive_bytes.
 # TYPE node_network_receive_bytes gauge
