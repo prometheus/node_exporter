@@ -18,20 +18,19 @@ package collector
 import (
 	"bufio"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"io"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
 	fileFDStatSubsystem = "filefd"
 )
 
-type fileFDStatCollector struct {
-	metrics map[string]prometheus.Gauge
-}
+type fileFDStatCollector struct{}
 
 func init() {
 	Factories[fileFDStatSubsystem] = NewFileFDStatCollector
@@ -39,9 +38,7 @@ func init() {
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
 func NewFileFDStatCollector() (Collector, error) {
-	return &fileFDStatCollector{
-		metrics: map[string]prometheus.Gauge{},
-	}, nil
+	return &fileFDStatCollector{}, nil
 }
 
 func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -50,26 +47,20 @@ func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return fmt.Errorf("couldn't get file-nr: %s", err)
 	}
 	for name, value := range fileFDStat {
-		if _, ok := c.metrics[name]; !ok {
-			c.metrics[name] = prometheus.NewGauge(
-				prometheus.GaugeOpts{
-					Namespace: Namespace,
-					Subsystem: fileFDStatSubsystem,
-					Name:      name,
-					Help:      fmt.Sprintf("File descriptor statistics: %s.", name),
-				},
-			)
-		}
 		v, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			return fmt.Errorf("invalid value %s in file-nr: %s", value, err)
 		}
-		c.metrics[name].Set(v)
+		ch <- prometheus.MustNewConstMetric(
+			prometheus.NewDesc(
+				prometheus.BuildFQName(Namespace, fileFDStatSubsystem, name),
+				fmt.Sprintf("File descriptor statistics: %s.", name),
+				nil, nil,
+			),
+			prometheus.GaugeValue, v,
+		)
 	}
-	for _, m := range c.metrics {
-		m.Collect(ch)
-	}
-	return err
+	return nil
 }
 
 func getFileFDStats(fileName string) (map[string]string, error) {
