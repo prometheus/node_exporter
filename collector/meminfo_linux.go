@@ -32,9 +32,7 @@ const (
 	memInfoSubsystem = "memory"
 )
 
-type meminfoCollector struct {
-	metrics map[string]prometheus.Gauge
-}
+type meminfoCollector struct{}
 
 func init() {
 	Factories["meminfo"] = NewMeminfoCollector
@@ -43,9 +41,7 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // memory stats.
 func NewMeminfoCollector() (Collector, error) {
-	return &meminfoCollector{
-		metrics: map[string]prometheus.Gauge{},
-	}, nil
+	return &meminfoCollector{}, nil
 }
 
 func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
@@ -55,18 +51,16 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 	log.Debugf("Set node_mem: %#v", memInfo)
 	for k, v := range memInfo {
-		if _, ok := c.metrics[k]; !ok {
-			c.metrics[k] = prometheus.NewGauge(prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: memInfoSubsystem,
-				Name:      k,
-				Help:      fmt.Sprintf("Memory information field %s.", k),
-			})
-		}
-		c.metrics[k].Set(v)
-		c.metrics[k].Collect(ch)
+		ch <- prometheus.MustNewConstMetric(
+			prometheus.NewDesc(
+				prometheus.BuildFQName(Namespace, memInfoSubsystem, k),
+				fmt.Sprintf("Memory information field %s.", k),
+				nil, nil,
+			),
+			prometheus.GaugeValue, v,
+		)
 	}
-	return err
+	return nil
 }
 
 func getMemInfo() (map[string]float64, error) {
