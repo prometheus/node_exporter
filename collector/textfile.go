@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path/filepath"
+	"path"
 	"sort"
 	"strings"
 	"time"
@@ -82,7 +82,7 @@ func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 		if !strings.HasSuffix(f.Name(), ".prom") {
 			continue
 		}
-		path := filepath.Join(c.path, f.Name())
+		path := path.Join(c.path, f.Name())
 		file, err := os.Open(path)
 		if err != nil {
 			log.Errorf("Error opening %s: %v", path, err)
