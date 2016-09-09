@@ -1,3 +1,5 @@
+go:
+    cgo: true
 repository:
     path: github.com/prometheus/node_exporter
 build:
