@@ -457,6 +457,15 @@ node_filefd_maximum 1.631329e+06
 # HELP node_forks Total number of forks.
 # TYPE node_forks counter
 node_forks 26442
+# HELP node_inodestate_allocated inode-state statistics: allocated.
+# TYPE node_inodestate_allocated gauge
+node_inodestate_allocated 129621
+# HELP node_inodestate_free inode-state statistics: free.
+# TYPE node_inodestate_free gauge
+node_inodestate_free 69466
+# HELP node_inodestate_preshrink inode-state statistics: preshrink.
+# TYPE node_inodestate_preshrink gauge
+node_inodestate_preshrink 0
 # HELP node_intr Total number of interrupts serviced.
 # TYPE node_intr counter
 node_intr 8.885917e+06

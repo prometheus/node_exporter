@@ -7,6 +7,7 @@ collectors=$(cat << COLLECTORS
   diskstats
   entropy
   filefd
+  inodestate
   ksmd
   loadavg
   mdadm
