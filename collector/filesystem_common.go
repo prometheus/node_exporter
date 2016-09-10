@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nofilesystem
-// +build linux freebsd openbsd darwin,amd64
+// +build linux freebsd openbsd darwin dragonfly,amd64
 
 package collector
 
