@@ -101,6 +101,15 @@ docker pull prom/node-exporter
 docker run -d -p 9100:9100 --net="host" prom/node-exporter
 ```
 
+## Init Scripts
+
+Probably you want node_exporter to start on boot.  See the `contrib/initscripts/` tree & feel free to add your own.  Assumes you've installed the binary to `/opt/prometheus/node_exporter/node_exporter`.
+
+TBD:
+
+*  integrate these into OS packages.
+*  non-default settings from an `/etc/default/prom-node-exporter`
+
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
