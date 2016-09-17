@@ -18,6 +18,7 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -52,7 +53,7 @@ int setupSysctlMIBs() {
 	return ret;
 }
 
-int getCPUTimes(int *ncpu, struct kinfo_cputime *cputime, uint64_t *cpu_user) {
+int getCPUTimes(int *ncpu, struct kinfo_cputime *cputime, uint64_t *cpufreq) {
 	// // Assert that mibs are set up through setupSysctlMIBs
 	// if (!mibs_set_up) {
 	// 	return -1;
@@ -83,6 +84,7 @@ int getCPUTimes(int *ncpu, struct kinfo_cputime *cputime, uint64_t *cpu_user) {
 	    sizeof(clockrate) != clockrate_size) {
 		return -1;
 	}
+	*cpufreq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
 
 	// // Retrieve cp_times values
 	// *cp_times_length = (*ncpu) * CPUSTATES;
@@ -98,19 +100,7 @@ int getCPUTimes(int *ncpu, struct kinfo_cputime *cputime, uint64_t *cpu_user) {
 		return -1;
 	}
 
-	*cpu_user = cp_t[0].cp_user;
 	*cputime = cp_t[0];
-	// This results in outputting:
-	// {1362514572 273421 845667973 12986861 17529717536 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}
-	// So, we have the first 5 numbers from the first cpu.
-	// Need to figure out how to get the second cpu, i.e. cputime needs to be created with [2]
-
-	// Compute absolute time for different CPU states
-	// long cpufreq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
-	// *cpu_times = (double *) malloc(sizeof(double)*(len));
-	// for (int i = 0; i < (len); i++) {
-	// 	(*cpu_times)[i] = ((double) cp_t[i]) / cpufreq;
-	// }
 
 	return 0;
 
@@ -171,24 +161,29 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	var ncpu C.int
 	var cpuTimesC C.struct_kinfo_cputime
-	var cpuTimesLength C.uint64_t
+	var cpuFreq C.uint64_t
 
-	if C.getCPUTimes(&ncpu, &cpuTimesC, &cpuTimesLength) == -1 {
+	if C.getCPUTimes(&ncpu, &cpuTimesC, &cpuFreq) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
 	// TODO: Remember to free variables
 	// defer C.freeCPUTimes(cpuTimesC)
 
 	cpuTimes := (*[1 << 30]C.struct_kinfo_cputime)(unsafe.Pointer(&cpuTimesC))[:ncpu:ncpu]
-	fmt.Println(cpuTimes)
-	return errors.New("early kill")
-	if cpuTimesLength > maxCPUTimesLen {
-		return errors.New("more CPU's than MAXCPU?")
-	}
 
-	// Convert C.double array to Go array (https://github.com/golang/go/wiki/cgo#turning-c-arrays-into-go-slices).
-	// cpuTimes := (*[maxCPUTimesLen]C.double)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
-	//
+	// Sample output:
+	// cpu0: {590123223 35166845 334263626 8693757 9845460604 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}
+	// cpu1: {0 590123223 35166845 334263626 8693757 9845460604 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}
+	// Figure out why I'm getting the same values here instead of the second CPU
+	fmt.Println(cpuTimes)
+
+	for i, cpu := range cpuTimes {
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "user"}).Set(float64(cpu.cp_user / cpuFreq))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "nice"}).Set(float64(cpu.cp_nice / cpuFreq))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "system"}).Set(float64(cpu.cp_sys / cpuFreq))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "interrupt"}).Set(float64(cpu.cp_intr / cpuFreq))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "idle"}).Set(float64(cpu.cp_idle / cpuFreq))
+	}
 	// for cpu := 0; cpu < int(ncpu); cpu++ {
 	// 	base_idx := C.CPUSTATES * cpu
 	// 	c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "user"}).Set(float64(cpuTimes[base_idx+C.CP_USER]))
