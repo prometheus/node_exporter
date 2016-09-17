@@ -53,19 +53,15 @@ int setupSysctlMIBs() {
 	return ret;
 }
 
-int getCPUTimes(int *ncpu, struct kinfo_cputime *cputime, uint64_t *cpufreq) {
-	// // Assert that mibs are set up through setupSysctlMIBs
-	// if (!mibs_set_up) {
-	// 	return -1;
-	// }
+struct exported_cputime {
+	uint64_t	cp_user;
+	uint64_t	cp_nice;
+	uint64_t	cp_sys;
+	uint64_t	cp_intr;
+	uint64_t	cp_idle;
+};
 
-	// // Retrieve number of cpu cores
-	// size_t ncpu_size = sizeof(*ncpu);
-	// if (sysctl(mib_hw_ncpu, mib_hw_ncpu_len, ncpu, &ncpu_size, NULL, 0) == -1 ||
-	//     sizeof(*ncpu) != ncpu_size) {
-	// 	return -1;
-	// }
-
+int getCPUTimes(int *ncpu, struct exported_cputime **cputime) {
 	size_t len;
 
 	// Get number of cpu cores.
@@ -84,13 +80,10 @@ int getCPUTimes(int *ncpu, struct kinfo_cputime *cputime, uint64_t *cpufreq) {
 	    sizeof(clockrate) != clockrate_size) {
 		return -1;
 	}
-	*cpufreq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
 
-	// // Retrieve cp_times values
-	// *cp_times_length = (*ncpu) * CPUSTATES;
-        //
-	// long cp_times[*cp_times_length];
-	// size_t cp_times_size = sizeof(cp_times);
+	// What are the consequences of casting this immediately to uint64_t
+	// instead of long?
+	uint64_t cpufreq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
 
 	// Get the cpu times.
 	struct kinfo_cputime cp_t[*ncpu];
@@ -100,7 +93,18 @@ int getCPUTimes(int *ncpu, struct kinfo_cputime *cputime, uint64_t *cpufreq) {
 		return -1;
 	}
 
-	*cputime = cp_t[0];
+	struct exported_cputime xp_t[*ncpu];
+	for (int i = 0; i < *ncpu; ++i) {
+		xp_t[i].cp_user = cp_t[i].cp_user/cpufreq;
+		xp_t[i].cp_nice = cp_t[i].cp_nice/cpufreq;
+		xp_t[i].cp_sys  = cp_t[i].cp_sys/cpufreq;
+		xp_t[i].cp_intr = cp_t[i].cp_intr/cpufreq;
+		xp_t[i].cp_idle = cp_t[i].cp_idle/cpufreq;
+	}
+
+	*cputime = &xp_t[0];
+
+	// free(&cp_t);
 
 	return 0;
 
@@ -141,7 +145,7 @@ func NewStatCollector() (Collector, error) {
 	}, nil
 }
 
-type kinfoCPUTime struct {
+type exportedCPUTime struct {
 	cp_user, cp_nice, cp_sys, cp_intr, cp_idle uint64
 }
 
@@ -160,38 +164,25 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	// Look into sys/kern/kern_clock.c for details.
 
 	var ncpu C.int
-	var cpuTimesC C.struct_kinfo_cputime
-	var cpuFreq C.uint64_t
+	var cpuTimesC *C.struct_exported_cputime
 
-	if C.getCPUTimes(&ncpu, &cpuTimesC, &cpuFreq) == -1 {
+	if C.getCPUTimes(&ncpu, &cpuTimesC) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
 	// TODO: Remember to free variables
 	// defer C.freeCPUTimes(cpuTimesC)
 
-	cpuTimes := (*[1 << 30]C.struct_kinfo_cputime)(unsafe.Pointer(&cpuTimesC))[:ncpu:ncpu]
+	cpuTimes := (*[1 << 30]C.struct_exported_cputime)(unsafe.Pointer(cpuTimesC))[:ncpu:ncpu]
 
-	// Sample output:
-	// cpu0: {590123223 35166845 334263626 8693757 9845460604 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}
-	// cpu1: {0 590123223 35166845 334263626 8693757 9845460604 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}
-	// Figure out why I'm getting the same values here instead of the second CPU
 	fmt.Println(cpuTimes)
 
 	for i, cpu := range cpuTimes {
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "user"}).Set(float64(cpu.cp_user / cpuFreq))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "nice"}).Set(float64(cpu.cp_nice / cpuFreq))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "system"}).Set(float64(cpu.cp_sys / cpuFreq))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "interrupt"}).Set(float64(cpu.cp_intr / cpuFreq))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "idle"}).Set(float64(cpu.cp_idle / cpuFreq))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "user"}).Set(float64(cpu.cp_user))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "nice"}).Set(float64(cpu.cp_nice))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "system"}).Set(float64(cpu.cp_sys))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "interrupt"}).Set(float64(cpu.cp_intr))
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "idle"}).Set(float64(cpu.cp_idle))
 	}
-	// for cpu := 0; cpu < int(ncpu); cpu++ {
-	// 	base_idx := C.CPUSTATES * cpu
-	// 	c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "user"}).Set(float64(cpuTimes[base_idx+C.CP_USER]))
-	// 	c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "nice"}).Set(float64(cpuTimes[base_idx+C.CP_NICE]))
-	// 	c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "system"}).Set(float64(cpuTimes[base_idx+C.CP_SYS]))
-	// 	c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "interrupt"}).Set(float64(cpuTimes[base_idx+C.CP_INTR]))
-	// 	c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "idle"}).Set(float64(cpuTimes[base_idx+C.CP_IDLE]))
-	// }
 
 	c.cpu.Collect(ch)
 	return err
