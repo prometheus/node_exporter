@@ -97,16 +97,9 @@ int getCPUTimes(int *ncpu, struct exported_cputime **cputime) {
 
 	*cputime = &xp_t[0];
 
-	// free(&cp_t);
-
 	return 0;
 
 }
-
-void freeCPUTimes(double *cpu_times) {
-	free(cpu_times);
-}
-
 */
 import "C"
 
@@ -156,8 +149,6 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if C.getCPUTimes(&ncpu, &cpuTimesC) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
-	// TODO: Remember to free variables
-	// defer C.freeCPUTimes(cpuTimesC)
 
 	cpuTimes := (*[1 << 30]C.struct_exported_cputime)(unsafe.Pointer(cpuTimesC))[:ncpu:ncpu]
 
