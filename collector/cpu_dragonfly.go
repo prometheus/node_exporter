@@ -26,21 +26,14 @@ import (
 
 /*
 #cgo LDFLAGS:
-#include <fcntl.h>
-#include <stdlib.h>
-#include <sys/param.h>
-#include <sys/resource.h>
-#include <sys/time.h>
 #include <sys/sysctl.h>
 #include <kinfo.h>
+#include <stdlib.h>
 
 static int mibs_set_up = 0;
 
 static int mib_kern_cp_times[2];
 static size_t mib_kern_cp_times_len = 2;
-
-static const int mib_hw_ncpu[] = {CTL_HW, HW_NCPU};
-static const size_t mib_hw_ncpu_len = 2;
 
 static const int mib_kern_clockrate[] = {CTL_KERN, KERN_CLOCKRATE};
 static size_t mib_kern_clockrate_len = 2;
@@ -145,18 +138,12 @@ func NewStatCollector() (Collector, error) {
 	}, nil
 }
 
-type exportedCPUTime struct {
-	cp_user, cp_nice, cp_sys, cp_intr, cp_idle uint64
-}
-
 // Expose CPU stats using sysctl.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	// We want time spent per-cpu per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
-	// Order: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
-	// sysctl kern.cp_times provides hw.ncpu * CPUSTATES long integers:
-	//   hw.ncpu * (space-separated list of the above variables)
+	// States: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
 	//
 	// Each value is a counter incremented at frequency
 	//   kern.clockrate.(stathz | hz)
