@@ -18,6 +18,7 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -175,9 +176,11 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if C.getCPUTimes(&ncpu, &cpuTimesC, &cpuTimesLength) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
+	// TODO: Remember to free variables
 	// defer C.freeCPUTimes(cpuTimesC)
-	fmt.Println(cpuTimesC)
-	fmt.Println(uint64(cpuTimesLength))
+
+	cpuTimes := (*[1 << 30]C.struct_kinfo_cputime)(unsafe.Pointer(&cpuTimesC))[:ncpu:ncpu]
+	fmt.Println(cpuTimes)
 	return errors.New("early kill")
 	if cpuTimesLength > maxCPUTimesLen {
 		return errors.New("more CPU's than MAXCPU?")
