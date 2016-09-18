@@ -146,7 +146,6 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		return errors.New("could not retrieve CPU times")
 	}
 
-	// TODO: Find better way to remove trailing white space.
 	cpuTimes := strings.Split(strings.TrimSpace(C.GoString(cpuTimesC)), " ")
 	C.free(unsafe.Pointer(cpuTimesC))
 	// TODO: Figure out why the string is always growing
