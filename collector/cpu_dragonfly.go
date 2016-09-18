@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -29,6 +30,7 @@ import (
 #include <sys/sysctl.h>
 #include <kinfo.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 static int mibs_set_up = 0;
 
@@ -40,21 +42,15 @@ static size_t mib_kern_clockrate_len = 2;
 
 // Setup method for MIBs not available as constants.
 // Calls to this method must be synchronized externally.
-int setupSysctlMIBs() {
+int
+setupSysctlMIBs() {
 	int ret = sysctlnametomib("kern.cputime", mib_kern_cp_times, &mib_kern_cp_times_len);
 	if (ret == 0) mibs_set_up = 1;
 	return ret;
 }
 
-struct exported_cputime {
-	uint64_t	cp_user;
-	uint64_t	cp_nice;
-	uint64_t	cp_sys;
-	uint64_t	cp_intr;
-	uint64_t	cp_idle;
-};
-
-int getCPUTimes(int *ncpu, struct exported_cputime **cputime) {
+int
+getCPUTimes(int *ncpu, char **cputime) {
 	size_t len;
 
 	// Get number of cpu cores.
@@ -74,9 +70,7 @@ int getCPUTimes(int *ncpu, struct exported_cputime **cputime) {
 		return -1;
 	}
 
-	// What are the consequences of casting this immediately to uint64_t
-	// instead of long?
-	uint64_t cpufreq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
+	long freq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
 
 	// Get the cpu times.
 	struct kinfo_cputime cp_t[*ncpu];
@@ -86,16 +80,20 @@ int getCPUTimes(int *ncpu, struct exported_cputime **cputime) {
 		return -1;
 	}
 
-	struct exported_cputime xp_t[*ncpu];
-	for (int i = 0; i < *ncpu; ++i) {
-		xp_t[i].cp_user = cp_t[i].cp_user/cpufreq;
-		xp_t[i].cp_nice = cp_t[i].cp_nice/cpufreq;
-		xp_t[i].cp_sys  = cp_t[i].cp_sys/cpufreq;
-		xp_t[i].cp_intr = cp_t[i].cp_intr/cpufreq;
-		xp_t[i].cp_idle = cp_t[i].cp_idle/cpufreq;
-	}
+	// string needs to hold (5*ncpu)(uint64_t + char)
+	// The char is the space between values.
+	*cputime = (char *) malloc((sizeof(uint64_t)+sizeof(char))*(5*(*ncpu)));
 
-	*cputime = &xp_t[0];
+	uint64_t user, nice, sys, intr, idle;
+	user = nice = sys = intr = idle = 0;
+	for (int i = 0; i < *ncpu; ++i) {
+		user = ((double) cp_t[i].cp_user) / freq;
+		nice = ((double) cp_t[i].cp_nice) / freq;
+		sys  = ((double) cp_t[i].cp_sys) / freq;
+		intr = ((double) cp_t[i].cp_intr) / freq;
+		idle = ((double) cp_t[i].cp_idle) / freq;
+		sprintf(*cputime + strlen(*cputime), "%llu %llu %llu %llu %llu ", user, nice, sys, intr, idle );
+	}
 
 	return 0;
 
@@ -106,7 +104,7 @@ import "C"
 const maxCPUTimesLen = C.MAXCPU * C.CPUSTATES
 
 type statCollector struct {
-	cpu *prometheus.CounterVec
+	cpu *prometheus.Desc
 }
 
 func init() {
@@ -120,19 +118,16 @@ func NewStatCollector() (Collector, error) {
 		return nil, errors.New("could not initialize sysctl MIBs")
 	}
 	return &statCollector{
-		cpu: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Name:      "cpu_seconds_total",
-				Help:      "Seconds the CPU spent in each mode.",
-			},
-			[]string{"cpu", "mode"},
+		cpu: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "", "cpu"),
+			"Seconds the cpus spent in each mode.",
+			[]string{"cpu", "mode"}, nil,
 		),
 	}, nil
 }
 
 // Expose CPU stats using sysctl.
-func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 
 	// We want time spent per-cpu per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
@@ -144,24 +139,29 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	// Look into sys/kern/kern_clock.c for details.
 
 	var ncpu C.int
-	var cpuTimesC *C.struct_exported_cputime
+	var cpuTimesC *C.char
+	var fieldsCount = 5
 
 	if C.getCPUTimes(&ncpu, &cpuTimesC) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
 
-	cpuTimes := (*[1 << 30]C.struct_exported_cputime)(unsafe.Pointer(cpuTimesC))[:ncpu:ncpu]
-
+	// TODO: Find better way to remove trailing white space.
+	cpuTimes := strings.Split(strings.TrimSpace(C.GoString(cpuTimesC)), " ")
+	C.free(unsafe.Pointer(cpuTimesC))
+	// TODO: Figure out why the string is always growing
 	fmt.Println(cpuTimes)
 
-	for i, cpu := range cpuTimes {
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "user"}).Set(float64(cpu.cp_user))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "nice"}).Set(float64(cpu.cp_nice))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "system"}).Set(float64(cpu.cp_sys))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "interrupt"}).Set(float64(cpu.cp_intr))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(i), "mode": "idle"}).Set(float64(cpu.cp_idle))
+	// Export order: user nice sys intr idle
+	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
+	for i, v := range cpuTimes {
+		cpux := fmt.Sprintf("cpu%d", i/fieldsCount)
+		value, err := strconv.ParseFloat(v, 64)
+		if err != nil {
+			return err
+		}
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
 	}
 
-	c.cpu.Collect(ch)
-	return err
+	return nil
 }
