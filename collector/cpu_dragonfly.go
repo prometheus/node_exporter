@@ -82,7 +82,9 @@ getCPUTimes(int *ncpu, char **cputime) {
 
 	// string needs to hold (5*ncpu)(uint64_t + char)
 	// The char is the space between values.
-	*cputime = (char *) malloc((sizeof(uint64_t)+sizeof(char))*(5*(*ncpu)));
+	int cputime_size = (sizeof(uint64_t)+sizeof(char))*(5*(*ncpu));
+	*cputime = (char *) malloc(cputime_size);
+	bzero(*cputime, cputime_size);
 
 	uint64_t user, nice, sys, intr, idle;
 	user = nice = sys = intr = idle = 0;
