@@ -50,15 +50,16 @@ setupSysctlMIBs() {
 }
 
 int
-getCPUTimes(int *ncpu, char **cputime) {
+getCPUTimes(char **cputime) {
 	size_t len;
 
 	// Get number of cpu cores.
 	int mib[2];
+	int ncpu;
 	mib[0] = CTL_HW;
 	mib[1] = HW_NCPU;
-	len = sizeof(*ncpu);
-	if (sysctl(mib, 2, ncpu, &len, NULL, 0)) {
+	len = sizeof(ncpu);
+	if (sysctl(mib, 2, &ncpu, &len, NULL, 0)) {
 		return -1;
 	}
 
@@ -73,22 +74,22 @@ getCPUTimes(int *ncpu, char **cputime) {
 	long freq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
 
 	// Get the cpu times.
-	struct kinfo_cputime cp_t[*ncpu];
-	bzero(cp_t, sizeof(struct kinfo_cputime)*(*ncpu));
-	len = sizeof(cp_t[0])*(*ncpu);
+	struct kinfo_cputime cp_t[ncpu];
+	bzero(cp_t, sizeof(struct kinfo_cputime)*ncpu);
+	len = sizeof(cp_t[0])*ncpu;
 	if (sysctlbyname("kern.cputime", &cp_t, &len, NULL, 0)) {
 		return -1;
 	}
 
 	// string needs to hold (5*ncpu)(uint64_t + char)
 	// The char is the space between values.
-	int cputime_size = (sizeof(uint64_t)+sizeof(char))*(5*(*ncpu));
+	int cputime_size = (sizeof(uint64_t)+sizeof(char))*(5*ncpu);
 	*cputime = (char *) malloc(cputime_size);
 	bzero(*cputime, cputime_size);
 
 	uint64_t user, nice, sys, intr, idle;
 	user = nice = sys = intr = idle = 0;
-	for (int i = 0; i < *ncpu; ++i) {
+	for (int i = 0; i < ncpu; ++i) {
 		user = ((double) cp_t[i].cp_user) / freq;
 		nice = ((double) cp_t[i].cp_nice) / freq;
 		sys  = ((double) cp_t[i].cp_sys) / freq;
@@ -140,18 +141,15 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
-	var ncpu C.int
 	var cpuTimesC *C.char
 	var fieldsCount = 5
 
-	if C.getCPUTimes(&ncpu, &cpuTimesC) == -1 {
+	if C.getCPUTimes(&cpuTimesC) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
 
 	cpuTimes := strings.Split(strings.TrimSpace(C.GoString(cpuTimesC)), " ")
 	C.free(unsafe.Pointer(cpuTimesC))
-	// TODO: Figure out why the string is always growing
-	fmt.Println(cpuTimes)
 
 	// Export order: user nice sys intr idle
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
