@@ -190,7 +190,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 
 		// If device is syncing at the moment, get the number of currently synced bytes,
 		// otherwise that number equals the size of the device.
-		if strings.Contains(lines[j], "recovery") || strings.Contains(lines[j], "resync") && !strings.Contains(lines[j], "resync=DELAYED") {
+		if strings.Contains(lines[j], "recovery") || strings.Contains(lines[j], "resync") && !strings.Contains(lines[j], "resync=DELAYED") && !strings.Contains(lines[j], "resync=PENDING") {
 			syncedBlocks, err = evalBuildline(lines[j])
 			if err != nil {
 				return mdStates, fmt.Errorf("error parsing mdstat: %s", err)
