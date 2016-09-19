@@ -25,9 +25,13 @@ md7 : active raid6 sdb1[0] sde1[3] sdd1[2] sdc1[1]
 
 md9 : active raid1 sdc2[2] sdd2[3] sdb2[1] sda2[0]
       523968 blocks super 1.2 [4/4] [UUUU]
-            resync=DELAYED
+	resync=DELAYED
 
 md10 : active raid0 sda1[0] sdb1[1]
       314159265 blocks 64k chunks
+
+md11 : active (auto-read-only) raid1 sdb2[0] sdc2[1]
+      4190208 blocks super 1.2 [2/2] [UU]
+	resync=PENDING
 
 unused devices: <none>

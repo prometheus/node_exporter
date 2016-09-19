@@ -34,6 +34,7 @@ func TestMdadm(t *testing.T) {
 		"md7":   {"md7", true, 3, 4, 7813735424, 7813735424},
 		"md9":   {"md9", true, 4, 4, 523968, 523968},
 		"md10":  {"md10", true, 2, 2, 314159265, 314159265},
+		"md11":  {"md11", true, 2, 2, 4190208, 4190208},
 	}
 
 	for _, md := range mdStates {
