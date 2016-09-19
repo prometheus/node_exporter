@@ -117,7 +117,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// States: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
 	//
 	// Each value is a counter incremented at frequency
-	//   kern.clockrate.(stathz | hz)
+	//   kern.cputimer.freq
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
