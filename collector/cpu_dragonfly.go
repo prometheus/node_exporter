@@ -63,15 +63,15 @@ getCPUTimes(char **cputime) {
 		return -1;
 	}
 
-	// Retrieve clockrate
-	struct clockinfo clockrate;
-	size_t clockrate_size = sizeof(clockrate);
-	if (sysctl(mib_kern_clockrate, mib_kern_clockrate_len, &clockrate, &clockrate_size, NULL, 0) == -1 ||
-	    sizeof(clockrate) != clockrate_size) {
+	// The bump on each statclock is
+	// ((cur_systimer - prev_systimer) * systimer_freq) >> 32
+	// where
+	// systimer_freq = sysctl kern.cputimer.freq
+	long freq;
+	len = sizeof(freq);
+	if (sysctlbyname("kern.cputimer.freq", &freq, &len, NULL, 0)) {
 		return -1;
 	}
-
-	long freq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
 
 	// Get the cpu times.
 	struct kinfo_cputime cp_t[ncpu];
