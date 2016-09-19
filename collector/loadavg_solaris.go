@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build darwin dragonfly netbsd openbsd
+// +build solaris
 // +build !noloadavg
 
 package collector
@@ -20,7 +20,13 @@ import (
 	"errors"
 )
 
-// #include <stdlib.h>
+/*
+// Define "__stack_chk_fail" and "__stack_chk_guard" symbols.
+#cgo LDFLAGS: -fno-stack-protector -lssp
+// Ensure "hrtime_t" is defined for sys/loadavg.h
+#include <sys/time.h>
+#include <sys/loadavg.h>
+*/
 import "C"
 
 func getLoad() ([]float64, error) {
