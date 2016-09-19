@@ -32,23 +32,6 @@ import (
 #include <stdlib.h>
 #include <stdio.h>
 
-static int mibs_set_up = 0;
-
-static int mib_kern_cp_times[2];
-static size_t mib_kern_cp_times_len = 2;
-
-static const int mib_kern_clockrate[] = {CTL_KERN, KERN_CLOCKRATE};
-static size_t mib_kern_clockrate_len = 2;
-
-// Setup method for MIBs not available as constants.
-// Calls to this method must be synchronized externally.
-int
-setupSysctlMIBs() {
-	int ret = sysctlnametomib("kern.cputime", mib_kern_cp_times, &mib_kern_cp_times_len);
-	if (ret == 0) mibs_set_up = 1;
-	return ret;
-}
-
 int
 getCPUTimes(char **cputime) {
 	size_t len;
@@ -117,9 +100,6 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // CPU stats.
 func NewStatCollector() (Collector, error) {
-	if C.setupSysctlMIBs() == -1 {
-		return nil, errors.New("could not initialize sysctl MIBs")
-	}
 	return &statCollector{
 		cpu: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "cpu"),
