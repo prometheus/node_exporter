@@ -18,8 +18,6 @@ package collector
 import (
 	"errors"
 	"fmt"
-	"strconv"
-	"strings"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -33,7 +31,7 @@ import (
 #include <stdio.h>
 
 int
-getCPUTimes(char **cputime, long *freq) {
+getCPUTimes(uint64_t **cputime, size_t *cpu_times_len, long *freq) {
 	size_t len;
 
 	// Get number of cpu cores.
@@ -63,21 +61,18 @@ getCPUTimes(char **cputime, long *freq) {
 		return -1;
 	}
 
-	// string needs to hold (5*ncpu)(uint64_t + char)
-	// The char is the space between values.
-	int cputime_size = (sizeof(uint64_t)+sizeof(char))*(5*ncpu);
-	*cputime = (char *) malloc(cputime_size);
-	bzero(*cputime, cputime_size);
+	*cpu_times_len = ncpu*CPUSTATES;
 
 	uint64_t user, nice, sys, intr, idle;
 	user = nice = sys = intr = idle = 0;
+	*cputime = (uint64_t *) malloc(sizeof(uint64_t)*(*cpu_times_len));
 	for (int i = 0; i < ncpu; ++i) {
-		user = cp_t[i].cp_user;
-		nice = cp_t[i].cp_nice;
-		sys  = cp_t[i].cp_sys;
-		intr = cp_t[i].cp_intr;
-		idle = cp_t[i].cp_idle;
-		sprintf(*cputime + strlen(*cputime), "%llu %llu %llu %llu %llu ", user, nice, sys, intr, idle );
+		int offset = CPUSTATES * i;
+		(*cputime)[offset] = cp_t[i].cp_user;
+		(*cputime)[offset+1] = cp_t[i].cp_nice;
+		(*cputime)[offset+2] = cp_t[i].cp_sys;
+		(*cputime)[offset+3] = cp_t[i].cp_intr;
+		(*cputime)[offset+4] = cp_t[i].cp_idle;
 	}
 
 	return 0;
@@ -120,26 +115,23 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
-	var cpuTimesC *C.char
+	var cpuTimesC *C.uint64_t
 	var cpuTimerFreq C.long
+	var cpuTimesLength C.size_t
 	var fieldsCount = 5
 
-	if C.getCPUTimes(&cpuTimesC, &cpuTimerFreq) == -1 {
+	if C.getCPUTimes(&cpuTimesC, &cpuTimesLength, &cpuTimerFreq) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
 
-	cpuTimes := strings.Split(strings.TrimSpace(C.GoString(cpuTimesC)), " ")
+	cpuTimes := (*[maxCPUTimesLen]C.uint64_t)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
 	C.free(unsafe.Pointer(cpuTimesC))
 
 	// Export order: user nice sys intr idle
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
-	for i, v := range cpuTimes {
+	for i, value := range cpuTimes {
 		cpux := fmt.Sprintf("cpu%d", i/fieldsCount)
-		value, err := strconv.ParseFloat(v, 64)
-		if err != nil {
-			return err
-		}
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value/float64(cpuTimerFreq), cpux, cpuFields[i%fieldsCount])
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(value)/float64(cpuTimerFreq), cpux, cpuFields[i%fieldsCount])
 	}
 
 	return nil
