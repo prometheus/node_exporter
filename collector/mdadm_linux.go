@@ -28,9 +28,11 @@ import (
 )
 
 var (
-	statuslineRE = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
-	raid0lineRE  = regexp.MustCompile(`(\d+) blocks \d+k chunks`)
-	buildlineRE  = regexp.MustCompile(`\((\d+)/\d+\)`)
+	statuslineRE           = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
+	raid0lineRE            = regexp.MustCompile(`(\d+) blocks \d+k chunks`)
+	buildlineRE            = regexp.MustCompile(`\((\d+)/\d+\)`)
+	unknownPersonalityLine = regexp.MustCompile(`(\d+) blocks (.*)`)
+	raidPersonalityRE      = regexp.MustCompile(`raid[0-9]+`)
 )
 
 type mdStatus struct {
@@ -82,6 +84,21 @@ func evalRaid0line(statusline string) (size int64, err error) {
 
 	if len(matches) != 2 {
 		return 0, fmt.Errorf("invalid raid0 status line: %s", statusline)
+	}
+
+	size, err = strconv.ParseInt(matches[1], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("%s in statusline: %s", err, statusline)
+	}
+
+	return size, nil
+}
+
+func evalUnknownPersonalityline(statusline string) (size int64, err error) {
+	matches := unknownPersonalityLine.FindStringSubmatch(statusline)
+
+	if len(matches) != 2+1 {
+		return 0, fmt.Errorf("invalid unknown personality status line: %s", statusline)
 	}
 
 	size, err = strconv.ParseInt(matches[1], 10, 64)
@@ -158,19 +175,27 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		}
 		currentMD = mainLine[0]               // The name of the md-device.
 		isActive := (mainLine[2] == "active") // The activity status of the md-device.
-		personality = mainLine[3]             // The personality type of the md-device.
+		personality = ""
+		for _, possiblePersonality := range mainLine {
+			if raidPersonalityRE.MatchString(possiblePersonality) {
+				personality = possiblePersonality
+			}
+		}
 
 		if len(lines) <= i+3 {
 			return mdStates, fmt.Errorf("error parsing mdstat: entry for %s has fewer lines than expected", currentMD)
 		}
 
-		switch personality {
-		case "raid0":
+		switch {
+		case personality == "raid0":
 			active = int64(len(mainLine) - 4)     // Get the number of devices from the main line.
 			total = active                        // Raid0 active and total is always the same if active.
 			size, err = evalRaid0line(lines[i+1]) // Parse statusline, always present.
-		default:
+		case raidPersonalityRE.MatchString(personality):
 			active, total, size, err = evalStatusline(lines[i+1]) // Parse statusline, always present.
+		default:
+			log.Infof("Personality unknown: %s\n", mainLine)
+			size, err = evalUnknownPersonalityline(lines[i+1]) // Parse statusline, always present.
 		}
 
 		if err != nil {
