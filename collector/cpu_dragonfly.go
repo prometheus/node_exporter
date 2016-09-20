@@ -33,7 +33,7 @@ import (
 #include <stdio.h>
 
 int
-getCPUTimes(char **cputime) {
+getCPUTimes(char **cputime, long *freq) {
 	size_t len;
 
 	// Get number of cpu cores.
@@ -50,9 +50,8 @@ getCPUTimes(char **cputime) {
 	// ((cur_systimer - prev_systimer) * systimer_freq) >> 32
 	// where
 	// systimer_freq = sysctl kern.cputimer.freq
-	long freq;
-	len = sizeof(freq);
-	if (sysctlbyname("kern.cputimer.freq", &freq, &len, NULL, 0)) {
+	len = sizeof(*freq);
+	if (sysctlbyname("kern.cputimer.freq", freq, &len, NULL, 0)) {
 		return -1;
 	}
 
@@ -73,11 +72,11 @@ getCPUTimes(char **cputime) {
 	uint64_t user, nice, sys, intr, idle;
 	user = nice = sys = intr = idle = 0;
 	for (int i = 0; i < ncpu; ++i) {
-		user = ((double) cp_t[i].cp_user) / freq;
-		nice = ((double) cp_t[i].cp_nice) / freq;
-		sys  = ((double) cp_t[i].cp_sys) / freq;
-		intr = ((double) cp_t[i].cp_intr) / freq;
-		idle = ((double) cp_t[i].cp_idle) / freq;
+		user = cp_t[i].cp_user;
+		nice = cp_t[i].cp_nice;
+		sys  = cp_t[i].cp_sys;
+		intr = cp_t[i].cp_intr;
+		idle = cp_t[i].cp_idle;
 		sprintf(*cputime + strlen(*cputime), "%llu %llu %llu %llu %llu ", user, nice, sys, intr, idle );
 	}
 
@@ -122,9 +121,10 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// Look into sys/kern/kern_clock.c for details.
 
 	var cpuTimesC *C.char
+	var cpuTimerFreq C.long
 	var fieldsCount = 5
 
-	if C.getCPUTimes(&cpuTimesC) == -1 {
+	if C.getCPUTimes(&cpuTimesC, &cpuTimerFreq) == -1 {
 		return errors.New("could not retrieve CPU times")
 	}
 
@@ -139,7 +139,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		if err != nil {
 			return err
 		}
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value/float64(cpuTimerFreq), cpux, cpuFields[i%fieldsCount])
 	}
 
 	return nil
