@@ -1,3 +1,28 @@
+## 0.13.0 / 2016-09-26
+
+* [FEATURE] Add flag to ignore certain filesystem types (Copy of #217) #241
+* [FEATURE] Add NTP stratum to NTP collector. #247
+* [FEATURE] Add ignored-units flag for systemd collector #286
+* [FEATURE] Compile netdev on dragonfly #314
+* [FEATURE] Compile meminfo for dfly #315
+* [FEATURE] Add hwmon /sensors support #278
+* [FEATURE] Add Linux NUMA "numastat" metrics #249
+* [IMPROVEMENT] Use the offset calculation that includes round trip time in the ntp collector #250
+* [IMPROVEMENT] Enable `*bsd` collector on darwin #265
+* [IMPROVEMENT] Use meminfo_freebsd on darwin as well #266
+* [IMPROVEMENT] sockstat: add support for RHE4 #267
+* [IMPROVEMENT] Compile fs stats for dfly #302
+* [BUGFIX] Add support for raid0 devices in mdadm_linux collector. #253
+* [BUGFIX] Close file handler in textfile #263
+* [BUGFIX] Ignore partitions on NVME devices by default #268
+* [BUGFIX] Fix mdstat tabs parsing #275
+* [BUGFIX] Convert netstat collector to use ConstMetrics #281
+* [BUGFIX] Convert filefd collector to use ConstMetrics #282
+* [BUGFIX] Convert sockstat collector to use ConstMetrics #284
+* [BUGFIX] Convert meminfo collector to use ConstMetrics #283
+* [BUGFIX] Convert BSD meminfo collector to use ConstMetrics #285
+* [BUGFIX] Fix mdadm collector for resync=PENDING. #309
+
 ## 0.12.0 / 2016-05-05
 
 * [CHANGE] Remove lastlogin collector.
