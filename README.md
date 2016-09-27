@@ -26,7 +26,7 @@ filefd | Exposes file descriptor statistics from `/proc/sys/fs/file-nr`. | Linux
 filesystem | Exposes filesystem statistics, such as disk space used. | FreeBSD, Dragonfly, Linux, OpenBSD
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
-meminfo | Exposes memory statistics. | FreeBSD, Linux
+meminfo | Exposes memory statistics. | Dragonfly, FreeBSD, Linux
 netdev | Exposes network interface statistics such as bytes transferred. | Dragonfly, FreeBSD, Linux, OpenBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts. | Linux
