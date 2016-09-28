@@ -1,4 +1,4 @@
-// Copyright 2015 The Prometheus Authors
+// Copyright 2016 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -103,9 +103,7 @@ func NewStatCollector() (Collector, error) {
 	}, nil
 }
 
-// Expose CPU stats using sysctl.
-func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
-
+func getDragonFlyCPUTimes() ([]float64, error) {
 	// We want time spent per-cpu per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// States: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
@@ -115,23 +113,39 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
-	var cpuTimesC *C.uint64_t
-	var cpuTimerFreq C.long
-	var cpuTimesLength C.size_t
-	var fieldsCount = 5
+	var (
+		cpuTimesC      *C.uint64_t
+		cpuTimerFreq   C.long
+		cpuTimesLength C.size_t
+	)
 
 	if C.getCPUTimes(&cpuTimesC, &cpuTimesLength, &cpuTimerFreq) == -1 {
-		return errors.New("could not retrieve CPU times")
+		return nil, errors.New("could not retrieve CPU times")
 	}
+	defer C.free(unsafe.Pointer(cpuTimesC))
 
-	cpuTimes := (*[maxCPUTimesLen]C.uint64_t)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
-	C.free(unsafe.Pointer(cpuTimesC))
+	cput := (*[maxCPUTimesLen]C.uint64_t)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
+
+	cpuTimes := make([]float64, cpuTimesLength)
+	for i, value := range cput {
+		cpuTimes[i] = float64(value) / float64(cpuTimerFreq)
+	}
+	return cpuTimes, nil
+}
+
+// Expose CPU stats using sysctl.
+func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
+	var fieldsCount = 5
+	cpuTimes, err := getDragonFlyCPUTimes()
+	if err != nil {
+		return err
+	}
 
 	// Export order: user nice sys intr idle
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
 	for i, value := range cpuTimes {
 		cpux := fmt.Sprintf("cpu%d", i/fieldsCount)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(value)/float64(cpuTimerFreq), cpux, cpuFields[i%fieldsCount])
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
 	}
 
 	return nil
