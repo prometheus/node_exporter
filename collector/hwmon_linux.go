@@ -282,7 +282,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 				continue
 			}
 
-			// fallback, just dump
+			// fallback, just dump the metric as is
 
 			desc := prometheus.NewDesc(name, "Hardware monitor "+sensorType+" element "+element, hwmonLabelDesc, nil)
 			ch <- prometheus.MustNewConstMetric(
@@ -353,7 +353,7 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 }
 
 func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	// Step 1: scan /sys/class/hwmon, resolve all symlings and look call
+	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updatesHwmon for each folder
 
 	hwmonPathName := path.Join(sysFilePath("class"), "hwmon")
