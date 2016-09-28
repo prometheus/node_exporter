@@ -35,7 +35,7 @@ const (
 var (
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
-	hwmonLabelDesc          = []string{"chip", "sensorName"}
+	hwmonLabelDesc          = []string{"chip", "sensor"}
 	hwmonSensorTypes        = []string{
 		"vrm", "beep_enable", "update_interval", "in", "cpu", "fan",
 		"pwm", "temp", "curr", "power", "energy", "humidity",
@@ -145,16 +145,16 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 
 	// format all sensors
 	for sensor, sensorData := range data {
-		label := sensor
-		if labelText, ok := sensorData["label"]; ok {
-			label = cleanMetricName(labelText)
-			if label == "" {
-				label = sensor
-			}
-		}
-		labels := []string{hwmonName, label}
 
 		_, sensorType, _, _ := explodeSensorFilename(sensor)
+
+		if labelText, ok := sensorData["label"]; ok {
+			label := cleanMetricName(labelText)
+			if label != "" {
+				sensor = label
+			}
+		}
+		labels := []string{hwmonName, sensor}
 
 		if sensorType == "beep_enable" {
 			value := 0.0
