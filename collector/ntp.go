@@ -30,7 +30,7 @@ var (
 )
 
 type ntpCollector struct {
-	drift   prometheus.Gauge
+	offset  prometheus.Gauge
 	stratum prometheus.Gauge
 }
 
@@ -49,9 +49,9 @@ func NewNtpCollector() (Collector, error) {
 	}
 
 	return &ntpCollector{
-		drift: prometheus.NewGauge(prometheus.GaugeOpts{
+		offset: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: Namespace,
-			Name:      "ntp_drift_seconds",
+			Name:      "ntp_offset_seconds",
 			Help:      "Time between system time and ntp time.",
 		}),
 		stratum: prometheus.NewGauge(prometheus.GaugeOpts{
@@ -65,12 +65,12 @@ func NewNtpCollector() (Collector, error) {
 func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	resp, err := ntp.Query(*ntpServer, *ntpProtocolVersion)
 	if err != nil {
-		return fmt.Errorf("couldn't get NTP drift: %s", err)
+		return fmt.Errorf("couldn't get NTP offset: %s", err)
 	}
-	driftSeconds := resp.ClockOffset.Seconds()
-	log.Debugf("Set ntp_drift_seconds: %f", driftSeconds)
-	c.drift.Set(driftSeconds)
-	c.drift.Collect(ch)
+	offsetSeconds := resp.ClockOffset.Seconds()
+	log.Debugf("Set ntp_offset_seconds: %f", offsetSeconds)
+	c.offset.Set(offsetSeconds)
+	c.offset.Collect(ch)
 
 	stratum := float64(resp.Stratum)
 	log.Debugf("Set ntp_stratum: %f", stratum)
