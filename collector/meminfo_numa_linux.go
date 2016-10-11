@@ -87,29 +87,30 @@ func getMemInfoNuma() ([]meminfoMetric, error) {
 		return nil, err
 	}
 	for _, node := range nodes {
-		file, err := os.Open(path.Join(node, "meminfo"))
+		meminfoFile, err := os.Open(path.Join(node, "meminfo"))
 		if err != nil {
 			return nil, err
 		}
-		defer file.Close()
+		defer meminfoFile.Close()
 
-		numaInfo, err := parseMemInfoNuma(file)
+		numaInfo, err := parseMemInfoNuma(meminfoFile)
 		if err != nil {
 			return nil, err
 		}
 		metrics = append(metrics, numaInfo...)
 
-		file, err = os.Open(path.Join(node, "numastat"))
+		numastatFile, err := os.Open(path.Join(node, "numastat"))
 		if err != nil {
 			return nil, err
 		}
+		defer numastatFile.Close()
 
 		nodeNumber := meminfoNodeRE.FindStringSubmatch(node)
 		if nodeNumber == nil {
 			return nil, fmt.Errorf("device node string didn't match regexp: %s", node)
 		}
 
-		numaStat, err := parseMemInfoNumaStat(file, nodeNumber[1])
+		numaStat, err := parseMemInfoNumaStat(numastatFile, nodeNumber[1])
 		if err != nil {
 			return nil, err
 		}
@@ -177,8 +178,5 @@ func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, erro
 
 		numaStat = append(numaStat, meminfoMetric{parts[0], prometheus.CounterValue, nodeNumber, fv})
 	}
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("reading standard input:", err)
-	}
-	return numaStat, nil
+	return numaStat, scanner.Err()
 }
