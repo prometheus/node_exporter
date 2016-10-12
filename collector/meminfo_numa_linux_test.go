@@ -78,7 +78,7 @@ func TestMemInfoNumaStat(t *testing.T) {
 		t.Errorf("want numa stat numa_hit value %f, got %f", want, got)
 	}
 
-	if want, got := "numa_hit", numaStat[0].metricName; want != got {
+	if want, got := "numa_hit_total", numaStat[0].metricName; want != got {
 		t.Errorf("want numa stat numa_hit metricName %s, got %s", want, got)
 	}
 

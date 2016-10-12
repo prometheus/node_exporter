@@ -152,7 +152,7 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 		memInfo = append(memInfo, meminfoMetric{metric, prometheus.GaugeValue, parts[1], fv})
 	}
 
-	return memInfo, nil
+	return memInfo, scanner.Err()
 }
 
 func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, error) {
@@ -176,7 +176,7 @@ func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, erro
 			return nil, fmt.Errorf("invalid value in numastat: %s", err)
 		}
 
-		numaStat = append(numaStat, meminfoMetric{parts[0], prometheus.CounterValue, nodeNumber, fv})
+		numaStat = append(numaStat, meminfoMetric{parts[0] + "_total", prometheus.CounterValue, nodeNumber, fv})
 	}
 	return numaStat, scanner.Err()
 }

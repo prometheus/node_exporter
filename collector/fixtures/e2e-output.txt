@@ -1011,30 +1011,30 @@ node_memory_numa_Writeback{node="1"} 0
 # TYPE node_memory_numa_WritebackTmp gauge
 node_memory_numa_WritebackTmp{node="0"} 0
 node_memory_numa_WritebackTmp{node="1"} 0
-# HELP node_memory_numa_interleave_hit Memory information field interleave_hit.
-# TYPE node_memory_numa_interleave_hit counter
-node_memory_numa_interleave_hit{node="0"} 57146
-node_memory_numa_interleave_hit{node="1"} 57286
-# HELP node_memory_numa_local_node Memory information field local_node.
-# TYPE node_memory_numa_local_node counter
-node_memory_numa_local_node{node="0"} 1.93454780853e+11
-node_memory_numa_local_node{node="1"} 3.2671904655e+11
-# HELP node_memory_numa_numa_foreign Memory information field numa_foreign.
-# TYPE node_memory_numa_numa_foreign counter
-node_memory_numa_numa_foreign{node="0"} 5.98586233e+10
-node_memory_numa_numa_foreign{node="1"} 1.2624528e+07
-# HELP node_memory_numa_numa_hit Memory information field numa_hit.
-# TYPE node_memory_numa_numa_hit counter
-node_memory_numa_numa_hit{node="0"} 1.93460335812e+11
-node_memory_numa_numa_hit{node="1"} 3.26720946761e+11
-# HELP node_memory_numa_numa_miss Memory information field numa_miss.
-# TYPE node_memory_numa_numa_miss counter
-node_memory_numa_numa_miss{node="0"} 1.2624528e+07
-node_memory_numa_numa_miss{node="1"} 5.9858626709e+10
-# HELP node_memory_numa_other_node Memory information field other_node.
-# TYPE node_memory_numa_other_node counter
-node_memory_numa_other_node{node="0"} 1.8179487e+07
-node_memory_numa_other_node{node="1"} 5.986052692e+10
+# HELP node_memory_numa_interleave_hit_total Memory information field interleave_hit_total.
+# TYPE node_memory_numa_interleave_hit_total counter
+node_memory_numa_interleave_hit_total{node="0"} 57146
+node_memory_numa_interleave_hit_total{node="1"} 57286
+# HELP node_memory_numa_local_node_total Memory information field local_node_total.
+# TYPE node_memory_numa_local_node_total counter
+node_memory_numa_local_node_total{node="0"} 1.93454780853e+11
+node_memory_numa_local_node_total{node="1"} 3.2671904655e+11
+# HELP node_memory_numa_numa_foreign_total Memory information field numa_foreign_total.
+# TYPE node_memory_numa_numa_foreign_total counter
+node_memory_numa_numa_foreign_total{node="0"} 5.98586233e+10
+node_memory_numa_numa_foreign_total{node="1"} 1.2624528e+07
+# HELP node_memory_numa_numa_hit_total Memory information field numa_hit_total.
+# TYPE node_memory_numa_numa_hit_total counter
+node_memory_numa_numa_hit_total{node="0"} 1.93460335812e+11
+node_memory_numa_numa_hit_total{node="1"} 3.26720946761e+11
+# HELP node_memory_numa_numa_miss_total Memory information field numa_miss_total.
+# TYPE node_memory_numa_numa_miss_total counter
+node_memory_numa_numa_miss_total{node="0"} 1.2624528e+07
+node_memory_numa_numa_miss_total{node="1"} 5.9858626709e+10
+# HELP node_memory_numa_other_node_total Memory information field other_node_total.
+# TYPE node_memory_numa_other_node_total counter
+node_memory_numa_other_node_total{node="0"} 1.8179487e+07
+node_memory_numa_other_node_total{node="1"} 5.986052692e+10
 # HELP node_net_bonding_slaves Number of configured slaves per bonding interface.
 # TYPE node_net_bonding_slaves gauge
 node_net_bonding_slaves{master="bond0"} 0
