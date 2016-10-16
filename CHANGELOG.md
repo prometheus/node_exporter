@@ -16,11 +16,6 @@
 * [BUGFIX] Close file handler in textfile #263
 * [BUGFIX] Ignore partitions on NVME devices by default #268
 * [BUGFIX] Fix mdstat tabs parsing #275
-* [BUGFIX] Convert netstat collector to use ConstMetrics #281
-* [BUGFIX] Convert filefd collector to use ConstMetrics #282
-* [BUGFIX] Convert sockstat collector to use ConstMetrics #284
-* [BUGFIX] Convert meminfo collector to use ConstMetrics #283
-* [BUGFIX] Convert BSD meminfo collector to use ConstMetrics #285
 * [BUGFIX] Fix mdadm collector for resync=PENDING. #309
 
 ## 0.12.0 / 2016-05-05
