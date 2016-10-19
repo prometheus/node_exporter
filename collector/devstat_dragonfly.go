@@ -34,11 +34,6 @@ typedef struct {
 	uint64_t	bytes;
 	uint64_t	transfers;
 	uint64_t	blocks;
-	double		kb_per_transfer;
-	double		transfers_per_second;
-	double		mb_per_second;
-	double		blocks_per_second;
-	double		ms_per_transaction;
 } Stats;
 
 int _get_ndevs() {
@@ -87,11 +82,6 @@ Stats _get_stats(int i) {
 	stats.bytes = total_bytes;
 	stats.transfers = total_transfers;
 	stats.blocks = total_blocks;
-	stats.kb_per_transfer =	kb_per_transfer;
-	stats.transfers_per_second = transfers_per_second;
-	stats.mb_per_second = mb_per_second;
-	stats.blocks_per_second = blocks_per_second;
-	stats.ms_per_transaction = ms_per_transaction;
 
         return stats;
 }
@@ -103,14 +93,9 @@ const (
 )
 
 type devstatCollector struct {
-	bytes_total             *prometheus.CounterVec
-	transfers_total         *prometheus.CounterVec
-	blocks_total            *prometheus.CounterVec
-	bytes_per_transfer      *prometheus.GaugeVec
-	transfers_per_second    *prometheus.GaugeVec
-	bytes_per_second        *prometheus.GaugeVec
-	blocks_per_second       *prometheus.GaugeVec
-	seconds_per_transaction *prometheus.GaugeVec
+	bytesDesc     *prometheus.Desc
+	transfersDesc *prometheus.Desc
+	blocksDesc    *prometheus.Desc
 }
 
 func init() {
@@ -121,77 +106,20 @@ func init() {
 // Device stats.
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
-		bytes_total: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "bytes_total",
-				Help:      "The total number of bytes transferred for reads and writes on the device.",
-			},
-			[]string{"device"},
+		bytesDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "bytes_total"),
+			"The total number of bytes transferred for reads and writes on the device.",
+			[]string{"device"}, nil,
 		),
-		transfers_total: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "transfers_total",
-				Help:      "The total number of transactions completed.",
-			},
-			[]string{"device"},
+		transfersDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "transfers_total"),
+			"The total number of transactions completed.",
+			[]string{"device"}, nil,
 		),
-		blocks_total: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "blocks_total",
-				Help:      "The total number of bytes given in terms of the devices blocksize.",
-			},
-			[]string{"device"},
-		),
-		bytes_per_transfer: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "bytes_per_transfer",
-				Help:      "The average number of bytes per transfer.",
-			},
-			[]string{"device"},
-		),
-		transfers_per_second: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "transfers_per_second",
-				Help:      "The average number of transfers per second.",
-			},
-			[]string{"device"},
-		),
-		bytes_per_second: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "bytes_per_second",
-				Help:      "The average bytes per second.",
-			},
-			[]string{"device"},
-		),
-		blocks_per_second: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "blocks_per_second",
-				Help:      "The average blocks per second.",
-			},
-			[]string{"device"},
-		),
-		seconds_per_transaction: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "seconds_per_transaction",
-				Help:      "The average number of seconds per transaction.",
-			},
-			[]string{"device"},
+		blocksDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "blocks_total"),
+			"The total number of bytes given in terms of the devices blocksize.",
+			[]string{"device"}, nil,
 		),
 	}, nil
 }
@@ -209,24 +137,10 @@ func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		stats := C._get_stats(i)
 		device := fmt.Sprintf("%s%d", C.GoString(&stats.device[0]), stats.unit)
 
-		c.bytes_total.With(prometheus.Labels{"device": device}).Set(float64(stats.bytes))
-		c.transfers_total.With(prometheus.Labels{"device": device}).Set(float64(stats.transfers))
-		c.blocks_total.With(prometheus.Labels{"device": device}).Set(float64(stats.blocks))
-		c.bytes_per_transfer.With(prometheus.Labels{"device": device}).Set(float64(stats.kb_per_transfer) * 1000)
-		c.bytes_per_second.With(prometheus.Labels{"device": device}).Set(float64(stats.mb_per_second) * 1000000)
-		c.transfers_per_second.With(prometheus.Labels{"device": device}).Set(float64(stats.transfers_per_second))
-		c.blocks_per_second.With(prometheus.Labels{"device": device}).Set(float64(stats.blocks_per_second))
-		c.seconds_per_transaction.With(prometheus.Labels{"device": device}).Set(float64(stats.ms_per_transaction) / 1000)
+		ch <- prometheus.MustNewConstMetric(c.bytesDesc, prometheus.CounterValue, float64(stats.bytes), device)
+		ch <- prometheus.MustNewConstMetric(c.transfersDesc, prometheus.CounterValue, float64(stats.transfers), device)
+		ch <- prometheus.MustNewConstMetric(c.blocksDesc, prometheus.CounterValue, float64(stats.blocks), device)
 	}
-
-	c.bytes_total.Collect(ch)
-	c.transfers_total.Collect(ch)
-	c.blocks_total.Collect(ch)
-	c.bytes_per_transfer.Collect(ch)
-	c.bytes_per_second.Collect(ch)
-	c.transfers_per_second.Collect(ch)
-	c.blocks_per_second.Collect(ch)
-	c.seconds_per_transaction.Collect(ch)
 
 	return err
 }
