@@ -306,22 +306,12 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 	// human readable names would be bat0 or coretemp, while a path string
 	// could be platform_applesmc.768
 
-	// preference 1: is there a name file
-
-	sysnameRaw, nameErr := ioutil.ReadFile(path.Join(dir, "name"))
-	if nameErr == nil && string(sysnameRaw) != "" {
-		cleanName := cleanMetricName(string(sysnameRaw))
-		if cleanName != "" {
-			return cleanName, nil
-		}
-	}
-
-	// preference 2: construct a name based on device
+	// preference 1: construct a name based on device name, always unique
 
 	devicePath, devErr := filepath.EvalSymlinks(path.Join(dir, "device"))
 	if devErr == nil {
 		devPathPrefix, devName := path.Split(devicePath)
-		_, devType := path.Split(devPathPrefix)
+		_, devType := path.Split(strings.TrimRight(devPathPrefix, "/"))
 
 		cleanDevName := cleanMetricName(devName)
 		cleanDevType := cleanMetricName(devType)
@@ -332,6 +322,15 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 
 		if cleanDevName != "" {
 			return cleanDevName, nil
+		}
+	}
+
+	// preference 2: is there a name file
+	sysnameRaw, nameErr := ioutil.ReadFile(path.Join(dir, "name"))
+	if nameErr == nil && string(sysnameRaw) != "" {
+		cleanName := cleanMetricName(string(sysnameRaw))
+		if cleanName != "" {
+			return cleanName, nil
 		}
 	}
 
