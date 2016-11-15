@@ -40,4 +40,7 @@ md12 : active raid0 sdc2[0] sdd2[1]
 md219 : inactive sdb[2](S) sdc[1](S) sda[0](S)
     7932 blocks super external:imsm
 
+md00 : active raid0 xvdb[0]
+      4186624 blocks super 1.2 256k chunks
+
 unused devices: <none>

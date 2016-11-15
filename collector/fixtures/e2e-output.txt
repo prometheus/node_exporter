@@ -713,6 +713,7 @@ node_load5 0.37
 # HELP node_md_blocks Total number of blocks on device.
 # TYPE node_md_blocks gauge
 node_md_blocks{device="md0"} 248896
+node_md_blocks{device="md00"} 4.186624e+06
 node_md_blocks{device="md10"} 3.14159265e+08
 node_md_blocks{device="md11"} 4.190208e+06
 node_md_blocks{device="md12"} 3.886394368e+09
@@ -727,6 +728,7 @@ node_md_blocks{device="md9"} 523968
 # HELP node_md_blocks_synced Number of blocks synced on device.
 # TYPE node_md_blocks_synced gauge
 node_md_blocks_synced{device="md0"} 248896
+node_md_blocks_synced{device="md00"} 4.186624e+06
 node_md_blocks_synced{device="md10"} 3.14159265e+08
 node_md_blocks_synced{device="md11"} 4.190208e+06
 node_md_blocks_synced{device="md12"} 3.886394368e+09
@@ -741,6 +743,7 @@ node_md_blocks_synced{device="md9"} 523968
 # HELP node_md_disks Total number of disks of device.
 # TYPE node_md_disks gauge
 node_md_disks{device="md0"} 2
+node_md_disks{device="md00"} 1
 node_md_disks{device="md10"} 2
 node_md_disks{device="md11"} 2
 node_md_disks{device="md12"} 2
@@ -755,6 +758,7 @@ node_md_disks{device="md9"} 4
 # HELP node_md_disks_active Number of active disks of device.
 # TYPE node_md_disks_active gauge
 node_md_disks_active{device="md0"} 2
+node_md_disks_active{device="md00"} 1
 node_md_disks_active{device="md10"} 2
 node_md_disks_active{device="md11"} 2
 node_md_disks_active{device="md12"} 2
@@ -769,6 +773,7 @@ node_md_disks_active{device="md9"} 4
 # HELP node_md_is_active Indicator whether the md-device is active or not.
 # TYPE node_md_is_active gauge
 node_md_is_active{device="md0"} 1
+node_md_is_active{device="md00"} 1
 node_md_is_active{device="md10"} 1
 node_md_is_active{device="md11"} 1
 node_md_is_active{device="md12"} 1
