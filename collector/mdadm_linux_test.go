@@ -25,6 +25,7 @@ func TestMdadm(t *testing.T) {
 	}
 
 	refs := map[string]mdStatus{
+		// { "<name>", <active?>, <numDisksActive>, <totalNumDisks>, <amountSynced>, <totalSize>}
 		"md3":   {"md3", true, 8, 8, 5853468288, 5853468288},
 		"md127": {"md127", true, 2, 2, 312319552, 312319552},
 		"md0":   {"md0", true, 2, 2, 248896, 248896},
@@ -36,6 +37,7 @@ func TestMdadm(t *testing.T) {
 		"md10":  {"md10", true, 2, 2, 314159265, 314159265},
 		"md11":  {"md11", true, 2, 2, 4190208, 4190208},
 		"md219": {"md219", false, 2, 2, 7932, 7932},
+		"md00":  {"md00", true, 1, 1, 4186624, 4186624},
 	}
 
 	for _, md := range mdStates {

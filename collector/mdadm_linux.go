@@ -29,7 +29,7 @@ import (
 
 var (
 	statuslineRE           = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
-	raid0lineRE            = regexp.MustCompile(`(\d+) blocks \d+k chunks`)
+	raid0lineRE            = regexp.MustCompile(`(\d+) blocks( super ([0-9\.])*)? \d+k chunks`)
 	buildlineRE            = regexp.MustCompile(`\((\d+)/\d+\)`)
 	unknownPersonalityLine = regexp.MustCompile(`(\d+) blocks (.*)`)
 	raidPersonalityRE      = regexp.MustCompile(`raid[0-9]+`)
@@ -82,7 +82,7 @@ func evalStatusline(statusline string) (active, total, size int64, err error) {
 func evalRaid0line(statusline string) (size int64, err error) {
 	matches := raid0lineRE.FindStringSubmatch(statusline)
 
-	if len(matches) != 2 {
+	if len(matches) < 2 {
 		return 0, fmt.Errorf("invalid raid0 status line: %s", statusline)
 	}
 
@@ -179,6 +179,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		for _, possiblePersonality := range mainLine {
 			if raidPersonalityRE.MatchString(possiblePersonality) {
 				personality = possiblePersonality
+				// break
 			}
 		}
 
