@@ -34,4 +34,7 @@ md11 : active (auto-read-only) raid1 sdb2[0] sdc2[1]
       4190208 blocks super 1.2 [2/2] [UU]
 	resync=PENDING
 
+md12 : active raid0 sdc2[0] sdd2[1]
+      3886394368 blocks super 1.2 512k chunks
+
 unused devices: <none>
