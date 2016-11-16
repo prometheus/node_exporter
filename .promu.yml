@@ -27,5 +27,6 @@ crossbuild:
         - linux/arm
         - linux/arm64
         - netbsd/arm
-        - linux/ppc64
-        - linux/ppc64le
+        # Temporarily deactivated as this does not currently build with promu.
+        #- linux/mips64
+        #- linux/mips64le
