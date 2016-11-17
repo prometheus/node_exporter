@@ -1,5 +1,7 @@
 ## v0.13.0 / unreleased
 
+NOTE: We have disabled builds of linux/ppc64 and linux/ppc64le due to build bugs.
+
 * [FEATURE] Add flag to ignore certain filesystem types (Copy of #217) #241
 * [FEATURE] Add NTP stratum to NTP collector. #247
 * [FEATURE] Add ignored-units flag for systemd collector #286
@@ -7,6 +9,8 @@
 * [FEATURE] Compile meminfo for dfly #315
 * [FEATURE] Add hwmon /sensors support #278
 * [FEATURE] Add Linux NUMA "numastat" metrics #249
+* [FEATURE] export DragonFlyBSD CPU time #310
+* [FEATURE] Dragonfly devstat #323
 * [IMPROVEMENT] Use the offset calculation that includes round trip time in the ntp collector #250
 * [IMPROVEMENT] Enable `*bsd` collector on darwin #265
 * [IMPROVEMENT] Use meminfo_freebsd on darwin as well #266
@@ -17,6 +21,8 @@
 * [BUGFIX] Ignore partitions on NVME devices by default #268
 * [BUGFIX] Fix mdstat tabs parsing #275
 * [BUGFIX] Fix mdadm collector for resync=PENDING. #309
+* [BUGFIX] mdstat: Fix parsing of RAID0 lines that contain additional attributes. #341
+* [BUGFIX] Fix additional mdadm parsing cases #346
 
 ## 0.12.0 / 2016-05-05
 
