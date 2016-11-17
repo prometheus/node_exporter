@@ -38,9 +38,13 @@ var (
 type megaCliCollector struct {
 	cli string
 
-	driveTemperature *prometheus.GaugeVec
-	driveCounters    *prometheus.CounterVec
-	drivePresence    *prometheus.GaugeVec
+	batteryVoltage               prometheus.Gauge
+	batteryCurrent               prometheus.Gauge
+	batteryPeriodicLearnRequired prometheus.Gauge
+	batteryTemperature           prometheus.Gauge
+	driveTemperature             *prometheus.GaugeVec
+	driveCounters                *prometheus.CounterVec
+	drivePresence                *prometheus.GaugeVec
 }
 
 func init() {
@@ -52,6 +56,26 @@ func init() {
 func NewMegaCliCollector() (Collector, error) {
 	return &megaCliCollector{
 		cli: *megacliCommand,
+		batteryVoltage: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "megacli_battery_voltage_volts",
+			Help:      "megacli: backup battery unit voltage",
+		}),
+		batteryCurrent: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "megacli_battery_current_ampere",
+			Help:      "megacli: backup battery unit current",
+		}),
+		batteryPeriodicLearnRequired: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "megacli_battery_periodic_learn_required",
+			Help:      "megacli: backup battery unit periodic learn required",
+		}),
+		batteryTemperature: prometheus.NewGauge(prometheus.GaugeOpts{
+			Namespace: Namespace,
+			Name:      "megacli_battery_temperature_celsius",
+			Help:      "megacli: backup battery unit temperature",
+		}),
 		driveTemperature: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Name:      "megacli_drive_temperature_celsius",
@@ -75,7 +99,15 @@ func (c *megaCliCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return err
 	}
+	err = c.updateBattery()
+	if err != nil {
+		return err
+	}
 	err = c.updateDisks()
+	c.batteryVoltage.Collect(ch)
+	c.batteryCurrent.Collect(ch)
+	c.batteryPeriodicLearnRequired.Collect(ch)
+	c.batteryTemperature.Collect(ch)
 	c.driveTemperature.Collect(ch)
 	c.driveCounters.Collect(ch)
 	c.drivePresence.Collect(ch)
@@ -157,6 +189,33 @@ func parseMegaCliAdapter(r io.Reader) (map[string]map[string]string, error) {
 	return raidStats, nil
 }
 
+func parseMegaCliBattery(r io.Reader) map[string]map[string]string {
+	var (
+		stats    = map[string]map[string]string{"": map[string]string{}}
+		scanner  = bufio.NewScanner(r)
+		category = ""
+	)
+
+	for scanner.Scan() {
+		parts := strings.SplitN(scanner.Text(), ":", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			value := strings.TrimSpace(parts[1])
+			if parts[0][0] == ' ' {
+				if _, ok := stats[category]; !ok {
+					stats[category] = map[string]string{}
+				}
+				stats[category][key] = value
+			} else {
+				stats[""][key] = value
+				category = key
+			}
+		}
+	}
+
+	return stats
+}
+
 func (c *megaCliCollector) updateAdapter() error {
 	cmd := exec.Command(c.cli, "-AdpAllInfo", "-aALL")
 	pipe, err := cmd.StdoutPipe()
@@ -183,6 +242,61 @@ func (c *megaCliCollector) updateAdapter() error {
 		}
 		c.drivePresence.WithLabelValues(k).Set(value)
 	}
+	return nil
+}
+
+func (c *megaCliCollector) updateBattery() error {
+	cmd := exec.Command(c.cli, "-AdpBbuCmd", "-aAll")
+	pipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	stats := parseMegaCliBattery(pipe)
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+
+	tStr := stats[""]["Current"]
+	if i := strings.Index(tStr, " mA"); i > 0 {
+		tStr = tStr[:i]
+		t, err := strconv.ParseFloat(tStr, 64)
+		if err != nil {
+			return err
+		}
+		c.batteryCurrent.Set(t / 1000)
+	}
+
+	tStr = stats[""]["Temperature"]
+	if i := strings.Index(tStr, " C"); i > 0 {
+		tStr = tStr[:i]
+		t, err := strconv.ParseFloat(tStr, 64)
+		if err != nil {
+			return err
+		}
+		c.batteryTemperature.Set(t)
+	}
+
+	tStr = stats[""]["Voltage"]
+	if i := strings.Index(tStr, " mV"); i > 0 {
+		tStr = tStr[:i]
+		t, err := strconv.ParseFloat(tStr, 64)
+		if err != nil {
+			return err
+		}
+		c.batteryVoltage.Set(t / 1000)
+	}
+
+	if stats["BBU Firmware Status"]["Periodic Learn Required"] == "Yes" {
+		c.batteryPeriodicLearnRequired.Set(1)
+	} else {
+		c.batteryPeriodicLearnRequired.Set(0)
+	}
+
 	return nil
 }
 

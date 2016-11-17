@@ -775,6 +775,27 @@ node_md_is_active{device="md6"} 1
 node_md_is_active{device="md7"} 1
 node_md_is_active{device="md8"} 1
 node_md_is_active{device="md9"} 1
+# HELP node_megacli_adapter_disk_presence megacli: disk presence per adapter
+# TYPE node_megacli_adapter_disk_presence gauge
+node_megacli_adapter_disk_presence{type="Critical Disks"} 0
+node_megacli_adapter_disk_presence{type="Degraded"} 0
+node_megacli_adapter_disk_presence{type="Disks"} 4
+node_megacli_adapter_disk_presence{type="Failed Disks"} 0
+node_megacli_adapter_disk_presence{type="Offline"} 0
+node_megacli_adapter_disk_presence{type="Physical Devices"} 5
+node_megacli_adapter_disk_presence{type="Virtual Drives"} 1
+# HELP node_megacli_battery_current_ampere megacli: backup battery unit current
+# TYPE node_megacli_battery_current_ampere gauge
+node_megacli_battery_current_ampere 0.042
+# HELP node_megacli_battery_periodic_learn_required megacli: backup battery unit periodic learn required
+# TYPE node_megacli_battery_periodic_learn_required gauge
+node_megacli_battery_periodic_learn_required 1
+# HELP node_megacli_battery_temperature_celsius megacli: backup battery unit temperature
+# TYPE node_megacli_battery_temperature_celsius gauge
+node_megacli_battery_temperature_celsius 45
+# HELP node_megacli_battery_voltage_volts megacli: backup battery unit voltage
+# TYPE node_megacli_battery_voltage_volts gauge
+node_megacli_battery_voltage_volts 3.934
 # HELP node_megacli_drive_count megacli: drive error and event counters
 # TYPE node_megacli_drive_count counter
 node_megacli_drive_count{enclosure="32",slot="0",type="Media Error Count"} 0

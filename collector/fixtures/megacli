@@ -1,3 +1,13 @@
 #!/usr/bin/env bash
 
-cat "$(dirname "$0")/megacli_disks.txt"
+case "$1" in
+-AdpAllInfo)
+  cat "$(dirname "$0")/megacli_adapter.txt"
+  ;;
+-AdpBbuCmd)
+  cat "$(dirname "$0")/megacli_battery.txt"
+  ;;
+-PDList)
+  cat "$(dirname "$0")/megacli_disks.txt"
+  ;;
+esac

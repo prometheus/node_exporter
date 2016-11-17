@@ -1,0 +1,84 @@
+                                     
+BBU status for Adapter: 0
+
+BatteryType: BBU
+Voltage: 3934 mV
+Current: 42 mA
+Temperature: 45 C
+
+BBU Firmware Status:
+
+  Charging Status              : None
+  Voltage                                 : OK
+  Temperature                             : OK
+  Learn Cycle Requested	                  : No
+  Learn Cycle Active                      : No
+  Learn Cycle Status                      : OK
+  Learn Cycle Timeout                     : No
+  I2c Errors Detected                     : No
+  Battery Pack Missing                    : No
+  Battery Replacement required            : No
+  Remaining Capacity Low                  : No
+  Periodic Learn Required                 : Yes
+  Transparent Learn                       : No
+  No space to cache offload               : No
+  Pack is about to fail & should be replaced : No
+  Cache Offload premium feature required  : No
+  Module microcode update required        : No
+
+Battery state: 
+
+GasGuageStatus:
+  Fully Discharged        : No
+  Fully Charged           : Yes
+  Discharging             : No
+  Initialized             : No
+  Remaining Time Alarm    : No
+  Remaining Capacity Alarm: Yes
+  Discharge Terminated    : No
+  Over Temperature        : No
+  Charging Terminated     : No
+  Over Charged            : No
+
+Relative State of Charge: 99 %
+Charger Status: Complete
+Remaining Capacity: 229 mAh
+Full Charge Capacity: 232 mAh
+isSOHGood: Yes
+
+BBU Capacity Info for Adapter: 0
+
+Relative State of Charge: 99 %
+Absolute State of charge: 0 %
+Remaining Capacity: 229 mAh
+Full Charge Capacity: 232 mAh
+Run time to empty: Battery is not being discharged 
+Average time to empty: 18 min 
+Average Time to full: Battery is not being charged 
+Cycle Count: 7
+Max Error = 0 %
+Remaining Capacity Alarm = 0 mAh
+Remining Time Alarm = 0 Min
+
+BBU Design Info for Adapter: 0
+
+Date of Manufacture: 07/18, 2011
+Design Capacity: 90 mAh
+Design Voltage: 0 mV
+Specification Info: 0
+Serial Number: 0
+Pack Stat Configuration: 0x0000
+Manufacture Name: 
+Device Name: 
+Device Chemistry: 
+Battery FRU: N/A
+
+
+BBU Properties for Adapter: 0
+
+Auto Learn Period: 7776000 Sec
+Next Learn time: 540215340 Sec 
+Learn Delay Interval:0 Hours
+Auto-Learn Mode: Enabled
+
+Exit Code: 0x00
