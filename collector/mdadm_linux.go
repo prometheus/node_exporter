@@ -28,11 +28,11 @@ import (
 )
 
 var (
-	statuslineRE           = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
-	raid0lineRE            = regexp.MustCompile(`(\d+) blocks( super ([0-9\.])*)? \d+k chunks`)
-	buildlineRE            = regexp.MustCompile(`\((\d+)/\d+\)`)
-	unknownPersonalityLine = regexp.MustCompile(`(\d+) blocks (.*)`)
-	raidPersonalityRE      = regexp.MustCompile(`raid[0-9]+`)
+	statuslineRE             = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
+	raid0lineRE              = regexp.MustCompile(`(\d+) blocks( super ([0-9\.])*)? \d+k chunks`)
+	buildlineRE              = regexp.MustCompile(`\((\d+)/\d+\)`)
+	unknownPersonalityLineRE = regexp.MustCompile(`(\d+) blocks (.*)`)
+	raidPersonalityRE        = regexp.MustCompile(`raid[0-9]+`)
 )
 
 type mdStatus struct {
@@ -94,8 +94,8 @@ func evalRaid0line(statusline string) (size int64, err error) {
 	return size, nil
 }
 
-func evalUnknownPersonalityline(statusline string) (size int64, err error) {
-	matches := unknownPersonalityLine.FindStringSubmatch(statusline)
+func evalUnknownPersonalitylineRE(statusline string) (size int64, err error) {
+	matches := unknownPersonalityLineRE.FindStringSubmatch(statusline)
 
 	if len(matches) != 2+1 {
 		return 0, fmt.Errorf("invalid unknown personality status line: %s", statusline)
@@ -176,10 +176,10 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		currentMD = mainLine[0]               // The name of the md-device.
 		isActive := (mainLine[2] == "active") // The activity status of the md-device.
 		personality = ""
-		for _, possiblePersonality := range mainLine {
+		for _, possiblePersonality := range mainLine[3:] {
 			if raidPersonalityRE.MatchString(possiblePersonality) {
 				personality = possiblePersonality
-				// break
+				break
 			}
 		}
 
@@ -196,7 +196,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 			active, total, size, err = evalStatusline(lines[i+1]) // Parse statusline, always present.
 		default:
 			log.Infof("Personality unknown: %s\n", mainLine)
-			size, err = evalUnknownPersonalityline(lines[i+1]) // Parse statusline, always present.
+			size, err = evalUnknownPersonalitylineRE(lines[i+1]) // Parse statusline, always present.
 		}
 
 		if err != nil {
