@@ -41,7 +41,7 @@ vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 Name     | Description | OS
 ---------|-------------|----
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
-devstat | Exposes device statistics | FreeBSD
+devstat | Exposes device statistics | Dragonfly, FreeBSD
 gmond | Exposes statistics from Ganglia. | _any_
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
