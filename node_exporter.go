@@ -39,7 +39,7 @@ var (
 	listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
 	metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 	enabledCollectors = flag.String("collectors.enabled",
-		filterAvailableCollectors("conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,version,vmstat"),
+		filterAvailableCollectors("conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,ntp,sockstat,stat,textfile,time,uname,version,vmstat"),
 		"Comma-separated list of collectors to use.")
 	printCollectors = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 
