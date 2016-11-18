@@ -1,0 +1,40 @@
+%YAML 1.1
+---
+Plan:
+- Command: Install
+  EffectiveKernel: [Linux/x86_64/3.16.0-4-amd64/#1 SMP Debian 3.16.7-ckt25-2+deb8u3
+      (2016-07-02), 3.16.7-ckt25-2+deb8u3]
+  ID: 2z3z68y0
+  Name: Clear garbage data on the kernel stack when handling signals.
+- {Command: Install, ID: 135q0p1f, Name: Provide an interface to freeze tasks.}
+- {Command: Install, ID: critw7sn, Name: 'CVE-2016-2188: Denial of service in IO Warrior
+    USB descriptor parsing.'}
+- {Command: Install, ID: 72znb9p4, Name: Information leak in 'environ' procfs file.}
+- {Command: Install, ID: m1ernblt, Name: Memory corruption when inserting data into
+    associative arrays.}
+- {Command: Install, ID: doh9gmqn, Name: Denial-of-service in recvmmsg() error handling.}
+- {Command: Install, ID: zticv3i6, Name: 'CVE-2016-5696: Session hijacking in TCP
+    connections.'}
+- {Command: Install, ID: dxfgo7jj, Name: 'CVE-2016-6828: Use after free during TCP
+    transmission.'}
+- Command: Install
+  EffectiveKernel: [Linux/x86_64/3.16.0-4-amd64/#1 SMP Debian 3.16.36-1+deb8u1 (2016-09-03),
+    3.16.36-1+deb8u1]
+  ID: ej8pnbd9
+  Name: 'CVE-2016-6480: Denial-of-service in Adaptec AACRAID driver.'
+- {Command: Install, ID: 0v5gajiu, Name: 'CVE-2016-0742: Stack corruption when reading
+    keys from proc filesystem.'}
+- {Command: Install, ID: wtbb5v7s, Name: 'CVE-2016-7425: Heap corruption in ARECA
+    SATA/SAS RAID host adapter.'}
+- {Command: Install, ID: w70nql5f, Name: 'CVE-2015-8956: NULL pointer dereference
+    in the Bluetooth stack.'}
+- {Command: Install, ID: 2i5dlb6y, Name: 'Improved fix to CVE-2016-3134: Memory corruption
+    when parsing netfilter source chains.'}
+- Command: Install
+  EffectiveKernel: [Linux/x86_64/3.16.0-4-amd64/#1 SMP Debian 3.16.36-1+deb8u2 (2016-10-19),
+    3.16.36-1+deb8u2]
+  ID: douoiwiq
+  Name: 'CVE-2016-5195: Privilege escalation when handling private mapping copy-on-write.'
+Time: 2016-11-03 05:33:44.640912
+Upgrade plan format version: '2'
+...

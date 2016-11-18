@@ -20,6 +20,7 @@ collectors=$(cat << COLLECTORS
   textfile
   bonding
   megacli
+  uptrack
 COLLECTORS
 )
 
@@ -66,6 +67,7 @@ fi
   -collectors.enabled="$(echo ${collectors} | tr ' ' ',')" \
   -collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   -collector.megacli.command="collector/fixtures/megacli" \
+  -collector.uptrack.upgrade_plan_path="collector/fixtures/uptrack_upgrade_plan.txt" \
   -web.listen-address "127.0.0.1:${port}" \
   -log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
