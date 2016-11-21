@@ -32,8 +32,8 @@ var (
 )
 
 type uptrackCollector struct {
-	timeDesc      *prometheus.Desc
-	planCountDesc *prometheus.Desc
+	timeDesc    *prometheus.Desc
+	patchesDesc *prometheus.Desc
 }
 
 func init() {
@@ -73,8 +73,8 @@ func NewUptrackCollector() (Collector, error) {
 			prometheus.BuildFQName(Namespace, "uptrack", "upgrade_plan_time_seconds"),
 			"Time at which Uptrack created the upgrade plan.",
 			nil, nil),
-		planCountDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "uptrack", "upgrade_plan_plan_count"),
+		patchesDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "uptrack", "upgrade_plan_patches"),
 			"Number of patches that still need to be applied to the running kernel.",
 			nil, nil),
 	}, nil
@@ -96,7 +96,7 @@ func (c *uptrackCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		prometheus.GaugeValue,
 		float64(plan.Time.UnixNano())/1e9)
 	ch <- prometheus.MustNewConstMetric(
-		c.planCountDesc,
+		c.patchesDesc,
 		prometheus.GaugeValue,
 		float64(len(plan.Plan)))
 	return nil
