@@ -19,7 +19,7 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 Name     | Description | OS
 ---------|-------------|----
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
-cpu | Exposes CPU statistics | FreeBSD
+cpu | Exposes CPU statistics | Dragonfly, FreeBSD
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
 entropy | Exposes available entropy. | Linux
 filefd | Exposes file descriptor statistics from `/proc/sys/fs/file-nr`. | Linux
