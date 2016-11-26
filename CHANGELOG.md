@@ -1,4 +1,4 @@
-## v0.13.0 / unreleased
+## v0.13.0 / 2016-11-26
 
 NOTE: We have disabled builds of linux/ppc64 and linux/ppc64le due to build bugs.
 
