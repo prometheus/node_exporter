@@ -35,7 +35,7 @@ const (
 var (
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
-	hwmonLabelDesc          = []string{"chip", "sensor"}
+	hwmonLabelDesc          = []string{"chip", "chipName", "sensor"}
 	hwmonSensorTypes        = []string{
 		"vrm", "beep_enable", "update_interval", "in", "cpu", "fan",
 		"pwm", "temp", "curr", "power", "energy", "humidity",
@@ -131,6 +131,11 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 		return err
 	}
 
+	hwmonHumanReadableName, err := c.hwmonHumanReadableName(dir)
+	if err != nil {
+		return err
+	}
+
 	data := make(map[string]map[string]string)
 	err = collectSensorData(dir, data)
 	if err != nil {
@@ -154,7 +159,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 				sensor = label
 			}
 		}
-		labels := []string{hwmonName, sensor}
+		labels := []string{hwmonName, hwmonHumanReadableName, sensor}
 
 		if sensorType == "beep_enable" {
 			value := 0.0
@@ -291,6 +296,35 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 	}
 
 	return nil
+}
+
+func (c *hwMonCollector) hwmonHumanReadableName(dir string) (string, error) {
+	// generate a human-readable name for a sensor path
+
+	sysnameRaw, nameErr := ioutil.ReadFile(path.Join(dir, "name"))
+	if nameErr == nil && string(sysnameRaw) != "" {
+		cleanName := cleanMetricName(string(sysnameRaw))
+		if cleanName != "" {
+			return cleanName, nil
+		}
+	}
+
+	// it looks bad, name and device don't provide enough information
+	// return a hwmon[0-9]* name
+
+	realDir, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return "", err
+	}
+
+	// take the last path element, this will be hwmonX
+	_, name := path.Split(realDir)
+	cleanName := cleanMetricName(name)
+	if cleanName != "" {
+		return cleanName, nil
+	}
+
+	return "", errors.New("Could not derive a human-readable monitoring name for " + dir)
 }
 
 func (c *hwMonCollector) hwmonName(dir string) (string, error) {
