@@ -479,198 +479,198 @@ node_filefd_maximum 1.631329e+06
 node_forks 26442
 # HELP node_hwmon_fan_alarm Hardware sensor alarm status (fan)
 # TYPE node_hwmon_fan_alarm gauge
-node_hwmon_fan_alarm{chip="nct6779",sensor="fan2"} 0
+node_hwmon_fan_alarm{chip="nct6779",chipName="nct6779",sensor="fan2"} 0
 # HELP node_hwmon_fan_beep_enabled Hardware monitor sensor has beeping enabled
 # TYPE node_hwmon_fan_beep_enabled gauge
-node_hwmon_fan_beep_enabled{chip="nct6779",sensor="fan2"} 0
+node_hwmon_fan_beep_enabled{chip="nct6779",chipName="nct6779",sensor="fan2"} 0
 # HELP node_hwmon_fan_manual Hardware monitor fan element manual
 # TYPE node_hwmon_fan_manual gauge
-node_hwmon_fan_manual{chip="platform_applesmc_768",sensor="left_side"} 0
-node_hwmon_fan_manual{chip="platform_applesmc_768",sensor="right_side"} 0
+node_hwmon_fan_manual{chip="platform_applesmc_768",chipName="hwmon2",sensor="left_side"} 0
+node_hwmon_fan_manual{chip="platform_applesmc_768",chipName="hwmon2",sensor="right_side"} 0
 # HELP node_hwmon_fan_max_rpm Hardware monitor for fan revolutions per minute (max)
 # TYPE node_hwmon_fan_max_rpm gauge
-node_hwmon_fan_max_rpm{chip="platform_applesmc_768",sensor="left_side"} 6156
-node_hwmon_fan_max_rpm{chip="platform_applesmc_768",sensor="right_side"} 5700
+node_hwmon_fan_max_rpm{chip="platform_applesmc_768",chipName="hwmon2",sensor="left_side"} 6156
+node_hwmon_fan_max_rpm{chip="platform_applesmc_768",chipName="hwmon2",sensor="right_side"} 5700
 # HELP node_hwmon_fan_min_rpm Hardware monitor for fan revolutions per minute (min)
 # TYPE node_hwmon_fan_min_rpm gauge
-node_hwmon_fan_min_rpm{chip="nct6779",sensor="fan2"} 0
-node_hwmon_fan_min_rpm{chip="platform_applesmc_768",sensor="left_side"} 2160
-node_hwmon_fan_min_rpm{chip="platform_applesmc_768",sensor="right_side"} 2000
+node_hwmon_fan_min_rpm{chip="nct6779",chipName="nct6779",sensor="fan2"} 0
+node_hwmon_fan_min_rpm{chip="platform_applesmc_768",chipName="hwmon2",sensor="left_side"} 2160
+node_hwmon_fan_min_rpm{chip="platform_applesmc_768",chipName="hwmon2",sensor="right_side"} 2000
 # HELP node_hwmon_fan_output Hardware monitor fan element output
 # TYPE node_hwmon_fan_output gauge
-node_hwmon_fan_output{chip="platform_applesmc_768",sensor="left_side"} 2160
-node_hwmon_fan_output{chip="platform_applesmc_768",sensor="right_side"} 2000
+node_hwmon_fan_output{chip="platform_applesmc_768",chipName="hwmon2",sensor="left_side"} 2160
+node_hwmon_fan_output{chip="platform_applesmc_768",chipName="hwmon2",sensor="right_side"} 2000
 # HELP node_hwmon_fan_pulses Hardware monitor fan element pulses
 # TYPE node_hwmon_fan_pulses gauge
-node_hwmon_fan_pulses{chip="nct6779",sensor="fan2"} 2
+node_hwmon_fan_pulses{chip="nct6779",chipName="nct6779",sensor="fan2"} 2
 # HELP node_hwmon_fan_rpm Hardware monitor for fan revolutions per minute (input)
 # TYPE node_hwmon_fan_rpm gauge
-node_hwmon_fan_rpm{chip="nct6779",sensor="fan2"} 1098
-node_hwmon_fan_rpm{chip="platform_applesmc_768",sensor="left_side"} 0
-node_hwmon_fan_rpm{chip="platform_applesmc_768",sensor="right_side"} 1998
+node_hwmon_fan_rpm{chip="nct6779",chipName="nct6779",sensor="fan2"} 1098
+node_hwmon_fan_rpm{chip="platform_applesmc_768",chipName="hwmon2",sensor="left_side"} 0
+node_hwmon_fan_rpm{chip="platform_applesmc_768",chipName="hwmon2",sensor="right_side"} 1998
 # HELP node_hwmon_fan_target_rpm Hardware monitor for fan revolutions per minute (target)
 # TYPE node_hwmon_fan_target_rpm gauge
-node_hwmon_fan_target_rpm{chip="nct6779",sensor="fan2"} 27000
+node_hwmon_fan_target_rpm{chip="nct6779",chipName="nct6779",sensor="fan2"} 27000
 # HELP node_hwmon_fan_tolerance Hardware monitor fan element tolerance
 # TYPE node_hwmon_fan_tolerance gauge
-node_hwmon_fan_tolerance{chip="nct6779",sensor="fan2"} 0
+node_hwmon_fan_tolerance{chip="nct6779",chipName="nct6779",sensor="fan2"} 0
 # HELP node_hwmon_in_alarm Hardware sensor alarm status (in)
 # TYPE node_hwmon_in_alarm gauge
-node_hwmon_in_alarm{chip="nct6779",sensor="in0"} 0
-node_hwmon_in_alarm{chip="nct6779",sensor="in1"} 1
+node_hwmon_in_alarm{chip="nct6779",chipName="nct6779",sensor="in0"} 0
+node_hwmon_in_alarm{chip="nct6779",chipName="nct6779",sensor="in1"} 1
 # HELP node_hwmon_in_beep_enabled Hardware monitor sensor has beeping enabled
 # TYPE node_hwmon_in_beep_enabled gauge
-node_hwmon_in_beep_enabled{chip="nct6779",sensor="in0"} 0
-node_hwmon_in_beep_enabled{chip="nct6779",sensor="in1"} 0
+node_hwmon_in_beep_enabled{chip="nct6779",chipName="nct6779",sensor="in0"} 0
+node_hwmon_in_beep_enabled{chip="nct6779",chipName="nct6779",sensor="in1"} 0
 # HELP node_hwmon_in_max_volts Hardware monitor for voltage (max)
 # TYPE node_hwmon_in_max_volts gauge
-node_hwmon_in_max_volts{chip="nct6779",sensor="in0"} 1.744
-node_hwmon_in_max_volts{chip="nct6779",sensor="in1"} 0
+node_hwmon_in_max_volts{chip="nct6779",chipName="nct6779",sensor="in0"} 1.744
+node_hwmon_in_max_volts{chip="nct6779",chipName="nct6779",sensor="in1"} 0
 # HELP node_hwmon_in_min_volts Hardware monitor for voltage (min)
 # TYPE node_hwmon_in_min_volts gauge
-node_hwmon_in_min_volts{chip="nct6779",sensor="in0"} 0
-node_hwmon_in_min_volts{chip="nct6779",sensor="in1"} 0
+node_hwmon_in_min_volts{chip="nct6779",chipName="nct6779",sensor="in0"} 0
+node_hwmon_in_min_volts{chip="nct6779",chipName="nct6779",sensor="in1"} 0
 # HELP node_hwmon_in_volts Hardware monitor for voltage (input)
 # TYPE node_hwmon_in_volts gauge
-node_hwmon_in_volts{chip="nct6779",sensor="in0"} 0.792
-node_hwmon_in_volts{chip="nct6779",sensor="in1"} 1.024
+node_hwmon_in_volts{chip="nct6779",chipName="nct6779",sensor="in0"} 0.792
+node_hwmon_in_volts{chip="nct6779",chipName="nct6779",sensor="in1"} 1.024
 # HELP node_hwmon_intrusion_alarm Hardware sensor alarm status (intrusion)
 # TYPE node_hwmon_intrusion_alarm gauge
-node_hwmon_intrusion_alarm{chip="nct6779",sensor="intrusion0"} 1
-node_hwmon_intrusion_alarm{chip="nct6779",sensor="intrusion1"} 1
+node_hwmon_intrusion_alarm{chip="nct6779",chipName="nct6779",sensor="intrusion0"} 1
+node_hwmon_intrusion_alarm{chip="nct6779",chipName="nct6779",sensor="intrusion1"} 1
 # HELP node_hwmon_intrusion_beep_enabled Hardware monitor sensor has beeping enabled
 # TYPE node_hwmon_intrusion_beep_enabled gauge
-node_hwmon_intrusion_beep_enabled{chip="nct6779",sensor="intrusion0"} 0
-node_hwmon_intrusion_beep_enabled{chip="nct6779",sensor="intrusion1"} 0
+node_hwmon_intrusion_beep_enabled{chip="nct6779",chipName="nct6779",sensor="intrusion0"} 0
+node_hwmon_intrusion_beep_enabled{chip="nct6779",chipName="nct6779",sensor="intrusion1"} 0
 # HELP node_hwmon_pwm_auto_point1_pwm Hardware monitor pwm element auto_point1_pwm
 # TYPE node_hwmon_pwm_auto_point1_pwm gauge
-node_hwmon_pwm_auto_point1_pwm{chip="nct6779",sensor="pwm1"} 153
+node_hwmon_pwm_auto_point1_pwm{chip="nct6779",chipName="nct6779",sensor="pwm1"} 153
 # HELP node_hwmon_pwm_auto_point1_temp Hardware monitor pwm element auto_point1_temp
 # TYPE node_hwmon_pwm_auto_point1_temp gauge
-node_hwmon_pwm_auto_point1_temp{chip="nct6779",sensor="pwm1"} 30000
+node_hwmon_pwm_auto_point1_temp{chip="nct6779",chipName="nct6779",sensor="pwm1"} 30000
 # HELP node_hwmon_pwm_auto_point2_pwm Hardware monitor pwm element auto_point2_pwm
 # TYPE node_hwmon_pwm_auto_point2_pwm gauge
-node_hwmon_pwm_auto_point2_pwm{chip="nct6779",sensor="pwm1"} 255
+node_hwmon_pwm_auto_point2_pwm{chip="nct6779",chipName="nct6779",sensor="pwm1"} 255
 # HELP node_hwmon_pwm_auto_point2_temp Hardware monitor pwm element auto_point2_temp
 # TYPE node_hwmon_pwm_auto_point2_temp gauge
-node_hwmon_pwm_auto_point2_temp{chip="nct6779",sensor="pwm1"} 70000
+node_hwmon_pwm_auto_point2_temp{chip="nct6779",chipName="nct6779",sensor="pwm1"} 70000
 # HELP node_hwmon_pwm_auto_point3_pwm Hardware monitor pwm element auto_point3_pwm
 # TYPE node_hwmon_pwm_auto_point3_pwm gauge
-node_hwmon_pwm_auto_point3_pwm{chip="nct6779",sensor="pwm1"} 255
+node_hwmon_pwm_auto_point3_pwm{chip="nct6779",chipName="nct6779",sensor="pwm1"} 255
 # HELP node_hwmon_pwm_auto_point3_temp Hardware monitor pwm element auto_point3_temp
 # TYPE node_hwmon_pwm_auto_point3_temp gauge
-node_hwmon_pwm_auto_point3_temp{chip="nct6779",sensor="pwm1"} 70000
+node_hwmon_pwm_auto_point3_temp{chip="nct6779",chipName="nct6779",sensor="pwm1"} 70000
 # HELP node_hwmon_pwm_auto_point4_pwm Hardware monitor pwm element auto_point4_pwm
 # TYPE node_hwmon_pwm_auto_point4_pwm gauge
-node_hwmon_pwm_auto_point4_pwm{chip="nct6779",sensor="pwm1"} 255
+node_hwmon_pwm_auto_point4_pwm{chip="nct6779",chipName="nct6779",sensor="pwm1"} 255
 # HELP node_hwmon_pwm_auto_point4_temp Hardware monitor pwm element auto_point4_temp
 # TYPE node_hwmon_pwm_auto_point4_temp gauge
-node_hwmon_pwm_auto_point4_temp{chip="nct6779",sensor="pwm1"} 70000
+node_hwmon_pwm_auto_point4_temp{chip="nct6779",chipName="nct6779",sensor="pwm1"} 70000
 # HELP node_hwmon_pwm_auto_point5_pwm Hardware monitor pwm element auto_point5_pwm
 # TYPE node_hwmon_pwm_auto_point5_pwm gauge
-node_hwmon_pwm_auto_point5_pwm{chip="nct6779",sensor="pwm1"} 255
+node_hwmon_pwm_auto_point5_pwm{chip="nct6779",chipName="nct6779",sensor="pwm1"} 255
 # HELP node_hwmon_pwm_auto_point5_temp Hardware monitor pwm element auto_point5_temp
 # TYPE node_hwmon_pwm_auto_point5_temp gauge
-node_hwmon_pwm_auto_point5_temp{chip="nct6779",sensor="pwm1"} 75000
+node_hwmon_pwm_auto_point5_temp{chip="nct6779",chipName="nct6779",sensor="pwm1"} 75000
 # HELP node_hwmon_pwm_crit_temp_tolerance Hardware monitor pwm element crit_temp_tolerance
 # TYPE node_hwmon_pwm_crit_temp_tolerance gauge
-node_hwmon_pwm_crit_temp_tolerance{chip="nct6779",sensor="pwm1"} 2000
+node_hwmon_pwm_crit_temp_tolerance{chip="nct6779",chipName="nct6779",sensor="pwm1"} 2000
 # HELP node_hwmon_pwm_enable Hardware monitor pwm element enable
 # TYPE node_hwmon_pwm_enable gauge
-node_hwmon_pwm_enable{chip="nct6779",sensor="pwm1"} 5
+node_hwmon_pwm_enable{chip="nct6779",chipName="nct6779",sensor="pwm1"} 5
 # HELP node_hwmon_pwm_floor Hardware monitor pwm element floor
 # TYPE node_hwmon_pwm_floor gauge
-node_hwmon_pwm_floor{chip="nct6779",sensor="pwm1"} 1
+node_hwmon_pwm_floor{chip="nct6779",chipName="nct6779",sensor="pwm1"} 1
 # HELP node_hwmon_pwm_mode Hardware monitor pwm element mode
 # TYPE node_hwmon_pwm_mode gauge
-node_hwmon_pwm_mode{chip="nct6779",sensor="pwm1"} 1
+node_hwmon_pwm_mode{chip="nct6779",chipName="nct6779",sensor="pwm1"} 1
 # HELP node_hwmon_pwm_start Hardware monitor pwm element start
 # TYPE node_hwmon_pwm_start gauge
-node_hwmon_pwm_start{chip="nct6779",sensor="pwm1"} 1
+node_hwmon_pwm_start{chip="nct6779",chipName="nct6779",sensor="pwm1"} 1
 # HELP node_hwmon_pwm_step_down_time Hardware monitor pwm element step_down_time
 # TYPE node_hwmon_pwm_step_down_time gauge
-node_hwmon_pwm_step_down_time{chip="nct6779",sensor="pwm1"} 100
+node_hwmon_pwm_step_down_time{chip="nct6779",chipName="nct6779",sensor="pwm1"} 100
 # HELP node_hwmon_pwm_step_up_time Hardware monitor pwm element step_up_time
 # TYPE node_hwmon_pwm_step_up_time gauge
-node_hwmon_pwm_step_up_time{chip="nct6779",sensor="pwm1"} 100
+node_hwmon_pwm_step_up_time{chip="nct6779",chipName="nct6779",sensor="pwm1"} 100
 # HELP node_hwmon_pwm_stop_time Hardware monitor pwm element stop_time
 # TYPE node_hwmon_pwm_stop_time gauge
-node_hwmon_pwm_stop_time{chip="nct6779",sensor="pwm1"} 6000
+node_hwmon_pwm_stop_time{chip="nct6779",chipName="nct6779",sensor="pwm1"} 6000
 # HELP node_hwmon_pwm_target_temp Hardware monitor pwm element target_temp
 # TYPE node_hwmon_pwm_target_temp gauge
-node_hwmon_pwm_target_temp{chip="nct6779",sensor="pwm1"} 0
+node_hwmon_pwm_target_temp{chip="nct6779",chipName="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_pwm_temp_sel Hardware monitor pwm element temp_sel
 # TYPE node_hwmon_pwm_temp_sel gauge
-node_hwmon_pwm_temp_sel{chip="nct6779",sensor="pwm1"} 7
+node_hwmon_pwm_temp_sel{chip="nct6779",chipName="nct6779",sensor="pwm1"} 7
 # HELP node_hwmon_pwm_temp_tolerance Hardware monitor pwm element temp_tolerance
 # TYPE node_hwmon_pwm_temp_tolerance gauge
-node_hwmon_pwm_temp_tolerance{chip="nct6779",sensor="pwm1"} 0
+node_hwmon_pwm_temp_tolerance{chip="nct6779",chipName="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_pwm_weight_duty_base Hardware monitor pwm element weight_duty_base
 # TYPE node_hwmon_pwm_weight_duty_base gauge
-node_hwmon_pwm_weight_duty_base{chip="nct6779",sensor="pwm1"} 0
+node_hwmon_pwm_weight_duty_base{chip="nct6779",chipName="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_pwm_weight_duty_step Hardware monitor pwm element weight_duty_step
 # TYPE node_hwmon_pwm_weight_duty_step gauge
-node_hwmon_pwm_weight_duty_step{chip="nct6779",sensor="pwm1"} 0
+node_hwmon_pwm_weight_duty_step{chip="nct6779",chipName="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_pwm_weight_temp_sel Hardware monitor pwm element weight_temp_sel
 # TYPE node_hwmon_pwm_weight_temp_sel gauge
-node_hwmon_pwm_weight_temp_sel{chip="nct6779",sensor="pwm1"} 1
+node_hwmon_pwm_weight_temp_sel{chip="nct6779",chipName="nct6779",sensor="pwm1"} 1
 # HELP node_hwmon_pwm_weight_temp_step Hardware monitor pwm element weight_temp_step
 # TYPE node_hwmon_pwm_weight_temp_step gauge
-node_hwmon_pwm_weight_temp_step{chip="nct6779",sensor="pwm1"} 0
+node_hwmon_pwm_weight_temp_step{chip="nct6779",chipName="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_pwm_weight_temp_step_base Hardware monitor pwm element weight_temp_step_base
 # TYPE node_hwmon_pwm_weight_temp_step_base gauge
-node_hwmon_pwm_weight_temp_step_base{chip="nct6779",sensor="pwm1"} 0
+node_hwmon_pwm_weight_temp_step_base{chip="nct6779",chipName="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_pwm_weight_temp_step_tol Hardware monitor pwm element weight_temp_step_tol
 # TYPE node_hwmon_pwm_weight_temp_step_tol gauge
-node_hwmon_pwm_weight_temp_step_tol{chip="nct6779",sensor="pwm1"} 0
+node_hwmon_pwm_weight_temp_step_tol{chip="nct6779",chipName="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_temp_celsius Hardware monitor for temperature (input)
 # TYPE node_hwmon_temp_celsius gauge
-node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="core_0"} 54
-node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="core_1"} 52
-node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="core_2"} 53
-node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="core_3"} 50
-node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="physical_id_0"} 55
-node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="core_0"} 54
-node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="core_1"} 52
-node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="core_2"} 53
-node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="core_3"} 50
-node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="physical_id_0"} 55
+node_hwmon_temp_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_0"} 54
+node_hwmon_temp_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_1"} 52
+node_hwmon_temp_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_2"} 53
+node_hwmon_temp_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_3"} 50
+node_hwmon_temp_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="physical_id_0"} 55
+node_hwmon_temp_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_0"} 54
+node_hwmon_temp_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_1"} 52
+node_hwmon_temp_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_2"} 53
+node_hwmon_temp_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_3"} 50
+node_hwmon_temp_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="physical_id_0"} 55
 # HELP node_hwmon_temp_crit_alarm_celsius Hardware monitor for temperature (crit_alarm)
 # TYPE node_hwmon_temp_crit_alarm_celsius gauge
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="core_0"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="core_1"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="core_2"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="core_3"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="physical_id_0"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="core_0"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="core_1"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="core_2"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="core_3"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="physical_id_0"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_0"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_1"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_2"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_3"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="physical_id_0"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_0"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_1"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_2"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_3"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="physical_id_0"} 0
 # HELP node_hwmon_temp_crit_celsius Hardware monitor for temperature (crit)
 # TYPE node_hwmon_temp_crit_celsius gauge
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="core_0"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="core_1"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="core_2"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="core_3"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="physical_id_0"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",sensor="core_0"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",sensor="core_1"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",sensor="core_2"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",sensor="core_3"} 100
-node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",sensor="physical_id_0"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_0"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_1"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_2"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_3"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="physical_id_0"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_0"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_1"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_2"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_3"} 100
+node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="physical_id_0"} 100
 # HELP node_hwmon_temp_max_celsius Hardware monitor for temperature (max)
 # TYPE node_hwmon_temp_max_celsius gauge
-node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="core_0"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="core_1"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="core_2"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="core_3"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="physical_id_0"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="core_0"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="core_1"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="core_2"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="core_3"} 84
-node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="physical_id_0"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_0"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_1"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_2"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="core_3"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_0",chipName="coretemp",sensor="physical_id_0"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_0"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_1"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_2"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="core_3"} 84
+node_hwmon_temp_max_celsius{chip="platform_coretemp_1",chipName="coretemp",sensor="physical_id_0"} 84
 # HELP node_intr Total number of interrupts serviced.
 # TYPE node_intr counter
 node_intr 8.885917e+06
