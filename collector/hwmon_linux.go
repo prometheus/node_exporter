@@ -36,6 +36,7 @@ var (
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
 	hwmonLabelDesc          = []string{"chip", "sensor"}
+	hwmonChipNameLabelDesc  = []string{"chip", "chip_name"}
 	hwmonSensorTypes        = []string{
 		"vrm", "beep_enable", "update_interval", "in", "cpu", "fan",
 		"pwm", "temp", "curr", "power", "energy", "humidity",
@@ -141,6 +142,26 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 		if err != nil {
 			return err
 		}
+	}
+
+	hwmonChipName, err := c.hwmonHumanReadableChipName(dir)
+
+	if err == nil {
+		// sensor chip metadata
+		desc := prometheus.NewDesc(
+			"node_hwmon_chip_names",
+			"Annotation metric for human-readable chip names",
+			hwmonChipNameLabelDesc,
+			nil,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			desc,
+			prometheus.GaugeValue,
+			1.0,
+			hwmonName,
+			hwmonChipName,
+		)
 	}
 
 	// format all sensors
@@ -349,6 +370,27 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 		return cleanName, nil
 	}
 	return "", errors.New("Could not derive a monitoring name for " + dir)
+}
+
+func (c *hwMonCollector) hwmonHumanReadableChipName(dir string) (string, error) {
+	// this is similar to the methods in hwmonName, but with different
+	// precedences -- we can allow duplicates here.
+
+	// preference 1: is there a name file
+
+	sysnameRaw, nameErr := ioutil.ReadFile(path.Join(dir, "name"))
+	if nameErr != nil {
+		return "", nameErr
+	}
+
+	if string(sysnameRaw) != "" {
+		cleanName := cleanMetricName(string(sysnameRaw))
+		if cleanName != "" {
+			return cleanName, nil
+		}
+	}
+
+	return "", errors.New("Could not derive a human-readable chip type for " + dir)
 }
 
 func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) (err error) {
