@@ -49,6 +49,7 @@ ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 megacli | Exposes RAID statistics from MegaCLI. | Linux
 meminfo_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
+nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 ntp | Exposes time drift from an NTP server. | _any_
 runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_

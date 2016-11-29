@@ -15,6 +15,7 @@ collectors=$(cat << COLLECTORS
   meminfo_numa
   netdev
   netstat
+  nfs
   sockstat
   stat
   textfile
