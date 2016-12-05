@@ -5,6 +5,7 @@ set -euf -o pipefail
 collectors=$(cat << COLLECTORS
   conntrack
   diskstats
+  drbd
   entropy
   filefd
   hwmon

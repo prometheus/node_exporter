@@ -1,0 +1,5 @@
+version: 8.4.3 (api:1/proto:86-101)
+srcversion: 1A9F77B1CA5FF92235C2213 
+
+ 1: cs:Connected ro:Primary/Primary ds:UpToDate/UpToDate C r-----
+    ns:17324442 nr:10961011 dw:28263521 dr:118696670 al:1100 bm:221 lo:12345 pe:12346 ua:12347 ap:12348 ep:1 wo:d oos:12349
