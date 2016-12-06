@@ -58,7 +58,7 @@ func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
 
 	err = c.RunOnStdout(cmd, func(stdout io.Reader) error {
 		return c.parseArcstatsSysctlOutput(stdout, func(sysctl zfsSysctl, value zfsMetricValue) {
-			ch <- c.ConstSysctlMetric(arc, sysctl, zfsMetricValue(value))
+			ch <- c.constSysctlMetric(arc, sysctl, zfsMetricValue(value))
 		})
 	})
 	return err
@@ -102,7 +102,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) 
 
 	err = c.RunOnStdout(cmd, func(stdout io.Reader) error {
 		return c.parseZpoolOutput(stdout, func(pool, name string, value float64) {
-			ch <- c.ConstZpoolMetric(pool, name, value)
+			ch <- c.constZpoolMetric(pool, name, value)
 		})
 	})
 
