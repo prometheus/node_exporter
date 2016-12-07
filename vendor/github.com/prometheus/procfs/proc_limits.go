@@ -87,7 +87,7 @@ func (p Proc) NewLimits() (ProcLimits, error) {
 		case "Max cpu time":
 			l.CPUTime, err = parseInt(fields[1])
 		case "Max file size":
-			l.FileLocks, err = parseInt(fields[1])
+			l.FileSize, err = parseInt(fields[1])
 		case "Max data size":
 			l.DataSize, err = parseInt(fields[1])
 		case "Max stack size":

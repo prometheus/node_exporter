@@ -41,7 +41,7 @@ func NewProc(pid int) (Proc, error) {
 	return fs.NewProc(pid)
 }
 
-// AllProcs returns a list of all currently avaible processes under /proc.
+// AllProcs returns a list of all currently available processes under /proc.
 func AllProcs() (Procs, error) {
 	fs, err := NewFS(DefaultMountPoint)
 	if err != nil {
@@ -71,7 +71,7 @@ func (fs FS) NewProc(pid int) (Proc, error) {
 	return Proc{PID: pid, fs: fs}, nil
 }
 
-// AllProcs returns a list of all currently avaible processes.
+// AllProcs returns a list of all currently available processes.
 func (fs FS) AllProcs() (Procs, error) {
 	d, err := os.Open(fs.Path())
 	if err != nil {
@@ -190,6 +190,18 @@ func (p Proc) FileDescriptorsLen() (int, error) {
 	}
 
 	return len(fds), nil
+}
+
+// MountStats retrieves statistics and configuration for mount points in a
+// process's namespace.
+func (p Proc) MountStats() ([]*Mount, error) {
+	f, err := os.Open(p.path("mountstats"))
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	return parseMountStats(f)
 }
 
 func (p Proc) fileDescriptors() ([]string, error) {
