@@ -36,6 +36,11 @@ export GO_LD_FLAGS
 
 echo "Building static binary executable as docker image build..."
 docker build -t ${DOCKER_TAG} --build-arg ldflags="${LDFLAGS}" -f Dockerfile.build .
+if [ $? != 0 ]
+then
+	echo "Failed to build docker image with binary executable" >&2
+	exit 1
+fi
 
 echo "Running idle build image container in order to access its contents..."
 CONTAINER_ID=`docker run -d -t ${DOCKER_TAG}`
