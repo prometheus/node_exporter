@@ -443,6 +443,11 @@ node_exporter_scrape_duration_seconds{collector="meminfo_numa",result="success",
 node_exporter_scrape_duration_seconds{collector="meminfo_numa",result="success",quantile="0.99"} 0.0017954980000000002
 node_exporter_scrape_duration_seconds_sum{collector="meminfo_numa",result="success"} 0.0017954980000000002
 node_exporter_scrape_duration_seconds_count{collector="meminfo_numa",result="success"} 1
+node_exporter_scrape_duration_seconds{collector="mountstats",result="success",quantile="0.5"} 0.000512374
+node_exporter_scrape_duration_seconds{collector="mountstats",result="success",quantile="0.9"} 0.000512374
+node_exporter_scrape_duration_seconds{collector="mountstats",result="success",quantile="0.99"} 0.000512374
+node_exporter_scrape_duration_seconds_sum{collector="mountstats",result="success"} 0.000512374
+node_exporter_scrape_duration_seconds_count{collector="mountstats",result="success"} 1
 node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.5"} 0.000495389
 node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.9"} 0.000495389
 node_exporter_scrape_duration_seconds{collector="netdev",result="success",quantile="0.99"} 0.000495389
@@ -1070,6 +1075,103 @@ node_memory_numa_numa_miss_total{node="1"} 5.9858626709e+10
 # TYPE node_memory_numa_other_node_total counter
 node_memory_numa_other_node_total{node="0"} 1.8179487e+07
 node_memory_numa_other_node_total{node="1"} 5.986052692e+10
+# HELP node_mountstats_nfs_age_seconds_total The age of the NFS mount in seconds.
+# TYPE node_mountstats_nfs_age_seconds_total counter
+node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test"} 13968
+# HELP node_mountstats_nfs_direct_read_bytes_total Number of bytes read using the read() syscall in O_DIRECT mode.
+# TYPE node_mountstats_nfs_direct_read_bytes_total counter
+node_mountstats_nfs_direct_read_bytes_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_direct_write_bytes_total Number of bytes written using the write() syscall in O_DIRECT mode.
+# TYPE node_mountstats_nfs_direct_write_bytes_total counter
+node_mountstats_nfs_direct_write_bytes_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_operations_major_timeouts_total Number of times a request has had a major timeout for a given operation.
+# TYPE node_mountstats_nfs_operations_major_timeouts_total counter
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="READ"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_operations_queue_time_seconds_total Duration all requests spent queued for transmission for a given operation before they were sent, in seconds.
+# TYPE node_mountstats_nfs_operations_queue_time_seconds_total counter
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ"} 0.006
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_operations_received_bytes_total Number of bytes received for a given operation, including RPC headers and payload.
+# TYPE node_mountstats_nfs_operations_received_bytes_total counter
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="READ"} 1.210292152e+09
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_operations_request_time_seconds_total Duration all requests took from when a request was enqueued to when it was completely handled for a given operation, in seconds.
+# TYPE node_mountstats_nfs_operations_request_time_seconds_total counter
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ"} 79.407
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_operations_requests_total Number of requests performed for a given operation.
+# TYPE node_mountstats_nfs_operations_requests_total counter
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="READ"} 1298
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_operations_response_time_seconds_total Duration all requests took to get a reply back after a request for a given operation was transmitted, in seconds.
+# TYPE node_mountstats_nfs_operations_response_time_seconds_total counter
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ"} 79.386
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_operations_sent_bytes_total Number of bytes sent for a given operation, including RPC headers and payload.
+# TYPE node_mountstats_nfs_operations_sent_bytes_total counter
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="READ"} 207680
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_operations_transmissions_total Number of times an actual RPC request has been transmitted for a given operation.
+# TYPE node_mountstats_nfs_operations_transmissions_total counter
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="READ"} 1298
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="WRITE"} 0
+# HELP node_mountstats_nfs_read_bytes_total Number of bytes read using the read() syscall.
+# TYPE node_mountstats_nfs_read_bytes_total counter
+node_mountstats_nfs_read_bytes_total{export="192.168.1.1:/srv/test"} 1.20764023e+09
+# HELP node_mountstats_nfs_read_pages_total Number of pages read directly via mmap()'d files.
+# TYPE node_mountstats_nfs_read_pages_total counter
+node_mountstats_nfs_read_pages_total{export="192.168.1.1:/srv/test"} 295483
+# HELP node_mountstats_nfs_total_read_bytes_total Number of bytes read from the NFS server, in total.
+# TYPE node_mountstats_nfs_total_read_bytes_total counter
+node_mountstats_nfs_total_read_bytes_total{export="192.168.1.1:/srv/test"} 1.210214218e+09
+# HELP node_mountstats_nfs_total_write_bytes_total Number of bytes written to the NFS server, in total.
+# TYPE node_mountstats_nfs_total_write_bytes_total counter
+node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_transport_backlog_queue_total Total number of items added to the RPC backlog queue.
+# TYPE node_mountstats_nfs_transport_backlog_queue_total counter
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_transport_bad_transaction_ids_total Number of times the NFS server sent a response with a transaction ID unknown to this client.
+# TYPE node_mountstats_nfs_transport_bad_transaction_ids_total counter
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_transport_bind_total Number of times the client has had to establish a connection from scratch to the NFS server.
+# TYPE node_mountstats_nfs_transport_bind_total counter
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_transport_connect_total Number of times the client has made a TCP connection to the NFS server.
+# TYPE node_mountstats_nfs_transport_connect_total counter
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test"} 1
+# HELP node_mountstats_nfs_transport_idle_time_seconds Duration since the NFS mount last saw any RPC traffic, in seconds.
+# TYPE node_mountstats_nfs_transport_idle_time_seconds gauge
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test"} 11
+# HELP node_mountstats_nfs_transport_maximum_rpc_slots Maximum number of simultaneously active RPC requests ever used.
+# TYPE node_mountstats_nfs_transport_maximum_rpc_slots gauge
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test"} 24
+# HELP node_mountstats_nfs_transport_pending_queue_total Total number of items added to the RPC transmission pending queue.
+# TYPE node_mountstats_nfs_transport_pending_queue_total counter
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test"} 5726
+# HELP node_mountstats_nfs_transport_receives_total Number of RPC responses for this mount received from the NFS server.
+# TYPE node_mountstats_nfs_transport_receives_total counter
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test"} 6428
+# HELP node_mountstats_nfs_transport_sending_queue_total Total number of items added to the RPC transmission sending queue.
+# TYPE node_mountstats_nfs_transport_sending_queue_total counter
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test"} 26
+# HELP node_mountstats_nfs_transport_sends_total Number of RPC requests for this mount sent to the NFS server.
+# TYPE node_mountstats_nfs_transport_sends_total counter
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test"} 6428
+# HELP node_mountstats_nfs_write_bytes_total Number of bytes written using the write() syscall.
+# TYPE node_mountstats_nfs_write_bytes_total counter
+node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_write_pages_total Number of pages written directly via mmap()'d files.
+# TYPE node_mountstats_nfs_write_pages_total counter
+node_mountstats_nfs_write_pages_total{export="192.168.1.1:/srv/test"} 0
 # HELP node_net_bonding_slaves Number of configured slaves per bonding interface.
 # TYPE node_net_bonding_slaves gauge
 node_net_bonding_slaves{master="bond0"} 0

@@ -13,6 +13,7 @@ collectors=$(cat << COLLECTORS
   mdadm
   meminfo
   meminfo_numa
+  mountstats
   netdev
   netstat
   nfs
