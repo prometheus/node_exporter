@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !nouname,linux,386 !nouname,linux,amd64 !nouname,linux,arm64
+// +build !nouname,linux,386 !nouname,linux,amd64 !nouname,linux,arm64 !nouname,linux,mips64 !nouname,linux,mips64le
 
 package collector
 
