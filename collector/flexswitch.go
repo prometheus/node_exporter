@@ -137,7 +137,7 @@ func parseFlexSwitchStats(r *http.Response, ignore *regexp.Regexp) (map[string]m
 		}
 		netDev[Port.Name] = map[string]string{}
 		// We should probably not be in the business of renaming the output
-		// but I want them to be consistent with /proc/net/dev... least for
+		// but I want them to be consistent with /proc/net/dev... at least for
 		// the ones that sync up
 		netDev[Port.Name]["receive_bytes"] = strconv.FormatFloat(Port.IfInOctets, 'E', -1, 64)
 		netDev[Port.Name]["transmit_bytes"] = strconv.FormatFloat(Port.IfOutOctets, 'E', -1, 64)
