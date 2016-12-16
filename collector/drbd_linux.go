@@ -177,7 +177,10 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				device = fmt.Sprintf("drbd%d", id)
 			} else if metric, ok := drbdNumericalMetrics[kv[0]]; ok {
 				// Numerical value.
-				value, _ := strconv.ParseFloat(kv[1], 64)
+				value, err := strconv.ParseFloat(kv[1], 64)
+				if err != nil {
+					return err
+				}
 				ch <- prometheus.MustNewConstMetric(
 					metric.desc, metric.valueType,
 					value*metric.multiplier, device)
@@ -199,7 +202,6 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				ch <- prometheus.MustNewConstMetric(
 					drbdConnected, prometheus.GaugeValue,
 					connected, device)
-
 			} else {
 				log.Infof("Don't know how to process key-value pair [%s: %s]", kv[0], kv[1])
 			}
@@ -207,5 +209,5 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			log.Infof("Don't know how to process string %s", field)
 		}
 	}
-	return nil
+	return scanner.Err()
 }
