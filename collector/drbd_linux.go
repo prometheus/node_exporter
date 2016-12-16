@@ -157,7 +157,7 @@ func NewDrbdCollector() (Collector, error) {
 
 func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	statsFile := procFilePath("drbd")
-	f, err := os.Open(statsFile)
+	file, err := os.Open(statsFile)
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Debugf("Not collecting DRBD statistics, as %s does not exist: %s", statsFile)
@@ -165,9 +165,9 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		}
 		return err
 	}
-	defer f.Close()
+	defer file.Close()
 
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanWords)
 	device := "unknown"
 	for scanner.Scan() {
