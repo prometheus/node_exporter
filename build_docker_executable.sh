@@ -12,11 +12,32 @@
 #     values to pass with -ldflags for "go build"
 #
 #   tags=<value>
-#     values to pass with -tags for "go build" (-s for stripped binary executable)
+#     values to pass with -tags for "go build"
 #
 # Example:
 #
 #   ./build_docker_executable.sh ldflags="-s" tags="noloadavg notime"
+#
+# NOTE that if a part of this process, like the docker/go build, fails, the script
+# will abort, and, depending on where the failure occurred, you may have to clean
+# up one or more of the following:
+#
+#   * a docker container with node_exporter_build image, to stop
+#     check: docker ps
+#     fix: docker stop <containerID>
+#
+#   * a docker container with node_exporter_build image, to delete
+#     check: docker ps -a
+#     fix: docker rm <containerID>
+#
+#   * a docker image node_exporter_build, to delete (docker rmi)
+#     check: docker images node_exporter_build
+#     fix: docker rmi <imageID>
+#
+# Tips:
+#
+# * including "-s" in ldflags will produce a binary stripped of debug information,
+#   which can reduce size of a ~12mb executable to ~7mb.
 #
 
 GITHUB_USER="prometheus"
