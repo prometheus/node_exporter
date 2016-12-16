@@ -16,6 +16,7 @@ The following individuals have contributed code to this repository
 * Björn Rabenstein <beorn@soundcloud.com>
 * Brian Brazil <brian.brazil@boxever.com>
 * Daniel Speichert <daniel@speichert.pro>
+* Ed Schouten <ed@kumina.nl>
 * Eric Ripa
 * Fabian Reinartz <fabian@soundcloud.com>
 * Franklin Wise <franklin@krave.io>

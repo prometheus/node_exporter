@@ -1904,6 +1904,12 @@ node_textfile_mtime{file="metrics2.prom"} 1.463773694e+09
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
+# HELP node_uptrack_upgrade_plan_patches Number of patches that still need to be applied to the running kernel.
+# TYPE node_uptrack_upgrade_plan_patches gauge
+node_uptrack_upgrade_plan_patches 14
+# HELP node_uptrack_upgrade_plan_time_seconds Time at which Uptrack created the upgrade plan.
+# TYPE node_uptrack_upgrade_plan_time_seconds gauge
+node_uptrack_upgrade_plan_time_seconds 1.4781512246409118e+09
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 process_cpu_seconds_total 0
