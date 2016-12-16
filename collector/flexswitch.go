@@ -6,19 +6,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	//"os"
 	"regexp"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 )
-
-/*
-const (
-	flexswitchPortsUrl = "http://localhost:8080/public/v1/state/ports"
-)
-*/
 
 var (
 	flexswitchPortStatsIgnoredPorts = flag.String(
