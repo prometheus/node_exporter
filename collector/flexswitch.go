@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
+	//"os"
 	"regexp"
 	"strconv"
 
@@ -14,14 +14,25 @@ import (
 	"github.com/prometheus/common/log"
 )
 
+/*
 const (
 	flexswitchPortsUrl = "http://localhost:8080/public/v1/state/ports"
 )
+*/
 
 var (
 	flexswitchPortStatsIgnoredPorts = flag.String(
 		"collector.flexswitch.ignored-ports", "^$",
 		"Regexp of port interfaces to ignore for flexswitch port collector.")
+	flexswitchHost = flag.String(
+		"collector.flexswitch.host", "localhost",
+		"Hostname to use for REST query.")
+	flexswitchProto = flag.String(
+		"collector.flexswitch.proto", "http",
+		"Protocol to use for REST query")
+	flexswitchPort = flag.String(
+		"collector.flexswitch.port", "8080",
+		"Port to use for REST query.")
 	procPortIntFieldSep = regexp.MustCompile("[ :] *")
 )
 
@@ -99,17 +110,14 @@ func NewPortStatsCollector() (Collector, error) {
 }
 
 func getFlexswitchNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
+	flexswitchPortsUrl := *flexswitchProto + "://" +
+		*flexswitchHost + ":" + *flexswitchPort +
+		"/public/v1/state/ports"
 	resp, err := http.Get(flexswitchPortsUrl)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	file, err := os.Open("/proc/net/dev")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
 
 	return parseFlexSwitchStats(resp, ignore)
 }
