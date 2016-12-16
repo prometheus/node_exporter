@@ -50,9 +50,10 @@
 			"revisionTime": "2016-04-24T11:30:07Z"
 		},
 		{
+			"checksumSHA1": "KkB+77Ziom7N6RzSbyUwYGrmDeU=",
 			"path": "github.com/prometheus/client_golang/prometheus",
-			"revision": "67994f177195311c3ea3d4407ed0175e34a4256f",
-			"revisionTime": "2015-11-27T19:24:33+01:00"
+			"revision": "c5b7fccd204277076155f10851dad72b76a49317",
+			"revisionTime": "2016-08-17T15:48:24Z"
 		},
 		{
 			"path": "github.com/prometheus/client_model/go",
