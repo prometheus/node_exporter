@@ -202,6 +202,8 @@ func (enc *encoder) encode(v reflect.Value, depth int) {
 			panic(err)
 		}
 		enc.pos += length
+	case reflect.Interface:
+		enc.encode(reflect.ValueOf(MakeVariant(v.Interface())), depth)
 	default:
 		panic(InvalidTypeError{v.Type()})
 	}

@@ -27,9 +27,10 @@
 			"revisionTime": "2016-11-09T15:11:19Z"
 		},
 		{
+			"checksumSHA1": "Y03oV8ua8TBsSFozViEo7U4dXCE=",
 			"path": "github.com/godbus/dbus",
-			"revision": "e4593d66e29678c26f84166fe231a03e0268ced5",
-			"revisionTime": "2016-01-07T17:08:41+05:30"
+			"revision": "4b24ebee04561bf8a3bcc09aead82062edc56778",
+			"revisionTime": "2016-12-02T21:35:00Z"
 		},
 		{
 			"path": "github.com/golang/protobuf/proto",
