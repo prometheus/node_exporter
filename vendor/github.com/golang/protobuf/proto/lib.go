@@ -235,6 +235,7 @@ To create and play with a Test object:
 		test := &pb.Test{
 			Label: proto.String("hello"),
 			Type:  proto.Int32(17),
+			Reps:  []int64{1, 2, 3},
 			Optionalgroup: &pb.Test_OptionalGroup{
 				RequiredField: proto.String("good bye"),
 			},
@@ -307,7 +308,7 @@ func GetStats() Stats { return stats }
 // temporary Buffer and are fine for most applications.
 type Buffer struct {
 	buf   []byte // encode/decode byte stream
-	index int    // write point
+	index int    // read point
 
 	// pools of basic types to amortize allocation.
 	bools   []bool
@@ -887,6 +888,10 @@ func isProto3Zero(v reflect.Value) bool {
 	}
 	return false
 }
+
+// ProtoPackageIsVersion2 is referenced from generated protocol buffer files
+// to assert that that code is compatible with this version of the proto package.
+const ProtoPackageIsVersion2 = true
 
 // ProtoPackageIsVersion1 is referenced from generated protocol buffer files
 // to assert that that code is compatible with this version of the proto package.

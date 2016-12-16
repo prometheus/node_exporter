@@ -33,9 +33,10 @@
 			"revisionTime": "2016-12-02T21:35:00Z"
 		},
 		{
+			"checksumSHA1": "kBeNcaKk56FguvPSUCEaH6AxpRc=",
 			"path": "github.com/golang/protobuf/proto",
-			"revision": "2402d76f3d41f928c7902a765dfc872356dd3aad",
-			"revisionTime": "2016-01-06T12:58:00+11:00"
+			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
+			"revisionTime": "2016-11-17T03:31:26Z"
 		},
 		{
 			"path": "github.com/kolo/xmlrpc",
