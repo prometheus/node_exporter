@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-type mode byte
+type mode uint8
 
 const (
 	reserved mode = 0 + iota
@@ -39,40 +39,53 @@ var (
 	ntpEpoch = time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC)
 )
 
-type ntpTime struct {
-	Seconds  uint32
-	Fraction uint32
+// An ntpTime is a 64-bit fixed-point (Q32.32) representation of the number of
+// seconds elapsed since the NTP epoch.
+type ntpTime uint64
+
+// Duration interprets the fixed-point ntpTime as a number of elapsed seconds
+// and returns the corresponding time.Duration value.
+func (t ntpTime) Duration() time.Duration {
+	sec := (t >> 32) * nanoPerSec
+	frac := (t & 0xffffffff) * nanoPerSec >> 32
+	return time.Duration(sec + frac)
 }
 
+// Time interprets the fixed-point ntpTime as a an absolute time and returns
+// the corresponding time.Time value.
 func (t ntpTime) Time() time.Time {
-	return ntpEpoch.Add(t.sinceEpoch())
+	return ntpEpoch.Add(t.Duration())
 }
 
-// sinceEpoch converts the ntpTime record t into a duration since the NTP
-// epoch time (Jan 1, 1900).
-func (t ntpTime) sinceEpoch() time.Duration {
-	sec := time.Duration(t.Seconds) * time.Second
-	frac := time.Duration(uint64(t.Fraction) * nanoPerSec >> 32)
-	return sec + frac
-}
-
-// toNtpTime converts the time value t into an ntpTime representation.
+// toNtpTime converts the time.Time value t into its 64-bit fixed-point
+// ntpTime representation.
 func toNtpTime(t time.Time) ntpTime {
 	nsec := uint64(t.Sub(ntpEpoch))
-	return ntpTime{
-		Seconds:  uint32(nsec / nanoPerSec),
-		Fraction: uint32((nsec % nanoPerSec) << 32 / nanoPerSec),
-	}
+	sec := nsec / nanoPerSec
+	frac := (nsec - sec*nanoPerSec) << 32 / nanoPerSec
+	return ntpTime(sec<<32 | frac)
+}
+
+// An ntpTimeShort is a 32-bit fixed-point (Q16.16) representation of the
+// number of seconds elapsed since the NTP epoch.
+type ntpTimeShort uint32
+
+// Duration interprets the fixed-point ntpTimeShort as a number of elapsed
+// seconds and returns the corresponding time.Duration value.
+func (t ntpTimeShort) Duration() time.Duration {
+	sec := (t >> 16) * nanoPerSec
+	frac := (t & 0xffff) * nanoPerSec >> 16
+	return time.Duration(sec + frac)
 }
 
 // msg is an internal representation of an NTP packet.
 type msg struct {
-	LiVnMode       byte // Leap Indicator (2) + Version (3) + Mode (3)
-	Stratum        byte
-	Poll           byte
-	Precision      byte
-	RootDelay      uint32
-	RootDispersion uint32
+	LiVnMode       uint8 // Leap Indicator (2) + Version (3) + Mode (3)
+	Stratum        uint8
+	Poll           int8
+	Precision      int8
+	RootDelay      ntpTimeShort
+	RootDispersion ntpTimeShort
 	ReferenceID    uint32
 	ReferenceTime  ntpTime
 	OriginTime     ntpTime
@@ -87,16 +100,21 @@ func (m *msg) setVersion(v int) {
 
 // setMode sets the NTP protocol mode on the message.
 func (m *msg) setMode(md mode) {
-	m.LiVnMode = (m.LiVnMode & 0xf8) | byte(md)
+	m.LiVnMode = (m.LiVnMode & 0xf8) | uint8(md)
 }
 
 // A Response contains time data, some of which is returned by the NTP server
 // and some of which is calculated by the client.
 type Response struct {
-	Time        time.Time     // receive time reported by the server
-	RTT         time.Duration // round-trip time between client and server
-	ClockOffset time.Duration // local clock offset relative to server
-	Stratum     uint8         // stratum level of NTP server's clock
+	Time           time.Time     // receive time reported by the server
+	RTT            time.Duration // round-trip time between client and server
+	ClockOffset    time.Duration // local clock offset relative to server
+	Poll           time.Duration // maximum polling interval
+	Precision      time.Duration // precision of server's system clock
+	Stratum        uint8         // stratum level of NTP server's clock
+	ReferenceID    uint32        // server's reference ID
+	RootDelay      time.Duration // server's RTT to the reference clock
+	RootDispersion time.Duration // server's dispersion to the reference clock
 }
 
 // Query returns information from the remote NTP server specifed as host.  NTP
@@ -109,10 +127,15 @@ func Query(host string, version int) (*Response, error) {
 	}
 
 	r := &Response{
-		Time:        m.ReceiveTime.Time(),
-		RTT:         rtt(m.OriginTime, m.ReceiveTime, m.TransmitTime, now),
-		ClockOffset: offset(m.OriginTime, m.ReceiveTime, m.TransmitTime, now),
-		Stratum:     m.Stratum,
+		Time:           m.ReceiveTime.Time(),
+		RTT:            rtt(m.OriginTime, m.ReceiveTime, m.TransmitTime, now),
+		ClockOffset:    offset(m.OriginTime, m.ReceiveTime, m.TransmitTime, now),
+		Poll:           toInterval(m.Poll),
+		Precision:      toInterval(m.Precision),
+		Stratum:        m.Stratum,
+		ReferenceID:    m.ReferenceID,
+		RootDelay:      m.RootDelay.Duration(),
+		RootDispersion: m.RootDispersion.Duration(),
 	}
 
 	// https://tools.ietf.org/html/rfc5905#section-7.3
@@ -203,4 +226,15 @@ func offset(t1, t2, t3, t4 ntpTime) time.Duration {
 	a := t2.Time().Sub(t1.Time())
 	b := t3.Time().Sub(t4.Time())
 	return (a + b) / time.Duration(2)
+}
+
+func toInterval(t int8) time.Duration {
+	switch {
+	case t > 0:
+		return time.Duration(uint64(time.Second) << uint(t))
+	case t < 0:
+		return time.Duration(uint64(time.Second) >> uint(-t))
+	default:
+		return time.Second
+	}
 }
