@@ -141,15 +141,23 @@ func parseFlexSwitchStats(r *http.Response, ignore *regexp.Regexp) (map[string]m
 		// the ones that sync up
 		netDev[Port.Name]["receive_bytes"] = strconv.FormatFloat(Port.IfInOctets, 'E', -1, 64)
 		netDev[Port.Name]["transmit_bytes"] = strconv.FormatFloat(Port.IfOutOctets, 'E', -1, 64)
+		netDev[Port.Name]["IfInOctets"] = strconv.FormatFloat(Port.IfInOctets, 'E', -1, 64)
+		netDev[Port.Name]["IfOutOctets"] = strconv.FormatFloat(Port.IfOutOctets, 'E', -1, 64)
 
 		netDev[Port.Name]["receive_packets"] = strconv.FormatFloat(Port.IfInUcastPkts, 'E', -1, 64)
 		netDev[Port.Name]["transmit_packets"] = strconv.FormatFloat(Port.IfOutUcastPkts, 'E', -1, 64)
+		netDev[Port.Name]["IfInUcastPkts"] = strconv.FormatFloat(Port.IfInUcastPkts, 'E', -1, 64)
+		netDev[Port.Name]["IfInOutcastPkts"] = strconv.FormatFloat(Port.IfOutUcastPkts, 'E', -1, 64)
 
 		netDev[Port.Name]["receive_errs"] = strconv.FormatFloat(Port.IfInErrors, 'E', -1, 64)
 		netDev[Port.Name]["transmit_errs"] = strconv.FormatFloat(Port.IfOutErrors, 'E', -1, 64)
+		netDev[Port.Name]["IfInErrors"] = strconv.FormatFloat(Port.IfInErrors, 'E', -1, 64)
+		netDev[Port.Name]["IfOutErrors"] = strconv.FormatFloat(Port.IfOutErrors, 'E', -1, 64)
 
 		netDev[Port.Name]["receive_drop"] = strconv.FormatFloat(Port.IfInDiscards, 'E', -1, 64)
 		netDev[Port.Name]["transmit_drop"] = strconv.FormatFloat(Port.IfOutDiscards, 'E', -1, 64)
+		netDev[Port.Name]["IfInDiscards"] = strconv.FormatFloat(Port.IfInDiscards, 'E', -1, 64)
+		netDev[Port.Name]["IfOutDiscards"] = strconv.FormatFloat(Port.IfOutDiscards, 'E', -1, 64)
 
 		netDev[Port.Name]["NumUpEvents"] = strconv.FormatFloat(Port.NumUpEvents, 'E', -1, 64)
 		netDev[Port.Name]["NumDownEvents"] = strconv.FormatFloat(Port.NumDownEvents, 'E', -1, 64)
