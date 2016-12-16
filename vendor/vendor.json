@@ -102,9 +102,10 @@
 			"revisionTime": "2015-06-30T15:56:10-04:00"
 		},
 		{
+			"checksumSHA1": "uTQtOqR0ePMMcvuvAIksiIZxhqU=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "833a04a10549a95dc34458c195cbad61bbb6cb4d",
-			"revisionTime": "2015-12-10T17:34:15-08:00"
+			"revision": "d75a52659825e75fff6158388dddc6a5b04f9ba5",
+			"revisionTime": "2016-12-14T18:38:57Z"
 		}
 	],
 	"rootPath": "github.com/prometheus/node_exporter"
