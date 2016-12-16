@@ -4,14 +4,20 @@
 #
 # Needed for generating docker images in non-linux environments (osx, windows, etc.)
 #
-# Usage: ./build_docker_executable.sh [options]
+# Usage: ./build_docker_executable.sh [options] ...
 #
 # Options:
 #
-#   stripped
-#     produces a smaller binary, stripped of debug info
+#   ldflags=<value>
+#     values to pass with -ldflags for "go build"
 #
-
+#   tags=<value>
+#     values to pass with -tags for "go build" (-s for stripped binary executable)
+#
+# Example:
+#
+#   ./build_docker_executable.sh ldflags="-s" tags="noloadavg notime"
+#
 
 GITHUB_USER="prometheus"
 GITHUB_REPO="node_exporter"
@@ -22,20 +28,44 @@ GITHUB_PATH="${GITHUB_USER}/${GITHUB_REPO}"
 EXE_PATH="/bin/${GITHUB_REPO}"
 
 LDFLAGS=""
+TAGS=""
 for arg in "${@}"
 do
-	case $arg in
-		stripped)
-			LDFLAGS="${LDFLAGS} -s"
+	echo "$arg" | grep = > /dev/null
+	if [ $? != 0 ]
+	then
+		echo "Invalid argument passed: $arg"
+		exit 1
+	fi
+	key=`echo "$arg" | awk -F= '{ print $1 }'`
+	value=`echo "$arg" | awk -F= '{ $1=""; print substr($0,1) }'`
+	if [ "$key" = "" ]
+	then
+		echo "Empty key passed.  Expected key=value."
+		exit 1
+	fi
+	if [ "$value" = "" ]
+	then
+		echo "Empty value passed for $key.  Expected key=value."
+		exit 1
+	fi
+	case $key in
+		ldflags)
+			LDFLAGS="$value"
+			;;
+		tags)
+			TAGS="$value"
+			;;
+		*)
+			echo "Invalid option: $key"
+			exit 1
 			;;
 	esac
 	
 done
 
-export GO_LD_FLAGS
-
 echo "Building static binary executable as docker image build..."
-docker build -t ${DOCKER_TAG} --build-arg ldflags="${LDFLAGS}" -f Dockerfile.build .
+docker build -t ${DOCKER_TAG} --build-arg ldflags="${LDFLAGS}" --build-arg tags="${TAGS}" -f Dockerfile.build .
 if [ $? != 0 ]
 then
 	echo "Failed to build docker image with binary executable" >&2

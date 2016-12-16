@@ -6,10 +6,11 @@ ENV GOPATH /go
 ENV CGO_ENABLED=0
 
 ARG ldflags=""
+ARG tags=""
 
 ADD . /go/src/github.com/prometheus/node_exporter
 RUN go get -d github.com/prometheus/node_exporter
-RUN go build -ldflags "${ldflags}" -o /bin/node_exporter github.com/prometheus/node_exporter
+RUN go build -ldflags "${ldflags}" -tags "${tags}" -o /bin/node_exporter github.com/prometheus/node_exporter
 
 
 CMD /bin/cat
