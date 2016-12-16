@@ -39,9 +39,10 @@
 			"revisionTime": "2016-11-17T03:31:26Z"
 		},
 		{
+			"checksumSHA1": "tw3ocqSpa9ikzUV6qhcKBAAO6WU=",
 			"path": "github.com/kolo/xmlrpc",
 			"revision": "0826b98aaa29c0766956cb40d45cf7482a597671",
-			"revisionTime": "2015-04-13T22:18:30+03:00"
+			"revisionTime": "2015-04-13T19:18:30Z"
 		},
 		{
 			"checksumSHA1": "bKMZjd2wPw13VwoE7mBeSv5djFA=",
@@ -56,6 +57,7 @@
 			"revisionTime": "2016-08-17T15:48:24Z"
 		},
 		{
+			"checksumSHA1": "DvwvOlPNAgRntBzt3b3OSRMS2N4=",
 			"path": "github.com/prometheus/client_model/go",
 			"revision": "fa8ad6fec33561be4280a8f0514318c79d7f6cb6",
 			"revisionTime": "2015-02-12T10:17:44Z"
@@ -97,9 +99,10 @@
 			"revisionTime": "2016-12-06T22:21:41Z"
 		},
 		{
+			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",
 			"path": "github.com/soundcloud/go-runit/runit",
 			"revision": "06ad41a06c4a586951fb8040a697ecd39729640b",
-			"revisionTime": "2015-06-30T15:56:10-04:00"
+			"revisionTime": "2015-06-30T19:56:10Z"
 		},
 		{
 			"checksumSHA1": "uTQtOqR0ePMMcvuvAIksiIZxhqU=",
