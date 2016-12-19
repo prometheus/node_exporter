@@ -16,10 +16,17 @@
 package collector
 
 import (
+	"flag"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/soundcloud/go-runit/runit"
 )
+
+var runitServiceDir = flag.String(
+	"collector.runit.servicecdir",
+	"/etc/service",
+	"Path to runit service directory.")
 
 type runitCollector struct {
 	state, stateDesired, stateNormal, stateTimestamp *prometheus.GaugeVec
@@ -81,7 +88,7 @@ func NewRunitCollector() (Collector, error) {
 }
 
 func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
-	services, err := runit.GetServices("/etc/service")
+	services, err := runit.GetServices(*runitServiceDir)
 	if err != nil {
 		return err
 	}
