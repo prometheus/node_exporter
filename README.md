@@ -92,17 +92,27 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 
 ## Using Docker
-
-You can deploy this exporter using the [prom/node-exporter](https://registry.hub.docker.com/u/prom/node-exporter/) Docker image.
-
-For example:
+The node\_exporter is designed to monitor the host system. It's not recommended
+to deploy it as Docker container because it requires access to the host system.
+If you need to run it on Docker, you can deploy this exporter using the
+[node-exporter Docker
+image](https://quay.io/repository/prometheus/node-exporter) with the following
+options and bind-mounts:
 
 ```bash
-docker pull prom/node-exporter
-
-docker run -d -p 9100:9100 --net="host" prom/node-exporter
+docker run -d -p 9100:9100 \
+  -v "/proc:/host/proc" \
+  -v "/sys:/host/sys" \
+  -v "/:/rootfs" \
+  --net="host" \
+  quay.io/prometheus/node-exporter \
+    -collector.procfs /host/proc \
+    -collector.sysfs /host/sys \
+    -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
 ```
 
+Be aware though that the mountpoint label in various metrics will now have
+`/host` as prefix.
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
