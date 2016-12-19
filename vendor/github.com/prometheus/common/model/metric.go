@@ -21,8 +21,11 @@ import (
 )
 
 var (
-	separator    = []byte{0}
-	MetricNameRE = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_:]*$`)
+	separator = []byte{0}
+	// MetricNameRE is a regular expression matching valid metric
+	// names. Note that the IsValidMetricName function performs the same
+	// check but faster than a match with this regular expression.
+	MetricNameRE = regexp.MustCompile(`^[a-zA-Z_:][a-zA-Z0-9_:]*$`)
 )
 
 // A Metric is similar to a LabelSet, but the key difference is that a Metric is
@@ -85,6 +88,8 @@ func (m Metric) FastFingerprint() Fingerprint {
 }
 
 // IsValidMetricName returns true iff name matches the pattern of MetricNameRE.
+// This function, however, does not use MetricNameRE for the check but a much
+// faster hardcoded implementation.
 func IsValidMetricName(n LabelValue) bool {
 	if len(n) == 0 {
 		return false
