@@ -21,7 +21,7 @@ DOCKER_IMAGE_NAME       ?= node-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
 
-all: format build test
+all: format build test test-e2e
 
 style:
 	@echo ">> checking code style"
@@ -30,6 +30,10 @@ style:
 test:
 	@echo ">> running tests"
 	@$(GO) test -short $(pkgs)
+
+test-e2e: build
+	@echo ">> running end-to-end tests"
+	./end-to-end-test.sh
 
 format:
 	@echo ">> formatting code"
@@ -57,4 +61,4 @@ promu:
 		$(GO) get -u github.com/prometheus/promu
 
 
-.PHONY: all style format build test vet tarball docker promu
+.PHONY: all style format build test test-e2e vet tarball docker promu
