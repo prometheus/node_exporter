@@ -24,7 +24,6 @@ collectors=$(cat << COLLECTORS
   megacli
 COLLECTORS
 )
-
 cd "$(dirname $0)"
 
 port="$((10000 + (RANDOM % 10000)))"
@@ -74,11 +73,13 @@ fi
 echo $! > "${tmpdir}/node_exporter.pid"
 
 finish() {
-  if [ ${verbose} -ne 0 ]
+  if [ $? -ne 0 -o ${verbose} -ne 0 ]
   then
-    echo "LOG ====================="
-    cat "${tmpdir}/node_exporter.log"
-    echo "========================="
+    cat << EOF >&2
+LOG =====================
+$(cat "${tmpdir}/node_exporter.log")
+=========================
+EOF
   fi
 
   if [ ${update} -ne 0 ]
