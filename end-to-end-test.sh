@@ -100,10 +100,10 @@ EOF
 trap finish EXIT
 
 get() {
-  if which curl > /dev/null 2>&1
+  if command -v curl > /dev/null 2>&1
   then
     curl -s -f "$@"
-  elif which wget > /dev/null 2>&1
+  elif command -v wget > /dev/null 2>&1
   then
     wget -O - "$@"
   else
