@@ -375,45 +375,45 @@ node_disk_writes_merged{device="nvme0n1"} 43950
 node_disk_writes_merged{device="sda"} 1.1134226e+07
 node_disk_writes_merged{device="sr0"} 0
 node_disk_writes_merged{device="vda"} 2.0711856e+07
-# HELP node_drbd_activitylog_writes Number of updates of the activity log area of the meta data.
-# TYPE node_drbd_activitylog_writes counter
-node_drbd_activitylog_writes{device="drbd1"} 1100
+# HELP node_drbd_activitylog_writes_total Number of updates of the activity log area of the meta data.
+# TYPE node_drbd_activitylog_writes_total counter
+node_drbd_activitylog_writes_total{device="drbd1"} 1100
 # HELP node_drbd_application_pending Number of block I/O requests forwarded to DRBD, but not yet answered by DRBD.
 # TYPE node_drbd_application_pending gauge
 node_drbd_application_pending{device="drbd1"} 12348
-# HELP node_drbd_bitmap_writes Number of updates of the bitmap area of the meta data.
-# TYPE node_drbd_bitmap_writes counter
-node_drbd_bitmap_writes{device="drbd1"} 221
+# HELP node_drbd_bitmap_writes_total Number of updates of the bitmap area of the meta data.
+# TYPE node_drbd_bitmap_writes_total counter
+node_drbd_bitmap_writes_total{device="drbd1"} 221
 # HELP node_drbd_connected Whether DRBD is connected to the partner.
 # TYPE node_drbd_connected gauge
 node_drbd_connected{device="drbd1"} 1
-# HELP node_drbd_disk_read_bytes Net data read from local hard disk.
-# TYPE node_drbd_disk_read_bytes counter
-node_drbd_disk_read_bytes{device="drbd1"} 1.2154539008e+11
+# HELP node_drbd_disk_read_bytes_total Net data read from local hard disk; in bytes.
+# TYPE node_drbd_disk_read_bytes_total counter
+node_drbd_disk_read_bytes_total{device="drbd1"} 1.2154539008e+11
 # HELP node_drbd_disk_state_is_up_to_date Whether the disk of the node is up to date.
 # TYPE node_drbd_disk_state_is_up_to_date gauge
 node_drbd_disk_state_is_up_to_date{device="drbd1",node="local"} 1
 node_drbd_disk_state_is_up_to_date{device="drbd1",node="remote"} 1
-# HELP node_drbd_disk_written_bytes Net data written on local hard disk.
-# TYPE node_drbd_disk_written_bytes counter
-node_drbd_disk_written_bytes{device="drbd1"} 2.8941845504e+10
+# HELP node_drbd_disk_written_bytes_total Net data written on local hard disk; in bytes.
+# TYPE node_drbd_disk_written_bytes_total counter
+node_drbd_disk_written_bytes_total{device="drbd1"} 2.8941845504e+10
 # HELP node_drbd_epochs Number of Epochs currently on the fly.
 # TYPE node_drbd_epochs gauge
 node_drbd_epochs{device="drbd1"} 1
 # HELP node_drbd_local_pending Number of open requests to the local I/O sub-system.
 # TYPE node_drbd_local_pending gauge
 node_drbd_local_pending{device="drbd1"} 12345
-# HELP node_drbd_network_received_bytes Volume of net data received by the partner via the network connection.
-# TYPE node_drbd_network_received_bytes counter
-node_drbd_network_received_bytes{device="drbd1"} 1.0961011e+07
-# HELP node_drbd_network_sent_bytes Volume of net data sent to the partner via the network connection.
-# TYPE node_drbd_network_sent_bytes counter
-node_drbd_network_sent_bytes{device="drbd1"} 1.7740228608e+10
+# HELP node_drbd_network_received_bytes_total Volume of net data received by the partner via the network connection; in bytes.
+# TYPE node_drbd_network_received_bytes_total counter
+node_drbd_network_received_bytes_total{device="drbd1"} 1.0961011e+07
+# HELP node_drbd_network_sent_bytes_total Volume of net data sent to the partner via the network connection; in bytes.
+# TYPE node_drbd_network_sent_bytes_total counter
+node_drbd_network_sent_bytes_total{device="drbd1"} 1.7740228608e+10
 # HELP node_drbd_node_role_is_primary Whether the role of the node is in the primary state.
 # TYPE node_drbd_node_role_is_primary gauge
 node_drbd_node_role_is_primary{device="drbd1",node="local"} 1
 node_drbd_node_role_is_primary{device="drbd1",node="remote"} 1
-# HELP node_drbd_out_of_sync_bytes Amount of data known to be out of sync.
+# HELP node_drbd_out_of_sync_bytes Amount of data known to be out of sync; in bytes.
 # TYPE node_drbd_out_of_sync_bytes gauge
 node_drbd_out_of_sync_bytes{device="drbd1"} 1.2645376e+07
 # HELP node_drbd_remote_pending Number of requests sent to the partner, but that have not yet been answered by the latter.

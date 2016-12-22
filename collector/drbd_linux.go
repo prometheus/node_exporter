@@ -31,7 +31,7 @@ type drbdNumericalMetric struct {
 	multiplier float64
 }
 
-func newDrbdNumericalMetric(name string, desc string, valueType prometheus.ValueType, multiplier float64) drbdNumericalMetric {
+func newDRBDNumericalMetric(name string, desc string, valueType prometheus.ValueType, multiplier float64) drbdNumericalMetric {
 	return drbdNumericalMetric{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "drbd", name),
@@ -55,7 +55,7 @@ func (metric *drbdStringPairMetric) isOkay(value string) float64 {
 	return 0
 }
 
-func newDrbdStringPairMetric(name string, desc string, valueOkay string) drbdStringPairMetric {
+func newDRBDStringPairMetric(name string, desc string, valueOkay string) drbdStringPairMetric {
 	return drbdStringPairMetric{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "drbd", name),
@@ -67,73 +67,73 @@ func newDrbdStringPairMetric(name string, desc string, valueOkay string) drbdStr
 
 var (
 	drbdNumericalMetrics = map[string]drbdNumericalMetric{
-		"ns": newDrbdNumericalMetric(
-			"network_sent_bytes",
-			"Volume of net data sent to the partner via the network connection.",
+		"ns": newDRBDNumericalMetric(
+			"network_sent_bytes_total",
+			"Volume of net data sent to the partner via the network connection; in bytes.",
 			prometheus.CounterValue,
 			1024),
-		"nr": newDrbdNumericalMetric(
-			"network_received_bytes",
-			"Volume of net data received by the partner via the network connection.",
+		"nr": newDRBDNumericalMetric(
+			"network_received_bytes_total",
+			"Volume of net data received by the partner via the network connection; in bytes.",
 			prometheus.CounterValue,
 			1),
-		"dw": newDrbdNumericalMetric(
-			"disk_written_bytes",
-			"Net data written on local hard disk.",
+		"dw": newDRBDNumericalMetric(
+			"disk_written_bytes_total",
+			"Net data written on local hard disk; in bytes.",
 			prometheus.CounterValue,
 			1024),
-		"dr": newDrbdNumericalMetric(
-			"disk_read_bytes",
-			"Net data read from local hard disk.",
+		"dr": newDRBDNumericalMetric(
+			"disk_read_bytes_total",
+			"Net data read from local hard disk; in bytes.",
 			prometheus.CounterValue,
 			1024),
-		"al": newDrbdNumericalMetric(
-			"activitylog_writes",
+		"al": newDRBDNumericalMetric(
+			"activitylog_writes_total",
 			"Number of updates of the activity log area of the meta data.",
 			prometheus.CounterValue,
 			1),
-		"bm": newDrbdNumericalMetric(
-			"bitmap_writes",
+		"bm": newDRBDNumericalMetric(
+			"bitmap_writes_total",
 			"Number of updates of the bitmap area of the meta data.",
 			prometheus.CounterValue,
 			1),
-		"lo": newDrbdNumericalMetric(
+		"lo": newDRBDNumericalMetric(
 			"local_pending",
 			"Number of open requests to the local I/O sub-system.",
 			prometheus.GaugeValue,
 			1),
-		"pe": newDrbdNumericalMetric(
+		"pe": newDRBDNumericalMetric(
 			"remote_pending",
 			"Number of requests sent to the partner, but that have not yet been answered by the latter.",
 			prometheus.GaugeValue,
 			1),
-		"ua": newDrbdNumericalMetric(
+		"ua": newDRBDNumericalMetric(
 			"remote_unacknowledged",
 			"Number of requests received by the partner via the network connection, but that have not yet been answered.",
 			prometheus.GaugeValue,
 			1),
-		"ap": newDrbdNumericalMetric(
+		"ap": newDRBDNumericalMetric(
 			"application_pending",
 			"Number of block I/O requests forwarded to DRBD, but not yet answered by DRBD.",
 			prometheus.GaugeValue,
 			1),
-		"ep": newDrbdNumericalMetric(
+		"ep": newDRBDNumericalMetric(
 			"epochs",
 			"Number of Epochs currently on the fly.",
 			prometheus.GaugeValue,
 			1),
-		"oos": newDrbdNumericalMetric(
+		"oos": newDRBDNumericalMetric(
 			"out_of_sync_bytes",
-			"Amount of data known to be out of sync.",
+			"Amount of data known to be out of sync; in bytes.",
 			prometheus.GaugeValue,
 			1024),
 	}
 	drbdStringPairMetrics = map[string]drbdStringPairMetric{
-		"ro": newDrbdStringPairMetric(
+		"ro": newDRBDStringPairMetric(
 			"node_role_is_primary",
 			"Whether the role of the node is in the primary state.",
 			"Primary"),
-		"ds": newDrbdStringPairMetric(
+		"ds": newDRBDStringPairMetric(
 			"disk_state_is_up_to_date",
 			"Whether the disk of the node is up to date.",
 			"UpToDate"),
@@ -148,10 +148,10 @@ var (
 type drbdCollector struct{}
 
 func init() {
-	Factories["drbd"] = NewDrbdCollector
+	Factories["drbd"] = newDRBDCollector
 }
 
-func NewDrbdCollector() (Collector, error) {
+func newDRBDCollector() (Collector, error) {
 	return &drbdCollector{}, nil
 }
 
@@ -160,7 +160,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	file, err := os.Open(statsFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting DRBD statistics, as %s does not exist: %s", statsFile)
+			log.Debugf("Not collecting DRBD statistics, as %s does not exist: %s", statsFile, err)
 			return nil
 		}
 		return err
@@ -195,7 +195,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 					metric.isOkay(values[1]), device, "remote")
 			} else if kv[0] == "cs" {
 				// Connection state.
-				var connected float64 = 0
+				var connected float64
 				if kv[1] == "Connected" {
 					connected = 1
 				}
@@ -203,10 +203,10 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 					drbdConnected, prometheus.GaugeValue,
 					connected, device)
 			} else {
-				log.Infof("Don't know how to process key-value pair [%s: %s]", kv[0], kv[1])
+				log.Infof("Don't know how to process key-value pair [%s: %q]", kv[0], kv[1])
 			}
 		} else {
-			log.Infof("Don't know how to process string %s", field)
+			log.Infof("Don't know how to process string %q", field)
 		}
 	}
 	return scanner.Err()
