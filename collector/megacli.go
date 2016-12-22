@@ -50,6 +50,7 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // RAID status through megacli.
 func NewMegaCliCollector() (Collector, error) {
+	warnDeprecated("megacli")
 	return &megaCliCollector{
 		cli: *megacliCommand,
 		driveTemperature: prometheus.NewGaugeVec(prometheus.GaugeOpts{

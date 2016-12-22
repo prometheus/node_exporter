@@ -4,8 +4,8 @@
 [![Docker Repository on Quay](https://quay.io/repository/prometheus/node-exporter/status)][quay]
 [![Docker Pulls](https://img.shields.io/docker/pulls/prom/node-exporter.svg?maxAge=604800)][hub]
 
-Prometheus exporter for machine metrics, written in Go with pluggable metric
-collectors.
+Prometheus exporter for hardware and OS metrics exposed by the kernel, written
+in Go with pluggable metric collectors.
 
 ## Collectors
 
@@ -43,20 +43,27 @@ Name     | Description | OS
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics | Linux
-gmond | Exposes statistics from Ganglia. | _any_
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
-megacli | Exposes RAID statistics from MegaCLI. | Linux
-meminfo_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
+meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
-ntp | Exposes time drift from an NTP server. | _any_
 runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
+
+### Deprecated
+
+*These collectors will be (re)moved in the future.*
+
+Name     | Description | OS
+---------|-------------|----
+gmond | Exposes statistics from Ganglia. | _any_
+megacli | Exposes RAID statistics from MegaCLI. | Linux
+ntp | Exposes time drift from an NTP server. | _any_
 
 ### Textfile Collector
 
