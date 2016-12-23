@@ -203,10 +203,10 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 					drbdConnected, prometheus.GaugeValue,
 					connected, device)
 			} else {
-				log.Infof("Don't know how to process key-value pair [%s: %q]", kv[0], kv[1])
+				log.Debugf("Don't know how to process key-value pair [%s: %q]", kv[0], kv[1])
 			}
 		} else {
-			log.Infof("Don't know how to process string %q", field)
+			log.Debugf("Don't know how to process string %q", field)
 		}
 	}
 	return scanner.Err()
