@@ -69,12 +69,12 @@ var (
 	drbdNumericalMetrics = map[string]drbdNumericalMetric{
 		"ns": newDRBDNumericalMetric(
 			"network_sent_bytes_total",
-			"Volume of net data sent to the partner via the network connection; in bytes.",
+			"Total number of bytes sent via the network.",
 			prometheus.CounterValue,
 			1024),
 		"nr": newDRBDNumericalMetric(
 			"network_received_bytes_total",
-			"Volume of net data received by the partner via the network connection; in bytes.",
+			"Total number of bytes received via the network.",
 			prometheus.CounterValue,
 			1),
 		"dw": newDRBDNumericalMetric(
@@ -104,12 +104,12 @@ var (
 			1),
 		"pe": newDRBDNumericalMetric(
 			"remote_pending",
-			"Number of requests sent to the partner, but that have not yet been answered by the latter.",
+			"Number of requests sent to the peer, but that have not yet been answered by the latter.",
 			prometheus.GaugeValue,
 			1),
 		"ua": newDRBDNumericalMetric(
 			"remote_unacknowledged",
-			"Number of requests received by the partner via the network connection, but that have not yet been answered.",
+			"Number of requests received by the peer via the network connection, but that have not yet been answered.",
 			prometheus.GaugeValue,
 			1),
 		"ap": newDRBDNumericalMetric(
@@ -141,7 +141,7 @@ var (
 
 	drbdConnected = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "drbd", "connected"),
-		"Whether DRBD is connected to the partner.",
+		"Whether DRBD is connected to the peer.",
 		[]string{"device"}, nil)
 )
 
