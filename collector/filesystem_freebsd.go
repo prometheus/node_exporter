@@ -11,69 +11,76 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build openbsd darwin,amd64 dragonfly
 // +build !nofilesystem
 
 package collector
 
 import (
-	"errors"
+	"bytes"
 	"unsafe"
 
 	"github.com/prometheus/common/log"
+	"golang.org/x/sys/unix"
 )
-
-/*
-#include <sys/param.h>
-#include <sys/ucred.h>
-#include <sys/mount.h>
-#include <stdio.h>
-*/
-import "C"
 
 const (
 	defIgnoredMountPoints = "^/(dev)($|/)"
 	defIgnoredFSTypes     = "^devfs$"
 	MNT_RDONLY            = 0x1
+	MNT_NOWAIT            = 0x2
 )
+
+func gostring(b []int8) string {
+	bb := *(*[]byte)(unsafe.Pointer(&b))
+	idx := bytes.IndexByte(bb, 0)
+	if idx < 0 {
+		return ""
+	}
+	return string(bb[:idx])
+}
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
-	var mntbuf *C.struct_statfs
-	count := C.getmntinfo(&mntbuf, C.MNT_NOWAIT)
-	if count == 0 {
-		return nil, errors.New("getmntinfo() failed")
+	buf := make([]unix.Statfs_t, 16)
+	for {
+		n, err := unix.Getfsstat(buf, MNT_NOWAIT)
+		if err != nil {
+			return nil, err
+		}
+		if n < len(buf) {
+			buf = buf[:n]
+			break
+		}
+		buf = make([]unix.Statfs_t, len(buf)*2)
 	}
-
-	mnt := (*[1 << 20]C.struct_statfs)(unsafe.Pointer(mntbuf))
 	stats = []filesystemStats{}
-	for i := 0; i < int(count); i++ {
-		mountpoint := C.GoString(&mnt[i].f_mntonname[0])
+	for _, fs := range buf {
+		mountpoint := gostring(fs.Mntonname[:])
 		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
 			log.Debugf("Ignoring mount point: %s", mountpoint)
 			continue
 		}
 
-		device := C.GoString(&mnt[i].f_mntfromname[0])
-		fstype := C.GoString(&mnt[i].f_fstypename[0])
+		device := gostring(fs.Mntfromname[:])
+		fstype := gostring(fs.Fstypename[:])
 		if c.ignoredFSTypesPattern.MatchString(fstype) {
 			log.Debugf("Ignoring fs type: %s", fstype)
 			continue
 		}
 
 		var ro float64
-		if (mnt[i].f_flags & MNT_RDONLY) != 0 {
+		if (fs.Flags & MNT_RDONLY) != 0 {
 			ro = 1
 		}
 
 		labelValues := []string{device, mountpoint, fstype}
 		stats = append(stats, filesystemStats{
 			labelValues: labelValues,
-			size:        float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
-			free:        float64(mnt[i].f_bfree) * float64(mnt[i].f_bsize),
-			avail:       float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
-			files:       float64(mnt[i].f_files),
-			filesFree:   float64(mnt[i].f_ffree),
+			size:        float64(fs.Blocks) * float64(fs.Bsize),
+			free:        float64(fs.Bfree) * float64(fs.Bsize),
+			avail:       float64(fs.Bavail) * float64(fs.Bsize),
+			files:       float64(fs.Files),
+			filesFree:   float64(fs.Ffree),
 			ro:          ro,
 		})
 	}
