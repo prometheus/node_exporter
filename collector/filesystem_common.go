@@ -48,6 +48,7 @@ type filesystemCollector struct {
 	ignoredFSTypesPattern     *regexp.Regexp
 	sizeDesc, freeDesc, availDesc,
 	filesDesc, filesFreeDesc, roDesc *prometheus.Desc
+	devErrors *prometheus.CounterVec
 }
 
 type filesystemStats struct {
@@ -102,6 +103,11 @@ func NewFilesystemCollector() (Collector, error) {
 		filesystemLabelNames, nil,
 	)
 
+	devErrors := prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: prometheus.BuildFQName(Namespace, subsystem, "device_errors_total"),
+		Help: "Total number of errors occurred when getting stats for device",
+	}, filesystemLabelNames)
+
 	return &filesystemCollector{
 		ignoredMountPointsPattern: mountPointPattern,
 		ignoredFSTypesPattern:     filesystemsTypesPattern,
@@ -111,6 +117,7 @@ func NewFilesystemCollector() (Collector, error) {
 		filesDesc:                 filesDesc,
 		filesFreeDesc:             filesFreeDesc,
 		roDesc:                    roDesc,
+		devErrors:                 devErrors,
 	}, nil
 }
 
@@ -145,5 +152,6 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			s.ro, s.labelValues...,
 		)
 	}
+	c.devErrors.Collect(ch)
 	return nil
 }

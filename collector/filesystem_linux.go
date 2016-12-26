@@ -52,9 +52,11 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			log.Debugf("Ignoring fs type: %s", mpd.fsType)
 			continue
 		}
+		labelValues := []string{mpd.device, mpd.mountPoint, mpd.fsType}
 		buf := new(syscall.Statfs_t)
 		err := syscall.Statfs(mpd.mountPoint, buf)
 		if err != nil {
+			c.devErrors.WithLabelValues(labelValues...).Inc()
 			log.Debugf("Statfs on %s returned %s",
 				mpd.mountPoint, err)
 			continue
@@ -65,7 +67,6 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			ro = 1
 		}
 
-		labelValues := []string{mpd.device, mpd.mountPoint, mpd.fsType}
 		stats = append(stats, filesystemStats{
 			labelValues: labelValues,
 			size:        float64(buf.Blocks) * float64(buf.Bsize),
