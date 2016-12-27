@@ -23,47 +23,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
-const (
-	memInfoSubsystem = "memory"
-)
-
-type meminfoCollector struct{}
-
-func init() {
-	Factories["meminfo"] = NewMeminfoCollector
-}
-
-// Takes a prometheus registry and returns a new Collector exposing
-// memory stats.
-func NewMeminfoCollector() (Collector, error) {
-	return &meminfoCollector{}, nil
-}
-
-func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	memInfo, err := getMemInfo()
-	if err != nil {
-		return fmt.Errorf("couldn't get meminfo: %s", err)
-	}
-	log.Debugf("Set node_mem: %#v", memInfo)
-	for k, v := range memInfo {
-		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
-				prometheus.BuildFQName(Namespace, memInfoSubsystem, k),
-				fmt.Sprintf("Memory information field %s.", k),
-				nil, nil,
-			),
-			prometheus.GaugeValue, v,
-		)
-	}
-	return nil
-}
-
-func getMemInfo() (map[string]float64, error) {
+func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	file, err := os.Open(procFilePath("meminfo"))
 	if err != nil {
 		return nil, err
