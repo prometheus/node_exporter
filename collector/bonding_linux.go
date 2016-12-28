@@ -26,7 +26,7 @@ import (
 )
 
 type bondingCollector struct {
-	slaves, active *prometheus.GaugeVec
+	slaves, active typedDesc
 }
 
 func init() {
@@ -37,22 +37,16 @@ func init() {
 // It exposes the number of configured and active slave of linux bonding interfaces.
 func NewBondingCollector() (Collector, error) {
 	return &bondingCollector{
-		slaves: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Name:      "net_bonding_slaves",
-				Help:      "Number of configured slaves per bonding interface.",
-			},
-			[]string{"master"},
-		),
-		active: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Name:      "net_bonding_slaves_active",
-				Help:      "Number of active slaves per bonding interface.",
-			},
-			[]string{"master"},
-		),
+		slaves: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "bonding", "slaves"),
+			"Number of configured slaves per bonding interface.",
+			[]string{"master"}, nil,
+		), prometheus.GaugeValue},
+		active: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "bonding", "active"),
+			"Number of active slaves per bonding interface.",
+			[]string{"master"}, nil,
+		), prometheus.GaugeValue},
 	}, nil
 }
 
@@ -63,11 +57,9 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 	for master, status := range bondingStats {
-		c.slaves.WithLabelValues(master).Set(float64(status[0]))
-		c.active.WithLabelValues(master).Set(float64(status[1]))
+		ch <- c.slaves.mustNewConstMetric(float64(status[0]), master)
+		ch <- c.active.mustNewConstMetric(float64(status[1]), master)
 	}
-	c.slaves.Collect(ch)
-	c.active.Collect(ch)
 	return nil
 }
 

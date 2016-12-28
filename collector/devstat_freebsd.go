@@ -137,12 +137,12 @@ const (
 )
 
 type devstatCollector struct {
-	bytes       *prometheus.CounterVec
-	bytes_total *prometheus.CounterVec
-	transfers   *prometheus.CounterVec
-	duration    *prometheus.CounterVec
-	busyTime    *prometheus.CounterVec
-	blocks      *prometheus.CounterVec
+	bytes       typedDesc
+	bytes_total typedDesc
+	transfers   typedDesc
+	duration    typedDesc
+	busyTime    typedDesc
+	blocks      typedDesc
 }
 
 func init() {
@@ -153,51 +153,31 @@ func init() {
 // Device stats.
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
-		bytes: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "bytes_total",
-				Help:      "The total number of bytes in transactions.",
-			},
-			[]string{"device", "type"},
-		),
-		transfers: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "transfers_total",
-				Help:      "The total number of transactions.",
-			},
-			[]string{"device", "type"},
-		),
-		duration: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "duration_seconds_total",
-				Help:      "The total duration of transactions in seconds.",
-			},
-			[]string{"device", "type"},
-		),
-		busyTime: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "busy_time_seconds_total",
-				Help:      "Total time the device had one or more transactions outstanding in seconds.",
-			},
-			[]string{"device"},
-		),
-		blocks: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Subsystem: devstatSubsystem,
-				Name:      "blocks_transferred_total",
-				Help:      "The total number of blocks transferred.",
-			},
-			[]string{"device"},
-		),
+		bytes: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "bytes_total"),
+			"The total number of bytes in transactions.",
+			[]string{"device", "type"}, nil,
+		), prometheus.CounterValue},
+		transfers: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "transfers_total"),
+			"The total number of transactions.",
+			[]string{"device", "type"}, nil,
+		), prometheus.CounterValue},
+		duration: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "duration_seconds_total"),
+			"The total duration of transactions in seconds.",
+			[]string{"device", "type"}, nil,
+		), prometheus.CounterValue},
+		busyTime: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "busy_time_seconds_total"),
+			"Total time the device had one or more transactions outstanding in seconds.",
+			[]string{"device"}, nil,
+		), prometheus.CounterValue},
+		blocks: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, devstatSubsystem, "blocks_transferred_total"),
+			"The total number of blocks transferred.",
+			[]string{"device"}, nil,
+		), prometheus.CounterValue},
 	}, nil
 }
 
@@ -213,27 +193,16 @@ func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	for i := C.int(0); i < count; i++ {
 		stats := C._get_stats(i)
 		device := fmt.Sprintf("%s%d", C.GoString(&stats.device[0]), stats.unit)
-		// Free metrics are disabled for now, please see PR #88 for more details.
-		c.bytes.With(prometheus.Labels{"device": device, "type": "read"}).Set(float64(stats.bytes.read))
-		c.bytes.With(prometheus.Labels{"device": device, "type": "write"}).Set(float64(stats.bytes.write))
-		//c.bytes.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.bytes.free))
-		c.transfers.With(prometheus.Labels{"device": device, "type": "other"}).Set(float64(stats.transfers.other))
-		c.transfers.With(prometheus.Labels{"device": device, "type": "read"}).Set(float64(stats.transfers.read))
-		c.transfers.With(prometheus.Labels{"device": device, "type": "write"}).Set(float64(stats.transfers.write))
-		//c.transfers.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.transfers.free))
-		c.duration.With(prometheus.Labels{"device": device, "type": "other"}).Set(float64(stats.duration.other))
-		c.duration.With(prometheus.Labels{"device": device, "type": "read"}).Set(float64(stats.duration.read))
-		c.duration.With(prometheus.Labels{"device": device, "type": "write"}).Set(float64(stats.duration.write))
-		//c.duration.With(prometheus.Labels{"device": device, "type": "free"}).Set(float64(stats.duration.free))
-		c.busyTime.With(prometheus.Labels{"device": device}).Set(float64(stats.busyTime))
-		c.blocks.With(prometheus.Labels{"device": device}).Set(float64(stats.blocks))
+		ch <- c.bytes.mustNewConstMetric(float64(stats.bytes.read), device, "read")
+		ch <- c.bytes.mustNewConstMetric(float64(stats.bytes.write), device, "write")
+		ch <- c.transfers.mustNewConstMetric(float64(stats.transfers.other), device, "other")
+		ch <- c.transfers.mustNewConstMetric(float64(stats.transfers.read), device, "read")
+		ch <- c.transfers.mustNewConstMetric(float64(stats.transfers.write), device, "write")
+		ch <- c.duration.mustNewConstMetric(float64(stats.duration.other), device, "other")
+		ch <- c.duration.mustNewConstMetric(float64(stats.duration.read), device, "read")
+		ch <- c.duration.mustNewConstMetric(float64(stats.duration.write), device, "write")
+		ch <- c.busyTime.mustNewConstMetric(float64(stats.busyTime), device)
+		ch <- c.blocks.mustNewConstMetric(float64(stats.blocks), device)
 	}
-
-	c.bytes.Collect(ch)
-	c.transfers.Collect(ch)
-	c.duration.Collect(ch)
-	c.busyTime.Collect(ch)
-	c.blocks.Collect(ch)
-
 	return err
 }

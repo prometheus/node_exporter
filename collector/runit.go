@@ -29,7 +29,7 @@ var runitServiceDir = flag.String(
 	"Path to runit service directory.")
 
 type runitCollector struct {
-	state, stateDesired, stateNormal, stateTimestamp *prometheus.GaugeVec
+	state, stateDesired, stateNormal, stateTimestamp typedDesc
 }
 
 func init() {
@@ -44,46 +44,26 @@ func NewRunitCollector() (Collector, error) {
 	)
 
 	return &runitCollector{
-		state: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace:   Namespace,
-				Subsystem:   subsystem,
-				Name:        "state",
-				Help:        "State of runit service.",
-				ConstLabels: constLabels,
-			},
-			labelNames,
-		),
-		stateDesired: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace:   Namespace,
-				Subsystem:   subsystem,
-				Name:        "desired_state",
-				Help:        "Desired state of runit service.",
-				ConstLabels: constLabels,
-			},
-			labelNames,
-		),
-		stateNormal: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace:   Namespace,
-				Subsystem:   subsystem,
-				Name:        "normal_state",
-				Help:        "Normal state of runit service.",
-				ConstLabels: constLabels,
-			},
-			labelNames,
-		),
-		stateTimestamp: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace:   Namespace,
-				Subsystem:   subsystem,
-				Name:        "state_last_change_timestamp_seconds",
-				Help:        "Unix timestamp of the last runit service state change.",
-				ConstLabels: constLabels,
-			},
-			labelNames,
-		),
+		state: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "state"),
+			"State of runit service.",
+			labelNames, constLabels,
+		), prometheus.GaugeValue},
+		stateDesired: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "desired_state"),
+			"Desired state of runit service.",
+			labelNames, constLabels,
+		), prometheus.GaugeValue},
+		stateNormal: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "normal_state"),
+			"Normal state of runit service.",
+			labelNames, constLabels,
+		), prometheus.GaugeValue},
+		stateTimestamp: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "state_last_change_timestamp_seconds"),
+			"Unix timestamp of the last runit service state change.",
+			labelNames, constLabels,
+		), prometheus.GaugeValue},
 	}, nil
 }
 
@@ -101,19 +81,14 @@ func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		log.Debugf("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
-		c.state.WithLabelValues(service.Name).Set(float64(status.State))
-		c.stateDesired.WithLabelValues(service.Name).Set(float64(status.Want))
-		c.stateTimestamp.WithLabelValues(service.Name).Set(float64(status.Timestamp.Unix()))
+		ch <- c.state.mustNewConstMetric(float64(status.State), service.Name)
+		ch <- c.stateDesired.mustNewConstMetric(float64(status.Want), service.Name)
+		ch <- c.stateTimestamp.mustNewConstMetric(float64(status.Timestamp.Unix()), service.Name)
 		if status.NormallyUp {
-			c.stateNormal.WithLabelValues(service.Name).Set(1)
+			ch <- c.stateNormal.mustNewConstMetric(1, service.Name)
 		} else {
-			c.stateNormal.WithLabelValues(service.Name).Set(0)
+			ch <- c.stateNormal.mustNewConstMetric(0, service.Name)
 		}
 	}
-	c.state.Collect(ch)
-	c.stateDesired.Collect(ch)
-	c.stateNormal.Collect(ch)
-	c.stateTimestamp.Collect(ch)
-
 	return nil
 }

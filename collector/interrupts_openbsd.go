@@ -98,23 +98,22 @@ var (
 	interruptLabelNames = []string{"CPU", "type", "devices"}
 )
 
-func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	interrupts, err := getInterrupts()
 	if err != nil {
 		return fmt.Errorf("couldn't get interrupts: %s", err)
 	}
 	for dev, interrupt := range interrupts {
 		for cpuNo, value := range interrupt.values {
-			labels := prometheus.Labels{
-				"CPU":     strconv.Itoa(cpuNo),
-				"type":    fmt.Sprintf("%d", interrupt.vector),
-				"devices": dev,
-			}
-			c.metric.With(labels).Set(value)
+			ch <- c.desc.mustNewConstMetric(
+				value,
+				strconv.Itoa(cpuNo),
+				fmt.Sprintf("%d", interrupt.vector),
+				dev,
+			)
 		}
 	}
-	c.metric.Collect(ch)
-	return err
+	return nil
 }
 
 type interrupt struct {
