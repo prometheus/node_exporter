@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -48,6 +49,7 @@ type meminfoNumaCollector struct {
 
 func init() {
 	Factories["meminfo_numa"] = NewMeminfoNumaCollector
+	CollectorsEnabledState["meminfo_numa"] = flag.Bool("collectors.meminfo_numa.enabled", false, "enable meminfo-numa-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

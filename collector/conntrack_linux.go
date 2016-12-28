@@ -16,6 +16,8 @@
 package collector
 
 import (
+	"flag"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -26,6 +28,7 @@ type conntrackCollector struct {
 
 func init() {
 	Factories["conntrack"] = NewConntrackCollector
+	CollectorsEnabledState["conntrack"] = flag.Bool("collectors.conntrack.enabled", true, "enables conntrack-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

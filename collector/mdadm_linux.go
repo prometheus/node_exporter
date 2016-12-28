@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -48,6 +49,7 @@ type mdadmCollector struct{}
 
 func init() {
 	Factories["mdadm"] = NewMdadmCollector
+	CollectorsEnabledState["mdadm"] = flag.Bool("collectors.mdadm.enabled", true, "enable mdadm-collector")
 }
 
 func evalStatusline(statusline string) (active, total, size int64, err error) {

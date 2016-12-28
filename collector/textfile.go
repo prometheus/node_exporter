@@ -42,6 +42,7 @@ type textFileCollector struct {
 
 func init() {
 	Factories["textfile"] = NewTextFileCollector
+	CollectorsEnabledState["textfile"] = flag.Bool("collectors.textfile.enabled", true, "enables textfile-collector")
 }
 
 // Takes a registers a

@@ -17,6 +17,7 @@ package collector
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"unsafe"
 
@@ -89,6 +90,7 @@ type statCollector struct {
 
 func init() {
 	Factories["cpu"] = NewStatCollector
+	enabledCollectors["cpu"] = flag.Bool("collectors.cpu.enabled", true, "enables cpu-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

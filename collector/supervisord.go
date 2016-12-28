@@ -37,6 +37,7 @@ type supervisordCollector struct {
 
 func init() {
 	Factories["supervisord"] = NewSupervisordCollector
+	CollectorsEnabledState["supervisord"] = flag.Bool("collectors.supervisord.enabled", false, "enables supervisord-collector")
 }
 
 func NewSupervisordCollector() (Collector, error) {

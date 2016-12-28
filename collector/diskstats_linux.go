@@ -45,6 +45,7 @@ type diskstatsCollector struct {
 
 func init() {
 	Factories["diskstats"] = NewDiskstatsCollector
+	CollectorsEnabledState["diskstats"] = flag.Bool("collectors.diskstats.enabled", true, "enables diskstats-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

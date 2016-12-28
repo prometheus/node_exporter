@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"os"
 	"strconv"
 	"strings"
@@ -40,6 +41,7 @@ type statCollector struct {
 
 func init() {
 	Factories["stat"] = NewStatCollector
+	CollectorsEnabledState["stat"] = flag.Bool("collectors.stat.enabled", true, "enables stat-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

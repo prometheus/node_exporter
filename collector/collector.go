@@ -21,6 +21,7 @@ import (
 const Namespace = "node"
 
 var Factories = make(map[string]func() (Collector, error))
+var CollectorsEnabledState = make(map[string]*bool)
 
 // Interface a collector has to implement.
 type Collector interface {

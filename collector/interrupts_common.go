@@ -16,7 +16,11 @@
 
 package collector
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"flag"
+
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 type interruptsCollector struct {
 	metric *prometheus.CounterVec
@@ -24,6 +28,7 @@ type interruptsCollector struct {
 
 func init() {
 	Factories["interrupts"] = NewInterruptsCollector
+	CollectorsEnabledState["interrupts"] = flag.Bool("collectors.interrupts.enabled", false, "enables interrupts-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

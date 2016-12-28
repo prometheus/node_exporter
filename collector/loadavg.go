@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -29,6 +30,7 @@ type loadavgCollector struct {
 
 func init() {
 	Factories["loadavg"] = NewLoadavgCollector
+	CollectorsEnabledState["loadavg"] = flag.Bool("collectors.loadavg.enabled", true, "enable loadavg-collector")
 }
 
 // Take a prometheus registry and return a new Collector exposing load average.

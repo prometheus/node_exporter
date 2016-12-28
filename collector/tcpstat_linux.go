@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -48,6 +49,7 @@ type tcpStatCollector struct {
 
 func init() {
 	Factories["tcpstat"] = NewTCPStatCollector
+	CollectorsEnabledState["tcpstat"] = flag.Bool("collectors.tcpstat.enabled", false, "enables tcpstat-collector")
 }
 
 // NewTCPStatCollector takes a returns

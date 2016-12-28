@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -61,6 +62,7 @@ type mountStatsCollector struct {
 
 func init() {
 	Factories["mountstats"] = NewMountStatsCollector
+	CollectorsEnabledState["mountstats"] = flag.Bool("collectors.mountstats.enabled", false, "enable mountstats-collectors")
 }
 
 func NewMountStatsCollector() (Collector, error) {

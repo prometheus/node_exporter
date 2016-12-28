@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -34,6 +35,7 @@ type netStatCollector struct{}
 
 func init() {
 	Factories["netstat"] = NewNetStatCollector
+	CollectorsEnabledState["netstat"] = flag.Bool("collectors.netstat.enabled", true, "enables netstat-collector")
 }
 
 // NewNetStatCollector takes and returns

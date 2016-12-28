@@ -18,6 +18,7 @@ package collector
 import (
 	"bufio"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"io"
 	"net"
@@ -42,6 +43,7 @@ type gmondCollector struct {
 
 func init() {
 	Factories["gmond"] = NewGmondCollector
+	CollectorsEnabledState["gmond"] = flag.Bool("collectors.gmond.enabled", false, "enables gmond-collector")
 }
 
 var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)

@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -34,6 +35,7 @@ type fileFDStatCollector struct{}
 
 func init() {
 	Factories[fileFDStatSubsystem] = NewFileFDStatCollector
+	CollectorsEnabledState["filefd"] = flag.Bool("collectors.filefd.enabled", true, "enables filefd-collector")
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.

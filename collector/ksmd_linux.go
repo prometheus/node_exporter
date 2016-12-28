@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 	"path"
 
@@ -33,6 +34,7 @@ type ksmdCollector struct {
 
 func init() {
 	Factories["ksmd"] = NewKsmdCollector
+	CollectorsEnabledState["ksmd"] = flag.Bool("collectors.ksmd.enabled", false, "enables ksmd-collector")
 }
 
 func getCanonicalMetricName(filename string) string {

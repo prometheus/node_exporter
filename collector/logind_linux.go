@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -79,6 +80,7 @@ type logindSeatEntry struct {
 
 func init() {
 	Factories["logind"] = NewLogindCollector
+	CollectorsEnabledState["logind"] = flag.Bool("collectors.logind.enabled", false, "enables logind-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

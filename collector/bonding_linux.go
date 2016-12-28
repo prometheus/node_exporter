@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -31,6 +32,7 @@ type bondingCollector struct {
 
 func init() {
 	Factories["bonding"] = NewBondingCollector
+	CollectorsEnabledState["bonding"] = flag.Bool("collectors.bonding.enabled", false, "enables bonding-collector")
 }
 
 // NewBondingCollector returns a newly allocated bondingCollector.
