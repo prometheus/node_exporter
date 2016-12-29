@@ -17,6 +17,7 @@ package collector
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -147,6 +148,7 @@ type devstatCollector struct {
 
 func init() {
 	Factories["devstat"] = NewDevstatCollector
+	enabledCollectors["devstat"] = flag.Bool("collectors.devstat.enabled", false, "enables devstat-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

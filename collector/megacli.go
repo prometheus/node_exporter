@@ -45,6 +45,7 @@ type megaCliCollector struct {
 
 func init() {
 	Factories["megacli"] = NewMegaCliCollector
+	CollectorsEnabledState["megacli"] = flag.Bool("collectors.megacli.enabled", false, "enables megacli-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

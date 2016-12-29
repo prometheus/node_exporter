@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -27,6 +28,7 @@ type entropyCollector struct {
 
 func init() {
 	Factories["entropy"] = NewEntropyCollector
+	CollectorsEnabledState["entropy"] = flag.Bool("collectors.entropy.enabled", true, "enables entropy-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

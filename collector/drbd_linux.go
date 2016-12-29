@@ -15,6 +15,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -149,6 +150,7 @@ type drbdCollector struct{}
 
 func init() {
 	Factories["drbd"] = newDRBDCollector
+	CollectorsEnabledState["drdb"] = flag.Bool("collectors.drdb.enabled", false, "enables drdb-collector")
 }
 
 func newDRBDCollector() (Collector, error) {

@@ -97,9 +97,10 @@ func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
 	scrapeDurations.WithLabelValues(name, result).Observe(duration.Seconds())
 }
 
-func loadCollectors(list string) (map[string]collector.Collector, error) {
+func loadCollectors(collectorList string) (map[string]collector.Collector, error) {
 	collectors := map[string]collector.Collector{}
-	for _, name := range strings.Split(list, ",") {
+	collectorsEnabled := collector.CollectorsEnabledState
+	for _, name := range strings.Split(collectorList, ",") {
 		fn, ok := collector.Factories[name]
 		if !ok {
 			return nil, fmt.Errorf("collector '%s' not available", name)
@@ -110,6 +111,21 @@ func loadCollectors(list string) (map[string]collector.Collector, error) {
 		}
 		collectors[name] = c
 	}
+	for name, enabled := range collectorsEnabled {
+		if *enabled {
+			if _, ok := collectors[name]; !ok {
+				fn, ok := collector.Factories[name]
+				if !ok {
+					return nil, fmt.Errorf("collector '%s' not available", name)
+				}
+				c, err := fn()
+				if err != nil {
+					return nil, err
+				}
+				collectors[name] = c
+			}
+		}
+	}
 	return collectors, nil
 }
 
@@ -119,11 +135,11 @@ func init() {
 
 func main() {
 	var (
-		showVersion       = flag.Bool("version", false, "Print version information.")
-		listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
-		metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-		enabledCollectors = flag.String("collectors.enabled", filterAvailableCollectors(defaultCollectors), "Comma-separated list of collectors to use.")
-		printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
+		showVersion           = flag.Bool("version", false, "Print version information.")
+		listenAddress         = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
+		metricsPath           = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+		enabledCollectorsList = flag.String("collectors.enabled", filterAvailableCollectors(defaultCollectors), "Comma-separated list of collectors to use.")
+		printCollectors       = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 	)
 	flag.Parse()
 
@@ -147,7 +163,7 @@ func main() {
 		}
 		return
 	}
-	collectors, err := loadCollectors(*enabledCollectors)
+	collectors, err := loadCollectors(*enabledCollectorsList)
 	if err != nil {
 		log.Fatalf("Couldn't load collectors: %s", err)
 	}

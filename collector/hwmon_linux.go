@@ -17,6 +17,7 @@ package collector
 
 import (
 	"errors"
+	"flag"
 	"io/ioutil"
 	"os"
 	"path"
@@ -45,6 +46,7 @@ var (
 
 func init() {
 	Factories["hwmon"] = NewHwMonCollector
+	CollectorsEnabledState["hwmon"] = flag.Bool("collectors.hwmon.enabled", true, "enables hwmon-collector")
 }
 
 type hwMonCollector struct{}

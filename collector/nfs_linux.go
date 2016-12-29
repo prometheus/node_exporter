@@ -15,6 +15,7 @@ package collector
 
 import (
 	"errors"
+	"flag"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -109,6 +110,7 @@ type nfsCollector struct{}
 
 func init() {
 	Factories["nfs"] = NewNfsCollector
+	CollectorsEnabledState["nfs"] = flag.Bool("collectors.nfs.enabled", false, "enables nfs-collector")
 }
 
 func NewNfsCollector() (Collector, error) {

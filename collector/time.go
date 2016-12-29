@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -28,6 +29,7 @@ type timeCollector struct {
 
 func init() {
 	Factories["time"] = NewTimeCollector
+	CollectorsEnabledState["time"] = flag.Bool("collectors.time.enabled", true, "enables time-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

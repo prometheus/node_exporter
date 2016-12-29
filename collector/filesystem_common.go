@@ -58,6 +58,7 @@ type filesystemStats struct {
 
 func init() {
 	Factories["filesystem"] = NewFilesystemCollector
+	CollectorsEnabledState["filesystem"] = flag.Bool("collectors.filesystem.enabled", true, "enables filesystem-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -33,6 +34,7 @@ type vmStatCollector struct{}
 
 func init() {
 	Factories["vmstat"] = NewvmStatCollector
+	CollectorsEnabledState["vmstat"] = flag.Bool("collectors.vmstat.enabled", true, "enables vmstat-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

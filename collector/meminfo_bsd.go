@@ -18,6 +18,7 @@ package collector
 
 import (
 	"errors"
+	"flag"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -49,6 +50,7 @@ type meminfoCollector struct{}
 
 func init() {
 	Factories["meminfo"] = NewMeminfoCollector
+	CollectorsEnabledState["meminfo"] = flag.Bool("collectors.meminfo.enabled", true, "enables meminfo-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

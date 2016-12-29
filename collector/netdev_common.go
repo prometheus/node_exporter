@@ -39,6 +39,7 @@ type netDevCollector struct {
 
 func init() {
 	Factories["netdev"] = NewNetDevCollector
+	CollectorsEnabledState["netdev"] = flag.Bool("collectors.netdev.enabled", true, "enables netdev-collector")
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.

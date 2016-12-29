@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"flag"
 	"fmt"
 	"strconv"
 
@@ -32,6 +33,7 @@ type ipvsCollector struct {
 
 func init() {
 	Factories["ipvs"] = NewIPVSCollector
+	CollectorsEnabledState["ipvs"] = flag.Bool("collectors.ipvs.enabled", false, "enable interrupts-collector")
 }
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the

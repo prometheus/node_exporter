@@ -36,6 +36,7 @@ type ntpCollector struct {
 
 func init() {
 	Factories["ntp"] = NewNtpCollector
+	CollectorsEnabledState["ntp"] = flag.Bool("collectors.ntp.enabled", false, "enables ntp-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing

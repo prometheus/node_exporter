@@ -34,6 +34,7 @@ type runitCollector struct {
 
 func init() {
 	Factories["runit"] = NewRunitCollector
+	CollectorsEnabledState["runit"] = flag.Bool("collectors.runit.enabled", false, "enables runit-collector")
 }
 
 func NewRunitCollector() (Collector, error) {

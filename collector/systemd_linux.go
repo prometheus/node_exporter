@@ -49,6 +49,7 @@ var (
 
 func init() {
 	Factories["systemd"] = NewSystemdCollector
+	CollectorsEnabledState["systemd"] = flag.Bool("collectors.systemd.enabled", false, "enables systemd-collector")
 }
 
 // Takes a prometheus registry and returns a new Collector exposing
