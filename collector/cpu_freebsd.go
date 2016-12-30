@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"fmt"
 	"strconv"
 	"unsafe"
 
@@ -78,7 +79,8 @@ func getCPUTimes() ([]cputime, error) {
 }
 
 type statCollector struct {
-	cpu typedDesc
+	cpu  typedDesc
+	temp typedDesc
 }
 
 func init() {
@@ -94,6 +96,11 @@ func NewStatCollector() (Collector, error) {
 			"Seconds the CPU spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		), prometheus.CounterValue},
+		temp: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "cpu", "temperature_celsius"),
+			"CPU temperature",
+			[]string{"cpu"}, nil,
+		), prometheus.GaugeValue},
 	}, nil
 }
 
@@ -115,11 +122,18 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 	for cpu, t := range cpuTimes {
-		ch <- c.cpu.mustNewConstMetric(float64(t.user), strconv.Itoa(cpu), "user")
-		ch <- c.cpu.mustNewConstMetric(float64(t.nice), strconv.Itoa(cpu), "nice")
-		ch <- c.cpu.mustNewConstMetric(float64(t.sys), strconv.Itoa(cpu), "system")
-		ch <- c.cpu.mustNewConstMetric(float64(t.intr), strconv.Itoa(cpu), "interrupt")
-		ch <- c.cpu.mustNewConstMetric(float64(t.idle), strconv.Itoa(cpu), "idle")
+		lcpu := strconv.Itoa(cpu)
+		ch <- c.cpu.mustNewConstMetric(float64(t.user), lcpu, "user")
+		ch <- c.cpu.mustNewConstMetric(float64(t.nice), lcpu, "nice")
+		ch <- c.cpu.mustNewConstMetric(float64(t.sys), lcpu, "system")
+		ch <- c.cpu.mustNewConstMetric(float64(t.intr), lcpu, "interrupt")
+		ch <- c.cpu.mustNewConstMetric(float64(t.idle), lcpu, "idle")
+
+		temp, err := unix.SysctlUint32(fmt.Sprintf("dev.cpu.%d.temperature", cpu))
+		if err == nil {
+			ftemp := float64(temp-2732) / 10
+			ch <- c.temp.mustNewConstMetric(ftemp, lcpu)
+		}
 	}
 	return err
 }
