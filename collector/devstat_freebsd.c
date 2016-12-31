@@ -10,10 +10,9 @@
 #include <devstat_freebsd.h>
 
 
-int _get_stats(Stats **stats) {
+int _get_stats(struct devinfo *info, Stats **stats) {
 	struct statinfo current;
-	struct devinfo info = {};
-	current.dinfo = &info;
+	current.dinfo = info;
 
 	if (devstat_getdevs(NULL, &current) == -1) {
 		return -1;

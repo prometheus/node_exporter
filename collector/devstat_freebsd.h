@@ -38,4 +38,4 @@ typedef struct {
 
 
 int _get_ndevs();
-int _get_stats(Stats **stats);
+int _get_stats(struct devinfo *info, Stats **stats);

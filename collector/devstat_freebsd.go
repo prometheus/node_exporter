@@ -18,6 +18,7 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,6 +33,9 @@ const (
 )
 
 type devstatCollector struct {
+	mu      sync.Mutex
+	devinfo *C.struct_devinfo
+
 	bytes       typedDesc
 	bytes_total typedDesc
 	transfers   typedDesc
@@ -48,6 +52,7 @@ func init() {
 // Device stats.
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
+		devinfo: &C.struct_devinfo{},
 		bytes: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, devstatSubsystem, "bytes_total"),
 			"The total number of bytes in transactions.",
@@ -77,8 +82,11 @@ func NewDevstatCollector() (Collector, error) {
 }
 
 func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	var stats *C.Stats
-	n := C._get_stats(&stats)
+	n := C._get_stats(c.devinfo, &stats)
 	if n == -1 {
 		return errors.New("devstat_getdevs failed")
 	}
