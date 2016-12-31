@@ -18,6 +18,7 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -75,25 +76,30 @@ func NewDevstatCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	count := C._get_ndevs()
-	if count == -1 {
-		return errors.New("devstat_getdevs() failed")
+func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
+	var stats *C.Stats
+	n := C._get_stats(&stats)
+	if n == -1 {
+		return errors.New("devstat_getdevs failed")
 	}
 
-	for i := C.int(0); i < count; i++ {
-		stats := C._get_stats(i)
-		device := fmt.Sprintf("%s%d", C.GoString(&stats.device[0]), stats.unit)
-		ch <- c.bytes.mustNewConstMetric(float64(stats.bytes.read), device, "read")
-		ch <- c.bytes.mustNewConstMetric(float64(stats.bytes.write), device, "write")
-		ch <- c.transfers.mustNewConstMetric(float64(stats.transfers.other), device, "other")
-		ch <- c.transfers.mustNewConstMetric(float64(stats.transfers.read), device, "read")
-		ch <- c.transfers.mustNewConstMetric(float64(stats.transfers.write), device, "write")
-		ch <- c.duration.mustNewConstMetric(float64(stats.duration.other), device, "other")
-		ch <- c.duration.mustNewConstMetric(float64(stats.duration.read), device, "read")
-		ch <- c.duration.mustNewConstMetric(float64(stats.duration.write), device, "write")
-		ch <- c.busyTime.mustNewConstMetric(float64(stats.busyTime), device)
-		ch <- c.blocks.mustNewConstMetric(float64(stats.blocks), device)
+	base := unsafe.Pointer(stats)
+	for i := C.int(0); i < n; i++ {
+		offset := i * C.int(C.sizeof_Stats)
+		stat := (*C.Stats)(unsafe.Pointer(uintptr(base) + uintptr(offset)))
+
+		device := fmt.Sprintf("%s%d", C.GoString(&stat.device[0]), stat.unit)
+		ch <- c.bytes.mustNewConstMetric(float64(stat.bytes.read), device, "read")
+		ch <- c.bytes.mustNewConstMetric(float64(stat.bytes.write), device, "write")
+		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.other), device, "other")
+		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.read), device, "read")
+		ch <- c.transfers.mustNewConstMetric(float64(stat.transfers.write), device, "write")
+		ch <- c.duration.mustNewConstMetric(float64(stat.duration.other), device, "other")
+		ch <- c.duration.mustNewConstMetric(float64(stat.duration.read), device, "read")
+		ch <- c.duration.mustNewConstMetric(float64(stat.duration.write), device, "write")
+		ch <- c.busyTime.mustNewConstMetric(float64(stat.busyTime), device)
+		ch <- c.blocks.mustNewConstMetric(float64(stat.blocks), device)
 	}
-	return err
+	C.free(unsafe.Pointer(stats))
+	return nil
 }
