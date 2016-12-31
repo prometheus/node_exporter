@@ -16,94 +16,66 @@
 package collector
 
 import (
-	"errors"
 	"strconv"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 )
 
-/*
-#cgo LDFLAGS:
-#include <fcntl.h>
-#include <stdlib.h>
-#include <sys/param.h>
-#include <sys/pcpu.h>
-#include <sys/resource.h>
-#include <sys/sysctl.h>
-#include <sys/time.h>
-
-static int mibs_set_up = 0;
-
-static int mib_kern_cp_times[2];
-static size_t mib_kern_cp_times_len = 2;
-
-static const int mib_hw_ncpu[] = {CTL_HW, HW_NCPU};
-static const size_t mib_hw_ncpu_len = 2;
-
-static const int mib_kern_clockrate[] = {CTL_KERN, KERN_CLOCKRATE};
-static size_t mib_kern_clockrate_len = 2;
-
-// Setup method for MIBs not available as constants.
-// Calls to this method must be synchronized externally.
-int setupSysctlMIBs() {
-	int ret = sysctlnametomib("kern.cp_times", mib_kern_cp_times, &mib_kern_cp_times_len);
-	if (ret == 0) mibs_set_up = 1;
-	return ret;
+type clockinfo struct {
+	hz     int32 // clock frequency
+	tick   int32 // micro-seconds per hz tick
+	spare  int32
+	stathz int32 // statistics clock frequency
+	profhz int32 // profiling clock frequency
 }
 
-int getCPUTimes(int *ncpu, double **cpu_times, size_t *cp_times_length) {
-
-	// Assert that mibs are set up through setupSysctlMIBs
-	if (!mibs_set_up) {
-		return -1;
-	}
-
-	// Retrieve number of cpu cores
-	size_t ncpu_size = sizeof(*ncpu);
-	if (sysctl(mib_hw_ncpu, mib_hw_ncpu_len, ncpu, &ncpu_size, NULL, 0) == -1 ||
-	    sizeof(*ncpu) != ncpu_size) {
-		return -1;
-	}
-
-	// Retrieve clockrate
-	struct clockinfo clockrate;
-	size_t clockrate_size = sizeof(clockrate);
-	if (sysctl(mib_kern_clockrate, mib_kern_clockrate_len, &clockrate, &clockrate_size, NULL, 0) == -1 ||
-	    sizeof(clockrate) != clockrate_size) {
-		return -1;
-	}
-
-	// Retrieve cp_times values
-	*cp_times_length = (*ncpu) * CPUSTATES;
-
-	long cp_times[*cp_times_length];
-	size_t cp_times_size = sizeof(cp_times);
-
-	if (sysctl(mib_kern_cp_times, mib_kern_cp_times_len, &cp_times, &cp_times_size, NULL, 0) == -1 ||
-	    sizeof(cp_times) != cp_times_size) {
-		return -1;
-	}
-
-	// Compute absolute time for different CPU states
-	long cpufreq = clockrate.stathz > 0 ? clockrate.stathz : clockrate.hz;
-	*cpu_times = (double *) malloc(sizeof(double)*(*cp_times_length));
-	for (int i = 0; i < (*cp_times_length); i++) {
-		(*cpu_times)[i] = ((double) cp_times[i]) / cpufreq;
-	}
-
-	return 0;
-
+type cputime struct {
+	user float64
+	nice float64
+	sys  float64
+	intr float64
+	idle float64
 }
 
-void freeCPUTimes(double *cpu_times) {
-	free(cpu_times);
+func getCPUTimes() ([]cputime, error) {
+	const states = 5
+
+	clockb, err := unix.SysctlRaw("kern.clockrate")
+	if err != nil {
+		return nil, err
+	}
+	clock := *(*clockinfo)(unsafe.Pointer(&clockb[0]))
+	cpb, err := unix.SysctlRaw("kern.cp_times")
+	if err != nil {
+		return nil, err
+	}
+
+	var cpufreq float64
+	if clock.stathz > 0 {
+		cpufreq = float64(clock.stathz)
+	} else {
+		cpufreq = float64(clock.hz)
+	}
+	var times []float64
+	for len(cpb) >= int(unsafe.Sizeof(int(0))) {
+		t := *(*int)(unsafe.Pointer(&cpb[0]))
+		times = append(times, float64(t)/cpufreq)
+		cpb = cpb[unsafe.Sizeof(int(0)):]
+	}
+
+	cpus := make([]cputime, len(times)/states)
+	for i := 0; i < len(times); i += states {
+		cpu := &cpus[i/states]
+		cpu.user = times[i]
+		cpu.nice = times[i+1]
+		cpu.sys = times[i+2]
+		cpu.intr = times[i+3]
+		cpu.idle = times[i+4]
+	}
+	return cpus, nil
 }
-
-*/
-import "C"
-
-const maxCPUTimesLen = C.MAXCPU * C.CPUSTATES
 
 type statCollector struct {
 	cpu *prometheus.CounterVec
@@ -116,9 +88,6 @@ func init() {
 // Takes a prometheus registry and returns a new Collector exposing
 // CPU stats.
 func NewStatCollector() (Collector, error) {
-	if C.setupSysctlMIBs() == -1 {
-		return nil, errors.New("could not initialize sysctl MIBs")
-	}
 	return &statCollector{
 		cpu: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -133,7 +102,6 @@ func NewStatCollector() (Collector, error) {
 
 // Expose CPU stats using sysctl.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
-
 	// We want time spent per-cpu per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// Order: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
@@ -145,29 +113,17 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
-	var ncpu C.int
-	var cpuTimesC *C.double
-	var cpuTimesLength C.size_t
-	if C.getCPUTimes(&ncpu, &cpuTimesC, &cpuTimesLength) == -1 {
-		return errors.New("could not retrieve CPU times")
+	cpuTimes, err := getCPUTimes()
+	if err != nil {
+		return err
 	}
-	defer C.freeCPUTimes(cpuTimesC)
-	if cpuTimesLength > maxCPUTimesLen {
-		return errors.New("more CPU's than MAXCPU?")
+	for cpu, t := range cpuTimes {
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "user"}).Set(t.user)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "nice"}).Set(t.nice)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "system"}).Set(t.sys)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "interrupt"}).Set(t.intr)
+		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "idle"}).Set(t.idle)
 	}
-
-	// Convert C.double array to Go array (https://github.com/golang/go/wiki/cgo#turning-c-arrays-into-go-slices).
-	cpuTimes := (*[maxCPUTimesLen]C.double)(unsafe.Pointer(cpuTimesC))[:cpuTimesLength:cpuTimesLength]
-
-	for cpu := 0; cpu < int(ncpu); cpu++ {
-		base_idx := C.CPUSTATES * cpu
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "user"}).Set(float64(cpuTimes[base_idx+C.CP_USER]))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "nice"}).Set(float64(cpuTimes[base_idx+C.CP_NICE]))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "system"}).Set(float64(cpuTimes[base_idx+C.CP_SYS]))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "interrupt"}).Set(float64(cpuTimes[base_idx+C.CP_INTR]))
-		c.cpu.With(prometheus.Labels{"cpu": strconv.Itoa(cpu), "mode": "idle"}).Set(float64(cpuTimes[base_idx+C.CP_IDLE]))
-	}
-
 	c.cpu.Collect(ch)
 	return err
 }
