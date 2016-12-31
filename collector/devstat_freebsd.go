@@ -64,11 +64,8 @@ typedef struct {
 
 int _get_ndevs() {
 	struct statinfo current;
-	int num_devices;
-
-	current.dinfo = (struct devinfo *)calloc(1, sizeof(struct devinfo));
-	if (current.dinfo == NULL)
-		return -2;
+	struct devinfo info = {};
+	current.dinfo = &info;
 
 	devstat_checkversion(NULL);
 
@@ -80,12 +77,11 @@ int _get_ndevs() {
 
 Stats _get_stats(int i) {
 	struct statinfo current;
-	int num_devices;
+	struct devinfo info = {};
+	current.dinfo = &info;
 
-	current.dinfo = (struct devinfo *)calloc(1, sizeof(struct devinfo));
 	devstat_getdevs(NULL, &current);
 
-	num_devices = current.dinfo->numdevs;
 	Stats stats;
 	uint64_t bytes_read, bytes_write, bytes_free;
 	uint64_t transfers_other, transfers_read, transfers_write, transfers_free;
@@ -185,9 +181,6 @@ func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	count := C._get_ndevs()
 	if count == -1 {
 		return errors.New("devstat_getdevs() failed")
-	}
-	if count == -2 {
-		return errors.New("calloc() failed")
 	}
 
 	for i := C.int(0); i < count; i++ {
