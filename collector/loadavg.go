@@ -50,6 +50,21 @@ func NewLoadavgCollector() (Collector, error) {
 				Name:      "load15",
 				Help:      "15m load average.",
 			}),
+			prometheus.NewGauge(prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "load1_norm",
+				Help:      "normalized 1m load average.",
+			}),
+			prometheus.NewGauge(prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "load5_norm",
+				Help:      "normalized 5m load average.",
+			}),
+			prometheus.NewGauge(prometheus.GaugeOpts{
+				Namespace: Namespace,
+				Name:      "load15_norm",
+				Help:      "normalized 15m load average.",
+			}),
 		},
 	}, nil
 }
