@@ -549,6 +549,11 @@ node_filefd_maximum 1.631329e+06
 # HELP node_forks Total number of forks.
 # TYPE node_forks counter
 node_forks 26442
+# HELP node_hwmon_chip_names Annotation metric for human-readable chip names
+# TYPE node_hwmon_chip_names gauge
+node_hwmon_chip_names{chip="nct6779",chip_name="nct6779"} 1
+node_hwmon_chip_names{chip="platform_coretemp_0",chip_name="coretemp"} 1
+node_hwmon_chip_names{chip="platform_coretemp_1",chip_name="coretemp"} 1
 # HELP node_hwmon_fan_alarm Hardware sensor alarm status (fan)
 # TYPE node_hwmon_fan_alarm gauge
 node_hwmon_fan_alarm{chip="nct6779",sensor="fan2"} 0
