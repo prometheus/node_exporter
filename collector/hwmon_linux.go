@@ -145,7 +145,6 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 	}
 
 	hwmonChipName, err := c.hwmonHumanReadableChipName(dir)
-
 	if err == nil {
 		// sensor chip metadata
 		desc := prometheus.NewDesc(
@@ -372,12 +371,9 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 	return "", errors.New("Could not derive a monitoring name for " + dir)
 }
 
+// hwmonHumanReadableChipName is similar to the methods in hwmonName, but with
+// different precedences -- we can allow duplicates here.
 func (c *hwMonCollector) hwmonHumanReadableChipName(dir string) (string, error) {
-	// this is similar to the methods in hwmonName, but with different
-	// precedences -- we can allow duplicates here.
-
-	// preference 1: is there a name file
-
 	sysnameRaw, nameErr := ioutil.ReadFile(path.Join(dir, "name"))
 	if nameErr != nil {
 		return "", nameErr
