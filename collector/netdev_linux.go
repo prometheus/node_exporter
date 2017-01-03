@@ -70,5 +70,5 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 			netDev[dev]["transmit_"+v] = parts[i+1+len(header)]
 		}
 	}
-	return netDev, nil
+	return netDev, scanner.Err()
 }
