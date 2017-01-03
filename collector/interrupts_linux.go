@@ -42,16 +42,9 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			if err != nil {
 				return fmt.Errorf("invalid value %s in interrupts: %s", value, err)
 			}
-			labels := prometheus.Labels{
-				"CPU":     strconv.Itoa(cpuNo),
-				"type":    name,
-				"info":    interrupt.info,
-				"devices": interrupt.devices,
-			}
-			c.metric.With(labels).Set(fv)
+			ch <- c.desc.mustNewConstMetric(fv, strconv.Itoa(cpuNo), name, interrupt.info, interrupt.devices)
 		}
 	}
-	c.metric.Collect(ch)
 	return err
 }
 

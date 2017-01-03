@@ -43,7 +43,7 @@ const (
 )
 
 type tcpStatCollector struct {
-	metric *prometheus.GaugeVec
+	desc typedDesc
 }
 
 func init() {
@@ -54,14 +54,11 @@ func init() {
 // a new Collector exposing network stats.
 func NewTCPStatCollector() (Collector, error) {
 	return &tcpStatCollector{
-		metric: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: Namespace,
-				Name:      "tcp_connection_states",
-				Help:      "Number of connection states.",
-			},
-			[]string{"state"},
-		),
+		desc: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "tcp", "connection_states"),
+			"Number of connection states.",
+			[]string{"state"}, nil,
+		), prometheus.GaugeValue},
 	}, nil
 }
 
@@ -85,10 +82,8 @@ func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 
 	for st, value := range tcpStats {
-		c.metric.WithLabelValues(st.String()).Set(value)
+		ch <- c.desc.mustNewConstMetric(value, st.String())
 	}
-
-	c.metric.Collect(ch)
 	return err
 }
 

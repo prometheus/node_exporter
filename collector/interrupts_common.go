@@ -19,7 +19,7 @@ package collector
 import "github.com/prometheus/client_golang/prometheus"
 
 type interruptsCollector struct {
-	metric *prometheus.CounterVec
+	desc typedDesc
 }
 
 func init() {
@@ -30,13 +30,10 @@ func init() {
 // interrupts stats
 func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
-		metric: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: Namespace,
-				Name:      "interrupts",
-				Help:      "Interrupt details.",
-			},
-			interruptLabelNames,
-		),
+		desc: typedDesc{prometheus.NewDesc(
+			Namespace+"_interrupts",
+			"Interrupt details.",
+			interruptLabelNames, nil,
+		), prometheus.CounterValue},
 	}, nil
 }

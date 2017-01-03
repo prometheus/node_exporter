@@ -30,8 +30,7 @@ var (
 )
 
 type ntpCollector struct {
-	drift   prometheus.Gauge
-	stratum prometheus.Gauge
+	drift, stratum typedDesc
 }
 
 func init() {
@@ -50,16 +49,16 @@ func NewNtpCollector() (Collector, error) {
 	}
 
 	return &ntpCollector{
-		drift: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "ntp_drift_seconds",
-			Help:      "Time between system time and ntp time.",
-		}),
-		stratum: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: Namespace,
-			Name:      "ntp_stratum",
-			Help:      "NTP server stratum.",
-		}),
+		drift: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "ntp", "drift_seconds"),
+			"Time between system time and ntp time.",
+			nil, nil,
+		), prometheus.GaugeValue},
+		stratum: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "ntp", "stratum"),
+			"NTP server stratum.",
+			nil, nil,
+		), prometheus.GaugeValue},
 	}, nil
 }
 
@@ -70,12 +69,10 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 	driftSeconds := resp.ClockOffset.Seconds()
 	log.Debugf("Set ntp_drift_seconds: %f", driftSeconds)
-	c.drift.Set(driftSeconds)
-	c.drift.Collect(ch)
+	ch <- c.drift.mustNewConstMetric(driftSeconds)
 
 	stratum := float64(resp.Stratum)
 	log.Debugf("Set ntp_stratum: %f", stratum)
-	c.stratum.Set(stratum)
-	c.stratum.Collect(ch)
+	ch <- c.stratum.mustNewConstMetric(stratum)
 	return nil
 }

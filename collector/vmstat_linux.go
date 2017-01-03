@@ -56,14 +56,14 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			return err
 		}
 
-		metric := prometheus.NewUntyped(prometheus.UntypedOpts{
-			Namespace: Namespace,
-			Subsystem: vmStatSubsystem,
-			Name:      parts[0],
-			Help:      fmt.Sprintf("/proc/vmstat information field %s.", parts[0]),
-		})
-		metric.Set(value)
-		metric.Collect(ch)
+		ch <- prometheus.MustNewConstMetric(
+			prometheus.NewDesc(
+				prometheus.BuildFQName(Namespace, vmStatSubsystem, parts[0]),
+				fmt.Sprintf("/proc/vmstat information field %s.", parts[0]),
+				nil, nil),
+			prometheus.UntypedValue,
+			value,
+		)
 	}
 	return err
 }
