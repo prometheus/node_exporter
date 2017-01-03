@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build freebsd darwin,amd64 dragonfly
+// +build freebsd dragonfly
 // +build !nomeminfo
 
 package collector
@@ -19,52 +19,33 @@ package collector
 import (
 	"fmt"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
 
-const (
-	memInfoSubsystem = "memory"
-)
-
-type meminfoCollector struct{}
-
-func init() {
-	Factories["meminfo"] = NewMeminfoCollector
-}
-
-// Takes a prometheus registry and returns a new Collector exposing
-// Memory stats.
-func NewMeminfoCollector() (Collector, error) {
-	return &meminfoCollector{}, nil
-}
-
-func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	pages := make(map[string]uint32)
+func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
+	info := make(map[string]float64)
 
 	size, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
 	if err != nil {
-		return fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %s", err)
+		return nil, fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %s", err)
 	}
-	pages["active"], _ = unix.SysctlUint32("vm.stats.vm.v_active_count")
-	pages["inactive"], _ = unix.SysctlUint32("vm.stats.vm.v_inactive_count")
-	pages["wire"], _ = unix.SysctlUint32("vm.stats.vm.v_wire_count")
-	pages["cache"], _ = unix.SysctlUint32("vm.stats.vm.v_cache_count")
-	pages["free"], _ = unix.SysctlUint32("vm.stats.vm.v_free_count")
-	pages["swappgsin"], _ = unix.SysctlUint32("vm.stats.vm.v_swappgsin")
-	pages["swappgsout"], _ = unix.SysctlUint32("vm.stats.vm.v_swappgsout")
-	pages["total"], _ = unix.SysctlUint32("vm.stats.vm.v_page_count")
 
-	for k, v := range pages {
-		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
-				prometheus.BuildFQName(Namespace, memInfoSubsystem, k),
-				k+" from sysctl()",
-				nil, nil,
-			),
-			// Convert metrics to kB (same as Linux meminfo).
-			prometheus.UntypedValue, float64(v)*float64(size),
-		)
+	for key, v := range map[string]string{
+		"active":     "vm.stats.vm.v_active_count",
+		"inactive":   "vm.stats.vm.v_inactive_count",
+		"wire":       "vm.stats.vm.v_wire_count",
+		"cache":      "vm.stats.vm.v_cache_count",
+		"free":       "vm.stats.vm.v_free_count",
+		"swappgsin":  "vm.stats.vm.v_swappgsin",
+		"swappgsout": "vm.stats.vm.v_swappgsout",
+		"total":      "vm.stats.vm.v_page_count",
+	} {
+		value, err := unix.SysctlUint32(v)
+		if err != nil {
+			return nil, err
+		}
+		// Convert metrics to kB (same as Linux meminfo).
+		info[key] = float64(value) * float64(size)
 	}
-	return err
+	return info, nil
 }
