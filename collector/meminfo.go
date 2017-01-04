@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nomeminfo
-// +build !windows
+// +build !windows,!netbsd
 
 package collector
 
