@@ -12,6 +12,7 @@
 // limitations under the License.
 
 // +build !nomeminfo
+// +build !windows
 
 package collector
 
