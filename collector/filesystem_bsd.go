@@ -66,15 +66,18 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			ro = 1
 		}
 
-		labelValues := []string{device, mountpoint, fstype}
 		stats = append(stats, filesystemStats{
-			labelValues: labelValues,
-			size:        float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
-			free:        float64(mnt[i].f_bfree) * float64(mnt[i].f_bsize),
-			avail:       float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
-			files:       float64(mnt[i].f_files),
-			filesFree:   float64(mnt[i].f_ffree),
-			ro:          ro,
+			labels: filesystemLabels{
+				device:     device,
+				mountPoint: mountpoint,
+				fsType:     fstype,
+			},
+			size:      float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
+			free:      float64(mnt[i].f_bfree) * float64(mnt[i].f_bsize),
+			avail:     float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
+			files:     float64(mnt[i].f_files),
+			filesFree: float64(mnt[i].f_ffree),
+			ro:        ro,
 		})
 	}
 	return stats, nil

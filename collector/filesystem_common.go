@@ -51,8 +51,12 @@ type filesystemCollector struct {
 	devErrors *prometheus.CounterVec
 }
 
+type filesystemLabels struct {
+	device, mountPoint, fsType string
+}
+
 type filesystemStats struct {
-	labelValues                             []string
+	labels                                  filesystemLabels
 	size, free, avail, files, filesFree, ro float64
 }
 
@@ -126,30 +130,37 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return err
 	}
+	// Make sure we expose a metric once, even if there are multiple mounts
+	seen := map[filesystemLabels]bool{}
 	for _, s := range stats {
+		if seen[s.labels] {
+			continue
+		}
+		seen[s.labels] = true
+
 		ch <- prometheus.MustNewConstMetric(
 			c.sizeDesc, prometheus.GaugeValue,
-			s.size, s.labelValues...,
+			s.size, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.freeDesc, prometheus.GaugeValue,
-			s.free, s.labelValues...,
+			s.free, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.availDesc, prometheus.GaugeValue,
-			s.avail, s.labelValues...,
+			s.avail, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.filesDesc, prometheus.GaugeValue,
-			s.files, s.labelValues...,
+			s.files, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.filesFreeDesc, prometheus.GaugeValue,
-			s.filesFree, s.labelValues...,
+			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.roDesc, prometheus.GaugeValue,
-			s.ro, s.labelValues...,
+			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
 	}
 	c.devErrors.Collect(ch)
