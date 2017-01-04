@@ -14,8 +14,12 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
+	"io/ioutil"
+	slog "log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -119,9 +123,17 @@ func init() {
 
 func main() {
 	var (
-		showVersion       = flag.Bool("version", false, "Print version information.")
-		listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
-		metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+		showVersion   = flag.Bool("version", false, "Print version information.")
+		listenAddress = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
+		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+		tlsCert       = flag.String("web.tls-cert", "", "Path to PEM file that conains the certificate (and opionally also the private key in PEM format).\n"+
+			"\tThis should include the whole certificate chain.\n"+
+			"\tIf provided: The web socket will be a HTTPS socket.\n"+
+			"\tIf not provided: Only HTTP.")
+		tlsPrivateKey = flag.String("web.tls-private-key", "", "Path to PEM file that conains the private key (if not contained in web.tls-cert file).")
+		tlsClientCa   = flag.String("web.tls-client-ca", "", "Path to PEM file that conains the CAs that are trused for client connections.\n"+
+			"\tIf provided: Connecting clients should present a certificate signed by one of this CAs.\n"+
+			"\tIf not provided: Every client will be accepted.")
 		enabledCollectors = flag.String("collectors.enabled", filterAvailableCollectors(defaultCollectors), "Comma-separated list of collectors to use.")
 		printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
 	)
@@ -160,6 +172,11 @@ func main() {
 	nodeCollector := NodeCollector{collectors: collectors}
 	prometheus.MustRegister(nodeCollector)
 
+	server := &http.Server{
+		Addr:     *listenAddress,
+		ErrorLog: createHttpServerLogWrapper(),
+	}
+
 	handler := prometheus.Handler()
 
 	http.Handle(*metricsPath, handler)
@@ -173,9 +190,53 @@ func main() {
 			</html>`))
 	})
 
-	log.Infoln("Listening on", *listenAddress)
-	err = http.ListenAndServe(*listenAddress, nil)
+	if len(*tlsCert) > 0 {
+		clientValidation := "no"
+		if len(*tlsClientCa) > 0 && len(*tlsCert) > 0 {
+			certificates, err := loadCertificatesFrom(*tlsClientCa)
+			if err != nil {
+				log.Fatalf("Couldn't load client CAs from %s. Got: %s", *tlsClientCa, err)
+			}
+			server.TLSConfig = &tls.Config{
+				ClientCAs:  certificates,
+				ClientAuth: tls.RequireAndVerifyClientCert,
+			}
+			clientValidation = "yes"
+		}
+		targetTlsPrivateKey := *tlsPrivateKey
+		if len(targetTlsPrivateKey) <= 0 {
+			targetTlsPrivateKey = *tlsCert
+		}
+		log.Infof("Listening on %s (scheme=HTTPS, secured=TLS, clientValidation=%s)", server.Addr, clientValidation)
+		err = server.ListenAndServeTLS(*tlsCert, targetTlsPrivateKey)
+	} else {
+		log.Infof("Listening on %s (scheme=HTTP, secured=no, clientValidation=no)", server.Addr)
+		err = server.ListenAndServe()
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func loadCertificatesFrom(pemFile string) (*x509.CertPool, error) {
+	caCert, err := ioutil.ReadFile(pemFile)
+	if err != nil {
+		return nil, err
+	}
+	certificates := x509.NewCertPool()
+	certificates.AppendCertsFromPEM(caCert)
+	return certificates, nil
+}
+
+type bufferedLogWriter struct {
+	buf []byte
+}
+
+func (w *bufferedLogWriter) Write(p []byte) (n int, err error) {
+	log.Debug(strings.TrimSpace(strings.Replace(string(p), "\n", " ", -1)))
+	return len(p), nil
+}
+
+func createHttpServerLogWrapper() *slog.Logger {
+	return slog.New(&bufferedLogWriter{}, "", 0)
 }
