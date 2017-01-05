@@ -78,7 +78,7 @@ func getCPUTimes() ([]cputime, error) {
 }
 
 type statCollector struct {
-	cpu *prometheus.CounterVec
+	cpu typedDesc
 }
 
 func init() {
@@ -115,11 +115,11 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 	for cpu, t := range cpuTimes {
-		ch <- c.cpu.mustNewConstMetric(float64(cpuTimes[base_idx+C.CP_USER]), strconv.Itoa(cpu), "user")
-		ch <- c.cpu.mustNewConstMetric(float64(cpuTimes[base_idx+C.CP_NICE]), strconv.Itoa(cpu), "nice")
-		ch <- c.cpu.mustNewConstMetric(float64(cpuTimes[base_idx+C.CP_SYS]), strconv.Itoa(cpu), "system")
-		ch <- c.cpu.mustNewConstMetric(float64(cpuTimes[base_idx+C.CP_INTR]), strconv.Itoa(cpu), "interrupt")
-		ch <- c.cpu.mustNewConstMetric(float64(cpuTimes[base_idx+C.CP_IDLE]), strconv.Itoa(cpu), "idle")
+		ch <- c.cpu.mustNewConstMetric(float64(t.user), strconv.Itoa(cpu), "user")
+		ch <- c.cpu.mustNewConstMetric(float64(t.nice), strconv.Itoa(cpu), "nice")
+		ch <- c.cpu.mustNewConstMetric(float64(t.sys), strconv.Itoa(cpu), "system")
+		ch <- c.cpu.mustNewConstMetric(float64(t.intr), strconv.Itoa(cpu), "interrupt")
+		ch <- c.cpu.mustNewConstMetric(float64(t.idle), strconv.Itoa(cpu), "idle")
 	}
 	return err
 }
