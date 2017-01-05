@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
@@ -157,12 +158,11 @@ func main() {
 		log.Infof(" - %s", n)
 	}
 
-	nodeCollector := NodeCollector{collectors: collectors}
-	prometheus.MustRegister(nodeCollector)
+	prometheus.MustRegister(NodeCollector{collectors: collectors})
+	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,
+		promhttp.HandlerOpts{ErrorLog: log.NewErrorLogger()})
 
-	handler := prometheus.Handler()
-
-	http.Handle(*metricsPath, handler)
+	http.Handle(*metricsPath, prometheus.InstrumentHandler("prometheus", handler))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
 			<head><title>Node Exporter</title></head>
