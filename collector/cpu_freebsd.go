@@ -17,10 +17,12 @@ package collector
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"golang.org/x/sys/unix"
 )
 
@@ -130,10 +132,18 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		ch <- c.cpu.mustNewConstMetric(float64(t.idle), lcpu, "idle")
 
 		temp, err := unix.SysctlUint32(fmt.Sprintf("dev.cpu.%d.temperature", cpu))
-		if err == nil {
-			ftemp := float64(temp-2732) / 10
-			ch <- c.temp.mustNewConstMetric(ftemp, lcpu)
+		if err != nil {
+			if err == unix.ENOENT {
+				// No temperature information for this CPU
+				log.Debugf("no temperature information for CPU %d", cpu)
+			} else {
+				// Unexpected error
+				ch <- c.temp.mustNewConstMetric(math.NaN(), lcpu)
+				log.Errorf("failed to query CPU temperature for CPU %d: %s", cpu, err)
+			}
+			continue
 		}
+		ch <- c.temp.mustNewConstMetric(float64(temp-2732)/10, lcpu)
 	}
 	return err
 }
