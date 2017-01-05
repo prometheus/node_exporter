@@ -25,6 +25,7 @@ import (
 
 const (
 	testMegaCliAdapter = "fixtures/megacli_adapter.txt"
+	testMegaCliBattery = "fixtures/megacli_battery.txt"
 	testMegaCliDisks   = "fixtures/megacli_disks.txt"
 
 	physicalDevicesExpected = "5"
@@ -47,6 +48,21 @@ func TestMegaCliAdapter(t *testing.T) {
 
 	if stats["Device Present"]["Degraded"] != virtualDevicesDegraded {
 		t.Fatalf("Unexpected degraded device count: %s != %s", stats["Device Present"]["Degraded"], virtualDevicesDegraded)
+	}
+}
+
+func TestMegaCliBattery(t *testing.T) {
+	data, err := os.Open(testMegaCliBattery)
+	if err != nil {
+		t.Fatal(err)
+	}
+	stats := parseMegaCliBattery(data)
+
+	if stats[""]["Voltage"] != "3934 mV" {
+		t.Fatalf("Unexpected voltage: %s != %s", stats[""]["Voltage"], "3934 mV")
+	}
+	if stats["BBU Firmware Status"]["Voltage"] != "OK" {
+		t.Fatalf("Unexpected voltage: %s != %s", stats["BBU Firmware Status"]["Voltage"], "OK")
 	}
 }
 
