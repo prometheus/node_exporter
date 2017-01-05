@@ -22,6 +22,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -164,14 +165,29 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 	}
 
 	// format all sensors
-	for sensor, sensorData := range data {
-
+	// - we need to give duplicated labels an index, so sort sensors first
+	sensorIndex := map[string]int{}
+	sensors := make([]string, len(data))
+	i := 0
+	for k := range data {
+		sensors[i] = k
+		i++
+	}
+	sort.Strings(sensors)
+	for _, sensor := range sensors {
+		sensorData := data[sensor]
 		_, sensorType, _, _ := explodeSensorFilename(sensor)
 
 		if labelText, ok := sensorData["label"]; ok {
 			label := cleanMetricName(labelText)
 			if label != "" {
-				sensor = label
+				if sensorIndex[label] > 0 {
+					sensor = label + strconv.Itoa(sensorIndex[label])
+					sensorIndex[label]++
+				} else {
+					sensor = label
+					sensorIndex[label] = 1
+				}
 			}
 		}
 		labels := []string{hwmonName, sensor}

@@ -702,6 +702,8 @@ node_hwmon_pwm_weight_temp_step_base{chip="nct6779",sensor="pwm1"} 0
 node_hwmon_pwm_weight_temp_step_tol{chip="nct6779",sensor="pwm1"} 0
 # HELP node_hwmon_temp_celsius Hardware monitor for temperature (input)
 # TYPE node_hwmon_temp_celsius gauge
+node_hwmon_temp_celsius{chip="hwmon4",sensor="foosensor"} 55
+node_hwmon_temp_celsius{chip="hwmon4",sensor="foosensor1"} 54
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="core_0"} 54
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="core_1"} 52
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="core_2"} 53
@@ -714,6 +716,8 @@ node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="core_3"} 50
 node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="physical_id_0"} 55
 # HELP node_hwmon_temp_crit_alarm_celsius Hardware monitor for temperature (crit_alarm)
 # TYPE node_hwmon_temp_crit_alarm_celsius gauge
+node_hwmon_temp_crit_alarm_celsius{chip="hwmon4",sensor="foosensor"} 0
+node_hwmon_temp_crit_alarm_celsius{chip="hwmon4",sensor="foosensor1"} 0
 node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="core_0"} 0
 node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="core_1"} 0
 node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="core_2"} 0
@@ -726,6 +730,8 @@ node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="core_3"} 0
 node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="physical_id_0"} 0
 # HELP node_hwmon_temp_crit_celsius Hardware monitor for temperature (crit)
 # TYPE node_hwmon_temp_crit_celsius gauge
+node_hwmon_temp_crit_celsius{chip="hwmon4",sensor="foosensor"} 100
+node_hwmon_temp_crit_celsius{chip="hwmon4",sensor="foosensor1"} 100
 node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="core_0"} 100
 node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="core_1"} 100
 node_hwmon_temp_crit_celsius{chip="platform_coretemp_0",sensor="core_2"} 100
@@ -738,6 +744,8 @@ node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",sensor="core_3"} 100
 node_hwmon_temp_crit_celsius{chip="platform_coretemp_1",sensor="physical_id_0"} 100
 # HELP node_hwmon_temp_max_celsius Hardware monitor for temperature (max)
 # TYPE node_hwmon_temp_max_celsius gauge
+node_hwmon_temp_max_celsius{chip="hwmon4",sensor="foosensor"} 100
+node_hwmon_temp_max_celsius{chip="hwmon4",sensor="foosensor1"} 100
 node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="core_0"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="core_1"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_0",sensor="core_2"} 84
