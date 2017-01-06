@@ -115,8 +115,8 @@ get() {
 
 sleep 1
 
-get "127.0.0.1:${port}/metrics" > "${tmpdir}/e2e-output.txt"
+get "127.0.0.1:${port}/metrics" | grep -E -v "${skip_re}" > "${tmpdir}/e2e-output.txt"
 
 diff -u \
-  <(grep -E -v "${skip_re}" "collector/fixtures/e2e-output.txt") \
-  <(grep -E -v "${skip_re}" "${tmpdir}/e2e-output.txt")
+  "collector/fixtures/e2e-output.txt" \
+  "${tmpdir}/e2e-output.txt"
