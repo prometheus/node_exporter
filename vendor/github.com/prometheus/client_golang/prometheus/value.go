@@ -19,6 +19,7 @@ import (
 	"math"
 	"sort"
 	"sync/atomic"
+	"time"
 
 	dto "github.com/prometheus/client_model/go"
 
@@ -78,6 +79,10 @@ func (v *value) Desc() *Desc {
 
 func (v *value) Set(val float64) {
 	atomic.StoreUint64(&v.valBits, math.Float64bits(val))
+}
+
+func (v *value) SetToCurrentTime() {
+	v.Set(float64(time.Now().UnixNano()) / 1e9)
 }
 
 func (v *value) Inc() {

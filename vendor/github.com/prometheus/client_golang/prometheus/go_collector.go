@@ -48,7 +48,7 @@ func NewGoCollector() Collector {
 			}, {
 				desc: NewDesc(
 					memstatNamespace("sys_bytes"),
-					"Number of bytes obtained by system. Sum of all system allocations.",
+					"Number of bytes obtained from system.",
 					nil, nil,
 				),
 				eval:    func(ms *runtime.MemStats) float64 { return float64(ms.Sys) },
@@ -111,12 +111,12 @@ func NewGoCollector() Collector {
 				valType: GaugeValue,
 			}, {
 				desc: NewDesc(
-					memstatNamespace("heap_released_bytes_total"),
-					"Total number of heap bytes released to OS.",
+					memstatNamespace("heap_released_bytes"),
+					"Number of heap bytes released to OS.",
 					nil, nil,
 				),
 				eval:    func(ms *runtime.MemStats) float64 { return float64(ms.HeapReleased) },
-				valType: CounterValue,
+				valType: GaugeValue,
 			}, {
 				desc: NewDesc(
 					memstatNamespace("heap_objects"),
