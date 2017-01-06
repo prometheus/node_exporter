@@ -56,7 +56,10 @@ func NewTextFileCollector() (Collector, error) {
 		// the flag is not passed.
 		log.Infof("No directory specified, see --collector.textfile.directory")
 	} else {
-		prometheus.SetMetricFamilyInjectionHook(c.parseTextFiles)
+		prometheus.DefaultGatherer = prometheus.Gatherers{
+			prometheus.DefaultGatherer,
+			prometheus.GathererFunc(func() ([]*dto.MetricFamily, error) { return c.parseTextFiles(), nil }),
+		}
 	}
 
 	return c, nil

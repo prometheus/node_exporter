@@ -39,7 +39,7 @@ type megaCliCollector struct {
 	cli string
 
 	driveTemperature *prometheus.GaugeVec
-	driveCounters    *prometheus.CounterVec
+	driveCounters    *prometheus.GaugeVec
 	drivePresence    *prometheus.GaugeVec
 }
 
@@ -58,7 +58,7 @@ func NewMegaCliCollector() (Collector, error) {
 			Name:      "megacli_drive_temperature_celsius",
 			Help:      "megacli: drive temperature",
 		}, []string{"enclosure", "slot"}),
-		driveCounters: prometheus.NewCounterVec(prometheus.CounterOpts{
+		driveCounters: prometheus.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: Namespace,
 			Name:      "megacli_drive_count",
 			Help:      "megacli: drive error and event counters",
