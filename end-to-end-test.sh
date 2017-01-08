@@ -23,6 +23,7 @@ collectors=$(cat << COLLECTORS
   textfile
   bonding
   megacli
+  zfs
 COLLECTORS
 )
 cd "$(dirname $0)"
