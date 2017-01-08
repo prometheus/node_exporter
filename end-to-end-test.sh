@@ -6,6 +6,7 @@ collectors=$(cat << COLLECTORS
   conntrack
   diskstats
   drbd
+  edac
   entropy
   filefd
   hwmon
