@@ -1,0 +1,10 @@
+{
+	"connected": 30000000000,
+	"inactive": 400000000,
+	"receivebitrate": 128000000,
+	"transmitbitrate": 164000000,
+	"signal": -52,
+	"transmitretries": 10,
+	"transmitfailed": 2,
+	"beaconloss": 1
+}

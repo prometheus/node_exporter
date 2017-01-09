@@ -2,7 +2,6 @@ package netlink
 
 import (
 	"errors"
-	"math"
 	"os"
 	"sync/atomic"
 )
@@ -102,8 +101,8 @@ func (c *Conn) Execute(m Message) ([]Message, error) {
 func (c *Conn) Send(m Message) (Message, error) {
 	ml := nlmsgLength(len(m.Data))
 
-	// TODO(mdlayher): fine-tune this limit.  ~4GiB is a huge message.
-	if ml > math.MaxUint32 {
+	// TODO(mdlayher): fine-tune this limit.
+	if ml > (1024 * 32) {
 		return Message{}, errors.New("netlink message data too large")
 	}
 
