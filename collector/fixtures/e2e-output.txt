@@ -1062,6 +1062,84 @@ node_mountstats_nfs_direct_read_bytes_total{export="192.168.1.1:/srv/test"} 0
 # HELP node_mountstats_nfs_direct_write_bytes_total Number of bytes written using the write() syscall in O_DIRECT mode.
 # TYPE node_mountstats_nfs_direct_write_bytes_total counter
 node_mountstats_nfs_direct_write_bytes_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_attribute_invalidate_total Number of times cached inode attributes are invalidated.
+# TYPE node_mountstats_nfs_event_attribute_invalidate_total counter
+node_mountstats_nfs_event_attribute_invalidate_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_data_invalidate_total Number of times an inode cache is cleared.
+# TYPE node_mountstats_nfs_event_data_invalidate_total counter
+node_mountstats_nfs_event_data_invalidate_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_dnode_revalidate_total Number of times cached dentry nodes are re-validated from the server.
+# TYPE node_mountstats_nfs_event_dnode_revalidate_total counter
+node_mountstats_nfs_event_dnode_revalidate_total{export="192.168.1.1:/srv/test"} 226
+# HELP node_mountstats_nfs_event_inode_revalidate_total Number of times cached inode attributes are re-validated from the server.
+# TYPE node_mountstats_nfs_event_inode_revalidate_total counter
+node_mountstats_nfs_event_inode_revalidate_total{export="192.168.1.1:/srv/test"} 52
+# HELP node_mountstats_nfs_event_jukebox_delay_total Number of times the NFS server indicated EJUKEBOX; retrieving data from offline storage.
+# TYPE node_mountstats_nfs_event_jukebox_delay_total counter
+node_mountstats_nfs_event_jukebox_delay_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_pnfs_read_total Number of NFS v4.1+ pNFS reads.
+# TYPE node_mountstats_nfs_event_pnfs_read_total counter
+node_mountstats_nfs_event_pnfs_read_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_pnfs_write_total Number of NFS v4.1+ pNFS writes.
+# TYPE node_mountstats_nfs_event_pnfs_write_total counter
+node_mountstats_nfs_event_pnfs_write_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_short_read_total Number of times the NFS server gave less data than expected while reading.
+# TYPE node_mountstats_nfs_event_short_read_total counter
+node_mountstats_nfs_event_short_read_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_short_write_total Number of times the NFS server wrote less data than expected while writing.
+# TYPE node_mountstats_nfs_event_short_write_total counter
+node_mountstats_nfs_event_short_write_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_silly_rename_total Number of times a file was removed while still open by another process.
+# TYPE node_mountstats_nfs_event_silly_rename_total counter
+node_mountstats_nfs_event_silly_rename_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_truncation_total Number of times files have been truncated.
+# TYPE node_mountstats_nfs_event_truncation_total counter
+node_mountstats_nfs_event_truncation_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_access_total Number of times permissions have been checked.
+# TYPE node_mountstats_nfs_event_vfs_access_total counter
+node_mountstats_nfs_event_vfs_access_total{export="192.168.1.1:/srv/test"} 398
+# HELP node_mountstats_nfs_event_vfs_file_release_total Number of times files have been closed and released.
+# TYPE node_mountstats_nfs_event_vfs_file_release_total counter
+node_mountstats_nfs_event_vfs_file_release_total{export="192.168.1.1:/srv/test"} 77
+# HELP node_mountstats_nfs_event_vfs_flush_total Number of pending writes that have been forcefully flushed to the server.
+# TYPE node_mountstats_nfs_event_vfs_flush_total counter
+node_mountstats_nfs_event_vfs_flush_total{export="192.168.1.1:/srv/test"} 77
+# HELP node_mountstats_nfs_event_vfs_fsync_total Number of times fsync() has been called on directories and files.
+# TYPE node_mountstats_nfs_event_vfs_fsync_total counter
+node_mountstats_nfs_event_vfs_fsync_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_getdents_total Number of times directory entries have been read with getdents().
+# TYPE node_mountstats_nfs_event_vfs_getdents_total counter
+node_mountstats_nfs_event_vfs_getdents_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_lock_total Number of times locking has been attemped on a file.
+# TYPE node_mountstats_nfs_event_vfs_lock_total counter
+node_mountstats_nfs_event_vfs_lock_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_lookup_total Number of times a directory lookup has occurred.
+# TYPE node_mountstats_nfs_event_vfs_lookup_total counter
+node_mountstats_nfs_event_vfs_lookup_total{export="192.168.1.1:/srv/test"} 13
+# HELP node_mountstats_nfs_event_vfs_open_total Number of times cached inode attributes are invalidated.
+# TYPE node_mountstats_nfs_event_vfs_open_total counter
+node_mountstats_nfs_event_vfs_open_total{export="192.168.1.1:/srv/test"} 1
+# HELP node_mountstats_nfs_event_vfs_read_page_total Number of pages read directly via mmap()'d files.
+# TYPE node_mountstats_nfs_event_vfs_read_page_total counter
+node_mountstats_nfs_event_vfs_read_page_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_read_pages_total Number of times a group of pages have been read.
+# TYPE node_mountstats_nfs_event_vfs_read_pages_total counter
+node_mountstats_nfs_event_vfs_read_pages_total{export="192.168.1.1:/srv/test"} 331
+# HELP node_mountstats_nfs_event_vfs_setattr_total Number of times directory entries have been read with getdents().
+# TYPE node_mountstats_nfs_event_vfs_setattr_total counter
+node_mountstats_nfs_event_vfs_setattr_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_update_page_total Number of updates (and potential writes) to pages.
+# TYPE node_mountstats_nfs_event_vfs_update_page_total counter
+node_mountstats_nfs_event_vfs_update_page_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_write_page_total Number of pages written directly via mmap()'d files.
+# TYPE node_mountstats_nfs_event_vfs_write_page_total counter
+node_mountstats_nfs_event_vfs_write_page_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_mountstats_nfs_event_vfs_write_pages_total Number of times a group of pages have been written.
+# TYPE node_mountstats_nfs_event_vfs_write_pages_total counter
+node_mountstats_nfs_event_vfs_write_pages_total{export="192.168.1.1:/srv/test"} 47
+# HELP node_mountstats_nfs_event_write_extension_total Number of times a file has been grown due to writes beyond its existing end.
+# TYPE node_mountstats_nfs_event_write_extension_total counter
+node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test"} 0
 # HELP node_mountstats_nfs_operations_major_timeouts_total Number of times a request has had a major timeout for a given operation.
 # TYPE node_mountstats_nfs_operations_major_timeouts_total counter
 node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="NULL"} 0
