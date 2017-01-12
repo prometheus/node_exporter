@@ -1,0 +1,10 @@
+[
+	{
+		"name": "wlan0",
+		"type": 2,
+		"frequency": 2412
+	},
+	{
+		"type": 10
+	}
+]

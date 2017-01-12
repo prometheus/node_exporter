@@ -51,10 +51,10 @@
 			"revisionTime": "2016-04-24T11:30:07Z"
 		},
 		{
-			"checksumSHA1": "dG2VS6m8AS9wvpZh7aSx5AX001U=",
+			"checksumSHA1": "87nUxyFGVJFXB6MQpGCGUHi5NY0=",
 			"path": "github.com/mdlayher/netlink",
-			"revision": "1291b75abe0cc0cb335f110466bf1f02590c916d",
-			"revisionTime": "2017-01-04T04:59:06Z"
+			"revision": "a65cbc3bb3f7a793b7d79ad7d19b16d471ddbd78",
+			"revisionTime": "2017-01-10T22:29:47Z"
 		},
 		{
 			"checksumSHA1": "+2roeIWCAjCC58tZcs12Vqgf1Io=",

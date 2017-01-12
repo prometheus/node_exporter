@@ -24,6 +24,7 @@ collectors=$(cat << COLLECTORS
   textfile
   bonding
   megacli
+  wifi
   zfs
 COLLECTORS
 )
@@ -70,6 +71,7 @@ fi
   -collectors.enabled="$(echo ${collectors} | tr ' ' ',')" \
   -collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   -collector.megacli.command="collector/fixtures/megacli" \
+  -collector.wifi="collector/fixtures/wifi" \
   -web.listen-address "127.0.0.1:${port}" \
   -log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
