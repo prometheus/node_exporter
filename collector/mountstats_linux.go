@@ -56,6 +56,34 @@ type mountStatsCollector struct {
 	NFSTransportSendingQueueTotal      *prometheus.Desc
 	NFSTransportPendingQueueTotal      *prometheus.Desc
 
+	// Event statistics
+	NFSEventInodeRevalidateTotal     *prometheus.Desc
+	NFSEventDnodeRevalidateTotal     *prometheus.Desc
+	NFSEventDataInvalidateTotal      *prometheus.Desc
+	NFSEventAttributeInvalidateTotal *prometheus.Desc
+	NFSEventVFSOpenTotal             *prometheus.Desc
+	NFSEventVFSLookupTotal           *prometheus.Desc
+	NFSEventVFSAccessTotal           *prometheus.Desc
+	NFSEventVFSUpdatePageTotal       *prometheus.Desc
+	NFSEventVFSReadPageTotal         *prometheus.Desc
+	NFSEventVFSReadPagesTotal        *prometheus.Desc
+	NFSEventVFSWritePageTotal        *prometheus.Desc
+	NFSEventVFSWritePagesTotal       *prometheus.Desc
+	NFSEventVFSGetdentsTotal         *prometheus.Desc
+	NFSEventVFSSetattrTotal          *prometheus.Desc
+	NFSEventVFSFlushTotal            *prometheus.Desc
+	NFSEventVFSFsyncTotal            *prometheus.Desc
+	NFSEventVFSLockTotal             *prometheus.Desc
+	NFSEventVFSFileReleaseTotal      *prometheus.Desc
+	NFSEventTruncationTotal          *prometheus.Desc
+	NFSEventWriteExtensionTotal      *prometheus.Desc
+	NFSEventSillyRenameTotal         *prometheus.Desc
+	NFSEventShortReadTotal           *prometheus.Desc
+	NFSEventShortWriteTotal          *prometheus.Desc
+	NFSEventJukeboxDelayTotal        *prometheus.Desc
+	NFSEventPNFSReadTotal            *prometheus.Desc
+	NFSEventPNFSWriteTotal           *prometheus.Desc
+
 	proc procfs.Proc
 }
 
@@ -271,6 +299,188 @@ func NewMountStatsCollector() (Collector, error) {
 			prometheus.BuildFQName(Namespace, subsystem, "operations_request_time_seconds_total"),
 			"Duration all requests took from when a request was enqueued to when it was completely handled for a given operation, in seconds.",
 			opLabels,
+			nil,
+		),
+
+		NFSEventInodeRevalidateTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_inode_revalidate_total"),
+			"Number of times cached inode attributes are re-validated from the server.",
+			labels,
+			nil,
+		),
+
+		NFSEventDnodeRevalidateTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_dnode_revalidate_total"),
+			"Number of times cached dentry nodes are re-validated from the server.",
+			labels,
+			nil,
+		),
+
+		NFSEventDataInvalidateTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_data_invalidate_total"),
+			"Number of times an inode cache is cleared.",
+			labels,
+			nil,
+		),
+
+		NFSEventAttributeInvalidateTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_attribute_invalidate_total"),
+			"Number of times cached inode attributes are invalidated.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSOpenTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_open_total"),
+			"Number of times cached inode attributes are invalidated.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSLookupTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_lookup_total"),
+			"Number of times a directory lookup has occurred.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSAccessTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_access_total"),
+			"Number of times permissions have been checked.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSUpdatePageTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_update_page_total"),
+			"Number of updates (and potential writes) to pages.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSReadPageTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_read_page_total"),
+			"Number of pages read directly via mmap()'d files.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSReadPagesTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_read_pages_total"),
+			"Number of times a group of pages have been read.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSWritePageTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_write_page_total"),
+			"Number of pages written directly via mmap()'d files.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSWritePagesTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_write_pages_total"),
+			"Number of times a group of pages have been written.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSGetdentsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_getdents_total"),
+			"Number of times directory entries have been read with getdents().",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSSetattrTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_setattr_total"),
+			"Number of times directory entries have been read with getdents().",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSFlushTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_flush_total"),
+			"Number of pending writes that have been forcefully flushed to the server.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSFsyncTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_fsync_total"),
+			"Number of times fsync() has been called on directories and files.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSLockTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_lock_total"),
+			"Number of times locking has been attemped on a file.",
+			labels,
+			nil,
+		),
+
+		NFSEventVFSFileReleaseTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_file_release_total"),
+			"Number of times files have been closed and released.",
+			labels,
+			nil,
+		),
+
+		NFSEventTruncationTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_truncation_total"),
+			"Number of times files have been truncated.",
+			labels,
+			nil,
+		),
+
+		NFSEventWriteExtensionTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_write_extension_total"),
+			"Number of times a file has been grown due to writes beyond its existing end.",
+			labels,
+			nil,
+		),
+
+		NFSEventSillyRenameTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_silly_rename_total"),
+			"Number of times a file was removed while still open by another process.",
+			labels,
+			nil,
+		),
+
+		NFSEventShortReadTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_short_read_total"),
+			"Number of times the NFS server gave less data than expected while reading.",
+			labels,
+			nil,
+		),
+
+		NFSEventShortWriteTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_short_write_total"),
+			"Number of times the NFS server wrote less data than expected while writing.",
+			labels,
+			nil,
+		),
+
+		NFSEventJukeboxDelayTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_jukebox_delay_total"),
+			"Number of times the NFS server indicated EJUKEBOX; retrieving data from offline storage.",
+			labels,
+			nil,
+		),
+
+		NFSEventPNFSReadTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_pnfs_read_total"),
+			"Number of NFS v4.1+ pNFS reads.",
+			labels,
+			nil,
+		),
+
+		NFSEventPNFSWriteTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "event_pnfs_write_total"),
+			"Number of NFS v4.1+ pNFS writes.",
+			labels,
 			nil,
 		),
 
@@ -496,4 +706,186 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, export
 			op.Operation,
 		)
 	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventInodeRevalidateTotal,
+		prometheus.CounterValue,
+		float64(s.Events.InodeRevalidate),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventDnodeRevalidateTotal,
+		prometheus.CounterValue,
+		float64(s.Events.DnodeRevalidate),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventDataInvalidateTotal,
+		prometheus.CounterValue,
+		float64(s.Events.DataInvalidate),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventAttributeInvalidateTotal,
+		prometheus.CounterValue,
+		float64(s.Events.AttributeInvalidate),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSOpenTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSOpen),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSLookupTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSLookup),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSAccessTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSAccess),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSUpdatePageTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSUpdatePage),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSReadPageTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSReadPage),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSReadPagesTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSReadPages),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSWritePageTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSWritePage),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSWritePagesTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSWritePages),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSGetdentsTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSGetdents),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSSetattrTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSSetattr),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSFlushTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSFlush),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSFsyncTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSFsync),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSLockTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSLock),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventVFSFileReleaseTotal,
+		prometheus.CounterValue,
+		float64(s.Events.VFSFileRelease),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventTruncationTotal,
+		prometheus.CounterValue,
+		float64(s.Events.Truncation),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventWriteExtensionTotal,
+		prometheus.CounterValue,
+		float64(s.Events.WriteExtension),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventSillyRenameTotal,
+		prometheus.CounterValue,
+		float64(s.Events.SillyRename),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventShortReadTotal,
+		prometheus.CounterValue,
+		float64(s.Events.ShortRead),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventShortWriteTotal,
+		prometheus.CounterValue,
+		float64(s.Events.ShortWrite),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventJukeboxDelayTotal,
+		prometheus.CounterValue,
+		float64(s.Events.JukeboxDelay),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventPNFSReadTotal,
+		prometheus.CounterValue,
+		float64(s.Events.PNFSRead),
+		export,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSEventPNFSWriteTotal,
+		prometheus.CounterValue,
+		float64(s.Events.PNFSWrite),
+		export,
+	)
 }
