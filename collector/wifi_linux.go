@@ -18,10 +18,12 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/mdlayher/wifi"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 type wifiCollector struct {
@@ -35,8 +37,6 @@ type wifiCollector struct {
 	StationTransmitRetriesTotal  *prometheus.Desc
 	StationTransmitFailedTotal   *prometheus.Desc
 	StationBeaconLossTotal       *prometheus.Desc
-
-	stat wifiStater
 }
 
 var (
@@ -51,16 +51,12 @@ var _ wifiStater = &wifi.Client{}
 
 // wifiStater is an interface used to swap out a *wifi.Client for end to end tests.
 type wifiStater interface {
+	Close() error
 	Interfaces() ([]*wifi.Interface, error)
 	StationInfo(ifi *wifi.Interface) (*wifi.StationInfo, error)
 }
 
 func NewWifiCollector() (Collector, error) {
-	stat, err := newWifiStater(*collectorWifi)
-	if err != nil {
-		return nil, fmt.Errorf("failed to access wifi data: %v", err)
-	}
-
 	const (
 		subsystem = "wifi"
 	)
@@ -132,13 +128,23 @@ func NewWifiCollector() (Collector, error) {
 			labels,
 			nil,
 		),
-
-		stat: stat,
 	}, nil
 }
 
 func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
-	ifis, err := c.stat.Interfaces()
+	stat, err := newWifiStater(*collectorWifi)
+	if err != nil {
+		// Cannot access wifi metrics, report no error
+		if os.IsNotExist(err) {
+			log.Debug("wifi collector metrics are not available for this system")
+			return nil
+		}
+
+		return fmt.Errorf("failed to access wifi data: %v", err)
+	}
+	defer stat.Close()
+
+	ifis, err := stat.Interfaces()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve wifi interfaces: %v", err)
 	}
@@ -149,7 +155,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		info, err := c.stat.StationInfo(ifi)
+		info, err := stat.StationInfo(ifi)
 		if err != nil {
 			return fmt.Errorf("failed to retrieve station info for device %s: %v",
 				ifi.Name, err)
@@ -259,6 +265,8 @@ func (s *mockWifiStater) unmarshalJSONFile(filename string, v interface{}) error
 
 	return json.Unmarshal(b, v)
 }
+
+func (s *mockWifiStater) Close() error { return nil }
 
 func (s *mockWifiStater) Interfaces() ([]*wifi.Interface, error) {
 	var ifis []*wifi.Interface

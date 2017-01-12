@@ -51,10 +51,10 @@
 			"revisionTime": "2016-04-24T11:30:07Z"
 		},
 		{
-			"checksumSHA1": "87nUxyFGVJFXB6MQpGCGUHi5NY0=",
+			"checksumSHA1": "n31d2o+dY0HXZTDWE5Rc0+7NEjc=",
 			"path": "github.com/mdlayher/netlink",
-			"revision": "a65cbc3bb3f7a793b7d79ad7d19b16d471ddbd78",
-			"revisionTime": "2017-01-10T22:29:47Z"
+			"revision": "e5da4eb480835e5bce0dc5e526fe5f9a8002b54e",
+			"revisionTime": "2017-01-13T17:56:52Z"
 		},
 		{
 			"checksumSHA1": "+2roeIWCAjCC58tZcs12Vqgf1Io=",
@@ -69,10 +69,10 @@
 			"revisionTime": "2017-01-04T04:59:06Z"
 		},
 		{
-			"checksumSHA1": "dSy4F6HRYyadhiQbv3Bof/Tdxec=",
+			"checksumSHA1": "l8M/rZH5s/ZVtCCyeiUQXZ5FosA=",
 			"path": "github.com/mdlayher/wifi",
-			"revision": "88fd1c0ec178645c1b7d300090b5a9d4b226b8e1",
-			"revisionTime": "2017-01-07T15:17:58Z"
+			"revision": "eb8b29b956ba5ff2fdd2d2f1f0b988b57fd3d8a3",
+			"revisionTime": "2017-01-12T20:47:29Z"
 		},
 		{
 			"checksumSHA1": "VzutdH69PUqRqhrDVv6F91ebQd4=",
