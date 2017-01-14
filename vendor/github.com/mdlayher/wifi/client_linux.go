@@ -36,6 +36,7 @@ type client struct {
 // genl is an interface over generic netlink, so netlink interactions can
 // be stubbed in tests.
 type genl interface {
+	Close() error
 	GetFamily(name string) (genetlink.Family, error)
 	Execute(m genetlink.Message, family uint16, flags netlink.HeaderFlags) ([]genetlink.Message, error)
 }
@@ -64,6 +65,11 @@ func initClient(c genl) (*client, error) {
 		familyID:      family.ID,
 		familyVersion: family.Version,
 	}, nil
+}
+
+// Close closes the client's generic netlink connection.
+func (c *client) Close() error {
+	return c.c.Close()
 }
 
 // Interfaces requests that nl80211 return a list of all WiFi interfaces present
@@ -117,7 +123,12 @@ func (c *client) StationInfo(ifi *Interface) (*StationInfo, error) {
 		return nil, err
 	}
 
-	if len(msgs) > 1 {
+	switch len(msgs) {
+	case 0:
+		return nil, os.ErrNotExist
+	case 1:
+		break
+	default:
 		return nil, errMultipleMessages
 	}
 

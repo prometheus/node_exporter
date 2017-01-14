@@ -24,6 +24,11 @@ func newClient() (*client, error) {
 	return nil, errUnimplemented
 }
 
+// Close always returns an error.
+func (c *client) Close() error {
+	return errUnimplemented
+}
+
 // Interfaces always returns an error.
 func (c *client) Interfaces() ([]*Interface, error) {
 	return nil, errUnimplemented

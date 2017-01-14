@@ -2,7 +2,7 @@ package netlink
 
 import (
 	"errors"
-	"os"
+	"sync"
 	"sync/atomic"
 )
 
@@ -23,6 +23,12 @@ type Conn struct {
 	// seq is an atomically incremented integer used to provide sequence
 	// numbers when Conn.Send is called.
 	seq *uint32
+
+	// pid is an atomically set/loaded integer which is set to the PID assigned
+	// by netlink, when netlink sends its first response message.  pidOnce performs
+	// the assignment exactl once.
+	pid     *uint32
+	pidOnce sync.Once
 }
 
 // An osConn is an operating-system specific implementation of netlink
@@ -53,6 +59,7 @@ func newConn(c osConn) *Conn {
 	return &Conn{
 		c:   c,
 		seq: new(uint32),
+		pid: new(uint32),
 	}
 }
 
@@ -96,8 +103,8 @@ func (c *Conn) Execute(m Message) ([]Message, error) {
 // If m.Header.Sequence is 0, it will be automatically populated using the
 // next sequence number for this connection.
 //
-// If m.Header.PID is 0, it will be automatically populated using the
-// process ID (PID) of this process.
+// If m.Header.PID is 0, it will be automatically populated using a PID
+// assigned by netlink.
 func (c *Conn) Send(m Message) (Message, error) {
 	ml := nlmsgLength(len(m.Data))
 
@@ -115,7 +122,7 @@ func (c *Conn) Send(m Message) (Message, error) {
 	}
 
 	if m.Header.PID == 0 {
-		m.Header.PID = uint32(os.Getpid())
+		m.Header.PID = atomic.LoadUint32(c.pid)
 	}
 
 	if err := c.c.Send(m); err != nil {
@@ -127,12 +134,27 @@ func (c *Conn) Send(m Message) (Message, error) {
 
 // Receive receives one or more messages from netlink.  Multi-part messages are
 // handled transparently and returned as a single slice of Messages, with the
-// final empty "multi-part done" message removed.  If any of the messages
-// indicate a netlink error, that error will be returned.
+// final empty "multi-part done" message removed.
+//
+// If a PID has not yet been assigned to this Conn by netlink, the PID will
+// be set from the first received message.  This PID will be used in all
+// subsequent communications with netlink.
+//
+// If any of the messages indicate a netlink error, that error will be returned.
 func (c *Conn) Receive() ([]Message, error) {
 	msgs, err := c.receive()
 	if err != nil {
 		return nil, err
+	}
+
+	if len(msgs) > 0 {
+		// netlink multicast messages from kernel have PID of 0, so don't
+		// assign 0 as the expected PID for next messages
+		if pid := msgs[0].Header.PID; pid != 0 {
+			c.pidOnce.Do(func() {
+				atomic.StoreUint32(c.pid, pid)
+			})
+		}
 	}
 
 	// Trim the final message with multi-part done indicator if
@@ -200,10 +222,19 @@ func (c *Conn) nextSequence() uint32 {
 // ensuring that they contain matching sequence numbers and PIDs.
 func Validate(request Message, replies []Message) error {
 	for _, m := range replies {
-		if m.Header.Sequence != request.Header.Sequence {
+		// Check for mismatched sequence, unless:
+		//   - request had no sequence, meaning we are probably validating
+		//     a multicast reply
+		if m.Header.Sequence != request.Header.Sequence && request.Header.Sequence != 0 {
 			return errMismatchedSequence
 		}
-		if m.Header.PID != request.Header.PID {
+
+		// Check for mismatched PID, unless:
+		//   - request had no PID, meaning we are either:
+		//     - validating a multicast reply
+		//     - netlink has not yet assigned us a PID
+		//   - response had no PID, meaning it's from the kernel as a multicast reply
+		if m.Header.PID != request.Header.PID && request.Header.PID != 0 && m.Header.PID != 0 {
 			return errMismatchedPID
 		}
 	}
