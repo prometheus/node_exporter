@@ -24,7 +24,7 @@ import (
 )
 
 var runitServiceDir = flag.String(
-	"collector.runit.servicecdir",
+	"collector.runit.servicedir",
 	"/etc/service",
 	"Path to runit service directory.")
 
