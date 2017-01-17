@@ -155,18 +155,22 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		info, err := stat.StationInfo(ifi)
-		if err != nil {
-			return fmt.Errorf("failed to retrieve station info for device %s: %v",
-				ifi.Name, err)
-		}
-
 		ch <- prometheus.MustNewConstMetric(
 			c.InterfaceFrequencyHertz,
 			prometheus.GaugeValue,
 			mHzToHz(ifi.Frequency),
 			ifi.Name,
 		)
+
+		info, err := stat.StationInfo(ifi)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+
+			return fmt.Errorf("failed to retrieve station info for device %s: %v",
+				ifi.Name, err)
+		}
 
 		c.updateStationStats(ch, ifi.Name, info)
 	}
