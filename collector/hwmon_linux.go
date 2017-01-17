@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 const (
@@ -399,6 +400,11 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	hwmonFiles, err := ioutil.ReadDir(hwmonPathName)
 	if err != nil {
+		if os.IsNotExist(err) {
+			log.Debug("hwmon collector metrics are not available for this system")
+			return nil
+		}
+
 		return err
 	}
 
