@@ -1,8 +1,15 @@
 package wifi
 
 import (
+	"errors"
+	"fmt"
 	"net"
 	"time"
+)
+
+var (
+	// errInvalidIE is returned when one or more IEs are malformed.
+	errInvalidIE = errors.New("invalid 802.11 information element")
 )
 
 // An InterfaceType is the operating mode of an Interface.
@@ -96,16 +103,16 @@ type StationInfo struct {
 	Inactive time.Duration
 
 	// The number of bytes received by this station.
-	ReceivedBytes uint64
+	ReceivedBytes int
 
 	// The number of bytes transmitted by this station.
-	TransmittedBytes uint64
+	TransmittedBytes int
 
 	// The number of packets received by this station.
-	ReceivedPackets uint32
+	ReceivedPackets int
 
 	// The number of packets transmitted by this station.
-	TransmittedPackets uint32
+	TransmittedPackets int
 
 	// The current data receive bitrate, in bits/second.
 	ReceiveBitrate int
@@ -117,11 +124,109 @@ type StationInfo struct {
 	Signal int
 
 	// The number of times the station has had to retry while sending a packet.
-	TransmitRetries uint32
+	TransmitRetries int
 
 	// The number of times a packet transmission failed.
-	TransmitFailed uint32
+	TransmitFailed int
 
 	// The number of times a beacon loss was detected.
-	BeaconLoss uint32
+	BeaconLoss int
+}
+
+// A BSS is an 802.11 basic service set.  It contains information about a wireless
+// network associated with an Interface.
+type BSS struct {
+	// The service set identifier, or "network name" of the BSS.
+	SSID string
+
+	// The BSS service set identifier.  In infrastructure mode, this is the
+	// hardware address of the wireless access point that a client is associated
+	// with.
+	BSSID net.HardwareAddr
+
+	// The frequency used by the BSS, in MHz.
+	Frequency int
+
+	// The interval between beacon transmissions for this BSS.
+	BeaconInterval time.Duration
+
+	// The time since the client last scanned this BSS's information.
+	LastSeen time.Duration
+
+	// The status of the client within the BSS.
+	Status BSSStatus
+}
+
+// A BSSStatus indicates the current status of client within a BSS.
+type BSSStatus int
+
+const (
+	// BSSStatusAuthenticated indicates that a client is authenticated with a BSS.
+	BSSStatusAuthenticated BSSStatus = iota
+
+	// BSSStatusAssociated indicates that a client is associated with a BSS.
+	BSSStatusAssociated
+
+	// BSSStatusIBSSJoined indicates that a client has joined an independent BSS.
+	BSSStatusIBSSJoined
+)
+
+// String returns the string representation of a BSSStatus.
+func (s BSSStatus) String() string {
+	switch s {
+	case BSSStatusAuthenticated:
+		return "authenticated"
+	case BSSStatusAssociated:
+		return "associated"
+	case BSSStatusIBSSJoined:
+		return "IBSS joined"
+	default:
+		return fmt.Sprintf("unknown(%d)", s)
+	}
+}
+
+// List of 802.11 Information Element types.
+const (
+	ieSSID = 0
+)
+
+// An ie is an 802.11 information element.
+type ie struct {
+	ID uint8
+	// Length field implied by length of data
+	Data []byte
+}
+
+// parseIEs parses zero or more ies from a byte slice.
+// Reference:
+//   https://www.safaribooksonline.com/library/view/80211-wireless-networks/0596100523/ch04.html#wireless802dot112-CHP-4-FIG-31
+func parseIEs(b []byte) ([]ie, error) {
+	var ies []ie
+	var i int
+	for {
+		if len(b[i:]) == 0 {
+			break
+		}
+		if len(b[i:]) < 2 {
+			return nil, errInvalidIE
+		}
+
+		id := b[i]
+		i++
+		l := int(b[i])
+		i++
+
+		if len(b[i:]) < l {
+			return nil, errInvalidIE
+		}
+
+		ies = append(ies, ie{
+			ID:   id,
+			Data: b[i : i+l],
+		})
+
+		i += l
+	}
+
+	return ies, nil
 }
