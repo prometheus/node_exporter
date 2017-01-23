@@ -2383,6 +2383,15 @@ node_zfsFetch_stride_hits 7.06799e+06
 # HELP node_zfsFetch_stride_misses kstat.zfs.misc.zfetchstats.stride_misses
 # TYPE node_zfsFetch_stride_misses untyped
 node_zfsFetch_stride_misses 0
+# HELP node_zfsVdevCache_delegations kstat.zfs.misc.vdev_cache_stats.delegations
+# TYPE node_zfsVdevCache_delegations untyped
+node_zfsVdevCache_delegations 40
+# HELP node_zfsVdevCache_hits kstat.zfs.misc.vdev_cache_stats.hits
+# TYPE node_zfsVdevCache_hits untyped
+node_zfsVdevCache_hits 0
+# HELP node_zfsVdevCache_misses kstat.zfs.misc.vdev_cache_stats.misses
+# TYPE node_zfsVdevCache_misses untyped
+node_zfsVdevCache_misses 0
 # HELP node_zfsZil_zil_commit_count kstat.zfs.misc.zil.zil_commit_count
 # TYPE node_zfsZil_zil_commit_count untyped
 node_zfsZil_zil_commit_count 10

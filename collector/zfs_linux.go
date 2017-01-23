@@ -27,10 +27,11 @@ import (
 )
 
 const (
-	zfsProcpathBase  = "spl/kstat/zfs/"
-	zfsArcstatsExt   = "arcstats"
-	zfsFetchstatsExt = "zfetchstats"
-	zfsZilExt        = "zil"
+	zfsProcpathBase      = "spl/kstat/zfs/"
+	zfsArcstatsExt       = "arcstats"
+	zfsFetchstatsExt     = "zfetchstats"
+	zfsVdevCacheStatsExt = "vdev_cache_stats"
+	zfsZilExt            = "zil"
 )
 
 func (c *zfsCollector) openProcFile(path string) (file *os.File, err error) {
@@ -75,6 +76,18 @@ func (c *zfsCollector) updateZil(ch chan<- prometheus.Metric) (err error) {
 
 	return c.parseProcfsFile(file, zfsZilExt, func(s zfsSysctl, v zfsMetricValue) {
 		ch <- c.constSysctlMetric(zil, s, v)
+	})
+}
+
+func (c *zfsCollector) updateVdevCacheStats(ch chan<- prometheus.Metric) (err error) {
+	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsVdevCacheStatsExt))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return c.parseProcfsFile(file, zfsVdevCacheStatsExt, func(s zfsSysctl, v zfsMetricValue) {
+		ch <- c.constSysctlMetric(vdevCache, s, v)
 	})
 }
 

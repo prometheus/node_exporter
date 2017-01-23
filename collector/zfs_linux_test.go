@@ -125,3 +125,39 @@ func TestZilParsing(t *testing.T) {
 		t.Fatal("Zil parsing handler was not called for some expected sysctls")
 	}
 }
+
+func TestVdevCacheStatsParsing(t *testing.T) {
+	vdevCacheStatsFile, err := os.Open("fixtures/proc/spl/kstat/zfs/vdev_cache_stats")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer vdevCacheStatsFile.Close()
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	err = c.parseProcfsFile(vdevCacheStatsFile, "vdev_cache_stats", func(s zfsSysctl, v zfsMetricValue) {
+
+		if s != zfsSysctl("kstat.zfs.misc.vdev_cache_stats.delegations") {
+			return
+		}
+
+		handlerCalled = true
+
+		if v != zfsMetricValue(40) {
+			t.Fatalf("Incorrect value parsed from procfs data")
+		}
+
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !handlerCalled {
+		t.Fatal("VdevCacheStats parsing handler was not called for some expected sysctls")
+	}
+}
