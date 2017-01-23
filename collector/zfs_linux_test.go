@@ -161,3 +161,39 @@ func TestVdevCacheStatsParsing(t *testing.T) {
 		t.Fatal("VdevCacheStats parsing handler was not called for some expected sysctls")
 	}
 }
+
+func TestXuioStatsParsing(t *testing.T) {
+	xuioStatsFile, err := os.Open("fixtures/proc/spl/kstat/zfs/xuio_stats")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer xuioStatsFile.Close()
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	err = c.parseProcfsFile(xuioStatsFile, "xuio_stats", func(s zfsSysctl, v zfsMetricValue) {
+
+		if s != zfsSysctl("kstat.zfs.misc.xuio_stats.onloan_read_buf") {
+			return
+		}
+
+		handlerCalled = true
+
+		if v != zfsMetricValue(32) {
+			t.Fatalf("Incorrect value parsed from procfs data")
+		}
+
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !handlerCalled {
+		t.Fatal("XuioStats parsing handler was not called for some expected sysctls")
+	}
+}

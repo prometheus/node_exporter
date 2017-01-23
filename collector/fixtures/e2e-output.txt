@@ -2392,6 +2392,24 @@ node_zfsVdevCache_hits 0
 # HELP node_zfsVdevCache_misses kstat.zfs.misc.vdev_cache_stats.misses
 # TYPE node_zfsVdevCache_misses untyped
 node_zfsVdevCache_misses 0
+# HELP node_zfsXuio_onloan_read_buf kstat.zfs.misc.xuio_stats.onloan_read_buf
+# TYPE node_zfsXuio_onloan_read_buf untyped
+node_zfsXuio_onloan_read_buf 32
+# HELP node_zfsXuio_onloan_write_buf kstat.zfs.misc.xuio_stats.onloan_write_buf
+# TYPE node_zfsXuio_onloan_write_buf untyped
+node_zfsXuio_onloan_write_buf 0
+# HELP node_zfsXuio_read_buf_copied kstat.zfs.misc.xuio_stats.read_buf_copied
+# TYPE node_zfsXuio_read_buf_copied untyped
+node_zfsXuio_read_buf_copied 0
+# HELP node_zfsXuio_read_buf_nocopy kstat.zfs.misc.xuio_stats.read_buf_nocopy
+# TYPE node_zfsXuio_read_buf_nocopy untyped
+node_zfsXuio_read_buf_nocopy 0
+# HELP node_zfsXuio_write_buf_copied kstat.zfs.misc.xuio_stats.write_buf_copied
+# TYPE node_zfsXuio_write_buf_copied untyped
+node_zfsXuio_write_buf_copied 0
+# HELP node_zfsXuio_write_buf_nocopy kstat.zfs.misc.xuio_stats.write_buf_nocopy
+# TYPE node_zfsXuio_write_buf_nocopy untyped
+node_zfsXuio_write_buf_nocopy 0
 # HELP node_zfsZil_zil_commit_count kstat.zfs.misc.zil.zil_commit_count
 # TYPE node_zfsZil_zil_commit_count untyped
 node_zfsZil_zil_commit_count 10
