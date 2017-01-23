@@ -35,7 +35,7 @@ stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, bo
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 time | Exposes the current system time. | _any_
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
-zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics.<br/> Linux (ARC) | [Linux](http://zfsonlinux.org/)
+zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/)
 
 ### Disabled by default
 
