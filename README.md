@@ -4,8 +4,10 @@
 [![Docker Repository on Quay](https://quay.io/repository/prometheus/node-exporter/status)][quay]
 [![Docker Pulls](https://img.shields.io/docker/pulls/prom/node-exporter.svg?maxAge=604800)][hub]
 
-Prometheus exporter for hardware and OS metrics exposed by the kernel, written
+Prometheus exporter for hardware and OS metrics exposed by \*NIX kernels, written
 in Go with pluggable metric collectors.
+
+The [WMI exporter](https://github.com/martinlindhe/wmi_exporter) is recommended for Windows users. 
 
 ## Collectors
 
