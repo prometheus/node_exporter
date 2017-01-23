@@ -15,10 +15,10 @@ package collector
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -27,31 +27,45 @@ import (
 )
 
 const (
-	zfsArcstatsProcpath = "spl/kstat/zfs/arcstats"
+	zfsProcpathBase  = "spl/kstat/zfs/"
+	zfsArcstatsExt   = "arcstats"
+	zfsFetchstatsExt = "zfetchstats"
 )
 
-func (c *zfsCollector) openArcstatsFile() (file *os.File, err error) {
-	file, err = os.Open(procFilePath(zfsArcstatsProcpath))
+func (c *zfsCollector) openProcFile(path string) (file *os.File, err error) {
+	file, err = os.Open(procFilePath(path))
 	if err != nil {
-		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(zfsArcstatsProcpath))
+		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(path))
 		err = zfsNotAvailableError
 	}
 	return
 }
 
 func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openArcstatsFile()
+	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsArcstatsExt))
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return c.parseArcstatsProcfsFile(file, func(s zfsSysctl, v zfsMetricValue) {
+	return c.parseProcfsFile(file, zfsArcstatsExt, func(s zfsSysctl, v zfsMetricValue) {
 		ch <- c.constSysctlMetric(arc, s, v)
 	})
 }
 
-func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zfsSysctl, zfsMetricValue)) (err error) {
+func (c *zfsCollector) updateZfetchstats(ch chan<- prometheus.Metric) (err error) {
+	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsFetchstatsExt))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return c.parseProcfsFile(file, zfsFetchstatsExt, func(s zfsSysctl, v zfsMetricValue) {
+		ch <- c.constSysctlMetric(zfetch, s, v)
+	})
+}
+
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmt_ext string, handler func(zfsSysctl, zfsMetricValue)) (err error) {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -69,7 +83,7 @@ func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zf
 			continue
 		}
 
-		key := fmt.Sprintf("kstat.zfs.misc.arcstats.%s", parts[0])
+		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmt_ext, parts[0])
 
 		value, err := strconv.Atoi(parts[2])
 		if err != nil {
@@ -79,7 +93,7 @@ func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zf
 
 	}
 	if !parseLine {
-		return errors.New("did not parse a single arcstat metric")
+		return fmt.Errorf("did not parse a single %q metric", fmt_ext)
 	}
 
 	return scanner.Err()

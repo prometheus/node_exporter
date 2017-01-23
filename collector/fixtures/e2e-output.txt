@@ -2350,6 +2350,39 @@ node_zfsArc_prefetch_metadata_misses 16071
 # HELP node_zfsArc_size kstat.zfs.misc.arcstats.size
 # TYPE node_zfsArc_size untyped
 node_zfsArc_size 1.603939792e+09
+# HELP node_zfsFetch_bogus_streams kstat.zfs.misc.zfetchstats.bogus_streams
+# TYPE node_zfsFetch_bogus_streams untyped
+node_zfsFetch_bogus_streams 0
+# HELP node_zfsFetch_colinear_hits kstat.zfs.misc.zfetchstats.colinear_hits
+# TYPE node_zfsFetch_colinear_hits untyped
+node_zfsFetch_colinear_hits 0
+# HELP node_zfsFetch_colinear_misses kstat.zfs.misc.zfetchstats.colinear_misses
+# TYPE node_zfsFetch_colinear_misses untyped
+node_zfsFetch_colinear_misses 11
+# HELP node_zfsFetch_hits kstat.zfs.misc.zfetchstats.hits
+# TYPE node_zfsFetch_hits untyped
+node_zfsFetch_hits 7.067992e+06
+# HELP node_zfsFetch_misses kstat.zfs.misc.zfetchstats.misses
+# TYPE node_zfsFetch_misses untyped
+node_zfsFetch_misses 11
+# HELP node_zfsFetch_reclaim_failures kstat.zfs.misc.zfetchstats.reclaim_failures
+# TYPE node_zfsFetch_reclaim_failures untyped
+node_zfsFetch_reclaim_failures 11
+# HELP node_zfsFetch_reclaim_successes kstat.zfs.misc.zfetchstats.reclaim_successes
+# TYPE node_zfsFetch_reclaim_successes untyped
+node_zfsFetch_reclaim_successes 0
+# HELP node_zfsFetch_streams_noresets kstat.zfs.misc.zfetchstats.streams_noresets
+# TYPE node_zfsFetch_streams_noresets untyped
+node_zfsFetch_streams_noresets 2
+# HELP node_zfsFetch_streams_resets kstat.zfs.misc.zfetchstats.streams_resets
+# TYPE node_zfsFetch_streams_resets untyped
+node_zfsFetch_streams_resets 0
+# HELP node_zfsFetch_stride_hits kstat.zfs.misc.zfetchstats.stride_hits
+# TYPE node_zfsFetch_stride_hits untyped
+node_zfsFetch_stride_hits 7.06799e+06
+# HELP node_zfsFetch_stride_misses kstat.zfs.misc.zfetchstats.stride_misses
+# TYPE node_zfsFetch_stride_misses untyped
+node_zfsFetch_stride_misses 0
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.

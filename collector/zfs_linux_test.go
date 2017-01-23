@@ -31,7 +31,7 @@ func TestArcstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseArcstatsProcfsFile(arcstatsFile, func(s zfsSysctl, v zfsMetricValue) {
+	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v zfsMetricValue) {
 
 		if s != zfsSysctl("kstat.zfs.misc.arcstats.hits") {
 			return
@@ -51,5 +51,41 @@ func TestArcstatsParsing(t *testing.T) {
 
 	if !handlerCalled {
 		t.Fatal("Arcstats parsing handler was not called for some expected sysctls")
+	}
+}
+
+func TestZfetchstatsParsing(t *testing.T) {
+	zfetchstatsFile, err := os.Open("fixtures/proc/spl/kstat/zfs/zfetchstats")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer zfetchstatsFile.Close()
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	err = c.parseProcfsFile(zfetchstatsFile, "zfetchstats", func(s zfsSysctl, v zfsMetricValue) {
+
+		if s != zfsSysctl("kstat.zfs.misc.zfetchstats.hits") {
+			return
+		}
+
+		handlerCalled = true
+
+		if v != zfsMetricValue(7067992) {
+			t.Fatalf("Incorrect value parsed from procfs data")
+		}
+
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !handlerCalled {
+		t.Fatal("Zfetchstats parsing handler was not called for some expected sysctls")
 	}
 }
