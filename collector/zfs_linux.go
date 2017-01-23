@@ -29,6 +29,7 @@ import (
 const (
 	zfsProcpathBase      = "spl/kstat/zfs/"
 	zfsArcstatsExt       = "arcstats"
+	zfsDmuTxExt          = "dmu_tx"
 	zfsFmExt             = "fm"
 	zfsFetchstatsExt     = "zfetchstats"
 	zfsVdevCacheStatsExt = "vdev_cache_stats"
@@ -117,7 +118,19 @@ func (c *zfsCollector) updateFm(ch chan<- prometheus.Metric) (err error) {
 	})
 }
 
-func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmt_ext string, handler func(zfsSysctl, zfsMetricValue)) (err error) {
+func (c *zfsCollector) updateDmuTx(ch chan<- prometheus.Metric) (err error) {
+	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsDmuTxExt))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return c.parseProcfsFile(file, zfsDmuTxExt, func(s zfsSysctl, v zfsMetricValue) {
+		ch <- c.constSysctlMetric(dmuTx, s, v)
+	})
+}
+
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, zfsMetricValue)) (err error) {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -135,7 +148,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmt_ext string, handler
 			continue
 		}
 
-		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmt_ext, parts[0])
+		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
 
 		value, err := strconv.Atoi(parts[2])
 		if err != nil {
@@ -145,7 +158,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmt_ext string, handler
 
 	}
 	if !parseLine {
-		return fmt.Errorf("did not parse a single %q metric", fmt_ext)
+		return fmt.Errorf("did not parse a single %q metric", fmtExt)
 	}
 
 	return scanner.Err()

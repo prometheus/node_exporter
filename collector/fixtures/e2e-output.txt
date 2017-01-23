@@ -2350,6 +2350,39 @@ node_zfsArc_prefetch_metadata_misses 16071
 # HELP node_zfsArc_size kstat.zfs.misc.arcstats.size
 # TYPE node_zfsArc_size untyped
 node_zfsArc_size 1.603939792e+09
+# HELP node_zfsDmuTx_dmu_tx_assigned kstat.zfs.misc.dmu_tx.dmu_tx_assigned
+# TYPE node_zfsDmuTx_dmu_tx_assigned untyped
+node_zfsDmuTx_dmu_tx_assigned 3.532844e+06
+# HELP node_zfsDmuTx_dmu_tx_delay kstat.zfs.misc.dmu_tx.dmu_tx_delay
+# TYPE node_zfsDmuTx_dmu_tx_delay untyped
+node_zfsDmuTx_dmu_tx_delay 0
+# HELP node_zfsDmuTx_dmu_tx_dirty_delay kstat.zfs.misc.dmu_tx.dmu_tx_dirty_delay
+# TYPE node_zfsDmuTx_dmu_tx_dirty_delay untyped
+node_zfsDmuTx_dmu_tx_dirty_delay 0
+# HELP node_zfsDmuTx_dmu_tx_dirty_over_max kstat.zfs.misc.dmu_tx.dmu_tx_dirty_over_max
+# TYPE node_zfsDmuTx_dmu_tx_dirty_over_max untyped
+node_zfsDmuTx_dmu_tx_dirty_over_max 0
+# HELP node_zfsDmuTx_dmu_tx_dirty_throttle kstat.zfs.misc.dmu_tx.dmu_tx_dirty_throttle
+# TYPE node_zfsDmuTx_dmu_tx_dirty_throttle untyped
+node_zfsDmuTx_dmu_tx_dirty_throttle 0
+# HELP node_zfsDmuTx_dmu_tx_error kstat.zfs.misc.dmu_tx.dmu_tx_error
+# TYPE node_zfsDmuTx_dmu_tx_error untyped
+node_zfsDmuTx_dmu_tx_error 0
+# HELP node_zfsDmuTx_dmu_tx_group kstat.zfs.misc.dmu_tx.dmu_tx_group
+# TYPE node_zfsDmuTx_dmu_tx_group untyped
+node_zfsDmuTx_dmu_tx_group 0
+# HELP node_zfsDmuTx_dmu_tx_memory_reclaim kstat.zfs.misc.dmu_tx.dmu_tx_memory_reclaim
+# TYPE node_zfsDmuTx_dmu_tx_memory_reclaim untyped
+node_zfsDmuTx_dmu_tx_memory_reclaim 0
+# HELP node_zfsDmuTx_dmu_tx_memory_reserve kstat.zfs.misc.dmu_tx.dmu_tx_memory_reserve
+# TYPE node_zfsDmuTx_dmu_tx_memory_reserve untyped
+node_zfsDmuTx_dmu_tx_memory_reserve 0
+# HELP node_zfsDmuTx_dmu_tx_quota kstat.zfs.misc.dmu_tx.dmu_tx_quota
+# TYPE node_zfsDmuTx_dmu_tx_quota untyped
+node_zfsDmuTx_dmu_tx_quota 0
+# HELP node_zfsDmuTx_dmu_tx_suspended kstat.zfs.misc.dmu_tx.dmu_tx_suspended
+# TYPE node_zfsDmuTx_dmu_tx_suspended untyped
+node_zfsDmuTx_dmu_tx_suspended 0
 # HELP node_zfsFetch_bogus_streams kstat.zfs.misc.zfetchstats.bogus_streams
 # TYPE node_zfsFetch_bogus_streams untyped
 node_zfsFetch_bogus_streams 0

@@ -35,6 +35,7 @@ type zfsSubsystemName string
 
 const (
 	arc            = zfsSubsystemName("zfsArc")
+	dmuTx          = zfsSubsystemName("zfsDmuTx")
 	fm             = zfsSubsystemName("zfsFm")
 	vdevCache      = zfsSubsystemName("zfsVdevCache")
 	xuio           = zfsSubsystemName("zfsXuio")
@@ -78,23 +79,39 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	// Zfetchstats
 	err = c.updateZfetchstats(ch)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	// Zil
 	err = c.updateZil(ch)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	// VdevCacheStats
 	err = c.updateVdevCacheStats(ch)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	// XuioStats
 	err = c.updateXuioStats(ch)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	// Fm
 	err = c.updateFm(ch)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
+
+	// DmuTx
+	err = c.updateDmuTx(ch)
+	if err != nil {
+		return err
+	}
 
 	// Pool stats
 	return c.updatePoolStats(ch)
