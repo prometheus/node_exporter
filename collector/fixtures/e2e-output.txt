@@ -2383,6 +2383,45 @@ node_zfsFetch_stride_hits 7.06799e+06
 # HELP node_zfsFetch_stride_misses kstat.zfs.misc.zfetchstats.stride_misses
 # TYPE node_zfsFetch_stride_misses untyped
 node_zfsFetch_stride_misses 0
+# HELP node_zfsZil_zil_commit_count kstat.zfs.misc.zil.zil_commit_count
+# TYPE node_zfsZil_zil_commit_count untyped
+node_zfsZil_zil_commit_count 10
+# HELP node_zfsZil_zil_commit_writer_count kstat.zfs.misc.zil.zil_commit_writer_count
+# TYPE node_zfsZil_zil_commit_writer_count untyped
+node_zfsZil_zil_commit_writer_count 0
+# HELP node_zfsZil_zil_itx_copied_bytes kstat.zfs.misc.zil.zil_itx_copied_bytes
+# TYPE node_zfsZil_zil_itx_copied_bytes untyped
+node_zfsZil_zil_itx_copied_bytes 0
+# HELP node_zfsZil_zil_itx_copied_count kstat.zfs.misc.zil.zil_itx_copied_count
+# TYPE node_zfsZil_zil_itx_copied_count untyped
+node_zfsZil_zil_itx_copied_count 0
+# HELP node_zfsZil_zil_itx_count kstat.zfs.misc.zil.zil_itx_count
+# TYPE node_zfsZil_zil_itx_count untyped
+node_zfsZil_zil_itx_count 0
+# HELP node_zfsZil_zil_itx_indirect_bytes kstat.zfs.misc.zil.zil_itx_indirect_bytes
+# TYPE node_zfsZil_zil_itx_indirect_bytes untyped
+node_zfsZil_zil_itx_indirect_bytes 0
+# HELP node_zfsZil_zil_itx_indirect_count kstat.zfs.misc.zil.zil_itx_indirect_count
+# TYPE node_zfsZil_zil_itx_indirect_count untyped
+node_zfsZil_zil_itx_indirect_count 0
+# HELP node_zfsZil_zil_itx_metaslab_normal_bytes kstat.zfs.misc.zil.zil_itx_metaslab_normal_bytes
+# TYPE node_zfsZil_zil_itx_metaslab_normal_bytes untyped
+node_zfsZil_zil_itx_metaslab_normal_bytes 0
+# HELP node_zfsZil_zil_itx_metaslab_normal_count kstat.zfs.misc.zil.zil_itx_metaslab_normal_count
+# TYPE node_zfsZil_zil_itx_metaslab_normal_count untyped
+node_zfsZil_zil_itx_metaslab_normal_count 0
+# HELP node_zfsZil_zil_itx_metaslab_slog_bytes kstat.zfs.misc.zil.zil_itx_metaslab_slog_bytes
+# TYPE node_zfsZil_zil_itx_metaslab_slog_bytes untyped
+node_zfsZil_zil_itx_metaslab_slog_bytes 0
+# HELP node_zfsZil_zil_itx_metaslab_slog_count kstat.zfs.misc.zil.zil_itx_metaslab_slog_count
+# TYPE node_zfsZil_zil_itx_metaslab_slog_count untyped
+node_zfsZil_zil_itx_metaslab_slog_count 0
+# HELP node_zfsZil_zil_itx_needcopy_bytes kstat.zfs.misc.zil.zil_itx_needcopy_bytes
+# TYPE node_zfsZil_zil_itx_needcopy_bytes untyped
+node_zfsZil_zil_itx_needcopy_bytes 0
+# HELP node_zfsZil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
+# TYPE node_zfsZil_zil_itx_needcopy_count untyped
+node_zfsZil_zil_itx_needcopy_count 0
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.

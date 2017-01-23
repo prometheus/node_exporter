@@ -36,6 +36,7 @@ type zfsSubsystemName string
 const (
 	arc            = zfsSubsystemName("zfsArc")
 	zfetch         = zfsSubsystemName("zfsFetch")
+	zil            = zfsSubsystemName("zfsZil")
 	zpoolSubsystem = zfsSubsystemName("zfsPool")
 )
 
@@ -74,6 +75,10 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	// Zfetchstats
 	err = c.updateZfetchstats(ch)
+	if err != nil { return err }
+
+	// Zil
+	err = c.updateZil(ch)
 	if err != nil { return err }
 
 	// Pool stats

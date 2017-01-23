@@ -89,3 +89,39 @@ func TestZfetchstatsParsing(t *testing.T) {
 		t.Fatal("Zfetchstats parsing handler was not called for some expected sysctls")
 	}
 }
+
+func TestZilParsing(t *testing.T) {
+	zilFile, err := os.Open("fixtures/proc/spl/kstat/zfs/zil")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer zilFile.Close()
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	err = c.parseProcfsFile(zilFile, "zil", func(s zfsSysctl, v zfsMetricValue) {
+
+		if s != zfsSysctl("kstat.zfs.misc.zil.zil_commit_count") {
+			return
+		}
+
+		handlerCalled = true
+
+		if v != zfsMetricValue(10) {
+			t.Fatalf("Incorrect value parsed from procfs data")
+		}
+
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !handlerCalled {
+		t.Fatal("Zil parsing handler was not called for some expected sysctls")
+	}
+}
