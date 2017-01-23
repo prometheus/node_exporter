@@ -2383,6 +2383,18 @@ node_zfsFetch_stride_hits 7.06799e+06
 # HELP node_zfsFetch_stride_misses kstat.zfs.misc.zfetchstats.stride_misses
 # TYPE node_zfsFetch_stride_misses untyped
 node_zfsFetch_stride_misses 0
+# HELP node_zfsFm_erpt-dropped kstat.zfs.misc.fm.erpt-dropped
+# TYPE node_zfsFm_erpt-dropped untyped
+node_zfsFm_erpt-dropped 18
+# HELP node_zfsFm_erpt-set-failed kstat.zfs.misc.fm.erpt-set-failed
+# TYPE node_zfsFm_erpt-set-failed untyped
+node_zfsFm_erpt-set-failed 0
+# HELP node_zfsFm_fmri-set-failed kstat.zfs.misc.fm.fmri-set-failed
+# TYPE node_zfsFm_fmri-set-failed untyped
+node_zfsFm_fmri-set-failed 0
+# HELP node_zfsFm_payload-set-failed kstat.zfs.misc.fm.payload-set-failed
+# TYPE node_zfsFm_payload-set-failed untyped
+node_zfsFm_payload-set-failed 0
 # HELP node_zfsVdevCache_delegations kstat.zfs.misc.vdev_cache_stats.delegations
 # TYPE node_zfsVdevCache_delegations untyped
 node_zfsVdevCache_delegations 40

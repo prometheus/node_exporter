@@ -197,3 +197,39 @@ func TestXuioStatsParsing(t *testing.T) {
 		t.Fatal("XuioStats parsing handler was not called for some expected sysctls")
 	}
 }
+
+func TestFmParsing(t *testing.T) {
+	fmFile, err := os.Open("fixtures/proc/spl/kstat/zfs/fm")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer fmFile.Close()
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	err = c.parseProcfsFile(fmFile, "fm", func(s zfsSysctl, v zfsMetricValue) {
+
+		if s != zfsSysctl("kstat.zfs.misc.fm.erpt-dropped") {
+			return
+		}
+
+		handlerCalled = true
+
+		if v != zfsMetricValue(18) {
+			t.Fatalf("Incorrect value parsed from procfs data")
+		}
+
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !handlerCalled {
+		t.Fatal("Fm parsing handler was not called for some expected sysctls")
+	}
+}

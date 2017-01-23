@@ -29,6 +29,7 @@ import (
 const (
 	zfsProcpathBase      = "spl/kstat/zfs/"
 	zfsArcstatsExt       = "arcstats"
+	zfsFmExt             = "fm"
 	zfsFetchstatsExt     = "zfetchstats"
 	zfsVdevCacheStatsExt = "vdev_cache_stats"
 	zfsXuioStatsExt      = "xuio_stats"
@@ -101,6 +102,18 @@ func (c *zfsCollector) updateXuioStats(ch chan<- prometheus.Metric) (err error) 
 
 	return c.parseProcfsFile(file, zfsXuioStatsExt, func(s zfsSysctl, v zfsMetricValue) {
 		ch <- c.constSysctlMetric(xuio, s, v)
+	})
+}
+
+func (c *zfsCollector) updateFm(ch chan<- prometheus.Metric) (err error) {
+	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsFmExt))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return c.parseProcfsFile(file, zfsFmExt, func(s zfsSysctl, v zfsMetricValue) {
+		ch <- c.constSysctlMetric(fm, s, v)
 	})
 }
 

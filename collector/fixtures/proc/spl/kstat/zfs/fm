@@ -1,0 +1,6 @@
+0 1 0x01 4 192 8007255140 354329591145385
+name                            type data
+erpt-dropped                    4    18
+erpt-set-failed                 4    0
+fmri-set-failed                 4    0
+payload-set-failed              4    0
