@@ -1,4 +1,4 @@
-// Copyright 2016 The Prometheus Authors
+// Copyright 2017 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,8 +15,10 @@ package collector
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -493,6 +495,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse mountstats: %v", err)
 	}
+	var deviceList []string
 
 	for _, m := range mounts {
 		// For the time being, only NFS statistics are available via this mechanism
@@ -501,7 +504,14 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		c.updateNFSStats(ch, m.Device, stats)
+		sort.Strings(deviceList)
+		i := sort.SearchStrings(deviceList, m.Device)
+		if i < len(deviceList) && deviceList[i] == m.Device {
+			log.Debugf("Skipping duplicate device entry %q", m.Device)
+		} else {
+			deviceList = append(deviceList, m.Device)
+			c.updateNFSStats(ch, m.Device, stats)
+		}
 	}
 
 	return nil
