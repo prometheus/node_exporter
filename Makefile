@@ -76,6 +76,10 @@ docker:
 	@echo ">> building docker image"
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
+test-docker:
+	@echo ">> testing docker image"
+	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
+
 $(GOPATH)/bin/promu promu:
 	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
 
