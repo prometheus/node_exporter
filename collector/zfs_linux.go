@@ -26,17 +26,6 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-const (
-	zfsProcpathBase      = "spl/kstat/zfs/"
-	zfsArcstatsExt       = "arcstats"
-	zfsDmuTxExt          = "dmu_tx"
-	zfsFmExt             = "fm"
-	zfsFetchstatsExt     = "zfetchstats"
-	zfsVdevCacheStatsExt = "vdev_cache_stats"
-	zfsXuioStatsExt      = "xuio_stats"
-	zfsZilExt            = "zil"
-)
-
 func (c *zfsCollector) openProcFile(path string) (file *os.File, err error) {
 	file, err = os.Open(procFilePath(path))
 	if err != nil {
@@ -46,91 +35,19 @@ func (c *zfsCollector) openProcFile(path string) (file *os.File, err error) {
 	return
 }
 
-func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsArcstatsExt))
+func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Metric) (err error) {
+	file, err := c.openProcFile(filepath.Join(c.linuxProcpathBase, c.linuxPathMap[subsystem]))
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return c.parseProcfsFile(file, zfsArcstatsExt, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(arc, s, v)
+	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v int) {
+		ch <- c.constSysctlMetric(subsystem, s, v)
 	})
 }
 
-func (c *zfsCollector) updateZfetchstats(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsFetchstatsExt))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return c.parseProcfsFile(file, zfsFetchstatsExt, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(zfetch, s, v)
-	})
-}
-
-func (c *zfsCollector) updateZil(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsZilExt))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return c.parseProcfsFile(file, zfsZilExt, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(zil, s, v)
-	})
-}
-
-func (c *zfsCollector) updateVdevCacheStats(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsVdevCacheStatsExt))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return c.parseProcfsFile(file, zfsVdevCacheStatsExt, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(vdevCache, s, v)
-	})
-}
-
-func (c *zfsCollector) updateXuioStats(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsXuioStatsExt))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return c.parseProcfsFile(file, zfsXuioStatsExt, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(xuio, s, v)
-	})
-}
-
-func (c *zfsCollector) updateFm(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsFmExt))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return c.parseProcfsFile(file, zfsFmExt, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(fm, s, v)
-	})
-}
-
-func (c *zfsCollector) updateDmuTx(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openProcFile(filepath.Join(zfsProcpathBase, zfsDmuTxExt))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return c.parseProcfsFile(file, zfsDmuTxExt, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(dmuTx, s, v)
-	})
-}
-
-func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, zfsMetricValue)) (err error) {
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, int)) (err error) {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -154,7 +71,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 		if err != nil {
 			return fmt.Errorf("could not parse expected integer value for %q", key)
 		}
-		handler(zfsSysctl(key), zfsMetricValue(value))
+		handler(zfsSysctl(key), value)
 
 	}
 	if !parseLine {
