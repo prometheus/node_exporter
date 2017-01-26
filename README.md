@@ -33,9 +33,11 @@ mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `
 meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux
 netdev | Exposes network interface statistics such as bytes transferred. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
+sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 time | Exposes the current system time. | _any_
+uname | Exposes system information as provided by the uname system call. | Linux
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics.<br/> Linux (ARC) | [Linux](http://zfsonlinux.org/)
 
