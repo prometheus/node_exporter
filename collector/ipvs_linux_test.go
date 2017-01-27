@@ -15,6 +15,7 @@ package collector
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -23,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/procfs"
 )
 
@@ -130,7 +132,7 @@ func TestIPVSCollector(t *testing.T) {
 	go func() {
 		err = collector.Update(sink)
 		if err != nil {
-			t.Fatal(err)
+			panic(fmt.Sprintf("failed to update collector: %v", err))
 		}
 	}()
 	for expected, got := range map[string]string{
@@ -178,7 +180,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	prometheus.MustRegister(miniCollector{c: collector})
 
 	rw := httptest.NewRecorder()
-	prometheus.Handler().ServeHTTP(rw, &http.Request{})
+	promhttp.Handler().ServeHTTP(rw, &http.Request{})
 
 	metricsFile := "fixtures/ip_vs_result.txt"
 	wantMetrics, err := ioutil.ReadFile(metricsFile)
