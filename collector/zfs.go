@@ -52,13 +52,13 @@ func NewZFSCollector() (Collector, error) {
 	var z zfsCollector
 	z.linuxProcpathBase = "spl/kstat/zfs"
 	z.linuxPathMap = map[string]string{
-		"zfsArc":       "arcstats",
-		"zfsDmuTx":     "dmu_tx",
-		"zfsFm":        "fm",
-		"zfsFetch":     "zfetchstats",
-		"zfsVdevCache": "vdev_cache_stats",
-		"zfsXuio":      "xuio_stats",
-		"zfsZil":       "zil",
+		"zfs_arc":        "arcstats",
+		"zfs_dmu_tx":     "dmu_tx",
+		"zfs_fm":         "fm",
+		"zfs_zfetch":     "zfetchstats",
+		"zfs_vdev_cache": "vdev_cache_stats",
+		"zfs_xuio":       "xuio_stats",
+		"zfs_zil":        "zil",
 	}
 	return &z, nil
 }
