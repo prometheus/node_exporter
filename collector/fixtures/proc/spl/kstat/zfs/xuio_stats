@@ -1,0 +1,8 @@
+2 1 0x01 6 288 8009100742 353415816865654
+name                            type data
+onloan_read_buf                 4    32
+onloan_write_buf                4    0
+read_buf_copied                 4    0
+read_buf_nocopy                 4    0
+write_buf_copied                4    0
+write_buf_nocopy                4    0

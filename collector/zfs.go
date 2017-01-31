@@ -24,26 +24,16 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-type zfsMetricValue int
-
-const zfsErrorValue = zfsMetricValue(-1)
-
 var zfsNotAvailableError = errors.New("ZFS / ZFS statistics are not available")
 
 type zfsSysctl string
-type zfsSubsystemName string
-
-const (
-	arc            = zfsSubsystemName("zfsArc")
-	zpoolSubsystem = zfsSubsystemName("zfsPool")
-)
 
 // Metrics
 
 type zfsMetric struct {
-	subsystem zfsSubsystemName // The Prometheus subsystem name.
-	name      string           // The Prometheus name of the metric.
-	sysctl    zfsSysctl        // The sysctl of the ZFS metric.
+	subsystem string    // The Prometheus subsystem name.
+	name      string    // The Prometheus name of the metric.
+	sysctl    zfsSysctl // The sysctl of the ZFS metric.
 }
 
 // Collector
@@ -53,22 +43,36 @@ func init() {
 }
 
 type zfsCollector struct {
-	zfsMetrics []zfsMetric
+	zfsMetrics        []zfsMetric
+	linuxProcpathBase string
+	linuxPathMap      map[string]string
 }
 
 func NewZFSCollector() (Collector, error) {
-	return &zfsCollector{}, nil
+	var z zfsCollector
+	z.linuxProcpathBase = "spl/kstat/zfs"
+	z.linuxPathMap = map[string]string{
+		"zfs_arc":        "arcstats",
+		"zfs_dmu_tx":     "dmu_tx",
+		"zfs_fm":         "fm",
+		"zfs_zfetch":     "zfetchstats",
+		"zfs_vdev_cache": "vdev_cache_stats",
+		"zfs_xuio":       "xuio_stats",
+		"zfs_zil":        "zil",
+	}
+	return &z, nil
 }
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	// Arcstats
-	err = c.updateArcstats(ch)
-	switch {
-	case err == zfsNotAvailableError:
-		log.Debug(err)
-		return nil
-	case err != nil:
-		return err
+	for subsystem := range c.linuxPathMap {
+		err = c.updateZfsStats(subsystem, ch)
+		switch {
+		case err == zfsNotAvailableError:
+			log.Debug(err)
+			return nil
+		case err != nil:
+			return err
+		}
 	}
 
 	// Pool stats
@@ -80,7 +84,7 @@ func (s zfsSysctl) metricName() string {
 	return parts[len(parts)-1]
 }
 
-func (c *zfsCollector) constSysctlMetric(subsystem zfsSubsystemName, sysctl zfsSysctl, value zfsMetricValue) prometheus.Metric {
+func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, value int) prometheus.Metric {
 	metricName := sysctl.metricName()
 
 	return prometheus.MustNewConstMetric(

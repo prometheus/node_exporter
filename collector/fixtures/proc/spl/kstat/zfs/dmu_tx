@@ -1,0 +1,13 @@
+5 1 0x01 11 528 8010436841 354962070418194
+name                            type data
+dmu_tx_assigned                 4    3532844
+dmu_tx_delay                    4    0
+dmu_tx_error                    4    0
+dmu_tx_suspended                4    0
+dmu_tx_group                    4    0
+dmu_tx_memory_reserve           4    0
+dmu_tx_memory_reclaim           4    0
+dmu_tx_dirty_throttle           4    0
+dmu_tx_dirty_delay              4    0
+dmu_tx_dirty_over_max           4    0
+dmu_tx_quota                    4    0

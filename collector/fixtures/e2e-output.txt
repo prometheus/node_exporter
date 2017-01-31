@@ -2077,279 +2077,423 @@ node_wifi_station_transmit_failed_total{device="wlan0"} 2
 # HELP node_wifi_station_transmit_retries_total The total number of times a station has had to retry while sending a packet.
 # TYPE node_wifi_station_transmit_retries_total counter
 node_wifi_station_transmit_retries_total{device="wlan0"} 10
-# HELP node_zfsArc_anon_evictable_data kstat.zfs.misc.arcstats.anon_evictable_data
-# TYPE node_zfsArc_anon_evictable_data untyped
-node_zfsArc_anon_evictable_data 0
-# HELP node_zfsArc_anon_evictable_metadata kstat.zfs.misc.arcstats.anon_evictable_metadata
-# TYPE node_zfsArc_anon_evictable_metadata untyped
-node_zfsArc_anon_evictable_metadata 0
-# HELP node_zfsArc_anon_size kstat.zfs.misc.arcstats.anon_size
-# TYPE node_zfsArc_anon_size untyped
-node_zfsArc_anon_size 1.91744e+06
-# HELP node_zfsArc_arc_loaned_bytes kstat.zfs.misc.arcstats.arc_loaned_bytes
-# TYPE node_zfsArc_arc_loaned_bytes untyped
-node_zfsArc_arc_loaned_bytes 0
-# HELP node_zfsArc_arc_meta_limit kstat.zfs.misc.arcstats.arc_meta_limit
-# TYPE node_zfsArc_arc_meta_limit untyped
-node_zfsArc_arc_meta_limit 6.275982336e+09
-# HELP node_zfsArc_arc_meta_max kstat.zfs.misc.arcstats.arc_meta_max
-# TYPE node_zfsArc_arc_meta_max untyped
-node_zfsArc_arc_meta_max 4.49286096e+08
-# HELP node_zfsArc_arc_meta_min kstat.zfs.misc.arcstats.arc_meta_min
-# TYPE node_zfsArc_arc_meta_min untyped
-node_zfsArc_arc_meta_min 1.6777216e+07
-# HELP node_zfsArc_arc_meta_used kstat.zfs.misc.arcstats.arc_meta_used
-# TYPE node_zfsArc_arc_meta_used untyped
-node_zfsArc_arc_meta_used 3.08103632e+08
-# HELP node_zfsArc_arc_need_free kstat.zfs.misc.arcstats.arc_need_free
-# TYPE node_zfsArc_arc_need_free untyped
-node_zfsArc_arc_need_free 0
-# HELP node_zfsArc_arc_no_grow kstat.zfs.misc.arcstats.arc_no_grow
-# TYPE node_zfsArc_arc_no_grow untyped
-node_zfsArc_arc_no_grow 0
-# HELP node_zfsArc_arc_prune kstat.zfs.misc.arcstats.arc_prune
-# TYPE node_zfsArc_arc_prune untyped
-node_zfsArc_arc_prune 0
-# HELP node_zfsArc_arc_sys_free kstat.zfs.misc.arcstats.arc_sys_free
-# TYPE node_zfsArc_arc_sys_free untyped
-node_zfsArc_arc_sys_free 2.61496832e+08
-# HELP node_zfsArc_arc_tempreserve kstat.zfs.misc.arcstats.arc_tempreserve
-# TYPE node_zfsArc_arc_tempreserve untyped
-node_zfsArc_arc_tempreserve 0
-# HELP node_zfsArc_c kstat.zfs.misc.arcstats.c
-# TYPE node_zfsArc_c untyped
-node_zfsArc_c 1.643208777e+09
-# HELP node_zfsArc_c_max kstat.zfs.misc.arcstats.c_max
-# TYPE node_zfsArc_c_max untyped
-node_zfsArc_c_max 8.367976448e+09
-# HELP node_zfsArc_c_min kstat.zfs.misc.arcstats.c_min
-# TYPE node_zfsArc_c_min untyped
-node_zfsArc_c_min 3.3554432e+07
-# HELP node_zfsArc_data_size kstat.zfs.misc.arcstats.data_size
-# TYPE node_zfsArc_data_size untyped
-node_zfsArc_data_size 1.29583616e+09
-# HELP node_zfsArc_deleted kstat.zfs.misc.arcstats.deleted
-# TYPE node_zfsArc_deleted untyped
-node_zfsArc_deleted 60403
-# HELP node_zfsArc_demand_data_hits kstat.zfs.misc.arcstats.demand_data_hits
-# TYPE node_zfsArc_demand_data_hits untyped
-node_zfsArc_demand_data_hits 7.221032e+06
-# HELP node_zfsArc_demand_data_misses kstat.zfs.misc.arcstats.demand_data_misses
-# TYPE node_zfsArc_demand_data_misses untyped
-node_zfsArc_demand_data_misses 73300
-# HELP node_zfsArc_demand_metadata_hits kstat.zfs.misc.arcstats.demand_metadata_hits
-# TYPE node_zfsArc_demand_metadata_hits untyped
-node_zfsArc_demand_metadata_hits 1.464353e+06
-# HELP node_zfsArc_demand_metadata_misses kstat.zfs.misc.arcstats.demand_metadata_misses
-# TYPE node_zfsArc_demand_metadata_misses untyped
-node_zfsArc_demand_metadata_misses 498170
-# HELP node_zfsArc_duplicate_buffers kstat.zfs.misc.arcstats.duplicate_buffers
-# TYPE node_zfsArc_duplicate_buffers untyped
-node_zfsArc_duplicate_buffers 0
-# HELP node_zfsArc_duplicate_buffers_size kstat.zfs.misc.arcstats.duplicate_buffers_size
-# TYPE node_zfsArc_duplicate_buffers_size untyped
-node_zfsArc_duplicate_buffers_size 0
-# HELP node_zfsArc_duplicate_reads kstat.zfs.misc.arcstats.duplicate_reads
-# TYPE node_zfsArc_duplicate_reads untyped
-node_zfsArc_duplicate_reads 0
-# HELP node_zfsArc_evict_l2_cached kstat.zfs.misc.arcstats.evict_l2_cached
-# TYPE node_zfsArc_evict_l2_cached untyped
-node_zfsArc_evict_l2_cached 0
-# HELP node_zfsArc_evict_l2_eligible kstat.zfs.misc.arcstats.evict_l2_eligible
-# TYPE node_zfsArc_evict_l2_eligible untyped
-node_zfsArc_evict_l2_eligible 8.99251456e+09
-# HELP node_zfsArc_evict_l2_ineligible kstat.zfs.misc.arcstats.evict_l2_ineligible
-# TYPE node_zfsArc_evict_l2_ineligible untyped
-node_zfsArc_evict_l2_ineligible 9.92552448e+08
-# HELP node_zfsArc_evict_l2_skip kstat.zfs.misc.arcstats.evict_l2_skip
-# TYPE node_zfsArc_evict_l2_skip untyped
-node_zfsArc_evict_l2_skip 0
-# HELP node_zfsArc_evict_not_enough kstat.zfs.misc.arcstats.evict_not_enough
-# TYPE node_zfsArc_evict_not_enough untyped
-node_zfsArc_evict_not_enough 680
-# HELP node_zfsArc_evict_skip kstat.zfs.misc.arcstats.evict_skip
-# TYPE node_zfsArc_evict_skip untyped
-node_zfsArc_evict_skip 2.265729e+06
-# HELP node_zfsArc_hash_chain_max kstat.zfs.misc.arcstats.hash_chain_max
-# TYPE node_zfsArc_hash_chain_max untyped
-node_zfsArc_hash_chain_max 3
-# HELP node_zfsArc_hash_chains kstat.zfs.misc.arcstats.hash_chains
-# TYPE node_zfsArc_hash_chains untyped
-node_zfsArc_hash_chains 412
-# HELP node_zfsArc_hash_collisions kstat.zfs.misc.arcstats.hash_collisions
-# TYPE node_zfsArc_hash_collisions untyped
-node_zfsArc_hash_collisions 50564
-# HELP node_zfsArc_hash_elements kstat.zfs.misc.arcstats.hash_elements
-# TYPE node_zfsArc_hash_elements untyped
-node_zfsArc_hash_elements 42359
-# HELP node_zfsArc_hash_elements_max kstat.zfs.misc.arcstats.hash_elements_max
-# TYPE node_zfsArc_hash_elements_max untyped
-node_zfsArc_hash_elements_max 88245
-# HELP node_zfsArc_hdr_size kstat.zfs.misc.arcstats.hdr_size
-# TYPE node_zfsArc_hdr_size untyped
-node_zfsArc_hdr_size 1.636108e+07
-# HELP node_zfsArc_hits kstat.zfs.misc.arcstats.hits
-# TYPE node_zfsArc_hits untyped
-node_zfsArc_hits 8.772612e+06
-# HELP node_zfsArc_l2_abort_lowmem kstat.zfs.misc.arcstats.l2_abort_lowmem
-# TYPE node_zfsArc_l2_abort_lowmem untyped
-node_zfsArc_l2_abort_lowmem 0
-# HELP node_zfsArc_l2_asize kstat.zfs.misc.arcstats.l2_asize
-# TYPE node_zfsArc_l2_asize untyped
-node_zfsArc_l2_asize 0
-# HELP node_zfsArc_l2_cdata_free_on_write kstat.zfs.misc.arcstats.l2_cdata_free_on_write
-# TYPE node_zfsArc_l2_cdata_free_on_write untyped
-node_zfsArc_l2_cdata_free_on_write 0
-# HELP node_zfsArc_l2_cksum_bad kstat.zfs.misc.arcstats.l2_cksum_bad
-# TYPE node_zfsArc_l2_cksum_bad untyped
-node_zfsArc_l2_cksum_bad 0
-# HELP node_zfsArc_l2_compress_failures kstat.zfs.misc.arcstats.l2_compress_failures
-# TYPE node_zfsArc_l2_compress_failures untyped
-node_zfsArc_l2_compress_failures 0
-# HELP node_zfsArc_l2_compress_successes kstat.zfs.misc.arcstats.l2_compress_successes
-# TYPE node_zfsArc_l2_compress_successes untyped
-node_zfsArc_l2_compress_successes 0
-# HELP node_zfsArc_l2_compress_zeros kstat.zfs.misc.arcstats.l2_compress_zeros
-# TYPE node_zfsArc_l2_compress_zeros untyped
-node_zfsArc_l2_compress_zeros 0
-# HELP node_zfsArc_l2_evict_l1cached kstat.zfs.misc.arcstats.l2_evict_l1cached
-# TYPE node_zfsArc_l2_evict_l1cached untyped
-node_zfsArc_l2_evict_l1cached 0
-# HELP node_zfsArc_l2_evict_lock_retry kstat.zfs.misc.arcstats.l2_evict_lock_retry
-# TYPE node_zfsArc_l2_evict_lock_retry untyped
-node_zfsArc_l2_evict_lock_retry 0
-# HELP node_zfsArc_l2_evict_reading kstat.zfs.misc.arcstats.l2_evict_reading
-# TYPE node_zfsArc_l2_evict_reading untyped
-node_zfsArc_l2_evict_reading 0
-# HELP node_zfsArc_l2_feeds kstat.zfs.misc.arcstats.l2_feeds
-# TYPE node_zfsArc_l2_feeds untyped
-node_zfsArc_l2_feeds 0
-# HELP node_zfsArc_l2_free_on_write kstat.zfs.misc.arcstats.l2_free_on_write
-# TYPE node_zfsArc_l2_free_on_write untyped
-node_zfsArc_l2_free_on_write 0
-# HELP node_zfsArc_l2_hdr_size kstat.zfs.misc.arcstats.l2_hdr_size
-# TYPE node_zfsArc_l2_hdr_size untyped
-node_zfsArc_l2_hdr_size 0
-# HELP node_zfsArc_l2_hits kstat.zfs.misc.arcstats.l2_hits
-# TYPE node_zfsArc_l2_hits untyped
-node_zfsArc_l2_hits 0
-# HELP node_zfsArc_l2_io_error kstat.zfs.misc.arcstats.l2_io_error
-# TYPE node_zfsArc_l2_io_error untyped
-node_zfsArc_l2_io_error 0
-# HELP node_zfsArc_l2_misses kstat.zfs.misc.arcstats.l2_misses
-# TYPE node_zfsArc_l2_misses untyped
-node_zfsArc_l2_misses 0
-# HELP node_zfsArc_l2_read_bytes kstat.zfs.misc.arcstats.l2_read_bytes
-# TYPE node_zfsArc_l2_read_bytes untyped
-node_zfsArc_l2_read_bytes 0
-# HELP node_zfsArc_l2_rw_clash kstat.zfs.misc.arcstats.l2_rw_clash
-# TYPE node_zfsArc_l2_rw_clash untyped
-node_zfsArc_l2_rw_clash 0
-# HELP node_zfsArc_l2_size kstat.zfs.misc.arcstats.l2_size
-# TYPE node_zfsArc_l2_size untyped
-node_zfsArc_l2_size 0
-# HELP node_zfsArc_l2_write_bytes kstat.zfs.misc.arcstats.l2_write_bytes
-# TYPE node_zfsArc_l2_write_bytes untyped
-node_zfsArc_l2_write_bytes 0
-# HELP node_zfsArc_l2_writes_done kstat.zfs.misc.arcstats.l2_writes_done
-# TYPE node_zfsArc_l2_writes_done untyped
-node_zfsArc_l2_writes_done 0
-# HELP node_zfsArc_l2_writes_error kstat.zfs.misc.arcstats.l2_writes_error
-# TYPE node_zfsArc_l2_writes_error untyped
-node_zfsArc_l2_writes_error 0
-# HELP node_zfsArc_l2_writes_lock_retry kstat.zfs.misc.arcstats.l2_writes_lock_retry
-# TYPE node_zfsArc_l2_writes_lock_retry untyped
-node_zfsArc_l2_writes_lock_retry 0
-# HELP node_zfsArc_l2_writes_sent kstat.zfs.misc.arcstats.l2_writes_sent
-# TYPE node_zfsArc_l2_writes_sent untyped
-node_zfsArc_l2_writes_sent 0
-# HELP node_zfsArc_memory_direct_count kstat.zfs.misc.arcstats.memory_direct_count
-# TYPE node_zfsArc_memory_direct_count untyped
-node_zfsArc_memory_direct_count 542
-# HELP node_zfsArc_memory_indirect_count kstat.zfs.misc.arcstats.memory_indirect_count
-# TYPE node_zfsArc_memory_indirect_count untyped
-node_zfsArc_memory_indirect_count 3006
-# HELP node_zfsArc_memory_throttle_count kstat.zfs.misc.arcstats.memory_throttle_count
-# TYPE node_zfsArc_memory_throttle_count untyped
-node_zfsArc_memory_throttle_count 0
-# HELP node_zfsArc_metadata_size kstat.zfs.misc.arcstats.metadata_size
-# TYPE node_zfsArc_metadata_size untyped
-node_zfsArc_metadata_size 1.7529856e+08
-# HELP node_zfsArc_mfu_evictable_data kstat.zfs.misc.arcstats.mfu_evictable_data
-# TYPE node_zfsArc_mfu_evictable_data untyped
-node_zfsArc_mfu_evictable_data 1.017613824e+09
-# HELP node_zfsArc_mfu_evictable_metadata kstat.zfs.misc.arcstats.mfu_evictable_metadata
-# TYPE node_zfsArc_mfu_evictable_metadata untyped
-node_zfsArc_mfu_evictable_metadata 9.163776e+06
-# HELP node_zfsArc_mfu_ghost_evictable_data kstat.zfs.misc.arcstats.mfu_ghost_evictable_data
-# TYPE node_zfsArc_mfu_ghost_evictable_data untyped
-node_zfsArc_mfu_ghost_evictable_data 9.6731136e+07
-# HELP node_zfsArc_mfu_ghost_evictable_metadata kstat.zfs.misc.arcstats.mfu_ghost_evictable_metadata
-# TYPE node_zfsArc_mfu_ghost_evictable_metadata untyped
-node_zfsArc_mfu_ghost_evictable_metadata 8.205312e+06
-# HELP node_zfsArc_mfu_ghost_hits kstat.zfs.misc.arcstats.mfu_ghost_hits
-# TYPE node_zfsArc_mfu_ghost_hits untyped
-node_zfsArc_mfu_ghost_hits 821
-# HELP node_zfsArc_mfu_ghost_size kstat.zfs.misc.arcstats.mfu_ghost_size
-# TYPE node_zfsArc_mfu_ghost_size untyped
-node_zfsArc_mfu_ghost_size 1.04936448e+08
-# HELP node_zfsArc_mfu_hits kstat.zfs.misc.arcstats.mfu_hits
-# TYPE node_zfsArc_mfu_hits untyped
-node_zfsArc_mfu_hits 7.829854e+06
-# HELP node_zfsArc_mfu_size kstat.zfs.misc.arcstats.mfu_size
-# TYPE node_zfsArc_mfu_size untyped
-node_zfsArc_mfu_size 1.066623488e+09
-# HELP node_zfsArc_misses kstat.zfs.misc.arcstats.misses
-# TYPE node_zfsArc_misses untyped
-node_zfsArc_misses 604635
-# HELP node_zfsArc_mru_evictable_data kstat.zfs.misc.arcstats.mru_evictable_data
-# TYPE node_zfsArc_mru_evictable_data untyped
-node_zfsArc_mru_evictable_data 2.78091264e+08
-# HELP node_zfsArc_mru_evictable_metadata kstat.zfs.misc.arcstats.mru_evictable_metadata
-# TYPE node_zfsArc_mru_evictable_metadata untyped
-node_zfsArc_mru_evictable_metadata 1.8606592e+07
-# HELP node_zfsArc_mru_ghost_evictable_data kstat.zfs.misc.arcstats.mru_ghost_evictable_data
-# TYPE node_zfsArc_mru_ghost_evictable_data untyped
-node_zfsArc_mru_ghost_evictable_data 8.83765248e+08
-# HELP node_zfsArc_mru_ghost_evictable_metadata kstat.zfs.misc.arcstats.mru_ghost_evictable_metadata
-# TYPE node_zfsArc_mru_ghost_evictable_metadata untyped
-node_zfsArc_mru_ghost_evictable_metadata 1.1596288e+08
-# HELP node_zfsArc_mru_ghost_hits kstat.zfs.misc.arcstats.mru_ghost_hits
-# TYPE node_zfsArc_mru_ghost_hits untyped
-node_zfsArc_mru_ghost_hits 21100
-# HELP node_zfsArc_mru_ghost_size kstat.zfs.misc.arcstats.mru_ghost_size
-# TYPE node_zfsArc_mru_ghost_size untyped
-node_zfsArc_mru_ghost_size 9.99728128e+08
-# HELP node_zfsArc_mru_hits kstat.zfs.misc.arcstats.mru_hits
-# TYPE node_zfsArc_mru_hits untyped
-node_zfsArc_mru_hits 855535
-# HELP node_zfsArc_mru_size kstat.zfs.misc.arcstats.mru_size
-# TYPE node_zfsArc_mru_size untyped
-node_zfsArc_mru_size 4.02593792e+08
-# HELP node_zfsArc_mutex_miss kstat.zfs.misc.arcstats.mutex_miss
-# TYPE node_zfsArc_mutex_miss untyped
-node_zfsArc_mutex_miss 2
-# HELP node_zfsArc_other_size kstat.zfs.misc.arcstats.other_size
-# TYPE node_zfsArc_other_size untyped
-node_zfsArc_other_size 1.16443992e+08
-# HELP node_zfsArc_p kstat.zfs.misc.arcstats.p
-# TYPE node_zfsArc_p untyped
-node_zfsArc_p 5.16395305e+08
-# HELP node_zfsArc_prefetch_data_hits kstat.zfs.misc.arcstats.prefetch_data_hits
-# TYPE node_zfsArc_prefetch_data_hits untyped
-node_zfsArc_prefetch_data_hits 3615
-# HELP node_zfsArc_prefetch_data_misses kstat.zfs.misc.arcstats.prefetch_data_misses
-# TYPE node_zfsArc_prefetch_data_misses untyped
-node_zfsArc_prefetch_data_misses 17094
-# HELP node_zfsArc_prefetch_metadata_hits kstat.zfs.misc.arcstats.prefetch_metadata_hits
-# TYPE node_zfsArc_prefetch_metadata_hits untyped
-node_zfsArc_prefetch_metadata_hits 83612
-# HELP node_zfsArc_prefetch_metadata_misses kstat.zfs.misc.arcstats.prefetch_metadata_misses
-# TYPE node_zfsArc_prefetch_metadata_misses untyped
-node_zfsArc_prefetch_metadata_misses 16071
-# HELP node_zfsArc_size kstat.zfs.misc.arcstats.size
-# TYPE node_zfsArc_size untyped
-node_zfsArc_size 1.603939792e+09
+# HELP node_zfs_arc_anon_evictable_data kstat.zfs.misc.arcstats.anon_evictable_data
+# TYPE node_zfs_arc_anon_evictable_data untyped
+node_zfs_arc_anon_evictable_data 0
+# HELP node_zfs_arc_anon_evictable_metadata kstat.zfs.misc.arcstats.anon_evictable_metadata
+# TYPE node_zfs_arc_anon_evictable_metadata untyped
+node_zfs_arc_anon_evictable_metadata 0
+# HELP node_zfs_arc_anon_size kstat.zfs.misc.arcstats.anon_size
+# TYPE node_zfs_arc_anon_size untyped
+node_zfs_arc_anon_size 1.91744e+06
+# HELP node_zfs_arc_arc_loaned_bytes kstat.zfs.misc.arcstats.arc_loaned_bytes
+# TYPE node_zfs_arc_arc_loaned_bytes untyped
+node_zfs_arc_arc_loaned_bytes 0
+# HELP node_zfs_arc_arc_meta_limit kstat.zfs.misc.arcstats.arc_meta_limit
+# TYPE node_zfs_arc_arc_meta_limit untyped
+node_zfs_arc_arc_meta_limit 6.275982336e+09
+# HELP node_zfs_arc_arc_meta_max kstat.zfs.misc.arcstats.arc_meta_max
+# TYPE node_zfs_arc_arc_meta_max untyped
+node_zfs_arc_arc_meta_max 4.49286096e+08
+# HELP node_zfs_arc_arc_meta_min kstat.zfs.misc.arcstats.arc_meta_min
+# TYPE node_zfs_arc_arc_meta_min untyped
+node_zfs_arc_arc_meta_min 1.6777216e+07
+# HELP node_zfs_arc_arc_meta_used kstat.zfs.misc.arcstats.arc_meta_used
+# TYPE node_zfs_arc_arc_meta_used untyped
+node_zfs_arc_arc_meta_used 3.08103632e+08
+# HELP node_zfs_arc_arc_need_free kstat.zfs.misc.arcstats.arc_need_free
+# TYPE node_zfs_arc_arc_need_free untyped
+node_zfs_arc_arc_need_free 0
+# HELP node_zfs_arc_arc_no_grow kstat.zfs.misc.arcstats.arc_no_grow
+# TYPE node_zfs_arc_arc_no_grow untyped
+node_zfs_arc_arc_no_grow 0
+# HELP node_zfs_arc_arc_prune kstat.zfs.misc.arcstats.arc_prune
+# TYPE node_zfs_arc_arc_prune untyped
+node_zfs_arc_arc_prune 0
+# HELP node_zfs_arc_arc_sys_free kstat.zfs.misc.arcstats.arc_sys_free
+# TYPE node_zfs_arc_arc_sys_free untyped
+node_zfs_arc_arc_sys_free 2.61496832e+08
+# HELP node_zfs_arc_arc_tempreserve kstat.zfs.misc.arcstats.arc_tempreserve
+# TYPE node_zfs_arc_arc_tempreserve untyped
+node_zfs_arc_arc_tempreserve 0
+# HELP node_zfs_arc_c kstat.zfs.misc.arcstats.c
+# TYPE node_zfs_arc_c untyped
+node_zfs_arc_c 1.643208777e+09
+# HELP node_zfs_arc_c_max kstat.zfs.misc.arcstats.c_max
+# TYPE node_zfs_arc_c_max untyped
+node_zfs_arc_c_max 8.367976448e+09
+# HELP node_zfs_arc_c_min kstat.zfs.misc.arcstats.c_min
+# TYPE node_zfs_arc_c_min untyped
+node_zfs_arc_c_min 3.3554432e+07
+# HELP node_zfs_arc_data_size kstat.zfs.misc.arcstats.data_size
+# TYPE node_zfs_arc_data_size untyped
+node_zfs_arc_data_size 1.29583616e+09
+# HELP node_zfs_arc_deleted kstat.zfs.misc.arcstats.deleted
+# TYPE node_zfs_arc_deleted untyped
+node_zfs_arc_deleted 60403
+# HELP node_zfs_arc_demand_data_hits kstat.zfs.misc.arcstats.demand_data_hits
+# TYPE node_zfs_arc_demand_data_hits untyped
+node_zfs_arc_demand_data_hits 7.221032e+06
+# HELP node_zfs_arc_demand_data_misses kstat.zfs.misc.arcstats.demand_data_misses
+# TYPE node_zfs_arc_demand_data_misses untyped
+node_zfs_arc_demand_data_misses 73300
+# HELP node_zfs_arc_demand_metadata_hits kstat.zfs.misc.arcstats.demand_metadata_hits
+# TYPE node_zfs_arc_demand_metadata_hits untyped
+node_zfs_arc_demand_metadata_hits 1.464353e+06
+# HELP node_zfs_arc_demand_metadata_misses kstat.zfs.misc.arcstats.demand_metadata_misses
+# TYPE node_zfs_arc_demand_metadata_misses untyped
+node_zfs_arc_demand_metadata_misses 498170
+# HELP node_zfs_arc_duplicate_buffers kstat.zfs.misc.arcstats.duplicate_buffers
+# TYPE node_zfs_arc_duplicate_buffers untyped
+node_zfs_arc_duplicate_buffers 0
+# HELP node_zfs_arc_duplicate_buffers_size kstat.zfs.misc.arcstats.duplicate_buffers_size
+# TYPE node_zfs_arc_duplicate_buffers_size untyped
+node_zfs_arc_duplicate_buffers_size 0
+# HELP node_zfs_arc_duplicate_reads kstat.zfs.misc.arcstats.duplicate_reads
+# TYPE node_zfs_arc_duplicate_reads untyped
+node_zfs_arc_duplicate_reads 0
+# HELP node_zfs_arc_evict_l2_cached kstat.zfs.misc.arcstats.evict_l2_cached
+# TYPE node_zfs_arc_evict_l2_cached untyped
+node_zfs_arc_evict_l2_cached 0
+# HELP node_zfs_arc_evict_l2_eligible kstat.zfs.misc.arcstats.evict_l2_eligible
+# TYPE node_zfs_arc_evict_l2_eligible untyped
+node_zfs_arc_evict_l2_eligible 8.99251456e+09
+# HELP node_zfs_arc_evict_l2_ineligible kstat.zfs.misc.arcstats.evict_l2_ineligible
+# TYPE node_zfs_arc_evict_l2_ineligible untyped
+node_zfs_arc_evict_l2_ineligible 9.92552448e+08
+# HELP node_zfs_arc_evict_l2_skip kstat.zfs.misc.arcstats.evict_l2_skip
+# TYPE node_zfs_arc_evict_l2_skip untyped
+node_zfs_arc_evict_l2_skip 0
+# HELP node_zfs_arc_evict_not_enough kstat.zfs.misc.arcstats.evict_not_enough
+# TYPE node_zfs_arc_evict_not_enough untyped
+node_zfs_arc_evict_not_enough 680
+# HELP node_zfs_arc_evict_skip kstat.zfs.misc.arcstats.evict_skip
+# TYPE node_zfs_arc_evict_skip untyped
+node_zfs_arc_evict_skip 2.265729e+06
+# HELP node_zfs_arc_hash_chain_max kstat.zfs.misc.arcstats.hash_chain_max
+# TYPE node_zfs_arc_hash_chain_max untyped
+node_zfs_arc_hash_chain_max 3
+# HELP node_zfs_arc_hash_chains kstat.zfs.misc.arcstats.hash_chains
+# TYPE node_zfs_arc_hash_chains untyped
+node_zfs_arc_hash_chains 412
+# HELP node_zfs_arc_hash_collisions kstat.zfs.misc.arcstats.hash_collisions
+# TYPE node_zfs_arc_hash_collisions untyped
+node_zfs_arc_hash_collisions 50564
+# HELP node_zfs_arc_hash_elements kstat.zfs.misc.arcstats.hash_elements
+# TYPE node_zfs_arc_hash_elements untyped
+node_zfs_arc_hash_elements 42359
+# HELP node_zfs_arc_hash_elements_max kstat.zfs.misc.arcstats.hash_elements_max
+# TYPE node_zfs_arc_hash_elements_max untyped
+node_zfs_arc_hash_elements_max 88245
+# HELP node_zfs_arc_hdr_size kstat.zfs.misc.arcstats.hdr_size
+# TYPE node_zfs_arc_hdr_size untyped
+node_zfs_arc_hdr_size 1.636108e+07
+# HELP node_zfs_arc_hits kstat.zfs.misc.arcstats.hits
+# TYPE node_zfs_arc_hits untyped
+node_zfs_arc_hits 8.772612e+06
+# HELP node_zfs_arc_l2_abort_lowmem kstat.zfs.misc.arcstats.l2_abort_lowmem
+# TYPE node_zfs_arc_l2_abort_lowmem untyped
+node_zfs_arc_l2_abort_lowmem 0
+# HELP node_zfs_arc_l2_asize kstat.zfs.misc.arcstats.l2_asize
+# TYPE node_zfs_arc_l2_asize untyped
+node_zfs_arc_l2_asize 0
+# HELP node_zfs_arc_l2_cdata_free_on_write kstat.zfs.misc.arcstats.l2_cdata_free_on_write
+# TYPE node_zfs_arc_l2_cdata_free_on_write untyped
+node_zfs_arc_l2_cdata_free_on_write 0
+# HELP node_zfs_arc_l2_cksum_bad kstat.zfs.misc.arcstats.l2_cksum_bad
+# TYPE node_zfs_arc_l2_cksum_bad untyped
+node_zfs_arc_l2_cksum_bad 0
+# HELP node_zfs_arc_l2_compress_failures kstat.zfs.misc.arcstats.l2_compress_failures
+# TYPE node_zfs_arc_l2_compress_failures untyped
+node_zfs_arc_l2_compress_failures 0
+# HELP node_zfs_arc_l2_compress_successes kstat.zfs.misc.arcstats.l2_compress_successes
+# TYPE node_zfs_arc_l2_compress_successes untyped
+node_zfs_arc_l2_compress_successes 0
+# HELP node_zfs_arc_l2_compress_zeros kstat.zfs.misc.arcstats.l2_compress_zeros
+# TYPE node_zfs_arc_l2_compress_zeros untyped
+node_zfs_arc_l2_compress_zeros 0
+# HELP node_zfs_arc_l2_evict_l1cached kstat.zfs.misc.arcstats.l2_evict_l1cached
+# TYPE node_zfs_arc_l2_evict_l1cached untyped
+node_zfs_arc_l2_evict_l1cached 0
+# HELP node_zfs_arc_l2_evict_lock_retry kstat.zfs.misc.arcstats.l2_evict_lock_retry
+# TYPE node_zfs_arc_l2_evict_lock_retry untyped
+node_zfs_arc_l2_evict_lock_retry 0
+# HELP node_zfs_arc_l2_evict_reading kstat.zfs.misc.arcstats.l2_evict_reading
+# TYPE node_zfs_arc_l2_evict_reading untyped
+node_zfs_arc_l2_evict_reading 0
+# HELP node_zfs_arc_l2_feeds kstat.zfs.misc.arcstats.l2_feeds
+# TYPE node_zfs_arc_l2_feeds untyped
+node_zfs_arc_l2_feeds 0
+# HELP node_zfs_arc_l2_free_on_write kstat.zfs.misc.arcstats.l2_free_on_write
+# TYPE node_zfs_arc_l2_free_on_write untyped
+node_zfs_arc_l2_free_on_write 0
+# HELP node_zfs_arc_l2_hdr_size kstat.zfs.misc.arcstats.l2_hdr_size
+# TYPE node_zfs_arc_l2_hdr_size untyped
+node_zfs_arc_l2_hdr_size 0
+# HELP node_zfs_arc_l2_hits kstat.zfs.misc.arcstats.l2_hits
+# TYPE node_zfs_arc_l2_hits untyped
+node_zfs_arc_l2_hits 0
+# HELP node_zfs_arc_l2_io_error kstat.zfs.misc.arcstats.l2_io_error
+# TYPE node_zfs_arc_l2_io_error untyped
+node_zfs_arc_l2_io_error 0
+# HELP node_zfs_arc_l2_misses kstat.zfs.misc.arcstats.l2_misses
+# TYPE node_zfs_arc_l2_misses untyped
+node_zfs_arc_l2_misses 0
+# HELP node_zfs_arc_l2_read_bytes kstat.zfs.misc.arcstats.l2_read_bytes
+# TYPE node_zfs_arc_l2_read_bytes untyped
+node_zfs_arc_l2_read_bytes 0
+# HELP node_zfs_arc_l2_rw_clash kstat.zfs.misc.arcstats.l2_rw_clash
+# TYPE node_zfs_arc_l2_rw_clash untyped
+node_zfs_arc_l2_rw_clash 0
+# HELP node_zfs_arc_l2_size kstat.zfs.misc.arcstats.l2_size
+# TYPE node_zfs_arc_l2_size untyped
+node_zfs_arc_l2_size 0
+# HELP node_zfs_arc_l2_write_bytes kstat.zfs.misc.arcstats.l2_write_bytes
+# TYPE node_zfs_arc_l2_write_bytes untyped
+node_zfs_arc_l2_write_bytes 0
+# HELP node_zfs_arc_l2_writes_done kstat.zfs.misc.arcstats.l2_writes_done
+# TYPE node_zfs_arc_l2_writes_done untyped
+node_zfs_arc_l2_writes_done 0
+# HELP node_zfs_arc_l2_writes_error kstat.zfs.misc.arcstats.l2_writes_error
+# TYPE node_zfs_arc_l2_writes_error untyped
+node_zfs_arc_l2_writes_error 0
+# HELP node_zfs_arc_l2_writes_lock_retry kstat.zfs.misc.arcstats.l2_writes_lock_retry
+# TYPE node_zfs_arc_l2_writes_lock_retry untyped
+node_zfs_arc_l2_writes_lock_retry 0
+# HELP node_zfs_arc_l2_writes_sent kstat.zfs.misc.arcstats.l2_writes_sent
+# TYPE node_zfs_arc_l2_writes_sent untyped
+node_zfs_arc_l2_writes_sent 0
+# HELP node_zfs_arc_memory_direct_count kstat.zfs.misc.arcstats.memory_direct_count
+# TYPE node_zfs_arc_memory_direct_count untyped
+node_zfs_arc_memory_direct_count 542
+# HELP node_zfs_arc_memory_indirect_count kstat.zfs.misc.arcstats.memory_indirect_count
+# TYPE node_zfs_arc_memory_indirect_count untyped
+node_zfs_arc_memory_indirect_count 3006
+# HELP node_zfs_arc_memory_throttle_count kstat.zfs.misc.arcstats.memory_throttle_count
+# TYPE node_zfs_arc_memory_throttle_count untyped
+node_zfs_arc_memory_throttle_count 0
+# HELP node_zfs_arc_metadata_size kstat.zfs.misc.arcstats.metadata_size
+# TYPE node_zfs_arc_metadata_size untyped
+node_zfs_arc_metadata_size 1.7529856e+08
+# HELP node_zfs_arc_mfu_evictable_data kstat.zfs.misc.arcstats.mfu_evictable_data
+# TYPE node_zfs_arc_mfu_evictable_data untyped
+node_zfs_arc_mfu_evictable_data 1.017613824e+09
+# HELP node_zfs_arc_mfu_evictable_metadata kstat.zfs.misc.arcstats.mfu_evictable_metadata
+# TYPE node_zfs_arc_mfu_evictable_metadata untyped
+node_zfs_arc_mfu_evictable_metadata 9.163776e+06
+# HELP node_zfs_arc_mfu_ghost_evictable_data kstat.zfs.misc.arcstats.mfu_ghost_evictable_data
+# TYPE node_zfs_arc_mfu_ghost_evictable_data untyped
+node_zfs_arc_mfu_ghost_evictable_data 9.6731136e+07
+# HELP node_zfs_arc_mfu_ghost_evictable_metadata kstat.zfs.misc.arcstats.mfu_ghost_evictable_metadata
+# TYPE node_zfs_arc_mfu_ghost_evictable_metadata untyped
+node_zfs_arc_mfu_ghost_evictable_metadata 8.205312e+06
+# HELP node_zfs_arc_mfu_ghost_hits kstat.zfs.misc.arcstats.mfu_ghost_hits
+# TYPE node_zfs_arc_mfu_ghost_hits untyped
+node_zfs_arc_mfu_ghost_hits 821
+# HELP node_zfs_arc_mfu_ghost_size kstat.zfs.misc.arcstats.mfu_ghost_size
+# TYPE node_zfs_arc_mfu_ghost_size untyped
+node_zfs_arc_mfu_ghost_size 1.04936448e+08
+# HELP node_zfs_arc_mfu_hits kstat.zfs.misc.arcstats.mfu_hits
+# TYPE node_zfs_arc_mfu_hits untyped
+node_zfs_arc_mfu_hits 7.829854e+06
+# HELP node_zfs_arc_mfu_size kstat.zfs.misc.arcstats.mfu_size
+# TYPE node_zfs_arc_mfu_size untyped
+node_zfs_arc_mfu_size 1.066623488e+09
+# HELP node_zfs_arc_misses kstat.zfs.misc.arcstats.misses
+# TYPE node_zfs_arc_misses untyped
+node_zfs_arc_misses 604635
+# HELP node_zfs_arc_mru_evictable_data kstat.zfs.misc.arcstats.mru_evictable_data
+# TYPE node_zfs_arc_mru_evictable_data untyped
+node_zfs_arc_mru_evictable_data 2.78091264e+08
+# HELP node_zfs_arc_mru_evictable_metadata kstat.zfs.misc.arcstats.mru_evictable_metadata
+# TYPE node_zfs_arc_mru_evictable_metadata untyped
+node_zfs_arc_mru_evictable_metadata 1.8606592e+07
+# HELP node_zfs_arc_mru_ghost_evictable_data kstat.zfs.misc.arcstats.mru_ghost_evictable_data
+# TYPE node_zfs_arc_mru_ghost_evictable_data untyped
+node_zfs_arc_mru_ghost_evictable_data 8.83765248e+08
+# HELP node_zfs_arc_mru_ghost_evictable_metadata kstat.zfs.misc.arcstats.mru_ghost_evictable_metadata
+# TYPE node_zfs_arc_mru_ghost_evictable_metadata untyped
+node_zfs_arc_mru_ghost_evictable_metadata 1.1596288e+08
+# HELP node_zfs_arc_mru_ghost_hits kstat.zfs.misc.arcstats.mru_ghost_hits
+# TYPE node_zfs_arc_mru_ghost_hits untyped
+node_zfs_arc_mru_ghost_hits 21100
+# HELP node_zfs_arc_mru_ghost_size kstat.zfs.misc.arcstats.mru_ghost_size
+# TYPE node_zfs_arc_mru_ghost_size untyped
+node_zfs_arc_mru_ghost_size 9.99728128e+08
+# HELP node_zfs_arc_mru_hits kstat.zfs.misc.arcstats.mru_hits
+# TYPE node_zfs_arc_mru_hits untyped
+node_zfs_arc_mru_hits 855535
+# HELP node_zfs_arc_mru_size kstat.zfs.misc.arcstats.mru_size
+# TYPE node_zfs_arc_mru_size untyped
+node_zfs_arc_mru_size 4.02593792e+08
+# HELP node_zfs_arc_mutex_miss kstat.zfs.misc.arcstats.mutex_miss
+# TYPE node_zfs_arc_mutex_miss untyped
+node_zfs_arc_mutex_miss 2
+# HELP node_zfs_arc_other_size kstat.zfs.misc.arcstats.other_size
+# TYPE node_zfs_arc_other_size untyped
+node_zfs_arc_other_size 1.16443992e+08
+# HELP node_zfs_arc_p kstat.zfs.misc.arcstats.p
+# TYPE node_zfs_arc_p untyped
+node_zfs_arc_p 5.16395305e+08
+# HELP node_zfs_arc_prefetch_data_hits kstat.zfs.misc.arcstats.prefetch_data_hits
+# TYPE node_zfs_arc_prefetch_data_hits untyped
+node_zfs_arc_prefetch_data_hits 3615
+# HELP node_zfs_arc_prefetch_data_misses kstat.zfs.misc.arcstats.prefetch_data_misses
+# TYPE node_zfs_arc_prefetch_data_misses untyped
+node_zfs_arc_prefetch_data_misses 17094
+# HELP node_zfs_arc_prefetch_metadata_hits kstat.zfs.misc.arcstats.prefetch_metadata_hits
+# TYPE node_zfs_arc_prefetch_metadata_hits untyped
+node_zfs_arc_prefetch_metadata_hits 83612
+# HELP node_zfs_arc_prefetch_metadata_misses kstat.zfs.misc.arcstats.prefetch_metadata_misses
+# TYPE node_zfs_arc_prefetch_metadata_misses untyped
+node_zfs_arc_prefetch_metadata_misses 16071
+# HELP node_zfs_arc_size kstat.zfs.misc.arcstats.size
+# TYPE node_zfs_arc_size untyped
+node_zfs_arc_size 1.603939792e+09
+# HELP node_zfs_dmu_tx_dmu_tx_assigned kstat.zfs.misc.dmu_tx.dmu_tx_assigned
+# TYPE node_zfs_dmu_tx_dmu_tx_assigned untyped
+node_zfs_dmu_tx_dmu_tx_assigned 3.532844e+06
+# HELP node_zfs_dmu_tx_dmu_tx_delay kstat.zfs.misc.dmu_tx.dmu_tx_delay
+# TYPE node_zfs_dmu_tx_dmu_tx_delay untyped
+node_zfs_dmu_tx_dmu_tx_delay 0
+# HELP node_zfs_dmu_tx_dmu_tx_dirty_delay kstat.zfs.misc.dmu_tx.dmu_tx_dirty_delay
+# TYPE node_zfs_dmu_tx_dmu_tx_dirty_delay untyped
+node_zfs_dmu_tx_dmu_tx_dirty_delay 0
+# HELP node_zfs_dmu_tx_dmu_tx_dirty_over_max kstat.zfs.misc.dmu_tx.dmu_tx_dirty_over_max
+# TYPE node_zfs_dmu_tx_dmu_tx_dirty_over_max untyped
+node_zfs_dmu_tx_dmu_tx_dirty_over_max 0
+# HELP node_zfs_dmu_tx_dmu_tx_dirty_throttle kstat.zfs.misc.dmu_tx.dmu_tx_dirty_throttle
+# TYPE node_zfs_dmu_tx_dmu_tx_dirty_throttle untyped
+node_zfs_dmu_tx_dmu_tx_dirty_throttle 0
+# HELP node_zfs_dmu_tx_dmu_tx_error kstat.zfs.misc.dmu_tx.dmu_tx_error
+# TYPE node_zfs_dmu_tx_dmu_tx_error untyped
+node_zfs_dmu_tx_dmu_tx_error 0
+# HELP node_zfs_dmu_tx_dmu_tx_group kstat.zfs.misc.dmu_tx.dmu_tx_group
+# TYPE node_zfs_dmu_tx_dmu_tx_group untyped
+node_zfs_dmu_tx_dmu_tx_group 0
+# HELP node_zfs_dmu_tx_dmu_tx_memory_reclaim kstat.zfs.misc.dmu_tx.dmu_tx_memory_reclaim
+# TYPE node_zfs_dmu_tx_dmu_tx_memory_reclaim untyped
+node_zfs_dmu_tx_dmu_tx_memory_reclaim 0
+# HELP node_zfs_dmu_tx_dmu_tx_memory_reserve kstat.zfs.misc.dmu_tx.dmu_tx_memory_reserve
+# TYPE node_zfs_dmu_tx_dmu_tx_memory_reserve untyped
+node_zfs_dmu_tx_dmu_tx_memory_reserve 0
+# HELP node_zfs_dmu_tx_dmu_tx_quota kstat.zfs.misc.dmu_tx.dmu_tx_quota
+# TYPE node_zfs_dmu_tx_dmu_tx_quota untyped
+node_zfs_dmu_tx_dmu_tx_quota 0
+# HELP node_zfs_dmu_tx_dmu_tx_suspended kstat.zfs.misc.dmu_tx.dmu_tx_suspended
+# TYPE node_zfs_dmu_tx_dmu_tx_suspended untyped
+node_zfs_dmu_tx_dmu_tx_suspended 0
+# HELP node_zfs_fm_erpt-dropped kstat.zfs.misc.fm.erpt-dropped
+# TYPE node_zfs_fm_erpt-dropped untyped
+node_zfs_fm_erpt-dropped 18
+# HELP node_zfs_fm_erpt-set-failed kstat.zfs.misc.fm.erpt-set-failed
+# TYPE node_zfs_fm_erpt-set-failed untyped
+node_zfs_fm_erpt-set-failed 0
+# HELP node_zfs_fm_fmri-set-failed kstat.zfs.misc.fm.fmri-set-failed
+# TYPE node_zfs_fm_fmri-set-failed untyped
+node_zfs_fm_fmri-set-failed 0
+# HELP node_zfs_fm_payload-set-failed kstat.zfs.misc.fm.payload-set-failed
+# TYPE node_zfs_fm_payload-set-failed untyped
+node_zfs_fm_payload-set-failed 0
+# HELP node_zfs_vdev_cache_delegations kstat.zfs.misc.vdev_cache_stats.delegations
+# TYPE node_zfs_vdev_cache_delegations untyped
+node_zfs_vdev_cache_delegations 40
+# HELP node_zfs_vdev_cache_hits kstat.zfs.misc.vdev_cache_stats.hits
+# TYPE node_zfs_vdev_cache_hits untyped
+node_zfs_vdev_cache_hits 0
+# HELP node_zfs_vdev_cache_misses kstat.zfs.misc.vdev_cache_stats.misses
+# TYPE node_zfs_vdev_cache_misses untyped
+node_zfs_vdev_cache_misses 0
+# HELP node_zfs_xuio_onloan_read_buf kstat.zfs.misc.xuio_stats.onloan_read_buf
+# TYPE node_zfs_xuio_onloan_read_buf untyped
+node_zfs_xuio_onloan_read_buf 32
+# HELP node_zfs_xuio_onloan_write_buf kstat.zfs.misc.xuio_stats.onloan_write_buf
+# TYPE node_zfs_xuio_onloan_write_buf untyped
+node_zfs_xuio_onloan_write_buf 0
+# HELP node_zfs_xuio_read_buf_copied kstat.zfs.misc.xuio_stats.read_buf_copied
+# TYPE node_zfs_xuio_read_buf_copied untyped
+node_zfs_xuio_read_buf_copied 0
+# HELP node_zfs_xuio_read_buf_nocopy kstat.zfs.misc.xuio_stats.read_buf_nocopy
+# TYPE node_zfs_xuio_read_buf_nocopy untyped
+node_zfs_xuio_read_buf_nocopy 0
+# HELP node_zfs_xuio_write_buf_copied kstat.zfs.misc.xuio_stats.write_buf_copied
+# TYPE node_zfs_xuio_write_buf_copied untyped
+node_zfs_xuio_write_buf_copied 0
+# HELP node_zfs_xuio_write_buf_nocopy kstat.zfs.misc.xuio_stats.write_buf_nocopy
+# TYPE node_zfs_xuio_write_buf_nocopy untyped
+node_zfs_xuio_write_buf_nocopy 0
+# HELP node_zfs_zfetch_bogus_streams kstat.zfs.misc.zfetchstats.bogus_streams
+# TYPE node_zfs_zfetch_bogus_streams untyped
+node_zfs_zfetch_bogus_streams 0
+# HELP node_zfs_zfetch_colinear_hits kstat.zfs.misc.zfetchstats.colinear_hits
+# TYPE node_zfs_zfetch_colinear_hits untyped
+node_zfs_zfetch_colinear_hits 0
+# HELP node_zfs_zfetch_colinear_misses kstat.zfs.misc.zfetchstats.colinear_misses
+# TYPE node_zfs_zfetch_colinear_misses untyped
+node_zfs_zfetch_colinear_misses 11
+# HELP node_zfs_zfetch_hits kstat.zfs.misc.zfetchstats.hits
+# TYPE node_zfs_zfetch_hits untyped
+node_zfs_zfetch_hits 7.067992e+06
+# HELP node_zfs_zfetch_misses kstat.zfs.misc.zfetchstats.misses
+# TYPE node_zfs_zfetch_misses untyped
+node_zfs_zfetch_misses 11
+# HELP node_zfs_zfetch_reclaim_failures kstat.zfs.misc.zfetchstats.reclaim_failures
+# TYPE node_zfs_zfetch_reclaim_failures untyped
+node_zfs_zfetch_reclaim_failures 11
+# HELP node_zfs_zfetch_reclaim_successes kstat.zfs.misc.zfetchstats.reclaim_successes
+# TYPE node_zfs_zfetch_reclaim_successes untyped
+node_zfs_zfetch_reclaim_successes 0
+# HELP node_zfs_zfetch_streams_noresets kstat.zfs.misc.zfetchstats.streams_noresets
+# TYPE node_zfs_zfetch_streams_noresets untyped
+node_zfs_zfetch_streams_noresets 2
+# HELP node_zfs_zfetch_streams_resets kstat.zfs.misc.zfetchstats.streams_resets
+# TYPE node_zfs_zfetch_streams_resets untyped
+node_zfs_zfetch_streams_resets 0
+# HELP node_zfs_zfetch_stride_hits kstat.zfs.misc.zfetchstats.stride_hits
+# TYPE node_zfs_zfetch_stride_hits untyped
+node_zfs_zfetch_stride_hits 7.06799e+06
+# HELP node_zfs_zfetch_stride_misses kstat.zfs.misc.zfetchstats.stride_misses
+# TYPE node_zfs_zfetch_stride_misses untyped
+node_zfs_zfetch_stride_misses 0
+# HELP node_zfs_zil_zil_commit_count kstat.zfs.misc.zil.zil_commit_count
+# TYPE node_zfs_zil_zil_commit_count untyped
+node_zfs_zil_zil_commit_count 10
+# HELP node_zfs_zil_zil_commit_writer_count kstat.zfs.misc.zil.zil_commit_writer_count
+# TYPE node_zfs_zil_zil_commit_writer_count untyped
+node_zfs_zil_zil_commit_writer_count 0
+# HELP node_zfs_zil_zil_itx_copied_bytes kstat.zfs.misc.zil.zil_itx_copied_bytes
+# TYPE node_zfs_zil_zil_itx_copied_bytes untyped
+node_zfs_zil_zil_itx_copied_bytes 0
+# HELP node_zfs_zil_zil_itx_copied_count kstat.zfs.misc.zil.zil_itx_copied_count
+# TYPE node_zfs_zil_zil_itx_copied_count untyped
+node_zfs_zil_zil_itx_copied_count 0
+# HELP node_zfs_zil_zil_itx_count kstat.zfs.misc.zil.zil_itx_count
+# TYPE node_zfs_zil_zil_itx_count untyped
+node_zfs_zil_zil_itx_count 0
+# HELP node_zfs_zil_zil_itx_indirect_bytes kstat.zfs.misc.zil.zil_itx_indirect_bytes
+# TYPE node_zfs_zil_zil_itx_indirect_bytes untyped
+node_zfs_zil_zil_itx_indirect_bytes 0
+# HELP node_zfs_zil_zil_itx_indirect_count kstat.zfs.misc.zil.zil_itx_indirect_count
+# TYPE node_zfs_zil_zil_itx_indirect_count untyped
+node_zfs_zil_zil_itx_indirect_count 0
+# HELP node_zfs_zil_zil_itx_metaslab_normal_bytes kstat.zfs.misc.zil.zil_itx_metaslab_normal_bytes
+# TYPE node_zfs_zil_zil_itx_metaslab_normal_bytes untyped
+node_zfs_zil_zil_itx_metaslab_normal_bytes 0
+# HELP node_zfs_zil_zil_itx_metaslab_normal_count kstat.zfs.misc.zil.zil_itx_metaslab_normal_count
+# TYPE node_zfs_zil_zil_itx_metaslab_normal_count untyped
+node_zfs_zil_zil_itx_metaslab_normal_count 0
+# HELP node_zfs_zil_zil_itx_metaslab_slog_bytes kstat.zfs.misc.zil.zil_itx_metaslab_slog_bytes
+# TYPE node_zfs_zil_zil_itx_metaslab_slog_bytes untyped
+node_zfs_zil_zil_itx_metaslab_slog_bytes 0
+# HELP node_zfs_zil_zil_itx_metaslab_slog_count kstat.zfs.misc.zil.zil_itx_metaslab_slog_count
+# TYPE node_zfs_zil_zil_itx_metaslab_slog_count untyped
+node_zfs_zil_zil_itx_metaslab_slog_count 0
+# HELP node_zfs_zil_zil_itx_needcopy_bytes kstat.zfs.misc.zil.zil_itx_needcopy_bytes
+# TYPE node_zfs_zil_zil_itx_needcopy_bytes untyped
+node_zfs_zil_zil_itx_needcopy_bytes 0
+# HELP node_zfs_zil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
+# TYPE node_zfs_zil_zil_itx_needcopy_count untyped
+node_zfs_zil_zil_itx_needcopy_count 0
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.

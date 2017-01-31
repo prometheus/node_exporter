@@ -15,10 +15,10 @@ package collector
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -26,32 +26,28 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-const (
-	zfsArcstatsProcpath = "spl/kstat/zfs/arcstats"
-)
-
-func (c *zfsCollector) openArcstatsFile() (file *os.File, err error) {
-	file, err = os.Open(procFilePath(zfsArcstatsProcpath))
+func (c *zfsCollector) openProcFile(path string) (file *os.File, err error) {
+	file, err = os.Open(procFilePath(path))
 	if err != nil {
-		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(zfsArcstatsProcpath))
+		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(path))
 		err = zfsNotAvailableError
 	}
 	return
 }
 
-func (c *zfsCollector) updateArcstats(ch chan<- prometheus.Metric) (err error) {
-	file, err := c.openArcstatsFile()
+func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Metric) (err error) {
+	file, err := c.openProcFile(filepath.Join(c.linuxProcpathBase, c.linuxPathMap[subsystem]))
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return c.parseArcstatsProcfsFile(file, func(s zfsSysctl, v zfsMetricValue) {
-		ch <- c.constSysctlMetric(arc, s, v)
+	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v int) {
+		ch <- c.constSysctlMetric(subsystem, s, v)
 	})
 }
 
-func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zfsSysctl, zfsMetricValue)) (err error) {
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, int)) (err error) {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -69,17 +65,17 @@ func (c *zfsCollector) parseArcstatsProcfsFile(reader io.Reader, handler func(zf
 			continue
 		}
 
-		key := fmt.Sprintf("kstat.zfs.misc.arcstats.%s", parts[0])
+		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
 
 		value, err := strconv.Atoi(parts[2])
 		if err != nil {
 			return fmt.Errorf("could not parse expected integer value for %q", key)
 		}
-		handler(zfsSysctl(key), zfsMetricValue(value))
+		handler(zfsSysctl(key), value)
 
 	}
 	if !parseLine {
-		return errors.New("did not parse a single arcstat metric")
+		return fmt.Errorf("did not parse a single %q metric", fmtExt)
 	}
 
 	return scanner.Err()

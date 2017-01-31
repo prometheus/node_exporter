@@ -1,0 +1,13 @@
+4 1 0x01 11 528 8010434610 345692669858836
+name                            type data
+hits                            4    7067992
+misses                          4    11
+colinear_hits                   4    0
+colinear_misses                 4    11
+stride_hits                     4    7067990
+stride_misses                   4    0
+reclaim_successes               4    0
+reclaim_failures                4    11
+streams_resets                  4    0
+streams_noresets                4    2
+bogus_streams                   4    0
