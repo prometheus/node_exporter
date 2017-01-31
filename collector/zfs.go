@@ -81,7 +81,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 func (s zfsSysctl) metricName() string {
 	parts := strings.Split(string(s), ".")
-	return parts[len(parts)-1]
+	return strings.Replace(parts[len(parts)-1], "-", "_", -1)
 }
 
 func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, value int) prometheus.Metric {
