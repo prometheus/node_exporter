@@ -47,6 +47,35 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 	})
 }
 
+func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) {
+	zpoolPaths, err := filepath.Glob(procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolIoPath)))
+	if err != nil {
+		return err
+	}
+
+	if zpoolPaths == nil {
+		return nil
+	}
+
+	for _, zpoolPath := range zpoolPaths {
+		file, err := os.Open(zpoolPath)
+		if err != nil {
+			log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", zpoolPath)
+			return zfsNotAvailableError
+		}
+
+		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v int) {
+			ch <- c.constPoolMetric(poolName, s, v)
+		})
+		file.Close()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, int)) (err error) {
 	scanner := bufio.NewScanner(reader)
 
@@ -81,6 +110,44 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 	return scanner.Err()
 }
 
-func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) {
-	return nil
+func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, handler func(string, zfsSysctl, int)) (err error) {
+	scanner := bufio.NewScanner(reader)
+
+	parseLine := false
+	var fields []string
+	for scanner.Scan() {
+
+		line := strings.Fields(scanner.Text())
+
+		if !parseLine && len(line) >= 12 && line[0] == "nread" {
+			//Start parsing from here.
+			parseLine = true
+			fields = make([]string, len(line))
+			copy(fields, line)
+			continue
+		}
+		if !parseLine {
+			continue
+		}
+
+		zpoolPathElements := strings.Split(zpoolPath, "/")
+		pathLen := len(zpoolPathElements)
+		if pathLen < 2 {
+			return fmt.Errorf("zpool path did not return at least two elements")
+		}
+		zpoolName := zpoolPathElements[pathLen-2]
+		zpoolFile := zpoolPathElements[pathLen-1]
+
+		for i, field := range fields {
+			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", zpoolFile, field)
+
+			value, err := strconv.Atoi(line[i])
+			if err != nil {
+				return fmt.Errorf("could not parse expected integer value for %q: %v", key, err)
+			}
+			handler(zpoolName, zfsSysctl(key), value)
+		}
+	}
+
+	return scanner.Err()
 }
