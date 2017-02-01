@@ -2383,18 +2383,18 @@ node_zfs_dmu_tx_dmu_tx_quota 0
 # HELP node_zfs_dmu_tx_dmu_tx_suspended kstat.zfs.misc.dmu_tx.dmu_tx_suspended
 # TYPE node_zfs_dmu_tx_dmu_tx_suspended untyped
 node_zfs_dmu_tx_dmu_tx_suspended 0
-# HELP node_zfs_fm_erpt-dropped kstat.zfs.misc.fm.erpt-dropped
-# TYPE node_zfs_fm_erpt-dropped untyped
-node_zfs_fm_erpt-dropped 18
-# HELP node_zfs_fm_erpt-set-failed kstat.zfs.misc.fm.erpt-set-failed
-# TYPE node_zfs_fm_erpt-set-failed untyped
-node_zfs_fm_erpt-set-failed 0
-# HELP node_zfs_fm_fmri-set-failed kstat.zfs.misc.fm.fmri-set-failed
-# TYPE node_zfs_fm_fmri-set-failed untyped
-node_zfs_fm_fmri-set-failed 0
-# HELP node_zfs_fm_payload-set-failed kstat.zfs.misc.fm.payload-set-failed
-# TYPE node_zfs_fm_payload-set-failed untyped
-node_zfs_fm_payload-set-failed 0
+# HELP node_zfs_fm_erpt_dropped kstat.zfs.misc.fm.erpt-dropped
+# TYPE node_zfs_fm_erpt_dropped untyped
+node_zfs_fm_erpt_dropped 18
+# HELP node_zfs_fm_erpt_set_failed kstat.zfs.misc.fm.erpt-set-failed
+# TYPE node_zfs_fm_erpt_set_failed untyped
+node_zfs_fm_erpt_set_failed 0
+# HELP node_zfs_fm_fmri_set_failed kstat.zfs.misc.fm.fmri-set-failed
+# TYPE node_zfs_fm_fmri_set_failed untyped
+node_zfs_fm_fmri_set_failed 0
+# HELP node_zfs_fm_payload_set_failed kstat.zfs.misc.fm.payload-set-failed
+# TYPE node_zfs_fm_payload_set_failed untyped
+node_zfs_fm_payload_set_failed 0
 # HELP node_zfs_vdev_cache_delegations kstat.zfs.misc.vdev_cache_stats.delegations
 # TYPE node_zfs_vdev_cache_delegations untyped
 node_zfs_vdev_cache_delegations 40
