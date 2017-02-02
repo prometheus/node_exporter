@@ -22,30 +22,66 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+type sysctlType uint8
+
+const (
+	t_uint32 sysctlType = iota
+	t_uint64
+)
+
+type meminfoSysctl struct {
+	oid        string
+	dataType   sysctlType
+	conversion func(uint64) uint64
+}
+
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
+	var tmp32 uint32
+	var tmp64 uint64
+	var err error
+
 	info := make(map[string]float64)
 
-	size, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
+	tmp32, err = unix.SysctlUint32("vm.stats.vm.v_page_size")
 	if err != nil {
 		return nil, fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %s", err)
 	}
+	size := uint64(tmp32)
+	fromPage := func(v uint64) uint64 {
+		return v * size
+	}
 
-	for key, v := range map[string]string{
-		"active":     "vm.stats.vm.v_active_count",
-		"inactive":   "vm.stats.vm.v_inactive_count",
-		"wire":       "vm.stats.vm.v_wire_count",
-		"cache":      "vm.stats.vm.v_cache_count",
-		"free":       "vm.stats.vm.v_free_count",
-		"swappgsin":  "vm.stats.vm.v_swappgsin",
-		"swappgsout": "vm.stats.vm.v_swappgsout",
-		"total":      "vm.stats.vm.v_page_count",
+	for key, v := range map[string]meminfoSysctl{
+		"active":    {"vm.stats.vm.v_active_count", t_uint32, fromPage},
+		"inactive":  {"vm.stats.vm.v_inactive_count", t_uint32, fromPage},
+		"wire":      {"vm.stats.vm.v_wire_count", t_uint32, fromPage},
+		"cache":     {"vm.stats.vm.v_cache_count", t_uint32, fromPage},
+		"buffer":    {"vfs.bufspace", t_uint32, nil},
+		"free":      {"vm.stats.vm.v_free_count", t_uint32, fromPage},
+		"total":     {"vm.stats.vm.v_page_count", t_uint32, fromPage},
+		"swapin":    {"vm.stats.vm.v_swappgsin", t_uint32, fromPage},
+		"swapout":   {"vm.stats.vm.v_swappgsout", t_uint32, fromPage},
+		"swaptotal": {"vm.swap_total", t_uint64, nil},
 	} {
-		value, err := unix.SysctlUint32(v)
+		switch v.dataType {
+		case t_uint32:
+			tmp32, err = unix.SysctlUint32(v.oid)
+			tmp64 = uint64(tmp32)
+		case t_uint64:
+			tmp64, err = unix.SysctlUint64(v.oid)
+		}
 		if err != nil {
 			return nil, err
 		}
-		// Convert metrics to kB (same as Linux meminfo).
-		info[key] = float64(value) * float64(size)
+
+		if v.conversion != nil {
+			// convert to bytes
+			info[key] = float64(v.conversion(tmp64))
+			continue
+		}
+
+		info[key] = float64(tmp64)
 	}
+
 	return info, nil
 }
