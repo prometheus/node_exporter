@@ -30,7 +30,7 @@ const (
 )
 
 type meminfoSysctl struct {
-	oid        string
+	name       string
 	dataType   sysctlType
 	conversion func(uint64) uint64
 }
@@ -52,23 +52,23 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	}
 
 	for key, v := range map[string]meminfoSysctl{
-		"active":    {"vm.stats.vm.v_active_count", t_uint32, fromPage},
-		"inactive":  {"vm.stats.vm.v_inactive_count", t_uint32, fromPage},
-		"wire":      {"vm.stats.vm.v_wire_count", t_uint32, fromPage},
-		"cache":     {"vm.stats.vm.v_cache_count", t_uint32, fromPage},
-		"buffer":    {"vfs.bufspace", t_uint32, nil},
-		"free":      {"vm.stats.vm.v_free_count", t_uint32, fromPage},
-		"total":     {"vm.stats.vm.v_page_count", t_uint32, fromPage},
-		"swapin":    {"vm.stats.vm.v_swappgsin", t_uint32, fromPage},
-		"swapout":   {"vm.stats.vm.v_swappgsout", t_uint32, fromPage},
-		"swaptotal": {"vm.swap_total", t_uint64, nil},
+		"active_bytes":         {"vm.stats.vm.v_active_count", t_uint32, fromPage},
+		"inactive_bytes":       {"vm.stats.vm.v_inactive_count", t_uint32, fromPage},
+		"wire_bytes":           {"vm.stats.vm.v_wire_count", t_uint32, fromPage},
+		"cache_bytes":          {"vm.stats.vm.v_cache_count", t_uint32, fromPage},
+		"buffer_bytes":         {"vfs.bufspace", t_uint32, nil},
+		"free_bytes":           {"vm.stats.vm.v_free_count", t_uint32, fromPage},
+		"size_bytes":           {"vm.stats.vm.v_page_count", t_uint32, fromPage},
+		"swap_in_bytes_total":  {"vm.stats.vm.v_swappgsin", t_uint32, fromPage},
+		"swap_out_bytes_total": {"vm.stats.vm.v_swappgsout", t_uint32, fromPage},
+		"swap_size_bytes":      {"vm.swap_total", t_uint64, nil},
 	} {
 		switch v.dataType {
 		case t_uint32:
-			tmp32, err = unix.SysctlUint32(v.oid)
+			tmp32, err = unix.SysctlUint32(v.name)
 			tmp64 = uint64(tmp32)
 		case t_uint64:
-			tmp64, err = unix.SysctlUint64(v.oid)
+			tmp64, err = unix.SysctlUint64(v.name)
 		}
 		if err != nil {
 			return nil, err
