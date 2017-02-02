@@ -7,4 +7,3 @@ go:
 
 script:
 - make
-- ./end-to-end-test.sh
