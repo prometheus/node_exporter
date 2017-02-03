@@ -36,9 +36,6 @@ type meminfoSysctl struct {
 }
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
-	var tmp64 uint64
-	var err error
-
 	info := make(map[string]float64)
 
 	tmp32, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
@@ -53,7 +50,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	for key, v := range map[string]meminfoSysctl{
 		"active_bytes":         {"vm.stats.vm.v_active_count", t_uint32, fromPage},
 		"inactive_bytes":       {"vm.stats.vm.v_inactive_count", t_uint32, fromPage},
-		"wire_bytes":           {"vm.stats.vm.v_wire_count", t_uint32, fromPage},
+		"wired_bytes":          {"vm.stats.vm.v_wire_count", t_uint32, fromPage},
 		"cache_bytes":          {"vm.stats.vm.v_cache_count", t_uint32, fromPage},
 		"buffer_bytes":         {"vfs.bufspace", t_uint32, nil},
 		"free_bytes":           {"vm.stats.vm.v_free_count", t_uint32, fromPage},
@@ -62,6 +59,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		"swap_out_bytes_total": {"vm.stats.vm.v_swappgsout", t_uint32, fromPage},
 		"swap_size_bytes":      {"vm.swap_total", t_uint64, nil},
 	} {
+		var tmp64 uint64
 		switch v.dataType {
 		case t_uint32:
 			tmp32, err = unix.SysctlUint32(v.name)
