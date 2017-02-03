@@ -25,8 +25,8 @@ import (
 type sysctlType uint8
 
 const (
-	t_uint32 sysctlType = iota
-	t_uint64
+	sysctlTypeUint32 sysctlType = iota
+	sysctlTypeUint64
 )
 
 type meminfoSysctl struct {
@@ -48,23 +48,23 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	}
 
 	for key, v := range map[string]meminfoSysctl{
-		"active_bytes":         {"vm.stats.vm.v_active_count", t_uint32, fromPage},
-		"inactive_bytes":       {"vm.stats.vm.v_inactive_count", t_uint32, fromPage},
-		"wired_bytes":          {"vm.stats.vm.v_wire_count", t_uint32, fromPage},
-		"cache_bytes":          {"vm.stats.vm.v_cache_count", t_uint32, fromPage},
-		"buffer_bytes":         {"vfs.bufspace", t_uint32, nil},
-		"free_bytes":           {"vm.stats.vm.v_free_count", t_uint32, fromPage},
-		"size_bytes":           {"vm.stats.vm.v_page_count", t_uint32, fromPage},
-		"swap_in_bytes_total":  {"vm.stats.vm.v_swappgsin", t_uint32, fromPage},
-		"swap_out_bytes_total": {"vm.stats.vm.v_swappgsout", t_uint32, fromPage},
-		"swap_size_bytes":      {"vm.swap_total", t_uint64, nil},
+		"active_bytes":         {"vm.stats.vm.v_active_count", sysctlTypeUint32, fromPage},
+		"inactive_bytes":       {"vm.stats.vm.v_inactive_count", sysctlTypeUint32, fromPage},
+		"wired_bytes":          {"vm.stats.vm.v_wire_count", sysctlTypeUint32, fromPage},
+		"cache_bytes":          {"vm.stats.vm.v_cache_count", sysctlTypeUint32, fromPage},
+		"buffer_bytes":         {"vfs.bufspace", sysctlTypeUint32, nil},
+		"free_bytes":           {"vm.stats.vm.v_free_count", sysctlTypeUint32, fromPage},
+		"size_bytes":           {"vm.stats.vm.v_page_count", sysctlTypeUint32, fromPage},
+		"swap_in_bytes_total":  {"vm.stats.vm.v_swappgsin", sysctlTypeUint32, fromPage},
+		"swap_out_bytes_total": {"vm.stats.vm.v_swappgsout", sysctlTypeUint32, fromPage},
+		"swap_size_bytes":      {"vm.swap_total", sysctlTypeUint64, nil},
 	} {
 		var tmp64 uint64
 		switch v.dataType {
-		case t_uint32:
+		case sysctlTypeUint32:
 			tmp32, err = unix.SysctlUint32(v.name)
 			tmp64 = uint64(tmp32)
-		case t_uint64:
+		case sysctlTypeUint64:
 			tmp64, err = unix.SysctlUint64(v.name)
 		}
 		if err != nil {
