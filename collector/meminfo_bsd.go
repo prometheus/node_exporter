@@ -36,13 +36,12 @@ type meminfoSysctl struct {
 }
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
-	var tmp32 uint32
 	var tmp64 uint64
 	var err error
 
 	info := make(map[string]float64)
 
-	tmp32, err = unix.SysctlUint32("vm.stats.vm.v_page_size")
+	tmp32, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
 	if err != nil {
 		return nil, fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %s", err)
 	}
@@ -75,7 +74,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		}
 
 		if v.conversion != nil {
-			// convert to bytes
+			// Convert to bytes.
 			info[key] = float64(v.conversion(tmp64))
 			continue
 		}
