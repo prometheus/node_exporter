@@ -39,6 +39,7 @@ textfile | Exposes statistics read from local disk. The `--collector.textfile.di
 time | Exposes the current system time. | _any_
 uname | Exposes system information as provided by the uname system call. | Linux
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
+wifi | Exposes WiFi device and station statistics. | Linux
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/)
 
 ### Disabled by default
@@ -59,7 +60,6 @@ runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
-wifi | Exposes WiFi device and station statistics. | Linux
 
 ### Deprecated
 
