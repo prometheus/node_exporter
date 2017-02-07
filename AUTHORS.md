@@ -32,6 +32,7 @@ The following individuals have contributed code to this repository
 * Ken Herner <ken@modulus.io>
 * Matt Layher <mdlayher@gmail.com>
 * Matthias Rampke <matthias@rampke.de>
+* Robert Clark <robert.d.clark@hpe.com>
 * Siavash Safi <siavash.safi@gmail.com>
 * Stephen Shirley <kormat@gmail.com>
 * Steve Durrheimer <s.durrheimer@gmail.com>
