@@ -82,6 +82,41 @@ node_bonding_slaves{master="int"} 2
 # HELP node_boot_time Node boot time, in unixtime.
 # TYPE node_boot_time gauge
 node_boot_time 1.418183276e+09
+# HELP node_buddyinfo_count Count of free blocks according to size.
+# TYPE node_buddyinfo_count gauge
+node_buddyinfo_count{node="0",size="0",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="0",zone="DMA32"} 759
+node_buddyinfo_count{node="0",size="0",zone="Normal"} 4381
+node_buddyinfo_count{node="0",size="1",zone="DMA"} 0
+node_buddyinfo_count{node="0",size="1",zone="DMA32"} 572
+node_buddyinfo_count{node="0",size="1",zone="Normal"} 1093
+node_buddyinfo_count{node="0",size="10",zone="DMA"} 3
+node_buddyinfo_count{node="0",size="10",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="10",zone="Normal"} 0
+node_buddyinfo_count{node="0",size="2",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="2",zone="DMA32"} 791
+node_buddyinfo_count{node="0",size="2",zone="Normal"} 185
+node_buddyinfo_count{node="0",size="3",zone="DMA"} 0
+node_buddyinfo_count{node="0",size="3",zone="DMA32"} 475
+node_buddyinfo_count{node="0",size="3",zone="Normal"} 1530
+node_buddyinfo_count{node="0",size="4",zone="DMA"} 2
+node_buddyinfo_count{node="0",size="4",zone="DMA32"} 194
+node_buddyinfo_count{node="0",size="4",zone="Normal"} 567
+node_buddyinfo_count{node="0",size="5",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="5",zone="DMA32"} 45
+node_buddyinfo_count{node="0",size="5",zone="Normal"} 102
+node_buddyinfo_count{node="0",size="6",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="6",zone="DMA32"} 12
+node_buddyinfo_count{node="0",size="6",zone="Normal"} 4
+node_buddyinfo_count{node="0",size="7",zone="DMA"} 0
+node_buddyinfo_count{node="0",size="7",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="7",zone="Normal"} 0
+node_buddyinfo_count{node="0",size="8",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="8",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="8",zone="Normal"} 0
+node_buddyinfo_count{node="0",size="9",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="9",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="9",zone="Normal"} 0
 # HELP node_context_switches Total number of context switches.
 # TYPE node_context_switches counter
 node_context_switches 3.8014093e+07
