@@ -654,6 +654,38 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp2"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp3"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
+# HELP node_infiniband_link_downed_total Number of times the link failed to recover from an error state and went down
+# TYPE node_infiniband_link_downed_total counter
+node_infiniband_link_downed_total{device="mlx4_0",port="1"} 0
+node_infiniband_link_downed_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_link_error_recovery_total Number of times the link successfully recovered from an error state
+# TYPE node_infiniband_link_error_recovery_total counter
+node_infiniband_link_error_recovery_total{device="mlx4_0",port="1"} 0
+node_infiniband_link_error_recovery_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_multicast_packets_received_total Number of multicast packets received (including errors)
+# TYPE node_infiniband_multicast_packets_received_total counter
+node_infiniband_multicast_packets_received_total{device="mlx4_0",port="1"} 93
+node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_multicast_packets_transmitted_total Number of multicast packets transmitted (including errors)
+# TYPE node_infiniband_multicast_packets_transmitted_total counter
+node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
+node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_received_bytes Number of data octets received on all links
+# TYPE node_infiniband_port_data_received_bytes counter
+node_infiniband_port_data_received_bytes{device="mlx4_0",port="1"} 4.631917e+06
+node_infiniband_port_data_received_bytes{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_transmitted_bytes Number of data octets transmitted on all links
+# TYPE node_infiniband_port_data_transmitted_bytes counter
+node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="1"} 3.73344e+06
+node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
+# TYPE node_infiniband_unicast_packets_received_total counter
+node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
+node_infiniband_unicast_packets_received_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_unicast_packets_transmitted_total Number of unicast packets transmitted (including errors)
+# TYPE node_infiniband_unicast_packets_transmitted_total counter
+node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="1"} 61239
+node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
 # HELP node_intr Total number of interrupts serviced.
 # TYPE node_intr counter
 node_intr 8.885917e+06
