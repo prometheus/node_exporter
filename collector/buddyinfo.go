@@ -61,15 +61,13 @@ func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 
 	log.Debugf("Set node_buddy: %#v", buddyInfo)
-	for node, zones := range buddyInfo {
-		for zone, values := range zones {
-			for size, value := range values {
-				ch <- prometheus.MustNewConstMetric(
-					c.desc,
-					prometheus.GaugeValue, value,
-					node, zone, strconv.Itoa(size),
-				)
-			}
+	for _, entry := range buddyInfo {
+		for size, value := range entry.Sizes {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc,
+				prometheus.GaugeValue, value,
+				entry.Node, entry.Zone, strconv.Itoa(size),
+			)
 		}
 	}
 	return nil
