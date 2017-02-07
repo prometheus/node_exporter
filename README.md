@@ -47,6 +47,7 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 Name     | Description | OS
 ---------|-------------|----
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
+buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
