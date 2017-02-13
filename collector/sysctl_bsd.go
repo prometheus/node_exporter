@@ -40,9 +40,6 @@ type bsdSysctl struct {
 	// Simple prometheus description
 	description string
 
-	// Cached prometheus description
-	cached_descriptor *prometheus.Desc
-
 	// Prometheus type
 	valueType prometheus.ValueType
 
