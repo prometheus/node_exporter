@@ -1,4 +1,4 @@
-// Copyright 2015 The Prometheus Authors
+// Copyright 2017 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -76,19 +76,24 @@ func NewExecCollector() (Collector, error) {
 
 // Expose kernel and system execistics.
 func (c *execCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	for i := range c.sysctls {
-		vt := c.sysctls[i].valueType
+	for _, m := range c.sysctls {
+		vt := m.valueType
 		if vt == 0 {
 			// Make good use of the zero value.
 			vt = prometheus.CounterValue
 		}
 
-		v, err := c.sysctls[i].GetValue()
+		v, err := m.Value()
 		if err != nil {
 			return err
 		}
 
-		ch <- prometheus.MustNewConstMetric(c.sysctls[i].GetDesc("exec"), vt, v)
+		ch <- prometheus.MustNewConstMetric(
+			prometheus.NewDesc(
+				prometheus.BuildFQName(Namespace, "exec", m.name),
+				m.description,
+				nil, nil,
+			), vt, v)
 	}
 
 	return nil

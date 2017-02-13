@@ -25,6 +25,7 @@ cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
+exec | Exposes execution statistics. | Dragonfly, FreeBSD
 filefd | Exposes file descriptor statistics from `/proc/sys/fs/file-nr`. | Linux
 filesystem | Exposes filesystem statistics, such as disk space used. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 hwmon | Expose hardware monitoring and sensor data from `/sys/class/hwmon/`. | Linux

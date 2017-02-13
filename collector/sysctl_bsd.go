@@ -1,4 +1,4 @@
-// Copyright 2015 The Prometheus Authors
+// Copyright 2017 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -46,9 +46,6 @@ type bsdSysctl struct {
 	// Prometheus type
 	valueType prometheus.ValueType
 
-	// Convert sysctl to desired units
-	conversion func(uint64) float64
-
 	// Sysctl name
 	mib string
 
@@ -56,7 +53,7 @@ type bsdSysctl struct {
 	dataType bsdSysctlType
 }
 
-func (b bsdSysctl) GetValue() (float64, error) {
+func (b bsdSysctl) Value() (float64, error) {
 	var tmp32 uint32
 	var tmp64 uint64
 	var err error
@@ -72,20 +69,5 @@ func (b bsdSysctl) GetValue() (float64, error) {
 		return 0, err
 	}
 
-	if b.conversion != nil {
-		return float64(b.conversion(tmp64)), nil
-	}
 	return float64(tmp64), nil
-}
-
-func (b bsdSysctl) GetDesc(subsystem string) *prometheus.Desc {
-	if b.cached_descriptor == nil {
-		b.cached_descriptor = prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, b.name),
-			b.description,
-			nil, nil,
-		)
-	}
-
-	return b.cached_descriptor
 }
