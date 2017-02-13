@@ -82,14 +82,12 @@
 		},
 		{
 			"checksumSHA1": "/j0HRFJPThv7HEkZZ/gurf+5fQI=",
-			"origin": "github.com/prometheus/node_exporter/vendor/github.com/prometheus/client_golang/prometheus",
 			"path": "github.com/prometheus/client_golang/prometheus",
 			"revision": "575f371f7862609249a1be4c9145f429fe065e32",
 			"revisionTime": "2016-11-24T15:57:32Z"
 		},
 		{
 			"checksumSHA1": "lG3//eDlwqA4IOuAPrNtLh9G0TA=",
-			"origin": "github.com/prometheus/node_exporter/vendor/github.com/prometheus/client_golang/prometheus/promhttp",
 			"path": "github.com/prometheus/client_golang/prometheus/promhttp",
 			"revision": "575f371f7862609249a1be4c9145f429fe065e32",
 			"revisionTime": "2016-11-24T15:57:32Z"
@@ -131,10 +129,10 @@
 			"revisionTime": "2016-12-01T12:35:08Z"
 		},
 		{
-			"checksumSHA1": "L+p4t3KrLDAKJnrreOz2BZIt9Mg=",
+			"checksumSHA1": "usUy/UxFXpMusOWgLNDNp4+s/ks=",
 			"path": "github.com/prometheus/procfs",
-			"revision": "fcdb11ccb4389efb1b210b7ffb623ab71c5fdd60",
-			"revisionTime": "2016-12-06T22:21:41Z"
+			"revision": "1878d9fbb537119d24b21ca07effd591627cd160",
+			"revisionTime": "2017-01-28T16:01:23Z"
 		},
 		{
 			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",
