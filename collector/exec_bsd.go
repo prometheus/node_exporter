@@ -28,9 +28,11 @@ func init() {
 	Factories["exec"] = NewExecCollector
 }
 
-// Returns a new Collector exposing system execution statistics
+// NewExecCollector returns a new Collector exposing system execution statistics
 func NewExecCollector() (Collector, error) {
-	// from sys/vm/vm_meter.c:
+	// From sys/vm/vm_meter.c:
+	// All are of type CTLTYPE_UINT.
+	//
 	// vm.stats.sys.v_swtch: Context switches
 	// vm.stats.sys.v_trap: Traps
 	// vm.stats.sys.v_syscall: System calls
@@ -42,58 +44,54 @@ func NewExecCollector() (Collector, error) {
 		sysctls: []bsdSysctl{
 			{
 				name:        "context_switches_total",
-				description: "Context switches",
+				description: "Context switches since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_swtch",
 			},
 			{
 				name:        "traps_total",
-				description: "Traps",
+				description: "Traps since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_trap",
 			},
 			{
 				name:        "system_calls_total",
-				description: "System calls",
+				description: "System calls since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_syscall",
 			},
 			{
 				name:        "device_interrupts_total",
-				description: "Device interrupts",
+				description: "Device interrupts since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_intr",
 			},
 			{
 				name:        "software_interrupts_total",
-				description: "Software interrupts",
+				description: "Software interrupts since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_soft",
 			},
 			{
 				name:        "forks_total",
-				description: "Number of fork() calls",
+				description: "Number of fork() calls since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.vm.v_forks",
 			},
 		},
 	}, nil
 }
 
-// Expose kernel and system execistics.
+// Update pushes exec statistics onto ch
 func (c *execCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	for _, m := range c.sysctls {
-		vt := m.valueType
-		if vt == 0 {
-			// Make good use of the zero value.
-			vt = prometheus.CounterValue
-		}
-
 		v, err := m.Value()
 		if err != nil {
 			return err
 		}
 
+		// We "know" all of our sysctls are CounterValues, let's skip
+		// parsing them
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
 				prometheus.BuildFQName(Namespace, "exec", m.name),
 				m.description,
 				nil, nil,
-			), vt, v)
+			), prometheus.CounterValue, v)
 	}
 
 	return nil
