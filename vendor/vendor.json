@@ -129,10 +129,10 @@
 			"revisionTime": "2016-12-01T12:35:08Z"
 		},
 		{
-			"checksumSHA1": "usUy/UxFXpMusOWgLNDNp4+s/ks=",
+			"checksumSHA1": "92OM0Nv9ECi7KkY4vsF01emBFDc=",
 			"path": "github.com/prometheus/procfs",
-			"revision": "1878d9fbb537119d24b21ca07effd591627cd160",
-			"revisionTime": "2017-01-28T16:01:23Z"
+			"revision": "a59ae619c824360be3641ceb5a456ff13dd58be6",
+			"revisionTime": "2017-02-14T15:35:19Z"
 		},
 		{
 			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",
