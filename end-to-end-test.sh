@@ -11,6 +11,7 @@ collectors=$(cat << COLLECTORS
   entropy
   filefd
   hwmon
+  infiniband
   ksmd
   loadavg
   mdadm
