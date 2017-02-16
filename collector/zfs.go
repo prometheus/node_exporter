@@ -45,12 +45,14 @@ func init() {
 type zfsCollector struct {
 	zfsMetrics        []zfsMetric
 	linuxProcpathBase string
+	linuxZpoolIoPath  string
 	linuxPathMap      map[string]string
 }
 
 func NewZFSCollector() (Collector, error) {
 	var z zfsCollector
 	z.linuxProcpathBase = "spl/kstat/zfs"
+	z.linuxZpoolIoPath = "/*/io"
 	z.linuxPathMap = map[string]string{
 		"zfs_arc":        "arcstats",
 		"zfs_dmu_tx":     "dmu_tx",
@@ -96,5 +98,21 @@ func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, val
 		),
 		prometheus.UntypedValue,
 		float64(value),
+	)
+}
+
+func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value int) prometheus.Metric {
+	metricName := sysctl.metricName()
+
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "zfs_zpool", metricName),
+			string(sysctl),
+			[]string{"zpool"},
+			nil,
+		),
+		prometheus.UntypedValue,
+		float64(value),
+		poolName,
 	)
 }

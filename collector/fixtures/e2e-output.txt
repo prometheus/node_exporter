@@ -2529,6 +2529,54 @@ node_zfs_zil_zil_itx_needcopy_bytes 0
 # HELP node_zfs_zil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
 # TYPE node_zfs_zil_zil_itx_needcopy_count untyped
 node_zfs_zil_zil_itx_needcopy_count 0
+# HELP node_zfs_zpool_nread kstat.zfs.misc.io.nread
+# TYPE node_zfs_zpool_nread untyped
+node_zfs_zpool_nread{zpool="pool1"} 1.88416e+06
+node_zfs_zpool_nread{zpool="poolz1"} 2.82624e+06
+# HELP node_zfs_zpool_nwritten kstat.zfs.misc.io.nwritten
+# TYPE node_zfs_zpool_nwritten untyped
+node_zfs_zpool_nwritten{zpool="pool1"} 3.206144e+06
+node_zfs_zpool_nwritten{zpool="poolz1"} 2.680501248e+09
+# HELP node_zfs_zpool_rcnt kstat.zfs.misc.io.rcnt
+# TYPE node_zfs_zpool_rcnt untyped
+node_zfs_zpool_rcnt{zpool="pool1"} 0
+node_zfs_zpool_rcnt{zpool="poolz1"} 0
+# HELP node_zfs_zpool_reads kstat.zfs.misc.io.reads
+# TYPE node_zfs_zpool_reads untyped
+node_zfs_zpool_reads{zpool="pool1"} 22
+node_zfs_zpool_reads{zpool="poolz1"} 33
+# HELP node_zfs_zpool_rlentime kstat.zfs.misc.io.rlentime
+# TYPE node_zfs_zpool_rlentime untyped
+node_zfs_zpool_rlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_rlentime{zpool="poolz1"} 6.472105124093e+12
+# HELP node_zfs_zpool_rtime kstat.zfs.misc.io.rtime
+# TYPE node_zfs_zpool_rtime untyped
+node_zfs_zpool_rtime{zpool="pool1"} 2.4168078e+07
+node_zfs_zpool_rtime{zpool="poolz1"} 9.82909164e+09
+# HELP node_zfs_zpool_rupdate kstat.zfs.misc.io.rupdate
+# TYPE node_zfs_zpool_rupdate untyped
+node_zfs_zpool_rupdate{zpool="pool1"} 7.921048984922e+13
+node_zfs_zpool_rupdate{zpool="poolz1"} 1.10734831944501e+14
+# HELP node_zfs_zpool_wcnt kstat.zfs.misc.io.wcnt
+# TYPE node_zfs_zpool_wcnt untyped
+node_zfs_zpool_wcnt{zpool="pool1"} 0
+node_zfs_zpool_wcnt{zpool="poolz1"} 0
+# HELP node_zfs_zpool_wlentime kstat.zfs.misc.io.wlentime
+# TYPE node_zfs_zpool_wlentime untyped
+node_zfs_zpool_wlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_wlentime{zpool="poolz1"} 6.472105124093e+12
+# HELP node_zfs_zpool_writes kstat.zfs.misc.io.writes
+# TYPE node_zfs_zpool_writes untyped
+node_zfs_zpool_writes{zpool="pool1"} 132
+node_zfs_zpool_writes{zpool="poolz1"} 25294
+# HELP node_zfs_zpool_wtime kstat.zfs.misc.io.wtime
+# TYPE node_zfs_zpool_wtime untyped
+node_zfs_zpool_wtime{zpool="pool1"} 7.155162e+06
+node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
+# HELP node_zfs_zpool_wupdate kstat.zfs.misc.io.wupdate
+# TYPE node_zfs_zpool_wupdate untyped
+node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
+node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.
