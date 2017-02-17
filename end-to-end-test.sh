@@ -3,6 +3,7 @@
 set -euf -o pipefail
 
 collectors=$(cat << COLLECTORS
+  buddyinfo
   conntrack
   diskstats
   drbd
@@ -10,6 +11,7 @@ collectors=$(cat << COLLECTORS
   entropy
   filefd
   hwmon
+  infiniband
   ksmd
   loadavg
   mdadm
