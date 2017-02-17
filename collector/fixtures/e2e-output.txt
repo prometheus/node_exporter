@@ -82,6 +82,41 @@ node_bonding_slaves{master="int"} 2
 # HELP node_boot_time Node boot time, in unixtime.
 # TYPE node_boot_time gauge
 node_boot_time 1.418183276e+09
+# HELP node_buddyinfo_count Count of free blocks according to size.
+# TYPE node_buddyinfo_count gauge
+node_buddyinfo_count{node="0",size="0",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="0",zone="DMA32"} 759
+node_buddyinfo_count{node="0",size="0",zone="Normal"} 4381
+node_buddyinfo_count{node="0",size="1",zone="DMA"} 0
+node_buddyinfo_count{node="0",size="1",zone="DMA32"} 572
+node_buddyinfo_count{node="0",size="1",zone="Normal"} 1093
+node_buddyinfo_count{node="0",size="10",zone="DMA"} 3
+node_buddyinfo_count{node="0",size="10",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="10",zone="Normal"} 0
+node_buddyinfo_count{node="0",size="2",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="2",zone="DMA32"} 791
+node_buddyinfo_count{node="0",size="2",zone="Normal"} 185
+node_buddyinfo_count{node="0",size="3",zone="DMA"} 0
+node_buddyinfo_count{node="0",size="3",zone="DMA32"} 475
+node_buddyinfo_count{node="0",size="3",zone="Normal"} 1530
+node_buddyinfo_count{node="0",size="4",zone="DMA"} 2
+node_buddyinfo_count{node="0",size="4",zone="DMA32"} 194
+node_buddyinfo_count{node="0",size="4",zone="Normal"} 567
+node_buddyinfo_count{node="0",size="5",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="5",zone="DMA32"} 45
+node_buddyinfo_count{node="0",size="5",zone="Normal"} 102
+node_buddyinfo_count{node="0",size="6",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="6",zone="DMA32"} 12
+node_buddyinfo_count{node="0",size="6",zone="Normal"} 4
+node_buddyinfo_count{node="0",size="7",zone="DMA"} 0
+node_buddyinfo_count{node="0",size="7",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="7",zone="Normal"} 0
+node_buddyinfo_count{node="0",size="8",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="8",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="8",zone="Normal"} 0
+node_buddyinfo_count{node="0",size="9",zone="DMA"} 1
+node_buddyinfo_count{node="0",size="9",zone="DMA32"} 0
+node_buddyinfo_count{node="0",size="9",zone="Normal"} 0
 # HELP node_context_switches Total number of context switches.
 # TYPE node_context_switches counter
 node_context_switches 3.8014093e+07
@@ -654,6 +689,38 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp2"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp3"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
+# HELP node_infiniband_link_downed_total Number of times the link failed to recover from an error state and went down
+# TYPE node_infiniband_link_downed_total counter
+node_infiniband_link_downed_total{device="mlx4_0",port="1"} 0
+node_infiniband_link_downed_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_link_error_recovery_total Number of times the link successfully recovered from an error state
+# TYPE node_infiniband_link_error_recovery_total counter
+node_infiniband_link_error_recovery_total{device="mlx4_0",port="1"} 0
+node_infiniband_link_error_recovery_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_multicast_packets_received_total Number of multicast packets received (including errors)
+# TYPE node_infiniband_multicast_packets_received_total counter
+node_infiniband_multicast_packets_received_total{device="mlx4_0",port="1"} 93
+node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_multicast_packets_transmitted_total Number of multicast packets transmitted (including errors)
+# TYPE node_infiniband_multicast_packets_transmitted_total counter
+node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
+node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_received_bytes Number of data octets received on all links
+# TYPE node_infiniband_port_data_received_bytes counter
+node_infiniband_port_data_received_bytes{device="mlx4_0",port="1"} 4.631917e+06
+node_infiniband_port_data_received_bytes{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_transmitted_bytes Number of data octets transmitted on all links
+# TYPE node_infiniband_port_data_transmitted_bytes counter
+node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="1"} 3.73344e+06
+node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
+# TYPE node_infiniband_unicast_packets_received_total counter
+node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
+node_infiniband_unicast_packets_received_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_unicast_packets_transmitted_total Number of unicast packets transmitted (including errors)
+# TYPE node_infiniband_unicast_packets_transmitted_total counter
+node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="1"} 61239
+node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
 # HELP node_intr Total number of interrupts serviced.
 # TYPE node_intr counter
 node_intr 8.885917e+06
@@ -2494,6 +2561,54 @@ node_zfs_zil_zil_itx_needcopy_bytes 0
 # HELP node_zfs_zil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
 # TYPE node_zfs_zil_zil_itx_needcopy_count untyped
 node_zfs_zil_zil_itx_needcopy_count 0
+# HELP node_zfs_zpool_nread kstat.zfs.misc.io.nread
+# TYPE node_zfs_zpool_nread untyped
+node_zfs_zpool_nread{zpool="pool1"} 1.88416e+06
+node_zfs_zpool_nread{zpool="poolz1"} 2.82624e+06
+# HELP node_zfs_zpool_nwritten kstat.zfs.misc.io.nwritten
+# TYPE node_zfs_zpool_nwritten untyped
+node_zfs_zpool_nwritten{zpool="pool1"} 3.206144e+06
+node_zfs_zpool_nwritten{zpool="poolz1"} 2.680501248e+09
+# HELP node_zfs_zpool_rcnt kstat.zfs.misc.io.rcnt
+# TYPE node_zfs_zpool_rcnt untyped
+node_zfs_zpool_rcnt{zpool="pool1"} 0
+node_zfs_zpool_rcnt{zpool="poolz1"} 0
+# HELP node_zfs_zpool_reads kstat.zfs.misc.io.reads
+# TYPE node_zfs_zpool_reads untyped
+node_zfs_zpool_reads{zpool="pool1"} 22
+node_zfs_zpool_reads{zpool="poolz1"} 33
+# HELP node_zfs_zpool_rlentime kstat.zfs.misc.io.rlentime
+# TYPE node_zfs_zpool_rlentime untyped
+node_zfs_zpool_rlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_rlentime{zpool="poolz1"} 6.472105124093e+12
+# HELP node_zfs_zpool_rtime kstat.zfs.misc.io.rtime
+# TYPE node_zfs_zpool_rtime untyped
+node_zfs_zpool_rtime{zpool="pool1"} 2.4168078e+07
+node_zfs_zpool_rtime{zpool="poolz1"} 9.82909164e+09
+# HELP node_zfs_zpool_rupdate kstat.zfs.misc.io.rupdate
+# TYPE node_zfs_zpool_rupdate untyped
+node_zfs_zpool_rupdate{zpool="pool1"} 7.921048984922e+13
+node_zfs_zpool_rupdate{zpool="poolz1"} 1.10734831944501e+14
+# HELP node_zfs_zpool_wcnt kstat.zfs.misc.io.wcnt
+# TYPE node_zfs_zpool_wcnt untyped
+node_zfs_zpool_wcnt{zpool="pool1"} 0
+node_zfs_zpool_wcnt{zpool="poolz1"} 0
+# HELP node_zfs_zpool_wlentime kstat.zfs.misc.io.wlentime
+# TYPE node_zfs_zpool_wlentime untyped
+node_zfs_zpool_wlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_wlentime{zpool="poolz1"} 6.472105124093e+12
+# HELP node_zfs_zpool_writes kstat.zfs.misc.io.writes
+# TYPE node_zfs_zpool_writes untyped
+node_zfs_zpool_writes{zpool="pool1"} 132
+node_zfs_zpool_writes{zpool="poolz1"} 25294
+# HELP node_zfs_zpool_wtime kstat.zfs.misc.io.wtime
+# TYPE node_zfs_zpool_wtime untyped
+node_zfs_zpool_wtime{zpool="pool1"} 7.155162e+06
+node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
+# HELP node_zfs_zpool_wupdate kstat.zfs.misc.io.wupdate
+# TYPE node_zfs_zpool_wupdate untyped
+node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
+node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.

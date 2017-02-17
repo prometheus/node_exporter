@@ -28,6 +28,7 @@ entropy | Exposes available entropy. | Linux
 filefd | Exposes file descriptor statistics from `/proc/sys/fs/file-nr`. | Linux
 filesystem | Exposes filesystem statistics, such as disk space used. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 hwmon | Expose hardware monitoring and sensor data from `/sys/class/hwmon/`. | Linux
+infiniband | Exposes network statistics specific to InfiniBand configurations. | Linux
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
 meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux
@@ -47,6 +48,7 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 Name     | Description | OS
 ---------|-------------|----
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
+buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD

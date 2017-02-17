@@ -15,6 +15,7 @@ package collector
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -267,5 +268,45 @@ func TestDmuTxParsing(t *testing.T) {
 
 	if !handlerCalled {
 		t.Fatal("DmuTx parsing handler was not called for some expected sysctls")
+	}
+}
+
+func TestZpoolParsing(t *testing.T) {
+	zpoolPaths, err := filepath.Glob("fixtures/proc/spl/kstat/zfs/*/io")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	for _, zpoolPath := range zpoolPaths {
+		file, err := os.Open(zpoolPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v int) {
+			if s != zfsSysctl("kstat.zfs.misc.io.nread") {
+				return
+			}
+
+			handlerCalled = true
+
+			if v != int(1884160) && v != int(2826240) {
+				t.Fatalf("Incorrect value parsed from procfs data %v", v)
+			}
+
+		})
+		file.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !handlerCalled {
+		t.Fatal("Zpool parsing handler was not called for some expected sysctls")
 	}
 }
