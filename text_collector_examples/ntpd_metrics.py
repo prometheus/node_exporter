@@ -9,6 +9,7 @@ import sys
 
 # NTP peers status, with no DNS lookups.
 ntpq_cmd = ['ntpq', '-np']
+ntpq_rv_cmd = ['ntpq', '-c', 'rv 0 offset,sys_jitter,rootdisp,rootdelay']
 
 # Regex to match all of the fields in the output of ntpq -np
 metrics_fields = [
@@ -50,12 +51,12 @@ status_types = {
 
 
 # Run the ntpq command.
-def get_ntpq():
+def get_output(command):
     try:
-        ntpq = subprocess.check_output(ntpq_cmd, stderr=subprocess.DEVNULL)
+        output = subprocess.check_output(command, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
         return None
-    return ntpq.decode()
+    return output.decode()
 
 
 # Print metrics in Prometheus format.
@@ -63,7 +64,10 @@ def print_prometheus(metric, values):
     print("# HELP ntpd_%s NTPd metric for %s" % (metric, metric))
     print("# TYPE ntpd_%s gauge" % (metric))
     for labels in values:
-        print("ntpd_%s{%s} %f" % (metric, labels, values[labels]))
+        if labels is None:
+            print("ntpd_%s %f" % (metric, values[labels]))
+        else:
+            print("ntpd_%s{%s} %f" % (metric, labels, values[labels]))
 
 
 # Parse raw ntpq lines.
@@ -81,7 +85,7 @@ def parse_line(line):
 
 # Main function
 def main(argv):
-    ntpq = get_ntpq()
+    ntpq = get_output(ntpq_cmd)
     peer_status_metrics = {}
     delay_metrics = {}
     offset_metrics = {}
@@ -106,6 +110,11 @@ def main(argv):
     print_prometheus('delay_milliseconds', delay_metrics)
     print_prometheus('offset_milliseconds', offset_metrics)
     print_prometheus('jitter_milliseconds', jitter_metrics)
+
+    ntpq_rv = get_output(ntpq_rv_cmd)
+    for metric in ntpq_rv.split(','):
+        metric_name, metric_value = metric.strip().split('=')
+        print_prometheus(metric_name, {None: float(metric_value)})
 
 
 # Go go go!
