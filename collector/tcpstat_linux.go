@@ -73,7 +73,7 @@ func NewTCPStatCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	tcpStats, err := getTCPStats(procFilePath("net/tcp"))
 	if err != nil {
 		return fmt.Errorf("couldn't get tcpstats: %s", err)
@@ -130,7 +130,7 @@ func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
 		tcpStats[tcpConnectionState(st)]++
 	}
 
-	return tcpStats, nil
+	return tcpStats, scanner.Err()
 }
 
 func (st tcpConnectionState) String() string {

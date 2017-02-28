@@ -116,12 +116,12 @@ func NewNfsCollector() (Collector, error) {
 	return &nfsCollector{}, nil
 }
 
-func (c *nfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
 	statsFile := procFilePath("net/rpc/nfs")
 	content, err := ioutil.ReadFile(statsFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting NFS statistics, as %s does not exist: %s", statsFile)
+			log.Debugf("Not collecting NFS statistics, as %q does not exist", statsFile)
 			return nil
 		}
 		return err

@@ -40,7 +40,7 @@ func NewvmStatCollector() (Collector, error) {
 	return &vmStatCollector{}, nil
 }
 
-func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
 	file, err := os.Open(procFilePath("vmstat"))
 	if err != nil {
 		return err
@@ -64,5 +64,5 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			value,
 		)
 	}
-	return err
+	return scanner.Err()
 }

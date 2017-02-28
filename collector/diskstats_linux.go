@@ -239,5 +239,5 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 		diskStats[dev][12] = bytesWritten
 	}
 
-	return diskStats, nil
+	return diskStats, scanner.Err()
 }

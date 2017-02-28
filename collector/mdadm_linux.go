@@ -274,17 +274,15 @@ var (
 	)
 )
 
-func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	statusfile := procFilePath("mdstat")
-	// take care we don't crash on non-existent statusfiles
-	_, err = os.Stat(statusfile)
-	if os.IsNotExist(err) {
-		// no such file or directory, nothing to do, just return
-		log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
-		return nil
-	}
-
-	if err != nil { // now things get weird, better to return
+	if _, err := os.Stat(statusfile); err != nil {
+		// Take care we don't crash on non-existent statusfiles.
+		if os.IsNotExist(err) {
+			// no such file or directory, nothing to do, just return
+			log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
+			return nil
+		}
 		return err
 	}
 

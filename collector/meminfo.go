@@ -40,7 +40,7 @@ func NewMeminfoCollector() (Collector, error) {
 
 // Update calls (*meminfoCollector).getMemInfo to get the platform specific
 // memory metrics.
-func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	memInfo, err := c.getMemInfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get meminfo: %s", err)

@@ -94,5 +94,5 @@ func parseInterrupts(r io.Reader) (map[string]interrupt, error) {
 		interrupts[intName] = intr
 	}
 
-	return interrupts, nil
+	return interrupts, scanner.Err()
 }

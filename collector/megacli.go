@@ -71,16 +71,17 @@ func NewMegaCliCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *megaCliCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	err = c.updateAdapter()
-	if err != nil {
+func (c *megaCliCollector) Update(ch chan<- prometheus.Metric) error {
+	if err := c.updateAdapter(); err != nil {
 		return err
 	}
-	err = c.updateDisks()
+	if err := c.updateDisks(); err != nil {
+		return err
+	}
 	c.driveTemperature.Collect(ch)
 	c.driveCounters.Collect(ch)
 	c.drivePresence.Collect(ch)
-	return err
+	return nil
 }
 
 func parseMegaCliDisks(r io.Reader) (map[int]map[int]map[string]string, error) {
@@ -122,7 +123,7 @@ func parseMegaCliDisks(r io.Reader) (map[int]map[int]map[string]string, error) {
 		}
 	}
 
-	return stats, nil
+	return stats, scanner.Err()
 }
 
 func parseMegaCliAdapter(r io.Reader) (map[string]map[string]string, error) {
@@ -155,7 +156,7 @@ func parseMegaCliAdapter(r io.Reader) (map[string]map[string]string, error) {
 
 	}
 
-	return raidStats, nil
+	return raidStats, scanner.Err()
 }
 
 func (c *megaCliCollector) updateAdapter() error {

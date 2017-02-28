@@ -40,7 +40,7 @@ func gostring(b []int8) string {
 }
 
 // Expose filesystem fullness.
-func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
+func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	buf := make([]unix.Statfs_t, 16)
 	for {
 		n, err := unix.Getfsstat(buf, noWait)
@@ -53,7 +53,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		}
 		buf = make([]unix.Statfs_t, len(buf)*2)
 	}
-	stats = []filesystemStats{}
+	stats := []filesystemStats{}
 	for _, fs := range buf {
 		mountpoint := gostring(fs.Mntonname[:])
 		if c.ignoredMountPointsPattern.MatchString(mountpoint) {

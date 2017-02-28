@@ -26,16 +26,16 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-func (c *zfsCollector) openProcFile(path string) (file *os.File, err error) {
-	file, err = os.Open(procFilePath(path))
+func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
+	file, err := os.Open(procFilePath(path))
 	if err != nil {
 		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(path))
-		err = errZFSNotAvailable
+		return nil, errZFSNotAvailable
 	}
-	return
+	return file, nil
 }
 
-func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Metric) error {
 	file, err := c.openProcFile(filepath.Join(c.linuxProcpathBase, c.linuxPathMap[subsystem]))
 	if err != nil {
 		return err
@@ -76,12 +76,11 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) 
 	return nil
 }
 
-func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, int)) (err error) {
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, int)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
 	for scanner.Scan() {
-
 		parts := strings.Fields(scanner.Text())
 
 		if !parseLine && len(parts) == 3 && parts[0] == "name" && parts[1] == "type" && parts[2] == "data" {
@@ -110,13 +109,12 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 	return scanner.Err()
 }
 
-func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, handler func(string, zfsSysctl, int)) (err error) {
+func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, handler func(string, zfsSysctl, int)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
 	var fields []string
 	for scanner.Scan() {
-
 		line := strings.Fields(scanner.Text())
 
 		if !parseLine && len(line) >= 12 && line[0] == "nread" {
