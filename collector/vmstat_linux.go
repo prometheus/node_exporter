@@ -35,8 +35,7 @@ func init() {
 	Factories["vmstat"] = NewvmStatCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// vmstat stats.
+// NewvmStatCollector returns a new Collector exposing vmstat stats.
 func NewvmStatCollector() (Collector, error) {
 	return &vmStatCollector{}, nil
 }

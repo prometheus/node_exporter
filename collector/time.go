@@ -30,8 +30,8 @@ func init() {
 	Factories["time"] = NewTimeCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// the current system time in seconds since epoch.
+// NewTimeCollector returns a new Collector exposing the current system time in
+// seconds since epoch.
 func NewTimeCollector() (Collector, error) {
 	return &timeCollector{
 		desc: prometheus.NewDesc(

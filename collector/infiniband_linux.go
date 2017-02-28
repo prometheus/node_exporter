@@ -45,6 +45,7 @@ func init() {
 	Factories["infiniband"] = NewInfiniBandCollector
 }
 
+// NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
 func NewInfiniBandCollector() (Collector, error) {
 	var i infinibandCollector
 

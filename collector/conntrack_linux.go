@@ -28,8 +28,7 @@ func init() {
 	Factories["conntrack"] = NewConntrackCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// conntrack stats
+// NewConntrackCollector returns a new Collector exposing conntrack stats.
 func NewConntrackCollector() (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(

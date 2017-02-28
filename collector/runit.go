@@ -36,6 +36,7 @@ func init() {
 	Factories["runit"] = NewRunitCollector
 }
 
+// NewRunitCollector returns a new Collector exposing runit statistics.
 func NewRunitCollector() (Collector, error) {
 	var (
 		subsystem   = "service"

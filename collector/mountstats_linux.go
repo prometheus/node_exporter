@@ -93,6 +93,7 @@ func init() {
 	Factories["mountstats"] = NewMountStatsCollector
 }
 
+// NewMountStatsCollector returns a new Collector exposing NFS statistics.
 func NewMountStatsCollector() (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
@@ -105,7 +106,7 @@ func NewMountStatsCollector() (Collector, error) {
 	}
 
 	const (
-		// For the time being, only NFS statistics are available via this mechanism
+		// For the time being, only NFS statistics are available via this mechanism.
 		subsystem = "mountstats_nfs"
 	)
 

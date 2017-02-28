@@ -30,7 +30,7 @@ func (c *zfsCollector) openProcFile(path string) (file *os.File, err error) {
 	file, err = os.Open(procFilePath(path))
 	if err != nil {
 		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(path))
-		err = zfsNotAvailableError
+		err = errZFSNotAvailable
 	}
 	return
 }
@@ -61,7 +61,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) 
 		file, err := os.Open(zpoolPath)
 		if err != nil {
 			log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", zpoolPath)
-			return zfsNotAvailableError
+			return errZFSNotAvailable
 		}
 
 		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v int) {

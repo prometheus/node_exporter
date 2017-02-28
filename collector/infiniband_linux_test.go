@@ -24,7 +24,7 @@ func TestInfiniBandDevices(t *testing.T) {
 	}
 
 	if l := len(devices); l != 1 {
-		t.Fatal("Retrieved an unexpected number of InfiniBand devices: %d", l)
+		t.Fatalf("Retrieved an unexpected number of InfiniBand devices: %d", l)
 	}
 }
 
@@ -35,6 +35,6 @@ func TestInfiniBandPorts(t *testing.T) {
 	}
 
 	if l := len(ports); l != 2 {
-		t.Fatal("Retrieved an unexpected number of InfiniBand ports: %d", l)
+		t.Fatalf("Retrieved an unexpected number of InfiniBand ports: %d", l)
 	}
 }

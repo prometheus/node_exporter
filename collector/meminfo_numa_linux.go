@@ -50,8 +50,7 @@ func init() {
 	Factories["meminfo_numa"] = NewMeminfoNumaCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// memory stats.
+// NewMeminfoNumaCollector returns a new Collector exposing memory stats.
 func NewMeminfoNumaCollector() (Collector, error) {
 	return &meminfoNumaCollector{
 		metricDescs: map[string]*prometheus.Desc{},

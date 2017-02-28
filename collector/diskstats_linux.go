@@ -47,8 +47,7 @@ func init() {
 	Factories["diskstats"] = NewDiskstatsCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// disk device stats.
+// NewDiskstatsCollector returns a new Collector exposing disk device stats.
 func NewDiskstatsCollector() (Collector, error) {
 	var diskLabelNames = []string{"device"}
 

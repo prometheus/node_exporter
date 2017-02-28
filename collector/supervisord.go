@@ -39,6 +39,7 @@ func init() {
 	Factories["supervisord"] = NewSupervisordCollector
 }
 
+// NewSupervisordCollector returns a new Collector exposing supervisord statistics.
 func NewSupervisordCollector() (Collector, error) {
 	client, err := xmlrpc.NewClient(*supervisordURL, nil)
 	if err != nil {

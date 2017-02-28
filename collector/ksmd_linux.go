@@ -46,8 +46,7 @@ func getCanonicalMetricName(filename string) string {
 	}
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// kernel/system statistics.
+// NewKsmdCollector returns a new Collector exposing kernel/system statistics.
 func NewKsmdCollector() (Collector, error) {
 	subsystem := "ksmd"
 	descs := make(map[string]*prometheus.Desc)
@@ -60,7 +59,7 @@ func NewKsmdCollector() (Collector, error) {
 	return &ksmdCollector{descs}, nil
 }
 
-// Expose kernel and system statistics.
+// Update implements Collector and exposes kernel and system statistics.
 func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	for _, n := range ksmdFiles {
 		val, err := readUintFromFile(sysFilePath(path.Join("kernel/mm/ksm", n)))

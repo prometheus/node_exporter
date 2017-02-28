@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Exporter is a prometheus exporter using multiple Factories to collect and export system metrics.
+// Package collector includes all individual collectors to gather and export system metrics.
 package collector
 
 import (
@@ -19,15 +19,17 @@ import (
 	"github.com/prometheus/common/log"
 )
 
+// Namespace defines the common namespace to be used by all metrics.
 const Namespace = "node"
 
+// Factories contains the list of all available collectors.
 var Factories = make(map[string]func() (Collector, error))
 
 func warnDeprecated(collector string) {
 	log.Warnf("The %s collector is deprecated and will be removed in the future!", collector)
 }
 
-// Interface a collector has to implement.
+// Collector is the interface a collector has to implement.
 type Collector interface {
 	// Get new metrics and expose them via prometheus registry.
 	Update(ch chan<- prometheus.Metric) (err error)

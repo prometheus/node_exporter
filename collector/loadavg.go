@@ -31,7 +31,7 @@ func init() {
 	Factories["loadavg"] = NewLoadavgCollector
 }
 
-// Take a prometheus registry and return a new Collector exposing load average.
+// NewLoadavgCollector returns a new Collector exposing load average stats.
 func NewLoadavgCollector() (Collector, error) {
 	return &loadavgCollector{
 		metric: []typedDesc{

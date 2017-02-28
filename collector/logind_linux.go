@@ -65,15 +65,15 @@ type logindSession struct {
 
 // Struct elements must be public for the reflection magic of godbus to work.
 type logindSessionEntry struct {
-	SessionId         string
-	UserId            uint32
+	SessionID         string
+	UserID            uint32
 	UserName          string
-	SeatId            string
+	SeatID            string
 	SessionObjectPath dbus.ObjectPath
 }
 
 type logindSeatEntry struct {
-	SeatId         string
+	SeatID         string
 	SeatObjectPath dbus.ObjectPath
 }
 
@@ -81,8 +81,7 @@ func init() {
 	Factories["logind"] = NewLogindCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// logind statistics.
+// NewLogindCollector returns a new Collector exposing logind statistics.
 func NewLogindCollector() (Collector, error) {
 	return &logindCollector{}, nil
 }
@@ -197,7 +196,7 @@ func (c *logindDbus) listSeats() ([]string, error) {
 
 	ret := make([]string, len(seats)+1)
 	for i := range seats {
-		ret[i] = seats[i].SeatId
+		ret[i] = seats[i].SeatID
 	}
 	// Always add the empty seat, which is used for remote sessions like SSH
 	ret[len(seats)] = ""
@@ -260,7 +259,7 @@ func (c *logindDbus) getSession(session logindSessionEntry) *logindSession {
 	}
 
 	return &logindSession{
-		seat:        session.SeatId,
+		seat:        session.SeatID,
 		remote:      remote.String(),
 		sessionType: knownStringOrOther(sessionTypeStr, attrTypeValues),
 		class:       knownStringOrOther(classStr, attrClassValues),
