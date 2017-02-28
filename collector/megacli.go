@@ -47,8 +47,8 @@ func init() {
 	Factories["megacli"] = NewMegaCliCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// RAID status through megacli.
+// NewMegaCliCollector returns a new Collector exposing RAID status through
+// megacli.
 func NewMegaCliCollector() (Collector, error) {
 	warnDeprecated("megacli")
 	return &megaCliCollector{

@@ -72,7 +72,7 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func filterAvailableCollectors(collectors string) string {
-	availableCollectors := make([]string, 0)
+	var availableCollectors []string
 	for _, c := range strings.Split(collectors, ",") {
 		_, ok := collector.Factories[c]
 		if ok {

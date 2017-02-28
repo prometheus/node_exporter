@@ -22,18 +22,17 @@ import (
 )
 
 type entropyCollector struct {
-	entropy_avail *prometheus.Desc
+	entropyAvail *prometheus.Desc
 }
 
 func init() {
 	Factories["entropy"] = NewEntropyCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// entropy stats
+// NewEntropyCollector returns a new Collector exposing entropy stats.
 func NewEntropyCollector() (Collector, error) {
 	return &entropyCollector{
-		entropy_avail: prometheus.NewDesc(
+		entropyAvail: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "", "entropy_available_bits"),
 			"Bits of available entropy.",
 			nil, nil,
@@ -47,7 +46,7 @@ func (c *entropyCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return fmt.Errorf("couldn't get entropy_avail: %s", err)
 	}
 	ch <- prometheus.MustNewConstMetric(
-		c.entropy_avail, prometheus.GaugeValue, float64(value))
+		c.entropyAvail, prometheus.GaugeValue, float64(value))
 
 	return nil
 }

@@ -24,19 +24,15 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-var zfsNotAvailableError = errors.New("ZFS / ZFS statistics are not available")
+var errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
 
 type zfsSysctl string
-
-// Metrics
 
 type zfsMetric struct {
 	subsystem string    // The Prometheus subsystem name.
 	name      string    // The Prometheus name of the metric.
 	sysctl    zfsSysctl // The sysctl of the ZFS metric.
 }
-
-// Collector
 
 func init() {
 	Factories["zfs"] = NewZFSCollector
@@ -49,6 +45,7 @@ type zfsCollector struct {
 	linuxPathMap      map[string]string
 }
 
+// NewZFSCollector returns a new Collector exposing ZFS statistics.
 func NewZFSCollector() (Collector, error) {
 	var z zfsCollector
 	z.linuxProcpathBase = "spl/kstat/zfs"
@@ -65,14 +62,13 @@ func NewZFSCollector() (Collector, error) {
 	return &z, nil
 }
 
-func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for subsystem := range c.linuxPathMap {
-		err = c.updateZfsStats(subsystem, ch)
-		switch {
-		case err == zfsNotAvailableError:
-			log.Debug(err)
-			return nil
-		case err != nil:
+		if err := c.updateZfsStats(subsystem, ch); err != nil {
+			if err == errZFSNotAvailable {
+				log.Debug(err)
+				return nil
+			}
 			return err
 		}
 	}

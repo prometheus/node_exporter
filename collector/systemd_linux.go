@@ -51,8 +51,7 @@ func init() {
 	Factories["systemd"] = NewSystemdCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// systemd statistics.
+// NewSystemdCollector returns a new Collector exposing systemd statistics.
 func NewSystemdCollector() (Collector, error) {
 	const subsystem = "systemd"
 

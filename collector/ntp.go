@@ -37,8 +37,8 @@ func init() {
 	Factories["ntp"] = NewNtpCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// the offset between ntp and the current system time.
+// NewNtpCollector returns a new Collector exposing the offset between ntp and
+// the current system time.
 func NewNtpCollector() (Collector, error) {
 	warnDeprecated("ntp")
 	if *ntpServer == "" {

@@ -51,8 +51,8 @@ func init() {
 
 type hwMonCollector struct{}
 
-// Takes a prometheus registry and returns a new Collector exposing
-// /sys/class/hwmon stats (similar to lm-sensors).
+// NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
+// (similar to lm-sensors).
 func NewHwMonCollector() (Collector, error) {
 	return &hwMonCollector{}, nil
 }
@@ -78,7 +78,7 @@ func addValueFile(data map[string]map[string]string, sensor string, prop string,
 	data[sensor][prop] = value
 }
 
-// Split a sensor name into <type><num>_<property>
+// explodeSensorFilename splits a sensor name into <type><num>_<property>.
 func explodeSensorFilename(filename string) (ok bool, sensorType string, sensorNum int, sensorProperty string) {
 	matches := hwmonFilenameFormat.FindStringSubmatch(filename)
 	if len(matches) == 0 {
@@ -164,7 +164,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 		)
 	}
 
-	// format all sensors
+	// Format all sensors.
 	for sensor, sensorData := range data {
 
 		_, sensorType, _, _ := explodeSensorFilename(sensor)

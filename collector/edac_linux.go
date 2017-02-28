@@ -52,8 +52,7 @@ func init() {
 	Factories["edac"] = NewEdacCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// edac stats.
+// NewEdacCollector returns a new Collector exposing edac stats.
 func NewEdacCollector() (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(

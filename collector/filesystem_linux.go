@@ -27,10 +27,10 @@ import (
 const (
 	defIgnoredMountPoints = "^/(sys|proc|dev)($|/)"
 	defIgnoredFSTypes     = "^(sys|proc|auto)fs$"
-	ST_RDONLY             = 0x1
+	readOnly              = 0x1 // ST_RDONLY
 )
 
-// Expose filesystem fullness.
+// GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	mps, err := mountPointDetails()
 	if err != nil {
@@ -57,7 +57,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		}
 
 		var ro float64
-		if buf.Flags&ST_RDONLY != 0 {
+		if (buf.Flags & readOnly) != 0 {
 			ro = 1
 		}
 

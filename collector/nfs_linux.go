@@ -78,19 +78,19 @@ var (
 		nil,
 	)
 
-	nfsRpcOperationsDesc = prometheus.NewDesc(
+	nfsRPCOperationsDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "nfs", "rpc_operations"),
 		"Number of RPCs performed.",
 		nil,
 		nil,
 	)
-	nfsRpcRetransmissionsDesc = prometheus.NewDesc(
+	nfsRPCRetransmissionsDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "nfs", "rpc_retransmissions"),
 		"Number of RPC transmissions performed.",
 		nil,
 		nil,
 	)
-	nfsRpcAuthenticationRefreshesDesc = prometheus.NewDesc(
+	nfsRPCAuthenticationRefreshesDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "nfs", "rpc_authentication_refreshes"),
 		"Number of RPC authentication refreshes performed.",
 		nil,
@@ -111,6 +111,7 @@ func init() {
 	Factories["nfs"] = NewNfsCollector
 }
 
+// NewNfsCollector returns a new Collector exposing NFS statistics.
 func NewNfsCollector() (Collector, error) {
 	return &nfsCollector{}, nil
 }
@@ -145,17 +146,17 @@ func (c *nfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		} else if fields := rpcLineRE.FindStringSubmatch(line); fields != nil {
 			value, _ := strconv.ParseFloat(fields[1], 64)
 			ch <- prometheus.MustNewConstMetric(
-				nfsRpcOperationsDesc,
+				nfsRPCOperationsDesc,
 				prometheus.CounterValue, value)
 
 			value, _ = strconv.ParseFloat(fields[2], 64)
 			ch <- prometheus.MustNewConstMetric(
-				nfsRpcRetransmissionsDesc,
+				nfsRPCRetransmissionsDesc,
 				prometheus.CounterValue, value)
 
 			value, _ = strconv.ParseFloat(fields[3], 64)
 			ch <- prometheus.MustNewConstMetric(
-				nfsRpcAuthenticationRefreshesDesc,
+				nfsRPCAuthenticationRefreshesDesc,
 				prometheus.CounterValue, value)
 		} else if fields := procLineRE.FindStringSubmatch(line); fields != nil {
 			version := fields[1]

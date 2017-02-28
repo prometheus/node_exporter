@@ -31,17 +31,17 @@ func (c *testLogindInterface) listSeats() ([]string, error) {
 func (c *testLogindInterface) listSessions() ([]logindSessionEntry, error) {
 	return []logindSessionEntry{
 		{
-			SessionId:         "1",
-			UserId:            0,
+			SessionID:         "1",
+			UserID:            0,
 			UserName:          "",
-			SeatId:            "",
+			SeatID:            "",
 			SessionObjectPath: dbus.ObjectPath("/org/freedesktop/login1/session/1"),
 		},
 		{
-			SessionId:         "2",
-			UserId:            0,
+			SessionID:         "2",
+			UserID:            0,
 			UserName:          "",
-			SeatId:            "seat0",
+			SeatID:            "seat0",
 			SessionObjectPath: dbus.ObjectPath("/org/freedesktop/login1/session/2"),
 		},
 	}, nil
@@ -50,13 +50,13 @@ func (c *testLogindInterface) listSessions() ([]logindSessionEntry, error) {
 func (c *testLogindInterface) getSession(session logindSessionEntry) *logindSession {
 	sessions := map[dbus.ObjectPath]*logindSession{
 		dbus.ObjectPath("/org/freedesktop/login1/session/1"): {
-			seat:        session.SeatId,
+			seat:        session.SeatID,
 			remote:      "true",
 			sessionType: knownStringOrOther("tty", attrTypeValues),
 			class:       knownStringOrOther("user", attrClassValues),
 		},
 		dbus.ObjectPath("/org/freedesktop/login1/session/2"): {
-			seat:        session.SeatId,
+			seat:        session.SeatID,
 			remote:      "false",
 			sessionType: knownStringOrOther("x11", attrTypeValues),
 			class:       knownStringOrOther("greeter", attrClassValues),
