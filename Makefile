@@ -21,8 +21,19 @@ BIN_DIR                 ?= $(shell pwd)
 DOCKER_IMAGE_NAME       ?= node-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
+ifeq ($(OS),Windows_NT)
+    OS_detected := Windows
+else
+    OS_detected := $(shell uname -s)
+endif
 
-all: format build test test-e2e
+ifeq ($(OS_detected), Linux)
+    test-e2e := test-e2e
+else
+    test-e2e := skip-test-e2e
+endif
+
+all: format build test $(test-e2e)
 
 style:
 	@echo ">> checking code style"
@@ -35,6 +46,9 @@ test:
 test-e2e: build
 	@echo ">> running end-to-end tests"
 	./end-to-end-test.sh
+
+skip-test-e2e:
+	@echo ">> SKIP running end-to-end tests on $(OS_detected)"
 
 format:
 	@echo ">> formatting code"
