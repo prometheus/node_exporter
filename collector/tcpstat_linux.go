@@ -130,7 +130,7 @@ func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
 		tcpStats[tcpConnectionState(st)]++
 	}
 
-	return tcpStats, nil
+	return tcpStats, scanner.Err()
 }
 
 func (st tcpConnectionState) String() string {

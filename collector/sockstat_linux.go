@@ -95,6 +95,9 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 			i++
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
 
 	// The mem metrics is the count of pages used. Multiply the mem metrics by
 	// the page size from the kernel to get the number of bytes used.

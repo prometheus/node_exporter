@@ -122,7 +122,7 @@ func parseMegaCliDisks(r io.Reader) (map[int]map[int]map[string]string, error) {
 		}
 	}
 
-	return stats, nil
+	return stats, scanner.Err()
 }
 
 func parseMegaCliAdapter(r io.Reader) (map[string]map[string]string, error) {
@@ -155,7 +155,7 @@ func parseMegaCliAdapter(r io.Reader) (map[string]map[string]string, error) {
 
 	}
 
-	return raidStats, nil
+	return raidStats, scanner.Err()
 }
 
 func (c *megaCliCollector) updateAdapter() error {

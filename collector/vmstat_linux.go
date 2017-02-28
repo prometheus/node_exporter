@@ -64,5 +64,5 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			value,
 		)
 	}
-	return err
+	return scanner.Err()
 }

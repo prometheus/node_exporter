@@ -62,5 +62,5 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 		memInfo[key] = fv
 	}
 
-	return memInfo, nil
+	return memInfo, scanner.Err()
 }

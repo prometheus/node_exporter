@@ -158,5 +158,5 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value)
 		}
 	}
-	return err
+	return scanner.Err()
 }

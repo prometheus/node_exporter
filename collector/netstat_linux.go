@@ -108,5 +108,5 @@ func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, 
 		}
 	}
 
-	return netStats, nil
+	return netStats, scanner.Err()
 }
