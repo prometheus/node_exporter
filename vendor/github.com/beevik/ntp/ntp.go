@@ -3,9 +3,8 @@
 // license that can be found in the LICENSE file.
 
 // Package ntp provides a simple mechanism for querying the current time from
-// a remote NTP server.  This package only supports NTP client mode behavior
-// and version 4 of the NTP protocol.  See RFC 5905. Approach inspired by go-
-// nuts post by Michael Hofmann:
+// a remote NTP server. See RFC 5905. Approach inspired by go-nuts post by
+// Michael Hofmann:
 //
 // https://groups.google.com/forum/?fromgroups#!topic/golang-nuts/FlcdMU5fkLQ
 package ntp
@@ -117,8 +116,10 @@ type Response struct {
 	RootDispersion time.Duration // server's dispersion to the reference clock
 }
 
-// Query returns information from the remote NTP server specifed as host.  NTP
-// client mode is used.
+// Query returns the current time from the remote server host using the
+// requested version of the NTP protocol. It also returns additional
+// information about the exchanged time information. The version may be 2, 3,
+// or 4; although 4 is most typically used.
 func Query(host string, version int) (*Response, error) {
 	m, err := getTime(host, version)
 	now := toNtpTime(time.Now())
@@ -146,8 +147,7 @@ func Query(host string, version int) (*Response, error) {
 	return r, nil
 }
 
-// Time returns the "receive time" from the remote NTP server specifed as
-// host.  NTP client mode is used.
+// getTime returns the "receive time" from the remote NTP server host.
 func getTime(host string, version int) (*msg, error) {
 	if version < 2 || version > 4 {
 		panic("ntp: invalid version number")
@@ -183,9 +183,9 @@ func getTime(host string, version int) (*msg, error) {
 	return m, nil
 }
 
-// TimeV returns the "receive time" from the remote NTP server specifed as
-// host.  Use the NTP client mode with the requested version number (2, 3, or
-// 4).
+// TimeV returns the current time from the remote server host using the
+// requested version of the NTP protocol. The version may be 2, 3, or 4;
+// although 4 is most typically used.
 func TimeV(host string, version int) (time.Time, error) {
 	m, err := getTime(host, version)
 	if err != nil {
@@ -194,8 +194,8 @@ func TimeV(host string, version int) (time.Time, error) {
 	return m.ReceiveTime.Time().Local(), nil
 }
 
-// Time returns the "receive time" from the remote NTP server specifed as
-// host.  NTP client mode version 4 is used.
+// Time returns the current time from the remote server host using version 4
+// of the NTP protocol.
 func Time(host string) (time.Time, error) {
 	return TimeV(host, 4)
 }

@@ -48,6 +48,8 @@
 # TYPE go_memstats_stack_sys_bytes gauge
 # HELP go_memstats_sys_bytes Number of bytes obtained from system.
 # TYPE go_memstats_sys_bytes gauge
+# HELP go_threads Number of OS threads created
+# TYPE go_threads gauge
 # HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
 # TYPE http_request_duration_microseconds summary
 http_request_duration_microseconds{handler="prometheus",quantile="0.5"} NaN

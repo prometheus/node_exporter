@@ -96,10 +96,10 @@ func (enc *encoder) encode(v reflect.Value, depth int) {
 	case reflect.Uint16:
 		enc.binwrite(uint16(v.Uint()))
 		enc.pos += 2
-	case reflect.Int32:
+	case reflect.Int, reflect.Int32:
 		enc.binwrite(int32(v.Int()))
 		enc.pos += 4
-	case reflect.Uint32:
+	case reflect.Uint, reflect.Uint32:
 		enc.binwrite(uint32(v.Uint()))
 		enc.pos += 4
 	case reflect.Int64:
