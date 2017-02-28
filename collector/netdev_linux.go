@@ -44,7 +44,7 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 	scanner := bufio.NewScanner(r)
 	scanner.Scan() // skip first header
 	scanner.Scan()
-	parts := strings.Split(string(scanner.Text()), "|")
+	parts := strings.Split(scanner.Text(), "|")
 	if len(parts) != 3 { // interface + receive + transmit
 		return nil, fmt.Errorf("invalid header line in net/dev: %s",
 			scanner.Text())
@@ -53,7 +53,7 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 	header := strings.Fields(parts[1])
 	netDev := map[string]map[string]string{}
 	for scanner.Scan() {
-		line := strings.TrimLeft(string(scanner.Text()), " ")
+		line := strings.TrimLeft(scanner.Text(), " ")
 		parts := procNetDevFieldSep.Split(line, -1)
 		if len(parts) != 2*len(header)+1 {
 			return nil, fmt.Errorf("invalid line in net/dev: %s", scanner.Text())

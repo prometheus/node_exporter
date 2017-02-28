@@ -132,7 +132,7 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 		if line == "" {
 			continue
 		}
-		parts := strings.Fields(string(line))
+		parts := strings.Fields(line)
 
 		fv, err := strconv.ParseFloat(parts[3], 64)
 		if err != nil {
@@ -166,7 +166,7 @@ func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, erro
 		if line == "" {
 			continue
 		}
-		parts := strings.Fields(string(line))
+		parts := strings.Fields(line)
 		if len(parts) != 2 {
 			return nil, fmt.Errorf("line scan did not return 2 fields: %s", line)
 		}

@@ -76,7 +76,7 @@ func parseFileFDStats(r io.Reader, fileName string) (map[string]string, error) {
 	var scanner = bufio.NewScanner(r)
 	scanner.Scan()
 	// The file-nr proc file is separated by tabs, not spaces.
-	line := strings.Split(string(scanner.Text()), "\u0009")
+	line := strings.Split(scanner.Text(), "\u0009")
 	var fileFDStat = map[string]string{}
 	// The file-nr proc is only 1 line with 3 values.
 	fileFDStat["allocated"] = line[0]

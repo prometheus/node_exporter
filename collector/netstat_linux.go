@@ -93,9 +93,9 @@ func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, 
 	)
 
 	for scanner.Scan() {
-		nameParts := strings.Split(string(scanner.Text()), " ")
+		nameParts := strings.Split(scanner.Text(), " ")
 		scanner.Scan()
-		valueParts := strings.Split(string(scanner.Text()), " ")
+		valueParts := strings.Split(scanner.Text(), " ")
 		// Remove trailing :.
 		protocol := nameParts[0][:len(nameParts[0])-1]
 		netStats[protocol] = map[string]string{}
