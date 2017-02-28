@@ -20,7 +20,8 @@ import (
 	"strings"
 )
 
-func splitToInts(str string, sep string) (ints []int, err error) {
+func splitToInts(str, sep string) ([]int, error) {
+	var ints []int
 	for _, part := range strings.Split(str, sep) {
 		i, err := strconv.Atoi(part)
 		if err != nil {

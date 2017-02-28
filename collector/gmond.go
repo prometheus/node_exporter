@@ -56,7 +56,7 @@ func NewGmondCollector() (Collector, error) {
 	return &c, nil
 }
 
-func (c *gmondCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *gmondCollector) Update(ch chan<- prometheus.Metric) error {
 	conn, err := net.Dial(gangliaProto, gangliaAddress)
 	log.Debugf("gmondCollector Update")
 	if err != nil {

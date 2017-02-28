@@ -392,7 +392,7 @@ func (c *hwMonCollector) hwmonHumanReadableChipName(dir string) (string, error) 
 	return "", errors.New("Could not derive a human-readable chip type for " + dir)
 }
 
-func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updatesHwmon for each folder
 

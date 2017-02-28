@@ -66,7 +66,7 @@ func NewTextFileCollector() (Collector, error) {
 }
 
 // Update implements the Collector interface.
-func (c *textFileCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 

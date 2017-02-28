@@ -49,7 +49,7 @@ func NewBuddyinfoCollector() (Collector, error) {
 
 // Update calls (*buddyinfoCollector).getBuddyInfo to get the platform specific
 // buddyinfo metrics.
-func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %v", err)

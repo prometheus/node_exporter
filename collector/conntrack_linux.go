@@ -44,7 +44,7 @@ func NewConntrackCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	value, err := readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_count"))
 	if err != nil {
 		// Conntrack probably not loaded into the kernel.

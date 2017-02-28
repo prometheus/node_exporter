@@ -84,7 +84,7 @@ func NewStatCollector() (Collector, error) {
 }
 
 // Expose kernel and system statistics.
-func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	file, err := os.Open(procFilePath("stat"))
 	if err != nil {
 		return err

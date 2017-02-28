@@ -124,7 +124,7 @@ func NewFilesystemCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.GetStats()
 	if err != nil {
 		return err

@@ -44,7 +44,7 @@ func NewSockStatCollector() (Collector, error) {
 	return &sockStatCollector{}, nil
 }
 
-func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	sockStats, err := getSockStats(procFilePath("net/sockstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get sockstats: %s", err)

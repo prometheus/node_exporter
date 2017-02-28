@@ -42,7 +42,7 @@ func NewLoadavgCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) error {
 	loads, err := getLoad()
 	if err != nil {
 		return fmt.Errorf("couldn't get load: %s", err)

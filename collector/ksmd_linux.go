@@ -60,7 +60,7 @@ func NewKsmdCollector() (Collector, error) {
 }
 
 // Update implements Collector and exposes kernel and system statistics.
-func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
 		val, err := readUintFromFile(sysFilePath(path.Join("kernel/mm/ksm", n)))
 		if err != nil {
