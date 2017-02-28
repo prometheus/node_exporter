@@ -47,7 +47,7 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 	})
 }
 
-func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	zpoolPaths, err := filepath.Glob(procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolIoPath)))
 	if err != nil {
 		return err

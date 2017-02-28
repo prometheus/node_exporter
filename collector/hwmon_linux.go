@@ -101,7 +101,7 @@ func explodeSensorFilename(filename string) (ok bool, sensorType string, sensorN
 	return true, sensorType, sensorNum, sensorProperty
 }
 
-func collectSensorData(dir string, data map[string]map[string]string) (err error) {
+func collectSensorData(dir string, data map[string]map[string]string) error {
 	sensorFiles, dirError := ioutil.ReadDir(dir)
 	if dirError != nil {
 		return dirError
@@ -123,7 +123,7 @@ func collectSensorData(dir string, data map[string]map[string]string) (err error
 	return nil
 }
 
-func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (err error) {
+func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) error {
 	hwmonName, err := c.hwmonName(dir)
 	if err != nil {
 		return err

@@ -28,7 +28,7 @@ func init() {
 	Factories["exec"] = NewExecCollector
 }
 
-// NewExecCollector returns a new Collector exposing system execution statistics
+// NewExecCollector returns a new Collector exposing system execution statistics.
 func NewExecCollector() (Collector, error) {
 	// From sys/vm/vm_meter.c:
 	// All are of type CTLTYPE_UINT.
@@ -77,15 +77,13 @@ func NewExecCollector() (Collector, error) {
 }
 
 // Update pushes exec statistics onto ch
-func (c *execCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *execCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {
 			return err
 		}
 
-		// We "know" all of our sysctls are CounterValues, let's skip
-		// parsing them
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
 				prometheus.BuildFQName(Namespace, "exec", m.name),
