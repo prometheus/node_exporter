@@ -217,7 +217,7 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 	)
 
 	for scanner.Scan() {
-		parts := strings.Fields(string(scanner.Text()))
+		parts := strings.Fields(scanner.Text())
 		if len(parts) < 4 { // we strip major, minor and dev
 			return nil, fmt.Errorf("invalid line in %s: %s", procFilePath("diskstats"), scanner.Text())
 		}

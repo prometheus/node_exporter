@@ -39,12 +39,12 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 	var (
 		memInfo = map[string]float64{}
 		scanner = bufio.NewScanner(r)
-		re      = regexp.MustCompile("\\((.*)\\)")
+		re      = regexp.MustCompile(`\((.*)\)`)
 	)
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		parts := strings.Fields(string(line))
+		parts := strings.Fields(line)
 		fv, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
 			return nil, fmt.Errorf("invalid value in meminfo: %s", err)

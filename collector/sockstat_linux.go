@@ -85,7 +85,7 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 	)
 
 	for scanner.Scan() {
-		line := strings.Split(string(scanner.Text()), " ")
+		line := strings.Split(scanner.Text(), " ")
 		// Remove trailing ':'.
 		protocol := line[0][:len(line[0])-1]
 		sockStat[protocol] = map[string]string{}

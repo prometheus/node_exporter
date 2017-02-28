@@ -87,7 +87,7 @@ func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, val
 
 	return prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, string(subsystem), metricName),
+			prometheus.BuildFQName(Namespace, subsystem, metricName),
 			string(sysctl),
 			nil,
 			nil,
