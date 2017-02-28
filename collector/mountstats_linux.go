@@ -419,7 +419,7 @@ func NewMountStatsCollector() (Collector, error) {
 
 		NFSEventVFSLockTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_lock_total"),
-			"Number of times locking has been attemped on a file.",
+			"Number of times locking has been attempted on a file.",
 			labels,
 			nil,
 		),

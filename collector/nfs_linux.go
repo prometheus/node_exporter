@@ -31,20 +31,20 @@ var (
 	procLineRE = regexp.MustCompile(`^proc(\d+) \d+ (\d+( \d+)*)$`)
 
 	nfsProcedures = map[string][]string{
-		"2": []string{
+		"2": {
 			"null", "getattr", "setattr", "root", "lookup",
 			"readlink", "read", "writecache", "write", "create",
 			"remove", "rename", "link", "symlink", "mkdir",
 			"rmdir", "readdir", "statfs",
 		},
-		"3": []string{
+		"3": {
 			"null", "getattr", "setattr", "lookup", "access",
 			"readlink", "read", "write", "create", "mkdir",
 			"symlink", "mknod", "remove", "rmdir", "rename",
 			"link", "readdir", "readdirplus", "fsstat", "fsinfo",
 			"pathconf", "commit",
 		},
-		"4": []string{
+		"4": {
 			"null", "read", "write", "commit", "open",
 			"open_confirm", "open_noattr", "open_downgrade",
 			"close", "setattr", "fsinfo", "renew", "setclientid",
