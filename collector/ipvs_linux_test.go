@@ -17,7 +17,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -25,99 +24,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/procfs"
-)
-
-var (
-	expectedIPVSStats = procfs.IPVSStats{
-		Connections:     23765872,
-		IncomingPackets: 3811989221,
-		OutgoingPackets: 0,
-		IncomingBytes:   89991519156915,
-		OutgoingBytes:   0,
-	}
-	expectedIPVSBackendStatuses = []procfs.IPVSBackendStatus{
-		{
-			LocalAddress:  net.ParseIP("192.168.0.22"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.82.22"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        100,
-			ActiveConn:    248,
-			InactConn:     2,
-		},
-		{
-			LocalAddress:  net.ParseIP("192.168.0.22"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.83.24"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        100,
-			ActiveConn:    248,
-			InactConn:     2,
-		},
-		{
-			LocalAddress:  net.ParseIP("192.168.0.22"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.83.21"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        100,
-			ActiveConn:    248,
-			InactConn:     1,
-		},
-		{
-			LocalAddress:  net.ParseIP("192.168.0.57"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.84.22"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        0,
-			ActiveConn:    0,
-			InactConn:     0,
-		},
-		{
-			LocalAddress:  net.ParseIP("192.168.0.57"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.82.21"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        100,
-			ActiveConn:    1499,
-			InactConn:     0,
-		},
-		{
-			LocalAddress:  net.ParseIP("192.168.0.57"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.50.21"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        100,
-			ActiveConn:    1498,
-			InactConn:     0,
-		},
-		{
-			LocalAddress:  net.ParseIP("192.168.0.55"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.50.26"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        0,
-			ActiveConn:    0,
-			InactConn:     0,
-		},
-		{
-			LocalAddress:  net.ParseIP("192.168.0.55"),
-			LocalPort:     3306,
-			RemoteAddress: net.ParseIP("192.168.49.32"),
-			RemotePort:    3306,
-			Proto:         "TCP",
-			Weight:        100,
-			ActiveConn:    0,
-			InactConn:     0,
-		},
-	}
 )
 
 func TestIPVSCollector(t *testing.T) {

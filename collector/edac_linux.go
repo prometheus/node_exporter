@@ -33,14 +33,6 @@ var (
 	edacMemCsrowRE      = regexp.MustCompile(`.*devices/system/edac/mc/mc[0-9]*/csrow([0-9]*)`)
 )
 
-type edacMCMetric struct {
-	metricName    string
-	metricType    prometheus.ValueType
-	metricHelp    string
-	memController string
-	value         float64
-}
-
 type edacCollector struct {
 	ceCount      *prometheus.Desc
 	ueCount      *prometheus.Desc

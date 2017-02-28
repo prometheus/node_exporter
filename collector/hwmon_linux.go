@@ -29,10 +29,6 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-const (
-	hwMonSubsystem = "hwmon"
-)
-
 var (
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)

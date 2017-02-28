@@ -28,18 +28,11 @@ var errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
 
 type zfsSysctl string
 
-type zfsMetric struct {
-	subsystem string    // The Prometheus subsystem name.
-	name      string    // The Prometheus name of the metric.
-	sysctl    zfsSysctl // The sysctl of the ZFS metric.
-}
-
 func init() {
 	Factories["zfs"] = NewZFSCollector
 }
 
 type zfsCollector struct {
-	zfsMetrics        []zfsMetric
 	linuxProcpathBase string
 	linuxZpoolIoPath  string
 	linuxPathMap      map[string]string
@@ -47,19 +40,19 @@ type zfsCollector struct {
 
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
 func NewZFSCollector() (Collector, error) {
-	var z zfsCollector
-	z.linuxProcpathBase = "spl/kstat/zfs"
-	z.linuxZpoolIoPath = "/*/io"
-	z.linuxPathMap = map[string]string{
-		"zfs_arc":        "arcstats",
-		"zfs_dmu_tx":     "dmu_tx",
-		"zfs_fm":         "fm",
-		"zfs_zfetch":     "zfetchstats",
-		"zfs_vdev_cache": "vdev_cache_stats",
-		"zfs_xuio":       "xuio_stats",
-		"zfs_zil":        "zil",
-	}
-	return &z, nil
+	return &zfsCollector{
+		linuxProcpathBase: "spl/kstat/zfs",
+		linuxZpoolIoPath:  "/*/io",
+		linuxPathMap: map[string]string{
+			"zfs_arc":        "arcstats",
+			"zfs_dmu_tx":     "dmu_tx",
+			"zfs_fm":         "fm",
+			"zfs_zfetch":     "zfetchstats",
+			"zfs_vdev_cache": "vdev_cache_stats",
+			"zfs_xuio":       "xuio_stats",
+			"zfs_zil":        "zil",
+		},
+	}, nil
 }
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
