@@ -124,7 +124,7 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 	var (
 		memInfo []meminfoMetric
 		scanner = bufio.NewScanner(r)
-		re      = regexp.MustCompile("\\((.*)\\)")
+		re      = regexp.MustCompile(`\((.*)\)`)
 	)
 
 	for scanner.Scan() {

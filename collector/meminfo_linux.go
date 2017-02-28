@@ -39,7 +39,7 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 	var (
 		memInfo = map[string]float64{}
 		scanner = bufio.NewScanner(r)
-		re      = regexp.MustCompile("\\((.*)\\)")
+		re      = regexp.MustCompile(`\((.*)\)`)
 	)
 
 	for scanner.Scan() {
