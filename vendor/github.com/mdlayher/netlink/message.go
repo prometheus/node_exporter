@@ -57,7 +57,6 @@ const (
 
 	// HeaderFlagsAtomic requests that netlink send an atomic snapshot of
 	// its entries.  Requires CAP_NET_ADMIN or an effective UID of 0.
-	// May be obsolete.
 	HeaderFlagsAtomic HeaderFlags = 0x400
 
 	// HeaderFlagsDump requests that netlink return a complete list of
@@ -159,8 +158,8 @@ type Header struct {
 // A Message is a netlink message.  It contains a Header and an arbitrary
 // byte payload, which may be decoded using information from the Header.
 //
-// Data is encoded in the native endianness of the host system.  Use this
-// package's Uint* and PutUint* functions to encode and decode integers.
+// Data is encoded in the native endianness of the host system.  For easier
+// of encoding and decoding of integers, use package nlenc.
 type Message struct {
 	Header Header
 	Data   []byte

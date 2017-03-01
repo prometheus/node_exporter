@@ -3,14 +3,15 @@
 package netlink
 
 import (
-	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
 // setsockopt provides access to the setsockopt syscall.
 func setsockopt(fd, level, name int, v unsafe.Pointer, l uint32) error {
-	_, _, errno := syscall.Syscall6(
-		syscall.SYS_SETSOCKOPT,
+	_, _, errno := unix.Syscall6(
+		unix.SYS_SETSOCKOPT,
 		uintptr(fd),
 		uintptr(level),
 		uintptr(name),

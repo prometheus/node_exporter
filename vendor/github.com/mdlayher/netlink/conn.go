@@ -2,8 +2,11 @@ package netlink
 
 import (
 	"errors"
+	"math/rand"
 	"sync"
 	"sync/atomic"
+
+	"golang.org/x/net/bpf"
 )
 
 // Error messages which can be returned by Validate.
@@ -39,6 +42,7 @@ type osConn interface {
 	Receive() ([]Message, error)
 	JoinGroup(group uint32) error
 	LeaveGroup(group uint32) error
+	SetBPF(filter []bpf.RawInstruction) error
 }
 
 // Dial dials a connection to netlink, using the specified protocol number.
@@ -56,9 +60,11 @@ func Dial(proto int, config *Config) (*Conn, error) {
 
 // newConn is the internal constructor for Conn, used in tests.
 func newConn(c osConn) *Conn {
+	seq := rand.Uint32()
+
 	return &Conn{
 		c:   c,
-		seq: new(uint32),
+		seq: &seq,
 		pid: new(uint32),
 	}
 }
@@ -210,6 +216,11 @@ func (c *Conn) JoinGroup(group uint32) error {
 // LeaveGroup leaves a netlink multicast group by its ID.
 func (c *Conn) LeaveGroup(group uint32) error {
 	return c.c.LeaveGroup(group)
+}
+
+// SetBPF attaches an assembled BPF program to a Conn.
+func (c *Conn) SetBPF(filter []bpf.RawInstruction) error {
+	return c.c.SetBPF(filter)
 }
 
 // nextSequence atomically increments Conn's sequence number and returns

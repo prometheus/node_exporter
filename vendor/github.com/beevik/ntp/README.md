@@ -4,12 +4,17 @@
 ntp
 ===
 
-The ntp package is a small implementation of a limited NTP client. It
-requests the current time from a remote NTP server according to
-selected version of the NTP protocol. Client uses version 4 of the NTP
-protocol RFC5905 by default.
+The ntp package is an implementation of a simple NTP client. It allows you
+to connect to a remote NTP server and request the current time.
 
-The approach was inspired by a post to the go-nuts mailing list by
-Michael Hofmann:
+To request the current time using version 4 of the NTP protocol, simply do the
+following:
+```go
+time, err := ntp.Time("0.pool.ntp.org")
+```
 
-https://groups.google.com/forum/?fromgroups#!topic/golang-nuts/FlcdMU5fkLQ
+To request the current time along with additional metadata, use the Query
+function:
+```go
+response, err := ntp.Query("0.pool.ntp.org", 4)
+```

@@ -5,6 +5,8 @@ package netlink
 import (
 	"fmt"
 	"runtime"
+
+	"golang.org/x/net/bpf"
 )
 
 var (
@@ -46,6 +48,11 @@ func (c *conn) JoinGroup(group uint32) error {
 
 // LeaveGroup always returns an error.
 func (c *conn) LeaveGroup(group uint32) error {
+	return errUnimplemented
+}
+
+// SetBPF always returns an error.
+func (c *conn) SetBPF(filter []bpf.RawInstruction) error {
 	return errUnimplemented
 }
 
