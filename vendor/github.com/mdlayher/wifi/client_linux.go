@@ -59,6 +59,9 @@ func newClient() (*client, error) {
 func initClient(c genl) (*client, error) {
 	family, err := c.GetFamily(nl80211.GenlName)
 	if err != nil {
+		// Ensure the genl socket is closed on error to avoid leaking file
+		// descriptors.
+		_ = c.Close()
 		return nil, err
 	}
 
