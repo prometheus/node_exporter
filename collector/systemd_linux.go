@@ -51,8 +51,7 @@ func init() {
 	Factories["systemd"] = NewSystemdCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// systemd statistics.
+// NewSystemdCollector returns a new Collector exposing systemd statistics.
 func NewSystemdCollector() (Collector, error) {
 	const subsystem = "systemd"
 
@@ -76,7 +75,7 @@ func NewSystemdCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *systemdCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	units, err := c.listUnits()
 	if err != nil {
 		return fmt.Errorf("couldn't get units states: %s", err)

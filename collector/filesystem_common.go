@@ -64,8 +64,7 @@ func init() {
 	Factories["filesystem"] = NewFilesystemCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// Filesystems stats.
+// NewFilesystemCollector returns a new Collector exposing filesystems stats.
 func NewFilesystemCollector() (Collector, error) {
 	subsystem := "filesystem"
 	mountPointPattern := regexp.MustCompile(*ignoredMountPoints)
@@ -125,7 +124,7 @@ func NewFilesystemCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.GetStats()
 	if err != nil {
 		return err

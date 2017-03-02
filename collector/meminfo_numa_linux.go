@@ -50,15 +50,14 @@ func init() {
 	Factories["meminfo_numa"] = NewMeminfoNumaCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// memory stats.
+// NewMeminfoNumaCollector returns a new Collector exposing memory stats.
 func NewMeminfoNumaCollector() (Collector, error) {
 	return &meminfoNumaCollector{
 		metricDescs: map[string]*prometheus.Desc{},
 	}, nil
 }
 
-func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
 	metrics, err := getMemInfoNuma()
 	if err != nil {
 		return fmt.Errorf("couldn't get NUMA meminfo: %s", err)
@@ -124,7 +123,7 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 	var (
 		memInfo []meminfoMetric
 		scanner = bufio.NewScanner(r)
-		re      = regexp.MustCompile("\\((.*)\\)")
+		re      = regexp.MustCompile(`\((.*)\)`)
 	)
 
 	for scanner.Scan() {
@@ -132,7 +131,7 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 		if line == "" {
 			continue
 		}
-		parts := strings.Fields(string(line))
+		parts := strings.Fields(line)
 
 		fv, err := strconv.ParseFloat(parts[3], 64)
 		if err != nil {
@@ -166,7 +165,7 @@ func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, erro
 		if line == "" {
 			continue
 		}
-		parts := strings.Fields(string(line))
+		parts := strings.Fields(line)
 		if len(parts) != 2 {
 			return nil, fmt.Errorf("line scan did not return 2 fields: %s", line)
 		}

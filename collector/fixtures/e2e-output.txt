@@ -48,6 +48,8 @@
 # TYPE go_memstats_stack_sys_bytes gauge
 # HELP go_memstats_sys_bytes Number of bytes obtained from system.
 # TYPE go_memstats_sys_bytes gauge
+# HELP go_threads Number of OS threads created
+# TYPE go_threads gauge
 # HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
 # TYPE http_request_duration_microseconds summary
 http_request_duration_microseconds{handler="prometheus",quantile="0.5"} NaN
@@ -1177,7 +1179,7 @@ node_mountstats_nfs_event_vfs_fsync_total{export="192.168.1.1:/srv/test"} 0
 # HELP node_mountstats_nfs_event_vfs_getdents_total Number of times directory entries have been read with getdents().
 # TYPE node_mountstats_nfs_event_vfs_getdents_total counter
 node_mountstats_nfs_event_vfs_getdents_total{export="192.168.1.1:/srv/test"} 0
-# HELP node_mountstats_nfs_event_vfs_lock_total Number of times locking has been attemped on a file.
+# HELP node_mountstats_nfs_event_vfs_lock_total Number of times locking has been attempted on a file.
 # TYPE node_mountstats_nfs_event_vfs_lock_total counter
 node_mountstats_nfs_event_vfs_lock_total{export="192.168.1.1:/srv/test"} 0
 # HELP node_mountstats_nfs_event_vfs_lookup_total Number of times a directory lookup has occurred.

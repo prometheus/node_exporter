@@ -47,7 +47,7 @@ func TestNetDevStats(t *testing.T) {
 		t.Errorf("want count of devices to be %d, got %d", want, got)
 	}
 
-	if _, ok := netStats["veth4B09XN"]["transmit_bytes"]; ok != false {
+	if _, ok := netStats["veth4B09XN"]["transmit_bytes"]; ok {
 		t.Error("want fixture interface veth4B09XN to not exist, but it does")
 	}
 }

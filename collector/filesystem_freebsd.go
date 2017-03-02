@@ -26,8 +26,8 @@ import (
 const (
 	defIgnoredMountPoints = "^/(dev)($|/)"
 	defIgnoredFSTypes     = "^devfs$"
-	MNT_RDONLY            = 0x1
-	MNT_NOWAIT            = 0x2
+	readOnly              = 0x1 // MNT_RDONLY
+	noWait                = 0x2 // MNT_NOWAIT
 )
 
 func gostring(b []int8) string {
@@ -40,10 +40,10 @@ func gostring(b []int8) string {
 }
 
 // Expose filesystem fullness.
-func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
+func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	buf := make([]unix.Statfs_t, 16)
 	for {
-		n, err := unix.Getfsstat(buf, MNT_NOWAIT)
+		n, err := unix.Getfsstat(buf, noWait)
 		if err != nil {
 			return nil, err
 		}
@@ -53,7 +53,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		}
 		buf = make([]unix.Statfs_t, len(buf)*2)
 	}
-	stats = []filesystemStats{}
+	stats := []filesystemStats{}
 	for _, fs := range buf {
 		mountpoint := gostring(fs.Mntonname[:])
 		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
@@ -69,7 +69,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		}
 
 		var ro float64
-		if (fs.Flags & MNT_RDONLY) != 0 {
+		if (fs.Flags & readOnly) != 0 {
 			ro = 1
 		}
 

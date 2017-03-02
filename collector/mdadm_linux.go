@@ -56,10 +56,8 @@ func evalStatusline(statusline string) (active, total, size int64, err error) {
 	// +1 to make it more obvious that the whole string containing the info is also returned as matches[0].
 	if len(matches) < 3+1 {
 		return 0, 0, 0, fmt.Errorf("too few matches found in statusline: %s", statusline)
-	} else {
-		if len(matches) > 3+1 {
-			return 0, 0, 0, fmt.Errorf("too many matches found in statusline: %s", statusline)
-		}
+	} else if len(matches) > 3+1 {
+		return 0, 0, 0, fmt.Errorf("too many matches found in statusline: %s", statusline)
 	}
 
 	size, err = strconv.ParseInt(matches[1], 10, 64)
@@ -109,7 +107,7 @@ func evalUnknownPersonalitylineRE(statusline string) (size int64, err error) {
 	return size, nil
 }
 
-// Gets the size that has already been synced out of the sync-line.
+// evalBuildline gets the size that has already been synced out of the sync-line.
 func evalBuildline(buildline string) (int64, error) {
 	matches := buildlineRE.FindStringSubmatch(buildline)
 
@@ -131,7 +129,7 @@ func evalBuildline(buildline string) (int64, error) {
 	return syncedSize, nil
 }
 
-// Parses an mdstat-file and returns a struct with the relevant infos.
+// parseMdstat parses an mdstat-file and returns a struct with the relevant infos.
 func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 	content, err := ioutil.ReadFile(mdStatusFilePath)
 	if err != nil {
@@ -234,7 +232,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 	return mdStates, nil
 }
 
-// Just returns the pointer to an empty struct as we only use throwaway-metrics.
+// NewMdadmCollector returns a new Collector exposing raid statistics.
 func NewMdadmCollector() (Collector, error) {
 	return &mdadmCollector{}, nil
 }
@@ -276,17 +274,15 @@ var (
 	)
 )
 
-func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	statusfile := procFilePath("mdstat")
-	// take care we don't crash on non-existent statusfiles
-	_, err = os.Stat(statusfile)
-	if os.IsNotExist(err) {
-		// no such file or directory, nothing to do, just return
-		log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
-		return nil
-	}
-
-	if err != nil { // now things get weird, better to return
+	if _, err := os.Stat(statusfile); err != nil {
+		// Take care we don't crash on non-existent statusfiles.
+		if os.IsNotExist(err) {
+			// no such file or directory, nothing to do, just return
+			log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
+			return nil
+		}
 		return err
 	}
 

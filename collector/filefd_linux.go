@@ -16,12 +16,11 @@
 package collector
 
 import (
-	"bufio"
+	"bytes"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -41,8 +40,8 @@ func NewFileFDStatCollector() (Collector, error) {
 	return &fileFDStatCollector{}, nil
 }
 
-func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	fileFDStat, err := getFileFDStats(procFilePath("sys/fs/file-nr"))
+func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) error {
+	fileFDStat, err := parseFileFDStats(procFilePath("sys/fs/file-nr"))
 	if err != nil {
 		return fmt.Errorf("couldn't get file-nr: %s", err)
 	}
@@ -63,25 +62,27 @@ func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return nil
 }
 
-func getFileFDStats(fileName string) (map[string]string, error) {
-	file, err := os.Open(fileName)
+func parseFileFDStats(filename string) (map[string]string, error) {
+	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
-	return parseFileFDStats(file, fileName)
-}
 
-func parseFileFDStats(r io.Reader, fileName string) (map[string]string, error) {
-	var scanner = bufio.NewScanner(r)
-	scanner.Scan()
-	// The file-nr proc file is separated by tabs, not spaces.
-	line := strings.Split(string(scanner.Text()), "\u0009")
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+	parts := bytes.Split(bytes.TrimSpace(content), []byte("\u0009"))
+	if len(parts) < 3 {
+		return nil, fmt.Errorf("unexpected number of file stats in %q", filename)
+	}
+
 	var fileFDStat = map[string]string{}
 	// The file-nr proc is only 1 line with 3 values.
-	fileFDStat["allocated"] = line[0]
+	fileFDStat["allocated"] = string(parts[0])
 	// The second value is skipped as it will always be zero in linux 2.6.
-	fileFDStat["maximum"] = line[2]
+	fileFDStat["maximum"] = string(parts[2])
 
 	return fileFDStat, nil
 }

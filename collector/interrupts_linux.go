@@ -73,11 +73,10 @@ func parseInterrupts(r io.Reader) (map[string]interrupt, error) {
 	if !scanner.Scan() {
 		return nil, errors.New("interrupts empty")
 	}
-	cpuNum := len(strings.Fields(string(scanner.Text()))) // one header per cpu
+	cpuNum := len(strings.Fields(scanner.Text())) // one header per cpu
 
 	for scanner.Scan() {
-		line := scanner.Text()
-		parts := strings.Fields(string(line))
+		parts := strings.Fields(scanner.Text())
 		if len(parts) < cpuNum+2 { // irq + one column per cpu + details,
 			continue // we ignore ERR and MIS for now
 		}
@@ -95,5 +94,5 @@ func parseInterrupts(r io.Reader) (map[string]interrupt, error) {
 		interrupts[intName] = intr
 	}
 
-	return interrupts, nil
+	return interrupts, scanner.Err()
 }

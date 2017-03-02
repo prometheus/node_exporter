@@ -31,20 +31,20 @@ var (
 	procLineRE = regexp.MustCompile(`^proc(\d+) \d+ (\d+( \d+)*)$`)
 
 	nfsProcedures = map[string][]string{
-		"2": []string{
+		"2": {
 			"null", "getattr", "setattr", "root", "lookup",
 			"readlink", "read", "writecache", "write", "create",
 			"remove", "rename", "link", "symlink", "mkdir",
 			"rmdir", "readdir", "statfs",
 		},
-		"3": []string{
+		"3": {
 			"null", "getattr", "setattr", "lookup", "access",
 			"readlink", "read", "write", "create", "mkdir",
 			"symlink", "mknod", "remove", "rmdir", "rename",
 			"link", "readdir", "readdirplus", "fsstat", "fsinfo",
 			"pathconf", "commit",
 		},
-		"4": []string{
+		"4": {
 			"null", "read", "write", "commit", "open",
 			"open_confirm", "open_noattr", "open_downgrade",
 			"close", "setattr", "fsinfo", "renew", "setclientid",
@@ -78,19 +78,19 @@ var (
 		nil,
 	)
 
-	nfsRpcOperationsDesc = prometheus.NewDesc(
+	nfsRPCOperationsDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "nfs", "rpc_operations"),
 		"Number of RPCs performed.",
 		nil,
 		nil,
 	)
-	nfsRpcRetransmissionsDesc = prometheus.NewDesc(
+	nfsRPCRetransmissionsDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "nfs", "rpc_retransmissions"),
 		"Number of RPC transmissions performed.",
 		nil,
 		nil,
 	)
-	nfsRpcAuthenticationRefreshesDesc = prometheus.NewDesc(
+	nfsRPCAuthenticationRefreshesDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "nfs", "rpc_authentication_refreshes"),
 		"Number of RPC authentication refreshes performed.",
 		nil,
@@ -111,16 +111,17 @@ func init() {
 	Factories["nfs"] = NewNfsCollector
 }
 
+// NewNfsCollector returns a new Collector exposing NFS statistics.
 func NewNfsCollector() (Collector, error) {
 	return &nfsCollector{}, nil
 }
 
-func (c *nfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
 	statsFile := procFilePath("net/rpc/nfs")
 	content, err := ioutil.ReadFile(statsFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting NFS statistics, as %s does not exist: %s", statsFile)
+			log.Debugf("Not collecting NFS statistics, as %q does not exist", statsFile)
 			return nil
 		}
 		return err
@@ -145,17 +146,17 @@ func (c *nfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		} else if fields := rpcLineRE.FindStringSubmatch(line); fields != nil {
 			value, _ := strconv.ParseFloat(fields[1], 64)
 			ch <- prometheus.MustNewConstMetric(
-				nfsRpcOperationsDesc,
+				nfsRPCOperationsDesc,
 				prometheus.CounterValue, value)
 
 			value, _ = strconv.ParseFloat(fields[2], 64)
 			ch <- prometheus.MustNewConstMetric(
-				nfsRpcRetransmissionsDesc,
+				nfsRPCRetransmissionsDesc,
 				prometheus.CounterValue, value)
 
 			value, _ = strconv.ParseFloat(fields[3], 64)
 			ch <- prometheus.MustNewConstMetric(
-				nfsRpcAuthenticationRefreshesDesc,
+				nfsRPCAuthenticationRefreshesDesc,
 				prometheus.CounterValue, value)
 		} else if fields := procLineRE.FindStringSubmatch(line); fields != nil {
 			version := fields[1]

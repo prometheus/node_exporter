@@ -155,7 +155,7 @@ func newDRBDCollector() (Collector, error) {
 	return &drbdCollector{}, nil
 }
 
-func (c *drbdCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	statsFile := procFilePath("drbd")
 	file, err := os.Open(statsFile)
 	if err != nil {

@@ -26,8 +26,7 @@ func init() {
 	Factories["interrupts"] = NewInterruptsCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// interrupts stats
+// NewInterruptsCollector returns a new Collector exposing interrupts stats.
 func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(

@@ -93,6 +93,7 @@ func init() {
 	Factories["mountstats"] = NewMountStatsCollector
 }
 
+// NewMountStatsCollector returns a new Collector exposing NFS statistics.
 func NewMountStatsCollector() (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
@@ -105,7 +106,7 @@ func NewMountStatsCollector() (Collector, error) {
 	}
 
 	const (
-		// For the time being, only NFS statistics are available via this mechanism
+		// For the time being, only NFS statistics are available via this mechanism.
 		subsystem = "mountstats_nfs"
 	)
 
@@ -418,7 +419,7 @@ func NewMountStatsCollector() (Collector, error) {
 
 		NFSEventVFSLockTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, "event_vfs_lock_total"),
-			"Number of times locking has been attemped on a file.",
+			"Number of times locking has been attempted on a file.",
 			labels,
 			nil,
 		),

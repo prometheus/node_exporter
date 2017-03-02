@@ -24,7 +24,7 @@ import (
 // Creates mock UnitLists
 func getUnitListFixtures() [][]dbus.UnitStatus {
 	fixture1 := []dbus.UnitStatus{
-		dbus.UnitStatus{
+		{
 			Name:        "foo",
 			Description: "foo desc",
 			LoadState:   "loaded",
@@ -36,7 +36,7 @@ func getUnitListFixtures() [][]dbus.UnitStatus {
 			JobType:     "",
 			JobPath:     "/",
 		},
-		dbus.UnitStatus{
+		{
 			Name:        "bar",
 			Description: "bar desc",
 			LoadState:   "not-found",
@@ -48,7 +48,7 @@ func getUnitListFixtures() [][]dbus.UnitStatus {
 			JobType:     "",
 			JobPath:     "/",
 		},
-		dbus.UnitStatus{
+		{
 			Name:        "foobar",
 			Description: "bar desc",
 			LoadState:   "not-found",
@@ -60,7 +60,7 @@ func getUnitListFixtures() [][]dbus.UnitStatus {
 			JobType:     "",
 			JobPath:     "/",
 		},
-		dbus.UnitStatus{
+		{
 			Name:        "baz",
 			Description: "bar desc",
 			LoadState:   "not-found",

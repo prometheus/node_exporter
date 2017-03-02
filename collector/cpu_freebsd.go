@@ -107,7 +107,7 @@ func NewStatCollector() (Collector, error) {
 }
 
 // Expose CPU stats using sysctl.
-func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// We want time spent per-cpu per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// Order: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR

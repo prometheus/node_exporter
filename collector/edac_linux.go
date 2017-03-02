@@ -33,14 +33,6 @@ var (
 	edacMemCsrowRE      = regexp.MustCompile(`.*devices/system/edac/mc/mc[0-9]*/csrow([0-9]*)`)
 )
 
-type edacMCMetric struct {
-	metricName    string
-	metricType    prometheus.ValueType
-	metricHelp    string
-	memController string
-	value         float64
-}
-
 type edacCollector struct {
 	ceCount      *prometheus.Desc
 	ueCount      *prometheus.Desc
@@ -52,8 +44,7 @@ func init() {
 	Factories["edac"] = NewEdacCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// edac stats.
+// NewEdacCollector returns a new Collector exposing edac stats.
 func NewEdacCollector() (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(
@@ -79,7 +70,7 @@ func NewEdacCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *edacCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 	memControllers, err := filepath.Glob(sysFilePath("devices/system/edac/mc/mc[0-9]*"))
 	if err != nil {
 		return err

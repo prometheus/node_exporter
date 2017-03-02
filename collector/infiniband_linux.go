@@ -45,6 +45,7 @@ func init() {
 	Factories["infiniband"] = NewInfiniBandCollector
 }
 
+// NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
 func NewInfiniBandCollector() (Collector, error) {
 	var i infinibandCollector
 
@@ -127,7 +128,7 @@ func readMetric(directory, metricFile string) (uint64, error) {
 	return metric, nil
 }
 
-func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := infinibandDevices(sysFilePath(infinibandPath))
 
 	// If no devices are found or another error is raised while attempting to find devices,

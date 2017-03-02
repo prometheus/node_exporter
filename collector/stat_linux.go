@@ -42,8 +42,7 @@ func init() {
 	Factories["stat"] = NewStatCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// kernel/system statistics.
+// NewStatCollector returns a new Collector exposing kernel/system statistics.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewDesc(
@@ -85,7 +84,7 @@ func NewStatCollector() (Collector, error) {
 }
 
 // Expose kernel and system statistics.
-func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	file, err := os.Open(procFilePath("stat"))
 	if err != nil {
 		return err
@@ -159,5 +158,5 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, value)
 		}
 	}
-	return err
+	return scanner.Err()
 }

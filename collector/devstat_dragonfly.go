@@ -124,7 +124,7 @@ func NewDevstatCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *devstatCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
 	count := C._get_ndevs()
 	if count == -1 {
 		return errors.New("getdevs() failed")

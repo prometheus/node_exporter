@@ -29,10 +29,6 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-const (
-	hwMonSubsystem = "hwmon"
-)
-
 var (
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
@@ -51,8 +47,8 @@ func init() {
 
 type hwMonCollector struct{}
 
-// Takes a prometheus registry and returns a new Collector exposing
-// /sys/class/hwmon stats (similar to lm-sensors).
+// NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
+// (similar to lm-sensors).
 func NewHwMonCollector() (Collector, error) {
 	return &hwMonCollector{}, nil
 }
@@ -78,7 +74,7 @@ func addValueFile(data map[string]map[string]string, sensor string, prop string,
 	data[sensor][prop] = value
 }
 
-// Split a sensor name into <type><num>_<property>
+// explodeSensorFilename splits a sensor name into <type><num>_<property>.
 func explodeSensorFilename(filename string) (ok bool, sensorType string, sensorNum int, sensorProperty string) {
 	matches := hwmonFilenameFormat.FindStringSubmatch(filename)
 	if len(matches) == 0 {
@@ -105,7 +101,7 @@ func explodeSensorFilename(filename string) (ok bool, sensorType string, sensorN
 	return true, sensorType, sensorNum, sensorProperty
 }
 
-func collectSensorData(dir string, data map[string]map[string]string) (err error) {
+func collectSensorData(dir string, data map[string]map[string]string) error {
 	sensorFiles, dirError := ioutil.ReadDir(dir)
 	if dirError != nil {
 		return dirError
@@ -127,7 +123,7 @@ func collectSensorData(dir string, data map[string]map[string]string) (err error
 	return nil
 }
 
-func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (err error) {
+func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) error {
 	hwmonName, err := c.hwmonName(dir)
 	if err != nil {
 		return err
@@ -164,7 +160,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) (e
 		)
 	}
 
-	// format all sensors
+	// Format all sensors.
 	for sensor, sensorData := range data {
 
 		_, sensorType, _, _ := explodeSensorFilename(sensor)
@@ -392,7 +388,7 @@ func (c *hwMonCollector) hwmonHumanReadableChipName(dir string) (string, error) 
 	return "", errors.New("Could not derive a human-readable chip type for " + dir)
 }
 
-func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updatesHwmon for each folder
 

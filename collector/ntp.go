@@ -37,8 +37,8 @@ func init() {
 	Factories["ntp"] = NewNtpCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// the offset between ntp and the current system time.
+// NewNtpCollector returns a new Collector exposing the offset between ntp and
+// the current system time.
 func NewNtpCollector() (Collector, error) {
 	warnDeprecated("ntp")
 	if *ntpServer == "" {
@@ -62,7 +62,7 @@ func NewNtpCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *ntpCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	resp, err := ntp.Query(*ntpServer, *ntpProtocolVersion)
 	if err != nil {
 		return fmt.Errorf("couldn't get NTP drift: %s", err)

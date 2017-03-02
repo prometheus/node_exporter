@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Types for unmarshalling gmond's XML output.
+// Package ganglia provides types for unmarshalling gmond's XML output.
 //
 // Not used elements in gmond's XML output are commented.
 // In case you want to use them, please change the names so that one
@@ -20,15 +20,18 @@ package ganglia
 
 import "encoding/xml"
 
+// ExtraElement describes EXTRA_ELEMENT elements.
 type ExtraElement struct {
 	Name string `xml:"NAME,attr"`
 	Val  string `xml:"VAL,attr"`
 }
 
+// ExtraData describes EXTRA_DATA elements.
 type ExtraData struct {
 	ExtraElements []ExtraElement `xml:"EXTRA_ELEMENT"`
 }
 
+// Metric describes METRIC elements.
 type Metric struct {
 	Name  string  `xml:"NAME,attr"`
 	Value float64 `xml:"VAL,attr"`
@@ -42,6 +45,7 @@ type Metric struct {
 	ExtraData ExtraData `xml:"EXTRA_DATA"`
 }
 
+// Host describes HOST elements.
 type Host struct {
 	Name string `xml:"NAME,attr"`
 	/*
@@ -57,6 +61,7 @@ type Host struct {
 	Metrics []Metric `xml:"METRIC"`
 }
 
+// Cluster describes CLUSTER elements.
 type Cluster struct {
 	Name string `xml:"NAME,attr"`
 	/*
@@ -68,6 +73,7 @@ type Cluster struct {
 	Hosts []Host `xml:"HOST"`
 }
 
+// Ganglia describes the top-level XML structure.
 type Ganglia struct {
 	XMLNAME  xml.Name  `xml:"GANGLIA_XML"`
 	Clusters []Cluster `xml:"CLUSTER"`

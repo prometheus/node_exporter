@@ -51,7 +51,7 @@ func NewNetDevCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *netDevCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 	netDev, err := getNetDevStats(c.ignoredDevicesPattern)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)

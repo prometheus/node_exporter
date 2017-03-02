@@ -56,6 +56,7 @@ type wifiStater interface {
 	StationInfo(ifi *wifi.Interface) (*wifi.StationInfo, error)
 }
 
+// NewWifiCollector returns a new Collector exposing Wifi statistics.
 func NewWifiCollector() (Collector, error) {
 	const (
 		subsystem = "wifi"

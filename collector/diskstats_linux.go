@@ -47,8 +47,7 @@ func init() {
 	Factories["diskstats"] = NewDiskstatsCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// disk device stats.
+// NewDiskstatsCollector returns a new Collector exposing disk device stats.
 func NewDiskstatsCollector() (Collector, error) {
 	var diskLabelNames = []string{"device"}
 
@@ -218,7 +217,7 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 	)
 
 	for scanner.Scan() {
-		parts := strings.Fields(string(scanner.Text()))
+		parts := strings.Fields(scanner.Text())
 		if len(parts) < 4 { // we strip major, minor and dev
 			return nil, fmt.Errorf("invalid line in %s: %s", procFilePath("diskstats"), scanner.Text())
 		}
@@ -240,5 +239,5 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 		diskStats[dev][12] = bytesWritten
 	}
 
-	return diskStats, nil
+	return diskStats, scanner.Err()
 }

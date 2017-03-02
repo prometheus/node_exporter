@@ -42,7 +42,7 @@ func NewNetStatCollector() (Collector, error) {
 	return &netStatCollector{}, nil
 }
 
-func (c *netStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	netStats, err := getNetStats(procFilePath("net/netstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)
@@ -93,9 +93,9 @@ func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, 
 	)
 
 	for scanner.Scan() {
-		nameParts := strings.Split(string(scanner.Text()), " ")
+		nameParts := strings.Split(scanner.Text(), " ")
 		scanner.Scan()
-		valueParts := strings.Split(string(scanner.Text()), " ")
+		valueParts := strings.Split(scanner.Text(), " ")
 		// Remove trailing :.
 		protocol := nameParts[0][:len(nameParts[0])-1]
 		netStats[protocol] = map[string]string{}
@@ -108,5 +108,5 @@ func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, 
 		}
 	}
 
-	return netStats, nil
+	return netStats, scanner.Err()
 }

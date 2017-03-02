@@ -44,7 +44,7 @@ func NewSockStatCollector() (Collector, error) {
 	return &sockStatCollector{}, nil
 }
 
-func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	sockStats, err := getSockStats(procFilePath("net/sockstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get sockstats: %s", err)
@@ -85,7 +85,7 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 	)
 
 	for scanner.Scan() {
-		line := strings.Split(string(scanner.Text()), " ")
+		line := strings.Split(scanner.Text(), " ")
 		// Remove trailing ':'.
 		protocol := line[0][:len(line[0])-1]
 		sockStat[protocol] = map[string]string{}
@@ -94,6 +94,9 @@ func parseSockStats(r io.Reader, fileName string) (map[string]map[string]string,
 			sockStat[protocol][line[i]] = line[i+1]
 			i++
 		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
 	}
 
 	// The mem metrics is the count of pages used. Multiply the mem metrics by

@@ -24,55 +24,44 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-var zfsNotAvailableError = errors.New("ZFS / ZFS statistics are not available")
+var errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
 
 type zfsSysctl string
-
-// Metrics
-
-type zfsMetric struct {
-	subsystem string    // The Prometheus subsystem name.
-	name      string    // The Prometheus name of the metric.
-	sysctl    zfsSysctl // The sysctl of the ZFS metric.
-}
-
-// Collector
 
 func init() {
 	Factories["zfs"] = NewZFSCollector
 }
 
 type zfsCollector struct {
-	zfsMetrics        []zfsMetric
 	linuxProcpathBase string
 	linuxZpoolIoPath  string
 	linuxPathMap      map[string]string
 }
 
+// NewZFSCollector returns a new Collector exposing ZFS statistics.
 func NewZFSCollector() (Collector, error) {
-	var z zfsCollector
-	z.linuxProcpathBase = "spl/kstat/zfs"
-	z.linuxZpoolIoPath = "/*/io"
-	z.linuxPathMap = map[string]string{
-		"zfs_arc":        "arcstats",
-		"zfs_dmu_tx":     "dmu_tx",
-		"zfs_fm":         "fm",
-		"zfs_zfetch":     "zfetchstats",
-		"zfs_vdev_cache": "vdev_cache_stats",
-		"zfs_xuio":       "xuio_stats",
-		"zfs_zil":        "zil",
-	}
-	return &z, nil
+	return &zfsCollector{
+		linuxProcpathBase: "spl/kstat/zfs",
+		linuxZpoolIoPath:  "/*/io",
+		linuxPathMap: map[string]string{
+			"zfs_arc":        "arcstats",
+			"zfs_dmu_tx":     "dmu_tx",
+			"zfs_fm":         "fm",
+			"zfs_zfetch":     "zfetchstats",
+			"zfs_vdev_cache": "vdev_cache_stats",
+			"zfs_xuio":       "xuio_stats",
+			"zfs_zil":        "zil",
+		},
+	}, nil
 }
 
-func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for subsystem := range c.linuxPathMap {
-		err = c.updateZfsStats(subsystem, ch)
-		switch {
-		case err == zfsNotAvailableError:
-			log.Debug(err)
-			return nil
-		case err != nil:
+		if err := c.updateZfsStats(subsystem, ch); err != nil {
+			if err == errZFSNotAvailable {
+				log.Debug(err)
+				return nil
+			}
 			return err
 		}
 	}
@@ -91,7 +80,7 @@ func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, val
 
 	return prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, string(subsystem), metricName),
+			prometheus.BuildFQName(Namespace, subsystem, metricName),
 			string(sysctl),
 			nil,
 			nil,

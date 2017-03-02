@@ -30,11 +30,11 @@ func TestTCPStat(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if want, got := 1, int(tcpStats[TCP_ESTABLISHED]); want != got {
+	if want, got := 1, int(tcpStats[tcpEstablished]); want != got {
 		t.Errorf("want tcpstat number of established state %d, got %d", want, got)
 	}
 
-	if want, got := 1, int(tcpStats[TCP_LISTEN]); want != got {
+	if want, got := 1, int(tcpStats[tcpListen]); want != got {
 		t.Errorf("want tcpstat number of listen state %d, got %d", want, got)
 	}
 }
