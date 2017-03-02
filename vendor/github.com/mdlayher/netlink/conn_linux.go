@@ -62,6 +62,9 @@ func bind(s socket, config *Config) (*conn, error) {
 	}
 
 	if err := s.Bind(addr); err != nil {
+		// Since this never returns conn (and as such, the caller cannot close it),
+		// close the socket here in the event of a failure to bind.
+		_ = s.Close()
 		return nil, err
 	}
 
