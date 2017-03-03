@@ -152,6 +152,8 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 	mdStates := make([]mdStatus, 0, estimateMDs)
 
 	for i, l := range lines {
+		active, total, size = 0, 0, 0
+
 		if l == "" {
 			// Skip entirely empty lines.
 			continue
