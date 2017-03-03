@@ -39,6 +39,8 @@ type mdStatus struct {
 	mdName       string
 	isActive     bool
 	disksActive  int64
+	disksFailed  int64
+	disksSpare   int64
 	disksTotal   int64
 	blocksTotal  int64
 	blocksSynced int64
@@ -140,9 +142,9 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 
 	lines := strings.Split(mdStatusFile, "\n")
 	var (
-		currentMD           string
-		personality         string
-		active, total, size int64
+		currentMD                          string
+		personality                        string
+		active, failed, spare, total, size int64
 	)
 
 	// Each md has at least the deviceline, statusline and one empty line afterwards
@@ -152,7 +154,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 	mdStates := make([]mdStatus, 0, estimateMDs)
 
 	for i, l := range lines {
-		active, total, size = 0, 0, 0
+		active, failed, spare, total, size = 0, 0, 0, 0, 0
 
 		if l == "" {
 			// Skip entirely empty lines.
@@ -182,6 +184,8 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 				break
 			}
 		}
+		failed = int64(strings.Count(l, "(F)"))
+		spare = int64(strings.Count(l, "(S)"))
 
 		if len(lines) <= i+3 {
 			return mdStates, fmt.Errorf("error parsing mdstat: entry for %s has fewer lines than expected", currentMD)
@@ -227,7 +231,7 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 			syncedBlocks = size
 		}
 
-		mdStates = append(mdStates, mdStatus{currentMD, isActive, active, total, size, syncedBlocks})
+		mdStates = append(mdStates, mdStatus{currentMD, isActive, active, failed, spare, total, size, syncedBlocks})
 
 	}
 
@@ -247,17 +251,10 @@ var (
 		nil,
 	)
 
-	disksActiveDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "md", "disks_active"),
-		"Number of active disks of device.",
-		[]string{"device"},
-		nil,
-	)
-
-	disksTotalDesc = prometheus.NewDesc(
+	disksDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "md", "disks"),
-		"Total number of disks of device.",
-		[]string{"device"},
+		"Number of disks of device. (state=\"any\" equals to the number of disks in the array)",
+		[]string{"device", "state"},
 		nil,
 	)
 
@@ -314,17 +311,31 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 
 		ch <- prometheus.MustNewConstMetric(
-			disksActiveDesc,
+			disksDesc,
 			prometheus.GaugeValue,
 			float64(mds.disksActive),
-			mds.mdName,
+			mds.mdName, "active",
 		)
 
 		ch <- prometheus.MustNewConstMetric(
-			disksTotalDesc,
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mds.disksFailed),
+			mds.mdName, "failed",
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mds.disksSpare),
+			mds.mdName, "spare",
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
 			prometheus.GaugeValue,
 			float64(mds.disksTotal),
-			mds.mdName,
+			mds.mdName, "any",
 		)
 
 		ch <- prometheus.MustNewConstMetric(
