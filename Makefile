@@ -83,4 +83,4 @@ $(GOPATH)/bin/staticcheck:
 	@GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck
 
 
-.PHONY: all style format build test test-e2e vet tarball docker promu staticcheck $(GOPATH)/bin/promu $(GOPATH)/bin/staticcheck
+.PHONY: all style format build test test-e2e vet tarball docker promu staticcheck
