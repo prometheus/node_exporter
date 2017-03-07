@@ -49,7 +49,7 @@ type bsdSysctl struct {
 	// Sysctl data-type
 	dataType bsdSysctlType
 
-	// Post-retreival conversion hooks
+	// Post-retrieval conversion hooks
 	conversion func(uint64) uint64
 }
 
