@@ -22,19 +22,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-type sysctlType uint8
-
-const (
-	sysctlTypeUint32 sysctlType = iota
-	sysctlTypeUint64
-)
-
-type meminfoSysctl struct {
-	name       string
-	dataType   sysctlType
-	conversion func(uint64) uint64
-}
-
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	info := make(map[string]float64)
 
@@ -47,37 +34,24 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		return v * size
 	}
 
-	for key, v := range map[string]meminfoSysctl{
-		"active_bytes":         {"vm.stats.vm.v_active_count", sysctlTypeUint32, fromPage},
-		"inactive_bytes":       {"vm.stats.vm.v_inactive_count", sysctlTypeUint32, fromPage},
-		"wired_bytes":          {"vm.stats.vm.v_wire_count", sysctlTypeUint32, fromPage},
-		"cache_bytes":          {"vm.stats.vm.v_cache_count", sysctlTypeUint32, fromPage},
-		"buffer_bytes":         {"vfs.bufspace", sysctlTypeUint32, nil},
-		"free_bytes":           {"vm.stats.vm.v_free_count", sysctlTypeUint32, fromPage},
-		"size_bytes":           {"vm.stats.vm.v_page_count", sysctlTypeUint32, fromPage},
-		"swap_in_bytes_total":  {"vm.stats.vm.v_swappgsin", sysctlTypeUint32, fromPage},
-		"swap_out_bytes_total": {"vm.stats.vm.v_swappgsout", sysctlTypeUint32, fromPage},
-		"swap_size_bytes":      {"vm.swap_total", sysctlTypeUint64, nil},
+	for _, ctl := range []bsdSysctl{
+		{name: "active_bytes", mib: "vm.stats.vm.v_active_count", conversion: fromPage},
+		{name: "inactive_bytes", mib: "vm.stats.vm.v_inactive_count", conversion: fromPage},
+		{name: "wired_bytes", mib: "vm.stats.vm.v_wire_count", conversion: fromPage},
+		{name: "cache_bytes", mib: "vm.stats.vm.v_cache_count", conversion: fromPage},
+		{name: "buffer_bytes", mib: "vfs.bufspace"},
+		{name: "free_bytes", mib: "vm.stats.vm.v_free_count", conversion: fromPage},
+		{name: "size_bytes", mib: "vm.stats.vm.v_page_count", conversion: fromPage},
+		{name: "swap_in_bytes_total", mib: "vm.stats.vm.v_swappgsin", conversion: fromPage},
+		{name: "swap_out_bytes_total", mib: "vm.stats.vm.v_swappgsout", conversion: fromPage},
+		{name: "swap_size_bytes", mib: "vm.swap_total", dataType: bsdSysctlTypeUint64},
 	} {
-		var tmp64 uint64
-		switch v.dataType {
-		case sysctlTypeUint32:
-			tmp32, err = unix.SysctlUint32(v.name)
-			tmp64 = uint64(tmp32)
-		case sysctlTypeUint64:
-			tmp64, err = unix.SysctlUint64(v.name)
-		}
+		v, err := ctl.Value()
 		if err != nil {
 			return nil, err
 		}
 
-		if v.conversion != nil {
-			// Convert to bytes.
-			info[key] = float64(v.conversion(tmp64))
-			continue
-		}
-
-		info[key] = float64(tmp64)
+		info[ctl.name] = v
 	}
 
 	return info, nil
