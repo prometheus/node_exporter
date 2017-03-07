@@ -5,19 +5,22 @@ NOTE: We are deprecating several collectors in this release.
     * `megacli` - Requires forking, moved to textfile collection.
     * `ntp` - Out of scope.
 
-* [FEATURE] Added loadavg collector for Solaris #311
+* [FEATURE] Add loadavg collector for Solaris #311
 * [FEATURE] Add StorCli text collector example script #320
 * [FEATURE] Add collector for Linux EDAC #324
 * [FEATURE] Add text file utility for SMART metrics #354
 * [FEATURE] Add a collector for NFS client statistics. #360
 * [FEATURE] Add mountstats collector for detailed NFS statistics #367
-* [FEATURE] A collector for DRBD #365
+* [FEATURE] Add a collector for DRBD #365
 * [FEATURE] Add cpu collector for darwin #391
 * [FEATURE] Add netdev collector for darwin #393
 * [FEATURE] Collect CPU temperatures on FreeBSD #397
-* [FEATURE] Add ZFS collector + review feedback from PRs 213 and 369 #410
+* [FEATURE] Add ZFS collector #410
 * [FEATURE] Add initial wifi collector #413
 * [FEATURE] Add NFS event metrics to mountstats collector #415
+* [FEATURE] Add an example rules file #422
+* [FEATURE] infiniband: Add new collector for InfiniBand statistics #450
+* [FEATURE] buddyinfo: Add support for /proc/buddyinfo for linux free memory fragmentation. #454
 * [IMPROVEMENT] hwmon: Provide annotation metric to link chip sysfs paths to human-readable chip types #359
 * [IMPROVEMENT] Add node_filesystem_device_errors_total metric #374
 * [IMPROVEMENT] Add runit service dir flag #375
@@ -30,6 +33,7 @@ NOTE: We are deprecating several collectors in this release.
 * [BUGFIX] Convert remaining collectors to use ConstMetrics #389
 * [BUGFIX] Check for errors in netdev scanner #398
 * [BUGFIX] Don't leak or race in FreeBSD devstat collector #396
+* [BUGFIX] Allow graceful failure in hwmon collector #427
 
 ## v0.13.0 / 2016-11-26
 
