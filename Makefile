@@ -13,8 +13,10 @@
 
 GO     ?= GO15VENDOREXPERIMENT=1 go
 GOPATH := $(firstword $(subst :, ,$(GOPATH)))
-PROMU  ?= $(GOPATH)/bin/promu
-pkgs    = $(shell $(GO) list ./... | grep -v /vendor/)
+
+PROMU       ?= $(GOPATH)/bin/promu
+STATICCHECK ?= $(GOPATH)/bin/staticcheck
+pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
 
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
@@ -33,7 +35,7 @@ else
     test-e2e := skip-test-e2e
 endif
 
-all: format build test $(test-e2e)
+all: format vet staticcheck build test $(test-e2e)
 
 style:
 	@echo ">> checking code style"
@@ -58,6 +60,10 @@ vet:
 	@echo ">> vetting code"
 	@$(GO) vet $(pkgs)
 
+staticcheck: $(STATICCHECK)
+	@echo ">> running staticcheck"
+	@$(STATICCHECK) $(pkgs)
+
 build: $(PROMU)
 	@echo ">> building binaries"
 	@$(PROMU) build --prefix $(PREFIX)
@@ -71,9 +77,10 @@ docker:
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 $(GOPATH)/bin/promu promu:
-	@GOOS=$(shell uname -s | tr A-Z a-z) \
-		GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
-		$(GO) get -u github.com/prometheus/promu
+	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
+
+$(GOPATH)/bin/staticcheck:
+	@GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck
 
 
-.PHONY: all style format build test test-e2e vet tarball docker promu $(GOPATH)/bin/promu
+.PHONY: all style format build test test-e2e vet tarball docker promu staticcheck
