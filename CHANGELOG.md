@@ -2,7 +2,7 @@
 
 NOTE: We are deprecating several collectors in this release.
     * `gmond` - Out of scope.
-    * `megacli` - Requires forking, moved to textfile collection.
+    * `megacli` - Requires forking, to be moved to textfile collection.
     * `ntp` - Out of scope.
 
 * [FEATURE] Add loadavg collector for Solaris #311
