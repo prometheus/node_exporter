@@ -48,6 +48,9 @@ type bsdSysctl struct {
 
 	// Sysctl data-type
 	dataType bsdSysctlType
+
+	// Post-retrieval conversion hooks
+	conversion func(uint64) uint64
 }
 
 func (b bsdSysctl) Value() (float64, error) {
@@ -64,6 +67,10 @@ func (b bsdSysctl) Value() (float64, error) {
 	}
 	if err != nil {
 		return 0, err
+	}
+
+	if b.conversion != nil {
+		return float64(b.conversion(tmp64)), nil
 	}
 
 	return float64(tmp64), nil
