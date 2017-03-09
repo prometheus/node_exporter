@@ -18,6 +18,7 @@ package collector
 
 import (
 	"errors"
+	"os"
 	"path/filepath"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -158,6 +159,9 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 
 			// Add metrics for the InfiniBand counters.
 			for metricName, infinibandMetric := range c.counters {
+				if _, err := os.Stat(filepath.Join(portFiles, "counters", infinibandMetric.File)); os.IsNotExist(err) {
+					continue
+				}
 				metric, err := readMetric(filepath.Join(portFiles, "counters"), infinibandMetric.File)
 				if err != nil {
 					return err
