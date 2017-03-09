@@ -33,8 +33,9 @@ var (
 )
 
 type infinibandCollector struct {
-	metricDescs map[string]*prometheus.Desc
-	counters    map[string]infinibandMetric
+	metricDescs    map[string]*prometheus.Desc
+	counters       map[string]infinibandMetric
+	legacyCounters map[string]infinibandMetric
 }
 
 type infinibandMetric struct {
@@ -62,10 +63,31 @@ func NewInfiniBandCollector() (Collector, error) {
 		"unicast_packets_transmitted_total":   {"unicast_xmit_packets", "Number of unicast packets transmitted (including errors)"},
 	}
 
+	// Deprecated counters for some older versions of InfiniBand drivers.
+	i.legacyCounters = map[string]infinibandMetric{
+		"legacy_multicast_packets_received_total":    {"port_multicast_rcv_packets", "Number of multicast packets received"},
+		"legacy_multicast_packets_transmitted_total": {"port_multicast_xmit_packets", "Number of multicast packets transmitted"},
+		"legacy_data_received_bytes_total":           {"port_rcv_data_64", "Number of data octets received on all links"},
+		"legacy_packets_received_total":              {"port_rcv_packets_64", "Number of data packets received on all links"},
+		"legacy_unicast_packets_received_total":      {"port_unicast_rcv_packets", "Number of unicast packets received"},
+		"legacy_unicast_packets_transmitted_total":   {"port_unicast_xmit_packets", "Number of unicast packets transmitted"},
+		"legacy_data_transmitted_bytes_total":        {"port_xmit_data_64", "Number of data octets transmitted on all links"},
+		"legacy_packets_transmitted_total":           {"port_xmit_packets_64", "Number of data packets received on all links"},
+	}
+
 	subsystem := "infiniband"
 	i.metricDescs = make(map[string]*prometheus.Desc)
 
 	for metricName, infinibandMetric := range i.counters {
+		i.metricDescs[metricName] = prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, metricName),
+			infinibandMetric.Help,
+			[]string{"device", "port"},
+			nil,
+		)
+	}
+
+	for metricName, infinibandMetric := range i.legacyCounters {
 		i.metricDescs[metricName] = prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, subsystem, metricName),
 			infinibandMetric.Help,
@@ -163,6 +185,25 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 					continue
 				}
 				metric, err := readMetric(filepath.Join(portFiles, "counters"), infinibandMetric.File)
+				if err != nil {
+					return err
+				}
+
+				ch <- prometheus.MustNewConstMetric(
+					c.metricDescs[metricName],
+					prometheus.CounterValue,
+					float64(metric),
+					device,
+					port,
+				)
+			}
+
+			// Add metrics for the legacy InfiniBand counters.
+			for metricName, infinibandMetric := range c.legacyCounters {
+				if _, err := os.Stat(filepath.Join(portFiles, "counters_ext", infinibandMetric.File)); os.IsNotExist(err) {
+					continue
+				}
+				metric, err := readMetric(filepath.Join(portFiles, "counters_ext"), infinibandMetric.File)
 				if err != nil {
 					return err
 				}
