@@ -2158,6 +2158,9 @@ node_wifi_station_connected_seconds_total{device="wlan0"} 30
 # HELP node_wifi_station_inactive_seconds The number of seconds since any wireless activity has occurred on a station.
 # TYPE node_wifi_station_inactive_seconds gauge
 node_wifi_station_inactive_seconds{device="wlan0"} 0.4
+# HELP node_wifi_station_info Labeled WiFi interface station information as provided by the operating system.
+# TYPE node_wifi_station_info gauge
+node_wifi_station_info{bssid="00:11:22:33:44:55",device="wlan0",mode="client",ssid="Example"} 1
 # HELP node_wifi_station_receive_bits_per_second The current WiFi receive bitrate of a station, in bits per second.
 # TYPE node_wifi_station_receive_bits_per_second gauge
 node_wifi_station_receive_bits_per_second{device="wlan0"} 1.28e+08
