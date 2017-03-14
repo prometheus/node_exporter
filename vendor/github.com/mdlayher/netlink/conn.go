@@ -3,7 +3,6 @@ package netlink
 import (
 	"errors"
 	"math/rand"
-	"sync"
 	"sync/atomic"
 
 	"golang.org/x/net/bpf"
@@ -27,11 +26,8 @@ type Conn struct {
 	// numbers when Conn.Send is called.
 	seq *uint32
 
-	// pid is an atomically set/loaded integer which is set to the PID assigned
-	// by netlink, when netlink sends its first response message.  pidOnce performs
-	// the assignment exactl once.
-	pid     *uint32
-	pidOnce sync.Once
+	// pid is the PID assigned by netlink.
+	pid uint32
 }
 
 // An osConn is an operating-system specific implementation of netlink
@@ -50,22 +46,22 @@ type osConn interface {
 // configuration will be used.
 func Dial(proto int, config *Config) (*Conn, error) {
 	// Use OS-specific dial() to create osConn
-	c, err := dial(proto, config)
+	c, pid, err := dial(proto, config)
 	if err != nil {
 		return nil, err
 	}
 
-	return newConn(c), nil
+	return newConn(c, pid), nil
 }
 
 // newConn is the internal constructor for Conn, used in tests.
-func newConn(c osConn) *Conn {
+func newConn(c osConn, pid uint32) *Conn {
 	seq := rand.Uint32()
 
 	return &Conn{
 		c:   c,
 		seq: &seq,
-		pid: new(uint32),
+		pid: pid,
 	}
 }
 
@@ -128,7 +124,7 @@ func (c *Conn) Send(m Message) (Message, error) {
 	}
 
 	if m.Header.PID == 0 {
-		m.Header.PID = atomic.LoadUint32(c.pid)
+		m.Header.PID = c.pid
 	}
 
 	if err := c.c.Send(m); err != nil {
@@ -142,25 +138,11 @@ func (c *Conn) Send(m Message) (Message, error) {
 // handled transparently and returned as a single slice of Messages, with the
 // final empty "multi-part done" message removed.
 //
-// If a PID has not yet been assigned to this Conn by netlink, the PID will
-// be set from the first received message.  This PID will be used in all
-// subsequent communications with netlink.
-//
 // If any of the messages indicate a netlink error, that error will be returned.
 func (c *Conn) Receive() ([]Message, error) {
 	msgs, err := c.receive()
 	if err != nil {
 		return nil, err
-	}
-
-	if len(msgs) > 0 {
-		// netlink multicast messages from kernel have PID of 0, so don't
-		// assign 0 as the expected PID for next messages
-		if pid := msgs[0].Header.PID; pid != 0 {
-			c.pidOnce.Do(func() {
-				atomic.StoreUint32(c.pid, pid)
-			})
-		}
 	}
 
 	// Trim the final message with multi-part done indicator if

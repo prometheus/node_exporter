@@ -29,21 +29,22 @@ type conn struct {
 type socket interface {
 	Bind(sa unix.Sockaddr) error
 	Close() error
+	Getsockname() (unix.Sockaddr, error)
 	Recvmsg(p, oob []byte, flags int) (n int, oobn int, recvflags int, from unix.Sockaddr, err error)
 	Sendmsg(p, oob []byte, to unix.Sockaddr, flags int) error
 	SetSockopt(level, name int, v unsafe.Pointer, l uint32) error
 }
 
 // dial is the entry point for Dial.  dial opens a netlink socket using
-// system calls.
-func dial(family int, config *Config) (*conn, error) {
+// system calls, and returns its PID.
+func dial(family int, config *Config) (*conn, uint32, error) {
 	fd, err := unix.Socket(
 		unix.AF_NETLINK,
 		unix.SOCK_RAW,
 		family,
 	)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	return bind(&sysSocket{fd: fd}, config)
@@ -51,7 +52,7 @@ func dial(family int, config *Config) (*conn, error) {
 
 // bind binds a connection to netlink using the input socket, which may be
 // a system call implementation or a mocked one for tests.
-func bind(s socket, config *Config) (*conn, error) {
+func bind(s socket, config *Config) (*conn, uint32, error) {
 	if config == nil {
 		config = &Config{}
 	}
@@ -61,17 +62,26 @@ func bind(s socket, config *Config) (*conn, error) {
 		Groups: config.Groups,
 	}
 
+	// Socket must be closed in the event of any system call errors, to avoid
+	// leaking file descriptors.
+
 	if err := s.Bind(addr); err != nil {
-		// Since this never returns conn (and as such, the caller cannot close it),
-		// close the socket here in the event of a failure to bind.
 		_ = s.Close()
-		return nil, err
+		return nil, 0, err
 	}
+
+	sa, err := s.Getsockname()
+	if err != nil {
+		_ = s.Close()
+		return nil, 0, err
+	}
+
+	pid := sa.(*unix.SockaddrNetlink).Pid
 
 	return &conn{
 		s:  s,
 		sa: addr,
-	}, nil
+	}, pid, nil
 }
 
 // Send sends a single Message to netlink.
@@ -199,8 +209,9 @@ type sysSocket struct {
 	fd int
 }
 
-func (s *sysSocket) Bind(sa unix.Sockaddr) error { return unix.Bind(s.fd, sa) }
-func (s *sysSocket) Close() error                { return unix.Close(s.fd) }
+func (s *sysSocket) Bind(sa unix.Sockaddr) error         { return unix.Bind(s.fd, sa) }
+func (s *sysSocket) Close() error                        { return unix.Close(s.fd) }
+func (s *sysSocket) Getsockname() (unix.Sockaddr, error) { return unix.Getsockname(s.fd) }
 func (s *sysSocket) Recvmsg(p, oob []byte, flags int) (int, int, int, unix.Sockaddr, error) {
 	return unix.Recvmsg(s.fd, p, oob, flags)
 }
