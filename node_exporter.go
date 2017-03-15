@@ -158,10 +158,16 @@ func main() {
 		log.Infof(" - %s", n)
 	}
 
-	prometheus.MustRegister(NodeCollector{collectors: collectors})
+	if err := prometheus.Register(NodeCollector{collectors: collectors}); err != nil {
+		log.Fatalf("Couldn't register collector: %s", err)
+	}
 	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,
-		promhttp.HandlerOpts{ErrorLog: log.NewErrorLogger()})
+		promhttp.HandlerOpts{
+			ErrorLog:      log.NewErrorLogger(),
+			ErrorHandling: promhttp.ContinueOnError,
+		})
 
+	// TODO(ts): Remove deprecated and problematic InstrumentHandler usage.
 	http.Handle(*metricsPath, prometheus.InstrumentHandler("prometheus", handler))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
