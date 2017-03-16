@@ -28,6 +28,7 @@ import (
 
 type wifiCollector struct {
 	InterfaceFrequencyHertz *prometheus.Desc
+	StationInfo             *prometheus.Desc
 
 	StationConnectedSecondsTotal *prometheus.Desc
 	StationInactiveSeconds       *prometheus.Desc
@@ -51,6 +52,7 @@ var _ wifiStater = &wifi.Client{}
 
 // wifiStater is an interface used to swap out a *wifi.Client for end to end tests.
 type wifiStater interface {
+	BSS(ifi *wifi.Interface) (*wifi.BSS, error)
 	Close() error
 	Interfaces() ([]*wifi.Interface, error)
 	StationInfo(ifi *wifi.Interface) (*wifi.StationInfo, error)
@@ -71,6 +73,13 @@ func NewWifiCollector() (Collector, error) {
 			prometheus.BuildFQName(Namespace, subsystem, "interface_frequency_hertz"),
 			"The current frequency a WiFi interface is operating at, in hertz.",
 			labels,
+			nil,
+		),
+
+		StationInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, subsystem, "station_info"),
+			"Labeled WiFi interface station information as provided by the operating system.",
+			[]string{"device", "bssid", "ssid", "mode"},
 			nil,
 		),
 
@@ -163,6 +172,27 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			ifi.Name,
 		)
 
+		bss, err := stat.BSS(ifi)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+
+			return fmt.Errorf("failed to retrieve BSS for device %s: %v",
+				ifi.Name, err)
+		}
+
+		// Synthetic metric which provides WiFi station info, such as SSID, BSSID, etc.
+		ch <- prometheus.MustNewConstMetric(
+			c.StationInfo,
+			prometheus.GaugeValue,
+			1,
+			ifi.Name,
+			bss.BSSID.String(),
+			bss.SSID,
+			bssStatusMode(bss.Status),
+		)
+
 		info, err := stat.StationInfo(ifi)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -241,6 +271,17 @@ func mHzToHz(mHz int) float64 {
 	return float64(mHz) * 1000 * 1000
 }
 
+func bssStatusMode(status wifi.BSSStatus) string {
+	switch status {
+	case wifi.BSSStatusAuthenticated, wifi.BSSStatusAssociated:
+		return "client"
+	case wifi.BSSStatusIBSSJoined:
+		return "ad-hoc"
+	default:
+		return "unknown"
+	}
+}
+
 // All code below this point is used to assist with end-to-end tests for
 // the wifi collector, since wifi devices are not available in CI.
 
@@ -272,6 +313,17 @@ func (s *mockWifiStater) unmarshalJSONFile(filename string, v interface{}) error
 }
 
 func (s *mockWifiStater) Close() error { return nil }
+
+func (s *mockWifiStater) BSS(ifi *wifi.Interface) (*wifi.BSS, error) {
+	p := filepath.Join(ifi.Name, "bss.json")
+
+	var bss wifi.BSS
+	if err := s.unmarshalJSONFile(p, &bss); err != nil {
+		return nil, err
+	}
+
+	return &bss, nil
+}
 
 func (s *mockWifiStater) Interfaces() ([]*wifi.Interface, error) {
 	var ifis []*wifi.Interface
