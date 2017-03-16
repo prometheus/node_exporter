@@ -35,7 +35,7 @@ cd "$(dirname $0)"
 port="$((10000 + (RANDOM % 10000)))"
 tmpdir=$(mktemp -d /tmp/node_exporter_e2e_test.XXXXXX)
 
-skip_re="^(go_|node_exporter_|process_|node_textfile_mtime)"
+skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime)"
 
 keep=0; update=0; verbose=0
 while getopts 'hkuv' opt
