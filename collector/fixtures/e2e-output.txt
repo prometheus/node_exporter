@@ -457,8 +457,6 @@ node_edac_uncorrectable_errors_total{controller="0"} 5
 node_entropy_available_bits 1337
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built.
 # TYPE node_exporter_build_info gauge
-# HELP node_exporter_scrape_duration_seconds node_exporter: Duration of a scrape job.
-# TYPE node_exporter_scrape_duration_seconds summary
 # HELP node_filefd_allocated File descriptor statistics: allocated.
 # TYPE node_filefd_allocated gauge
 node_filefd_allocated 1024
@@ -2072,6 +2070,35 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_scrape_collector_duration_seconds node_exporter: Duration of a collector scrape.
+# TYPE node_scrape_collector_duration_seconds gauge
+# HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.
+# TYPE node_scrape_collector_success gauge
+node_scrape_collector_success{collector="bonding"} 1
+node_scrape_collector_success{collector="buddyinfo"} 1
+node_scrape_collector_success{collector="conntrack"} 1
+node_scrape_collector_success{collector="diskstats"} 1
+node_scrape_collector_success{collector="drbd"} 1
+node_scrape_collector_success{collector="edac"} 1
+node_scrape_collector_success{collector="entropy"} 1
+node_scrape_collector_success{collector="filefd"} 1
+node_scrape_collector_success{collector="hwmon"} 1
+node_scrape_collector_success{collector="infiniband"} 1
+node_scrape_collector_success{collector="ksmd"} 1
+node_scrape_collector_success{collector="loadavg"} 1
+node_scrape_collector_success{collector="mdadm"} 1
+node_scrape_collector_success{collector="megacli"} 1
+node_scrape_collector_success{collector="meminfo"} 1
+node_scrape_collector_success{collector="meminfo_numa"} 1
+node_scrape_collector_success{collector="mountstats"} 1
+node_scrape_collector_success{collector="netdev"} 1
+node_scrape_collector_success{collector="netstat"} 1
+node_scrape_collector_success{collector="nfs"} 1
+node_scrape_collector_success{collector="sockstat"} 1
+node_scrape_collector_success{collector="stat"} 1
+node_scrape_collector_success{collector="textfile"} 1
+node_scrape_collector_success{collector="wifi"} 1
+node_scrape_collector_success{collector="zfs"} 1
 # HELP node_sockstat_FRAG_inuse Number of FRAG sockets in state inuse.
 # TYPE node_sockstat_FRAG_inuse gauge
 node_sockstat_FRAG_inuse 0
