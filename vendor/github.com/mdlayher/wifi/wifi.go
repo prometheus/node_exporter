@@ -69,6 +69,38 @@ const (
 	InterfaceTypeNAN
 )
 
+// String returns the string representation of an InterfaceType.
+func (t InterfaceType) String() string {
+	switch t {
+	case InterfaceTypeUnspecified:
+		return "unspecified"
+	case InterfaceTypeAdHoc:
+		return "ad-hoc"
+	case InterfaceTypeStation:
+		return "station"
+	case InterfaceTypeAP:
+		return "access point"
+	case InterfaceTypeWDS:
+		return "wireless distribution"
+	case InterfaceTypeMonitor:
+		return "monitor"
+	case InterfaceTypeMeshPoint:
+		return "mesh point"
+	case InterfaceTypeP2PClient:
+		return "P2P client"
+	case InterfaceTypeP2PGroupOwner:
+		return "P2P group owner"
+	case InterfaceTypeP2PDevice:
+		return "P2P device"
+	case InterfaceTypeOCB:
+		return "outside context of BSS"
+	case InterfaceTypeNAN:
+		return "near-me area network"
+	default:
+		return fmt.Sprintf("unknown(%d)", t)
+	}
+}
+
 // An Interface is a WiFi network interface.
 type Interface struct {
 	// The index of the interface.

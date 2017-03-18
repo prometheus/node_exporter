@@ -1,16 +1,11 @@
 package wifi
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
 )
 
 var (
-	// errNotStation is returned when attempting to query station info for
-	// an interface which is not a station.
-	errNotStation = errors.New("interface is not a station")
-
 	// errUnimplemented is returned by all functions on platforms that
 	// do not have package wifi implemented.
 	errUnimplemented = fmt.Errorf("package wifi not implemented on %s/%s",
@@ -50,13 +45,8 @@ func (c *Client) BSS(ifi *Interface) (*BSS, error) {
 	return c.c.BSS(ifi)
 }
 
-// StationInfo retrieves statistics about a WiFi interface operating in
-// station mode.
+// StationInfo retrieves station statistics about a WiFi interface.
 func (c *Client) StationInfo(ifi *Interface) (*StationInfo, error) {
-	if ifi.Type != InterfaceTypeStation {
-		return nil, errNotStation
-	}
-
 	return c.c.StationInfo(ifi)
 }
 
