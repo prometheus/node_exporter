@@ -43,4 +43,14 @@ md219 : inactive sdb[2](S) sdc[1](S) sda[0](S)
 md00 : active raid0 xvdb[0]
       4186624 blocks super 1.2 256k chunks
 
+md50 : active raid5 sda1[5] sdc1[0] sdb1[4](F) sdd1[1]
+      8790400512 blocks super 1.2 level 5, 512k chunk, algorithm 2 [4/3] [UUU_]
+
+md13 : active raid1 sde1[6](F) sdg1[1] sdb1[4] sdd1[3] sdc1[2]
+      488383936 blocks [6/4] [_UUUU_]
+
+md20 : active raid5 sdh1[5](S) sdg1[4] sdf1[3] sde1[2] sdd1[1] sdc1[0]
+      976751616 blocks level 5, 64k chunk, algorithm 2 [5/5] [UUUUU]
+      bitmap: 3/233 pages [12KB], 512KB chunk
+
 unused devices: <none>
