@@ -19,7 +19,6 @@ import (
 
 func TestMdadm(t *testing.T) {
 	mdStates, err := parseMdstat("fixtures/proc/mdstat")
-
 	if err != nil {
 		t.Fatalf("parsing of reference-file failed entirely: %s", err)
 	}
@@ -37,13 +36,13 @@ func TestMdadm(t *testing.T) {
 		"md10":  {"md10", true, 2, 2, 314159265, 314159265},
 		"md11":  {"md11", true, 2, 2, 4190208, 4190208},
 		"md12":  {"md12", true, 2, 2, 3886394368, 3886394368},
-		"md219": {"md219", false, 2, 2, 7932, 7932},
+		"md219": {"md219", false, 0, 0, 7932, 7932},
 		"md00":  {"md00", true, 1, 1, 4186624, 4186624},
 	}
 
 	for _, md := range mdStates {
-		if md != refs[md.mdName] {
-			t.Errorf("failed parsing md-device %s correctly: want %v, got %v", md.mdName, refs[md.mdName], md)
+		if md != refs[md.name] {
+			t.Errorf("failed parsing md-device %s correctly: want %v, got %v", md.name, refs[md.name], md)
 		}
 	}
 
@@ -54,7 +53,6 @@ func TestMdadm(t *testing.T) {
 
 func TestInvalidMdstat(t *testing.T) {
 	_, err := parseMdstat("fixtures/proc/mdstat_invalid")
-
 	if err == nil {
 		t.Fatalf("parsing of invalid reference file did not find any errors")
 	}
