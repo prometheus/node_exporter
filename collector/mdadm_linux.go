@@ -36,8 +36,8 @@ var (
 )
 
 type mdStatus struct {
-	mdName       string
-	isActive     bool
+	name         string
+	active       bool
 	disksActive  int64
 	disksTotal   int64
 	blocksTotal  int64
@@ -136,97 +136,78 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 		return []mdStatus{}, fmt.Errorf("error parsing mdstat: %s", err)
 	}
 
-	mdStatusFile := string(content)
-
-	lines := strings.Split(mdStatusFile, "\n")
-	var (
-		currentMD           string
-		personality         string
-		active, total, size int64
-	)
-
+	lines := strings.Split(string(content), "\n")
 	// Each md has at least the deviceline, statusline and one empty line afterwards
 	// so we will have probably something of the order len(lines)/3 devices
 	// so we use that for preallocation.
-	estimateMDs := len(lines) / 3
-	mdStates := make([]mdStatus, 0, estimateMDs)
-
-	for i, l := range lines {
-		if l == "" {
-			// Skip entirely empty lines.
+	mdStates := make([]mdStatus, 0, len(lines)/3)
+	for i, line := range lines {
+		if line == "" {
+			continue
+		}
+		if line[0] == ' ' || line[0] == '\t' {
+			// Lines starting with white space are not the beginning of a md-section.
+			continue
+		}
+		if strings.HasPrefix(line, "Personalities") || strings.HasPrefix(line, "unused") {
+			// These lines contain general information.
 			continue
 		}
 
-		if l[0] == ' ' || l[0] == '\t' {
-			// Those lines are not the beginning of a md-section.
-			continue
-		}
-
-		if strings.HasPrefix(l, "Personalities") || strings.HasPrefix(l, "unused") {
-			// We aren't interested in lines with general info.
-			continue
-		}
-
-		mainLine := strings.Split(l, " ")
+		mainLine := strings.Split(line, " ")
 		if len(mainLine) < 4 {
-			return mdStates, fmt.Errorf("error parsing mdline: %s", l)
+			return mdStates, fmt.Errorf("error parsing mdline: %s", line)
 		}
-		currentMD = mainLine[0]               // The name of the md-device.
-		isActive := (mainLine[2] == "active") // The activity status of the md-device.
-		personality = ""
+		md := mdStatus{
+			name:   mainLine[0],
+			active: mainLine[2] == "active",
+		}
+
+		if len(lines) <= i+3 {
+			return mdStates, fmt.Errorf("error parsing mdstat: entry for %s has fewer lines than expected", md.name)
+		}
+
+		personality := ""
 		for _, possiblePersonality := range mainLine[3:] {
 			if raidPersonalityRE.MatchString(possiblePersonality) {
 				personality = possiblePersonality
 				break
 			}
 		}
-
-		if len(lines) <= i+3 {
-			return mdStates, fmt.Errorf("error parsing mdstat: entry for %s has fewer lines than expected", currentMD)
-		}
-
 		switch {
 		case personality == "raid0":
-			active = int64(len(mainLine) - 4)     // Get the number of devices from the main line.
-			total = active                        // Raid0 active and total is always the same if active.
-			size, err = evalRaid0line(lines[i+1]) // Parse statusline, always present.
+			md.disksActive = int64(len(mainLine) - 4) // Get the number of devices from the main line.
+			md.disksTotal = md.disksActive            // Raid0 active and total is always the same if active.
+			md.blocksTotal, err = evalRaid0line(lines[i+1])
 		case raidPersonalityRE.MatchString(personality):
-			active, total, size, err = evalStatusline(lines[i+1]) // Parse statusline, always present.
+			md.disksActive, md.disksTotal, md.blocksTotal, err = evalStatusline(lines[i+1])
 		default:
 			log.Infof("Personality unknown: %s\n", mainLine)
-			size, err = evalUnknownPersonalitylineRE(lines[i+1]) // Parse statusline, always present.
+			md.blocksTotal, err = evalUnknownPersonalitylineRE(lines[i+1])
 		}
-
 		if err != nil {
 			return mdStates, fmt.Errorf("error parsing mdstat: %s", err)
 		}
 
-		// Now get the number of synced blocks.
-		var syncedBlocks int64
-
-		// Get the line number of the syncing-line.
-		var j int
-		if strings.Contains(lines[i+2], "bitmap") { // then skip the bitmap line
-			j = i + 3
-		} else {
-			j = i + 2
+		syncLine := lines[i+2]
+		if strings.Contains(syncLine, "bitmap") {
+			syncLine = lines[i+3]
 		}
 
 		// If device is syncing at the moment, get the number of currently synced bytes,
 		// otherwise that number equals the size of the device.
-		if strings.Contains(lines[j], "recovery") ||
-			strings.Contains(lines[j], "resync") &&
-				!strings.Contains(lines[j], "\tresync=") {
-			syncedBlocks, err = evalBuildline(lines[j])
+		if strings.Contains(syncLine, "recovery") ||
+			strings.Contains(syncLine, "resync") &&
+				!strings.Contains(syncLine, "\tresync=") {
+			md.blocksSynced, err = evalBuildline(syncLine)
 			if err != nil {
 				return mdStates, fmt.Errorf("error parsing mdstat: %s", err)
 			}
 		} else {
-			syncedBlocks = size
+			md.blocksSynced = md.blocksTotal
 		}
 
-		mdStates = append(mdStates, mdStatus{currentMD, isActive, active, total, size, syncedBlocks})
-
+		mdStates = append(mdStates, md)
 	}
 
 	return mdStates, nil
@@ -277,68 +258,55 @@ var (
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	statusfile := procFilePath("mdstat")
 	if _, err := os.Stat(statusfile); err != nil {
-		// Take care we don't crash on non-existent statusfiles.
 		if os.IsNotExist(err) {
-			// no such file or directory, nothing to do, just return
 			log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
 			return nil
 		}
 		return err
 	}
 
-	// First parse mdstat-file...
 	mdstate, err := parseMdstat(statusfile)
 	if err != nil {
 		return fmt.Errorf("error parsing mdstatus: %s", err)
 	}
 
-	// ... and then plug the result into the metrics to be exported.
-	var isActiveFloat float64
 	for _, mds := range mdstate {
+		log.Debugf("collecting metrics for device %s", mds.name)
 
-		log.Debugf("collecting metrics for device %s", mds.mdName)
-
-		if mds.isActive {
-			isActiveFloat = 1
-		} else {
-			isActiveFloat = 0
+		var active float64
+		if mds.active {
+			active = 1
 		}
-
 		ch <- prometheus.MustNewConstMetric(
 			isActiveDesc,
 			prometheus.GaugeValue,
-			isActiveFloat,
-			mds.mdName,
+			active,
+			mds.name,
 		)
-
 		ch <- prometheus.MustNewConstMetric(
 			disksActiveDesc,
 			prometheus.GaugeValue,
 			float64(mds.disksActive),
-			mds.mdName,
+			mds.name,
 		)
-
 		ch <- prometheus.MustNewConstMetric(
 			disksTotalDesc,
 			prometheus.GaugeValue,
 			float64(mds.disksTotal),
-			mds.mdName,
+			mds.name,
 		)
-
 		ch <- prometheus.MustNewConstMetric(
 			blocksTotalDesc,
 			prometheus.GaugeValue,
 			float64(mds.blocksTotal),
-			mds.mdName,
+			mds.name,
 		)
-
 		ch <- prometheus.MustNewConstMetric(
 			blocksSyncedDesc,
 			prometheus.GaugeValue,
 			float64(mds.blocksSynced),
-			mds.mdName,
+			mds.name,
 		)
-
 	}
 
 	return nil
