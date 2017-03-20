@@ -24,7 +24,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// #cgo LDFLAGS: -ldevstat -lkvm
+// #cgo LDFLAGS: -ldevstat -lkvm -lelf
 // #include "devstat_freebsd.h"
 import "C"
 
