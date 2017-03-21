@@ -1,10 +1,14 @@
-## v0.14.0 / unreleased
+## v0.14.0 / 2017-03-21
 
 NOTE: We are deprecating several collectors in this release.
     * `gmond` - Out of scope.
     * `megacli` - Requires forking, to be moved to textfile collection.
     * `ntp` - Out of scope.
 
+Breaking changes:
+    * Collector errors are now a separate metric, `node_scrape_collector_success`, not a label on `node_exporter_scrape_duration_seconds` (#516)
+
+* [CHANGE] Report collector success/failure as a bool metric, not a label. #516
 * [FEATURE] Add loadavg collector for Solaris #311
 * [FEATURE] Add StorCli text collector example script #320
 * [FEATURE] Add collector for Linux EDAC #324
@@ -34,6 +38,7 @@ NOTE: We are deprecating several collectors in this release.
 * [BUGFIX] Check for errors in netdev scanner #398
 * [BUGFIX] Don't leak or race in FreeBSD devstat collector #396
 * [BUGFIX] Allow graceful failure in hwmon collector #427
+* [BUGFIX] Fix the reporting of active+total disk metrics for inactive raids. #522
 
 ## v0.13.0 / 2016-11-26
 
