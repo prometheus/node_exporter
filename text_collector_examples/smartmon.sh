@@ -15,7 +15,7 @@ $1 ~ /^[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
   printf "%s_value{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $4
   printf "%s_worst{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $5
   printf "%s_threshold{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $6
-  printf "%s_raw_value{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $10
+  printf "%s_raw_value{%s,smart_id=\"%s\"} %e\n", $2, labels, $1, $10
 }
 SMARTCTLAWK
 )"
