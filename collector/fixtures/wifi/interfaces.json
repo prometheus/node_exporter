@@ -5,6 +5,11 @@
 		"frequency": 2412
 	},
 	{
+		"name": "wlan1",
+		"type": 3,
+		"frequency": 2412
+	},
+	{
 		"type": 10
 	}
 ]

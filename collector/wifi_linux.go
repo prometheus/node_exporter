@@ -160,10 +160,12 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, ifi := range ifis {
-		// Only collect metrics on stations for now
-		if ifi.Type != wifi.InterfaceTypeStation {
+		// Some virtual devices have no "name" and should be skipped.
+		if ifi.Name == "" {
 			continue
 		}
+
+		log.Debugf("probing wifi device %q with type %q", ifi.Name, ifi.Type)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.interfaceFrequencyHertz,
@@ -172,41 +174,47 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			ifi.Name,
 		)
 
-		bss, err := stat.BSS(ifi)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
+		// When a statistic is not available for a given interface, package wifi
+		// returns an error compatible with os.IsNotExist.  We leverage this to
+		// only export metrics which are actually valid for given interface types.
 
+		bss, err := stat.BSS(ifi)
+		switch {
+		case err == nil:
+			c.updateBSSStats(ch, ifi.Name, bss)
+		case os.IsNotExist(err):
+			log.Debugf("BSS information not found for wifi device %q", ifi.Name)
+		default:
 			return fmt.Errorf("failed to retrieve BSS for device %s: %v",
 				ifi.Name, err)
 		}
 
-		// Synthetic metric which provides WiFi station info, such as SSID, BSSID, etc.
-		ch <- prometheus.MustNewConstMetric(
-			c.stationInfo,
-			prometheus.GaugeValue,
-			1,
-			ifi.Name,
-			bss.BSSID.String(),
-			bss.SSID,
-			bssStatusMode(bss.Status),
-		)
-
 		info, err := stat.StationInfo(ifi)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-
-			return fmt.Errorf("failed to retrieve station info for device %s: %v",
+		switch {
+		case err == nil:
+			c.updateStationStats(ch, ifi.Name, info)
+		case os.IsNotExist(err):
+			log.Debugf("station information not found for wifi device %q", ifi.Name)
+		default:
+			return fmt.Errorf("failed to retrieve station info for device %q: %v",
 				ifi.Name, err)
 		}
-
-		c.updateStationStats(ch, ifi.Name, info)
 	}
 
 	return nil
+}
+
+func (c *wifiCollector) updateBSSStats(ch chan<- prometheus.Metric, device string, bss *wifi.BSS) {
+	// Synthetic metric which provides wifi station info, such as SSID, BSSID, etc.
+	ch <- prometheus.MustNewConstMetric(
+		c.stationInfo,
+		prometheus.GaugeValue,
+		1,
+		device,
+		bss.BSSID.String(),
+		bss.SSID,
+		bssStatusMode(bss.Status),
+	)
 }
 
 func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device string, info *wifi.StationInfo) {
