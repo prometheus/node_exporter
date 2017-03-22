@@ -105,6 +105,10 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
     make
     ./node_exporter <flags>
 
+To see all available configuration flags:
+
+    ./node_exporter -h
+
 ## Running tests
 
     make test
