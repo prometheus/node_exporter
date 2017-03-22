@@ -133,7 +133,7 @@ func evalBuildline(buildline string) (int64, error) {
 func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 	content, err := ioutil.ReadFile(mdStatusFilePath)
 	if err != nil {
-		return []mdStatus{}, fmt.Errorf("error parsing mdstat: %s", err)
+		return []mdStatus{}, err
 	}
 
 	lines := strings.Split(string(content), "\n")
@@ -257,16 +257,12 @@ var (
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	statusfile := procFilePath("mdstat")
-	if _, err := os.Stat(statusfile); err != nil {
+	mdstate, err := parseMdstat(statusfile)
+	if err != nil {
 		if os.IsNotExist(err) {
 			log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
 			return nil
 		}
-		return err
-	}
-
-	mdstate, err := parseMdstat(statusfile)
-	if err != nil {
 		return fmt.Errorf("error parsing mdstatus: %s", err)
 	}
 
