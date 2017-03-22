@@ -133,6 +133,10 @@ docker run -d -p 9100:9100 \
 Be aware though that the mountpoint label in various metrics will now have
 `/host` as prefix.
 
+## Using a third-party repository for RHEL/CentOS/Fedora
+
+There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/). It closely follows upstream releases.
+
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
 [circleci]: https://circleci.com/gh/prometheus/node_exporter
