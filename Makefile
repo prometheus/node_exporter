@@ -12,7 +12,7 @@
 # limitations under the License.
 
 GO     ?= GO15VENDOREXPERIMENT=1 go
-GOPATH := $(firstword $(subst :, ,$(GOPATH)))
+GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
 
 PROMU       ?= $(GOPATH)/bin/promu
 STATICCHECK ?= $(GOPATH)/bin/staticcheck
