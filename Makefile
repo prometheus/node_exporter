@@ -84,3 +84,9 @@ $(GOPATH)/bin/staticcheck:
 
 
 .PHONY: all style format build test test-e2e vet tarball docker promu staticcheck
+
+# Declaring the binaries at their default locations as PHONY targets is a hack
+# to ensure the latest version is downloaded on every make execution.
+# If this is not desired, copy/symlink these binaries to a different path and
+# set the respective environment variables.
+.PHONY: $(GOPATH)/bin/promu $(GOPATH)/bin/staticcheck
