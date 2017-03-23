@@ -46,13 +46,15 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 			log.Debugf("Ignoring fs type: %s", labels.fsType)
 			continue
 		}
-		labelValues := []string{labels.device, labels.mountPoint, labels.fsType}
+
 		buf := new(syscall.Statfs_t)
 		err := syscall.Statfs(labels.mountPoint, buf)
 		if err != nil {
-			c.devErrors.WithLabelValues(labelValues...).Inc()
-			log.Debugf("Statfs on %s returned %s",
-				labels.mountPoint, err)
+			stats = append(stats, filesystemStats{
+				labels:      labels,
+				deviceError: 1,
+			})
+			log.Errorf("Error on statfs() system call for %q: %s", labels.mountPoint, err)
 			continue
 		}
 
@@ -82,11 +84,14 @@ func mountPointDetails() ([]filesystemLabels, error) {
 	defer file.Close()
 
 	filesystems := []filesystemLabels{}
-
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
-		filesystems = append(filesystems, filesystemLabels{parts[0], parts[1], parts[2]})
+		filesystems = append(filesystems, filesystemLabels{
+			device:     parts[0],
+			mountPoint: parts[1],
+			fsType:     parts[2],
+		})
 	}
 	return filesystems, scanner.Err()
 }
