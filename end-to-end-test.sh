@@ -5,6 +5,7 @@ set -euf -o pipefail
 collectors=$(cat << COLLECTORS
   buddyinfo
   conntrack
+  cpufreq
   diskstats
   drbd
   edac
