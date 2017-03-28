@@ -16,10 +16,7 @@
 package collector
 
 import (
-	"io/ioutil"
 	"path/filepath"
-	"strconv"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -71,58 +68,43 @@ func NewCpufreqCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *cpufreqCollector) readNumericFile(path string) (int, error) {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return -1, err
-	}
-
-	value := strings.Trim(string(data), "\n")
-	if num, err := strconv.Atoi(value); err == nil {
-		return num, nil
-	} else {
-		return -1, err
-	}
-}
-
 func (c *cpufreqCollector) Update(ch chan<- prometheus.Metric) error {
 	cpus, err := filepath.Glob(sysFilePath("bus/cpu/devices/cpu[0-9]*"))
 	if err != nil {
 		return err
 	}
 
-	var value int
 	for _, cpu := range cpus {
 		_, cpuname := filepath.Split(cpu)
 
-		if value, err = c.readNumericFile(filepath.Join(cpu, "cpufreq/scaling_cur_freq")); err != nil {
+		if value, err := readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_cur_freq")); err != nil {
 			return err
 		} else {
 			ch <- prometheus.MustNewConstMetric(c.curFreq, prometheus.GaugeValue, float64(value), cpuname)
 		}
 
-		if value, err = c.readNumericFile(filepath.Join(cpu, "cpufreq/scaling_min_freq")); err != nil {
+		if value, err := readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_min_freq")); err != nil {
 			return err
 		} else {
 			ch <- prometheus.MustNewConstMetric(c.minFreq, prometheus.GaugeValue, float64(value), cpuname)
 		}
 
-		if value, err = c.readNumericFile(filepath.Join(cpu, "cpufreq/scaling_max_freq")); err != nil {
+		if value, err := readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_max_freq")); err != nil {
 			return err
 		} else {
 			ch <- prometheus.MustNewConstMetric(c.maxFreq, prometheus.GaugeValue, float64(value), cpuname)
 		}
 
-		if value, err = c.readNumericFile(filepath.Join(cpu, "thermal_throttle/core_throttle_count")); err != nil {
+		if value, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle/core_throttle_count")); err != nil {
 			return err
 		} else {
-			ch <- prometheus.MustNewConstMetric(c.coreThrottle, prometheus.GaugeValue, float64(value), cpuname)
+			ch <- prometheus.MustNewConstMetric(c.coreThrottle, prometheus.CounterValue, float64(value), cpuname)
 		}
 
-		if value, err = c.readNumericFile(filepath.Join(cpu, "thermal_throttle/package_throttle_count")); err != nil {
+		if value, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle/package_throttle_count")); err != nil {
 			return err
 		} else {
-			ch <- prometheus.MustNewConstMetric(c.packageThrottle, prometheus.GaugeValue, float64(value), cpuname)
+			ch <- prometheus.MustNewConstMetric(c.packageThrottle, prometheus.CounterValue, float64(value), cpuname)
 		}
 
 	}
