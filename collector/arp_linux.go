@@ -39,7 +39,7 @@ func parseArpEntries(data *os.File) (map[string]uint32, error) {
 		}
 	}
 
-	return entries, nil
+	return entries, scanner.Errors()
 }
 
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
