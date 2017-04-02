@@ -18,6 +18,7 @@ package collector
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -53,12 +54,12 @@ func getArpEntries() (map[string]uint32, error) {
 	return parseArpEntries(file), nil
 }
 
-func parseArpEntries(data *os.File) map[string]uint32 {
+func parseArpEntries(data io.Reader) map[string]uint32 {
 	scanner := bufio.NewScanner(data)
 	entries := make(map[string]uint32)
 
 	for scanner.Scan() {
-		columns := strings.Split(string(scanner.Text()), " ")
+		columns := strings.Split(scanner.Text(), " ")
 
 		if columns[0] != "IP" {
 			deviceIndex := len(columns) - 1
