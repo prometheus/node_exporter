@@ -70,9 +70,11 @@ func parseArpEntries(data io.Reader) (map[string]uint32, error) {
 	for scanner.Scan() {
 		columns := strings.Fields(scanner.Text())
 
-		if columns[0] != "IP" {
-			deviceIndex := len(columns) - 1
-			entries[columns[deviceIndex]]++
+		if len(columns) > 0 {
+			if columns[0] != "IP" {
+				deviceIndex := len(columns) - 1
+				entries[columns[deviceIndex]]++
+			}
 		}
 	}
 
