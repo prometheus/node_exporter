@@ -30,11 +30,11 @@ type arpCollector struct {
 }
 
 func init() {
-	Factories["arp"] = NewArpCollector
+	Factories["arp"] = NewARPCollector
 }
 
-// NewArpCollector returns a new Collector exposing ARP stats.
-func NewArpCollector() (Collector, error) {
+// NewARPCollector returns a new Collector exposing ARP stats.
+func NewARPCollector() (Collector, error) {
 	return &arpCollector{
 		count: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "arp",
