@@ -59,7 +59,7 @@ func parseArpEntries(data io.Reader) map[string]uint32 {
 	entries := make(map[string]uint32)
 
 	for scanner.Scan() {
-		columns := strings.Split(scanner.Text(), " ")
+		columns := strings.Fields(scanner.Text())
 
 		if columns[0] != "IP" {
 			deviceIndex := len(columns) - 1
