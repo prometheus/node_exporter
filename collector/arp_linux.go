@@ -59,6 +59,8 @@ func getArpEntries() (map[string]uint32, error) {
 	return entries, nil
 }
 
+// This should get extracted to the github.com/prometheus/procfs package to
+// support more complete parsing of /proc/net/arp.
 func parseArpEntries(data io.Reader) (map[string]uint32, error) {
 	scanner := bufio.NewScanner(data)
 	entries := make(map[string]uint32)
