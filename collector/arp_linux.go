@@ -51,10 +51,15 @@ func getArpEntries() (map[string]uint32, error) {
 	}
 	defer file.Close()
 
-	return parseArpEntries(file), nil
+	entries, err := parseArpEntries(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return entries, nil
 }
 
-func parseArpEntries(data io.Reader) map[string]uint32 {
+func parseArpEntries(data io.Reader) (map[string]uint32, error) {
 	scanner := bufio.NewScanner(data)
 	entries := make(map[string]uint32)
 
@@ -67,7 +72,11 @@ func parseArpEntries(data io.Reader) map[string]uint32 {
 		}
 	}
 
-	return entries
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("failed to parse ARP info: %s", err)
+	}
+
+	return entries, nil
 }
 
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
