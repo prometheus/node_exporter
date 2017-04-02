@@ -64,11 +64,11 @@ func parseArpEntries(data io.Reader) (map[string]uint32, error) {
 	entries := make(map[string]uint32)
 
 	for scanner.Scan() {
-		columns := strings.Fields(scanner.Text())
-
 		if err := scanner.Err(); err != nil {
 			return nil, fmt.Errorf("failed to parse ARP info: %s", err)
 		}
+
+		columns := strings.Fields(scanner.Text())
 
 		if columns[0] != "IP" {
 			deviceIndex := len(columns) - 1
