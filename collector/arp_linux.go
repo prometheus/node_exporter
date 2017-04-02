@@ -37,8 +37,8 @@ func init() {
 func NewARPCollector() (Collector, error) {
 	return &arpCollector{
 		count: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "arp",
-				"count"), "ARP entries by device",
+			prometheus.BuildFQName(Namespace, "arp", "count"),
+			"ARP entries by device",
 			[]string{"device"}, nil,
 		),
 	}, nil
