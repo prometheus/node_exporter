@@ -60,7 +60,9 @@ func getArpEntries() (map[string]uint32, error) {
 }
 
 // This should get extracted to the github.com/prometheus/procfs package to
-// support more complete parsing of /proc/net/arp.
+// support more complete parsing of /proc/net/arp. Instead of adding
+// more fields to this function's return values it should get moved and
+// changed to support each field.
 func parseArpEntries(data io.Reader) (map[string]uint32, error) {
 	scanner := bufio.NewScanner(data)
 	entries := make(map[string]uint32)
