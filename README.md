@@ -23,6 +23,7 @@ Name     | Description | OS
 ---------|-------------|----
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD
+cpufreq | Exposes current cpu frequency | Linux
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
