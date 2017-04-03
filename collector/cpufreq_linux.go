@@ -41,18 +41,18 @@ func init() {
 func NewCpufreqCollector() (Collector, error) {
 	return &cpufreqCollector{
 		curFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpufreqSubsystem, "current_frequency_hertz"),
+			prometheus.BuildFQName(Namespace, cpufreqSubsystem, "frequency_hertz"),
 			"Current cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		minFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpufreqSubsystem, "minimum_frequency_hertz"),
+			prometheus.BuildFQName(Namespace, cpufreqSubsystem, "frequency_min_hertz"),
 			"Minimum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		maxFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpufreqSubsystem, "maximum_frequency_hertz"),
-			"Minimum cpu thread frequency in hertz.",
+			prometheus.BuildFQName(Namespace, cpufreqSubsystem, "frequency_max_hertz"),
+			"Maximum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		coreThrottle: prometheus.NewDesc(
@@ -106,7 +106,6 @@ func (c *cpufreqCollector) Update(ch chan<- prometheus.Metric) error {
 		} else {
 			ch <- prometheus.MustNewConstMetric(c.packageThrottle, prometheus.CounterValue, float64(value), cpuname)
 		}
-
 	}
 
 	return nil
