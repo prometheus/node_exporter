@@ -21,7 +21,7 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 
 Name     | Description | OS
 ---------|-------------|----
-arp | Exposes ARP entry statistics from `/proc/net/arp`. | Linux
+arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
