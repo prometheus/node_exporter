@@ -26,7 +26,7 @@ import (
 )
 
 type arpCollector struct {
-	count *prometheus.Desc
+	entries *prometheus.Desc
 }
 
 func init() {
@@ -36,22 +36,22 @@ func init() {
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector() (Collector, error) {
 	return &arpCollector{
-		count: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "arp", "count"),
+		entries: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "arp", "entries"),
 			"ARP entries by device",
 			[]string{"device"}, nil,
 		),
 	}, nil
 }
 
-func getArpEntries() (map[string]uint32, error) {
+func getARPEntries() (map[string]uint32, error) {
 	file, err := os.Open(procFilePath("net/arp"))
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	entries, err := parseArpEntries(file)
+	entries, err := parseARPEntries(file)
 	if err != nil {
 		return nil, err
 	}
@@ -63,18 +63,20 @@ func getArpEntries() (map[string]uint32, error) {
 // to support more complete parsing of /proc/net/arp. Instead of adding
 // more fields to this function's return values it should get moved and
 // changed to support each field.
-func parseArpEntries(data io.Reader) (map[string]uint32, error) {
+func parseARPEntries(data io.Reader) (map[string]uint32, error) {
 	scanner := bufio.NewScanner(data)
 	entries := make(map[string]uint32)
 
 	for scanner.Scan() {
 		columns := strings.Fields(scanner.Text())
 
-		if len(columns) > 0 {
-			if columns[0] != "IP" {
-				deviceIndex := len(columns) - 1
-				entries[columns[deviceIndex]]++
-			}
+		if len(columns) < 6 {
+			return nil, fmt.Errorf("unexpected ARP table format")
+		}
+
+		if columns[0] != "IP" {
+			deviceIndex := len(columns) - 1
+			entries[columns[deviceIndex]]++
 		}
 	}
 
@@ -86,14 +88,14 @@ func parseArpEntries(data io.Reader) (map[string]uint32, error) {
 }
 
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
-	entries, err := getArpEntries()
+	entries, err := getARPEntries()
 	if err != nil {
 		return fmt.Errorf("could not get ARP entries: %s", err)
 	}
 
 	for device, entryCount := range entries {
 		ch <- prometheus.MustNewConstMetric(
-			c.count, prometheus.GaugeValue, float64(entryCount), device)
+			c.entries, prometheus.GaugeValue, float64(entryCount), device)
 	}
 
 	return nil
