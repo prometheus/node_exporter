@@ -6,6 +6,7 @@ collectors=$(cat << COLLECTORS
   arp
   buddyinfo
   conntrack
+  cpu
   diskstats
   drbd
   edac
