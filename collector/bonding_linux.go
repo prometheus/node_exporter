@@ -67,6 +67,9 @@ func readBondingStats(root string) (status map[string][2]int, err error) {
 	status = map[string][2]int{}
 	masters, err := ioutil.ReadFile(path.Join(root, "bonding_masters"))
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	for _, master := range strings.Fields(string(masters)) {
