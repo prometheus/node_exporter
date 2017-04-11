@@ -29,8 +29,8 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	if err != nil {
 		return nil, fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %s", err)
 	}
-	size := uint64(tmp32)
-	fromPage := func(v uint64) uint64 {
+	size := float64(tmp32)
+	fromPage := func(v float64) float64 {
 		return v * size
 	}
 

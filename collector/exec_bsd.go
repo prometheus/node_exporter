@@ -39,6 +39,9 @@ func NewExecCollector() (Collector, error) {
 	// vm.stats.sys.v_intr: Device interrupts
 	// vm.stats.sys.v_soft: Software interrupts
 	// vm.stats.vm.v_forks: Number of fork() calls
+	//
+	// From sys/kern/kern_tc.c:
+	// kern.boottime is an S,timeval
 
 	return &execCollector{
 		sysctls: []bsdSysctl{
@@ -71,6 +74,12 @@ func NewExecCollector() (Collector, error) {
 				name:        "forks_total",
 				description: "Number of fork() calls since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.vm.v_forks",
+			},
+			{
+				name:        "boot_time",
+				description: "Unix time of last boot, including microseconds.",
+				mib:         "kern.boottime",
+				dataType:    bsdSysctlTypeStructTimeval,
 			},
 		},
 	}, nil
