@@ -3,6 +3,7 @@
 set -euf -o pipefail
 
 collectors=$(cat << COLLECTORS
+  arp
   buddyinfo
   conntrack
   diskstats

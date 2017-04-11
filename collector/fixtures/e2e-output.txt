@@ -71,6 +71,10 @@ http_response_size_bytes{handler="prometheus",quantile="0.9"} NaN
 http_response_size_bytes{handler="prometheus",quantile="0.99"} NaN
 http_response_size_bytes_sum{handler="prometheus"} 0
 http_response_size_bytes_count{handler="prometheus"} 0
+# HELP node_arp_entries ARP entries by device
+# TYPE node_arp_entries gauge
+node_arp_entries{device="eth0"} 3
+node_arp_entries{device="eth1"} 3
 # HELP node_bonding_active Number of active slaves per bonding interface.
 # TYPE node_bonding_active gauge
 node_bonding_active{master="bond0"} 0
@@ -2106,6 +2110,7 @@ node_procs_running 2
 # TYPE node_scrape_collector_duration_seconds gauge
 # HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.
 # TYPE node_scrape_collector_success gauge
+node_scrape_collector_success{collector="arp"} 1
 node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
 node_scrape_collector_success{collector="conntrack"} 1
