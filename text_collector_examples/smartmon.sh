@@ -70,7 +70,7 @@ parse_smartctl_attributes() {
 }
 
 parse_smartctl_info() {
-  local -i smart_available=0 smart_enabled=0
+  local -i smart_available=0 smart_enabled=0 smart_healthy=0
   local disk="$1" disk_type="$2"
   while read line ; do
     info_type="$(echo "${line}" | cut -f1 -d: | tr ' ' '_')"
@@ -92,6 +92,15 @@ parse_smartctl_info() {
         Unavail) smart_available=0 ;;
       esac
     fi
+    if [[ "${info_type}" == 'SMART_overall-health_self-assessment_test_result' ]] ; then
+      case "${info_value:0:6}" in
+        PASSED) smart_healthy=1 ;;
+      esac
+    elif [[ "${info_type}" == 'SMART_Health_Status' ]] ; then
+      case "${info_value:0:2}" in
+        OK) smart_healthy=1 ;;
+      esac
+    fi
   done
   if [[ -n "${model_family}" ]] ; then
     echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",model_family=\"${model_family}\",device_model=\"${device_model}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
@@ -100,6 +109,7 @@ parse_smartctl_info() {
   fi
   echo "device_smart_available{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_available}"
   echo "device_smart_enabled{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_enabled}"
+  echo "device_smart_healthy{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_healthy}"
 }
 
 output_format_awk="$(cat << 'OUTPUTAWK'
@@ -132,8 +142,8 @@ for device in ${device_list}; do
   disk="$(echo ${device} | cut -f1 -d'|')"
   type="$(echo ${device} | cut -f2 -d'|')"
   echo "smartctl_run{disk=\"${disk}\",type=\"${type}\"}" $(TZ=UTC date '+%s')
-  # Get the SMART information
-  /usr/sbin/smartctl -i -d "${type}" "${disk}" | parse_smartctl_info "${disk}" "${type}"
+  # Get the SMART information and health
+  /usr/sbin/smartctl -i -H -d "${type}" "${disk}" | parse_smartctl_info "${disk}" "${type}"
   # Get the SMART attributes
   /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_attributes "${disk}" "${type}"
 done | format_output
