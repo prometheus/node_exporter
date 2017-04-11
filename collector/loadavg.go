@@ -12,7 +12,6 @@
 // limitations under the License.
 
 // +build !noloadavg
-// +build !windows
 
 package collector
 

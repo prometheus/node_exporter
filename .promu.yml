@@ -20,8 +20,6 @@ crossbuild:
         - linux/386
         - darwin/amd64
         - darwin/386
-        - windows/amd64
-        - windows/386
         - netbsd/amd64
         - netbsd/386
         - linux/arm

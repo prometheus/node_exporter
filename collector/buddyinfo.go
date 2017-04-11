@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nobuddyinfo
-// +build !windows,!netbsd
+// +build !netbsd
 
 package collector
 
