@@ -33,6 +33,7 @@ dependencies:
 test:
   override:
     - docker run --rm -t -v "$(pwd):/app" "${DOCKER_TEST_IMAGE_NAME}" -i "${REPO_PATH}" -T
+    - make test-docker 
 
 deployment:
   hub_branch:
