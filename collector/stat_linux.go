@@ -104,7 +104,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 				break
 			}
 			// Only some of these may be present, depending on kernel version.
-			cpuFields := []string{"user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest"}
+			cpuFields := []string{"user", "nice", "system", "idle", "iowait", "irq", "softirq", "steal", "guest", "guest_nice"}
 			// OpenVZ guests lack the "guest" CPU field, which needs to be ignored.
 			expectedFieldNum := len(cpuFields) + 1
 			if expectedFieldNum > len(parts) {

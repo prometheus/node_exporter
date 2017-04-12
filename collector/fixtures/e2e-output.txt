@@ -129,6 +129,7 @@ node_context_switches 3.8014093e+07
 # HELP node_cpu Seconds the cpus spent in each mode.
 # TYPE node_cpu counter
 node_cpu{cpu="cpu0",mode="guest"} 0
+node_cpu{cpu="cpu0",mode="guest_nice"} 0
 node_cpu{cpu="cpu0",mode="idle"} 10870.69
 node_cpu{cpu="cpu0",mode="iowait"} 2.2
 node_cpu{cpu="cpu0",mode="irq"} 0.01
@@ -138,6 +139,7 @@ node_cpu{cpu="cpu0",mode="steal"} 0
 node_cpu{cpu="cpu0",mode="system"} 210.45
 node_cpu{cpu="cpu0",mode="user"} 444.9
 node_cpu{cpu="cpu1",mode="guest"} 0
+node_cpu{cpu="cpu1",mode="guest_nice"} 0
 node_cpu{cpu="cpu1",mode="idle"} 11107.87
 node_cpu{cpu="cpu1",mode="iowait"} 5.91
 node_cpu{cpu="cpu1",mode="irq"} 0
@@ -147,6 +149,7 @@ node_cpu{cpu="cpu1",mode="steal"} 0
 node_cpu{cpu="cpu1",mode="system"} 164.74
 node_cpu{cpu="cpu1",mode="user"} 478.69
 node_cpu{cpu="cpu2",mode="guest"} 0
+node_cpu{cpu="cpu2",mode="guest_nice"} 0
 node_cpu{cpu="cpu2",mode="idle"} 11123.21
 node_cpu{cpu="cpu2",mode="iowait"} 4.41
 node_cpu{cpu="cpu2",mode="irq"} 0
@@ -156,6 +159,7 @@ node_cpu{cpu="cpu2",mode="steal"} 0
 node_cpu{cpu="cpu2",mode="system"} 159.16
 node_cpu{cpu="cpu2",mode="user"} 465.04
 node_cpu{cpu="cpu3",mode="guest"} 0
+node_cpu{cpu="cpu3",mode="guest_nice"} 0
 node_cpu{cpu="cpu3",mode="idle"} 11132.3
 node_cpu{cpu="cpu3",mode="iowait"} 5.33
 node_cpu{cpu="cpu3",mode="irq"} 0
@@ -165,6 +169,7 @@ node_cpu{cpu="cpu3",mode="steal"} 0
 node_cpu{cpu="cpu3",mode="system"} 156.83
 node_cpu{cpu="cpu3",mode="user"} 470.54
 node_cpu{cpu="cpu4",mode="guest"} 0
+node_cpu{cpu="cpu4",mode="guest_nice"} 0
 node_cpu{cpu="cpu4",mode="idle"} 11403.21
 node_cpu{cpu="cpu4",mode="iowait"} 2.17
 node_cpu{cpu="cpu4",mode="irq"} 0
@@ -174,6 +179,7 @@ node_cpu{cpu="cpu4",mode="steal"} 0
 node_cpu{cpu="cpu4",mode="system"} 107.76
 node_cpu{cpu="cpu4",mode="user"} 284.13
 node_cpu{cpu="cpu5",mode="guest"} 0
+node_cpu{cpu="cpu5",mode="guest_nice"} 0
 node_cpu{cpu="cpu5",mode="idle"} 11362.7
 node_cpu{cpu="cpu5",mode="iowait"} 6.72
 node_cpu{cpu="cpu5",mode="irq"} 0
@@ -183,6 +189,7 @@ node_cpu{cpu="cpu5",mode="steal"} 0
 node_cpu{cpu="cpu5",mode="system"} 115.86
 node_cpu{cpu="cpu5",mode="user"} 292.71
 node_cpu{cpu="cpu6",mode="guest"} 0
+node_cpu{cpu="cpu6",mode="guest_nice"} 0
 node_cpu{cpu="cpu6",mode="idle"} 11397.21
 node_cpu{cpu="cpu6",mode="iowait"} 3.19
 node_cpu{cpu="cpu6",mode="irq"} 0
@@ -192,6 +199,7 @@ node_cpu{cpu="cpu6",mode="steal"} 0
 node_cpu{cpu="cpu6",mode="system"} 102.76
 node_cpu{cpu="cpu6",mode="user"} 291.52
 node_cpu{cpu="cpu7",mode="guest"} 0
+node_cpu{cpu="cpu7",mode="guest_nice"} 0
 node_cpu{cpu="cpu7",mode="idle"} 11392.82
 node_cpu{cpu="cpu7",mode="iowait"} 5.55
 node_cpu{cpu="cpu7",mode="irq"} 0
