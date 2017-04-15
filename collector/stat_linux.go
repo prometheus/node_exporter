@@ -46,22 +46,22 @@ func init() {
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "cpu"),
+			prometheus.BuildFQName(Namespace, "", "cpu_total"),
 			"Seconds the cpus spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
 		intr: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "intr"),
+			prometheus.BuildFQName(Namespace, "", "intr_total"),
 			"Total number of interrupts serviced.",
 			nil, nil,
 		),
 		ctxt: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "context_switches"),
+			prometheus.BuildFQName(Namespace, "", "context_switches_total"),
 			"Total number of context switches.",
 			nil, nil,
 		),
 		forks: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "forks"),
+			prometheus.BuildFQName(Namespace, "", "forks_total"),
 			"Total number of forks.",
 			nil, nil,
 		),
