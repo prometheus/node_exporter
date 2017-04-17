@@ -142,5 +142,5 @@ func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.blocksDesc, prometheus.CounterValue, float64(stats.blocks), device)
 	}
 
-	return err
+	return nil
 }
