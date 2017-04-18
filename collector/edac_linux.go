@@ -108,7 +108,7 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 			return fmt.Errorf("couldn't get ue_noinfo_count for controller %s: %s", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
-			c.csRowUECount, prometheus.CounterValue, float64(value), controllerNumber, "uknown")
+			c.csRowUECount, prometheus.CounterValue, float64(value), controllerNumber, "unknown")
 
 		// For each controller, walk the csrow directories.
 		csrows, err := filepath.Glob(controller + "/csrow[0-9]*")

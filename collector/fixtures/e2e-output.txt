@@ -460,7 +460,7 @@ node_edac_csrow_correctable_errors_total{controller="0",csrow="unknown"} 2
 # HELP node_edac_csrow_uncorrectable_errors_total Total uncorrectable memory errors for this csrow.
 # TYPE node_edac_csrow_uncorrectable_errors_total counter
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="0"} 4
-node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="uknown"} 6
+node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="unknown"} 6
 # HELP node_edac_uncorrectable_errors_total Total uncorrectable memory errors.
 # TYPE node_edac_uncorrectable_errors_total counter
 node_edac_uncorrectable_errors_total{controller="0"} 5
