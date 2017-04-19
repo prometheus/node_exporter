@@ -43,7 +43,7 @@ func NewTimeCollector() (Collector, error) {
 }
 
 func (c *timeCollector) Update(ch chan<- prometheus.Metric) error {
-	now := float64(time.Now().Unix())
+	now := float64(time.Now().UnixNano()) / 1e9
 	log.Debugf("Return time: %f", now)
 	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, now)
 	return nil
