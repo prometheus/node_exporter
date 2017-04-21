@@ -76,7 +76,7 @@ func NewExecCollector() (Collector, error) {
 				mib:         "vm.stats.vm.v_forks",
 			},
 			{
-				name:        "boot_time",
+				name:        "boot_timestamp_seconds",
 				description: "Unix time of last boot, including microseconds.",
 				mib:         "kern.boottime",
 				dataType:    bsdSysctlTypeStructTimeval,
