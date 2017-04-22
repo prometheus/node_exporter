@@ -17,19 +17,24 @@
 package collector
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+	"unsafe"
 )
+
+// #include <sys/types.h>
+import "C"
 
 type bsdSysctlType uint8
 
 // BSD-specific sysctl value types.  There is an impedience mismatch between
 // native C types, e.g. int vs long, and the golang unix.Sysctl variables
-
 const (
 	// Default to uint32.
 	bsdSysctlTypeUint32 bsdSysctlType = iota
 	bsdSysctlTypeUint64
+	bsdSysctlTypeStructTimeval
 )
 
 // Contains all the info needed to map a single bsd-sysctl to a prometheus value.
@@ -50,28 +55,68 @@ type bsdSysctl struct {
 	dataType bsdSysctlType
 
 	// Post-retrieval conversion hooks
-	conversion func(uint64) uint64
+	conversion func(float64) float64
 }
 
 func (b bsdSysctl) Value() (float64, error) {
 	var tmp32 uint32
 	var tmp64 uint64
+	var tmpf64 float64
 	var err error
 
 	switch b.dataType {
 	case bsdSysctlTypeUint32:
 		tmp32, err = unix.SysctlUint32(b.mib)
-		tmp64 = uint64(tmp32)
+		tmpf64 = float64(tmp32)
 	case bsdSysctlTypeUint64:
 		tmp64, err = unix.SysctlUint64(b.mib)
+		tmpf64 = float64(tmp64)
+	case bsdSysctlTypeStructTimeval:
+		raw, err := unix.SysctlRaw(b.mib)
+		if err != nil {
+			return 0, err
+		}
+
+		/*
+		 * From 10.3-RELEASE sources:
+		 *
+		 * /usr/include/sys/_timeval.h:47
+		 *  time_t      tv_sec
+		 *  suseconds_t tv_usec
+		 *
+		 * /usr/include/sys/_types.h:60
+		 *  long __suseconds_t
+		 *
+		 * ... architecture dependent, via #ifdef:
+		 *  typedef __int64_t __time_t;
+		 *  typedef __int32_t __time_t;
+		 */
+		if len(raw) != (C.sizeof_time_t + C.sizeof_suseconds_t) {
+			// Shouldn't get here, unless the ABI changes...
+			return 0, fmt.Errorf(
+				"Length of bytes recieved from sysctl (%d) does not match expected bytes (%d).",
+				len(raw),
+				C.sizeof_time_t+C.sizeof_suseconds_t,
+			)
+		}
+
+		secondsUp := unsafe.Pointer(&raw[0])
+		susecondsUp := uintptr(secondsUp) + C.sizeof_time_t
+		unix := float64(*(*C.time_t)(secondsUp))
+		usec := float64(*(*C.suseconds_t)(unsafe.Pointer(susecondsUp)))
+
+		// This conversion maintains the usec precision.  Using
+		// the time package did not.
+		tmpf64 = unix + (usec / float64(1000*1000))
 	}
+
 	if err != nil {
 		return 0, err
 	}
 
 	if b.conversion != nil {
-		return float64(b.conversion(tmp64)), nil
+		return b.conversion(tmpf64), nil
 	}
 
-	return float64(tmp64), nil
+	return tmpf64, nil
 }
