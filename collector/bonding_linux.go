@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 type bondingCollector struct {
@@ -52,8 +53,13 @@ func NewBondingCollector() (Collector, error) {
 
 // Update reads and exposes bonding states, implements Collector interface. Caution: This works only on linux.
 func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
-	bondingStats, err := readBondingStats(sysFilePath("class/net"))
+	statusfile := sysFilePath("class/net")
+	bondingStats, err := readBondingStats(statusfile)
 	if err != nil {
+		if os.IsNotExist(err) {
+			log.Debugf("Not collecting bonding, file does not exist: %s", statusfile)
+			return nil
+		}
 		return err
 	}
 	for master, status := range bondingStats {
