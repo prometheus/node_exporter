@@ -34,11 +34,3 @@ func TestBonding(t *testing.T) {
 		t.Fatal("dmz in unexpected state")
 	}
 }
-
-func TestBondingAbsent(t *testing.T) {
-	if bondingStats, err := readBondingStats("fixtures/sys/class/net.nobonding"); err != nil {
-		t.Fatalf("Expect no error but got: %+v", err)
-	} else if bondingStats != nil {
-		t.Fatalf("Did not expect to find fixtures for bonding without a bonding configuration")
-	}
-}
