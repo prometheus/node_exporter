@@ -131,14 +131,20 @@
 		{
 			"checksumSHA1": "cD4xn1qxbkiuXqUExpdnDroCTrY=",
 			"path": "github.com/prometheus/procfs",
-			"revision": "a1dba9ce8baed984a2495b658c82687f8157b98f",
-			"revisionTime": "2017-02-16T22:32:56Z"
+			"revision": "332f6238064950a97bc3ed3f5421f6418537e707",
+			"revisionTime": "2017-04-21T21:58:51Z"
 		},
 		{
-			"checksumSHA1": "kOWRcAHWFkId0aCIOSOyjzC0Zfc=",
+			"checksumSHA1": "eiBAd4edewJTOtTwxh/ubJdjd+I=",
+			"path": "github.com/prometheus/procfs/sysfs",
+			"revision": "332f6238064950a97bc3ed3f5421f6418537e707",
+			"revisionTime": "2017-04-21T21:58:51Z"
+		},
+		{
+			"checksumSHA1": "xCiFAAwVTrjsfZT1BIJQ3DgeNCY=",
 			"path": "github.com/prometheus/procfs/xfs",
-			"revision": "a1dba9ce8baed984a2495b658c82687f8157b98f",
-			"revisionTime": "2017-02-16T22:32:56Z"
+			"revision": "332f6238064950a97bc3ed3f5421f6418537e707",
+			"revisionTime": "2017-04-21T21:58:51Z"
 		},
 		{
 			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",

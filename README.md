@@ -44,6 +44,7 @@ time | Exposes the current system time. | _any_
 uname | Exposes system information as provided by the uname system call. | Linux
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
+xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/)
 
 ### Disabled by default

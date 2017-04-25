@@ -2143,6 +2143,7 @@ node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="wifi"} 1
+node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
 # HELP node_sockstat_FRAG_inuse Number of FRAG sockets in state inuse.
 # TYPE node_sockstat_FRAG_inuse gauge
@@ -2222,6 +2223,30 @@ node_wifi_station_transmit_failed_total{device="wlan0"} 2
 # HELP node_wifi_station_transmit_retries_total The total number of times a station has had to retry while sending a packet.
 # TYPE node_wifi_station_transmit_retries_total counter
 node_wifi_station_transmit_retries_total{device="wlan0"} 10
+# HELP node_xfs_allocation_btree_compares_total Number of allocation B-tree compares for a filesystem.
+# TYPE node_xfs_allocation_btree_compares_total counter
+node_xfs_allocation_btree_compares_total{device="sda1"} 0
+# HELP node_xfs_allocation_btree_lookups_total Number of allocation B-tree lookups for a filesystem.
+# TYPE node_xfs_allocation_btree_lookups_total counter
+node_xfs_allocation_btree_lookups_total{device="sda1"} 0
+# HELP node_xfs_allocation_btree_records_deleted_total Number of allocation B-tree records deleted for a filesystem.
+# TYPE node_xfs_allocation_btree_records_deleted_total counter
+node_xfs_allocation_btree_records_deleted_total{device="sda1"} 0
+# HELP node_xfs_allocation_btree_records_inserted_total Number of allocation B-tree records inserted for a filesystem.
+# TYPE node_xfs_allocation_btree_records_inserted_total counter
+node_xfs_allocation_btree_records_inserted_total{device="sda1"} 0
+# HELP node_xfs_extent_allocation_blocks_allocated_total Number of blocks allocated for a filesystem.
+# TYPE node_xfs_extent_allocation_blocks_allocated_total counter
+node_xfs_extent_allocation_blocks_allocated_total{device="sda1"} 872
+# HELP node_xfs_extent_allocation_blocks_freed_total Number of blocks freed for a filesystem.
+# TYPE node_xfs_extent_allocation_blocks_freed_total counter
+node_xfs_extent_allocation_blocks_freed_total{device="sda1"} 0
+# HELP node_xfs_extent_allocation_extents_allocated_total Number of extents allocated for a filesystem.
+# TYPE node_xfs_extent_allocation_extents_allocated_total counter
+node_xfs_extent_allocation_extents_allocated_total{device="sda1"} 1
+# HELP node_xfs_extent_allocation_extents_freed_total Number of extents freed for a filesystem.
+# TYPE node_xfs_extent_allocation_extents_freed_total counter
+node_xfs_extent_allocation_extents_freed_total{device="sda1"} 0
 # HELP node_zfs_arc_anon_evictable_data kstat.zfs.misc.arcstats.anon_evictable_data
 # TYPE node_zfs_arc_anon_evictable_data untyped
 node_zfs_arc_anon_evictable_data 0

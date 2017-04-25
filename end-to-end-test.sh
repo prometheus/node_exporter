@@ -28,6 +28,7 @@ collectors=$(cat << COLLECTORS
   bonding
   megacli
   wifi
+  xfs
   zfs
 COLLECTORS
 )
