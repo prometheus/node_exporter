@@ -135,6 +135,12 @@
 			"revisionTime": "2017-04-24T20:45:52Z"
 		},
 		{
+			"checksumSHA1": "eiBAd4edewJTOtTwxh/ubJdjd+I=",
+			"path": "github.com/prometheus/procfs/sysfs",
+			"revision": "6ac8c5d890d415025dd5aae7595bcb2a6e7e2fad",
+			"revisionTime": "2017-04-24T20:45:52Z"
+		},
+		{
 			"checksumSHA1": "xCiFAAwVTrjsfZT1BIJQ3DgeNCY=",
 			"path": "github.com/prometheus/procfs/xfs",
 			"revision": "6ac8c5d890d415025dd5aae7595bcb2a6e7e2fad",
