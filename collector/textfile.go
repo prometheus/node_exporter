@@ -48,7 +48,7 @@ func init() {
 // in the given textfile directory.
 func NewTextFileCollector() (Collector, error) {
 	c := &textFileCollector{
-		path: strings.Trim(*textFileDirectory, "'\""
+		path: strings.Trim(*textFileDirectory, "'\"")
 	}
 
 	if c.path == "" {
