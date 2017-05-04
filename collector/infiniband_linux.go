@@ -57,8 +57,8 @@ func NewInfiniBandCollector() (Collector, error) {
 		"link_error_recovery_total":           {"link_error_recovery", "Number of times the link successfully recovered from an error state"},
 		"multicast_packets_received_total":    {"multicast_rcv_packets", "Number of multicast packets received (including errors)"},
 		"multicast_packets_transmitted_total": {"multicast_xmit_packets", "Number of multicast packets transmitted (including errors)"},
-		"port_data_received_bytes":            {"port_rcv_data", "Number of data octets received on all links"},
-		"port_data_transmitted_bytes":         {"port_xmit_data", "Number of data octets transmitted on all links"},
+		"port_data_received_bytes_total":      {"port_rcv_data", "Number of data octets received on all links"},
+		"port_data_transmitted_bytes_total":   {"port_xmit_data", "Number of data octets transmitted on all links"},
 		"unicast_packets_received_total":      {"unicast_rcv_packets", "Number of unicast packets received (including errors)"},
 		"unicast_packets_transmitted_total":   {"unicast_xmit_packets", "Number of unicast packets transmitted (including errors)"},
 	}

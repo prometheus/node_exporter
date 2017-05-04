@@ -123,121 +123,121 @@ node_buddyinfo_count{node="0",size="8",zone="Normal"} 0
 node_buddyinfo_count{node="0",size="9",zone="DMA"} 1
 node_buddyinfo_count{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_count{node="0",size="9",zone="Normal"} 0
-# HELP node_context_switches Total number of context switches.
-# TYPE node_context_switches counter
-node_context_switches 3.8014093e+07
-# HELP node_cpu Seconds the cpus spent in each mode.
-# TYPE node_cpu counter
-node_cpu{cpu="cpu0",mode="guest"} 0
-node_cpu{cpu="cpu0",mode="guest_nice"} 0
-node_cpu{cpu="cpu0",mode="idle"} 10870.69
-node_cpu{cpu="cpu0",mode="iowait"} 2.2
-node_cpu{cpu="cpu0",mode="irq"} 0.01
-node_cpu{cpu="cpu0",mode="nice"} 0.19
-node_cpu{cpu="cpu0",mode="softirq"} 34.1
-node_cpu{cpu="cpu0",mode="steal"} 0
-node_cpu{cpu="cpu0",mode="system"} 210.45
-node_cpu{cpu="cpu0",mode="user"} 444.9
-node_cpu{cpu="cpu1",mode="guest"} 0
-node_cpu{cpu="cpu1",mode="guest_nice"} 0
-node_cpu{cpu="cpu1",mode="idle"} 11107.87
-node_cpu{cpu="cpu1",mode="iowait"} 5.91
-node_cpu{cpu="cpu1",mode="irq"} 0
-node_cpu{cpu="cpu1",mode="nice"} 0.23
-node_cpu{cpu="cpu1",mode="softirq"} 0.46
-node_cpu{cpu="cpu1",mode="steal"} 0
-node_cpu{cpu="cpu1",mode="system"} 164.74
-node_cpu{cpu="cpu1",mode="user"} 478.69
-node_cpu{cpu="cpu2",mode="guest"} 0
-node_cpu{cpu="cpu2",mode="guest_nice"} 0
-node_cpu{cpu="cpu2",mode="idle"} 11123.21
-node_cpu{cpu="cpu2",mode="iowait"} 4.41
-node_cpu{cpu="cpu2",mode="irq"} 0
-node_cpu{cpu="cpu2",mode="nice"} 0.36
-node_cpu{cpu="cpu2",mode="softirq"} 3.26
-node_cpu{cpu="cpu2",mode="steal"} 0
-node_cpu{cpu="cpu2",mode="system"} 159.16
-node_cpu{cpu="cpu2",mode="user"} 465.04
-node_cpu{cpu="cpu3",mode="guest"} 0
-node_cpu{cpu="cpu3",mode="guest_nice"} 0
-node_cpu{cpu="cpu3",mode="idle"} 11132.3
-node_cpu{cpu="cpu3",mode="iowait"} 5.33
-node_cpu{cpu="cpu3",mode="irq"} 0
-node_cpu{cpu="cpu3",mode="nice"} 1.02
-node_cpu{cpu="cpu3",mode="softirq"} 0.6
-node_cpu{cpu="cpu3",mode="steal"} 0
-node_cpu{cpu="cpu3",mode="system"} 156.83
-node_cpu{cpu="cpu3",mode="user"} 470.54
-node_cpu{cpu="cpu4",mode="guest"} 0
-node_cpu{cpu="cpu4",mode="guest_nice"} 0
-node_cpu{cpu="cpu4",mode="idle"} 11403.21
-node_cpu{cpu="cpu4",mode="iowait"} 2.17
-node_cpu{cpu="cpu4",mode="irq"} 0
-node_cpu{cpu="cpu4",mode="nice"} 0.25
-node_cpu{cpu="cpu4",mode="softirq"} 0.08
-node_cpu{cpu="cpu4",mode="steal"} 0
-node_cpu{cpu="cpu4",mode="system"} 107.76
-node_cpu{cpu="cpu4",mode="user"} 284.13
-node_cpu{cpu="cpu5",mode="guest"} 0
-node_cpu{cpu="cpu5",mode="guest_nice"} 0
-node_cpu{cpu="cpu5",mode="idle"} 11362.7
-node_cpu{cpu="cpu5",mode="iowait"} 6.72
-node_cpu{cpu="cpu5",mode="irq"} 0
-node_cpu{cpu="cpu5",mode="nice"} 1.01
-node_cpu{cpu="cpu5",mode="softirq"} 0.3
-node_cpu{cpu="cpu5",mode="steal"} 0
-node_cpu{cpu="cpu5",mode="system"} 115.86
-node_cpu{cpu="cpu5",mode="user"} 292.71
-node_cpu{cpu="cpu6",mode="guest"} 0
-node_cpu{cpu="cpu6",mode="guest_nice"} 0
-node_cpu{cpu="cpu6",mode="idle"} 11397.21
-node_cpu{cpu="cpu6",mode="iowait"} 3.19
-node_cpu{cpu="cpu6",mode="irq"} 0
-node_cpu{cpu="cpu6",mode="nice"} 0.36
-node_cpu{cpu="cpu6",mode="softirq"} 0.29
-node_cpu{cpu="cpu6",mode="steal"} 0
-node_cpu{cpu="cpu6",mode="system"} 102.76
-node_cpu{cpu="cpu6",mode="user"} 291.52
-node_cpu{cpu="cpu7",mode="guest"} 0
-node_cpu{cpu="cpu7",mode="guest_nice"} 0
-node_cpu{cpu="cpu7",mode="idle"} 11392.82
-node_cpu{cpu="cpu7",mode="iowait"} 5.55
-node_cpu{cpu="cpu7",mode="irq"} 0
-node_cpu{cpu="cpu7",mode="nice"} 2.68
-node_cpu{cpu="cpu7",mode="softirq"} 0.31
-node_cpu{cpu="cpu7",mode="steal"} 0
-node_cpu{cpu="cpu7",mode="system"} 101.64
-node_cpu{cpu="cpu7",mode="user"} 290.98
-# HELP node_disk_bytes_read The total number of bytes read successfully.
-# TYPE node_disk_bytes_read counter
-node_disk_bytes_read{device="dm-0"} 5.13708655616e+11
-node_disk_bytes_read{device="dm-1"} 1.589248e+06
-node_disk_bytes_read{device="dm-2"} 1.578752e+08
-node_disk_bytes_read{device="dm-3"} 1.98144e+06
-node_disk_bytes_read{device="dm-4"} 529408
-node_disk_bytes_read{device="dm-5"} 4.3150848e+07
-node_disk_bytes_read{device="mmcblk0"} 798720
-node_disk_bytes_read{device="mmcblk0p1"} 81920
-node_disk_bytes_read{device="mmcblk0p2"} 389120
-node_disk_bytes_read{device="nvme0n1"} 2.377714176e+09
-node_disk_bytes_read{device="sda"} 5.13713216512e+11
-node_disk_bytes_read{device="sr0"} 0
-node_disk_bytes_read{device="vda"} 1.6727491584e+10
-# HELP node_disk_bytes_written The total number of bytes written successfully.
-# TYPE node_disk_bytes_written counter
-node_disk_bytes_written{device="dm-0"} 2.5891680256e+11
-node_disk_bytes_written{device="dm-1"} 303104
-node_disk_bytes_written{device="dm-2"} 2.607828992e+09
-node_disk_bytes_written{device="dm-3"} 0
-node_disk_bytes_written{device="dm-4"} 70144
-node_disk_bytes_written{device="dm-5"} 5.89664256e+08
-node_disk_bytes_written{device="mmcblk0"} 0
-node_disk_bytes_written{device="mmcblk0p1"} 0
-node_disk_bytes_written{device="mmcblk0p2"} 0
-node_disk_bytes_written{device="nvme0n1"} 2.0199236096e+10
-node_disk_bytes_written{device="sda"} 2.58916880384e+11
-node_disk_bytes_written{device="sr0"} 0
-node_disk_bytes_written{device="vda"} 1.0938236928e+11
+# HELP node_context_switches_total Total number of context switches.
+# TYPE node_context_switches_total counter
+node_context_switches_total 3.8014093e+07
+# HELP node_cpu_total Seconds the cpus spent in each mode.
+# TYPE node_cpu_total counter
+node_cpu_total{cpu="cpu0",mode="guest"} 0
+node_cpu_total{cpu="cpu0",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu0",mode="idle"} 10870.69
+node_cpu_total{cpu="cpu0",mode="iowait"} 2.2
+node_cpu_total{cpu="cpu0",mode="irq"} 0.01
+node_cpu_total{cpu="cpu0",mode="nice"} 0.19
+node_cpu_total{cpu="cpu0",mode="softirq"} 34.1
+node_cpu_total{cpu="cpu0",mode="steal"} 0
+node_cpu_total{cpu="cpu0",mode="system"} 210.45
+node_cpu_total{cpu="cpu0",mode="user"} 444.9
+node_cpu_total{cpu="cpu1",mode="guest"} 0
+node_cpu_total{cpu="cpu1",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu1",mode="idle"} 11107.87
+node_cpu_total{cpu="cpu1",mode="iowait"} 5.91
+node_cpu_total{cpu="cpu1",mode="irq"} 0
+node_cpu_total{cpu="cpu1",mode="nice"} 0.23
+node_cpu_total{cpu="cpu1",mode="softirq"} 0.46
+node_cpu_total{cpu="cpu1",mode="steal"} 0
+node_cpu_total{cpu="cpu1",mode="system"} 164.74
+node_cpu_total{cpu="cpu1",mode="user"} 478.69
+node_cpu_total{cpu="cpu2",mode="guest"} 0
+node_cpu_total{cpu="cpu2",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu2",mode="idle"} 11123.21
+node_cpu_total{cpu="cpu2",mode="iowait"} 4.41
+node_cpu_total{cpu="cpu2",mode="irq"} 0
+node_cpu_total{cpu="cpu2",mode="nice"} 0.36
+node_cpu_total{cpu="cpu2",mode="softirq"} 3.26
+node_cpu_total{cpu="cpu2",mode="steal"} 0
+node_cpu_total{cpu="cpu2",mode="system"} 159.16
+node_cpu_total{cpu="cpu2",mode="user"} 465.04
+node_cpu_total{cpu="cpu3",mode="guest"} 0
+node_cpu_total{cpu="cpu3",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu3",mode="idle"} 11132.3
+node_cpu_total{cpu="cpu3",mode="iowait"} 5.33
+node_cpu_total{cpu="cpu3",mode="irq"} 0
+node_cpu_total{cpu="cpu3",mode="nice"} 1.02
+node_cpu_total{cpu="cpu3",mode="softirq"} 0.6
+node_cpu_total{cpu="cpu3",mode="steal"} 0
+node_cpu_total{cpu="cpu3",mode="system"} 156.83
+node_cpu_total{cpu="cpu3",mode="user"} 470.54
+node_cpu_total{cpu="cpu4",mode="guest"} 0
+node_cpu_total{cpu="cpu4",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu4",mode="idle"} 11403.21
+node_cpu_total{cpu="cpu4",mode="iowait"} 2.17
+node_cpu_total{cpu="cpu4",mode="irq"} 0
+node_cpu_total{cpu="cpu4",mode="nice"} 0.25
+node_cpu_total{cpu="cpu4",mode="softirq"} 0.08
+node_cpu_total{cpu="cpu4",mode="steal"} 0
+node_cpu_total{cpu="cpu4",mode="system"} 107.76
+node_cpu_total{cpu="cpu4",mode="user"} 284.13
+node_cpu_total{cpu="cpu5",mode="guest"} 0
+node_cpu_total{cpu="cpu5",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu5",mode="idle"} 11362.7
+node_cpu_total{cpu="cpu5",mode="iowait"} 6.72
+node_cpu_total{cpu="cpu5",mode="irq"} 0
+node_cpu_total{cpu="cpu5",mode="nice"} 1.01
+node_cpu_total{cpu="cpu5",mode="softirq"} 0.3
+node_cpu_total{cpu="cpu5",mode="steal"} 0
+node_cpu_total{cpu="cpu5",mode="system"} 115.86
+node_cpu_total{cpu="cpu5",mode="user"} 292.71
+node_cpu_total{cpu="cpu6",mode="guest"} 0
+node_cpu_total{cpu="cpu6",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu6",mode="idle"} 11397.21
+node_cpu_total{cpu="cpu6",mode="iowait"} 3.19
+node_cpu_total{cpu="cpu6",mode="irq"} 0
+node_cpu_total{cpu="cpu6",mode="nice"} 0.36
+node_cpu_total{cpu="cpu6",mode="softirq"} 0.29
+node_cpu_total{cpu="cpu6",mode="steal"} 0
+node_cpu_total{cpu="cpu6",mode="system"} 102.76
+node_cpu_total{cpu="cpu6",mode="user"} 291.52
+node_cpu_total{cpu="cpu7",mode="guest"} 0
+node_cpu_total{cpu="cpu7",mode="guest_nice"} 0
+node_cpu_total{cpu="cpu7",mode="idle"} 11392.82
+node_cpu_total{cpu="cpu7",mode="iowait"} 5.55
+node_cpu_total{cpu="cpu7",mode="irq"} 0
+node_cpu_total{cpu="cpu7",mode="nice"} 2.68
+node_cpu_total{cpu="cpu7",mode="softirq"} 0.31
+node_cpu_total{cpu="cpu7",mode="steal"} 0
+node_cpu_total{cpu="cpu7",mode="system"} 101.64
+node_cpu_total{cpu="cpu7",mode="user"} 290.98
+# HELP node_disk_bytes_read_total The total number of bytes read successfully.
+# TYPE node_disk_bytes_read_total counter
+node_disk_bytes_read_total{device="dm-0"} 5.13708655616e+11
+node_disk_bytes_read_total{device="dm-1"} 1.589248e+06
+node_disk_bytes_read_total{device="dm-2"} 1.578752e+08
+node_disk_bytes_read_total{device="dm-3"} 1.98144e+06
+node_disk_bytes_read_total{device="dm-4"} 529408
+node_disk_bytes_read_total{device="dm-5"} 4.3150848e+07
+node_disk_bytes_read_total{device="mmcblk0"} 798720
+node_disk_bytes_read_total{device="mmcblk0p1"} 81920
+node_disk_bytes_read_total{device="mmcblk0p2"} 389120
+node_disk_bytes_read_total{device="nvme0n1"} 2.377714176e+09
+node_disk_bytes_read_total{device="sda"} 5.13713216512e+11
+node_disk_bytes_read_total{device="sr0"} 0
+node_disk_bytes_read_total{device="vda"} 1.6727491584e+10
+# HELP node_disk_bytes_written_total The total number of bytes written successfully.
+# TYPE node_disk_bytes_written_total counter
+node_disk_bytes_written_total{device="dm-0"} 2.5891680256e+11
+node_disk_bytes_written_total{device="dm-1"} 303104
+node_disk_bytes_written_total{device="dm-2"} 2.607828992e+09
+node_disk_bytes_written_total{device="dm-3"} 0
+node_disk_bytes_written_total{device="dm-4"} 70144
+node_disk_bytes_written_total{device="dm-5"} 5.89664256e+08
+node_disk_bytes_written_total{device="mmcblk0"} 0
+node_disk_bytes_written_total{device="mmcblk0p1"} 0
+node_disk_bytes_written_total{device="mmcblk0p2"} 0
+node_disk_bytes_written_total{device="nvme0n1"} 2.0199236096e+10
+node_disk_bytes_written_total{device="sda"} 2.58916880384e+11
+node_disk_bytes_written_total{device="sr0"} 0
+node_disk_bytes_written_total{device="vda"} 1.0938236928e+11
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -253,156 +253,156 @@ node_disk_io_now{device="nvme0n1"} 0
 node_disk_io_now{device="sda"} 0
 node_disk_io_now{device="sr0"} 0
 node_disk_io_now{device="vda"} 0
-# HELP node_disk_io_time_ms Total Milliseconds spent doing I/Os.
-# TYPE node_disk_io_time_ms counter
-node_disk_io_time_ms{device="dm-0"} 1.1325968e+07
-node_disk_io_time_ms{device="dm-1"} 76
-node_disk_io_time_ms{device="dm-2"} 65400
-node_disk_io_time_ms{device="dm-3"} 16
-node_disk_io_time_ms{device="dm-4"} 24
-node_disk_io_time_ms{device="dm-5"} 58848
-node_disk_io_time_ms{device="mmcblk0"} 136
-node_disk_io_time_ms{device="mmcblk0p1"} 24
-node_disk_io_time_ms{device="mmcblk0p2"} 68
-node_disk_io_time_ms{device="nvme0n1"} 222766
-node_disk_io_time_ms{device="sda"} 9.65388e+06
-node_disk_io_time_ms{device="sr0"} 0
-node_disk_io_time_ms{device="vda"} 4.1614592e+07
-# HELP node_disk_io_time_weighted The weighted # of milliseconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.
-# TYPE node_disk_io_time_weighted counter
-node_disk_io_time_weighted{device="dm-0"} 1.206301256e+09
-node_disk_io_time_weighted{device="dm-1"} 84
-node_disk_io_time_weighted{device="dm-2"} 129416
-node_disk_io_time_weighted{device="dm-3"} 104
-node_disk_io_time_weighted{device="dm-4"} 44
-node_disk_io_time_weighted{device="dm-5"} 105632
-node_disk_io_time_weighted{device="mmcblk0"} 156
-node_disk_io_time_weighted{device="mmcblk0p1"} 24
-node_disk_io_time_weighted{device="mmcblk0p2"} 68
-node_disk_io_time_weighted{device="nvme0n1"} 1.032546e+06
-node_disk_io_time_weighted{device="sda"} 8.2621804e+07
-node_disk_io_time_weighted{device="sr0"} 0
-node_disk_io_time_weighted{device="vda"} 2.077872228e+09
-# HELP node_disk_read_time_ms The total number of milliseconds spent by all reads.
-# TYPE node_disk_read_time_ms counter
-node_disk_read_time_ms{device="dm-0"} 4.6229572e+07
-node_disk_read_time_ms{device="dm-1"} 84
-node_disk_read_time_ms{device="dm-2"} 6536
-node_disk_read_time_ms{device="dm-3"} 104
-node_disk_read_time_ms{device="dm-4"} 28
-node_disk_read_time_ms{device="dm-5"} 924
-node_disk_read_time_ms{device="mmcblk0"} 156
-node_disk_read_time_ms{device="mmcblk0p1"} 24
-node_disk_read_time_ms{device="mmcblk0p2"} 68
-node_disk_read_time_ms{device="nvme0n1"} 21650
-node_disk_read_time_ms{device="sda"} 1.8492372e+07
-node_disk_read_time_ms{device="sr0"} 0
-node_disk_read_time_ms{device="vda"} 8.655768e+06
-# HELP node_disk_reads_completed The total number of reads completed successfully.
-# TYPE node_disk_reads_completed counter
-node_disk_reads_completed{device="dm-0"} 5.9910002e+07
-node_disk_reads_completed{device="dm-1"} 388
-node_disk_reads_completed{device="dm-2"} 11571
-node_disk_reads_completed{device="dm-3"} 3870
-node_disk_reads_completed{device="dm-4"} 392
-node_disk_reads_completed{device="dm-5"} 3729
-node_disk_reads_completed{device="mmcblk0"} 192
-node_disk_reads_completed{device="mmcblk0p1"} 17
-node_disk_reads_completed{device="mmcblk0p2"} 95
-node_disk_reads_completed{device="nvme0n1"} 47114
-node_disk_reads_completed{device="sda"} 2.5354637e+07
-node_disk_reads_completed{device="sr0"} 0
-node_disk_reads_completed{device="vda"} 1.775784e+06
-# HELP node_disk_reads_merged The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
-# TYPE node_disk_reads_merged counter
-node_disk_reads_merged{device="dm-0"} 0
-node_disk_reads_merged{device="dm-1"} 0
-node_disk_reads_merged{device="dm-2"} 0
-node_disk_reads_merged{device="dm-3"} 0
-node_disk_reads_merged{device="dm-4"} 0
-node_disk_reads_merged{device="dm-5"} 0
-node_disk_reads_merged{device="mmcblk0"} 3
-node_disk_reads_merged{device="mmcblk0p1"} 3
-node_disk_reads_merged{device="mmcblk0p2"} 0
-node_disk_reads_merged{device="nvme0n1"} 4
-node_disk_reads_merged{device="sda"} 3.4367663e+07
-node_disk_reads_merged{device="sr0"} 0
-node_disk_reads_merged{device="vda"} 15386
-# HELP node_disk_sectors_read The total number of sectors read successfully.
-# TYPE node_disk_sectors_read counter
-node_disk_sectors_read{device="dm-0"} 1.003337218e+09
-node_disk_sectors_read{device="dm-1"} 3104
-node_disk_sectors_read{device="dm-2"} 308350
-node_disk_sectors_read{device="dm-3"} 3870
-node_disk_sectors_read{device="dm-4"} 1034
-node_disk_sectors_read{device="dm-5"} 84279
-node_disk_sectors_read{device="mmcblk0"} 1560
-node_disk_sectors_read{device="mmcblk0p1"} 160
-node_disk_sectors_read{device="mmcblk0p2"} 760
-node_disk_sectors_read{device="nvme0n1"} 4.643973e+06
-node_disk_sectors_read{device="sda"} 1.003346126e+09
-node_disk_sectors_read{device="sr0"} 0
-node_disk_sectors_read{device="vda"} 3.2670882e+07
-# HELP node_disk_sectors_written The total number of sectors written successfully.
-# TYPE node_disk_sectors_written counter
-node_disk_sectors_written{device="dm-0"} 5.0569688e+08
-node_disk_sectors_written{device="dm-1"} 592
-node_disk_sectors_written{device="dm-2"} 5.093416e+06
-node_disk_sectors_written{device="dm-3"} 0
-node_disk_sectors_written{device="dm-4"} 137
-node_disk_sectors_written{device="dm-5"} 1.151688e+06
-node_disk_sectors_written{device="mmcblk0"} 0
-node_disk_sectors_written{device="mmcblk0p1"} 0
-node_disk_sectors_written{device="mmcblk0p2"} 0
-node_disk_sectors_written{device="nvme0n1"} 3.9451633e+07
-node_disk_sectors_written{device="sda"} 5.05697032e+08
-node_disk_sectors_written{device="sr0"} 0
-node_disk_sectors_written{device="vda"} 2.1363744e+08
-# HELP node_disk_write_time_ms This is the total number of milliseconds spent by all writes.
-# TYPE node_disk_write_time_ms counter
-node_disk_write_time_ms{device="dm-0"} 1.1585578e+09
-node_disk_write_time_ms{device="dm-1"} 0
-node_disk_write_time_ms{device="dm-2"} 122884
-node_disk_write_time_ms{device="dm-3"} 0
-node_disk_write_time_ms{device="dm-4"} 16
-node_disk_write_time_ms{device="dm-5"} 104684
-node_disk_write_time_ms{device="mmcblk0"} 0
-node_disk_write_time_ms{device="mmcblk0p1"} 0
-node_disk_write_time_ms{device="mmcblk0p2"} 0
-node_disk_write_time_ms{device="nvme0n1"} 1.011053e+06
-node_disk_write_time_ms{device="sda"} 6.387796e+07
-node_disk_write_time_ms{device="sr0"} 0
-node_disk_write_time_ms{device="vda"} 2.069221364e+09
-# HELP node_disk_writes_completed The total number of writes completed successfully.
-# TYPE node_disk_writes_completed counter
-node_disk_writes_completed{device="dm-0"} 3.9231014e+07
-node_disk_writes_completed{device="dm-1"} 74
-node_disk_writes_completed{device="dm-2"} 153522
-node_disk_writes_completed{device="dm-3"} 0
-node_disk_writes_completed{device="dm-4"} 38
-node_disk_writes_completed{device="dm-5"} 98918
-node_disk_writes_completed{device="mmcblk0"} 0
-node_disk_writes_completed{device="mmcblk0p1"} 0
-node_disk_writes_completed{device="mmcblk0p2"} 0
-node_disk_writes_completed{device="nvme0n1"} 1.07832e+06
-node_disk_writes_completed{device="sda"} 2.8444756e+07
-node_disk_writes_completed{device="sr0"} 0
-node_disk_writes_completed{device="vda"} 6.038856e+06
-# HELP node_disk_writes_merged The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
-# TYPE node_disk_writes_merged counter
-node_disk_writes_merged{device="dm-0"} 0
-node_disk_writes_merged{device="dm-1"} 0
-node_disk_writes_merged{device="dm-2"} 0
-node_disk_writes_merged{device="dm-3"} 0
-node_disk_writes_merged{device="dm-4"} 0
-node_disk_writes_merged{device="dm-5"} 0
-node_disk_writes_merged{device="mmcblk0"} 0
-node_disk_writes_merged{device="mmcblk0p1"} 0
-node_disk_writes_merged{device="mmcblk0p2"} 0
-node_disk_writes_merged{device="nvme0n1"} 43950
-node_disk_writes_merged{device="sda"} 1.1134226e+07
-node_disk_writes_merged{device="sr0"} 0
-node_disk_writes_merged{device="vda"} 2.0711856e+07
+# HELP node_disk_io_time_ms_total Total Milliseconds spent doing I/Os.
+# TYPE node_disk_io_time_ms_total counter
+node_disk_io_time_ms_total{device="dm-0"} 1.1325968e+07
+node_disk_io_time_ms_total{device="dm-1"} 76
+node_disk_io_time_ms_total{device="dm-2"} 65400
+node_disk_io_time_ms_total{device="dm-3"} 16
+node_disk_io_time_ms_total{device="dm-4"} 24
+node_disk_io_time_ms_total{device="dm-5"} 58848
+node_disk_io_time_ms_total{device="mmcblk0"} 136
+node_disk_io_time_ms_total{device="mmcblk0p1"} 24
+node_disk_io_time_ms_total{device="mmcblk0p2"} 68
+node_disk_io_time_ms_total{device="nvme0n1"} 222766
+node_disk_io_time_ms_total{device="sda"} 9.65388e+06
+node_disk_io_time_ms_total{device="sr0"} 0
+node_disk_io_time_ms_total{device="vda"} 4.1614592e+07
+# HELP node_disk_io_time_weighted_total The weighted # of milliseconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# TYPE node_disk_io_time_weighted_total counter
+node_disk_io_time_weighted_total{device="dm-0"} 1.206301256e+09
+node_disk_io_time_weighted_total{device="dm-1"} 84
+node_disk_io_time_weighted_total{device="dm-2"} 129416
+node_disk_io_time_weighted_total{device="dm-3"} 104
+node_disk_io_time_weighted_total{device="dm-4"} 44
+node_disk_io_time_weighted_total{device="dm-5"} 105632
+node_disk_io_time_weighted_total{device="mmcblk0"} 156
+node_disk_io_time_weighted_total{device="mmcblk0p1"} 24
+node_disk_io_time_weighted_total{device="mmcblk0p2"} 68
+node_disk_io_time_weighted_total{device="nvme0n1"} 1.032546e+06
+node_disk_io_time_weighted_total{device="sda"} 8.2621804e+07
+node_disk_io_time_weighted_total{device="sr0"} 0
+node_disk_io_time_weighted_total{device="vda"} 2.077872228e+09
+# HELP node_disk_read_time_ms_total The total number of milliseconds spent by all reads.
+# TYPE node_disk_read_time_ms_total counter
+node_disk_read_time_ms_total{device="dm-0"} 4.6229572e+07
+node_disk_read_time_ms_total{device="dm-1"} 84
+node_disk_read_time_ms_total{device="dm-2"} 6536
+node_disk_read_time_ms_total{device="dm-3"} 104
+node_disk_read_time_ms_total{device="dm-4"} 28
+node_disk_read_time_ms_total{device="dm-5"} 924
+node_disk_read_time_ms_total{device="mmcblk0"} 156
+node_disk_read_time_ms_total{device="mmcblk0p1"} 24
+node_disk_read_time_ms_total{device="mmcblk0p2"} 68
+node_disk_read_time_ms_total{device="nvme0n1"} 21650
+node_disk_read_time_ms_total{device="sda"} 1.8492372e+07
+node_disk_read_time_ms_total{device="sr0"} 0
+node_disk_read_time_ms_total{device="vda"} 8.655768e+06
+# HELP node_disk_reads_completed_total The total number of reads completed successfully.
+# TYPE node_disk_reads_completed_total counter
+node_disk_reads_completed_total{device="dm-0"} 5.9910002e+07
+node_disk_reads_completed_total{device="dm-1"} 388
+node_disk_reads_completed_total{device="dm-2"} 11571
+node_disk_reads_completed_total{device="dm-3"} 3870
+node_disk_reads_completed_total{device="dm-4"} 392
+node_disk_reads_completed_total{device="dm-5"} 3729
+node_disk_reads_completed_total{device="mmcblk0"} 192
+node_disk_reads_completed_total{device="mmcblk0p1"} 17
+node_disk_reads_completed_total{device="mmcblk0p2"} 95
+node_disk_reads_completed_total{device="nvme0n1"} 47114
+node_disk_reads_completed_total{device="sda"} 2.5354637e+07
+node_disk_reads_completed_total{device="sr0"} 0
+node_disk_reads_completed_total{device="vda"} 1.775784e+06
+# HELP node_disk_reads_merged_total The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# TYPE node_disk_reads_merged_total counter
+node_disk_reads_merged_total{device="dm-0"} 0
+node_disk_reads_merged_total{device="dm-1"} 0
+node_disk_reads_merged_total{device="dm-2"} 0
+node_disk_reads_merged_total{device="dm-3"} 0
+node_disk_reads_merged_total{device="dm-4"} 0
+node_disk_reads_merged_total{device="dm-5"} 0
+node_disk_reads_merged_total{device="mmcblk0"} 3
+node_disk_reads_merged_total{device="mmcblk0p1"} 3
+node_disk_reads_merged_total{device="mmcblk0p2"} 0
+node_disk_reads_merged_total{device="nvme0n1"} 4
+node_disk_reads_merged_total{device="sda"} 3.4367663e+07
+node_disk_reads_merged_total{device="sr0"} 0
+node_disk_reads_merged_total{device="vda"} 15386
+# HELP node_disk_sectors_read_total The total number of sectors read successfully.
+# TYPE node_disk_sectors_read_total counter
+node_disk_sectors_read_total{device="dm-0"} 1.003337218e+09
+node_disk_sectors_read_total{device="dm-1"} 3104
+node_disk_sectors_read_total{device="dm-2"} 308350
+node_disk_sectors_read_total{device="dm-3"} 3870
+node_disk_sectors_read_total{device="dm-4"} 1034
+node_disk_sectors_read_total{device="dm-5"} 84279
+node_disk_sectors_read_total{device="mmcblk0"} 1560
+node_disk_sectors_read_total{device="mmcblk0p1"} 160
+node_disk_sectors_read_total{device="mmcblk0p2"} 760
+node_disk_sectors_read_total{device="nvme0n1"} 4.643973e+06
+node_disk_sectors_read_total{device="sda"} 1.003346126e+09
+node_disk_sectors_read_total{device="sr0"} 0
+node_disk_sectors_read_total{device="vda"} 3.2670882e+07
+# HELP node_disk_sectors_written_total The total number of sectors written successfully.
+# TYPE node_disk_sectors_written_total counter
+node_disk_sectors_written_total{device="dm-0"} 5.0569688e+08
+node_disk_sectors_written_total{device="dm-1"} 592
+node_disk_sectors_written_total{device="dm-2"} 5.093416e+06
+node_disk_sectors_written_total{device="dm-3"} 0
+node_disk_sectors_written_total{device="dm-4"} 137
+node_disk_sectors_written_total{device="dm-5"} 1.151688e+06
+node_disk_sectors_written_total{device="mmcblk0"} 0
+node_disk_sectors_written_total{device="mmcblk0p1"} 0
+node_disk_sectors_written_total{device="mmcblk0p2"} 0
+node_disk_sectors_written_total{device="nvme0n1"} 3.9451633e+07
+node_disk_sectors_written_total{device="sda"} 5.05697032e+08
+node_disk_sectors_written_total{device="sr0"} 0
+node_disk_sectors_written_total{device="vda"} 2.1363744e+08
+# HELP node_disk_write_time_ms_total This is the total number of milliseconds spent by all writes.
+# TYPE node_disk_write_time_ms_total counter
+node_disk_write_time_ms_total{device="dm-0"} 1.1585578e+09
+node_disk_write_time_ms_total{device="dm-1"} 0
+node_disk_write_time_ms_total{device="dm-2"} 122884
+node_disk_write_time_ms_total{device="dm-3"} 0
+node_disk_write_time_ms_total{device="dm-4"} 16
+node_disk_write_time_ms_total{device="dm-5"} 104684
+node_disk_write_time_ms_total{device="mmcblk0"} 0
+node_disk_write_time_ms_total{device="mmcblk0p1"} 0
+node_disk_write_time_ms_total{device="mmcblk0p2"} 0
+node_disk_write_time_ms_total{device="nvme0n1"} 1.011053e+06
+node_disk_write_time_ms_total{device="sda"} 6.387796e+07
+node_disk_write_time_ms_total{device="sr0"} 0
+node_disk_write_time_ms_total{device="vda"} 2.069221364e+09
+# HELP node_disk_writes_completed_total The total number of writes completed successfully.
+# TYPE node_disk_writes_completed_total counter
+node_disk_writes_completed_total{device="dm-0"} 3.9231014e+07
+node_disk_writes_completed_total{device="dm-1"} 74
+node_disk_writes_completed_total{device="dm-2"} 153522
+node_disk_writes_completed_total{device="dm-3"} 0
+node_disk_writes_completed_total{device="dm-4"} 38
+node_disk_writes_completed_total{device="dm-5"} 98918
+node_disk_writes_completed_total{device="mmcblk0"} 0
+node_disk_writes_completed_total{device="mmcblk0p1"} 0
+node_disk_writes_completed_total{device="mmcblk0p2"} 0
+node_disk_writes_completed_total{device="nvme0n1"} 1.07832e+06
+node_disk_writes_completed_total{device="sda"} 2.8444756e+07
+node_disk_writes_completed_total{device="sr0"} 0
+node_disk_writes_completed_total{device="vda"} 6.038856e+06
+# HELP node_disk_writes_merged_total The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# TYPE node_disk_writes_merged_total counter
+node_disk_writes_merged_total{device="dm-0"} 0
+node_disk_writes_merged_total{device="dm-1"} 0
+node_disk_writes_merged_total{device="dm-2"} 0
+node_disk_writes_merged_total{device="dm-3"} 0
+node_disk_writes_merged_total{device="dm-4"} 0
+node_disk_writes_merged_total{device="dm-5"} 0
+node_disk_writes_merged_total{device="mmcblk0"} 0
+node_disk_writes_merged_total{device="mmcblk0p1"} 0
+node_disk_writes_merged_total{device="mmcblk0p2"} 0
+node_disk_writes_merged_total{device="nvme0n1"} 43950
+node_disk_writes_merged_total{device="sda"} 1.1134226e+07
+node_disk_writes_merged_total{device="sr0"} 0
+node_disk_writes_merged_total{device="vda"} 2.0711856e+07
 # HELP node_drbd_activitylog_writes_total Number of updates of the activity log area of the meta data.
 # TYPE node_drbd_activitylog_writes_total counter
 node_drbd_activitylog_writes_total{device="drbd1"} 1100
@@ -475,9 +475,9 @@ node_filefd_allocated 1024
 # HELP node_filefd_maximum File descriptor statistics: maximum.
 # TYPE node_filefd_maximum gauge
 node_filefd_maximum 1.631329e+06
-# HELP node_forks Total number of forks.
-# TYPE node_forks counter
-node_forks 26442
+# HELP node_forks_total Total number of forks.
+# TYPE node_forks_total counter
+node_forks_total 26442
 # HELP node_hwmon_chip_names Annotation metric for human-readable chip names
 # TYPE node_hwmon_chip_names gauge
 node_hwmon_chip_names{chip="nct6779",chip_name="nct6779"} 1
@@ -749,14 +749,14 @@ node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_multicast_packets_transmitted_total counter
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
-# HELP node_infiniband_port_data_received_bytes Number of data octets received on all links
-# TYPE node_infiniband_port_data_received_bytes counter
-node_infiniband_port_data_received_bytes{device="mlx4_0",port="1"} 4.631917e+06
-node_infiniband_port_data_received_bytes{device="mlx4_0",port="2"} 0
-# HELP node_infiniband_port_data_transmitted_bytes Number of data octets transmitted on all links
-# TYPE node_infiniband_port_data_transmitted_bytes counter
-node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="1"} 3.73344e+06
-node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_received_bytes_total Number of data octets received on all links
+# TYPE node_infiniband_port_data_received_bytes_total counter
+node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="1"} 4.631917e+06
+node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_transmitted_bytes_total Number of data octets transmitted on all links
+# TYPE node_infiniband_port_data_transmitted_bytes_total counter
+node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="1"} 3.73344e+06
+node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
 node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
@@ -765,9 +765,9 @@ node_infiniband_unicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_unicast_packets_transmitted_total counter
 node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="1"} 61239
 node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
-# HELP node_intr Total number of interrupts serviced.
-# TYPE node_intr counter
-node_intr 8.885917e+06
+# HELP node_intr_total Total number of interrupts serviced.
+# TYPE node_intr_total counter
+node_intr_total 8.885917e+06
 # HELP node_ksmd_full_scans_total ksmd 'full_scans' file.
 # TYPE node_ksmd_full_scans_total counter
 node_ksmd_full_scans_total 323
