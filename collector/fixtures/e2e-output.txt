@@ -703,12 +703,12 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
 # HELP node_infiniband_legacy_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_legacy_data_received_bytes_total counter
-node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="1"} 4.631917e+06
-node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="2"} 4.631917e+06
+node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
+node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="2"} 1.8527668e+07
 # HELP node_infiniband_legacy_data_transmitted_bytes_total Number of data octets transmitted on all links
 # TYPE node_infiniband_legacy_data_transmitted_bytes_total counter
-node_infiniband_legacy_data_transmitted_bytes_total{device="mlx4_0",port="1"} 3.73344e+06
-node_infiniband_legacy_data_transmitted_bytes_total{device="mlx4_0",port="2"} 3.73344e+06
+node_infiniband_legacy_data_transmitted_bytes_total{device="mlx4_0",port="1"} 1.493376e+07
+node_infiniband_legacy_data_transmitted_bytes_total{device="mlx4_0",port="2"} 1.493376e+07
 # HELP node_infiniband_legacy_multicast_packets_received_total Number of multicast packets received
 # TYPE node_infiniband_legacy_multicast_packets_received_total counter
 node_infiniband_legacy_multicast_packets_received_total{device="mlx4_0",port="1"} 93
@@ -751,11 +751,11 @@ node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_port_data_received_bytes Number of data octets received on all links
 # TYPE node_infiniband_port_data_received_bytes counter
-node_infiniband_port_data_received_bytes{device="mlx4_0",port="1"} 4.631917e+06
+node_infiniband_port_data_received_bytes{device="mlx4_0",port="1"} 1.8527668e+07
 node_infiniband_port_data_received_bytes{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_port_data_transmitted_bytes Number of data octets transmitted on all links
 # TYPE node_infiniband_port_data_transmitted_bytes counter
-node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="1"} 3.73344e+06
+node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="1"} 1.493376e+07
 node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
