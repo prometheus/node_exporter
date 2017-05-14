@@ -36,12 +36,11 @@ type devstatCollector struct {
 	mu      sync.Mutex
 	devinfo *C.struct_devinfo
 
-	bytes       typedDesc
-	bytes_total typedDesc
-	transfers   typedDesc
-	duration    typedDesc
-	busyTime    typedDesc
-	blocks      typedDesc
+	bytes     typedDesc
+	transfers typedDesc
+	duration  typedDesc
+	busyTime  typedDesc
+	blocks    typedDesc
 }
 
 func init() {
