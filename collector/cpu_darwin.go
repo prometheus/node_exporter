@@ -91,17 +91,17 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 
 	// the body of struct processor_cpu_load_info
 	// aka processor_cpu_load_info_data_t
-	var cpu_ticks [C.CPU_STATE_MAX]uint32
+	var cpuTicks [C.CPU_STATE_MAX]uint32
 
 	// copy the cpuload array to a []byte buffer
 	// where we can binary.Read the data
-	size := int(ncpu) * binary.Size(cpu_ticks)
+	size := int(ncpu) * binary.Size(cpuTicks)
 	buf := (*[1 << 30]byte)(unsafe.Pointer(cpuload))[:size:size]
 
 	bbuf := bytes.NewBuffer(buf)
 
 	for i := 0; i < int(ncpu); i++ {
-		err := binary.Read(bbuf, binary.LittleEndian, &cpu_ticks)
+		err := binary.Read(bbuf, binary.LittleEndian, &cpuTicks)
 		if err != nil {
 			return err
 		}
@@ -111,7 +111,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			"nice":   C.CPU_STATE_NICE,
 			"idle":   C.CPU_STATE_IDLE,
 		} {
-			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(cpu_ticks[v])/ClocksPerSec, "cpu"+strconv.Itoa(i), k)
+			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(cpuTicks[v])/ClocksPerSec, "cpu"+strconv.Itoa(i), k)
 		}
 	}
 	return nil
