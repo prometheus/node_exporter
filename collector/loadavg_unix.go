@@ -28,7 +28,6 @@ func getLoad() ([]float64, error) {
 	samples := C.getloadavg(&loadavg[0], 3)
 	if samples > 0 {
 		return []float64{float64(loadavg[0]), float64(loadavg[1]), float64(loadavg[2])}, nil
-	} else {
-		return nil, errors.New("failed to get load average")
 	}
+	return nil, errors.New("failed to get load average")
 }
