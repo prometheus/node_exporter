@@ -110,7 +110,7 @@ func NewFilesystemCollector() (Collector, error) {
 
 	deviceErrorDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, subsystem, "device_error"),
-		"Whether an error occured while getting statistics for the given device.",
+		"Whether an error occurred while getting statistics for the given device.",
 		filesystemLabelNames, nil,
 	)
 
