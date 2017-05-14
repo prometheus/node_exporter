@@ -94,7 +94,7 @@ func (b bsdSysctl) Value() (float64, error) {
 		if len(raw) != (C.sizeof_time_t + C.sizeof_suseconds_t) {
 			// Shouldn't get here, unless the ABI changes...
 			return 0, fmt.Errorf(
-				"Length of bytes recieved from sysctl (%d) does not match expected bytes (%d).",
+				"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
 				len(raw),
 				C.sizeof_time_t+C.sizeof_suseconds_t,
 			)
