@@ -69,10 +69,6 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, msg := range msgs {
-		if err != nil {
-			return err
-		}
-
 		// Only report root qdisc info
 		if msg.Parent != 0 {
 			continue
