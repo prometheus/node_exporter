@@ -44,7 +44,7 @@ import (
 */
 import "C"
 
-// default value. from time.h
+// ClocksPerSec default value. from time.h
 const ClocksPerSec = float64(128)
 
 type statCollector struct {
@@ -55,8 +55,7 @@ func init() {
 	Factories["cpu"] = NewCPUCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// CPU stats.
+// NewCPUCollector returns a new Collector exposing CPU stats.
 func NewCPUCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewDesc(
