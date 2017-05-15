@@ -27,6 +27,12 @@
 			"revisionTime": "2017-02-01T10:47:36Z"
 		},
 		{
+			"checksumSHA1": "Gz/gaLzkMnrbKAt2KDRZJLuY1iE=",
+			"path": "github.com/ema/qdisc",
+			"revision": "c89a4e886d805441eefc69597b55a11641906240",
+			"revisionTime": "2017-05-15T08:54:26Z"
+		},
+		{
 			"checksumSHA1": "Yim1r9qkEFFLLH8JngB4kZTLsYI=",
 			"path": "github.com/godbus/dbus",
 			"revision": "692d22898a1dffbb54a37706afcb1324c510f2ac",
