@@ -46,17 +46,17 @@ func NewQdiscStatCollector() (Collector, error) {
 		), prometheus.CounterValue},
 		drops: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "drops_total"),
-			"Number of packets sent.",
+			"Number of packets dropped.",
 			[]string{"iface", "kind"}, nil,
 		), prometheus.CounterValue},
 		requeues: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "requeues_total"),
-			"Number of packets sent.",
+			"Number of packets dequeued, not transmitted, and requeued.",
 			[]string{"iface", "kind"}, nil,
 		), prometheus.CounterValue},
 		overlimits: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "overlimits_total"),
-			"Number of packets sent.",
+			"Number of overlimit packets.",
 			[]string{"iface", "kind"}, nil,
 		), prometheus.CounterValue},
 	}, nil
@@ -69,7 +69,7 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, msg := range msgs {
-		// Only report root qdisc info
+		// Only report root qdisc information.
 		if msg.Parent != 0 {
 			continue
 		}
@@ -79,7 +79,6 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.drops.mustNewConstMetric(float64(msg.Drops), msg.IfaceName, msg.Kind)
 		ch <- c.requeues.mustNewConstMetric(float64(msg.Requeues), msg.IfaceName, msg.Kind)
 		ch <- c.overlimits.mustNewConstMetric(float64(msg.Overlimits), msg.IfaceName, msg.Kind)
-		//fmt.Printf("%+v\n", m)
 	}
 
 	return nil
