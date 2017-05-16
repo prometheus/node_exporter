@@ -16,6 +16,11 @@
 package collector
 
 import (
+	"encoding/json"
+	"flag"
+	"io/ioutil"
+	"path/filepath"
+
 	"github.com/ema/qdisc"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -27,6 +32,10 @@ type qdiscStatCollector struct {
 	requeues   typedDesc
 	overlimits typedDesc
 }
+
+var (
+	collectorQdisc = flag.String("collector.qdisc", "", "test fixtures to use for qdisc collector end-to-end testing")
+)
 
 func init() {
 	Factories["qdisc"] = NewQdiscStatCollector
@@ -62,8 +71,30 @@ func NewQdiscStatCollector() (Collector, error) {
 	}, nil
 }
 
+func testQdiscGet(fixtures string) ([]qdisc.QdiscInfo, error) {
+	var res []qdisc.QdiscInfo
+
+	b, err := ioutil.ReadFile(filepath.Join(fixtures, "results.json"))
+	if err != nil {
+		return res, err
+	}
+
+	err = json.Unmarshal(b, &res)
+	return res, err
+}
+
 func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
-	msgs, err := qdisc.Get()
+	var msgs []qdisc.QdiscInfo
+	var err error
+
+	fixtures := *collectorQdisc
+
+	if fixtures == "" {
+		msgs, err = qdisc.Get()
+	} else {
+		msgs, err = testQdiscGet(fixtures)
+	}
+
 	if err != nil {
 		return err
 	}
