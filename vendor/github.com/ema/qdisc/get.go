@@ -106,15 +106,7 @@ func parseTCAStats2(attr netlink.Attribute) TC_Stats2 {
 	return stats
 }
 
-func getQdiscMsgs() ([]netlink.Message, error) {
-	const familyRoute = 0
-
-	c, err := netlink.Dial(familyRoute, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to dial netlink: %v", err)
-	}
-	defer c.Close()
-
+func getQdiscMsgs(c *netlink.Conn) ([]netlink.Message, error) {
 	req := netlink.Message{
 		Header: netlink.Header{
 			Flags: netlink.HeaderFlagsRequest | netlink.HeaderFlagsDump,
@@ -195,14 +187,18 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 	}
 
 	iface, err := net.InterfaceByIndex(int(ifaceIdx))
-	m.IfaceName = iface.Name
+
+	if err == nil {
+		m.IfaceName = iface.Name
+	}
 
 	return m, err
 }
 
-func Get() ([]QdiscInfo, error) {
+func getAndParse(c *netlink.Conn) ([]QdiscInfo, error) {
 	var res []QdiscInfo
-	msgs, err := getQdiscMsgs()
+
+	msgs, err := getQdiscMsgs(c)
 
 	if err != nil {
 		return nil, err
@@ -219,4 +215,16 @@ func Get() ([]QdiscInfo, error) {
 	}
 
 	return res, nil
+}
+
+func Get() ([]QdiscInfo, error) {
+	const familyRoute = 0
+
+	c, err := netlink.Dial(familyRoute, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to dial netlink: %v", err)
+	}
+	defer c.Close()
+
+	return getAndParse(c)
 }
