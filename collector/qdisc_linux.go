@@ -46,27 +46,27 @@ func NewQdiscStatCollector() (Collector, error) {
 		bytes: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "bytes_total"),
 			"Number of bytes sent.",
-			[]string{"iface", "kind"}, nil,
+			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
 		packets: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "packets_total"),
 			"Number of packets sent.",
-			[]string{"iface", "kind"}, nil,
+			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
 		drops: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "drops_total"),
 			"Number of packets dropped.",
-			[]string{"iface", "kind"}, nil,
+			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
 		requeues: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "requeues_total"),
 			"Number of packets dequeued, not transmitted, and requeued.",
-			[]string{"iface", "kind"}, nil,
+			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
 		overlimits: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "qdisc", "overlimits_total"),
 			"Number of overlimit packets.",
-			[]string{"iface", "kind"}, nil,
+			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
 	}, nil
 }
