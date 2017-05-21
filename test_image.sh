@@ -25,7 +25,6 @@ docker_start() {
 
 docker_cleanup() {
     docker kill "${container_id}"
-    docker rm "${container_id}"
 }
 
 if [[ "$#" -ne 2 ]] ; then
