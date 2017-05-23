@@ -1,0 +1,17 @@
+[
+    {
+        "IfaceName": "wlan0",
+        "Bytes": 42,
+        "Packets": 42,
+        "Requeues": 1,
+        "Kind": "fq",
+        "Drops": 1
+    },
+    {
+        "IfaceName": "eth0",
+        "Bytes": 83,
+        "Packets": 83,
+        "Requeues": 2,
+        "Kind": "pfifo_fast"
+    }
+]

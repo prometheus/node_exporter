@@ -2114,6 +2114,26 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_qdisc_bytes_total Number of bytes sent.
+# TYPE node_qdisc_bytes_total counter
+node_qdisc_bytes_total{device="eth0",kind="pfifo_fast"} 83
+node_qdisc_bytes_total{device="wlan0",kind="fq"} 42
+# HELP node_qdisc_drops_total Number of packets dropped.
+# TYPE node_qdisc_drops_total counter
+node_qdisc_drops_total{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_drops_total{device="wlan0",kind="fq"} 1
+# HELP node_qdisc_overlimits_total Number of overlimit packets.
+# TYPE node_qdisc_overlimits_total counter
+node_qdisc_overlimits_total{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_overlimits_total{device="wlan0",kind="fq"} 0
+# HELP node_qdisc_packets_total Number of packets sent.
+# TYPE node_qdisc_packets_total counter
+node_qdisc_packets_total{device="eth0",kind="pfifo_fast"} 83
+node_qdisc_packets_total{device="wlan0",kind="fq"} 42
+# HELP node_qdisc_requeues_total Number of packets dequeued, not transmitted, and requeued.
+# TYPE node_qdisc_requeues_total counter
+node_qdisc_requeues_total{device="eth0",kind="pfifo_fast"} 2
+node_qdisc_requeues_total{device="wlan0",kind="fq"} 1
 # HELP node_scrape_collector_duration_seconds node_exporter: Duration of a collector scrape.
 # TYPE node_scrape_collector_duration_seconds gauge
 # HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.
@@ -2139,6 +2159,7 @@ node_scrape_collector_success{collector="mountstats"} 1
 node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
+node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="textfile"} 1

@@ -22,6 +22,7 @@ collectors=$(cat << COLLECTORS
   netdev
   netstat
   nfs
+  qdisc
   sockstat
   stat
   textfile
@@ -76,6 +77,7 @@ fi
   -collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   -collector.megacli.command="collector/fixtures/megacli" \
   -collector.wifi="collector/fixtures/wifi" \
+  -collector.qdisc="collector/fixtures/qdisc/" \
   -web.listen-address "127.0.0.1:${port}" \
   -log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
