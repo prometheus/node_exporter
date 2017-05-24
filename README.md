@@ -59,6 +59,7 @@ interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
+lvm | Exposes Logical Volume Manager (LVM) statistics. | Linux
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
