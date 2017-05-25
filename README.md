@@ -89,7 +89,8 @@ that are tied to a machine.
 To use it, set the `--collector.textfile.directory` flag on the Node exporter. The
 collector will parse all files in that directory matching the glob `*.prom`
 using the [text
-format](http://prometheus.io/docs/instrumenting/exposition_formats/).
+format](http://prometheus.io/docs/instrumenting/exposition_formats/), with a
+notable exception: the optional timestamp field is not honored by the collector.
 
 To atomically push completion time for a cron job:
 ```
