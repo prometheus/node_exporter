@@ -18,6 +18,7 @@ package collector
 import (
 	"flag"
 	"os"
+	"os/exec"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -74,7 +75,11 @@ func TestMegaCliDisks(t *testing.T) {
 }
 
 func TestMegaCliCollectorDoesntCrash(t *testing.T) {
-	if err := flag.Set("collector.megacli.command", "./fixtures/megacli"); err != nil {
+	if err := exec.Command("go", "build", "./fixtures/megacli_fixture").Run(); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := flag.Set("collector.megacli.command", "./megacli_fixture"); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := NewMegaCliCollector()
