@@ -11,6 +11,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"os/exec"
+	"bytes"
 )
 
 // IPVSStats holds IPVS statistics, as exposed by the kernel in `/proc/net/ip_vs_stats`.
@@ -47,6 +49,18 @@ type IPVSBackendStatus struct {
 	InactConn uint64
 	// The current weight of this virtual/real address pair.
 	Weight uint64
+	// Total incoming connections per second
+	IncomingConnectionsPerSecond uint64
+	// Total incoming packages per second
+	IncomingPackgesPerSecond uint64
+	// Total outgoing packges per second
+	OutgoingPackgesPerSecond uint64
+	// Total incomingBytes per second
+	IncomingBytesPerSecond uint64
+	// Total outgoingBytes per second
+	OutgoingBytesPerSecond uint64
+
+
 }
 
 // NewIPVSStats reads the IPVS statistics.
@@ -136,19 +150,72 @@ func (fs FS) NewIPVSBackendStatus() ([]IPVSBackendStatus, error) {
 	}
 	defer file.Close()
 
-	return parseIPVSBackendStatus(file)
+	// For CPS, PPS, BPS
+	rate, err := exec.Command("/sbin/ipvsadm", "-ln", "--rate").Output()
+	if err != nil {
+		return nil, err
+	}
+	rates := bytes.NewReader(rate)
+
+	return parseIPVSBackendStatus(file, rates)
 }
 
-func parseIPVSBackendStatus(file io.Reader) ([]IPVSBackendStatus, error) {
+func parseIPVSBackendStatus(file, rates io.Reader) ([]IPVSBackendStatus, error) {
 	var (
 		status       []IPVSBackendStatus
 		scanner      = bufio.NewScanner(file)
+		rateScanner  = bufio.NewScanner(rates)
+		rateMap      = make(map[string]uint64)
 		proto        string
 		localMark    string
 		localAddress net.IP
 		localPort    uint16
+		localInfo    string
 		err          error
 	)
+
+	for rateScanner.Scan() {
+		fields := strings.Fields(string(rateScanner.Text()))
+		if len(fields) == 0 {
+			continue
+		}
+		switch {
+		case fields[0] == "IP" || fields[0] == "Prot" || fields[1] == "RemoteAddress:Port":
+			continue
+		case fields[0] == "TCP" || fields[0] == "UDP":
+			localInfo = fields[0] + fields[1]
+			if err != nil {
+				return nil, err
+			}
+		case fields[0] == "->":
+			cps, err := strconv.ParseUint(fields[2], 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			inpps, err := strconv.ParseUint(fields[3], 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			outpps, err := strconv.ParseUint(fields[4], 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			inbps, err := strconv.ParseUint(fields[5], 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			outbps, err := strconv.ParseUint(fields[6], 10, 64)
+			if err != nil {
+				return nil, err
+			}
+
+			rateMap[localInfo + fields[1] + "cps"] = cps
+			rateMap[localInfo + fields[1] + "inpps"] = inpps
+			rateMap[localInfo + fields[1] + "outpps"] = outpps
+			rateMap[localInfo + fields[1] + "inbps"] = inbps
+			rateMap[localInfo + fields[1] + "outbps"] = outbps
+		}
+	}
 
 	for scanner.Scan() {
 		fields := strings.Fields(string(scanner.Text()))
@@ -196,6 +263,13 @@ func parseIPVSBackendStatus(file io.Reader) ([]IPVSBackendStatus, error) {
 			if err != nil {
 				return nil, err
 			}
+
+			cpsKey := proto + localAddress.String() + ":" + fmt.Sprint(localPort) + remoteAddress.String() + ":" + fmt.Sprint(remotePort) + "cps"
+			inppsKey := proto + localAddress.String() + ":" + fmt.Sprint(localPort) + remoteAddress.String() + ":" + fmt.Sprint(remotePort) + "inpps"
+			outppsKey := proto + localAddress.String() + ":" + fmt.Sprint(localPort) + remoteAddress.String() + ":" + fmt.Sprint(remotePort) + "outpps"
+			inbpsKey := proto + localAddress.String() + ":" + fmt.Sprint(localPort) + remoteAddress.String() + ":" + fmt.Sprint(remotePort) + "inbps"
+			outbpsKey := proto + localAddress.String() + ":" + fmt.Sprint(localPort) + remoteAddress.String() + ":" + fmt.Sprint(remotePort) + "outpbs"
+
 			status = append(status, IPVSBackendStatus{
 				LocalAddress:  localAddress,
 				LocalPort:     localPort,
@@ -206,6 +280,11 @@ func parseIPVSBackendStatus(file io.Reader) ([]IPVSBackendStatus, error) {
 				Weight:        weight,
 				ActiveConn:    activeConn,
 				InactConn:     inactConn,
+				IncomingConnectionsPerSecond: rateMap[cpsKey],
+				IncomingPackgesPerSecond: rateMap[inppsKey],
+				OutgoingPackgesPerSecond: rateMap[outppsKey],
+				IncomingBytesPerSecond: rateMap[inbpsKey],
+				OutgoingBytesPerSecond: rateMap[outbpsKey],
 			})
 		}
 	}

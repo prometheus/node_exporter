@@ -25,9 +25,11 @@ import (
 
 type ipvsCollector struct {
 	Collector
-	fs                                                                          procfs.FS
-	backendConnectionsActive, backendConnectionsInact, backendWeight            typedDesc
-	connections, incomingPackets, outgoingPackets, incomingBytes, outgoingBytes typedDesc
+	fs                                                                                            procfs.FS
+	backendConnectionsActive, backendConnectionsInact, backendWeight,
+	backendIncomingConnectionsPerSecond, backendIncomingPackgesPerSecond,
+	backendOutgoingPackgesPerSecond, backendIncomingBytesPerSecond, backendOutgoingBytesPerSecond typedDesc
+	connections, incomingPackets, outgoingPackets, incomingBytes, outgoingBytes                   typedDesc
 }
 
 func init() {
@@ -99,6 +101,32 @@ func newIPVSCollector() (*ipvsCollector, error) {
 		"The current backend weight by local and remote address.",
 		ipvsBackendLabelNames, nil,
 	), prometheus.GaugeValue}
+	// For cps, pps, Bps
+	c.backendIncomingConnectionsPerSecond = typedDesc{prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "backend_cps"),
+		"The current backend cps by local and remote address.",
+		ipvsBackendLabelNames, nil,
+	), prometheus.GaugeValue}
+	c.backendIncomingPackgesPerSecond = typedDesc{prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "backend_inpps"),
+		"The current backend inpps by local and remote address.",
+		ipvsBackendLabelNames, nil,
+	), prometheus.GaugeValue}
+	c.backendOutgoingPackgesPerSecond = typedDesc{prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "backend_outpps"),
+		"The current backend outpps by local and remote address.",
+		ipvsBackendLabelNames, nil,
+	), prometheus.GaugeValue}
+	c.backendIncomingBytesPerSecond = typedDesc{prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "backend_inbps"),
+		"The current backend inbps by local and remote address.",
+		ipvsBackendLabelNames, nil,
+	), prometheus.GaugeValue}
+	c.backendOutgoingBytesPerSecond = typedDesc{prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, subsystem, "backend_outbps"),
+		"The current backend outbps by local and remote address.",
+		ipvsBackendLabelNames, nil,
+	), prometheus.GaugeValue}
 
 	return &c, nil
 }
@@ -130,6 +158,12 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.backendConnectionsActive.mustNewConstMetric(float64(backend.ActiveConn), labelValues...)
 		ch <- c.backendConnectionsInact.mustNewConstMetric(float64(backend.InactConn), labelValues...)
 		ch <- c.backendWeight.mustNewConstMetric(float64(backend.Weight), labelValues...)
+		// For cps, pps, Bps
+		ch <- c.backendIncomingConnectionsPerSecond.mustNewConstMetric(float64(backend.IncomingConnectionsPerSecond), labelValues...)
+		ch <- c.backendIncomingPackgesPerSecond.mustNewConstMetric(float64(backend.IncomingPackgesPerSecond), labelValues...)
+		ch <- c.backendOutgoingPackgesPerSecond.mustNewConstMetric(float64(backend.OutgoingPackgesPerSecond), labelValues...)
+		ch <- c.backendIncomingBytesPerSecond.mustNewConstMetric(float64(backend.IncomingBytesPerSecond), labelValues...)
+		ch <- c.backendOutgoingBytesPerSecond.mustNewConstMetric(float64(backend.OutgoingBytesPerSecond), labelValues...)
 	}
 	return nil
 }
