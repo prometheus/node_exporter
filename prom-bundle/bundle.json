@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "0.0.1",
+  "componentUrl": "http://github.com/prometheus/node_exporter",
+  "jobName": "node",
+  "dashboards": [
+    {
+      "file": "overview.json",
+      "description": "Node overview dashboard"
+    },
+    {
+      "file": "detail.json",
+      "description": "Node detail dashboard"
+    }
+  ],
+  "alerts": [
+    {
+      "file": "disk.rules",
+      "description": "Node disk alerts"
+    },
+    {
+      "file": "upness.rules",
+      "description": "Node upness alerts"
+    }
+  ]
+}

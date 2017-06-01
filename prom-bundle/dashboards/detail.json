@@ -1,0 +1,31 @@
+{
+  "templateVars": {
+    "instance": {
+      "type": "query",
+      "expression": "up{job='node'}",
+      "label": "instance"
+    }
+  },
+  "expressions": [
+    {
+      "title": "CPU Usage [cores]",
+      "expression": "sum without (cpu) (irate(node_cpu{job='node',instance='{{$instance}}',mode!='idle'}[5m]))",
+      "legendFormat": "{{mode}}"
+    },
+    {
+      "title": "Disk I/O Utilization [%]",
+      "expressions": "irate(node_disk_io_time_ms{job='node',instance='{{$instance}}',device!~'^(md\\\\d+$|dm-)'}[5m]) / 1000 * 100",
+      "legendFormat": "{{device}}"
+    },
+    {
+      "title": "Filesystem Usage [%]",
+      "expression": "100 - node_filesystem_free{job='node',instance='{{$instance}}'} / node_filesystem_size{job='node',instance='{{$instance}}'} * 100",
+      "legendFormat": "{{device}}: {{mountpoint}}"
+    },
+    {
+      "title": "Free Memory [B]",
+      "expression": "node_memory_MemTotal{job='node',instance='{{$instance}}'} - node_memory_MemFree{job='node',instance='{{$instance}}'} - node_memory_Buffers{job='node',instance='{{$instance}}'} - node_memory_Cached{job='node',instance='{{$instance}}'}",
+      "legendFormat": "free"
+    }
+  ]
+}

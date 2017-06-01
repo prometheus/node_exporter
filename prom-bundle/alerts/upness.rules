@@ -1,0 +1,20 @@
+ALERT NodeDown
+  IF up{job="node"} == 0
+  FOR 5m
+  LABELS {
+    urgency = "immediate"
+  }
+  ANNOTATIONS {
+    title = "Node {{$labels.instance}} down.",
+    description = "The node {{$labels.instance}} could not be scraped for 5 minutes."
+  }
+
+ALERT NodeRebootingFrequently
+  IF changes(node_boot_time{job="node"}[1h]) > 3
+  LABELS {
+    urgency = "immediate"
+  }
+  ANNOTATIONS {
+    title = "Node {{$labels.instance}} rebooting frequently.",
+    description = "The node {{$labels.instance}} has rebooted {{$value}} times in the last hour."
+  }
