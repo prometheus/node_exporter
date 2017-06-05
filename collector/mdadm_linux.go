@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"regexp"
 	"strconv"
@@ -30,23 +31,19 @@ import (
 	"github.com/prometheus/common/log"
 )
 
-var (
-	statuslineRE = regexp.MustCompile(`(\d+) blocks`)
-	buildlineRE  = regexp.MustCompile(`\((\d+)/\d+\)`)
-)
-
-type mdStatus struct {
-	name         string
-	active       bool
-	disksActive  int64
-	disksFailed  int64
-	disksMissing int64
-	disksSpare   int64
-	bytesTotal   int64
-	bytesSynced  int64
-}
-
 type (
+	mdStatus struct {
+		name string
+		//active       bool
+		active       float64
+		disksActive  float64
+		disksFailed  float64
+		disksMissing float64
+		disksSpare   float64
+		bytesTotal   float64
+		bytesSynced  float64
+	}
+
 	mdu_array_info struct {
 		// Generic constant information
 		major_version  int32
@@ -99,25 +96,6 @@ func max(a, b int32) int32 {
 	return b
 }
 
-// evalBuildline gets the size that has already been synced out of the sync-line.
-func evalBuildline(buildline string) (bytesSynced int64, err error) {
-	matches := buildlineRE.FindStringSubmatch(buildline)
-
-	// +1 to make it more obvious that the whole string containing the info is also returned as matches[0].
-	if len(matches) != 1+1 {
-		return 0, fmt.Errorf("unable to find the rebuild block count in buildline: %s", buildline)
-	}
-
-	blocksSynced, err := strconv.ParseInt(matches[1], 10, 64)
-	bytesSynced = blocksSynced * 1024
-
-	if err != nil {
-		return 0, fmt.Errorf("%s in buildline: %s", err, buildline)
-	}
-
-	return bytesSynced, nil
-}
-
 // getArrayInfo gets RAID info via the GET_ARRAY_INFO IOCTL syscall.
 func getArrayInfo(md *mdStatus) (err error) {
 	// needs md.name as input
@@ -125,6 +103,15 @@ func getArrayInfo(md *mdStatus) (err error) {
 		array   mdu_array_info
 		devsize uint64
 	)
+
+	md.disksActive = math.NaN()
+	md.disksFailed = math.NaN()
+	md.disksMissing = math.NaN()
+	md.disksSpare = math.NaN()
+	md.bytesTotal = math.NaN()
+	md.bytesSynced = math.NaN()
+	md.active = math.NaN()
+
 	mdDev := "/dev/" + md.name
 	file, err := os.Open(mdDev)
 	if err != nil {
@@ -133,100 +120,40 @@ func getArrayInfo(md *mdStatus) (err error) {
 	fd := file.Fd() // get the unix descriptor
 	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd, GET_ARRAY_INFO, uintptr(unsafe.Pointer(&array)))
 	if errno != 0 {
-		return fmt.Errorf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
+		//return fmt.Errorf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
+		log.Debugf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
+		return nil
 	}
 	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, fd, BLKGETSIZE64, uintptr(unsafe.Pointer(&devsize)))
 	if errno != 0 {
-		return fmt.Errorf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
+		//return fmt.Errorf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
+		log.Debugf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
+		return nil
 	}
 	file.Close()
 
-	//	ioctl(3, GET_DISK_INFO, 0x7ffe85c820d0) = 0
-	//	ioctl(4, BLKSSZGET, [512])              = 0
-	//	ioctl(4, BLKGETSIZE64, [200048573952])  = 0
+	md.disksActive = float64(array.active_disks)
+	md.disksFailed = float64(array.failed_disks)
+	md.disksMissing = float64(max(0, array.raid_disks-array.nr_disks))
+	md.disksSpare = float64(array.spare_disks)
+	md.bytesTotal = float64(devsize)
+	//TODO make md.active bool or document state (md.active)
+	md.active = float64(array.state)
 
-	md.disksActive = int64(array.active_disks)
-	md.disksFailed = int64(array.failed_disks)
-	md.disksMissing = int64(max(0, array.raid_disks-array.nr_disks))
-	md.disksSpare = int64(array.spare_disks)
-	md.bytesTotal = int64(devsize)
-	return nil
-}
-
-// parseMdstat parses an mdstat-file and returns a struct with the relevant infos.
-func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
-	// TODO
-	// we should probably get rid of parsing the mdstat file at all,
-	// but this file in /proc does not depend on the underlying architecture
-	// while the ioctl could.
-	content, err := ioutil.ReadFile(mdStatusFilePath)
-	if err != nil {
-		return []mdStatus{}, err
-	}
-
-	lines := strings.Split(string(content), "\n")
-	// Each md has at least the deviceline, statusline and one empty line afterwards
-	// so we will have probably something of the order len(lines)/3 devices
-	// so we use that for preallocation.
-	mdStates := make([]mdStatus, 0, len(lines)/3)
-	for i, line := range lines {
-		if line == "" {
-			continue
-		}
-		if line[0] == ' ' || line[0] == '\t' {
-			// Lines starting with white space are not the beginning of a md-section.
-			continue
-		}
-		if strings.HasPrefix(line, "Personalities") || strings.HasPrefix(line, "unused") {
-			// These lines contain general information.
-			continue
-		}
-
-		mainLine := strings.Split(line, " ")
-		if len(mainLine) < 4 {
-			return mdStates, fmt.Errorf("error parsing mdline: %s", line)
-		}
-
-		md := mdStatus{
-			name:   mainLine[0],
-			active: mainLine[2] == "active",
-		}
-		err := getArrayInfo(&md)
-		if err != nil {
-			return mdStates, err
-		}
-
-		if len(lines) <= i+3 {
-			return mdStates, fmt.Errorf("error parsing mdstat: entry for %s has fewer lines than expected", md.name)
-		}
-
-		// Now get the number of synced blocks.
-
-		// Get the line number of the sync-line.
-		var j int
-		if strings.Contains(lines[i+2], "bitmap") { // then skip the bitmap line
-			j = i + 3
-		} else {
-			j = i + 2
-		}
-
-		// If device is syncing at the moment, get the number of currently synced bytes,
-		// otherwise that number equals the size of the device.
-		if strings.Contains(lines[j], "recovery") ||
-			strings.Contains(lines[j], "resync") &&
-				!strings.Contains(lines[j], "\tresync=") {
-			md.bytesSynced, err = evalBuildline(lines[j])
-			if err != nil {
-				return mdStates, fmt.Errorf("error parsing mdstat: %s", err)
-			}
+	sys_sync_completed := sysFilePath("block/" + md.name + "/md/sync_completed")
+	log.Debugf("sys_sync_completed %s", sys_sync_completed)
+	content, err := ioutil.ReadFile(sys_sync_completed)
+	if err == nil {
+		sync_completed := strings.Split(strings.Trim(string(content), " \t\n"), " / ")
+		if len(sync_completed) == 2 {
+			sync_sectors_completed, _ := strconv.ParseFloat(sync_completed[0], 64)
+			sync_sectors, _ := strconv.ParseFloat(sync_completed[1], 64)
+			md.bytesSynced = md.bytesTotal * sync_sectors_completed / sync_sectors
 		} else {
 			md.bytesSynced = md.bytesTotal
 		}
-
-		mdStates = append(mdStates, md)
 	}
-
-	return mdStates, nil
+	return nil
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
@@ -264,64 +191,90 @@ var (
 	)
 )
 
+func getMdDevices(procDiskStats string) ([]mdStatus, error) {
+	content, err := ioutil.ReadFile(procDiskStats)
+	if err != nil {
+		return []mdStatus{}, err
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	// Each md dev has probably at least two parent devices
+	// therefore we will have something of the order len(lines)/3 devices
+	// so we use that for preallocation.
+	mdStates := make([]mdStatus, 0, len(lines)/3)
+
+	for _, line := range lines {
+
+		// major device number 9 indicates an md device.
+		if len(line) > 0 && strings.Fields(line)[0] == "9" {
+			md := mdStatus{
+				name: strings.Fields(line)[2],
+			}
+			err := getArrayInfo(&md)
+			if err != nil {
+				return mdStates, err
+			}
+			mdStates = append(mdStates, md)
+		}
+	}
+	return mdStates, nil
+}
+
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
-	statusfile := procFilePath("mdstat")
-	mdstate, err := parseMdstat(statusfile)
+	procDiskStats := procFilePath("diskstats")
+	mdstate, err := getMdDevices(procDiskStats)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
+			log.Debugf("Not collecting md disks, file does not exist: %s", procDiskStats)
 			return nil
 		}
-		return fmt.Errorf("error parsing mdstatus: %s", err)
+		return fmt.Errorf("error parsing diskstats: %s", err)
 	}
 
 	for _, mds := range mdstate {
 		log.Debugf("collecting metrics for device %s", mds.name)
 
-		var active float64
-		if mds.active {
-			active = 1
-		}
 		ch <- prometheus.MustNewConstMetric(
 			isActiveDesc,
 			prometheus.GaugeValue,
-			active,
+			mds.active,
 			mds.name,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
 			prometheus.GaugeValue,
-			float64(mds.disksActive),
+			mds.disksActive,
 			mds.name, "active",
 		)
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
 			prometheus.GaugeValue,
-			float64(mds.disksFailed),
+			mds.disksFailed,
 			mds.name, "failed",
 		)
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
 			prometheus.GaugeValue,
-			float64(mds.disksMissing),
+			mds.disksMissing,
 			mds.name, "missing",
 		)
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
 			prometheus.GaugeValue,
-			float64(mds.disksSpare),
+			mds.disksSpare,
 			mds.name, "spare",
 		)
 		ch <- prometheus.MustNewConstMetric(
 			bytesTotalDesc,
 			prometheus.GaugeValue,
-			float64(mds.bytesTotal),
+			mds.bytesTotal,
 			mds.name,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			bytesSyncedDesc,
 			prometheus.GaugeValue,
-			float64(mds.bytesSynced),
+			mds.bytesSynced,
 			mds.name,
 		)
 	}
