@@ -141,7 +141,7 @@ func periodStatsToMetrics(ps *bcache.PeriodStats, period string, labelValue stri
 	return metrics
 }
 
-// updateBcacheStats collects statistics for one bcache ID.
+// UpdateBcacheStats collects statistics for one bcache ID.
 func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcache.Stats) {
 
 	const (
