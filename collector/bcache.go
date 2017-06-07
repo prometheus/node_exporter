@@ -157,7 +157,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 	allMetrics = []metric{
 		// metrics in /sys/fs/bcache/<uuid>/
 		{
-			name:       "average_key_size",
+			name:       "average_key_size_sectors",
 			desc:       "Average data per key in the btree (sectors).",
 			value:      float64(s.Bcache.AverageKeySize),
 			metricType: prometheus.GaugeValue,
