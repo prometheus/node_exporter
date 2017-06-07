@@ -141,10 +141,16 @@
 			"revisionTime": "2017-05-01T09:11:53Z"
 		},
 		{
-			"checksumSHA1": "eiBAd4edewJTOtTwxh/ubJdjd+I=",
+			"checksumSHA1": "RAb14ZPZ6Y+AD0TnMBqLHaIw/I8=",
+			"path": "github.com/prometheus/procfs/bcache",
+			"revision": "fdb70a78745a8df006f953b8bab85597d96b2e0e",
+			"revisionTime": "2017-06-07T14:09:19Z"
+		},
+		{
+			"checksumSHA1": "8wNwVL3xTGA0N92ywfyiPvQeFmE=",
 			"path": "github.com/prometheus/procfs/sysfs",
-			"revision": "d098ca18df8bc825079013daf7bacefbb1ee877e",
-			"revisionTime": "2017-05-01T09:11:53Z"
+			"revision": "fdb70a78745a8df006f953b8bab85597d96b2e0e",
+			"revisionTime": "2017-06-07T14:09:19Z"
 		},
 		{
 			"checksumSHA1": "xCiFAAwVTrjsfZT1BIJQ3DgeNCY=",
