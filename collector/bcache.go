@@ -144,8 +144,6 @@ func periodStatsToMetrics(ps *bcache.PeriodStats, period string, labelValue stri
 // updateBcacheStats collects statistics for one bcache ID.
 func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcache.Stats) {
 
-	// bcacheUuidPaths, err := filepath.Glob(sysFilePath("fs/bcache/*-*"))
-
 	const (
 		subsystem = "bcache"
 	)
