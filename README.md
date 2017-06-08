@@ -22,6 +22,7 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
+bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
@@ -51,7 +52,6 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 
 Name     | Description | OS
 ---------|-------------|----
-bcache | Exposes bcache statistics | Linux
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
