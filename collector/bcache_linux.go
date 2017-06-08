@@ -74,7 +74,7 @@ func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, labelValue string) []bcac
 
 	metrics := []bcacheMetric{
 		{
-			name:            "bypassed_total",
+			name:            "bypassed_bytes_total",
 			desc:            "Amount of IO (both reads and writes) that has bypassed the cache.",
 			value:           float64(ps.Bypassed),
 			metricType:      prometheus.CounterValue,
@@ -155,7 +155,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			metricType: prometheus.GaugeValue,
 		},
 		{
-			name:       "btree_cache_size",
+			name:       "btree_cache_size_bytes",
 			desc:       "Amount of memory currently used by the btree cache.",
 			value:      float64(s.Bcache.BtreeCacheSize),
 			metricType: prometheus.GaugeValue,
@@ -193,7 +193,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		},
 		{
 			name:       "btree_nodes",
-			desc:       "Depth of the btree.",
+			desc:       "Total nodes in the btree.",
 			value:      float64(s.Bcache.Internal.BtreeNodes),
 			metricType: prometheus.GaugeValue,
 		},
@@ -218,7 +218,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		// metrics in /sys/fs/bcache/<uuid>/<bdev>/
 		metrics = []bcacheMetric{
 			{
-				name:            "dirty_data",
+				name:            "dirty_data_bytes",
 				desc:            "Amount of dirty data for this backing device in the cache.",
 				value:           float64(bdev.DirtyData),
 				metricType:      prometheus.GaugeValue,
@@ -246,7 +246,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabelValue: cache.Name,
 			},
 			{
-				name:            "metadata_written",
+				name:            "metadata_written_bytes_total",
 				desc:            "Sum of all non data writes (btree writes and all other metadata).",
 				value:           float64(cache.MetadataWritten),
 				metricType:      prometheus.CounterValue,
@@ -254,7 +254,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabelValue: cache.Name,
 			},
 			{
-				name:            "written",
+				name:            "written_bytes_total",
 				desc:            "Sum of all data that has been written to the cache.",
 				value:           float64(cache.Written),
 				metricType:      prometheus.CounterValue,
