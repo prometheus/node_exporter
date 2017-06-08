@@ -70,7 +70,7 @@ type bcacheMetric struct {
 }
 
 func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, period string, labelValue string) []bcacheMetric {
-	label := []string{"bdev_no"}
+	label := []string{"backing_device"}
 	var mT prometheus.ValueType
 
 	if period == "total" {
@@ -231,7 +231,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				desc:            "Amount of dirty data for this backing device in the cache.",
 				value:           float64(bdev.DirtyData),
 				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"bdev_no"},
+				extraLabel:      []string{"backing_device"},
 				extraLabelValue: bdev.Name,
 			},
 		}
@@ -254,7 +254,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				desc:            "Number of errors that have occurred, decayed by io_error_halflife.",
 				value:           float64(cache.IOErrors),
 				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"cache_no"},
+				extraLabel:      []string{"cache_device"},
 				extraLabelValue: cache.Name,
 			},
 			{
@@ -262,7 +262,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				desc:            "Sum of all non data writes (btree writes and all other metadata).",
 				value:           float64(cache.MetadataWritten),
 				metricType:      prometheus.CounterValue,
-				extraLabel:      []string{"cache_no"},
+				extraLabel:      []string{"cache_device"},
 				extraLabelValue: cache.Name,
 			},
 			{
@@ -270,7 +270,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				desc:            "Sum of all data that has been written to the cache.",
 				value:           float64(cache.Written),
 				metricType:      prometheus.CounterValue,
-				extraLabel:      []string{"cache_no"},
+				extraLabel:      []string{"cache_device"},
 				extraLabelValue: cache.Name,
 			},
 			// metrics in /sys/fs/bcache/<uuid>/<cache>/priority_stats
@@ -279,7 +279,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				desc:            "The percentage of the cache that doesn't contain any data.",
 				value:           float64(cache.Priority.UnusedPercent),
 				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"cache_no"},
+				extraLabel:      []string{"cache_device"},
 				extraLabelValue: cache.Name,
 			},
 			{
@@ -287,7 +287,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				desc:            "Bcache's metadata overhead.",
 				value:           float64(cache.Priority.MetadataPercent),
 				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"cache_no"},
+				extraLabel:      []string{"cache_device"},
 				extraLabelValue: cache.Name,
 			},
 		}
