@@ -70,8 +70,7 @@ type bcacheMetric struct {
 }
 
 func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, period string, labelValue string) []bcacheMetric {
-	var label []string
-	label = []string{"bdev_no"}
+	label := []string{"bdev_no"}
 	var mT prometheus.ValueType
 
 	if period == "total" {
