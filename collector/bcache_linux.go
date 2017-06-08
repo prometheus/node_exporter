@@ -211,9 +211,6 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		},
 	}
 
-	metrics = bcachePeriodStatsToMetric(&s.Bcache.Total, "all")
-	allMetrics = append(allMetrics, metrics...)
-
 	for _, bdev := range s.Bdevs {
 		// metrics in /sys/fs/bcache/<uuid>/<bdev>/
 		metrics = []bcacheMetric{
