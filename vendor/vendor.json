@@ -135,10 +135,10 @@
 			"revisionTime": "2017-02-20T10:38:46Z"
 		},
 		{
-			"checksumSHA1": "my9sP6myQbSinzWZwxa4Q1V6awU=",
+			"checksumSHA1": "3BbBGPEmkQry0EvJDeqe6zTSgJc=",
 			"path": "github.com/prometheus/procfs",
-			"revision": "d098ca18df8bc825079013daf7bacefbb1ee877e",
-			"revisionTime": "2017-05-01T09:11:53Z"
+			"revision": "fdb70a78745a8df006f953b8bab85597d96b2e0e",
+			"revisionTime": "2017-06-07T14:09:19Z"
 		},
 		{
 			"checksumSHA1": "RAb14ZPZ6Y+AD0TnMBqLHaIw/I8=",
@@ -155,8 +155,8 @@
 		{
 			"checksumSHA1": "xCiFAAwVTrjsfZT1BIJQ3DgeNCY=",
 			"path": "github.com/prometheus/procfs/xfs",
-			"revision": "d098ca18df8bc825079013daf7bacefbb1ee877e",
-			"revisionTime": "2017-05-01T09:11:53Z"
+			"revision": "fdb70a78745a8df006f953b8bab85597d96b2e0e",
+			"revisionTime": "2017-06-07T14:09:19Z"
 		},
 		{
 			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",
