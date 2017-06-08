@@ -198,9 +198,9 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			metricType: prometheus.GaugeValue,
 		},
 		{
-			name:       "btree_read_average_duration_nanoseconds",
+			name:       "btree_read_average_duration_seconds",
 			desc:       "Average btree read duration.",
-			value:      float64(s.Bcache.Internal.BtreeReadAverageDurationNanoSeconds),
+			value:      float64(s.Bcache.Internal.BtreeReadAverageDurationNanoSeconds) * 1e-9,
 			metricType: prometheus.GaugeValue,
 		},
 		{
