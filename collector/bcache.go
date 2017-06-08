@@ -28,7 +28,7 @@ func init() {
 	Factories["bcache"] = NewBcacheCollector
 }
 
-// A bcacheCollector is a Collector which gathers metrics from Linux bcache
+// A bcacheCollector is a Collector which gathers metrics from Linux bcache.
 type bcacheCollector struct {
 	fs sysfs.FS
 }
