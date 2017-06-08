@@ -69,70 +69,63 @@ type bcacheMetric struct {
 	extraLabelValue string
 }
 
-func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, period string, labelValue string) []bcacheMetric {
+func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, labelValue string) []bcacheMetric {
 	label := []string{"backing_device"}
-	var mT prometheus.ValueType
-
-	if period == "total" {
-		mT = prometheus.CounterValue
-	} else {
-		mT = prometheus.GaugeValue
-	}
 
 	metrics := []bcacheMetric{
 		{
-			name:            "bypassed_" + period,
+			name:            "bypassed_total",
 			desc:            "Amount of IO (both reads and writes) that has bypassed the cache.",
 			value:           float64(ps.Bypassed),
-			metricType:      mT,
+			metricType:      prometheus.CounterValue,
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
 		{
-			name:            "cache_hits_" + period,
+			name:            "cache_hits_total",
 			desc:            "Hits counted per individual IO as bcache sees them.",
 			value:           float64(ps.CacheHits),
-			metricType:      mT,
+			metricType:      prometheus.CounterValue,
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
 		{
-			name:            "cache_misses_" + period,
+			name:            "cache_misses_total",
 			desc:            "Misses counted per individual IO as bcache sees them.",
 			value:           float64(ps.CacheMisses),
-			metricType:      mT,
+			metricType:      prometheus.CounterValue,
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
 		{
-			name:            "cache_bypass_hits_" + period,
+			name:            "cache_bypass_hits_total",
 			desc:            "Hits for IO intended to skip the cache.",
 			value:           float64(ps.CacheBypassHits),
-			metricType:      mT,
+			metricType:      prometheus.CounterValue,
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
 		{
-			name:            "cache_bypass_misses_" + period,
+			name:            "cache_bypass_misses_total",
 			desc:            "Misses for IO intended to skip the cache.",
 			value:           float64(ps.CacheBypassMisses),
-			metricType:      mT,
+			metricType:      prometheus.CounterValue,
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
 		{
-			name:            "cache_miss_collisions_" + period,
+			name:            "cache_miss_collisions_total",
 			desc:            "Instances where data insertion from cache miss raced with write (data already present).",
 			value:           float64(ps.CacheMissCollisions),
-			metricType:      mT,
+			metricType:      prometheus.CounterValue,
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
 		{
-			name:            "cache_readaheads_" + period,
+			name:            "cache_readaheads_total",
 			desc:            "Count of times readahead occurred.",
 			value:           float64(ps.CacheReadaheads),
-			metricType:      mT,
+			metricType:      prometheus.CounterValue,
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
@@ -218,9 +211,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		},
 	}
 
-	metrics = bcachePeriodStatsToMetric(&s.Bcache.Total, "total", "all")
-	allMetrics = append(allMetrics, metrics...)
-	metrics = bcachePeriodStatsToMetric(&s.Bcache.FiveMin, "5_minutes", "all")
+	metrics = bcachePeriodStatsToMetric(&s.Bcache.Total, "all")
 	allMetrics = append(allMetrics, metrics...)
 
 	for _, bdev := range s.Bdevs {
@@ -238,12 +229,9 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		allMetrics = append(allMetrics, metrics...)
 
 		// metrics in /sys/fs/bcache/<uuid>/<bdev>/stats_total
-		metrics := bcachePeriodStatsToMetric(&bdev.Total, "total", bdev.Name)
+		metrics := bcachePeriodStatsToMetric(&bdev.Total, bdev.Name)
 		allMetrics = append(allMetrics, metrics...)
 
-		// metrics in /sys/fs/bcache/<uuid>/<bdev>/stats_five_minute
-		metrics = bcachePeriodStatsToMetric(&bdev.FiveMin, "5_minutes", bdev.Name)
-		allMetrics = append(allMetrics, metrics...)
 	}
 
 	for _, cache := range s.Caches {
