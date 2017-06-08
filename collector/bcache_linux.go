@@ -60,7 +60,7 @@ func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-type metric struct {
+type bcacheMetric struct {
 	name            string
 	desc            string
 	value           float64
@@ -69,7 +69,7 @@ type metric struct {
 	extraLabelValue string
 }
 
-func periodStatsToMetrics(ps *bcache.PeriodStats, period string, labelValue string) []metric {
+func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, period string, labelValue string) []bcacheMetric {
 	var label []string
 	label = []string{"bdev_no"}
 	var mT prometheus.ValueType
@@ -80,7 +80,7 @@ func periodStatsToMetrics(ps *bcache.PeriodStats, period string, labelValue stri
 		mT = prometheus.GaugeValue
 	}
 
-	metrics := []metric{
+	metrics := []bcacheMetric{
 		{
 			name:            "bypassed_" + period,
 			desc:            "Amount of IO (both reads and writes) that has bypassed the cache.",
@@ -150,11 +150,11 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 
 	var (
 		devLabel   = []string{"uuid"}
-		allMetrics []metric
-		metrics    []metric
+		allMetrics []bcacheMetric
+		metrics    []bcacheMetric
 	)
 
-	allMetrics = []metric{
+	allMetrics = []bcacheMetric{
 		// metrics in /sys/fs/bcache/<uuid>/
 		{
 			name:       "average_key_size_sectors",
@@ -219,14 +219,14 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		},
 	}
 
-	metrics = periodStatsToMetrics(&s.Bcache.Total, "total", "all")
+	metrics = bcachePeriodStatsToMetric(&s.Bcache.Total, "total", "all")
 	allMetrics = append(allMetrics, metrics...)
-	metrics = periodStatsToMetrics(&s.Bcache.FiveMin, "5_minutes", "all")
+	metrics = bcachePeriodStatsToMetric(&s.Bcache.FiveMin, "5_minutes", "all")
 	allMetrics = append(allMetrics, metrics...)
 
 	for _, bdev := range s.Bdevs {
 		// metrics in /sys/fs/bcache/<uuid>/<bdev>/
-		metrics = []metric{
+		metrics = []bcacheMetric{
 			{
 				name:            "dirty_data",
 				desc:            "Amount of dirty data for this backing device in the cache.",
@@ -239,16 +239,16 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		allMetrics = append(allMetrics, metrics...)
 
 		// metrics in /sys/fs/bcache/<uuid>/<bdev>/stats_total
-		metrics := periodStatsToMetrics(&bdev.Total, "total", bdev.Name)
+		metrics := bcachePeriodStatsToMetric(&bdev.Total, "total", bdev.Name)
 		allMetrics = append(allMetrics, metrics...)
 
 		// metrics in /sys/fs/bcache/<uuid>/<bdev>/stats_five_minute
-		metrics = periodStatsToMetrics(&bdev.FiveMin, "5_minutes", bdev.Name)
+		metrics = bcachePeriodStatsToMetric(&bdev.FiveMin, "5_minutes", bdev.Name)
 		allMetrics = append(allMetrics, metrics...)
 	}
 
 	for _, cache := range s.Caches {
-		metrics = []metric{
+		metrics = []bcacheMetric{
 			// metrics in /sys/fs/bcache/<uuid>/<cache>/
 			{
 				name:            "io_errors",
