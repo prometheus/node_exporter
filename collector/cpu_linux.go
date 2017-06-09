@@ -40,7 +40,7 @@ func init() {
 	Factories["cpu"] = NewCPUCollector
 }
 
-// NewCpuCollector returns a new Collector exposing kernel/system statistics.
+// NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
 		cpu: prometheus.NewDesc(
@@ -76,6 +76,7 @@ func NewCPUCollector() (Collector, error) {
 	}, nil
 }
 
+// Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateStat(ch); err != nil {
 		return err
@@ -86,7 +87,7 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-// Expose cpu frequency statistics.
+// updateCPUfreq reads /sys/bus/cpu/devices/cpu* and expose cpu frequency statistics.
 func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 	cpus, err := filepath.Glob(sysFilePath("bus/cpu/devices/cpu[0-9]*"))
 	if err != nil {
@@ -130,7 +131,7 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-// Expose kernel and system statistics.
+// updateStat reads /proc/stat through procfs and exports cpu related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {

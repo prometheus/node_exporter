@@ -78,7 +78,7 @@ func NewStatCollector() (Collector, error) {
 	}, nil
 }
 
-// Expose kernel and system statistics.
+// Update implements Collector and exposes kernel and system statistics.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
