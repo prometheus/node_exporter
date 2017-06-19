@@ -1,3 +1,7 @@
+## master
+
+* [CHANGE] `node_cpu` metrics moved from `stats` to `cpu` collector on linux (enabled by default).
+
 ## v0.14.0 / 2017-03-21
 
 NOTE: We are deprecating several collectors in this release.
