@@ -17,9 +17,11 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -99,30 +101,38 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 	for _, cpu := range cpus {
 		_, cpuname := filepath.Split(cpu)
 
-		if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_cur_freq")); err != nil {
-			return err
-		}
-		ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value), cpuname)
+		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
+			log.Debugf("CPU %q is missing cpufreq", cpu)
+		} else {
+			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_cur_freq")); err != nil {
+				return err
+			}
+			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value), cpuname)
 
-		if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_min_freq")); err != nil {
-			return err
-		}
-		ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value), cpuname)
+			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_min_freq")); err != nil {
+				return err
+			}
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value), cpuname)
 
-		if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_max_freq")); err != nil {
-			return err
+			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_max_freq")); err != nil {
+				return err
+			}
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value), cpuname)
 		}
-		ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value), cpuname)
 
-		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle/core_throttle_count")); err != nil {
-			return err
-		}
-		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
+		if _, err := os.Stat(filepath.Join(cpu, "thermal_throttle")); os.IsNotExist(err) {
+			log.Debugf("CPU %q is missing thermal_throttle", cpu)
+		} else {
+			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle/core_throttle_count")); err != nil {
+				return err
+			}
+			ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
 
-		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle/package_throttle_count")); err != nil {
-			return err
+			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle/package_throttle_count")); err != nil {
+				return err
+			}
+			ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), cpuname)
 		}
-		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), cpuname)
 	}
 
 	return nil
