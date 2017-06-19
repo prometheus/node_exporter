@@ -74,7 +74,7 @@ tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/p
 
 Name     | Description | OS | Replacement
 ---------|-------------|----|-------------
-gmond | Exposes statistics from Ganglia. | _any_ | _unknown_
+gmond | Exposes statistics from Ganglia. | _any_ | Use dedicated Ganglia exporter
 megacli | Exposes RAID statistics from MegaCLI. | Linux | Use StorCLI text exporter instead
 ntp | Exposes time drift from an NTP server. | _any_ | Use NTPd text exporter instead
 
