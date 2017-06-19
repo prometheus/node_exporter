@@ -72,11 +72,11 @@ tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/p
 
 *These collectors will be (re)moved in the future.*
 
-Name     | Description | OS
----------|-------------|----
-gmond | Exposes statistics from Ganglia. | _any_
-megacli | Exposes RAID statistics from MegaCLI. | Linux
-ntp | Exposes time drift from an NTP server. | _any_
+Name     | Description | OS | Replacement
+---------|-------------|----|-------------
+gmond | Exposes statistics from Ganglia. | _any_ | _unknown_
+megacli | Exposes RAID statistics from MegaCLI. | Linux | Use StorCLI text exporter instead
+ntp | Exposes time drift from an NTP server. | _any_ | _unknown_
 
 ### Textfile Collector
 
