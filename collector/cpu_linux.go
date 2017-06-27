@@ -104,7 +104,8 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
 			log.Debugf("CPU %q is missing cpufreq", cpu)
 		} else {
-			// cpufreq values are kHz, multiply by 1000 for hz
+			// sysfs cpufreq values are kHz, thus multiply by 1000 to export base units (hz).
+			// See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_cur_freq")); err != nil {
 				return err
 			}
