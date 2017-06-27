@@ -104,20 +104,21 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
 			log.Debugf("CPU %q is missing cpufreq", cpu)
 		} else {
+			// cpufreq values are kHz, multiply by 1000 for hz
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_cur_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value), cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
 
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_min_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value), cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
 
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_max_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value), cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
 		}
 
 		if _, err := os.Stat(filepath.Join(cpu, "thermal_throttle")); os.IsNotExist(err) {

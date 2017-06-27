@@ -215,19 +215,19 @@ node_cpu_core_throttles_total{cpu="cpu1"} 0
 node_cpu_core_throttles_total{cpu="cpu2"} 40
 # HELP node_cpu_frequency_hertz Current cpu thread frequency in hertz.
 # TYPE node_cpu_frequency_hertz gauge
-node_cpu_frequency_hertz{cpu="cpu0"} 1.699981e+06
-node_cpu_frequency_hertz{cpu="cpu1"} 1.699981e+06
-node_cpu_frequency_hertz{cpu="cpu3"} 8000
+node_cpu_frequency_hertz{cpu="cpu0"} 1.699981e+09
+node_cpu_frequency_hertz{cpu="cpu1"} 1.699981e+09
+node_cpu_frequency_hertz{cpu="cpu3"} 8e+06
 # HELP node_cpu_frequency_max_hertz Maximum cpu thread frequency in hertz.
 # TYPE node_cpu_frequency_max_hertz gauge
-node_cpu_frequency_max_hertz{cpu="cpu0"} 3.7e+06
-node_cpu_frequency_max_hertz{cpu="cpu1"} 3.7e+06
-node_cpu_frequency_max_hertz{cpu="cpu3"} 4.2e+06
+node_cpu_frequency_max_hertz{cpu="cpu0"} 3.7e+09
+node_cpu_frequency_max_hertz{cpu="cpu1"} 3.7e+09
+node_cpu_frequency_max_hertz{cpu="cpu3"} 4.2e+09
 # HELP node_cpu_frequency_min_hertz Minimum cpu thread frequency in hertz.
 # TYPE node_cpu_frequency_min_hertz gauge
-node_cpu_frequency_min_hertz{cpu="cpu0"} 800000
-node_cpu_frequency_min_hertz{cpu="cpu1"} 800000
-node_cpu_frequency_min_hertz{cpu="cpu3"} 1000
+node_cpu_frequency_min_hertz{cpu="cpu0"} 8e+08
+node_cpu_frequency_min_hertz{cpu="cpu1"} 8e+08
+node_cpu_frequency_min_hertz{cpu="cpu3"} 1e+06
 # HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{cpu="cpu0"} 30
