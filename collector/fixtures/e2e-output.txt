@@ -208,6 +208,31 @@ node_cpu{cpu="cpu7",mode="softirq"} 0.31
 node_cpu{cpu="cpu7",mode="steal"} 0
 node_cpu{cpu="cpu7",mode="system"} 101.64
 node_cpu{cpu="cpu7",mode="user"} 290.98
+# HELP node_cpu_core_throttles_total Number of times this cpu core has been throttled.
+# TYPE node_cpu_core_throttles_total counter
+node_cpu_core_throttles_total{cpu="cpu0"} 5
+node_cpu_core_throttles_total{cpu="cpu1"} 0
+node_cpu_core_throttles_total{cpu="cpu2"} 40
+# HELP node_cpu_frequency_hertz Current cpu thread frequency in hertz.
+# TYPE node_cpu_frequency_hertz gauge
+node_cpu_frequency_hertz{cpu="cpu0"} 1.699981e+09
+node_cpu_frequency_hertz{cpu="cpu1"} 1.699981e+09
+node_cpu_frequency_hertz{cpu="cpu3"} 8e+06
+# HELP node_cpu_frequency_max_hertz Maximum cpu thread frequency in hertz.
+# TYPE node_cpu_frequency_max_hertz gauge
+node_cpu_frequency_max_hertz{cpu="cpu0"} 3.7e+09
+node_cpu_frequency_max_hertz{cpu="cpu1"} 3.7e+09
+node_cpu_frequency_max_hertz{cpu="cpu3"} 4.2e+09
+# HELP node_cpu_frequency_min_hertz Minimum cpu thread frequency in hertz.
+# TYPE node_cpu_frequency_min_hertz gauge
+node_cpu_frequency_min_hertz{cpu="cpu0"} 8e+08
+node_cpu_frequency_min_hertz{cpu="cpu1"} 8e+08
+node_cpu_frequency_min_hertz{cpu="cpu3"} 1e+06
+# HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
+# TYPE node_cpu_package_throttles_total counter
+node_cpu_package_throttles_total{cpu="cpu0"} 30
+node_cpu_package_throttles_total{cpu="cpu1"} 30
+node_cpu_package_throttles_total{cpu="cpu2"} 6
 # HELP node_disk_bytes_read The total number of bytes read successfully.
 # TYPE node_disk_bytes_read counter
 node_disk_bytes_read{device="dm-0"} 5.13708655616e+11
@@ -2142,6 +2167,7 @@ node_scrape_collector_success{collector="arp"} 1
 node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
 node_scrape_collector_success{collector="conntrack"} 1
+node_scrape_collector_success{collector="cpu"} 1
 node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1

@@ -23,7 +23,7 @@ Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
-cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD
+cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
 diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Darwin, Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
@@ -38,7 +38,7 @@ meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux
 netdev | Exposes network interface statistics such as bytes transferred. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
-stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts. | Linux
+stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 time | Exposes the current system time. | _any_
 uname | Exposes system information as provided by the uname system call. | Linux
@@ -105,6 +105,8 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 ## Building and running
 
+    go get github.com/prometheus/node_exporter
+    cd ${GOPATH-$HOME/go}/src/github.com/prometheus/node_exporter
     make
     ./node_exporter <flags>
 
@@ -127,9 +129,9 @@ options and bind-mounts:
 
 ```bash
 docker run -d -p 9100:9100 \
-  -v "/proc:/host/proc" \
-  -v "/sys:/host/sys" \
-  -v "/:/rootfs" \
+  -v "/proc:/host/proc:ro" \
+  -v "/sys:/host/sys:ro" \
+  -v "/:/rootfs:ro" \
   --net="host" \
   quay.io/prometheus/node-exporter \
     -collector.procfs /host/proc \
