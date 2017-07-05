@@ -93,11 +93,15 @@ func queryExporter(address string) error {
 	if err != nil {
 		return err
 	}
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 	if err := resp.Body.Close(); err != nil {
 		return err
 	}
 	if want, have := http.StatusOK, resp.StatusCode; want != have {
-		return fmt.Errorf("want /metrics status code %d, have %d", want, have)
+		return fmt.Errorf("want /metrics status code %d, have %d. Body:\n%s", want, have, b)
 	}
 	return nil
 }
