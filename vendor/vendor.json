@@ -51,6 +51,12 @@
 			"revisionTime": "2015-04-13T19:18:30Z"
 		},
 		{
+			"checksumSHA1": "82wQShWC1Udgn1UbTK42s0l/IpY=",
+			"path": "github.com/lufia/iostat",
+			"revision": "8c7e013c17ce06e6651d2affabe369045b98d3b7",
+			"revisionTime": "2017-06-03T08:40:47Z"
+		},
+		{
 			"checksumSHA1": "bKMZjd2wPw13VwoE7mBeSv5djFA=",
 			"path": "github.com/matttproud/golang_protobuf_extensions/pbutil",
 			"revision": "c12348ce28de40eed0136aa2b644d0ee0650e56c",

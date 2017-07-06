@@ -24,7 +24,7 @@ Name     | Description | OS
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
-diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
+diskstats | Exposes disk I/O statistics. | Darwin, Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
