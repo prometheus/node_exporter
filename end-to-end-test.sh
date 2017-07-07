@@ -4,6 +4,7 @@ set -euf -o pipefail
 
 collectors=$(cat << COLLECTORS
   arp
+  bcache
   buddyinfo
   conntrack
   cpu

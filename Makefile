@@ -41,11 +41,15 @@ style:
 	@echo ">> checking code style"
 	@! gofmt -d $(shell find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
 
-test:
+test: collector/fixtures/sys/.unpacked
 	@echo ">> running tests"
 	@$(GO) test -short $(pkgs)
 
-test-e2e: build
+collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
+	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
+	touch $@
+
+test-e2e: build collector/fixtures/sys/.unpacked
 	@echo ">> running end-to-end tests"
 	./end-to-end-test.sh
 

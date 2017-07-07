@@ -22,6 +22,7 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
+bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
 diskstats | Exposes disk I/O statistics. | Darwin, Linux
