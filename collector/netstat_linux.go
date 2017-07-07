@@ -134,15 +134,15 @@ func parseSNMP6Stats(r io.Reader, fileName string) (map[string]map[string]string
 		scanner  = bufio.NewScanner(r)
 	)
 
-        for scanner.Scan() {
-                stat := strings.Fields(scanner.Text())
-                protocol := stat[0][:strings.Index(stat[0], "6") + 1]
-                name := stat[0][strings.Index(stat[0], "6") + 1:]
-		if _, present := netStats[protocol]; ! present {
+	for scanner.Scan() {
+		stat := strings.Fields(scanner.Text())
+		protocol := stat[0][:strings.Index(stat[0], "6")+1]
+		name := stat[0][strings.Index(stat[0], "6")+1:]
+		if _, present := netStats[protocol]; !present {
 			netStats[protocol] = map[string]string{}
 		}
-                netStats[protocol][name] = stat[1]
-        }
+		netStats[protocol][name] = stat[1]
+	}
 
-        return netStats, scanner.Err()
+	return netStats, scanner.Err()
 }
