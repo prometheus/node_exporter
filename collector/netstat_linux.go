@@ -136,12 +136,18 @@ func parseSNMP6Stats(r io.Reader) (map[string]map[string]string, error) {
 
 	for scanner.Scan() {
 		stat := strings.Fields(scanner.Text())
-		protocol := stat[0][:strings.Index(stat[0], "6")+1]
-		name := stat[0][strings.Index(stat[0], "6")+1:]
-		if _, present := netStats[protocol]; !present {
-			netStats[protocol] = map[string]string{}
+		if len(stat) < 2 {
+			continue
 		}
-		netStats[protocol][name] = stat[1]
+		// Expect to have "6" in metric name, skip line otherwise
+		if sixIndex := strings.Index(stat[0], "6"); sixIndex != -1 {
+			protocol := stat[0][:sixIndex+1]
+			name := stat[0][sixIndex+1:]
+			if _, present := netStats[protocol]; !present {
+				netStats[protocol] = map[string]string{}
+			}
+			netStats[protocol][name] = stat[1]
+		}
 	}
 
 	return netStats, scanner.Err()
