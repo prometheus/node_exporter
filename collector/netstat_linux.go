@@ -125,10 +125,10 @@ func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
 	}
 	defer file.Close()
 
-	return parseSNMP6Stats(file, fileName)
+	return parseSNMP6Stats(file)
 }
 
-func parseSNMP6Stats(r io.Reader, fileName string) (map[string]map[string]string, error) {
+func parseSNMP6Stats(r io.Reader) (map[string]map[string]string, error) {
 	var (
 		netStats = map[string]map[string]string{}
 		scanner  = bufio.NewScanner(r)
