@@ -120,6 +120,61 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 			desc:  "Number of allocation B-tree records deleted for a filesystem.",
 			value: float64(s.AllocationBTree.RecordsDeleted),
 		},
+		{
+			name:  "block_mapping_reads_total",
+			desc:  "Number of block map for read operations for a filesystem.",
+			value: float64(s.BlockMapping.Reads),
+		},
+		{
+			name:  "block_mapping_writes_total",
+			desc:  "Number of block map for write operations for a filesystem.",
+			value: float64(s.BlockMapping.Writes),
+		},
+		{
+			name:  "block_mapping_unmaps_total",
+			desc:  "Number of block unmaps (deletes) for a filesystem.",
+			value: float64(s.BlockMapping.Unmaps),
+		},
+		{
+			name:  "block_mapping_extent_list_insertions_total",
+			desc:  "Number of extent list insertions for a filesystem.",
+			value: float64(s.BlockMapping.ExtentListInsertions),
+		},
+		{
+			name:  "block_mapping_extent_list_deletions_total",
+			desc:  "Number of extent list deletions for a filesystem.",
+			value: float64(s.BlockMapping.ExtentListDeletions),
+		},
+		{
+			name:  "block_mapping_extent_list_lookups_total",
+			desc:  "Number of extent list lookups for a filesystem.",
+			value: float64(s.BlockMapping.ExtentListLookups),
+		},
+		{
+			name:  "block_mapping_extent_list_compares_total",
+			desc:  "Number of extent list compares for a filesystem.",
+			value: float64(s.BlockMapping.ExtentListCompares),
+		},
+		{
+			name:  "block_mapping_btree_lookups_total",
+			desc:  "Number of block map B-tree lookups for a filesystem.",
+			value: float64(s.AllocationBTree.Lookups),
+		},
+		{
+			name:  "block_mapping_btree_compares_total",
+			desc:  "Number of block map B-tree compares for a filesystem.",
+			value: float64(s.AllocationBTree.Compares),
+		},
+		{
+			name:  "block_mapping_btree_records_inserted_total",
+			desc:  "Number of block map B-tree records inserted for a filesystem.",
+			value: float64(s.AllocationBTree.RecordsInserted),
+		},
+		{
+			name:  "block_mapping_btree_records_deleted_total",
+			desc:  "Number of block map B-tree records deleted for a filesystem.",
+			value: float64(s.AllocationBTree.RecordsDeleted),
+		},
 	}
 
 	for _, m := range metrics {

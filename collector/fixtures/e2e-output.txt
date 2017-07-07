@@ -2352,6 +2352,39 @@ node_xfs_allocation_btree_records_deleted_total{device="sda1"} 0
 # HELP node_xfs_allocation_btree_records_inserted_total Number of allocation B-tree records inserted for a filesystem.
 # TYPE node_xfs_allocation_btree_records_inserted_total counter
 node_xfs_allocation_btree_records_inserted_total{device="sda1"} 0
+# HELP node_xfs_block_mapping_btree_compares_total Number of block map B-tree compares for a filesystem.
+# TYPE node_xfs_block_mapping_btree_compares_total counter
+node_xfs_block_mapping_btree_compares_total{device="sda1"} 0
+# HELP node_xfs_block_mapping_btree_lookups_total Number of block map B-tree lookups for a filesystem.
+# TYPE node_xfs_block_mapping_btree_lookups_total counter
+node_xfs_block_mapping_btree_lookups_total{device="sda1"} 0
+# HELP node_xfs_block_mapping_btree_records_deleted_total Number of block map B-tree records deleted for a filesystem.
+# TYPE node_xfs_block_mapping_btree_records_deleted_total counter
+node_xfs_block_mapping_btree_records_deleted_total{device="sda1"} 0
+# HELP node_xfs_block_mapping_btree_records_inserted_total Number of block map B-tree records inserted for a filesystem.
+# TYPE node_xfs_block_mapping_btree_records_inserted_total counter
+node_xfs_block_mapping_btree_records_inserted_total{device="sda1"} 0
+# HELP node_xfs_block_mapping_extent_list_compares_total Number of extent list compares for a filesystem.
+# TYPE node_xfs_block_mapping_extent_list_compares_total counter
+node_xfs_block_mapping_extent_list_compares_total{device="sda1"} 0
+# HELP node_xfs_block_mapping_extent_list_deletions_total Number of extent list deletions for a filesystem.
+# TYPE node_xfs_block_mapping_extent_list_deletions_total counter
+node_xfs_block_mapping_extent_list_deletions_total{device="sda1"} 1
+# HELP node_xfs_block_mapping_extent_list_insertions_total Number of extent list insertions for a filesystem.
+# TYPE node_xfs_block_mapping_extent_list_insertions_total counter
+node_xfs_block_mapping_extent_list_insertions_total{device="sda1"} 1
+# HELP node_xfs_block_mapping_extent_list_lookups_total Number of extent list lookups for a filesystem.
+# TYPE node_xfs_block_mapping_extent_list_lookups_total counter
+node_xfs_block_mapping_extent_list_lookups_total{device="sda1"} 91
+# HELP node_xfs_block_mapping_reads_total Number of block map for read operations for a filesystem.
+# TYPE node_xfs_block_mapping_reads_total counter
+node_xfs_block_mapping_reads_total{device="sda1"} 61
+# HELP node_xfs_block_mapping_unmaps_total Number of block unmaps (deletes) for a filesystem.
+# TYPE node_xfs_block_mapping_unmaps_total counter
+node_xfs_block_mapping_unmaps_total{device="sda1"} 1
+# HELP node_xfs_block_mapping_writes_total Number of block map for write operations for a filesystem.
+# TYPE node_xfs_block_mapping_writes_total counter
+node_xfs_block_mapping_writes_total{device="sda1"} 29
 # HELP node_xfs_extent_allocation_blocks_allocated_total Number of blocks allocated for a filesystem.
 # TYPE node_xfs_extent_allocation_blocks_allocated_total counter
 node_xfs_extent_allocation_blocks_allocated_total{device="sda1"} 872
