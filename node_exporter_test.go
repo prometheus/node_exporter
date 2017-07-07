@@ -107,9 +107,13 @@ func queryExporter(address string) error {
 }
 
 func runCommandAndTests(cmd *exec.Cmd, fn func(pid int) error) error {
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start command: %s", err)
+	}
+
 	errc := make(chan error)
 	go func() {
-		if err := cmd.Run(); err != nil {
+		if err := cmd.Wait(); err != nil {
 			errc <- fmt.Errorf("execution of command failed: %s", err)
 		} else {
 			errc <- nil
