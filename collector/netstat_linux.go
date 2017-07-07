@@ -51,9 +51,16 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP stats: %s", err)
 	}
+	snmp6Stats, err := getSNMP6Stats(procFilePath("net/snmp6"))
+	if err != nil {
+		return fmt.Errorf("couldn't get SNMP6 stats: %s", err)
+	}
 	// Merge the results of snmpStats into netStats (collisions are possible, but
 	// we know that the keys are always unique for the given use case).
 	for k, v := range snmpStats {
+		netStats[k] = v
+	}
+	for k, v := range snmp6Stats {
 		netStats[k] = v
 	}
 	for protocol, protocolStats := range netStats {
@@ -109,4 +116,33 @@ func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, 
 	}
 
 	return netStats, scanner.Err()
+}
+
+func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	return parseSNMP6Stats(file, fileName)
+}
+
+func parseSNMP6Stats(r io.Reader, fileName string) (map[string]map[string]string, error) {
+	var (
+		netStats = map[string]map[string]string{}
+		scanner  = bufio.NewScanner(r)
+	)
+
+        for scanner.Scan() {
+                stat := strings.Fields(scanner.Text())
+                protocol := stat[0][:strings.Index(stat[0], "6") + 1]
+                name := stat[0][strings.Index(stat[0], "6") + 1:]
+		if _, present := netStats[protocol]; ! present {
+			netStats[protocol] = map[string]string{}
+		}
+                netStats[protocol][name] = stat[1]
+        }
+
+        return netStats, scanner.Err()
 }
