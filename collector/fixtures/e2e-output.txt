@@ -1364,6 +1364,120 @@ node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test"} 0
 # HELP node_mountstats_nfs_write_pages_total Number of pages written directly via mmap()'d files.
 # TYPE node_mountstats_nfs_write_pages_total counter
 node_mountstats_nfs_write_pages_total{export="192.168.1.1:/srv/test"} 0
+# HELP node_netstat_Icmp6_InCsumErrors Protocol Icmp6 statistic InCsumErrors.
+# TYPE node_netstat_Icmp6_InCsumErrors untyped
+node_netstat_Icmp6_InCsumErrors 0
+# HELP node_netstat_Icmp6_InDestUnreachs Protocol Icmp6 statistic InDestUnreachs.
+# TYPE node_netstat_Icmp6_InDestUnreachs untyped
+node_netstat_Icmp6_InDestUnreachs 0
+# HELP node_netstat_Icmp6_InEchoReplies Protocol Icmp6 statistic InEchoReplies.
+# TYPE node_netstat_Icmp6_InEchoReplies untyped
+node_netstat_Icmp6_InEchoReplies 0
+# HELP node_netstat_Icmp6_InEchos Protocol Icmp6 statistic InEchos.
+# TYPE node_netstat_Icmp6_InEchos untyped
+node_netstat_Icmp6_InEchos 0
+# HELP node_netstat_Icmp6_InErrors Protocol Icmp6 statistic InErrors.
+# TYPE node_netstat_Icmp6_InErrors untyped
+node_netstat_Icmp6_InErrors 0
+# HELP node_netstat_Icmp6_InGroupMembQueries Protocol Icmp6 statistic InGroupMembQueries.
+# TYPE node_netstat_Icmp6_InGroupMembQueries untyped
+node_netstat_Icmp6_InGroupMembQueries 0
+# HELP node_netstat_Icmp6_InGroupMembReductions Protocol Icmp6 statistic InGroupMembReductions.
+# TYPE node_netstat_Icmp6_InGroupMembReductions untyped
+node_netstat_Icmp6_InGroupMembReductions 0
+# HELP node_netstat_Icmp6_InGroupMembResponses Protocol Icmp6 statistic InGroupMembResponses.
+# TYPE node_netstat_Icmp6_InGroupMembResponses untyped
+node_netstat_Icmp6_InGroupMembResponses 0
+# HELP node_netstat_Icmp6_InMLDv2Reports Protocol Icmp6 statistic InMLDv2Reports.
+# TYPE node_netstat_Icmp6_InMLDv2Reports untyped
+node_netstat_Icmp6_InMLDv2Reports 0
+# HELP node_netstat_Icmp6_InMsgs Protocol Icmp6 statistic InMsgs.
+# TYPE node_netstat_Icmp6_InMsgs untyped
+node_netstat_Icmp6_InMsgs 0
+# HELP node_netstat_Icmp6_InNeighborAdvertisements Protocol Icmp6 statistic InNeighborAdvertisements.
+# TYPE node_netstat_Icmp6_InNeighborAdvertisements untyped
+node_netstat_Icmp6_InNeighborAdvertisements 0
+# HELP node_netstat_Icmp6_InNeighborSolicits Protocol Icmp6 statistic InNeighborSolicits.
+# TYPE node_netstat_Icmp6_InNeighborSolicits untyped
+node_netstat_Icmp6_InNeighborSolicits 0
+# HELP node_netstat_Icmp6_InParmProblems Protocol Icmp6 statistic InParmProblems.
+# TYPE node_netstat_Icmp6_InParmProblems untyped
+node_netstat_Icmp6_InParmProblems 0
+# HELP node_netstat_Icmp6_InPktTooBigs Protocol Icmp6 statistic InPktTooBigs.
+# TYPE node_netstat_Icmp6_InPktTooBigs untyped
+node_netstat_Icmp6_InPktTooBigs 0
+# HELP node_netstat_Icmp6_InRedirects Protocol Icmp6 statistic InRedirects.
+# TYPE node_netstat_Icmp6_InRedirects untyped
+node_netstat_Icmp6_InRedirects 0
+# HELP node_netstat_Icmp6_InRouterAdvertisements Protocol Icmp6 statistic InRouterAdvertisements.
+# TYPE node_netstat_Icmp6_InRouterAdvertisements untyped
+node_netstat_Icmp6_InRouterAdvertisements 0
+# HELP node_netstat_Icmp6_InRouterSolicits Protocol Icmp6 statistic InRouterSolicits.
+# TYPE node_netstat_Icmp6_InRouterSolicits untyped
+node_netstat_Icmp6_InRouterSolicits 0
+# HELP node_netstat_Icmp6_InTimeExcds Protocol Icmp6 statistic InTimeExcds.
+# TYPE node_netstat_Icmp6_InTimeExcds untyped
+node_netstat_Icmp6_InTimeExcds 0
+# HELP node_netstat_Icmp6_OutDestUnreachs Protocol Icmp6 statistic OutDestUnreachs.
+# TYPE node_netstat_Icmp6_OutDestUnreachs untyped
+node_netstat_Icmp6_OutDestUnreachs 0
+# HELP node_netstat_Icmp6_OutEchoReplies Protocol Icmp6 statistic OutEchoReplies.
+# TYPE node_netstat_Icmp6_OutEchoReplies untyped
+node_netstat_Icmp6_OutEchoReplies 0
+# HELP node_netstat_Icmp6_OutEchos Protocol Icmp6 statistic OutEchos.
+# TYPE node_netstat_Icmp6_OutEchos untyped
+node_netstat_Icmp6_OutEchos 0
+# HELP node_netstat_Icmp6_OutErrors Protocol Icmp6 statistic OutErrors.
+# TYPE node_netstat_Icmp6_OutErrors untyped
+node_netstat_Icmp6_OutErrors 0
+# HELP node_netstat_Icmp6_OutGroupMembQueries Protocol Icmp6 statistic OutGroupMembQueries.
+# TYPE node_netstat_Icmp6_OutGroupMembQueries untyped
+node_netstat_Icmp6_OutGroupMembQueries 0
+# HELP node_netstat_Icmp6_OutGroupMembReductions Protocol Icmp6 statistic OutGroupMembReductions.
+# TYPE node_netstat_Icmp6_OutGroupMembReductions untyped
+node_netstat_Icmp6_OutGroupMembReductions 0
+# HELP node_netstat_Icmp6_OutGroupMembResponses Protocol Icmp6 statistic OutGroupMembResponses.
+# TYPE node_netstat_Icmp6_OutGroupMembResponses untyped
+node_netstat_Icmp6_OutGroupMembResponses 0
+# HELP node_netstat_Icmp6_OutMLDv2Reports Protocol Icmp6 statistic OutMLDv2Reports.
+# TYPE node_netstat_Icmp6_OutMLDv2Reports untyped
+node_netstat_Icmp6_OutMLDv2Reports 4
+# HELP node_netstat_Icmp6_OutMsgs Protocol Icmp6 statistic OutMsgs.
+# TYPE node_netstat_Icmp6_OutMsgs untyped
+node_netstat_Icmp6_OutMsgs 8
+# HELP node_netstat_Icmp6_OutNeighborAdvertisements Protocol Icmp6 statistic OutNeighborAdvertisements.
+# TYPE node_netstat_Icmp6_OutNeighborAdvertisements untyped
+node_netstat_Icmp6_OutNeighborAdvertisements 0
+# HELP node_netstat_Icmp6_OutNeighborSolicits Protocol Icmp6 statistic OutNeighborSolicits.
+# TYPE node_netstat_Icmp6_OutNeighborSolicits untyped
+node_netstat_Icmp6_OutNeighborSolicits 1
+# HELP node_netstat_Icmp6_OutParmProblems Protocol Icmp6 statistic OutParmProblems.
+# TYPE node_netstat_Icmp6_OutParmProblems untyped
+node_netstat_Icmp6_OutParmProblems 0
+# HELP node_netstat_Icmp6_OutPktTooBigs Protocol Icmp6 statistic OutPktTooBigs.
+# TYPE node_netstat_Icmp6_OutPktTooBigs untyped
+node_netstat_Icmp6_OutPktTooBigs 0
+# HELP node_netstat_Icmp6_OutRedirects Protocol Icmp6 statistic OutRedirects.
+# TYPE node_netstat_Icmp6_OutRedirects untyped
+node_netstat_Icmp6_OutRedirects 0
+# HELP node_netstat_Icmp6_OutRouterAdvertisements Protocol Icmp6 statistic OutRouterAdvertisements.
+# TYPE node_netstat_Icmp6_OutRouterAdvertisements untyped
+node_netstat_Icmp6_OutRouterAdvertisements 0
+# HELP node_netstat_Icmp6_OutRouterSolicits Protocol Icmp6 statistic OutRouterSolicits.
+# TYPE node_netstat_Icmp6_OutRouterSolicits untyped
+node_netstat_Icmp6_OutRouterSolicits 3
+# HELP node_netstat_Icmp6_OutTimeExcds Protocol Icmp6 statistic OutTimeExcds.
+# TYPE node_netstat_Icmp6_OutTimeExcds untyped
+node_netstat_Icmp6_OutTimeExcds 0
+# HELP node_netstat_Icmp6_OutType133 Protocol Icmp6 statistic OutType133.
+# TYPE node_netstat_Icmp6_OutType133 untyped
+node_netstat_Icmp6_OutType133 3
+# HELP node_netstat_Icmp6_OutType135 Protocol Icmp6 statistic OutType135.
+# TYPE node_netstat_Icmp6_OutType135 untyped
+node_netstat_Icmp6_OutType135 1
+# HELP node_netstat_Icmp6_OutType143 Protocol Icmp6 statistic OutType143.
+# TYPE node_netstat_Icmp6_OutType143 untyped
+node_netstat_Icmp6_OutType143 4
 # HELP node_netstat_IcmpMsg_InType3 Protocol IcmpMsg statistic InType3.
 # TYPE node_netstat_IcmpMsg_InType3 untyped
 node_netstat_IcmpMsg_InType3 104
@@ -1451,6 +1565,102 @@ node_netstat_Icmp_OutTimestampReps 0
 # HELP node_netstat_Icmp_OutTimestamps Protocol Icmp statistic OutTimestamps.
 # TYPE node_netstat_Icmp_OutTimestamps untyped
 node_netstat_Icmp_OutTimestamps 0
+# HELP node_netstat_Ip6_FragCreates Protocol Ip6 statistic FragCreates.
+# TYPE node_netstat_Ip6_FragCreates untyped
+node_netstat_Ip6_FragCreates 0
+# HELP node_netstat_Ip6_FragFails Protocol Ip6 statistic FragFails.
+# TYPE node_netstat_Ip6_FragFails untyped
+node_netstat_Ip6_FragFails 0
+# HELP node_netstat_Ip6_FragOKs Protocol Ip6 statistic FragOKs.
+# TYPE node_netstat_Ip6_FragOKs untyped
+node_netstat_Ip6_FragOKs 0
+# HELP node_netstat_Ip6_InAddrErrors Protocol Ip6 statistic InAddrErrors.
+# TYPE node_netstat_Ip6_InAddrErrors untyped
+node_netstat_Ip6_InAddrErrors 0
+# HELP node_netstat_Ip6_InBcastOctets Protocol Ip6 statistic InBcastOctets.
+# TYPE node_netstat_Ip6_InBcastOctets untyped
+node_netstat_Ip6_InBcastOctets 0
+# HELP node_netstat_Ip6_InCEPkts Protocol Ip6 statistic InCEPkts.
+# TYPE node_netstat_Ip6_InCEPkts untyped
+node_netstat_Ip6_InCEPkts 0
+# HELP node_netstat_Ip6_InDelivers Protocol Ip6 statistic InDelivers.
+# TYPE node_netstat_Ip6_InDelivers untyped
+node_netstat_Ip6_InDelivers 0
+# HELP node_netstat_Ip6_InDiscards Protocol Ip6 statistic InDiscards.
+# TYPE node_netstat_Ip6_InDiscards untyped
+node_netstat_Ip6_InDiscards 0
+# HELP node_netstat_Ip6_InECT0Pkts Protocol Ip6 statistic InECT0Pkts.
+# TYPE node_netstat_Ip6_InECT0Pkts untyped
+node_netstat_Ip6_InECT0Pkts 0
+# HELP node_netstat_Ip6_InECT1Pkts Protocol Ip6 statistic InECT1Pkts.
+# TYPE node_netstat_Ip6_InECT1Pkts untyped
+node_netstat_Ip6_InECT1Pkts 0
+# HELP node_netstat_Ip6_InHdrErrors Protocol Ip6 statistic InHdrErrors.
+# TYPE node_netstat_Ip6_InHdrErrors untyped
+node_netstat_Ip6_InHdrErrors 0
+# HELP node_netstat_Ip6_InMcastOctets Protocol Ip6 statistic InMcastOctets.
+# TYPE node_netstat_Ip6_InMcastOctets untyped
+node_netstat_Ip6_InMcastOctets 112
+# HELP node_netstat_Ip6_InMcastPkts Protocol Ip6 statistic InMcastPkts.
+# TYPE node_netstat_Ip6_InMcastPkts untyped
+node_netstat_Ip6_InMcastPkts 2
+# HELP node_netstat_Ip6_InNoECTPkts Protocol Ip6 statistic InNoECTPkts.
+# TYPE node_netstat_Ip6_InNoECTPkts untyped
+node_netstat_Ip6_InNoECTPkts 7
+# HELP node_netstat_Ip6_InNoRoutes Protocol Ip6 statistic InNoRoutes.
+# TYPE node_netstat_Ip6_InNoRoutes untyped
+node_netstat_Ip6_InNoRoutes 5
+# HELP node_netstat_Ip6_InOctets Protocol Ip6 statistic InOctets.
+# TYPE node_netstat_Ip6_InOctets untyped
+node_netstat_Ip6_InOctets 460
+# HELP node_netstat_Ip6_InReceives Protocol Ip6 statistic InReceives.
+# TYPE node_netstat_Ip6_InReceives untyped
+node_netstat_Ip6_InReceives 7
+# HELP node_netstat_Ip6_InTooBigErrors Protocol Ip6 statistic InTooBigErrors.
+# TYPE node_netstat_Ip6_InTooBigErrors untyped
+node_netstat_Ip6_InTooBigErrors 0
+# HELP node_netstat_Ip6_InTruncatedPkts Protocol Ip6 statistic InTruncatedPkts.
+# TYPE node_netstat_Ip6_InTruncatedPkts untyped
+node_netstat_Ip6_InTruncatedPkts 0
+# HELP node_netstat_Ip6_InUnknownProtos Protocol Ip6 statistic InUnknownProtos.
+# TYPE node_netstat_Ip6_InUnknownProtos untyped
+node_netstat_Ip6_InUnknownProtos 0
+# HELP node_netstat_Ip6_OutBcastOctets Protocol Ip6 statistic OutBcastOctets.
+# TYPE node_netstat_Ip6_OutBcastOctets untyped
+node_netstat_Ip6_OutBcastOctets 0
+# HELP node_netstat_Ip6_OutDiscards Protocol Ip6 statistic OutDiscards.
+# TYPE node_netstat_Ip6_OutDiscards untyped
+node_netstat_Ip6_OutDiscards 0
+# HELP node_netstat_Ip6_OutForwDatagrams Protocol Ip6 statistic OutForwDatagrams.
+# TYPE node_netstat_Ip6_OutForwDatagrams untyped
+node_netstat_Ip6_OutForwDatagrams 0
+# HELP node_netstat_Ip6_OutMcastOctets Protocol Ip6 statistic OutMcastOctets.
+# TYPE node_netstat_Ip6_OutMcastOctets untyped
+node_netstat_Ip6_OutMcastOctets 840
+# HELP node_netstat_Ip6_OutMcastPkts Protocol Ip6 statistic OutMcastPkts.
+# TYPE node_netstat_Ip6_OutMcastPkts untyped
+node_netstat_Ip6_OutMcastPkts 12
+# HELP node_netstat_Ip6_OutNoRoutes Protocol Ip6 statistic OutNoRoutes.
+# TYPE node_netstat_Ip6_OutNoRoutes untyped
+node_netstat_Ip6_OutNoRoutes 3003
+# HELP node_netstat_Ip6_OutOctets Protocol Ip6 statistic OutOctets.
+# TYPE node_netstat_Ip6_OutOctets untyped
+node_netstat_Ip6_OutOctets 536
+# HELP node_netstat_Ip6_OutRequests Protocol Ip6 statistic OutRequests.
+# TYPE node_netstat_Ip6_OutRequests untyped
+node_netstat_Ip6_OutRequests 8
+# HELP node_netstat_Ip6_ReasmFails Protocol Ip6 statistic ReasmFails.
+# TYPE node_netstat_Ip6_ReasmFails untyped
+node_netstat_Ip6_ReasmFails 0
+# HELP node_netstat_Ip6_ReasmOKs Protocol Ip6 statistic ReasmOKs.
+# TYPE node_netstat_Ip6_ReasmOKs untyped
+node_netstat_Ip6_ReasmOKs 0
+# HELP node_netstat_Ip6_ReasmReqds Protocol Ip6 statistic ReasmReqds.
+# TYPE node_netstat_Ip6_ReasmReqds untyped
+node_netstat_Ip6_ReasmReqds 0
+# HELP node_netstat_Ip6_ReasmTimeout Protocol Ip6 statistic ReasmTimeout.
+# TYPE node_netstat_Ip6_ReasmTimeout untyped
+node_netstat_Ip6_ReasmTimeout 0
 # HELP node_netstat_IpExt_InBcastOctets Protocol IpExt statistic InBcastOctets.
 # TYPE node_netstat_IpExt_InBcastOctets untyped
 node_netstat_IpExt_InBcastOctets 0
@@ -1835,6 +2045,51 @@ node_netstat_Tcp_RtoMax 120000
 # HELP node_netstat_Tcp_RtoMin Protocol Tcp statistic RtoMin.
 # TYPE node_netstat_Tcp_RtoMin untyped
 node_netstat_Tcp_RtoMin 200
+# HELP node_netstat_Udp6_IgnoredMulti Protocol Udp6 statistic IgnoredMulti.
+# TYPE node_netstat_Udp6_IgnoredMulti untyped
+node_netstat_Udp6_IgnoredMulti 0
+# HELP node_netstat_Udp6_InCsumErrors Protocol Udp6 statistic InCsumErrors.
+# TYPE node_netstat_Udp6_InCsumErrors untyped
+node_netstat_Udp6_InCsumErrors 0
+# HELP node_netstat_Udp6_InDatagrams Protocol Udp6 statistic InDatagrams.
+# TYPE node_netstat_Udp6_InDatagrams untyped
+node_netstat_Udp6_InDatagrams 0
+# HELP node_netstat_Udp6_InErrors Protocol Udp6 statistic InErrors.
+# TYPE node_netstat_Udp6_InErrors untyped
+node_netstat_Udp6_InErrors 0
+# HELP node_netstat_Udp6_NoPorts Protocol Udp6 statistic NoPorts.
+# TYPE node_netstat_Udp6_NoPorts untyped
+node_netstat_Udp6_NoPorts 0
+# HELP node_netstat_Udp6_OutDatagrams Protocol Udp6 statistic OutDatagrams.
+# TYPE node_netstat_Udp6_OutDatagrams untyped
+node_netstat_Udp6_OutDatagrams 0
+# HELP node_netstat_Udp6_RcvbufErrors Protocol Udp6 statistic RcvbufErrors.
+# TYPE node_netstat_Udp6_RcvbufErrors untyped
+node_netstat_Udp6_RcvbufErrors 0
+# HELP node_netstat_Udp6_SndbufErrors Protocol Udp6 statistic SndbufErrors.
+# TYPE node_netstat_Udp6_SndbufErrors untyped
+node_netstat_Udp6_SndbufErrors 0
+# HELP node_netstat_UdpLite6_InCsumErrors Protocol UdpLite6 statistic InCsumErrors.
+# TYPE node_netstat_UdpLite6_InCsumErrors untyped
+node_netstat_UdpLite6_InCsumErrors 0
+# HELP node_netstat_UdpLite6_InDatagrams Protocol UdpLite6 statistic InDatagrams.
+# TYPE node_netstat_UdpLite6_InDatagrams untyped
+node_netstat_UdpLite6_InDatagrams 0
+# HELP node_netstat_UdpLite6_InErrors Protocol UdpLite6 statistic InErrors.
+# TYPE node_netstat_UdpLite6_InErrors untyped
+node_netstat_UdpLite6_InErrors 0
+# HELP node_netstat_UdpLite6_NoPorts Protocol UdpLite6 statistic NoPorts.
+# TYPE node_netstat_UdpLite6_NoPorts untyped
+node_netstat_UdpLite6_NoPorts 0
+# HELP node_netstat_UdpLite6_OutDatagrams Protocol UdpLite6 statistic OutDatagrams.
+# TYPE node_netstat_UdpLite6_OutDatagrams untyped
+node_netstat_UdpLite6_OutDatagrams 0
+# HELP node_netstat_UdpLite6_RcvbufErrors Protocol UdpLite6 statistic RcvbufErrors.
+# TYPE node_netstat_UdpLite6_RcvbufErrors untyped
+node_netstat_UdpLite6_RcvbufErrors 0
+# HELP node_netstat_UdpLite6_SndbufErrors Protocol UdpLite6 statistic SndbufErrors.
+# TYPE node_netstat_UdpLite6_SndbufErrors untyped
+node_netstat_UdpLite6_SndbufErrors 0
 # HELP node_netstat_UdpLite_InCsumErrors Protocol UdpLite statistic InCsumErrors.
 # TYPE node_netstat_UdpLite_InCsumErrors untyped
 node_netstat_UdpLite_InCsumErrors 0
