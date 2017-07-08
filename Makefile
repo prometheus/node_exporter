@@ -43,7 +43,7 @@ style:
 
 test: collector/fixtures/sys/.unpacked
 	@echo ">> running tests"
-	@$(GO) test -short $(pkgs)
+	@$(GO) test -short -race $(pkgs)
 
 collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
 	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
