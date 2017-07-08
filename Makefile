@@ -43,7 +43,7 @@ style:
 
 test:
 	@echo ">> running tests"
-	@$(GO) test -short $(pkgs)
+	@$(GO) test -short -race $(pkgs)
 
 test-e2e: build
 	@echo ">> running end-to-end tests"
