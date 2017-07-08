@@ -51,9 +51,16 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP stats: %s", err)
 	}
+	snmp6Stats, err := getSNMP6Stats(procFilePath("net/snmp6"))
+	if err != nil {
+		return fmt.Errorf("couldn't get SNMP6 stats: %s", err)
+	}
 	// Merge the results of snmpStats into netStats (collisions are possible, but
 	// we know that the keys are always unique for the given use case).
 	for k, v := range snmpStats {
+		netStats[k] = v
+	}
+	for k, v := range snmp6Stats {
 		netStats[k] = v
 	}
 	for protocol, protocolStats := range netStats {
@@ -66,7 +73,7 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
 					prometheus.BuildFQName(Namespace, netStatsSubsystem, key),
-					fmt.Sprintf("Protocol %s statistic %s.", protocol, name),
+					fmt.Sprintf("Statistic %s.", protocol+name),
 					nil, nil,
 				),
 				prometheus.UntypedValue, v,
@@ -105,6 +112,41 @@ func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, 
 		}
 		for i := 1; i < len(nameParts); i++ {
 			netStats[protocol][nameParts[i]] = valueParts[i]
+		}
+	}
+
+	return netStats, scanner.Err()
+}
+
+func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	return parseSNMP6Stats(file)
+}
+
+func parseSNMP6Stats(r io.Reader) (map[string]map[string]string, error) {
+	var (
+		netStats = map[string]map[string]string{}
+		scanner  = bufio.NewScanner(r)
+	)
+
+	for scanner.Scan() {
+		stat := strings.Fields(scanner.Text())
+		if len(stat) < 2 {
+			continue
+		}
+		// Expect to have "6" in metric name, skip line otherwise
+		if sixIndex := strings.Index(stat[0], "6"); sixIndex != -1 {
+			protocol := stat[0][:sixIndex+1]
+			name := stat[0][sixIndex+1:]
+			if _, present := netStats[protocol]; !present {
+				netStats[protocol] = map[string]string{}
+			}
+			netStats[protocol][name] = stat[1]
 		}
 	}
 
