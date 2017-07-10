@@ -89,8 +89,7 @@ func init() {
 	Factories["cpu"] = NewStatCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// CPU stats.
+// NewStatCollector returns a new Collector exposing CPU stats.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: typedDesc{prometheus.NewDesc(

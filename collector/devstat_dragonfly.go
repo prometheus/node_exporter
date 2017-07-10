@@ -102,8 +102,7 @@ func init() {
 	Factories["devstat"] = NewDevstatCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// Device stats.
+// NewDevstatCollector returns a new Collector exposing Device stats.
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
 		bytesDesc: prometheus.NewDesc(

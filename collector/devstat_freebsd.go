@@ -36,20 +36,18 @@ type devstatCollector struct {
 	mu      sync.Mutex
 	devinfo *C.struct_devinfo
 
-	bytes       typedDesc
-	bytes_total typedDesc
-	transfers   typedDesc
-	duration    typedDesc
-	busyTime    typedDesc
-	blocks      typedDesc
+	bytes     typedDesc
+	transfers typedDesc
+	duration  typedDesc
+	busyTime  typedDesc
+	blocks    typedDesc
 }
 
 func init() {
 	Factories["devstat"] = NewDevstatCollector
 }
 
-// Takes a prometheus registry and returns a new Collector exposing
-// Device stats.
+// NewDevstatCollector returns a new Collector exposing Device stats.
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
 		devinfo: &C.struct_devinfo{},

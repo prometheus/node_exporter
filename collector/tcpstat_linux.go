@@ -61,8 +61,7 @@ func init() {
 	Factories["tcpstat"] = NewTCPStatCollector
 }
 
-// NewTCPStatCollector takes a returns
-// a new Collector exposing network stats.
+// NewTCPStatCollector returns a new Collector exposing network stats.
 func NewTCPStatCollector() (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
