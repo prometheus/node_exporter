@@ -1,6 +1,6 @@
 <!--
 	Please note: GitHub issues should only be used for feature requests and
-	bug reports. For general discussions, please refer to one of:
+	bug reports. For general usage/help/discussions, please refer to one of:
 
 	- #prometheus on freenode
 	- the Prometheus Users list: https://groups.google.com/forum/#!forum/prometheus-users
