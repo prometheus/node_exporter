@@ -37,6 +37,9 @@ md11 : active (auto-read-only) raid1 sdb2[0] sdc2[1]
 md12 : active raid0 sdc2[0] sdd2[1]
       3886394368 blocks super 1.2 512k chunks
 
+md126 : active raid0 sdb[1] sdc[0]
+      1855870976 blocks super external:/md127/0 128k chunks
+
 md219 : inactive sdb[2](S) sdc[1](S) sda[0](S)
     7932 blocks super external:imsm
 
