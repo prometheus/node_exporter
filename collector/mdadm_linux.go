@@ -29,7 +29,7 @@ import (
 
 var (
 	statuslineRE             = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
-	raid0lineRE              = regexp.MustCompile(`(\d+) blocks( super ([0-9\.])*)? \d+k chunks`)
+	raid0lineRE              = regexp.MustCompile(`(\d+) blocks .*\d+k chunks`)
 	buildlineRE              = regexp.MustCompile(`\((\d+)/\d+\)`)
 	unknownPersonalityLineRE = regexp.MustCompile(`(\d+) blocks (.*)`)
 	raidPersonalityRE        = regexp.MustCompile(`raid[0-9]+`)
