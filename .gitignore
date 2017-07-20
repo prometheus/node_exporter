@@ -31,3 +31,6 @@ dependencies-stamp
 
 /.idea
 *.iml
+
+# Test files extracted from ttar
+collector/fixtures/sys/
