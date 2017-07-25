@@ -21,6 +21,23 @@ import (
 	"github.com/prometheus/procfs"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	gops "github.com/mitchellh/go-ps"
+)
+
+var (
+	// R  Running
+	// S  Sleeping in an interruptible wait
+	// D  Waiting in uninterruptible disk sleep
+	// Z  Zombie
+	// T  Stopped (on a signal) or (before Linux 2.6.33) trace stopped
+	// t  Tracing stop (Linux 2.6.33 onward)
+	// W  Paging (only before Linux 2.6.0)
+	// X  Dead (from Linux 2.6.0 onward)
+	// x  Dead (Linux 2.6.33 to 3.13 only)
+	// K  Wakekill (Linux 2.6.33 to 3.13 only)
+	// W  Waking (Linux 2.6.33 to 3.13 only)
+	knownStates = [...]string{"R", "S", "D", "Z", "T", "t", "W", "X", "x", "K", "W", "P"}
 )
 
 type statCollector struct {
@@ -31,6 +48,7 @@ type statCollector struct {
 	btime        *prometheus.Desc
 	procsRunning *prometheus.Desc
 	procsBlocked *prometheus.Desc
+	procsState   *prometheus.Desc
 }
 
 func init() {
@@ -75,6 +93,11 @@ func NewStatCollector() (Collector, error) {
 			"Number of processes blocked waiting for I/O to complete.",
 			nil, nil,
 		),
+		procsState: prometheus.NewDesc(
+			prometheus.BuildFQName(Namespace, "", "procs_state"),
+			"Number of processes in each state.",
+			[]string{"state"}, nil,
+		),
 	}, nil
 }
 
@@ -97,6 +120,27 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 
 	ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, float64(stats.ProcessesRunning))
 	ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, float64(stats.ProcessesBlocked))
+
+	processes, err := gops.Processes()
+	if err != nil {
+		return err
+	}
+	processStates := make(map[string]uint64)
+	for _, process := range processes {
+		proc, err := procfs.NewProc(process.Pid())
+		if err != nil {
+			continue
+		}
+		procStat, err := proc.NewStat()
+		if err != nil {
+			return err
+		}
+		processStates[procStat.State]++
+	}
+
+	for _, state := range knownStates {
+		ch <- prometheus.MustNewConstMetric(c.procsState, prometheus.GaugeValue, float64(processStates[state]), state)
+	}
 
 	return nil
 }

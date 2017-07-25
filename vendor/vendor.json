@@ -93,6 +93,12 @@
 			"revisionTime": "2017-01-07T15:17:58Z"
 		},
 		{
+			"checksumSHA1": "DcYIZnMiq/Tj22/ge9os3NwOhs4=",
+			"path": "github.com/mitchellh/go-ps",
+			"revision": "4fdf99ab29366514c69ccccddab5dc58b8d84062",
+			"revisionTime": "2017-03-09T13:30:38Z"
+		},
+		{
 			"checksumSHA1": "QIkEQIvgzjeOXM92+lZlbeXCaRU=",
 			"path": "github.com/prometheus/client_golang/prometheus",
 			"revision": "aace68cde27da90f76be50fcb9937d67fd6a1968",
