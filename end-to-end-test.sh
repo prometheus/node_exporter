@@ -15,6 +15,7 @@ collectors=$(cat << COLLECTORS
   filefd
   hwmon
   infiniband
+  ipvs
   ksmd
   loadavg
   mdadm

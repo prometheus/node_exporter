@@ -17,9 +17,11 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -106,6 +108,11 @@ func newIPVSCollector() (*ipvsCollector, error) {
 func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 	ipvsStats, err := c.fs.NewIPVSStats()
 	if err != nil {
+		// Cannot access ipvs metrics, report no error.
+		if os.IsNotExist(err) {
+			log.Debug("ipvs collector metrics are not available for this system")
+			return nil
+		}
 		return fmt.Errorf("could not get IPVS stats: %s", err)
 	}
 	ch <- c.connections.mustNewConstMetric(float64(ipvsStats.Connections))

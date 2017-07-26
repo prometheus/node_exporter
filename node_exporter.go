@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	defaultCollectors = "arp,bcache,conntrack,cpu,diskstats,entropy,edac,exec,filefd,filesystem,hwmon,infiniband,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,vmstat,wifi,xfs,zfs"
+	defaultCollectors = "arp,bcache,conntrack,cpu,diskstats,entropy,edac,exec,filefd,filesystem,hwmon,infiniband,ipvs,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,uname,vmstat,wifi,xfs,zfs"
 )
 
 var (
