@@ -141,7 +141,7 @@ docker run -d -p 9100:9100 \
 ```
 
 Be aware though that the mountpoint label in various metrics will now have
-`/host` as prefix.
+`/rootfs` as prefix.
 
 ## Using a third-party repository for RHEL/CentOS/Fedora
 
