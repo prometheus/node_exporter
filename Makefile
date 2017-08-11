@@ -23,6 +23,7 @@ BIN_DIR                 ?= $(shell pwd)
 DOCKER_IMAGE_NAME       ?= node-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 MACH                    ?= $(shell uname -m)
+DOCKERFILE              ?= Dockerfile
 
 ifeq ($(OS),Windows_NT)
     OS_detected := Windows
@@ -79,13 +80,10 @@ tarball: $(PROMU)
 
 docker:
 ifeq ($(MACH), ppc64le)
-	@echo ">> building docker image for ppc64le"
-	$(eval FILE_SUFFIX=.ppc64le)
-else
-	@echo ">> building docker image"
-	$(eval FILE_SUFFIX=)
+	$(eval DOCKERFILE=Dockerfile.ppc64le)
 endif
-	@docker build --file Dockerfile$(FILE_SUFFIX) -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
+	@echo ">> building docker image"
+	@docker build --file $(DOCKERFILE) -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 test-docker:
 	@echo ">> testing docker image"
