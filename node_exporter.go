@@ -14,11 +14,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -29,6 +27,7 @@ import (
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -124,18 +123,16 @@ func init() {
 
 func main() {
 	var (
-		showVersion       = flag.Bool("version", false, "Print version information.")
-		listenAddress     = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
-		metricsPath       = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-		enabledCollectors = flag.String("collectors.enabled", filterAvailableCollectors(defaultCollectors), "Comma-separated list of collectors to use.")
-		printCollectors   = flag.Bool("collectors.print", false, "If true, print available collectors and exit.")
+		listenAddress     = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").String()
+		metricsPath       = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+		enabledCollectors = kingpin.Flag("collectors.enabled", "Comma-separated list of collectors to use.").Default(filterAvailableCollectors(defaultCollectors)).String()
+		printCollectors   = kingpin.Flag("collectors.print", "If true, print available collectors and exit.").Bool()
 	)
-	flag.Parse()
 
-	if *showVersion {
-		fmt.Fprintln(os.Stdout, version.Print("node_exporter"))
-		os.Exit(0)
-	}
+	log.AddFlags(kingpin.CommandLine)
+	kingpin.Version(version.Print("node_exporter"))
+	kingpin.HelpFlag.Short('h')
+	kingpin.Parse()
 
 	log.Infoln("Starting node_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())

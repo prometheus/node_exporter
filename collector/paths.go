@@ -14,16 +14,16 @@
 package collector
 
 import (
-	"flag"
 	"path"
 
 	"github.com/prometheus/procfs"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
 	// The path of the proc filesystem.
-	procPath = flag.String("collector.procfs", procfs.DefaultMountPoint, "procfs mountpoint.")
-	sysPath  = flag.String("collector.sysfs", "/sys", "sysfs mountpoint.")
+	procPath = kingpin.Flag("collector.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
+	sysPath  = kingpin.Flag("collector.sysfs", "sysfs mountpoint.").Default("/sys").String()
 )
 
 func procFilePath(name string) string {

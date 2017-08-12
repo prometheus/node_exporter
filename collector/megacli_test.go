@@ -16,11 +16,11 @@
 package collector
 
 import (
-	"flag"
 	"os"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -74,7 +74,7 @@ func TestMegaCliDisks(t *testing.T) {
 }
 
 func TestMegaCliCollectorDoesntCrash(t *testing.T) {
-	if err := flag.Set("collector.megacli.command", "./fixtures/megacli"); err != nil {
+	if _, err := kingpin.CommandLine.Parse([]string{"--collector.megacli.command", "./fixtures/megacli"}); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := NewMegaCliCollector()

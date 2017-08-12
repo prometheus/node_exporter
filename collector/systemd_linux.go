@@ -16,18 +16,19 @@
 package collector
 
 import (
-	"flag"
 	"fmt"
 	"regexp"
 
 	"github.com/coreos/go-systemd/dbus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	unitWhitelist = flag.String("collector.systemd.unit-whitelist", ".+", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.")
-	unitBlacklist = flag.String("collector.systemd.unit-blacklist", ".+\\.scope", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.")
+	unitWhitelist  = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
+	unitBlacklist  = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.scope").String()
+	systemdPrivate = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
 )
 
 type systemdCollector struct {
@@ -38,14 +39,6 @@ type systemdCollector struct {
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
-
-var (
-	systemdPrivate = flag.Bool(
-		"collector.systemd.private",
-		false,
-		"Establish a private, direct connection to systemd without dbus.",
-	)
-)
 
 func init() {
 	Factories["systemd"] = NewSystemdCollector

@@ -16,17 +16,17 @@
 package collector
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/beevik/ntp"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	ntpServer          = flag.String("collector.ntp.server", "", "NTP server to use for ntp collector.")
-	ntpProtocolVersion = flag.Int("collector.ntp.protocol-version", 4, "NTP protocol version")
+	ntpServer          = kingpin.Flag("collector.ntp.server", "NTP server to use for ntp collector.").Default("").String()
+	ntpProtocolVersion = kingpin.Flag("collector.ntp.protocol-version", "NTP protocol version").Default("4").Int()
 )
 
 type ntpCollector struct {
