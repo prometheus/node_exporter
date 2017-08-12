@@ -16,17 +16,13 @@
 package collector
 
 import (
-	"flag"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/soundcloud/go-runit/runit"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var runitServiceDir = flag.String(
-	"collector.runit.servicedir",
-	"/etc/service",
-	"Path to runit service directory.")
+var runitServiceDir = kingpin.Flag("collector.runit.servicedir", "Path to runit service directory.").Default("/etc/service").String()
 
 type runitCollector struct {
 	state, stateDesired, stateNormal, stateTimestamp typedDesc

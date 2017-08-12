@@ -135,9 +135,9 @@ docker run -d -p 9100:9100 \
   -v "/:/rootfs:ro" \
   --net="host" \
   quay.io/prometheus/node-exporter \
-    -collector.procfs /host/proc \
-    -collector.sysfs /host/sys \
-    -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
+    --collector.procfs /host/proc \
+    --collector.sysfs /host/sys \
+    --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
 ```
 
 Be aware though that the mountpoint label in various metrics will now have

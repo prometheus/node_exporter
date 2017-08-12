@@ -17,13 +17,13 @@ package collector
 
 import (
 	"bufio"
-	"flag"
 	"io"
 	"os/exec"
 	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -32,7 +32,7 @@ const (
 )
 
 var (
-	megacliCommand = flag.String("collector.megacli.command", defaultMegaCli, "Command to run megacli.")
+	megacliCommand = kingpin.Flag("collector.megacli.command", "Command to run megacli.").Default(defaultMegaCli).String()
 )
 
 type megaCliCollector struct {

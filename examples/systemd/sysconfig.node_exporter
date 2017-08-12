@@ -1,1 +1,1 @@
-OPTIONS="-collector.textfile.directory /var/lib/node_exporter/textfile_collector"
+OPTIONS="--collector.textfile.directory /var/lib/node_exporter/textfile_collector"

@@ -17,18 +17,16 @@
 package collector
 
 import (
-	"flag"
 	"fmt"
 	"regexp"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	netdevIgnoredDevices = flag.String(
-		"collector.netdev.ignored-devices", "^$",
-		"Regexp of net devices to ignore for netdev collector.")
+	netdevIgnoredDevices = kingpin.Flag("collector.netdev.ignored-devices", "Regexp of net devices to ignore for netdev collector.").Default("^$").String()
 )
 
 type netDevCollector struct {
