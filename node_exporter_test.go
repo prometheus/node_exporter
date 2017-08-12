@@ -26,7 +26,7 @@ func TestFileDescriptorLeak(t *testing.T) {
 		t.Skipf("proc filesystem is not available, but currently required to read number of open file descriptors: %s", err)
 	}
 
-	exporter := exec.Command(binary, "-web.listen-address", address)
+	exporter := exec.Command(binary, "--web.listen-address", address)
 	test := func(pid int) error {
 		if err := queryExporter(address); err != nil {
 			return err
@@ -78,7 +78,7 @@ func TestHandlingOfDuplicatedMetrics(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exporter := exec.Command(binary, "-web.listen-address", address, "-collector.textfile.directory", dir)
+	exporter := exec.Command(binary, "--web.listen-address", address, "--collector.textfile.directory", dir)
 	test := func(_ int) error {
 		return queryExporter(address)
 	}
