@@ -31,7 +31,7 @@ type bondingCollector struct {
 }
 
 func init() {
-	Factories["bonding"] = NewBondingCollector
+	registerCollector("bonding", defaultDisabled, NewBondingCollector)
 }
 
 // NewBondingCollector returns a newly allocated bondingCollector.

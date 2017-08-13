@@ -25,7 +25,7 @@ type conntrackCollector struct {
 }
 
 func init() {
-	Factories["conntrack"] = NewConntrackCollector
+	registerCollector("conntrack", defaultEnabled, NewConntrackCollector)
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.

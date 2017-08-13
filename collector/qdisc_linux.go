@@ -38,7 +38,7 @@ var (
 )
 
 func init() {
-	Factories["qdisc"] = NewQdiscStatCollector
+	registerCollector("qdisc", defaultDisabled, NewQdiscStatCollector)
 }
 
 func NewQdiscStatCollector() (Collector, error) {

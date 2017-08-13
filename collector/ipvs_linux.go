@@ -33,7 +33,7 @@ type ipvsCollector struct {
 }
 
 func init() {
-	Factories["ipvs"] = NewIPVSCollector
+	registerCollector("ipvs", defaultEnabled, NewIPVSCollector)
 }
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the

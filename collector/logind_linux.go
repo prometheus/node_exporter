@@ -78,7 +78,7 @@ type logindSeatEntry struct {
 }
 
 func init() {
-	Factories["logind"] = NewLogindCollector
+	registerCollector("logind", defaultDisabled, NewLogindCollector)
 }
 
 // NewLogindCollector returns a new Collector exposing logind statistics.

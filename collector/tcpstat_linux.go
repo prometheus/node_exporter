@@ -58,7 +58,7 @@ type tcpStatCollector struct {
 }
 
 func init() {
-	Factories["tcpstat"] = NewTCPStatCollector
+	registerCollector("tcpstat", defaultDisabled, NewTCPStatCollector)
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.

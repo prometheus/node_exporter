@@ -41,7 +41,7 @@ type systemdCollector struct {
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
 
 func init() {
-	Factories["systemd"] = NewSystemdCollector
+	registerCollector("systemd", defaultDisabled, NewSystemdCollector)
 }
 
 // NewSystemdCollector returns a new Collector exposing systemd statistics.

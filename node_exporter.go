@@ -18,7 +18,6 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"sort"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -28,47 +27,15 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const (
-	defaultCollectors = "arp,bcache,conntrack,cpu,diskstats,entropy,edac,exec,filefd,filesystem,hwmon,infiniband,ipvs,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,timex,uname,vmstat,wifi,xfs,zfs"
-)
-
-func filterAvailableCollectors(collectors string) string {
-	var availableCollectors []string
-	for _, c := range strings.Split(collectors, ",") {
-		_, ok := collector.Factories[c]
-		if ok {
-			availableCollectors = append(availableCollectors, c)
-		}
-	}
-	return strings.Join(availableCollectors, ",")
-}
-
-func loadCollectors(list string) (map[string]collector.Collector, error) {
-	collectors := map[string]collector.Collector{}
-	for _, name := range strings.Split(list, ",") {
-		fn, ok := collector.Factories[name]
-		if !ok {
-			return nil, fmt.Errorf("collector '%s' not available", name)
-		}
-		c, err := fn()
-		if err != nil {
-			return nil, err
-		}
-		collectors[name] = c
-	}
-	return collectors, nil
-}
-
 func init() {
 	prometheus.MustRegister(version.NewCollector("node_exporter"))
 }
 
 func main() {
 	var (
-		listenAddress     = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").String()
-		metricsPath       = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
-		enabledCollectors = kingpin.Flag("collectors.enabled", "Comma-separated list of collectors to use.").Default(filterAvailableCollectors(defaultCollectors)).String()
-		printCollectors   = kingpin.Flag("collectors.print", "If true, print available collectors and exit.").Bool()
+		listenAddress   = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").String()
+		metricsPath     = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+		printCollectors = kingpin.Flag("collectors.print", "If true, print available collectors and exit.").Bool()
 	)
 
 	log.AddFlags(kingpin.CommandLine)
@@ -91,17 +58,17 @@ func main() {
 		}
 		return
 	}
-	collectors, err := loadCollectors(*enabledCollectors)
-	if err != nil {
-		log.Fatalf("Couldn't load collectors: %s", err)
-	}
 
+	nc, err := collector.NewNodeCollector()
+	if err != nil {
+		log.Fatalf("Couldn't create collector: %s", err)
+	}
 	log.Infof("Enabled collectors:")
-	for n := range collectors {
+	for n := range nc.Collectors {
 		log.Infof(" - %s", n)
 	}
 
-	if err := prometheus.Register(collector.NodeCollector{Collectors: collectors}); err != nil {
+	if err := prometheus.Register(nc); err != nil {
 		log.Fatalf("Couldn't register collector: %s", err)
 	}
 	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,

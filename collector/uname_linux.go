@@ -38,7 +38,7 @@ var unameDesc = prometheus.NewDesc(
 type unameCollector struct{}
 
 func init() {
-	Factories["uname"] = newUnameCollector
+	registerCollector("uname", defaultEnabled, newUnameCollector)
 }
 
 // NewUnameCollector returns new unameCollector.

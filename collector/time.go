@@ -27,7 +27,7 @@ type timeCollector struct {
 }
 
 func init() {
-	Factories["time"] = NewTimeCollector
+	registerCollector("time", defaultEnabled, NewTimeCollector)
 }
 
 // NewTimeCollector returns a new Collector exposing the current system time in

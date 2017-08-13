@@ -108,7 +108,7 @@ var (
 type nfsCollector struct{}
 
 func init() {
-	Factories["nfs"] = NewNfsCollector
+	registerCollector("nfs", defaultDisabled, NewNfsCollector)
 }
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.

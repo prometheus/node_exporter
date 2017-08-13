@@ -90,7 +90,7 @@ type mountStatsCollector struct {
 }
 
 func init() {
-	Factories["mountstats"] = NewMountStatsCollector
+	registerCollector("mountstats", defaultDisabled, NewMountStatsCollector)
 }
 
 // NewMountStatsCollector returns a new Collector exposing NFS statistics.

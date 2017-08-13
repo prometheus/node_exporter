@@ -34,7 +34,7 @@ type statCollector struct {
 }
 
 func init() {
-	Factories["stat"] = NewStatCollector
+	registerCollector("stat", defaultEnabled, NewStatCollector)
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.

@@ -32,7 +32,7 @@ const (
 type fileFDStatCollector struct{}
 
 func init() {
-	Factories[fileFDStatSubsystem] = NewFileFDStatCollector
+	registerCollector(fileFDStatSubsystem, defaultEnabled, NewFileFDStatCollector)
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.

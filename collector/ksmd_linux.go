@@ -32,7 +32,7 @@ type ksmdCollector struct {
 }
 
 func init() {
-	Factories["ksmd"] = NewKsmdCollector
+	registerCollector("ksmd", defaultDisabled, NewKsmdCollector)
 }
 
 func getCanonicalMetricName(filename string) string {

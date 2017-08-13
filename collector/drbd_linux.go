@@ -148,7 +148,7 @@ var (
 type drbdCollector struct{}
 
 func init() {
-	Factories["drbd"] = newDRBDCollector
+	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
 func newDRBDCollector() (Collector, error) {

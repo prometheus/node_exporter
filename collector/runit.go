@@ -29,7 +29,7 @@ type runitCollector struct {
 }
 
 func init() {
-	Factories["runit"] = NewRunitCollector
+	registerCollector("runit", defaultDisabled, NewRunitCollector)
 }
 
 // NewRunitCollector returns a new Collector exposing runit statistics.

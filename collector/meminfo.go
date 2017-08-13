@@ -30,7 +30,7 @@ const (
 type meminfoCollector struct{}
 
 func init() {
-	Factories["meminfo"] = NewMeminfoCollector
+	registerCollector("meminfo", defaultEnabled, NewMeminfoCollector)
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.

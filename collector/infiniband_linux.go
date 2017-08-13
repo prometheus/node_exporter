@@ -44,7 +44,7 @@ type infinibandMetric struct {
 }
 
 func init() {
-	Factories["infiniband"] = NewInfiniBandCollector
+	registerCollector("infiniband", defaultEnabled, NewInfiniBandCollector)
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.

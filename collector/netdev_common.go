@@ -36,7 +36,7 @@ type netDevCollector struct {
 }
 
 func init() {
-	Factories["netdev"] = NewNetDevCollector
+	registerCollector("netdev", defaultEnabled, NewNetDevCollector)
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.

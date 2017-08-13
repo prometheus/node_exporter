@@ -32,7 +32,7 @@ const (
 type vmStatCollector struct{}
 
 func init() {
-	Factories["vmstat"] = NewvmStatCollector
+	registerCollector("vmstat", defaultEnabled, NewvmStatCollector)
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.

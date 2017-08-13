@@ -33,7 +33,7 @@ const (
 type netStatCollector struct{}
 
 func init() {
-	Factories["netstat"] = NewNetStatCollector
+	registerCollector("netstat", defaultEnabled, NewNetStatCollector)
 }
 
 // NewNetStatCollector takes and returns

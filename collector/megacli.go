@@ -44,7 +44,7 @@ type megaCliCollector struct {
 }
 
 func init() {
-	Factories["megacli"] = NewMegaCliCollector
+	registerCollector("megacli", defaultDisabled, NewMegaCliCollector)
 }
 
 // NewMegaCliCollector returns a new Collector exposing RAID status through

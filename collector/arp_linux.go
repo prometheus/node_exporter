@@ -30,7 +30,7 @@ type arpCollector struct {
 }
 
 func init() {
-	Factories["arp"] = NewARPCollector
+	registerCollector("arp", defaultEnabled, NewARPCollector)
 }
 
 // NewARPCollector returns a new Collector exposing ARP stats.

@@ -62,7 +62,7 @@ type filesystemStats struct {
 }
 
 func init() {
-	Factories["filesystem"] = NewFilesystemCollector
+	registerCollector("filesystem", defaultEnabled, NewFilesystemCollector)
 }
 
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.

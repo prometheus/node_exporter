@@ -23,7 +23,7 @@ type interruptsCollector struct {
 }
 
 func init() {
-	Factories["interrupts"] = NewInterruptsCollector
+	registerCollector("interrupts", defaultDisabled, NewInterruptsCollector)
 }
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.

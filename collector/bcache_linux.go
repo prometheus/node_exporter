@@ -25,7 +25,7 @@ import (
 )
 
 func init() {
-	Factories["bcache"] = NewBcacheCollector
+	registerCollector("bcache", defaultEnabled, NewBcacheCollector)
 }
 
 // A bcacheCollector is a Collector which gathers metrics from Linux bcache.

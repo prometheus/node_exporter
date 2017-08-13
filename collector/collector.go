@@ -15,11 +15,13 @@
 package collector
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // Namespace defines the common namespace to be used by all metrics.
@@ -47,9 +49,41 @@ func warnDeprecated(collector string) {
 	log.Warnf("The %s collector is deprecated and will be removed in the future!", collector)
 }
 
+const (
+	defaultEnabled  = true
+	defaultDisabled = false
+)
+
+var collectorState = make(map[string]*bool)
+
+func registerCollector(collector string, isDefaultEnabled bool, factory func() (Collector, error)) {
+	flagName := fmt.Sprintf("collector.%s.enabled", collector)
+	flagHelp := fmt.Sprintf("Enable the %s collector.", collector)
+	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
+
+	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Bool()
+	collectorState[collector] = flag
+
+	Factories[collector] = factory
+}
+
 // NodeCollector implements the prometheus.Collector interface.
 type NodeCollector struct {
 	Collectors map[string]Collector
+}
+
+func NewNodeCollector() (*NodeCollector, error) {
+	collectors := make(map[string]Collector)
+	for key, enabled := range collectorState {
+		if *enabled {
+			collector, err := Factories[key]()
+			if err != nil {
+				return nil, err
+			}
+			collectors[key] = collector
+		}
+	}
+	return &NodeCollector{Collectors: collectors}, nil
 }
 
 // Describe implements the prometheus.Collector interface.
