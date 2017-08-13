@@ -95,7 +95,7 @@ func init() {
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "cpu"),
+			prometheus.BuildFQName(namespace, "", "cpu"),
 			"Seconds the cpus spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),

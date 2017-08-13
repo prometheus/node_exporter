@@ -19,8 +19,6 @@ import (
 	_ "net/http/pprof"
 	"sort"
 	"strings"
-	"sync"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -34,45 +32,6 @@ const (
 	defaultCollectors = "arp,bcache,conntrack,cpu,diskstats,entropy,edac,exec,filefd,filesystem,hwmon,infiniband,ipvs,loadavg,mdadm,meminfo,netdev,netstat,sockstat,stat,textfile,time,timex,uname,vmstat,wifi,xfs,zfs"
 )
 
-var (
-	scrapeDurationDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(collector.Namespace, "scrape", "collector_duration_seconds"),
-		"node_exporter: Duration of a collector scrape.",
-		[]string{"collector"},
-		nil,
-	)
-	scrapeSuccessDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(collector.Namespace, "scrape", "collector_success"),
-		"node_exporter: Whether a collector succeeded.",
-		[]string{"collector"},
-		nil,
-	)
-)
-
-// NodeCollector implements the prometheus.Collector interface.
-type NodeCollector struct {
-	collectors map[string]collector.Collector
-}
-
-// Describe implements the prometheus.Collector interface.
-func (n NodeCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- scrapeDurationDesc
-	ch <- scrapeSuccessDesc
-}
-
-// Collect implements the prometheus.Collector interface.
-func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
-	wg := sync.WaitGroup{}
-	wg.Add(len(n.collectors))
-	for name, c := range n.collectors {
-		go func(name string, c collector.Collector) {
-			execute(name, c, ch)
-			wg.Done()
-		}(name, c)
-	}
-	wg.Wait()
-}
-
 func filterAvailableCollectors(collectors string) string {
 	var availableCollectors []string
 	for _, c := range strings.Split(collectors, ",") {
@@ -82,23 +41,6 @@ func filterAvailableCollectors(collectors string) string {
 		}
 	}
 	return strings.Join(availableCollectors, ",")
-}
-
-func execute(name string, c collector.Collector, ch chan<- prometheus.Metric) {
-	begin := time.Now()
-	err := c.Update(ch)
-	duration := time.Since(begin)
-	var success float64
-
-	if err != nil {
-		log.Errorf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
-		success = 0
-	} else {
-		log.Debugf("OK: %s collector succeeded after %fs.", name, duration.Seconds())
-		success = 1
-	}
-	ch <- prometheus.MustNewConstMetric(scrapeDurationDesc, prometheus.GaugeValue, duration.Seconds(), name)
-	ch <- prometheus.MustNewConstMetric(scrapeSuccessDesc, prometheus.GaugeValue, success, name)
 }
 
 func loadCollectors(list string) (map[string]collector.Collector, error) {
@@ -159,7 +101,7 @@ func main() {
 		log.Infof(" - %s", n)
 	}
 
-	if err := prometheus.Register(NodeCollector{collectors: collectors}); err != nil {
+	if err := prometheus.Register(collector.NodeCollector{Collectors: collectors}); err != nil {
 		log.Fatalf("Couldn't register collector: %s", err)
 	}
 	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,

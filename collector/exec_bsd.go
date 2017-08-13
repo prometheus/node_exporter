@@ -95,7 +95,7 @@ func (c *execCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName(Namespace, "exec", m.name),
+				prometheus.BuildFQName(namespace, "exec", m.name),
 				m.description,
 				nil, nil,
 			), prometheus.CounterValue, v)

@@ -65,7 +65,7 @@ func init() {
 func NewTCPStatCollector() (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "tcp", "connection_states"),
+			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
 			[]string{"state"}, nil,
 		), prometheus.GaugeValue},

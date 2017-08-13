@@ -49,7 +49,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	for k, v := range memInfo {
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName(Namespace, memInfoSubsystem, k),
+				prometheus.BuildFQName(namespace, memInfoSubsystem, k),
 				fmt.Sprintf("Memory information field %s.", k),
 				nil, nil,
 			),

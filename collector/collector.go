@@ -15,18 +15,77 @@
 package collector
 
 import (
+	"sync"
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 )
 
 // Namespace defines the common namespace to be used by all metrics.
-const Namespace = "node"
+const namespace = "node"
 
 // Factories contains the list of all available collectors.
 var Factories = make(map[string]func() (Collector, error))
 
+var (
+	scrapeDurationDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "scrape", "collector_duration_seconds"),
+		"node_exporter: Duration of a collector scrape.",
+		[]string{"collector"},
+		nil,
+	)
+	scrapeSuccessDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "scrape", "collector_success"),
+		"node_exporter: Whether a collector succeeded.",
+		[]string{"collector"},
+		nil,
+	)
+)
+
 func warnDeprecated(collector string) {
 	log.Warnf("The %s collector is deprecated and will be removed in the future!", collector)
+}
+
+// NodeCollector implements the prometheus.Collector interface.
+type NodeCollector struct {
+	Collectors map[string]Collector
+}
+
+// Describe implements the prometheus.Collector interface.
+func (n NodeCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- scrapeDurationDesc
+	ch <- scrapeSuccessDesc
+}
+
+// Collect implements the prometheus.Collector interface.
+func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
+	wg := sync.WaitGroup{}
+	wg.Add(len(n.Collectors))
+	for name, c := range n.Collectors {
+		go func(name string, c Collector) {
+			execute(name, c, ch)
+			wg.Done()
+		}(name, c)
+	}
+	wg.Wait()
+}
+
+func execute(name string, c Collector, ch chan<- prometheus.Metric) {
+	begin := time.Now()
+	err := c.Update(ch)
+	duration := time.Since(begin)
+	var success float64
+
+	if err != nil {
+		log.Errorf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
+		success = 0
+	} else {
+		log.Debugf("OK: %s collector succeeded after %fs.", name, duration.Seconds())
+		success = 1
+	}
+	ch <- prometheus.MustNewConstMetric(scrapeDurationDesc, prometheus.GaugeValue, duration.Seconds(), name)
+	ch <- prometheus.MustNewConstMetric(scrapeSuccessDesc, prometheus.GaugeValue, success, name)
 }
 
 // Collector is the interface a collector has to implement.

@@ -38,7 +38,7 @@ var (
 	attrClassValues  = []string{"other", "user", "greeter", "lock-screen", "background"}
 
 	sessionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, logindSubsystem, "sessions"),
+		prometheus.BuildFQName(namespace, logindSubsystem, "sessions"),
 		"Number of sessions registered in logind.", []string{"seat", "remote", "type", "class"}, nil,
 	)
 )

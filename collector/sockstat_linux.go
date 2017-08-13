@@ -57,7 +57,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
-					prometheus.BuildFQName(Namespace, sockStatSubsystem, protocol+"_"+name),
+					prometheus.BuildFQName(namespace, sockStatSubsystem, protocol+"_"+name),
 					fmt.Sprintf("Number of %s sockets in state %s.", protocol, name),
 					nil, nil,
 				),
