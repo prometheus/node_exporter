@@ -58,7 +58,7 @@ func init() {
 func NewNtpCollector() (Collector, error) {
 	ipaddr := net.ParseIP(*ntpServer)
 	if !*ntpServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
-		return nil, fmt.Errorf("only IP address of local NTP server is valid for -collector.ntp.server")
+		return nil, fmt.Errorf("only IP address of local NTP server is valid for --collector.ntp.server")
 	}
 
 	if *ntpProtocolVersion < 2 || *ntpProtocolVersion > 4 {
