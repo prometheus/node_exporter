@@ -16,7 +16,8 @@ The [WMI exporter](https://github.com/martinlindhe/wmi_exporter) is recommended 
 There is varying support for collectors on each operating system. The tables
 below list all existing collectors and the supported systems.
 
-Which collectors are used is controlled by the `--collectors.enabled` flag.
+Collectors are enabled by providing a `--collector.<name>.enabled` flag.
+Collectors that are enabled by default can be disabled by providing a `--no-collector.name.enabled` flag.
 
 ### Enabled by default
 
