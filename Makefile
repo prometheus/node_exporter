@@ -82,7 +82,7 @@ docker:
 ifeq ($(MACH), ppc64le)
 	$(eval DOCKERFILE=Dockerfile.ppc64le)
 endif
-	@echo ">> building docker image"
+	@echo ">> building docker image from $(DOCKERFILE)"
 	@docker build --file $(DOCKERFILE) -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 test-docker:
