@@ -123,7 +123,7 @@ func init() {
 
 func main() {
 	var (
-		listenAddress     = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").String()
+		listenAddress     = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").Envar("NODE_EXPORTER_WEB_ADDRESS").String()
 		metricsPath       = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
 		enabledCollectors = kingpin.Flag("collectors.enabled", "Comma-separated list of collectors to use.").Default(filterAvailableCollectors(defaultCollectors)).String()
 		printCollectors   = kingpin.Flag("collectors.print", "If true, print available collectors and exit.").Bool()
