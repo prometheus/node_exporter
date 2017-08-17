@@ -22,6 +22,9 @@
 ### node_exporter version: output of `node_exporter -version`
 <!-- If building from source, run `make` first. -->
 
+### node_exporter command line flags
+<!-- Please list all of the command line flags -->
+
 ### Are you running node_exporter in Docker?
 <!-- Please note the warning above. -->
 
