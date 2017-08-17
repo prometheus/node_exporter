@@ -19,7 +19,7 @@
 -->
 ### Host operating system: output of `uname -a`
 
-### node_exporter version: output of `node_exporter -version`
+### node_exporter version: output of `node_exporter --version`
 <!-- If building from source, run `make` first. -->
 
 ### node_exporter command line flags
