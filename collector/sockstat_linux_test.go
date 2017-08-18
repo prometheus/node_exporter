@@ -32,7 +32,7 @@ func testSockStats(t *testing.T, fixture string) {
 
 	defer file.Close()
 
-	sockStats, err := parseSockStats(file, fileName)
+	sockStats, err := parseSockStats(file, fixture)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -17,12 +17,12 @@ package collector
 
 import (
 	"encoding/json"
-	"flag"
 	"io/ioutil"
 	"path/filepath"
 
 	"github.com/ema/qdisc"
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type qdiscStatCollector struct {
@@ -34,7 +34,7 @@ type qdiscStatCollector struct {
 }
 
 var (
-	collectorQdisc = flag.String("collector.qdisc", "", "test fixtures to use for qdisc collector end-to-end testing")
+	collectorQdisc = kingpin.Flag("collector.qdisc", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
 )
 
 func init() {

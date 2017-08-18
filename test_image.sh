@@ -4,20 +4,27 @@ set -exo pipefail
 docker_image=$1
 port=$2
 
+container_id=''
+
 wait_start() {
     for in in {1..10}; do
-    if  /usr/bin/curl -s -m 5 -f "http://localhost:${port}/metrics" > /dev/null ; then exit 0 ;
-    else
-      sleep 1
-    fi
+        if  /usr/bin/curl -s -m 5 -f "http://localhost:${port}/metrics" > /dev/null; then
+            docker_cleanup
+            exit 0
+        else
+            sleep 1
+        fi
     done
 
-  exit 1
-
+    exit 1
 }
 
 docker_start() {
-    docker run -d -p "${port}":"${port}" "${docker_image}"
+    container_id=$(docker run -d -p "${port}":"${port}" "${docker_image}")
+}
+
+docker_cleanup() {
+    docker kill "${container_id}"
 }
 
 if [[ "$#" -ne 2 ]] ; then

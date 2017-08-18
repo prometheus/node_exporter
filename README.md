@@ -22,23 +22,25 @@ Which collectors are used is controlled by the `--collectors.enabled` flag.
 Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
+bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
-cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD
-diskstats | Exposes disk I/O statistics from `/proc/diskstats`. | Linux
+cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
+diskstats | Exposes disk I/O statistics. | Darwin, Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
 filefd | Exposes file descriptor statistics from `/proc/sys/fs/file-nr`. | Linux
 filesystem | Exposes filesystem statistics, such as disk space used. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 hwmon | Expose hardware monitoring and sensor data from `/sys/class/hwmon/`. | Linux
-infiniband | Exposes network statistics specific to InfiniBand configurations. | Linux
+infiniband | Exposes network statistics specific to InfiniBand and Intel OmniPath configurations. | Linux
+ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
 meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux
 netdev | Exposes network interface statistics such as bytes transferred. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
-stat | Exposes various statistics from `/proc/stat`. This includes CPU usage, boot time, forks and interrupts. | Linux
+stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 time | Exposes the current system time. | _any_
 uname | Exposes system information as provided by the uname system call. | Linux
@@ -54,9 +56,8 @@ Name     | Description | OS
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
-drbd | Exposes Distributed Replicated Block Device statistics | Linux
+drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
-ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
@@ -105,6 +106,8 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 ## Building and running
 
+    go get github.com/prometheus/node_exporter
+    cd ${GOPATH-$HOME/go}/src/github.com/prometheus/node_exporter
     make
     ./node_exporter <flags>
 
@@ -127,18 +130,18 @@ options and bind-mounts:
 
 ```bash
 docker run -d -p 9100:9100 \
-  -v "/proc:/host/proc" \
-  -v "/sys:/host/sys" \
-  -v "/:/rootfs" \
+  -v "/proc:/host/proc:ro" \
+  -v "/sys:/host/sys:ro" \
+  -v "/:/rootfs:ro" \
   --net="host" \
   quay.io/prometheus/node-exporter \
-    -collector.procfs /host/proc \
-    -collector.sysfs /host/sys \
-    -collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
+    --collector.procfs /host/proc \
+    --collector.sysfs /host/sys \
+    --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
 ```
 
 Be aware though that the mountpoint label in various metrics will now have
-`/host` as prefix.
+`/rootfs` as prefix.
 
 ## Using a third-party repository for RHEL/CentOS/Fedora
 

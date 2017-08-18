@@ -1,6 +1,6 @@
 <!--
 	Please note: GitHub issues should only be used for feature requests and
-	bug reports. For general discussions, please refer to one of:
+	bug reports. For general usage/help/discussions, please refer to one of:
 
 	- #prometheus on freenode
 	- the Prometheus Users list: https://groups.google.com/forum/#!forum/prometheus-users
@@ -19,8 +19,11 @@
 -->
 ### Host operating system: output of `uname -a`
 
-### node_exporter version: output of `node_exporter -version`
+### node_exporter version: output of `node_exporter --version`
 <!-- If building from source, run `make` first. -->
+
+### node_exporter command line flags
+<!-- Please list all of the command line flags -->
 
 ### Are you running node_exporter in Docker?
 <!-- Please note the warning above. -->

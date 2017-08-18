@@ -4,8 +4,10 @@ set -euf -o pipefail
 
 collectors=$(cat << COLLECTORS
   arp
+  bcache
   buddyinfo
   conntrack
+  cpu
   diskstats
   drbd
   edac
@@ -13,6 +15,7 @@ collectors=$(cat << COLLECTORS
   filefd
   hwmon
   infiniband
+  ipvs
   ksmd
   loadavg
   mdadm
@@ -71,15 +74,15 @@ then
 fi
 
 ./node_exporter \
-  -collector.procfs="collector/fixtures/proc" \
-  -collector.sysfs="collector/fixtures/sys" \
-  -collectors.enabled="$(echo ${collectors} | tr ' ' ',')" \
-  -collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
-  -collector.megacli.command="collector/fixtures/megacli" \
-  -collector.wifi="collector/fixtures/wifi" \
-  -collector.qdisc="collector/fixtures/qdisc/" \
-  -web.listen-address "127.0.0.1:${port}" \
-  -log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
+  --collector.procfs="collector/fixtures/proc" \
+  --collector.sysfs="collector/fixtures/sys" \
+  --collectors.enabled="$(echo ${collectors} | tr ' ' ',')" \
+  --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
+  --collector.megacli.command="collector/fixtures/megacli" \
+  --collector.wifi="collector/fixtures/wifi" \
+  --collector.qdisc="collector/fixtures/qdisc/" \
+  --web.listen-address "127.0.0.1:${port}" \
+  --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
 echo $! > "${tmpdir}/node_exporter.pid"
 

@@ -26,7 +26,7 @@ func TestFileDescriptorLeak(t *testing.T) {
 		t.Skipf("proc filesystem is not available, but currently required to read number of open file descriptors: %s", err)
 	}
 
-	exporter := exec.Command(binary, "-web.listen-address", address)
+	exporter := exec.Command(binary, "--web.listen-address", address)
 	test := func(pid int) error {
 		if err := queryExporter(address); err != nil {
 			return err
@@ -78,7 +78,7 @@ func TestHandlingOfDuplicatedMetrics(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	exporter := exec.Command(binary, "-web.listen-address", address, "-collector.textfile.directory", dir)
+	exporter := exec.Command(binary, "--web.listen-address", address, "--collector.textfile.directory", dir)
 	test := func(_ int) error {
 		return queryExporter(address)
 	}
@@ -93,19 +93,27 @@ func queryExporter(address string) error {
 	if err != nil {
 		return err
 	}
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 	if err := resp.Body.Close(); err != nil {
 		return err
 	}
 	if want, have := http.StatusOK, resp.StatusCode; want != have {
-		return fmt.Errorf("want /metrics status code %d, have %d", want, have)
+		return fmt.Errorf("want /metrics status code %d, have %d. Body:\n%s", want, have, b)
 	}
 	return nil
 }
 
 func runCommandAndTests(cmd *exec.Cmd, fn func(pid int) error) error {
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("failed to start command: %s", err)
+	}
+
 	errc := make(chan error)
 	go func() {
-		if err := cmd.Run(); err != nil {
+		if err := cmd.Wait(); err != nil {
 			errc <- fmt.Errorf("execution of command failed: %s", err)
 		} else {
 			errc <- nil

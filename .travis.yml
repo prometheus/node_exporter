@@ -2,8 +2,10 @@ sudo: false
 
 language: go
 go:
-- 1.8
+- 1.8.x
 - tip
+
+go_import_path: github.com/prometheus/node_exporter
 
 script:
 - make

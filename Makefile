@@ -22,6 +22,8 @@ PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
 DOCKER_IMAGE_NAME       ?= node-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
+MACH                    ?= $(shell uname -m)
+DOCKERFILE              ?= Dockerfile
 
 ifeq ($(OS),Windows_NT)
     OS_detected := Windows
@@ -41,11 +43,15 @@ style:
 	@echo ">> checking code style"
 	@! gofmt -d $(shell find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
 
-test:
+test: collector/fixtures/sys/.unpacked
 	@echo ">> running tests"
-	@$(GO) test -short $(pkgs)
+	@$(GO) test -short -race $(pkgs)
 
-test-e2e: build
+collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
+	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
+	touch $@
+
+test-e2e: build collector/fixtures/sys/.unpacked
 	@echo ">> running end-to-end tests"
 	./end-to-end-test.sh
 
@@ -73,8 +79,11 @@ tarball: $(PROMU)
 	@$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
 
 docker:
-	@echo ">> building docker image"
-	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
+ifeq ($(MACH), ppc64le)
+	$(eval DOCKERFILE=Dockerfile.ppc64le)
+endif
+	@echo ">> building docker image from $(DOCKERFILE)"
+	@docker build --file $(DOCKERFILE) -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 test-docker:
 	@echo ">> testing docker image"
