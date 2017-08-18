@@ -20,7 +20,6 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
