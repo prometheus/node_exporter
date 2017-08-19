@@ -13,8 +13,10 @@ import (
 	"github.com/prometheus/procfs"
 )
 
+var (
+	binary = filepath.Join(os.Getenv("GOPATH"), "bin/node_exporter")
+)
 const (
-	binary  = "./node_exporter"
 	address = "localhost:19100"
 )
 
@@ -54,7 +56,7 @@ func TestFileDescriptorLeak(t *testing.T) {
 		return nil
 	}
 
-	if err := runCommandAndTests(exporter, test); err != nil {
+	if err := runCommandAndTests(exporter, address, test); err != nil {
 		t.Error(err)
 	}
 }
@@ -83,7 +85,7 @@ func TestHandlingOfDuplicatedMetrics(t *testing.T) {
 		return queryExporter(address)
 	}
 
-	if err := runCommandAndTests(exporter, test); err != nil {
+	if err := runCommandAndTests(exporter, address, test); err != nil {
 		t.Error(err)
 	}
 }
@@ -106,27 +108,22 @@ func queryExporter(address string) error {
 	return nil
 }
 
-func runCommandAndTests(cmd *exec.Cmd, fn func(pid int) error) error {
+func runCommandAndTests(cmd *exec.Cmd, address string, fn func(pid int) error) error {
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to start command: %s", err)
 	}
-
-	errc := make(chan error)
-	go func() {
-		if err := cmd.Wait(); err != nil {
-			errc <- fmt.Errorf("execution of command failed: %s", err)
-		} else {
-			errc <- nil
+	time.Sleep(50 * time.Millisecond)
+	for i := 0; i < 10; i++ {
+		if err := queryExporter(address); err == nil {
+			break
 		}
-	}()
-
-	// Allow the process to start before running any tests.
-	select {
-	case err := <-errc:
-		return err
-	case <-time.After(100 * time.Millisecond):
+		time.Sleep(500 * time.Millisecond)
+		if cmd.Process== nil || i == 9 {
+			return fmt.Errorf("can't start command")
+		}
 	}
 
+	errc := make(chan error)
 	go func(pid int) {
 		errc <- fn(pid)
 	}(cmd.Process.Pid)
