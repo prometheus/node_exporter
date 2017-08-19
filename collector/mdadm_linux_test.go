@@ -18,11 +18,32 @@ import (
 	"testing"
 )
 
-func ioctlArrayInfoTest(fd uintptr) (syscall.Errno, mdu_array_info) {
-	var array mdu_array_info
+func ioctlArrayInfoTest() func(uintptr) (syscall.Errno, mdu_array_info) {
+	var i int
+	cannedArray := []mdu_array_info{
+		{0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 1, 8, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 1, 3, 0, 1, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0},
+		{0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0},
+	}
 
-	array = mdu_array_info{}
-	return 1, array
+	return func(fd uintptr) (syscall.Errno, mdu_array_info) {
+		var array mdu_array_info
+
+		array = cannedArray[i]
+		i++
+		return 0, array
+	}
 }
 
 func ioctlBlockSizeTest(fd uintptr) (syscall.Errno, uint64) {
@@ -46,7 +67,7 @@ func TestMdadm(t *testing.T) {
 		ioctlBlockSize = oldIoctlBlockSize
 		sysSyncCompletedFilename = oldSysSyncCompletedFilename
 	}()
-	ioctlArrayInfo = ioctlArrayInfoTest
+	ioctlArrayInfo = ioctlArrayInfoTest()
 	ioctlBlockSize = ioctlBlockSizeTest
 	sysSyncCompletedFilename = sysSyncCompletedFilenameTest
 
