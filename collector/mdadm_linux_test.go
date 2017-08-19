@@ -24,21 +24,29 @@ func TestMdadm(t *testing.T) {
 	}
 
 	refs := map[string]mdStatus{
-		// { "<name>", <active?>, <numDisksActive>, <totalNumDisks>, <amountSynced>, <totalSize>}
-		"md3":   {"md3", true, 8, 8, 5853468288, 5853468288},
-		"md127": {"md127", true, 2, 2, 312319552, 312319552},
-		"md0":   {"md0", true, 2, 2, 248896, 248896},
-		"md4":   {"md4", false, 2, 2, 4883648, 4883648},
-		"md6":   {"md6", true, 1, 2, 195310144, 16775552},
-		"md8":   {"md8", true, 2, 2, 195310144, 16775552},
-		"md7":   {"md7", true, 3, 4, 7813735424, 7813735424},
-		"md9":   {"md9", true, 4, 4, 523968, 523968},
-		"md10":  {"md10", true, 2, 2, 314159265, 314159265},
-		"md11":  {"md11", true, 2, 2, 4190208, 4190208},
-		"md12":  {"md12", true, 2, 2, 3886394368, 3886394368},
-		"md126": {"md126", true, 2, 2, 1855870976, 1855870976},
-		"md219": {"md219", false, 0, 0, 7932, 7932},
-		"md00":  {"md00", true, 1, 1, 4186624, 4186624},
+		// State bit:
+		//  MD_SB_CLEAN          0 - value 1
+		//  MD_SB_ERRORS         1 - value 2
+		//  MD_SB_CLUSTERED      5 - value 32  /* MD is clustered */
+		//  MD_SB_BITMAP_PRESENT 8 - value 256 /* bitmap may be present nearby */
+
+		// { "<name>", state, disksActive, disksFailed, disksMissing, disksSpare, bytesTotal, bytesSynced }
+		// TODO: What should disks[A-Z]* be?
+		// md6: raid1 recovery for 1 disk: 1, 0, 1, 0?
+		"md3":   {"md3", 1, 8, 0, 0, 0, 5853468288, 5853468288},
+		"md127": {"md127", 1, 2, 0, 0, 0, 312319552, 312319552},
+		"md0":   {"md0", 1, 2, 0, 0, 0, 248896, 248896},
+		"md4":   {"md4", 2, 2, 0, 0, 0, 4883648, 4883648},
+		"md6":   {"md6", 1, 1, 0, 1, 0, 16775552, 195310144},
+		"md8":   {"md8", 1, 2, 0, 1, 1, 16775552, 195310144},
+		"md7":   {"md7", 1, 3, 1, 0, 0, 7813735424, 7813735424},
+		"md9":   {"md9", 1, 4, 0, 0, 0, 523968, 523968},
+		"md10":  {"md10", 1, 2, 0, 0, 0, 314159265, 314159265},
+		"md11":  {"md11", 1, 2, 0, 0, 0, 4190208, 4190208},
+		"md12":  {"md12", 1, 2, 0, 0, 0, 3886394368, 3886394368},
+		"md126": {"md126", 1, 2, 0, 0, 0, 1855870976, 1855870976},
+		"md219": {"md219", 2, 0, 0, 0, 3, 7932, 7932},
+		"md00":  {"md00", 1, 1, 0, 0, 0, 4186624, 4186624},
 	}
 
 	for _, md := range mdStates {
