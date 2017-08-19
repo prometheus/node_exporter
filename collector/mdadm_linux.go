@@ -84,6 +84,13 @@ const (
 
 type mdadmCollector struct{}
 
+type mdadmDevice struct {
+	mdDev string
+	file  *os.File
+	fd    uintptr
+	close func()
+}
+
 func init() {
 	Factories["mdadm"] = NewMdadmCollector
 }
@@ -94,6 +101,23 @@ func max(a, b int32) int32 {
 	}
 	return b
 }
+
+func openMDDeviceReal(mdName string) (*mdadmDevice, error) {
+	var mdd mdadmDevice
+
+	mdd.mdDev = "/dev/" + mdName
+	file, err := os.Open(mdd.mdDev)
+	if err != nil {
+		return nil, err
+	}
+	mdd.file = file
+	mdd.fd = file.Fd() // get the unix descriptor
+	mdd.close = func() { file.Close() }
+
+	return &mdd, nil
+}
+
+var openMDDevice = openMDDeviceReal
 
 func ioctlArrayInfoReal(fd uintptr) (syscall.Errno, mdu_array_info) {
 	var array mdu_array_info
@@ -136,25 +160,21 @@ func getArrayInfo(md *mdStatus) (err error) {
 	md.bytesSynced = math.NaN()
 	md.state = math.NaN()
 
-	mdDev := "/dev/" + md.name
-	file, err := os.Open(mdDev)
+	mdd, err := openMDDevice(md.name)
 	if err != nil {
-		return fmt.Errorf("error opening %s: %s", mdDev, err)
+		return fmt.Errorf("error opening %s: %s", mdd.mdDev, err)
 	}
-	fd := file.Fd() // get the unix descriptor
-	errno, array = ioctlArrayInfo(fd)
+	errno, array = ioctlArrayInfo(mdd.fd)
 	if errno != 0 {
-		//return fmt.Errorf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
-		log.Debugf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
+		log.Debugf("error getting RAID info via IOCTL syscall for %s: %s", mdd.mdDev, errno)
 		return nil
 	}
-	errno, devsize = ioctlBlockSize(fd)
+	errno, devsize = ioctlBlockSize(mdd.fd)
 	if errno != 0 {
-		//return fmt.Errorf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
-		log.Debugf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
+		log.Debugf("error getting RAID size via IOCTL syscall for %s: %s", mdd.mdDev, errno)
 		return nil
 	}
-	file.Close()
+	mdd.close()
 
 	md.disksActive = float64(array.active_disks)
 	md.disksFailed = float64(array.failed_disks)

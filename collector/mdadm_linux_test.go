@@ -18,15 +18,26 @@ import (
 	"testing"
 )
 
+func openMDDeviceTest(mdName string) (*mdadmDevice, error) {
+	var mdd mdadmDevice
+
+	mdd.mdDev = "/dev/" + mdName
+	mdd.fd = 1
+	mdd.close = func() {}
+
+	return &mdd, nil
+}
+
 func ioctlArrayInfoTest() func(uintptr) (syscall.Errno, mdu_array_info) {
 	var i int
+	// TODO: a hash of these would be better...
 	cannedArray := []mdu_array_info{
 		{0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 1, 8, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 1, 1, 2, 0, 0, 0, 0}, //6
+		{0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 0, 0, 1, 0, 0}, //8
 		{0, 0, 0, 0, 0, 0, 4, 3, 0, 0, 0, 1, 3, 0, 1, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0},
 		{0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0},
@@ -46,11 +57,21 @@ func ioctlArrayInfoTest() func(uintptr) (syscall.Errno, mdu_array_info) {
 	}
 }
 
-func ioctlBlockSizeTest(fd uintptr) (syscall.Errno, uint64) {
-	var devsize uint64
+func ioctlBlockSizeTest() func(fd uintptr) (syscall.Errno, uint64) {
+	var i int
+	cannedBlockSizes := []uint64{
+		5853468288, 312319552, 248896,
+		4883648, 195310144, 195310144,
+		7813735424, 523968, 314159265,
+		4190208, 3886394368, 1855870976,
+		7932, 4186624,
+	}
 
-	devsize = 0
-	return 1, devsize
+	return func(fd uintptr) (syscall.Errno, uint64) {
+		blksize := cannedBlockSizes[i]
+		i++
+		return 0, blksize
+	}
 }
 
 func sysSyncCompletedFilenameTest(mdName string) string {
@@ -59,16 +80,19 @@ func sysSyncCompletedFilenameTest(mdName string) string {
 
 func TestMdadm(t *testing.T) {
 
+	oldOpenMDDevice := openMDDevice
 	oldIoctlArrayInfo := ioctlArrayInfo
 	oldIoctlBlockSize := ioctlBlockSize
 	oldSysSyncCompletedFilename := sysSyncCompletedFilename
 	defer func() {
+		openMDDevice = oldOpenMDDevice
 		ioctlArrayInfo = oldIoctlArrayInfo
 		ioctlBlockSize = oldIoctlBlockSize
 		sysSyncCompletedFilename = oldSysSyncCompletedFilename
 	}()
+	openMDDevice = openMDDeviceTest
 	ioctlArrayInfo = ioctlArrayInfoTest()
-	ioctlBlockSize = ioctlBlockSizeTest
+	ioctlBlockSize = ioctlBlockSizeTest()
 	sysSyncCompletedFilename = sysSyncCompletedFilenameTest
 
 	mdStates, err := getMdDevices("fixtures/proc/diskstats")
@@ -90,8 +114,8 @@ func TestMdadm(t *testing.T) {
 		"md127": {"md127", 1, 2, 0, 0, 0, 312319552, 312319552},
 		"md0":   {"md0", 1, 2, 0, 0, 0, 248896, 248896},
 		"md4":   {"md4", 2, 2, 0, 0, 0, 4883648, 4883648},
-		"md6":   {"md6", 1, 1, 0, 1, 0, 16775552, 195310144},
-		"md8":   {"md8", 1, 2, 0, 1, 1, 16775552, 195310144},
+		"md6":   {"md6", 1, 1, 0, 1, 0, 195310144, 16775552},
+		"md8":   {"md8", 1, 2, 0, 1, 1, 195310144, 16775552},
 		"md7":   {"md7", 1, 3, 1, 0, 0, 7813735424, 7813735424},
 		"md9":   {"md9", 1, 4, 0, 0, 0, 523968, 523968},
 		"md10":  {"md10", 1, 2, 0, 0, 0, 314159265, 314159265},

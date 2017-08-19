@@ -123,7 +123,7 @@ Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/block/md6/md/sync_completed
 Lines: 1
-16775552/195310144
+16775552 / 195310144
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/block/md7
@@ -145,7 +145,7 @@ Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/block/md8/md/sync_completed
 Lines: 1
-16775552/195310144
+16775552 / 195310144
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/block/md9
