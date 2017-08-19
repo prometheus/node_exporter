@@ -34,7 +34,7 @@ type (
 	mdStatus struct {
 		name string
 		//active       bool
-		active       float64
+		state        float64
 		disksActive  float64
 		disksFailed  float64
 		disksMissing float64
@@ -109,7 +109,7 @@ func getArrayInfo(md *mdStatus) (err error) {
 	md.disksSpare = math.NaN()
 	md.bytesTotal = math.NaN()
 	md.bytesSynced = math.NaN()
-	md.active = math.NaN()
+	md.state = math.NaN()
 
 	mdDev := "/dev/" + md.name
 	file, err := os.Open(mdDev)
@@ -136,8 +136,8 @@ func getArrayInfo(md *mdStatus) (err error) {
 	md.disksMissing = float64(max(0, array.raid_disks-array.nr_disks))
 	md.disksSpare = float64(array.spare_disks)
 	md.bytesTotal = float64(devsize)
-	//TODO make md.active bool or document state (md.active)
-	md.active = float64(array.state)
+	//TODO redo md.active as bool and document state (md.state)
+	md.state = float64(array.state)
 
 	sys_sync_completed := sysFilePath("block/" + md.name + "/md/sync_completed")
 	log.Debugf("sys_sync_completed %s", sys_sync_completed)
@@ -161,9 +161,9 @@ func NewMdadmCollector() (Collector, error) {
 }
 
 var (
-	isActiveDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "md", "is_active"),
-		"Indicator whether the md-device is active or not.",
+	stateDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, "md", "is_state"),
+		"Indicator of the md-device state.",
 		[]string{"device"},
 		nil,
 	)
@@ -235,9 +235,9 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Debugf("collecting metrics for device %s", mds.name)
 
 		ch <- prometheus.MustNewConstMetric(
-			isActiveDesc,
+			stateDesc,
 			prometheus.GaugeValue,
-			mds.active,
+			mds.state,
 			mds.name,
 		)
 		ch <- prometheus.MustNewConstMetric(
