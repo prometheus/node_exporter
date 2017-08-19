@@ -95,10 +95,35 @@ func max(a, b int32) int32 {
 	return b
 }
 
+func ioctlArrayInfoReal(fd uintptr) (syscall.Errno, mdu_array_info) {
+	var array mdu_array_info
+
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd, GET_ARRAY_INFO, uintptr(unsafe.Pointer(&array)))
+	return errno, array
+}
+
+var ioctlArrayInfo = ioctlArrayInfoReal
+
+func ioctlBlockSizeReal(fd uintptr) (syscall.Errno, uint64) {
+	var devsize uint64
+
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd, BLKGETSIZE64, uintptr(unsafe.Pointer(&devsize)))
+	return errno, devsize
+}
+
+var ioctlBlockSize = ioctlBlockSizeReal
+
+func sysSyncCompletedFilenameReal(mdName string) string {
+	return sysFilePath("block/" + mdName + "/md/sync_completed")
+}
+
+var sysSyncCompletedFilename = sysSyncCompletedFilenameReal
+
 // getArrayInfo gets RAID info via the GET_ARRAY_INFO IOCTL syscall.
 func getArrayInfo(md *mdStatus) (err error) {
 	// needs md.name as input
 	var (
+		errno   syscall.Errno
 		array   mdu_array_info
 		devsize uint64
 	)
@@ -117,13 +142,13 @@ func getArrayInfo(md *mdStatus) (err error) {
 		return fmt.Errorf("error opening %s: %s", mdDev, err)
 	}
 	fd := file.Fd() // get the unix descriptor
-	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd, GET_ARRAY_INFO, uintptr(unsafe.Pointer(&array)))
+	errno, array = ioctlArrayInfo(fd)
 	if errno != 0 {
 		//return fmt.Errorf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
 		log.Debugf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
 		return nil
 	}
-	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, fd, BLKGETSIZE64, uintptr(unsafe.Pointer(&devsize)))
+	errno, devsize = ioctlBlockSize(fd)
 	if errno != 0 {
 		//return fmt.Errorf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
 		log.Debugf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
@@ -139,7 +164,7 @@ func getArrayInfo(md *mdStatus) (err error) {
 	//TODO redo md.active as bool and document state (md.state)
 	md.state = float64(array.state)
 
-	sys_sync_completed := sysFilePath("block/" + md.name + "/md/sync_completed")
+	sys_sync_completed := sysSyncCompletedFilename(md.name)
 	log.Debugf("sys_sync_completed %s", sys_sync_completed)
 	content, err := ioutil.ReadFile(sys_sync_completed)
 	if err == nil {

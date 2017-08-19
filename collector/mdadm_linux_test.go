@@ -14,11 +14,43 @@
 package collector
 
 import (
+	"syscall"
 	"testing"
 )
 
+func ioctlArrayInfoTest(fd uintptr) (syscall.Errno, mdu_array_info) {
+	var array mdu_array_info
+
+	array = mdu_array_info{}
+	return 1, array
+}
+
+func ioctlBlockSizeTest(fd uintptr) (syscall.Errno, uint64) {
+	var devsize uint64
+
+	devsize = 0
+	return 1, devsize
+}
+
+func sysSyncCompletedFilenameTest(mdName string) string {
+	return "fixtures/sys/block/" + mdName + "/md/sync_completed"
+}
+
 func TestMdadm(t *testing.T) {
-	mdStates, err := parseMdstat("fixtures/proc/mdstat")
+
+	oldIoctlArrayInfo := ioctlArrayInfo
+	oldIoctlBlockSize := ioctlBlockSize
+	oldSysSyncCompletedFilename := sysSyncCompletedFilename
+	defer func() {
+		ioctlArrayInfo = oldIoctlArrayInfo
+		ioctlBlockSize = oldIoctlBlockSize
+		sysSyncCompletedFilename = oldSysSyncCompletedFilename
+	}()
+	ioctlArrayInfo = ioctlArrayInfoTest
+	ioctlBlockSize = ioctlBlockSizeTest
+	sysSyncCompletedFilename = sysSyncCompletedFilenameTest
+
+	mdStates, err := getMdDevices("fixtures/proc/diskstats")
 	if err != nil {
 		t.Fatalf("parsing of reference-file failed entirely: %s", err)
 	}
@@ -60,9 +92,11 @@ func TestMdadm(t *testing.T) {
 	}
 }
 
+/*
 func TestInvalidMdstat(t *testing.T) {
 	_, err := parseMdstat("fixtures/proc/mdstat_invalid")
 	if err == nil {
 		t.Fatalf("parsing of invalid reference file did not find any errors")
 	}
 }
+*/
