@@ -16,6 +16,7 @@ import (
 var (
 	binary = filepath.Join(os.Getenv("GOPATH"), "bin/node_exporter")
 )
+
 const (
 	address = "localhost:19100"
 )
@@ -118,7 +119,7 @@ func runCommandAndTests(cmd *exec.Cmd, address string, fn func(pid int) error) e
 			break
 		}
 		time.Sleep(500 * time.Millisecond)
-		if cmd.Process== nil || i == 9 {
+		if cmd.Process == nil || i == 9 {
 			return fmt.Errorf("can't start command")
 		}
 	}
