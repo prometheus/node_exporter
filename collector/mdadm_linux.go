@@ -34,7 +34,7 @@ type (
 	mdStatus struct {
 		name string
 		//active       bool
-		active       float64
+		state        float64
 		disksActive  float64
 		disksFailed  float64
 		disksMissing float64
@@ -84,6 +84,13 @@ const (
 
 type mdadmCollector struct{}
 
+type mdadmDevice struct {
+	mdDev string
+	file  *os.File
+	fd    uintptr
+	close func()
+}
+
 func init() {
 	Factories["mdadm"] = NewMdadmCollector
 }
@@ -95,10 +102,52 @@ func max(a, b int32) int32 {
 	return b
 }
 
+func openMDDeviceReal(mdName string) (*mdadmDevice, error) {
+	var mdd mdadmDevice
+
+	mdd.mdDev = "/dev/" + mdName
+	file, err := os.Open(mdd.mdDev)
+	if err != nil {
+		return nil, err
+	}
+	mdd.file = file
+	mdd.fd = file.Fd() // get the unix descriptor
+	mdd.close = func() { file.Close() }
+
+	return &mdd, nil
+}
+
+var openMDDevice = openMDDeviceReal
+
+func ioctlArrayInfoReal(fd uintptr) (syscall.Errno, mdu_array_info) {
+	var array mdu_array_info
+
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd, GET_ARRAY_INFO, uintptr(unsafe.Pointer(&array)))
+	return errno, array
+}
+
+var ioctlArrayInfo = ioctlArrayInfoReal
+
+func ioctlBlockSizeReal(fd uintptr) (syscall.Errno, uint64) {
+	var devsize uint64
+
+	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd, BLKGETSIZE64, uintptr(unsafe.Pointer(&devsize)))
+	return errno, devsize
+}
+
+var ioctlBlockSize = ioctlBlockSizeReal
+
+func sysSyncCompletedFilenameReal(mdName string) string {
+	return sysFilePath("block/" + mdName + "/md/sync_completed")
+}
+
+var sysSyncCompletedFilename = sysSyncCompletedFilenameReal
+
 // getArrayInfo gets RAID info via the GET_ARRAY_INFO IOCTL syscall.
 func getArrayInfo(md *mdStatus) (err error) {
 	// needs md.name as input
 	var (
+		errno   syscall.Errno
 		array   mdu_array_info
 		devsize uint64
 	)
@@ -109,37 +158,33 @@ func getArrayInfo(md *mdStatus) (err error) {
 	md.disksSpare = math.NaN()
 	md.bytesTotal = math.NaN()
 	md.bytesSynced = math.NaN()
-	md.active = math.NaN()
+	md.state = math.NaN()
 
-	mdDev := "/dev/" + md.name
-	file, err := os.Open(mdDev)
+	mdd, err := openMDDevice(md.name)
 	if err != nil {
-		return fmt.Errorf("error opening %s: %s", mdDev, err)
+		return fmt.Errorf("error opening %s: %s", mdd.mdDev, err)
 	}
-	fd := file.Fd() // get the unix descriptor
-	_, _, errno := syscall.Syscall(syscall.SYS_IOCTL, fd, GET_ARRAY_INFO, uintptr(unsafe.Pointer(&array)))
+	errno, array = ioctlArrayInfo(mdd.fd)
 	if errno != 0 {
-		//return fmt.Errorf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
-		log.Debugf("error getting RAID info via IOCTL syscall for %s: %s", mdDev, errno)
+		log.Debugf("error getting RAID info via IOCTL syscall for %s: %s", mdd.mdDev, errno)
 		return nil
 	}
-	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL, fd, BLKGETSIZE64, uintptr(unsafe.Pointer(&devsize)))
+	errno, devsize = ioctlBlockSize(mdd.fd)
 	if errno != 0 {
-		//return fmt.Errorf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
-		log.Debugf("error getting RAID size via IOCTL syscall for %s: %s", mdDev, errno)
+		log.Debugf("error getting RAID size via IOCTL syscall for %s: %s", mdd.mdDev, errno)
 		return nil
 	}
-	file.Close()
+	mdd.close()
 
 	md.disksActive = float64(array.active_disks)
 	md.disksFailed = float64(array.failed_disks)
 	md.disksMissing = float64(max(0, array.raid_disks-array.nr_disks))
 	md.disksSpare = float64(array.spare_disks)
 	md.bytesTotal = float64(devsize)
-	//TODO make md.active bool or document state (md.active)
-	md.active = float64(array.state)
+	//TODO redo md.active as bool and document state (md.state)
+	md.state = float64(array.state)
 
-	sys_sync_completed := sysFilePath("block/" + md.name + "/md/sync_completed")
+	sys_sync_completed := sysSyncCompletedFilename(md.name)
 	log.Debugf("sys_sync_completed %s", sys_sync_completed)
 	content, err := ioutil.ReadFile(sys_sync_completed)
 	if err == nil {
@@ -161,9 +206,9 @@ func NewMdadmCollector() (Collector, error) {
 }
 
 var (
-	isActiveDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "md", "is_active"),
-		"Indicator whether the md-device is active or not.",
+	stateDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(Namespace, "md", "is_state"),
+		"Indicator of the md-device state.",
 		[]string{"device"},
 		nil,
 	)
@@ -235,9 +280,9 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Debugf("collecting metrics for device %s", mds.name)
 
 		ch <- prometheus.MustNewConstMetric(
-			isActiveDesc,
+			stateDesc,
 			prometheus.GaugeValue,
-			mds.active,
+			mds.state,
 			mds.name,
 		)
 		ch <- prometheus.MustNewConstMetric(
