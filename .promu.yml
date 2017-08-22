@@ -3,6 +3,8 @@ go:
 repository:
     path: github.com/prometheus/node_exporter
 build:
+    binaries:
+        - name: node_exporter
     flags: -a -tags 'netgo static_build'
     ldflags: |
         -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}
