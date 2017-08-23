@@ -17,8 +17,10 @@ package collector
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -65,6 +67,7 @@ func NewCPUCollector() (Collector, error) {
 			"Maximum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
+		// FIXME: This should be a per core metric, not per cpu!
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, cpuCollectorNamespace, "core_throttles_total"),
 			"Number of times this cpu core has been throttled.",
@@ -73,7 +76,7 @@ func NewCPUCollector() (Collector, error) {
 		cpuPackageThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, cpuCollectorNamespace, "package_throttles_total"),
 			"Number of times this cpu package has been throttled.",
-			[]string{"cpu"}, nil,
+			[]string{"node"}, nil,
 		),
 	}, nil
 }
@@ -98,6 +101,7 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 
 	var value uint64
 
+	// cpu loop
 	for _, cpu := range cpus {
 		_, cpuname := filepath.Split(cpu)
 
@@ -106,17 +110,17 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		} else {
 			// sysfs cpufreq values are kHz, thus multiply by 1000 to export base units (hz).
 			// See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
-			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_cur_freq")); err != nil {
+			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_cur_freq")); err != nil {
 				return err
 			}
 			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
 
-			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_min_freq")); err != nil {
+			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_min_freq")); err != nil {
 				return err
 			}
 			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
 
-			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq/scaling_max_freq")); err != nil {
+			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_max_freq")); err != nil {
 				return err
 			}
 			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
@@ -124,17 +128,44 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 
 		if _, err := os.Stat(filepath.Join(cpu, "thermal_throttle")); os.IsNotExist(err) {
 			log.Debugf("CPU %q is missing thermal_throttle", cpu)
-		} else {
-			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle/core_throttle_count")); err != nil {
-				return err
-			}
-			ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
-
-			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle/package_throttle_count")); err != nil {
-				return err
-			}
-			ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), cpuname)
+			continue
 		}
+		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
+			return err
+		}
+		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
+	}
+
+	pkgs, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
+	if err != nil {
+		return err
+	}
+
+	// package/node loop
+	for pkgno, pkg := range pkgs {
+		if _, err := os.Stat(filepath.Join(pkg, "cpulist")); os.IsNotExist(err) {
+			log.Debugf("package %q is missing cpulist", pkg)
+			continue
+		}
+		cpulist, err := ioutil.ReadFile(filepath.Join(pkg, "cpulist"))
+		if err != nil {
+			log.Debugf("could not read cpulist of package %q", pkg)
+			return err
+		}
+		// cpulist example of one package/node with HT: "0-11,24-35"
+		firstCPU := strings.Split(string(cpulist), "\n")[0]
+		if strings.Contains(firstCPU, "-") {
+			// multi-core: Use first cpu of package
+			firstCPU = strings.Split(firstCPU, "-")[0]
+		}
+		if _, err := os.Stat(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); os.IsNotExist(err) {
+			log.Debugf("Package %q CPU %q is missing package_throttle", pkg, firstCPU)
+			continue
+		}
+		if value, err = readUintFromFile(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); err != nil {
+			return err
+		}
+		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), fmt.Sprintf("%d", pkgno))
 	}
 
 	return nil

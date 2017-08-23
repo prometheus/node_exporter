@@ -299,9 +299,7 @@ node_cpu_frequency_min_hertz{cpu="cpu1"} 8e+08
 node_cpu_frequency_min_hertz{cpu="cpu3"} 1e+06
 # HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
-node_cpu_package_throttles_total{cpu="cpu0"} 30
-node_cpu_package_throttles_total{cpu="cpu1"} 30
-node_cpu_package_throttles_total{cpu="cpu2"} 6
+node_cpu_package_throttles_total{node="0"} 30
 # HELP node_disk_bytes_read The total number of bytes read successfully.
 # TYPE node_disk_bytes_read counter
 node_disk_bytes_read{device="dm-0"} 5.13708655616e+11
