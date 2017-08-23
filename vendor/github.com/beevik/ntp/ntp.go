@@ -176,7 +176,7 @@ func QueryWithOptions(host string, opt QueryOptions) (*Response, error) {
 	}
 
 	r := &Response{
-		Time:           m.ReceiveTime.Time(),
+		Time:           m.TransmitTime.Time(),
 		RTT:            rtt(m.OriginTime, m.ReceiveTime, m.TransmitTime, now),
 		ClockOffset:    offset(m.OriginTime, m.ReceiveTime, m.TransmitTime, now),
 		Poll:           toInterval(m.Poll),
@@ -279,7 +279,12 @@ func TimeV(host string, version int) (time.Time, error) {
 	if err != nil {
 		return time.Now(), err
 	}
-	return m.ReceiveTime.Time().Local(), nil
+	// An SNTP client implementing the on-wire protocol has a single server
+	// and no dependent clients.  It can operate with any subset of the NTP
+	// on-wire protocol, the simplest approach using only the transmit
+	// timestamp of the server packet and ignoring all other fields.
+	// -- https://tools.ietf.org/html/rfc5905#section-14
+	return m.TransmitTime.Time().Local(), nil
 }
 
 // Time returns the current time from the remote server host using version 4
