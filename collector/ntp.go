@@ -125,6 +125,25 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get SNTP reply: %s", err)
 	}
 
+	ch <- c.stratum.mustNewConstMetric(float64(resp.Stratum))
+	ch <- c.leap.mustNewConstMetric(float64(resp.Leap))
+	ch <- c.rtt.mustNewConstMetric(resp.RTT.Seconds())
+	ch <- c.offset.mustNewConstMetric(resp.ClockOffset.Seconds())
+	if resp.ReferenceTime.Unix() > 0 {
+		// Go Zero is   0001-01-01 00:00:00 UTC
+		// NTP Zero is  1900-01-01 00:00:00 UTC
+		// UNIX Zero is 1970-01-01 00:00:00 UTC
+		// so let's keep ALL ancient `reftime` values as zero
+		ch <- c.reftime.mustNewConstMetric(float64(resp.ReferenceTime.UnixNano()) / 1e9)
+	} else {
+		ch <- c.reftime.mustNewConstMetric(0)
+	}
+	ch <- c.root_delay.mustNewConstMetric(resp.RootDelay.Seconds())
+	ch <- c.root_dispersion.mustNewConstMetric(resp.RootDispersion.Seconds())
+
+	// Here is SNTP packet sanity check that is exposed to move burden of
+	// configuration from node_exporter user to the developer.
+
 	// Reference Timestamp: Time when the system clock was last set or
 	// corrected. Semantics of this value seems to vary across NTP server
 	// implementations: it may be both NTP-clock time and system wall-clock
@@ -176,22 +195,6 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 		// tolerate leap smearing
 		err_margin -= time.Second
 	}
-
-	ch <- c.stratum.mustNewConstMetric(float64(resp.Stratum))
-	ch <- c.leap.mustNewConstMetric(float64(resp.Leap))
-	var reftime float64
-	if resp.ReferenceTime.Unix() > 0 {
-		// Go Zero is   0001-01-01 00:00:00 UTC
-		// NTP Zero is  1900-01-01 00:00:00 UTC
-		// UNIX Zero is 1970-01-01 00:00:00 UTC
-		// so let's keep ALL ancient `reftime` values as zero
-		reftime = float64(resp.ReferenceTime.UnixNano()) / 1e9
-	}
-	ch <- c.reftime.mustNewConstMetric(reftime)
-	ch <- c.rtt.mustNewConstMetric(resp.RTT.Seconds())
-	ch <- c.offset.mustNewConstMetric(resp.ClockOffset.Seconds())
-	ch <- c.root_delay.mustNewConstMetric(resp.RootDelay.Seconds())
-	ch <- c.root_dispersion.mustNewConstMetric(resp.RootDispersion.Seconds())
 
 	var sanity float64
 	if resp.Leap != ntp.LeapNotInSync &&
