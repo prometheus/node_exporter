@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -29,6 +30,10 @@ import (
 
 const (
 	cpuCollectorNamespace = "cpu"
+)
+
+var (
+	digitRegexp = regexp.MustCompile("[0-9]+")
 )
 
 type cpuCollector struct {
@@ -142,7 +147,7 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 	}
 
 	// package/node loop
-	for pkgno, pkg := range pkgs {
+	for _, pkg := range pkgs {
 		if _, err := os.Stat(filepath.Join(pkg, "cpulist")); os.IsNotExist(err) {
 			log.Debugf("package %q is missing cpulist", pkg)
 			continue
@@ -164,7 +169,8 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		if value, err = readUintFromFile(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); err != nil {
 			return err
 		}
-		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), fmt.Sprintf("%d", pkgno))
+		pkgno := digitRegexp.FindAllString(pkg, 1)[0]
+		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), pkgno)
 	}
 
 	return nil
