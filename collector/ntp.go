@@ -139,17 +139,17 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	// https://tools.ietf.org/html/rfc5905#appendix-A.5.1.1.
 	lambda := resp.RootDelay/2 + resp.RootDispersion
 
-	// Also, RFC5905 suggests more strict check in fit(), that suggest that
-	// root_delay should be less than MAXDIST + PHI * LOG2D(s.poll).
+	// Also, RFC5905 suggests more strict check against _peer_ in fit(), that
+	// root_dist should be less than MAXDIST + PHI * LOG2D(s.poll).
 	// MAXPOLL is 17, so it is approximately at most (1s + 15e-6 * 2**17) =
 	// 2.96608 s, but MAXDIST and MAXPOLL are confugurable values in the
 	// reference implementation, so only MAXDISP check has hardcoded value.
-	// root_delay should also have following summands
+	// root_dist should also have following summands
 	// + Dispersion towards the peer
 	// + jitter of the link to the peer
 	// + PHI * (current_uptime - peer->uptime_of_last_update)
 	// but all these values are 0 if only single NTP packet was sent.
-	root_delay := (resp.RTT+resp.RootDelay)/2 + resp.RootDispersion
+	root_dist := (resp.RTT+resp.RootDelay)/2 + resp.RootDispersion
 
 	// RTT    = (T4 - T1) - (T3 - T2)     =   T4 - T3 + T2 - T1
 	// Offset = (T2 + T3)/2 - (T4 + T1)/2 = (-T4 + T3 + T2 - T1) / 2
@@ -199,9 +199,9 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 		0 <= freshness && // from packet()
 		freshness <= (1<<maxPoll)*time.Second && // FYI: ntpdate uses 24h as a heuristics instead of ~36h derived from MAXPOLL
 		lambda <= maxDispersion*time.Second && // from packet()
-		root_delay <= *ntpMaxDistance && // from fit()
+		root_dist <= *ntpMaxDistance && // from fit()
 		0 <= resp.RTT && // ensuring that clock tick forward
-		err_margin <= t21 &&
+		err_margin <= t21 && // ensuring that casuality is not violated
 		err_margin <= t43 {
 		sanity = 1.
 	}
