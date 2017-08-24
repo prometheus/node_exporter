@@ -128,6 +128,20 @@ If you need to run it on Docker, you can deploy this exporter using the
 image](https://quay.io/repository/prometheus/node-exporter) with the following
 options and bind-mounts:
 
+for docker version >= 1.10
+```bash
+docker run -d -p 9100:9100 \
+  -v "/proc:/host/proc:ro" \
+  -v "/sys:/host/sys:ro" \
+  -v "/:/rootfs:ro,rslave" \
+  --net="host" \
+  quay.io/prometheus/node-exporter \
+    --path.procfs /host/proc \
+    --path.sysfs /host/sys \
+    --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
+```
+
+for docker version < 1.10
 ```bash
 docker run -d -p 9100:9100 \
   -v "/proc:/host/proc:ro" \
