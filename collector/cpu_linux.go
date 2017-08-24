@@ -153,11 +153,10 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			return err
 		}
 		// cpulist example of one package/node with HT: "0-11,24-35"
-		firstCPU := strings.Split(string(cpulist), "\n")[0]
-		if strings.Contains(firstCPU, "-") {
-			// multi-core: Use first cpu of package
-			firstCPU = strings.Split(firstCPU, "-")[0]
-		}
+		line := strings.Split(string(cpulist), "\n")[0]
+		firstCPU := strings.FieldsFunc(line, func(r rune) bool {
+			return r == '-' || r == ','
+		})[0]
 		if _, err := os.Stat(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); os.IsNotExist(err) {
 			log.Debugf("Package %q CPU %q is missing package_throttle", pkg, firstCPU)
 			continue
