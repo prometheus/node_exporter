@@ -41,10 +41,12 @@ endif
 # 64bit -> 32bit mapping for cross-checking. At least for amd64/386, the 64bit CPU can execute 32bit code but not the other way around, so we don't support cross-testing upwards.
 cross-test = skip-test-32bit
 define goarch_pair
-ifeq ($$(GOARCH),$1)
-	GOARCH_CROSS = $2
-	cross-test = test-32bit
-endif
+	ifeq ($$(OS_detected),Linux)
+		ifeq ($$(GOARCH),$1)
+			GOARCH_CROSS = $2
+			cross-test = test-32bit
+		endif
+	endif
 endef
 
 # By default, "cross" test with ourselves to cover unknown pairings.
@@ -68,7 +70,7 @@ test-32bit: collector/fixtures/sys/.unpacked
 	@env GOARCH=$(GOARCH_CROSS) $(GO) test $(pkgs)
 
 skip-test-32bit:
-	@echo ">> SKIP running tests in 32-bit mode: not supported on $(GOARCH)"
+	@echo ">> SKIP running tests in 32-bit mode: not supported on $(OS_detected)/$(GOARCH)"
 
 collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
 	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
