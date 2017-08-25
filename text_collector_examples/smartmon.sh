@@ -102,10 +102,10 @@ parse_smartctl_info() {
       esac
     fi
   done
-  if [[ -n "${model_family}" ]] ; then
-    echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",model_family=\"${model_family}\",device_model=\"${device_model}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
-  elif [[ -n "${vendor}" ]] ; then
+  if [[ -n "${vendor}" ]] ; then
     echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",vendor=\"${vendor}\",product=\"${product}\",revision=\"${revision}\",lun_id=\"${lun_id}\"} 1"
+  else
+    echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",model_family=\"${model_family}\",device_model=\"${device_model}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
   fi
   echo "device_smart_available{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_available}"
   echo "device_smart_enabled{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_enabled}"
