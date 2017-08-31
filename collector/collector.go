@@ -43,6 +43,8 @@ var (
 		[]string{"collector"},
 		nil,
 	)
+
+	disableDefaultCollectors = kingpin.Flag("collectors.disable-defaults", "Do not use the default collectors, only those explicitly enabled on the commandline.").Bool()
 )
 
 func warnDeprecated(collector string) {
@@ -54,15 +56,22 @@ const (
 	defaultDisabled = false
 )
 
-var collectorState = make(map[string]*bool)
+type collectorState struct {
+	flagState    bool
+	defaultState bool
+}
 
-func registerCollector(collector string, isDefaultEnabled bool, factory func() (Collector, error)) {
+var collectorStates = make(map[string]*collectorState)
+
+func registerCollector(collector string, defaultState bool, factory func() (Collector, error)) {
 	flagName := fmt.Sprintf("collector.%s.enabled", collector)
 	flagHelp := fmt.Sprintf("Enable the %s collector.", collector)
-	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
 
-	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Bool()
-	collectorState[collector] = flag
+	state := collectorState{
+		defaultState: defaultState,
+	}
+	kingpin.Flag(flagName, flagHelp).BoolVar(&state.flagState)
+	collectorStates[collector] = &state
 
 	Factories[collector] = factory
 }
@@ -74,8 +83,9 @@ type NodeCollector struct {
 
 func NewNodeCollector() (*NodeCollector, error) {
 	collectors := make(map[string]Collector)
-	for key, enabled := range collectorState {
-		if *enabled {
+	for key, state := range collectorStates {
+		// Enable the collector if it has been enabled by a flag, OR if it is enabled by default, and the defaults are not disabled
+		if state.flagState || (state.defaultState && !*disableDefaultCollectors) {
 			collector, err := Factories[key]()
 			if err != nil {
 				return nil, err
