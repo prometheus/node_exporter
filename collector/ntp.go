@@ -26,14 +26,14 @@ import (
 )
 
 const (
-	Hour24 = 24 * time.Hour // `time` does not export `Day` as Day != 24h because of DST
+	hour24 = 24 * time.Hour // `time` does not export `Day` as Day != 24h because of DST
 )
 
 var (
 	ntpServer          = kingpin.Flag("collector.ntp.server", "NTP server to use for ntp collector").Default("127.0.0.1").String()
 	ntpProtocolVersion = kingpin.Flag("collector.ntp.protocol-version", "NTP protocol version").Default("4").Int()
 	ntpServerIsLocal   = kingpin.Flag("collector.ntp.server-is-local", "Certify that collector.ntp.server address is the same local host as this collector.").Default("false").Bool()
-	ntpIpTTL           = kingpin.Flag("collector.ntp.ip-ttl", "IP TTL to use while sending NTP query").Default("1").Int()
+	ntpIPTTL           = kingpin.Flag("collector.ntp.ip-ttl", "IP TTL to use while sending NTP query").Default("1").Int()
 	// 3.46608s ~ 1.5s + PHI * (1 << maxPoll), where 1.5s is MAXDIST from ntp.org, it is 1.0 in RFC5905
 	// max-distance option is used as-is without phi*(1<<poll)
 	ntpMaxDistance     = kingpin.Flag("collector.ntp.max-distance", "Max accumulated distance to the root").Default("3.46608s").Duration()
@@ -43,7 +43,7 @@ var (
 )
 
 type ntpCollector struct {
-	stratum, leap, rtt, offset, reftime, root_delay, root_dispersion, sanity typedDesc
+	stratum, leap, rtt, offset, reftime, rootDelay, rootDispersion, sanity typedDesc
 }
 
 func init() {
@@ -94,12 +94,12 @@ func NewNtpCollector() (Collector, error) {
 			"NTPD ReferenceTime, UNIX timestamp.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		root_delay: typedDesc{prometheus.NewDesc(
+		rootDelay: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "root_delay"),
 			"NTPD RootDelay, seconds.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		root_dispersion: typedDesc{prometheus.NewDesc(
+		rootDispersion: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "root_dispersion"),
 			"NTPD RootDispersion, seconds.",
 			nil, nil,
@@ -115,7 +115,7 @@ func NewNtpCollector() (Collector, error) {
 func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	resp, err := ntp.QueryWithOptions(*ntpServer, ntp.QueryOptions{
 		Version: *ntpProtocolVersion,
-		TTL:     *ntpIpTTL,
+		TTL:     *ntpIPTTL,
 		Timeout: time.Second, // default `ntpdate` timeout
 	})
 	if err != nil {
@@ -136,8 +136,8 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	} else {
 		ch <- c.reftime.mustNewConstMetric(0)
 	}
-	ch <- c.root_delay.mustNewConstMetric(resp.RootDelay.Seconds())
-	ch <- c.root_dispersion.mustNewConstMetric(resp.RootDispersion.Seconds())
+	ch <- c.rootDelay.mustNewConstMetric(resp.RootDelay.Seconds())
+	ch <- c.rootDispersion.mustNewConstMetric(resp.RootDispersion.Seconds())
 
 	// Here is SNTP packet sanity check that is exposed to move burden of
 	// configuration from node_exporter user to the developer.
@@ -145,9 +145,9 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	maxerr := *ntpOffsetTolerance
 	if resp.Leap == ntp.LeapAddSecond || resp.Leap == ntp.LeapDelSecond {
 		// state of leapMidnight is cached as leap flag is dropped right after midnight
-		leapMidnight = resp.Time.Truncate(Hour24).Add(Hour24)
+		leapMidnight = resp.Time.Truncate(hour24).Add(hour24)
 	}
-	if leapMidnight.Add(-Hour24).Before(resp.Time) && resp.Time.Before(leapMidnight.Add(Hour24)) {
+	if leapMidnight.Add(-hour24).Before(resp.Time) && resp.Time.Before(leapMidnight.Add(hour24)) {
 		// tolerate leap smearing
 		maxerr += time.Second
 	}
