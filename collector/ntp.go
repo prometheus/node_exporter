@@ -26,9 +26,7 @@ import (
 )
 
 const (
-	maxDispersion = 16 // aka MAXDISP
-	phi_us        = 15 // phi is 15e-6 (s)
-	maxPoll       = 17 // log2 max poll interval (~36 h)
+	Hour24 = 24 * time.Hour // `time` does not export `Day` as Day != 24h because of DST
 )
 
 var (
@@ -73,42 +71,42 @@ func NewNtpCollector() (Collector, error) {
 	return &ntpCollector{
 		stratum: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "stratum"),
-			"NTP server stratum.",
+			"NTPD stratum.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		leap: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "leap"),
-			"Leap second flag raw value.",
+			"NTPD leap second flag, raw.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		rtt: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "rtt"),
-			"RTT.",
+			"RTT to NTPD, seconds.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		offset: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "offset"),
-			"ClockOffset.",
+			"ClockOffset between NTP and local clock, seconds.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		reftime: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "reftime"),
-			"ReferenceTime raw value.",
+			"NTPD ReferenceTime, UNIX timestamp.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		root_delay: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "root_delay"),
-			"RootDelay raw value.",
+			"NTPD RootDelay, seconds.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		root_dispersion: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "root_dispersion"),
-			"RootDispersion raw value.",
+			"NTPD RootDispersion, seconds.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		sanity: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "sanity"),
-			"NTP server is sane according to ntpdate and RFC5905 heuristics.",
+			"NTPD sanity according to RFC5905 heuristics and configured limits.",
 			nil, nil,
 		), prometheus.GaugeValue},
 	}, nil
@@ -144,70 +142,21 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	// Here is SNTP packet sanity check that is exposed to move burden of
 	// configuration from node_exporter user to the developer.
 
-	// Reference Timestamp: Time when the system clock was last set or
-	// corrected. Semantics of this value seems to vary across NTP server
-	// implementations: it may be both NTP-clock time and system wall-clock
-	// time of this event. :-( So (T3 - ReferenceTime) is not true
-	// "freshness" as it may be actually NEGATIVE, so it's not exposed as
-	// metrics to avoid confusion.
-	freshness := resp.Time.Sub(resp.ReferenceTime)
-
-	// (Lambda := RootDelay/2 + RootDispersion) check against MAXDISP (16s)
-	// is required as ntp.org ntpd may report sane other fields while
-	// giving quite erratic clock. The check is declared in packet() at
-	// https://tools.ietf.org/html/rfc5905#appendix-A.5.1.1.
-	lambda := resp.RootDelay/2 + resp.RootDispersion
-
-	// Also, RFC5905 suggests more strict check against _peer_ in fit(), that
-	// root_dist should be less than MAXDIST + PHI * LOG2D(s.poll).
-	// MAXPOLL is 17, so it is approximately at most (1s + 15e-6 * 2**17) =
-	// 2.96608 s, but MAXDIST and MAXPOLL are confugurable values in the
-	// reference implementation, so only MAXDISP check has hardcoded value.
-	// root_dist should also have following summands
-	// + Dispersion towards the peer
-	// + jitter of the link to the peer
-	// + PHI * (current_uptime - peer->uptime_of_last_update)
-	// but all these values are 0 if only single NTP packet was sent.
-	root_dist := (resp.RTT+resp.RootDelay)/2 + resp.RootDispersion
-
-	// RTT    = (T4 - T1) - (T3 - T2)     =   T4 - T3 + T2 - T1
-	// Offset = (T2 + T3)/2 - (T4 + T1)/2 = (-T4 + T3 + T2 - T1) / 2
-	// => T2 - T1 = RTT/2 + Offset && T4 - T3 = RTT/2 - Offset
-	// If system wall-clock is synced to NTP-clock then T2 >= T1 && T4 >= T3.
-	// This check is required for chrony as it starts relaying sane NTP
-	// clock before system wall-clock is actually adjusted.  Negative value
-	// in t21 or t43 represents error in time ordering.
-	t21 := resp.RTT/2 + resp.ClockOffset
-	t43 := resp.RTT/2 - resp.ClockOffset
-
-	// ntpOffsetTolerance is added to avoid warning on following chrony
-	// state that is _practically_ sane: RTT = 0.000174662,
-	// ClockOffset = -0.000261665, Self-reported Offset = -0.000215618
-	// Negative offset tolerance is used for code readability, perfect t21
-	// and t43 should be non-negative, code tolerates "small negative" values.
-	h24 := 24 * time.Hour
-	err_margin := -1 * *ntpOffsetTolerance
+	maxerr := *ntpOffsetTolerance
 	if resp.Leap == ntp.LeapAddSecond || resp.Leap == ntp.LeapDelSecond {
 		// state of leapMidnight is cached as leap flag is dropped right after midnight
-		leapMidnight = resp.Time.Truncate(h24).Add(h24)
+		leapMidnight = resp.Time.Truncate(Hour24).Add(Hour24)
 	}
-	if leapMidnight.Add(-h24).Before(resp.Time) && resp.Time.Before(leapMidnight.Add(h24)) {
+	if leapMidnight.Add(-Hour24).Before(resp.Time) && resp.Time.Before(leapMidnight.Add(Hour24)) {
 		// tolerate leap smearing
-		err_margin -= time.Second
+		maxerr += time.Second
 	}
 
-	var sanity float64
-	if resp.Leap != ntp.LeapNotInSync &&
-		0 < resp.Stratum && resp.Stratum < ntp.MaxStratum &&
-		0 <= freshness && // from packet()
-		freshness <= (1<<maxPoll)*time.Second && // FYI: ntpdate uses 24h as a heuristics instead of ~36h derived from MAXPOLL
-		lambda <= maxDispersion*time.Second && // from packet()
-		root_dist <= *ntpMaxDistance && // from fit()
-		0 <= resp.RTT && // ensuring that clock tick forward
-		err_margin <= t21 && // ensuring that casuality is not violated
-		err_margin <= t43 {
-		sanity = 1.
+	if resp.Validate() && resp.RootDistance <= *ntpMaxDistance && resp.CausalityViolation <= maxerr {
+		ch <- c.sanity.mustNewConstMetric(1)
+	} else {
+		ch <- c.sanity.mustNewConstMetric(0)
 	}
-	ch <- c.sanity.mustNewConstMetric(sanity)
+
 	return nil
 }
