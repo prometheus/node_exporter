@@ -20,7 +20,24 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-func TestDisableDefaults(t *testing.T) {
+func TestCollectorFlagsDisableTextfile(t *testing.T) {
+	_, err := kingpin.CommandLine.Parse([]string{"--no-collector.textfile.enabled"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, err := NewNodeCollector()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(c.Collectors) == 0 {
+		t.Errorf("Expected at least one collector, got %d", len(c.Collectors))
+	}
+	if _, ok := c.Collectors["textfile"]; ok {
+		t.Error("Expected textfile collector to be disabled, but it is not")
+	}
+}
+
+func TestCollectorFlagsDisableDefaults(t *testing.T) {
 	_, err := kingpin.CommandLine.Parse([]string{"--collectors.disable-defaults"})
 	if err != nil {
 		t.Fatal(err)
@@ -34,7 +51,7 @@ func TestDisableDefaults(t *testing.T) {
 	}
 }
 
-func TestDisableDefaultsEnableTextfile(t *testing.T) {
+func TestCollectorFlagsDisableDefaultsEnableTextfile(t *testing.T) {
 	_, err := kingpin.CommandLine.Parse([]string{"--collectors.disable-defaults", "--collector.textfile.enabled"})
 	if err != nil {
 		t.Fatal(err)

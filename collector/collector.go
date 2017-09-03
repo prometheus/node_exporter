@@ -58,7 +58,13 @@ const (
 
 type collectorState struct {
 	flagState    bool
+	flagSet      bool
 	defaultState bool
+}
+
+func (state *collectorState) set(c *kingpin.ParseContext) error {
+	state.flagSet = true
+	return nil
 }
 
 var collectorStates = make(map[string]*collectorState)
@@ -70,7 +76,7 @@ func registerCollector(collector string, defaultState bool, factory func() (Coll
 	state := collectorState{
 		defaultState: defaultState,
 	}
-	kingpin.Flag(flagName, flagHelp).BoolVar(&state.flagState)
+	kingpin.Flag(flagName, flagHelp).Action(state.set).BoolVar(&state.flagState)
 	collectorStates[collector] = &state
 
 	Factories[collector] = factory
@@ -84,8 +90,15 @@ type NodeCollector struct {
 func NewNodeCollector() (*NodeCollector, error) {
 	collectors := make(map[string]Collector)
 	for key, state := range collectorStates {
+		enable := false
 		// Enable the collector if it has been enabled by a flag, OR if it is enabled by default, and the defaults are not disabled
-		if state.flagState || (state.defaultState && !*disableDefaultCollectors) {
+		if state.flagSet {
+			enable = state.flagState
+		} else if state.defaultState {
+			enable = !*disableDefaultCollectors
+		}
+
+		if enable {
 			collector, err := Factories[key]()
 			if err != nil {
 				return nil, err
