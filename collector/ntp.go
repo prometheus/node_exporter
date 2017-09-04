@@ -119,7 +119,6 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 		Timeout: time.Second, // default `ntpdate` timeout
 	})
 	if err != nil {
-		// XXX: should it report `sanity=0` in this case?
 		return fmt.Errorf("couldn't get SNTP reply: %s", err)
 	}
 
