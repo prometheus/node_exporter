@@ -80,13 +80,13 @@ func NewNtpCollector() (Collector, error) {
 			nil, nil,
 		), prometheus.GaugeValue},
 		rtt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "rtt"),
-			"RTT to NTPD, seconds.",
+			prometheus.BuildFQName(Namespace, "ntp", "rtt_seconds"),
+			"RTT to NTPD.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		offset: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "offset"),
-			"ClockOffset between NTP and local clock, seconds.",
+			prometheus.BuildFQName(Namespace, "ntp", "offset_seconds"),
+			"ClockOffset between NTP and local clock.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		reftime: typedDesc{prometheus.NewDesc(
@@ -95,13 +95,13 @@ func NewNtpCollector() (Collector, error) {
 			nil, nil,
 		), prometheus.GaugeValue},
 		rootDelay: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "root_delay"),
-			"NTPD RootDelay, seconds.",
+			prometheus.BuildFQName(Namespace, "ntp", "root_delay_seconds"),
+			"NTPD RootDelay.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		rootDispersion: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "root_dispersion"),
-			"NTPD RootDispersion, seconds.",
+			prometheus.BuildFQName(Namespace, "ntp", "root_dispersion_seconds"),
+			"NTPD RootDispersion.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		sanity: typedDesc{prometheus.NewDesc(
