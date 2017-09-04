@@ -19,6 +19,8 @@ below list all existing collectors and the supported systems.
 Collectors are enabled by providing a `--collector.<name>.enabled` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.name.enabled` flag.
 
+To disable _all_ collectors that are enabled by default, pass the `--collectors.disable-defaults` flag.
+
 ### Enabled by default
 
 Name     | Description | OS
