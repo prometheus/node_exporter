@@ -122,27 +122,10 @@ To see all available configuration flags:
 
 
 ## Using Docker
-The node\_exporter is designed to monitor the host system. It's not recommended
-to deploy it as Docker container because it requires access to the host system.
-If you need to run it on Docker, you can deploy this exporter using the
-[node-exporter Docker
-image](https://quay.io/repository/prometheus/node-exporter) with the following
-options and bind-mounts:
 
 ```bash
-docker run -d -p 9100:9100 \
-  -v "/proc:/host/proc:ro" \
-  -v "/sys:/host/sys:ro" \
-  -v "/:/rootfs:ro" \
-  --net="host" \
-  quay.io/prometheus/node-exporter \
-    --collector.procfs /host/proc \
-    --collector.sysfs /host/sys \
-    --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
+docker run -d --net="host" --pid="host" quay.io/prometheus/node-exporter
 ```
-
-Be aware though that the mountpoint label in various metrics will now have
-`/rootfs` as prefix.
 
 ## Using a third-party repository for RHEL/CentOS/Fedora
 
