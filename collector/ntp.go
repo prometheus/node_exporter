@@ -76,7 +76,7 @@ func NewNtpCollector() (Collector, error) {
 		), prometheus.GaugeValue},
 		leap: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(Namespace, "ntp", "leap"),
-			"NTPD leap second flag, raw.",
+			"NTPD leap second indicator, 2 bits.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		rtt: typedDesc{prometheus.NewDesc(
