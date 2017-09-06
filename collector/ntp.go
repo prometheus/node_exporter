@@ -90,7 +90,7 @@ func NewNtpCollector() (Collector, error) {
 			nil, nil,
 		), prometheus.GaugeValue},
 		reftime: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "reftime"),
+			prometheus.BuildFQName(Namespace, "ntp", "reference_timestamp_seconds"),
 			"NTPD ReferenceTime, UNIX timestamp.",
 			nil, nil,
 		), prometheus.GaugeValue},

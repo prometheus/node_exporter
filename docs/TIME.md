@@ -34,14 +34,15 @@ time, so this offset is irrelevant for this NTPD.
 
 This value is used in sanity check as part of causality violation estimate.
 
-### `node_ntp_reftime`
+### `node_ntp_reference_timestamp_seconds`
 
 Reference Time. This field show time when the last adjustment was made, but
 implementation details vary from "**local** wall-clock time" to "Reference Time
 field in incoming SNTP packet".
 
-`time() - node_ntp_reftime` and `node_time - node_ntp_reftime` represent some
-estimate of "freshness" of synchronization.
+`time() - node_ntp_reference_timestamp_seconds` and
+`node_time - node_ntp_reference_timestamp_seconds` represent some estimate of
+"freshness" of synchronization.
 
 ### `node_ntp_root_delay` and `node_ntp_root_dispersion`
 
