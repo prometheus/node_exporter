@@ -27,6 +27,7 @@ import (
 
 const (
 	hour24 = 24 * time.Hour // `time` does not export `Day` as Day != 24h because of DST
+	ntpSubsystem = "ntp"
 )
 
 var (
@@ -70,42 +71,42 @@ func NewNtpCollector() (Collector, error) {
 
 	return &ntpCollector{
 		stratum: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "stratum"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "stratum"),
 			"NTPD stratum.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		leap: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "leap"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "leap"),
 			"NTPD leap second indicator, 2 bits.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		rtt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "rtt_seconds"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "rtt_seconds"),
 			"RTT to NTPD.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		offset: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "offset_seconds"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "offset_seconds"),
 			"ClockOffset between NTP and local clock.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		reftime: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "reference_timestamp_seconds"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "reference_timestamp_seconds"),
 			"NTPD ReferenceTime, UNIX timestamp.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		rootDelay: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "root_delay_seconds"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "root_delay_seconds"),
 			"NTPD RootDelay.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		rootDispersion: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "root_dispersion_seconds"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "root_dispersion_seconds"),
 			"NTPD RootDispersion.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		sanity: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "ntp", "sanity"),
+			prometheus.BuildFQName(Namespace, ntpSubsystem, "sanity"),
 			"NTPD sanity according to RFC5905 heuristics and configured limits.",
 			nil, nil,
 		), prometheus.GaugeValue},
