@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// DEPRECATED: Use NTPd text exporter instead
+
 // +build !nontp
 
 package collector
