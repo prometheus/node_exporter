@@ -27,10 +27,10 @@
 			"revisionTime": "2015-10-22T06:55:26Z"
 		},
 		{
-			"checksumSHA1": "gDdXOAXWhLHmSRN+TJ6MiPJFjh4=",
+			"checksumSHA1": "X73SC/5YR0afYD/tq802Shxb0UI=",
 			"path": "github.com/beevik/ntp",
-			"revision": "a89df35c13954f2f8fd8e34784cfd23be611ca1e",
-			"revisionTime": "2017-02-18T03:32:57Z"
+			"revision": "74e5133786235ede462c83c17fa3b34653901719",
+			"revisionTime": "2017-08-25T09:16:23Z"
 		},
 		{
 			"checksumSHA1": "spyv5/YFBjYyZLZa1U2LBfDR8PM=",
@@ -193,6 +193,24 @@
 			"path": "golang.org/x/net/bpf",
 			"revision": "749a502dd1eaf3e5bfd4f8956748c502357c0bbe",
 			"revisionTime": "2016-09-12T14:44:02Z"
+		},
+		{
+			"checksumSHA1": "YoSf+PgTWvHmFVaF3MrtZz3kX38=",
+			"path": "golang.org/x/net/internal/iana",
+			"revision": "1c05540f6879653db88113bc4a2b70aec4bd491f",
+			"revisionTime": "2017-08-04T00:04:37Z"
+		},
+		{
+			"checksumSHA1": "5eWwtQVHJ0Lp2/538Kve2KuE8gQ=",
+			"path": "golang.org/x/net/internal/socket",
+			"revision": "1c05540f6879653db88113bc4a2b70aec4bd491f",
+			"revisionTime": "2017-08-04T00:04:37Z"
+		},
+		{
+			"checksumSHA1": "ZGMENpNTj2hojdJMcrUO+UPKVgE=",
+			"path": "golang.org/x/net/ipv4",
+			"revision": "1c05540f6879653db88113bc4a2b70aec4bd491f",
+			"revisionTime": "2017-08-04T00:04:37Z"
 		},
 		{
 			"checksumSHA1": "RZn37yez/F+5r/PsTW+7w3Ie1mQ=",
