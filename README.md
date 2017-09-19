@@ -44,6 +44,7 @@ sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 time | Exposes the current system time. | _any_
+timex | Exposes selected adjtimex(2) system call stats. | Linux
 uname | Exposes system information as provided by the uname system call. | Linux
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
