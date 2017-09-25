@@ -124,7 +124,10 @@ To see all available configuration flags:
 ## Using Docker
 
 ```bash
-docker run -d --net="host" --pid="host" quay.io/prometheus/node-exporter
+docker run -d \
+  --net="host" \
+  --pid="host" \
+  quay.io/prometheus/node-exporter
 ```
 
 ## Using a third-party repository for RHEL/CentOS/Fedora
