@@ -39,6 +39,7 @@ COLLECTORS
 disabled_collectors=$(cat << COLLECTORS
   filesystem
   time
+  timex
   uname
   vmstat
 COLLECTORS
