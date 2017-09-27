@@ -41,7 +41,7 @@ type wifiCollector struct {
 }
 
 var (
-	collectorWifi = kingpin.Flag("collector.wifi", "test fixtures to use for wifi collector metrics").Default("").String()
+	collectorWifi = kingpin.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
 )
 
 func init() {

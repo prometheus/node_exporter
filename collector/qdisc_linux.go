@@ -34,7 +34,7 @@ type qdiscStatCollector struct {
 }
 
 var (
-	collectorQdisc = kingpin.Flag("collector.qdisc", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
+	collectorQdisc = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
 )
 
 func init() {
