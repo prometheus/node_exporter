@@ -28,9 +28,9 @@ import (
 
 const (
 	// The system clock is not synchronized to a reliable server.
-	timeError    = C.TIME_ERROR
+	timeError = C.TIME_ERROR
 	// The timex.Status time resolution bit, 0 = microsecond, 1 = nanoseconds.
-	staNano      = C.STA_NANO
+	staNano = C.STA_NANO
 	// 1 second in
 	nanoSeconds  = 1000000000
 	microSeconds = 1000000
@@ -57,7 +57,7 @@ type timexCollector struct {
 }
 
 func init() {
-	Factories["timex"] = NewTimexCollector
+	registerCollector("timex", defaultEnabled, NewTimexCollector)
 }
 
 // NewTimexCollector returns a new Collector exposing adjtime(3) stats.
@@ -66,87 +66,87 @@ func NewTimexCollector() (Collector, error) {
 
 	return &timexCollector{
 		offset: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "offset_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "offset_seconds"),
 			"Time offset in between local system and reference clock.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		freq: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "frequency_adjustment"),
+			prometheus.BuildFQName(namespace, subsystem, "frequency_adjustment"),
 			"Local clock frequency adjustment.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		maxerror: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "maxerror_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "maxerror_seconds"),
 			"Maximum error in seconds.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		esterror: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "estimated_error_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "estimated_error_seconds"),
 			"Estimated error in seconds.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		status: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "status"),
+			prometheus.BuildFQName(namespace, subsystem, "status"),
 			"Value of the status array bits.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		constant: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "loop_time_constant"),
+			prometheus.BuildFQName(namespace, subsystem, "loop_time_constant"),
 			"Phase-locked loop time constant.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		tick: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "tick_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "tick_seconds"),
 			"Seconds between clock ticks.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		ppsfreq: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_frequency"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_frequency"),
 			"Pulse per second frequency.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		jitter: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_jitter_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_jitter_seconds"),
 			"Pulse per second jitter.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		shift: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_shift_seconds"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_shift_seconds"),
 			"Pulse per second interval duration.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		stabil: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_stability"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_stability"),
 			"Pulse per second stability.",
 			nil, nil,
 		), prometheus.CounterValue},
 		jitcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_jitter_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_jitter_count"),
 			"Pulse per second count of jitter limit exceeded events.",
 			nil, nil,
 		), prometheus.CounterValue},
 		calcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_calibration_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_calibration_count"),
 			"Pulse per second count of calibration intervals.",
 			nil, nil,
 		), prometheus.CounterValue},
 		errcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_error_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_error_count"),
 			"Pulse per second count of calibration errors.",
 			nil, nil,
 		), prometheus.CounterValue},
 		stbcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "pps_stability_exceeded_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_stability_exceeded_count"),
 			"Pulse per second count of stability limit exceeded events.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		tai: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "tai_offset"),
+			prometheus.BuildFQName(namespace, subsystem, "tai_offset"),
 			"International Atomic Time (TAI) offset.",
 			nil, nil,
 		), prometheus.GaugeValue},
 		syncStatus: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, "sync_status"),
+			prometheus.BuildFQName(namespace, subsystem, "sync_status"),
 			"Is clock synchronized to a reliable server (1 = yes, 0 = no).",
 			nil, nil,
 		), prometheus.GaugeValue},

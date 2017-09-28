@@ -27,7 +27,7 @@ type xfsCollector struct {
 }
 
 func init() {
-	Factories["xfs"] = NewXFSCollector
+	registerCollector("xfs", defaultEnabled, NewXFSCollector)
 }
 
 // NewXFSCollector returns a new Collector exposing XFS statistics.
@@ -179,7 +179,7 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 
 	for _, m := range metrics {
 		desc := prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, m.name),
+			prometheus.BuildFQName(namespace, subsystem, m.name),
 			m.desc,
 			labels,
 			nil,

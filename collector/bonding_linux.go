@@ -31,7 +31,7 @@ type bondingCollector struct {
 }
 
 func init() {
-	Factories["bonding"] = NewBondingCollector
+	registerCollector("bonding", defaultDisabled, NewBondingCollector)
 }
 
 // NewBondingCollector returns a newly allocated bondingCollector.
@@ -39,12 +39,12 @@ func init() {
 func NewBondingCollector() (Collector, error) {
 	return &bondingCollector{
 		slaves: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "bonding", "slaves"),
+			prometheus.BuildFQName(namespace, "bonding", "slaves"),
 			"Number of configured slaves per bonding interface.",
 			[]string{"master"}, nil,
 		), prometheus.GaugeValue},
 		active: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "bonding", "active"),
+			prometheus.BuildFQName(namespace, "bonding", "active"),
 			"Number of active slaves per bonding interface.",
 			[]string{"master"}, nil,
 		), prometheus.GaugeValue},

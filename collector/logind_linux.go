@@ -38,7 +38,7 @@ var (
 	attrClassValues  = []string{"other", "user", "greeter", "lock-screen", "background"}
 
 	sessionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, logindSubsystem, "sessions"),
+		prometheus.BuildFQName(namespace, logindSubsystem, "sessions"),
 		"Number of sessions registered in logind.", []string{"seat", "remote", "type", "class"}, nil,
 	)
 )
@@ -78,7 +78,7 @@ type logindSeatEntry struct {
 }
 
 func init() {
-	Factories["logind"] = NewLogindCollector
+	registerCollector("logind", defaultDisabled, NewLogindCollector)
 }
 
 // NewLogindCollector returns a new Collector exposing logind statistics.

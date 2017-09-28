@@ -41,7 +41,7 @@ type systemdCollector struct {
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
 
 func init() {
-	Factories["systemd"] = NewSystemdCollector
+	registerCollector("systemd", defaultDisabled, NewSystemdCollector)
 }
 
 // NewSystemdCollector returns a new Collector exposing systemd statistics.
@@ -49,11 +49,11 @@ func NewSystemdCollector() (Collector, error) {
 	const subsystem = "systemd"
 
 	unitDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "unit_state"),
+		prometheus.BuildFQName(namespace, subsystem, "unit_state"),
 		"Systemd unit", []string{"name", "state"}, nil,
 	)
 	systemRunningDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "system_running"),
+		prometheus.BuildFQName(namespace, subsystem, "system_running"),
 		"Whether the system is operational (see 'systemctl is-system-running')",
 		nil, nil,
 	)

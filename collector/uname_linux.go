@@ -22,7 +22,7 @@ import (
 )
 
 var unameDesc = prometheus.NewDesc(
-	prometheus.BuildFQName(Namespace, "uname", "info"),
+	prometheus.BuildFQName(namespace, "uname", "info"),
 	"Labeled system information as provided by the uname system call.",
 	[]string{
 		"sysname",
@@ -38,7 +38,7 @@ var unameDesc = prometheus.NewDesc(
 type unameCollector struct{}
 
 func init() {
-	Factories["uname"] = newUnameCollector
+	registerCollector("uname", defaultEnabled, newUnameCollector)
 }
 
 // NewUnameCollector returns new unameCollector.

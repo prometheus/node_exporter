@@ -34,13 +34,13 @@ type buddyinfoCollector struct {
 }
 
 func init() {
-	Factories["buddyinfo"] = NewBuddyinfoCollector
+	registerCollector("buddyinfo", defaultDisabled, NewBuddyinfoCollector)
 }
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
 func NewBuddyinfoCollector() (Collector, error) {
 	desc := prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, buddyInfoSubsystem, "count"),
+		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "count"),
 		"Count of free blocks according to size.",
 		[]string{"node", "zone", "size"}, nil,
 	)

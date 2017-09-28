@@ -58,14 +58,14 @@ type tcpStatCollector struct {
 }
 
 func init() {
-	Factories["tcpstat"] = NewTCPStatCollector
+	registerCollector("tcpstat", defaultDisabled, NewTCPStatCollector)
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
 func NewTCPStatCollector() (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "tcp", "connection_states"),
+			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
 			[]string{"state"}, nil,
 		), prometheus.GaugeValue},

@@ -52,14 +52,14 @@ type statCollector struct {
 }
 
 func init() {
-	Factories["cpu"] = NewCPUCollector
+	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }
 
 // NewCPUCollector returns a new Collector exposing CPU stats.
 func NewCPUCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "cpu"),
+			prometheus.BuildFQName(namespace, "", "cpu"),
 			"Seconds the cpus spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),

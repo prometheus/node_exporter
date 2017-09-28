@@ -2,7 +2,7 @@
 
 set -euf -o pipefail
 
-collectors=$(cat << COLLECTORS
+enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
   buddyinfo
@@ -34,6 +34,14 @@ collectors=$(cat << COLLECTORS
   wifi
   xfs
   zfs
+COLLECTORS
+)
+disabled_collectors=$(cat << COLLECTORS
+  filesystem
+  time
+  timex
+  uname
+  vmstat
 COLLECTORS
 )
 cd "$(dirname $0)"
@@ -74,13 +82,14 @@ then
 fi
 
 ./node_exporter \
-  --collector.procfs="collector/fixtures/proc" \
-  --collector.sysfs="collector/fixtures/sys" \
-  --collectors.enabled="$(echo ${collectors} | tr ' ' ',')" \
+  --path.procfs="collector/fixtures/proc" \
+  --path.sysfs="collector/fixtures/sys" \
+  $(for c in ${enabled_collectors}; do echo --collector.${c}  ; done) \
+  $(for c in ${disabled_collectors}; do echo --no-collector.${c}  ; done) \
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   --collector.megacli.command="collector/fixtures/megacli" \
-  --collector.wifi="collector/fixtures/wifi" \
-  --collector.qdisc="collector/fixtures/qdisc/" \
+  --collector.wifi.fixtures="collector/fixtures/wifi" \
+  --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 

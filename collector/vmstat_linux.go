@@ -32,7 +32,7 @@ const (
 type vmStatCollector struct{}
 
 func init() {
-	Factories["vmstat"] = NewvmStatCollector
+	registerCollector("vmstat", defaultEnabled, NewvmStatCollector)
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
@@ -57,7 +57,7 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName(Namespace, vmStatSubsystem, parts[0]),
+				prometheus.BuildFQName(namespace, vmStatSubsystem, parts[0]),
 				fmt.Sprintf("/proc/vmstat information field %s.", parts[0]),
 				nil, nil),
 			prometheus.UntypedValue,

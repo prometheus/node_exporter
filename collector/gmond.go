@@ -41,7 +41,7 @@ type gmondCollector struct {
 }
 
 func init() {
-	Factories["gmond"] = NewGmondCollector
+	registerCollector("gmond", defaultDisabled, NewGmondCollector)
 }
 
 var illegalCharsRE = regexp.MustCompile(`[^a-zA-Z0-9_]`)

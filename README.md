@@ -16,7 +16,8 @@ The [WMI exporter](https://github.com/martinlindhe/wmi_exporter) is recommended 
 There is varying support for collectors on each operating system. The tables
 below list all existing collectors and the supported systems.
 
-Which collectors are used is controlled by the `--collectors.enabled` flag.
+Collectors are enabled by providing a `--collector.<name>` flag.
+Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
 
 ### Enabled by default
 
@@ -137,8 +138,8 @@ docker run -d -p 9100:9100 \
   -v "/:/rootfs:ro" \
   --net="host" \
   quay.io/prometheus/node-exporter \
-    --collector.procfs /host/proc \
-    --collector.sysfs /host/sys \
+    --path.procfs /host/proc \
+    --path.sysfs /host/sys \
     --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
 ```
 

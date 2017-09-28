@@ -32,7 +32,7 @@ const (
 type fileFDStatCollector struct{}
 
 func init() {
-	Factories[fileFDStatSubsystem] = NewFileFDStatCollector
+	registerCollector(fileFDStatSubsystem, defaultEnabled, NewFileFDStatCollector)
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
@@ -52,7 +52,7 @@ func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName(Namespace, fileFDStatSubsystem, name),
+				prometheus.BuildFQName(namespace, fileFDStatSubsystem, name),
 				fmt.Sprintf("File descriptor statistics: %s.", name),
 				nil, nil,
 			),

@@ -27,7 +27,7 @@ type timeCollector struct {
 }
 
 func init() {
-	Factories["time"] = NewTimeCollector
+	registerCollector("time", defaultEnabled, NewTimeCollector)
 }
 
 // NewTimeCollector returns a new Collector exposing the current system time in
@@ -35,7 +35,7 @@ func init() {
 func NewTimeCollector() (Collector, error) {
 	return &timeCollector{
 		desc: prometheus.NewDesc(
-			Namespace+"_time",
+			namespace+"_time",
 			"System time in seconds since epoch (1970).",
 			nil, nil,
 		),

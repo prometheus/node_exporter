@@ -25,7 +25,7 @@ import (
 )
 
 func init() {
-	Factories["bcache"] = NewBcacheCollector
+	registerCollector("bcache", defaultEnabled, NewBcacheCollector)
 }
 
 // A bcacheCollector is a Collector which gathers metrics from Linux bcache.
@@ -283,7 +283,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		labels := append(devLabel, m.extraLabel...)
 
 		desc := prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, m.name),
+			prometheus.BuildFQName(namespace, subsystem, m.name),
 			m.desc,
 			labels,
 			nil,

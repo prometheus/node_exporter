@@ -99,24 +99,24 @@ type devstatCollector struct {
 }
 
 func init() {
-	Factories["devstat"] = NewDevstatCollector
+	registerCollector("devstat", defaultDisabled, NewDevstatCollector)
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
 		bytesDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, devstatSubsystem, "bytes_total"),
+			prometheus.BuildFQName(namespace, devstatSubsystem, "bytes_total"),
 			"The total number of bytes transferred for reads and writes on the device.",
 			[]string{"device"}, nil,
 		),
 		transfersDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, devstatSubsystem, "transfers_total"),
+			prometheus.BuildFQName(namespace, devstatSubsystem, "transfers_total"),
 			"The total number of transactions completed.",
 			[]string{"device"}, nil,
 		),
 		blocksDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, devstatSubsystem, "blocks_total"),
+			prometheus.BuildFQName(namespace, devstatSubsystem, "blocks_total"),
 			"The total number of bytes given in terms of the devices blocksize.",
 			[]string{"device"}, nil,
 		),

@@ -27,7 +27,7 @@ import (
 )
 
 func TestIPVSCollector(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--collector.procfs", "fixtures/proc"}); err != nil {
+	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := newIPVSCollector()
@@ -76,7 +76,7 @@ func (c miniCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func TestIPVSCollectorResponse(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--collector.procfs", "fixtures/proc"}); err != nil {
+	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
 	collector, err := NewIPVSCollector()

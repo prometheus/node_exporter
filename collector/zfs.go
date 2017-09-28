@@ -29,7 +29,7 @@ var errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
 type zfsSysctl string
 
 func init() {
-	Factories["zfs"] = NewZFSCollector
+	registerCollector("zfs", defaultEnabled, NewZFSCollector)
 }
 
 type zfsCollector struct {
@@ -80,7 +80,7 @@ func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, val
 
 	return prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, metricName),
+			prometheus.BuildFQName(namespace, subsystem, metricName),
 			string(sysctl),
 			nil,
 			nil,
@@ -95,7 +95,7 @@ func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value 
 
 	return prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "zfs_zpool", metricName),
+			prometheus.BuildFQName(namespace, "zfs_zpool", metricName),
 			string(sysctl),
 			[]string{"zpool"},
 			nil,

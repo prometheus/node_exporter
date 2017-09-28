@@ -36,7 +36,7 @@ type netDevCollector struct {
 }
 
 func init() {
-	Factories["netdev"] = NewNetDevCollector
+	registerCollector("netdev", defaultEnabled, NewNetDevCollector)
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
@@ -59,7 +59,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			desc, ok := c.metricDescs[key]
 			if !ok {
 				desc = prometheus.NewDesc(
-					prometheus.BuildFQName(Namespace, c.subsystem, key),
+					prometheus.BuildFQName(namespace, c.subsystem, key),
 					fmt.Sprintf("Network device statistic %s.", key),
 					[]string{"device"},
 					nil,

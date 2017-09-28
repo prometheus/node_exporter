@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	cpuCollectorNamespace = "cpu"
+	cpuCollectorSubsystem = "cpu"
 )
 
 var (
@@ -46,40 +46,40 @@ type cpuCollector struct {
 }
 
 func init() {
-	Factories["cpu"] = NewCPUCollector
+	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
 		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", cpuCollectorNamespace),
+			prometheus.BuildFQName(namespace, "", cpuCollectorSubsystem),
 			"Seconds the cpus spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
 		cpuFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpuCollectorNamespace, "frequency_hertz"),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
 			"Current cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		cpuFreqMin: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpuCollectorNamespace, "frequency_min_hertz"),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_min_hertz"),
 			"Minimum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		cpuFreqMax: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpuCollectorNamespace, "frequency_max_hertz"),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
 			"Maximum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		// FIXME: This should be a per core metric, not per cpu!
 		cpuCoreThrottle: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpuCollectorNamespace, "core_throttles_total"),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
 			"Number of times this cpu core has been throttled.",
 			[]string{"cpu"}, nil,
 		),
 		cpuPackageThrottle: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, cpuCollectorNamespace, "package_throttles_total"),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
 			"Number of times this cpu package has been throttled.",
 			[]string{"node"}, nil,
 		),
