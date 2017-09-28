@@ -14,10 +14,8 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	_ "net/http/pprof"
-	"sort"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -33,9 +31,8 @@ func init() {
 
 func main() {
 	var (
-		listenAddress   = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").String()
-		metricsPath     = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
-		printCollectors = kingpin.Flag("collectors.print", "If true, print available collectors and exit.").Bool()
+		listenAddress = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").String()
+		metricsPath   = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
 	)
 
 	log.AddFlags(kingpin.CommandLine)
@@ -45,19 +42,6 @@ func main() {
 
 	log.Infoln("Starting node_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())
-
-	if *printCollectors {
-		collectorNames := make(sort.StringSlice, 0, len(collector.Factories))
-		for n := range collector.Factories {
-			collectorNames = append(collectorNames, n)
-		}
-		collectorNames.Sort()
-		fmt.Printf("Available collectors:\n")
-		for _, n := range collectorNames {
-			fmt.Printf(" - %s\n", n)
-		}
-		return
-	}
 
 	nc, err := collector.NewNodeCollector()
 	if err != nil {

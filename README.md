@@ -17,7 +17,7 @@ There is varying support for collectors on each operating system. The tables
 below list all existing collectors and the supported systems.
 
 Collectors are enabled by providing a `--collector.<name>` flag.
-Collectors that are enabled by default can be disabled by providing a `--no-collector.name` flag.
+Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
 
 ### Enabled by default
 

@@ -27,9 +27,6 @@ import (
 // Namespace defines the common namespace to be used by all metrics.
 const namespace = "node"
 
-// Factories contains the list of all available collectors.
-var Factories = make(map[string]func() (Collector, error))
-
 var (
 	scrapeDurationDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "scrape", "collector_duration_seconds"),
@@ -54,7 +51,10 @@ const (
 	defaultDisabled = false
 )
 
-var collectorState = make(map[string]*bool)
+var (
+	factories      = make(map[string]func() (Collector, error))
+	collectorState = make(map[string]*bool)
+)
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func() (Collector, error)) {
 	var helpDefaultState string
@@ -71,36 +71,37 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Bool()
 	collectorState[collector] = flag
 
-	Factories[collector] = factory
+	factories[collector] = factory
 }
 
 // NodeCollector implements the prometheus.Collector interface.
-type NodeCollector struct {
+type nodeCollector struct {
 	Collectors map[string]Collector
 }
 
-func NewNodeCollector() (*NodeCollector, error) {
+// NewNodeCollector creates a new NodeCollector
+func NewNodeCollector() (*nodeCollector, error) {
 	collectors := make(map[string]Collector)
 	for key, enabled := range collectorState {
 		if *enabled {
-			collector, err := Factories[key]()
+			collector, err := factories[key]()
 			if err != nil {
 				return nil, err
 			}
 			collectors[key] = collector
 		}
 	}
-	return &NodeCollector{Collectors: collectors}, nil
+	return &nodeCollector{Collectors: collectors}, nil
 }
 
 // Describe implements the prometheus.Collector interface.
-func (n NodeCollector) Describe(ch chan<- *prometheus.Desc) {
+func (n nodeCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- scrapeDurationDesc
 	ch <- scrapeSuccessDesc
 }
 
 // Collect implements the prometheus.Collector interface.
-func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
+func (n nodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(n.Collectors))
 	for name, c := range n.Collectors {
