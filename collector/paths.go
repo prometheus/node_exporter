@@ -22,8 +22,8 @@ import (
 
 var (
 	// The path of the proc filesystem.
-	procPath = kingpin.Flag("collector.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
-	sysPath  = kingpin.Flag("collector.sysfs", "sysfs mountpoint.").Default("/sys").String()
+	procPath = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
+	sysPath  = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
 )
 
 func procFilePath(name string) string {

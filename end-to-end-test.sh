@@ -82,8 +82,8 @@ then
 fi
 
 ./node_exporter \
-  --collector.procfs="collector/fixtures/proc" \
-  --collector.sysfs="collector/fixtures/sys" \
+  --path.procfs="collector/fixtures/proc" \
+  --path.sysfs="collector/fixtures/sys" \
   $(for c in ${enabled_collectors}; do echo --collector.${c}  ; done) \
   $(for c in ${disabled_collectors}; do echo --no-collector.${c}  ; done) \
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
