@@ -3,12 +3,6 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "0Tugz8gj9KqqVj6JLkXUA7BXas4=",
-			"path": "github.com/sirupsen/logrus",
-			"revision": "0208149b40d863d2c1a2f8fe5753096a9cf2cc8b",
-			"revisionTime": "2017-02-27T12:44:09Z"
-		},
-		{
 			"checksumSHA1": "KmjnydoAbofMieIWm+it5OWERaM=",
 			"path": "github.com/alecthomas/template",
 			"revision": "a0175ee3bccc567396460bf5acd36800cb10c49c",
@@ -27,10 +21,12 @@
 			"revisionTime": "2015-10-22T06:55:26Z"
 		},
 		{
-			"checksumSHA1": "X73SC/5YR0afYD/tq802Shxb0UI=",
+			"checksumSHA1": "OXcULIfKv/Xcsa4o1By1lY0s+AI=",
 			"path": "github.com/beevik/ntp",
-			"revision": "74e5133786235ede462c83c17fa3b34653901719",
-			"revisionTime": "2017-08-25T09:16:23Z"
+			"revision": "802074b1b037c59dbdbee7e196ad91b51d0ec844",
+			"revisionTime": "2017-10-03T23:10:51Z",
+			"version": "v0.1.1",
+			"versionExact": "v0.1.1"
 		},
 		{
 			"checksumSHA1": "spyv5/YFBjYyZLZa1U2LBfDR8PM=",
@@ -181,6 +177,12 @@
 			"path": "github.com/prometheus/procfs/xfs",
 			"revision": "a66a2f8b6f3fe82a95a1bed0bb3705bac8031717",
 			"revisionTime": "2017-06-07T19:36:46Z"
+		},
+		{
+			"checksumSHA1": "0Tugz8gj9KqqVj6JLkXUA7BXas4=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "0208149b40d863d2c1a2f8fe5753096a9cf2cc8b",
+			"revisionTime": "2017-02-27T12:44:09Z"
 		},
 		{
 			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",
