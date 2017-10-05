@@ -2,6 +2,8 @@
 # TYPE go_gc_duration_seconds summary
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
+# HELP go_info Information about the Go environment.
+# TYPE go_info gauge
 # HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
 # TYPE go_memstats_alloc_bytes gauge
 # HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
@@ -10,6 +12,8 @@
 # TYPE go_memstats_buck_hash_sys_bytes gauge
 # HELP go_memstats_frees_total Total number of frees.
 # TYPE go_memstats_frees_total counter
+# HELP go_memstats_gc_cpu_fraction The fraction of this program's available CPU time used by the GC since the program started.
+# TYPE go_memstats_gc_cpu_fraction gauge
 # HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
 # TYPE go_memstats_gc_sys_bytes gauge
 # HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
@@ -48,7 +52,7 @@
 # TYPE go_memstats_stack_sys_bytes gauge
 # HELP go_memstats_sys_bytes Number of bytes obtained from system.
 # TYPE go_memstats_sys_bytes gauge
-# HELP go_threads Number of OS threads created
+# HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
 # HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
 # TYPE http_request_duration_microseconds summary
