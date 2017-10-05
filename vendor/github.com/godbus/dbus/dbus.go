@@ -2,6 +2,7 @@ package dbus
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"strings"
 )
@@ -24,6 +25,7 @@ var (
 	objectPathType  = reflect.TypeOf(ObjectPath(""))
 	variantType     = reflect.TypeOf(Variant{Signature{""}, nil})
 	interfacesType  = reflect.TypeOf([]interface{}{})
+	interfaceType   = reflect.TypeOf((*interface{})(nil)).Elem()
 	unixFDType      = reflect.TypeOf(UnixFD(0))
 	unixFDIndexType = reflect.TypeOf(UnixFDIndex(0))
 )
@@ -56,27 +58,24 @@ func Store(src []interface{}, dest ...interface{}) error {
 }
 
 func storeInterfaces(src, dest interface{}) error {
-	return store(reflect.ValueOf(src), reflect.ValueOf(dest))
+	return store(reflect.ValueOf(dest), reflect.ValueOf(src))
 }
 
-func store(src, dest reflect.Value) error {
-	switch dest.Kind() {
-	case reflect.Ptr:
-		return store(src, dest.Elem())
-	case reflect.Interface:
-		return storeInterface(src, dest)
+func store(dest, src reflect.Value) error {
+	if dest.Kind() == reflect.Ptr {
+		return store(dest.Elem(), src)
+	}
+	switch src.Kind() {
 	case reflect.Slice:
-		return storeSlice(src, dest)
+		return storeSlice(dest, src)
 	case reflect.Map:
-		return storeMap(src, dest)
-	case reflect.Struct:
-		return storeStruct(src, dest)
+		return storeMap(dest, src)
 	default:
-		return storeBase(src, dest)
+		return storeBase(dest, src)
 	}
 }
 
-func storeBase(src, dest reflect.Value) error {
+func storeBase(dest, src reflect.Value) error {
 	return setDest(dest, src)
 }
 
@@ -86,84 +85,205 @@ func setDest(dest, src reflect.Value) error {
 		dest.Set(reflect.ValueOf(MakeVariant(src.Interface())))
 		return nil
 	}
+	if isVariant(src.Type()) && !isVariant(dest.Type()) {
+		src = getVariantValue(src)
+	}
 	if !src.Type().ConvertibleTo(dest.Type()) {
-		return errors.New(
-			"dbus.Store: type mismatch")
+		return fmt.Errorf(
+			"dbus.Store: type mismatch: cannot convert %s to %s",
+			src.Type(), dest.Type())
 	}
 	dest.Set(src.Convert(dest.Type()))
 	return nil
 }
 
-func storeStruct(sv, rv reflect.Value) error {
-	if !sv.Type().AssignableTo(interfacesType) {
-		return setDest(rv, sv)
+func kindsAreCompatible(dest, src reflect.Type) bool {
+	switch {
+	case isVariant(dest):
+		return true
+	case dest.Kind() == reflect.Interface:
+		return true
+	default:
+		return dest.Kind() == src.Kind()
 	}
-	vs := sv.Interface().([]interface{})
-	t := rv.Type()
-	ndest := make([]interface{}, 0, rv.NumField())
-	for i := 0; i < rv.NumField(); i++ {
-		field := t.Field(i)
-		if field.PkgPath == "" && field.Tag.Get("dbus") != "-" {
-			ndest = append(ndest,
-				rv.Field(i).Addr().Interface())
+}
 
-		}
+func isConvertibleTo(dest, src reflect.Type) bool {
+	switch {
+	case isVariant(dest):
+		return true
+	case dest.Kind() == reflect.Interface:
+		return true
+	case dest.Kind() == reflect.Slice:
+		return src.Kind() == reflect.Slice &&
+			isConvertibleTo(dest.Elem(), src.Elem())
+	case dest.Kind() == reflect.Struct:
+		return src == interfacesType
+	default:
+		return src.ConvertibleTo(dest)
 	}
-	if len(vs) != len(ndest) {
-		return errors.New("dbus.Store: type mismatch")
+}
+
+func storeMap(dest, src reflect.Value) error {
+	switch {
+	case !kindsAreCompatible(dest.Type(), src.Type()):
+		return fmt.Errorf(
+			"dbus.Store: type mismatch: "+
+				"map: cannot store a value of %s into %s",
+			src.Type(), dest.Type())
+	case isVariant(dest.Type()):
+		return storeMapIntoVariant(dest, src)
+	case dest.Kind() == reflect.Interface:
+		return storeMapIntoInterface(dest, src)
+	case isConvertibleTo(dest.Type().Key(), src.Type().Key()) &&
+		isConvertibleTo(dest.Type().Elem(), src.Type().Elem()):
+		return storeMapIntoMap(dest, src)
+	default:
+		return fmt.Errorf(
+			"dbus.Store: type mismatch: "+
+				"map: cannot convert a value of %s into %s",
+			src.Type(), dest.Type())
 	}
-	err := Store(vs, ndest...)
+}
+
+func storeMapIntoVariant(dest, src reflect.Value) error {
+	dv := reflect.MakeMap(src.Type())
+	err := store(dv, src)
 	if err != nil {
-		return errors.New("dbus.Store: type mismatch")
+		return err
 	}
-	return nil
+	return storeBase(dest, dv)
 }
 
-func storeMap(sv, rv reflect.Value) error {
-	if sv.Kind() != reflect.Map {
-		return errors.New("dbus.Store: type mismatch")
+func storeMapIntoInterface(dest, src reflect.Value) error {
+	var dv reflect.Value
+	if isVariant(src.Type().Elem()) {
+		//Convert variants to interface{} recursively when converting
+		//to interface{}
+		dv = reflect.MakeMap(
+			reflect.MapOf(src.Type().Key(), interfaceType))
+	} else {
+		dv = reflect.MakeMap(src.Type())
 	}
-	keys := sv.MapKeys()
-	rv.Set(reflect.MakeMap(rv.Type()))
-	destElemType := rv.Type().Elem()
+	err := store(dv, src)
+	if err != nil {
+		return err
+	}
+	return storeBase(dest, dv)
+}
+
+func storeMapIntoMap(dest, src reflect.Value) error {
+	if dest.IsNil() {
+		dest.Set(reflect.MakeMap(dest.Type()))
+	}
+	keys := src.MapKeys()
 	for _, key := range keys {
-		elemv := sv.MapIndex(key)
-		v := newDestValue(elemv, destElemType)
-		err := store(getVariantValue(elemv), v)
+		dkey := key.Convert(dest.Type().Key())
+		dval := reflect.New(dest.Type().Elem()).Elem()
+		err := store(dval, getVariantValue(src.MapIndex(key)))
 		if err != nil {
 			return err
 		}
-		if !v.Elem().Type().ConvertibleTo(destElemType) {
-			return errors.New(
-				"dbus.Store: type mismatch")
-		}
-		rv.SetMapIndex(key, v.Elem().Convert(destElemType))
+		dest.SetMapIndex(dkey, dval)
 	}
 	return nil
 }
 
-func storeSlice(sv, rv reflect.Value) error {
-	if sv.Kind() != reflect.Slice {
-		return errors.New("dbus.Store: type mismatch")
+func storeSlice(dest, src reflect.Value) error {
+	switch {
+	case src.Type() == interfacesType && dest.Kind() == reflect.Struct:
+		//The decoder always decodes structs as slices of interface{}
+		return storeStruct(dest, src)
+	case !kindsAreCompatible(dest.Type(), src.Type()):
+		return fmt.Errorf(
+			"dbus.Store: type mismatch: "+
+				"slice: cannot store a value of %s into %s",
+			src.Type(), dest.Type())
+	case isVariant(dest.Type()):
+		return storeSliceIntoVariant(dest, src)
+	case dest.Kind() == reflect.Interface:
+		return storeSliceIntoInterface(dest, src)
+	case isConvertibleTo(dest.Type().Elem(), src.Type().Elem()):
+		return storeSliceIntoSlice(dest, src)
+	default:
+		return fmt.Errorf(
+			"dbus.Store: type mismatch: "+
+				"slice: cannot convert a value of %s into %s",
+			src.Type(), dest.Type())
 	}
-	rv.Set(reflect.MakeSlice(rv.Type(), sv.Len(), sv.Len()))
-	destElemType := rv.Type().Elem()
-	for i := 0; i < sv.Len(); i++ {
-		v := newDestValue(sv.Index(i), destElemType)
-		err := store(getVariantValue(sv.Index(i)), v)
-		if err != nil {
-			return err
+}
+
+func storeStruct(dest, src reflect.Value) error {
+	if isVariant(dest.Type()) {
+		return storeBase(dest, src)
+	}
+	dval := make([]interface{}, 0, dest.NumField())
+	dtype := dest.Type()
+	for i := 0; i < dest.NumField(); i++ {
+		field := dest.Field(i)
+		ftype := dtype.Field(i)
+		if ftype.PkgPath != "" {
+			continue
 		}
-		err = setDest(rv.Index(i), v.Elem())
+		if ftype.Tag.Get("dbus") == "-" {
+			continue
+		}
+		dval = append(dval, field.Addr().Interface())
+	}
+	if src.Len() != len(dval) {
+		return fmt.Errorf(
+			"dbus.Store: type mismatch: "+
+				"destination struct does not have "+
+				"enough fields need: %d have: %d",
+			src.Len(), len(dval))
+	}
+	return Store(src.Interface().([]interface{}), dval...)
+}
+
+func storeSliceIntoVariant(dest, src reflect.Value) error {
+	dv := reflect.MakeSlice(src.Type(), src.Len(), src.Cap())
+	err := store(dv, src)
+	if err != nil {
+		return err
+	}
+	return storeBase(dest, dv)
+}
+
+func storeSliceIntoInterface(dest, src reflect.Value) error {
+	var dv reflect.Value
+	if isVariant(src.Type().Elem()) {
+		//Convert variants to interface{} recursively when converting
+		//to interface{}
+		dv = reflect.MakeSlice(reflect.SliceOf(interfaceType),
+			src.Len(), src.Cap())
+	} else {
+		dv = reflect.MakeSlice(src.Type(), src.Len(), src.Cap())
+	}
+	err := store(dv, src)
+	if err != nil {
+		return err
+	}
+	return storeBase(dest, dv)
+}
+
+func storeSliceIntoSlice(dest, src reflect.Value) error {
+	if dest.IsNil() || dest.Len() < src.Len() {
+		dest.Set(reflect.MakeSlice(dest.Type(), src.Len(), src.Cap()))
+	}
+	if dest.Len() != src.Len() {
+		return fmt.Errorf(
+			"dbus.Store: type mismatch: "+
+				"slices are different lengths "+
+				"need: %d have: %d",
+			src.Len(), dest.Len())
+	}
+	for i := 0; i < src.Len(); i++ {
+		err := store(dest.Index(i), getVariantValue(src.Index(i)))
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-func storeInterface(sv, rv reflect.Value) error {
-	return setDest(rv, getVariantValue(sv))
 }
 
 func getVariantValue(in reflect.Value) reflect.Value {
@@ -171,37 +291,6 @@ func getVariantValue(in reflect.Value) reflect.Value {
 		return reflect.ValueOf(in.Interface().(Variant).Value())
 	}
 	return in
-}
-
-func newDestValue(srcValue reflect.Value, destType reflect.Type) reflect.Value {
-	switch srcValue.Kind() {
-	case reflect.Map:
-		switch {
-		case !isVariant(srcValue.Type().Elem()):
-			return reflect.New(destType)
-		case destType.Kind() == reflect.Map:
-			return reflect.New(destType)
-		default:
-			return reflect.New(
-				reflect.MapOf(srcValue.Type().Key(), destType))
-		}
-
-	case reflect.Slice:
-		switch {
-		case !isVariant(srcValue.Type().Elem()):
-			return reflect.New(destType)
-		case destType.Kind() == reflect.Slice:
-			return reflect.New(destType)
-		default:
-			return reflect.New(
-				reflect.SliceOf(destType))
-		}
-	default:
-		if !isVariant(srcValue.Type()) {
-			return reflect.New(destType)
-		}
-		return newDestValue(getVariantValue(srcValue), destType)
-	}
 }
 
 func isVariant(t reflect.Type) bool {
