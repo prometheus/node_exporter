@@ -1,4 +1,5 @@
 typedef struct DriveStats DriveStats;
+typedef struct CPUStats CPUStats;
 
 enum {
 	NDRIVE = 16,
@@ -20,4 +21,12 @@ struct DriveStats {
 	int64_t writelat;
 };
 
+struct CPUStats {
+	natural_t user;
+	natural_t nice;
+	natural_t sys;
+	natural_t idle;
+};
+
 extern int readdrivestat(DriveStats a[], int n);
+extern int readcpustat(CPUStats *cpu);

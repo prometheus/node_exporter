@@ -9,8 +9,6 @@ import (
 	"sync"
 )
 
-const defaultSystemBusAddress = "unix:path=/var/run/dbus/system_bus_socket"
-
 var (
 	systemBus     *Conn
 	systemBusLck  sync.Mutex
@@ -146,22 +144,14 @@ func SystemBus() (conn *Conn, err error) {
 	return
 }
 
-func getSystemBusAddress() string {
-	address := os.Getenv("DBUS_SYSTEM_BUS_ADDRESS")
-	if address != "" {
-		return address
-	}
-	return defaultSystemBusAddress
-}
-
 // SystemBusPrivate returns a new private connection to the system bus.
 func SystemBusPrivate() (*Conn, error) {
-	return Dial(getSystemBusAddress())
+	return Dial(getSystemBusPlatformAddress())
 }
 
 // SystemBusPrivateHandler returns a new private connection to the system bus, using the provided handlers.
 func SystemBusPrivateHandler(handler Handler, signalHandler SignalHandler) (*Conn, error) {
-	return DialHandler(getSystemBusAddress(), handler, signalHandler)
+	return DialHandler(getSystemBusPlatformAddress(), handler, signalHandler)
 }
 
 // Dial establishes a new private connection to the message bus specified by address.
@@ -170,7 +160,7 @@ func Dial(address string) (*Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newConn(tr, newDefaultHandler(), newDefaultSignalHandler())
+	return newConn(tr, NewDefaultHandler(), NewDefaultSignalHandler())
 }
 
 // DialHandler establishes a new private connection to the message bus specified by address, using the supplied handlers.
@@ -184,7 +174,7 @@ func DialHandler(address string, handler Handler, signalHandler SignalHandler) (
 
 // NewConn creates a new private *Conn from an already established connection.
 func NewConn(conn io.ReadWriteCloser) (*Conn, error) {
-	return NewConnHandler(conn, newDefaultHandler(), newDefaultSignalHandler())
+	return NewConnHandler(conn, NewDefaultHandler(), NewDefaultSignalHandler())
 }
 
 // NewConnHandler creates a new private *Conn from an already established connection, using the supplied handlers.
@@ -378,7 +368,7 @@ func (conn *Conn) inWorker() {
 						conn.namesLck.Unlock()
 					}
 				}
-				go conn.handleSignal(msg)
+				conn.handleSignal(msg)
 			case TypeMethodCall:
 				go conn.handleCall(msg)
 			}

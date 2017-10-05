@@ -2,8 +2,12 @@ package dbus
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"os/exec"
 )
+
+const defaultSystemBusAddress = "unix:path=/opt/local/var/run/dbus/system_bus_socket"
 
 func getSessionBusPlatformAddress() (string, error) {
 	cmd := exec.Command("launchctl", "getenv", "DBUS_LAUNCHD_SESSION_BUS_SOCKET")
@@ -18,4 +22,12 @@ func getSessionBusPlatformAddress() (string, error) {
 	}
 
 	return "unix:path=" + string(b[:len(b)-1]), nil
+}
+
+func getSystemBusPlatformAddress() string {
+	address := os.Getenv("DBUS_LAUNCHD_SESSION_BUS_SOCKET")
+	if address != "" {
+		return fmt.Sprintf("unix:path=%s", address)
+	}
+	return defaultSystemBusAddress
 }

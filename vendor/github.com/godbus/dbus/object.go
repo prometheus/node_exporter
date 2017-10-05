@@ -43,7 +43,8 @@ func (o *Object) AddMatchSignal(iface, member string) *Call {
 // will be allocated. Otherwise, ch has to be buffered or Go will panic.
 //
 // If the flags include FlagNoReplyExpected, ch is ignored and a Call structure
-// is returned of which only the Err member is valid.
+// is returned with any error in Err and a closed channel in Done containing
+// the returned Call as it's one entry.
 //
 // If the method parameter contains a dot ('.'), the part before the last dot
 // specifies the interface on which the method is called.
@@ -97,11 +98,21 @@ func (o *Object) Go(method string, flags Flags, ch chan *Call, args ...interface
 	}
 	o.conn.outLck.RLock()
 	defer o.conn.outLck.RUnlock()
+	done := make(chan *Call, 1)
+	call := &Call{
+		Err:  nil,
+		Done: done,
+	}
+	defer func() {
+		call.Done <- call
+		close(done)
+	}()
 	if o.conn.closed {
-		return &Call{Err: ErrClosed}
+		call.Err = ErrClosed
+		return call
 	}
 	o.conn.out <- msg
-	return &Call{Err: nil}
+	return call
 }
 
 // GetProperty calls org.freedesktop.DBus.Properties.GetProperty on the given
@@ -125,12 +136,12 @@ func (o *Object) GetProperty(p string) (Variant, error) {
 	return result, nil
 }
 
-// Destination returns the destination that calls on o are sent to.
+// Destination returns the destination that calls on (o *Object) are sent to.
 func (o *Object) Destination() string {
 	return o.dest
 }
 
-// Path returns the path that calls on o are sent to.
+// Path returns the path that calls on (o *Object") are sent to.
 func (o *Object) Path() ObjectPath {
 	return o.path
 }
