@@ -4,6 +4,7 @@ package iostat
 
 // #cgo LDFLAGS: -framework CoreFoundation -framework IOKit
 // #include <stdint.h>
+// #include <CoreFoundation/CoreFoundation.h>
 // #include "iostat_darwin.h"
 import "C"
 import (
@@ -34,4 +35,32 @@ func ReadDriveStats() ([]*DriveStats, error) {
 		}
 	}
 	return stats, nil
+}
+
+// ReadCPUStats returns statistics of CPU usage.
+func ReadCPUStats() (*CPUStats, error) {
+	var cpu C.CPUStats
+	_, err := C.readcpustat(&cpu)
+	if err != nil {
+		return nil, err
+	}
+	return &CPUStats{
+		User: uint64(cpu.user),
+		Nice: uint64(cpu.nice),
+		Sys:  uint64(cpu.sys),
+		Idle: uint64(cpu.idle),
+	}, nil
+}
+
+// ReadLoadAvg returns load averages over periods of time.
+func ReadLoadAvg() (*LoadAvg, error) {
+	var load [3]C.double
+	if _, err := C.getloadavg(&load[0], C.int(len(load))); err != nil {
+		return nil, err
+	}
+	return &LoadAvg{
+		Load1:  float64(load[0]),
+		Load5:  float64(load[1]),
+		Load15: float64(load[2]),
+	}, nil
 }

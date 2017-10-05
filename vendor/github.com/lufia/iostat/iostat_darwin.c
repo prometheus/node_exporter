@@ -1,13 +1,15 @@
 #include <stdint.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include "iostat_darwin.h"
 
 #define IOKIT	1	/* to get io_name_t in device_types.h */
 
-#include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/storage/IOBlockStorageDriver.h>
 #include <IOKit/storage/IOMedia.h>
 #include <IOKit/IOBSD.h>
+
+#include <mach/mach_host.h>
 
 static int getdrivestat(io_registry_entry_t d, DriveStats *stat);
 static int fillstat(io_registry_entry_t d, DriveStats *stat);
@@ -124,5 +126,25 @@ fillstat(io_registry_entry_t d, DriveStats *stat)
 	}
 
 	CFRelease(props);
+	return 0;
+}
+
+int
+readcpustat(CPUStats *stats)
+{
+	mach_port_t port;
+	host_cpu_load_info_data_t load;
+	mach_msg_type_number_t n;
+	kern_return_t status;
+
+	port = mach_host_self();
+	n = HOST_CPU_LOAD_INFO_COUNT;
+	status = host_statistics(port, HOST_CPU_LOAD_INFO, (host_info_t)&load, &n);
+	if(status != KERN_SUCCESS)
+		return -1;
+	stats->user = load.cpu_ticks[CPU_STATE_USER];
+	stats->nice = load.cpu_ticks[CPU_STATE_NICE];
+	stats->sys = load.cpu_ticks[CPU_STATE_SYSTEM];
+	stats->idle = load.cpu_ticks[CPU_STATE_IDLE];
 	return 0;
 }
