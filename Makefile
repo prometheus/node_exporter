@@ -14,6 +14,7 @@
 GO     ?= GO15VENDOREXPERIMENT=1 go
 GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
 GOARCH := $(shell $(GO) env GOARCH)
+GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
 
 PROMU       ?= $(GOPATH)/bin/promu
 STATICCHECK ?= $(GOPATH)/bin/staticcheck
@@ -25,6 +26,11 @@ DOCKER_IMAGE_NAME       ?= node-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 MACH                    ?= $(shell uname -m)
 DOCKERFILE              ?= Dockerfile
+
+ifeq ($(GOHOSTARCH),amd64)
+	# Only supported on amd64
+	test-flags := -race
+endif
 
 ifeq ($(OS),Windows_NT)
     OS_detected := Windows
@@ -63,7 +69,7 @@ style:
 
 test: collector/fixtures/sys/.unpacked
 	@echo ">> running tests"
-	@$(GO) test -short -race $(pkgs)
+	$(GO) test -short $(test-flags) $(pkgs)
 
 test-32bit: collector/fixtures/sys/.unpacked
 	@echo ">> running tests in 32-bit mode"
