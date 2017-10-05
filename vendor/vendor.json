@@ -43,10 +43,10 @@
 			"versionExact": "v15"
 		},
 		{
-			"checksumSHA1": "5tGizHomeMFHcyROMD2ntrKFR1Q=",
+			"checksumSHA1": "TcRpPaKLcq9Pk27kBcpW5lyFUHg=",
 			"path": "github.com/ema/qdisc",
-			"revision": "2c7e72d2f110bdddf17026872f6c396a9e1e4809",
-			"revisionTime": "2017-05-16T10:52:09Z"
+			"revision": "e2e5ae489bf8b6b1796ad921b91d5ff559414b06",
+			"revisionTime": "2017-05-24T21:03:24Z"
 		},
 		{
 			"checksumSHA1": "Yim1r9qkEFFLLH8JngB4kZTLsYI=",
