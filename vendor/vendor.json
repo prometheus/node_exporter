@@ -187,16 +187,24 @@
 			"revisionTime": "2017-07-03T10:12:42Z"
 		},
 		{
-			"checksumSHA1": "0Tugz8gj9KqqVj6JLkXUA7BXas4=",
+			"checksumSHA1": "5+eS1Ticg5wkpsdNoPiST3OQcIg=",
 			"path": "github.com/sirupsen/logrus",
-			"revision": "0208149b40d863d2c1a2f8fe5753096a9cf2cc8b",
-			"revisionTime": "2017-02-27T12:44:09Z"
+			"revision": "f006c2ac4710855cf0f916dd6b77acf6b048dc6e",
+			"revisionTime": "2017-08-15T20:20:55Z",
+			"version": "v1.0.3",
+			"versionExact": "v1.0.3"
 		},
 		{
 			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",
 			"path": "github.com/soundcloud/go-runit/runit",
 			"revision": "06ad41a06c4a586951fb8040a697ecd39729640b",
 			"revisionTime": "2015-06-30T19:56:10Z"
+		},
+		{
+			"checksumSHA1": "nqWNlnMmVpt628zzvyo6Yv2CX5Q=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "9419663f5a44be8b34ca85f08abc5fe1be11f8a3",
+			"revisionTime": "2017-09-30T17:45:11Z"
 		},
 		{
 			"checksumSHA1": "tK8eFmQ0JeKpR3P0TjiGobzlIh0=",
