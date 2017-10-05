@@ -2511,6 +2511,19 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_procs_state Number of processes in each state.
+# TYPE node_procs_state gauge
++node_procs_state{state="D"} 0
++node_procs_state{state="K"} 0
++node_procs_state{state="P"} 0
++node_procs_state{state="R"} 0
++node_procs_state{state="S"} 261
++node_procs_state{state="T"} 1
++node_procs_state{state="W"} 0
++node_procs_state{state="X"} 0
++node_procs_state{state="Z"} 0
++node_procs_state{state="t"} 0
++node_procs_state{state="x"} 0
 # HELP node_qdisc_bytes_total Number of bytes sent.
 # TYPE node_qdisc_bytes_total counter
 node_qdisc_bytes_total{device="eth0",kind="pfifo_fast"} 83
