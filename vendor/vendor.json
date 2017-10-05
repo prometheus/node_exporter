@@ -37,8 +37,10 @@
 		{
 			"checksumSHA1": "/zxxFPYjUB7Wowz33r5AhTDvoz0=",
 			"path": "github.com/coreos/go-systemd/dbus",
-			"revision": "e97b35f834b17eaa82afe3d44715c34736bfa12b",
-			"revisionTime": "2017-02-01T10:47:36Z"
+			"revision": "d2196463941895ee908e13531a23a39feb9e1243",
+			"revisionTime": "2017-07-31T11:19:25Z",
+			"version": "v15",
+			"versionExact": "v15"
 		},
 		{
 			"checksumSHA1": "5tGizHomeMFHcyROMD2ntrKFR1Q=",
