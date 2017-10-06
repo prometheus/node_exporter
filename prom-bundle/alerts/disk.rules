@@ -1,0 +1,10 @@
+ALERT DiskWillFillIn4Hours
+  IF predict_linear(node_filesystem_avail{job="node"}[1h], 4*3600) < 0
+  FOR 5m
+  LABELS {
+    urgency = "immediate"
+  }
+  ANNOTATIONS {
+    title = "The disk on {{$labels.instance}} will fill up in four hours.",
+    description = "The partition {{$labels.device}} mounted on {{$labels.mountpoint}} on {{$labels.instance}} will fill up in four hours."
+  }
