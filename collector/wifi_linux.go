@@ -14,11 +14,8 @@
 package collector
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/mdlayher/wifi"
 	"github.com/prometheus/client_golang/prometheus"
@@ -46,16 +43,6 @@ var (
 
 func init() {
 	registerCollector("wifi", defaultEnabled, NewWifiCollector)
-}
-
-var _ wifiStater = &wifi.Client{}
-
-// wifiStater is an interface used to swap out a *wifi.Client for end to end tests.
-type wifiStater interface {
-	BSS(ifi *wifi.Interface) (*wifi.BSS, error)
-	Close() error
-	Interfaces() ([]*wifi.Interface, error)
-	StationInfo(ifi *wifi.Interface) (*wifi.StationInfo, error)
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
@@ -142,7 +129,7 @@ func NewWifiCollector() (Collector, error) {
 }
 
 func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
-	stat, err := newWifiStater(*collectorWifi)
+	stat, err := wifi.New()
 	if err != nil {
 		// Cannot access wifi metrics, report no error.
 		if os.IsNotExist(err) {
@@ -292,67 +279,4 @@ func bssStatusMode(status wifi.BSSStatus) string {
 	default:
 		return "unknown"
 	}
-}
-
-// All code below this point is used to assist with end-to-end tests for
-// the wifi collector, since wifi devices are not available in CI.
-
-// newWifiStater determines if mocked test fixtures from files should be used for
-// collecting wifi metrics, or if package wifi should be used.
-func newWifiStater(fixtures string) (wifiStater, error) {
-	if fixtures != "" {
-		return &mockWifiStater{
-			fixtures: fixtures,
-		}, nil
-	}
-
-	return wifi.New()
-}
-
-var _ wifiStater = &mockWifiStater{}
-
-type mockWifiStater struct {
-	fixtures string
-}
-
-func (s *mockWifiStater) unmarshalJSONFile(filename string, v interface{}) error {
-	b, err := ioutil.ReadFile(filepath.Join(s.fixtures, filename))
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(b, v)
-}
-
-func (s *mockWifiStater) Close() error { return nil }
-
-func (s *mockWifiStater) BSS(ifi *wifi.Interface) (*wifi.BSS, error) {
-	p := filepath.Join(ifi.Name, "bss.json")
-
-	var bss wifi.BSS
-	if err := s.unmarshalJSONFile(p, &bss); err != nil {
-		return nil, err
-	}
-
-	return &bss, nil
-}
-
-func (s *mockWifiStater) Interfaces() ([]*wifi.Interface, error) {
-	var ifis []*wifi.Interface
-	if err := s.unmarshalJSONFile("interfaces.json", &ifis); err != nil {
-		return nil, err
-	}
-
-	return ifis, nil
-}
-
-func (s *mockWifiStater) StationInfo(ifi *wifi.Interface) (*wifi.StationInfo, error) {
-	p := filepath.Join(ifi.Name, "stationinfo.json")
-
-	var info wifi.StationInfo
-	if err := s.unmarshalJSONFile(p, &info); err != nil {
-		return nil, err
-	}
-
-	return &info, nil
 }
