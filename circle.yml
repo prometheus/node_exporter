@@ -33,7 +33,7 @@ dependencies:
 test:
   override:
     - docker run --rm -t -v "$(pwd):/app" "${DOCKER_TEST_IMAGE_NAME}" -i "${REPO_PATH}" -T
-    - make test-docker 
+    - make test-docker DOCKER_IMAGE_TAG=$CIRCLE_TAG
 
 deployment:
   hub_branch:
