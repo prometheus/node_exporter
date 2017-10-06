@@ -1,6 +1,44 @@
-## master
+## v0.15.0 / 2017-10-06
 
-* [CHANGE] `node_cpu` metrics moved from `stats` to `cpu` collector on linux (enabled by default).
+**Breaking changes**
+
+This release contains major breaking changes to flag handling.
+* The flag library has been changed, all flags now require double-dashs. (`-foo` becomes `--foo`).
+* The collector selection flag has been replaced by individual boolean flags.
+* The `-collector.procfs` and `-collector.sysfs` flags have been renamed to `--path.procfs` and `--path.sysfs` respectively.
+
+The `ntp` collector has been replaced with a new NTP-based check that is designed to expose the state of a localhost NTP server rather than provide the offset of the node to a remote NTP server.  By default the `ntp` collector is now locked to localhost.  This is to avoid accidental spamming of public internet NTP pools.
+
+Windows support is now removed, the [wmi_exporter](https://github.com/martinlindhe/wmi_exporter) is recommended as a replacement.
+
+* [CHANGE] `node_cpu` metrics moved from `stats` to `cpu` collector on linux (enabled by default). #548
+* [CHANGE] Blacklist systemd scope units #534
+* [CHANGE] Remove netbsd/arm #551
+* [CHANGE] Remove Windows support #549
+* [CHANGE] Enable IPVS collector by default #623
+* [CHANGE] Switch to kingpin flags #639
+* [CHANGE] Replace --collectors.enabled with per-collector flags #640
+* [FEATURE] Add ARP collector for Linux #540
+* [FEATURE] Add XFS colector for Linux #568, #575
+* [FEATURE] Add qdisc collector for Linux #580
+* [FEATURE] Add cpufreq stats for Linux #548
+* [FEATURE] Add diskstats for Darwin #593
+* [FEATURE] Add bcache collector for Linux #597
+* [FEATURE] Add parsing /proc/net/snmp6 file for Linux #615
+* [FEATURE] Add timex collector for Linux #664
+* [ENHANCEMENT] Include overal health status in smartmon.sh example script #546
+* [ENHANCEMENT] Include `guest_nice` in CPU collector #554
+* [ENHANCEMENT] Add exec_boot_time for freebsd, dragonfly #550
+* [ENHANCEMENT] Get full resolution for node_time #555
+* [ENHANCEMENT] infiniband: Multiply port data XMIT/RCV metrics by 4 #579
+* [ENHANCEMENT] cpu: Metric 'package_throttles_total' is per package. #657
+* [BUGFIX] Fix stale device error metrics #533
+* [BUGFIX] edac: Fix typo in node_edac_csrow_uncorrectable_errors_total #564
+* [BUGFIX] Use int64 throughout the ZFS collector #653
+* [BUGFIX] Silently ignore nonexisting bonding_masters file #569
+* [BUGFIX] Change raid0 status line regexp for mdadm collector (bug #618) #619
+* [BUGFIX] Ignore wifi collector permission errors #646
+* [BUGFIX] Always try to return smartmon_device_info metric #663
 
 ## v0.14.0 / 2017-03-21
 
