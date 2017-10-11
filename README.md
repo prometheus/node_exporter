@@ -109,6 +109,13 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 ## Building and running
 
+Prerequisites:
+
+* [Go compiler](https://golang.org/dl/)
+* RHEL/CentOS: `glibc-static` package.
+
+Building:
+
     go get github.com/prometheus/node_exporter
     cd ${GOPATH-$HOME/go}/src/github.com/prometheus/node_exporter
     make
