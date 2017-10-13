@@ -14,6 +14,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 
@@ -30,18 +31,10 @@ func init() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	var filters map[string]bool
-	params := r.URL.Query()["collect[]"]
-	log.Debugln("collect query:", params)
+	filters := r.URL.Query()["collect[]"]
+	log.Debugln("collect query:", filters)
 
-	if len(params) > 0 {
-		filters = make(map[string]bool)
-		for _, param := range params {
-			filters[param] = true
-		}
-	}
-
-	nc, err := collector.NewNodeCollector(filters)
+	nc, err := collector.NewNodeCollector(filters...)
 	if err != nil {
 		log.Warnln("Couldn't create collector: %s", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -79,8 +72,8 @@ func main() {
 	log.Infoln("Starting node_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())
 
-	// This instance is only used to check collector creation and logging
-	nc, err := collector.NewNodeCollector(make(map[string]bool))
+	// This instance is only used to check collector creation and logging.
+	nc, err := collector.NewNodeCollector()
 	if err != nil {
 		log.Fatalf("Couldn't create collector: %s", err)
 	}
@@ -89,7 +82,7 @@ func main() {
 		log.Infof(" - %s", n)
 	}
 
-	// TODO(ts): Remove deprecated and problematic InstrumentHandler usage.
+	// TODO(ts): Remove deprecated and problematic InstrumentHandlerFunc usage.
 	http.HandleFunc(*metricsPath, prometheus.InstrumentHandlerFunc("prometheus", handler))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
