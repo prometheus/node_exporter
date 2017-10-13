@@ -29,6 +29,35 @@ func init() {
 	prometheus.MustRegister(version.NewCollector("node_exporter"))
 }
 
+func handler(w http.ResponseWriter, r *http.Request) {
+	var filters map[string]bool
+	params := r.URL.Query()["collect[]"]
+	log.Debugln("collect query:", params)
+
+	if len(params) > 0 {
+		filters = make(map[string]bool)
+		for _, param := range params {
+			filters[param] = true
+		}
+	}
+
+	nc, err := collector.NewNodeCollector(filters)
+	if err != nil {
+		log.Fatalf("Couldn't create collector: %s", err)
+	}
+
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(nc)
+
+	gatherers := prometheus.Gatherers{
+		prometheus.DefaultGatherer,
+		registry,
+	}
+	// Delegate http serving to Prometheus client library, which will call collector.Collect.
+	h := promhttp.HandlerFor(gatherers, promhttp.HandlerOpts{})
+	h.ServeHTTP(w, r)
+}
+
 func main() {
 	var (
 		listenAddress = kingpin.Flag("web.listen-address", "Address on which to expose metrics and web interface.").Default(":9100").String()
@@ -43,7 +72,8 @@ func main() {
 	log.Infoln("Starting node_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())
 
-	nc, err := collector.NewNodeCollector()
+	// This instance is only used to check collector creation and logging
+	nc, err := collector.NewNodeCollector(make(map[string]bool))
 	if err != nil {
 		log.Fatalf("Couldn't create collector: %s", err)
 	}
@@ -52,17 +82,8 @@ func main() {
 		log.Infof(" - %s", n)
 	}
 
-	if err := prometheus.Register(nc); err != nil {
-		log.Fatalf("Couldn't register collector: %s", err)
-	}
-	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,
-		promhttp.HandlerOpts{
-			ErrorLog:      log.NewErrorLogger(),
-			ErrorHandling: promhttp.ContinueOnError,
-		})
-
 	// TODO(ts): Remove deprecated and problematic InstrumentHandler usage.
-	http.Handle(*metricsPath, prometheus.InstrumentHandler("prometheus", handler))
+	http.HandleFunc(*metricsPath, prometheus.InstrumentHandlerFunc("prometheus", handler))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
 			<head><title>Node Exporter</title></head>

@@ -80,7 +80,7 @@ type nodeCollector struct {
 }
 
 // NewNodeCollector creates a new NodeCollector
-func NewNodeCollector() (*nodeCollector, error) {
+func NewNodeCollector(filters map[string]bool) (*nodeCollector, error) {
 	collectors := make(map[string]Collector)
 	for key, enabled := range collectorState {
 		if *enabled {
@@ -88,7 +88,9 @@ func NewNodeCollector() (*nodeCollector, error) {
 			if err != nil {
 				return nil, err
 			}
-			collectors[key] = collector
+			if len(filters) == 0 || filters[key] {
+				collectors[key] = collector
+			}
 		}
 	}
 	return &nodeCollector{Collectors: collectors}, nil
