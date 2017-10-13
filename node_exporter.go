@@ -43,7 +43,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	nc, err := collector.NewNodeCollector(filters)
 	if err != nil {
-		log.Fatalf("Couldn't create collector: %s", err)
+		log.Warnln("Couldn't create collector: %s", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf("Couldn't create collector: %s", err)))
+		return
 	}
 
 	registry := prometheus.NewRegistry()
