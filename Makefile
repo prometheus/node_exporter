@@ -27,6 +27,10 @@ DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 MACH                    ?= $(shell uname -m)
 DOCKERFILE              ?= Dockerfile
 
+# TODO: Remove deprecated and problematic InstrumentHandlerFunc usage.
+STATICCHECK_IGNORE = \
+  github.com/prometheus/node_exporter/node_exporter.go:SA1019
+
 ifeq ($(GOHOSTARCH),amd64)
 	# Only supported on amd64
 	test-flags := -race
@@ -99,7 +103,7 @@ vet:
 
 staticcheck: $(STATICCHECK)
 	@echo ">> running staticcheck"
-	@$(STATICCHECK) $(pkgs)
+	@$(STATICCHECK) -ignore "$(STATICCHECK_IGNORE)" $(pkgs)
 
 build: $(PROMU)
 	@echo ">> building binaries"
