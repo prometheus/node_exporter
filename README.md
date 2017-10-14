@@ -107,6 +107,39 @@ echo 'role{role="application_server"} 1' > /path/to/directory/role.prom.$$
 mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 ```
 
+### Filtering enabled collectors
+
+The node_exporter will expose all metrics from enabled collectors by default, but it can be passed an optional list of collectors to filter metrics. The `collect[]` parameter accepts values matching enabled collector names.
+
+This can be useful for specifying different scrape intervals for different collectors in Prometheus:
+
+```yaml
+scrape_configs:
+  - job_name: 'node resources'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+        - '192.168.1.2:9100'
+    params:
+      collect[]:
+        - cpu
+        - meminfo
+        - diskstats
+        - netdev
+        - netstat
+
+  - job_name: 'node storage'
+    scrape_interval: 1m
+    static_configs:
+      - targets:
+        - '192.168.1.2:9100'
+    params:
+      collect[]:
+        - filefd
+        - filesystem
+        - xfs
+```
+
 ## Building and running
 
 Prerequisites:
