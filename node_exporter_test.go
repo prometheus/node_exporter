@@ -133,8 +133,5 @@ func runCommandAndTests(cmd *exec.Cmd, address string, fn func(pid int) error) e
 	if cmd.Process != nil {
 		cmd.Process.Kill()
 	}
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
