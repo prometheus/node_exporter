@@ -31,11 +31,6 @@ type kvm struct {
 }
 
 func (k *kvm) SwapUsedPages() (value uint64, err error) {
-	if k.hasErr {
-		// If we get one error, don't keep trying.
-		return 0, fmt.Errorf("couldn't get kvm stats")
-	}
-
 	k.mu.Lock()
 	defer k.mu.Unlock()
 	if C._kvm_swap_used_pages((*C.uint64_t)(&value)) == -1 {
