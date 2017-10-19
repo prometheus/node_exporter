@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 
 language: go
 go:
@@ -7,6 +7,12 @@ go:
 - master
 
 go_import_path: github.com/prometheus/node_exporter
+
+before_install:
+- sudo apt install hostapd wpasupplicant
+- sudo modprobe mac80211_hwsim
+- sudo hostapd .ci/hostapd.conf &
+- sudo wpa_supplicant -Dnl80211 -iwlan1 -c .ci/wpa_supplicant.conf &
 
 script:
 - make
