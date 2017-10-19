@@ -32,6 +32,7 @@ host_writes_mib
 host_writes_32mib
 load_cycle_count
 media_wearout_indicator
+wear_leveling_count
 nand_writes_1gib
 offline_uncorrectable
 power_cycle_count
