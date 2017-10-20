@@ -2775,18 +2775,18 @@ node_xfs_allocation_btree_records_deleted_total{device="sda1"} 0
 # HELP node_xfs_allocation_btree_records_inserted_total Number of allocation B-tree records inserted for a filesystem.
 # TYPE node_xfs_allocation_btree_records_inserted_total counter
 node_xfs_allocation_btree_records_inserted_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_compares_total Number of block map B-tree compares for a filesystem.
-# TYPE node_xfs_block_mapping_btree_compares_total counter
-node_xfs_block_mapping_btree_compares_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_lookups_total Number of block map B-tree lookups for a filesystem.
-# TYPE node_xfs_block_mapping_btree_lookups_total counter
-node_xfs_block_mapping_btree_lookups_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_records_deleted_total Number of block map B-tree records deleted for a filesystem.
-# TYPE node_xfs_block_mapping_btree_records_deleted_total counter
-node_xfs_block_mapping_btree_records_deleted_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_records_inserted_total Number of block map B-tree records inserted for a filesystem.
-# TYPE node_xfs_block_mapping_btree_records_inserted_total counter
-node_xfs_block_mapping_btree_records_inserted_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_compares_total Number of block map B-tree compares for a filesystem.
+# TYPE node_xfs_block_map_btree_compares_total counter
+node_xfs_block_map_btree_compares_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_lookups_total Number of block map B-tree lookups for a filesystem.
+# TYPE node_xfs_block_map_btree_lookups_total counter
+node_xfs_block_map_btree_lookups_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_records_deleted_total Number of block map B-tree records deleted for a filesystem.
+# TYPE node_xfs_block_map_btree_records_deleted_total counter
+node_xfs_block_map_btree_records_deleted_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_records_inserted_total Number of block map B-tree records inserted for a filesystem.
+# TYPE node_xfs_block_map_btree_records_inserted_total counter
+node_xfs_block_map_btree_records_inserted_total{device="sda1"} 0
 # HELP node_xfs_block_mapping_extent_list_compares_total Number of extent list compares for a filesystem.
 # TYPE node_xfs_block_mapping_extent_list_compares_total counter
 node_xfs_block_mapping_extent_list_compares_total{device="sda1"} 0
