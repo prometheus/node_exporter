@@ -37,7 +37,7 @@ type metric struct {
 	valueType prometheus.ValueType
 }
 
-type metricsMap map[string]metric
+type metricsMap map[string]*metric
 
 type systemdCollector struct {
 	unitDesc             *prometheus.Desc
@@ -67,7 +67,7 @@ func NewSystemdCollector() (Collector, error) {
 		nil, nil,
 	)
 	unitMetrics := metricsMap{
-		"CPUUsageNSec": metric{
+		"CPUUsageNSec": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "cpu_usage_nanoseconds_total"),
 				"Total CPU seconds of a unit",
@@ -76,7 +76,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"MemoryCurrent": metric{
+		"MemoryCurrent": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "memory_current"),
 				"Amount of bytes",
@@ -85,7 +85,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		"TasksCurrent": metric{
+		"TasksCurrent": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "tasks_current"),
 				"amount of tasks. Includes both user processes and kernel threads.",
@@ -94,7 +94,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.GaugeValue,
 		},
-		"IPIngressBytes": metric{
+		"IPIngressBytes": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "ip_ingress_bytes_total"),
 				"Ingress bytes total",
@@ -103,7 +103,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"IPIngressPackets": metric{
+		"IPIngressPackets": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "ip_ingress_packets_total"),
 				"Ingress packets total",
@@ -112,7 +112,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"IPEgressBytes": metric{
+		"IPEgressBytes": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "ip_egress_bytes_total"),
 				"Egress bytes total",
@@ -121,7 +121,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"IPEgressPackets": metric{
+		"IPEgressPackets": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "ip_egress_packets_total"),
 				"Egress packets total",
@@ -130,7 +130,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"NRestarts": metric{
+		"NRestarts": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -139,7 +139,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"AssertTimestampMonotonic": metric{
+		"AssertTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -148,7 +148,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"ConditionTimestampMonotonic": metric{
+		"ConditionTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -157,7 +157,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"InactiveEnterTimestampMonotonic": metric{
+		"InactiveEnterTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -166,7 +166,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"InactiveExitTimestampMonotonic": metric{
+		"InactiveExitTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -175,7 +175,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"ActiveEnterTimestampMonotonic": metric{
+		"ActiveEnterTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -184,7 +184,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"ActiveExitTimestampMonotonic": metric{
+		"ActiveExitTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -193,7 +193,7 @@ func NewSystemdCollector() (Collector, error) {
 			),
 			valueType: prometheus.CounterValue,
 		},
-		"StateChangeTimestampMonotonic": metric{
+		"StateChangeTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
 				"Total number of service restarts",
@@ -263,20 +263,21 @@ func (c *systemdCollector) collectUnitProperiesMetrics(ch chan<- prometheus.Metr
 		splitted := strings.Split(unit.Name, ".")
 		unitType := strings.Title(splitted[1])
 
-		for propName, metric := range c.unitPropsMetrics {
-			prop, err := conn.GetUnitTypeProperty(unit.Name, unitType, propName)
-			if err == nil {
-				value, ok := prop.Value.Value().(uint64)
+		props, err := conn.GetUnitTypeProperties(unit.Name, unitType)
+
+                if err != nil {
+                  return err
+                }
+
+		for prop, value := range props {
+                        metric := c.unitPropsMetrics[prop]
+			if metric != nil {
+				value, ok := value.(uint64)
 				if ok {
-					// unset values are represented as ^uint64(0)
 					if value != ^uint64(0) {
 						ch <- prometheus.MustNewConstMetric(metric.desc, metric.valueType, float64(value), unit.Name)
 					}
 				}
-			} else {
-				// We ignore unknown metrics. Not all service types expose all types of metrics
-				// Perhaps we should be smarter about this in the future.
-				log.Debugf("Ignoring property: %s, because %+v", propName, err)
 			}
 		}
 	}
