@@ -141,8 +141,8 @@ func NewSystemdCollector() (Collector, error) {
 		},
 		"AssertTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
-				"Total number of service restarts",
+				prometheus.BuildFQName(namespace, subsystem, "assert_timestamp_monotonic"),
+				"",
 				[]string{"name"},
 				nil,
 			),
@@ -150,8 +150,8 @@ func NewSystemdCollector() (Collector, error) {
 		},
 		"ConditionTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
-				"Total number of service restarts",
+				prometheus.BuildFQName(namespace, subsystem, "condition_timestamp_monotonic"),
+				"",
 				[]string{"name"},
 				nil,
 			),
@@ -159,8 +159,8 @@ func NewSystemdCollector() (Collector, error) {
 		},
 		"InactiveEnterTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
-				"Total number of service restarts",
+				prometheus.BuildFQName(namespace, subsystem, "inactive_enter_timestamp_monotonic"),
+				"",
 				[]string{"name"},
 				nil,
 			),
@@ -168,8 +168,8 @@ func NewSystemdCollector() (Collector, error) {
 		},
 		"InactiveExitTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
-				"Total number of service restarts",
+				prometheus.BuildFQName(namespace, subsystem, "inactive_exit_timestamp_monotonic"),
+				"",
 				[]string{"name"},
 				nil,
 			),
@@ -177,8 +177,8 @@ func NewSystemdCollector() (Collector, error) {
 		},
 		"ActiveEnterTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
-				"Total number of service restarts",
+				prometheus.BuildFQName(namespace, subsystem, "active_enter_timestamp_monotonic"),
+				"",
 				[]string{"name"},
 				nil,
 			),
@@ -186,8 +186,8 @@ func NewSystemdCollector() (Collector, error) {
 		},
 		"ActiveExitTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
-				"Total number of service restarts",
+				prometheus.BuildFQName(namespace, subsystem, "active_exit_timestamp_monotonic"),
+				"",
 				[]string{"name"},
 				nil,
 			),
@@ -195,8 +195,8 @@ func NewSystemdCollector() (Collector, error) {
 		},
 		"StateChangeTimestampMonotonic": &metric{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
-				"Total number of service restarts",
+				prometheus.BuildFQName(namespace, subsystem, "state_change_timestamp_monotonic"),
+				"",
 				[]string{"name"},
 				nil,
 			),
