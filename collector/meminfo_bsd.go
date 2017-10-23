@@ -39,7 +39,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		{name: "inactive_bytes", mib: "vm.stats.vm.v_inactive_count", conversion: fromPage},
 		{name: "wired_bytes", mib: "vm.stats.vm.v_wire_count", conversion: fromPage},
 		{name: "cache_bytes", mib: "vm.stats.vm.v_cache_count", conversion: fromPage},
-		{name: "buffer_bytes", mib: "vfs.bufspace"},
+		{name: "buffer_bytes", mib: "vfs.bufspace", dataType: bsdSysctlTypeCLong},
 		{name: "free_bytes", mib: "vm.stats.vm.v_free_count", conversion: fromPage},
 		{name: "size_bytes", mib: "vm.stats.vm.v_page_count", conversion: fromPage},
 		{name: "swap_in_bytes_total", mib: "vm.stats.vm.v_swappgsin", conversion: fromPage},

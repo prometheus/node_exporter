@@ -35,6 +35,7 @@ const (
 	bsdSysctlTypeUint32 bsdSysctlType = iota
 	bsdSysctlTypeUint64
 	bsdSysctlTypeStructTimeval
+	bsdSysctlTypeCLong
 )
 
 // Contains all the info needed to map a single bsd-sysctl to a prometheus value.
@@ -108,6 +109,29 @@ func (b bsdSysctl) Value() (float64, error) {
 		// This conversion maintains the usec precision.  Using
 		// the time package did not.
 		tmpf64 = unix + (usec / float64(1000*1000))
+	case bsdSysctlTypeCLong:
+		raw, err := unix.SysctlRaw(b.mib)
+		if err != nil {
+			return 0, err
+		}
+
+		if len(raw) > (C.sizeof_long) {
+			return 0, fmt.Errorf(
+				"length of bytes received from sysctl (%d) is greater than expected bytes (%d)",
+				len(raw),
+				C.sizeof_long,
+			)
+		}
+
+		if len(raw) < (C.sizeof_long) {
+			// Not sure this is valid for all CLongs, at least for
+			// bufspace:
+			//  https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
+			tmpf64 = float64(*(*C.int)(unsafe.Pointer(&raw[0])))
+			break
+		}
+
+		tmpf64 = float64(*(*C.long)(unsafe.Pointer(&raw[0])))
 	}
 
 	if err != nil {
