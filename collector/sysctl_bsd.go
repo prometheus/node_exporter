@@ -73,65 +73,9 @@ func (b bsdSysctl) Value() (float64, error) {
 		tmp64, err = unix.SysctlUint64(b.mib)
 		tmpf64 = float64(tmp64)
 	case bsdSysctlTypeStructTimeval:
-		raw, err := unix.SysctlRaw(b.mib)
-		if err != nil {
-			return 0, err
-		}
-
-		/*
-		 * From 10.3-RELEASE sources:
-		 *
-		 * /usr/include/sys/_timeval.h:47
-		 *  time_t      tv_sec
-		 *  suseconds_t tv_usec
-		 *
-		 * /usr/include/sys/_types.h:60
-		 *  long __suseconds_t
-		 *
-		 * ... architecture dependent, via #ifdef:
-		 *  typedef __int64_t __time_t;
-		 *  typedef __int32_t __time_t;
-		 */
-		if len(raw) != (C.sizeof_time_t + C.sizeof_suseconds_t) {
-			// Shouldn't get here, unless the ABI changes...
-			return 0, fmt.Errorf(
-				"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
-				len(raw),
-				C.sizeof_time_t+C.sizeof_suseconds_t,
-			)
-		}
-
-		secondsUp := unsafe.Pointer(&raw[0])
-		susecondsUp := uintptr(secondsUp) + C.sizeof_time_t
-		unix := float64(*(*C.time_t)(secondsUp))
-		usec := float64(*(*C.suseconds_t)(unsafe.Pointer(susecondsUp)))
-
-		// This conversion maintains the usec precision.  Using
-		// the time package did not.
-		tmpf64 = unix + (usec / float64(1000*1000))
+		tmpf64, err = b.getStructTimeval()
 	case bsdSysctlTypeCLong:
-		raw, err := unix.SysctlRaw(b.mib)
-		if err != nil {
-			return 0, err
-		}
-
-		if len(raw) != (C.sizeof_long) {
-			if len(raw) != (C.sizeof_int) {
-				return 0, fmt.Errorf(
-					"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
-					len(raw),
-					C.sizeof_long,
-				)
-			}
-
-			// Not sure this is valid for all CLongs.  It is at
-			// least for vfs.bufspace:
-			//   https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
-			tmpf64 = float64(*(*C.int)(unsafe.Pointer(&raw[0])))
-			break
-		}
-
-		tmpf64 = float64(*(*C.long)(unsafe.Pointer(&raw[0])))
+		tmpf64, err = b.getCLong()
 	}
 
 	if err != nil {
@@ -143,4 +87,67 @@ func (b bsdSysctl) Value() (float64, error) {
 	}
 
 	return tmpf64, nil
+}
+
+func (b bsdSysctl) getStructTimeval() (float64, error) {
+	raw, err := unix.SysctlRaw(b.mib)
+	if err != nil {
+		return 0, err
+	}
+
+	/*
+	 * From 10.3-RELEASE sources:
+	 *
+	 * /usr/include/sys/_timeval.h:47
+	 *  time_t      tv_sec
+	 *  suseconds_t tv_usec
+	 *
+	 * /usr/include/sys/_types.h:60
+	 *  long __suseconds_t
+	 *
+	 * ... architecture dependent, via #ifdef:
+	 *  typedef __int64_t __time_t;
+	 *  typedef __int32_t __time_t;
+	 */
+	if len(raw) != (C.sizeof_time_t + C.sizeof_suseconds_t) {
+		// Shouldn't get here, unless the ABI changes...
+		return 0, fmt.Errorf(
+			"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
+			len(raw),
+			C.sizeof_time_t+C.sizeof_suseconds_t,
+		)
+	}
+
+	secondsUp := unsafe.Pointer(&raw[0])
+	susecondsUp := uintptr(secondsUp) + C.sizeof_time_t
+	unix := float64(*(*C.time_t)(secondsUp))
+	usec := float64(*(*C.suseconds_t)(unsafe.Pointer(susecondsUp)))
+
+	// This conversion maintains the usec precision.  Using
+	// the time package did not.
+	return (unix + (usec / float64(1000*1000))), nil
+}
+
+func (b bsdSysctl) getCLong() (float64, error) {
+	raw, err := unix.SysctlRaw(b.mib)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(raw) != (C.sizeof_long) {
+		if len(raw) != (C.sizeof_int) {
+			return 0, fmt.Errorf(
+				"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
+				len(raw),
+				C.sizeof_long,
+			)
+		}
+
+		// Not sure this is valid for all CLongs.  It is at
+		// least for vfs.bufspace:
+		//   https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
+		return float64(*(*C.int)(unsafe.Pointer(&raw[0]))), nil
+	}
+
+	return float64(*(*C.long)(unsafe.Pointer(&raw[0]))), nil
 }
