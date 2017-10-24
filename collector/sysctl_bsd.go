@@ -134,11 +134,11 @@ func (b bsdSysctl) getCLong() (float64, error) {
 		return 0, err
 	}
 
-	if len(raw) == (C.sizeof_long) {
+	if len(raw) == C.sizeof_long {
 		return float64(*(*C.long)(unsafe.Pointer(&raw[0]))), nil
 	}
 
-	if len(raw) == (C.sizeof_int) {
+	if len(raw) == C.sizeof_int {
 		// Not sure this is valid for all CLongs.  It is at least for
 		// vfs.bufspace:
 		//   https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
