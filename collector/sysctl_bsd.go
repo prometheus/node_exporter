@@ -134,20 +134,22 @@ func (b bsdSysctl) getCLong() (float64, error) {
 		return 0, err
 	}
 
-	if len(raw) != (C.sizeof_long) {
-		if len(raw) != (C.sizeof_int) {
-			return 0, fmt.Errorf(
-				"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
-				len(raw),
-				C.sizeof_long,
-			)
-		}
+	if len(raw) == (C.sizeof_long) {
+		return float64(*(*C.long)(unsafe.Pointer(&raw[0]))), nil
+	}
 
-		// Not sure this is valid for all CLongs.  It is at
-		// least for vfs.bufspace:
+	if len(raw) == (C.sizeof_int) {
+		// Not sure this is valid for all CLongs.  It is at least for
+		// vfs.bufspace:
 		//   https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
 		return float64(*(*C.int)(unsafe.Pointer(&raw[0]))), nil
 	}
 
-	return float64(*(*C.long)(unsafe.Pointer(&raw[0]))), nil
+	return 0, fmt.Errorf(
+		"length of bytes received from sysctl (%d) does not match expected bytes (long: %d), (int: %d)",
+		len(raw),
+		C.sizeof_long,
+		C.sizeof_int,
+	)
+
 }
