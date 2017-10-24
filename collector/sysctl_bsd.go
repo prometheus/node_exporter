@@ -115,18 +115,18 @@ func (b bsdSysctl) Value() (float64, error) {
 			return 0, err
 		}
 
-		if len(raw) > (C.sizeof_long) {
-			return 0, fmt.Errorf(
-				"length of bytes received from sysctl (%d) is greater than expected bytes (%d)",
-				len(raw),
-				C.sizeof_long,
-			)
-		}
+		if len(raw) != (C.sizeof_long) {
+			if len(raw) != (C.sizeof_int) {
+				return 0, fmt.Errorf(
+					"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
+					len(raw),
+					C.sizeof_long,
+				)
+			}
 
-		if len(raw) < (C.sizeof_long) {
-			// Not sure this is valid for all CLongs, at least for
-			// bufspace:
-			//  https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
+			// Not sure this is valid for all CLongs.  It is at
+			// least for vfs.bufspace:
+			//   https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
 			tmpf64 = float64(*(*C.int)(unsafe.Pointer(&raw[0])))
 			break
 		}
