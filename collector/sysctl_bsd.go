@@ -38,7 +38,8 @@ const (
 	bsdSysctlTypeCLong
 )
 
-// Contains all the info needed to map a single bsd-sysctl to a prometheus value.
+// Contains all the info needed to map a single bsd-sysctl to a prometheus
+// value.
 type bsdSysctl struct {
 	// Prometheus name
 	name string
@@ -123,8 +124,8 @@ func (b bsdSysctl) getStructTimeval() (float64, error) {
 	unix := float64(*(*C.time_t)(secondsUp))
 	usec := float64(*(*C.suseconds_t)(unsafe.Pointer(susecondsUp)))
 
-	// This conversion maintains the usec precision.  Using
-	// the time package did not.
+	// This conversion maintains the usec precision.  Using the time
+	// package did not.
 	return (unix + (usec / float64(1000*1000))), nil
 }
 
@@ -139,9 +140,10 @@ func (b bsdSysctl) getCLong() (float64, error) {
 	}
 
 	if len(raw) == C.sizeof_int {
-		// Not sure this is valid for all CLongs.  It is at least for
-		// vfs.bufspace:
+		// This is valid for at least vfs.bufspace, and the default
+		// long handler - which can clamp longs to 32-bits:
 		//   https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/vfs_bio.c#L338
+		//   https://github.com/freebsd/freebsd/blob/releng/10.3/sys/kern/kern_sysctl.c#L1062
 		return float64(*(*C.int)(unsafe.Pointer(&raw[0]))), nil
 	}
 
