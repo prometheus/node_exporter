@@ -32,7 +32,7 @@ func TestArcstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v int64) {
+	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v uint64) {
 
 		if s != zfsSysctl("kstat.zfs.misc.arcstats.hits") {
 			return
@@ -40,7 +40,7 @@ func TestArcstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != int64(8772612) {
+		if v != uint64(8772612) {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -68,7 +68,7 @@ func TestZfetchstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(zfetchstatsFile, "zfetchstats", func(s zfsSysctl, v int64) {
+	err = c.parseProcfsFile(zfetchstatsFile, "zfetchstats", func(s zfsSysctl, v uint64) {
 
 		if s != zfsSysctl("kstat.zfs.misc.zfetchstats.hits") {
 			return
@@ -76,7 +76,7 @@ func TestZfetchstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != int64(7067992) {
+		if v != uint64(7067992) {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -104,7 +104,7 @@ func TestZilParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(zilFile, "zil", func(s zfsSysctl, v int64) {
+	err = c.parseProcfsFile(zilFile, "zil", func(s zfsSysctl, v uint64) {
 
 		if s != zfsSysctl("kstat.zfs.misc.zil.zil_commit_count") {
 			return
@@ -112,7 +112,7 @@ func TestZilParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != int64(10) {
+		if v != uint64(10) {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -140,7 +140,7 @@ func TestVdevCacheStatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(vdevCacheStatsFile, "vdev_cache_stats", func(s zfsSysctl, v int64) {
+	err = c.parseProcfsFile(vdevCacheStatsFile, "vdev_cache_stats", func(s zfsSysctl, v uint64) {
 
 		if s != zfsSysctl("kstat.zfs.misc.vdev_cache_stats.delegations") {
 			return
@@ -148,7 +148,7 @@ func TestVdevCacheStatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != int64(40) {
+		if v != uint64(40) {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -176,7 +176,7 @@ func TestXuioStatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(xuioStatsFile, "xuio_stats", func(s zfsSysctl, v int64) {
+	err = c.parseProcfsFile(xuioStatsFile, "xuio_stats", func(s zfsSysctl, v uint64) {
 
 		if s != zfsSysctl("kstat.zfs.misc.xuio_stats.onloan_read_buf") {
 			return
@@ -184,7 +184,7 @@ func TestXuioStatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != int64(32) {
+		if v != uint64(32) {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -212,7 +212,7 @@ func TestFmParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(fmFile, "fm", func(s zfsSysctl, v int64) {
+	err = c.parseProcfsFile(fmFile, "fm", func(s zfsSysctl, v uint64) {
 
 		if s != zfsSysctl("kstat.zfs.misc.fm.erpt-dropped") {
 			return
@@ -220,7 +220,7 @@ func TestFmParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != int64(18) {
+		if v != uint64(18) {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -248,7 +248,7 @@ func TestDmuTxParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(dmuTxFile, "dmu_tx", func(s zfsSysctl, v int64) {
+	err = c.parseProcfsFile(dmuTxFile, "dmu_tx", func(s zfsSysctl, v uint64) {
 
 		if s != zfsSysctl("kstat.zfs.misc.dmu_tx.dmu_tx_assigned") {
 			return
@@ -256,7 +256,7 @@ func TestDmuTxParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != int64(3532844) {
+		if v != uint64(3532844) {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -289,14 +289,14 @@ func TestZpoolParsing(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v int64) {
+		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v uint64) {
 			if s != zfsSysctl("kstat.zfs.misc.io.nread") {
 				return
 			}
 
 			handlerCalled = true
 
-			if v != int64(1884160) && v != int64(2826240) {
+			if v != uint64(1884160) && v != uint64(2826240) {
 				t.Fatalf("Incorrect value parsed from procfs data %v", v)
 			}
 

@@ -42,7 +42,7 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 	}
 	defer file.Close()
 
-	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v int64) {
+	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v uint64) {
 		ch <- c.constSysctlMetric(subsystem, s, v)
 	})
 }
@@ -64,7 +64,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 			return errZFSNotAvailable
 		}
 
-		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v int64) {
+		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v uint64) {
 			ch <- c.constPoolMetric(poolName, s, v)
 		})
 		file.Close()
@@ -76,7 +76,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, int64)) error {
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, uint64)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -95,7 +95,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 
 		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
 
-		value, err := strconv.ParseInt(parts[2], 10, 64)
+		value, err := strconv.ParseUint(parts[2], 10, 64)
 		if err != nil {
 			return fmt.Errorf("could not parse expected integer value for %q", key)
 		}
@@ -109,7 +109,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 	return scanner.Err()
 }
 
-func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, handler func(string, zfsSysctl, int64)) error {
+func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, handler func(string, zfsSysctl, uint64)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -139,7 +139,7 @@ func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, h
 		for i, field := range fields {
 			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", zpoolFile, field)
 
-			value, err := strconv.ParseInt(line[i], 10, 64)
+			value, err := strconv.ParseUint(line[i], 10, 64)
 			if err != nil {
 				return fmt.Errorf("could not parse expected integer value for %q: %v", key, err)
 			}
