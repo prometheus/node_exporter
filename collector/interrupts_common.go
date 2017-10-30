@@ -23,14 +23,14 @@ type interruptsCollector struct {
 }
 
 func init() {
-	Factories["interrupts"] = NewInterruptsCollector
+	registerCollector("interrupts", defaultDisabled, NewInterruptsCollector)
 }
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
 func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(
-			Namespace+"_interrupts",
+			namespace+"_interrupts",
 			"Interrupt details.",
 			interruptLabelNames, nil,
 		), prometheus.CounterValue},

@@ -7,8 +7,6 @@
 #       data in them than you'd think.
 #       http://arstechnica.com/civis/viewtopic.php?p=22062211
 
-disks="$(/usr/sbin/smartctl --scan | awk '{print $1 "|" $3}')"
-
 parse_smartctl_attributes_awk="$(cat << 'SMARTCTLAWK'
 $1 ~ /^[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
   gsub(/-/, "_");
@@ -34,6 +32,7 @@ host_writes_mib
 host_writes_32mib
 load_cycle_count
 media_wearout_indicator
+wear_leveling_count
 nand_writes_1gib
 offline_uncorrectable
 power_cycle_count
@@ -136,7 +135,7 @@ if [[ "$(expr "${smartctl_version}" : '\([0-9]*\)\..*')" -lt 6 ]] ; then
   exit
 fi
 
-device_list="$(/usr/sbin/smartctl --scan-open | awk '{print $1 "|" $3}')"
+device_list="$(/usr/sbin/smartctl --scan-open | awk '/^\/dev/{print $1 "|" $3}')"
 
 for device in ${device_list}; do
   disk="$(echo ${device} | cut -f1 -d'|')"

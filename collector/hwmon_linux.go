@@ -42,7 +42,7 @@ var (
 )
 
 func init() {
-	Factories["hwmon"] = NewHwMonCollector
+	registerCollector("hwmon", defaultEnabled, NewHwMonCollector)
 }
 
 type hwMonCollector struct{}

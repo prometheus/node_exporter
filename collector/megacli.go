@@ -44,7 +44,7 @@ type megaCliCollector struct {
 }
 
 func init() {
-	Factories["megacli"] = NewMegaCliCollector
+	registerCollector("megacli", defaultDisabled, NewMegaCliCollector)
 }
 
 // NewMegaCliCollector returns a new Collector exposing RAID status through
@@ -54,17 +54,17 @@ func NewMegaCliCollector() (Collector, error) {
 	return &megaCliCollector{
 		cli: *megacliCommand,
 		driveTemperature: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: Namespace,
+			Namespace: namespace,
 			Name:      "megacli_drive_temperature_celsius",
 			Help:      "megacli: drive temperature",
 		}, []string{"enclosure", "slot"}),
 		driveCounters: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: Namespace,
+			Namespace: namespace,
 			Name:      "megacli_drive_count",
 			Help:      "megacli: drive error and event counters",
 		}, []string{"enclosure", "slot", "type"}),
 		drivePresence: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: Namespace,
+			Namespace: namespace,
 			Name:      "megacli_adapter_disk_presence",
 			Help:      "megacli: disk presence per adapter",
 		}, []string{"type"}),

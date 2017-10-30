@@ -33,7 +33,7 @@ type ipvsCollector struct {
 }
 
 func init() {
-	Factories["ipvs"] = NewIPVSCollector
+	registerCollector("ipvs", defaultEnabled, NewIPVSCollector)
 }
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
@@ -62,42 +62,42 @@ func newIPVSCollector() (*ipvsCollector, error) {
 	}
 
 	c.connections = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "connections_total"),
+		prometheus.BuildFQName(namespace, subsystem, "connections_total"),
 		"The total number of connections made.",
 		nil, nil,
 	), prometheus.CounterValue}
 	c.incomingPackets = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "incoming_packets_total"),
+		prometheus.BuildFQName(namespace, subsystem, "incoming_packets_total"),
 		"The total number of incoming packets.",
 		nil, nil,
 	), prometheus.CounterValue}
 	c.outgoingPackets = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "outgoing_packets_total"),
+		prometheus.BuildFQName(namespace, subsystem, "outgoing_packets_total"),
 		"The total number of outgoing packets.",
 		nil, nil,
 	), prometheus.CounterValue}
 	c.incomingBytes = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "incoming_bytes_total"),
+		prometheus.BuildFQName(namespace, subsystem, "incoming_bytes_total"),
 		"The total amount of incoming data.",
 		nil, nil,
 	), prometheus.CounterValue}
 	c.outgoingBytes = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "outgoing_bytes_total"),
+		prometheus.BuildFQName(namespace, subsystem, "outgoing_bytes_total"),
 		"The total amount of outgoing data.",
 		nil, nil,
 	), prometheus.CounterValue}
 	c.backendConnectionsActive = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "backend_connections_active"),
+		prometheus.BuildFQName(namespace, subsystem, "backend_connections_active"),
 		"The current active connections by local and remote address.",
 		ipvsBackendLabelNames, nil,
 	), prometheus.GaugeValue}
 	c.backendConnectionsInact = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "backend_connections_inactive"),
+		prometheus.BuildFQName(namespace, subsystem, "backend_connections_inactive"),
 		"The current inactive connections by local and remote address.",
 		ipvsBackendLabelNames, nil,
 	), prometheus.GaugeValue}
 	c.backendWeight = typedDesc{prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, subsystem, "backend_weight"),
+		prometheus.BuildFQName(namespace, subsystem, "backend_weight"),
 		"The current backend weight by local and remote address.",
 		ipvsBackendLabelNames, nil,
 	), prometheus.GaugeValue}

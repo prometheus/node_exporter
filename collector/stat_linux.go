@@ -34,44 +34,44 @@ type statCollector struct {
 }
 
 func init() {
-	Factories["stat"] = NewStatCollector
+	registerCollector("stat", defaultEnabled, NewStatCollector)
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "cpu"),
+			prometheus.BuildFQName(namespace, "", "cpu"),
 			"Seconds the cpus spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
 		intr: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "intr"),
+			prometheus.BuildFQName(namespace, "", "intr"),
 			"Total number of interrupts serviced.",
 			nil, nil,
 		),
 		ctxt: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "context_switches"),
+			prometheus.BuildFQName(namespace, "", "context_switches"),
 			"Total number of context switches.",
 			nil, nil,
 		),
 		forks: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "forks"),
+			prometheus.BuildFQName(namespace, "", "forks"),
 			"Total number of forks.",
 			nil, nil,
 		),
 		btime: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "boot_time"),
+			prometheus.BuildFQName(namespace, "", "boot_time"),
 			"Node boot time, in unixtime.",
 			nil, nil,
 		),
 		procsRunning: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "procs_running"),
+			prometheus.BuildFQName(namespace, "", "procs_running"),
 			"Number of processes in runnable state.",
 			nil, nil,
 		),
 		procsBlocked: prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, "", "procs_blocked"),
+			prometheus.BuildFQName(namespace, "", "procs_blocked"),
 			"Number of processes blocked waiting for I/O to complete.",
 			nil, nil,
 		),

@@ -57,16 +57,35 @@ type TC_Stats2 struct {
 	Overlimits uint32
 }
 
+// See struct tc_fq_qd_stats /usr/include/linux/pkt_sched.h
+type TC_Fq_Qd_Stats struct {
+	GcFlows             uint64
+	HighprioPackets     uint64
+	TcpRetrans          uint64
+	Throttled           uint64
+	FlowsPlimit         uint64
+	PktsTooLong         uint64
+	AllocationErrors    uint64
+	TimeNextDelayedFlow int64
+	Flows               uint32
+	InactiveFlows       uint32
+	ThrottledFlows      uint32
+	UnthrottleLatencyNs uint32
+}
+
 type QdiscInfo struct {
-	IfaceName  string
-	Parent     uint32
-	Handle     uint32
-	Kind       string
-	Bytes      uint64
-	Packets    uint32
-	Drops      uint32
-	Requeues   uint32
-	Overlimits uint32
+	IfaceName   string
+	Parent      uint32
+	Handle      uint32
+	Kind        string
+	Bytes       uint64
+	Packets     uint32
+	Drops       uint32
+	Requeues    uint32
+	Overlimits  uint32
+	GcFlows     uint64
+	Throttled   uint64
+	FlowsPlimit uint64
 }
 
 func parseTCAStats(attr netlink.Attribute) TC_Stats {
@@ -99,7 +118,28 @@ func parseTCAStats2(attr netlink.Attribute) TC_Stats2 {
 			stats.Requeues = nlenc.Uint32(a.Data[12:16])
 			stats.Overlimits = nlenc.Uint32(a.Data[16:20])
 		default:
-			// TODO: TCA_STATS_APP
+		}
+	}
+
+	return stats
+}
+
+func parseTC_Fq_Qd_Stats(attr netlink.Attribute) TC_Fq_Qd_Stats {
+	var stats TC_Fq_Qd_Stats
+
+	nested, _ := netlink.UnmarshalAttributes(attr.Data)
+
+	for _, a := range nested {
+		switch a.Type {
+		case TCA_STATS_APP:
+			stats.GcFlows = nlenc.Uint64(a.Data[0:8])
+			stats.HighprioPackets = nlenc.Uint64(a.Data[8:16])
+			stats.TcpRetrans = nlenc.Uint64(a.Data[16:24])
+			stats.Throttled = nlenc.Uint64(a.Data[24:32])
+			stats.FlowsPlimit = nlenc.Uint64(a.Data[32:40])
+			stats.PktsTooLong = nlenc.Uint64(a.Data[40:48])
+			stats.AllocationErrors = nlenc.Uint64(a.Data[48:56])
+		default:
 		}
 	}
 
@@ -129,6 +169,7 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 	var m QdiscInfo
 	var s TC_Stats
 	var s2 TC_Stats2
+	var s_fq TC_Fq_Qd_Stats
 
 	/*
 	   struct tcmsg {
@@ -168,6 +209,16 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 			m.Kind = nlenc.String(attr.Data)
 		case TCA_STATS2:
 			s2 = parseTCAStats2(attr)
+			s_fq = parseTC_Fq_Qd_Stats(attr)
+			if s_fq.GcFlows > 0 {
+				m.GcFlows = s_fq.GcFlows
+			}
+			if s_fq.Throttled > 0 {
+				m.Throttled = s_fq.Throttled
+			}
+			if s_fq.FlowsPlimit > 0 {
+				m.FlowsPlimit = s_fq.FlowsPlimit
+			}
 			m.Bytes = s2.Bytes
 			m.Packets = s2.Packets
 			m.Drops = s2.Drops

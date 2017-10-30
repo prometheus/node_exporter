@@ -2,6 +2,8 @@
 # TYPE go_gc_duration_seconds summary
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
+# HELP go_info Information about the Go environment.
+# TYPE go_info gauge
 # HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
 # TYPE go_memstats_alloc_bytes gauge
 # HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
@@ -10,6 +12,8 @@
 # TYPE go_memstats_buck_hash_sys_bytes gauge
 # HELP go_memstats_frees_total Total number of frees.
 # TYPE go_memstats_frees_total counter
+# HELP go_memstats_gc_cpu_fraction The fraction of this program's available CPU time used by the GC since the program started.
+# TYPE go_memstats_gc_cpu_fraction gauge
 # HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
 # TYPE go_memstats_gc_sys_bytes gauge
 # HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
@@ -48,7 +52,7 @@
 # TYPE go_memstats_stack_sys_bytes gauge
 # HELP go_memstats_sys_bytes Number of bytes obtained from system.
 # TYPE go_memstats_sys_bytes gauge
-# HELP go_threads Number of OS threads created
+# HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
 # HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
 # TYPE http_request_duration_microseconds summary
@@ -299,9 +303,7 @@ node_cpu_frequency_min_hertz{cpu="cpu1"} 8e+08
 node_cpu_frequency_min_hertz{cpu="cpu3"} 1e+06
 # HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
-node_cpu_package_throttles_total{cpu="cpu0"} 30
-node_cpu_package_throttles_total{cpu="cpu1"} 30
-node_cpu_package_throttles_total{cpu="cpu2"} 6
+node_cpu_package_throttles_total{node="0"} 30
 # HELP node_disk_bytes_read The total number of bytes read successfully.
 # TYPE node_disk_bytes_read counter
 node_disk_bytes_read{device="dm-0"} 5.13708655616e+11
@@ -2658,18 +2660,18 @@ node_xfs_allocation_btree_records_deleted_total{device="sda1"} 0
 # HELP node_xfs_allocation_btree_records_inserted_total Number of allocation B-tree records inserted for a filesystem.
 # TYPE node_xfs_allocation_btree_records_inserted_total counter
 node_xfs_allocation_btree_records_inserted_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_compares_total Number of block map B-tree compares for a filesystem.
-# TYPE node_xfs_block_mapping_btree_compares_total counter
-node_xfs_block_mapping_btree_compares_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_lookups_total Number of block map B-tree lookups for a filesystem.
-# TYPE node_xfs_block_mapping_btree_lookups_total counter
-node_xfs_block_mapping_btree_lookups_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_records_deleted_total Number of block map B-tree records deleted for a filesystem.
-# TYPE node_xfs_block_mapping_btree_records_deleted_total counter
-node_xfs_block_mapping_btree_records_deleted_total{device="sda1"} 0
-# HELP node_xfs_block_mapping_btree_records_inserted_total Number of block map B-tree records inserted for a filesystem.
-# TYPE node_xfs_block_mapping_btree_records_inserted_total counter
-node_xfs_block_mapping_btree_records_inserted_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_compares_total Number of block map B-tree compares for a filesystem.
+# TYPE node_xfs_block_map_btree_compares_total counter
+node_xfs_block_map_btree_compares_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_lookups_total Number of block map B-tree lookups for a filesystem.
+# TYPE node_xfs_block_map_btree_lookups_total counter
+node_xfs_block_map_btree_lookups_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_records_deleted_total Number of block map B-tree records deleted for a filesystem.
+# TYPE node_xfs_block_map_btree_records_deleted_total counter
+node_xfs_block_map_btree_records_deleted_total{device="sda1"} 0
+# HELP node_xfs_block_map_btree_records_inserted_total Number of block map B-tree records inserted for a filesystem.
+# TYPE node_xfs_block_map_btree_records_inserted_total counter
+node_xfs_block_map_btree_records_inserted_total{device="sda1"} 0
 # HELP node_xfs_block_mapping_extent_list_compares_total Number of extent list compares for a filesystem.
 # TYPE node_xfs_block_mapping_extent_list_compares_total counter
 node_xfs_block_mapping_extent_list_compares_total{device="sda1"} 0

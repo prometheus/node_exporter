@@ -129,14 +129,9 @@ func runCommandAndTests(cmd *exec.Cmd, address string, fn func(pid int) error) e
 		errc <- fn(pid)
 	}(cmd.Process.Pid)
 
-	select {
-	case err := <-errc:
-		if cmd.Process != nil {
-			cmd.Process.Kill()
-		}
-		if err != nil {
-			return err
-		}
+	err := <-errc
+	if cmd.Process != nil {
+		cmd.Process.Kill()
 	}
-	return nil
+	return err
 }

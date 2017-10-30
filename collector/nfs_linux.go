@@ -66,39 +66,39 @@ var (
 	}
 
 	nfsNetReadsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "nfs", "net_reads"),
+		prometheus.BuildFQName(namespace, "nfs", "net_reads"),
 		"Number of reads at the network layer.",
 		[]string{"protocol"},
 		nil,
 	)
 	nfsNetConnectionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "nfs", "net_connections"),
+		prometheus.BuildFQName(namespace, "nfs", "net_connections"),
 		"Number of connections at the network layer.",
 		[]string{"protocol"},
 		nil,
 	)
 
 	nfsRPCOperationsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "nfs", "rpc_operations"),
+		prometheus.BuildFQName(namespace, "nfs", "rpc_operations"),
 		"Number of RPCs performed.",
 		nil,
 		nil,
 	)
 	nfsRPCRetransmissionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "nfs", "rpc_retransmissions"),
+		prometheus.BuildFQName(namespace, "nfs", "rpc_retransmissions"),
 		"Number of RPC transmissions performed.",
 		nil,
 		nil,
 	)
 	nfsRPCAuthenticationRefreshesDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "nfs", "rpc_authentication_refreshes"),
+		prometheus.BuildFQName(namespace, "nfs", "rpc_authentication_refreshes"),
 		"Number of RPC authentication refreshes performed.",
 		nil,
 		nil,
 	)
 
 	nfsProceduresDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(Namespace, "nfs", "procedures"),
+		prometheus.BuildFQName(namespace, "nfs", "procedures"),
 		"Number of NFS procedures invoked.",
 		[]string{"version", "procedure"},
 		nil,
@@ -108,7 +108,7 @@ var (
 type nfsCollector struct{}
 
 func init() {
-	Factories["nfs"] = NewNfsCollector
+	registerCollector("nfs", defaultDisabled, NewNfsCollector)
 }
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.

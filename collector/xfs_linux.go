@@ -27,7 +27,7 @@ type xfsCollector struct {
 }
 
 func init() {
-	Factories["xfs"] = NewXFSCollector
+	registerCollector("xfs", defaultEnabled, NewXFSCollector)
 }
 
 // NewXFSCollector returns a new Collector exposing XFS statistics.
@@ -156,30 +156,30 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 			value: float64(s.BlockMapping.ExtentListCompares),
 		},
 		{
-			name:  "block_mapping_btree_lookups_total",
+			name:  "block_map_btree_lookups_total",
 			desc:  "Number of block map B-tree lookups for a filesystem.",
-			value: float64(s.AllocationBTree.Lookups),
+			value: float64(s.BlockMapBTree.Lookups),
 		},
 		{
-			name:  "block_mapping_btree_compares_total",
+			name:  "block_map_btree_compares_total",
 			desc:  "Number of block map B-tree compares for a filesystem.",
-			value: float64(s.AllocationBTree.Compares),
+			value: float64(s.BlockMapBTree.Compares),
 		},
 		{
-			name:  "block_mapping_btree_records_inserted_total",
+			name:  "block_map_btree_records_inserted_total",
 			desc:  "Number of block map B-tree records inserted for a filesystem.",
-			value: float64(s.AllocationBTree.RecordsInserted),
+			value: float64(s.BlockMapBTree.RecordsInserted),
 		},
 		{
-			name:  "block_mapping_btree_records_deleted_total",
+			name:  "block_map_btree_records_deleted_total",
 			desc:  "Number of block map B-tree records deleted for a filesystem.",
-			value: float64(s.AllocationBTree.RecordsDeleted),
+			value: float64(s.BlockMapBTree.RecordsDeleted),
 		},
 	}
 
 	for _, m := range metrics {
 		desc := prometheus.NewDesc(
-			prometheus.BuildFQName(Namespace, subsystem, m.name),
+			prometheus.BuildFQName(namespace, subsystem, m.name),
 			m.desc,
 			labels,
 			nil,

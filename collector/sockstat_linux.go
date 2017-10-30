@@ -36,7 +36,7 @@ var pageSize = os.Getpagesize()
 type sockStatCollector struct{}
 
 func init() {
-	Factories[sockStatSubsystem] = NewSockStatCollector
+	registerCollector(sockStatSubsystem, defaultEnabled, NewSockStatCollector)
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
@@ -57,7 +57,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
-					prometheus.BuildFQName(Namespace, sockStatSubsystem, protocol+"_"+name),
+					prometheus.BuildFQName(namespace, sockStatSubsystem, protocol+"_"+name),
 					fmt.Sprintf("Number of %s sockets in state %s.", protocol, name),
 					nil, nil,
 				),

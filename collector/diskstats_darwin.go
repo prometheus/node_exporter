@@ -36,7 +36,7 @@ type diskstatsCollector struct {
 }
 
 func init() {
-	Factories["diskstats"] = NewDiskstatsCollector
+	registerCollector("diskstats", defaultEnabled, NewDiskstatsCollector)
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
@@ -48,7 +48,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "reads_completed_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
 						"The total number of reads completed successfully.",
 						diskLabelNames,
 						nil,
@@ -62,7 +62,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "read_sectors_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "read_sectors_total"),
 						"The total number of sectors read successfully.",
 						diskLabelNames,
 						nil,
@@ -76,7 +76,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "read_seconds_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "read_seconds_total"),
 						"The total number of seconds spent by all reads.",
 						diskLabelNames,
 						nil,
@@ -90,7 +90,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "writes_completed_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed_total"),
 						"The total number of writes completed successfully.",
 						diskLabelNames,
 						nil,
@@ -104,7 +104,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "written_sectors_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "written_sectors_total"),
 						"The total number of sectors written successfully.",
 						diskLabelNames,
 						nil,
@@ -118,7 +118,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "write_seconds_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "write_seconds_total"),
 						"This is the total number of seconds spent by all writes.",
 						diskLabelNames,
 						nil,
@@ -132,7 +132,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "read_bytes_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "read_bytes_total"),
 						"The total number of bytes read successfully.",
 						diskLabelNames,
 						nil,
@@ -146,7 +146,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(Namespace, diskSubsystem, "written_bytes_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "written_bytes_total"),
 						"The total number of bytes written successfully.",
 						diskLabelNames,
 						nil,
