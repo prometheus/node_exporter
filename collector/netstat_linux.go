@@ -121,6 +121,12 @@ func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, 
 func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
 	file, err := os.Open(fileName)
 	if err != nil {
+		// On systems with IPv6 disabled, this file won't exist.
+		// Do nothing.
+		if os.IsNotExist(err) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 	defer file.Close()
