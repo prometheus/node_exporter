@@ -81,6 +81,12 @@
 			"versionExact": "v1.0.0"
 		},
 		{
+			"checksumSHA1": "VZIJG8dML/XqZbL9bpeDNgkazcg=",
+			"path": "github.com/mdlayher/genetlink",
+			"revision": "76fecce4c787fb8eaa21a8755f722d67c53038e1",
+			"revisionTime": "2017-09-01T18:19:24Z"
+		},
+		{
 			"checksumSHA1": "LUVR92VPf7w6G90RtLHJU5C7p/k=",
 			"path": "github.com/mdlayher/netlink",
 			"revision": "82077d593cd599c082317ceb5cfb22ee3fbc75ea",
@@ -99,16 +105,16 @@
 			"revisionTime": "2017-09-15T04:07:23Z"
 		},
 		{
-			"checksumSHA1": "FdmT9kyPtsLxk+sgxJmKqcbOCR4=",
+			"checksumSHA1": "VrGOd/bos90JqbKuu/cTFdyWoWk=",
 			"path": "github.com/mdlayher/wifi",
-			"revision": "567082929344b0af8eb8a2ad6fe4725c0b3c8702",
-			"revisionTime": "2017-03-17T19:22:46Z"
+			"revision": "17fb8383f38adbf6a7f12e6cbd1d461760aabf5c",
+			"revisionTime": "2017-09-01T18:29:50Z"
 		},
 		{
 			"checksumSHA1": "VzutdH69PUqRqhrDVv6F91ebQd4=",
 			"path": "github.com/mdlayher/wifi/internal/nl80211",
-			"revision": "88fd1c0ec178645c1b7d300090b5a9d4b226b8e1",
-			"revisionTime": "2017-01-07T15:17:58Z"
+			"revision": "17fb8383f38adbf6a7f12e6cbd1d461760aabf5c",
+			"revisionTime": "2017-09-01T18:29:50Z"
 		},
 		{
 			"checksumSHA1": "N8DZCxgnkiFM2cdn0/jB6jRu1TM=",
