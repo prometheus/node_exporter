@@ -1,32 +1,18 @@
 package genetlink
 
-import "github.com/mdlayher/netlink"
-
-// Controller is the generic netlink controller family ID, used to issue
-// requests to the controller.
-const Controller = 0x10
+import (
+	"github.com/mdlayher/netlink"
+	"golang.org/x/net/bpf"
+)
 
 // Protocol is the netlink protocol constant used to specify generic netlink.
-const Protocol = 0x10
+const Protocol = 0x10 // unix.NETLINK_GENERIC
 
 // A Conn is a generic netlink connection.  A Conn can be used to send and
 // receive generic netlink messages to and from netlink.
 type Conn struct {
-	// Family provides functions to help retrieve generic netlink families.
-	Family *FamilyService
-
-	c conn
-}
-
-var _ conn = &netlink.Conn{}
-
-// A conn is a netlink connection, which can be swapped for tests.
-type conn interface {
-	Close() error
-	JoinGroup(group uint32) error
-	LeaveGroup(group uint32) error
-	Send(m netlink.Message) (netlink.Message, error)
-	Receive() ([]netlink.Message, error)
+	// Operating system-specific netlink connection.
+	c *netlink.Conn
 }
 
 // Dial dials a generic netlink connection.  Config specifies optional
@@ -38,23 +24,32 @@ func Dial(config *netlink.Config) (*Conn, error) {
 		return nil, err
 	}
 
-	return newConn(c), nil
+	return NewConn(c), nil
 }
 
-// newConn is the internal constructor for Conn, used in tests.
-func newConn(c conn) *Conn {
-	gc := &Conn{
-		c: c,
-	}
-
-	gc.Family = &FamilyService{c: gc}
-
-	return gc
+// NewConn creates a Conn that wraps an existing *netlink.Conn for
+// generic netlink communications.
+//
+// NewConn is primarily useful for tests. Most applications should use
+// Dial instead.
+func NewConn(c *netlink.Conn) *Conn {
+	return &Conn{c: c}
 }
 
 // Close closes the connection.
 func (c *Conn) Close() error {
 	return c.c.Close()
+}
+
+// GetFamily retrieves a generic netlink family with the specified name.  If the
+// family does not exist, the error value can be checked using os.IsNotExist.
+func (c *Conn) GetFamily(name string) (Family, error) {
+	return c.getFamily(name)
+}
+
+// ListFamilies retrieves all registered generic netlink families.
+func (c *Conn) ListFamilies() ([]Family, error) {
+	return c.listFamilies()
 }
 
 // JoinGroup joins a netlink multicast group by its ID.
@@ -65,6 +60,11 @@ func (c *Conn) JoinGroup(group uint32) error {
 // LeaveGroup leaves a netlink multicast group by its ID.
 func (c *Conn) LeaveGroup(group uint32) error {
 	return c.c.LeaveGroup(group)
+}
+
+// SetBPF attaches an assembled BPF program to a Conn.
+func (c *Conn) SetBPF(filter []bpf.RawInstruction) error {
+	return c.c.SetBPF(filter)
 }
 
 // Send sends a single Message to netlink, wrapping it in a netlink.Message

@@ -11,8 +11,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/mdlayher/genetlink"
 	"github.com/mdlayher/netlink"
-	"github.com/mdlayher/netlink/genetlink"
 	"github.com/mdlayher/netlink/nlenc"
 	"github.com/mdlayher/wifi/internal/nl80211"
 )
@@ -30,17 +30,9 @@ var _ osClient = &client{}
 // netlink, generic netlink, and nl80211 to provide access to WiFi device
 // actions and statistics.
 type client struct {
-	c             genl
+	c             *genetlink.Conn
 	familyID      uint16
 	familyVersion uint8
-}
-
-// genl is an interface over generic netlink, so netlink interactions can
-// be stubbed in tests.
-type genl interface {
-	Close() error
-	GetFamily(name string) (genetlink.Family, error)
-	Execute(m genetlink.Message, family uint16, flags netlink.HeaderFlags) ([]genetlink.Message, error)
 }
 
 // newClient dials a generic netlink connection and verifies that nl80211
@@ -51,12 +43,10 @@ func newClient() (*client, error) {
 		return nil, err
 	}
 
-	g := &sysGENL{Conn: c}
-	return initClient(g)
+	return initClient(c)
 }
 
-// initClient is the internal constructor for a client, used in tests.
-func initClient(c genl) (*client, error) {
+func initClient(c *genetlink.Conn) (*client, error) {
 	family, err := c.GetFamily(nl80211.GenlName)
 	if err != nil {
 		// Ensure the genl socket is closed on error to avoid leaking file
@@ -478,16 +468,4 @@ func decodeSSID(b []byte) string {
 	}
 
 	return buf.String()
-}
-
-var _ genl = &sysGENL{}
-
-// sysGENL is the system implementation of genl, using generic netlink.
-type sysGENL struct {
-	*genetlink.Conn
-}
-
-// GetFamily is a small adapter to make *genetlink.Conn implement genl.
-func (g *sysGENL) GetFamily(name string) (genetlink.Family, error) {
-	return g.Conn.Family.Get(name)
 }

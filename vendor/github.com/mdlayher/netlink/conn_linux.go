@@ -17,7 +17,7 @@ var (
 	errInvalidFamily   = errors.New("received invalid netlink family")
 )
 
-var _ osConn = &conn{}
+var _ Socket = &conn{}
 
 // A conn is the Linux implementation of a netlink sockets connection.
 type conn struct {
@@ -29,6 +29,7 @@ type conn struct {
 type socket interface {
 	Bind(sa unix.Sockaddr) error
 	Close() error
+	FD() int
 	Getsockname() (unix.Sockaddr, error)
 	Recvmsg(p, oob []byte, flags int) (n int, oobn int, recvflags int, from unix.Sockaddr, err error)
 	Sendmsg(p, oob []byte, to unix.Sockaddr, flags int) error
@@ -154,6 +155,11 @@ func (c *conn) Close() error {
 	return c.s.Close()
 }
 
+// FD retrieves the file descriptor of the Conn.
+func (c *conn) FD() int {
+	return c.s.FD()
+}
+
 // JoinGroup joins a multicast group by ID.
 func (c *conn) JoinGroup(group uint32) error {
 	return c.s.SetSockopt(
@@ -211,6 +217,7 @@ type sysSocket struct {
 
 func (s *sysSocket) Bind(sa unix.Sockaddr) error         { return unix.Bind(s.fd, sa) }
 func (s *sysSocket) Close() error                        { return unix.Close(s.fd) }
+func (s *sysSocket) FD() int                             { return s.fd }
 func (s *sysSocket) Getsockname() (unix.Sockaddr, error) { return unix.Getsockname(s.fd) }
 func (s *sysSocket) Recvmsg(p, oob []byte, flags int) (int, int, int, unix.Sockaddr, error) {
 	return unix.Recvmsg(s.fd, p, oob, flags)

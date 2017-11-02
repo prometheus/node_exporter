@@ -20,7 +20,7 @@ type Header struct {
 }
 
 // headerLen is the length of a Header.
-const headerLen = 4
+const headerLen = 4 // unix.GENL_HDRLEN
 
 // A Message is a generic netlink message.  It contains a Header and an
 // arbitrary byte payload, which may be decoded using information from the

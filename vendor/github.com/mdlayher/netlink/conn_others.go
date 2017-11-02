@@ -16,14 +16,14 @@ var (
 		runtime.GOOS, runtime.GOARCH)
 )
 
-var _ osConn = &conn{}
+var _ Socket = &conn{}
 
 // A conn is the no-op implementation of a netlink sockets connection.
 type conn struct{}
 
 // dial is the entry point for Dial.  dial always returns an error.
-func dial(family int, config *Config) (*conn, error) {
-	return nil, errUnimplemented
+func dial(family int, config *Config) (*conn, uint32, error) {
+	return nil, 0, errUnimplemented
 }
 
 // Send always returns an error.
