@@ -33,4 +33,8 @@ func TestInterrupts(t *testing.T) {
 	if want, got := "5031", interrupts["NMI"].values[1]; want != got {
 		t.Errorf("want interrupts %s, got %s", want, got)
 	}
+
+	if want, got := "4968", interrupts["NMI"].values[3]; want != got {
+		t.Errorf("want interrupts %s, got %s", want, got)
+	}
 }

@@ -82,7 +82,7 @@ func parseInterrupts(r io.Reader) (map[string]interrupt, error) {
 		}
 		intName := parts[0][:len(parts[0])-1] // remove trailing :
 		intr := interrupt{
-			values: parts[1:cpuNum],
+			values: parts[1 : cpuNum+1],
 		}
 
 		if _, err := strconv.Atoi(intName); err == nil { // numeral interrupt
