@@ -2,7 +2,9 @@ package netlink
 
 import (
 	"errors"
+	"io"
 	"math/rand"
+	"os"
 	"sync/atomic"
 
 	"golang.org/x/net/bpf"
@@ -15,12 +17,20 @@ var (
 	errShortErrorMessage  = errors.New("not enough data for netlink error code")
 )
 
+// Errors which can be returned by a Socket that does not implement
+// all exposed methods of Conn.
+var (
+	errReadWriteCloserNotSupported = errors.New("raw read/write/closer not supported")
+	errMulticastGroupsNotSupported = errors.New("multicast groups not supported")
+	errBPFFiltersNotSupported      = errors.New("BPF filters not supported")
+)
+
 // A Conn is a connection to netlink.  A Conn can be used to send and
 // receives messages to and from netlink.
 type Conn struct {
-	// osConn is the operating system-specific implementation of
+	// sock is the operating system-specific implementation of
 	// a netlink sockets connection.
-	c osConn
+	sock Socket
 
 	// seq is an atomically incremented integer used to provide sequence
 	// numbers when Conn.Send is called.
@@ -30,44 +40,45 @@ type Conn struct {
 	pid uint32
 }
 
-// An osConn is an operating-system specific implementation of netlink
+// A Socket is an operating-system specific implementation of netlink
 // sockets used by Conn.
-type osConn interface {
+type Socket interface {
 	Close() error
 	Send(m Message) error
 	Receive() ([]Message, error)
-	JoinGroup(group uint32) error
-	LeaveGroup(group uint32) error
-	SetBPF(filter []bpf.RawInstruction) error
 }
 
-// Dial dials a connection to netlink, using the specified protocol number.
+// Dial dials a connection to netlink, using the specified netlink family.
 // Config specifies optional configuration for Conn.  If config is nil, a default
 // configuration will be used.
-func Dial(proto int, config *Config) (*Conn, error) {
-	// Use OS-specific dial() to create osConn
-	c, pid, err := dial(proto, config)
+func Dial(family int, config *Config) (*Conn, error) {
+	// Use OS-specific dial() to create Socket
+	c, pid, err := dial(family, config)
 	if err != nil {
 		return nil, err
 	}
 
-	return newConn(c, pid), nil
+	return NewConn(c, pid), nil
 }
 
-// newConn is the internal constructor for Conn, used in tests.
-func newConn(c osConn, pid uint32) *Conn {
+// NewConn creates a Conn using the specified Socket and PID for netlink
+// communications.
+//
+// NewConn is primarily useful for tests. Most applications should use
+// Dial instead.
+func NewConn(c Socket, pid uint32) *Conn {
 	seq := rand.Uint32()
 
 	return &Conn{
-		c:   c,
-		seq: &seq,
-		pid: pid,
+		sock: c,
+		seq:  &seq,
+		pid:  pid,
 	}
 }
 
 // Close closes the connection.
 func (c *Conn) Close() error {
-	return c.c.Close()
+	return c.sock.Close()
 }
 
 // Execute sends a single Message to netlink using Conn.Send, receives one or more
@@ -127,7 +138,7 @@ func (c *Conn) Send(m Message) (Message, error) {
 		m.Header.PID = c.pid
 	}
 
-	if err := c.c.Send(m); err != nil {
+	if err := c.sock.Send(m); err != nil {
 		return Message{}, err
 	}
 
@@ -145,8 +156,13 @@ func (c *Conn) Receive() ([]Message, error) {
 		return nil, err
 	}
 
+	// When using nltest, it's possible for zero messages to be returned by receive.
+	if len(msgs) == 0 {
+		return msgs, nil
+	}
+
 	// Trim the final message with multi-part done indicator if
-	// present
+	// present.
 	if m := msgs[len(msgs)-1]; m.Header.Flags&HeaderFlagsMulti != 0 && m.Header.Type == HeaderTypeDone {
 		return msgs[:len(msgs)-1], nil
 	}
@@ -157,7 +173,7 @@ func (c *Conn) Receive() ([]Message, error) {
 // receive is the internal implementation of Conn.Receive, which can be called
 // recursively to handle multi-part messages.
 func (c *Conn) receive() ([]Message, error) {
-	msgs, err := c.c.Receive()
+	msgs, err := c.sock.Receive()
 	if err != nil {
 		return nil, err
 	}
@@ -190,19 +206,93 @@ func (c *Conn) receive() ([]Message, error) {
 	return append(msgs, mmsgs...), nil
 }
 
+// An fder is a Socket that supports retrieving its raw file descriptor.
+type fder interface {
+	Socket
+	FD() int
+}
+
+var _ io.ReadWriteCloser = &fileReadWriteCloser{}
+
+// A fileReadWriteCloser is a limited *os.File which only allows access to its
+// Read and Write methods.
+type fileReadWriteCloser struct {
+	f *os.File
+}
+
+// Read implements io.ReadWriteCloser.
+func (rwc *fileReadWriteCloser) Read(b []byte) (int, error) { return rwc.f.Read(b) }
+
+// Write implements io.ReadWriteCloser.
+func (rwc *fileReadWriteCloser) Write(b []byte) (int, error) { return rwc.f.Write(b) }
+
+// Close implements io.ReadWriteCloser.
+func (rwc *fileReadWriteCloser) Close() error { return rwc.f.Close() }
+
+// ReadWriteCloser returns a raw io.ReadWriteCloser backed by the connection
+// of the Conn.
+//
+// ReadWriteCloser is intended for advanced use cases, such as those that do
+// not involve standard netlink message passing.
+//
+// Once invoked, it is the caller's responsibility to ensure that operations
+// performed using Conn and the raw io.ReadWriteCloser do not conflict with
+// each other.  In almost all scenarios, only one of the two should be used.
+func (c *Conn) ReadWriteCloser() (io.ReadWriteCloser, error) {
+	fc, ok := c.sock.(fder)
+	if !ok {
+		return nil, errReadWriteCloserNotSupported
+	}
+
+	return &fileReadWriteCloser{
+		// Backing the io.ReadWriteCloser with an *os.File enables easy reading
+		// and writing without more system call boilerplate.
+		f: os.NewFile(uintptr(fc.FD()), "netlink"),
+	}, nil
+}
+
+// A groupJoinLeaver is a Socket that supports joining and leaving
+// netlink multicast groups.
+type groupJoinLeaver interface {
+	Socket
+	JoinGroup(group uint32) error
+	LeaveGroup(group uint32) error
+}
+
 // JoinGroup joins a netlink multicast group by its ID.
 func (c *Conn) JoinGroup(group uint32) error {
-	return c.c.JoinGroup(group)
+	gc, ok := c.sock.(groupJoinLeaver)
+	if !ok {
+		return errMulticastGroupsNotSupported
+	}
+
+	return gc.JoinGroup(group)
 }
 
 // LeaveGroup leaves a netlink multicast group by its ID.
 func (c *Conn) LeaveGroup(group uint32) error {
-	return c.c.LeaveGroup(group)
+	gc, ok := c.sock.(groupJoinLeaver)
+	if !ok {
+		return errMulticastGroupsNotSupported
+	}
+
+	return gc.LeaveGroup(group)
+}
+
+// A bpfSetter is a Socket that supports setting BPF filters.
+type bpfSetter interface {
+	Socket
+	bpf.Setter
 }
 
 // SetBPF attaches an assembled BPF program to a Conn.
 func (c *Conn) SetBPF(filter []bpf.RawInstruction) error {
-	return c.c.SetBPF(filter)
+	bc, ok := c.sock.(bpfSetter)
+	if !ok {
+		return errBPFFiltersNotSupported
+	}
+
+	return bc.SetBPF(filter)
 }
 
 // nextSequence atomically increments Conn's sequence number and returns

@@ -9,10 +9,13 @@ import (
 var (
 	// errInvalidAttribute specifies if an Attribute's length is incorrect.
 	errInvalidAttribute = errors.New("invalid attribute; length too short or too large")
+	// errInvalidAttributeFlags specifies if an Attribute's flag configuration is invalid.
+	// From a comment in Linux/include/uapi/linux/netlink.h, Nested and NetByteOrder are mutually exclusive.
+	errInvalidAttributeFlags = errors.New("invalid attribute; type cannot have both nested and net byte order flags")
 )
 
 // An Attribute is a netlink attribute.  Attributes are packed and unpacked
-// to and from the Data field of Message for some netlink protocol families.
+// to and from the Data field of Message for some netlink families.
 type Attribute struct {
 	// Length of an Attribute, including this field and Type.
 	Length uint16
@@ -22,7 +25,25 @@ type Attribute struct {
 
 	// An arbitrary payload which is specified by Type.
 	Data []byte
+
+	// Whether the attribute's data contains nested attributes.  Note that not
+	// all netlink families set this value.  The programmer should consult
+	// documentation and inspect an attribute's data to determine if nested
+	// attributes are present.
+	Nested bool
+
+	// Whether the attribute's data is in network (true) or native (false) byte order.
+	NetByteOrder bool
 }
+
+// #define NLA_F_NESTED
+const nlaNested uint16 = 0x8000
+
+// #define NLA_F_NET_BYTE_ORDER
+const nlaNetByteOrder uint16 = 0x4000
+
+// Masks all bits except for Nested and NetByteOrder.
+const nlaTypeMask = ^(nlaNested | nlaNetByteOrder)
 
 // MarshalBinary marshals an Attribute into a byte slice.
 func (a Attribute) MarshalBinary() ([]byte, error) {
@@ -30,11 +51,24 @@ func (a Attribute) MarshalBinary() ([]byte, error) {
 		return nil, errInvalidAttribute
 	}
 
+	if a.NetByteOrder && a.Nested {
+		return nil, errInvalidAttributeFlags
+	}
+
 	b := make([]byte, nlaAlign(int(a.Length)))
 
 	nlenc.PutUint16(b[0:2], a.Length)
-	nlenc.PutUint16(b[2:4], a.Type)
-	copy(b[4:], a.Data)
+
+	switch {
+	case a.Nested:
+		nlenc.PutUint16(b[2:4], a.Type|nlaNested)
+	case a.NetByteOrder:
+		nlenc.PutUint16(b[2:4], a.Type|nlaNetByteOrder)
+	default:
+		nlenc.PutUint16(b[2:4], a.Type)
+	}
+
+	copy(b[nlaHeaderLen:], a.Data)
 
 	return b, nil
 }
@@ -46,10 +80,20 @@ func (a *Attribute) UnmarshalBinary(b []byte) error {
 	}
 
 	a.Length = nlenc.Uint16(b[0:2])
-	a.Type = nlenc.Uint16(b[2:4])
+
+	// Only hold the rightmost 14 bits in Type
+	a.Type = nlenc.Uint16(b[2:4]) & nlaTypeMask
+
+	// Boolean flags extracted from the two leftmost bits of Type
+	a.Nested = (nlenc.Uint16(b[2:4]) & nlaNested) > 0
+	a.NetByteOrder = (nlenc.Uint16(b[2:4]) & nlaNetByteOrder) > 0
 
 	if nlaAlign(int(a.Length)) > len(b) {
 		return errInvalidAttribute
+	}
+
+	if a.NetByteOrder && a.Nested {
+		return errInvalidAttributeFlags
 	}
 
 	switch {
@@ -57,12 +101,12 @@ func (a *Attribute) UnmarshalBinary(b []byte) error {
 	case a.Length == 0:
 		a.Data = make([]byte, 0)
 	// Not enough length for any data
-	case a.Length < 4:
+	case int(a.Length) < nlaHeaderLen:
 		return errInvalidAttribute
 	// Data present
-	case a.Length >= 4:
-		a.Data = make([]byte, len(b[4:a.Length]))
-		copy(a.Data, b[4:a.Length])
+	case int(a.Length) >= nlaHeaderLen:
+		a.Data = make([]byte, len(b[nlaHeaderLen:a.Length]))
+		copy(a.Data, b[nlaHeaderLen:a.Length])
 	}
 
 	return nil

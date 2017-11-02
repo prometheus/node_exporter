@@ -81,10 +81,10 @@
 			"versionExact": "v1.0.0"
 		},
 		{
-			"checksumSHA1": "r3t+HDvOEQVCaLjuMT8rl6opbNQ=",
+			"checksumSHA1": "LUVR92VPf7w6G90RtLHJU5C7p/k=",
 			"path": "github.com/mdlayher/netlink",
-			"revision": "343c07bd16ebbc714f19c528a6deb6723ace06f3",
-			"revisionTime": "2017-03-10T17:31:27Z"
+			"revision": "82077d593cd599c082317ceb5cfb22ee3fbc75ea",
+			"revisionTime": "2017-09-15T04:07:23Z"
 		},
 		{
 			"checksumSHA1": "+2roeIWCAjCC58tZcs12Vqgf1Io=",
@@ -93,10 +93,10 @@
 			"revisionTime": "2017-01-04T04:59:06Z"
 		},
 		{
-			"checksumSHA1": "9udZUcU9bmkXtnkyLNqJ8jKRt0c=",
+			"checksumSHA1": "9nig0WuuiTICStI/8S+pIGqYksc=",
 			"path": "github.com/mdlayher/netlink/nlenc",
-			"revision": "1291b75abe0cc0cb335f110466bf1f02590c916d",
-			"revisionTime": "2017-01-04T04:59:06Z"
+			"revision": "82077d593cd599c082317ceb5cfb22ee3fbc75ea",
+			"revisionTime": "2017-09-15T04:07:23Z"
 		},
 		{
 			"checksumSHA1": "FdmT9kyPtsLxk+sgxJmKqcbOCR4=",
