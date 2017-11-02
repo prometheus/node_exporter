@@ -15,6 +15,7 @@ enabled_collectors=$(cat << COLLECTORS
   filefd
   hwmon
   infiniband
+  interrupts
   ipvs
   ksmd
   loadavg
