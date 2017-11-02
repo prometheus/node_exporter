@@ -14,6 +14,7 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"net"
 	"time"
 
@@ -223,6 +224,11 @@ type Response struct {
 	// minimum error may be useful.
 	MinError time.Duration
 
+	// KissCode is a 4-character string describing the reason for a
+	// "kiss of death" response (stratum = 0). For a list of standard kiss
+	// codes, see https://tools.ietf.org/html/rfc5905#section-7.4.
+	KissCode string
+
 	// Poll is the maximum interval between successive NTP polling messages.
 	// It is not relevant for simple NTP clients like this one.
 	Poll time.Duration
@@ -233,7 +239,7 @@ type Response struct {
 func (r *Response) Validate() error {
 	// Handle invalid stratum values.
 	if r.Stratum == 0 {
-		return errors.New("kiss of death received")
+		return fmt.Errorf("kiss of death received: %s", r.KissCode)
 	}
 	if r.Stratum >= maxStratum {
 		return errors.New("invalid stratum in response")
@@ -379,16 +385,16 @@ func getTime(host string, opt QueryOptions) (*msg, ntpTime, error) {
 	// To ensure privacy and prevent spoofing, try to use a random 64-bit
 	// value for the TransmitTime. If crypto/rand couldn't generate a
 	// random value, fall back to using the system clock. Keep track of
-	// when the messsage was actually sent.
-	r := make([]byte, 8)
-	_, err = rand.Read(r)
-	var sendTime time.Time
+	// when the messsage was actually transmitted.
+	bits := make([]byte, 8)
+	_, err = rand.Read(bits)
+	var xmitTime time.Time
 	if err == nil {
-		xmitMsg.TransmitTime = ntpTime(binary.BigEndian.Uint64(r))
-		sendTime = time.Now()
+		xmitMsg.TransmitTime = ntpTime(binary.BigEndian.Uint64(bits))
+		xmitTime = time.Now()
 	} else {
-		sendTime = time.Now()
-		xmitMsg.TransmitTime = toNtpTime(sendTime)
+		xmitTime = time.Now()
+		xmitMsg.TransmitTime = toNtpTime(xmitTime)
 	}
 
 	// Transmit the query.
@@ -404,15 +410,16 @@ func getTime(host string, opt QueryOptions) (*msg, ntpTime, error) {
 	}
 
 	// Keep track of the time the response was received.
-	delta := time.Since(sendTime)
+	delta := time.Since(xmitTime)
 	if delta < 0 {
-		// The system clock may have been set backwards since the packet was
-		// transmitted. In go 1.9 and later, time.Since ensures that a
-		// monotonic clock is used, and delta can never be less than zero.
-		// In versions before 1.9, we have to check.
+		// The local system may have had its clock adjusted since it
+		// sent the query. In go 1.9 and later, time.Since ensures
+		// that a monotonic clock is used, so delta can never be less
+		// than zero. In versions before 1.9, a monotonic clock is
+		// not used, so we have to check.
 		return nil, 0, errors.New("client clock ticked backwards")
 	}
-	recvTime := toNtpTime(sendTime.Add(delta))
+	recvTime := toNtpTime(xmitTime.Add(delta))
 
 	// Check for invalid fields.
 	if recvMsg.getMode() != server {
@@ -428,9 +435,9 @@ func getTime(host string, opt QueryOptions) (*msg, ntpTime, error) {
 		return nil, 0, errors.New("server clock ticked backwards")
 	}
 
-	// Correct the received message's origin time using the actual send
-	// time.
-	recvMsg.OriginTime = toNtpTime(sendTime)
+	// Correct the received message's origin time using the actual
+	// transmit time.
+	recvMsg.OriginTime = toNtpTime(xmitTime)
 
 	return recvMsg, recvTime, nil
 }
@@ -455,6 +462,12 @@ func parseTime(m *msg, recvTime ntpTime) *Response {
 
 	// Calculate values depending on other calculated values
 	r.RootDistance = rootDistance(r.RTT, r.RootDelay, r.RootDispersion)
+
+	// If a kiss of death was received, interpret the reference ID as
+	// a kiss code.
+	if r.Stratum == 0 {
+		r.KissCode = kissCode(r.ReferenceID)
+	}
 
 	return r
 }
@@ -532,4 +545,21 @@ func toInterval(t int8) time.Duration {
 	default:
 		return time.Second
 	}
+}
+
+func kissCode(id uint32) string {
+	isPrintable := func(ch byte) bool { return ch >= 32 && ch <= 126 }
+
+	b := []byte{
+		byte(id >> 24),
+		byte(id >> 16),
+		byte(id >> 8),
+		byte(id),
+	}
+	for _, ch := range b {
+		if !isPrintable(ch) {
+			return ""
+		}
+	}
+	return string(b)
 }

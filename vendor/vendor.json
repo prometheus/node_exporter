@@ -21,12 +21,12 @@
 			"revisionTime": "2015-10-22T06:55:26Z"
 		},
 		{
-			"checksumSHA1": "OXcULIfKv/Xcsa4o1By1lY0s+AI=",
+			"checksumSHA1": "Gofi5dpQ/jevSfySSRDaoNpHMq8=",
 			"path": "github.com/beevik/ntp",
-			"revision": "802074b1b037c59dbdbee7e196ad91b51d0ec844",
-			"revisionTime": "2017-10-03T23:10:51Z",
-			"version": "v0.1.1",
-			"versionExact": "v0.1.1"
+			"revision": "62c80a04de2086884d8296004b6d74ee1846c582",
+			"revisionTime": "2017-10-20T00:02:52Z",
+			"version": "v0.2.0",
+			"versionExact": "v0.2.0"
 		},
 		{
 			"checksumSHA1": "spyv5/YFBjYyZLZa1U2LBfDR8PM=",
