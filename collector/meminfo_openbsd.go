@@ -20,8 +20,6 @@ import (
 	"fmt"
 )
 
-import "C"
-
 /*
 #include <sys/param.h>
 #include <sys/types.h>
@@ -40,6 +38,7 @@ sysctl_uvmexp(struct uvmexp *uvmexp)
 }
 
 */
+import "C"
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	var uvmexp C.struct_uvmexp
