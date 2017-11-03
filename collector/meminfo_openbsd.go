@@ -49,14 +49,17 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 
 	ps := uvmexp.pagesize
 
+	// see uvm(9)
 	return map[string]float64{
-		"active_bytes":     float64(ps * uvmexp.active),
-		"inactive_bytes":   float64(ps * uvmexp.inactive),
-		"wire_bytes":       float64(ps * uvmexp.wired),
-		"cache_bytes":      float64(ps * uvmexp.vnodepages),
-		"free_bytes":       float64(ps * uvmexp.free),
-		"swappgsin_bytes":  float64(ps * uvmexp.pgswapin),
-		"swappgsout_bytes": float64(ps * uvmexp.pgswapout),
-		"total_bytes":      float64(ps * uvmexp.npages),
+		"active_bytes":                  float64(ps * uvmexp.active),
+		"cache_bytes":                   float64(ps * uvmexp.vnodepages),
+		"free_bytes":                    float64(ps * uvmexp.free),
+		"inactive_bytes":                float64(ps * uvmexp.inactive),
+		"swap_size_bytes":               float64(ps * uvmexp.swpages),
+		"swap_used_bytes":               float64(ps * uvmexp.swpgonly),
+		"swapped_in_pages_bytes_total":  float64(ps * uvmexp.pgswapin),
+		"swapped_out_pages_bytes_total": float64(ps * uvmexp.pgswapout),
+		"total_bytes":                   float64(ps * uvmexp.npages),
+		"wired_bytes":                   float64(ps * uvmexp.wired),
 	}, nil
 }
