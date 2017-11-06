@@ -66,9 +66,9 @@ func getCPUTimes() ([]cputime, error) {
 	// compute the kern.cp_times equivalent
 	if ncpu > 1 {
 		for i := 0; i < ncpu; i++ {
-			cpTime2, err := unix.SysctlRaw("kern.cpTime2", i)
+			cpTime2, err := unix.SysctlRaw("kern.cp_time2", i)
 			if err != nil {
-				return nil, fmt.Errorf("sysctl(kern.cpTime2) failed: %s", err)
+				return nil, fmt.Errorf("sysctl(kern.cp_time2) failed: %s", err)
 			}
 			cpb = append(cpb, cpTime2...)
 		}
