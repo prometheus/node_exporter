@@ -24,6 +24,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -61,8 +62,8 @@ func cleanMetricName(name string) string {
 }
 
 func addValueFile(data map[string]map[string]string, sensor string, prop string, file string) {
-	raw, e := ioutil.ReadFile(file)
-	if e != nil {
+	raw, err := sysReadFile(file)
+	if err != nil {
 		return
 	}
 	value := strings.Trim(string(raw), "\n")
@@ -72,6 +73,28 @@ func addValueFile(data map[string]map[string]string, sensor string, prop string,
 	}
 
 	data[sensor][prop] = value
+}
+
+// sysReadFile is a simplified ioutil.ReadFile that invokes syscall.Read directly.
+func sysReadFile(file string) ([]byte, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	// On some machines, hwmon drivers are broken and return EAGAIN.  This causes
+	// Go's ioutil.ReadFile implementation to poll forever.
+	//
+	// Since we either want to read data or bail immediately, do the simplest
+	// possible read using syscall directly.
+	b := make([]byte, 128)
+	n, err := syscall.Read(int(f.Fd()), b)
+	if err != nil {
+		return nil, err
+	}
+
+	return b[:n], nil
 }
 
 // explodeSensorFilename splits a sensor name into <type><num>_<property>.
