@@ -189,7 +189,7 @@ for device in ${device_list}; do
 # shellcheck disable=SC2086
   type="$(echo ${device} | cut -f2 -d'|')"
 # shellcheck disable=SC2030
-  TS="$(TZ=UTC date +%s%3N)"
+  TS="$(TZ=UTC date +%s.%N)"
   echo "smartctl_run{disk=\"${disk}\",type=\"${type}\"} $TS"
   # Get the SMART information and health
   TS="$(TZ=UTC date +%s%3N)"
