@@ -141,20 +141,20 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
 	}
 
-	pkgs, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
+	nodes, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
 	if err != nil {
 		return err
 	}
 
-	// package/node loop
-	for _, pkg := range pkgs {
-		if _, err := os.Stat(filepath.Join(pkg, "cpulist")); os.IsNotExist(err) {
-			log.Debugf("package %q is missing cpulist", pkg)
+	// package / NUMA node loop
+	for _, node := range nodes {
+		if _, err := os.Stat(filepath.Join(node, "cpulist")); os.IsNotExist(err) {
+			log.Debugf("NUMA node %q is missing cpulist", node)
 			continue
 		}
-		cpulist, err := ioutil.ReadFile(filepath.Join(pkg, "cpulist"))
+		cpulist, err := ioutil.ReadFile(filepath.Join(node, "cpulist"))
 		if err != nil {
-			log.Debugf("could not read cpulist of package %q", pkg)
+			log.Debugf("could not read cpulist of NUMA node %q", node)
 			return err
 		}
 		// cpulist example of one package/node with HT: "0-11,24-35"
@@ -163,21 +163,21 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			// Skip processor-less (memory-only) NUMA nodes.
 			// E.g. RAM expansion with Intel Optane Drive(s) using
 			// Intel Memory Drive Technology (IMDT).
-			log.Debugf("skipping processor-less (memory-only) package %q", pkg)
+			log.Debugf("skipping processor-less (memory-only) NUMA node %q", node)
 			continue
 		}
 		firstCPU := strings.FieldsFunc(line, func(r rune) bool {
 			return r == '-' || r == ','
 		})[0]
-		if _, err := os.Stat(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); os.IsNotExist(err) {
-			log.Debugf("Package %q CPU %q is missing package_throttle", pkg, firstCPU)
+		if _, err := os.Stat(filepath.Join(node, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); os.IsNotExist(err) {
+			log.Debugf("Node %q CPU %q is missing package_throttle", node, firstCPU)
 			continue
 		}
-		if value, err = readUintFromFile(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); err != nil {
+		if value, err = readUintFromFile(filepath.Join(node, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); err != nil {
 			return err
 		}
-		pkgno := digitRegexp.FindAllString(pkg, 1)[0]
-		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), pkgno)
+		nodeno := digitRegexp.FindAllString(node, 1)[0]
+		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), nodeno)
 	}
 
 	return nil
