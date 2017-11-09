@@ -159,6 +159,13 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		}
 		// cpulist example of one package/node with HT: "0-11,24-35"
 		line := strings.Split(string(cpulist), "\n")[0]
+		if line == "" {
+			// Skip processor-less (memory-only) NUMA nodes.
+			// E.g. RAM expansion with Intel Optane Drive(s) using
+			// Intel Memory Drive Technology (IMDT).
+			log.Debugf("skipping processor-less (memory-only) package %q", pkg)
+			continue
+		}
 		firstCPU := strings.FieldsFunc(line, func(r rune) bool {
 			return r == '-' || r == ','
 		})[0]
