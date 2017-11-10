@@ -111,7 +111,7 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		_, cpuname := filepath.Split(cpu)
 
 		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
-			log.Debugf("CPU %q is missing cpufreq", cpu)
+			log.Debugf("CPU %v is missing cpufreq", cpu)
 		} else {
 			// sysfs cpufreq values are kHz, thus multiply by 1000 to export base units (hz).
 			// See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
@@ -132,7 +132,7 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		}
 
 		if _, err := os.Stat(filepath.Join(cpu, "thermal_throttle")); os.IsNotExist(err) {
-			log.Debugf("CPU %q is missing thermal_throttle", cpu)
+			log.Debugf("CPU %v is missing thermal_throttle", cpu)
 			continue
 		}
 		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
@@ -141,36 +141,43 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
 	}
 
-	pkgs, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
+	nodes, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
 	if err != nil {
 		return err
 	}
 
-	// package/node loop
-	for _, pkg := range pkgs {
-		if _, err := os.Stat(filepath.Join(pkg, "cpulist")); os.IsNotExist(err) {
-			log.Debugf("package %q is missing cpulist", pkg)
+	// package / NUMA node loop
+	for _, node := range nodes {
+		if _, err := os.Stat(filepath.Join(node, "cpulist")); os.IsNotExist(err) {
+			log.Debugf("NUMA node %v is missing cpulist", node)
 			continue
 		}
-		cpulist, err := ioutil.ReadFile(filepath.Join(pkg, "cpulist"))
+		cpulist, err := ioutil.ReadFile(filepath.Join(node, "cpulist"))
 		if err != nil {
-			log.Debugf("could not read cpulist of package %q", pkg)
+			log.Debugf("could not read cpulist of NUMA node %v", node)
 			return err
 		}
 		// cpulist example of one package/node with HT: "0-11,24-35"
 		line := strings.Split(string(cpulist), "\n")[0]
+		if line == "" {
+			// Skip processor-less (memory-only) NUMA nodes.
+			// E.g. RAM expansion with Intel Optane Drive(s) using
+			// Intel Memory Drive Technology (IMDT).
+			log.Debugf("skipping processor-less (memory-only) NUMA node %v", node)
+			continue
+		}
 		firstCPU := strings.FieldsFunc(line, func(r rune) bool {
 			return r == '-' || r == ','
 		})[0]
-		if _, err := os.Stat(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); os.IsNotExist(err) {
-			log.Debugf("Package %q CPU %q is missing package_throttle", pkg, firstCPU)
+		if _, err := os.Stat(filepath.Join(node, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); os.IsNotExist(err) {
+			log.Debugf("Node %v CPU %v is missing package_throttle", node, firstCPU)
 			continue
 		}
-		if value, err = readUintFromFile(filepath.Join(pkg, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); err != nil {
+		if value, err = readUintFromFile(filepath.Join(node, "cpu"+firstCPU, "thermal_throttle", "package_throttle_count")); err != nil {
 			return err
 		}
-		pkgno := digitRegexp.FindAllString(pkg, 1)[0]
-		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), pkgno)
+		nodeno := digitRegexp.FindAllString(node, 1)[0]
+		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle, prometheus.CounterValue, float64(value), nodeno)
 	}
 
 	return nil
