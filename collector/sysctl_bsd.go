@@ -18,9 +18,11 @@ package collector
 
 import (
 	"fmt"
+	"syscall"
+	"unsafe"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
-	"unsafe"
 )
 
 // #include <sys/types.h>
@@ -96,37 +98,20 @@ func (b bsdSysctl) getStructTimeval() (float64, error) {
 		return 0, err
 	}
 
-	/*
-	 * From 10.3-RELEASE sources:
-	 *
-	 * /usr/include/sys/_timeval.h:47
-	 *  time_t      tv_sec
-	 *  suseconds_t tv_usec
-	 *
-	 * /usr/include/sys/_types.h:60
-	 *  long __suseconds_t
-	 *
-	 * ... architecture dependent, via #ifdef:
-	 *  typedef __int64_t __time_t;
-	 *  typedef __int32_t __time_t;
-	 */
-	if len(raw) != (C.sizeof_time_t + C.sizeof_suseconds_t) {
-		// Shouldn't get here, unless the ABI changes...
+	if len(raw) != int(unsafe.Sizeof(syscall.Timeval{})) {
+		// Shouldn't get here.
 		return 0, fmt.Errorf(
 			"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
 			len(raw),
-			C.sizeof_time_t+C.sizeof_suseconds_t,
+			unsafe.Sizeof(syscall.Timeval{}),
 		)
 	}
 
-	secondsUp := unsafe.Pointer(&raw[0])
-	susecondsUp := uintptr(secondsUp) + C.sizeof_time_t
-	unix := float64(*(*C.time_t)(secondsUp))
-	usec := float64(*(*C.suseconds_t)(unsafe.Pointer(susecondsUp)))
+	tv := *(*syscall.Timeval)(unsafe.Pointer(&raw[0]))
 
 	// This conversion maintains the usec precision.  Using the time
 	// package did not.
-	return (unix + (usec / float64(1000*1000))), nil
+	return (float64(tv.Sec) + (float64(tv.Usec) / float64(1000*1000))), nil
 }
 
 func (b bsdSysctl) getCLong() (float64, error) {
