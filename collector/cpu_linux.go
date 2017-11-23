@@ -38,6 +38,7 @@ var (
 
 type cpuCollector struct {
 	cpu                *prometheus.Desc
+	cpuGuest           *prometheus.Desc
 	cpuFreq            *prometheus.Desc
 	cpuFreqMin         *prometheus.Desc
 	cpuFreqMax         *prometheus.Desc
@@ -55,6 +56,11 @@ func NewCPUCollector() (Collector, error) {
 		cpu: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", cpuCollectorSubsystem),
 			"Seconds the cpus spent in each mode.",
+			[]string{"cpu", "mode"}, nil,
+		),
+		cpuGuest: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
+			"Seconds the cpus spent in guests (VMs) for each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
 		cpuFreq: prometheus.NewDesc(
@@ -196,6 +202,7 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 
 	for cpuID, cpuStat := range stats.CPU {
 		cpuName := fmt.Sprintf("cpu%d", cpuID)
+		cpuNum := fmt.Sprintf("%d", cpuID)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.User, cpuName, "user")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Nice, cpuName, "nice")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.System, cpuName, "system")
@@ -204,8 +211,10 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.IRQ, cpuName, "irq")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuName, "softirq")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuName, "steal")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Guest, cpuName, "guest")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.GuestNice, cpuName, "guest_nice")
+
+		// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
+		ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")
+		ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")
 	}
 
 	return nil

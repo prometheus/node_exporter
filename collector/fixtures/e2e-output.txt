@@ -201,8 +201,6 @@ node_buddyinfo_count{node="0",size="9",zone="Normal"} 0
 node_context_switches 3.8014093e+07
 # HELP node_cpu Seconds the cpus spent in each mode.
 # TYPE node_cpu counter
-node_cpu{cpu="cpu0",mode="guest"} 0
-node_cpu{cpu="cpu0",mode="guest_nice"} 0
 node_cpu{cpu="cpu0",mode="idle"} 10870.69
 node_cpu{cpu="cpu0",mode="iowait"} 2.2
 node_cpu{cpu="cpu0",mode="irq"} 0.01
@@ -211,8 +209,6 @@ node_cpu{cpu="cpu0",mode="softirq"} 34.1
 node_cpu{cpu="cpu0",mode="steal"} 0
 node_cpu{cpu="cpu0",mode="system"} 210.45
 node_cpu{cpu="cpu0",mode="user"} 444.9
-node_cpu{cpu="cpu1",mode="guest"} 0
-node_cpu{cpu="cpu1",mode="guest_nice"} 0
 node_cpu{cpu="cpu1",mode="idle"} 11107.87
 node_cpu{cpu="cpu1",mode="iowait"} 5.91
 node_cpu{cpu="cpu1",mode="irq"} 0
@@ -221,8 +217,6 @@ node_cpu{cpu="cpu1",mode="softirq"} 0.46
 node_cpu{cpu="cpu1",mode="steal"} 0
 node_cpu{cpu="cpu1",mode="system"} 164.74
 node_cpu{cpu="cpu1",mode="user"} 478.69
-node_cpu{cpu="cpu2",mode="guest"} 0
-node_cpu{cpu="cpu2",mode="guest_nice"} 0
 node_cpu{cpu="cpu2",mode="idle"} 11123.21
 node_cpu{cpu="cpu2",mode="iowait"} 4.41
 node_cpu{cpu="cpu2",mode="irq"} 0
@@ -231,8 +225,6 @@ node_cpu{cpu="cpu2",mode="softirq"} 3.26
 node_cpu{cpu="cpu2",mode="steal"} 0
 node_cpu{cpu="cpu2",mode="system"} 159.16
 node_cpu{cpu="cpu2",mode="user"} 465.04
-node_cpu{cpu="cpu3",mode="guest"} 0
-node_cpu{cpu="cpu3",mode="guest_nice"} 0
 node_cpu{cpu="cpu3",mode="idle"} 11132.3
 node_cpu{cpu="cpu3",mode="iowait"} 5.33
 node_cpu{cpu="cpu3",mode="irq"} 0
@@ -241,8 +233,6 @@ node_cpu{cpu="cpu3",mode="softirq"} 0.6
 node_cpu{cpu="cpu3",mode="steal"} 0
 node_cpu{cpu="cpu3",mode="system"} 156.83
 node_cpu{cpu="cpu3",mode="user"} 470.54
-node_cpu{cpu="cpu4",mode="guest"} 0
-node_cpu{cpu="cpu4",mode="guest_nice"} 0
 node_cpu{cpu="cpu4",mode="idle"} 11403.21
 node_cpu{cpu="cpu4",mode="iowait"} 2.17
 node_cpu{cpu="cpu4",mode="irq"} 0
@@ -251,8 +241,6 @@ node_cpu{cpu="cpu4",mode="softirq"} 0.08
 node_cpu{cpu="cpu4",mode="steal"} 0
 node_cpu{cpu="cpu4",mode="system"} 107.76
 node_cpu{cpu="cpu4",mode="user"} 284.13
-node_cpu{cpu="cpu5",mode="guest"} 0
-node_cpu{cpu="cpu5",mode="guest_nice"} 0
 node_cpu{cpu="cpu5",mode="idle"} 11362.7
 node_cpu{cpu="cpu5",mode="iowait"} 6.72
 node_cpu{cpu="cpu5",mode="irq"} 0
@@ -261,8 +249,6 @@ node_cpu{cpu="cpu5",mode="softirq"} 0.3
 node_cpu{cpu="cpu5",mode="steal"} 0
 node_cpu{cpu="cpu5",mode="system"} 115.86
 node_cpu{cpu="cpu5",mode="user"} 292.71
-node_cpu{cpu="cpu6",mode="guest"} 0
-node_cpu{cpu="cpu6",mode="guest_nice"} 0
 node_cpu{cpu="cpu6",mode="idle"} 11397.21
 node_cpu{cpu="cpu6",mode="iowait"} 3.19
 node_cpu{cpu="cpu6",mode="irq"} 0
@@ -271,8 +257,6 @@ node_cpu{cpu="cpu6",mode="softirq"} 0.29
 node_cpu{cpu="cpu6",mode="steal"} 0
 node_cpu{cpu="cpu6",mode="system"} 102.76
 node_cpu{cpu="cpu6",mode="user"} 291.52
-node_cpu{cpu="cpu7",mode="guest"} 0
-node_cpu{cpu="cpu7",mode="guest_nice"} 0
 node_cpu{cpu="cpu7",mode="idle"} 11392.82
 node_cpu{cpu="cpu7",mode="iowait"} 5.55
 node_cpu{cpu="cpu7",mode="irq"} 0
@@ -301,6 +285,24 @@ node_cpu_frequency_max_hertz{cpu="cpu3"} 4.2e+09
 node_cpu_frequency_min_hertz{cpu="cpu0"} 8e+08
 node_cpu_frequency_min_hertz{cpu="cpu1"} 8e+08
 node_cpu_frequency_min_hertz{cpu="cpu3"} 1e+06
+# HELP node_cpu_guest_seconds_total Seconds the cpus spent for guests (VMs) in each mode.
+# TYPE node_cpu_guest_seconds_total counter
+node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
+node_cpu_guest_seconds_total{cpu="0",mode="user"} 0.02
+node_cpu_guest_seconds_total{cpu="1",mode="nice"} 0.02
+node_cpu_guest_seconds_total{cpu="1",mode="user"} 0.03
+node_cpu_guest_seconds_total{cpu="2",mode="nice"} 0.03
+node_cpu_guest_seconds_total{cpu="2",mode="user"} 0.04
+node_cpu_guest_seconds_total{cpu="3",mode="nice"} 0.04
+node_cpu_guest_seconds_total{cpu="3",mode="user"} 0.05
+node_cpu_guest_seconds_total{cpu="4",mode="nice"} 0.05
+node_cpu_guest_seconds_total{cpu="4",mode="user"} 0.06
+node_cpu_guest_seconds_total{cpu="5",mode="nice"} 0.06
+node_cpu_guest_seconds_total{cpu="5",mode="user"} 0.07
+node_cpu_guest_seconds_total{cpu="6",mode="nice"} 0.07
+node_cpu_guest_seconds_total{cpu="6",mode="user"} 0.08
+node_cpu_guest_seconds_total{cpu="7",mode="nice"} 0.08
+node_cpu_guest_seconds_total{cpu="7",mode="user"} 0.09
 # HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{node="0"} 30
