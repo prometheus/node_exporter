@@ -1,3 +1,9 @@
+## master / unreleased
+
+**Breaking changes**
+
+Linux node_cpu metrics now break out `guest` values into separate metrics.  See Issue #737
+
 ## v0.15.0 / 2017-10-06
 
 **Breaking changes**
