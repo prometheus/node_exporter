@@ -10,22 +10,20 @@
 #   ipmitool sensor | awk -f ./ipmitool > ipmitool.prom
 #
 
-function discrete2float(hex_value) {
-	return hex_value + 0;
-}
-
-function exportArray(a, name) {
-	if (a["metric_count"] < 1) {
+function export(values, name) {
+	if (values["metric_count"] < 1) {
 		return
 	}
-	delete a["metric_count"]
+	delete values["metric_count"]
+
+	printf("# HELP %s%s %s sensor reading from ipmitool\n", namespace, name, friendly[name]);
 
 	if (name != "status") {
 		printf("# TYPE %s%s gauge\n", namespace, name);
 	}
 
-	for (sensor in a) {
-		printf("%s%s{sensor=\"%s\"} %f\n", namespace, name, sensor, a[sensor]);
+	for (sensor in values) {
+		printf("%s%s{sensor=\"%s\"} %f\n", namespace, name, sensor, values[sensor]);
 	}
 }
 
@@ -33,6 +31,13 @@ function exportArray(a, name) {
 BEGIN {
 	FS = "[ ]*[|][ ]*";
 	namespace = "node_ipmi_";
+
+	# Friendly description of the type of sensor for HELP.
+	friendly["temperature_celcius"] = "Temperature";
+	friendly["volts"] = "Voltage";
+	friendly["power_watts"] = "Power";
+	friendly["speed_rpm"] = "Fan";
+	friendly["status"] = "Chassis status";
 
 	temperature_celcius["metric_count"] = 0;
 	volts["metric_count"] = 0;
@@ -80,9 +85,9 @@ $3 ~ /discrete/ {
 }
 
 END {
-	exportArray(temperature_celcius, "temperature_celcius");
-	exportArray(volts, "volts");
-	exportArray(power_watts, "power_watts");
-	exportArray(speed_rpm, "speed_rpm");
-	exportArray(status, "status");
+	export(temperature_celcius, "temperature_celcius");
+	export(volts, "volts");
+	export(power_watts, "power_watts");
+	export(speed_rpm, "speed_rpm");
+	export(status, "status");
 }
