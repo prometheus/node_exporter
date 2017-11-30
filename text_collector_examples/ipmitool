@@ -1,50 +1,88 @@
-#!/usr/bin/awk -f
+#!/usr/bin/awk -nf
 
 #
 # Converts output of `ipmitool sensor` to prometheus format.
 #
-# e.g.:
+# With GNU awk:
 #   ipmitool sensor | ./ipmitool > ipmitool.prom
+#
+# With BSD awk:
+#   ipmitool sensor | awk -f ./ipmitool > ipmitool.prom
 #
 
 function discrete2float(hex_value) {
 	return hex_value + 0;
 }
 
-# Fields are Bar separated, with space padding
-BEGIN {
-	FS = "[ ]*[|][ ]*";
+function exportArray(a, name) {
+	if (a["metric_count"] < 1) {
+		return
+	}
+	delete a["metric_count"]
+
+	if (name != "status") {
+		printf("# TYPE %s%s gauge\n", namespace, name);
+	}
+
+	for (sensor in a) {
+		printf("%s%s{sensor=\"%s\"} %f\n", namespace, name, sensor, a[sensor]);
+	}
 }
 
-# Not a valid line
+# Fields are Bar separated, with space padding.
+BEGIN {
+	FS = "[ ]*[|][ ]*";
+	namespace = "node_ipmi_";
+
+	temperature_celcius["metric_count"] = 0;
+	volts["metric_count"] = 0;
+	power_watts["metric_count"] = 0;
+	speed_rpm["metric_count"] = 0;
+	status["metric_count"] = 0;
+}
+
+# Not a valid line.
 {
 	if (NF < 3) {
 		next
 	}
 }
 
-# $2 is value field
+# $2 is value field.
 $2 ~ /na/ {
 	next
 }
 
-# $3 is type field
+# $3 is type field.
 $3 ~ /degrees C/ {
-	printf("node_physical_temperature_celcius{sensor=\"%s\"} %f\n", $1, $2);
+	temperature_celcius[$1] = $2;
+	temperature_celcius["metric_count"]++;
 }
 
 $3 ~ /Volts/ {
-	printf("node_physical_volts{sensor=\"%s\"} %f\n", $1, $2);
+	volts[$1] = $2;
+	volts["metric_count"]++;
 }
 
 $3 ~ /Watts/ {
-	printf("node_physical_watts{sensor=\"%s\"} %f\n", $1, $2);
+	power_watts[$1] = $2;
+	power_watts["metric_count"]++;
 }
 
 $3 ~ /RPM/ {
-	printf("node_physical_speed_rpm{sensor=\"%s\"} %f\n", $1, $2);
+	speed_rpm[$1] = $2;
+	speed_rpm["metric_count"]++;
 }
 
 $3 ~ /discrete/ {
-	printf("node_physical_status{sensor=\"%s\"} %f\n", $1, discrete2float($2));
+	status[$1] = $2;
+	status["metric_count"]++;
+}
+
+END {
+	exportArray(temperature_celcius, "temperature_celcius");
+	exportArray(volts, "volts");
+	exportArray(power_watts, "power_watts");
+	exportArray(speed_rpm, "speed_rpm");
+	exportArray(status, "status");
 }
