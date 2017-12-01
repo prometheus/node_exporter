@@ -16,12 +16,8 @@ function export(values, name) {
 	}
 	delete values["metric_count"]
 
-	printf("# HELP %s%s %s sensor reading from ipmitool\n", namespace, name, friendly[name]);
-
-	if (name != "status") {
-		printf("# TYPE %s%s gauge\n", namespace, name);
-	}
-
+	printf("# HELP %s%s %s sensor reading from ipmitool\n", namespace, name, help[name]);
+	printf("# TYPE %s%s gauge\n", namespace, name);
 	for (sensor in values) {
 		printf("%s%s{sensor=\"%s\"} %f\n", namespace, name, sensor, values[sensor]);
 	}
@@ -33,11 +29,11 @@ BEGIN {
 	namespace = "node_ipmi_";
 
 	# Friendly description of the type of sensor for HELP.
-	friendly["temperature_celcius"] = "Temperature";
-	friendly["volts"] = "Voltage";
-	friendly["power_watts"] = "Power";
-	friendly["speed_rpm"] = "Fan";
-	friendly["status"] = "Chassis status";
+	help["temperature_celcius"] = "Temperature";
+	help["volts"] = "Voltage";
+	help["power_watts"] = "Power";
+	help["speed_rpm"] = "Fan";
+	help["status"] = "Chassis status";
 
 	temperature_celcius["metric_count"] = 0;
 	volts["metric_count"] = 0;
