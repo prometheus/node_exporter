@@ -1,3 +1,7 @@
+## v0.15.2 / 2017-12-05
+
+* [BUGFIX]  cpu: Support processor-less (memory-only) NUMA nodes #734
+
 ## v0.15.1 / 2017-11-07
 
 * [BUGFIX] xfs: expose correct fields, fix metric names #708
