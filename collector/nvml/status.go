@@ -1,12 +1,11 @@
-// +build !darwin
-// +build !debug
+// +build linux,gpu
 
 package nvml
 
 /*
 
-#cgo CFLAGS: -std=c99 -I .  -I/usr/include/nvidia/gdk/
-#cgo LDFLAGS: -L . -L/usr/src/gdk/nvml/lib -lnvidia-ml -lpthread -ldl -lrt
+#cgo CFLAGS: -std=c99 -I .
+#cgo LDFLAGS: -L${SRCDIR}/ -lnvidia-ml -lpthread -ldl -lrt
 #include "nvidia-smi.h"
 #include <stdlib.h>
 
