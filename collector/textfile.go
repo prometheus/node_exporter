@@ -81,16 +81,34 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				if metric.Untyped != nil {
 					valType, val = prometheus.UntypedValue, metric.Untyped.GetValue()
 				}
+			case dto.MetricType_SUMMARY:
+				if metric.Summary != nil {
+					quantiles := make(map[float64]float64)
+					for _, q := range metric.Summary.Quantile {
+						quantiles[q.GetQuantile()] = q.GetValue()
+					}
+					ch <- prometheus.MustNewConstSummary(
+						prometheus.NewDesc(
+							*mf.Name,
+							mf.GetHelp(),
+							nil, nil,
+						),
+						metric.Summary.GetSampleCount(),
+						metric.Summary.GetSampleSum(),
+						quantiles,
+					)
+				}
 			}
-			ch <- prometheus.MustNewConstMetric(
-				prometheus.NewDesc(
-					*mf.Name,
-					mf.GetHelp(),
-					nil, nil,
-				),
-				valType, val,
-			)
-
+			if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
+				ch <- prometheus.MustNewConstMetric(
+					prometheus.NewDesc(
+						*mf.Name,
+						mf.GetHelp(),
+						nil, nil,
+					),
+					valType, val,
+				)
+			}
 		}
 	}
 	return nil
