@@ -30,7 +30,7 @@ import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/log"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -52,25 +52,47 @@ func NewTextFileCollector() (Collector, error) {
 	c := &textFileCollector{
 		path: *textFileDirectory,
 	}
-
-	if c.path == "" {
-		// This collector is enabled by default, so do not fail if
-		// the flag is not passed.
-		log.Infof("No directory specified, see --collector.textfile.directory")
-	} else {
-		textFileAddOnce.Do(func() {
-			prometheus.DefaultGatherer = prometheus.Gatherers{
-				prometheus.DefaultGatherer,
-				prometheus.GathererFunc(func() ([]*dto.MetricFamily, error) { return c.parseTextFiles(), nil }),
-			}
-		})
-	}
-
 	return c, nil
 }
 
 // Update implements the Collector interface.
 func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
+	f := &textFileCollector{
+		path: *textFileDirectory,
+	}
+
+	metricFamilies := f.parseTextFiles()
+
+	var valType prometheus.ValueType
+	var val float64
+	for _, mf := range metricFamilies {
+		metricType := mf.GetType()
+		for _, metric := range mf.Metric {
+			switch metricType {
+			case dto.MetricType_COUNTER:
+				if metric.Counter != nil {
+					valType, val = prometheus.CounterValue, metric.Counter.GetValue()
+				}
+			case dto.MetricType_GAUGE:
+				if metric.Gauge != nil {
+					valType, val = prometheus.GaugeValue, metric.Gauge.GetValue()
+				}
+			case dto.MetricType_UNTYPED:
+				if metric.Untyped != nil {
+					valType, val = prometheus.UntypedValue, metric.Untyped.GetValue()
+				}
+			}
+			ch <- prometheus.MustNewConstMetric(
+				prometheus.NewDesc(
+					*mf.Name,
+					mf.GetHelp(),
+					nil, nil,
+				),
+				valType, val,
+			)
+
+		}
+	}
 	return nil
 }
 
