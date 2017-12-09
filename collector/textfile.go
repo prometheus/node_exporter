@@ -98,6 +98,24 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 						quantiles,
 					)
 				}
+			case dto.MetricType_HISTOGRAM:
+				if metric.Histogram != nil {
+					buckets := make(map[float64]uint64)
+					for _, b := range metric.Histogram.Bucket {
+						buckets[b.GetUpperBound()] = b.GetCumulativeCount()
+					}
+					ch <- prometheus.MustNewConstHistogram(
+						prometheus.NewDesc(
+							*mf.Name,
+							mf.GetHelp(),
+							nil, nil,
+						),
+						metric.Histogram.GetSampleCount(),
+						metric.Histogram.GetSampleSum(),
+						buckets,
+					)
+				}
+
 			}
 			if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
 				ch <- prometheus.MustNewConstMetric(
