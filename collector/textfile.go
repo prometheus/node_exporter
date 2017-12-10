@@ -57,18 +57,44 @@ func NewTextFileCollector() (Collector, error) {
 
 // Update implements the Collector interface.
 func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
-	f := &textFileCollector{
-		path: *textFileDirectory,
-	}
+	var metricFamilies []*dto.MetricFamily
 
-	metricFamilies := f.parseTextFiles()
+	// Iterate over files and accumulate their metrics.
+	files, err := ioutil.ReadDir(c.path)
+	if err != nil && c.path != "" {
+		log.Errorf("Error reading textfile collector directory %s: %s", c.path, err)
+	}
+	for _, f := range files {
+		if !strings.HasSuffix(f.Name(), ".prom") {
+			continue
+		}
+		path := filepath.Join(c.path, f.Name())
+		file, err := os.Open(path)
+		if err != nil {
+			log.Errorf("Error opening %s: %v", path, err)
+			continue
+		}
+		var parser expfmt.TextParser
+		parsedFamilies, err := parser.TextToMetricFamilies(file)
+		file.Close()
+		if err != nil {
+			log.Errorf("Error parsing %s: %v", path, err)
+			continue
+		}
+		for _, mf := range parsedFamilies {
+			if mf.Help == nil {
+				help := fmt.Sprintf("Metric read from %s", path)
+				mf.Help = &help
+			}
+			metricFamilies = append(metricFamilies, mf)
+		}
+	}
 
 	var valType prometheus.ValueType
 	var val float64
 
 	for _, mf := range metricFamilies {
-		labelNames := make(map[string]struct{})
-		metricType := mf.GetType()
+		labelNames := map[string]struct{}{}
 		for _, metric := range mf.Metric {
 			labelPairs := metric.GetLabel()
 			for _, label := range labelPairs {
@@ -78,6 +104,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 
 			}
 		}
+
 		for _, metric := range mf.Metric {
 			labelPairs := metric.GetLabel()
 			var labels []string
@@ -86,6 +113,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				labels = append(labels, label.GetName())
 				labelVals = append(labelVals, label.GetValue())
 			}
+
 			for k := range labelNames {
 				for _, label := range labels {
 					if k == label {
@@ -103,6 +131,8 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 					}
 				}
 			}
+
+			metricType := mf.GetType()
 			switch metricType {
 			case dto.MetricType_COUNTER:
 				if metric.Counter != nil {
@@ -121,7 +151,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			case dto.MetricType_SUMMARY:
 				if metric.Summary != nil {
-					quantiles := make(map[float64]float64)
+					quantiles := map[float64]float64{}
 					for _, q := range metric.Summary.Quantile {
 						quantiles[q.GetQuantile()] = q.GetValue()
 					}
@@ -138,7 +168,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			case dto.MetricType_HISTOGRAM:
 				if metric.Histogram != nil {
-					buckets := make(map[float64]uint64)
+					buckets := map[float64]uint64{}
 					for _, b := range metric.Histogram.Bucket {
 						buckets[b.GetUpperBound()] = b.GetCumulativeCount()
 					}
