@@ -65,21 +65,59 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 
 	var valType prometheus.ValueType
 	var val float64
+
 	for _, mf := range metricFamilies {
+		labelNames := make(map[string]struct{})
 		metricType := mf.GetType()
 		for _, metric := range mf.Metric {
+			labelPairs := metric.GetLabel()
+			for _, label := range labelPairs {
+				if _, ok := labelNames[label.GetName()]; !ok {
+					labelNames[label.GetName()] = struct{}{}
+				}
+
+			}
+		}
+		for _, metric := range mf.Metric {
+			labelPairs := metric.GetLabel()
+			var labels []string
+			var labelVals []string
+			for _, label := range labelPairs {
+				labels = append(labels, label.GetName())
+				labelVals = append(labelVals, label.GetValue())
+			}
+			for k := range labelNames {
+				for _, label := range labels {
+					if k == label {
+						break
+					}
+					present := false
+					for _, l := range labels {
+						if k == l {
+							present = true
+						}
+					}
+					if present == false {
+						labels = append(labels, k)
+						labelVals = append(labelVals, "")
+					}
+				}
+			}
 			switch metricType {
 			case dto.MetricType_COUNTER:
 				if metric.Counter != nil {
-					valType, val = prometheus.CounterValue, metric.Counter.GetValue()
+					valType = prometheus.CounterValue
+					val = metric.Counter.GetValue()
 				}
 			case dto.MetricType_GAUGE:
 				if metric.Gauge != nil {
-					valType, val = prometheus.GaugeValue, metric.Gauge.GetValue()
+					valType = prometheus.GaugeValue
+					val = metric.Gauge.GetValue()
 				}
 			case dto.MetricType_UNTYPED:
 				if metric.Untyped != nil {
-					valType, val = prometheus.UntypedValue, metric.Untyped.GetValue()
+					valType = prometheus.UntypedValue
+					val = metric.Untyped.GetValue()
 				}
 			case dto.MetricType_SUMMARY:
 				if metric.Summary != nil {
@@ -91,11 +129,11 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 						prometheus.NewDesc(
 							*mf.Name,
 							mf.GetHelp(),
-							nil, nil,
+							labels, nil,
 						),
 						metric.Summary.GetSampleCount(),
 						metric.Summary.GetSampleSum(),
-						quantiles,
+						quantiles, labelVals...,
 					)
 				}
 			case dto.MetricType_HISTOGRAM:
@@ -108,11 +146,11 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 						prometheus.NewDesc(
 							*mf.Name,
 							mf.GetHelp(),
-							nil, nil,
+							labels, nil,
 						),
 						metric.Histogram.GetSampleCount(),
 						metric.Histogram.GetSampleSum(),
-						buckets,
+						buckets, labelVals...,
 					)
 				}
 
@@ -122,9 +160,9 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 					prometheus.NewDesc(
 						*mf.Name,
 						mf.GetHelp(),
-						nil, nil,
+						labels, nil,
 					),
-					valType, val,
+					valType, val, labelVals...,
 				)
 			}
 		}
