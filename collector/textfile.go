@@ -58,11 +58,14 @@ func NewTextFileCollector() (Collector, error) {
 // Update implements the Collector interface.
 func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	var metricFamilies []*dto.MetricFamily
+	error := 0.0
+	mtimes := map[string]time.Time{}
 
 	// Iterate over files and accumulate their metrics.
 	files, err := ioutil.ReadDir(c.path)
 	if err != nil && c.path != "" {
 		log.Errorf("Error reading textfile collector directory %s: %s", c.path, err)
+		error = 1.0
 	}
 	for _, f := range files {
 		if !strings.HasSuffix(f.Name(), ".prom") {
@@ -72,6 +75,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		file, err := os.Open(path)
 		if err != nil {
 			log.Errorf("Error opening %s: %v", path, err)
+			error = 1.0
 			continue
 		}
 		var parser expfmt.TextParser
@@ -79,8 +83,12 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		file.Close()
 		if err != nil {
 			log.Errorf("Error parsing %s: %v", path, err)
+			error = 1.0
 			continue
 		}
+		// Only set this once it has been parsed, so that
+		// a failure does not appear fresh.
+		mtimes[f.Name()] = f.ModTime()
 		for _, mf := range parsedFamilies {
 			if mf.Help == nil {
 				help := fmt.Sprintf("Metric read from %s", path)
@@ -193,6 +201,61 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 	}
+	// Export the mtimes of the successful files.
+	if len(mtimes) > 0 {
+		mtimeMetricFamily := dto.MetricFamily{
+			Name:   proto.String("node_textfile_mtime"),
+			Help:   proto.String("Unixtime mtime of textfiles successfully read."),
+			Type:   dto.MetricType_GAUGE.Enum(),
+			Metric: []*dto.Metric{},
+		}
+
+		// Sorting is needed for predictable output comparison in tests.
+		filenames := make([]string, 0, len(mtimes))
+		for filename := range mtimes {
+			filenames = append(filenames, filename)
+		}
+		sort.Strings(filenames)
+
+		var labels []string
+		var labelVals []string
+		for _, filename := range filenames {
+			mtimeMetricFamily.Metric = append(mtimeMetricFamily.Metric,
+				&dto.Metric{
+					Label: []*dto.LabelPair{
+						{
+							Name:  proto.String("file"),
+							Value: proto.String(filename),
+						},
+					},
+					Gauge: &dto.Gauge{Value: proto.Float64(float64(mtimes[filename].UnixNano()) / 1e9)},
+				},
+			)
+			labels = append(labels, "file")
+			labelVals = append(labelVals, filename)
+		}
+		for _, metric := range mtimeMetricFamily.Metric {
+			ch <- prometheus.MustNewConstMetric(
+				prometheus.NewDesc(
+					*mtimeMetricFamily.Name,
+					mtimeMetricFamily.GetHelp(),
+					labels, nil,
+				),
+				prometheus.GaugeValue, metric.Gauge.GetValue(), labelVals...,
+			)
+		}
+	}
+	// Export if there were errors.
+
+	var labels []string
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			"node_textfile_scrape_error",
+			"1 if there was an error opening or reading a file, 0 otherwise",
+			labels, nil,
+		),
+		prometheus.GaugeValue, error,
+	)
 	return nil
 }
 
