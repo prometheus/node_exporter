@@ -115,20 +115,16 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 
 			for k := range labelNames {
+				present := false
 				for _, label := range labels {
 					if k == label {
+						present = true
 						break
 					}
-					present := false
-					for _, l := range labels {
-						if k == l {
-							present = true
-						}
-					}
-					if present == false {
-						labels = append(labels, k)
-						labelVals = append(labelVals, "")
-					}
+				}
+				if present == false {
+					labels = append(labels, k)
+					labelVals = append(labelVals, "")
 				}
 			}
 
