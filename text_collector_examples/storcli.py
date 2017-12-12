@@ -24,12 +24,13 @@ DESCRIPTION = """Parses StorCLI's JSON output and exposes MegaRAID health as
     Prometheus metrics."""
 VERSION = '0.0.1'
 
-METRIC_PREFIX = 'megaraid_'
-METRIC_CONTROLLER_LABELS = '{{controller="{}", model="{}"}}'
-
 
 def main(args):
     """ main """
+
+    # exporter variables
+    metric_prefix = 'megaraid_'
+    metric_controller_labels = '{{controller="{}", model="{}"}}'
 
     data = json.loads(get_storcli_json(args.storcli_path))
 
@@ -43,7 +44,9 @@ def main(args):
     }
 
     for name, value in metrics.iteritems():
-        print("{}{} {}".format(METRIC_PREFIX, name, value))
+        print('# HELP {}{} MegaRAID {}'.format(metric_prefix, name, name.replace('_', ' ')))
+        print('# TYPE {}{} gauge'.format(metric_prefix, name))
+        print("{}{} {}".format(metric_prefix, name, value))
 
     controller_info = []
     controller_metrics = {}
@@ -57,7 +60,7 @@ def main(args):
     for controller in overview:
         controller_index = controller['Ctl']
         model = controller['Model']
-        controller_info.append(METRIC_CONTROLLER_LABELS.format(controller_index, model))
+        controller_info.append(metric_controller_labels.format(controller_index, model))
 
         controller_metrics = {
             # FIXME: Parse dimmer switch options
@@ -80,10 +83,16 @@ def main(args):
             }
 
     for name, value in controller_metrics.iteritems():
-        print('{}{}{{controller="{}"}} {}'.format(METRIC_PREFIX, name, controller_index, value))
+        print('# HELP {}{} MegaRAID {}'.format(metric_prefix, name, name.replace('_', ' ')))
+        print('# TYPE {}{} gauge'.format(metric_prefix, name))
+        print('{}{}{{controller="{}"}} {}'.format(metric_prefix, name,
+                                                  controller_index, value))
 
+    if controller_info:
+        print('# HELP {}{} MegaRAID controller info'.format(metric_prefix, 'controller_info'))
+        print('# TYPE {}{} gauge'.format(metric_prefix, name))
     for labels in controller_info:
-        print('{}{}{} {}'.format(METRIC_PREFIX, 'controller_info', labels, 1))
+        print('{}{}{} {}'.format(metric_prefix, 'controller_info', labels, 1))
 
 
 def get_storcli_json(storcli_path):
