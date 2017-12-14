@@ -31,15 +31,17 @@ DOCKERFILE              ?= Dockerfile
 STATICCHECK_IGNORE = \
   github.com/prometheus/node_exporter/node_exporter.go:SA1019
 
-ifeq ($(GOHOSTARCH),amd64)
-	# Only supported on amd64
-	test-flags := -race
-endif
-
 ifeq ($(OS),Windows_NT)
     OS_detected := Windows
 else
     OS_detected := $(shell uname -s)
+endif
+
+ifeq ($(GOHOSTARCH),amd64)
+        ifneq ($(OS_detected),SunOS)
+                # Only supported on amd64
+                test-flags := -race
+        endif
 endif
 
 ifeq ($(OS_detected), Linux)
