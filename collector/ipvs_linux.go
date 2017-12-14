@@ -50,6 +50,7 @@ func newIPVSCollector() (*ipvsCollector, error) {
 			"remote_address",
 			"remote_port",
 			"proto",
+			"local_mark",
 		}
 		c         ipvsCollector
 		err       error
@@ -133,6 +134,7 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 			backend.RemoteAddress.String(),
 			strconv.FormatUint(uint64(backend.RemotePort), 10),
 			backend.Proto,
+			backend.LocalMark,
 		}
 		ch <- c.backendConnectionsActive.mustNewConstMetric(float64(backend.ActiveConn), labelValues...)
 		ch <- c.backendConnectionsInact.mustNewConstMetric(float64(backend.InactConn), labelValues...)
