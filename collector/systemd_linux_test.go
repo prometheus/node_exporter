@@ -121,3 +121,24 @@ func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 		t.Error("Default filters removed units")
 	}
 }
+
+func TestSystemdSummary(t *testing.T) {
+	fixtures := getUnitListFixtures()
+	summary := summarizeUnits(fixtures[0])
+
+	for _, state := range unitStatesName {
+		if state == "inactive" {
+			testSummaryHelper(t, state, summary[state], 3.0)
+		} else if state == "active" {
+			testSummaryHelper(t, state, summary[state], 1.0)
+		} else {
+			testSummaryHelper(t, state, summary[state], 0.0)
+		}
+	}
+}
+
+func testSummaryHelper(t *testing.T, state string, actual float64, expected float64) {
+	if actual != expected {
+		t.Errorf("Summary mode didn't count %s jobs correctly. Actual: %f, expected: %f", state, actual, expected)
+	}
+}
