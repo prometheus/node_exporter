@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -34,19 +35,7 @@ import (
 
 var (
 	textFileDirectory = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
-
-	mtimeDesc = prometheus.NewDesc(
-		"node_textfile_mtime",
-		"Unixtime mtime of textfiles successfully read.",
-		[]string{"file"},
-		nil,
-	)
-	errorDesc = prometheus.NewDesc(
-		"node_textfile_scrape_error",
-		"1 if there was an error opening or reading a file, 0 otherwise",
-		nil,
-		nil,
-	)
+	textFileAddOnce   sync.Once
 )
 
 type textFileCollector struct {
@@ -173,7 +162,7 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 	}
 }
 
-func exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
+func exportMTimes(c *textFileCollector, mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 	// Export the mtimes of the successful files.
 	if len(mtimes) > 0 {
 		mtimeMetricFamily := dto.MetricFamily{
@@ -190,31 +179,20 @@ func exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 		}
 		sort.Strings(filenames)
 
-		var labels []string
-		var labelVals []string
 		for _, filename := range filenames {
-			mtimeMetricFamily.Metric = append(mtimeMetricFamily.Metric,
-				&dto.Metric{
-					Label: []*dto.LabelPair{
-						{
-							Name:  proto.String("file"),
-							Value: proto.String(filename),
-						},
-					},
-					Gauge: &dto.Gauge{Value: proto.Float64(float64(mtimes[filename].UnixNano()) / 1e9)},
-				},
-			)
-			labels = append(labels, "file")
-			labelVals = append(labelVals, filename)
-		}
-		for _, metric := range mtimeMetricFamily.Metric {
+			mtime := float64(mtimes[filename].UnixNano() / 1e9)
+			if c.mtime != nil {
+				mtime = *c.mtime
+			}
+			g := &dto.Gauge{Value: &mtime}
+
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
 					*mtimeMetricFamily.Name,
 					mtimeMetricFamily.GetHelp(),
-					labels, nil,
+					[]string{"file"}, nil,
 				),
-				prometheus.GaugeValue, metric.Gauge.GetValue(), labelVals...,
+				prometheus.GaugeValue, g.GetValue(), filename,
 			)
 		}
 	}
@@ -265,7 +243,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 
 	convertMetricFamilies(metricFamilies, ch)
 
-	exportMTimes(mtimes, ch)
+	exportMTimes(c, mtimes, ch)
 
 	// Export if there were errors.
 	var labels []string
