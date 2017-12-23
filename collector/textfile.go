@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
@@ -175,6 +176,13 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 func exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 	// Export the mtimes of the successful files.
 	if len(mtimes) > 0 {
+		mtimeMetricFamily := dto.MetricFamily{
+			Name:   proto.String("node_textfile_mtime"),
+			Help:   proto.String("Unixtime mtime of textfiles successfully read."),
+			Type:   dto.MetricType_GAUGE.Enum(),
+			Metric: []*dto.Metric{},
+		}
+
 		// Sorting is needed for predictable output comparison in tests.
 		filenames := make([]string, 0, len(mtimes))
 		for filename := range mtimes {
@@ -182,6 +190,8 @@ func exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 		}
 		sort.Strings(filenames)
 
+		var labels []string
+		var labelVals []string
 		for _, filename := range filenames {
 			mtimeMetricFamily.Metric = append(mtimeMetricFamily.Metric,
 				&dto.Metric{
@@ -267,52 +277,5 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		),
 		prometheus.GaugeValue, error,
 	)
-	return nil
-}
-
-func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
-	error := 0.0
-	var metricFamilies []*dto.MetricFamily
-	mtimes := map[string]time.Time{}
-
-	// Iterate over files and accumulate their metrics.
-	files, err := ioutil.ReadDir(c.path)
-	if err != nil && c.path != "" {
-		log.Errorf("Error reading textfile collector directory %s: %s", c.path, err)
-		error = 1.0
-	}
-	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".prom") {
-			continue
-		}
-		path := filepath.Join(c.path, f.Name())
-		file, err := os.Open(path)
-		if err != nil {
-			log.Errorf("Error opening %s: %v", path, err)
-			error = 1.0
-			continue
-		}
-		var parser expfmt.TextParser
-		parsedFamilies, err := parser.TextToMetricFamilies(file)
-		file.Close()
-		if err != nil {
-			log.Errorf("Error parsing %s: %v", path, err)
-			error = 1.0
-			continue
-		}
-		// Only set this once it has been parsed, so that
-		// a failure does not appear fresh.
-		mtimes[f.Name()] = f.ModTime()
-		for _, mf := range parsedFamilies {
-			if mf.Help == nil {
-				help := fmt.Sprintf("Metric read from %s", path)
-				mf.Help = &help
-			}
-			ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, filename)
-		}
-	}
-
-	// Export if there were errors.
-	ch <- prometheus.MustNewConstMetric(errorDesc, prometheus.GaugeValue, error)
 	return nil
 }
