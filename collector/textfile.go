@@ -25,7 +25,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
@@ -36,6 +35,12 @@ import (
 var (
 	textFileDirectory = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
 	textFileAddOnce   sync.Once
+	mtimeDesc         = prometheus.NewDesc(
+		"node_textfile_mtime",
+		"Unixtime mtime of textfiles successfully read.",
+		[]string{"file"},
+		nil,
+	)
 )
 
 type textFileCollector struct {
@@ -157,12 +162,6 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 	// Export the mtimes of the successful files.
 	if len(mtimes) > 0 {
-		mtimeMetricFamily := dto.MetricFamily{
-			Name:   proto.String("node_textfile_mtime"),
-			Help:   proto.String("Unixtime mtime of textfiles successfully read."),
-			Type:   dto.MetricType_GAUGE.Enum(),
-			Metric: []*dto.Metric{},
-		}
 
 		// Sorting is needed for predictable output comparison in tests.
 		filenames := make([]string, 0, len(mtimes))
@@ -176,16 +175,7 @@ func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- 
 			if c.mtime != nil {
 				mtime = *c.mtime
 			}
-			g := &dto.Gauge{Value: &mtime}
-
-			ch <- prometheus.MustNewConstMetric(
-				prometheus.NewDesc(
-					*mtimeMetricFamily.Name,
-					mtimeMetricFamily.GetHelp(),
-					[]string{"file"}, nil,
-				),
-				prometheus.GaugeValue, g.GetValue(), filename,
-			)
+			ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, filename)
 		}
 	}
 }
