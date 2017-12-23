@@ -25,21 +25,28 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/log"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
 	textFileDirectory = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
 	textFileAddOnce   sync.Once
+	mtimeDesc         = prometheus.NewDesc(
+		"node_textfile_mtime",
+		"Unixtime mtime of textfiles successfully read.",
+		[]string{"file"},
+		nil,
+	)
 )
 
 type textFileCollector struct {
 	path string
+	// Only set for testing to get predictable output.
+	mtime *float64
 }
 
 func init() {
@@ -52,31 +59,129 @@ func NewTextFileCollector() (Collector, error) {
 	c := &textFileCollector{
 		path: *textFileDirectory,
 	}
+	return c, nil
+}
 
-	if c.path == "" {
-		// This collector is enabled by default, so do not fail if
-		// the flag is not passed.
-		log.Infof("No directory specified, see --collector.textfile.directory")
-	} else {
-		textFileAddOnce.Do(func() {
-			prometheus.DefaultGatherer = prometheus.Gatherers{
-				prometheus.DefaultGatherer,
-				prometheus.GathererFunc(func() ([]*dto.MetricFamily, error) { return c.parseTextFiles(), nil }),
+func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Metric) {
+	var valType prometheus.ValueType
+	var val float64
+
+	allLabelNames := map[string]struct{}{}
+	for _, metric := range metricFamily.Metric {
+		labels := metric.GetLabel()
+		for _, label := range labels {
+			if _, ok := allLabelNames[label.GetName()]; !ok {
+				allLabelNames[label.GetName()] = struct{}{}
 			}
-		})
+		}
 	}
 
-	return c, nil
+	for _, metric := range metricFamily.Metric {
+		labels := metric.GetLabel()
+		var names []string
+		var values []string
+		for _, label := range labels {
+			names = append(names, label.GetName())
+			values = append(values, label.GetValue())
+		}
+
+		for k := range allLabelNames {
+			present := false
+			for _, name := range names {
+				if k == name {
+					present = true
+					break
+				}
+			}
+			if present == false {
+				names = append(names, k)
+				values = append(values, "")
+			}
+		}
+
+		metricType := metricFamily.GetType()
+		switch metricType {
+		case dto.MetricType_COUNTER:
+			valType = prometheus.CounterValue
+			val = metric.Counter.GetValue()
+
+		case dto.MetricType_GAUGE:
+			valType = prometheus.GaugeValue
+			val = metric.Gauge.GetValue()
+
+		case dto.MetricType_UNTYPED:
+			valType = prometheus.UntypedValue
+			val = metric.Untyped.GetValue()
+
+		case dto.MetricType_SUMMARY:
+			quantiles := map[float64]float64{}
+			for _, q := range metric.Summary.Quantile {
+				quantiles[q.GetQuantile()] = q.GetValue()
+			}
+			ch <- prometheus.MustNewConstSummary(
+				prometheus.NewDesc(
+					*metricFamily.Name,
+					metricFamily.GetHelp(),
+					names, nil,
+				),
+				metric.Summary.GetSampleCount(),
+				metric.Summary.GetSampleSum(),
+				quantiles, values...,
+			)
+		case dto.MetricType_HISTOGRAM:
+			buckets := map[float64]uint64{}
+			for _, b := range metric.Histogram.Bucket {
+				buckets[b.GetUpperBound()] = b.GetCumulativeCount()
+			}
+			ch <- prometheus.MustNewConstHistogram(
+				prometheus.NewDesc(
+					*metricFamily.Name,
+					metricFamily.GetHelp(),
+					names, nil,
+				),
+				metric.Histogram.GetSampleCount(),
+				metric.Histogram.GetSampleSum(),
+				buckets, values...,
+			)
+		default:
+			panic("unknown metric type")
+		}
+		if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
+			ch <- prometheus.MustNewConstMetric(
+				prometheus.NewDesc(
+					*metricFamily.Name,
+					metricFamily.GetHelp(),
+					names, nil,
+				),
+				valType, val, values...,
+			)
+		}
+	}
+}
+
+func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
+	// Export the mtimes of the successful files.
+	if len(mtimes) > 0 {
+		// Sorting is needed for predictable output comparison in tests.
+		filenames := make([]string, 0, len(mtimes))
+		for filename := range mtimes {
+			filenames = append(filenames, filename)
+		}
+		sort.Strings(filenames)
+
+		for _, filename := range filenames {
+			mtime := float64(mtimes[filename].UnixNano() / 1e9)
+			if c.mtime != nil {
+				mtime = *c.mtime
+			}
+			ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, filename)
+		}
+	}
 }
 
 // Update implements the Collector interface.
 func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
-	return nil
-}
-
-func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 	error := 0.0
-	var metricFamilies []*dto.MetricFamily
 	mtimes := map[string]time.Time{}
 
 	// Iterate over files and accumulate their metrics.
@@ -112,52 +217,20 @@ func (c *textFileCollector) parseTextFiles() []*dto.MetricFamily {
 				help := fmt.Sprintf("Metric read from %s", path)
 				mf.Help = &help
 			}
-			metricFamilies = append(metricFamilies, mf)
+			convertMetricFamily(mf, ch)
 		}
 	}
 
-	// Export the mtimes of the successful files.
-	if len(mtimes) > 0 {
-		mtimeMetricFamily := dto.MetricFamily{
-			Name:   proto.String("node_textfile_mtime"),
-			Help:   proto.String("Unixtime mtime of textfiles successfully read."),
-			Type:   dto.MetricType_GAUGE.Enum(),
-			Metric: []*dto.Metric{},
-		}
+	c.exportMTimes(mtimes, ch)
 
-		// Sorting is needed for predictable output comparison in tests.
-		filenames := make([]string, 0, len(mtimes))
-		for filename := range mtimes {
-			filenames = append(filenames, filename)
-		}
-		sort.Strings(filenames)
-
-		for _, filename := range filenames {
-			mtimeMetricFamily.Metric = append(mtimeMetricFamily.Metric,
-				&dto.Metric{
-					Label: []*dto.LabelPair{
-						{
-							Name:  proto.String("file"),
-							Value: proto.String(filename),
-						},
-					},
-					Gauge: &dto.Gauge{Value: proto.Float64(float64(mtimes[filename].UnixNano()) / 1e9)},
-				},
-			)
-		}
-		metricFamilies = append(metricFamilies, &mtimeMetricFamily)
-	}
 	// Export if there were errors.
-	metricFamilies = append(metricFamilies, &dto.MetricFamily{
-		Name: proto.String("node_textfile_scrape_error"),
-		Help: proto.String("1 if there was an error opening or reading a file, 0 otherwise"),
-		Type: dto.MetricType_GAUGE.Enum(),
-		Metric: []*dto.Metric{
-			{
-				Gauge: &dto.Gauge{Value: &error},
-			},
-		},
-	})
-
-	return metricFamilies
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			"node_textfile_scrape_error",
+			"1 if there was an error opening or reading a file, 0 otherwise",
+			nil, nil,
+		),
+		prometheus.GaugeValue, error,
+	)
+	return nil
 }

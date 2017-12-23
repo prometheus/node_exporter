@@ -1,0 +1,24 @@
+# HELP http_requests_total Total number of HTTP requests made.
+# TYPE http_requests_total counter
+http_requests_total{code="200",handler="alerts",method="get"} 35
+http_requests_total{code="200",handler="config",method="get"} 8
+http_requests_total{code="200",method="get", foo="bar"} 325
+http_requests_total{code="200",handler="flags",method="get"} 18
+http_requests_total{code="200",handler="graph",method="get"} 89
+http_requests_total{code="200",method="get", baz="bar"} 93
+http_requests_total{code="200",handler="prometheus",method="get"} 17051
+http_requests_total{code="200",handler="query",method="get"} 401
+http_requests_total{code="200",handler="query_range",method="get"} 15663
+http_requests_total{code="200",handler="rules",method="get"} 7
+http_requests_total{code="200",handler="series",method="get"} 221
+http_requests_total{code="200",handler="static",method="get"} 1647
+http_requests_total{code="200",handler="status",method="get"} 12
+http_requests_total{code="200",method="get"} 11
+http_requests_total{code="206",handler="static",method="get"} 2
+http_requests_total{code="400",handler="query_range",method="get"} 40
+http_requests_total{code="503",handler="query_range",method="get"} 3
+
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines{foo="bar"} 229
+go_goroutines 20

@@ -14,17 +14,38 @@
 package collector
 
 import (
+	"fmt"
 	"io/ioutil"
-	"sort"
-	"strings"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-func TestParseTextFiles(t *testing.T) {
+type collectorAdapter struct {
+	Collector
+}
+
+// Describe implements the prometheus.Collector interface.
+func (a collectorAdapter) Describe(ch chan<- *prometheus.Desc) {
+	// We have to send *some* metric in Describe, but we don't know which ones
+	// we're going to get, so just send a dummy metric.
+	ch <- prometheus.NewDesc("dummy_metric", "Dummy metric.", nil, nil)
+}
+
+// Collect implements the prometheus.Collector interface.
+func (a collectorAdapter) Collect(ch chan<- prometheus.Metric) {
+	err := a.Update(ch)
+	if err != nil {
+		panic(fmt.Sprintf("failed to update collector: %v", err))
+	}
+}
+
+func TestTextfileCollector(t *testing.T) {
 	tests := []struct {
 		path string
 		out  string
@@ -41,11 +62,37 @@ func TestParseTextFiles(t *testing.T) {
 			path: "fixtures/textfile/nonexistent_path",
 			out:  "fixtures/textfile/nonexistent_path.out",
 		},
+		{
+			path: "fixtures/textfile/different_metric_types",
+			out:  "fixtures/textfile/different_metric_types.out",
+		},
+		{
+			path: "fixtures/textfile/inconsistent_metrics",
+			out:  "fixtures/textfile/inconsistent_metrics.out",
+		},
+		{
+			path: "fixtures/textfile/histogram",
+			out:  "fixtures/textfile/histogram.out",
+		},
+		{
+			path: "fixtures/textfile/histogram_extra_dimension",
+			out:  "fixtures/textfile/histogram_extra_dimension.out",
+		},
+		{
+			path: "fixtures/textfile/summary",
+			out:  "fixtures/textfile/summary.out",
+		},
+		{
+			path: "fixtures/textfile/summary_extra_dimension",
+			out:  "fixtures/textfile/summary_extra_dimension.out",
+		},
 	}
 
 	for i, test := range tests {
-		c := textFileCollector{
-			path: test.path,
+		mtime := 1.0
+		c := &textFileCollector{
+			path:  test.path,
+			mtime: &mtime,
 		}
 
 		// Suppress a log message about `nonexistent_path` not existing, this is
@@ -56,17 +103,12 @@ func TestParseTextFiles(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		mfs := c.parseTextFiles()
-		textMFs := make([]string, 0, len(mfs))
-		for _, mf := range mfs {
-			if mf.GetName() == "node_textfile_mtime" {
-				mf.GetMetric()[0].GetGauge().Value = proto.Float64(1)
-				mf.GetMetric()[1].GetGauge().Value = proto.Float64(2)
-			}
-			textMFs = append(textMFs, proto.MarshalTextString(mf))
-		}
-		sort.Strings(textMFs)
-		got := strings.Join(textMFs, "")
+		registry := prometheus.NewRegistry()
+		registry.MustRegister(collectorAdapter{c})
+
+		rw := httptest.NewRecorder()
+		promhttp.HandlerFor(registry, promhttp.HandlerOpts{}).ServeHTTP(rw, &http.Request{})
+		got := string(rw.Body.String())
 
 		want, err := ioutil.ReadFile(test.out)
 		if err != nil {
@@ -74,7 +116,7 @@ func TestParseTextFiles(t *testing.T) {
 		}
 
 		if string(want) != got {
-			t.Fatalf("%d. want:\n\n%s\n\ngot:\n\n%s", i, string(want), got)
+			t.Fatalf("%d.%q want:\n\n%s\n\ngot:\n\n%s", i, test.path, string(want), got)
 		}
 	}
 }

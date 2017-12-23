@@ -1,79 +1,19 @@
-name: "node_textfile_mtime"
-help: "Unixtime mtime of textfiles successfully read."
-type: GAUGE
-metric: <
-  label: <
-    name: "file"
-    value: "metrics1.prom"
-  >
-  gauge: <
-    value: 1
-  >
->
-metric: <
-  label: <
-    name: "file"
-    value: "metrics2.prom"
-  >
-  gauge: <
-    value: 2
-  >
->
-name: "node_textfile_scrape_error"
-help: "1 if there was an error opening or reading a file, 0 otherwise"
-type: GAUGE
-metric: <
-  gauge: <
-    value: 0
-  >
->
-name: "testmetric1_1"
-help: "Metric read from fixtures/textfile/two_metric_files/metrics1.prom"
-type: UNTYPED
-metric: <
-  label: <
-    name: "foo"
-    value: "bar"
-  >
-  untyped: <
-    value: 10
-  >
->
-name: "testmetric1_2"
-help: "Metric read from fixtures/textfile/two_metric_files/metrics1.prom"
-type: UNTYPED
-metric: <
-  label: <
-    name: "foo"
-    value: "baz"
-  >
-  untyped: <
-    value: 20
-  >
->
-name: "testmetric2_1"
-help: "Metric read from fixtures/textfile/two_metric_files/metrics2.prom"
-type: UNTYPED
-metric: <
-  label: <
-    name: "foo"
-    value: "bar"
-  >
-  untyped: <
-    value: 30
-  >
-  timestamp_ms: 1441205977284
->
-name: "testmetric2_2"
-help: "Metric read from fixtures/textfile/two_metric_files/metrics2.prom"
-type: UNTYPED
-metric: <
-  label: <
-    name: "foo"
-    value: "baz"
-  >
-  untyped: <
-    value: 40
-  >
-  timestamp_ms: 1441205977284
->
+# HELP node_textfile_mtime Unixtime mtime of textfiles successfully read.
+# TYPE node_textfile_mtime gauge
+node_textfile_mtime{file="metrics1.prom"} 1
+node_textfile_mtime{file="metrics2.prom"} 1
+# HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
+# TYPE node_textfile_scrape_error gauge
+node_textfile_scrape_error 0
+# HELP testmetric1_1 Metric read from fixtures/textfile/two_metric_files/metrics1.prom
+# TYPE testmetric1_1 untyped
+testmetric1_1{foo="bar"} 10
+# HELP testmetric1_2 Metric read from fixtures/textfile/two_metric_files/metrics1.prom
+# TYPE testmetric1_2 untyped
+testmetric1_2{foo="baz"} 20
+# HELP testmetric2_1 Metric read from fixtures/textfile/two_metric_files/metrics2.prom
+# TYPE testmetric2_1 untyped
+testmetric2_1{foo="bar"} 30
+# HELP testmetric2_2 Metric read from fixtures/textfile/two_metric_files/metrics2.prom
+# TYPE testmetric2_2 untyped
+testmetric2_2{foo="baz"} 40
