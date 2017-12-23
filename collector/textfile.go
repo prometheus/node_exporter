@@ -57,101 +57,99 @@ func NewTextFileCollector() (Collector, error) {
 	return c, nil
 }
 
-func convertMetricFamily(metricFamily []*dto.MetricFamily, ch chan<- prometheus.Metric) {
+func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Metric) {
 	var valType prometheus.ValueType
 	var val float64
 
-	for _, mf := range metricFamily {
-		allLabelNames := map[string]struct{}{}
-		for _, metric := range mf.Metric {
-			labels := metric.GetLabel()
-			for _, label := range labels {
-				if _, ok := allLabelNames[label.GetName()]; !ok {
-					allLabelNames[label.GetName()] = struct{}{}
+	allLabelNames := map[string]struct{}{}
+	for _, metric := range metricFamily.Metric {
+		labels := metric.GetLabel()
+		for _, label := range labels {
+			if _, ok := allLabelNames[label.GetName()]; !ok {
+				allLabelNames[label.GetName()] = struct{}{}
+			}
+		}
+	}
+
+	for _, metric := range metricFamily.Metric {
+		labels := metric.GetLabel()
+		var names []string
+		var values []string
+		for _, label := range labels {
+			names = append(names, label.GetName())
+			values = append(values, label.GetValue())
+		}
+
+		for k := range allLabelNames {
+			present := false
+			for _, name := range names {
+				if k == name {
+					present = true
+					break
 				}
+			}
+			if present == false {
+				names = append(names, k)
+				values = append(values, "")
 			}
 		}
 
-		for _, metric := range mf.Metric {
-			labels := metric.GetLabel()
-			var names []string
-			var values []string
-			for _, label := range labels {
-				names = append(names, label.GetName())
-				values = append(values, label.GetValue())
-			}
+		metricType := metricFamily.GetType()
+		switch metricType {
+		case dto.MetricType_COUNTER:
+			valType = prometheus.CounterValue
+			val = metric.Counter.GetValue()
 
-			for k := range allLabelNames {
-				present := false
-				for _, name := range names {
-					if k == name {
-						present = true
-						break
-					}
-				}
-				if present == false {
-					names = append(names, k)
-					values = append(values, "")
-				}
-			}
+		case dto.MetricType_GAUGE:
+			valType = prometheus.GaugeValue
+			val = metric.Gauge.GetValue()
 
-			metricType := mf.GetType()
-			switch metricType {
-			case dto.MetricType_COUNTER:
-				valType = prometheus.CounterValue
-				val = metric.Counter.GetValue()
+		case dto.MetricType_UNTYPED:
+			valType = prometheus.UntypedValue
+			val = metric.Untyped.GetValue()
 
-			case dto.MetricType_GAUGE:
-				valType = prometheus.GaugeValue
-				val = metric.Gauge.GetValue()
-
-			case dto.MetricType_UNTYPED:
-				valType = prometheus.UntypedValue
-				val = metric.Untyped.GetValue()
-
-			case dto.MetricType_SUMMARY:
-				quantiles := map[float64]float64{}
-				for _, q := range metric.Summary.Quantile {
-					quantiles[q.GetQuantile()] = q.GetValue()
-					ch <- prometheus.MustNewConstSummary(
-						prometheus.NewDesc(
-							*mf.Name,
-							mf.GetHelp(),
-							names, nil,
-						),
-						metric.Summary.GetSampleCount(),
-						metric.Summary.GetSampleSum(),
-						quantiles, values...,
-					)
-				}
-			case dto.MetricType_HISTOGRAM:
-				buckets := map[float64]uint64{}
-				for _, b := range metric.Histogram.Bucket {
-					buckets[b.GetUpperBound()] = b.GetCumulativeCount()
-					ch <- prometheus.MustNewConstHistogram(
-						prometheus.NewDesc(
-							*mf.Name,
-							mf.GetHelp(),
-							names, nil,
-						),
-						metric.Histogram.GetSampleCount(),
-						metric.Histogram.GetSampleSum(),
-						buckets, values...,
-					)
-				}
-			default:
-				panic("unknown metric type")
-			}
-			if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
-				ch <- prometheus.MustNewConstMetric(
+		case dto.MetricType_SUMMARY:
+			quantiles := map[float64]float64{}
+			for _, q := range metric.Summary.Quantile {
+				quantiles[q.GetQuantile()] = q.GetValue()
+				ch <- prometheus.MustNewConstSummary(
 					prometheus.NewDesc(
-						*mf.Name,
-						mf.GetHelp(),
+						*metricFamily.Name,
+						metricFamily.GetHelp(),
 						names, nil,
 					),
-					valType, val, values...,
+					metric.Summary.GetSampleCount(),
+					metric.Summary.GetSampleSum(),
+					quantiles, values...,
 				)
 			}
+		case dto.MetricType_HISTOGRAM:
+			buckets := map[float64]uint64{}
+			for _, b := range metric.Histogram.Bucket {
+				buckets[b.GetUpperBound()] = b.GetCumulativeCount()
+				ch <- prometheus.MustNewConstHistogram(
+					prometheus.NewDesc(
+						*metricFamily.Name,
+						metricFamily.GetHelp(),
+						names, nil,
+					),
+					metric.Histogram.GetSampleCount(),
+					metric.Histogram.GetSampleSum(),
+					buckets, values...,
+				)
+			}
+		default:
+			panic("unknown metric type")
+		}
+		if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
+			ch <- prometheus.MustNewConstMetric(
+				prometheus.NewDesc(
+					*metricFamily.Name,
+					metricFamily.GetHelp(),
+					names, nil,
+				),
+				valType, val, values...,
+			)
 		}
 	}
 }
@@ -230,7 +228,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				help := fmt.Sprintf("Metric read from %s", path)
 				mf.Help = &help
 			}
-			convertMetricFamily([]*dto.MetricFamily{mf}, ch)
+			convertMetricFamily(mf, ch)
 		}
 	}
 
