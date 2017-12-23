@@ -57,11 +57,11 @@ func NewTextFileCollector() (Collector, error) {
 	return c, nil
 }
 
-func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometheus.Metric) {
+func convertMetricFamily(metricFamily []*dto.MetricFamily, ch chan<- prometheus.Metric) {
 	var valType prometheus.ValueType
 	var val float64
 
-	for _, mf := range metricFamilies {
+	for _, mf := range metricFamily {
 		allLabelNames := map[string]struct{}{}
 		for _, metric := range mf.Metric {
 			labels := metric.GetLabel()
@@ -98,26 +98,21 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 			metricType := mf.GetType()
 			switch metricType {
 			case dto.MetricType_COUNTER:
-				if metric.Counter != nil {
-					valType = prometheus.CounterValue
-					val = metric.Counter.GetValue()
-				}
+				valType = prometheus.CounterValue
+				val = metric.Counter.GetValue()
+
 			case dto.MetricType_GAUGE:
-				if metric.Gauge != nil {
-					valType = prometheus.GaugeValue
-					val = metric.Gauge.GetValue()
-				}
+				valType = prometheus.GaugeValue
+				val = metric.Gauge.GetValue()
+
 			case dto.MetricType_UNTYPED:
-				if metric.Untyped != nil {
-					valType = prometheus.UntypedValue
-					val = metric.Untyped.GetValue()
-				}
+				valType = prometheus.UntypedValue
+				val = metric.Untyped.GetValue()
+
 			case dto.MetricType_SUMMARY:
-				if metric.Summary != nil {
-					quantiles := map[float64]float64{}
-					for _, q := range metric.Summary.Quantile {
-						quantiles[q.GetQuantile()] = q.GetValue()
-					}
+				quantiles := map[float64]float64{}
+				for _, q := range metric.Summary.Quantile {
+					quantiles[q.GetQuantile()] = q.GetValue()
 					ch <- prometheus.MustNewConstSummary(
 						prometheus.NewDesc(
 							*mf.Name,
@@ -130,11 +125,9 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 					)
 				}
 			case dto.MetricType_HISTOGRAM:
-				if metric.Histogram != nil {
-					buckets := map[float64]uint64{}
-					for _, b := range metric.Histogram.Bucket {
-						buckets[b.GetUpperBound()] = b.GetCumulativeCount()
-					}
+				buckets := map[float64]uint64{}
+				for _, b := range metric.Histogram.Bucket {
+					buckets[b.GetUpperBound()] = b.GetCumulativeCount()
 					ch <- prometheus.MustNewConstHistogram(
 						prometheus.NewDesc(
 							*mf.Name,
@@ -146,7 +139,8 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 						buckets, values...,
 					)
 				}
-
+			default:
+				panic("unknown metric type")
 			}
 			if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
 				ch <- prometheus.MustNewConstMetric(
@@ -162,7 +156,7 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 	}
 }
 
-func exportMTimes(c *textFileCollector, mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
+func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 	// Export the mtimes of the successful files.
 	if len(mtimes) > 0 {
 		mtimeMetricFamily := dto.MetricFamily{
@@ -200,7 +194,6 @@ func exportMTimes(c *textFileCollector, mtimes map[string]time.Time, ch chan<- p
 
 // Update implements the Collector interface.
 func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
-	var metricFamilies []*dto.MetricFamily
 	error := 0.0
 	mtimes := map[string]time.Time{}
 
@@ -237,21 +230,18 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				help := fmt.Sprintf("Metric read from %s", path)
 				mf.Help = &help
 			}
-			metricFamilies = append(metricFamilies, mf)
+			convertMetricFamily([]*dto.MetricFamily{mf}, ch)
 		}
 	}
 
-	convertMetricFamilies(metricFamilies, ch)
-
-	exportMTimes(c, mtimes, ch)
+	c.exportMTimes(mtimes, ch)
 
 	// Export if there were errors.
-	var labels []string
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
 			"node_textfile_scrape_error",
 			"1 if there was an error opening or reading a file, 0 otherwise",
-			labels, nil,
+			nil, nil,
 		),
 		prometheus.GaugeValue, error,
 	)
