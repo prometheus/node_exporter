@@ -162,7 +162,6 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 	// Export the mtimes of the successful files.
 	if len(mtimes) > 0 {
-
 		// Sorting is needed for predictable output comparison in tests.
 		filenames := make([]string, 0, len(mtimes))
 		for filename := range mtimes {
