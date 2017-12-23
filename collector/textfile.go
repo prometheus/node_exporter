@@ -62,36 +62,36 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 	var val float64
 
 	for _, mf := range metricFamilies {
-		labelNames := map[string]struct{}{}
+		allLabelNames := map[string]struct{}{}
 		for _, metric := range mf.Metric {
-			labelPairs := metric.GetLabel()
-			for _, label := range labelPairs {
-				if _, ok := labelNames[label.GetName()]; !ok {
-					labelNames[label.GetName()] = struct{}{}
+			labels := metric.GetLabel()
+			for _, label := range labels {
+				if _, ok := allLabelNames[label.GetName()]; !ok {
+					allLabelNames[label.GetName()] = struct{}{}
 				}
 			}
 		}
 
 		for _, metric := range mf.Metric {
-			labelPairs := metric.GetLabel()
-			var labels []string
-			var labelVals []string
-			for _, label := range labelPairs {
-				labels = append(labels, label.GetName())
-				labelVals = append(labelVals, label.GetValue())
+			labels := metric.GetLabel()
+			var names []string
+			var values []string
+			for _, label := range labels {
+				names = append(names, label.GetName())
+				values = append(values, label.GetValue())
 			}
 
-			for k := range labelNames {
+			for k := range allLabelNames {
 				present := false
-				for _, label := range labels {
-					if k == label {
+				for _, name := range names {
+					if k == name {
 						present = true
 						break
 					}
 				}
 				if present == false {
-					labels = append(labels, k)
-					labelVals = append(labelVals, "")
+					names = append(names, k)
+					values = append(values, "")
 				}
 			}
 
@@ -122,11 +122,11 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 						prometheus.NewDesc(
 							*mf.Name,
 							mf.GetHelp(),
-							labels, nil,
+							names, nil,
 						),
 						metric.Summary.GetSampleCount(),
 						metric.Summary.GetSampleSum(),
-						quantiles, labelVals...,
+						quantiles, values...,
 					)
 				}
 			case dto.MetricType_HISTOGRAM:
@@ -139,11 +139,11 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 						prometheus.NewDesc(
 							*mf.Name,
 							mf.GetHelp(),
-							labels, nil,
+							names, nil,
 						),
 						metric.Histogram.GetSampleCount(),
 						metric.Histogram.GetSampleSum(),
-						buckets, labelVals...,
+						buckets, values...,
 					)
 				}
 
@@ -153,9 +153,9 @@ func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometh
 					prometheus.NewDesc(
 						*mf.Name,
 						mf.GetHelp(),
-						labels, nil,
+						names, nil,
 					),
-					valType, val, labelVals...,
+					valType, val, values...,
 				)
 			}
 		}
