@@ -55,49 +55,7 @@ func NewTextFileCollector() (Collector, error) {
 	return c, nil
 }
 
-// Update implements the Collector interface.
-func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
-	var metricFamilies []*dto.MetricFamily
-	error := 0.0
-	mtimes := map[string]time.Time{}
-
-	// Iterate over files and accumulate their metrics.
-	files, err := ioutil.ReadDir(c.path)
-	if err != nil && c.path != "" {
-		log.Errorf("Error reading textfile collector directory %s: %s", c.path, err)
-		error = 1.0
-	}
-	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".prom") {
-			continue
-		}
-		path := filepath.Join(c.path, f.Name())
-		file, err := os.Open(path)
-		if err != nil {
-			log.Errorf("Error opening %s: %v", path, err)
-			error = 1.0
-			continue
-		}
-		var parser expfmt.TextParser
-		parsedFamilies, err := parser.TextToMetricFamilies(file)
-		file.Close()
-		if err != nil {
-			log.Errorf("Error parsing %s: %v", path, err)
-			error = 1.0
-			continue
-		}
-		// Only set this once it has been parsed, so that
-		// a failure does not appear fresh.
-		mtimes[f.Name()] = f.ModTime()
-		for _, mf := range parsedFamilies {
-			if mf.Help == nil {
-				help := fmt.Sprintf("Metric read from %s", path)
-				mf.Help = &help
-			}
-			metricFamilies = append(metricFamilies, mf)
-		}
-	}
-
+func convertMetricFamilies(metricFamilies []*dto.MetricFamily, ch chan<- prometheus.Metric) {
 	var valType prometheus.ValueType
 	var val float64
 
@@ -201,6 +159,9 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 	}
+}
+
+func exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
 	// Export the mtimes of the successful files.
 	if len(mtimes) > 0 {
 		mtimeMetricFamily := dto.MetricFamily{
@@ -245,8 +206,56 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 			)
 		}
 	}
-	// Export if there were errors.
+}
 
+// Update implements the Collector interface.
+func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
+	var metricFamilies []*dto.MetricFamily
+	error := 0.0
+	mtimes := map[string]time.Time{}
+
+	// Iterate over files and accumulate their metrics.
+	files, err := ioutil.ReadDir(c.path)
+	if err != nil && c.path != "" {
+		log.Errorf("Error reading textfile collector directory %s: %s", c.path, err)
+		error = 1.0
+	}
+	for _, f := range files {
+		if !strings.HasSuffix(f.Name(), ".prom") {
+			continue
+		}
+		path := filepath.Join(c.path, f.Name())
+		file, err := os.Open(path)
+		if err != nil {
+			log.Errorf("Error opening %s: %v", path, err)
+			error = 1.0
+			continue
+		}
+		var parser expfmt.TextParser
+		parsedFamilies, err := parser.TextToMetricFamilies(file)
+		file.Close()
+		if err != nil {
+			log.Errorf("Error parsing %s: %v", path, err)
+			error = 1.0
+			continue
+		}
+		// Only set this once it has been parsed, so that
+		// a failure does not appear fresh.
+		mtimes[f.Name()] = f.ModTime()
+		for _, mf := range parsedFamilies {
+			if mf.Help == nil {
+				help := fmt.Sprintf("Metric read from %s", path)
+				mf.Help = &help
+			}
+			metricFamilies = append(metricFamilies, mf)
+		}
+	}
+
+	convertMetricFamilies(metricFamilies, ch)
+
+	exportMTimes(mtimes, ch)
+
+	// Export if there were errors.
 	var labels []string
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
