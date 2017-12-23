@@ -78,6 +78,10 @@ func TestTextfileCollector(t *testing.T) {
 			path: "fixtures/textfile/histogram_extra_dimension",
 			out:  "fixtures/textfile/histogram_extra_dimension.out",
 		},
+		{
+			path: "fixtures/textfile/summary",
+			out:  "fixtures/textfile/summary.out",
+		},
 	}
 
 	for i, test := range tests {
