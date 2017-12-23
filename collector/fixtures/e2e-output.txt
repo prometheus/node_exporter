@@ -3307,7 +3307,7 @@ testmetric1_1{foo="bar"} 10
 testmetric1_2{foo="baz"} 20
 # HELP testmetric2_1 Metric read from collector/fixtures/textfile/two_metric_files/metrics2.prom
 # TYPE testmetric2_1 untyped
-testmetric2_1{foo="bar"} 30 1441205977284
+testmetric2_1{foo="bar"} 30
 # HELP testmetric2_2 Metric read from collector/fixtures/textfile/two_metric_files/metrics2.prom
 # TYPE testmetric2_2 untyped
-testmetric2_2{foo="baz"} 40 1441205977284
+testmetric2_2{foo="baz"} 40
