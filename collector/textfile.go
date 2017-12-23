@@ -112,17 +112,17 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 			quantiles := map[float64]float64{}
 			for _, q := range metric.Summary.Quantile {
 				quantiles[q.GetQuantile()] = q.GetValue()
-				ch <- prometheus.MustNewConstSummary(
-					prometheus.NewDesc(
-						*metricFamily.Name,
-						metricFamily.GetHelp(),
-						names, nil,
-					),
-					metric.Summary.GetSampleCount(),
-					metric.Summary.GetSampleSum(),
-					quantiles, values...,
-				)
 			}
+			ch <- prometheus.MustNewConstSummary(
+				prometheus.NewDesc(
+					*metricFamily.Name,
+					metricFamily.GetHelp(),
+					names, nil,
+				),
+				metric.Summary.GetSampleCount(),
+				metric.Summary.GetSampleSum(),
+				quantiles, values...,
+			)
 		case dto.MetricType_HISTOGRAM:
 			buckets := map[float64]uint64{}
 			for _, b := range metric.Histogram.Bucket {

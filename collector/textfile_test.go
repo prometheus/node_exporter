@@ -62,6 +62,10 @@ func TestTextfileCollector(t *testing.T) {
 			path: "fixtures/textfile/nonexistent_path",
 			out:  "fixtures/textfile/nonexistent_path.out",
 		},
+		{
+			path: "fixtures/textfile/different_metric_types",
+			out:  "fixtures/textfile/different_metric_types.out",
+		},
 	}
 
 	for i, test := range tests {
