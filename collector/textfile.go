@@ -127,17 +127,17 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 			buckets := map[float64]uint64{}
 			for _, b := range metric.Histogram.Bucket {
 				buckets[b.GetUpperBound()] = b.GetCumulativeCount()
-				ch <- prometheus.MustNewConstHistogram(
-					prometheus.NewDesc(
-						*metricFamily.Name,
-						metricFamily.GetHelp(),
-						names, nil,
-					),
-					metric.Histogram.GetSampleCount(),
-					metric.Histogram.GetSampleSum(),
-					buckets, values...,
-				)
 			}
+			ch <- prometheus.MustNewConstHistogram(
+				prometheus.NewDesc(
+					*metricFamily.Name,
+					metricFamily.GetHelp(),
+					names, nil,
+				),
+				metric.Histogram.GetSampleCount(),
+				metric.Histogram.GetSampleSum(),
+				buckets, values...,
+			)
 		default:
 			panic("unknown metric type")
 		}

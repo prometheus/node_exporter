@@ -70,6 +70,10 @@ func TestTextfileCollector(t *testing.T) {
 			path: "fixtures/textfile/inconsistent_metrics",
 			out:  "fixtures/textfile/inconsistent_metrics.out",
 		},
+		{
+			path: "fixtures/textfile/histogram",
+			out:  "fixtures/textfile/histogram.out",
+		},
 	}
 
 	for i, test := range tests {
