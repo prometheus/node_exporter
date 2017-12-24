@@ -77,6 +77,10 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 	}
 
 	for _, metric := range metricFamily.Metric {
+		if metric.TimestampMs != nil {
+			log.Warnf("Ignoring unsupported custom timestamp on textfile collector metric %v", metric)
+		}
+
 		labels := metric.GetLabel()
 		var names []string
 		var values []string
