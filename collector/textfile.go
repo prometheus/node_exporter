@@ -191,9 +191,11 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	// Iterate over files and accumulate their metrics.
 	files, err := ioutil.ReadDir(c.path)
 	if err != nil && c.path != "" {
-		log.Errorf("Error reading textfile collector directory %s: %s", c.path, err)
+		log.Errorf("Error reading textfile collector directory %q: %s", c.path, err)
 		error = 1.0
 	}
+
+fileLoop:
 	for _, f := range files {
 		if !strings.HasSuffix(f.Name(), ".prom") {
 			continue
@@ -201,7 +203,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		path := filepath.Join(c.path, f.Name())
 		file, err := os.Open(path)
 		if err != nil {
-			log.Errorf("Error opening %s: %v", path, err)
+			log.Errorf("Error opening %q: %v", path, err)
 			error = 1.0
 			continue
 		}
@@ -209,18 +211,29 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		parsedFamilies, err := parser.TextToMetricFamilies(file)
 		file.Close()
 		if err != nil {
-			log.Errorf("Error parsing %s: %v", path, err)
+			log.Errorf("Error parsing %q: %v", path, err)
 			error = 1.0
 			continue
 		}
-		// Only set this once it has been parsed, so that
-		// a failure does not appear fresh.
-		mtimes[f.Name()] = f.ModTime()
 		for _, mf := range parsedFamilies {
+			for _, m := range mf.Metric {
+				if m.TimestampMs != nil {
+					log.Errorf("Textfile %q contains unsupported client-side timestamps, skipping entire file", path)
+					error = 1.0
+					continue fileLoop
+				}
+			}
 			if mf.Help == nil {
 				help := fmt.Sprintf("Metric read from %s", path)
 				mf.Help = &help
 			}
+		}
+
+		// Only set this once it has been parsed and validated, so that
+		// a failure does not appear fresh.
+		mtimes[f.Name()] = f.ModTime()
+
+		for _, mf := range parsedFamilies {
 			convertMetricFamily(mf, ch)
 		}
 	}
