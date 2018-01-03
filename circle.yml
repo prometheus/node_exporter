@@ -16,6 +16,11 @@ dependencies:
     - make promu
     - docker info
   override:
+    - ln -s ${HOME}/${CIRCLE_PROJECT_REPONAME} ${HOME}/.go_workspace/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
+    - |
+      cd ${HOME}/.go_workspace/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
+      make
+    - rm -v ${HOME}/${CIRCLE_PROJECT_REPONAME}/node_exporter
     - promu crossbuild
     - ln -s .build/linux-amd64/node_exporter node_exporter
     - |

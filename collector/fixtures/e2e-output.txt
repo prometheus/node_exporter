@@ -285,7 +285,7 @@ node_cpu_frequency_max_hertz{cpu="cpu3"} 4.2e+09
 node_cpu_frequency_min_hertz{cpu="cpu0"} 8e+08
 node_cpu_frequency_min_hertz{cpu="cpu1"} 8e+08
 node_cpu_frequency_min_hertz{cpu="cpu3"} 1e+06
-# HELP node_cpu_guest_seconds_total Seconds the cpus spent for guests (VMs) in each mode.
+# HELP node_cpu_guest_seconds_total Seconds the cpus spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
 node_cpu_guest_seconds_total{cpu="0",mode="user"} 0.02
@@ -2369,150 +2369,150 @@ node_netstat_Udp_RcvbufErrors 0
 # HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
 # TYPE node_netstat_Udp_SndbufErrors untyped
 node_netstat_Udp_SndbufErrors 0
-# HELP node_network_receive_bytes Network device statistic receive_bytes.
-# TYPE node_network_receive_bytes gauge
-node_network_receive_bytes{device="docker0"} 6.4910168e+07
-node_network_receive_bytes{device="eth0"} 6.8210035552e+10
-node_network_receive_bytes{device="lo"} 4.35303245e+08
-node_network_receive_bytes{device="lxcbr0"} 0
-node_network_receive_bytes{device="tun0"} 1888
-node_network_receive_bytes{device="veth4B09XN"} 648
-node_network_receive_bytes{device="wlan0"} 1.0437182923e+10
-# HELP node_network_receive_compressed Network device statistic receive_compressed.
-# TYPE node_network_receive_compressed gauge
-node_network_receive_compressed{device="docker0"} 0
-node_network_receive_compressed{device="eth0"} 0
-node_network_receive_compressed{device="lo"} 0
-node_network_receive_compressed{device="lxcbr0"} 0
-node_network_receive_compressed{device="tun0"} 0
-node_network_receive_compressed{device="veth4B09XN"} 0
-node_network_receive_compressed{device="wlan0"} 0
-# HELP node_network_receive_drop Network device statistic receive_drop.
-# TYPE node_network_receive_drop gauge
-node_network_receive_drop{device="docker0"} 0
-node_network_receive_drop{device="eth0"} 0
-node_network_receive_drop{device="lo"} 0
-node_network_receive_drop{device="lxcbr0"} 0
-node_network_receive_drop{device="tun0"} 0
-node_network_receive_drop{device="veth4B09XN"} 0
-node_network_receive_drop{device="wlan0"} 0
-# HELP node_network_receive_errs Network device statistic receive_errs.
-# TYPE node_network_receive_errs gauge
-node_network_receive_errs{device="docker0"} 0
-node_network_receive_errs{device="eth0"} 0
-node_network_receive_errs{device="lo"} 0
-node_network_receive_errs{device="lxcbr0"} 0
-node_network_receive_errs{device="tun0"} 0
-node_network_receive_errs{device="veth4B09XN"} 0
-node_network_receive_errs{device="wlan0"} 0
-# HELP node_network_receive_fifo Network device statistic receive_fifo.
-# TYPE node_network_receive_fifo gauge
-node_network_receive_fifo{device="docker0"} 0
-node_network_receive_fifo{device="eth0"} 0
-node_network_receive_fifo{device="lo"} 0
-node_network_receive_fifo{device="lxcbr0"} 0
-node_network_receive_fifo{device="tun0"} 0
-node_network_receive_fifo{device="veth4B09XN"} 0
-node_network_receive_fifo{device="wlan0"} 0
-# HELP node_network_receive_frame Network device statistic receive_frame.
-# TYPE node_network_receive_frame gauge
-node_network_receive_frame{device="docker0"} 0
-node_network_receive_frame{device="eth0"} 0
-node_network_receive_frame{device="lo"} 0
-node_network_receive_frame{device="lxcbr0"} 0
-node_network_receive_frame{device="tun0"} 0
-node_network_receive_frame{device="veth4B09XN"} 0
-node_network_receive_frame{device="wlan0"} 0
-# HELP node_network_receive_multicast Network device statistic receive_multicast.
-# TYPE node_network_receive_multicast gauge
-node_network_receive_multicast{device="docker0"} 0
-node_network_receive_multicast{device="eth0"} 0
-node_network_receive_multicast{device="lo"} 0
-node_network_receive_multicast{device="lxcbr0"} 0
-node_network_receive_multicast{device="tun0"} 0
-node_network_receive_multicast{device="veth4B09XN"} 0
-node_network_receive_multicast{device="wlan0"} 0
-# HELP node_network_receive_packets Network device statistic receive_packets.
-# TYPE node_network_receive_packets gauge
-node_network_receive_packets{device="docker0"} 1.065585e+06
-node_network_receive_packets{device="eth0"} 5.20993275e+08
-node_network_receive_packets{device="lo"} 1.832522e+06
-node_network_receive_packets{device="lxcbr0"} 0
-node_network_receive_packets{device="tun0"} 24
-node_network_receive_packets{device="veth4B09XN"} 8
-node_network_receive_packets{device="wlan0"} 1.3899359e+07
-# HELP node_network_transmit_bytes Network device statistic transmit_bytes.
-# TYPE node_network_transmit_bytes gauge
-node_network_transmit_bytes{device="docker0"} 2.681662018e+09
-node_network_transmit_bytes{device="eth0"} 9.315587528e+09
-node_network_transmit_bytes{device="lo"} 4.35303245e+08
-node_network_transmit_bytes{device="lxcbr0"} 2.630299e+06
-node_network_transmit_bytes{device="tun0"} 67120
-node_network_transmit_bytes{device="veth4B09XN"} 1.943284e+06
-node_network_transmit_bytes{device="wlan0"} 2.85164936e+09
-# HELP node_network_transmit_compressed Network device statistic transmit_compressed.
-# TYPE node_network_transmit_compressed gauge
-node_network_transmit_compressed{device="docker0"} 0
-node_network_transmit_compressed{device="eth0"} 0
-node_network_transmit_compressed{device="lo"} 0
-node_network_transmit_compressed{device="lxcbr0"} 0
-node_network_transmit_compressed{device="tun0"} 0
-node_network_transmit_compressed{device="veth4B09XN"} 0
-node_network_transmit_compressed{device="wlan0"} 0
-# HELP node_network_transmit_drop Network device statistic transmit_drop.
-# TYPE node_network_transmit_drop gauge
-node_network_transmit_drop{device="docker0"} 0
-node_network_transmit_drop{device="eth0"} 0
-node_network_transmit_drop{device="lo"} 0
-node_network_transmit_drop{device="lxcbr0"} 0
-node_network_transmit_drop{device="tun0"} 0
-node_network_transmit_drop{device="veth4B09XN"} 0
-node_network_transmit_drop{device="wlan0"} 0
-# HELP node_network_transmit_errs Network device statistic transmit_errs.
-# TYPE node_network_transmit_errs gauge
-node_network_transmit_errs{device="docker0"} 0
-node_network_transmit_errs{device="eth0"} 0
-node_network_transmit_errs{device="lo"} 0
-node_network_transmit_errs{device="lxcbr0"} 0
-node_network_transmit_errs{device="tun0"} 0
-node_network_transmit_errs{device="veth4B09XN"} 0
-node_network_transmit_errs{device="wlan0"} 0
-# HELP node_network_transmit_fifo Network device statistic transmit_fifo.
-# TYPE node_network_transmit_fifo gauge
-node_network_transmit_fifo{device="docker0"} 0
-node_network_transmit_fifo{device="eth0"} 0
-node_network_transmit_fifo{device="lo"} 0
-node_network_transmit_fifo{device="lxcbr0"} 0
-node_network_transmit_fifo{device="tun0"} 0
-node_network_transmit_fifo{device="veth4B09XN"} 0
-node_network_transmit_fifo{device="wlan0"} 0
-# HELP node_network_transmit_frame Network device statistic transmit_frame.
-# TYPE node_network_transmit_frame gauge
-node_network_transmit_frame{device="docker0"} 0
-node_network_transmit_frame{device="eth0"} 0
-node_network_transmit_frame{device="lo"} 0
-node_network_transmit_frame{device="lxcbr0"} 0
-node_network_transmit_frame{device="tun0"} 0
-node_network_transmit_frame{device="veth4B09XN"} 0
-node_network_transmit_frame{device="wlan0"} 0
-# HELP node_network_transmit_multicast Network device statistic transmit_multicast.
-# TYPE node_network_transmit_multicast gauge
-node_network_transmit_multicast{device="docker0"} 0
-node_network_transmit_multicast{device="eth0"} 0
-node_network_transmit_multicast{device="lo"} 0
-node_network_transmit_multicast{device="lxcbr0"} 0
-node_network_transmit_multicast{device="tun0"} 0
-node_network_transmit_multicast{device="veth4B09XN"} 0
-node_network_transmit_multicast{device="wlan0"} 0
-# HELP node_network_transmit_packets Network device statistic transmit_packets.
-# TYPE node_network_transmit_packets gauge
-node_network_transmit_packets{device="docker0"} 1.929779e+06
-node_network_transmit_packets{device="eth0"} 4.3451486e+07
-node_network_transmit_packets{device="lo"} 1.832522e+06
-node_network_transmit_packets{device="lxcbr0"} 28339
-node_network_transmit_packets{device="tun0"} 934
-node_network_transmit_packets{device="veth4B09XN"} 10640
-node_network_transmit_packets{device="wlan0"} 1.17262e+07
+# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
+# TYPE node_network_receive_bytes_total counter
+node_network_receive_bytes_total{device="docker0"} 6.4910168e+07
+node_network_receive_bytes_total{device="eth0"} 6.8210035552e+10
+node_network_receive_bytes_total{device="lo"} 4.35303245e+08
+node_network_receive_bytes_total{device="lxcbr0"} 0
+node_network_receive_bytes_total{device="tun0"} 1888
+node_network_receive_bytes_total{device="veth4B09XN"} 648
+node_network_receive_bytes_total{device="wlan0"} 1.0437182923e+10
+# HELP node_network_receive_compressed_total Network device statistic receive_compressed.
+# TYPE node_network_receive_compressed_total counter
+node_network_receive_compressed_total{device="docker0"} 0
+node_network_receive_compressed_total{device="eth0"} 0
+node_network_receive_compressed_total{device="lo"} 0
+node_network_receive_compressed_total{device="lxcbr0"} 0
+node_network_receive_compressed_total{device="tun0"} 0
+node_network_receive_compressed_total{device="veth4B09XN"} 0
+node_network_receive_compressed_total{device="wlan0"} 0
+# HELP node_network_receive_drop_total Network device statistic receive_drop.
+# TYPE node_network_receive_drop_total counter
+node_network_receive_drop_total{device="docker0"} 0
+node_network_receive_drop_total{device="eth0"} 0
+node_network_receive_drop_total{device="lo"} 0
+node_network_receive_drop_total{device="lxcbr0"} 0
+node_network_receive_drop_total{device="tun0"} 0
+node_network_receive_drop_total{device="veth4B09XN"} 0
+node_network_receive_drop_total{device="wlan0"} 0
+# HELP node_network_receive_errs_total Network device statistic receive_errs.
+# TYPE node_network_receive_errs_total counter
+node_network_receive_errs_total{device="docker0"} 0
+node_network_receive_errs_total{device="eth0"} 0
+node_network_receive_errs_total{device="lo"} 0
+node_network_receive_errs_total{device="lxcbr0"} 0
+node_network_receive_errs_total{device="tun0"} 0
+node_network_receive_errs_total{device="veth4B09XN"} 0
+node_network_receive_errs_total{device="wlan0"} 0
+# HELP node_network_receive_fifo_total Network device statistic receive_fifo.
+# TYPE node_network_receive_fifo_total counter
+node_network_receive_fifo_total{device="docker0"} 0
+node_network_receive_fifo_total{device="eth0"} 0
+node_network_receive_fifo_total{device="lo"} 0
+node_network_receive_fifo_total{device="lxcbr0"} 0
+node_network_receive_fifo_total{device="tun0"} 0
+node_network_receive_fifo_total{device="veth4B09XN"} 0
+node_network_receive_fifo_total{device="wlan0"} 0
+# HELP node_network_receive_frame_total Network device statistic receive_frame.
+# TYPE node_network_receive_frame_total counter
+node_network_receive_frame_total{device="docker0"} 0
+node_network_receive_frame_total{device="eth0"} 0
+node_network_receive_frame_total{device="lo"} 0
+node_network_receive_frame_total{device="lxcbr0"} 0
+node_network_receive_frame_total{device="tun0"} 0
+node_network_receive_frame_total{device="veth4B09XN"} 0
+node_network_receive_frame_total{device="wlan0"} 0
+# HELP node_network_receive_multicast_total Network device statistic receive_multicast.
+# TYPE node_network_receive_multicast_total counter
+node_network_receive_multicast_total{device="docker0"} 0
+node_network_receive_multicast_total{device="eth0"} 0
+node_network_receive_multicast_total{device="lo"} 0
+node_network_receive_multicast_total{device="lxcbr0"} 0
+node_network_receive_multicast_total{device="tun0"} 0
+node_network_receive_multicast_total{device="veth4B09XN"} 0
+node_network_receive_multicast_total{device="wlan0"} 0
+# HELP node_network_receive_packets_total Network device statistic receive_packets.
+# TYPE node_network_receive_packets_total counter
+node_network_receive_packets_total{device="docker0"} 1.065585e+06
+node_network_receive_packets_total{device="eth0"} 5.20993275e+08
+node_network_receive_packets_total{device="lo"} 1.832522e+06
+node_network_receive_packets_total{device="lxcbr0"} 0
+node_network_receive_packets_total{device="tun0"} 24
+node_network_receive_packets_total{device="veth4B09XN"} 8
+node_network_receive_packets_total{device="wlan0"} 1.3899359e+07
+# HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
+# TYPE node_network_transmit_bytes_total counter
+node_network_transmit_bytes_total{device="docker0"} 2.681662018e+09
+node_network_transmit_bytes_total{device="eth0"} 9.315587528e+09
+node_network_transmit_bytes_total{device="lo"} 4.35303245e+08
+node_network_transmit_bytes_total{device="lxcbr0"} 2.630299e+06
+node_network_transmit_bytes_total{device="tun0"} 67120
+node_network_transmit_bytes_total{device="veth4B09XN"} 1.943284e+06
+node_network_transmit_bytes_total{device="wlan0"} 2.85164936e+09
+# HELP node_network_transmit_compressed_total Network device statistic transmit_compressed.
+# TYPE node_network_transmit_compressed_total counter
+node_network_transmit_compressed_total{device="docker0"} 0
+node_network_transmit_compressed_total{device="eth0"} 0
+node_network_transmit_compressed_total{device="lo"} 0
+node_network_transmit_compressed_total{device="lxcbr0"} 0
+node_network_transmit_compressed_total{device="tun0"} 0
+node_network_transmit_compressed_total{device="veth4B09XN"} 0
+node_network_transmit_compressed_total{device="wlan0"} 0
+# HELP node_network_transmit_drop_total Network device statistic transmit_drop.
+# TYPE node_network_transmit_drop_total counter
+node_network_transmit_drop_total{device="docker0"} 0
+node_network_transmit_drop_total{device="eth0"} 0
+node_network_transmit_drop_total{device="lo"} 0
+node_network_transmit_drop_total{device="lxcbr0"} 0
+node_network_transmit_drop_total{device="tun0"} 0
+node_network_transmit_drop_total{device="veth4B09XN"} 0
+node_network_transmit_drop_total{device="wlan0"} 0
+# HELP node_network_transmit_errs_total Network device statistic transmit_errs.
+# TYPE node_network_transmit_errs_total counter
+node_network_transmit_errs_total{device="docker0"} 0
+node_network_transmit_errs_total{device="eth0"} 0
+node_network_transmit_errs_total{device="lo"} 0
+node_network_transmit_errs_total{device="lxcbr0"} 0
+node_network_transmit_errs_total{device="tun0"} 0
+node_network_transmit_errs_total{device="veth4B09XN"} 0
+node_network_transmit_errs_total{device="wlan0"} 0
+# HELP node_network_transmit_fifo_total Network device statistic transmit_fifo.
+# TYPE node_network_transmit_fifo_total counter
+node_network_transmit_fifo_total{device="docker0"} 0
+node_network_transmit_fifo_total{device="eth0"} 0
+node_network_transmit_fifo_total{device="lo"} 0
+node_network_transmit_fifo_total{device="lxcbr0"} 0
+node_network_transmit_fifo_total{device="tun0"} 0
+node_network_transmit_fifo_total{device="veth4B09XN"} 0
+node_network_transmit_fifo_total{device="wlan0"} 0
+# HELP node_network_transmit_frame_total Network device statistic transmit_frame.
+# TYPE node_network_transmit_frame_total counter
+node_network_transmit_frame_total{device="docker0"} 0
+node_network_transmit_frame_total{device="eth0"} 0
+node_network_transmit_frame_total{device="lo"} 0
+node_network_transmit_frame_total{device="lxcbr0"} 0
+node_network_transmit_frame_total{device="tun0"} 0
+node_network_transmit_frame_total{device="veth4B09XN"} 0
+node_network_transmit_frame_total{device="wlan0"} 0
+# HELP node_network_transmit_multicast_total Network device statistic transmit_multicast.
+# TYPE node_network_transmit_multicast_total counter
+node_network_transmit_multicast_total{device="docker0"} 0
+node_network_transmit_multicast_total{device="eth0"} 0
+node_network_transmit_multicast_total{device="lo"} 0
+node_network_transmit_multicast_total{device="lxcbr0"} 0
+node_network_transmit_multicast_total{device="tun0"} 0
+node_network_transmit_multicast_total{device="veth4B09XN"} 0
+node_network_transmit_multicast_total{device="wlan0"} 0
+# HELP node_network_transmit_packets_total Network device statistic transmit_packets.
+# TYPE node_network_transmit_packets_total counter
+node_network_transmit_packets_total{device="docker0"} 1.929779e+06
+node_network_transmit_packets_total{device="eth0"} 4.3451486e+07
+node_network_transmit_packets_total{device="lo"} 1.832522e+06
+node_network_transmit_packets_total{device="lxcbr0"} 28339
+node_network_transmit_packets_total{device="tun0"} 934
+node_network_transmit_packets_total{device="veth4B09XN"} 10640
+node_network_transmit_packets_total{device="wlan0"} 1.17262e+07
 # HELP node_nf_conntrack_entries Number of currently allocated flow entries for connection tracking.
 # TYPE node_nf_conntrack_entries gauge
 node_nf_conntrack_entries 123
@@ -3307,7 +3307,7 @@ testmetric1_1{foo="bar"} 10
 testmetric1_2{foo="baz"} 20
 # HELP testmetric2_1 Metric read from collector/fixtures/textfile/two_metric_files/metrics2.prom
 # TYPE testmetric2_1 untyped
-testmetric2_1{foo="bar"} 30 1441205977284
+testmetric2_1{foo="bar"} 30
 # HELP testmetric2_2 Metric read from collector/fixtures/textfile/two_metric_files/metrics2.prom
 # TYPE testmetric2_2 untyped
-testmetric2_2{foo="baz"} 40 1441205977284
+testmetric2_2{foo="baz"} 40

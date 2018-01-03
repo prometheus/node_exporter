@@ -1,8 +1,3 @@
-name: "node_textfile_scrape_error"
-help: "1 if there was an error opening or reading a file, 0 otherwise"
-type: GAUGE
-metric: <
-  gauge: <
-    value: 0
-  >
->
+# HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
+# TYPE node_textfile_scrape_error gauge
+node_textfile_scrape_error 0

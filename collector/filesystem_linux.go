@@ -26,7 +26,7 @@ import (
 
 const (
 	defIgnoredMountPoints = "^/(sys|proc|dev)($|/)"
-	defIgnoredFSTypes     = "^(sys|proc|auto)fs$"
+	defIgnoredFSTypes     = "^(sysfs|autofs|procfs|proc)$"
 	readOnly              = 0x1 // ST_RDONLY
 )
 
