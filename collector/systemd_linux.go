@@ -34,6 +34,7 @@ var (
 type systemdCollector struct {
 	unitDesc             *prometheus.Desc
 	systemRunningDesc    *prometheus.Desc
+	summaryDesc          *prometheus.Desc
 	unitWhitelistPattern *regexp.Regexp
 	unitBlacklistPattern *regexp.Regexp
 }
@@ -57,22 +58,31 @@ func NewSystemdCollector() (Collector, error) {
 		"Whether the system is operational (see 'systemctl is-system-running')",
 		nil, nil,
 	)
+	summaryDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "units"),
+		"Summary of systemd unit states", []string{"state"}, nil)
 	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))
 	unitBlacklistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitBlacklist))
 
 	return &systemdCollector{
 		unitDesc:             unitDesc,
 		systemRunningDesc:    systemRunningDesc,
+		summaryDesc:          summaryDesc,
 		unitWhitelistPattern: unitWhitelistPattern,
 		unitBlacklistPattern: unitBlacklistPattern,
 	}, nil
 }
 
 func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
-	units, err := c.listUnits()
+	allUnits, err := c.getAllUnits()
 	if err != nil {
-		return fmt.Errorf("couldn't get units states: %s", err)
+		return fmt.Errorf("couldn't get units: %s", err)
 	}
+
+	summary := summarizeUnits(allUnits)
+	c.collectSummaryMetrics(ch, summary)
+
+	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
 	c.collectUnitStatusMetrics(ch, units)
 
 	systemState, err := c.getSystemState()
@@ -98,6 +108,13 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 	}
 }
 
+func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, summary map[string]float64) {
+	for stateName, count := range summary {
+		ch <- prometheus.MustNewConstMetric(
+			c.summaryDesc, prometheus.GaugeValue, count, stateName)
+	}
+}
+
 func (c *systemdCollector) collectSystemState(ch chan<- prometheus.Metric, systemState string) {
 	isSystemRunning := 0.0
 	if systemState == `"running"` {
@@ -113,7 +130,7 @@ func (c *systemdCollector) newDbus() (*dbus.Conn, error) {
 	return dbus.New()
 }
 
-func (c *systemdCollector) listUnits() ([]dbus.UnitStatus, error) {
+func (c *systemdCollector) getAllUnits() ([]dbus.UnitStatus, error) {
 	conn, err := c.newDbus()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get dbus connection: %s", err)
@@ -125,8 +142,21 @@ func (c *systemdCollector) listUnits() ([]dbus.UnitStatus, error) {
 		return []dbus.UnitStatus{}, err
 	}
 
-	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
-	return units, nil
+	return allUnits, nil
+}
+
+func summarizeUnits(units []dbus.UnitStatus) map[string]float64 {
+	summarized := make(map[string]float64)
+
+	for _, unitStateName := range unitStatesName {
+		summarized[unitStateName] = 0.0
+	}
+
+	for _, unit := range units {
+		summarized[unit.ActiveState] += 1.0
+	}
+
+	return summarized
 }
 
 func filterUnits(units []dbus.UnitStatus, whitelistPattern, blacklistPattern *regexp.Regexp) []dbus.UnitStatus {
