@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/coreos/go-systemd/dbus"
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,9 +32,17 @@ var (
 	systemdPrivate = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
 )
 
+type metric struct {
+	desc      *prometheus.Desc
+	valueType prometheus.ValueType
+}
+
+type metricsMap map[string]*metric
+
 type systemdCollector struct {
 	unitDesc             *prometheus.Desc
 	systemRunningDesc    *prometheus.Desc
+	unitPropsMetrics     metricsMap
 	unitWhitelistPattern *regexp.Regexp
 	unitBlacklistPattern *regexp.Regexp
 }
@@ -57,12 +66,150 @@ func NewSystemdCollector() (Collector, error) {
 		"Whether the system is operational (see 'systemctl is-system-running')",
 		nil, nil,
 	)
+	unitMetrics := metricsMap{
+		"CPUUsageNSec": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "cpu_usage_nanoseconds_total"),
+				"Total CPU seconds of a unit",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"MemoryCurrent": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "memory_current"),
+				"Amount of bytes",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		"TasksCurrent": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "tasks_current"),
+				"amount of tasks. Includes both user processes and kernel threads.",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		"IPIngressBytes": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "ip_ingress_bytes_total"),
+				"Ingress bytes total",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"IPIngressPackets": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "ip_ingress_packets_total"),
+				"Ingress packets total",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"IPEgressBytes": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "ip_egress_bytes_total"),
+				"Egress bytes total",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"IPEgressPackets": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "ip_egress_packets_total"),
+				"Egress packets total",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"NRestarts": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "nrestarts"),
+				"Total number of service restarts",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"AssertTimestampMonotonic": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "assert_timestamp_monotonic"),
+				"",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"ConditionTimestampMonotonic": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "condition_timestamp_monotonic"),
+				"",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"InactiveEnterTimestampMonotonic": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "inactive_enter_timestamp_monotonic"),
+				"",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"InactiveExitTimestampMonotonic": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "inactive_exit_timestamp_monotonic"),
+				"",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"ActiveEnterTimestampMonotonic": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "active_enter_timestamp_monotonic"),
+				"",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"ActiveExitTimestampMonotonic": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "active_exit_timestamp_monotonic"),
+				"",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+		"StateChangeTimestampMonotonic": &metric{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, subsystem, "state_change_timestamp_monotonic"),
+				"",
+				[]string{"name"},
+				nil,
+			),
+			valueType: prometheus.CounterValue,
+		},
+	}
 	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))
 	unitBlacklistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitBlacklist))
 
 	return &systemdCollector{
 		unitDesc:             unitDesc,
 		systemRunningDesc:    systemRunningDesc,
+		unitPropsMetrics:     unitMetrics,
 		unitWhitelistPattern: unitWhitelistPattern,
 		unitBlacklistPattern: unitBlacklistPattern,
 	}, nil
@@ -74,6 +221,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get units states: %s", err)
 	}
 	c.collectUnitStatusMetrics(ch, units)
+	c.collectUnitProperiesMetrics(ch)
 
 	systemState, err := c.getSystemState()
 	if err != nil {
@@ -96,6 +244,44 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 				unit.Name, stateName)
 		}
 	}
+}
+
+func (c *systemdCollector) collectUnitProperiesMetrics(ch chan<- prometheus.Metric) error {
+	conn, err := c.newDbus()
+	if err != nil {
+		return fmt.Errorf("couldn't get dbus connection: %s", err)
+	}
+
+	defer conn.Close()
+
+	units, err := conn.ListUnits()
+	if err != nil {
+		return err
+	}
+
+	for _, unit := range units {
+		splitted := strings.Split(unit.Name, ".")
+		unitType := strings.Title(splitted[1])
+
+		props, err := conn.GetUnitTypeProperties(unit.Name, unitType)
+
+                if err != nil {
+                  return err
+                }
+
+		for prop, value := range props {
+                        metric := c.unitPropsMetrics[prop]
+			if metric != nil {
+				value, ok := value.(uint64)
+				if ok {
+					if value != ^uint64(0) {
+						ch <- prometheus.MustNewConstMetric(metric.desc, metric.valueType, float64(value), unit.Name)
+					}
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (c *systemdCollector) collectSystemState(ch chan<- prometheus.Metric, systemState string) {
