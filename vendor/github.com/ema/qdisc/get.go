@@ -124,26 +124,34 @@ func parseTCAStats2(attr netlink.Attribute) TC_Stats2 {
 	return stats
 }
 
-func parseTC_Fq_Qd_Stats(attr netlink.Attribute) TC_Fq_Qd_Stats {
+func parseTC_Fq_Qd_Stats(attr netlink.Attribute) (TC_Fq_Qd_Stats, error) {
 	var stats TC_Fq_Qd_Stats
 
-	nested, _ := netlink.UnmarshalAttributes(attr.Data)
+	nested, err := netlink.UnmarshalAttributes(attr.Data)
+	if err != nil {
+		return stats, err
+	}
 
+	pts := []*uint64{
+		&stats.GcFlows,
+		&stats.HighprioPackets,
+		&stats.TcpRetrans,
+		&stats.Throttled,
+		&stats.FlowsPlimit,
+		&stats.PktsTooLong,
+		&stats.AllocationErrors,
+	}
 	for _, a := range nested {
 		switch a.Type {
 		case TCA_STATS_APP:
-			stats.GcFlows = nlenc.Uint64(a.Data[0:8])
-			stats.HighprioPackets = nlenc.Uint64(a.Data[8:16])
-			stats.TcpRetrans = nlenc.Uint64(a.Data[16:24])
-			stats.Throttled = nlenc.Uint64(a.Data[24:32])
-			stats.FlowsPlimit = nlenc.Uint64(a.Data[32:40])
-			stats.PktsTooLong = nlenc.Uint64(a.Data[40:48])
-			stats.AllocationErrors = nlenc.Uint64(a.Data[48:56])
+			for i := 0; i < len(pts) && (i+1)*8 <= len(a.Data); i++ {
+				*pts[i] = nlenc.Uint64(a.Data[i*8 : (i+1)*8])
+			}
 		default:
 		}
 	}
 
-	return stats
+	return stats, nil
 }
 
 func getQdiscMsgs(c *netlink.Conn) ([]netlink.Message, error) {
@@ -208,8 +216,10 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 		case TCA_KIND:
 			m.Kind = nlenc.String(attr.Data)
 		case TCA_STATS2:
-			s2 = parseTCAStats2(attr)
-			s_fq = parseTC_Fq_Qd_Stats(attr)
+			s_fq, err = parseTC_Fq_Qd_Stats(attr)
+			if err != nil {
+				return m, err
+			}
 			if s_fq.GcFlows > 0 {
 				m.GcFlows = s_fq.GcFlows
 			}
@@ -219,6 +229,8 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 			if s_fq.FlowsPlimit > 0 {
 				m.FlowsPlimit = s_fq.FlowsPlimit
 			}
+
+			s2 = parseTCAStats2(attr)
 			m.Bytes = s2.Bytes
 			m.Packets = s2.Packets
 			m.Drops = s2.Drops
