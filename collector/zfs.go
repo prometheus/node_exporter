@@ -75,7 +75,7 @@ func (s zfsSysctl) metricName() string {
 	return strings.Replace(parts[len(parts)-1], "-", "_", -1)
 }
 
-func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, value int64) prometheus.Metric {
+func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, value uint64) prometheus.Metric {
 	metricName := sysctl.metricName()
 
 	return prometheus.MustNewConstMetric(
@@ -90,7 +90,7 @@ func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, val
 	)
 }
 
-func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value int64) prometheus.Metric {
+func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value uint64) prometheus.Metric {
 	metricName := sysctl.metricName()
 
 	return prometheus.MustNewConstMetric(
