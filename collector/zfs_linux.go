@@ -29,7 +29,10 @@ import (
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 	file, err := os.Open(procFilePath(path))
 	if err != nil {
-		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(path))
+		// file not found error can occur if:
+		// 1. zfs module is not loaded
+		// 2. zfs version does not have the feature with metrics -- ok to ignore
+		log.Debugf("Cannot open %q for reading", procFilePath(path))
 		return nil, errZFSNotAvailable
 	}
 	return file, nil
@@ -60,7 +63,8 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	for _, zpoolPath := range zpoolPaths {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
-			log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", zpoolPath)
+			// this file should exist, but there is a race where an exporting pool can remove the files -- ok to ignore
+			log.Debugf("Cannot open %q for reading", zpoolPath)
 			return errZFSNotAvailable
 		}
 
@@ -93,14 +97,16 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 			continue
 		}
 
-		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
-
-		value, err := strconv.ParseUint(parts[2], 10, 64)
-		if err != nil {
-			return fmt.Errorf("could not parse expected integer value for %q", key)
+		// kstat data type (column 2) should be KSTAT_DATA_UINT64 (4), otherwise ignore
+		// TODO: when other KSTAT_DATA_* types arrive, much of this will need to be restructured
+		if parts[1] == "4" {
+			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
+			value, err := strconv.ParseUint(parts[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("could not parse expected integer value for %q", key)
+			}
+			handler(zfsSysctl(key), value)
 		}
-		handler(zfsSysctl(key), value)
-
 	}
 	if !parseLine {
 		return fmt.Errorf("did not parse a single %q metric", fmtExt)
