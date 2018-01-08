@@ -47,19 +47,19 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		return nil, fmt.Errorf("sysctl CTL_VM VM_UVMEXP failed: %v", err)
 	}
 
-	ps := uvmexp.pagesize
+       ps := float64(uvmexp.pagesize)
 
 	// see uvm(9)
 	return map[string]float64{
-		"active_bytes":                  float64(ps * uvmexp.active),
-		"cache_bytes":                   float64(ps * uvmexp.vnodepages),
-		"free_bytes":                    float64(ps * uvmexp.free),
-		"inactive_bytes":                float64(ps * uvmexp.inactive),
-		"size_bytes":                    float64(ps * uvmexp.npages),
-		"swap_size_bytes":               float64(ps * uvmexp.swpages),
-		"swap_used_bytes":               float64(ps * uvmexp.swpgonly),
-		"swapped_in_pages_bytes_total":  float64(ps * uvmexp.pgswapin),
-		"swapped_out_pages_bytes_total": float64(ps * uvmexp.pgswapout),
-		"wired_bytes":                   float64(ps * uvmexp.wired),
+               "active_bytes":                  ps * float64(uvmexp.active),
+               "cache_bytes":                   ps * float64(uvmexp.vnodepages),
+               "free_bytes":                    ps * float64(uvmexp.free),
+               "inactive_bytes":                ps * float64(uvmexp.inactive),
+               "size_bytes":                    ps * float64(uvmexp.npages),
+               "swap_size_bytes":               ps * float64(uvmexp.swpages),
+               "swap_used_bytes":               ps * float64(uvmexp.swpgonly),
+               "swapped_in_pages_bytes_total":  ps * float64(uvmexp.pgswapin),
+               "swapped_out_pages_bytes_total": ps * float64(uvmexp.pgswapout),
+               "wired_bytes":                   ps * float64(uvmexp.wired),
 	}, nil
 }
