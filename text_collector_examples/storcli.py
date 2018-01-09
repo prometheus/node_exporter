@@ -90,7 +90,7 @@ def main(args):
 
     if controller_info:
         print('# HELP {}{} MegaRAID controller info'.format(metric_prefix, 'controller_info'))
-        print('# TYPE {}{} gauge'.format(metric_prefix, name))
+        print('# TYPE {}{} gauge'.format(metric_prefix, 'controller_info'))
     for labels in controller_info:
         print('{}{}{} {}'.format(metric_prefix, 'controller_info', labels, 1))
 
