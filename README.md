@@ -109,36 +109,18 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 ### Filtering enabled collectors
 
-The node_exporter will expose all metrics from enabled collectors by default, but it can be passed an optional list of collectors to filter metrics. The `collect[]` parameter accepts values matching enabled collector names.
+The `node_exporter` will expose all metrics from enabled collectors by default.  This is the recommended way to collect metrics to avoid errors when comparing metrics of different familes.
 
-This can be useful for specifying different scrape intervals for different collectors in Prometheus:
+For advanced use the `node_exporter` can be passed an optional list of collectors to filter metrics. The `collect[]` parameter may be used multiple times.  In Prometheus configuration you can use this syntax under the [scrape config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<scrape_config>).
 
-```yaml
-scrape_configs:
-  - job_name: 'node resources'
-    scrape_interval: 15s
-    static_configs:
-      - targets:
-        - '192.168.1.2:9100'
-    params:
-      collect[]:
-        - cpu
-        - meminfo
-        - diskstats
-        - netdev
-        - netstat
-
-  - job_name: 'node storage'
-    scrape_interval: 1m
-    static_configs:
-      - targets:
-        - '192.168.1.2:9100'
-    params:
-      collect[]:
-        - filefd
-        - filesystem
-        - xfs
 ```
+  params:
+    collect[]:
+      - foo
+      - bar
+```
+
+This can be useful for having different Prometheus servers collect specific metrics from nodes.
 
 ## Building and running
 
