@@ -52,6 +52,13 @@ tmpdir=$(mktemp -d /tmp/node_exporter_e2e_test.XXXXXX)
 
 skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime)"
 
+arch="$(uname -m)"
+
+case "${arch}" in
+  ppc64le) fixture='collector/fixtures/e2e-ppc64le-output.txt' ;;
+  *) fixture='collector/fixtures/e2e-output.txt' ;;
+esac
+
 keep=0; update=0; verbose=0
 while getopts 'hkuv' opt
 do
@@ -108,7 +115,7 @@ EOF
 
   if [ ${update} -ne 0 ]
   then
-    cp "${tmpdir}/e2e-output.txt" "collector/fixtures/e2e-output.txt"
+    cp "${tmpdir}/e2e-output.txt" "${fixture}"
   fi
 
   if [ ${keep} -eq 0 ]
@@ -141,5 +148,5 @@ sleep 1
 get "127.0.0.1:${port}/metrics" | grep -E -v "${skip_re}" > "${tmpdir}/e2e-output.txt"
 
 diff -u \
-  "collector/fixtures/e2e-output.txt" \
+  "${fixture}" \
   "${tmpdir}/e2e-output.txt"
