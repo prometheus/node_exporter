@@ -64,6 +64,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 		if err := c.updateZfsStats(subsystem, ch); err != nil {
 			if err == errZFSNotAvailable {
 				log.Debug(err)
+				// ZFS /proc files are added as new features to ZFS arrive, it is ok to continue
 				continue
 			}
 			return err
