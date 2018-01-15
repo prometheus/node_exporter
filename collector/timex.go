@@ -71,7 +71,7 @@ func NewTimexCollector() (Collector, error) {
 			nil, nil,
 		), prometheus.GaugeValue},
 		freq: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "frequency_adjustment"),
+			prometheus.BuildFQName(namespace, subsystem, "frequency_adjustment_ratio"),
 			"Local clock frequency adjustment.",
 			nil, nil,
 		), prometheus.GaugeValue},
@@ -101,7 +101,7 @@ func NewTimexCollector() (Collector, error) {
 			nil, nil,
 		), prometheus.GaugeValue},
 		ppsfreq: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "pps_frequency"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_frequency_hertz"),
 			"Pulse per second frequency.",
 			nil, nil,
 		), prometheus.GaugeValue},
@@ -116,32 +116,32 @@ func NewTimexCollector() (Collector, error) {
 			nil, nil,
 		), prometheus.GaugeValue},
 		stabil: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "pps_stability"),
-			"Pulse per second stability.",
+			prometheus.BuildFQName(namespace, subsystem, "pps_stability_hertz"),
+			"Pulse per second stability, average of recent frequency changes.",
 			nil, nil,
-		), prometheus.CounterValue},
+		), prometheus.GaugeValue},
 		jitcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "pps_jitter_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_jitter_total"),
 			"Pulse per second count of jitter limit exceeded events.",
 			nil, nil,
 		), prometheus.CounterValue},
 		calcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "pps_calibration_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_calibration_total"),
 			"Pulse per second count of calibration intervals.",
 			nil, nil,
 		), prometheus.CounterValue},
 		errcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "pps_error_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_error_total"),
 			"Pulse per second count of calibration errors.",
 			nil, nil,
 		), prometheus.CounterValue},
 		stbcnt: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "pps_stability_exceeded_count"),
+			prometheus.BuildFQName(namespace, subsystem, "pps_stability_exceeded_total"),
 			"Pulse per second count of stability limit exceeded events.",
 			nil, nil,
-		), prometheus.GaugeValue},
+		), prometheus.CounterValue},
 		tai: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "tai_offset"),
+			prometheus.BuildFQName(namespace, subsystem, "tai_offset_seconds"),
 			"International Atomic Time (TAI) offset.",
 			nil, nil,
 		), prometheus.GaugeValue},
@@ -173,18 +173,21 @@ func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	} else {
 		divisor = microSeconds
 	}
+	// See NOTES in adjtimex(2).
+	const ppm16frac = 1000000.0 * 65536.0
+
 	ch <- c.syncStatus.mustNewConstMetric(syncStatus)
 	ch <- c.offset.mustNewConstMetric(float64(timex.Offset) / divisor)
-	ch <- c.freq.mustNewConstMetric(float64(timex.Freq))
+	ch <- c.freq.mustNewConstMetric(1 + float64(timex.Freq)/ppm16frac)
 	ch <- c.maxerror.mustNewConstMetric(float64(timex.Maxerror) / microSeconds)
 	ch <- c.esterror.mustNewConstMetric(float64(timex.Esterror) / microSeconds)
 	ch <- c.status.mustNewConstMetric(float64(timex.Status))
 	ch <- c.constant.mustNewConstMetric(float64(timex.Constant))
 	ch <- c.tick.mustNewConstMetric(float64(timex.Tick) / microSeconds)
-	ch <- c.ppsfreq.mustNewConstMetric(float64(timex.Ppsfreq))
+	ch <- c.ppsfreq.mustNewConstMetric(float64(timex.Ppsfreq) / ppm16frac)
 	ch <- c.jitter.mustNewConstMetric(float64(timex.Jitter) / divisor)
 	ch <- c.shift.mustNewConstMetric(float64(timex.Shift))
-	ch <- c.stabil.mustNewConstMetric(float64(timex.Stabil))
+	ch <- c.stabil.mustNewConstMetric(float64(timex.Stabil) / ppm16frac)
 	ch <- c.jitcnt.mustNewConstMetric(float64(timex.Jitcnt))
 	ch <- c.calcnt.mustNewConstMetric(float64(timex.Calcnt))
 	ch <- c.errcnt.mustNewConstMetric(float64(timex.Errcnt))
