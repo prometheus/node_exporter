@@ -30,7 +30,7 @@ func init() {
 func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(
-			namespace+"_interrupts",
+			namespace+"_interrupts_total",
 			"Interrupt details.",
 			interruptLabelNames, nil,
 		), prometheus.CounterValue},

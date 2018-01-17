@@ -54,7 +54,7 @@ func init() {
 func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
 		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", cpuCollectorSubsystem),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "seconds_total"),
 			"Seconds the cpus spent in each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
