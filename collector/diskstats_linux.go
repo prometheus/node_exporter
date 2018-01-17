@@ -30,17 +30,30 @@ import (
 )
 
 const (
-	diskSubsystem         = "disk"
-	diskSectorSize uint64 = 512
+	diskSubsystem  = "disk"
+	diskSectorSize = 512
 )
 
 var (
 	ignoredDevices = kingpin.Flag("collector.diskstats.ignored-devices", "Regexp of devices to ignore for diskstats.").Default("^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$").String()
 )
 
+type typedFactorDesc struct {
+	desc      *prometheus.Desc
+	valueType prometheus.ValueType
+	factor    float64
+}
+
+func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
+	if d.factor != 0 {
+		value *= d.factor
+	}
+	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
+}
+
 type diskstatsCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
-	descs                 []typedDesc
+	descs                 []typedFactorDesc
 }
 
 func init() {
@@ -54,10 +67,10 @@ func NewDiskstatsCollector() (Collector, error) {
 	return &diskstatsCollector{
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
 		// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-		descs: []typedDesc{
+		descs: []typedFactorDesc{
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed"),
+					prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
 					"The total number of reads completed successfully.",
 					diskLabelNames,
 					nil,
@@ -65,7 +78,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "reads_merged"),
+					prometheus.BuildFQName(namespace, diskSubsystem, "reads_merged_total"),
 					"The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.",
 					diskLabelNames,
 					nil,
@@ -73,23 +86,25 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "sectors_read"),
-					"The total number of sectors read successfully.",
+					prometheus.BuildFQName(namespace, diskSubsystem, "read_bytes_total"),
+					"The total number of bytes read successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
+				factor: diskSectorSize,
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "read_time_ms"),
+					prometheus.BuildFQName(namespace, diskSubsystem, "read_time_seconds_total"),
 					"The total number of milliseconds spent by all reads.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
+				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed"),
+					prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed_total"),
 					"The total number of writes completed successfully.",
 					diskLabelNames,
 					nil,
@@ -97,7 +112,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "writes_merged"),
+					prometheus.BuildFQName(namespace, diskSubsystem, "writes_merged_total"),
 					"The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.",
 					diskLabelNames,
 					nil,
@@ -105,19 +120,21 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "sectors_written"),
-					"The total number of sectors written successfully.",
+					prometheus.BuildFQName(namespace, diskSubsystem, "written_bytes_total"),
+					"The total number of bytes written successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
+				factor: diskSectorSize,
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "write_time_ms"),
-					"This is the total number of milliseconds spent by all writes.",
+					prometheus.BuildFQName(namespace, diskSubsystem, "write_time_seconds_total"),
+					"This is the total number of seconds spent by all writes.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
+				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -129,35 +146,21 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_ms"),
-					"Total Milliseconds spent doing I/Os.",
+					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_seconds_total"),
+					"Total seconds spent doing I/Os.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
+				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_weighted"),
-					"The weighted # of milliseconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.",
+					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_weighted_seconds_total"),
+					"The weighted # of seconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
-			},
-			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "bytes_read"),
-					"The total number of bytes read successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
-			},
-			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "bytes_written"),
-					"The total number of bytes written successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				factor: .001,
 			},
 		},
 	}, nil
@@ -201,15 +204,6 @@ func getDiskStats() (map[string]map[int]string, error) {
 	return parseDiskStats(file)
 }
 
-func convertDiskSectorsToBytes(sectorCount string) (string, error) {
-	sectors, err := strconv.ParseUint(sectorCount, 10, 64)
-	if err != nil {
-		return "", err
-	}
-
-	return strconv.FormatUint(sectors*diskSectorSize, 10), nil
-}
-
 func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 	var (
 		diskStats = map[string]map[int]string{}
@@ -226,17 +220,6 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 		for i, v := range parts[3:] {
 			diskStats[dev][i] = v
 		}
-		bytesRead, err := convertDiskSectorsToBytes(diskStats[dev][2])
-		if err != nil {
-			return nil, fmt.Errorf("invalid value for sectors read in %s: %s", procFilePath("diskstats"), scanner.Text())
-		}
-		diskStats[dev][11] = bytesRead
-
-		bytesWritten, err := convertDiskSectorsToBytes(diskStats[dev][6])
-		if err != nil {
-			return nil, fmt.Errorf("invalid value for sectors written in %s: %s", procFilePath("diskstats"), scanner.Text())
-		}
-		diskStats[dev][12] = bytesWritten
 	}
 
 	return diskStats, scanner.Err()
