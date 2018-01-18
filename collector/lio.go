@@ -178,8 +178,8 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
     log.Debugf("lio updateStat iscsi %s path", s.Name)
     tpgt_s := s.Tpgt
     for _, tpgt := range tpgt_s {
-        tpgt_path := tpgt.Tpgt_path
-        iscsi_enable := tpgt.Is_enable
+        tpgt_path := tpgt.TpgtPath
+        iscsi_enable := tpgt.IsEnable
 
         log.Debugf("lio: iscsi %s isEnable=%t", tpgt_path, iscsi_enable)
         // let's not putting more line into the graph with multiple
@@ -189,8 +189,8 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
             lun_s := tpgt.Luns
             for _, lun := range lun_s {
                 backstore_type  := lun.Backstore
-                object_name     := lun.Object_name
-                type_number     := lun.Type_number
+                object_name     := lun.ObjectName
+                type_number     := lun.TypeNumber
 
                 // struct type graph_label { iqn, tpgt, lun, store, pool,  image}
                 // label := graph_label {iqn, tpgt, lun, backstore_type, object_name, type_number}
@@ -257,15 +257,15 @@ func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graph
 
     ch <- prometheus.MustNewConstMetric(c.metrics.lio_file_read,
     prometheus.CounterValue, f_read_mb, label.iqn, label.tpgt, label.lun, 
-    fileio.Name, fileio.Object_name, fileio.Filename)
+    fileio.Name, fileio.ObjectName, fileio.Filename)
 
     ch <- prometheus.MustNewConstMetric(c.metrics.lio_file_write,
     prometheus.CounterValue, f_write_mb, label.iqn, label.tpgt, label.lun,
-    fileio.Name, fileio.Object_name, fileio.Filename)
+    fileio.Name, fileio.ObjectName, fileio.Filename)
 
     ch <- prometheus.MustNewConstMetric(c.metrics.lio_file_iops,
     prometheus.CounterValue, f_iops, label.iqn, label.tpgt, label.lun,
-    fileio.Name, fileio.Object_name, fileio.Filename)
+    fileio.Name, fileio.ObjectName, fileio.Filename)
 
     return nil
 }
@@ -298,15 +298,15 @@ func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graph
 
     ch <- prometheus.MustNewConstMetric(c.metrics.lio_block_read,
     prometheus.CounterValue, f_read_mb, label.iqn, label.tpgt, label.lun, 
-    iblock.Name, iblock.Object_name, iblock.Iblock)
+    iblock.Name, iblock.ObjectName, iblock.Iblock)
 
     ch <- prometheus.MustNewConstMetric(c.metrics.lio_block_write,
     prometheus.CounterValue, f_write_mb, label.iqn, label.tpgt, label.lun,
-    iblock.Name, iblock.Object_name, iblock.Iblock)
+    iblock.Name, iblock.ObjectName, iblock.Iblock)
 
     ch <- prometheus.MustNewConstMetric(c.metrics.lio_block_iops,
     prometheus.CounterValue, f_iops, label.iqn, label.tpgt, label.lun,
-    iblock.Name, iblock.Object_name, iblock.Iblock)
+    iblock.Name, iblock.ObjectName, iblock.Iblock)
 
     return nil
 }
@@ -377,29 +377,29 @@ func (c *lioCollector) updateRDMCPStat(ch chan<- prometheus.Metric, label graph_
         if err != nil {
             return err
         }
-        log.Debugf("lio: RBD Read int %d", read_mb) 
+        log.Debugf("lio: RDMCP Read int %d", read_mb) 
         f_read_mb  := float64(read_mb<<20) 
-        log.Debugf("lio: RBD Read float %f", f_read_mb) 
+        log.Debugf("lio: RDMCP Read float %f", f_read_mb) 
 
-        log.Debugf("lio: RBD Write int %d", write_mb) 
+        log.Debugf("lio: RDMCP Write int %d", write_mb) 
         f_write_mb := float64(write_mb<<20)
-        log.Debugf("lio: RBD Write int %f", f_write_mb) 
+        log.Debugf("lio: RDMCP Write int %f", f_write_mb) 
 
-        log.Debugf("lio: RBD OPS int %d", iops) 
+        log.Debugf("lio: RDMCP OPS int %d", iops) 
         f_iops := float64(iops)
-        log.Debugf("lio: RBD OPS float %f", f_iops) 
+        log.Debugf("lio: RDMCP OPS float %f", f_iops) 
 
         ch <- prometheus.MustNewConstMetric(c.metrics.lio_rdmcp_read,
         prometheus.CounterValue, f_read_mb, label.iqn, label.tpgt, label.lun,
-        rd_mcp.Name, rd_mcp.Object_name)
+        rd_mcp.Name, rd_mcp.ObjectName)
 
         ch <- prometheus.MustNewConstMetric(c.metrics.lio_rdmcp_write,
         prometheus.CounterValue, f_write_mb, label.iqn, label.tpgt, label.lun,
-        rd_mcp.Name, rd_mcp.Object_name)
+        rd_mcp.Name, rd_mcp.ObjectName)
 
         ch <- prometheus.MustNewConstMetric(c.metrics.lio_rdmcp_iops,
         prometheus.CounterValue, f_iops, label.iqn, label.tpgt, label.lun,
-        rd_mcp.Name, rd_mcp.Object_name)
+        rd_mcp.Name, rd_mcp.ObjectName)
     }
     return nil
 }
