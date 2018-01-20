@@ -8,7 +8,7 @@
 #       http://arstechnica.com/civis/viewtopic.php?p=22062211
 
 parse_smartctl_attributes_awk="$(cat << 'SMARTCTLAWK'
-$1 ~ /^[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
+$1 ~ /^ *[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
   gsub(/-/, "_");
   printf "%s_value{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $4
   printf "%s_worst{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $5
