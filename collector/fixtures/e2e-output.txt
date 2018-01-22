@@ -1111,25 +1111,6 @@ node_md_is_active{device="md6"} 1
 node_md_is_active{device="md7"} 1
 node_md_is_active{device="md8"} 1
 node_md_is_active{device="md9"} 1
-# HELP node_megacli_drive_count megacli: drive error and event counters
-# TYPE node_megacli_drive_count gauge
-node_megacli_drive_count{enclosure="32",slot="0",type="Media Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="0",type="Other Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="0",type="Predictive Failure Count"} 0
-node_megacli_drive_count{enclosure="32",slot="1",type="Media Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="1",type="Other Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="1",type="Predictive Failure Count"} 0
-node_megacli_drive_count{enclosure="32",slot="2",type="Media Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="2",type="Other Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="2",type="Predictive Failure Count"} 0
-node_megacli_drive_count{enclosure="32",slot="3",type="Media Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="3",type="Other Error Count"} 0
-node_megacli_drive_count{enclosure="32",slot="3",type="Predictive Failure Count"} 23
-# HELP node_megacli_drive_temperature_celsius megacli: drive temperature
-# TYPE node_megacli_drive_temperature_celsius gauge
-node_megacli_drive_temperature_celsius{enclosure="32",slot="0"} 37
-node_megacli_drive_temperature_celsius{enclosure="32",slot="2"} 39
-node_megacli_drive_temperature_celsius{enclosure="32",slot="3"} 38
 # HELP node_memory_Active_anon_bytes Memory information field Active_anon_bytes.
 # TYPE node_memory_Active_anon_bytes gauge
 node_memory_Active_anon_bytes 2.068484096e+09
@@ -2643,7 +2624,6 @@ node_scrape_collector_success{collector="ipvs"} 1
 node_scrape_collector_success{collector="ksmd"} 1
 node_scrape_collector_success{collector="loadavg"} 1
 node_scrape_collector_success{collector="mdadm"} 1
-node_scrape_collector_success{collector="megacli"} 1
 node_scrape_collector_success{collector="meminfo"} 1
 node_scrape_collector_success{collector="meminfo_numa"} 1
 node_scrape_collector_success{collector="mountstats"} 1
