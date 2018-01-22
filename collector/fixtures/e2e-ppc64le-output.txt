@@ -2729,8 +2729,8 @@ node_sockstat_UDP_mem_bytes 0
 # HELP node_sockstat_sockets_used Number of sockets sockets in state used.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
-# HELP node_textfile_mtime Unixtime mtime of textfiles successfully read.
-# TYPE node_textfile_mtime gauge
+# HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
+# TYPE node_textfile_mtime_seconds gauge
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
