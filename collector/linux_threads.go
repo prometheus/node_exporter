@@ -35,7 +35,7 @@ func NewThreadsCollector() (Collector, error) {
 	return &threadsCollector{
 		threadAlloc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace,"", "threads"),
-			"Allocated thread",
+			"Allocated threads in system",
 			nil, nil,
 		),
 	}, nil
