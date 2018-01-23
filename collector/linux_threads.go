@@ -52,9 +52,11 @@ func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
 
 func readProcessStatus() (int, error) {
 	processDir, err := regexp.Compile("([0-9]){1,8}")
+	if err != nil {
+		return 0, err
+	}
 	folders, err := ioutil.ReadDir("/proc")
 	if err != nil {
-		fmt.Println(err)
 		return 0, err
 	}
 	threads := 0
@@ -62,7 +64,6 @@ func readProcessStatus() (int, error) {
 		if f.IsDir() && processDir.MatchString(f.Name()) {
 			file, err := ioutil.ReadFile("/proc/" + f.Name() + "/status")
 			if err != nil {
-				log.Error(err)
 				return 0, err
 			}
 			line := strings.Split(string(file), "\n")
