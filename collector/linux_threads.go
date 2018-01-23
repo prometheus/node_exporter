@@ -77,6 +77,7 @@ func readProcessStatus() (int, error) {
 						return 0, err
 					}
 					threads += tread
+					break
 				}
 			}
 		}
