@@ -71,7 +71,7 @@ func readProcessStatus() (int, error) {
 			}
 			for _, l := range line {
 				if strings.Contains(string(l), "Threads:") {
-					threadStr := strings.Split(string(l), ":")
+					threadStr := strings.Split(string(l), "\t")
 					tread, err :=  strconv.Atoi(threadStr[1])
 					if err != nil {
 						return 0, err
