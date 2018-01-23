@@ -22,7 +22,6 @@ import (
 	"strings"
 	"strconv"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 type threadsCollector struct {
