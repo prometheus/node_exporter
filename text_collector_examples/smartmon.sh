@@ -74,7 +74,7 @@ parse_smartctl_info() {
   local model_family='' device_model='' serial_number='' fw_version='' vendor='' product='' revision='' lun_id=''
   while read line ; do
     info_type="$(echo "${line}" | cut -f1 -d: | tr ' ' '_')"
-    info_value="$(echo "${line}" | cut -f2- -d: | sed 's/^ \+//g')"
+    info_value="$(echo "${line}" | cut -f2- -d: | sed 's/^ \+//g' | sed 's/"/\\"/')"
     case "${info_type}" in
       Model_Family) model_family="${info_value}" ;;
       Device_Model) device_model="${info_value}" ;;
