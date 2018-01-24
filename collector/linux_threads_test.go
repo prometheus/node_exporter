@@ -6,7 +6,7 @@ import (
 
 func TestReadProcessStatus(t *testing.T) {
 	want := 4
-	threads, err := readProcessStatus()
+	threads, err := getAllocatedThreads()
 	if err != nil {
 		t.Fatal(err)
 	}
