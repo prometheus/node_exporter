@@ -11,22 +11,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// build+ !nothreads
+// +build !nothreads
 
 package collector
 
 import (
 	"fmt"
-	"io/ioutil"
-	"regexp"
-	"strings"
-	"strconv"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
 type threadsCollector struct {
 	threadAlloc *prometheus.Desc
 }
+
 func init() {
 	registerCollector("threads", defaultDisabled, NewThreadsCollector)
 }
@@ -34,14 +32,14 @@ func init() {
 func NewThreadsCollector() (Collector, error) {
 	return &threadsCollector{
 		threadAlloc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace,"", "threads"),
+			prometheus.BuildFQName(namespace, "", "threads"),
 			"Allocated threads in system",
 			nil, nil,
 		),
 	}, nil
 }
 func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
-	val, err := readProcessStatus()
+	val, err := getAllocatedThreads()
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve number of threads %v\n", err)
 	}
@@ -49,38 +47,19 @@ func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func readProcessStatus() (int, error) {
-	processDir, err := regexp.Compile("([0-9]){1,8}")
+func getAllocatedThreads() (int, error) {
+	p, err := procfs.AllProcs()
 	if err != nil {
 		return 0, err
 	}
-	folders, err := ioutil.ReadDir("/proc")
-	if err != nil {
-		return 0, err
-	}
-	threads := 0
-	for _, f := range folders {
-		if f.IsDir() && processDir.MatchString(f.Name()) {
-			file, err := ioutil.ReadFile("/proc/" + f.Name() + "/status")
-			if err != nil {
-				return 0, err
-			}
-			line := strings.Split(string(file), "\n")
-			if err != nil {
-				return 0, err
-			}
-			for _, l := range line {
-				if strings.Contains(string(l), "Threads:") {
-					threadStr := strings.Split(string(l), "\t")
-					tread, err :=  strconv.Atoi(threadStr[1])
-					if err != nil {
-						return 0, err
-					}
-					threads += tread
-					break
-				}
-			}
+	thread := 0
+	for _, pid := range p {
+		stat, err := pid.NewStat()
+		if err != nil {
+			return 0, err
 		}
+		thread += stat.NumThreads
+
 	}
-	return threads, nil
+	return thread, nil
 }
