@@ -145,7 +145,7 @@
 // registry.
 //
 // So far, everything we did operated on the so-called default registry, as it
-// can be found in the global DefaultRegistry variable. With NewRegistry, you
+// can be found in the global DefaultRegisterer variable. With NewRegistry, you
 // can create a custom registry, or you can even implement the Registerer or
 // Gatherer interfaces yourself. The methods Register and Unregister work in the
 // same way on a custom registry as the global functions Register and Unregister
@@ -153,11 +153,11 @@
 //
 // There are a number of uses for custom registries: You can use registries with
 // special properties, see NewPedanticRegistry. You can avoid global state, as
-// it is imposed by the DefaultRegistry. You can use multiple registries at the
-// same time to expose different metrics in different ways. You can use separate
-// registries for testing purposes.
+// it is imposed by the DefaultRegisterer. You can use multiple registries at
+// the same time to expose different metrics in different ways.  You can use
+// separate registries for testing purposes.
 //
-// Also note that the DefaultRegistry comes registered with a Collector for Go
+// Also note that the DefaultRegisterer comes registered with a Collector for Go
 // runtime metrics (via NewGoCollector) and a Collector for process metrics (via
 // NewProcessCollector). With a custom registry, you are in control and decide
 // yourself about the Collectors to register.

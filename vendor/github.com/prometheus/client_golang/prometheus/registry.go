@@ -656,7 +656,7 @@ func normalizeMetricFamilies(metricFamiliesByName map[string]*dto.MetricFamily) 
 
 // checkMetricConsistency checks if the provided Metric is consistent with the
 // provided MetricFamily. It also hashed the Metric labels and the MetricFamily
-// name. If the resulting hash is alread in the provided metricHashes, an error
+// name. If the resulting hash is already in the provided metricHashes, an error
 // is returned. If not, it is added to metricHashes. The provided dimHashes maps
 // MetricFamily names to their dimHash (hashed sorted label names). If dimHashes
 // doesn't yet contain a hash for the provided MetricFamily, it is
