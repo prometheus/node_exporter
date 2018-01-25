@@ -52,7 +52,9 @@
 			"checksumSHA1": "Qbh78KcLmLVoURsCp+f5xVeA/fI=",
 			"path": "github.com/godbus/dbus",
 			"revision": "a389bdde4dd695d414e47b755e95e72b7826432c",
-			"revisionTime": "2017-09-18T23:46:06Z"
+			"revisionTime": "2017-09-18T23:46:06Z",
+			"version": "v4.1.0",
+			"versionExact": "v4.1.0"
 		},
 		{
 			"checksumSHA1": "yqF125xVSkmfLpIVGrLlfE05IUk=",
