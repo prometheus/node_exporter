@@ -89,10 +89,10 @@
 			"revisionTime": "2017-09-01T18:19:24Z"
 		},
 		{
-			"checksumSHA1": "LUVR92VPf7w6G90RtLHJU5C7p/k=",
+			"checksumSHA1": "S6NatJYh1aOFzSIs6Agp2R0ydtM=",
 			"path": "github.com/mdlayher/netlink",
-			"revision": "82077d593cd599c082317ceb5cfb22ee3fbc75ea",
-			"revisionTime": "2017-09-15T04:07:23Z"
+			"revision": "756e798fb38fac19fb2234d3acc32e902bc1af44",
+			"revisionTime": "2017-12-14T18:12:53Z"
 		},
 		{
 			"checksumSHA1": "+2roeIWCAjCC58tZcs12Vqgf1Io=",
@@ -103,8 +103,8 @@
 		{
 			"checksumSHA1": "9nig0WuuiTICStI/8S+pIGqYksc=",
 			"path": "github.com/mdlayher/netlink/nlenc",
-			"revision": "82077d593cd599c082317ceb5cfb22ee3fbc75ea",
-			"revisionTime": "2017-09-15T04:07:23Z"
+			"revision": "756e798fb38fac19fb2234d3acc32e902bc1af44",
+			"revisionTime": "2017-12-14T18:12:53Z"
 		},
 		{
 			"checksumSHA1": "VrGOd/bos90JqbKuu/cTFdyWoWk=",
