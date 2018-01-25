@@ -271,10 +271,10 @@
 			"revisionTime": "2018-01-11T13:58:01Z"
 		},
 		{
-			"checksumSHA1": "3SZTatHIy9OTKc95YlVfXKnoySg=",
+			"checksumSHA1": "sToCp8GThnMnsBzsHv+L/tBYQrQ=",
 			"path": "gopkg.in/alecthomas/kingpin.v2",
-			"revision": "1087e65c9441605df944fb12c33f0fe7072d18ca",
-			"revisionTime": "2017-07-27T04:22:29Z"
+			"revision": "947dcec5ba9c011838740e680966fd7087a71d0d",
+			"revisionTime": "2017-12-17T18:08:21Z"
 		}
 	],
 	"rootPath": "github.com/prometheus/node_exporter"
