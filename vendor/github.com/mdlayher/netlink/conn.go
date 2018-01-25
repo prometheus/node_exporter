@@ -27,6 +27,10 @@ var (
 
 // A Conn is a connection to netlink.  A Conn can be used to send and
 // receives messages to and from netlink.
+//
+// A Conn is safe for concurrent use, but to avoid contention in
+// high-throughput applications, the caller should almost certainly create a
+// pool of Conns and distribute them among workers.
 type Conn struct {
 	// sock is the operating system-specific implementation of
 	// a netlink sockets connection.
@@ -330,4 +334,14 @@ type Config struct {
 	// Groups is a bitmask which specifies multicast groups. If set to 0,
 	// no multicast group subscriptions will be made.
 	Groups uint32
+
+	// Experimental: do not lock the internal system call handling goroutine
+	// to its OS thread.  This may result in a speed-up of system call handling,
+	// but may cause unexpected behavior when sending and receiving a large number
+	// of messages.
+	//
+	// This should almost certainly be set to false, but if you come up with a
+	// valid reason for using this, please file an issue at
+	// https://github.com/mdlayher/netlink to discuss your thoughts.
+	NoLockThread bool
 }

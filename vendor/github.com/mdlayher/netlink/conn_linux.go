@@ -5,6 +5,8 @@ package netlink
 import (
 	"errors"
 	"os"
+	"runtime"
+	"sync"
 	"syscall"
 	"unsafe"
 
@@ -39,16 +41,23 @@ type socket interface {
 // dial is the entry point for Dial.  dial opens a netlink socket using
 // system calls, and returns its PID.
 func dial(family int, config *Config) (*conn, uint32, error) {
-	fd, err := unix.Socket(
-		unix.AF_NETLINK,
-		unix.SOCK_RAW,
-		family,
-	)
-	if err != nil {
+	// Prepare sysSocket's internal loop and create the socket.
+	//
+	// The conditional is inverted because a zero value of false is desired
+	// if no config, but it's easier to interpret within this code when the
+	// value is inverted.
+	if config == nil {
+		config = &Config{}
+	}
+
+	lockThread := !config.NoLockThread
+	sock := newSysSocket(lockThread)
+
+	if err := sock.Socket(family); err != nil {
 		return nil, 0, err
 	}
 
-	return bind(&sysSocket{fd: fd}, config)
+	return bind(sock, config)
 }
 
 // bind binds a connection to netlink using the input socket, which may be
@@ -213,18 +222,144 @@ var _ socket = &sysSocket{}
 // A sysSocket is a socket which uses system calls for socket operations.
 type sysSocket struct {
 	fd int
+
+	wg    *sync.WaitGroup
+	funcC chan<- func()
 }
 
-func (s *sysSocket) Bind(sa unix.Sockaddr) error         { return unix.Bind(s.fd, sa) }
-func (s *sysSocket) Close() error                        { return unix.Close(s.fd) }
-func (s *sysSocket) FD() int                             { return s.fd }
-func (s *sysSocket) Getsockname() (unix.Sockaddr, error) { return unix.Getsockname(s.fd) }
+// newSysSocket creates a sysSocket that optionally locks its internal goroutine
+// to a single thread.
+func newSysSocket(lockThread bool) *sysSocket {
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	// This system call loop strategy was inspired by:
+	// https://github.com/golang/go/wiki/LockOSThread.  Thanks to squeed on
+	// Gophers Slack for providing this useful link.
+
+	funcC := make(chan func())
+	go func() {
+		// It is important to lock this goroutine to its OS thread for the duration
+		// of the netlink socket being used, or else the kernel may end up routing
+		// messages to the wrong places.
+		// See: http://lists.infradead.org/pipermail/libnl/2017-February/002293.html.
+		//
+		// But since this is very experimental, we'll leave it as a configurable at
+		// this point.
+		if lockThread {
+			// Never unlock the OS thread, so that the thread will terminate when
+			// the goroutine exits starting in Go 1.10:
+			// https://go-review.googlesource.com/c/go/+/46038.
+			runtime.LockOSThread()
+		}
+
+		defer wg.Done()
+
+		for f := range funcC {
+			f()
+		}
+	}()
+
+	return &sysSocket{
+		wg:    &wg,
+		funcC: funcC,
+	}
+}
+
+// do runs f in a worker goroutine which can be locked to one thread.
+func (s *sysSocket) do(f func()) {
+	done := make(chan bool, 1)
+	s.funcC <- func() {
+		f()
+		done <- true
+	}
+	<-done
+}
+
+func (s *sysSocket) Socket(family int) error {
+	var (
+		fd  int
+		err error
+	)
+
+	s.do(func() {
+		fd, err = unix.Socket(
+			unix.AF_NETLINK,
+			unix.SOCK_RAW,
+			family,
+		)
+	})
+	if err != nil {
+		return err
+	}
+
+	s.fd = fd
+	return nil
+}
+
+func (s *sysSocket) Bind(sa unix.Sockaddr) error {
+	var err error
+	s.do(func() {
+		err = unix.Bind(s.fd, sa)
+	})
+
+	return err
+}
+
+func (s *sysSocket) Close() error {
+	var err error
+	s.do(func() {
+		err = unix.Close(s.fd)
+	})
+
+	close(s.funcC)
+	s.wg.Wait()
+
+	return err
+}
+
+func (s *sysSocket) FD() int { return s.fd }
+
+func (s *sysSocket) Getsockname() (unix.Sockaddr, error) {
+	var (
+		sa  unix.Sockaddr
+		err error
+	)
+
+	s.do(func() {
+		sa, err = unix.Getsockname(s.fd)
+	})
+
+	return sa, err
+}
 func (s *sysSocket) Recvmsg(p, oob []byte, flags int) (int, int, int, unix.Sockaddr, error) {
-	return unix.Recvmsg(s.fd, p, oob, flags)
+	var (
+		n, oobn, recvflags int
+		from               unix.Sockaddr
+		err                error
+	)
+
+	s.do(func() {
+		n, oobn, recvflags, from, err = unix.Recvmsg(s.fd, p, oob, flags)
+	})
+
+	return n, oobn, recvflags, from, err
 }
+
 func (s *sysSocket) Sendmsg(p, oob []byte, to unix.Sockaddr, flags int) error {
-	return unix.Sendmsg(s.fd, p, oob, to, flags)
+	var err error
+	s.do(func() {
+		err = unix.Sendmsg(s.fd, p, oob, to, flags)
+	})
+
+	return err
 }
+
 func (s *sysSocket) SetSockopt(level, name int, v unsafe.Pointer, l uint32) error {
-	return setsockopt(s.fd, level, name, v, l)
+	var err error
+	s.do(func() {
+		err = setsockopt(s.fd, level, name, v, l)
+	})
+
+	return err
 }
