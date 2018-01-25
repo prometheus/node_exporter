@@ -119,20 +119,16 @@
 			"revisionTime": "2017-09-01T18:29:50Z"
 		},
 		{
-			"checksumSHA1": "N8DZCxgnkiFM2cdn0/jB6jRu1TM=",
+			"checksumSHA1": "EfwDcgKw2nTYE6c5mmQCF9rex/Q=",
 			"path": "github.com/prometheus/client_golang/prometheus",
-			"revision": "967789050ba94deca04a5e84cce8ad472ce313c1",
-			"revisionTime": "2017-08-31T13:19:02Z",
-			"version": "v0.9.0-pre1",
-			"versionExact": "v0.9.0-pre1"
+			"revision": "06bc6e01f4baf4ee783ffcd23abfcb0b0f9dfada",
+			"revisionTime": "2018-01-20T14:10:31Z"
 		},
 		{
-			"checksumSHA1": "wsAkYlRRUNx+OAuUOIqdjO7dICM=",
+			"checksumSHA1": "0AZfw0mlRpOkYPR+d4ftlPUwtlc=",
 			"path": "github.com/prometheus/client_golang/prometheus/promhttp",
-			"revision": "967789050ba94deca04a5e84cce8ad472ce313c1",
-			"revisionTime": "2017-08-31T13:19:02Z",
-			"version": "v0.9.0-pre1",
-			"versionExact": "v0.9.0-pre1"
+			"revision": "06bc6e01f4baf4ee783ffcd23abfcb0b0f9dfada",
+			"revisionTime": "2018-01-20T14:10:31Z"
 		},
 		{
 			"checksumSHA1": "DvwvOlPNAgRntBzt3b3OSRMS2N4=",
