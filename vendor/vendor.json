@@ -95,12 +95,6 @@
 			"revisionTime": "2017-12-14T18:12:53Z"
 		},
 		{
-			"checksumSHA1": "+2roeIWCAjCC58tZcs12Vqgf1Io=",
-			"path": "github.com/mdlayher/netlink/genetlink",
-			"revision": "1291b75abe0cc0cb335f110466bf1f02590c916d",
-			"revisionTime": "2017-01-04T04:59:06Z"
-		},
-		{
 			"checksumSHA1": "9nig0WuuiTICStI/8S+pIGqYksc=",
 			"path": "github.com/mdlayher/netlink/nlenc",
 			"revision": "756e798fb38fac19fb2234d3acc32e902bc1af44",
