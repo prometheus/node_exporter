@@ -19,10 +19,14 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
 type threadsCollector struct {
 	threadAlloc *prometheus.Desc
+	threadMax *prometheus.Desc
 }
 
 func init() {
@@ -36,14 +40,24 @@ func NewThreadsCollector() (Collector, error) {
 			"Allocated threads in system",
 			nil, nil,
 		),
+		threadMax: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "threads", "max"),
+			"Limit of threads in the system",
+			nil, nil,
+		),
 	}, nil
 }
 func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
 	val, err := getAllocatedThreads()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve number of threads %v\n", err)
+		return fmt.Errorf("Unable to retrieve number of allocated threads %v\n", err)
 	}
 	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(val))
+	maxThreads, err := getMaxThreads()
+	if err != nil {
+		return fmt.Errorf("Unable to retrieve limit number of threads %v\n", err)
+	}
+	ch <- prometheus.MustNewConstMetric(t.threadMax, prometheus.GaugeValue, float64(maxThreads))
 	return nil
 }
 
@@ -62,4 +76,17 @@ func getAllocatedThreads() (int, error) {
 
 	}
 	return thread, nil
+}
+
+func getMaxThreads() (int, error) {
+	rawData, err := ioutil.ReadFile("/proc/sys/kernel/threads-max")
+	if err != nil {
+		return 0, nil
+	}
+	maxThreads, err := strconv.Atoi(strings.Trim(string(rawData),"\n"))
+	if err != nil {
+		return 0, nil
+	}
+	return maxThreads, nil
+
 }
