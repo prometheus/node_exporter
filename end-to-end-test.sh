@@ -26,6 +26,7 @@ enabled_collectors=$(cat << COLLECTORS
   netdev
   netstat
   nfs
+  nfsd
   qdisc
   sockstat
   stat

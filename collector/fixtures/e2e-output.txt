@@ -2576,6 +2576,15 @@ node_nfs_rpc_operations 1.218785755e+09
 # HELP node_nfs_rpc_retransmissions Number of RPC transmissions performed.
 # TYPE node_nfs_rpc_retransmissions counter
 node_nfs_rpc_retransmissions 374636
+# HELP node_nfsd_reply_cache_hits_total NFSd Reply Cache client did not receive a reply and decided to re-transmit its request and the reply was cached. (bad).
+# TYPE node_nfsd_reply_cache_hits_total counter
+node_nfsd_reply_cache_hits_total 0
+# HELP node_nfsd_reply_cache_misses_total NFSd Reply Cache an operation that requires caching (idempotent).
+# TYPE node_nfsd_reply_cache_misses_total counter
+node_nfsd_reply_cache_misses_total 6
+# HELP node_nfsd_reply_cache_nocache_total NFSd Reply Cache non-idempotent operations (rename/delete/…).
+# TYPE node_nfsd_reply_cache_nocache_total counter
+node_nfsd_reply_cache_nocache_total 18622
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
@@ -2630,6 +2639,7 @@ node_scrape_collector_success{collector="mountstats"} 1
 node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
+node_scrape_collector_success{collector="nfsd"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="stat"} 1
