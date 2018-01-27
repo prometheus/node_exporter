@@ -55,11 +55,12 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	c.updateNFSdReplyCacheStats(ch, &stats.ReplyCache)
+	c.updateNFSdFileHandlesStats(ch, &stats.FileHandles)
 
 	return nil
 }
 
-// updateNFSdReplyCacheStats collects statistics for /proc/net/rpc/nfsd.
+// updateNFSdReplyCacheStats collects statistics for the reply cache.
 func (c *nfsdCollector) updateNFSdReplyCacheStats(ch chan<- prometheus.Metric, s *nfs.ReplyCache) {
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
@@ -88,4 +89,18 @@ func (c *nfsdCollector) updateNFSdReplyCacheStats(ch chan<- prometheus.Metric, s
 		),
 		prometheus.CounterValue,
 		float64(s.NoCache))
+}
+
+// updateNFSdFileHandlesStats collects statistics for the file handles.
+func (c *nfsdCollector) updateNFSdFileHandlesStats(ch chan<- prometheus.Metric, s *nfs.FileHandles) {
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "file_handles_stale_total"),
+			"NFSd stale file handles",
+			nil,
+			nil,
+		),
+		prometheus.CounterValue,
+		float64(s.Stale))
+	// NOTE: Other FileHandles entries are unused in the kernel.
 }

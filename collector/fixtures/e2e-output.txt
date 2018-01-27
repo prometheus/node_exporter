@@ -2576,6 +2576,9 @@ node_nfs_rpc_operations 1.218785755e+09
 # HELP node_nfs_rpc_retransmissions Number of RPC transmissions performed.
 # TYPE node_nfs_rpc_retransmissions counter
 node_nfs_rpc_retransmissions 374636
+# HELP node_nfsd_file_handles_stale_total NFSd stale file handles
+# TYPE node_nfsd_file_handles_stale_total counter
+node_nfsd_file_handles_stale_total 0
 # HELP node_nfsd_reply_cache_hits_total NFSd Reply Cache client did not receive a reply and decided to re-transmit its request and the reply was cached. (bad).
 # TYPE node_nfsd_reply_cache_hits_total counter
 node_nfsd_reply_cache_hits_total 0
