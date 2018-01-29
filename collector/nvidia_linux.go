@@ -46,17 +46,17 @@ func NewGPUCollector() (Collector, error) {
 	return &gpuCollector{
 		gpuUtil: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "gpu_util"),
-			"percentage of time during kernels are executing on the GPU.",
+			"Percentage of time during kernels are executing on the GPU.",
 			[]string{"gpu"}, nil,
 		),
 		gpuMemUtil: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "gpu_mem_util"),
-			"percentage of time during memory is being read or written.",
+			"Percentage of time during memory is being read or written.",
 			[]string{"gpu"}, nil,
 		),
 		gpuMemUsage: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "gpu_mem_usage"),
-			"percentage of used memory size.",
+			"Percentage of used memory size.",
 			[]string{"gpu"}, nil,
 		),
 		gpuTemperature: prometheus.NewDesc(
@@ -76,12 +76,12 @@ func NewGPUCollector() (Collector, error) {
 		),
 		gpuThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "gpu_throttle"),
-			"throttle reason.",
+			"Throttle reason.",
 			[]string{"gpu"}, nil,
 		),
 		gpuPerfState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "gpu_perf_state"),
-			"performance state    C.uint 0: max / 15: min.",
+			"Performance state. C.uint 0: max / 15: min.",
 			[]string{"gpu"}, nil,
 		),
 	}, nil
