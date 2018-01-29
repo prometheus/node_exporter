@@ -59,6 +59,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	c.updateNFSdInputOutputStats(ch, &stats.InputOutput)
 	c.updateNFSdThreadsStats(ch, &stats.Threads)
 	c.updateNFSdReadAheadCacheStats(ch, &stats.ReadAheadCache)
+	c.updateNFSdNetworkStats(ch, &stats.Network)
 
 	return nil
 }
@@ -163,4 +164,31 @@ func (c *nfsdCollector) updateNFSdReadAheadCacheStats(ch chan<- prometheus.Metri
 		),
 		prometheus.CounterValue,
 		float64(s.NotFound))
+}
+
+// updateNFSdNetworkStats collects statistics for network packets/connections.
+func (c *nfsdCollector) updateNFSdNetworkStats(ch chan<- prometheus.Metric, s *nfs.Network) {
+	packetDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, nfsdSubsystem, "packets_total"),
+		"NFSd how many network packets have been sent/recieved",
+		[]string{"proto"},
+		nil,
+	)
+	ch <- prometheus.MustNewConstMetric(
+		packetDesc,
+		prometheus.CounterValue,
+		float64(s.UDPCount), "udp")
+	ch <- prometheus.MustNewConstMetric(
+		packetDesc,
+		prometheus.CounterValue,
+		float64(s.TCPCount), "tcp")
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "connections_total"),
+			"NFSd how many TCP connections have been made",
+			nil,
+			nil,
+		),
+		prometheus.CounterValue,
+		float64(s.TCPConnect))
 }
