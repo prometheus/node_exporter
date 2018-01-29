@@ -32,8 +32,8 @@ type gpuCollector struct {
 	gpuMemTimePercent *prometheus.Desc // percentage of time during memory is being read or written.
 	gpuMemUsage       *prometheus.Desc // percentage of used memory size
 	gpuTemperature    *prometheus.Desc // GPU temperature in Celsius degrees
-	gpuClockMhz       *prometheus.Desc // GPU graphics clock in Mhz
-	gpuMemClockMhz    *prometheus.Desc // GPU memory clock in Mhz
+	gpuClockHz        *prometheus.Desc // GPU graphics clock in Hz
+	gpuMemClockHz     *prometheus.Desc // GPU memory clock in Hz
 	gpuThrottle       *prometheus.Desc // throttle reason
 	gpuPerfState      *prometheus.Desc // performance state    C.uint 0: max / 15: min
 }
@@ -64,14 +64,14 @@ func NewGPUCollector() (Collector, error) {
 			"GPU temperature in Celsius degrees.",
 			[]string{"gpu"}, nil,
 		),
-		gpuClockMhz: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "gpu_processor_clock_mhz"),
-			"GPU graphics clock in Mhz.",
+		gpuClockHz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "gpu_processor_clock_hz"),
+			"GPU graphics clock in Hz.",
 			[]string{"gpu"}, nil,
 		),
-		gpuMemClockMhz: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "gpu_mem_clock_mhz"),
-			"GPU memory clock in Mhz.",
+		gpuMemClockHz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "gpu_mem_clock_hz"),
+			"GPU memory clock in Hz.",
 			[]string{"gpu"}, nil,
 		),
 		gpuThrottle: prometheus.NewDesc(
@@ -97,8 +97,8 @@ func (c *gpuCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.gpuMemTimePercent, prometheus.CounterValue, float64(v.UtilMem), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuMemUsage, prometheus.CounterValue, float64(v.MemUsage), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuTemperature, prometheus.CounterValue, float64(v.Temperature), gpuID)
-		ch <- prometheus.MustNewConstMetric(c.gpuClockMhz, prometheus.CounterValue, float64(v.ClockGraphics), gpuID)
-		ch <- prometheus.MustNewConstMetric(c.gpuMemClockMhz, prometheus.CounterValue, float64(v.ClockMem), gpuID)
+		ch <- prometheus.MustNewConstMetric(c.gpuClockHz, prometheus.CounterValue, float64(v.ClockGraphics*1e6), gpuID)
+		ch <- prometheus.MustNewConstMetric(c.gpuMemClockHz, prometheus.CounterValue, float64(v.ClockMem*1e6), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuThrottle, prometheus.CounterValue, float64(v.Throttle), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuPerfState, prometheus.CounterValue, float64(v.PerfState), gpuID)
 	}
