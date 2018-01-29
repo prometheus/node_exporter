@@ -79,10 +79,6 @@ func GetGPUStats() []Nvidia_GPU_Stats {
 		stats[i].ClockMem = uint(val.clock_mem)
 		stats[i].ClockGraphics = uint(val.clock_graphics)
 		if val.throttle >= 0xFFFF {
-			// the larget value of nvmlClocksThrottleReasonUnknown 0x8000000000000000LL
-			// breaks fluent ES plugin. Expect the number of reasons will not
-			// grow so fast. Covert the value here in case caller is not aware of
-			// larget value issue
 			fmt.Printf("nvml: unknown throttle reason 0x%x\n", val.throttle)
 			stats[i].Throttle = 0xFFFF
 		} else {
