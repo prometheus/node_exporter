@@ -2585,6 +2585,12 @@ node_nfsd_disk_bytes_written_total 72864
 # HELP node_nfsd_file_handles_stale_total NFSd stale file handles
 # TYPE node_nfsd_file_handles_stale_total counter
 node_nfsd_file_handles_stale_total 0
+# HELP node_nfsd_read_ahead_cache_not_found_total NFSd how large the read ahead cache in blocks
+# TYPE node_nfsd_read_ahead_cache_not_found_total counter
+node_nfsd_read_ahead_cache_not_found_total 0
+# HELP node_nfsd_read_ahead_cache_size_blocks NFSd how large the read ahead cache in blocks
+# TYPE node_nfsd_read_ahead_cache_size_blocks gauge
+node_nfsd_read_ahead_cache_size_blocks 32
 # HELP node_nfsd_reply_cache_hits_total NFSd Reply Cache client did not receive a reply and decided to re-transmit its request and the reply was cached. (bad).
 # TYPE node_nfsd_reply_cache_hits_total counter
 node_nfsd_reply_cache_hits_total 0

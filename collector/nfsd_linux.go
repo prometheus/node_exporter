@@ -58,6 +58,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	c.updateNFSdFileHandlesStats(ch, &stats.FileHandles)
 	c.updateNFSdInputOutputStats(ch, &stats.InputOutput)
 	c.updateNFSdThreadsStats(ch, &stats.Threads)
+	c.updateNFSdReadAheadCacheStats(ch, &stats.ReadAheadCache)
 
 	return nil
 }
@@ -140,4 +141,26 @@ func (c *nfsdCollector) updateNFSdThreadsStats(ch chan<- prometheus.Metric, s *n
 		),
 		prometheus.GaugeValue,
 		float64(s.Threads))
+}
+
+// updateNFSdReadAheadCacheStats collects statistics for the read ahead cache.
+func (c *nfsdCollector) updateNFSdReadAheadCacheStats(ch chan<- prometheus.Metric, s *nfs.ReadAheadCache) {
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "read_ahead_cache_size_blocks"),
+			"NFSd how large the read ahead cache in blocks",
+			nil,
+			nil,
+		),
+		prometheus.GaugeValue,
+		float64(s.CacheSize))
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "read_ahead_cache_not_found_total"),
+			"NFSd how large the read ahead cache in blocks",
+			nil,
+			nil,
+		),
+		prometheus.CounterValue,
+		float64(s.NotFound))
 }
