@@ -28,14 +28,14 @@ const (
 )
 
 type gpuCollector struct {
-	gpuUtil        *prometheus.Desc // percentage of time during kernels are executing on the GPU.
-	gpuMemUtil     *prometheus.Desc // percentage of time during memory is being read or written.
-	gpuMemUsage    *prometheus.Desc // percentage of used memory size
-	gpuTemperature *prometheus.Desc // GPU temperature in Celsius degrees
-	gpuClockMhz    *prometheus.Desc // GPU graphics clock in Mhz
-	gpuMemClockMhz *prometheus.Desc // GPU memory clock in Mhz
-	gpuThrottle    *prometheus.Desc // throttle reason
-	gpuPerfState   *prometheus.Desc // performance state    C.uint 0: max / 15: min
+	gpuTimePercent    *prometheus.Desc // percentage of time during kernels are executing on the GPU.
+	gpuMemTimePercent *prometheus.Desc // percentage of time during memory is being read or written.
+	gpuMemUsage       *prometheus.Desc // percentage of used memory size
+	gpuTemperature    *prometheus.Desc // GPU temperature in Celsius degrees
+	gpuClockMhz       *prometheus.Desc // GPU graphics clock in Mhz
+	gpuMemClockMhz    *prometheus.Desc // GPU memory clock in Mhz
+	gpuThrottle       *prometheus.Desc // throttle reason
+	gpuPerfState      *prometheus.Desc // performance state    C.uint 0: max / 15: min
 }
 
 func init() {
@@ -44,18 +44,18 @@ func init() {
 
 func NewGPUCollector() (Collector, error) {
 	return &gpuCollector{
-		gpuUtil: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "gpu_util"),
+		gpuTimePercent: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "gpu_processor_time_percent"),
 			"Percentage of time during kernels are executing on the GPU.",
 			[]string{"gpu"}, nil,
 		),
-		gpuMemUtil: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "gpu_mem_util"),
+		gpuMemTimePercent: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "gpu_mem_time_percent"),
 			"Percentage of time during memory is being read or written.",
 			[]string{"gpu"}, nil,
 		),
 		gpuMemUsage: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "gpu_mem_usage"),
+			prometheus.BuildFQName(namespace, "", "gpu_mem_usage_percent"),
 			"Percentage of used memory size.",
 			[]string{"gpu"}, nil,
 		),
@@ -65,7 +65,7 @@ func NewGPUCollector() (Collector, error) {
 			[]string{"gpu"}, nil,
 		),
 		gpuClockMhz: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "gpu_clock_mhz"),
+			prometheus.BuildFQName(namespace, "", "gpu_processor_clock_mhz"),
 			"GPU graphics clock in Mhz.",
 			[]string{"gpu"}, nil,
 		),
@@ -93,8 +93,8 @@ func (c *gpuCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for _, v := range stats {
 		gpuID := fmt.Sprintf("gpu%d", v.ID)
-		ch <- prometheus.MustNewConstMetric(c.gpuUtil, prometheus.CounterValue, float64(v.UtilGPU), gpuID)
-		ch <- prometheus.MustNewConstMetric(c.gpuMemUtil, prometheus.CounterValue, float64(v.UtilMem), gpuID)
+		ch <- prometheus.MustNewConstMetric(c.gpuTimePercent, prometheus.CounterValue, float64(v.UtilGPU), gpuID)
+		ch <- prometheus.MustNewConstMetric(c.gpuMemTimePercent, prometheus.CounterValue, float64(v.UtilMem), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuMemUsage, prometheus.CounterValue, float64(v.MemUsage), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuTemperature, prometheus.CounterValue, float64(v.Temperature), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuClockMhz, prometheus.CounterValue, float64(v.ClockGraphics), gpuID)
