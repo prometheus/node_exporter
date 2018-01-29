@@ -2594,6 +2594,9 @@ node_nfsd_reply_cache_misses_total 6
 # HELP node_nfsd_reply_cache_nocache_total NFSd Reply Cache non-idempotent operations (rename/delete/…).
 # TYPE node_nfsd_reply_cache_nocache_total counter
 node_nfsd_reply_cache_nocache_total 18622
+# HELP node_nfsd_server_threads NFSd how many kernel threads are running
+# TYPE node_nfsd_server_threads gauge
+node_nfsd_server_threads 8
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0

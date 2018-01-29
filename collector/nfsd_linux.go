@@ -57,6 +57,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	c.updateNFSdReplyCacheStats(ch, &stats.ReplyCache)
 	c.updateNFSdFileHandlesStats(ch, &stats.FileHandles)
 	c.updateNFSdInputOutputStats(ch, &stats.InputOutput)
+	c.updateNFSdThreadsStats(ch, &stats.Threads)
 
 	return nil
 }
@@ -126,4 +127,17 @@ func (c *nfsdCollector) updateNFSdInputOutputStats(ch chan<- prometheus.Metric, 
 		),
 		prometheus.CounterValue,
 		float64(s.Write))
+}
+
+// updateNFSdThreadsStats collects statistics for kernel server threads.
+func (c *nfsdCollector) updateNFSdThreadsStats(ch chan<- prometheus.Metric, s *nfs.Threads) {
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "server_threads"),
+			"NFSd how many kernel threads are running",
+			nil,
+			nil,
+		),
+		prometheus.GaugeValue,
+		float64(s.Threads))
 }
