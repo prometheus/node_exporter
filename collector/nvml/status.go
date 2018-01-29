@@ -3,37 +3,10 @@
 package nvml
 
 /*
-
 #cgo CFLAGS: -std=c99 -I .
-#cgo LDFLAGS: -L${SRCDIR}/ -lnvidia-ml -lpthread -ldl -lrt
+#cgo LDFLAGS: -L${SRCDIR}/ -lnvidia-ml
 #include "nvidia-smi.h"
 #include <stdlib.h>
-
-int gpu_stats_ok(int *pCount, GPU_Stats **ppStats) {
-    GPU_Stats * pBuf = (GPU_Stats *)calloc(1, sizeof(GPU_Stats));
-    if (pBuf == NULL) {
-        return -1;
-    }
-    *pCount = 1;
-    *ppStats = pBuf;
-    return 0;
-}
-
-int gpu_stats_ok_throttle(int *pCount, GPU_Stats **ppStats) {
-    GPU_Stats * pBuf = (GPU_Stats *)calloc(1, sizeof(GPU_Stats));
-    if (pBuf == NULL) {
-        return -1;
-    }
-    *pCount = 1;
-    pBuf->throttle = 0x8000000000000000LL;
-    *ppStats = pBuf;
-    return 0;
-}
-
-int gpu_stats_failed(int *pCount, GPU_Stats **ppStats) {
-    return -1;
-}
-
 */
 import "C"
 
@@ -92,19 +65,4 @@ func GetGPUStats() []Nvidia_GPU_Stats {
 	}
 
 	return stats
-}
-
-// fakedGetStatsOk is faked function for test
-func fakedGetStatsOk(cnt *C.int, cs **C.GPU_Stats) C.int {
-	return C.gpu_stats_ok(cnt, cs)
-}
-
-// fakedGetStatsOkThrottle is faked function for test
-func fakedGetStatsOkThrottle(cnt *C.int, cs **C.GPU_Stats) C.int {
-	return C.gpu_stats_ok_throttle(cnt, cs)
-}
-
-// fakedGetStatsFailed is faked function for test
-func fakedGetStatsFailed(cnt *C.int, cs **C.GPU_Stats) C.int {
-	return C.gpu_stats_failed(cnt, cs)
 }
