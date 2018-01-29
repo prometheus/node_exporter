@@ -34,8 +34,12 @@ type gpuCollector struct {
 	gpuTemperature    *prometheus.Desc // GPU temperature in Celsius degrees
 	gpuClockHz        *prometheus.Desc // GPU graphics clock in Hz
 	gpuMemClockHz     *prometheus.Desc // GPU memory clock in Hz
-	gpuThrottle       *prometheus.Desc // throttle reason
-	gpuPerfState      *prometheus.Desc // performance state    C.uint 0: max / 15: min
+	// GPU clock throttle reason.
+	// The descriptions of the values can be seen in NvmlClocksThrottleReasons section in NVML API Reference.
+	gpuThrottleReason *prometheus.Desc
+	// GPU performance state (C.uint). 0 to 15. 0 for max performance, 15 for min performance. 32 for unknown.
+	// The descriptions of the values can be seen in nvmlPstates_t in Device Enums section in NVML API Reference.
+	gpuPerfState *prometheus.Desc
 }
 
 func init() {
@@ -74,14 +78,14 @@ func NewGPUCollector() (Collector, error) {
 			"GPU memory clock in Hz.",
 			[]string{"gpu"}, nil,
 		),
-		gpuThrottle: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "gpu_throttle"),
-			"Throttle reason.",
+		gpuThrottleReason: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "gpu_throttle_reason"),
+			"GPU clock throttle reason. (See NVML API Reference for details.)",
 			[]string{"gpu"}, nil,
 		),
 		gpuPerfState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "gpu_perf_state"),
-			"Performance state. C.uint 0: max / 15: min.",
+			"Performance state. 0, 1, 2,..15 or 32. 0 for max and 5 for min performance. 32 for unknown. (See NVML API Reference for details.)",
 			[]string{"gpu"}, nil,
 		),
 	}, nil
@@ -99,7 +103,7 @@ func (c *gpuCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.gpuTemperature, prometheus.CounterValue, float64(v.Temperature), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuClockHz, prometheus.CounterValue, float64(v.ClockGraphics*1e6), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuMemClockHz, prometheus.CounterValue, float64(v.ClockMem*1e6), gpuID)
-		ch <- prometheus.MustNewConstMetric(c.gpuThrottle, prometheus.CounterValue, float64(v.Throttle), gpuID)
+		ch <- prometheus.MustNewConstMetric(c.gpuThrottleReason, prometheus.CounterValue, float64(v.Throttle), gpuID)
 		ch <- prometheus.MustNewConstMetric(c.gpuPerfState, prometheus.CounterValue, float64(v.PerfState), gpuID)
 	}
 
