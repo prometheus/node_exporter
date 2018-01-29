@@ -56,6 +56,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 
 	c.updateNFSdReplyCacheStats(ch, &stats.ReplyCache)
 	c.updateNFSdFileHandlesStats(ch, &stats.FileHandles)
+	c.updateNFSdInputOutputStats(ch, &stats.InputOutput)
 
 	return nil
 }
@@ -103,4 +104,26 @@ func (c *nfsdCollector) updateNFSdFileHandlesStats(ch chan<- prometheus.Metric, 
 		prometheus.CounterValue,
 		float64(s.Stale))
 	// NOTE: Other FileHandles entries are unused in the kernel.
+}
+
+// updateNFSdInputOutputStats collects statistics for the bytes in/out.
+func (c *nfsdCollector) updateNFSdInputOutputStats(ch chan<- prometheus.Metric, s *nfs.InputOutput) {
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "disk_bytes_read_total"),
+			"NFSd bytes read",
+			nil,
+			nil,
+		),
+		prometheus.CounterValue,
+		float64(s.Read))
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "disk_bytes_written_total"),
+			"NFSd bytes written",
+			nil,
+			nil,
+		),
+		prometheus.CounterValue,
+		float64(s.Write))
 }
