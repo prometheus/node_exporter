@@ -69,6 +69,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	c.updateNFSdServerRPCStats(ch, &stats.ServerRPC)
 	c.updateNFSdRequestsv2Stats(ch, &stats.V2Stats)
 	c.updateNFSdRequestsv3Stats(ch, &stats.V3Stats)
+	c.updateNFSdRequestsv4Stats(ch, &stats.V4Ops)
 
 	return nil
 }
@@ -317,4 +318,75 @@ func (c *nfsdCollector) updateNFSdRequestsv3Stats(ch chan<- prometheus.Metric, s
 		float64(s.PathConf), proto, "PathConf")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.Commit), proto, "Commit")
+}
+
+// updateNFSdRequestsv4Stats collects statistics for NFSv4 requests.
+func (c *nfsdCollector) updateNFSdRequestsv4Stats(ch chan<- prometheus.Metric, s *nfs.V4Ops) {
+	const proto = "v4"
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Access), proto, "Access")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Close), proto, "Close")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Commit), proto, "Commit")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Create), proto, "Create")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.DelegPurge), proto, "DelegPurge")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.DelegReturn), proto, "DelegReturn")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.GetAttr), proto, "GetAttr")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.GetFH), proto, "GetFH")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Link), proto, "Link")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Lock), proto, "Lock")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Lockt), proto, "Lockt")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Locku), proto, "Locku")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Lookup), proto, "Lookup")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.LookupRoot), proto, "LookupRoot")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Nverify), proto, "Nverify")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Open), proto, "Open")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.OpenAttr), proto, "OpenAttr")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.OpenConfirm), proto, "OpenConfirm")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.OpenDgrd), proto, "OpenDgrd")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.PutFH), proto, "PutFH")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Read), proto, "Read")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.ReadDir), proto, "ReadDir")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.ReadLink), proto, "ReadLink")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Remove), proto, "Remove")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Rename), proto, "Rename")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Renew), proto, "Renew")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.RestoreFH), proto, "RestoreFH")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SaveFH), proto, "SaveFH")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SecInfo), proto, "SecInfo")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SetAttr), proto, "SetAttr")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Verify), proto, "Verify")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Write), proto, "Write")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.RelLockOwner), proto, "RelLockOwner")
 }
