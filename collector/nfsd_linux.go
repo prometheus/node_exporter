@@ -79,7 +79,7 @@ func (c *nfsdCollector) updateNFSdReplyCacheStats(ch chan<- prometheus.Metric, s
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "reply_cache_hits_total"),
-			"NFSd Reply Cache client did not receive a reply and decided to re-transmit its request and the reply was cached. (bad).",
+			"Total number of NFSd Reply Cache hits (client lost server response).",
 			nil,
 			nil,
 		),

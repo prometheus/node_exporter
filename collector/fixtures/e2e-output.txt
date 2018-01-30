@@ -2598,7 +2598,7 @@ node_nfsd_read_ahead_cache_not_found_total 0
 # HELP node_nfsd_read_ahead_cache_size_blocks NFSd how large the read ahead cache in blocks
 # TYPE node_nfsd_read_ahead_cache_size_blocks gauge
 node_nfsd_read_ahead_cache_size_blocks 32
-# HELP node_nfsd_reply_cache_hits_total NFSd Reply Cache client did not receive a reply and decided to re-transmit its request and the reply was cached. (bad).
+# HELP node_nfsd_reply_cache_hits_total Total number of NFSd Reply Cache hits (client lost server response).
 # TYPE node_nfsd_reply_cache_hits_total counter
 node_nfsd_reply_cache_hits_total 0
 # HELP node_nfsd_reply_cache_misses_total NFSd Reply Cache an operation that requires caching (idempotent).
