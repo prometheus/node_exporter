@@ -2609,23 +2609,44 @@ node_nfsd_reply_cache_misses_total 6
 node_nfsd_reply_cache_nocache_total 18622
 # HELP node_nfsd_requests_total Number NFSd Requests by method and protocol.
 # TYPE node_nfsd_requests_total counter
+node_nfsd_requests_total{method="Access",proto="v3"} 111
+node_nfsd_requests_total{method="Commit",proto="v3"} 0
 node_nfsd_requests_total{method="Create",proto="v2"} 0
+node_nfsd_requests_total{method="Create",proto="v3"} 0
+node_nfsd_requests_total{method="FsInfo",proto="v3"} 2
 node_nfsd_requests_total{method="FsStat",proto="v2"} 2
+node_nfsd_requests_total{method="FsStat",proto="v3"} 0
 node_nfsd_requests_total{method="GetAttr",proto="v2"} 69
+node_nfsd_requests_total{method="GetAttr",proto="v3"} 112
 node_nfsd_requests_total{method="Link",proto="v2"} 0
+node_nfsd_requests_total{method="Link",proto="v3"} 0
 node_nfsd_requests_total{method="Lookup",proto="v2"} 4410
+node_nfsd_requests_total{method="Lookup",proto="v3"} 2719
 node_nfsd_requests_total{method="MkDir",proto="v2"} 0
+node_nfsd_requests_total{method="MkDir",proto="v3"} 0
+node_nfsd_requests_total{method="MkNod",proto="v3"} 0
+node_nfsd_requests_total{method="PathConf",proto="v3"} 1
 node_nfsd_requests_total{method="Read",proto="v2"} 0
+node_nfsd_requests_total{method="Read",proto="v3"} 0
 node_nfsd_requests_total{method="ReadDir",proto="v2"} 99
+node_nfsd_requests_total{method="ReadDir",proto="v3"} 27
+node_nfsd_requests_total{method="ReadDirPlus",proto="v3"} 216
 node_nfsd_requests_total{method="ReadLink",proto="v2"} 0
+node_nfsd_requests_total{method="ReadLink",proto="v3"} 0
 node_nfsd_requests_total{method="Remove",proto="v2"} 0
+node_nfsd_requests_total{method="Remove",proto="v3"} 0
 node_nfsd_requests_total{method="Rename",proto="v2"} 0
+node_nfsd_requests_total{method="Rename",proto="v3"} 0
 node_nfsd_requests_total{method="RmDir",proto="v2"} 0
+node_nfsd_requests_total{method="RmDir",proto="v3"} 0
 node_nfsd_requests_total{method="Root",proto="v2"} 0
 node_nfsd_requests_total{method="SetAttr",proto="v2"} 0
+node_nfsd_requests_total{method="SetAttr",proto="v3"} 0
 node_nfsd_requests_total{method="SymLink",proto="v2"} 0
+node_nfsd_requests_total{method="SymLink",proto="v3"} 0
 node_nfsd_requests_total{method="WrCache",proto="v2"} 0
 node_nfsd_requests_total{method="Write",proto="v2"} 0
+node_nfsd_requests_total{method="Write",proto="v3"} 0
 # HELP node_nfsd_rpc_errors_total NFSd RPC errors
 # TYPE node_nfsd_rpc_errors_total counter
 node_nfsd_rpc_errors_total{error="auth"} 2
