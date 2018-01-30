@@ -24,7 +24,8 @@ import (
 // A nfsdCollector is a Collector which gathers metrics from /proc/net/rpc/nfsd.
 // See: https://www.svennd.be/nfsd-stats-explained-procnetrpcnfsd/
 type nfsdCollector struct {
-	fs procfs.FS
+	fs           procfs.FS
+	requestsDesc *prometheus.Desc
 }
 
 func init() {
@@ -44,6 +45,11 @@ func NewNFSdCollector() (Collector, error) {
 
 	return &nfsdCollector{
 		fs: fs,
+		requestsDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "requests_total"),
+			"Number NFSd Requests by method and protocol.",
+			[]string{"proto", "method"}, nil,
+		),
 	}, nil
 }
 
@@ -61,6 +67,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	c.updateNFSdReadAheadCacheStats(ch, &stats.ReadAheadCache)
 	c.updateNFSdNetworkStats(ch, &stats.Network)
 	c.updateNFSdServerRPCStats(ch, &stats.ServerRPC)
+	c.updateNFSdRequestsv2Stats(ch, &stats.V2Stats)
 
 	return nil
 }
@@ -223,4 +230,43 @@ func (c *nfsdCollector) updateNFSdServerRPCStats(ch chan<- prometheus.Metric, s 
 		),
 		prometheus.GaugeValue,
 		float64(s.RPCCount))
+}
+
+// updateNFSdRequestsv2Stats collects statistics for NFSv2 requests.
+func (c *nfsdCollector) updateNFSdRequestsv2Stats(ch chan<- prometheus.Metric, s *nfs.V2Stats) {
+	const proto = "v2"
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.GetAttr), proto, "GetAttr")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SetAttr), proto, "SetAttr")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Root), proto, "Root")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Lookup), proto, "Lookup")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.ReadLink), proto, "ReadLink")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Read), proto, "Read")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.WrCache), proto, "WrCache")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Write), proto, "Write")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Create), proto, "Create")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Remove), proto, "Remove")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Rename), proto, "Rename")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.Link), proto, "Link")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SymLink), proto, "SymLink")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.MkDir), proto, "MkDir")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.RmDir), proto, "RmDir")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.ReadDir), proto, "ReadDir")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.FsStat), proto, "FsStat")
 }
