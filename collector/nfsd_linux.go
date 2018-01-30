@@ -60,6 +60,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	c.updateNFSdThreadsStats(ch, &stats.Threads)
 	c.updateNFSdReadAheadCacheStats(ch, &stats.ReadAheadCache)
 	c.updateNFSdNetworkStats(ch, &stats.Network)
+	c.updateNFSdServerRPCStats(ch, &stats.ServerRPC)
 
 	return nil
 }
@@ -191,4 +192,35 @@ func (c *nfsdCollector) updateNFSdNetworkStats(ch chan<- prometheus.Metric, s *n
 		),
 		prometheus.CounterValue,
 		float64(s.TCPConnect))
+}
+
+// updateNFSdServerRPCStats collects statistics for kernel server RPCs.
+func (c *nfsdCollector) updateNFSdServerRPCStats(ch chan<- prometheus.Metric, s *nfs.ServerRPC) {
+	badRPCDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, nfsdSubsystem, "rpc_errors_total"),
+		"NFSd RPC errors",
+		[]string{"error"},
+		nil,
+	)
+	ch <- prometheus.MustNewConstMetric(
+		badRPCDesc,
+		prometheus.CounterValue,
+		float64(s.BadFmt), "fmt")
+	ch <- prometheus.MustNewConstMetric(
+		badRPCDesc,
+		prometheus.CounterValue,
+		float64(s.BadAuth), "auth")
+	ch <- prometheus.MustNewConstMetric(
+		badRPCDesc,
+		prometheus.CounterValue,
+		float64(s.BadcInt), "cInt")
+	ch <- prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsdSubsystem, "server_rpcs_total"),
+			"NFSd how many RPCs",
+			nil,
+			nil,
+		),
+		prometheus.GaugeValue,
+		float64(s.RPCCount))
 }

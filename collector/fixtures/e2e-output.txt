@@ -2607,6 +2607,14 @@ node_nfsd_reply_cache_misses_total 6
 # HELP node_nfsd_reply_cache_nocache_total NFSd Reply Cache non-idempotent operations (rename/delete/…).
 # TYPE node_nfsd_reply_cache_nocache_total counter
 node_nfsd_reply_cache_nocache_total 18622
+# HELP node_nfsd_rpc_errors_total NFSd RPC errors
+# TYPE node_nfsd_rpc_errors_total counter
+node_nfsd_rpc_errors_total{error="auth"} 2
+node_nfsd_rpc_errors_total{error="cInt"} 0
+node_nfsd_rpc_errors_total{error="fmt"} 1
+# HELP node_nfsd_server_rpcs_total NFSd how many RPCs
+# TYPE node_nfsd_server_rpcs_total gauge
+node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads NFSd how many kernel threads are running
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
