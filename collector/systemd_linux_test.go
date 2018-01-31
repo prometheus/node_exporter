@@ -22,61 +22,69 @@ import (
 )
 
 // Creates mock UnitLists
-func getUnitListFixtures() [][]dbus.UnitStatus {
-	fixture1 := []dbus.UnitStatus{
+func getUnitListFixtures() [][]unit {
+	fixture1 := []unit{
 		{
-			Name:        "foo",
-			Description: "foo desc",
-			LoadState:   "loaded",
-			ActiveState: "active",
-			SubState:    "running",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/foo",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "foo",
+				Description: "foo desc",
+				LoadState:   "loaded",
+				ActiveState: "active",
+				SubState:    "running",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/foo",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 		{
-			Name:        "bar",
-			Description: "bar desc",
-			LoadState:   "not-found",
-			ActiveState: "inactive",
-			SubState:    "dead",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/bar",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "bar",
+				Description: "bar desc",
+				LoadState:   "not-found",
+				ActiveState: "inactive",
+				SubState:    "dead",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/bar",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 		{
-			Name:        "foobar",
-			Description: "bar desc",
-			LoadState:   "not-found",
-			ActiveState: "inactive",
-			SubState:    "dead",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/bar",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "foobar",
+				Description: "bar desc",
+				LoadState:   "not-found",
+				ActiveState: "inactive",
+				SubState:    "dead",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/bar",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 		{
-			Name:        "baz",
-			Description: "bar desc",
-			LoadState:   "not-found",
-			ActiveState: "inactive",
-			SubState:    "dead",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/bar",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "baz",
+				Description: "bar desc",
+				LoadState:   "not-found",
+				ActiveState: "inactive",
+				SubState:    "dead",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/bar",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 	}
 
-	fixture2 := []dbus.UnitStatus{}
+	fixture2 := []unit{}
 
-	return [][]dbus.UnitStatus{fixture1, fixture2}
+	return [][]unit{fixture1, fixture2}
 }
 
 func TestSystemdCollectorDoesntCrash(t *testing.T) {
