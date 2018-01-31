@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/coreos/go-systemd/dbus"
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,6 +36,7 @@ type systemdCollector struct {
 	unitDesc             *prometheus.Desc
 	systemRunningDesc    *prometheus.Desc
 	summaryDesc          *prometheus.Desc
+	timerLastTriggerDesc *prometheus.Desc
 	unitWhitelistPattern *regexp.Regexp
 	unitBlacklistPattern *regexp.Regexp
 }
@@ -61,6 +63,9 @@ func NewSystemdCollector() (Collector, error) {
 	summaryDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "units"),
 		"Summary of systemd unit states", []string{"state"}, nil)
+	timerLastTriggerDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "timer_last_trigger_seconds"),
+		"Seconds since epoch of last trigger.", []string{"name"}, nil)
 	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))
 	unitBlacklistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitBlacklist))
 
@@ -68,6 +73,7 @@ func NewSystemdCollector() (Collector, error) {
 		unitDesc:             unitDesc,
 		systemRunningDesc:    systemRunningDesc,
 		summaryDesc:          summaryDesc,
+		timerLastTriggerDesc: timerLastTriggerDesc,
 		unitWhitelistPattern: unitWhitelistPattern,
 		unitBlacklistPattern: unitBlacklistPattern,
 	}, nil
@@ -84,6 +90,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 
 	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
 	c.collectUnitStatusMetrics(ch, units)
+	c.collectTimers(ch, units)
 
 	systemState, err := c.getSystemState()
 	if err != nil {
@@ -106,6 +113,32 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 				unit.Name, stateName)
 		}
 	}
+}
+
+func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []dbus.UnitStatus) error {
+	conn, err := c.newDbus()
+	if err != nil {
+		return fmt.Errorf("couldn't get dbus connection: %s", err)
+	}
+	defer conn.Close()
+
+	for _, unit := range units {
+		if !strings.HasSuffix(unit.Name, ".timer") {
+			continue
+		}
+
+		lastTriggerValue, err := conn.GetUnitTypeProperty(unit.Name, "Timer", "LastTriggerUSec")
+		if err != nil {
+			log.Errorf("couldn't get unit '%s' LastTriggerUSec: %s", unit.Name, err)
+			continue
+		}
+
+		lastTrigger := lastTriggerValue.Value.Value().(uint64)
+		ch <- prometheus.MustNewConstMetric(
+			c.timerLastTriggerDesc, prometheus.GaugeValue,
+			float64(lastTrigger)/1e6, unit.Name)
+	}
+	return nil
 }
 
 func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, summary map[string]float64) {
