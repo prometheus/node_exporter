@@ -101,7 +101,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric, units []dbus.UnitStatus) {
+func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		for _, stateName := range unitStatesName {
 			isActive := 0.0
@@ -115,28 +115,15 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 	}
 }
 
-func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []dbus.UnitStatus) error {
-	conn, err := c.newDbus()
-	if err != nil {
-		return fmt.Errorf("couldn't get dbus connection: %s", err)
-	}
-	defer conn.Close()
-
+func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []unit) error {
 	for _, unit := range units {
 		if !strings.HasSuffix(unit.Name, ".timer") {
 			continue
 		}
 
-		lastTriggerValue, err := conn.GetUnitTypeProperty(unit.Name, "Timer", "LastTriggerUSec")
-		if err != nil {
-			log.Errorf("couldn't get unit '%s' LastTriggerUSec: %s", unit.Name, err)
-			continue
-		}
-
-		lastTrigger := lastTriggerValue.Value.Value().(uint64)
 		ch <- prometheus.MustNewConstMetric(
 			c.timerLastTriggerDesc, prometheus.GaugeValue,
-			float64(lastTrigger)/1e6, unit.Name)
+			float64(unit.lastTriggerUsec)/1e6, unit.Name)
 	}
 	return nil
 }
@@ -163,22 +150,45 @@ func (c *systemdCollector) newDbus() (*dbus.Conn, error) {
 	return dbus.New()
 }
 
-func (c *systemdCollector) getAllUnits() ([]dbus.UnitStatus, error) {
+type unit struct {
+	dbus.UnitStatus
+	lastTriggerUsec uint64
+}
+
+func (c *systemdCollector) getAllUnits() ([]unit, error) {
 	conn, err := c.newDbus()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't get dbus connection: %s", err)
 	}
-	allUnits, err := conn.ListUnits()
-	conn.Close()
+	defer conn.Close()
 
+	allUnits, err := conn.ListUnits()
 	if err != nil {
-		return []dbus.UnitStatus{}, err
+		return nil, err
 	}
 
-	return allUnits, nil
+	result := make([]unit, 0, len(allUnits))
+	for _, status := range allUnits {
+		unit := unit{
+			UnitStatus: status,
+		}
+
+		if strings.HasSuffix(unit.Name, ".timer") {
+			lastTriggerValue, err := conn.GetUnitTypeProperty(unit.Name, "Timer", "LastTriggerUSec")
+			if err != nil {
+				return nil, fmt.Errorf("couldn't get unit '%s' LastTriggerUSec: %s", unit.Name, err)
+			}
+
+			unit.lastTriggerUsec = lastTriggerValue.Value.Value().(uint64)
+		}
+
+		result = append(result, unit)
+	}
+
+	return result, nil
 }
 
-func summarizeUnits(units []dbus.UnitStatus) map[string]float64 {
+func summarizeUnits(units []unit) map[string]float64 {
 	summarized := make(map[string]float64)
 
 	for _, unitStateName := range unitStatesName {
@@ -192,8 +202,8 @@ func summarizeUnits(units []dbus.UnitStatus) map[string]float64 {
 	return summarized
 }
 
-func filterUnits(units []dbus.UnitStatus, whitelistPattern, blacklistPattern *regexp.Regexp) []dbus.UnitStatus {
-	filtered := make([]dbus.UnitStatus, 0, len(units))
+func filterUnits(units []unit, whitelistPattern, blacklistPattern *regexp.Regexp) []unit {
+	filtered := make([]unit, 0, len(units))
 	for _, unit := range units {
 		if whitelistPattern.MatchString(unit.Name) && !blacklistPattern.MatchString(unit.Name) {
 			filtered = append(filtered, unit)
