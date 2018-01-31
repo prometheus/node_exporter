@@ -106,7 +106,8 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 
 	// cpu loop
 	for _, cpu := range cpus {
-		_, cpuname := filepath.Split(cpu)
+		_, cpuName := filepath.Split(cpu)
+		cpuNum := strings.TrimPrefix(cpuName, "cpu")
 
 		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
 			log.Debugf("CPU %v is missing cpufreq", cpu)
@@ -116,17 +117,17 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_cur_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
 
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_min_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
 
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_max_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
 		}
 
 		if _, err := os.Stat(filepath.Join(cpu, "thermal_throttle")); os.IsNotExist(err) {
@@ -136,7 +137,7 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
 			return err
 		}
-		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
+		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuNum)
 	}
 
 	nodes, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
