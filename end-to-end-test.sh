@@ -42,6 +42,7 @@ disabled_collectors=$(cat << COLLECTORS
   timex
   uname
   vmstat
+  threads
 COLLECTORS
 )
 cd "$(dirname $0)"

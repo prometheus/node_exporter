@@ -27,6 +27,7 @@ import (
 type threadsCollector struct {
 	threadAlloc *prometheus.Desc
 	threadMax *prometheus.Desc
+	procsState   *prometheus.Desc
 }
 
 func init() {
@@ -45,37 +46,47 @@ func NewThreadsCollector() (Collector, error) {
 			"Limit of threads in the system",
 			nil, nil,
 		),
+		procsState: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "procs_state"),
+			"Number of processes in each state.",
+			[]string{"state"}, nil,
+		),
 	}, nil
 }
 func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
-	val, err := getAllocatedThreads()
+	states ,threads, err := getAllocatedThreads()
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve number of allocated threads %v\n", err)
 	}
-	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(val))
+	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(threads))
 	maxThreads, err := getMaxThreads()
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve limit number of threads %v\n", err)
 	}
 	ch <- prometheus.MustNewConstMetric(t.threadMax, prometheus.GaugeValue, float64(maxThreads))
+	for state := range states {
+		ch <- prometheus.MustNewConstMetric(t.procsState, prometheus.GaugeValue, float64(states[state]), state)
+	}
 	return nil
 }
 
-func getAllocatedThreads() (int, error) {
+func getAllocatedThreads() (map[string]int32,int, error) {
 	p, err := procfs.AllProcs()
 	if err != nil {
-		return 0, err
+		return nil, 0, err
 	}
 	thread := 0
+	procStates := make(map[string]int32)
 	for _, pid := range p {
 		stat, err := pid.NewStat()
 		if err != nil {
-			return 0, err
+			return nil, 0, err
 		}
+		procStates[stat.State] += 1
 		thread += stat.NumThreads
 
 	}
-	return thread, nil
+	return procStates,thread, nil
 }
 
 func getMaxThreads() (int, error) {
