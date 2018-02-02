@@ -8,7 +8,7 @@ func TestReadProcessStatus(t *testing.T) {
 	want := 4
 	states, threads, err := getAllocatedThreads()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ",err)
 	}
 	if threads < want {
 		t.Fatalf("Current threads: %d Shouldn't be less than wanted %d",threads,want)
@@ -19,7 +19,7 @@ func TestReadProcessStatus(t *testing.T) {
 	}
 	max, err := getMaxThreads()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Cannot retrieve data from procfs getMaxThreads func: %v ",err)
 	}
 	if max <= 0 {
 		t.Fatalf("Maximum allowed amount of threads in the system %d which sould be" +
