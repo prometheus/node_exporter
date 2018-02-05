@@ -19,9 +19,6 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
-	"io/ioutil"
-	"strconv"
-	"strings"
 )
 
 type threadsCollector struct {
