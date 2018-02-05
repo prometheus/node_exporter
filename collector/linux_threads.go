@@ -26,51 +26,51 @@ import (
 
 type threadsCollector struct {
 	threadAlloc *prometheus.Desc
-	threadMax *prometheus.Desc
-	procsState   *prometheus.Desc
+	threadLimit *prometheus.Desc
+	procsState  *prometheus.Desc
 }
 
 func init() {
-	registerCollector("threads", defaultDisabled, NewThreadsCollector)
+	registerCollector("processes", defaultDisabled, NewProcessStatCollector)
 }
 
-func NewThreadsCollector() (Collector, error) {
+func NewProcessStatCollector() (Collector, error) {
 	return &threadsCollector{
 		threadAlloc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "threads"),
 			"Allocated threads in system",
 			nil, nil,
 		),
-		threadMax: prometheus.NewDesc(
+		threadLimit: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "threads", "max"),
 			"Limit of threads in the system",
 			nil, nil,
 		),
 		procsState: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "procs_state"),
+			prometheus.BuildFQName(namespace, "", "processes_state"),
 			"Number of processes in each state.",
 			[]string{"state"}, nil,
 		),
 	}, nil
 }
 func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
-	states ,threads, err := getAllocatedThreads()
+	states, threads, err := getAllocatedThreads()
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve number of allocated threads %v\n", err)
 	}
 	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(threads))
-	maxThreads, err := getMaxThreads()
+	maxThreads, err := readUintFromFile(procFilePath("sys/kernel/threads-max"))
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve limit number of threads %v\n", err)
 	}
-	ch <- prometheus.MustNewConstMetric(t.threadMax, prometheus.GaugeValue, float64(maxThreads))
+	ch <- prometheus.MustNewConstMetric(t.threadLimit, prometheus.GaugeValue, float64(maxThreads))
 	for state := range states {
 		ch <- prometheus.MustNewConstMetric(t.procsState, prometheus.GaugeValue, float64(states[state]), state)
 	}
 	return nil
 }
 
-func getAllocatedThreads() (map[string]int32,int, error) {
+func getAllocatedThreads() (map[string]int32, int, error) {
 	p, err := procfs.AllProcs()
 	if err != nil {
 		return nil, 0, err
@@ -86,18 +86,5 @@ func getAllocatedThreads() (map[string]int32,int, error) {
 		thread += stat.NumThreads
 
 	}
-	return procStates,thread, nil
-}
-
-func getMaxThreads() (int, error) {
-	rawData, err := ioutil.ReadFile("/proc/sys/kernel/threads-max")
-	if err != nil {
-		return 0, nil
-	}
-	maxThreads, err := strconv.Atoi(strings.Trim(string(rawData),"\n"))
-	if err != nil {
-		return 0, nil
-	}
-	return maxThreads, nil
-
+	return procStates, thread, nil
 }
