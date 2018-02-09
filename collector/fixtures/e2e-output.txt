@@ -2576,6 +2576,10 @@ node_nfs_rpc_operations 1.218785755e+09
 # HELP node_nfs_rpc_retransmissions Number of RPC transmissions performed.
 # TYPE node_nfs_rpc_retransmissions counter
 node_nfs_rpc_retransmissions 374636
+# HELP node_processes_state Number of processes in each state.
+# TYPE node_processes_state gauge
+node_processes_state{state="R"} 1
+node_processes_state{state="S"} 9
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
@@ -2630,6 +2634,7 @@ node_scrape_collector_success{collector="mountstats"} 1
 node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
+node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="stat"} 1
@@ -2684,6 +2689,12 @@ node_sockstat_sockets_used 229
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
+# HELP node_threads Allocated threads in system
+# TYPE node_threads gauge
+node_threads 16
+# HELP node_threads_limit Limit of threads in the system
+# TYPE node_threads_limit gauge
+node_threads_limit 7801
 # HELP node_wifi_interface_frequency_hertz The current frequency a WiFi interface is operating at, in hertz.
 # TYPE node_wifi_interface_frequency_hertz gauge
 node_wifi_interface_frequency_hertz{device="wlan0"} 2.412e+09
