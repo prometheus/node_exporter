@@ -35,7 +35,6 @@ enabled_collectors=$(cat << COLLECTORS
   wifi
   xfs
   zfs
-  processes
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
@@ -44,6 +43,7 @@ disabled_collectors=$(cat << COLLECTORS
   timex
   uname
   vmstat
+  processes
 COLLECTORS
 )
 cd "$(dirname $0)"
