@@ -39,7 +39,7 @@ func NewProcessStatCollector() (Collector, error) {
 			nil, nil,
 		),
 		threadLimit: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "threads", "max"),
+			prometheus.BuildFQName(namespace, "threads", "limit"),
 			"Limit of threads in the system",
 			nil, nil,
 		),
