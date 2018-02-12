@@ -66,39 +66,39 @@ var (
 	}
 
 	nfsNetReadsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "net_reads"),
+		prometheus.BuildFQName(namespace, "nfs", "net_reads_total"),
 		"Number of reads at the network layer.",
 		[]string{"protocol"},
 		nil,
 	)
 	nfsNetConnectionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "net_connections"),
+		prometheus.BuildFQName(namespace, "nfs", "net_connections_total"),
 		"Number of connections at the network layer.",
 		[]string{"protocol"},
 		nil,
 	)
 
 	nfsRPCOperationsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "rpc_operations"),
+		prometheus.BuildFQName(namespace, "nfs", "rpc_operations_total"),
 		"Number of RPCs performed.",
 		nil,
 		nil,
 	)
 	nfsRPCRetransmissionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "rpc_retransmissions"),
+		prometheus.BuildFQName(namespace, "nfs", "rpc_retransmissions_total"),
 		"Number of RPC transmissions performed.",
 		nil,
 		nil,
 	)
 	nfsRPCAuthenticationRefreshesDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "rpc_authentication_refreshes"),
+		prometheus.BuildFQName(namespace, "nfs", "rpc_authentication_refreshes_total"),
 		"Number of RPC authentication refreshes performed.",
 		nil,
 		nil,
 	)
 
 	nfsProceduresDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "procedures"),
+		prometheus.BuildFQName(namespace, "nfs", "procedures_total"),
 		"Number of NFS procedures invoked.",
 		[]string{"version", "procedure"},
 		nil,
