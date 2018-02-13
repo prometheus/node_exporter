@@ -230,7 +230,7 @@ func (c *nfsdCollector) updateNFSdServerRPCStats(ch chan<- prometheus.Metric, s 
 			nil,
 			nil,
 		),
-		prometheus.GaugeValue,
+		prometheus.CounterValue,
 		float64(s.RPCCount))
 }
 
