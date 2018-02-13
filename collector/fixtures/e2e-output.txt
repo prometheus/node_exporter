@@ -2686,7 +2686,7 @@ node_nfsd_rpc_errors_total{error="auth"} 2
 node_nfsd_rpc_errors_total{error="cInt"} 0
 node_nfsd_rpc_errors_total{error="fmt"} 1
 # HELP node_nfsd_server_rpcs_total Total number of NFSd RPCs.
-# TYPE node_nfsd_server_rpcs_total gauge
+# TYPE node_nfsd_server_rpcs_total counter
 node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
