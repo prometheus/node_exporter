@@ -3592,7 +3592,7 @@ node_zfs_zil_zil_itx_metaslab_slog_bytes 0
 node_zfs_zil_zil_itx_metaslab_slog_count 0
 # HELP node_zfs_zil_zil_itx_needcopy_bytes kstat.zfs.misc.zil.zil_itx_needcopy_bytes
 # TYPE node_zfs_zil_zil_itx_needcopy_bytes untyped
-node_zfs_zil_zil_itx_needcopy_bytes 0
+node_zfs_zil_zil_itx_needcopy_bytes 1.8446744073709537e+19
 # HELP node_zfs_zil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
 # TYPE node_zfs_zil_zil_itx_needcopy_count untyped
 node_zfs_zil_zil_itx_needcopy_count 0
