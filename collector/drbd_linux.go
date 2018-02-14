@@ -161,7 +161,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Debugf("Not collecting DRBD statistics, as %s does not exist: %s", statsFile, err)
-			return nil
+			return collectorNoMetricsErr
 		}
 		return err
 	}

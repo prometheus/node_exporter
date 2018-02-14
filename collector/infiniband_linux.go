@@ -168,7 +168,7 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	switch err {
 	case nil:
 	case errInfinibandNoDevicesFound:
-		return nil
+		return collectorNoMetricsErr
 	default:
 		return err
 	}

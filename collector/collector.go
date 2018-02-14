@@ -15,6 +15,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -40,6 +41,7 @@ var (
 		[]string{"collector"},
 		nil,
 	)
+	collectorNoMetricsErr = errors.New("Collector found no metrics")
 )
 
 func warnDeprecated(collector string) {
@@ -132,12 +134,16 @@ func execute(name string, c Collector, ch chan<- prometheus.Metric) {
 	duration := time.Since(begin)
 	var success float64
 
-	if err != nil {
-		log.Errorf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
-		success = 0
-	} else {
+	switch err {
+	case nil:
 		log.Debugf("OK: %s collector succeeded after %fs.", name, duration.Seconds())
 		success = 1
+	case collectorNoMetricsErr:
+		log.Debugf("ERROR: %s collector returned no metrics after %fs", name, duration.Seconds())
+		success = 0
+	default:
+		log.Errorf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
+		success = 0
 	}
 	ch <- prometheus.MustNewConstMetric(scrapeDurationDesc, prometheus.GaugeValue, duration.Seconds(), name)
 	ch <- prometheus.MustNewConstMetric(scrapeSuccessDesc, prometheus.GaugeValue, success, name)
