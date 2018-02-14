@@ -421,7 +421,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Debug("hwmon collector metrics are not available for this system")
-			return nil
+			return collectorNoMetricsErr
 		}
 
 		return err
