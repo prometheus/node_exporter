@@ -15,8 +15,10 @@ package collector
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/nfs"
 )
@@ -90,6 +92,10 @@ func NewNfsCollector() (Collector, error) {
 func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.NFSClientRPCStats()
 	if err != nil {
+		if os.IsNotExist(err) {
+			log.Debugf("Not collecting NFS metrics: %s", err)
+			return nil
+		}
 		return fmt.Errorf("failed to retrieve nfs stats: %v", err)
 	}
 
