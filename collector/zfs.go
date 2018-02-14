@@ -60,7 +60,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 		if err := c.updateZfsStats(subsystem, ch); err != nil {
 			if err == errZFSNotAvailable {
 				log.Debug(err)
-				return nil
+				return collectorNoMetricsErr
 			}
 			return err
 		}
