@@ -16,6 +16,8 @@ package collector
 import (
 	"fmt"
 	"os"
+	"reflect"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -131,213 +133,82 @@ func (c *nfsCollector) updateNFSClientRPCStats(ch chan<- prometheus.Metric, s *n
 // updateNFSRequestsv2Stats collects statistics for NFSv2 requests.
 func (c *nfsCollector) updateNFSRequestsv2Stats(ch chan<- prometheus.Metric, s *nfs.V2Stats) {
 	const proto = "2"
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Null), proto, "null")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.GetAttr), proto, "getattr")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.SetAttr), proto, "setattr")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Root), proto, "root")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Lookup), proto, "lookup")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReadLink), proto, "readlink")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Read), proto, "read")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.WrCache), proto, "writecache")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Write), proto, "write")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Create), proto, "create")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Remove), proto, "remove")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Rename), proto, "rename")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Link), proto, "link")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.SymLink), proto, "symlink")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.MkDir), proto, "mkdir")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.RmDir), proto, "rmdir")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReadDir), proto, "readdir")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.FsStat), proto, "statfs")
+
+	v := reflect.ValueOf(s).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		name := strings.ToLower(v.Type().Field(i).Name)
+
+		switch name {
+		case "wrcache":
+			name = "writecache"
+		case "fsstat":
+			name = "statfs"
+		}
+
+		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
+			float64(field.Uint()), proto, name)
+	}
 }
 
 // updateNFSRequestsv3Stats collects statistics for NFSv3 requests.
 func (c *nfsCollector) updateNFSRequestsv3Stats(ch chan<- prometheus.Metric, s *nfs.V3Stats) {
 	const proto = "3"
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Null), proto, "null")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.GetAttr), proto, "getattr")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.SetAttr), proto, "setattr")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Lookup), proto, "lookup")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Access), proto, "access")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReadLink), proto, "readlink")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Read), proto, "read")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Write), proto, "write")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Create), proto, "create")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.MkDir), proto, "mkdir")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.SymLink), proto, "symlink")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.MkNod), proto, "mknod")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Remove), proto, "remove")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.RmDir), proto, "rmdir")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Rename), proto, "rename")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Link), proto, "link")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReadDir), proto, "readdir")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReadDirPlus), proto, "readdirplus")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.FsStat), proto, "fsstat")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.FsInfo), proto, "fsinfo")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.PathConf), proto, "pathconf")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Commit), proto, "commit")
+
+	v := reflect.ValueOf(s).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		name := strings.ToLower(v.Type().Field(i).Name)
+
+		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
+			float64(field.Uint()), proto, name)
+	}
 }
 
 // updateNFSRequestsv4Stats collects statistics for NFSv4 requests.
 func (c *nfsCollector) updateNFSRequestsv4Stats(ch chan<- prometheus.Metric, s *nfs.ClientV4Stats) {
 	const proto = "4"
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Null), proto, "null")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Read), proto, "read")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Write), proto, "write")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Commit), proto, "commit")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Open), proto, "open")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.OpenConfirm), proto, "open_confirm")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.OpenNoattr), proto, "open_noattr")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.OpenDowngrade), proto, "open_downgrade")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Close), proto, "close")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Setattr), proto, "setattr")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.FsInfo), proto, "fsinfo")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Renew), proto, "renew")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.SetClientId), proto, "setclientid")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.SetClientIdConfirm), proto, "setclientid_confirm")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Lock), proto, "lock")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Lockt), proto, "lockt")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Locku), proto, "locku")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Access), proto, "access")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Getattr), proto, "getattr")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Lookup), proto, "lookup")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.LookupRoot), proto, "lookup_root")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Remove), proto, "remove")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Rename), proto, "rename")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Link), proto, "link")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Symlink), proto, "symlink")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Create), proto, "create")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Pathconf), proto, "pathconf")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.StatFs), proto, "statfs")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReadLink), proto, "readlink")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReadDir), proto, "readdir")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ServerCaps), proto, "server_caps")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.DelegReturn), proto, "delegreturn")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.GetAcl), proto, "getacl")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.SetAcl), proto, "setacl")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.FsLocations), proto, "fs_locations")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReleaseLockowner), proto, "release_lockowner")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Secinfo), proto, "secinfo")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.FsidPresent), proto, "fsid_present")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ExchangeId), proto, "exchange_id")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.CreateSession), proto, "create_session")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.DestroySession), proto, "destroy_session")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.Sequence), proto, "sequence")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.GetLeaseTime), proto, "get_lease_time")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.ReclaimComplete), proto, "reclaim_complete")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.LayoutGet), proto, "layoutget")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.GetDeviceInfo), proto, "getdeviceinfo")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.LayoutCommit), proto, "layoutcommit")
-	ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-		float64(s.LayoutReturn), proto, "layoutreturn")
-	// TODO: Enable after testing feature parity.
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.SecinfoNoName), proto, "secinfo_no_name")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.TestStateId), proto, "test_stateid")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.FreeStateId), proto, "free_stateid")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.GetDeviceList), proto, "getdevicelist")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.BindConnToSession), proto, "bind_conn_to_session")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.DestroyClientId), proto, "destroy_clientid")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.Seek), proto, "seek")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.Allocate), proto, "allocate")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.DeAllocate), proto, "deallocate")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.LayoutStats), proto, "layoutstats")
-	// ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-	// 	float64(s.Clone), proto, "clone")
+
+	v := reflect.ValueOf(s).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		name := strings.ToLower(v.Type().Field(i).Name)
+
+		switch name {
+		case "openconfirm":
+			name = "open_confirm"
+		case "opendowngrade":
+			name = "open_downgrade"
+		case "opennoattr":
+			name = "open_noattr"
+		case "setclientidconfirm":
+			name = "setclientid_confirm"
+		case "lookuproot":
+			name = "lookup_root"
+		case "servercaps":
+			name = "server_caps"
+		case "fslocations":
+			name = "fs_locations"
+		case "releaselockowner":
+			name = "release_lockowner"
+		case "fsidpresent":
+			name = "fsid_present"
+		case "exchangeid":
+			name = "exchange_id"
+		case "createsession":
+			name = "create_session"
+		case "destroysession":
+			name = "destroy_session"
+		case "getleasetime":
+			name = "get_lease_time"
+		case "reclaimcomplete":
+			name = "reclaim_complete"
+		// TODO: Enable these metrics
+		case "secinfononame", "teststateid", "freestateid", "getdevicelist", "bindconntosession", "destroyclientid", "seek", "allocate", "deallocate", "layoutstats", "clone":
+			continue
+		}
+
+		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
+			float64(field.Uint()), proto, name)
+	}
 }
