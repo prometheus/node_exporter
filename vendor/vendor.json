@@ -161,40 +161,40 @@
 			"revisionTime": "2018-01-10T21:49:58Z"
 		},
 		{
-			"checksumSHA1": "lolK0h7LSVERIX8zLyVQ/+7wEyA=",
+			"checksumSHA1": "Qvc01kv3ttHV2P2+J68g9ioU4Qs=",
 			"path": "github.com/prometheus/procfs",
-			"revision": "cb4147076ac75738c9a7d279075a253c0cc5acbd",
-			"revisionTime": "2018-01-25T13:30:57Z"
+			"revision": "282c8707aa210456a825798969cc27edda34992a",
+			"revisionTime": "2018-02-12T14:59:26Z"
 		},
 		{
 			"checksumSHA1": "O64FotgWPYIpl3m2gvTEPIem+xg=",
 			"path": "github.com/prometheus/procfs/bcache",
-			"revision": "cb4147076ac75738c9a7d279075a253c0cc5acbd",
-			"revisionTime": "2018-01-25T13:30:57Z"
+			"revision": "282c8707aa210456a825798969cc27edda34992a",
+			"revisionTime": "2018-02-12T14:59:26Z"
 		},
 		{
 			"checksumSHA1": "lv9rIcjbVEGo8AT1UCUZXhXrfQc=",
 			"path": "github.com/prometheus/procfs/internal/util",
-			"revision": "cb4147076ac75738c9a7d279075a253c0cc5acbd",
-			"revisionTime": "2018-01-25T13:30:57Z"
+			"revision": "282c8707aa210456a825798969cc27edda34992a",
+			"revisionTime": "2018-02-12T14:59:26Z"
 		},
 		{
-			"checksumSHA1": "BXJH5h2ri8SU5qC6kkDvTIGCky4=",
+			"checksumSHA1": "EekY1iRG9JY74mDD0jsbFCWbAFs=",
 			"path": "github.com/prometheus/procfs/nfs",
-			"revision": "cb4147076ac75738c9a7d279075a253c0cc5acbd",
-			"revisionTime": "2018-01-25T13:30:57Z"
+			"revision": "282c8707aa210456a825798969cc27edda34992a",
+			"revisionTime": "2018-02-12T14:59:26Z"
 		},
 		{
 			"checksumSHA1": "wMhQkA/xQw3Q8eI+PIAjFmS94Qo=",
 			"path": "github.com/prometheus/procfs/sysfs",
-			"revision": "cb4147076ac75738c9a7d279075a253c0cc5acbd",
-			"revisionTime": "2018-01-25T13:30:57Z"
+			"revision": "282c8707aa210456a825798969cc27edda34992a",
+			"revisionTime": "2018-02-12T14:59:26Z"
 		},
 		{
 			"checksumSHA1": "yItvTQLUVqm/ArLEbvEhqG0T5a0=",
 			"path": "github.com/prometheus/procfs/xfs",
-			"revision": "cb4147076ac75738c9a7d279075a253c0cc5acbd",
-			"revisionTime": "2018-01-25T13:30:57Z"
+			"revision": "282c8707aa210456a825798969cc27edda34992a",
+			"revisionTime": "2018-02-12T14:59:26Z"
 		},
 		{
 			"checksumSHA1": "ySaT8G3I3y4MmnoXOYAAX0rC+p8=",
