@@ -44,13 +44,17 @@ func NewZFSCollector() (Collector, error) {
 		linuxProcpathBase: "spl/kstat/zfs",
 		linuxZpoolIoPath:  "/*/io",
 		linuxPathMap: map[string]string{
-			"zfs_arc":        "arcstats",
-			"zfs_dmu_tx":     "dmu_tx",
-			"zfs_fm":         "fm",
-			"zfs_zfetch":     "zfetchstats",
-			"zfs_vdev_cache": "vdev_cache_stats",
-			"zfs_xuio":       "xuio_stats",
-			"zfs_zil":        "zil",
+			"zfs_abd":         "abdstats",
+			"zfs_arc":         "arcstats",
+			"zfs_dbuf":        "dbuf_stats",
+			"zfs_dmu_tx":      "dmu_tx",
+			"zfs_dnode":       "dnodestats",
+			"zfs_fm":          "fm",
+			"zfs_vdev_cache":  "vdev_cache_stats", // vdev_cache is deprecated
+			"zfs_vdev_mirror": "vdev_mirror_stats",
+			"zfs_xuio":        "xuio_stats", // no known consumers of the XUIO interface on Linux exist
+			"zfs_zfetch":      "zfetchstats",
+			"zfs_zil":         "zil",
 		},
 	}, nil
 }
@@ -60,7 +64,8 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 		if err := c.updateZfsStats(subsystem, ch); err != nil {
 			if err == errZFSNotAvailable {
 				log.Debug(err)
-				return nil
+				// ZFS /proc files are added as new features to ZFS arrive, it is ok to continue
+				continue
 			}
 			return err
 		}
