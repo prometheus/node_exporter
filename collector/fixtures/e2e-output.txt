@@ -54,27 +54,6 @@
 # TYPE go_memstats_sys_bytes gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
-# HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
-# TYPE http_request_duration_microseconds summary
-http_request_duration_microseconds{handler="prometheus",quantile="0.5"} NaN
-http_request_duration_microseconds{handler="prometheus",quantile="0.9"} NaN
-http_request_duration_microseconds{handler="prometheus",quantile="0.99"} NaN
-http_request_duration_microseconds_sum{handler="prometheus"} 0
-http_request_duration_microseconds_count{handler="prometheus"} 0
-# HELP http_request_size_bytes The HTTP request sizes in bytes.
-# TYPE http_request_size_bytes summary
-http_request_size_bytes{handler="prometheus",quantile="0.5"} NaN
-http_request_size_bytes{handler="prometheus",quantile="0.9"} NaN
-http_request_size_bytes{handler="prometheus",quantile="0.99"} NaN
-http_request_size_bytes_sum{handler="prometheus"} 0
-http_request_size_bytes_count{handler="prometheus"} 0
-# HELP http_response_size_bytes The HTTP response sizes in bytes.
-# TYPE http_response_size_bytes summary
-http_response_size_bytes{handler="prometheus",quantile="0.5"} NaN
-http_response_size_bytes{handler="prometheus",quantile="0.9"} NaN
-http_response_size_bytes{handler="prometheus",quantile="0.99"} NaN
-http_response_size_bytes_sum{handler="prometheus"} 0
-http_response_size_bytes_count{handler="prometheus"} 0
 # HELP node_arp_entries ARP entries by device
 # TYPE node_arp_entries gauge
 node_arp_entries{device="eth0"} 3
@@ -3722,6 +3701,14 @@ node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # TYPE process_start_time_seconds gauge
 # HELP process_virtual_memory_bytes Virtual memory size in bytes.
 # TYPE process_virtual_memory_bytes gauge
+# HELP promhttp_metric_handler_requests_in_flight Current number of scrapes being served.
+# TYPE promhttp_metric_handler_requests_in_flight gauge
+promhttp_metric_handler_requests_in_flight 1
+# HELP promhttp_metric_handler_requests_total Total number of scrapes by HTTP status code.
+# TYPE promhttp_metric_handler_requests_total counter
+promhttp_metric_handler_requests_total{code="200"} 0
+promhttp_metric_handler_requests_total{code="500"} 0
+promhttp_metric_handler_requests_total{code="503"} 0
 # HELP testmetric1_1 Metric read from collector/fixtures/textfile/two_metric_files/metrics1.prom
 # TYPE testmetric1_1 untyped
 testmetric1_1{foo="bar"} 10
