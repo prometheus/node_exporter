@@ -242,7 +242,7 @@ func (c *nfsdCollector) updateNFSdServerRPCStats(ch chan<- prometheus.Metric, s 
 
 // updateNFSdRequestsv2Stats collects statistics for NFSv2 requests.
 func (c *nfsdCollector) updateNFSdRequestsv2Stats(ch chan<- prometheus.Metric, s *nfs.V2Stats) {
-	const proto = "v2"
+	const proto = "2"
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.GetAttr), proto, "GetAttr")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
@@ -281,7 +281,7 @@ func (c *nfsdCollector) updateNFSdRequestsv2Stats(ch chan<- prometheus.Metric, s
 
 // updateNFSdRequestsv3Stats collects statistics for NFSv3 requests.
 func (c *nfsdCollector) updateNFSdRequestsv3Stats(ch chan<- prometheus.Metric, s *nfs.V3Stats) {
-	const proto = "v3"
+	const proto = "3"
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.GetAttr), proto, "GetAttr")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
@@ -328,7 +328,7 @@ func (c *nfsdCollector) updateNFSdRequestsv3Stats(ch chan<- prometheus.Metric, s
 
 // updateNFSdRequestsv4Stats collects statistics for NFSv4 requests.
 func (c *nfsdCollector) updateNFSdRequestsv4Stats(ch chan<- prometheus.Metric, s *nfs.V4Ops) {
-	const proto = "v4"
+	const proto = "4"
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.Access), proto, "Access")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,

@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -53,20 +52,20 @@ func NewNfsCollector() (Collector, error) {
 	return &nfsCollector{
 		fs: fs,
 		nfsNetReadsDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, nfsSubsystem, "net_reads_total"),
-			"Number of reads at the network layer.",
+			prometheus.BuildFQName(namespace, nfsSubsystem, "packets_total"),
+			"Total NFSd network packets (sent+recieved) by protocol type.",
 			[]string{"protocol"},
 			nil,
 		),
 		nfsNetConnectionsDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, nfsSubsystem, "net_connections_total"),
-			"Number of connections at the network layer.",
-			[]string{"protocol"},
+			prometheus.BuildFQName(namespace, nfsSubsystem, "connections_total"),
+			"Total number of NFSd TCP connections.",
+			nil,
 			nil,
 		),
 		nfsRPCOperationsDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, nfsSubsystem, "rpc_operations_total"),
-			"Number of RPCs performed.",
+			prometheus.BuildFQName(namespace, nfsSubsystem, "rpcs_total"),
+			"Total number of RPCs performed.",
 			nil,
 			nil,
 		),
@@ -83,9 +82,9 @@ func NewNfsCollector() (Collector, error) {
 			nil,
 		),
 		nfsProceduresDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "nfs", "procedures_total"),
+			prometheus.BuildFQName(namespace, nfsSubsystem, "requests_total"),
 			"Number of NFS procedures invoked.",
-			[]string{"version", "procedure"},
+			[]string{"proto", "method"},
 			nil,
 		),
 	}, nil
@@ -117,7 +116,7 @@ func (c *nfsCollector) updateNFSNetworkStats(ch chan<- prometheus.Metric, s *nfs
 	ch <- prometheus.MustNewConstMetric(c.nfsNetReadsDesc, prometheus.CounterValue,
 		float64(s.TCPCount), "tcp")
 	ch <- prometheus.MustNewConstMetric(c.nfsNetConnectionsDesc, prometheus.CounterValue,
-		float64(s.TCPConnect), "tcp")
+		float64(s.TCPConnect))
 }
 
 // updateNFSClientRPCStats collects statistics for kernel server RPCs.
@@ -137,17 +136,9 @@ func (c *nfsCollector) updateNFSRequestsv2Stats(ch chan<- prometheus.Metric, s *
 	v := reflect.ValueOf(s).Elem()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
-		name := strings.ToLower(v.Type().Field(i).Name)
-
-		switch name {
-		case "wrcache":
-			name = "writecache"
-		case "fsstat":
-			name = "statfs"
-		}
 
 		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-			float64(field.Uint()), proto, name)
+			float64(field.Uint()), proto, v.Type().Field(i).Name)
 	}
 }
 
@@ -158,10 +149,9 @@ func (c *nfsCollector) updateNFSRequestsv3Stats(ch chan<- prometheus.Metric, s *
 	v := reflect.ValueOf(s).Elem()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
-		name := strings.ToLower(v.Type().Field(i).Name)
 
 		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-			float64(field.Uint()), proto, name)
+			float64(field.Uint()), proto, v.Type().Field(i).Name)
 	}
 }
 
@@ -172,43 +162,8 @@ func (c *nfsCollector) updateNFSRequestsv4Stats(ch chan<- prometheus.Metric, s *
 	v := reflect.ValueOf(s).Elem()
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
-		name := strings.ToLower(v.Type().Field(i).Name)
-
-		switch name {
-		case "openconfirm":
-			name = "open_confirm"
-		case "opendowngrade":
-			name = "open_downgrade"
-		case "opennoattr":
-			name = "open_noattr"
-		case "setclientidconfirm":
-			name = "setclientid_confirm"
-		case "lookuproot":
-			name = "lookup_root"
-		case "servercaps":
-			name = "server_caps"
-		case "fslocations":
-			name = "fs_locations"
-		case "releaselockowner":
-			name = "release_lockowner"
-		case "fsidpresent":
-			name = "fsid_present"
-		case "exchangeid":
-			name = "exchange_id"
-		case "createsession":
-			name = "create_session"
-		case "destroysession":
-			name = "destroy_session"
-		case "getleasetime":
-			name = "get_lease_time"
-		case "reclaimcomplete":
-			name = "reclaim_complete"
-		// TODO: Enable these metrics
-		case "secinfononame", "teststateid", "freestateid", "getdevicelist", "bindconntosession", "destroyclientid", "seek", "allocate", "deallocate", "layoutstats", "clone":
-			continue
-		}
 
 		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
-			float64(field.Uint()), proto, name)
+			float64(field.Uint()), proto, v.Type().Field(i).Name)
 	}
 }
