@@ -54,27 +54,6 @@
 # TYPE go_memstats_sys_bytes gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
-# HELP http_request_duration_microseconds The HTTP request latencies in microseconds.
-# TYPE http_request_duration_microseconds summary
-http_request_duration_microseconds{handler="prometheus",quantile="0.5"} NaN
-http_request_duration_microseconds{handler="prometheus",quantile="0.9"} NaN
-http_request_duration_microseconds{handler="prometheus",quantile="0.99"} NaN
-http_request_duration_microseconds_sum{handler="prometheus"} 0
-http_request_duration_microseconds_count{handler="prometheus"} 0
-# HELP http_request_size_bytes The HTTP request sizes in bytes.
-# TYPE http_request_size_bytes summary
-http_request_size_bytes{handler="prometheus",quantile="0.5"} NaN
-http_request_size_bytes{handler="prometheus",quantile="0.9"} NaN
-http_request_size_bytes{handler="prometheus",quantile="0.99"} NaN
-http_request_size_bytes_sum{handler="prometheus"} 0
-http_request_size_bytes_count{handler="prometheus"} 0
-# HELP http_response_size_bytes The HTTP response sizes in bytes.
-# TYPE http_response_size_bytes summary
-http_response_size_bytes{handler="prometheus",quantile="0.5"} NaN
-http_response_size_bytes{handler="prometheus",quantile="0.9"} NaN
-http_response_size_bytes{handler="prometheus",quantile="0.99"} NaN
-http_response_size_bytes_sum{handler="prometheus"} 0
-http_response_size_bytes_count{handler="prometheus"} 0
 # HELP node_arp_entries ARP entries by device
 # TYPE node_arp_entries gauge
 node_arp_entries{device="eth0"} 3
@@ -158,9 +137,9 @@ node_bonding_active{master="int"} 1
 node_bonding_slaves{master="bond0"} 0
 node_bonding_slaves{master="dmz"} 2
 node_bonding_slaves{master="int"} 2
-# HELP node_boot_time Node boot time, in unixtime.
-# TYPE node_boot_time gauge
-node_boot_time 1.418183276e+09
+# HELP node_boot_time_seconds Node boot time, in unixtime.
+# TYPE node_boot_time_seconds gauge
+node_boot_time_seconds 1.418183276e+09
 # HELP node_buddyinfo_blocks Count of free blocks according to size.
 # TYPE node_buddyinfo_blocks gauge
 node_buddyinfo_blocks{node="0",size="0",zone="DMA"} 1
@@ -196,95 +175,29 @@ node_buddyinfo_blocks{node="0",size="8",zone="Normal"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="DMA"} 1
 node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
-# HELP node_context_switches Total number of context switches.
-# TYPE node_context_switches counter
-node_context_switches 3.8014093e+07
-# HELP node_cpu Seconds the cpus spent in each mode.
-# TYPE node_cpu counter
-node_cpu{cpu="cpu0",mode="idle"} 10870.69
-node_cpu{cpu="cpu0",mode="iowait"} 2.2
-node_cpu{cpu="cpu0",mode="irq"} 0.01
-node_cpu{cpu="cpu0",mode="nice"} 0.19
-node_cpu{cpu="cpu0",mode="softirq"} 34.1
-node_cpu{cpu="cpu0",mode="steal"} 0
-node_cpu{cpu="cpu0",mode="system"} 210.45
-node_cpu{cpu="cpu0",mode="user"} 444.9
-node_cpu{cpu="cpu1",mode="idle"} 11107.87
-node_cpu{cpu="cpu1",mode="iowait"} 5.91
-node_cpu{cpu="cpu1",mode="irq"} 0
-node_cpu{cpu="cpu1",mode="nice"} 0.23
-node_cpu{cpu="cpu1",mode="softirq"} 0.46
-node_cpu{cpu="cpu1",mode="steal"} 0
-node_cpu{cpu="cpu1",mode="system"} 164.74
-node_cpu{cpu="cpu1",mode="user"} 478.69
-node_cpu{cpu="cpu2",mode="idle"} 11123.21
-node_cpu{cpu="cpu2",mode="iowait"} 4.41
-node_cpu{cpu="cpu2",mode="irq"} 0
-node_cpu{cpu="cpu2",mode="nice"} 0.36
-node_cpu{cpu="cpu2",mode="softirq"} 3.26
-node_cpu{cpu="cpu2",mode="steal"} 0
-node_cpu{cpu="cpu2",mode="system"} 159.16
-node_cpu{cpu="cpu2",mode="user"} 465.04
-node_cpu{cpu="cpu3",mode="idle"} 11132.3
-node_cpu{cpu="cpu3",mode="iowait"} 5.33
-node_cpu{cpu="cpu3",mode="irq"} 0
-node_cpu{cpu="cpu3",mode="nice"} 1.02
-node_cpu{cpu="cpu3",mode="softirq"} 0.6
-node_cpu{cpu="cpu3",mode="steal"} 0
-node_cpu{cpu="cpu3",mode="system"} 156.83
-node_cpu{cpu="cpu3",mode="user"} 470.54
-node_cpu{cpu="cpu4",mode="idle"} 11403.21
-node_cpu{cpu="cpu4",mode="iowait"} 2.17
-node_cpu{cpu="cpu4",mode="irq"} 0
-node_cpu{cpu="cpu4",mode="nice"} 0.25
-node_cpu{cpu="cpu4",mode="softirq"} 0.08
-node_cpu{cpu="cpu4",mode="steal"} 0
-node_cpu{cpu="cpu4",mode="system"} 107.76
-node_cpu{cpu="cpu4",mode="user"} 284.13
-node_cpu{cpu="cpu5",mode="idle"} 11362.7
-node_cpu{cpu="cpu5",mode="iowait"} 6.72
-node_cpu{cpu="cpu5",mode="irq"} 0
-node_cpu{cpu="cpu5",mode="nice"} 1.01
-node_cpu{cpu="cpu5",mode="softirq"} 0.3
-node_cpu{cpu="cpu5",mode="steal"} 0
-node_cpu{cpu="cpu5",mode="system"} 115.86
-node_cpu{cpu="cpu5",mode="user"} 292.71
-node_cpu{cpu="cpu6",mode="idle"} 11397.21
-node_cpu{cpu="cpu6",mode="iowait"} 3.19
-node_cpu{cpu="cpu6",mode="irq"} 0
-node_cpu{cpu="cpu6",mode="nice"} 0.36
-node_cpu{cpu="cpu6",mode="softirq"} 0.29
-node_cpu{cpu="cpu6",mode="steal"} 0
-node_cpu{cpu="cpu6",mode="system"} 102.76
-node_cpu{cpu="cpu6",mode="user"} 291.52
-node_cpu{cpu="cpu7",mode="idle"} 11392.82
-node_cpu{cpu="cpu7",mode="iowait"} 5.55
-node_cpu{cpu="cpu7",mode="irq"} 0
-node_cpu{cpu="cpu7",mode="nice"} 2.68
-node_cpu{cpu="cpu7",mode="softirq"} 0.31
-node_cpu{cpu="cpu7",mode="steal"} 0
-node_cpu{cpu="cpu7",mode="system"} 101.64
-node_cpu{cpu="cpu7",mode="user"} 290.98
+# HELP node_context_switches_total Total number of context switches.
+# TYPE node_context_switches_total counter
+node_context_switches_total 3.8014093e+07
 # HELP node_cpu_core_throttles_total Number of times this cpu core has been throttled.
 # TYPE node_cpu_core_throttles_total counter
-node_cpu_core_throttles_total{cpu="cpu0"} 5
-node_cpu_core_throttles_total{cpu="cpu1"} 0
-node_cpu_core_throttles_total{cpu="cpu2"} 40
+node_cpu_core_throttles_total{cpu="0"} 5
+node_cpu_core_throttles_total{cpu="1"} 0
+node_cpu_core_throttles_total{cpu="2"} 40
 # HELP node_cpu_frequency_hertz Current cpu thread frequency in hertz.
 # TYPE node_cpu_frequency_hertz gauge
-node_cpu_frequency_hertz{cpu="cpu0"} 1.699981e+09
-node_cpu_frequency_hertz{cpu="cpu1"} 1.699981e+09
-node_cpu_frequency_hertz{cpu="cpu3"} 8e+06
+node_cpu_frequency_hertz{cpu="0"} 1.699981e+09
+node_cpu_frequency_hertz{cpu="1"} 1.699981e+09
+node_cpu_frequency_hertz{cpu="3"} 8e+06
 # HELP node_cpu_frequency_max_hertz Maximum cpu thread frequency in hertz.
 # TYPE node_cpu_frequency_max_hertz gauge
-node_cpu_frequency_max_hertz{cpu="cpu0"} 3.7e+09
-node_cpu_frequency_max_hertz{cpu="cpu1"} 3.7e+09
-node_cpu_frequency_max_hertz{cpu="cpu3"} 4.2e+09
+node_cpu_frequency_max_hertz{cpu="0"} 3.7e+09
+node_cpu_frequency_max_hertz{cpu="1"} 3.7e+09
+node_cpu_frequency_max_hertz{cpu="3"} 4.2e+09
 # HELP node_cpu_frequency_min_hertz Minimum cpu thread frequency in hertz.
 # TYPE node_cpu_frequency_min_hertz gauge
-node_cpu_frequency_min_hertz{cpu="cpu0"} 8e+08
-node_cpu_frequency_min_hertz{cpu="cpu1"} 8e+08
-node_cpu_frequency_min_hertz{cpu="cpu3"} 1e+06
+node_cpu_frequency_min_hertz{cpu="0"} 8e+08
+node_cpu_frequency_min_hertz{cpu="1"} 8e+08
+node_cpu_frequency_min_hertz{cpu="3"} 1e+06
 # HELP node_cpu_guest_seconds_total Seconds the cpus spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
@@ -306,36 +219,72 @@ node_cpu_guest_seconds_total{cpu="7",mode="user"} 0.09
 # HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{node="0"} 30
-# HELP node_disk_bytes_read The total number of bytes read successfully.
-# TYPE node_disk_bytes_read counter
-node_disk_bytes_read{device="dm-0"} 5.13708655616e+11
-node_disk_bytes_read{device="dm-1"} 1.589248e+06
-node_disk_bytes_read{device="dm-2"} 1.578752e+08
-node_disk_bytes_read{device="dm-3"} 1.98144e+06
-node_disk_bytes_read{device="dm-4"} 529408
-node_disk_bytes_read{device="dm-5"} 4.3150848e+07
-node_disk_bytes_read{device="mmcblk0"} 798720
-node_disk_bytes_read{device="mmcblk0p1"} 81920
-node_disk_bytes_read{device="mmcblk0p2"} 389120
-node_disk_bytes_read{device="nvme0n1"} 2.377714176e+09
-node_disk_bytes_read{device="sda"} 5.13713216512e+11
-node_disk_bytes_read{device="sr0"} 0
-node_disk_bytes_read{device="vda"} 1.6727491584e+10
-# HELP node_disk_bytes_written The total number of bytes written successfully.
-# TYPE node_disk_bytes_written counter
-node_disk_bytes_written{device="dm-0"} 2.5891680256e+11
-node_disk_bytes_written{device="dm-1"} 303104
-node_disk_bytes_written{device="dm-2"} 2.607828992e+09
-node_disk_bytes_written{device="dm-3"} 0
-node_disk_bytes_written{device="dm-4"} 70144
-node_disk_bytes_written{device="dm-5"} 5.89664256e+08
-node_disk_bytes_written{device="mmcblk0"} 0
-node_disk_bytes_written{device="mmcblk0p1"} 0
-node_disk_bytes_written{device="mmcblk0p2"} 0
-node_disk_bytes_written{device="nvme0n1"} 2.0199236096e+10
-node_disk_bytes_written{device="sda"} 2.58916880384e+11
-node_disk_bytes_written{device="sr0"} 0
-node_disk_bytes_written{device="vda"} 1.0938236928e+11
+# HELP node_cpu_seconds_total Seconds the cpus spent in each mode.
+# TYPE node_cpu_seconds_total counter
+node_cpu_seconds_total{cpu="0",mode="idle"} 10870.69
+node_cpu_seconds_total{cpu="0",mode="iowait"} 2.2
+node_cpu_seconds_total{cpu="0",mode="irq"} 0.01
+node_cpu_seconds_total{cpu="0",mode="nice"} 0.19
+node_cpu_seconds_total{cpu="0",mode="softirq"} 34.1
+node_cpu_seconds_total{cpu="0",mode="steal"} 0
+node_cpu_seconds_total{cpu="0",mode="system"} 210.45
+node_cpu_seconds_total{cpu="0",mode="user"} 444.9
+node_cpu_seconds_total{cpu="1",mode="idle"} 11107.87
+node_cpu_seconds_total{cpu="1",mode="iowait"} 5.91
+node_cpu_seconds_total{cpu="1",mode="irq"} 0
+node_cpu_seconds_total{cpu="1",mode="nice"} 0.23
+node_cpu_seconds_total{cpu="1",mode="softirq"} 0.46
+node_cpu_seconds_total{cpu="1",mode="steal"} 0
+node_cpu_seconds_total{cpu="1",mode="system"} 164.74
+node_cpu_seconds_total{cpu="1",mode="user"} 478.69
+node_cpu_seconds_total{cpu="2",mode="idle"} 11123.21
+node_cpu_seconds_total{cpu="2",mode="iowait"} 4.41
+node_cpu_seconds_total{cpu="2",mode="irq"} 0
+node_cpu_seconds_total{cpu="2",mode="nice"} 0.36
+node_cpu_seconds_total{cpu="2",mode="softirq"} 3.26
+node_cpu_seconds_total{cpu="2",mode="steal"} 0
+node_cpu_seconds_total{cpu="2",mode="system"} 159.16
+node_cpu_seconds_total{cpu="2",mode="user"} 465.04
+node_cpu_seconds_total{cpu="3",mode="idle"} 11132.3
+node_cpu_seconds_total{cpu="3",mode="iowait"} 5.33
+node_cpu_seconds_total{cpu="3",mode="irq"} 0
+node_cpu_seconds_total{cpu="3",mode="nice"} 1.02
+node_cpu_seconds_total{cpu="3",mode="softirq"} 0.6
+node_cpu_seconds_total{cpu="3",mode="steal"} 0
+node_cpu_seconds_total{cpu="3",mode="system"} 156.83
+node_cpu_seconds_total{cpu="3",mode="user"} 470.54
+node_cpu_seconds_total{cpu="4",mode="idle"} 11403.21
+node_cpu_seconds_total{cpu="4",mode="iowait"} 2.17
+node_cpu_seconds_total{cpu="4",mode="irq"} 0
+node_cpu_seconds_total{cpu="4",mode="nice"} 0.25
+node_cpu_seconds_total{cpu="4",mode="softirq"} 0.08
+node_cpu_seconds_total{cpu="4",mode="steal"} 0
+node_cpu_seconds_total{cpu="4",mode="system"} 107.76
+node_cpu_seconds_total{cpu="4",mode="user"} 284.13
+node_cpu_seconds_total{cpu="5",mode="idle"} 11362.7
+node_cpu_seconds_total{cpu="5",mode="iowait"} 6.72
+node_cpu_seconds_total{cpu="5",mode="irq"} 0
+node_cpu_seconds_total{cpu="5",mode="nice"} 1.01
+node_cpu_seconds_total{cpu="5",mode="softirq"} 0.3
+node_cpu_seconds_total{cpu="5",mode="steal"} 0
+node_cpu_seconds_total{cpu="5",mode="system"} 115.86
+node_cpu_seconds_total{cpu="5",mode="user"} 292.71
+node_cpu_seconds_total{cpu="6",mode="idle"} 11397.21
+node_cpu_seconds_total{cpu="6",mode="iowait"} 3.19
+node_cpu_seconds_total{cpu="6",mode="irq"} 0
+node_cpu_seconds_total{cpu="6",mode="nice"} 0.36
+node_cpu_seconds_total{cpu="6",mode="softirq"} 0.29
+node_cpu_seconds_total{cpu="6",mode="steal"} 0
+node_cpu_seconds_total{cpu="6",mode="system"} 102.76
+node_cpu_seconds_total{cpu="6",mode="user"} 291.52
+node_cpu_seconds_total{cpu="7",mode="idle"} 11392.82
+node_cpu_seconds_total{cpu="7",mode="iowait"} 5.55
+node_cpu_seconds_total{cpu="7",mode="irq"} 0
+node_cpu_seconds_total{cpu="7",mode="nice"} 2.68
+node_cpu_seconds_total{cpu="7",mode="softirq"} 0.31
+node_cpu_seconds_total{cpu="7",mode="steal"} 0
+node_cpu_seconds_total{cpu="7",mode="system"} 101.64
+node_cpu_seconds_total{cpu="7",mode="user"} 290.98
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -351,156 +300,156 @@ node_disk_io_now{device="nvme0n1"} 0
 node_disk_io_now{device="sda"} 0
 node_disk_io_now{device="sr0"} 0
 node_disk_io_now{device="vda"} 0
-# HELP node_disk_io_time_ms Total Milliseconds spent doing I/Os.
-# TYPE node_disk_io_time_ms counter
-node_disk_io_time_ms{device="dm-0"} 1.1325968e+07
-node_disk_io_time_ms{device="dm-1"} 76
-node_disk_io_time_ms{device="dm-2"} 65400
-node_disk_io_time_ms{device="dm-3"} 16
-node_disk_io_time_ms{device="dm-4"} 24
-node_disk_io_time_ms{device="dm-5"} 58848
-node_disk_io_time_ms{device="mmcblk0"} 136
-node_disk_io_time_ms{device="mmcblk0p1"} 24
-node_disk_io_time_ms{device="mmcblk0p2"} 68
-node_disk_io_time_ms{device="nvme0n1"} 222766
-node_disk_io_time_ms{device="sda"} 9.65388e+06
-node_disk_io_time_ms{device="sr0"} 0
-node_disk_io_time_ms{device="vda"} 4.1614592e+07
-# HELP node_disk_io_time_weighted The weighted # of milliseconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.
-# TYPE node_disk_io_time_weighted counter
-node_disk_io_time_weighted{device="dm-0"} 1.206301256e+09
-node_disk_io_time_weighted{device="dm-1"} 84
-node_disk_io_time_weighted{device="dm-2"} 129416
-node_disk_io_time_weighted{device="dm-3"} 104
-node_disk_io_time_weighted{device="dm-4"} 44
-node_disk_io_time_weighted{device="dm-5"} 105632
-node_disk_io_time_weighted{device="mmcblk0"} 156
-node_disk_io_time_weighted{device="mmcblk0p1"} 24
-node_disk_io_time_weighted{device="mmcblk0p2"} 68
-node_disk_io_time_weighted{device="nvme0n1"} 1.032546e+06
-node_disk_io_time_weighted{device="sda"} 8.2621804e+07
-node_disk_io_time_weighted{device="sr0"} 0
-node_disk_io_time_weighted{device="vda"} 2.077872228e+09
-# HELP node_disk_read_time_ms The total number of milliseconds spent by all reads.
-# TYPE node_disk_read_time_ms counter
-node_disk_read_time_ms{device="dm-0"} 4.6229572e+07
-node_disk_read_time_ms{device="dm-1"} 84
-node_disk_read_time_ms{device="dm-2"} 6536
-node_disk_read_time_ms{device="dm-3"} 104
-node_disk_read_time_ms{device="dm-4"} 28
-node_disk_read_time_ms{device="dm-5"} 924
-node_disk_read_time_ms{device="mmcblk0"} 156
-node_disk_read_time_ms{device="mmcblk0p1"} 24
-node_disk_read_time_ms{device="mmcblk0p2"} 68
-node_disk_read_time_ms{device="nvme0n1"} 21650
-node_disk_read_time_ms{device="sda"} 1.8492372e+07
-node_disk_read_time_ms{device="sr0"} 0
-node_disk_read_time_ms{device="vda"} 8.655768e+06
-# HELP node_disk_reads_completed The total number of reads completed successfully.
-# TYPE node_disk_reads_completed counter
-node_disk_reads_completed{device="dm-0"} 5.9910002e+07
-node_disk_reads_completed{device="dm-1"} 388
-node_disk_reads_completed{device="dm-2"} 11571
-node_disk_reads_completed{device="dm-3"} 3870
-node_disk_reads_completed{device="dm-4"} 392
-node_disk_reads_completed{device="dm-5"} 3729
-node_disk_reads_completed{device="mmcblk0"} 192
-node_disk_reads_completed{device="mmcblk0p1"} 17
-node_disk_reads_completed{device="mmcblk0p2"} 95
-node_disk_reads_completed{device="nvme0n1"} 47114
-node_disk_reads_completed{device="sda"} 2.5354637e+07
-node_disk_reads_completed{device="sr0"} 0
-node_disk_reads_completed{device="vda"} 1.775784e+06
-# HELP node_disk_reads_merged The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
-# TYPE node_disk_reads_merged counter
-node_disk_reads_merged{device="dm-0"} 0
-node_disk_reads_merged{device="dm-1"} 0
-node_disk_reads_merged{device="dm-2"} 0
-node_disk_reads_merged{device="dm-3"} 0
-node_disk_reads_merged{device="dm-4"} 0
-node_disk_reads_merged{device="dm-5"} 0
-node_disk_reads_merged{device="mmcblk0"} 3
-node_disk_reads_merged{device="mmcblk0p1"} 3
-node_disk_reads_merged{device="mmcblk0p2"} 0
-node_disk_reads_merged{device="nvme0n1"} 4
-node_disk_reads_merged{device="sda"} 3.4367663e+07
-node_disk_reads_merged{device="sr0"} 0
-node_disk_reads_merged{device="vda"} 15386
-# HELP node_disk_sectors_read The total number of sectors read successfully.
-# TYPE node_disk_sectors_read counter
-node_disk_sectors_read{device="dm-0"} 1.003337218e+09
-node_disk_sectors_read{device="dm-1"} 3104
-node_disk_sectors_read{device="dm-2"} 308350
-node_disk_sectors_read{device="dm-3"} 3870
-node_disk_sectors_read{device="dm-4"} 1034
-node_disk_sectors_read{device="dm-5"} 84279
-node_disk_sectors_read{device="mmcblk0"} 1560
-node_disk_sectors_read{device="mmcblk0p1"} 160
-node_disk_sectors_read{device="mmcblk0p2"} 760
-node_disk_sectors_read{device="nvme0n1"} 4.643973e+06
-node_disk_sectors_read{device="sda"} 1.003346126e+09
-node_disk_sectors_read{device="sr0"} 0
-node_disk_sectors_read{device="vda"} 3.2670882e+07
-# HELP node_disk_sectors_written The total number of sectors written successfully.
-# TYPE node_disk_sectors_written counter
-node_disk_sectors_written{device="dm-0"} 5.0569688e+08
-node_disk_sectors_written{device="dm-1"} 592
-node_disk_sectors_written{device="dm-2"} 5.093416e+06
-node_disk_sectors_written{device="dm-3"} 0
-node_disk_sectors_written{device="dm-4"} 137
-node_disk_sectors_written{device="dm-5"} 1.151688e+06
-node_disk_sectors_written{device="mmcblk0"} 0
-node_disk_sectors_written{device="mmcblk0p1"} 0
-node_disk_sectors_written{device="mmcblk0p2"} 0
-node_disk_sectors_written{device="nvme0n1"} 3.9451633e+07
-node_disk_sectors_written{device="sda"} 5.05697032e+08
-node_disk_sectors_written{device="sr0"} 0
-node_disk_sectors_written{device="vda"} 2.1363744e+08
-# HELP node_disk_write_time_ms This is the total number of milliseconds spent by all writes.
-# TYPE node_disk_write_time_ms counter
-node_disk_write_time_ms{device="dm-0"} 1.1585578e+09
-node_disk_write_time_ms{device="dm-1"} 0
-node_disk_write_time_ms{device="dm-2"} 122884
-node_disk_write_time_ms{device="dm-3"} 0
-node_disk_write_time_ms{device="dm-4"} 16
-node_disk_write_time_ms{device="dm-5"} 104684
-node_disk_write_time_ms{device="mmcblk0"} 0
-node_disk_write_time_ms{device="mmcblk0p1"} 0
-node_disk_write_time_ms{device="mmcblk0p2"} 0
-node_disk_write_time_ms{device="nvme0n1"} 1.011053e+06
-node_disk_write_time_ms{device="sda"} 6.387796e+07
-node_disk_write_time_ms{device="sr0"} 0
-node_disk_write_time_ms{device="vda"} 2.069221364e+09
-# HELP node_disk_writes_completed The total number of writes completed successfully.
-# TYPE node_disk_writes_completed counter
-node_disk_writes_completed{device="dm-0"} 3.9231014e+07
-node_disk_writes_completed{device="dm-1"} 74
-node_disk_writes_completed{device="dm-2"} 153522
-node_disk_writes_completed{device="dm-3"} 0
-node_disk_writes_completed{device="dm-4"} 38
-node_disk_writes_completed{device="dm-5"} 98918
-node_disk_writes_completed{device="mmcblk0"} 0
-node_disk_writes_completed{device="mmcblk0p1"} 0
-node_disk_writes_completed{device="mmcblk0p2"} 0
-node_disk_writes_completed{device="nvme0n1"} 1.07832e+06
-node_disk_writes_completed{device="sda"} 2.8444756e+07
-node_disk_writes_completed{device="sr0"} 0
-node_disk_writes_completed{device="vda"} 6.038856e+06
-# HELP node_disk_writes_merged The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
-# TYPE node_disk_writes_merged counter
-node_disk_writes_merged{device="dm-0"} 0
-node_disk_writes_merged{device="dm-1"} 0
-node_disk_writes_merged{device="dm-2"} 0
-node_disk_writes_merged{device="dm-3"} 0
-node_disk_writes_merged{device="dm-4"} 0
-node_disk_writes_merged{device="dm-5"} 0
-node_disk_writes_merged{device="mmcblk0"} 0
-node_disk_writes_merged{device="mmcblk0p1"} 0
-node_disk_writes_merged{device="mmcblk0p2"} 0
-node_disk_writes_merged{device="nvme0n1"} 43950
-node_disk_writes_merged{device="sda"} 1.1134226e+07
-node_disk_writes_merged{device="sr0"} 0
-node_disk_writes_merged{device="vda"} 2.0711856e+07
+# HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
+# TYPE node_disk_io_time_seconds_total counter
+node_disk_io_time_seconds_total{device="dm-0"} 11325.968
+node_disk_io_time_seconds_total{device="dm-1"} 0.076
+node_disk_io_time_seconds_total{device="dm-2"} 65.4
+node_disk_io_time_seconds_total{device="dm-3"} 0.016
+node_disk_io_time_seconds_total{device="dm-4"} 0.024
+node_disk_io_time_seconds_total{device="dm-5"} 58.848
+node_disk_io_time_seconds_total{device="mmcblk0"} 0.136
+node_disk_io_time_seconds_total{device="mmcblk0p1"} 0.024
+node_disk_io_time_seconds_total{device="mmcblk0p2"} 0.068
+node_disk_io_time_seconds_total{device="nvme0n1"} 222.766
+node_disk_io_time_seconds_total{device="sda"} 9653.880000000001
+node_disk_io_time_seconds_total{device="sr0"} 0
+node_disk_io_time_seconds_total{device="vda"} 41614.592000000004
+# HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# TYPE node_disk_io_time_weighted_seconds_total counter
+node_disk_io_time_weighted_seconds_total{device="dm-0"} 1.206301256e+06
+node_disk_io_time_weighted_seconds_total{device="dm-1"} 0.084
+node_disk_io_time_weighted_seconds_total{device="dm-2"} 129.416
+node_disk_io_time_weighted_seconds_total{device="dm-3"} 0.10400000000000001
+node_disk_io_time_weighted_seconds_total{device="dm-4"} 0.044
+node_disk_io_time_weighted_seconds_total{device="dm-5"} 105.632
+node_disk_io_time_weighted_seconds_total{device="mmcblk0"} 0.156
+node_disk_io_time_weighted_seconds_total{device="mmcblk0p1"} 0.024
+node_disk_io_time_weighted_seconds_total{device="mmcblk0p2"} 0.068
+node_disk_io_time_weighted_seconds_total{device="nvme0n1"} 1032.546
+node_disk_io_time_weighted_seconds_total{device="sda"} 82621.804
+node_disk_io_time_weighted_seconds_total{device="sr0"} 0
+node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
+# HELP node_disk_read_bytes_total The total number of bytes read successfully.
+# TYPE node_disk_read_bytes_total counter
+node_disk_read_bytes_total{device="dm-0"} 5.13708655616e+11
+node_disk_read_bytes_total{device="dm-1"} 1.589248e+06
+node_disk_read_bytes_total{device="dm-2"} 1.578752e+08
+node_disk_read_bytes_total{device="dm-3"} 1.98144e+06
+node_disk_read_bytes_total{device="dm-4"} 529408
+node_disk_read_bytes_total{device="dm-5"} 4.3150848e+07
+node_disk_read_bytes_total{device="mmcblk0"} 798720
+node_disk_read_bytes_total{device="mmcblk0p1"} 81920
+node_disk_read_bytes_total{device="mmcblk0p2"} 389120
+node_disk_read_bytes_total{device="nvme0n1"} 2.377714176e+09
+node_disk_read_bytes_total{device="sda"} 5.13713216512e+11
+node_disk_read_bytes_total{device="sr0"} 0
+node_disk_read_bytes_total{device="vda"} 1.6727491584e+10
+# HELP node_disk_read_time_seconds_total The total number of milliseconds spent by all reads.
+# TYPE node_disk_read_time_seconds_total counter
+node_disk_read_time_seconds_total{device="dm-0"} 46229.572
+node_disk_read_time_seconds_total{device="dm-1"} 0.084
+node_disk_read_time_seconds_total{device="dm-2"} 6.5360000000000005
+node_disk_read_time_seconds_total{device="dm-3"} 0.10400000000000001
+node_disk_read_time_seconds_total{device="dm-4"} 0.028
+node_disk_read_time_seconds_total{device="dm-5"} 0.924
+node_disk_read_time_seconds_total{device="mmcblk0"} 0.156
+node_disk_read_time_seconds_total{device="mmcblk0p1"} 0.024
+node_disk_read_time_seconds_total{device="mmcblk0p2"} 0.068
+node_disk_read_time_seconds_total{device="nvme0n1"} 21.650000000000002
+node_disk_read_time_seconds_total{device="sda"} 18492.372
+node_disk_read_time_seconds_total{device="sr0"} 0
+node_disk_read_time_seconds_total{device="vda"} 8655.768
+# HELP node_disk_reads_completed_total The total number of reads completed successfully.
+# TYPE node_disk_reads_completed_total counter
+node_disk_reads_completed_total{device="dm-0"} 5.9910002e+07
+node_disk_reads_completed_total{device="dm-1"} 388
+node_disk_reads_completed_total{device="dm-2"} 11571
+node_disk_reads_completed_total{device="dm-3"} 3870
+node_disk_reads_completed_total{device="dm-4"} 392
+node_disk_reads_completed_total{device="dm-5"} 3729
+node_disk_reads_completed_total{device="mmcblk0"} 192
+node_disk_reads_completed_total{device="mmcblk0p1"} 17
+node_disk_reads_completed_total{device="mmcblk0p2"} 95
+node_disk_reads_completed_total{device="nvme0n1"} 47114
+node_disk_reads_completed_total{device="sda"} 2.5354637e+07
+node_disk_reads_completed_total{device="sr0"} 0
+node_disk_reads_completed_total{device="vda"} 1.775784e+06
+# HELP node_disk_reads_merged_total The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# TYPE node_disk_reads_merged_total counter
+node_disk_reads_merged_total{device="dm-0"} 0
+node_disk_reads_merged_total{device="dm-1"} 0
+node_disk_reads_merged_total{device="dm-2"} 0
+node_disk_reads_merged_total{device="dm-3"} 0
+node_disk_reads_merged_total{device="dm-4"} 0
+node_disk_reads_merged_total{device="dm-5"} 0
+node_disk_reads_merged_total{device="mmcblk0"} 3
+node_disk_reads_merged_total{device="mmcblk0p1"} 3
+node_disk_reads_merged_total{device="mmcblk0p2"} 0
+node_disk_reads_merged_total{device="nvme0n1"} 4
+node_disk_reads_merged_total{device="sda"} 3.4367663e+07
+node_disk_reads_merged_total{device="sr0"} 0
+node_disk_reads_merged_total{device="vda"} 15386
+# HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
+# TYPE node_disk_write_time_seconds_total counter
+node_disk_write_time_seconds_total{device="dm-0"} 1.1585578e+06
+node_disk_write_time_seconds_total{device="dm-1"} 0
+node_disk_write_time_seconds_total{device="dm-2"} 122.884
+node_disk_write_time_seconds_total{device="dm-3"} 0
+node_disk_write_time_seconds_total{device="dm-4"} 0.016
+node_disk_write_time_seconds_total{device="dm-5"} 104.684
+node_disk_write_time_seconds_total{device="mmcblk0"} 0
+node_disk_write_time_seconds_total{device="mmcblk0p1"} 0
+node_disk_write_time_seconds_total{device="mmcblk0p2"} 0
+node_disk_write_time_seconds_total{device="nvme0n1"} 1011.053
+node_disk_write_time_seconds_total{device="sda"} 63877.96
+node_disk_write_time_seconds_total{device="sr0"} 0
+node_disk_write_time_seconds_total{device="vda"} 2.069221364e+06
+# HELP node_disk_writes_completed_total The total number of writes completed successfully.
+# TYPE node_disk_writes_completed_total counter
+node_disk_writes_completed_total{device="dm-0"} 3.9231014e+07
+node_disk_writes_completed_total{device="dm-1"} 74
+node_disk_writes_completed_total{device="dm-2"} 153522
+node_disk_writes_completed_total{device="dm-3"} 0
+node_disk_writes_completed_total{device="dm-4"} 38
+node_disk_writes_completed_total{device="dm-5"} 98918
+node_disk_writes_completed_total{device="mmcblk0"} 0
+node_disk_writes_completed_total{device="mmcblk0p1"} 0
+node_disk_writes_completed_total{device="mmcblk0p2"} 0
+node_disk_writes_completed_total{device="nvme0n1"} 1.07832e+06
+node_disk_writes_completed_total{device="sda"} 2.8444756e+07
+node_disk_writes_completed_total{device="sr0"} 0
+node_disk_writes_completed_total{device="vda"} 6.038856e+06
+# HELP node_disk_writes_merged_total The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# TYPE node_disk_writes_merged_total counter
+node_disk_writes_merged_total{device="dm-0"} 0
+node_disk_writes_merged_total{device="dm-1"} 0
+node_disk_writes_merged_total{device="dm-2"} 0
+node_disk_writes_merged_total{device="dm-3"} 0
+node_disk_writes_merged_total{device="dm-4"} 0
+node_disk_writes_merged_total{device="dm-5"} 0
+node_disk_writes_merged_total{device="mmcblk0"} 0
+node_disk_writes_merged_total{device="mmcblk0p1"} 0
+node_disk_writes_merged_total{device="mmcblk0p2"} 0
+node_disk_writes_merged_total{device="nvme0n1"} 43950
+node_disk_writes_merged_total{device="sda"} 1.1134226e+07
+node_disk_writes_merged_total{device="sr0"} 0
+node_disk_writes_merged_total{device="vda"} 2.0711856e+07
+# HELP node_disk_written_bytes_total The total number of bytes written successfully.
+# TYPE node_disk_written_bytes_total counter
+node_disk_written_bytes_total{device="dm-0"} 2.5891680256e+11
+node_disk_written_bytes_total{device="dm-1"} 303104
+node_disk_written_bytes_total{device="dm-2"} 2.607828992e+09
+node_disk_written_bytes_total{device="dm-3"} 0
+node_disk_written_bytes_total{device="dm-4"} 70144
+node_disk_written_bytes_total{device="dm-5"} 5.89664256e+08
+node_disk_written_bytes_total{device="mmcblk0"} 0
+node_disk_written_bytes_total{device="mmcblk0p1"} 0
+node_disk_written_bytes_total{device="mmcblk0p2"} 0
+node_disk_written_bytes_total{device="nvme0n1"} 2.0199236096e+10
+node_disk_written_bytes_total{device="sda"} 2.58916880384e+11
+node_disk_written_bytes_total{device="sr0"} 0
+node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 # HELP node_drbd_activitylog_writes_total Number of updates of the activity log area of the meta data.
 # TYPE node_drbd_activitylog_writes_total counter
 node_drbd_activitylog_writes_total{device="drbd1"} 1100
@@ -573,9 +522,9 @@ node_filefd_allocated 1024
 # HELP node_filefd_maximum File descriptor statistics: maximum.
 # TYPE node_filefd_maximum gauge
 node_filefd_maximum 1.631329e+06
-# HELP node_forks Total number of forks.
-# TYPE node_forks counter
-node_forks 26442
+# HELP node_forks_total Total number of forks.
+# TYPE node_forks_total counter
+node_forks_total 26442
 # HELP node_hwmon_chip_names Annotation metric for human-readable chip names
 # TYPE node_hwmon_chip_names gauge
 node_hwmon_chip_names{chip="nct6779",chip_name="nct6779"} 1
@@ -847,14 +796,14 @@ node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_multicast_packets_transmitted_total counter
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
-# HELP node_infiniband_port_data_received_bytes Number of data octets received on all links
-# TYPE node_infiniband_port_data_received_bytes counter
-node_infiniband_port_data_received_bytes{device="mlx4_0",port="1"} 1.8527668e+07
-node_infiniband_port_data_received_bytes{device="mlx4_0",port="2"} 0
-# HELP node_infiniband_port_data_transmitted_bytes Number of data octets transmitted on all links
-# TYPE node_infiniband_port_data_transmitted_bytes counter
-node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="1"} 1.493376e+07
-node_infiniband_port_data_transmitted_bytes{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_received_bytes_total Number of data octets received on all links
+# TYPE node_infiniband_port_data_received_bytes_total counter
+node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
+node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_data_transmitted_bytes_total Number of data octets transmitted on all links
+# TYPE node_infiniband_port_data_transmitted_bytes_total counter
+node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="1"} 1.493376e+07
+node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
 node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
@@ -863,123 +812,123 @@ node_infiniband_unicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_unicast_packets_transmitted_total counter
 node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="1"} 61239
 node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
-# HELP node_interrupts Interrupt details.
-# TYPE node_interrupts counter
-node_interrupts{CPU="0",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts{CPU="0",devices="",info="Function call interrupts",type="CAL"} 148554
-node_interrupts{CPU="0",devices="",info="IRQ work interrupts",type="IWI"} 1.509379e+06
-node_interrupts{CPU="0",devices="",info="Local timer interrupts",type="LOC"} 1.74326351e+08
-node_interrupts{CPU="0",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts{CPU="0",devices="",info="Machine check polls",type="MCP"} 2406
-node_interrupts{CPU="0",devices="",info="Non-maskable interrupts",type="NMI"} 47
-node_interrupts{CPU="0",devices="",info="Performance monitoring interrupts",type="PMI"} 47
-node_interrupts{CPU="0",devices="",info="Rescheduling interrupts",type="RES"} 1.0847134e+07
-node_interrupts{CPU="0",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts{CPU="0",devices="",info="TLB shootdowns",type="TLB"} 1.0460334e+07
-node_interrupts{CPU="0",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts{CPU="0",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts{CPU="0",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 398553
-node_interrupts{CPU="0",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.434032e+06
-node_interrupts{CPU="0",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts{CPU="0",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts{CPU="0",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 328511
-node_interrupts{CPU="0",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.451445e+06
-node_interrupts{CPU="0",devices="i8042",info="IR-IO-APIC-edge",type="1"} 17960
-node_interrupts{CPU="0",devices="i8042",info="IR-IO-APIC-edge",type="12"} 380847
-node_interrupts{CPU="0",devices="i915",info="IR-PCI-MSI-edge",type="44"} 140636
-node_interrupts{CPU="0",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 4.3078464e+07
-node_interrupts{CPU="0",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 4
-node_interrupts{CPU="0",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 1
-node_interrupts{CPU="0",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 350
-node_interrupts{CPU="0",devices="timer",info="IR-IO-APIC-edge",type="0"} 18
-node_interrupts{CPU="0",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 378324
-node_interrupts{CPU="1",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts{CPU="1",devices="",info="Function call interrupts",type="CAL"} 157441
-node_interrupts{CPU="1",devices="",info="IRQ work interrupts",type="IWI"} 2.411776e+06
-node_interrupts{CPU="1",devices="",info="Local timer interrupts",type="LOC"} 1.35776678e+08
-node_interrupts{CPU="1",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts{CPU="1",devices="",info="Machine check polls",type="MCP"} 2399
-node_interrupts{CPU="1",devices="",info="Non-maskable interrupts",type="NMI"} 5031
-node_interrupts{CPU="1",devices="",info="Performance monitoring interrupts",type="PMI"} 5031
-node_interrupts{CPU="1",devices="",info="Rescheduling interrupts",type="RES"} 9.111507e+06
-node_interrupts{CPU="1",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts{CPU="1",devices="",info="TLB shootdowns",type="TLB"} 9.918429e+06
-node_interrupts{CPU="1",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts{CPU="1",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts{CPU="1",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 2320
-node_interrupts{CPU="1",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 8.092205e+06
-node_interrupts{CPU="1",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts{CPU="1",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts{CPU="1",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 322879
-node_interrupts{CPU="1",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 3.333499e+06
-node_interrupts{CPU="1",devices="i8042",info="IR-IO-APIC-edge",type="1"} 105
-node_interrupts{CPU="1",devices="i8042",info="IR-IO-APIC-edge",type="12"} 1021
-node_interrupts{CPU="1",devices="i915",info="IR-PCI-MSI-edge",type="44"} 226313
-node_interrupts{CPU="1",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 130
-node_interrupts{CPU="1",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 22
-node_interrupts{CPU="1",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
-node_interrupts{CPU="1",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 224
-node_interrupts{CPU="1",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
-node_interrupts{CPU="1",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 1.734637e+06
-node_interrupts{CPU="2",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts{CPU="2",devices="",info="Function call interrupts",type="CAL"} 142912
-node_interrupts{CPU="2",devices="",info="IRQ work interrupts",type="IWI"} 1.512975e+06
-node_interrupts{CPU="2",devices="",info="Local timer interrupts",type="LOC"} 1.68393257e+08
-node_interrupts{CPU="2",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts{CPU="2",devices="",info="Machine check polls",type="MCP"} 2399
-node_interrupts{CPU="2",devices="",info="Non-maskable interrupts",type="NMI"} 6211
-node_interrupts{CPU="2",devices="",info="Performance monitoring interrupts",type="PMI"} 6211
-node_interrupts{CPU="2",devices="",info="Rescheduling interrupts",type="RES"} 1.5999335e+07
-node_interrupts{CPU="2",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts{CPU="2",devices="",info="TLB shootdowns",type="TLB"} 1.0494258e+07
-node_interrupts{CPU="2",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts{CPU="2",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts{CPU="2",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 824
-node_interrupts{CPU="2",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 6.478877e+06
-node_interrupts{CPU="2",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts{CPU="2",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts{CPU="2",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 293782
-node_interrupts{CPU="2",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.092032e+06
-node_interrupts{CPU="2",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
-node_interrupts{CPU="2",devices="i8042",info="IR-IO-APIC-edge",type="12"} 240
-node_interrupts{CPU="2",devices="i915",info="IR-PCI-MSI-edge",type="44"} 347
-node_interrupts{CPU="2",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 460171
-node_interrupts{CPU="2",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
-node_interrupts{CPU="2",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
-node_interrupts{CPU="2",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
-node_interrupts{CPU="2",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
-node_interrupts{CPU="2",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 440240
-node_interrupts{CPU="3",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts{CPU="3",devices="",info="Function call interrupts",type="CAL"} 155528
-node_interrupts{CPU="3",devices="",info="IRQ work interrupts",type="IWI"} 2.428828e+06
-node_interrupts{CPU="3",devices="",info="Local timer interrupts",type="LOC"} 1.30980079e+08
-node_interrupts{CPU="3",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts{CPU="3",devices="",info="Machine check polls",type="MCP"} 2399
-node_interrupts{CPU="3",devices="",info="Non-maskable interrupts",type="NMI"} 4968
-node_interrupts{CPU="3",devices="",info="Performance monitoring interrupts",type="PMI"} 4968
-node_interrupts{CPU="3",devices="",info="Rescheduling interrupts",type="RES"} 7.45726e+06
-node_interrupts{CPU="3",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts{CPU="3",devices="",info="TLB shootdowns",type="TLB"} 1.0345022e+07
-node_interrupts{CPU="3",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts{CPU="3",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts{CPU="3",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 863
-node_interrupts{CPU="3",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.492252e+06
-node_interrupts{CPU="3",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts{CPU="3",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts{CPU="3",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 351412
-node_interrupts{CPU="3",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 2.644609e+06
-node_interrupts{CPU="3",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
-node_interrupts{CPU="3",devices="i8042",info="IR-IO-APIC-edge",type="12"} 198
-node_interrupts{CPU="3",devices="i915",info="IR-PCI-MSI-edge",type="44"} 633
-node_interrupts{CPU="3",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 290
-node_interrupts{CPU="3",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
-node_interrupts{CPU="3",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
-node_interrupts{CPU="3",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
-node_interrupts{CPU="3",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
-node_interrupts{CPU="3",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 2.434308e+06
-# HELP node_intr Total number of interrupts serviced.
-# TYPE node_intr counter
-node_intr 8.885917e+06
+# HELP node_interrupts_total Interrupt details.
+# TYPE node_interrupts_total counter
+node_interrupts_total{CPU="0",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{CPU="0",devices="",info="Function call interrupts",type="CAL"} 148554
+node_interrupts_total{CPU="0",devices="",info="IRQ work interrupts",type="IWI"} 1.509379e+06
+node_interrupts_total{CPU="0",devices="",info="Local timer interrupts",type="LOC"} 1.74326351e+08
+node_interrupts_total{CPU="0",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{CPU="0",devices="",info="Machine check polls",type="MCP"} 2406
+node_interrupts_total{CPU="0",devices="",info="Non-maskable interrupts",type="NMI"} 47
+node_interrupts_total{CPU="0",devices="",info="Performance monitoring interrupts",type="PMI"} 47
+node_interrupts_total{CPU="0",devices="",info="Rescheduling interrupts",type="RES"} 1.0847134e+07
+node_interrupts_total{CPU="0",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{CPU="0",devices="",info="TLB shootdowns",type="TLB"} 1.0460334e+07
+node_interrupts_total{CPU="0",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{CPU="0",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{CPU="0",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 398553
+node_interrupts_total{CPU="0",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.434032e+06
+node_interrupts_total{CPU="0",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{CPU="0",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{CPU="0",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 328511
+node_interrupts_total{CPU="0",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.451445e+06
+node_interrupts_total{CPU="0",devices="i8042",info="IR-IO-APIC-edge",type="1"} 17960
+node_interrupts_total{CPU="0",devices="i8042",info="IR-IO-APIC-edge",type="12"} 380847
+node_interrupts_total{CPU="0",devices="i915",info="IR-PCI-MSI-edge",type="44"} 140636
+node_interrupts_total{CPU="0",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 4.3078464e+07
+node_interrupts_total{CPU="0",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 4
+node_interrupts_total{CPU="0",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 1
+node_interrupts_total{CPU="0",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 350
+node_interrupts_total{CPU="0",devices="timer",info="IR-IO-APIC-edge",type="0"} 18
+node_interrupts_total{CPU="0",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 378324
+node_interrupts_total{CPU="1",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{CPU="1",devices="",info="Function call interrupts",type="CAL"} 157441
+node_interrupts_total{CPU="1",devices="",info="IRQ work interrupts",type="IWI"} 2.411776e+06
+node_interrupts_total{CPU="1",devices="",info="Local timer interrupts",type="LOC"} 1.35776678e+08
+node_interrupts_total{CPU="1",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{CPU="1",devices="",info="Machine check polls",type="MCP"} 2399
+node_interrupts_total{CPU="1",devices="",info="Non-maskable interrupts",type="NMI"} 5031
+node_interrupts_total{CPU="1",devices="",info="Performance monitoring interrupts",type="PMI"} 5031
+node_interrupts_total{CPU="1",devices="",info="Rescheduling interrupts",type="RES"} 9.111507e+06
+node_interrupts_total{CPU="1",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{CPU="1",devices="",info="TLB shootdowns",type="TLB"} 9.918429e+06
+node_interrupts_total{CPU="1",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{CPU="1",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{CPU="1",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 2320
+node_interrupts_total{CPU="1",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 8.092205e+06
+node_interrupts_total{CPU="1",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{CPU="1",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{CPU="1",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 322879
+node_interrupts_total{CPU="1",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 3.333499e+06
+node_interrupts_total{CPU="1",devices="i8042",info="IR-IO-APIC-edge",type="1"} 105
+node_interrupts_total{CPU="1",devices="i8042",info="IR-IO-APIC-edge",type="12"} 1021
+node_interrupts_total{CPU="1",devices="i915",info="IR-PCI-MSI-edge",type="44"} 226313
+node_interrupts_total{CPU="1",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 130
+node_interrupts_total{CPU="1",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 22
+node_interrupts_total{CPU="1",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
+node_interrupts_total{CPU="1",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 224
+node_interrupts_total{CPU="1",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
+node_interrupts_total{CPU="1",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 1.734637e+06
+node_interrupts_total{CPU="2",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{CPU="2",devices="",info="Function call interrupts",type="CAL"} 142912
+node_interrupts_total{CPU="2",devices="",info="IRQ work interrupts",type="IWI"} 1.512975e+06
+node_interrupts_total{CPU="2",devices="",info="Local timer interrupts",type="LOC"} 1.68393257e+08
+node_interrupts_total{CPU="2",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{CPU="2",devices="",info="Machine check polls",type="MCP"} 2399
+node_interrupts_total{CPU="2",devices="",info="Non-maskable interrupts",type="NMI"} 6211
+node_interrupts_total{CPU="2",devices="",info="Performance monitoring interrupts",type="PMI"} 6211
+node_interrupts_total{CPU="2",devices="",info="Rescheduling interrupts",type="RES"} 1.5999335e+07
+node_interrupts_total{CPU="2",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{CPU="2",devices="",info="TLB shootdowns",type="TLB"} 1.0494258e+07
+node_interrupts_total{CPU="2",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{CPU="2",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{CPU="2",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 824
+node_interrupts_total{CPU="2",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 6.478877e+06
+node_interrupts_total{CPU="2",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{CPU="2",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{CPU="2",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 293782
+node_interrupts_total{CPU="2",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.092032e+06
+node_interrupts_total{CPU="2",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
+node_interrupts_total{CPU="2",devices="i8042",info="IR-IO-APIC-edge",type="12"} 240
+node_interrupts_total{CPU="2",devices="i915",info="IR-PCI-MSI-edge",type="44"} 347
+node_interrupts_total{CPU="2",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 460171
+node_interrupts_total{CPU="2",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
+node_interrupts_total{CPU="2",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
+node_interrupts_total{CPU="2",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
+node_interrupts_total{CPU="2",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
+node_interrupts_total{CPU="2",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 440240
+node_interrupts_total{CPU="3",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{CPU="3",devices="",info="Function call interrupts",type="CAL"} 155528
+node_interrupts_total{CPU="3",devices="",info="IRQ work interrupts",type="IWI"} 2.428828e+06
+node_interrupts_total{CPU="3",devices="",info="Local timer interrupts",type="LOC"} 1.30980079e+08
+node_interrupts_total{CPU="3",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{CPU="3",devices="",info="Machine check polls",type="MCP"} 2399
+node_interrupts_total{CPU="3",devices="",info="Non-maskable interrupts",type="NMI"} 4968
+node_interrupts_total{CPU="3",devices="",info="Performance monitoring interrupts",type="PMI"} 4968
+node_interrupts_total{CPU="3",devices="",info="Rescheduling interrupts",type="RES"} 7.45726e+06
+node_interrupts_total{CPU="3",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{CPU="3",devices="",info="TLB shootdowns",type="TLB"} 1.0345022e+07
+node_interrupts_total{CPU="3",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{CPU="3",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{CPU="3",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 863
+node_interrupts_total{CPU="3",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.492252e+06
+node_interrupts_total{CPU="3",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{CPU="3",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{CPU="3",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 351412
+node_interrupts_total{CPU="3",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 2.644609e+06
+node_interrupts_total{CPU="3",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
+node_interrupts_total{CPU="3",devices="i8042",info="IR-IO-APIC-edge",type="12"} 198
+node_interrupts_total{CPU="3",devices="i915",info="IR-PCI-MSI-edge",type="44"} 633
+node_interrupts_total{CPU="3",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 290
+node_interrupts_total{CPU="3",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
+node_interrupts_total{CPU="3",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
+node_interrupts_total{CPU="3",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
+node_interrupts_total{CPU="3",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
+node_interrupts_total{CPU="3",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 2.434308e+06
+# HELP node_intr_total Total number of interrupts serviced.
+# TYPE node_intr_total counter
+node_intr_total 8.885917e+06
 # HELP node_ipvs_backend_connections_active The current active connections by local and remote address.
 # TYPE node_ipvs_backend_connections_active gauge
 node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 248
@@ -1141,48 +1090,48 @@ node_md_is_active{device="md6"} 1
 node_md_is_active{device="md7"} 1
 node_md_is_active{device="md8"} 1
 node_md_is_active{device="md9"} 1
-# HELP node_memory_Active Memory information field Active.
-# TYPE node_memory_Active gauge
-node_memory_Active 2.287017984e+09
-# HELP node_memory_Active_anon Memory information field Active_anon.
-# TYPE node_memory_Active_anon gauge
-node_memory_Active_anon 2.068484096e+09
-# HELP node_memory_Active_file Memory information field Active_file.
-# TYPE node_memory_Active_file gauge
-node_memory_Active_file 2.18533888e+08
-# HELP node_memory_AnonHugePages Memory information field AnonHugePages.
-# TYPE node_memory_AnonHugePages gauge
-node_memory_AnonHugePages 0
-# HELP node_memory_AnonPages Memory information field AnonPages.
-# TYPE node_memory_AnonPages gauge
-node_memory_AnonPages 2.298032128e+09
-# HELP node_memory_Bounce Memory information field Bounce.
-# TYPE node_memory_Bounce gauge
-node_memory_Bounce 0
-# HELP node_memory_Buffers Memory information field Buffers.
-# TYPE node_memory_Buffers gauge
-node_memory_Buffers 2.256896e+07
-# HELP node_memory_Cached Memory information field Cached.
-# TYPE node_memory_Cached gauge
-node_memory_Cached 9.53229312e+08
-# HELP node_memory_CommitLimit Memory information field CommitLimit.
-# TYPE node_memory_CommitLimit gauge
-node_memory_CommitLimit 6.210940928e+09
-# HELP node_memory_Committed_AS Memory information field Committed_AS.
-# TYPE node_memory_Committed_AS gauge
-node_memory_Committed_AS 8.023486464e+09
-# HELP node_memory_DirectMap2M Memory information field DirectMap2M.
-# TYPE node_memory_DirectMap2M gauge
-node_memory_DirectMap2M 3.787456512e+09
-# HELP node_memory_DirectMap4k Memory information field DirectMap4k.
-# TYPE node_memory_DirectMap4k gauge
-node_memory_DirectMap4k 1.9011584e+08
-# HELP node_memory_Dirty Memory information field Dirty.
-# TYPE node_memory_Dirty gauge
-node_memory_Dirty 1.077248e+06
-# HELP node_memory_HardwareCorrupted Memory information field HardwareCorrupted.
-# TYPE node_memory_HardwareCorrupted gauge
-node_memory_HardwareCorrupted 0
+# HELP node_memory_Active_anon_bytes Memory information field Active_anon_bytes.
+# TYPE node_memory_Active_anon_bytes gauge
+node_memory_Active_anon_bytes 2.068484096e+09
+# HELP node_memory_Active_bytes Memory information field Active_bytes.
+# TYPE node_memory_Active_bytes gauge
+node_memory_Active_bytes 2.287017984e+09
+# HELP node_memory_Active_file_bytes Memory information field Active_file_bytes.
+# TYPE node_memory_Active_file_bytes gauge
+node_memory_Active_file_bytes 2.18533888e+08
+# HELP node_memory_AnonHugePages_bytes Memory information field AnonHugePages_bytes.
+# TYPE node_memory_AnonHugePages_bytes gauge
+node_memory_AnonHugePages_bytes 0
+# HELP node_memory_AnonPages_bytes Memory information field AnonPages_bytes.
+# TYPE node_memory_AnonPages_bytes gauge
+node_memory_AnonPages_bytes 2.298032128e+09
+# HELP node_memory_Bounce_bytes Memory information field Bounce_bytes.
+# TYPE node_memory_Bounce_bytes gauge
+node_memory_Bounce_bytes 0
+# HELP node_memory_Buffers_bytes Memory information field Buffers_bytes.
+# TYPE node_memory_Buffers_bytes gauge
+node_memory_Buffers_bytes 2.256896e+07
+# HELP node_memory_Cached_bytes Memory information field Cached_bytes.
+# TYPE node_memory_Cached_bytes gauge
+node_memory_Cached_bytes 9.53229312e+08
+# HELP node_memory_CommitLimit_bytes Memory information field CommitLimit_bytes.
+# TYPE node_memory_CommitLimit_bytes gauge
+node_memory_CommitLimit_bytes 6.210940928e+09
+# HELP node_memory_Committed_AS_bytes Memory information field Committed_AS_bytes.
+# TYPE node_memory_Committed_AS_bytes gauge
+node_memory_Committed_AS_bytes 8.023486464e+09
+# HELP node_memory_DirectMap2M_bytes Memory information field DirectMap2M_bytes.
+# TYPE node_memory_DirectMap2M_bytes gauge
+node_memory_DirectMap2M_bytes 3.787456512e+09
+# HELP node_memory_DirectMap4k_bytes Memory information field DirectMap4k_bytes.
+# TYPE node_memory_DirectMap4k_bytes gauge
+node_memory_DirectMap4k_bytes 1.9011584e+08
+# HELP node_memory_Dirty_bytes Memory information field Dirty_bytes.
+# TYPE node_memory_Dirty_bytes gauge
+node_memory_Dirty_bytes 1.077248e+06
+# HELP node_memory_HardwareCorrupted_bytes Memory information field HardwareCorrupted_bytes.
+# TYPE node_memory_HardwareCorrupted_bytes gauge
+node_memory_HardwareCorrupted_bytes 0
 # HELP node_memory_HugePages_Free Memory information field HugePages_Free.
 # TYPE node_memory_HugePages_Free gauge
 node_memory_HugePages_Free 0
@@ -1195,78 +1144,78 @@ node_memory_HugePages_Surp 0
 # HELP node_memory_HugePages_Total Memory information field HugePages_Total.
 # TYPE node_memory_HugePages_Total gauge
 node_memory_HugePages_Total 0
-# HELP node_memory_Hugepagesize Memory information field Hugepagesize.
-# TYPE node_memory_Hugepagesize gauge
-node_memory_Hugepagesize 2.097152e+06
-# HELP node_memory_Inactive Memory information field Inactive.
-# TYPE node_memory_Inactive gauge
-node_memory_Inactive 1.053417472e+09
-# HELP node_memory_Inactive_anon Memory information field Inactive_anon.
-# TYPE node_memory_Inactive_anon gauge
-node_memory_Inactive_anon 9.04245248e+08
-# HELP node_memory_Inactive_file Memory information field Inactive_file.
-# TYPE node_memory_Inactive_file gauge
-node_memory_Inactive_file 1.49172224e+08
-# HELP node_memory_KernelStack Memory information field KernelStack.
-# TYPE node_memory_KernelStack gauge
-node_memory_KernelStack 5.9392e+06
-# HELP node_memory_Mapped Memory information field Mapped.
-# TYPE node_memory_Mapped gauge
-node_memory_Mapped 2.4496128e+08
-# HELP node_memory_MemFree Memory information field MemFree.
-# TYPE node_memory_MemFree gauge
-node_memory_MemFree 2.30883328e+08
-# HELP node_memory_MemTotal Memory information field MemTotal.
-# TYPE node_memory_MemTotal gauge
-node_memory_MemTotal 3.831959552e+09
-# HELP node_memory_Mlocked Memory information field Mlocked.
-# TYPE node_memory_Mlocked gauge
-node_memory_Mlocked 32768
-# HELP node_memory_NFS_Unstable Memory information field NFS_Unstable.
-# TYPE node_memory_NFS_Unstable gauge
-node_memory_NFS_Unstable 0
-# HELP node_memory_PageTables Memory information field PageTables.
-# TYPE node_memory_PageTables gauge
-node_memory_PageTables 7.7017088e+07
-# HELP node_memory_SReclaimable Memory information field SReclaimable.
-# TYPE node_memory_SReclaimable gauge
-node_memory_SReclaimable 4.5846528e+07
-# HELP node_memory_SUnreclaim Memory information field SUnreclaim.
-# TYPE node_memory_SUnreclaim gauge
-node_memory_SUnreclaim 5.545984e+07
-# HELP node_memory_Shmem Memory information field Shmem.
-# TYPE node_memory_Shmem gauge
-node_memory_Shmem 6.0809216e+08
-# HELP node_memory_Slab Memory information field Slab.
-# TYPE node_memory_Slab gauge
-node_memory_Slab 1.01306368e+08
-# HELP node_memory_SwapCached Memory information field SwapCached.
-# TYPE node_memory_SwapCached gauge
-node_memory_SwapCached 1.97124096e+08
-# HELP node_memory_SwapFree Memory information field SwapFree.
-# TYPE node_memory_SwapFree gauge
-node_memory_SwapFree 3.23108864e+09
-# HELP node_memory_SwapTotal Memory information field SwapTotal.
-# TYPE node_memory_SwapTotal gauge
-node_memory_SwapTotal 4.2949632e+09
-# HELP node_memory_Unevictable Memory information field Unevictable.
-# TYPE node_memory_Unevictable gauge
-node_memory_Unevictable 32768
-# HELP node_memory_VmallocChunk Memory information field VmallocChunk.
-# TYPE node_memory_VmallocChunk gauge
-node_memory_VmallocChunk 3.5183963009024e+13
-# HELP node_memory_VmallocTotal Memory information field VmallocTotal.
-# TYPE node_memory_VmallocTotal gauge
-node_memory_VmallocTotal 3.5184372087808e+13
-# HELP node_memory_VmallocUsed Memory information field VmallocUsed.
-# TYPE node_memory_VmallocUsed gauge
-node_memory_VmallocUsed 3.6130816e+08
-# HELP node_memory_Writeback Memory information field Writeback.
-# TYPE node_memory_Writeback gauge
-node_memory_Writeback 0
-# HELP node_memory_WritebackTmp Memory information field WritebackTmp.
-# TYPE node_memory_WritebackTmp gauge
-node_memory_WritebackTmp 0
+# HELP node_memory_Hugepagesize_bytes Memory information field Hugepagesize_bytes.
+# TYPE node_memory_Hugepagesize_bytes gauge
+node_memory_Hugepagesize_bytes 2.097152e+06
+# HELP node_memory_Inactive_anon_bytes Memory information field Inactive_anon_bytes.
+# TYPE node_memory_Inactive_anon_bytes gauge
+node_memory_Inactive_anon_bytes 9.04245248e+08
+# HELP node_memory_Inactive_bytes Memory information field Inactive_bytes.
+# TYPE node_memory_Inactive_bytes gauge
+node_memory_Inactive_bytes 1.053417472e+09
+# HELP node_memory_Inactive_file_bytes Memory information field Inactive_file_bytes.
+# TYPE node_memory_Inactive_file_bytes gauge
+node_memory_Inactive_file_bytes 1.49172224e+08
+# HELP node_memory_KernelStack_bytes Memory information field KernelStack_bytes.
+# TYPE node_memory_KernelStack_bytes gauge
+node_memory_KernelStack_bytes 5.9392e+06
+# HELP node_memory_Mapped_bytes Memory information field Mapped_bytes.
+# TYPE node_memory_Mapped_bytes gauge
+node_memory_Mapped_bytes 2.4496128e+08
+# HELP node_memory_MemFree_bytes Memory information field MemFree_bytes.
+# TYPE node_memory_MemFree_bytes gauge
+node_memory_MemFree_bytes 2.30883328e+08
+# HELP node_memory_MemTotal_bytes Memory information field MemTotal_bytes.
+# TYPE node_memory_MemTotal_bytes gauge
+node_memory_MemTotal_bytes 3.831959552e+09
+# HELP node_memory_Mlocked_bytes Memory information field Mlocked_bytes.
+# TYPE node_memory_Mlocked_bytes gauge
+node_memory_Mlocked_bytes 32768
+# HELP node_memory_NFS_Unstable_bytes Memory information field NFS_Unstable_bytes.
+# TYPE node_memory_NFS_Unstable_bytes gauge
+node_memory_NFS_Unstable_bytes 0
+# HELP node_memory_PageTables_bytes Memory information field PageTables_bytes.
+# TYPE node_memory_PageTables_bytes gauge
+node_memory_PageTables_bytes 7.7017088e+07
+# HELP node_memory_SReclaimable_bytes Memory information field SReclaimable_bytes.
+# TYPE node_memory_SReclaimable_bytes gauge
+node_memory_SReclaimable_bytes 4.5846528e+07
+# HELP node_memory_SUnreclaim_bytes Memory information field SUnreclaim_bytes.
+# TYPE node_memory_SUnreclaim_bytes gauge
+node_memory_SUnreclaim_bytes 5.545984e+07
+# HELP node_memory_Shmem_bytes Memory information field Shmem_bytes.
+# TYPE node_memory_Shmem_bytes gauge
+node_memory_Shmem_bytes 6.0809216e+08
+# HELP node_memory_Slab_bytes Memory information field Slab_bytes.
+# TYPE node_memory_Slab_bytes gauge
+node_memory_Slab_bytes 1.01306368e+08
+# HELP node_memory_SwapCached_bytes Memory information field SwapCached_bytes.
+# TYPE node_memory_SwapCached_bytes gauge
+node_memory_SwapCached_bytes 1.97124096e+08
+# HELP node_memory_SwapFree_bytes Memory information field SwapFree_bytes.
+# TYPE node_memory_SwapFree_bytes gauge
+node_memory_SwapFree_bytes 3.23108864e+09
+# HELP node_memory_SwapTotal_bytes Memory information field SwapTotal_bytes.
+# TYPE node_memory_SwapTotal_bytes gauge
+node_memory_SwapTotal_bytes 4.2949632e+09
+# HELP node_memory_Unevictable_bytes Memory information field Unevictable_bytes.
+# TYPE node_memory_Unevictable_bytes gauge
+node_memory_Unevictable_bytes 32768
+# HELP node_memory_VmallocChunk_bytes Memory information field VmallocChunk_bytes.
+# TYPE node_memory_VmallocChunk_bytes gauge
+node_memory_VmallocChunk_bytes 3.5183963009024e+13
+# HELP node_memory_VmallocTotal_bytes Memory information field VmallocTotal_bytes.
+# TYPE node_memory_VmallocTotal_bytes gauge
+node_memory_VmallocTotal_bytes 3.5184372087808e+13
+# HELP node_memory_VmallocUsed_bytes Memory information field VmallocUsed_bytes.
+# TYPE node_memory_VmallocUsed_bytes gauge
+node_memory_VmallocUsed_bytes 3.6130816e+08
+# HELP node_memory_WritebackTmp_bytes Memory information field WritebackTmp_bytes.
+# TYPE node_memory_WritebackTmp_bytes gauge
+node_memory_WritebackTmp_bytes 0
+# HELP node_memory_Writeback_bytes Memory information field Writeback_bytes.
+# TYPE node_memory_Writeback_bytes gauge
+node_memory_Writeback_bytes 0
 # HELP node_memory_numa_Active Memory information field Active.
 # TYPE node_memory_numa_Active gauge
 node_memory_numa_Active{node="0"} 5.58733312e+09
@@ -2606,6 +2555,121 @@ node_nfs_rpc_operations_total 1.218785755e+09
 # HELP node_nfs_rpc_retransmissions_total Number of RPC transmissions performed.
 # TYPE node_nfs_rpc_retransmissions_total counter
 node_nfs_rpc_retransmissions_total 374636
+# HELP node_nfsd_connections_total Total number of NFSd TCP connections.
+# TYPE node_nfsd_connections_total counter
+node_nfsd_connections_total 1
+# HELP node_nfsd_disk_bytes_read_total Total NFSd bytes read.
+# TYPE node_nfsd_disk_bytes_read_total counter
+node_nfsd_disk_bytes_read_total 1.572864e+08
+# HELP node_nfsd_disk_bytes_written_total Total NFSd bytes written.
+# TYPE node_nfsd_disk_bytes_written_total counter
+node_nfsd_disk_bytes_written_total 72864
+# HELP node_nfsd_file_handles_stale_total Total number of NFSd stale file handles
+# TYPE node_nfsd_file_handles_stale_total counter
+node_nfsd_file_handles_stale_total 0
+# HELP node_nfsd_packets_total Total NFSd network packets (sent+recieved) by protocol type.
+# TYPE node_nfsd_packets_total counter
+node_nfsd_packets_total{proto="tcp"} 917
+node_nfsd_packets_total{proto="udp"} 55
+# HELP node_nfsd_read_ahead_cache_not_found_total Total number of NFSd read ahead cache not found.
+# TYPE node_nfsd_read_ahead_cache_not_found_total counter
+node_nfsd_read_ahead_cache_not_found_total 0
+# HELP node_nfsd_read_ahead_cache_size_blocks How large the read ahead cache is in blocks.
+# TYPE node_nfsd_read_ahead_cache_size_blocks gauge
+node_nfsd_read_ahead_cache_size_blocks 32
+# HELP node_nfsd_reply_cache_hits_total Total number of NFSd Reply Cache hits (client lost server response).
+# TYPE node_nfsd_reply_cache_hits_total counter
+node_nfsd_reply_cache_hits_total 0
+# HELP node_nfsd_reply_cache_misses_total Total number of NFSd Reply Cache an operation that requires caching (idempotent).
+# TYPE node_nfsd_reply_cache_misses_total counter
+node_nfsd_reply_cache_misses_total 6
+# HELP node_nfsd_reply_cache_nocache_total Total number of NFSd Reply Cache non-idempotent operations (rename/delete/…).
+# TYPE node_nfsd_reply_cache_nocache_total counter
+node_nfsd_reply_cache_nocache_total 18622
+# HELP node_nfsd_requests_total Total number NFSd Requests by method and protocol.
+# TYPE node_nfsd_requests_total counter
+node_nfsd_requests_total{method="Access",proto="v3"} 111
+node_nfsd_requests_total{method="Access",proto="v4"} 1098
+node_nfsd_requests_total{method="Close",proto="v4"} 2
+node_nfsd_requests_total{method="Commit",proto="v3"} 0
+node_nfsd_requests_total{method="Commit",proto="v4"} 0
+node_nfsd_requests_total{method="Create",proto="v2"} 0
+node_nfsd_requests_total{method="Create",proto="v3"} 0
+node_nfsd_requests_total{method="Create",proto="v4"} 0
+node_nfsd_requests_total{method="DelegPurge",proto="v4"} 0
+node_nfsd_requests_total{method="DelegReturn",proto="v4"} 0
+node_nfsd_requests_total{method="FsInfo",proto="v3"} 2
+node_nfsd_requests_total{method="FsStat",proto="v2"} 2
+node_nfsd_requests_total{method="FsStat",proto="v3"} 0
+node_nfsd_requests_total{method="GetAttr",proto="v2"} 69
+node_nfsd_requests_total{method="GetAttr",proto="v3"} 112
+node_nfsd_requests_total{method="GetAttr",proto="v4"} 8179
+node_nfsd_requests_total{method="GetFH",proto="v4"} 5896
+node_nfsd_requests_total{method="Link",proto="v2"} 0
+node_nfsd_requests_total{method="Link",proto="v3"} 0
+node_nfsd_requests_total{method="Link",proto="v4"} 0
+node_nfsd_requests_total{method="Lock",proto="v4"} 0
+node_nfsd_requests_total{method="Lockt",proto="v4"} 0
+node_nfsd_requests_total{method="Locku",proto="v4"} 0
+node_nfsd_requests_total{method="Lookup",proto="v2"} 4410
+node_nfsd_requests_total{method="Lookup",proto="v3"} 2719
+node_nfsd_requests_total{method="Lookup",proto="v4"} 5900
+node_nfsd_requests_total{method="LookupRoot",proto="v4"} 0
+node_nfsd_requests_total{method="MkDir",proto="v2"} 0
+node_nfsd_requests_total{method="MkDir",proto="v3"} 0
+node_nfsd_requests_total{method="MkNod",proto="v3"} 0
+node_nfsd_requests_total{method="Nverify",proto="v4"} 0
+node_nfsd_requests_total{method="Open",proto="v4"} 2
+node_nfsd_requests_total{method="OpenAttr",proto="v4"} 0
+node_nfsd_requests_total{method="OpenConfirm",proto="v4"} 2
+node_nfsd_requests_total{method="OpenDgrd",proto="v4"} 0
+node_nfsd_requests_total{method="PathConf",proto="v3"} 1
+node_nfsd_requests_total{method="PutFH",proto="v4"} 9609
+node_nfsd_requests_total{method="Read",proto="v2"} 0
+node_nfsd_requests_total{method="Read",proto="v3"} 0
+node_nfsd_requests_total{method="Read",proto="v4"} 150
+node_nfsd_requests_total{method="ReadDir",proto="v2"} 99
+node_nfsd_requests_total{method="ReadDir",proto="v3"} 27
+node_nfsd_requests_total{method="ReadDir",proto="v4"} 1272
+node_nfsd_requests_total{method="ReadDirPlus",proto="v3"} 216
+node_nfsd_requests_total{method="ReadLink",proto="v2"} 0
+node_nfsd_requests_total{method="ReadLink",proto="v3"} 0
+node_nfsd_requests_total{method="ReadLink",proto="v4"} 0
+node_nfsd_requests_total{method="RelLockOwner",proto="v4"} 0
+node_nfsd_requests_total{method="Remove",proto="v2"} 0
+node_nfsd_requests_total{method="Remove",proto="v3"} 0
+node_nfsd_requests_total{method="Remove",proto="v4"} 0
+node_nfsd_requests_total{method="Rename",proto="v2"} 0
+node_nfsd_requests_total{method="Rename",proto="v3"} 0
+node_nfsd_requests_total{method="Rename",proto="v4"} 0
+node_nfsd_requests_total{method="Renew",proto="v4"} 1236
+node_nfsd_requests_total{method="RestoreFH",proto="v4"} 0
+node_nfsd_requests_total{method="RmDir",proto="v2"} 0
+node_nfsd_requests_total{method="RmDir",proto="v3"} 0
+node_nfsd_requests_total{method="Root",proto="v2"} 0
+node_nfsd_requests_total{method="SaveFH",proto="v4"} 0
+node_nfsd_requests_total{method="SecInfo",proto="v4"} 0
+node_nfsd_requests_total{method="SetAttr",proto="v2"} 0
+node_nfsd_requests_total{method="SetAttr",proto="v3"} 0
+node_nfsd_requests_total{method="SetAttr",proto="v4"} 0
+node_nfsd_requests_total{method="SymLink",proto="v2"} 0
+node_nfsd_requests_total{method="SymLink",proto="v3"} 0
+node_nfsd_requests_total{method="Verify",proto="v4"} 3
+node_nfsd_requests_total{method="WrCache",proto="v2"} 0
+node_nfsd_requests_total{method="Write",proto="v2"} 0
+node_nfsd_requests_total{method="Write",proto="v3"} 0
+node_nfsd_requests_total{method="Write",proto="v4"} 3
+# HELP node_nfsd_rpc_errors_total Total number of NFSd RPC errors by error type.
+# TYPE node_nfsd_rpc_errors_total counter
+node_nfsd_rpc_errors_total{error="auth"} 2
+node_nfsd_rpc_errors_total{error="cInt"} 0
+node_nfsd_rpc_errors_total{error="fmt"} 1
+# HELP node_nfsd_server_rpcs_total Total number of NFSd RPCs.
+# TYPE node_nfsd_server_rpcs_total counter
+node_nfsd_server_rpcs_total 18628
+# HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
+# TYPE node_nfsd_server_threads gauge
+node_nfsd_server_threads 8
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
@@ -2660,6 +2724,7 @@ node_scrape_collector_success{collector="mountstats"} 1
 node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
+node_scrape_collector_success{collector="nfsd"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="stat"} 1
@@ -2802,6 +2867,69 @@ node_xfs_extent_allocation_extents_allocated_total{device="sda1"} 1
 # HELP node_xfs_extent_allocation_extents_freed_total Number of extents freed for a filesystem.
 # TYPE node_xfs_extent_allocation_extents_freed_total counter
 node_xfs_extent_allocation_extents_freed_total{device="sda1"} 0
+# HELP node_zfs_abd_linear_cnt kstat.zfs.misc.abdstats.linear_cnt
+# TYPE node_zfs_abd_linear_cnt untyped
+node_zfs_abd_linear_cnt 62
+# HELP node_zfs_abd_linear_data_size kstat.zfs.misc.abdstats.linear_data_size
+# TYPE node_zfs_abd_linear_data_size untyped
+node_zfs_abd_linear_data_size 223232
+# HELP node_zfs_abd_scatter_chunk_waste kstat.zfs.misc.abdstats.scatter_chunk_waste
+# TYPE node_zfs_abd_scatter_chunk_waste untyped
+node_zfs_abd_scatter_chunk_waste 0
+# HELP node_zfs_abd_scatter_cnt kstat.zfs.misc.abdstats.scatter_cnt
+# TYPE node_zfs_abd_scatter_cnt untyped
+node_zfs_abd_scatter_cnt 1
+# HELP node_zfs_abd_scatter_data_size kstat.zfs.misc.abdstats.scatter_data_size
+# TYPE node_zfs_abd_scatter_data_size untyped
+node_zfs_abd_scatter_data_size 16384
+# HELP node_zfs_abd_scatter_order_0 kstat.zfs.misc.abdstats.scatter_order_0
+# TYPE node_zfs_abd_scatter_order_0 untyped
+node_zfs_abd_scatter_order_0 0
+# HELP node_zfs_abd_scatter_order_1 kstat.zfs.misc.abdstats.scatter_order_1
+# TYPE node_zfs_abd_scatter_order_1 untyped
+node_zfs_abd_scatter_order_1 0
+# HELP node_zfs_abd_scatter_order_10 kstat.zfs.misc.abdstats.scatter_order_10
+# TYPE node_zfs_abd_scatter_order_10 untyped
+node_zfs_abd_scatter_order_10 0
+# HELP node_zfs_abd_scatter_order_2 kstat.zfs.misc.abdstats.scatter_order_2
+# TYPE node_zfs_abd_scatter_order_2 untyped
+node_zfs_abd_scatter_order_2 1
+# HELP node_zfs_abd_scatter_order_3 kstat.zfs.misc.abdstats.scatter_order_3
+# TYPE node_zfs_abd_scatter_order_3 untyped
+node_zfs_abd_scatter_order_3 0
+# HELP node_zfs_abd_scatter_order_4 kstat.zfs.misc.abdstats.scatter_order_4
+# TYPE node_zfs_abd_scatter_order_4 untyped
+node_zfs_abd_scatter_order_4 0
+# HELP node_zfs_abd_scatter_order_5 kstat.zfs.misc.abdstats.scatter_order_5
+# TYPE node_zfs_abd_scatter_order_5 untyped
+node_zfs_abd_scatter_order_5 0
+# HELP node_zfs_abd_scatter_order_6 kstat.zfs.misc.abdstats.scatter_order_6
+# TYPE node_zfs_abd_scatter_order_6 untyped
+node_zfs_abd_scatter_order_6 0
+# HELP node_zfs_abd_scatter_order_7 kstat.zfs.misc.abdstats.scatter_order_7
+# TYPE node_zfs_abd_scatter_order_7 untyped
+node_zfs_abd_scatter_order_7 0
+# HELP node_zfs_abd_scatter_order_8 kstat.zfs.misc.abdstats.scatter_order_8
+# TYPE node_zfs_abd_scatter_order_8 untyped
+node_zfs_abd_scatter_order_8 0
+# HELP node_zfs_abd_scatter_order_9 kstat.zfs.misc.abdstats.scatter_order_9
+# TYPE node_zfs_abd_scatter_order_9 untyped
+node_zfs_abd_scatter_order_9 0
+# HELP node_zfs_abd_scatter_page_alloc_retry kstat.zfs.misc.abdstats.scatter_page_alloc_retry
+# TYPE node_zfs_abd_scatter_page_alloc_retry untyped
+node_zfs_abd_scatter_page_alloc_retry 0
+# HELP node_zfs_abd_scatter_page_multi_chunk kstat.zfs.misc.abdstats.scatter_page_multi_chunk
+# TYPE node_zfs_abd_scatter_page_multi_chunk untyped
+node_zfs_abd_scatter_page_multi_chunk 0
+# HELP node_zfs_abd_scatter_page_multi_zone kstat.zfs.misc.abdstats.scatter_page_multi_zone
+# TYPE node_zfs_abd_scatter_page_multi_zone untyped
+node_zfs_abd_scatter_page_multi_zone 0
+# HELP node_zfs_abd_scatter_sg_table_retry kstat.zfs.misc.abdstats.scatter_sg_table_retry
+# TYPE node_zfs_abd_scatter_sg_table_retry untyped
+node_zfs_abd_scatter_sg_table_retry 0
+# HELP node_zfs_abd_struct_size kstat.zfs.misc.abdstats.struct_size
+# TYPE node_zfs_abd_struct_size untyped
+node_zfs_abd_struct_size 2520
 # HELP node_zfs_arc_anon_evictable_data kstat.zfs.misc.arcstats.anon_evictable_data
 # TYPE node_zfs_arc_anon_evictable_data untyped
 node_zfs_arc_anon_evictable_data 0
@@ -3075,6 +3203,195 @@ node_zfs_arc_prefetch_metadata_misses 16071
 # HELP node_zfs_arc_size kstat.zfs.misc.arcstats.size
 # TYPE node_zfs_arc_size untyped
 node_zfs_arc_size 1.603939792e+09
+# HELP node_zfs_dbuf_dbuf_cache_count kstat.zfs.misc.dbuf_stats.dbuf_cache_count
+# TYPE node_zfs_dbuf_dbuf_cache_count untyped
+node_zfs_dbuf_dbuf_cache_count 27
+# HELP node_zfs_dbuf_dbuf_cache_hiwater_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_hiwater_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_hiwater_bytes untyped
+node_zfs_dbuf_dbuf_cache_hiwater_bytes 6.9117804e+07
+# HELP node_zfs_dbuf_dbuf_cache_level_0 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_0
+# TYPE node_zfs_dbuf_dbuf_cache_level_0 untyped
+node_zfs_dbuf_dbuf_cache_level_0 27
+# HELP node_zfs_dbuf_dbuf_cache_level_0_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_0_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_0_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_0_bytes 302080
+# HELP node_zfs_dbuf_dbuf_cache_level_1 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_1
+# TYPE node_zfs_dbuf_dbuf_cache_level_1 untyped
+node_zfs_dbuf_dbuf_cache_level_1 0
+# HELP node_zfs_dbuf_dbuf_cache_level_10 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_10
+# TYPE node_zfs_dbuf_dbuf_cache_level_10 untyped
+node_zfs_dbuf_dbuf_cache_level_10 0
+# HELP node_zfs_dbuf_dbuf_cache_level_10_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_10_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_10_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_10_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_11 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_11
+# TYPE node_zfs_dbuf_dbuf_cache_level_11 untyped
+node_zfs_dbuf_dbuf_cache_level_11 0
+# HELP node_zfs_dbuf_dbuf_cache_level_11_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_11_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_11_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_11_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_1_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_1_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_1_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_1_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_2 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_2
+# TYPE node_zfs_dbuf_dbuf_cache_level_2 untyped
+node_zfs_dbuf_dbuf_cache_level_2 0
+# HELP node_zfs_dbuf_dbuf_cache_level_2_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_2_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_2_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_2_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_3 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_3
+# TYPE node_zfs_dbuf_dbuf_cache_level_3 untyped
+node_zfs_dbuf_dbuf_cache_level_3 0
+# HELP node_zfs_dbuf_dbuf_cache_level_3_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_3_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_3_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_3_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_4 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_4
+# TYPE node_zfs_dbuf_dbuf_cache_level_4 untyped
+node_zfs_dbuf_dbuf_cache_level_4 0
+# HELP node_zfs_dbuf_dbuf_cache_level_4_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_4_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_4_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_4_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_5 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_5
+# TYPE node_zfs_dbuf_dbuf_cache_level_5 untyped
+node_zfs_dbuf_dbuf_cache_level_5 0
+# HELP node_zfs_dbuf_dbuf_cache_level_5_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_5_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_5_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_5_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_6 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_6
+# TYPE node_zfs_dbuf_dbuf_cache_level_6 untyped
+node_zfs_dbuf_dbuf_cache_level_6 0
+# HELP node_zfs_dbuf_dbuf_cache_level_6_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_6_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_6_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_6_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_7 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_7
+# TYPE node_zfs_dbuf_dbuf_cache_level_7 untyped
+node_zfs_dbuf_dbuf_cache_level_7 0
+# HELP node_zfs_dbuf_dbuf_cache_level_7_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_7_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_7_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_7_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_8 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_8
+# TYPE node_zfs_dbuf_dbuf_cache_level_8 untyped
+node_zfs_dbuf_dbuf_cache_level_8 0
+# HELP node_zfs_dbuf_dbuf_cache_level_8_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_8_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_8_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_8_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_level_9 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_9
+# TYPE node_zfs_dbuf_dbuf_cache_level_9 untyped
+node_zfs_dbuf_dbuf_cache_level_9 0
+# HELP node_zfs_dbuf_dbuf_cache_level_9_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_9_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_level_9_bytes untyped
+node_zfs_dbuf_dbuf_cache_level_9_bytes 0
+# HELP node_zfs_dbuf_dbuf_cache_lowater_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_lowater_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_lowater_bytes untyped
+node_zfs_dbuf_dbuf_cache_lowater_bytes 5.6550932e+07
+# HELP node_zfs_dbuf_dbuf_cache_max_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_max_bytes
+# TYPE node_zfs_dbuf_dbuf_cache_max_bytes untyped
+node_zfs_dbuf_dbuf_cache_max_bytes 6.2834368e+07
+# HELP node_zfs_dbuf_dbuf_cache_size kstat.zfs.misc.dbuf_stats.dbuf_cache_size
+# TYPE node_zfs_dbuf_dbuf_cache_size untyped
+node_zfs_dbuf_dbuf_cache_size 302080
+# HELP node_zfs_dbuf_dbuf_cache_size_max kstat.zfs.misc.dbuf_stats.dbuf_cache_size_max
+# TYPE node_zfs_dbuf_dbuf_cache_size_max untyped
+node_zfs_dbuf_dbuf_cache_size_max 394240
+# HELP node_zfs_dbuf_dbuf_cache_total_evicts kstat.zfs.misc.dbuf_stats.dbuf_cache_total_evicts
+# TYPE node_zfs_dbuf_dbuf_cache_total_evicts untyped
+node_zfs_dbuf_dbuf_cache_total_evicts 0
+# HELP node_zfs_dbuf_hash_chain_max kstat.zfs.misc.dbuf_stats.hash_chain_max
+# TYPE node_zfs_dbuf_hash_chain_max untyped
+node_zfs_dbuf_hash_chain_max 0
+# HELP node_zfs_dbuf_hash_chains kstat.zfs.misc.dbuf_stats.hash_chains
+# TYPE node_zfs_dbuf_hash_chains untyped
+node_zfs_dbuf_hash_chains 0
+# HELP node_zfs_dbuf_hash_collisions kstat.zfs.misc.dbuf_stats.hash_collisions
+# TYPE node_zfs_dbuf_hash_collisions untyped
+node_zfs_dbuf_hash_collisions 0
+# HELP node_zfs_dbuf_hash_dbuf_level_0 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_0
+# TYPE node_zfs_dbuf_hash_dbuf_level_0 untyped
+node_zfs_dbuf_hash_dbuf_level_0 37
+# HELP node_zfs_dbuf_hash_dbuf_level_0_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_0_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_0_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_0_bytes 465920
+# HELP node_zfs_dbuf_hash_dbuf_level_1 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_1
+# TYPE node_zfs_dbuf_hash_dbuf_level_1 untyped
+node_zfs_dbuf_hash_dbuf_level_1 10
+# HELP node_zfs_dbuf_hash_dbuf_level_10 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_10
+# TYPE node_zfs_dbuf_hash_dbuf_level_10 untyped
+node_zfs_dbuf_hash_dbuf_level_10 0
+# HELP node_zfs_dbuf_hash_dbuf_level_10_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_10_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_10_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_10_bytes 0
+# HELP node_zfs_dbuf_hash_dbuf_level_11 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_11
+# TYPE node_zfs_dbuf_hash_dbuf_level_11 untyped
+node_zfs_dbuf_hash_dbuf_level_11 0
+# HELP node_zfs_dbuf_hash_dbuf_level_11_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_11_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_11_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_11_bytes 0
+# HELP node_zfs_dbuf_hash_dbuf_level_1_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_1_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_1_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_1_bytes 1.31072e+06
+# HELP node_zfs_dbuf_hash_dbuf_level_2 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_2
+# TYPE node_zfs_dbuf_hash_dbuf_level_2 untyped
+node_zfs_dbuf_hash_dbuf_level_2 2
+# HELP node_zfs_dbuf_hash_dbuf_level_2_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_2_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_2_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_2_bytes 262144
+# HELP node_zfs_dbuf_hash_dbuf_level_3 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_3
+# TYPE node_zfs_dbuf_hash_dbuf_level_3 untyped
+node_zfs_dbuf_hash_dbuf_level_3 2
+# HELP node_zfs_dbuf_hash_dbuf_level_3_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_3_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_3_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_3_bytes 262144
+# HELP node_zfs_dbuf_hash_dbuf_level_4 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_4
+# TYPE node_zfs_dbuf_hash_dbuf_level_4 untyped
+node_zfs_dbuf_hash_dbuf_level_4 2
+# HELP node_zfs_dbuf_hash_dbuf_level_4_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_4_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_4_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_4_bytes 262144
+# HELP node_zfs_dbuf_hash_dbuf_level_5 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_5
+# TYPE node_zfs_dbuf_hash_dbuf_level_5 untyped
+node_zfs_dbuf_hash_dbuf_level_5 2
+# HELP node_zfs_dbuf_hash_dbuf_level_5_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_5_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_5_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_5_bytes 262144
+# HELP node_zfs_dbuf_hash_dbuf_level_6 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_6
+# TYPE node_zfs_dbuf_hash_dbuf_level_6 untyped
+node_zfs_dbuf_hash_dbuf_level_6 0
+# HELP node_zfs_dbuf_hash_dbuf_level_6_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_6_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_6_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_6_bytes 0
+# HELP node_zfs_dbuf_hash_dbuf_level_7 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_7
+# TYPE node_zfs_dbuf_hash_dbuf_level_7 untyped
+node_zfs_dbuf_hash_dbuf_level_7 0
+# HELP node_zfs_dbuf_hash_dbuf_level_7_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_7_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_7_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_7_bytes 0
+# HELP node_zfs_dbuf_hash_dbuf_level_8 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_8
+# TYPE node_zfs_dbuf_hash_dbuf_level_8 untyped
+node_zfs_dbuf_hash_dbuf_level_8 0
+# HELP node_zfs_dbuf_hash_dbuf_level_8_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_8_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_8_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_8_bytes 0
+# HELP node_zfs_dbuf_hash_dbuf_level_9 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_9
+# TYPE node_zfs_dbuf_hash_dbuf_level_9 untyped
+node_zfs_dbuf_hash_dbuf_level_9 0
+# HELP node_zfs_dbuf_hash_dbuf_level_9_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_9_bytes
+# TYPE node_zfs_dbuf_hash_dbuf_level_9_bytes untyped
+node_zfs_dbuf_hash_dbuf_level_9_bytes 0
+# HELP node_zfs_dbuf_hash_elements kstat.zfs.misc.dbuf_stats.hash_elements
+# TYPE node_zfs_dbuf_hash_elements untyped
+node_zfs_dbuf_hash_elements 55
+# HELP node_zfs_dbuf_hash_elements_max kstat.zfs.misc.dbuf_stats.hash_elements_max
+# TYPE node_zfs_dbuf_hash_elements_max untyped
+node_zfs_dbuf_hash_elements_max 55
+# HELP node_zfs_dbuf_hash_hits kstat.zfs.misc.dbuf_stats.hash_hits
+# TYPE node_zfs_dbuf_hash_hits untyped
+node_zfs_dbuf_hash_hits 108807
+# HELP node_zfs_dbuf_hash_insert_race kstat.zfs.misc.dbuf_stats.hash_insert_race
+# TYPE node_zfs_dbuf_hash_insert_race untyped
+node_zfs_dbuf_hash_insert_race 0
+# HELP node_zfs_dbuf_hash_misses kstat.zfs.misc.dbuf_stats.hash_misses
+# TYPE node_zfs_dbuf_hash_misses untyped
+node_zfs_dbuf_hash_misses 1851
 # HELP node_zfs_dmu_tx_dmu_tx_assigned kstat.zfs.misc.dmu_tx.dmu_tx_assigned
 # TYPE node_zfs_dmu_tx_dmu_tx_assigned untyped
 node_zfs_dmu_tx_dmu_tx_assigned 3.532844e+06
@@ -3108,6 +3425,90 @@ node_zfs_dmu_tx_dmu_tx_quota 0
 # HELP node_zfs_dmu_tx_dmu_tx_suspended kstat.zfs.misc.dmu_tx.dmu_tx_suspended
 # TYPE node_zfs_dmu_tx_dmu_tx_suspended untyped
 node_zfs_dmu_tx_dmu_tx_suspended 0
+# HELP node_zfs_dnode_dnode_alloc_next_block kstat.zfs.misc.dnodestats.dnode_alloc_next_block
+# TYPE node_zfs_dnode_dnode_alloc_next_block untyped
+node_zfs_dnode_dnode_alloc_next_block 0
+# HELP node_zfs_dnode_dnode_alloc_next_chunk kstat.zfs.misc.dnodestats.dnode_alloc_next_chunk
+# TYPE node_zfs_dnode_dnode_alloc_next_chunk untyped
+node_zfs_dnode_dnode_alloc_next_chunk 0
+# HELP node_zfs_dnode_dnode_alloc_race kstat.zfs.misc.dnodestats.dnode_alloc_race
+# TYPE node_zfs_dnode_dnode_alloc_race untyped
+node_zfs_dnode_dnode_alloc_race 0
+# HELP node_zfs_dnode_dnode_allocate kstat.zfs.misc.dnodestats.dnode_allocate
+# TYPE node_zfs_dnode_dnode_allocate untyped
+node_zfs_dnode_dnode_allocate 0
+# HELP node_zfs_dnode_dnode_buf_evict kstat.zfs.misc.dnodestats.dnode_buf_evict
+# TYPE node_zfs_dnode_dnode_buf_evict untyped
+node_zfs_dnode_dnode_buf_evict 17
+# HELP node_zfs_dnode_dnode_hold_alloc_hits kstat.zfs.misc.dnodestats.dnode_hold_alloc_hits
+# TYPE node_zfs_dnode_dnode_hold_alloc_hits untyped
+node_zfs_dnode_dnode_hold_alloc_hits 37617
+# HELP node_zfs_dnode_dnode_hold_alloc_interior kstat.zfs.misc.dnodestats.dnode_hold_alloc_interior
+# TYPE node_zfs_dnode_dnode_hold_alloc_interior untyped
+node_zfs_dnode_dnode_hold_alloc_interior 0
+# HELP node_zfs_dnode_dnode_hold_alloc_lock_misses kstat.zfs.misc.dnodestats.dnode_hold_alloc_lock_misses
+# TYPE node_zfs_dnode_dnode_hold_alloc_lock_misses untyped
+node_zfs_dnode_dnode_hold_alloc_lock_misses 0
+# HELP node_zfs_dnode_dnode_hold_alloc_lock_retry kstat.zfs.misc.dnodestats.dnode_hold_alloc_lock_retry
+# TYPE node_zfs_dnode_dnode_hold_alloc_lock_retry untyped
+node_zfs_dnode_dnode_hold_alloc_lock_retry 0
+# HELP node_zfs_dnode_dnode_hold_alloc_misses kstat.zfs.misc.dnodestats.dnode_hold_alloc_misses
+# TYPE node_zfs_dnode_dnode_hold_alloc_misses untyped
+node_zfs_dnode_dnode_hold_alloc_misses 0
+# HELP node_zfs_dnode_dnode_hold_alloc_type_none kstat.zfs.misc.dnodestats.dnode_hold_alloc_type_none
+# TYPE node_zfs_dnode_dnode_hold_alloc_type_none untyped
+node_zfs_dnode_dnode_hold_alloc_type_none 0
+# HELP node_zfs_dnode_dnode_hold_dbuf_hold kstat.zfs.misc.dnodestats.dnode_hold_dbuf_hold
+# TYPE node_zfs_dnode_dnode_hold_dbuf_hold untyped
+node_zfs_dnode_dnode_hold_dbuf_hold 0
+# HELP node_zfs_dnode_dnode_hold_dbuf_read kstat.zfs.misc.dnodestats.dnode_hold_dbuf_read
+# TYPE node_zfs_dnode_dnode_hold_dbuf_read untyped
+node_zfs_dnode_dnode_hold_dbuf_read 0
+# HELP node_zfs_dnode_dnode_hold_free_hits kstat.zfs.misc.dnodestats.dnode_hold_free_hits
+# TYPE node_zfs_dnode_dnode_hold_free_hits untyped
+node_zfs_dnode_dnode_hold_free_hits 0
+# HELP node_zfs_dnode_dnode_hold_free_lock_misses kstat.zfs.misc.dnodestats.dnode_hold_free_lock_misses
+# TYPE node_zfs_dnode_dnode_hold_free_lock_misses untyped
+node_zfs_dnode_dnode_hold_free_lock_misses 0
+# HELP node_zfs_dnode_dnode_hold_free_lock_retry kstat.zfs.misc.dnodestats.dnode_hold_free_lock_retry
+# TYPE node_zfs_dnode_dnode_hold_free_lock_retry untyped
+node_zfs_dnode_dnode_hold_free_lock_retry 0
+# HELP node_zfs_dnode_dnode_hold_free_misses kstat.zfs.misc.dnodestats.dnode_hold_free_misses
+# TYPE node_zfs_dnode_dnode_hold_free_misses untyped
+node_zfs_dnode_dnode_hold_free_misses 0
+# HELP node_zfs_dnode_dnode_hold_free_overflow kstat.zfs.misc.dnodestats.dnode_hold_free_overflow
+# TYPE node_zfs_dnode_dnode_hold_free_overflow untyped
+node_zfs_dnode_dnode_hold_free_overflow 0
+# HELP node_zfs_dnode_dnode_hold_free_refcount kstat.zfs.misc.dnodestats.dnode_hold_free_refcount
+# TYPE node_zfs_dnode_dnode_hold_free_refcount untyped
+node_zfs_dnode_dnode_hold_free_refcount 0
+# HELP node_zfs_dnode_dnode_hold_free_txg kstat.zfs.misc.dnodestats.dnode_hold_free_txg
+# TYPE node_zfs_dnode_dnode_hold_free_txg untyped
+node_zfs_dnode_dnode_hold_free_txg 0
+# HELP node_zfs_dnode_dnode_move_active kstat.zfs.misc.dnodestats.dnode_move_active
+# TYPE node_zfs_dnode_dnode_move_active untyped
+node_zfs_dnode_dnode_move_active 0
+# HELP node_zfs_dnode_dnode_move_handle kstat.zfs.misc.dnodestats.dnode_move_handle
+# TYPE node_zfs_dnode_dnode_move_handle untyped
+node_zfs_dnode_dnode_move_handle 0
+# HELP node_zfs_dnode_dnode_move_invalid kstat.zfs.misc.dnodestats.dnode_move_invalid
+# TYPE node_zfs_dnode_dnode_move_invalid untyped
+node_zfs_dnode_dnode_move_invalid 0
+# HELP node_zfs_dnode_dnode_move_recheck1 kstat.zfs.misc.dnodestats.dnode_move_recheck1
+# TYPE node_zfs_dnode_dnode_move_recheck1 untyped
+node_zfs_dnode_dnode_move_recheck1 0
+# HELP node_zfs_dnode_dnode_move_recheck2 kstat.zfs.misc.dnodestats.dnode_move_recheck2
+# TYPE node_zfs_dnode_dnode_move_recheck2 untyped
+node_zfs_dnode_dnode_move_recheck2 0
+# HELP node_zfs_dnode_dnode_move_rwlock kstat.zfs.misc.dnodestats.dnode_move_rwlock
+# TYPE node_zfs_dnode_dnode_move_rwlock untyped
+node_zfs_dnode_dnode_move_rwlock 0
+# HELP node_zfs_dnode_dnode_move_special kstat.zfs.misc.dnodestats.dnode_move_special
+# TYPE node_zfs_dnode_dnode_move_special untyped
+node_zfs_dnode_dnode_move_special 0
+# HELP node_zfs_dnode_dnode_reallocate kstat.zfs.misc.dnodestats.dnode_reallocate
+# TYPE node_zfs_dnode_dnode_reallocate untyped
+node_zfs_dnode_dnode_reallocate 0
 # HELP node_zfs_fm_erpt_dropped kstat.zfs.misc.fm.erpt-dropped
 # TYPE node_zfs_fm_erpt_dropped untyped
 node_zfs_fm_erpt_dropped 18
@@ -3129,6 +3530,27 @@ node_zfs_vdev_cache_hits 0
 # HELP node_zfs_vdev_cache_misses kstat.zfs.misc.vdev_cache_stats.misses
 # TYPE node_zfs_vdev_cache_misses untyped
 node_zfs_vdev_cache_misses 0
+# HELP node_zfs_vdev_mirror_non_rotating_linear kstat.zfs.misc.vdev_mirror_stats.non_rotating_linear
+# TYPE node_zfs_vdev_mirror_non_rotating_linear untyped
+node_zfs_vdev_mirror_non_rotating_linear 0
+# HELP node_zfs_vdev_mirror_non_rotating_seek kstat.zfs.misc.vdev_mirror_stats.non_rotating_seek
+# TYPE node_zfs_vdev_mirror_non_rotating_seek untyped
+node_zfs_vdev_mirror_non_rotating_seek 0
+# HELP node_zfs_vdev_mirror_preferred_found kstat.zfs.misc.vdev_mirror_stats.preferred_found
+# TYPE node_zfs_vdev_mirror_preferred_found untyped
+node_zfs_vdev_mirror_preferred_found 0
+# HELP node_zfs_vdev_mirror_preferred_not_found kstat.zfs.misc.vdev_mirror_stats.preferred_not_found
+# TYPE node_zfs_vdev_mirror_preferred_not_found untyped
+node_zfs_vdev_mirror_preferred_not_found 94
+# HELP node_zfs_vdev_mirror_rotating_linear kstat.zfs.misc.vdev_mirror_stats.rotating_linear
+# TYPE node_zfs_vdev_mirror_rotating_linear untyped
+node_zfs_vdev_mirror_rotating_linear 0
+# HELP node_zfs_vdev_mirror_rotating_offset kstat.zfs.misc.vdev_mirror_stats.rotating_offset
+# TYPE node_zfs_vdev_mirror_rotating_offset untyped
+node_zfs_vdev_mirror_rotating_offset 0
+# HELP node_zfs_vdev_mirror_rotating_seek kstat.zfs.misc.vdev_mirror_stats.rotating_seek
+# TYPE node_zfs_vdev_mirror_rotating_seek untyped
+node_zfs_vdev_mirror_rotating_seek 0
 # HELP node_zfs_xuio_onloan_read_buf kstat.zfs.misc.xuio_stats.onloan_read_buf
 # TYPE node_zfs_xuio_onloan_read_buf untyped
 node_zfs_xuio_onloan_read_buf 32
@@ -3215,7 +3637,7 @@ node_zfs_zil_zil_itx_metaslab_slog_bytes 0
 node_zfs_zil_zil_itx_metaslab_slog_count 0
 # HELP node_zfs_zil_zil_itx_needcopy_bytes kstat.zfs.misc.zil.zil_itx_needcopy_bytes
 # TYPE node_zfs_zil_zil_itx_needcopy_bytes untyped
-node_zfs_zil_zil_itx_needcopy_bytes 0
+node_zfs_zil_zil_itx_needcopy_bytes 1.8446744073709537e+19
 # HELP node_zfs_zil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
 # TYPE node_zfs_zil_zil_itx_needcopy_count untyped
 node_zfs_zil_zil_itx_needcopy_count 0
@@ -3279,6 +3701,14 @@ node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # TYPE process_start_time_seconds gauge
 # HELP process_virtual_memory_bytes Virtual memory size in bytes.
 # TYPE process_virtual_memory_bytes gauge
+# HELP promhttp_metric_handler_requests_in_flight Current number of scrapes being served.
+# TYPE promhttp_metric_handler_requests_in_flight gauge
+promhttp_metric_handler_requests_in_flight 1
+# HELP promhttp_metric_handler_requests_total Total number of scrapes by HTTP status code.
+# TYPE promhttp_metric_handler_requests_total counter
+promhttp_metric_handler_requests_total{code="200"} 0
+promhttp_metric_handler_requests_total{code="500"} 0
+promhttp_metric_handler_requests_total{code="503"} 0
 # HELP testmetric1_1 Metric read from collector/fixtures/textfile/two_metric_files/metrics1.prom
 # TYPE testmetric1_1 untyped
 testmetric1_1{foo="bar"} 10
