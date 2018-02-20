@@ -186,7 +186,7 @@ func (c *nfsdCollector) updateNFSdReadAheadCacheStats(ch chan<- prometheus.Metri
 func (c *nfsdCollector) updateNFSdNetworkStats(ch chan<- prometheus.Metric, s *nfs.Network) {
 	packetDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, nfsdSubsystem, "packets_total"),
-		"Total NFSd network packets (sent+recieved) by protocol type.",
+		"Total NFSd network packets (sent+received) by protocol type.",
 		[]string{"proto"},
 		nil,
 	)

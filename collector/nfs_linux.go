@@ -53,7 +53,7 @@ func NewNfsCollector() (Collector, error) {
 		fs: fs,
 		nfsNetReadsDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, nfsSubsystem, "packets_total"),
-			"Total NFSd network packets (sent+recieved) by protocol type.",
+			"Total NFSd network packets (sent+received) by protocol type.",
 			[]string{"protocol"},
 			nil,
 		),

@@ -2452,7 +2452,7 @@ node_nf_conntrack_entries_limit 65536
 # HELP node_nfs_connections_total Total number of NFSd TCP connections.
 # TYPE node_nfs_connections_total counter
 node_nfs_connections_total 45
-# HELP node_nfs_packets_total Total NFSd network packets (sent+recieved) by protocol type.
+# HELP node_nfs_packets_total Total NFSd network packets (sent+received) by protocol type.
 # TYPE node_nfs_packets_total counter
 node_nfs_packets_total{protocol="tcp"} 69
 node_nfs_packets_total{protocol="udp"} 70
@@ -2578,7 +2578,7 @@ node_nfsd_disk_bytes_written_total 72864
 # HELP node_nfsd_file_handles_stale_total Total number of NFSd stale file handles
 # TYPE node_nfsd_file_handles_stale_total counter
 node_nfsd_file_handles_stale_total 0
-# HELP node_nfsd_packets_total Total NFSd network packets (sent+recieved) by protocol type.
+# HELP node_nfsd_packets_total Total NFSd network packets (sent+received) by protocol type.
 # TYPE node_nfsd_packets_total counter
 node_nfsd_packets_total{proto="tcp"} 917
 node_nfsd_packets_total{proto="udp"} 55
