@@ -12,4 +12,4 @@
 echo "# HELP anarcat_dir_space_bytes Disk space used by some directories"
 echo "# TYPE anarcat_dir_space_bytes gauge"
 du --block-size=1 --summarize "$@" \
-  | sed -ne 's/^\([0-9]\+\)\t\(.*\)$/node_directory_size_bytes{directory="\2"} \1/p'
+  | sed -ne 's/\\/\\\\/;s/"/\\"/g;s/^\([0-9]\+\)\t\(.*\)$/node_directory_size_bytes{directory="\2"} \1/p'
