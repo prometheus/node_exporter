@@ -140,7 +140,7 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		if value, err := readUintFromFile(filepath.Join(cpu, "topology/core_id")); err != nil {
 			log.Debugf("CPU %v is misssing topology/core_id", cpu)
 		} else {
-			core_id = int(value)
+			core_id := int(value)
 			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
 				return err
 			}
