@@ -111,13 +111,6 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		_, cpuName := filepath.Split(cpu)
 		cpuNum := strings.TrimPrefix(cpuName, "cpu")
 
-		core_id := -1
-		if value, err := readUintFromFile(filepath.Join(cpu, "topology/core_id")); err != nil {
-			log.Debugf("CPU %v is misssing topology/core_id", cpu)
-		} else {
-			core_id = int(value)
-		}
-
 		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
 			log.Debugf("CPU %v is missing cpufreq", cpu)
 		} else {
@@ -143,10 +136,14 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			log.Debugf("CPU %v is missing thermal_throttle", cpu)
 			continue
 		}
-		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
-			return err
-		}
-		if core_id != -1 {
+
+		if value, err := readUintFromFile(filepath.Join(cpu, "topology/core_id")); err != nil {
+			log.Debugf("CPU %v is misssing topology/core_id", cpu)
+		} else {
+			core_id = int(value)
+			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
+				return err
+			}
 			cpu_core_throttles[core_id] = value
 		}
 	}
