@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -70,11 +71,10 @@ func NewCPUCollector() (Collector, error) {
 			"Maximum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
-		// FIXME: This should be a per core metric, not per cpu!
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
 			"Number of times this cpu core has been throttled.",
-			[]string{"cpu"}, nil,
+			[]string{"core"}, nil,
 		),
 		cpuPackageThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
@@ -103,6 +103,8 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 	}
 
 	var value uint64
+
+	cpu_core_throttles := make(map[int]uint64)
 
 	// cpu loop
 	for _, cpu := range cpus {
@@ -134,10 +136,21 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			log.Debugf("CPU %v is missing thermal_throttle", cpu)
 			continue
 		}
-		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
-			return err
+
+		if value, err := readUintFromFile(filepath.Join(cpu, "topology/core_id")); err != nil {
+			log.Debugf("CPU %v is misssing topology/core_id", cpu)
+		} else {
+			core_id := int(value)
+			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
+				return err
+			}
+			cpu_core_throttles[core_id] = value
 		}
-		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuNum)
+	}
+
+	// core throttles
+	for core_id, value := range cpu_core_throttles {
+		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), strconv.Itoa(core_id))
 	}
 
 	nodes, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
