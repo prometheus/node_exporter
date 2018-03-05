@@ -121,7 +121,7 @@ test-docker:
 	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
 
 $(GOPATH)/bin/promu promu:
-	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
+	@GOOS= GOARCH= $(GO) get github.com/prometheus/promu
 
 $(GOPATH)/bin/staticcheck:
 	@GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck
