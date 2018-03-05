@@ -1,0 +1,16 @@
+FROM  rhel7:7-released
+LABEL maintainer="OpenShift Development <dev@lists.openshift.redhat.com>" \
+      com.redhat.component="golang-github-prometheus-node_exporter-docker" \
+      name="openshift3/prometheus-node-exporter" \
+      version="v0.15.2" \
+      architecture=x86_64
+
+RUN yum-config-manager --enable rhel-7-server-ose-3.9-rpms && \
+    yum install -y prometheus-node_exporter && \
+    yum clean all
+
+USER       nobody
+EXPOSE     9100
+WORKDIR    /prometheus
+ENTRYPOINT [ "/bin/node_exporter" ]
+
