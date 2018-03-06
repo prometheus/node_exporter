@@ -90,6 +90,7 @@ skip-test-32bit:
 	@echo ">> SKIP running tests in 32-bit mode: not supported on $(OS_detected)/$(GOARCH)"
 
 collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
+	@echo ">> extracting sysfs fixtures"
 	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
 	touch $@
 
