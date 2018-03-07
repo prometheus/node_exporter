@@ -31,6 +31,7 @@ import (
 /*
 #cgo LDFLAGS:
 #include <stdlib.h>
+#include <limits.h>
 #include <sys/sysctl.h>
 #include <sys/mount.h>
 #include <mach/mach_init.h>
@@ -45,7 +46,7 @@ import (
 import "C"
 
 // ClocksPerSec default value. from time.h
-const ClocksPerSec = float64(128)
+const ClocksPerSec = float64(C.CLK_TCK)
 
 type statCollector struct {
 	cpu *prometheus.Desc
