@@ -8,7 +8,7 @@
 # https://github.com/prometheus/node_exporter
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     %{provider_prefix}
-%global commit          5cd81707880c20d7206610b948aea0b1210f79df
+%global commit          052cee4ae2677a7cb42542615f6c858e35d6e9e3
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %global build_gopath    %{_builddir}/%{repo}-%{shortcommit}-gopath
 %global upstream_ver    0.15.2
@@ -23,19 +23,13 @@ License:	ASL 2.0
 URL:		https://prometheus.io/
 Source0:	https://%{download_prefix}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
-# promu build tool used for building prometheus
-%global promu_repo      promu
-%global promu_prefix    %{provider}.%{provider_tld}/%{project}/%{promu_repo}
-%global promu_commit    85ceabc50a0f1c0072304f694333062836c9f640
-%global promu_shortcmt  %(c=%{promu_commit}; echo ${c:0:7})
-Source1:       https://%{promu_prefix}/archive/%{promu_commit}/%{promu_repo}-%{promu_shortcmt}.tar.gz
-
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 # promu-based packages FTBFS on aarch64 (#1487462)
 ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 %{arm} ppc64le s390x}
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
 BuildRequires: %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
 BuildRequires: glibc-static
+BuildRequires: prometheus-promu
 
 %description
 %{summary}
@@ -48,19 +42,17 @@ Provides:       prometheus-node_exporter = %{version}-%{release}
 %{summary}
 
 %prep
-%setup -q -T -n %{promu_repo}-%{promu_commit} -b 1
 %setup -q -n %{repo}-%{commit}
 
 %build
 mkdir -p %{build_gopath}/src/%{provider}.%{provider_tld}/%{project}
 # Link the extracted source directories to the expected GOPATH layout
 ln -s ../../../../%{repo}-%{commit} %{build_gopath}/src/%{import_path}
-ln -s ../../../../%{promu_repo}-%{promu_commit} %{build_gopath}/src/%{promu_prefix}
 
 export GOPATH=%{build_gopath}
 unset GOBIN
 cd %{_builddir}/%{repo}-%{commit}
-make build
+make build BUILD_PROMU=false
 
 %install
 install -d %{buildroot}%{_bindir}
