@@ -45,19 +45,12 @@ Provides:       prometheus-node_exporter = %{version}-%{release}
 %setup -q -n %{repo}-%{commit}
 
 %build
-mkdir -p %{build_gopath}/src/%{provider}.%{provider_tld}/%{project}
-# Link the extracted source directories to the expected GOPATH layout
-ln -s ../../../../%{repo}-%{commit} %{build_gopath}/src/%{import_path}
-
-export GOPATH=%{build_gopath}
 unset GOBIN
-cd %{_builddir}/%{repo}-%{commit}
 make build BUILD_PROMU=false
 
 %install
 install -d %{buildroot}%{_bindir}
-export PROM_BUILDDIR="%{_builddir}/%{repo}-%{commit}"
-install -D -p -m 0755 ${PROM_BUILDDIR}/node_exporter %{buildroot}%{_bindir}/node_exporter
+install -D -p -m 0755 node_exporter %{buildroot}%{_bindir}/node_exporter
 
 %files -n %{project}-%{repo}
 %license LICENSE NOTICE
