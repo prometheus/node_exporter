@@ -46,7 +46,7 @@ import (
 import "C"
 
 // ClocksPerSec default value. from time.h
-const ClocksPerSec = C.CLK_TCK
+const ClocksPerSec = float64(C.CLK_TCK)
 
 type statCollector struct {
 	cpu *prometheus.Desc
