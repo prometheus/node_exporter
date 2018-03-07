@@ -16,7 +16,12 @@ GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
 GOARCH := $(shell $(GO) env GOARCH)
 GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
 
-PROMU       ?= $(GOPATH)/bin/promu
+ifeq ($(BUILD_PROMU),false)
+	PROMU       ?= promu
+else
+	PROMU       ?= $(GOPATH)/bin/promu
+endif
+
 STATICCHECK ?= $(GOPATH)/bin/staticcheck
 pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
 
@@ -121,7 +126,11 @@ test-docker:
 	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
 
 $(GOPATH)/bin/promu promu:
-	@GOOS= GOARCH= $(GO) get github.com/prometheus/promu
+ifeq ($(BUILD_PROMU),false)
+	@echo "using installed promu $(shell which promu)"
+else
+	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
+endif
 
 $(GOPATH)/bin/staticcheck:
 	@GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck
