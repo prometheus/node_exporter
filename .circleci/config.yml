@@ -5,7 +5,7 @@ jobs:
   test:
     docker:
     - image: circleci/golang:1.10
-    working_directory: /go/src/github.com/prometheus/node_exporter
+    working_directory: /go/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
 
     steps:
     - checkout
@@ -15,7 +15,7 @@ jobs:
 
   build:
     machine: true
-    working_directory: /home/circleci/.go_workspace/src/github.com/prometheus/node_exporter
+    working_directory: /home/circleci/.go_workspace/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
 
     environment:
       DOCKER_IMAGE_NAME: prom/node-exporter
@@ -54,7 +54,7 @@ jobs:
   docker_hub_master:
     docker:
     - image: circleci/golang:1.10
-    working_directory: /go/src/github.com/prometheus/node_exporter
+    working_directory: /go/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
 
     environment:
       DOCKER_IMAGE_NAME: prom/node-exporter
@@ -79,7 +79,7 @@ jobs:
   docker_hub_release_tags:
     docker:
     - image: circleci/golang:1.10
-    working_directory: /go/src/github.com/prometheus/node_exporter
+    working_directory: /go/src/github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
 
     environment:
       DOCKER_IMAGE_NAME: prom/node-exporter
