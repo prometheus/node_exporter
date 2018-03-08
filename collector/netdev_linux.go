@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/prometheus/common/log"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 var (
@@ -84,4 +85,20 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 		}
 	}
 	return netDev, scanner.Err()
+}
+
+func getNetClassInfo(ignore *regexp.Regexp) (sysfs.NetClass, error) {
+	netClass, err := sysfs.NewNetClass()
+
+	if err != nil {
+		return netClass, fmt.Errorf("error obtaining net class info: %s", err)
+	}
+
+	for device := range netClass {
+		if ignore.MatchString(device) {
+			delete(netClass, device)
+		}
+	}
+
+	return netClass, nil
 }
