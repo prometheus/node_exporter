@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	interruptLabelNames = []string{"CPU", "type", "info", "devices"}
+	interruptLabelNames = []string{"cpu", "type", "info", "devices"}
 )
 
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {

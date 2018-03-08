@@ -814,118 +814,118 @@ node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="1"} 6123
 node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
 # HELP node_interrupts_total Interrupt details.
 # TYPE node_interrupts_total counter
-node_interrupts_total{CPU="0",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts_total{CPU="0",devices="",info="Function call interrupts",type="CAL"} 148554
-node_interrupts_total{CPU="0",devices="",info="IRQ work interrupts",type="IWI"} 1.509379e+06
-node_interrupts_total{CPU="0",devices="",info="Local timer interrupts",type="LOC"} 1.74326351e+08
-node_interrupts_total{CPU="0",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts_total{CPU="0",devices="",info="Machine check polls",type="MCP"} 2406
-node_interrupts_total{CPU="0",devices="",info="Non-maskable interrupts",type="NMI"} 47
-node_interrupts_total{CPU="0",devices="",info="Performance monitoring interrupts",type="PMI"} 47
-node_interrupts_total{CPU="0",devices="",info="Rescheduling interrupts",type="RES"} 1.0847134e+07
-node_interrupts_total{CPU="0",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts_total{CPU="0",devices="",info="TLB shootdowns",type="TLB"} 1.0460334e+07
-node_interrupts_total{CPU="0",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts_total{CPU="0",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts_total{CPU="0",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 398553
-node_interrupts_total{CPU="0",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.434032e+06
-node_interrupts_total{CPU="0",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts_total{CPU="0",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts_total{CPU="0",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 328511
-node_interrupts_total{CPU="0",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.451445e+06
-node_interrupts_total{CPU="0",devices="i8042",info="IR-IO-APIC-edge",type="1"} 17960
-node_interrupts_total{CPU="0",devices="i8042",info="IR-IO-APIC-edge",type="12"} 380847
-node_interrupts_total{CPU="0",devices="i915",info="IR-PCI-MSI-edge",type="44"} 140636
-node_interrupts_total{CPU="0",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 4.3078464e+07
-node_interrupts_total{CPU="0",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 4
-node_interrupts_total{CPU="0",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 1
-node_interrupts_total{CPU="0",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 350
-node_interrupts_total{CPU="0",devices="timer",info="IR-IO-APIC-edge",type="0"} 18
-node_interrupts_total{CPU="0",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 378324
-node_interrupts_total{CPU="1",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts_total{CPU="1",devices="",info="Function call interrupts",type="CAL"} 157441
-node_interrupts_total{CPU="1",devices="",info="IRQ work interrupts",type="IWI"} 2.411776e+06
-node_interrupts_total{CPU="1",devices="",info="Local timer interrupts",type="LOC"} 1.35776678e+08
-node_interrupts_total{CPU="1",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts_total{CPU="1",devices="",info="Machine check polls",type="MCP"} 2399
-node_interrupts_total{CPU="1",devices="",info="Non-maskable interrupts",type="NMI"} 5031
-node_interrupts_total{CPU="1",devices="",info="Performance monitoring interrupts",type="PMI"} 5031
-node_interrupts_total{CPU="1",devices="",info="Rescheduling interrupts",type="RES"} 9.111507e+06
-node_interrupts_total{CPU="1",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts_total{CPU="1",devices="",info="TLB shootdowns",type="TLB"} 9.918429e+06
-node_interrupts_total{CPU="1",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts_total{CPU="1",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts_total{CPU="1",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 2320
-node_interrupts_total{CPU="1",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 8.092205e+06
-node_interrupts_total{CPU="1",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts_total{CPU="1",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts_total{CPU="1",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 322879
-node_interrupts_total{CPU="1",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 3.333499e+06
-node_interrupts_total{CPU="1",devices="i8042",info="IR-IO-APIC-edge",type="1"} 105
-node_interrupts_total{CPU="1",devices="i8042",info="IR-IO-APIC-edge",type="12"} 1021
-node_interrupts_total{CPU="1",devices="i915",info="IR-PCI-MSI-edge",type="44"} 226313
-node_interrupts_total{CPU="1",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 130
-node_interrupts_total{CPU="1",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 22
-node_interrupts_total{CPU="1",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
-node_interrupts_total{CPU="1",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 224
-node_interrupts_total{CPU="1",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
-node_interrupts_total{CPU="1",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 1.734637e+06
-node_interrupts_total{CPU="2",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts_total{CPU="2",devices="",info="Function call interrupts",type="CAL"} 142912
-node_interrupts_total{CPU="2",devices="",info="IRQ work interrupts",type="IWI"} 1.512975e+06
-node_interrupts_total{CPU="2",devices="",info="Local timer interrupts",type="LOC"} 1.68393257e+08
-node_interrupts_total{CPU="2",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts_total{CPU="2",devices="",info="Machine check polls",type="MCP"} 2399
-node_interrupts_total{CPU="2",devices="",info="Non-maskable interrupts",type="NMI"} 6211
-node_interrupts_total{CPU="2",devices="",info="Performance monitoring interrupts",type="PMI"} 6211
-node_interrupts_total{CPU="2",devices="",info="Rescheduling interrupts",type="RES"} 1.5999335e+07
-node_interrupts_total{CPU="2",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts_total{CPU="2",devices="",info="TLB shootdowns",type="TLB"} 1.0494258e+07
-node_interrupts_total{CPU="2",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts_total{CPU="2",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts_total{CPU="2",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 824
-node_interrupts_total{CPU="2",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 6.478877e+06
-node_interrupts_total{CPU="2",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts_total{CPU="2",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts_total{CPU="2",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 293782
-node_interrupts_total{CPU="2",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.092032e+06
-node_interrupts_total{CPU="2",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
-node_interrupts_total{CPU="2",devices="i8042",info="IR-IO-APIC-edge",type="12"} 240
-node_interrupts_total{CPU="2",devices="i915",info="IR-PCI-MSI-edge",type="44"} 347
-node_interrupts_total{CPU="2",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 460171
-node_interrupts_total{CPU="2",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
-node_interrupts_total{CPU="2",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
-node_interrupts_total{CPU="2",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
-node_interrupts_total{CPU="2",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
-node_interrupts_total{CPU="2",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 440240
-node_interrupts_total{CPU="3",devices="",info="APIC ICR read retries",type="RTR"} 0
-node_interrupts_total{CPU="3",devices="",info="Function call interrupts",type="CAL"} 155528
-node_interrupts_total{CPU="3",devices="",info="IRQ work interrupts",type="IWI"} 2.428828e+06
-node_interrupts_total{CPU="3",devices="",info="Local timer interrupts",type="LOC"} 1.30980079e+08
-node_interrupts_total{CPU="3",devices="",info="Machine check exceptions",type="MCE"} 0
-node_interrupts_total{CPU="3",devices="",info="Machine check polls",type="MCP"} 2399
-node_interrupts_total{CPU="3",devices="",info="Non-maskable interrupts",type="NMI"} 4968
-node_interrupts_total{CPU="3",devices="",info="Performance monitoring interrupts",type="PMI"} 4968
-node_interrupts_total{CPU="3",devices="",info="Rescheduling interrupts",type="RES"} 7.45726e+06
-node_interrupts_total{CPU="3",devices="",info="Spurious interrupts",type="SPU"} 0
-node_interrupts_total{CPU="3",devices="",info="TLB shootdowns",type="TLB"} 1.0345022e+07
-node_interrupts_total{CPU="3",devices="",info="Thermal event interrupts",type="TRM"} 0
-node_interrupts_total{CPU="3",devices="",info="Threshold APIC interrupts",type="THR"} 0
-node_interrupts_total{CPU="3",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 863
-node_interrupts_total{CPU="3",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.492252e+06
-node_interrupts_total{CPU="3",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
-node_interrupts_total{CPU="3",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
-node_interrupts_total{CPU="3",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 351412
-node_interrupts_total{CPU="3",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 2.644609e+06
-node_interrupts_total{CPU="3",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
-node_interrupts_total{CPU="3",devices="i8042",info="IR-IO-APIC-edge",type="12"} 198
-node_interrupts_total{CPU="3",devices="i915",info="IR-PCI-MSI-edge",type="44"} 633
-node_interrupts_total{CPU="3",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 290
-node_interrupts_total{CPU="3",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
-node_interrupts_total{CPU="3",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
-node_interrupts_total{CPU="3",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
-node_interrupts_total{CPU="3",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
-node_interrupts_total{CPU="3",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 2.434308e+06
+node_interrupts_total{cpu="0",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{cpu="0",devices="",info="Function call interrupts",type="CAL"} 148554
+node_interrupts_total{cpu="0",devices="",info="IRQ work interrupts",type="IWI"} 1.509379e+06
+node_interrupts_total{cpu="0",devices="",info="Local timer interrupts",type="LOC"} 1.74326351e+08
+node_interrupts_total{cpu="0",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{cpu="0",devices="",info="Machine check polls",type="MCP"} 2406
+node_interrupts_total{cpu="0",devices="",info="Non-maskable interrupts",type="NMI"} 47
+node_interrupts_total{cpu="0",devices="",info="Performance monitoring interrupts",type="PMI"} 47
+node_interrupts_total{cpu="0",devices="",info="Rescheduling interrupts",type="RES"} 1.0847134e+07
+node_interrupts_total{cpu="0",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{cpu="0",devices="",info="TLB shootdowns",type="TLB"} 1.0460334e+07
+node_interrupts_total{cpu="0",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{cpu="0",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{cpu="0",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 398553
+node_interrupts_total{cpu="0",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.434032e+06
+node_interrupts_total{cpu="0",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{cpu="0",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{cpu="0",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 328511
+node_interrupts_total{cpu="0",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.451445e+06
+node_interrupts_total{cpu="0",devices="i8042",info="IR-IO-APIC-edge",type="1"} 17960
+node_interrupts_total{cpu="0",devices="i8042",info="IR-IO-APIC-edge",type="12"} 380847
+node_interrupts_total{cpu="0",devices="i915",info="IR-PCI-MSI-edge",type="44"} 140636
+node_interrupts_total{cpu="0",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 4.3078464e+07
+node_interrupts_total{cpu="0",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 4
+node_interrupts_total{cpu="0",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 1
+node_interrupts_total{cpu="0",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 350
+node_interrupts_total{cpu="0",devices="timer",info="IR-IO-APIC-edge",type="0"} 18
+node_interrupts_total{cpu="0",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 378324
+node_interrupts_total{cpu="1",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{cpu="1",devices="",info="Function call interrupts",type="CAL"} 157441
+node_interrupts_total{cpu="1",devices="",info="IRQ work interrupts",type="IWI"} 2.411776e+06
+node_interrupts_total{cpu="1",devices="",info="Local timer interrupts",type="LOC"} 1.35776678e+08
+node_interrupts_total{cpu="1",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{cpu="1",devices="",info="Machine check polls",type="MCP"} 2399
+node_interrupts_total{cpu="1",devices="",info="Non-maskable interrupts",type="NMI"} 5031
+node_interrupts_total{cpu="1",devices="",info="Performance monitoring interrupts",type="PMI"} 5031
+node_interrupts_total{cpu="1",devices="",info="Rescheduling interrupts",type="RES"} 9.111507e+06
+node_interrupts_total{cpu="1",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{cpu="1",devices="",info="TLB shootdowns",type="TLB"} 9.918429e+06
+node_interrupts_total{cpu="1",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{cpu="1",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{cpu="1",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 2320
+node_interrupts_total{cpu="1",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 8.092205e+06
+node_interrupts_total{cpu="1",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{cpu="1",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{cpu="1",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 322879
+node_interrupts_total{cpu="1",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 3.333499e+06
+node_interrupts_total{cpu="1",devices="i8042",info="IR-IO-APIC-edge",type="1"} 105
+node_interrupts_total{cpu="1",devices="i8042",info="IR-IO-APIC-edge",type="12"} 1021
+node_interrupts_total{cpu="1",devices="i915",info="IR-PCI-MSI-edge",type="44"} 226313
+node_interrupts_total{cpu="1",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 130
+node_interrupts_total{cpu="1",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 22
+node_interrupts_total{cpu="1",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
+node_interrupts_total{cpu="1",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 224
+node_interrupts_total{cpu="1",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
+node_interrupts_total{cpu="1",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 1.734637e+06
+node_interrupts_total{cpu="2",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{cpu="2",devices="",info="Function call interrupts",type="CAL"} 142912
+node_interrupts_total{cpu="2",devices="",info="IRQ work interrupts",type="IWI"} 1.512975e+06
+node_interrupts_total{cpu="2",devices="",info="Local timer interrupts",type="LOC"} 1.68393257e+08
+node_interrupts_total{cpu="2",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{cpu="2",devices="",info="Machine check polls",type="MCP"} 2399
+node_interrupts_total{cpu="2",devices="",info="Non-maskable interrupts",type="NMI"} 6211
+node_interrupts_total{cpu="2",devices="",info="Performance monitoring interrupts",type="PMI"} 6211
+node_interrupts_total{cpu="2",devices="",info="Rescheduling interrupts",type="RES"} 1.5999335e+07
+node_interrupts_total{cpu="2",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{cpu="2",devices="",info="TLB shootdowns",type="TLB"} 1.0494258e+07
+node_interrupts_total{cpu="2",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{cpu="2",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{cpu="2",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 824
+node_interrupts_total{cpu="2",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 6.478877e+06
+node_interrupts_total{cpu="2",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{cpu="2",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{cpu="2",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 293782
+node_interrupts_total{cpu="2",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 1.092032e+06
+node_interrupts_total{cpu="2",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
+node_interrupts_total{cpu="2",devices="i8042",info="IR-IO-APIC-edge",type="12"} 240
+node_interrupts_total{cpu="2",devices="i915",info="IR-PCI-MSI-edge",type="44"} 347
+node_interrupts_total{cpu="2",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 460171
+node_interrupts_total{cpu="2",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
+node_interrupts_total{cpu="2",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
+node_interrupts_total{cpu="2",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
+node_interrupts_total{cpu="2",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
+node_interrupts_total{cpu="2",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 440240
+node_interrupts_total{cpu="3",devices="",info="APIC ICR read retries",type="RTR"} 0
+node_interrupts_total{cpu="3",devices="",info="Function call interrupts",type="CAL"} 155528
+node_interrupts_total{cpu="3",devices="",info="IRQ work interrupts",type="IWI"} 2.428828e+06
+node_interrupts_total{cpu="3",devices="",info="Local timer interrupts",type="LOC"} 1.30980079e+08
+node_interrupts_total{cpu="3",devices="",info="Machine check exceptions",type="MCE"} 0
+node_interrupts_total{cpu="3",devices="",info="Machine check polls",type="MCP"} 2399
+node_interrupts_total{cpu="3",devices="",info="Non-maskable interrupts",type="NMI"} 4968
+node_interrupts_total{cpu="3",devices="",info="Performance monitoring interrupts",type="PMI"} 4968
+node_interrupts_total{cpu="3",devices="",info="Rescheduling interrupts",type="RES"} 7.45726e+06
+node_interrupts_total{cpu="3",devices="",info="Spurious interrupts",type="SPU"} 0
+node_interrupts_total{cpu="3",devices="",info="TLB shootdowns",type="TLB"} 1.0345022e+07
+node_interrupts_total{cpu="3",devices="",info="Thermal event interrupts",type="TRM"} 0
+node_interrupts_total{cpu="3",devices="",info="Threshold APIC interrupts",type="THR"} 0
+node_interrupts_total{cpu="3",devices="acpi",info="IR-IO-APIC-fasteoi",type="9"} 863
+node_interrupts_total{cpu="3",devices="ahci",info="IR-PCI-MSI-edge",type="43"} 7.492252e+06
+node_interrupts_total{cpu="3",devices="dmar0",info="DMAR_MSI-edge",type="40"} 0
+node_interrupts_total{cpu="3",devices="dmar1",info="DMAR_MSI-edge",type="41"} 0
+node_interrupts_total{cpu="3",devices="ehci_hcd:usb1, mmc0",info="IR-IO-APIC-fasteoi",type="16"} 351412
+node_interrupts_total{cpu="3",devices="ehci_hcd:usb2",info="IR-IO-APIC-fasteoi",type="23"} 2.644609e+06
+node_interrupts_total{cpu="3",devices="i8042",info="IR-IO-APIC-edge",type="1"} 28
+node_interrupts_total{cpu="3",devices="i8042",info="IR-IO-APIC-edge",type="12"} 198
+node_interrupts_total{cpu="3",devices="i915",info="IR-PCI-MSI-edge",type="44"} 633
+node_interrupts_total{cpu="3",devices="iwlwifi",info="IR-PCI-MSI-edge",type="46"} 290
+node_interrupts_total{cpu="3",devices="mei_me",info="IR-PCI-MSI-edge",type="45"} 0
+node_interrupts_total{cpu="3",devices="rtc0",info="IR-IO-APIC-edge",type="8"} 0
+node_interrupts_total{cpu="3",devices="snd_hda_intel",info="IR-PCI-MSI-edge",type="47"} 0
+node_interrupts_total{cpu="3",devices="timer",info="IR-IO-APIC-edge",type="0"} 0
+node_interrupts_total{cpu="3",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42"} 2.434308e+06
 # HELP node_intr_total Total number of interrupts serviced.
 # TYPE node_intr_total counter
 node_intr_total 8.885917e+06
