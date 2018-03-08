@@ -46,37 +46,37 @@ func NewExecCollector() (Collector, error) {
 	return &execCollector{
 		sysctls: []bsdSysctl{
 			{
-				name:        "context_switches_total",
+				name:        "exec_context_switches_total",
 				description: "Context switches since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_swtch",
 			},
 			{
-				name:        "traps_total",
+				name:        "exec_traps_total",
 				description: "Traps since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_trap",
 			},
 			{
-				name:        "system_calls_total",
+				name:        "exec_system_calls_total",
 				description: "System calls since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_syscall",
 			},
 			{
-				name:        "device_interrupts_total",
+				name:        "exec_device_interrupts_total",
 				description: "Device interrupts since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_intr",
 			},
 			{
-				name:        "software_interrupts_total",
+				name:        "exec_software_interrupts_total",
 				description: "Software interrupts since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.sys.v_soft",
 			},
 			{
-				name:        "forks_total",
+				name:        "exec_forks_total",
 				description: "Number of fork() calls since system boot.  Resets at architeture unsigned integer.",
 				mib:         "vm.stats.vm.v_forks",
 			},
 			{
-				name:        "boot_timestamp_seconds",
+				name:        "boot_time_seconds",
 				description: "Unix time of last boot, including microseconds.",
 				mib:         "kern.boottime",
 				dataType:    bsdSysctlTypeStructTimeval,
@@ -95,7 +95,7 @@ func (c *execCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "exec", m.name),
+				namespace+"_"+m.name,
 				m.description,
 				nil, nil,
 			), prometheus.CounterValue, v)
