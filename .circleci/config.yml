@@ -126,8 +126,14 @@ workflows:
   version: 2
   node_exporter:
     jobs:
-    - test
-    - build
+    - test:
+        filters:
+          tags:
+            only: /.*/
+    - build:
+        filters:
+          tags:
+            only: /.*/
     - docker_hub_master:
         requires:
         - test
