@@ -5,7 +5,7 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
-## 0.16.0-rc.0 / 2018-03-08
+## 0.16.0-rc.0 / 2018-03-09
 
 **Breaking changes**
 
