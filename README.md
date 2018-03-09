@@ -74,14 +74,6 @@ supervisord | Exposes service status from [supervisord](http://supervisord.org/)
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 
-### Deprecated
-
-*These collectors will be (re)moved in the future.*
-
-Name     | Description | OS
----------|-------------|----
-gmond | Exposes statistics from Ganglia. | _any_
-
 ### Textfile Collector
 
 The textfile collector is similar to the [Pushgateway](https://github.com/prometheus/pushgateway),
