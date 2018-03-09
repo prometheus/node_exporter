@@ -1,10 +1,70 @@
 ## master / unreleased
 
+* [CHANGE]
+* [FEATURE]
+* [ENHANCEMENT]
+* [BUGFIX]
+
+## 0.16.0-rc.0 / 2018-03-08
+
 **Breaking changes**
 
-Linux node_cpu metrics now break out `guest` values into separate metrics.  See Issue #737
+This release contains major breaking changes to metric names.  Many metrics have new names, labels, and label values in order to conform to current naming conventions.
+* Linux node_cpu metrics now break out `guest` values into separate metrics.  See Issue #737
+* Many counter metrics have been renamed to include `_total`.
+* Many metrics have been renamed/modified to include base units, for example `node_cpu` is now `node_cpu_seconds_total`.
 
-## v0.15.0 / 2017-10-06
+In order to help with backwards compatibility, a `metric_relabel_config` is being worked on to allow for easier transition of metric names.  See: https://github.com/prometheus/node_exporter/issues/830
+
+Other breaking changes:
+* The megacli collector has been removed, is now replaced by the storcli.py textfile helper.
+* The textfile collector will now treat timestamps as errors.
+
+* [CHANGE] Split out guest cpu metrics on Linux. #744
+* [CHANGE] Exclude Linux proc from filesystem type regexp #774
+* [CHANGE] Ignore more virtual filesystems #775
+* [CHANGE] Remove obsolete megacli collector. #798
+* [CHANGE] Ignore /var/lib/docker by default. #814
+* [CHANGE] Cleanup NFS metrics #834
+* [CHANGE] Only report core throttles per core, not per cpu #836
+* [CHANGE] Treat custom textfile metric timestamps as errors #769
+* [CHANGE] Drop exec_ in boot_timestamp_seconds on *bsd #839
+* [CHANGE] Use lowercase cpu label name in interrupts #849
+* [FEATURE] Add `collect[]` parameter #699
+* [FEATURE] Add text collector conversion for ipmitool output. #746
+* [FEATURE] Add openbsd meminfo #724
+* [FEATURE] Add systemd summary metrics #765
+* [FEATURE] Add OpenBSD CPU collector #805
+* [FEATURE] Add NFS Server metrics collector. #803
+* [FEATURE] add sample directory size exporter #789
+* [ENHANCEMENT] added Wear_Leveling_Count attribute to smartmon.sh script #707
+* [ENHANCEMENT] Simplify Utsname string conversion #716
+* [ENHANCEMENT] apt.sh: handle multiple origins in apt-get output #757
+* [ENHANCEMENT] Export systemd timers last trigger seconds. #807
+* [ENHANCEMENT] updates for zfsonlinux 0.7.5 #779
+* [BUGFIX] Fix smartmon.sh textfile script #700
+* [BUGFIX] netdev: Change valueType to CounterValue #749
+* [BUGFIX] textfile: fix duplicate metrics error #738
+* [BUGFIX] Fix panic by updating github.com/ema/qdisc dependency #778
+* [BUGFIX] Use uint64 in the ZFS collector #714
+* [BUGFIX] multiply page size after float64 coercion to avoid signed integer overflow #780
+* [BUGFIX] smartmon: Escape double quotes in device model family #772
+* [BUGFIX] Fix log level regression in #533 #815
+* [BUGFIX] Correct the ClocksPerSec scaling factor on Darwin #846
+
+## 0.15.2 / 2017-12-06
+
+* [BUGFIX]  cpu: Support processor-less (memory-only) NUMA nodes #734
+
+## 0.15.1 / 2017-11-07
+
+* [BUGFIX] xfs: expose correct fields, fix metric names #708
+* [BUGFIX] Correct buffer_bytes > INT_MAX on BSD/amd64. #712
+* [BUGFIX] netstat: return nothing when /proc/net/snmp6 not found #718
+* [BUGFIX] Fix off by one in Linux interrupts collector #721
+* [BUGFIX] Add and use sysReadFile in hwmon collector #728
+
+## 0.15.0 / 2017-10-06
 
 **Breaking changes**
 
@@ -46,7 +106,7 @@ Windows support is now removed, the [wmi_exporter](https://github.com/martinlind
 * [BUGFIX] Ignore wifi collector permission errors #646
 * [BUGFIX] Always try to return smartmon_device_info metric #663
 
-## v0.14.0 / 2017-03-21
+## 0.14.0 / 2017-03-21
 
 NOTE: We are deprecating several collectors in this release.
     * `gmond` - Out of scope.
@@ -88,7 +148,7 @@ Breaking changes:
 * [BUGFIX] Allow graceful failure in hwmon collector #427
 * [BUGFIX] Fix the reporting of active+total disk metrics for inactive raids. #522
 
-## v0.13.0 / 2016-11-26
+## 0.13.0 / 2016-11-26
 
 NOTE: We have disabled builds of linux/ppc64 and linux/ppc64le due to build bugs.
 
