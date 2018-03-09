@@ -93,7 +93,6 @@ jobs:
     - run: mkdir -v -p ${HOME}/bin
     - run: curl -L 'https://github.com/aktau/github-release/releases/download/v0.7.2/linux-amd64-github-release.tar.bz2' | tar xvjf - --strip-components 3 -C ${HOME}/bin
     - run: echo 'export PATH=${HOME}/bin:${PATH}' >> ${BASH_ENV}
-    - run: make promu
     - attach_workspace:
         at: .
     - run: make promu
@@ -103,6 +102,7 @@ jobs:
     - store_artifacts:
         path: .tarballs
         destination: releases
+    - run: ln -s .build/linux-amd64/node_exporter node_exporter
     - run:
         command: |
           if [ -n "$CIRCLE_TAG" ]; then
