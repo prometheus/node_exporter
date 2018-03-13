@@ -279,5 +279,5 @@
 			"revisionTime": "2017-12-17T18:08:21Z"
 		}
 	],
-	"rootPath": "github.com/kshvakov/node_exporter"
+	"rootPath": "github.com/prometheus/node_exporter"
 }
