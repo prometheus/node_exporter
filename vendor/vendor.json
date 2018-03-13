@@ -35,6 +35,12 @@
 			"revisionTime": "2016-08-04T10:47:26Z"
 		},
 		{
+			"checksumSHA1": "/RRYXxtvwVq7FC9iVHrUoq8T6A0=",
+			"path": "github.com/bouk/monkey",
+			"revision": "5df1f207ff77e025801505ae4d903133a0b4353f",
+			"revisionTime": "2018-02-15T07:46:47Z"
+		},
+		{
 			"checksumSHA1": "Lxoh+PBVbeSiTNlSvpUmP4yA8QI=",
 			"path": "github.com/coreos/go-systemd/dbus",
 			"revision": "40e2722dffead74698ca12a750f64ef313ddce05",
@@ -273,5 +279,5 @@
 			"revisionTime": "2017-12-17T18:08:21Z"
 		}
 	],
-	"rootPath": "github.com/prometheus/node_exporter"
+	"rootPath": "github.com/kshvakov/node_exporter"
 }
