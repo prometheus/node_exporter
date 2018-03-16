@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>node_exporter</string>
+  <string>io.prometheus.node_exporter</string>
   <key>ProgramArguments</key>
   <array>
     <string>/usr/local/bin/node_exporter</string>

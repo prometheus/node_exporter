@@ -10,15 +10,14 @@ The `plist` file should be put in `~/Library/LaunchAgents/` (user-install) or
 Ex. install globally by
 
     sudo cp -n node_exporter /usr/local/bin/
-    sudo cp -n examples/launchctl/node_exporter.plist /Library/LaunchAgents/
-    sudo launchctl bootstrap system/ /Library/LaunchAgents/node_exporter.plist
-    sudo launchctl start node_exporter
+    sudo cp -n examples/launchctl/io.prometheus.node_exporter.plist /Library/LaunchAgents/
+    sudo launchctl bootstrap system/ /Library/LaunchAgents/io.prometheus.node_exporter.plist
 
     # Check it's running
     sudo launchctl list | grep node_exporter
 
     # See full process state
-    sudo launchctl print system/node_exporter
+    sudo launchctl print system/io.prometheus.node_exporter
 
     # View logs
     sudo tail /tmp/node_exporter.log
