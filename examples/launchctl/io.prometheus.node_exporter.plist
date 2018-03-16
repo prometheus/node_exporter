@@ -8,6 +8,10 @@
   <array>
     <string>/usr/local/bin/node_exporter</string>
   </array>
+  <key>UserName</key>
+  <string>nobody</string>
+  <key>GroupName</key>
+  <string>nobody</string>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>
@@ -15,9 +19,9 @@
   <key>WorkingDirectory</key>
   <string>/usr/local</string>
   <key>StandardErrorPath</key>
-  <string>/usr/local/var/log/node_exporter/output.log</string>
+  <string>/tmp/node_exporter.log</string>
   <key>StandardOutPath</key>
-  <string>/usr/local/var/log/node_exporter/output.log</string>
+  <string>/tmp/node_exporter.log</string>
   <key>HardResourceLimits</key>
   <dict>
     <key>NumberOfFiles</key>

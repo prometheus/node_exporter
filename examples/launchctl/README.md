@@ -21,4 +21,4 @@ Ex. install globally by
     sudo launchctl print system/node_exporter
 
     # View logs
-    sudo tail /usr/local/var/logs/node_exporter/output.log
+    sudo tail /tmp/node_exporter.log
