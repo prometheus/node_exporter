@@ -4,8 +4,10 @@
 <dict>
   <key>Label</key>
   <string>node_exporter</string>
-  <key>Program</key>
-  <string>/usr/local/bin/node_exporter</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/node_exporter</string>
+  </array>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>
