@@ -6,7 +6,9 @@
   <string>io.prometheus.node_exporter</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/bin/node_exporter</string>
+    <string>sh</string>
+    <string>-c</string>
+    <string>/usr/local/bin/node_exporter $(&lt; /usr/local/etc/node_exporter.args)</string>
   </array>
   <key>UserName</key>
   <string>nobody</string>

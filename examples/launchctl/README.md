@@ -13,6 +13,9 @@ Ex. install globally by
     sudo cp -n examples/launchctl/io.prometheus.node_exporter.plist /Library/LaunchAgents/
     sudo launchctl bootstrap system/ /Library/LaunchAgents/io.prometheus.node_exporter.plist
 
+    # Optionally configure by dropping CLI arguments in a file
+    echo -- '--web.listen-address=:9101' | sudo tee /usr/local/etc/node_exporter.args
+
     # Check it's running
     sudo launchctl list | grep node_exporter
 
