@@ -41,7 +41,7 @@ implementation details vary from "**local** wall-clock time" to "Reference Time
 field in incoming SNTP packet".
 
 `time() - node_ntp_reference_timestamp_seconds` and
-`node_time - node_ntp_reference_timestamp_seconds` represent some estimate of
+`node_time_seconds - node_ntp_reference_timestamp_seconds` represent some estimate of
 "freshness" of synchronization.
 
 ### `node_ntp_root_delay` and `node_ntp_root_dispersion`
