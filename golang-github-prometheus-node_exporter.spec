@@ -10,7 +10,7 @@
 %global import_path     %{provider_prefix}
 %global commit          052cee4ae2677a7cb42542615f6c858e35d6e9e3
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
-%global build_gopath    %{_builddir}/%{repo}-%{shortcommit}-gopath
+%global gopathdir       %{_sourcedir}/go
 %global upstream_ver    0.15.2
 %global rpm_ver         %(v=%{upstream_ver}; echo ${v//-/_})
 %global download_prefix %{provider}.%{provider_tld}/openshift/%{repo}
@@ -45,7 +45,12 @@ Provides:       prometheus-node_exporter = %{version}-%{release}
 %setup -q -n %{repo}-%{commit}
 
 %build
-unset GOBIN
+# Go expects a full path to the sources which is not included in the source
+# tarball so create a link with the expected path
+mkdir -p %{gopathdir}/src/%{provider}.%{provider_tld}/%{project}
+ln -s `pwd` %{gopathdir}/src/%{import_path}
+export GOPATH=%{gopathdir}
+
 make build BUILD_PROMU=false
 
 %install
