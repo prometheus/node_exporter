@@ -180,9 +180,8 @@ node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
 node_context_switches_total 3.8014093e+07
 # HELP node_cpu_core_throttles_total Number of times this cpu core has been throttled.
 # TYPE node_cpu_core_throttles_total counter
-node_cpu_core_throttles_total{cpu="0"} 5
-node_cpu_core_throttles_total{cpu="1"} 0
-node_cpu_core_throttles_total{cpu="2"} 40
+node_cpu_core_throttles_total{core="0"} 5
+node_cpu_core_throttles_total{core="1"} 0
 # HELP node_cpu_frequency_hertz Current cpu thread frequency in hertz.
 # TYPE node_cpu_frequency_hertz gauge
 node_cpu_frequency_hertz{cpu="0"} 1.699981e+09
