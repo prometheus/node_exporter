@@ -2790,6 +2790,9 @@ node_sockstat_sockets_used 229
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
+# HELP node_vmstat_oom_kill /proc/vmstat information field oom_kill.
+# TYPE node_vmstat_oom_kill untyped
+node_vmstat_oom_kill 0
 # HELP node_vmstat_pgfault /proc/vmstat information field pgfault.
 # TYPE node_vmstat_pgfault untyped
 node_vmstat_pgfault 2.320168809e+09
