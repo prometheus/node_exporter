@@ -117,3 +117,4 @@ thp_zero_page_alloc_failed 20
 balloon_inflate 0
 balloon_deflate 0
 balloon_migrate 0
+oom_kill 0
