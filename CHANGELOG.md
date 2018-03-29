@@ -2,10 +2,14 @@
 
 **Breaking changes**
 
+This release contains more breaking changes:
+* Rename label `node` of metric `node_cpu_package_throttles_total` to `package`.
+* Add 2nd label `package` to metric `node_cpu_core_throttles_total`.
+
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
-* [BUGFIX]
+* [BUGFIX] Count core throttles per core and per package #871
 
 ## 0.16.0-rc.1 / 2018-04-04
 
