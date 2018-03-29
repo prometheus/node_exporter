@@ -25,6 +25,7 @@ Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
+bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
 diskstats | Exposes disk I/O statistics. | Darwin, Linux
@@ -58,7 +59,6 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 
 Name     | Description | OS
 ---------|-------------|----
-bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
