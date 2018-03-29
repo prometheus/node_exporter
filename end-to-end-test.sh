@@ -32,6 +32,7 @@ enabled_collectors=$(cat << COLLECTORS
   stat
   textfile
   bonding
+  vmstat
   wifi
   xfs
   zfs
@@ -42,7 +43,6 @@ disabled_collectors=$(cat << COLLECTORS
   time
   timex
   uname
-  vmstat
 COLLECTORS
 )
 cd "$(dirname $0)"
