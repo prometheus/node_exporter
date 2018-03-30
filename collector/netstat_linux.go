@@ -20,17 +20,25 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
 	netStatsSubsystem = "netstat"
 )
 
-type netStatCollector struct{}
+var (
+	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*)|Tcp_(ActiveOpens|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts))$").String()
+)
+
+type netStatCollector struct {
+	fieldPattern *regexp.Regexp
+}
 
 func init() {
 	registerCollector("netstat", defaultEnabled, NewNetStatCollector)
@@ -39,7 +47,10 @@ func init() {
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
 func NewNetStatCollector() (Collector, error) {
-	return &netStatCollector{}, nil
+	pattern := regexp.MustCompile(*netStatFields)
+	return &netStatCollector{
+		fieldPattern: pattern,
+	}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
@@ -69,6 +80,9 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
 				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
+			}
+			if !c.fieldPattern.MatchString(key) {
+				continue
 			}
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
