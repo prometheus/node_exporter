@@ -1,11 +1,13 @@
 ## master / unreleased
 
+**Breaking changes**
+
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX]
 
-## 0.16.0-rc.0 / 2018-03-09
+## 0.16.0-rc.1 / 2018-04-04
 
 **Breaking changes**
 
@@ -30,6 +32,9 @@ Other breaking changes:
 * [CHANGE] Treat custom textfile metric timestamps as errors #769
 * [CHANGE] Drop exec_ in boot_timestamp_seconds on *bsd #839
 * [CHANGE] Use lowercase cpu label name in interrupts #849
+* [CHANGE] Enable bonding collector by default. #872
+* [CHANGE] Greatly reduce the metrics vmstat returns by default. #874
+* [CHANGE] Greatly trim what netstat collector exposes by default #876
 * [FEATURE] Add `collect[]` parameter #699
 * [FEATURE] Add text collector conversion for ipmitool output. #746
 * [FEATURE] Add openbsd meminfo #724
