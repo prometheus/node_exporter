@@ -13,11 +13,20 @@ import (
 )
 
 var (
-	threshold = kingpin.Flag("collector.filehandles.threshold", "Threshold for max open files in %.").Default("90").String()
+	threshold       = kingpin.Flag("collector.filehandles.threshold", "Threshold for max open files in %.").Default("90").String()
+	limitLabelNames = []string{"pid", "max_open_files", "open_files", "percent"} // Label name(s) for pid
 )
 
 type filehandlesCollector struct {
-	metric []typedDesc
+	limit_reached_count *prometheus.Desc
+	limit_reached       *prometheus.Desc
+}
+
+type pidOpenFiles struct {
+	pid          string
+	maxOpenFiles float64
+	openFiles    float64
+	percent      float64
 }
 
 func init() {
@@ -27,19 +36,47 @@ func init() {
 func NewFilehandlesCollector() (Collector, error) {
 	const subsystem = "filehandles"
 
+	limit_reached_count := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "limit_reached_count"),
+		"Count of how many processes have reached "+string(*threshold)+"% of max open files.",
+		nil, nil,
+	)
+
+	limit_reached := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "limit_reached"),
+		"Process that has reached "+string(*threshold)+"% of max open files.",
+		limitLabelNames, nil,
+	)
+
 	return &filehandlesCollector{
-		metric: []typedDesc{
-			{prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "limit_reached_count"), "Count of how many processes have reached "+string(*threshold)+"% of max open files.", nil, nil), prometheus.CounterValue},
-		},
+		limit_reached_count: limit_reached_count,
+		limit_reached:       limit_reached,
 	}, nil
 }
 
 func (c *filehandlesCollector) Update(ch chan<- prometheus.Metric) error {
-	limits, err := getLimitReachedCount()
+	// get values to update metrics
+	limits, pids, err := getLimitReachedCount()
 	if err != nil {
 		log.Error(err)
 	}
-	ch <- c.metric[0].mustNewConstMetric(limits)
+
+	// update counter metric
+	ch <- prometheus.MustNewConstMetric(c.limit_reached_count, prometheus.CounterValue, limits)
+
+	// update metrics for processes that have more open files than threshold% of it's max open files
+	for _, p := range pids {
+		ch <- prometheus.MustNewConstMetric(
+			c.limit_reached,
+			prometheus.GaugeValue,
+			p.openFiles,
+			p.pid,
+			strconv.FormatFloat(p.maxOpenFiles, 'f', 0, 64),
+			strconv.FormatFloat(p.openFiles, 'f', 0, 64),
+			strconv.FormatFloat(p.percent, 'f', 2, 64),
+		)
+	}
+
 	return err
 }
 
@@ -69,7 +106,7 @@ func getMaxOpenFiles(pid string) (mof float64, err error) {
 	return limit, nil
 }
 
-func getLimitReachedCount() (procCount float64, err error) {
+func getLimitReachedCount() (procCount float64, pidErrors []pidOpenFiles, err error) {
 	// get files in /proc directory
 	files, err := ioutil.ReadDir("/proc")
 	if err != nil {
@@ -77,6 +114,7 @@ func getLimitReachedCount() (procCount float64, err error) {
 	}
 
 	var errorCount float64
+	errorPids := []pidOpenFiles{}
 
 	for _, f := range files {
 		filename := f.Name()
@@ -95,11 +133,18 @@ func getLimitReachedCount() (procCount float64, err error) {
 			if threshold, err := strconv.ParseFloat(*threshold, 64); err == nil {
 				if percentage >= threshold {
 					errorCount++
+					// provide metric for processes that have more open files than threshold% of it's max open files
+					errorPids = append(errorPids, pidOpenFiles{
+						pid:          filename,
+						maxOpenFiles: float64(mof),
+						openFiles:    float64(len(cof)),
+						percent:      percentage,
+					})
 				}
 			}
 		}
 	}
 
 	// return number of processes that have more open files than threshold% of it's max open files
-	return errorCount, err
+	return errorCount, errorPids, err
 }
