@@ -17,6 +17,13 @@ Prometheus uses GitHub to manage reviews of pull requests.
   Practices for Production
   Environments](http://peter.bourgon.org/go-in-production/#formatting-and-style).
 
+* Sign your work to certify that your changes were created by yourself or you
+  have the right to submit it under our license. Read
+  https://developercertificate.org/ for all details and append your sign-off to
+  every commit message like this:
+
+        Signed-off-by: Random J Developer <example@example.com>
+
 
 ## Collector Implementation Guidelines
 
