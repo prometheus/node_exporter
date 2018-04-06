@@ -94,9 +94,9 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-// updateCPUfreq reads /sys/bus/cpu/devices/cpu* and expose cpu frequency statistics.
+// updateCPUfreq reads /sys/devices/system/cpu/cpu* and expose cpu frequency statistics.
 func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
-	cpus, err := filepath.Glob(sysFilePath("bus/cpu/devices/cpu[0-9]*"))
+	cpus, err := filepath.Glob(sysFilePath("devices/system/cpu/cpu[0-9]*"))
 	if err != nil {
 		return err
 	}
