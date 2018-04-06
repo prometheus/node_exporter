@@ -130,6 +130,11 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			}
 			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
 		}
+
+		// See
+		// https://www.kernel.org/doc/Documentation/x86/topology.txt
+		// https://www.kernel.org/doc/Documentation/cputopology.txt
+		// https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-devices-system-cpu
 		var err error
 		var physicalPackageID, coreID uint64
 
