@@ -38,8 +38,8 @@ func NewFilehandlesCollector() (Collector, error) {
 
 	limit_reached_count := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "limit_reached_count"),
-		"Count of how many processes have reached "+string(*threshold)+"% of max open files.",
-		nil, nil,
+		"Count of how many processes have reached "+string(*threshold)+"% of max open files. Labels will display values of last found process that reached this limit.",
+		limitLabelNames, nil,
 	)
 
 	limit_reached := prometheus.NewDesc(
@@ -61,21 +61,27 @@ func (c *filehandlesCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Error(err)
 	}
 
-	// update counter metric
-	ch <- prometheus.MustNewConstMetric(c.limit_reached_count, prometheus.CounterValue, limits)
-
+	var last_pid, last_maxOpenFiles, last_openFiles, last_percent string
 	// update metrics for processes that have more open files than threshold% of it's max open files
 	for _, p := range pids {
+		last_pid = p.pid
+		last_maxOpenFiles = strconv.FormatFloat(p.maxOpenFiles, 'f', 0, 64)
+		last_openFiles = strconv.FormatFloat(p.openFiles, 'f', 0, 64)
+		last_percent = strconv.FormatFloat(p.percent, 'f', 2, 64)
+
 		ch <- prometheus.MustNewConstMetric(
 			c.limit_reached,
 			prometheus.GaugeValue,
 			p.openFiles,
-			p.pid,
-			strconv.FormatFloat(p.maxOpenFiles, 'f', 0, 64),
-			strconv.FormatFloat(p.openFiles, 'f', 0, 64),
-			strconv.FormatFloat(p.percent, 'f', 2, 64),
+			last_pid,
+			last_maxOpenFiles,
+			last_openFiles,
+			last_percent,
 		)
 	}
+
+	// update counter metric
+	ch <- prometheus.MustNewConstMetric(c.limit_reached_count, prometheus.CounterValue, limits, last_pid, last_maxOpenFiles, last_openFiles, last_percent)
 
 	return err
 }
