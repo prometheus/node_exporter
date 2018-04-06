@@ -14,7 +14,7 @@ import (
 
 var (
 	threshold       = kingpin.Flag("collector.filehandles.threshold", "Threshold for max open files in %.").Default("90").String()
-	limitLabelNames = []string{"pid", "max_open_files", "open_files", "percent"} // Label name(s) for pid
+	limitLabelNames = []string{"pid", "process_name", "max_open_files", "open_files", "percent"} // Label name(s) for pid
 )
 
 type filehandlesCollector struct {
@@ -24,6 +24,7 @@ type filehandlesCollector struct {
 
 type pidOpenFiles struct {
 	pid          string
+	name         string
 	maxOpenFiles float64
 	openFiles    float64
 	percent      float64
@@ -61,10 +62,11 @@ func (c *filehandlesCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Error(err)
 	}
 
-	var last_pid, last_maxOpenFiles, last_openFiles, last_percent string
+	var last_pid, last_name, last_maxOpenFiles, last_openFiles, last_percent string
 	// update metrics for processes that have more open files than threshold% of it's max open files
 	for _, p := range pids {
 		last_pid = p.pid
+		last_name = p.name
 		last_maxOpenFiles = strconv.FormatFloat(p.maxOpenFiles, 'f', 0, 64)
 		last_openFiles = strconv.FormatFloat(p.openFiles, 'f', 0, 64)
 		last_percent = strconv.FormatFloat(p.percent, 'f', 2, 64)
@@ -74,6 +76,7 @@ func (c *filehandlesCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.GaugeValue,
 			p.openFiles,
 			last_pid,
+			last_name,
 			last_maxOpenFiles,
 			last_openFiles,
 			last_percent,
@@ -81,7 +84,7 @@ func (c *filehandlesCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	// update counter metric
-	ch <- prometheus.MustNewConstMetric(c.limit_reached_count, prometheus.CounterValue, limits, last_pid, last_maxOpenFiles, last_openFiles, last_percent)
+	ch <- prometheus.MustNewConstMetric(c.limit_reached_count, prometheus.CounterValue, limits, last_pid, last_name, last_maxOpenFiles, last_openFiles, last_percent)
 
 	return err
 }
@@ -112,6 +115,30 @@ func getMaxOpenFiles(pid string) (mof float64, err error) {
 	return limit, nil
 }
 
+// process name of pid
+func getProcessName(pid string) (processName string, err error) {
+	f, err := os.Open("/proc/" + pid + "/status")
+	if err != nil {
+		log.Error(err)
+	}
+	defer f.Close()
+
+	var pname string
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		if bytes.Contains(scanner.Bytes(), []byte("Name:")) {
+			pname = strings.Fields(scanner.Text())[1]
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Error(err)
+	}
+
+	return pname, nil
+}
+
 func getLimitReachedCount() (procCount float64, pidErrors []pidOpenFiles, err error) {
 	// get files in /proc directory
 	files, err := ioutil.ReadDir("/proc")
@@ -139,9 +166,17 @@ func getLimitReachedCount() (procCount float64, pidErrors []pidOpenFiles, err er
 			if threshold, err := strconv.ParseFloat(*threshold, 64); err == nil {
 				if percentage >= threshold {
 					errorCount++
+
+					// get process name of the current process
+					pname, err := getProcessName(string(filename))
+					if err != nil {
+						log.Error(err)
+					}
+
 					// provide metric for processes that have more open files than threshold% of it's max open files
 					errorPids = append(errorPids, pidOpenFiles{
 						pid:          filename,
+						name:         pname,
 						maxOpenFiles: float64(mof),
 						openFiles:    float64(len(cof)),
 						percent:      percentage,
