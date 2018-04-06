@@ -37,7 +37,7 @@ else
 endif
 
 ifeq ($(GOHOSTARCH),amd64)
-        ifneq ($(OS_detected),SunOS)
+	ifeq ($(OS_detected),$(filter $(OS_detected),Linux FreeBSD Darwin Windows))
                 # Only supported on amd64
                 test-flags := -race
         endif
