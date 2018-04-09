@@ -47,32 +47,32 @@ func NewExecCollector() (Collector, error) {
 		sysctls: []bsdSysctl{
 			{
 				name:        "exec_context_switches_total",
-				description: "Context switches since system boot.  Resets at architeture unsigned integer.",
+				description: "Context switches since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_swtch",
 			},
 			{
 				name:        "exec_traps_total",
-				description: "Traps since system boot.  Resets at architeture unsigned integer.",
+				description: "Traps since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_trap",
 			},
 			{
 				name:        "exec_system_calls_total",
-				description: "System calls since system boot.  Resets at architeture unsigned integer.",
+				description: "System calls since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_syscall",
 			},
 			{
 				name:        "exec_device_interrupts_total",
-				description: "Device interrupts since system boot.  Resets at architeture unsigned integer.",
+				description: "Device interrupts since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_intr",
 			},
 			{
 				name:        "exec_software_interrupts_total",
-				description: "Software interrupts since system boot.  Resets at architeture unsigned integer.",
+				description: "Software interrupts since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_soft",
 			},
 			{
 				name:        "exec_forks_total",
-				description: "Number of fork() calls since system boot.  Resets at architeture unsigned integer.",
+				description: "Number of fork() calls since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.vm.v_forks",
 			},
 			{
