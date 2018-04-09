@@ -162,7 +162,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		},
 		{
 			name:       "cache_available_percent",
-			desc:       "Percentage of cache device without dirty data, useable for writeback (may contain clean cached data).",
+			desc:       "Percentage of cache device without dirty data, usable for writeback (may contain clean cached data).",
 			value:      float64(s.Bcache.CacheAvailablePercent),
 			metricType: prometheus.GaugeValue,
 		},
