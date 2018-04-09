@@ -76,7 +76,7 @@ node_bcache_btree_read_average_duration_seconds{uuid="deaddd54-c735-46d5-868e-f3
 # HELP node_bcache_bypassed_bytes_total Amount of IO (both reads and writes) that has bypassed the cache.
 # TYPE node_bcache_bypassed_bytes_total counter
 node_bcache_bypassed_bytes_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
-# HELP node_bcache_cache_available_percent Percentage of cache device without dirty data, useable for writeback (may contain clean cached data).
+# HELP node_bcache_cache_available_percent Percentage of cache device without dirty data, usable for writeback (may contain clean cached data).
 # TYPE node_bcache_cache_available_percent gauge
 node_bcache_cache_available_percent{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 100
 # HELP node_bcache_cache_bypass_hits_total Hits for IO intended to skip the cache.
