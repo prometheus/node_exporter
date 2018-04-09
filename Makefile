@@ -16,6 +16,7 @@ GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
 GOARCH := $(shell $(GO) env GOARCH)
 GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
 
+PROMTOOL    ?= $(GOPATH)/bin/promtool
 PROMU       ?= $(GOPATH)/bin/promu
 STATICCHECK ?= $(GOPATH)/bin/staticcheck
 pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
@@ -27,14 +28,7 @@ DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 MACH                    ?= $(shell uname -m)
 DOCKERFILE              ?= Dockerfile
 
-# TODO: Remove deprecated and problematic InstrumentHandlerFunc usage.
-STATICCHECK_IGNORE = \
-  github.com/prometheus/node_exporter/node_exporter.go:SA1019
-
-ifeq ($(GOHOSTARCH),amd64)
-	# Only supported on amd64
-	test-flags := -race
-endif
+STATICCHECK_IGNORE =
 
 ifeq ($(OS),Windows_NT)
     OS_detected := Windows
@@ -42,10 +36,23 @@ else
     OS_detected := $(shell uname -s)
 endif
 
+ifeq ($(GOHOSTARCH),amd64)
+	ifeq ($(OS_detected),$(filter $(OS_detected),Linux FreeBSD Darwin Windows))
+                # Only supported on amd64
+                test-flags := -race
+        endif
+endif
+
 ifeq ($(OS_detected), Linux)
     test-e2e := test-e2e
 else
     test-e2e := skip-test-e2e
+endif
+
+ifeq ($(MACH), ppc64le)
+	e2e-out = collector/fixtures/e2e-ppc64le-output.txt
+else
+	e2e-out = collector/fixtures/e2e-output.txt
 endif
 
 # 64bit -> 32bit mapping for cross-checking. At least for amd64/386, the 64bit CPU can execute 32bit code but not the other way around, so we don't support cross-testing upwards.
@@ -65,7 +72,7 @@ $(eval $(call goarch_pair,arm64,arm))
 $(eval $(call goarch_pair,mips64,mips))
 $(eval $(call goarch_pair,mips64el,mipsel))
 
-all: format vet staticcheck build test $(cross-test) $(test-e2e)
+all: format vet staticcheck checkmetrics build test $(cross-test) $(test-e2e)
 
 style:
 	@echo ">> checking code style"
@@ -83,6 +90,7 @@ skip-test-32bit:
 	@echo ">> SKIP running tests in 32-bit mode: not supported on $(OS_detected)/$(GOARCH)"
 
 collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
+	@echo ">> extracting sysfs fixtures"
 	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
 	touch $@
 
@@ -92,6 +100,10 @@ test-e2e: build collector/fixtures/sys/.unpacked
 
 skip-test-e2e:
 	@echo ">> SKIP running end-to-end tests on $(OS_detected)"
+
+checkmetrics: $(PROMTOOL)
+	@echo ">> checking metrics for correctness"
+	./checkmetrics.sh $(PROMTOOL) $(e2e-out)
 
 format:
 	@echo ">> formatting code"
@@ -124,6 +136,9 @@ test-docker:
 	@echo ">> testing docker image"
 	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
 
+$(GOPATH)/bin/promtool promtool:
+	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/prometheus/cmd/promtool
+
 $(GOPATH)/bin/promu promu:
 	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
 
@@ -131,10 +146,10 @@ $(GOPATH)/bin/staticcheck:
 	@GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck
 
 
-.PHONY: all style format build test test-e2e vet tarball docker promu staticcheck
+.PHONY: all style format build test test-e2e vet tarball docker promtool promu staticcheck checkmetrics
 
 # Declaring the binaries at their default locations as PHONY targets is a hack
 # to ensure the latest version is downloaded on every make execution.
 # If this is not desired, copy/symlink these binaries to a different path and
 # set the respective environment variables.
-.PHONY: $(GOPATH)/bin/promu $(GOPATH)/bin/staticcheck
+.PHONY: $(GOPATH)/bin/promtool $(GOPATH)/bin/promu $(GOPATH)/bin/staticcheck

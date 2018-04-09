@@ -63,6 +63,10 @@ func TestTextfileCollector(t *testing.T) {
 			out:  "fixtures/textfile/nonexistent_path.out",
 		},
 		{
+			path: "fixtures/textfile/client_side_timestamp",
+			out:  "fixtures/textfile/client_side_timestamp.out",
+		},
+		{
 			path: "fixtures/textfile/different_metric_types",
 			out:  "fixtures/textfile/different_metric_types.out",
 		},
