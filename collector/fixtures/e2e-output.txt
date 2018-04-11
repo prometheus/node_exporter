@@ -2448,6 +2448,24 @@ node_network_transmit_bytes{device="lxcbr0"} 2.630299e+06
 node_network_transmit_bytes{device="tun0"} 67120
 node_network_transmit_bytes{device="veth4B09XN"} 1.943284e+06
 node_network_transmit_bytes{device="wlan0"} 2.85164936e+09
+# HELP node_network_transmit_carrier Network device statistic transmit_carrier.
+# TYPE node_network_transmit_carrier gauge
+node_network_transmit_carrier{device="docker0"} 0
+node_network_transmit_carrier{device="eth0"} 0
+node_network_transmit_carrier{device="lo"} 0
+node_network_transmit_carrier{device="lxcbr0"} 0
+node_network_transmit_carrier{device="tun0"} 0
+node_network_transmit_carrier{device="veth4B09XN"} 0
+node_network_transmit_carrier{device="wlan0"} 0
+# HELP node_network_transmit_colls Network device statistic transmit_colls.
+# TYPE node_network_transmit_colls gauge
+node_network_transmit_colls{device="docker0"} 0
+node_network_transmit_colls{device="eth0"} 0
+node_network_transmit_colls{device="lo"} 0
+node_network_transmit_colls{device="lxcbr0"} 0
+node_network_transmit_colls{device="tun0"} 0
+node_network_transmit_colls{device="veth4B09XN"} 0
+node_network_transmit_colls{device="wlan0"} 0
 # HELP node_network_transmit_compressed Network device statistic transmit_compressed.
 # TYPE node_network_transmit_compressed gauge
 node_network_transmit_compressed{device="docker0"} 0
@@ -2484,24 +2502,6 @@ node_network_transmit_fifo{device="lxcbr0"} 0
 node_network_transmit_fifo{device="tun0"} 0
 node_network_transmit_fifo{device="veth4B09XN"} 0
 node_network_transmit_fifo{device="wlan0"} 0
-# HELP node_network_transmit_frame Network device statistic transmit_frame.
-# TYPE node_network_transmit_frame gauge
-node_network_transmit_frame{device="docker0"} 0
-node_network_transmit_frame{device="eth0"} 0
-node_network_transmit_frame{device="lo"} 0
-node_network_transmit_frame{device="lxcbr0"} 0
-node_network_transmit_frame{device="tun0"} 0
-node_network_transmit_frame{device="veth4B09XN"} 0
-node_network_transmit_frame{device="wlan0"} 0
-# HELP node_network_transmit_multicast Network device statistic transmit_multicast.
-# TYPE node_network_transmit_multicast gauge
-node_network_transmit_multicast{device="docker0"} 0
-node_network_transmit_multicast{device="eth0"} 0
-node_network_transmit_multicast{device="lo"} 0
-node_network_transmit_multicast{device="lxcbr0"} 0
-node_network_transmit_multicast{device="tun0"} 0
-node_network_transmit_multicast{device="veth4B09XN"} 0
-node_network_transmit_multicast{device="wlan0"} 0
 # HELP node_network_transmit_packets Network device statistic transmit_packets.
 # TYPE node_network_transmit_packets gauge
 node_network_transmit_packets{device="docker0"} 1.929779e+06
