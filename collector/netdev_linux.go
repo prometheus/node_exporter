@@ -50,12 +50,15 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 			scanner.Text())
 	}
 
-	header := strings.Fields(parts[1])
+	receiveHeader := strings.Fields(parts[1])
+	transmitHeader := strings.Fields(parts[2])
+	headerLength := len(receiveHeader)+len(transmitHeader)+1
+
 	netDev := map[string]map[string]string{}
 	for scanner.Scan() {
 		line := strings.TrimLeft(scanner.Text(), " ")
 		parts := procNetDevFieldSep.Split(line, -1)
-		if len(parts) != 2*len(header)+1 {
+		if len(parts) != headerLength {
 			return nil, fmt.Errorf("invalid line in net/dev: %s", scanner.Text())
 		}
 
@@ -65,10 +68,13 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 			continue
 		}
 		netDev[dev] = map[string]string{}
-		for i, v := range header {
-			netDev[dev]["receive_"+v] = parts[i+1]
-			netDev[dev]["transmit_"+v] = parts[i+1+len(header)]
-		}
+                for i := 0; i < len(receiveHeader); i++ {
+                        netDev[dev]["receive_"+receiveHeader[i]] = parts[i+1]
+                }
+
+                for i := 0; i < len(transmitHeader); i++ {
+                        netDev[dev]["transmit_"+transmitHeader[i]] = parts[i+1+len(receiveHeader)]
+                }
 	}
 	return netDev, scanner.Err()
 }
