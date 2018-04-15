@@ -10,6 +10,7 @@ This release contains more breaking changes:
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX] Count core throttles per core and per package #871
+* [CHANGE] Move `node_boot_time_seconds` from `exec` to new `boottime` collector and enable for Darwin/Dragonfly/FreeBSD/NetBSD/OpenBSD. #901
 
 ## 0.16.0-rc.1 / 2018-04-04
 
