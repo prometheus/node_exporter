@@ -52,7 +52,7 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 
 	receiveHeader := strings.Fields(parts[1])
 	transmitHeader := strings.Fields(parts[2])
-	headerLength := len(receiveHeader)+len(transmitHeader)+1
+	headerLength := len(receiveHeader) + len(transmitHeader) + 1
 
 	netDev := map[string]map[string]string{}
 	for scanner.Scan() {
@@ -68,13 +68,13 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp) (map[string]map[string
 			continue
 		}
 		netDev[dev] = map[string]string{}
-                for i := 0; i < len(receiveHeader); i++ {
-                        netDev[dev]["receive_"+receiveHeader[i]] = parts[i+1]
-                }
+		for i := 0; i < len(receiveHeader); i++ {
+			netDev[dev]["receive_"+receiveHeader[i]] = parts[i+1]
+		}
 
-                for i := 0; i < len(transmitHeader); i++ {
-                        netDev[dev]["transmit_"+transmitHeader[i]] = parts[i+1+len(receiveHeader)]
-                }
+		for i := 0; i < len(transmitHeader); i++ {
+			netDev[dev]["transmit_"+transmitHeader[i]] = parts[i+1+len(receiveHeader)]
+		}
 	}
 	return netDev, scanner.Err()
 }
