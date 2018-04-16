@@ -41,17 +41,14 @@ func gostring(b []int8) string {
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	buf := make([]unix.Statfs_t, 16)
-	for {
-		n, err := unix.Getfsstat(buf, noWait)
-		if err != nil {
-			return nil, err
-		}
-		if n < len(buf) {
-			buf = buf[:n]
-			break
-		}
-		buf = make([]unix.Statfs_t, len(buf)*2)
+	n, err := unix.Getfsstat(nil, noWait)
+	if err != nil {
+		return nil, err
+	}
+	buf := make([]unix.Statfs_t, n)
+	_, err = unix.Getfsstat(buf, noWait)
+	if err != nil {
+		return nil, err
 	}
 	stats := []filesystemStats{}
 	for _, fs := range buf {
