@@ -70,7 +70,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		go stuckMountWatcher(labels.mountPoint, success)
 
 		buf := new(syscall.Statfs_t)
-		err = syscall.Statfs(labels.mountPoint, buf)
+		err = syscall.Statfs(rootfsFilePath(labels.mountPoint), buf)
 
 		stuckMountsMtx.Lock()
 		close(success)
@@ -86,7 +86,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				labels:      labels,
 				deviceError: 1,
 			})
-			log.Debugf("Error on statfs() system call for %q: %s", labels.mountPoint, err)
+			log.Debugf("Error on statfs() system call for %q: %s", rootfsFilePath(labels.mountPoint), err)
 			continue
 		}
 
@@ -143,6 +143,10 @@ func mountPointDetails() ([]filesystemLabels, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+		// skip non rootfs paths if rootfsPath defined
+		if !rootfsPathDetect(parts[1]) {
+			continue
+		}
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
@@ -151,7 +155,7 @@ func mountPointDetails() ([]filesystemLabels, error) {
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
-			mountPoint: parts[1],
+			mountPoint: rootfsStripPrefix(parts[1]),
 			fsType:     parts[2],
 			options:    parts[3],
 		})
