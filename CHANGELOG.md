@@ -9,10 +9,9 @@ This release contains more breaking changes:
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
-* [BUGFIX] Count core throttles per core and per package #871
-* [CHANGE] Move `node_boot_time_seconds` from `exec` to new `boottime` collector and enable for Darwin/Dragonfly/FreeBSD/NetBSD/OpenBSD. #901
+* [BUGFIX]
 
-## 0.16.0-rc.1 / 2018-04-04
+## 0.16.0-rc.2 / 2018-04-17
 
 **Breaking changes**
 
@@ -35,11 +34,11 @@ Other breaking changes:
 * [CHANGE] Cleanup NFS metrics #834
 * [CHANGE] Only report core throttles per core, not per cpu #836
 * [CHANGE] Treat custom textfile metric timestamps as errors #769
-* [CHANGE] Drop exec_ in boot_timestamp_seconds on *bsd #839
 * [CHANGE] Use lowercase cpu label name in interrupts #849
 * [CHANGE] Enable bonding collector by default. #872
 * [CHANGE] Greatly reduce the metrics vmstat returns by default. #874
 * [CHANGE] Greatly trim what netstat collector exposes by default #876
+* [CHANGE] Drop `exec_` prefix and move `node_boot_time_seconds` from `exec` to new `boottime` collector and enable for Darwin/Dragonfly/FreeBSD/NetBSD/OpenBSD. #839, #901
 * [FEATURE] Add `collect[]` parameter #699
 * [FEATURE] Add text collector conversion for ipmitool output. #746
 * [FEATURE] Add openbsd meminfo #724
@@ -61,6 +60,10 @@ Other breaking changes:
 * [BUGFIX] smartmon: Escape double quotes in device model family #772
 * [BUGFIX] Fix log level regression in #533 #815
 * [BUGFIX] Correct the ClocksPerSec scaling factor on Darwin #846
+* [BUGFIX] Count core throttles per core and per package #871
+* [BUGFIX] Fix netdev collector for linux #890
+* [BUGFIX] Fix memory corruption when number of filesystems > 16 on FreeBSD #900
+* [BUGFIX] Fix parsing of interface aliases in netdev linux #904
 
 ## 0.15.2 / 2017-12-06
 
