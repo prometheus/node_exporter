@@ -27,7 +27,7 @@ import (
 )
 
 var (
-	procNetDevInterfaceRE = regexp.MustCompile(`^([\w:]+): *(.+)$`)
+	procNetDevInterfaceRE = regexp.MustCompile(`^(.+): *(.+)$`)
 	procNetDevFieldSep    = regexp.MustCompile(` +`)
 )
 

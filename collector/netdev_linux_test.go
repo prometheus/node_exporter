@@ -43,7 +43,7 @@ func TestNetDevStats(t *testing.T) {
 		t.Errorf("want netstat tun0 packets %s, got %s", want, got)
 	}
 
-	if want, got := 7, len(netStats); want != got {
+	if want, got := 9, len(netStats); want != got {
 		t.Errorf("want count of devices to be %d, got %d", want, got)
 	}
 
@@ -53,5 +53,9 @@ func TestNetDevStats(t *testing.T) {
 
 	if want, got := "0", netStats["ibr10:30"]["receive_fifo"]; want != got {
 		t.Error("want fixture interface ibr10:30 to exist, but it does not")
+	}
+
+	if want, got := "72", netStats["💩0"]["receive_multicast"]; want != got {
+		t.Error("want fixture interface 💩0 to exist, but it does not")
 	}
 }
