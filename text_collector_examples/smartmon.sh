@@ -161,9 +161,9 @@ for device in ${device_list}; do
   # Get the SMART information and health
   /usr/sbin/smartctl -i -H -d "${type}" "${disk}" | parse_smartctl_info "${disk}" "${type}"
   # Get the SMART attributes
-  if [[ "${type}" == 'sat' ]] ; then
-    /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_attributes "${disk}" "${type}"
-  else
-    /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_scsi_attributes "${disk}" "${type}"
-  fi
+  case ${type} in
+    sat) /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_attributes "${disk}" "${type}" ;;
+    scsi) /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_scsi_attributes "${disk}" "${type}" ;;
+    *) echo "disk type is not sat or scsi, ${type}"; exit ;;
+  esac
 done | format_output
