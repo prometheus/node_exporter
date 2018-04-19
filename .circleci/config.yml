@@ -4,7 +4,7 @@ version: 2
 jobs:
   test:
     docker:
-    - image: circleci/golang:1.10
+    - image: circleci/golang:1.10.1
     working_directory: /go/src/github.com/prometheus/node_exporter
 
     steps:
@@ -29,7 +29,7 @@ jobs:
     environment:
       DOCKER_IMAGE_NAME: prom/node-exporter
       QUAY_IMAGE_NAME: quay.io/prometheus/node-exporter
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.10-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.10.1-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
@@ -62,13 +62,13 @@ jobs:
 
   docker_hub_master:
     docker:
-    - image: circleci/golang:1.10
+    - image: circleci/golang:1.10.1
     working_directory: /go/src/github.com/prometheus/node_exporter
 
     environment:
       DOCKER_IMAGE_NAME: prom/node-exporter
       QUAY_IMAGE_NAME: quay.io/prometheus/node-exporter
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.10-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.10.1-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
@@ -87,13 +87,13 @@ jobs:
 
   docker_hub_release_tags:
     docker:
-    - image: circleci/golang:1.10
+    - image: circleci/golang:1.10.1
     working_directory: /go/src/github.com/prometheus/node_exporter
 
     environment:
       DOCKER_IMAGE_NAME: prom/node-exporter
       QUAY_IMAGE_NAME: quay.io/prometheus/node-exporter
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.10-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.10.1-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
