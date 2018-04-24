@@ -23,8 +23,9 @@ jobs:
     - run: codespell --skip=".git,./vendor,ttar"
 
   build:
-    machine: true
-    working_directory: /home/circleci/.go_workspace/src/github.com/prometheus/node_exporter
+    docker:
+    - image: circleci/golang:1.10
+    working_directory: /go/src/github.com/prometheus/node_exporter
 
     environment:
       DOCKER_IMAGE_NAME: prom/node-exporter
@@ -34,6 +35,8 @@ jobs:
 
     steps:
     - checkout
+    - setup_remote_docker:
+        docker_layer_caching: true
     - run: make promu
     - run: promu crossbuild -v
     - persist_to_workspace:
