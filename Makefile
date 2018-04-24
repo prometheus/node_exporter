@@ -37,7 +37,7 @@ else
 endif
 
 ifeq ($(GOHOSTARCH),amd64)
-        ifneq ($(OS_detected),SunOS)
+	ifeq ($(OS_detected),$(filter $(OS_detected),Linux FreeBSD Darwin Windows))
                 # Only supported on amd64
                 test-flags := -race
         endif
@@ -72,7 +72,7 @@ $(eval $(call goarch_pair,arm64,arm))
 $(eval $(call goarch_pair,mips64,mips))
 $(eval $(call goarch_pair,mips64el,mipsel))
 
-all: format vet staticcheck checkmetrics build test $(cross-test) $(test-e2e)
+all: style vet staticcheck checkmetrics build test $(cross-test) $(test-e2e)
 
 style:
 	@echo ">> checking code style"
@@ -91,6 +91,7 @@ skip-test-32bit:
 
 collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
 	@echo ">> extracting sysfs fixtures"
+	if [ -d collector/fixtures/sys ] ; then rm -r collector/fixtures/sys ; fi
 	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
 	touch $@
 

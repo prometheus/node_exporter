@@ -19,17 +19,25 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
 	vmStatSubsystem = "vmstat"
 )
 
-type vmStatCollector struct{}
+var (
+	vmStatFields = kingpin.Flag("collector.vmstat.fields", "Regexp of fields to return for vmstat collector.").Default("^(oom_kill|pgpg|pswp|pg.*fault).*").String()
+)
+
+type vmStatCollector struct {
+	fieldPattern *regexp.Regexp
+}
 
 func init() {
 	registerCollector("vmstat", defaultEnabled, NewvmStatCollector)
@@ -37,7 +45,10 @@ func init() {
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
 func NewvmStatCollector() (Collector, error) {
-	return &vmStatCollector{}, nil
+	pattern := regexp.MustCompile(*vmStatFields)
+	return &vmStatCollector{
+		fieldPattern: pattern,
+	}, nil
 }
 
 func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
@@ -53,6 +64,9 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
 		value, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
 			return err
+		}
+		if !c.fieldPattern.MatchString(parts[0]) {
+			continue
 		}
 
 		ch <- prometheus.MustNewConstMetric(
