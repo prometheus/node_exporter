@@ -48,12 +48,12 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 
 	ps := C.natural_t(syscall.Getpagesize())
 	return map[string]float64{
-		"active_bytes_total":      float64(ps * vmstat.active_count),
-		"inactive_bytes_total":    float64(ps * vmstat.inactive_count),
+		"Active_bytes":            float64(ps * vmstat.active_count),
+		"Inactive_bytes":          float64(ps * vmstat.inactive_count),
 		"wired_bytes_total":       float64(ps * vmstat.wire_count),
-		"free_bytes_total":        float64(ps * vmstat.free_count),
+		"MemFree_bytes":           float64(ps * vmstat.free_count),
 		"swapped_in_pages_total":  float64(ps * vmstat.pageins),
 		"swapped_out_pages_total": float64(ps * vmstat.pageouts),
-		"bytes_total":             float64(total),
+		"MemTotal_bytes":          float64(total),
 	}, nil
 }
