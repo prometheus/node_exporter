@@ -2,10 +2,6 @@
 
 **Breaking changes**
 
-This release contains more breaking changes:
-* Rename label `node` of metric `node_cpu_package_throttles_total` to `package`.
-* Add 2nd label `package` to metric `node_cpu_core_throttles_total`.
-
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
@@ -24,6 +20,7 @@ In order to help with backwards compatibility, a `metric_relabel_config` is bein
 
 Other breaking changes:
 * The megacli collector has been removed, is now replaced by the storcli.py textfile helper.
+* The gmond collector has been removed.
 * The textfile collector will now treat timestamps as errors.
 
 * [CHANGE] Split out guest cpu metrics on Linux. #744
@@ -39,6 +36,7 @@ Other breaking changes:
 * [CHANGE] Greatly reduce the metrics vmstat returns by default. #874
 * [CHANGE] Greatly trim what netstat collector exposes by default #876
 * [CHANGE] Drop `exec_` prefix and move `node_boot_time_seconds` from `exec` to new `boottime` collector and enable for Darwin/Dragonfly/FreeBSD/NetBSD/OpenBSD. #839, #901
+* [CHANGE] Remove depreated gmond collector #852
 * [FEATURE] Add `collect[]` parameter #699
 * [FEATURE] Add text collector conversion for ipmitool output. #746
 * [FEATURE] Add openbsd meminfo #724
@@ -61,7 +59,7 @@ Other breaking changes:
 * [BUGFIX] Fix log level regression in #533 #815
 * [BUGFIX] Correct the ClocksPerSec scaling factor on Darwin #846
 * [BUGFIX] Count core throttles per core and per package #871
-* [BUGFIX] Fix netdev collector for linux #890
+* [BUGFIX] Fix netdev collector for linux #890 #910
 * [BUGFIX] Fix memory corruption when number of filesystems > 16 on FreeBSD #900
 * [BUGFIX] Fix parsing of interface aliases in netdev linux #904
 
