@@ -19,17 +19,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
-)
-
-var (
-	digitRegexp = regexp.MustCompile("[0-9]+")
 )
 
 type cpuCollector struct {
