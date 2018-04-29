@@ -49,7 +49,7 @@ func init() {
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
-		cpu: nodeCpuSecondsDesc,
+		cpu: nodeCPUSecondsDesc,
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
 			"Seconds the cpus spent in guests (VMs) for each mode.",

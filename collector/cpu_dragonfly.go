@@ -94,7 +94,7 @@ func init() {
 // NewStatCollector returns a new Collector exposing CPU stats.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		cpu: nodeCpuSecondsDesc,
+		cpu: nodeCPUSecondsDesc,
 	}, nil
 }
 
