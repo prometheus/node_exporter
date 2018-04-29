@@ -185,8 +185,8 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			strconv.FormatUint(physicalPackageID, 10))
 	}
 
-	for physicalPackageID, core_map := range packageCoreThrottles {
-		for coreID, coreThrottleCount := range core_map {
+	for physicalPackageID, coreMap := range packageCoreThrottles {
+		for coreID, coreThrottleCount := range coreMap {
 			ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle,
 				prometheus.CounterValue,
 				float64(coreThrottleCount),
