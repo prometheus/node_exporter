@@ -19,17 +19,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
-)
-
-var (
-	digitRegexp = regexp.MustCompile("[0-9]+")
 )
 
 type cpuCollector struct {
@@ -49,7 +44,7 @@ func init() {
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
-		cpu: nodeCpuSecondsDesc,
+		cpu: nodeCPUSecondsDesc,
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
 			"Seconds the cpus spent in guests (VMs) for each mode.",
@@ -185,8 +180,8 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			strconv.FormatUint(physicalPackageID, 10))
 	}
 
-	for physicalPackageID, core_map := range packageCoreThrottles {
-		for coreID, coreThrottleCount := range core_map {
+	for physicalPackageID, coreMap := range packageCoreThrottles {
+		for coreID, coreThrottleCount := range coreMap {
 			ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle,
 				prometheus.CounterValue,
 				float64(coreThrottleCount),

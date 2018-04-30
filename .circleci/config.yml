@@ -35,7 +35,7 @@ jobs:
     steps:
     - checkout
     - run: make promu
-    - run: promu crossbuild -v
+    - run: promu crossbuild -v --go 1.9
     - persist_to_workspace:
         root: .
         paths:

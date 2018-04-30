@@ -92,7 +92,7 @@ func init() {
 // NewStatCollector returns a new Collector exposing CPU stats.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		cpu: typedDesc{nodeCpuSecondsDesc, prometheus.CounterValue},
+		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		temp: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "temperature_celsius"),
 			"CPU temperature",
