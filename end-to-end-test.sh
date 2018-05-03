@@ -55,7 +55,7 @@ skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|p
 arch="$(uname -m)"
 
 case "${arch}" in
-  ppc64le) fixture='collector/fixtures/e2e-ppc64le-output.txt' ;;
+  aarch64|ppc64le) fixture='collector/fixtures/e2e-64k-page-output.txt' ;;
   *) fixture='collector/fixtures/e2e-output.txt' ;;
 esac
 
