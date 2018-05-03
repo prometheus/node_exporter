@@ -68,7 +68,6 @@ endef
 
 # By default, "cross" test with ourselves to cover unknown pairings.
 $(eval $(call goarch_pair,amd64,386))
-$(eval $(call goarch_pair,arm64,arm))
 $(eval $(call goarch_pair,mips64,mips))
 $(eval $(call goarch_pair,mips64el,mipsel))
 
