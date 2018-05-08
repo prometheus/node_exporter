@@ -5,7 +5,7 @@ import (
 )
 
 func TestReadProcessStatus(t *testing.T) {
-	want := 4
+	want := 1
 	states, threads, err := getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
