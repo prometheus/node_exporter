@@ -68,7 +68,11 @@ func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func getAllocatedThreads() (map[string]int32, int, error) {
-	p, err := procfs.AllProcs()
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, 0, err
+	}
+	p, err := fs.AllProcs()
 	if err != nil {
 		return nil, 0, err
 	}
