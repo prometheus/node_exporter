@@ -26,12 +26,12 @@ enabled_collectors=$(cat << COLLECTORS
   netdev
   netstat
   nfs
+  nfsd
   qdisc
   sockstat
   stat
   textfile
   bonding
-  megacli
   wifi
   xfs
   zfs
@@ -51,7 +51,7 @@ cd "$(dirname $0)"
 port="$((10000 + (RANDOM % 10000)))"
 tmpdir=$(mktemp -d /tmp/node_exporter_e2e_test.XXXXXX)
 
-skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime)"
+skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds)"
 
 arch="$(uname -m)"
 
@@ -96,7 +96,6 @@ fi
   $(for c in ${enabled_collectors}; do echo --collector.${c}  ; done) \
   $(for c in ${disabled_collectors}; do echo --no-collector.${c}  ; done) \
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
-  --collector.megacli.command="collector/fixtures/megacli" \
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --web.listen-address "127.0.0.1:${port}" \

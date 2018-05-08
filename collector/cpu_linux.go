@@ -21,15 +21,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
-)
-
-const (
-	cpuCollectorSubsystem = "cpu"
 )
 
 var (
@@ -53,11 +50,7 @@ func init() {
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
-		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", cpuCollectorSubsystem),
-			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode"}, nil,
-		),
+		cpu: nodeCpuSecondsDesc,
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
 			"Seconds the cpus spent in guests (VMs) for each mode.",
@@ -78,11 +71,10 @@ func NewCPUCollector() (Collector, error) {
 			"Maximum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
-		// FIXME: This should be a per core metric, not per cpu!
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
 			"Number of times this cpu core has been throttled.",
-			[]string{"cpu"}, nil,
+			[]string{"core"}, nil,
 		),
 		cpuPackageThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
@@ -112,9 +104,12 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 
 	var value uint64
 
+	cpu_core_throttles := make(map[int]uint64)
+
 	// cpu loop
 	for _, cpu := range cpus {
-		_, cpuname := filepath.Split(cpu)
+		_, cpuName := filepath.Split(cpu)
+		cpuNum := strings.TrimPrefix(cpuName, "cpu")
 
 		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
 			log.Debugf("CPU %v is missing cpufreq", cpu)
@@ -124,27 +119,38 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_cur_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
 
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_min_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
 
 			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_max_freq")); err != nil {
 				return err
 			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuname)
+			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
 		}
 
 		if _, err := os.Stat(filepath.Join(cpu, "thermal_throttle")); os.IsNotExist(err) {
 			log.Debugf("CPU %v is missing thermal_throttle", cpu)
 			continue
 		}
-		if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
-			return err
+
+		if value, err := readUintFromFile(filepath.Join(cpu, "topology/core_id")); err != nil {
+			log.Debugf("CPU %v is misssing topology/core_id", cpu)
+		} else {
+			core_id := int(value)
+			if value, err = readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err != nil {
+				return err
+			}
+			cpu_core_throttles[core_id] = value
 		}
-		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), cpuname)
+	}
+
+	// core throttles
+	for core_id, value := range cpu_core_throttles {
+		ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle, prometheus.CounterValue, float64(value), strconv.Itoa(core_id))
 	}
 
 	nodes, err := filepath.Glob(sysFilePath("bus/node/devices/node[0-9]*"))
@@ -201,16 +207,15 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	}
 
 	for cpuID, cpuStat := range stats.CPU {
-		cpuName := fmt.Sprintf("cpu%d", cpuID)
 		cpuNum := fmt.Sprintf("%d", cpuID)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.User, cpuName, "user")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Nice, cpuName, "nice")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.System, cpuName, "system")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Idle, cpuName, "idle")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Iowait, cpuName, "iowait")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.IRQ, cpuName, "irq")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuName, "softirq")
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuName, "steal")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.User, cpuNum, "user")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Nice, cpuNum, "nice")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.System, cpuNum, "system")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Idle, cpuNum, "idle")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Iowait, cpuNum, "iowait")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.IRQ, cpuNum, "irq")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuNum, "softirq")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuNum, "steal")
 
 		// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
 		ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")

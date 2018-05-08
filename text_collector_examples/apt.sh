@@ -7,7 +7,7 @@
 upgrades="$(/usr/bin/apt-get --just-print upgrade \
   | /usr/bin/awk -F'[()]' \
       '/^Inst/ { sub("^[^ ]+ ", "", $2); sub("\\[", " ", $2);
-                 sub(" ", "", $2); sub("\\]", "", $2); print $2 }'
+                 sub(" ", "", $2); sub("\\]", "", $2); print $2 }' \
   | /usr/bin/sort \
   | /usr/bin/uniq -c \
   | awk '{ gsub(/\\\\/, "\\\\", $2); gsub(/\"/, "\\\"", $2);

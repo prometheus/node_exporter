@@ -73,8 +73,7 @@ type Desc struct {
 // and therefore not part of the Desc. (They are managed within the Metric.)
 //
 // For constLabels, the label values are constant. Therefore, they are fully
-// specified in the Desc. See the Opts documentation for the implications of
-// constant labels.
+// specified in the Desc. See the Collector example for a usage pattern.
 func NewDesc(fqName, help string, variableLabels []string, constLabels Labels) *Desc {
 	d := &Desc{
 		fqName:         fqName,

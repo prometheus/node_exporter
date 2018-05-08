@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-cat "$(dirname "$0")/megacli_disks.txt"
