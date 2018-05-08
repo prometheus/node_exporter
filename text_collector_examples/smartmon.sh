@@ -45,7 +45,9 @@ sata_downshift_count
 spin_retry_count
 spin_up_time
 start_stop_count
+temperature_case
 temperature_celsius
+temperature_internal
 total_lbas_read
 total_lbas_written
 udma_crc_error_count

@@ -42,10 +42,6 @@ var (
 	)
 )
 
-func warnDeprecated(collector string) {
-	log.Warnf("The %s collector is deprecated and will be removed in the future!", collector)
-}
-
 const (
 	defaultEnabled  = true
 	defaultDisabled = false

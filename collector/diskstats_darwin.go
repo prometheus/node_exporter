@@ -76,7 +76,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "read_seconds_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "read_time_seconds_total"),
 						"The total number of seconds spent by all reads.",
 						diskLabelNames,
 						nil,
@@ -118,7 +118,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				typedDesc: typedDesc{
 					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "write_seconds_total"),
+						prometheus.BuildFQName(namespace, diskSubsystem, "write_time_seconds_total"),
 						"This is the total number of seconds spent by all writes.",
 						diskLabelNames,
 						nil,
