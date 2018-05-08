@@ -116,17 +116,17 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 	for _, info := range infos {
-		lables := []string{info.Name, info.Group}
+		labels := []string{info.Name, info.Group}
 
-		ch <- prometheus.MustNewConstMetric(c.stateDesc, prometheus.GaugeValue, float64(info.State), lables...)
-		ch <- prometheus.MustNewConstMetric(c.exitStatusDesc, prometheus.GaugeValue, float64(info.ExitStatus), lables...)
+		ch <- prometheus.MustNewConstMetric(c.stateDesc, prometheus.GaugeValue, float64(info.State), labels...)
+		ch <- prometheus.MustNewConstMetric(c.exitStatusDesc, prometheus.GaugeValue, float64(info.ExitStatus), labels...)
 
 		if c.isRunning(info.State) {
-			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 1, lables...)
-			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, float64(info.Now-info.Start), lables...)
+			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 1, labels...)
+			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, float64(info.Now-info.Start), labels...)
 		} else {
-			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 0, lables...)
-			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, 0, lables...)
+			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 0, labels...)
+			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, 0, labels...)
 		}
 		log.Debugf("%s:%s is %s on pid %d", info.Group, info.Name, info.StateName, info.PID)
 	}

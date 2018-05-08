@@ -39,7 +39,7 @@ func init() {
 
 func NewCpuCollector() (Collector, error) {
 	return &cpuCollector{
-		cpu: typedDesc{nodeCpuSecondsDesc, prometheus.CounterValue},
+		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 	}, nil
 }
 

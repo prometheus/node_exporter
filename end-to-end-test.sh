@@ -32,6 +32,7 @@ enabled_collectors=$(cat << COLLECTORS
   stat
   textfile
   bonding
+  vmstat
   wifi
   xfs
   zfs
@@ -42,6 +43,7 @@ disabled_collectors=$(cat << COLLECTORS
   time
   timex
   uname
+  threads_exporter
   vmstat
   processes
 COLLECTORS

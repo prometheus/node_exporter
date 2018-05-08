@@ -13,6 +13,15 @@ jobs:
     - run: make
     - run: rm -v node_exporter
 
+  codespell:
+    docker:
+    - image: circleci/python
+
+    steps:
+    - checkout
+    - run: sudo pip install codespell
+    - run: codespell --skip=".git,./vendor,ttar"
+
   build:
     machine: true
     working_directory: /home/circleci/.go_workspace/src/github.com/prometheus/node_exporter
@@ -26,7 +35,7 @@ jobs:
     steps:
     - checkout
     - run: make promu
-    - run: promu crossbuild -v
+    - run: promu crossbuild -v --go 1.9
     - persist_to_workspace:
         root: .
         paths:
@@ -119,8 +128,8 @@ jobs:
           docker tag "$DOCKER_IMAGE_NAME:$CIRCLE_TAG" "$DOCKER_IMAGE_NAME:latest"
           docker tag "$QUAY_IMAGE_NAME:$CIRCLE_TAG" "$QUAY_IMAGE_NAME:latest"
         fi
-    - run: echo docker push $DOCKER_IMAGE_NAME
-    - run: echo docker push $QUAY_IMAGE_NAME
+    - run: docker push $DOCKER_IMAGE_NAME:$CIRCLE_TAG
+    - run: docker push $QUAY_IMAGE_NAME:$CIRCLE_TAG
 
 workflows:
   version: 2
@@ -131,6 +140,10 @@ workflows:
           tags:
             only: /.*/
     - build:
+        filters:
+          tags:
+            only: /.*/
+    - codespell:
         filters:
           tags:
             only: /.*/

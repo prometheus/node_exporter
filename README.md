@@ -25,6 +25,8 @@ Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
+bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
+boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
 diskstats | Exposes disk I/O statistics. | Darwin, Linux
@@ -58,7 +60,6 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 
 Name     | Description | OS
 ---------|-------------|----
-bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
@@ -73,14 +74,6 @@ runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
-
-### Deprecated
-
-*These collectors will be (re)moved in the future.*
-
-Name     | Description | OS
----------|-------------|----
-gmond | Exposes statistics from Ganglia. | _any_
 
 ### Textfile Collector
 
@@ -109,7 +102,7 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 ### Filtering enabled collectors
 
-The `node_exporter` will expose all metrics from enabled collectors by default.  This is the recommended way to collect metrics to avoid errors when comparing metrics of different familes.
+The `node_exporter` will expose all metrics from enabled collectors by default.  This is the recommended way to collect metrics to avoid errors when comparing metrics of different families.
 
 For advanced use the `node_exporter` can be passed an optional list of collectors to filter metrics. The `collect[]` parameter may be used multiple times.  In Prometheus configuration you can use this syntax under the [scrape config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<scrape_config>).
 
