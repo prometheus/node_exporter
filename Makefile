@@ -15,9 +15,49 @@ include Makefile.common
 
 STATICCHECK_IGNORE =
 
-style:
-	@echo ">> checking code style"
-	@! gofmt -d $(shell find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
+ifeq ($(OS),Windows_NT)
+    OS_detected := Windows
+else
+    OS_detected := $(shell uname -s)
+endif
+
+ifeq ($(GOHOSTARCH),amd64)
+	ifeq ($(OS_detected),$(filter $(OS_detected),Linux FreeBSD Darwin Windows))
+                # Only supported on amd64
+                test-flags := -race
+        endif
+endif
+
+ifeq ($(OS_detected), Linux)
+    test-e2e := test-e2e
+else
+    test-e2e := skip-test-e2e
+endif
+
+ifeq ($(MACH), ppc64le)
+	e2e-out = collector/fixtures/e2e-ppc64le-output.txt
+else
+	e2e-out = collector/fixtures/e2e-output.txt
+endif
+
+# 64bit -> 32bit mapping for cross-checking. At least for amd64/386, the 64bit CPU can execute 32bit code but not the other way around, so we don't support cross-testing upwards.
+cross-test = skip-test-32bit
+define goarch_pair
+	ifeq ($$(OS_detected),Linux)
+		ifeq ($$(GOARCH),$1)
+			GOARCH_CROSS = $2
+			cross-test = test-32bit
+		endif
+	endif
+endef
+
+# By default, "cross" test with ourselves to cover unknown pairings.
+$(eval $(call goarch_pair,amd64,386))
+$(eval $(call goarch_pair,arm64,arm))
+$(eval $(call goarch_pair,mips64,mips))
+$(eval $(call goarch_pair,mips64el,mipsel))
+
+all: style vet staticcheck checkmetrics build test $(cross-test) $(test-e2e)
 
 test: collector/fixtures/sys/.unpacked
 	@echo ">> running tests"
@@ -46,26 +86,6 @@ skip-test-e2e:
 checkmetrics: $(PROMTOOL)
 	@echo ">> checking metrics for correctness"
 	./checkmetrics.sh $(PROMTOOL) $(e2e-out)
-
-format:
-	@echo ">> formatting code"
-	@$(GO) fmt $(pkgs)
-
-vet:
-	@echo ">> vetting code"
-	@$(GO) vet $(pkgs)
-
-staticcheck: $(STATICCHECK)
-	@echo ">> running staticcheck"
-	@$(STATICCHECK) -ignore "$(STATICCHECK_IGNORE)" $(pkgs)
-
-build: $(PROMU)
-	@echo ">> building binaries"
-	@$(PROMU) build --prefix $(PREFIX)
-
-tarball: $(PROMU)
-	@echo ">> building release tarball"
-	@$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
 
 docker:
 ifeq ($(MACH), ppc64le)
