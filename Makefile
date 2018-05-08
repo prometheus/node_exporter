@@ -14,6 +14,13 @@
 include Makefile.common
 
 PROMTOOL    ?= $(GOPATH)/bin/promtool
+PROMU       ?= $(GOPATH)/bin/promu
+STATICCHECK ?= $(GOPATH)/bin/staticcheck
+pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
+
+DOCKER_IMAGE_NAME       ?= node-exporter
+MACH                    ?= $(shell uname -m)
+DOCKERFILE              ?= Dockerfile
 
 STATICCHECK_IGNORE =
 
