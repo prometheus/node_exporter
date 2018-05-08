@@ -11,68 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-GO     ?= GO15VENDOREXPERIMENT=1 go
-GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
-GOARCH := $(shell $(GO) env GOARCH)
-GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
-
-PROMTOOL    ?= $(GOPATH)/bin/promtool
-PROMU       ?= $(GOPATH)/bin/promu
-STATICCHECK ?= $(GOPATH)/bin/staticcheck
-pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
-
-PREFIX                  ?= $(shell pwd)
-BIN_DIR                 ?= $(shell pwd)
-DOCKER_IMAGE_NAME       ?= node-exporter
-DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
-MACH                    ?= $(shell uname -m)
-DOCKERFILE              ?= Dockerfile
+include Makefile.common
 
 STATICCHECK_IGNORE =
-
-ifeq ($(OS),Windows_NT)
-    OS_detected := Windows
-else
-    OS_detected := $(shell uname -s)
-endif
-
-ifeq ($(GOHOSTARCH),amd64)
-	ifeq ($(OS_detected),$(filter $(OS_detected),Linux FreeBSD Darwin Windows))
-                # Only supported on amd64
-                test-flags := -race
-        endif
-endif
-
-ifeq ($(OS_detected), Linux)
-    test-e2e := test-e2e
-else
-    test-e2e := skip-test-e2e
-endif
-
-ifeq ($(MACH), ppc64le)
-	e2e-out = collector/fixtures/e2e-ppc64le-output.txt
-else
-	e2e-out = collector/fixtures/e2e-output.txt
-endif
-
-# 64bit -> 32bit mapping for cross-checking. At least for amd64/386, the 64bit CPU can execute 32bit code but not the other way around, so we don't support cross-testing upwards.
-cross-test = skip-test-32bit
-define goarch_pair
-	ifeq ($$(OS_detected),Linux)
-		ifeq ($$(GOARCH),$1)
-			GOARCH_CROSS = $2
-			cross-test = test-32bit
-		endif
-	endif
-endef
-
-# By default, "cross" test with ourselves to cover unknown pairings.
-$(eval $(call goarch_pair,amd64,386))
-$(eval $(call goarch_pair,arm64,arm))
-$(eval $(call goarch_pair,mips64,mips))
-$(eval $(call goarch_pair,mips64el,mipsel))
-
-all: style vet staticcheck checkmetrics build test $(cross-test) $(test-e2e)
 
 style:
 	@echo ">> checking code style"
@@ -136,21 +77,3 @@ endif
 test-docker:
 	@echo ">> testing docker image"
 	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
-
-$(GOPATH)/bin/promtool promtool:
-	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/prometheus/cmd/promtool
-
-$(GOPATH)/bin/promu promu:
-	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
-
-$(GOPATH)/bin/staticcheck:
-	@GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck
-
-
-.PHONY: all style format build test test-e2e vet tarball docker promtool promu staticcheck checkmetrics
-
-# Declaring the binaries at their default locations as PHONY targets is a hack
-# to ensure the latest version is downloaded on every make execution.
-# If this is not desired, copy/symlink these binaries to a different path and
-# set the respective environment variables.
-.PHONY: $(GOPATH)/bin/promtool $(GOPATH)/bin/promu $(GOPATH)/bin/staticcheck
