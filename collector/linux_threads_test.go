@@ -15,6 +15,6 @@ func TestReadProcessStatus(t *testing.T) {
 	}
 	if states == nil {
 
-		t.Fatalf("Prcess states cannot be nil %v:", states)
+		t.Fatalf("Process states cannot be nil %v:", states)
 	}
 }
