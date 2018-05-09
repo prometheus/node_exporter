@@ -16,7 +16,7 @@ This release contains major breaking changes to metric names.  Many metrics have
 * Many counter metrics have been renamed to include `_total`.
 * Many metrics have been renamed/modified to include base units, for example `node_cpu` is now `node_cpu_seconds_total`.
 
-In order to help with backwards compatibility, a `metric_relabel_config` is being worked on to allow for easier transition of metric names.  See: https://github.com/prometheus/node_exporter/issues/830
+In order to help with the transition we have an [upgrade guide](docs/V0_16_UPGRADE_GUIDE.md).
 
 Other breaking changes:
 * The megacli collector has been removed, is now replaced by the storcli.py textfile helper.
