@@ -45,7 +45,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
           // Full utilisation would be all disks on each node spending an average of
           // 1 sec per second doing I/O, normalize by node count for stacked charts
           g.queryPanel(|||
-            instance:node_disk_utilisation:avg_irate / scalar(sum(up{%(nodeExporterSelector)s}))
+            instance:node_disk_utilisation:sum_irate / scalar(sum(up{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -53,7 +53,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Disk IO Saturation') +
           g.queryPanel(|||
-            instance:node_disk_saturation:avg_irate / scalar(sum(up{%(nodeExporterSelector)s}))
+            instance:node_disk_saturation:sum_irate / scalar(sum(up{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -104,7 +104,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Memory')
         .addPanel(
           g.panel('Memory Utilisation') +
-          g.queryPanel('instance:node_memory_utilisation:{instance="$instance"}', 'Memory') +
+          g.queryPanel('instance:node_memory_utilisation:ratio{instance="$instance"}', 'Memory') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
@@ -117,12 +117,12 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Disk')
         .addPanel(
           g.panel('Disk IO Utilisation') +
-          g.queryPanel('instance:node_disk_utilisation:avg_irate{instance="$instance"}', 'Utilisation') +
+          g.queryPanel('instance:node_disk_utilisation:sum_irate{instance="$instance"}', 'Utilisation') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
           g.panel('Disk IO Saturation') +
-          g.queryPanel('instance:node_disk_saturation:avg_irate{instance="$instance"}', 'Saturation') +
+          g.queryPanel('instance:node_disk_saturation:sum_irate{instance="$instance"}', 'Saturation') +
           { yaxes: g.yaxes('percentunit') },
         )
       )

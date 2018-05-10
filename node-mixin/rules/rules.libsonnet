@@ -29,20 +29,9 @@
             // Can go over 100%.  >100% is bad.
             record: 'instance:node_cpu_saturation_load1:',
             expr: |||
-              sum by (instance) (
-                node_load1{%(nodeExporterSelector)s}
-              )
+                sum by (instance) (node_load1{%(nodeExporterSelector)s})
               /
-              instance:node_num_cpu:sum
-            ||| % $._config,
-          },
-          {
-            // Available memory per node
-            record: 'instance:node_memory_bytes_available:sum',
-            expr: |||
-              sum by (instance) (
-                (node_memory_MemFree{%(nodeExporterSelector)s} + node_memory_Cached{%(nodeExporterSelector)s} + node_memory_Buffers{%(nodeExporterSelector)s})
-              )
+                instance:node_num_cpu:sum
             ||| % $._config,
           },
           {
@@ -58,16 +47,12 @@
             // Memory utilisation per node, normalized by per-node memory
             record: 'instance:node_memory_utilisation:ratio',
             expr: |||
-              (instance:node_memory_bytes_total:sum - instance:node_memory_bytes_available:sum)
-              /
-              scalar(sum(instance:node_memory_bytes_total:sum))
+              1 - (
+                  node_memory_MemAvailable{%(nodeExporterSelector)s}
+                /
+                  node_memory_MemTotal{%(nodeExporterSelector)s}
+              )
             |||,
-          },
-          {
-            record: 'instance:node_memory_utilisation:',
-            expr: |||
-              1 - (instance:node_memory_bytes_available:sum / instance:node_memory_bytes_total:sum)
-            ||| % $._config,
           },
           {
             record: 'instance:node_memory_swap_io_bytes:sum_rate',
@@ -79,19 +64,19 @@
             ||| % $._config,
           },
           {
-            // Disk utilisation (ms spent, by rate() it's bound by 1 second)
-            record: 'instance:node_disk_utilisation:avg_irate',
+            // Disk utilisation (ms spent, 1 second irate())
+            record: 'instance:node_disk_utilisation:sum_irate',
             expr: |||
-              avg by (instance) (
+              sum by (instance) (
                 irate(node_disk_io_time_ms{%(nodeExporterSelector)s,device=~"(sd|xvd).+"}[1m]) / 1e3
               )
             ||| % $._config,
           },
           {
             // Disk saturation (ms spent, by rate() it's bound by 1 second)
-            record: 'instance:node_disk_saturation:avg_irate',
+            record: 'instance:node_disk_saturation:sum_irate',
             expr: |||
-              avg by (instance) (
+              sum by (instance) (
                 irate(node_disk_io_time_weighted{%(nodeExporterSelector)s,device=~"(sd|xvd).+"}[1m]) / 1e3
               )
             ||| % $._config,
@@ -100,8 +85,8 @@
             record: 'instance:node_net_utilisation:sum_irate',
             expr: |||
               sum by (instance) (
-                (irate(node_network_receive_bytes{%(nodeExporterSelector)s,device="eth0"}[1m]) +
-                 irate(node_network_transmit_bytes{%(nodeExporterSelector)s,device="eth0"}[1m]))
+                (irate(node_network_receive_bytes{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]) +
+                 irate(node_network_transmit_bytes{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]))
               )
             ||| % $._config,
           },
@@ -109,8 +94,8 @@
             record: 'instance:node_net_saturation:sum_irate',
             expr: |||
               sum by (instance) (
-                (irate(node_network_receive_drop{%(nodeExporterSelector)s,device="eth0"}[1m]) +
-                 irate(node_network_transmit_drop{%(nodeExporterSelector)s,device="eth0"}[1m]))
+                (irate(node_network_receive_drop{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]) +
+                 irate(node_network_transmit_drop{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]))
               )
             ||| % $._config,
           },
