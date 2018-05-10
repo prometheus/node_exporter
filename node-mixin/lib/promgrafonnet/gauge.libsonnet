@@ -8,7 +8,7 @@ local prometheus = grafana.prometheus;
       title,
       datasource='prometheus',
       span=3,
-      format='percent',
+      format='percentunit',
       valueName='current',
       colors=[
         'rgba(245, 54, 54, 0.9)',
