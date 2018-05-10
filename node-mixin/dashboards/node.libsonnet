@@ -15,13 +15,13 @@ local gauge = promgrafonnet.gauge;
           'Idle CPU',
           datasource='$datasource',
           span=6,
-          format='percent',
+          format='percentunit',
           max=100,
           min=0,
         )
         .addTarget(prometheus.target(
           |||
-            100 - (avg by (cpu) (irate(node_cpu{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[5m])) * 100)
+            1 - avg by (cpu) (irate(node_cpu{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[1m]))
           ||| % $._config,
           legendFormat='{{cpu}}',
           intervalFactor=10,
@@ -32,11 +32,11 @@ local gauge = promgrafonnet.gauge;
           'System load',
           datasource='$datasource',
           span=6,
-          format='percent',
+          format='percentunit',
         )
-        .addTarget(prometheus.target('node_load1{%(nodeExporterSelector)s, instance="$instance"} * 100' % $._config, legendFormat='load 1m'))
-        .addTarget(prometheus.target('node_load5{%(nodeExporterSelector)s, instance="$instance"} * 100' % $._config, legendFormat='load 5m'))
-        .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"} * 100' % $._config, legendFormat='load 15m'));
+        .addTarget(prometheus.target('node_load1{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='load 1m'))
+        .addTarget(prometheus.target('node_load5{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='load 5m'))
+        .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='load 15m'));
 
       local memoryGraph =
         graphPanel.new(
@@ -77,9 +77,9 @@ local gauge = promgrafonnet.gauge;
           datasource='$datasource',
           span=9,
         )
-        .addTarget(prometheus.target('sum by (instance) (rate(node_disk_bytes_read{%(nodeExporterSelector)s, instance="$instance"}[2m]))' % $._config, legendFormat='read'))
-        .addTarget(prometheus.target('sum by (instance) (rate(node_disk_bytes_written{%(nodeExporterSelector)s, instance="$instance"}[2m]))' % $._config, legendFormat='written'))
-        .addTarget(prometheus.target('sum by (instance) (rate(node_disk_io_time_ms{%(nodeExporterSelector)s,  instance="$instance"}[2m]))' % $._config, legendFormat='io time')) +
+        .addTarget(prometheus.target('sum by (instance) (irate(node_disk_bytes_read_total{%(nodeExporterSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='read'))
+        .addTarget(prometheus.target('sum by (instance) (irate(node_disk_bytes_written_total{%(nodeExporterSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='written'))
+        .addTarget(prometheus.target('sum by (instance) (irate(node_disk_io_time_ms{%(nodeExporterSelector)s,  instance="$instance"}[1m]))' % $._config, legendFormat='io time')) +
         {
           seriesOverrides: [
             {
@@ -116,7 +116,7 @@ local gauge = promgrafonnet.gauge;
           span=6,
           format='bytes',
         )
-        .addTarget(prometheus.target('rate(node_network_receive_bytes{%(nodeExporterSelector)s, instance="$instance", device!~"lo"}[5m])' % $._config, legendFormat='{{device}}'));
+        .addTarget(prometheus.target('irate(node_network_receive_bytes{%(nodeExporterSelector)s, instance="$instance", device!~"lo"}[1m])' % $._config, legendFormat='{{device}}'));
 
       local networkTransmitted =
         graphPanel.new(
@@ -125,7 +125,7 @@ local gauge = promgrafonnet.gauge;
           span=6,
           format='bytes',
         )
-        .addTarget(prometheus.target('rate(node_network_transmit_bytes{%(nodeExporterSelector)s, instance="$instance", device!~"lo"}[5m])' % $._config, legendFormat='{{device}}'));
+        .addTarget(prometheus.target('irate(node_network_transmit_bytes{%(nodeExporterSelector)s, instance="$instance", device!~"lo"}[1m])' % $._config, legendFormat='{{device}}'));
 
       dashboard.new('Nodes', time_from='now-1h')
       .addTemplate(
