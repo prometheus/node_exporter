@@ -31,7 +31,6 @@ FIRST_GOPATH := $(firstword $(subst :, ,$(shell $(GO) env GOPATH)))
 PROMU        := $(FIRST_GOPATH)/bin/promu
 STATICCHECK  := $(FIRST_GOPATH)/bin/staticcheck
 GOVENDOR     := $(FIRST_GOPATH)/bin/govendor
-pkgs          = ./...
 
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
@@ -52,6 +51,10 @@ check_license:
                echo "license header checking failed:"; echo "$${licRes}"; \
                exit 1; \
        fi
+
+test-short:
+	@echo ">> running short tests"
+	$(GO) test -short $(pkgs)
 
 format:
 	@echo ">> formatting code"
@@ -76,9 +79,6 @@ build: promu
 tarball: promu
 	@echo ">> building release tarball"
 	$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
-
-promu:
-	GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
 
 $(FIRST_GOPATH)/bin/staticcheck:
 	GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck

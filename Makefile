@@ -14,8 +14,6 @@
 include Makefile.common
 
 PROMTOOL    ?= $(GOPATH)/bin/promtool
-PROMU       ?= $(GOPATH)/bin/promu
-STATICCHECK ?= $(GOPATH)/bin/staticcheck
 pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
 
 DOCKER_IMAGE_NAME       ?= node-exporter
@@ -107,6 +105,12 @@ test-docker:
 	@echo ">> testing docker image"
 	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
 
+
+$(GOPATH)/bin/promtool promtool:
+	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/prometheus/cmd/promtool
+
+$(GOPATH)/bin/promu promu:
+	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
 
 .PHONY: all style format build test test-e2e vet tarball docker promtool promu staticcheck checkmetrics
 
