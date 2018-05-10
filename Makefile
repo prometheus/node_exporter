@@ -13,7 +13,7 @@
 
 include Makefile.common
 
-PROMTOOL    ?= $(GOPATH)/bin/promtool
+PROMTOOL    ?= $(FIRST_GOPATH)/bin/promtool
 pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
 
 DOCKER_IMAGE_NAME       ?= node-exporter
@@ -106,10 +106,10 @@ test-docker:
 	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
 
 
-$(GOPATH)/bin/promtool promtool:
+$(FIRST_GOPATH)/bin/promtool promtool:
 	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/prometheus/cmd/promtool
 
-$(GOPATH)/bin/promu promu:
+$(FIRST_GOPATH)/bin/promu promu:
 	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
 
 .PHONY: all style format build test test-e2e vet tarball docker promtool promu staticcheck checkmetrics
@@ -118,4 +118,4 @@ $(GOPATH)/bin/promu promu:
 # to ensure the latest version is downloaded on every make execution.
 # If this is not desired, copy/symlink these binaries to a different path and
 # set the respective environment variables.
-.PHONY: $(GOPATH)/bin/promtool $(GOPATH)/bin/promu $(GOPATH)/bin/staticcheck
+.PHONY: $(FIRST_GOPATH)/bin/promtool $(FIRST_GOPATH)/bin/promu $(FIRST_GOPATH)/bin/staticcheck
