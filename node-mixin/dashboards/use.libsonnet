@@ -84,8 +84,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
         ),
       ),
 
-    'k8s-node-rsrc-use.json':
-      g.dashboard('K8s / USE Method / Node')
+    'node-rsrc-use.json':
+      g.dashboard('USE Method / Node')
       .addTemplate('instance', 'up{%(nodeExporterSelector)s}' % $._config, 'instance')
       .addRow(
         g.row('CPU')

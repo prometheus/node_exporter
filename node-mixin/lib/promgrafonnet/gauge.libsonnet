@@ -6,7 +6,7 @@ local prometheus = grafana.prometheus;
   new(title, query)::
     singlestat.new(
       title,
-      datasource='prometheus',
+      datasource='$datasource',
       span=3,
       format='percentunit',
       valueName='current',
