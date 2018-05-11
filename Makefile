@@ -13,8 +13,11 @@
 
 include Makefile.common
 
+GO     ?= GO15VENDOREXPERIMENT=1 go
+GOARCH := $(shell $(GO) env GOARCH)
+GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
+
 PROMTOOL    ?= $(FIRST_GOPATH)/bin/promtool
-pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
 
 DOCKER_IMAGE_NAME       ?= node-exporter
 MACH                    ?= $(shell uname -m)
@@ -104,7 +107,6 @@ endif
 test-docker:
 	@echo ">> testing docker image"
 	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
-
 
 $(FIRST_GOPATH)/bin/promtool promtool:
 	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/prometheus/cmd/promtool
