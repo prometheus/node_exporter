@@ -20,7 +20,7 @@ groups:
 - name: node_exporter-16-cpu
   rules:
   - record: node_cpu_seconds_total
-    expr: node_cpu
+    expr: label_replace(node_cpu, "cpu", "$1", "cpu", "cpu(.+)")
 - name: node_exporter-16-diskstats
   rules:
   - record: node_disk_read_bytes_total
@@ -172,7 +172,7 @@ groups:
   - record: node_nfs_packets_total
     expr: node_nfs_net_reads
   - record: node_nfs_requests_total
-    expr: node_nfs_procedures
+    expr: label_replace(label_replace(node_nfs_procedures, "proto", "$1", "version", "(.+)"), "method", "$1", "procedure", "(.+)")
   - record: node_nfs_rpc_authentication_refreshes_total
     expr: node_nfs_rpc_authentication_refreshes
   - record: node_nfs_rpcs_total
