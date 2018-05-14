@@ -49,10 +49,12 @@ else
     test-e2e := skip-test-e2e
 endif
 
+e2e-out = collector/fixtures/e2e-output.txt
 ifeq ($(MACH), ppc64le)
-	e2e-out = collector/fixtures/e2e-ppc64le-output.txt
-else
-	e2e-out = collector/fixtures/e2e-output.txt
+	e2e-out = collector/fixtures/e2e-64k-page-output.txt
+endif
+ifeq ($(MACH), aarch64)
+	e2e-out = collector/fixtures/e2e-64k-page-output.txt
 endif
 
 # 64bit -> 32bit mapping for cross-checking. At least for amd64/386, the 64bit CPU can execute 32bit code but not the other way around, so we don't support cross-testing upwards.
@@ -68,7 +70,6 @@ endef
 
 # By default, "cross" test with ourselves to cover unknown pairings.
 $(eval $(call goarch_pair,amd64,386))
-$(eval $(call goarch_pair,arm64,arm))
 $(eval $(call goarch_pair,mips64,mips))
 $(eval $(call goarch_pair,mips64el,mipsel))
 
