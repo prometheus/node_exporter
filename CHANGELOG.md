@@ -7,7 +7,7 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
-## 0.16.0-rc.3 / 2018-04-27
+## 0.16.0 / 2018-05-15
 
 **Breaking changes**
 
@@ -37,6 +37,7 @@ Other breaking changes:
 * [CHANGE] Greatly trim what netstat collector exposes by default #876
 * [CHANGE] Drop `exec_` prefix and move `node_boot_time_seconds` from `exec` to new `boottime` collector and enable for Darwin/Dragonfly/FreeBSD/NetBSD/OpenBSD. #839, #901
 * [CHANGE] Remove depreated gmond collector #852
+* [CHANGE] align Darwin disk stat names with Linux #930
 * [FEATURE] Add `collect[]` parameter #699
 * [FEATURE] Add text collector conversion for ipmitool output. #746
 * [FEATURE] Add openbsd meminfo #724
