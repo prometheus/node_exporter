@@ -1,0 +1,20 @@
+# Version 0.16.0 Upgrade Guide
+
+The `node_exporter` 0.16.0 and newer renamed many metrics in order to conform with Prometheus [naming best practices].
+
+In order to allow easy upgrades, there are several options.
+
+## Update dashboards
+
+Grafana users can add multiple queries in order to display both the old and new data simultaneously.
+
+## Use recording rules
+
+We have provides a [sample recording rule set] to create duplicate metrics.  This has a minor disadvantage that it creates a lot of extra data, and re-aligns the timestamps of the data.
+
+## Run both old and new versions simultaneously.
+
+It's possible to run both the old and new exporter on different ports, and include an additional scrape job in Prometheus.  It's recommended to enable only the collectors that have name changes that you care about.
+
+[naming best practices]: https://prometheus.io/docs/practices/naming/
+[sample recording rule set]: example-16-compatibility-rules.yml
