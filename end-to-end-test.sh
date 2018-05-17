@@ -43,8 +43,6 @@ disabled_collectors=$(cat << COLLECTORS
   time
   timex
   uname
-  threads_exporter
-  vmstat
   processes
 COLLECTORS
 )

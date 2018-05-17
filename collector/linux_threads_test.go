@@ -6,7 +6,7 @@ import (
 
 func TestReadProcessStatus(t *testing.T) {
 	want := 1
-	states, threads, err := getAllocatedThreads()
+	pids, states, threads, err := getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
 	}
@@ -16,5 +16,12 @@ func TestReadProcessStatus(t *testing.T) {
 	if states == nil {
 
 		t.Fatalf("Process states cannot be nil %v:", states)
+	}
+	maxPid, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
+	if err != nil {
+		t.Fatalf("Unable to retrieve limit number of maximum pids alloved %v\n", err)
+	}
+	if uint64(pids) > maxPid || pids == 0 {
+		t.Fatalf("Total running pids cannot be greater than %d or equals to 0", maxPid)
 	}
 }
