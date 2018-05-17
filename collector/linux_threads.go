@@ -25,6 +25,8 @@ type threadsCollector struct {
 	threadAlloc *prometheus.Desc
 	threadLimit *prometheus.Desc
 	procsState  *prometheus.Desc
+	pidUsed     *prometheus.Desc
+	pidMax      *prometheus.Desc
 }
 
 func init() {
@@ -48,44 +50,61 @@ func NewProcessStatCollector() (Collector, error) {
 			"Number of processes in each state.",
 			[]string{"state"}, nil,
 		),
+		pidUsed: prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "pids"),
+			"Number of PIDs", nil, nil,
+		),
+		pidMax: prometheus.NewDesc(prometheus.BuildFQName(namespace, "pids", "limit"),
+			"Number of max PIDs limit", nil, nil,
+		),
 	}, nil
 }
 func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
-	states, threads, err := getAllocatedThreads()
+	pids, states, threads, err := getAllocatedThreads()
+
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve number of allocated threads %v\n", err)
 	}
+
 	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(threads))
 	maxThreads, err := readUintFromFile(procFilePath("sys/kernel/threads-max"))
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve limit number of threads %v\n", err)
 	}
 	ch <- prometheus.MustNewConstMetric(t.threadLimit, prometheus.GaugeValue, float64(maxThreads))
+
 	for state := range states {
 		ch <- prometheus.MustNewConstMetric(t.procsState, prometheus.GaugeValue, float64(states[state]), state)
 	}
+
+	pidM, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
+	if err != nil {
+		return fmt.Errorf("Unable to retrieve limit number of maximum pids alloved %v\n", err)
+	}
+	ch <- prometheus.MustNewConstMetric(t.pidUsed, prometheus.GaugeValue, float64(pids))
+	ch <- prometheus.MustNewConstMetric(t.pidMax, prometheus.GaugeValue, float64(pidM))
+
 	return nil
 }
 
-func getAllocatedThreads() (map[string]int32, int, error) {
+func getAllocatedThreads() (int, map[string]int32, int, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, 0, err
+		return 0, nil, 0, err
 	}
 	p, err := fs.AllProcs()
 	if err != nil {
-		return nil, 0, err
+		return 0, nil, 0, err
 	}
 	thread := 0
 	procStates := make(map[string]int32)
 	for _, pid := range p {
 		stat, err := pid.NewStat()
 		if err != nil {
-			return nil, 0, err
+			return 0, nil, 0, err
 		}
 		procStates[stat.State] += 1
 		thread += stat.NumThreads
 
 	}
-	return procStates, thread, nil
+	return len(p), procStates, thread, nil
 }
