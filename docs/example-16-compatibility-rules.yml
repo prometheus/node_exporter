@@ -95,6 +95,8 @@ groups:
     expr: node_memory_KernelStack
   - record: node_memory_Mapped_bytes
     expr: node_memory_Mapped
+  - record: node_memory_MemAvailable_bytes
+    expr: node_memory_MemAvailable
   - record: node_memory_MemFree_bytes
     expr: node_memory_MemFree
   - record: node_memory_MemTotal_bytes
