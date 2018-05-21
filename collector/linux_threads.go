@@ -21,7 +21,7 @@ import (
 	"github.com/prometheus/procfs"
 )
 
-type threadsCollector struct {
+type processCollector struct {
 	threadAlloc *prometheus.Desc
 	threadLimit *prometheus.Desc
 	procsState  *prometheus.Desc
@@ -34,7 +34,7 @@ func init() {
 }
 
 func NewProcessStatCollector() (Collector, error) {
-	return &threadsCollector{
+	return &processCollector{
 		threadAlloc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "threads"),
 			"Allocated threads in system",
@@ -58,9 +58,8 @@ func NewProcessStatCollector() (Collector, error) {
 		),
 	}, nil
 }
-func (t *threadsCollector) Update(ch chan<- prometheus.Metric) error {
+func (t *processCollector) Update(ch chan<- prometheus.Metric) error {
 	pids, states, threads, err := getAllocatedThreads()
-
 	if err != nil {
 		return fmt.Errorf("Unable to retrieve number of allocated threads %v\n", err)
 	}
@@ -104,7 +103,6 @@ func getAllocatedThreads() (int, map[string]int32, int, error) {
 		}
 		procStates[stat.State] += 1
 		thread += stat.NumThreads
-
 	}
 	return len(p), procStates, thread, nil
 }
