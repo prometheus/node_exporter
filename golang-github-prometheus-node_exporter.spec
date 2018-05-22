@@ -8,7 +8,7 @@
 # https://github.com/prometheus/node_exporter
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     %{provider_prefix}
-%global commit          f79ab2b25913c0d553520a2c1ed055c664b763eb
+%global commit          0ad685f9803aea72f3ab6590b173511454af1d16
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %global gopathdir       %{_sourcedir}/go
 %global upstream_ver    0.15.2
