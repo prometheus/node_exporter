@@ -6,7 +6,7 @@ LABEL maintainer="OpenShift Development <dev@lists.openshift.redhat.com>" \
       architecture=x86_64
 
 RUN yum-config-manager --enable rhel-7-server-ose-3.9-rpms && \
-    yum install -y prometheus-node_exporter && \
+    yum install -y prometheus-node-exporter && \
     yum clean all
 
 USER       nobody

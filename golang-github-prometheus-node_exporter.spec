@@ -8,7 +8,7 @@
 # https://github.com/prometheus/node_exporter
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     %{provider_prefix}
-%global commit          052cee4ae2677a7cb42542615f6c858e35d6e9e3
+%global commit          f79ab2b25913c0d553520a2c1ed055c664b763eb
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %global gopathdir       %{_sourcedir}/go
 %global upstream_ver    0.15.2
@@ -17,11 +17,11 @@
 
 Name:		golang-%{provider}-%{project}-%{repo}
 Version:	%{rpm_ver}
-Release:	1.git%{shortcommit}%{?dist}
+Release:	2.git%{shortcommit}%{?dist}
 Summary:	Prometheus exporter for hardware and OS metrics exposed by *NIX kernels
 License:	ASL 2.0
 URL:		https://prometheus.io/
-Source0:	https://%{download_prefix}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+Source0:	https://%{download_prefix}/archive/%{commit}/%{repo}-%{commit}.tar.gz
 
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
 # promu-based packages FTBFS on aarch64 (#1487462)
@@ -34,11 +34,11 @@ BuildRequires: prometheus-promu
 %description
 %{summary}
 
-%package -n %{project}-%{repo}
+%package -n %{project}-node-exporter
 Summary:        %{summary}
-Provides:       prometheus-node_exporter = %{version}-%{release}
+Provides:       prometheus-node-exporter = %{version}-%{release}
 
-%description -n %{project}-%{repo}
+%description -n %{project}-node-exporter
 %{summary}
 
 %prep
@@ -48,7 +48,10 @@ Provides:       prometheus-node_exporter = %{version}-%{release}
 # Go expects a full path to the sources which is not included in the source
 # tarball so create a link with the expected path
 mkdir -p %{gopathdir}/src/%{provider}.%{provider_tld}/%{project}
-ln -s `pwd` %{gopathdir}/src/%{import_path}
+GOSRCDIR=%{gopathdir}/src/%{import_path}
+if [ ! -e "$GOSRCDIR" ]; then
+  ln -s `pwd` "$GOSRCDIR"
+fi
 export GOPATH=%{gopathdir}
 
 make build BUILD_PROMU=false
@@ -56,13 +59,26 @@ make build BUILD_PROMU=false
 %install
 install -d %{buildroot}%{_bindir}
 install -D -p -m 0755 node_exporter %{buildroot}%{_bindir}/node_exporter
+ln -s %{_bindir}/node_exporter \
+      %{buildroot}%{_bindir}/prometheus-node-exporter
+install -D -p -m 0644 prometheus-node-exporter.service \
+                      %{buildroot}%{_unitdir}/prometheus-node-exporter.service
+CONFIG_PATH=prometheus/node-exporter/prometheus-node-exporter.conf
+install -D -p -m 0644 prometheus-node-exporter.conf \
+                      %{buildroot}%{_sysconfdir}/${CONFIG_PATH}
 
-%files -n %{project}-%{repo}
+%files -n %{project}-node-exporter
 %license LICENSE NOTICE
 %doc CHANGELOG.md CONTRIBUTING.md MAINTAINERS.md README.md
 %{_bindir}/node_exporter
+%{_bindir}/prometheus-node-exporter
+%{_unitdir}/prometheus-node-exporter.service
+%{_sysconfdir}/prometheus/node-exporter/prometheus-node-exporter.conf
 
 %changelog
+* Tue May 22 2018 Paul Gier <pgier@redhat.com> - 0.15.2-2
+- Add systemd unit file and related config
+
 * Wed Jan 17 2018 Paul Gier <pgier@redhat.com> - 0.15.2-1
 - upgrade to 0.15.2
 

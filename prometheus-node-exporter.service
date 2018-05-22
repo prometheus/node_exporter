@@ -1,0 +1,13 @@
+[Unit]
+Description=Prometheus exporter for hardware and OS metrics
+Documentation=https://github.com/prometheus/node_exporter
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/prometheus/node-exporter/prometheus-node-exporter.conf
+ExecStart=/usr/bin/node_exporter $ARGS
+ExecReload=/bin/kill -SIGHUP $MAINPID
+ExecStop=/bin/kill -SIGKILL $MAINPID
+
+[Install]
+WantedBy=multi-user.target
