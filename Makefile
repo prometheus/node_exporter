@@ -111,13 +111,10 @@ test-docker:
 $(FIRST_GOPATH)/bin/promtool promtool:
 	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/prometheus/cmd/promtool
 
-$(FIRST_GOPATH)/bin/promu promu:
-	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/promu
-
 .PHONY: all style format build test test-e2e vet tarball docker promtool promu staticcheck checkmetrics
 
 # Declaring the binaries at their default locations as PHONY targets is a hack
 # to ensure the latest version is downloaded on every make execution.
 # If this is not desired, copy/symlink these binaries to a different path and
 # set the respective environment variables.
-.PHONY: $(FIRST_GOPATH)/bin/promtool $(FIRST_GOPATH)/bin/promu $(FIRST_GOPATH)/bin/staticcheck
+.PHONY: $(FIRST_GOPATH)/bin/promtool
