@@ -16,7 +16,7 @@
 # !!! Open PRs only against the prometheus/prometheus/Makefile.common repository!
 
 # Example usage :
-# Create the main Makefile in the root project directory.
+# Create the main Makefile in the root project directory. 
 # include Makefile.common
 # customTarget:
 # 	@echo ">> Running customTarget"
