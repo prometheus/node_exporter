@@ -42,19 +42,19 @@ func NewProcessStatCollector() (Collector, error) {
 			nil, nil,
 		),
 		threadLimit: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "threads", "limit"),
+			prometheus.BuildFQName(namespace, subsystem, "max_threads"),
 			"Limit of threads in the system",
 			nil, nil,
 		),
 		procsState: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "processes_state"),
+			prometheus.BuildFQName(namespace, subsystem, "state"),
 			"Number of processes in each state.",
 			[]string{"state"}, nil,
 		),
 		pidUsed: prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "pids"),
 			"Number of PIDs", nil, nil,
 		),
-		pidMax: prometheus.NewDesc(prometheus.BuildFQName(namespace, "pids", "limit"),
+		pidMax: prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "max_processes"),
 			"Number of max PIDs limit", nil, nil,
 		),
 	}, nil

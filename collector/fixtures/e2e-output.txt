@@ -2094,15 +2094,18 @@ node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
-# HELP node_pids_limit Number of max PIDs limit
-# TYPE node_pids_limit gauge
-node_pids_limit 123
+# HELP node_processes_max_processes Number of max PIDs limit
+# TYPE node_processes_max_processes gauge
+node_processes_max_processes 123
+# HELP node_processes_max_threads Limit of threads in the system
+# TYPE node_processes_max_threads gauge
+node_processes_max_threads 7801
 # HELP node_processes_pids Number of PIDs
 # TYPE node_processes_pids gauge
 node_processes_pids 1
-# HELP node_processes_processes_state Number of processes in each state.
-# TYPE node_processes_processes_state gauge
-node_processes_processes_state{state="S"} 1
+# HELP node_processes_state Number of processes in each state.
+# TYPE node_processes_state gauge
+node_processes_state{state="S"} 1
 # HELP node_processes_threads Allocated threads in system
 # TYPE node_processes_threads gauge
 node_processes_threads 1
@@ -2217,9 +2220,6 @@ node_sockstat_sockets_used 229
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
-# HELP node_threads_limit Limit of threads in the system
-# TYPE node_threads_limit gauge
-node_threads_limit 7801
 # HELP node_vmstat_oom_kill /proc/vmstat information field oom_kill.
 # TYPE node_vmstat_oom_kill untyped
 node_vmstat_oom_kill 0
