@@ -36,6 +36,7 @@ enabled_collectors=$(cat << COLLECTORS
   wifi
   xfs
   zfs
+  processes
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
