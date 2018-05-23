@@ -37,6 +37,8 @@ BuildRequires: prometheus-promu
 %package -n %{project}-node-exporter
 Summary:        %{summary}
 Provides:       prometheus-node-exporter = %{version}-%{release}
+Provides:       prometheus-node_exporter = %{version}-%{release}
+Obsoletes:      prometheus-node_exporter < %{version}-%{release}
 
 %description -n %{project}-node-exporter
 %{summary}
