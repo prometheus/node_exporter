@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !nothreads
+// +build !noprocesses
 
 package collector
 
@@ -34,9 +34,10 @@ func init() {
 }
 
 func NewProcessStatCollector() (Collector, error) {
+	subsystem := "processes"
 	return &processCollector{
 		threadAlloc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "threads"),
+			prometheus.BuildFQName(namespace, subsystem, "threads"),
 			"Allocated threads in system",
 			nil, nil,
 		),
@@ -46,11 +47,11 @@ func NewProcessStatCollector() (Collector, error) {
 			nil, nil,
 		),
 		procsState: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "processes_state"),
+			prometheus.BuildFQName(namespace, subsystem, "processes_state"),
 			"Number of processes in each state.",
 			[]string{"state"}, nil,
 		),
-		pidUsed: prometheus.NewDesc(prometheus.BuildFQName(namespace, "", "pids"),
+		pidUsed: prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "pids"),
 			"Number of PIDs", nil, nil,
 		),
 		pidMax: prometheus.NewDesc(prometheus.BuildFQName(namespace, "pids", "limit"),
