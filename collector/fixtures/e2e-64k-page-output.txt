@@ -2094,6 +2094,21 @@ node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
+# HELP node_processes_max_processes Number of max PIDs limit
+# TYPE node_processes_max_processes gauge
+node_processes_max_processes 123
+# HELP node_processes_max_threads Limit of threads in the system
+# TYPE node_processes_max_threads gauge
+node_processes_max_threads 7801
+# HELP node_processes_pids Number of PIDs
+# TYPE node_processes_pids gauge
+node_processes_pids 1
+# HELP node_processes_state Number of processes in each state.
+# TYPE node_processes_state gauge
+node_processes_state{state="S"} 1
+# HELP node_processes_threads Allocated threads in system
+# TYPE node_processes_threads gauge
+node_processes_threads 1
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
@@ -2149,6 +2164,7 @@ node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
+node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="stat"} 1
