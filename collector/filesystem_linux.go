@@ -87,6 +87,12 @@ func mountPointDetails() ([]filesystemLabels, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+
+		// Ensure we handle the translation of \040 and \011
+		// as per fstab(5).
+		parts[1] = strings.Replace(parts[1], "\\040", " ", -1)
+		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
+
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
 			mountPoint: parts[1],

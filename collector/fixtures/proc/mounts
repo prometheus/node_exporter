@@ -28,3 +28,5 @@ rpc_pipefs /run/rpc_pipefs rpc_pipefs rw,relatime 0 0
 binfmt_misc /proc/sys/fs/binfmt_misc binfmt_misc rw,relatime 0 0
 tmpfs /run/user/1000 tmpfs rw,nosuid,nodev,relatime,size=808860k,mode=700,uid=1000,gid=1000 0 0
 gvfsd-fuse /run/user/1000/gvfs fuse.gvfsd-fuse rw,nosuid,nodev,relatime,user_id=1000,group_id=1000 0 0
+/dev/sda /var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]\040bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk ext4 rw,relatime,data=ordered 0 0
+/dev/sda /var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]\011bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk ext4 rw,relatime,data=ordered 0 0
