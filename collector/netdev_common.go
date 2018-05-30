@@ -23,7 +23,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"reflect"
 )
 
 var (
@@ -72,62 +71,6 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
 			}
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, v, dev)
-		}
-	}
-
-	netClass, err := getNetClassInfo(c.ignoredDevicesPattern)
-	if err != nil {
-		return fmt.Errorf("could not get net class info: %s", err)
-	}
-	for _, ifaceInfo := range netClass {
-		upDesc := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, c.subsystem, "up"),
-			"Valid operstate for interface.",
-			[]string{"interface", "address", "broadcast", "duplex", "operstate", "ifalias"},
-			nil,
-		)
-		upValue := 0.0
-		if ifaceInfo.OperState == "up" {
-			upValue = 1.0
-		}
-		ch <- prometheus.MustNewConstMetric(upDesc, prometheus.GaugeValue, upValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
-
-		fields := []string{
-			"AddrAssignType",
-			"Carrier",
-			"CarrierChanges",
-			"CarrierUpCount",
-			"CarrierDownCount",
-			"DevId",
-			"Dormant",
-			"Flags",
-			"IfIndex",
-			"IfLink",
-			"LinkMode",
-			"Mtu",
-			"NameAssignType",
-			"NetDevGroup",
-			"Speed",
-			"TxQueueLen",
-			"Type",
-		}
-		interfaceElem := reflect.ValueOf(&ifaceInfo).Elem()
-		interfaceType := reflect.TypeOf(ifaceInfo)
-
-		for _, fieldName := range fields {
-			fieldValue := interfaceElem.FieldByName(fieldName)
-			fieldType, found := interfaceType.FieldByName(fieldName)
-			if !found {
-				continue
-			}
-			fieldDesc := prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, c.subsystem, fieldType.Tag.Get("fileName")),
-				fmt.Sprintf("value of /sys/class/net/<iface>/%s.", fieldType.Tag.Get("fileName")),
-				[]string{"interface"},
-				nil,
-			)
-
-			ch <- prometheus.MustNewConstMetric(fieldDesc, prometheus.GaugeValue, float64(fieldValue.Int()), ifaceInfo.Name)
 		}
 	}
 
