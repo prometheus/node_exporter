@@ -1664,12 +1664,6 @@ node_netstat_Udp_NoPorts 120
 # HELP node_netstat_Udp_OutDatagrams Statistic UdpOutDatagrams.
 # TYPE node_netstat_Udp_OutDatagrams untyped
 node_netstat_Udp_OutDatagrams 53028
-# HELP node_netstat_Udp_RcvbufErrors Statistic UdpRcvbufErrors.
-# TYPE node_netstat_Udp_RcvbufErrors untyped
-node_netstat_Udp_RcvbufErrors 0
-# HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
-# TYPE node_netstat_Udp_SndbufErrors untyped
-node_netstat_Udp_SndbufErrors 0
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
 node_network_address_assign_type{interface="eth0"} 3
@@ -1696,11 +1690,11 @@ node_network_flags{interface="eth0"} 4099
 node_network_flags{interface="lo"} 9
 # HELP node_network_iface_id iface_id value of /sys/class/net/<iface>.
 # TYPE node_network_iface_id gauge
-node_network_iface_id{interface="eth0"} 6515
+node_network_iface_id{interface="eth0"} 605
 node_network_iface_id{interface="lo"} 1
 # HELP node_network_iface_link iface_link value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link gauge
-node_network_iface_link{interface="eth0"} 6516
+node_network_iface_link{interface="eth0"} 606
 node_network_iface_link{interface="lo"} 1
 # HELP node_network_iface_link_mode iface_link_mode value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link_mode gauge
@@ -1923,7 +1917,7 @@ node_network_transmit_queue_length{interface="lo"} 1
 # HELP node_network_up Valid operstate for interface.
 # TYPE node_network_up gauge
 node_network_up{address="00:00:00:00:00:00",broadcast="00:00:00:00:00:00",duplex="",ifalias="",interface="lo",operstate="unknown"} 0
-node_network_up{address="02:42:ac:1b:00:03",broadcast="ff:ff:ff:ff:ff:ff",duplex="full",ifalias="",interface="eth0",operstate="up"} 1
+node_network_up{address="02:42:ac:13:00:03",broadcast="ff:ff:ff:ff:ff:ff",duplex="full",ifalias="",interface="eth0",operstate="up"} 1
 # HELP node_nf_conntrack_entries Number of currently allocated flow entries for connection tracking.
 # TYPE node_nf_conntrack_entries gauge
 node_nf_conntrack_entries 123
