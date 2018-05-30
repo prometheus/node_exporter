@@ -73,6 +73,5 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, v, dev)
 		}
 	}
-
 	return nil
 }
