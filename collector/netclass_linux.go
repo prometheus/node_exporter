@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/prometheus/procfs/sysfs"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -141,7 +141,7 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func pushMetric(ch chan <- prometheus.Metric, subsystem string, name string, value int64, ifaceName string) {
+func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, value int64, ifaceName string) {
 	fieldDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
 		fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
