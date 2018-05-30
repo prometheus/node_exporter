@@ -1679,7 +1679,7 @@ node_network_address_assign_type{interface="lo"} 0
 node_network_carrier{interface="eth0"} 1
 node_network_carrier{interface="lo"} 1
 # HELP node_network_carrier_changes_total carrier_changes_total value of /sys/class/net/<iface>.
-# TYPE node_network_carrier_changes_total gauge
+# TYPE node_network_carrier_changes_total counter
 node_network_carrier_changes_total{interface="eth0"} 2
 node_network_carrier_changes_total{interface="lo"} 0
 # HELP node_network_device_id device_id value of /sys/class/net/<iface>.

@@ -69,79 +69,79 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(upDesc, prometheus.GaugeValue, upValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
 
 		if ifaceInfo.AddrAssignType != nil {
-			pushMetric(ch, c.subsystem, "address_assign_type", *ifaceInfo.AddrAssignType, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "address_assign_type", *ifaceInfo.AddrAssignType, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.Carrier != nil {
-			pushMetric(ch, c.subsystem, "carrier", *ifaceInfo.Carrier, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "carrier", *ifaceInfo.Carrier, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.CarrierChanges != nil {
-			pushMetric(ch, c.subsystem, "carrier_changes_total", *ifaceInfo.CarrierChanges, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "carrier_changes_total", *ifaceInfo.CarrierChanges, ifaceInfo.Name, prometheus.CounterValue)
 		}
 
 		if ifaceInfo.CarrierUpCount != nil {
-			pushMetric(ch, c.subsystem, "carrier_up_changes_total", *ifaceInfo.CarrierUpCount, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "carrier_up_changes_total", *ifaceInfo.CarrierUpCount, ifaceInfo.Name, prometheus.CounterValue)
 		}
 
 		if ifaceInfo.CarrierDownCount != nil {
-			pushMetric(ch, c.subsystem, "carrier_down_changes_total", *ifaceInfo.CarrierDownCount, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "carrier_down_changes_total", *ifaceInfo.CarrierDownCount, ifaceInfo.Name, prometheus.CounterValue)
 		}
 
 		if ifaceInfo.DevID != nil {
-			pushMetric(ch, c.subsystem, "device_id", *ifaceInfo.DevID, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "device_id", *ifaceInfo.DevID, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.Dormant != nil {
-			pushMetric(ch, c.subsystem, "dormant", *ifaceInfo.Dormant, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "dormant", *ifaceInfo.Dormant, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.Flags != nil {
-			pushMetric(ch, c.subsystem, "flags", *ifaceInfo.Flags, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "flags", *ifaceInfo.Flags, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.IfIndex != nil {
-			pushMetric(ch, c.subsystem, "iface_id", *ifaceInfo.IfIndex, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "iface_id", *ifaceInfo.IfIndex, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.IfLink != nil {
-			pushMetric(ch, c.subsystem, "iface_link", *ifaceInfo.IfLink, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "iface_link", *ifaceInfo.IfLink, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.LinkMode != nil {
-			pushMetric(ch, c.subsystem, "iface_link_mode", *ifaceInfo.LinkMode, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "iface_link_mode", *ifaceInfo.LinkMode, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.MTU != nil {
-			pushMetric(ch, c.subsystem, "mtu_bytes", *ifaceInfo.MTU, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "mtu_bytes", *ifaceInfo.MTU, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.NameAssignType != nil {
-			pushMetric(ch, c.subsystem, "name_assign_type", *ifaceInfo.NameAssignType, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "name_assign_type", *ifaceInfo.NameAssignType, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.NetDevGroup != nil {
-			pushMetric(ch, c.subsystem, "net_dev_group", *ifaceInfo.NetDevGroup, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "net_dev_group", *ifaceInfo.NetDevGroup, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.Speed != nil {
 			speedBytes := int64(*ifaceInfo.Speed / 8 * 1000 * 1000)
-			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.TxQueueLen != nil {
-			pushMetric(ch, c.subsystem, "transmit_queue_length", *ifaceInfo.TxQueueLen, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "transmit_queue_length", *ifaceInfo.TxQueueLen, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
 		if ifaceInfo.Type != nil {
-			pushMetric(ch, c.subsystem, "protocol_type", *ifaceInfo.Type, ifaceInfo.Name)
+			pushMetric(ch, c.subsystem, "protocol_type", *ifaceInfo.Type, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 	}
 
 	return nil
 }
 
-func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, value int64, ifaceName string) {
+func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, value int64, ifaceName string, valueType prometheus.ValueType) {
 	fieldDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
 		fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
@@ -149,7 +149,7 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 		nil,
 	)
 
-	ch <- prometheus.MustNewConstMetric(fieldDesc, prometheus.GaugeValue, float64(value), ifaceName)
+	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, float64(value), ifaceName)
 }
 
 func getNetClassInfo(ignore *regexp.Regexp) (sysfs.NetClass, error) {
