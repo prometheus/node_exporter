@@ -153,7 +153,11 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 }
 
 func getNetClassInfo(ignore *regexp.Regexp) (sysfs.NetClass, error) {
-	netClass, err := sysfs.NewNetClass()
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, err
+	}
+	netClass, err := fs.NewNetClass()
 
 	if err != nil {
 		return netClass, fmt.Errorf("error obtaining net class info: %s", err)
