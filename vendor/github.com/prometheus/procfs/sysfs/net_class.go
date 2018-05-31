@@ -80,7 +80,7 @@ func (fs FS) NewNetClass() (NetClass, error) {
 
 	netClass := NetClass{}
 	for _, deviceDir := range devices {
-		if !deviceDir.IsDir() {
+		if deviceDir.Mode().IsRegular() {
 			continue
 		}
 		interfaceClass, err := netClass.parseNetClassIface(path + "/" + deviceDir.Name())
