@@ -5,7 +5,6 @@ package wifi
 import (
 	"bytes"
 	"errors"
-	"math"
 	"net"
 	"os"
 	"time"
@@ -365,9 +364,9 @@ func (info *StationInfo) parseAttributes(attrs []netlink.Attribute) error {
 		case nl80211.StaInfoTxBytes64:
 			info.TransmittedBytes = int(nlenc.Uint64(a.Data))
 		case nl80211.StaInfoSignal:
-			// Converted into the typical negative strength format
 			//  * @NL80211_STA_INFO_SIGNAL: signal strength of last received PPDU (u8, dBm)
-			info.Signal = int(a.Data[0]) - math.MaxUint8
+			// Should just be cast to int8, see code here: https://git.kernel.org/pub/scm/linux/kernel/git/jberg/iw.git/tree/station.c#n378
+			info.Signal = int(int8(a.Data[0]))
 		case nl80211.StaInfoRxPackets:
 			info.ReceivedPackets = int(nlenc.Uint32(a.Data))
 		case nl80211.StaInfoTxPackets:
