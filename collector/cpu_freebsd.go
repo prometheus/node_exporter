@@ -138,7 +138,8 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			continue
 		}
-		ch <- c.temp.mustNewConstMetric(float64(temp-2732)/10, lcpu)
+		// Sysctl temp is an signed integer, so we do the conversion.
+		ch <- c.temp.mustNewConstMetric(float64(int32(temp)-2732)/10, lcpu)
 	}
 	return err
 }
