@@ -29,13 +29,13 @@ BEGIN {
 	namespace = "node_ipmi_";
 
 	# Friendly description of the type of sensor for HELP.
-	help["temperature_celcius"] = "Temperature";
+	help["temperature_celsius"] = "Temperature";
 	help["volts"] = "Voltage";
 	help["power_watts"] = "Power";
 	help["speed_rpm"] = "Fan";
 	help["status"] = "Chassis status";
 
-	temperature_celcius["metric_count"] = 0;
+	temperature_celsius["metric_count"] = 0;
 	volts["metric_count"] = 0;
 	power_watts["metric_count"] = 0;
 	speed_rpm["metric_count"] = 0;
@@ -56,8 +56,8 @@ $2 ~ /na/ {
 
 # $3 is type field.
 $3 ~ /degrees C/ {
-	temperature_celcius[$1] = $2;
-	temperature_celcius["metric_count"]++;
+	temperature_celsius[$1] = $2;
+	temperature_celsius["metric_count"]++;
 }
 
 $3 ~ /Volts/ {
@@ -81,7 +81,7 @@ $3 ~ /discrete/ {
 }
 
 END {
-	export(temperature_celcius, "temperature_celcius");
+	export(temperature_celsius, "temperature_celsius");
 	export(volts, "volts");
 	export(power_watts, "power_watts");
 	export(speed_rpm, "speed_rpm");
