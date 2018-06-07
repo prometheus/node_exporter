@@ -1,0 +1,8 @@
+[Unit]
+Description=Collect smart metrics for prometheus-node-exporter textfile collector
+
+[Service]
+Type=oneshot
+#if you have sponge installed, use it as per readme.md
+#ExecStart=/bin/sh -c "/usr/local/bin/smartmon.sh | sponge > /var/lib/prometheus/node-exporter/smartmon.prom"
+ExecStart=/bin/sh -c "/usr/local/bin/smartmon.sh > /var/lib/prometheus/node-exporter/smartmon.prom"

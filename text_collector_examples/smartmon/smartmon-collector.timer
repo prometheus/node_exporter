@@ -1,0 +1,8 @@
+[Unit]
+Description=Run prometheus smartmon collector script every 5 minutes
+
+[Timer]
+OnCalendar=*:0/5
+
+[Install]
+WantedBy=timers.target
