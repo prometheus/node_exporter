@@ -4,6 +4,7 @@
 
 * [CHANGE]
 * [FEATURE] Collect NRestarts property for systemd service units
+* [FEATURE] Add socket unit stats to systemd collector #968
 * [ENHANCEMENT]
 * [BUGFIX]
 
