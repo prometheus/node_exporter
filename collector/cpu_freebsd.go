@@ -140,7 +140,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		// Temp is a signed integer in deci-degrees Kelvin.
-		// Cast uint32 to int32 and convert to float64 degrees Celcius.
+		// Cast uint32 to int32 and convert to float64 degrees Celsius.
 		//
 		// 2732 is used as the conversion constant for deci-degrees
 		// Kelvin, in multiple places in the kernel that feed into this
