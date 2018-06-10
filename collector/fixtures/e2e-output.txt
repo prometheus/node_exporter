@@ -2220,6 +2220,18 @@ node_sockstat_sockets_used 229
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
+# HELP node_unixdomain_connections Number of Unix domain connections
+# TYPE node_unixdomain_connections gauge
+node_unixdomain_connections{flags="accepton",state="unconnected",type="seqpacket"} 1
+node_unixdomain_connections{flags="accepton",state="unconnected",type="stream"} 10
+node_unixdomain_connections{flags="default",state="connected",type="stream"} 64
+node_unixdomain_connections{flags="default",state="unconnected",type="dgram"} 9
+# HELP node_unixdomain_users Number of Unix domain users(RefCount)
+# TYPE node_unixdomain_users gauge
+node_unixdomain_users{flags="accepton",state="unconnected",type="seqpacket"} 2
+node_unixdomain_users{flags="accepton",state="unconnected",type="stream"} 20
+node_unixdomain_users{flags="default",state="connected",type="stream"} 192
+node_unixdomain_users{flags="default",state="unconnected",type="dgram"} 25
 # HELP node_vmstat_oom_kill /proc/vmstat information field oom_kill.
 # TYPE node_vmstat_oom_kill untyped
 node_vmstat_oom_kill 0
