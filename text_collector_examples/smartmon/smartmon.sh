@@ -63,17 +63,24 @@ parse_smartctl_attributes() {
   local disk="$1"
   local disk_type="$2"
   local labels="disk=\"${disk}\",type=\"${disk_type}\""
-  local vars="$(echo "${smartmon_attrs}" | xargs | tr ' ' '|')"
-  sed 's/^ \+//g' \
-    | awk -v labels="${labels}" "${parse_smartctl_attributes_awk}" 2>/dev/null \
-    | tr A-Z a-z \
-    | grep -E "(${smartmon_attrs})"
+  if [ "${disk_type}" != "nvme" ]; then
+    local vars="$(echo "${smartmon_attrs}" | xargs | tr ' ' '|')"
+    sed 's/^ \+//g' \
+      | awk -v labels="${labels}" "${parse_smartctl_attributes_awk}" 2>/dev/null \
+      | tr A-Z a-z \
+      | grep -E "(${smartmon_attrs})"
+  else
+    tail -n+7 \
+      |sed -rn 's/(.+):\s+([[:digit:],]*)\s?(.*)/\1|\2/pg' \
+      | tr -d ',.' | tr -s ' ' '_' | tr A-Z a-z \
+      | awk -v labels="${labels}" '{split($0,a,"|"); printf "nvme_%s{%s} %d\n", a[1], labels, a[2]}'
+  fi
 }
 
 parse_smartctl_info() {
   local -i smart_available=0 smart_enabled=0 smart_healthy=0
   local disk="$1" disk_type="$2"
-  local model_family='' device_model='' serial_number='' fw_version='' vendor='' product='' revision='' lun_id=''
+  local model_family='' device_model='' model_number='' serial_number='' fw_version='' vendor='' product='' revision='' lun_id=''
   while read line ; do
     info_type="$(echo "${line}" | cut -f1 -d: | tr ' ' '_')"
     info_value="$(echo "${line}" | cut -f2- -d: | sed 's/^ \+//g' | sed 's/"/\\"/')"
@@ -86,6 +93,7 @@ parse_smartctl_info() {
       Product) product="${info_value}" ;;
       Revision) revision="${info_value}" ;;
       Logical_Unit_id) lun_id="${info_value}" ;;
+      Model_Number) model_number="${info_value}" ;;
     esac
     if [[ "${info_type}" == 'SMART_support_is' ]] ; then
       case "${info_value:0:7}" in
@@ -104,10 +112,15 @@ parse_smartctl_info() {
       esac
     fi
   done
-  echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",vendor=\"${vendor}\",product=\"${product}\",revision=\"${revision}\",lun_id=\"${lun_id}\",model_family=\"${model_family}\",device_model=\"${device_model}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
-  echo "device_smart_available{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_available}"
-  echo "device_smart_enabled{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_enabled}"
-  echo "device_smart_healthy{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_healthy}"
+  
+  if [ "${disk_type}" != "nvme" ]; then
+    echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",vendor=\"${vendor}\",product=\"${product}\",revision=\"${revision}\",lun_id=\"${lun_id}\",model_family=\"${model_family}\",device_model=\"${device_model}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
+    echo "device_smart_available{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_available}"
+    echo "device_smart_enabled{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_enabled}"
+    echo "device_smart_healthy{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_healthy}"
+  else
+    echo "nvme_device_info{disk=\"${disk}\",type=\"${disk_type}\",model_number=\"${model_number}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
+  fi
 }
 
 output_format_awk="$(cat << 'OUTPUTAWK'
@@ -134,7 +147,7 @@ if [[ "$(expr "${smartctl_version}" : '\([0-9]*\)\..*')" -lt 6 ]] ; then
   exit
 fi
 
-device_list="$(/usr/sbin/smartctl --scan-open | awk '/^\/dev/{print $1 "|" $3}')"
+device_list="$(/usr/sbin/smartctl --scan-open | awk '/^\/dev/{print $1 "|" $3}'; ls -1 /dev/nvme[[:digit:]] | awk '/^\/dev/{print $1 "|nvme"}')"
 
 for device in ${device_list}; do
   disk="$(echo ${device} | cut -f1 -d'|')"
