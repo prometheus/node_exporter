@@ -43,6 +43,14 @@ groups:
     expr: node_disk_writes_merged
   - record: node_disk_write_time_seconds_total
     expr: node_disk_write_time_ms
+- name: node_exporter-16-filesystem
+  rules:
+  - record: node_filesystem_free_bytes
+    expr: node_filesystem_free
+  - record: node_filesystem_avail_bytes
+    expr: node_filesystem_avail
+  - record: node_filesystem_size_bytes
+    expr: node_filesystem_size
 - name: node_exporter-16-infiniband
   rules:
   - record: node_infiniband_port_data_received_bytes_total
