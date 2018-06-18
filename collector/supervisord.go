@@ -32,7 +32,7 @@ type supervisordCollector struct {
 	upDesc         *prometheus.Desc
 	stateDesc      *prometheus.Desc
 	exitStatusDesc *prometheus.Desc
-	uptimeDesc     *prometheus.Desc
+	startTimeDesc  *prometheus.Desc
 }
 
 func init() {
@@ -64,9 +64,9 @@ func NewSupervisordCollector() (Collector, error) {
 			labelNames,
 			nil,
 		),
-		uptimeDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "uptime"),
-			"Process Uptime",
+		startTimeDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "start_time_seconds"),
+			"Process start time",
 			labelNames,
 			nil,
 		),
@@ -143,10 +143,9 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 
 		if c.isRunning(info.State) {
 			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 1, labels...)
-			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, float64(info.Now-info.Start), labels...)
+			ch <- prometheus.MustNewConstMetric(c.startTimeDesc, prometheus.CounterValue, float64(info.Start), labels...)
 		} else {
 			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 0, labels...)
-			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, 0, labels...)
 		}
 		log.Debugf("%s:%s is %s on pid %d", info.Group, info.Name, info.StateName, info.PID)
 	}
