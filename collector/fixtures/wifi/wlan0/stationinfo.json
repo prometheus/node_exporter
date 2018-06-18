@@ -1,10 +1,25 @@
-{
-	"connected": 30000000000,
-	"inactive": 400000000,
-	"receivebitrate": 128000000,
-	"transmitbitrate": 164000000,
-	"signal": -52,
-	"transmitretries": 10,
-	"transmitfailed": 2,
-	"beaconloss": 1
-}
+[
+	{
+		"hardwareaddr": "qrvM3e7/",
+		"connected": 30000000000,
+		"inactive": 400000000,
+		"receivebitrate": 128000000,
+		"transmitbitrate": 164000000,
+		"signal": -52,
+		"transmitretries": 10,
+		"transmitfailed": 2,
+		"beaconloss": 1
+	},
+	{
+		"hardwareaddr": "AQIDBAUG",
+		"connected": 60000000000,
+		"inactive": 800000000,
+		"receivebitrate": 256000000,
+		"transmitbitrate": 328000000,
+		"signal": -26,
+		"transmitretries": 20,
+		"transmitfailed": 4,
+		"beaconloss": 2
+	}
+]
+
