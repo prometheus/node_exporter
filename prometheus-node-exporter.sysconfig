@@ -1,15 +1,14 @@
-# This is a systemd environment file which provides arguments 
+# This is a systemd environment file which provides arguments
 # to the systemd prometheus node exporter service.  Each argument must
 # be on a separate line and use "=" as a separator.
 # For more info see: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#EnvironmentFile=
-# 
 
 # The collector.textfile.directory will be searched for
 # files matching the glob *.prom using the text format
---collector.textfile.directory=/etc/prometheus/node-exporter
+ARGS="--collector.textfile.directory=/etc/prometheus/node-exporter"
 
-# Collectors are enabled by providing a --collector.<name> flag. Collectors 
-# that are enabled by default can be disabled by providing a 
+# Collectors are enabled by providing a --collector.<name> flag. Collectors
+# that are enabled by default can be disabled by providing a
 # --no-collector.<name> flag.
 #
 # For example, to enable the systemd collector, uncommend the following line:

@@ -20,7 +20,7 @@
 
 Name:		golang-%{provider}-%{project}-%{repo}
 Version:	%{rpm_ver}
-Release:	2.git%{shortcommit}%{?dist}
+Release:	3.git%{shortcommit}%{?dist}
 Summary:	Prometheus exporter for hardware and OS metrics exposed by *NIX kernels
 License:	ASL 2.0
 URL:		https://prometheus.io/
@@ -68,9 +68,8 @@ ln -s %{_bindir}/node_exporter \
       %{buildroot}%{_bindir}/prometheus-node-exporter
 install -D -p -m 0644 prometheus-node-exporter.service \
                       %{buildroot}%{_unitdir}/prometheus-node-exporter.service
-CONFIG_PATH=prometheus/node-exporter/prometheus-node-exporter.conf
-install -D -p -m 0644 prometheus-node-exporter.conf \
-                      %{buildroot}%{_sysconfdir}/${CONFIG_PATH}
+install -D -p -m 0644 prometheus-node-exporter.sysconfig \
+                      %{buildroot}%{_sysconfdir}/sysconfig/prometheus-node-exporter
 
 %files -n %{project}-node-exporter
 %license LICENSE NOTICE
@@ -78,9 +77,12 @@ install -D -p -m 0644 prometheus-node-exporter.conf \
 %{_bindir}/node_exporter
 %{_bindir}/prometheus-node-exporter
 %{_unitdir}/prometheus-node-exporter.service
-%{_sysconfdir}/prometheus/node-exporter/prometheus-node-exporter.conf
+%{_sysconfdir}/sysconfig/prometheus-node-exporter
 
 %changelog
+* Wed Jun 20 2018 Simon Pasquier <spasquie@redhat.com> - 0.15.2-3
+- Fix systemd configuration
+
 * Tue May 22 2018 Paul Gier <pgier@redhat.com> - 0.15.2-2
 - Add systemd unit file and related config
 

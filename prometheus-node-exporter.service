@@ -4,7 +4,7 @@ Documentation=https://github.com/prometheus/node_exporter
 
 [Service]
 Type=simple
-EnvironmentFile=/etc/prometheus/node-exporter/prometheus-node-exporter.conf
+EnvironmentFile=-/etc/sysconfig/prometheus-node-exporter
 ExecStart=/usr/bin/node_exporter $ARGS
 ExecReload=/bin/kill -SIGHUP $MAINPID
 ExecStop=/bin/kill -SIGKILL $MAINPID
