@@ -8,7 +8,10 @@
 # https://github.com/prometheus/node_exporter
 %global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     %{provider_prefix}
+# %commit is intended to be set by tito. The values in this spec file will not be kept up to date.
+%{!?commit:
 %global commit          0ad685f9803aea72f3ab6590b173511454af1d16
+}
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %global gopathdir       %{_sourcedir}/go
 %global upstream_ver    0.15.2
