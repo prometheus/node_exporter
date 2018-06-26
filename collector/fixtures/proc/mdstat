@@ -46,4 +46,7 @@ md219 : inactive sdb[2](S) sdc[1](S) sda[0](S)
 md00 : active raid0 xvdb[0]
       4186624 blocks super 1.2 256k chunks
 
+md120 : active linear sda1[1] sdb1[0]
+      2095104 blocks super 1.2 0k rounding
+
 unused devices: <none>

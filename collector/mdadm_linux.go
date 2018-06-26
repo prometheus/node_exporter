@@ -29,10 +29,10 @@ import (
 
 var (
 	statuslineRE             = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
-	raid0lineRE              = regexp.MustCompile(`(\d+) blocks .*\d+k chunks`)
+	raid0lineRE              = regexp.MustCompile(`(\d+) blocks .*\d+k (chunks|rounding)`)
 	buildlineRE              = regexp.MustCompile(`\((\d+)/\d+\)`)
 	unknownPersonalityLineRE = regexp.MustCompile(`(\d+) blocks (.*)`)
-	raidPersonalityRE        = regexp.MustCompile(`raid[0-9]+`)
+	raidPersonalityRE        = regexp.MustCompile(`^(linear|raid[0-9]+)$`)
 )
 
 type mdStatus struct {
@@ -175,18 +175,23 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 			}
 		}
 		switch {
-		case personality == "raid0":
+		case personality == "raid0" || personality == "linear":
 			md.disksActive = int64(len(mainLine) - 4) // Get the number of devices from the main line.
 			md.disksTotal = md.disksActive            // Raid0 active and total is always the same if active.
 			md.blocksTotal, err = evalRaid0line(lines[i+1])
 		case raidPersonalityRE.MatchString(personality):
 			md.disksActive, md.disksTotal, md.blocksTotal, err = evalStatusline(lines[i+1])
 		default:
-			log.Infof("Personality unknown: %s\n", mainLine)
+			log.Debugf("Personality unknown: %s", mainLine)
+			md.disksTotal = int64(len(mainLine) - 3)
 			md.blocksTotal, err = evalUnknownPersonalitylineRE(lines[i+1])
 		}
 		if err != nil {
 			return mdStates, fmt.Errorf("error parsing mdstat: %s", err)
+		}
+
+		if !md.active {
+			md.disksActive = 0
 		}
 
 		syncLine := lines[i+2]
