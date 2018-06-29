@@ -41,7 +41,6 @@ COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
   filesystem
-  inotify
   time
   timex
   uname

@@ -817,6 +817,9 @@ node_infiniband_unicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_unicast_packets_transmitted_total counter
 node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="1"} 61239
 node_infiniband_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_inotify_watch_success inotify_add_watch() working as desired
+# TYPE node_inotify_watch_success gauge
+node_inotify_watch_success 1
 # HELP node_interrupts_total Interrupt details.
 # TYPE node_interrupts_total counter
 node_interrupts_total{cpu="0",devices="",info="APIC ICR read retries",type="RTR"} 0
@@ -2211,6 +2214,7 @@ node_scrape_collector_success{collector="entropy"} 1
 node_scrape_collector_success{collector="filefd"} 1
 node_scrape_collector_success{collector="hwmon"} 1
 node_scrape_collector_success{collector="infiniband"} 1
+node_scrape_collector_success{collector="inotify"} 1
 node_scrape_collector_success{collector="interrupts"} 1
 node_scrape_collector_success{collector="ipvs"} 1
 node_scrape_collector_success{collector="ksmd"} 1
