@@ -16,9 +16,12 @@
 package collector
 
 import (
+	"errors"
+	"fmt"
 	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 const (
@@ -40,44 +43,37 @@ func NewInotifyCollector() (Collector, error) {
 }
 
 func (c *inotifyCollector) Update(ch chan<- prometheus.Metric) error {
-	c.tryAddWatch()
+	success := 0.0
+	err := c.tryAddWatch()
+	if err == nil {
+		success = 1
+	} else {
+		log.Debugf("inotify: not successful: %s", err)
+	}
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, inotifySubsystem, "init_success"),
-			"inotify_init() working as desired",
-			nil, nil,
-		),
-		prometheus.GaugeValue, c.initSuccess,
-	)
-	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, inotifySubsystem, "add_watch_success"),
+			prometheus.BuildFQName(namespace, inotifySubsystem, "watch_success"),
 			"inotify_add_watch() working as desired",
 			nil, nil,
 		),
-		prometheus.GaugeValue, c.addWatchSuccess,
+		prometheus.GaugeValue, success,
 	)
 	return nil
 }
 
 // tryAddWatch attempts to register an inotify watcher for the root filesystem.
-// The result is written to the inotifyCollector fields initSuccess and addWatchSuccess.
-func (c *inotifyCollector) tryAddWatch() {
-	// Start by considering inotify broken unless the opposite is proven.
-	c.initSuccess = 0
-	c.addWatchSuccess = 0
+func (c *inotifyCollector) tryAddWatch() error {
 	fd, _ := syscall.InotifyInit()
 	if fd < 0 {
 		// If this fails, this usually means fs.inotify.max_user_instances is exhausted.
-		return
+		return errors.New("inotify_init() did not return a valid fd")
 	}
 	defer syscall.Close(fd)
-	c.initSuccess = 1
 
 	_, err := syscall.InotifyAddWatch(fd, "/", syscall.IN_CREATE)
 	if err != nil {
 		// If this fails, this usually means fs.inotify.max_user_watches is exhausted.
-		return
+		return fmt.Errorf("inotify_add_watch() failed: %s", err)
 	}
-	c.addWatchSuccess = 1
+	return nil
 }
