@@ -17,10 +17,10 @@ package collector
 
 import (
 	"fmt"
-	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -62,14 +62,14 @@ func (c *inotifyCollector) Update(ch chan<- prometheus.Metric) error {
 
 // tryAddWatch attempts to register an inotify watcher for the root filesystem.
 func (c *inotifyCollector) tryAddWatch() error {
-	fd, err := syscall.InotifyInit()
+	fd, err := unix.InotifyInit()
 	if fd < 0 {
 		// If this fails, this usually means fs.inotify.max_user_instances is exhausted.
 		return fmt.Errorf("inotify_init() did not return a valid fd: %s", err)
 	}
-	defer syscall.Close(fd)
+	defer unix.Close(fd)
 
-	_, err = syscall.InotifyAddWatch(fd, "/", syscall.IN_CREATE)
+	_, err = unix.InotifyAddWatch(fd, "/", unix.IN_CREATE)
 	if err != nil {
 		// If this fails, this usually means fs.inotify.max_user_watches is exhausted.
 		return fmt.Errorf("inotify_add_watch() failed: %s", err)
