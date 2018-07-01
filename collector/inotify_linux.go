@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"errors"
 	"fmt"
 	"syscall"
 
@@ -63,14 +62,14 @@ func (c *inotifyCollector) Update(ch chan<- prometheus.Metric) error {
 
 // tryAddWatch attempts to register an inotify watcher for the root filesystem.
 func (c *inotifyCollector) tryAddWatch() error {
-	fd, _ := syscall.InotifyInit()
+	fd, err := syscall.InotifyInit()
 	if fd < 0 {
 		// If this fails, this usually means fs.inotify.max_user_instances is exhausted.
-		return errors.New("inotify_init() did not return a valid fd")
+		return fmt.Errorf("inotify_init() did not return a valid fd: %s", err)
 	}
 	defer syscall.Close(fd)
 
-	_, err := syscall.InotifyAddWatch(fd, "/", syscall.IN_CREATE)
+	_, err = syscall.InotifyAddWatch(fd, "/", syscall.IN_CREATE)
 	if err != nil {
 		// If this fails, this usually means fs.inotify.max_user_watches is exhausted.
 		return fmt.Errorf("inotify_add_watch() failed: %s", err)
