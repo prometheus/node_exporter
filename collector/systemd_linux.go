@@ -36,6 +36,7 @@ type systemdCollector struct {
 	unitDesc             *prometheus.Desc
 	systemRunningDesc    *prometheus.Desc
 	summaryDesc          *prometheus.Desc
+	nRestartsDesc        *prometheus.Desc
 	timerLastTriggerDesc *prometheus.Desc
 	unitWhitelistPattern *regexp.Regexp
 	unitBlacklistPattern *regexp.Regexp
@@ -63,6 +64,9 @@ func NewSystemdCollector() (Collector, error) {
 	summaryDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "units"),
 		"Summary of systemd unit states", []string{"state"}, nil)
+	nRestartsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "service_restart_total"),
+		"Service unit count of Restart triggers", []string{"state"}, nil)
 	timerLastTriggerDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "timer_last_trigger_seconds"),
 		"Seconds since epoch of last trigger.", []string{"name"}, nil)
@@ -73,6 +77,7 @@ func NewSystemdCollector() (Collector, error) {
 		unitDesc:             unitDesc,
 		systemRunningDesc:    systemRunningDesc,
 		summaryDesc:          summaryDesc,
+		nRestartsDesc:        nRestartsDesc,
 		timerLastTriggerDesc: timerLastTriggerDesc,
 		unitWhitelistPattern: unitWhitelistPattern,
 		unitBlacklistPattern: unitBlacklistPattern,
@@ -111,6 +116,11 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 			ch <- prometheus.MustNewConstMetric(
 				c.unitDesc, prometheus.GaugeValue, isActive,
 				unit.Name, stateName)
+		}
+		if strings.HasSuffix(unit.Name, ".service") {
+			ch <- prometheus.MustNewConstMetric(
+				c.nRestartsDesc, prometheus.CounterValue,
+				float64(unit.nRestarts), unit.Name)
 		}
 	}
 }
@@ -153,6 +163,7 @@ func (c *systemdCollector) newDbus() (*dbus.Conn, error) {
 type unit struct {
 	dbus.UnitStatus
 	lastTriggerUsec uint64
+	nRestarts       uint32
 }
 
 func (c *systemdCollector) getAllUnits() ([]unit, error) {
@@ -180,6 +191,14 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 			}
 
 			unit.lastTriggerUsec = lastTriggerValue.Value.Value().(uint64)
+		}
+		if strings.HasSuffix(unit.Name, ".service") {
+			nRestarts, err := conn.GetUnitTypeProperty(unit.Name, "Service", "NRestarts")
+			if err != nil {
+				log.Debugf("couldn't get unit '%s' NRestarts: %s\n", unit.Name, err)
+				continue
+			}
+			unit.nRestarts = nRestarts.Value.Value().(uint32)
 		}
 
 		result = append(result, unit)
