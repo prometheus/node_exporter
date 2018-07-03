@@ -2,7 +2,7 @@
 
 **Breaking changes**
 
-* [CHANGE]
+* [CHANGE] Collect NRestarts property for systemd service units
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX]
