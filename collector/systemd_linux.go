@@ -33,13 +33,15 @@ var (
 )
 
 type systemdCollector struct {
-	unitDesc             *prometheus.Desc
-	systemRunningDesc    *prometheus.Desc
-	summaryDesc          *prometheus.Desc
-	nRestartsDesc        *prometheus.Desc
-	timerLastTriggerDesc *prometheus.Desc
-	unitWhitelistPattern *regexp.Regexp
-	unitBlacklistPattern *regexp.Regexp
+	unitDesc                      *prometheus.Desc
+	systemRunningDesc             *prometheus.Desc
+	summaryDesc                   *prometheus.Desc
+	nRestartsDesc                 *prometheus.Desc
+	timerLastTriggerDesc          *prometheus.Desc
+	socketAcceptedConnectionsDesc *prometheus.Desc
+	socketCurrentConnectionsDesc  *prometheus.Desc
+	unitWhitelistPattern          *regexp.Regexp
+	unitBlacklistPattern          *regexp.Regexp
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
@@ -70,17 +72,25 @@ func NewSystemdCollector() (Collector, error) {
 	timerLastTriggerDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "timer_last_trigger_seconds"),
 		"Seconds since epoch of last trigger.", []string{"name"}, nil)
+	socketAcceptedConnectionsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "socket_accepted_connections_total"),
+		"Total number of accepted socket connections", []string{"name"}, nil)
+	socketCurrentConnectionsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "socket_current_connections"),
+		"Current number of socket connections", []string{"name"}, nil)
 	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))
 	unitBlacklistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitBlacklist))
 
 	return &systemdCollector{
-		unitDesc:             unitDesc,
-		systemRunningDesc:    systemRunningDesc,
-		summaryDesc:          summaryDesc,
-		nRestartsDesc:        nRestartsDesc,
-		timerLastTriggerDesc: timerLastTriggerDesc,
-		unitWhitelistPattern: unitWhitelistPattern,
-		unitBlacklistPattern: unitBlacklistPattern,
+		unitDesc:                      unitDesc,
+		systemRunningDesc:             systemRunningDesc,
+		summaryDesc:                   summaryDesc,
+		nRestartsDesc:                 nRestartsDesc,
+		timerLastTriggerDesc:          timerLastTriggerDesc,
+		socketAcceptedConnectionsDesc: socketAcceptedConnectionsDesc,
+		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
+		unitWhitelistPattern:          unitWhitelistPattern,
+		unitBlacklistPattern:          unitBlacklistPattern,
 	}, nil
 }
 
@@ -96,6 +106,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
 	c.collectUnitStatusMetrics(ch, units)
 	c.collectTimers(ch, units)
+	c.collectSockets(ch, units)
 
 	systemState, err := c.getSystemState()
 	if err != nil {
@@ -123,6 +134,22 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 				float64(unit.nRestarts), unit.Name)
 		}
 	}
+}
+
+func (c *systemdCollector) collectSockets(ch chan<- prometheus.Metric, units []unit) error {
+	for _, unit := range units {
+		if !strings.HasSuffix(unit.Name, ".socket") {
+			continue
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			c.socketAcceptedConnectionsDesc, prometheus.CounterValue,
+			float64(unit.acceptedConnections), unit.Name)
+		ch <- prometheus.MustNewConstMetric(
+			c.socketCurrentConnectionsDesc, prometheus.GaugeValue,
+			float64(unit.currentConnections), unit.Name)
+	}
+	return nil
 }
 
 func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []unit) error {
@@ -162,8 +189,10 @@ func (c *systemdCollector) newDbus() (*dbus.Conn, error) {
 
 type unit struct {
 	dbus.UnitStatus
-	lastTriggerUsec uint64
-	nRestarts       uint32
+	lastTriggerUsec     uint64
+	nRestarts           uint32
+	acceptedConnections uint32
+	currentConnections  uint32
 }
 
 func (c *systemdCollector) getAllUnits() ([]unit, error) {
@@ -199,6 +228,22 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 				continue
 			}
 			unit.nRestarts = nRestarts.Value.Value().(uint32)
+		}
+
+		if strings.HasSuffix(unit.Name, ".socket") {
+			acceptedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NAccepted")
+			if err != nil {
+				return nil, fmt.Errorf("couldn't get unit '%s' NAccepted: %s", unit.Name, err)
+			}
+
+			unit.acceptedConnections = acceptedConnectionCount.Value.Value().(uint32)
+
+			currentConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NConnections")
+			if err != nil {
+				return nil, fmt.Errorf("couldn't get unit '%s' NConnections: %s", unit.Name, err)
+			}
+			unit.currentConnections = currentConnectionCount.Value.Value().(uint32)
+
 		}
 
 		result = append(result, unit)
