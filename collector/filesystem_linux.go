@@ -19,7 +19,9 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"sync"
 	"syscall"
+	"time"
 
 	"github.com/prometheus/common/log"
 )
@@ -28,7 +30,11 @@ const (
 	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker)($|/)"
 	defIgnoredFSTypes     = "^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$"
 	readOnly              = 0x1 // ST_RDONLY
+	mountTimeout          = 30 * time.Second
 )
+
+var stuckMounts = make(map[string]struct{})
+var stuckMountsMtx = &sync.Mutex{}
 
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
@@ -46,9 +52,35 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 			log.Debugf("Ignoring fs type: %s", labels.fsType)
 			continue
 		}
+		stuckMountsMtx.Lock()
+		if _, ok := stuckMounts[labels.mountPoint]; ok {
+			stats = append(stats, filesystemStats{
+				labels:      labels,
+				deviceError: 1,
+			})
+			log.Debugf("Mount point %q is in an unresponsive state", labels.mountPoint)
+			stuckMountsMtx.Unlock()
+			continue
+		}
+		stuckMountsMtx.Unlock()
+
+		// The success channel is used do tell the "watcher" that the stat
+		// finished successfully. The channel is closed on success.
+		success := make(chan struct{})
+		go stuckMountWatcher(labels.mountPoint, success)
 
 		buf := new(syscall.Statfs_t)
-		err := syscall.Statfs(labels.mountPoint, buf)
+		err = syscall.Statfs(labels.mountPoint, buf)
+
+		stuckMountsMtx.Lock()
+		close(success)
+		// If the mount has been marked as stuck, unmark it and log it's recovery.
+		if _, ok := stuckMounts[labels.mountPoint]; ok {
+			log.Debugf("Mount point %q has recovered, monitoring will resume", labels.mountPoint)
+			delete(stuckMounts, labels.mountPoint)
+		}
+		stuckMountsMtx.Unlock()
+
 		if err != nil {
 			stats = append(stats, filesystemStats{
 				labels:      labels,
@@ -74,6 +106,27 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		})
 	}
 	return stats, nil
+}
+
+// stuckMountWatcher listens on the given success channel and if the channel closes
+// then the watcher does nothing. If instead the timeout is reached, the
+// mount point that is being watched is marked as stuck.
+func stuckMountWatcher(mountPoint string, success chan struct{}) {
+	select {
+	case <-success:
+		// Success
+	case <-time.After(mountTimeout):
+		// Timed out, mark mount as stuck
+		stuckMountsMtx.Lock()
+		select {
+		case <-success:
+			// Success came in just after the timeout was reached, don't label the mount as stuck
+		default:
+			log.Debugf("Mount point %q timed out, it is being labeled as stuck and will not be monitored", mountPoint)
+			stuckMounts[mountPoint] = struct{}{}
+		}
+		stuckMountsMtx.Unlock()
+	}
 }
 
 func mountPointDetails() ([]filesystemLabels, error) {
