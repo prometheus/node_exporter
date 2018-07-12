@@ -27,32 +27,32 @@ import (
 // for single interface (iface).
 type NetClassIface struct {
 	Name             string // Interface name
-	AddrAssignType   int64  `fileName:"addr_assign_type"`   // /sys/class/net/<iface>/addr_assign_type
-	AddrLen          int64  `fileName:"addr_len"`           // /sys/class/net/<iface>/addr_len
+	AddrAssignType   *int64 `fileName:"addr_assign_type"`   // /sys/class/net/<iface>/addr_assign_type
+	AddrLen          *int64 `fileName:"addr_len"`           // /sys/class/net/<iface>/addr_len
 	Address          string `fileName:"address"`            // /sys/class/net/<iface>/address
 	Broadcast        string `fileName:"broadcast"`          // /sys/class/net/<iface>/broadcast
-	Carrier          int64  `fileName:"carrier"`            // /sys/class/net/<iface>/carrier
-	CarrierChanges   int64  `fileName:"carrier_changes"`    // /sys/class/net/<iface>/carrier_changes
-	CarrierUpCount   int64  `fileName:"carrier_up_count"`   // /sys/class/net/<iface>/carrier_up_count
-	CarrierDownCount int64  `fileName:"carrier_down_count"` // /sys/class/net/<iface>/carrier_down_count
-	DevID            int64  `fileName:"dev_id"`             // /sys/class/net/<iface>/dev_id
-	Dormant          int64  `fileName:"dormant"`            // /sys/class/net/<iface>/dormant
+	Carrier          *int64 `fileName:"carrier"`            // /sys/class/net/<iface>/carrier
+	CarrierChanges   *int64 `fileName:"carrier_changes"`    // /sys/class/net/<iface>/carrier_changes
+	CarrierUpCount   *int64 `fileName:"carrier_up_count"`   // /sys/class/net/<iface>/carrier_up_count
+	CarrierDownCount *int64 `fileName:"carrier_down_count"` // /sys/class/net/<iface>/carrier_down_count
+	DevID            *int64 `fileName:"dev_id"`             // /sys/class/net/<iface>/dev_id
+	Dormant          *int64 `fileName:"dormant"`            // /sys/class/net/<iface>/dormant
 	Duplex           string `fileName:"duplex"`             // /sys/class/net/<iface>/duplex
-	Flags            int64  `fileName:"flags"`              // /sys/class/net/<iface>/flags
+	Flags            *int64 `fileName:"flags"`              // /sys/class/net/<iface>/flags
 	IfAlias          string `fileName:"ifalias"`            // /sys/class/net/<iface>/ifalias
-	IfIndex          int64  `fileName:"ifindex"`            // /sys/class/net/<iface>/ifindex
-	IfLink           int64  `fileName:"iflink"`             // /sys/class/net/<iface>/iflink
-	LinkMode         int64  `fileName:"link_mode"`          // /sys/class/net/<iface>/link_mode
-	MTU              int64  `fileName:"mtu"`                // /sys/class/net/<iface>/mtu
-	NameAssignType   int64  `fileName:"name_assign_type"`   // /sys/class/net/<iface>/name_assign_type
-	NetDevGroup      int64  `fileName:"netdev_group"`       // /sys/class/net/<iface>/netdev_group
+	IfIndex          *int64 `fileName:"ifindex"`            // /sys/class/net/<iface>/ifindex
+	IfLink           *int64 `fileName:"iflink"`             // /sys/class/net/<iface>/iflink
+	LinkMode         *int64 `fileName:"link_mode"`          // /sys/class/net/<iface>/link_mode
+	MTU              *int64 `fileName:"mtu"`                // /sys/class/net/<iface>/mtu
+	NameAssignType   *int64 `fileName:"name_assign_type"`   // /sys/class/net/<iface>/name_assign_type
+	NetDevGroup      *int64 `fileName:"netdev_group"`       // /sys/class/net/<iface>/netdev_group
 	OperState        string `fileName:"operstate"`          // /sys/class/net/<iface>/operstate
 	PhysPortID       string `fileName:"phys_port_id"`       // /sys/class/net/<iface>/phys_port_id
 	PhysPortName     string `fileName:"phys_port_name"`     // /sys/class/net/<iface>/phys_port_name
 	PhysSwitchID     string `fileName:"phys_switch_id"`     // /sys/class/net/<iface>/phys_switch_id
-	Speed            int64  `fileName:"speed"`              // /sys/class/net/<iface>/speed
-	TxQueueLen       int64  `fileName:"tx_queue_len"`       // /sys/class/net/<iface>/tx_queue_len
-	Type             int64  `fileName:"type"`               // /sys/class/net/<iface>/type
+	Speed            *int64 `fileName:"speed"`              // /sys/class/net/<iface>/speed
+	TxQueueLen       *int64 `fileName:"tx_queue_len"`       // /sys/class/net/<iface>/tx_queue_len
+	Type             *int64 `fileName:"type"`               // /sys/class/net/<iface>/type
 }
 
 // NetClass is collection of info for every interface (iface) in /sys/class/net. The map keys
@@ -80,6 +80,9 @@ func (fs FS) NewNetClass() (NetClass, error) {
 
 	netClass := NetClass{}
 	for _, deviceDir := range devices {
+		if deviceDir.Mode().IsRegular() {
+			continue
+		}
 		interfaceClass, err := netClass.parseNetClassIface(path + "/" + deviceDir.Name())
 		if err != nil {
 			return nil, err
@@ -117,22 +120,28 @@ func (nc NetClass) parseNetClassIface(devicePath string) (*NetClassIface, error)
 		value := strings.TrimSpace(string(fileContents))
 
 		switch fieldValue.Kind() {
-		case reflect.Int64:
-			if strings.HasPrefix(value, "0x") {
-				intValue, err := strconv.ParseInt(value[2:], 16, 64)
-				if err != nil {
-					return nil, fmt.Errorf("expected hex value for %s, got: %s", fieldType.Name, value)
-				}
-				fieldValue.SetInt(intValue)
-			} else {
-				intValue, err := strconv.ParseInt(value, 10, 64)
-				if err != nil {
-					return nil, fmt.Errorf("expected Uint64 value for %s, got: %s", fieldType.Name, value)
-				}
-				fieldValue.SetInt(intValue)
-			}
 		case reflect.String:
 			fieldValue.SetString(value)
+		case reflect.Ptr:
+			var int64ptr *int64
+			switch fieldValue.Type() {
+			case reflect.TypeOf(int64ptr):
+				var intValue int64
+				if strings.HasPrefix(value, "0x") {
+					intValue, err = strconv.ParseInt(value[2:], 16, 64)
+					if err != nil {
+						return nil, fmt.Errorf("expected hex value for %s, got: %s", fieldType.Name, value)
+					}
+				} else {
+					intValue, err = strconv.ParseInt(value, 10, 64)
+					if err != nil {
+						return nil, fmt.Errorf("expected Uint64 value for %s, got: %s", fieldType.Name, value)
+					}
+				}
+				fieldValue.Set(reflect.ValueOf(&intValue))
+			default:
+				return nil, fmt.Errorf("unhandled pointer type %q", fieldValue.Type())
+			}
 		default:
 			return nil, fmt.Errorf("unhandled type %q", fieldValue.Kind())
 		}
