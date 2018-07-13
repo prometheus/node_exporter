@@ -60,9 +60,9 @@ local gauge = promgrafonnet.gauge;
       local memoryGauge = gauge.new(
         'Memory Usage',
         |||
-            node_memory_MemAvailable{%(nodeExporterSelector)s, instance="$instance"}
+          node_memory_MemAvailable{%(nodeExporterSelector)s, instance="$instance"}
           /
-            node_memory_MemTotal{%(nodeExporterSelector)s, instance="$instance"}
+          node_memory_MemTotal{%(nodeExporterSelector)s, instance="$instance"}
         ||| % $._config,
       ).withLowerBeingBetter();
 

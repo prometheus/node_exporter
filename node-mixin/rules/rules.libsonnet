@@ -29,9 +29,9 @@
             // Can go over 100%.  >100% is bad.
             record: 'instance:node_cpu_saturation_load1:',
             expr: |||
-                sum by (instance) (node_load1{%(nodeExporterSelector)s})
+              sum by (instance) (node_load1{%(nodeExporterSelector)s})
               /
-                instance:node_num_cpu:sum
+              instance:node_num_cpu:sum
             ||| % $._config,
           },
           {
@@ -52,7 +52,7 @@
                 /
                   node_memory_MemTotal{%(nodeExporterSelector)s}
               )
-            |||,
+            ||| % $._config,
           },
           {
             record: 'instance:node_memory_swap_io_bytes:sum_rate',
