@@ -2307,31 +2307,39 @@ node_wifi_interface_frequency_hertz{device="wlan0"} 2.412e+09
 node_wifi_interface_frequency_hertz{device="wlan1"} 2.412e+09
 # HELP node_wifi_station_beacon_loss_total The total number of times a station has detected a beacon loss.
 # TYPE node_wifi_station_beacon_loss_total counter
-node_wifi_station_beacon_loss_total{device="wlan0"} 1
+node_wifi_station_beacon_loss_total{device="wlan0",mac_address="01:02:03:04:05:06"} 2
+node_wifi_station_beacon_loss_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1
 # HELP node_wifi_station_connected_seconds_total The total number of seconds a station has been connected to an access point.
 # TYPE node_wifi_station_connected_seconds_total counter
-node_wifi_station_connected_seconds_total{device="wlan0"} 30
+node_wifi_station_connected_seconds_total{device="wlan0",mac_address="01:02:03:04:05:06"} 60
+node_wifi_station_connected_seconds_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 30
 # HELP node_wifi_station_inactive_seconds The number of seconds since any wireless activity has occurred on a station.
 # TYPE node_wifi_station_inactive_seconds gauge
-node_wifi_station_inactive_seconds{device="wlan0"} 0.4
+node_wifi_station_inactive_seconds{device="wlan0",mac_address="01:02:03:04:05:06"} 0.8
+node_wifi_station_inactive_seconds{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0.4
 # HELP node_wifi_station_info Labeled WiFi interface station information as provided by the operating system.
 # TYPE node_wifi_station_info gauge
 node_wifi_station_info{bssid="00:11:22:33:44:55",device="wlan0",mode="client",ssid="Example"} 1
 # HELP node_wifi_station_receive_bits_per_second The current WiFi receive bitrate of a station, in bits per second.
 # TYPE node_wifi_station_receive_bits_per_second gauge
-node_wifi_station_receive_bits_per_second{device="wlan0"} 1.28e+08
+node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 2.56e+08
+node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.28e+08
 # HELP node_wifi_station_signal_dbm The current WiFi signal strength, in decibel-milliwatts (dBm).
 # TYPE node_wifi_station_signal_dbm gauge
-node_wifi_station_signal_dbm{device="wlan0"} -52
+node_wifi_station_signal_dbm{device="wlan0",mac_address="01:02:03:04:05:06"} -26
+node_wifi_station_signal_dbm{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} -52
 # HELP node_wifi_station_transmit_bits_per_second The current WiFi transmit bitrate of a station, in bits per second.
 # TYPE node_wifi_station_transmit_bits_per_second gauge
-node_wifi_station_transmit_bits_per_second{device="wlan0"} 1.64e+08
+node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 3.28e+08
+node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.64e+08
 # HELP node_wifi_station_transmit_failed_total The total number of times a station has failed to send a packet.
 # TYPE node_wifi_station_transmit_failed_total counter
-node_wifi_station_transmit_failed_total{device="wlan0"} 2
+node_wifi_station_transmit_failed_total{device="wlan0",mac_address="01:02:03:04:05:06"} 4
+node_wifi_station_transmit_failed_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 2
 # HELP node_wifi_station_transmit_retries_total The total number of times a station has had to retry while sending a packet.
 # TYPE node_wifi_station_transmit_retries_total counter
-node_wifi_station_transmit_retries_total{device="wlan0"} 10
+node_wifi_station_transmit_retries_total{device="wlan0",mac_address="01:02:03:04:05:06"} 20
+node_wifi_station_transmit_retries_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 10
 # HELP node_xfs_allocation_btree_compares_total Number of allocation B-tree compares for a filesystem.
 # TYPE node_xfs_allocation_btree_compares_total counter
 node_xfs_allocation_btree_compares_total{device="sda1"} 0
