@@ -40,6 +40,7 @@ type systemdCollector struct {
 	timerLastTriggerDesc          *prometheus.Desc
 	socketAcceptedConnectionsDesc *prometheus.Desc
 	socketCurrentConnectionsDesc  *prometheus.Desc
+	socketRefusedConnectionsDesc  *prometheus.Desc
 	unitWhitelistPattern          *regexp.Regexp
 	unitBlacklistPattern          *regexp.Regexp
 }
@@ -78,6 +79,9 @@ func NewSystemdCollector() (Collector, error) {
 	socketCurrentConnectionsDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "socket_current_connections"),
 		"Current number of socket connections", []string{"name"}, nil)
+	socketRefusedConnectionsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "socket_refused_connections_total"),
+		"Total number of refused socket connections", []string{"name"}, nil)
 	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))
 	unitBlacklistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitBlacklist))
 
@@ -89,6 +93,7 @@ func NewSystemdCollector() (Collector, error) {
 		timerLastTriggerDesc:          timerLastTriggerDesc,
 		socketAcceptedConnectionsDesc: socketAcceptedConnectionsDesc,
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
+		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
 		unitWhitelistPattern:          unitWhitelistPattern,
 		unitBlacklistPattern:          unitBlacklistPattern,
 	}, nil
@@ -148,6 +153,9 @@ func (c *systemdCollector) collectSockets(ch chan<- prometheus.Metric, units []u
 		ch <- prometheus.MustNewConstMetric(
 			c.socketCurrentConnectionsDesc, prometheus.GaugeValue,
 			float64(unit.currentConnections), unit.Name)
+		ch <- prometheus.MustNewConstMetric(
+			c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
+			float64(unit.refusedConnections), unit.Name)
 	}
 	return nil
 }
@@ -193,6 +201,7 @@ type unit struct {
 	nRestarts           uint32
 	acceptedConnections uint32
 	currentConnections  uint32
+	refusedConnections  uint32
 }
 
 func (c *systemdCollector) getAllUnits() ([]unit, error) {
@@ -244,6 +253,12 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 			}
 			unit.currentConnections = currentConnectionCount.Value.Value().(uint32)
 
+			refusedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NRefused")
+			if err != nil {
+				log.Debugf("couldn't get unit '%s' NRefused: %s\n", unit.Name, err)
+				continue
+			}
+			unit.refusedConnections = refusedConnectionCount.Value.Value().(uint32)
 		}
 
 		result = append(result, unit)
