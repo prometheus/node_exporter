@@ -52,7 +52,7 @@ func (c *inotifyCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, inotifySubsystem, "watch_success"),
-			"inotify_add_watch() working as desired",
+			"Whether inotify_add_watch() works without errors",
 			nil, nil,
 		),
 		prometheus.GaugeValue, success,
