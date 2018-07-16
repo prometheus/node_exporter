@@ -91,8 +91,11 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		}
 
 		var ro float64
-		if (buf.Flags & readOnly) != 0 {
-			ro = 1
+		for _, option := range strings.Split(labels.options, ",") {
+			if option == "ro" {
+				ro = 1
+				break
+			}
 		}
 
 		stats = append(stats, filesystemStats{
@@ -150,6 +153,7 @@ func mountPointDetails() ([]filesystemLabels, error) {
 			device:     parts[0],
 			mountPoint: parts[1],
 			fsType:     parts[2],
+			options:    parts[3],
 		})
 	}
 	return filesystems, scanner.Err()
