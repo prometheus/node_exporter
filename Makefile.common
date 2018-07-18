@@ -39,11 +39,16 @@ DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 
 all: style staticcheck unused build test
 
-style:
+# This rule is used to forward a target like "build" to "common-build".  This 
+# allows a new "build" target to be defined in a Makefile which includes this 
+# one and override "common-build" without override warnings.
+%: common-% ;
+
+common-style:
 	@echo ">> checking code style"
 	! $(GOFMT) -d $$(find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
 
-check_license:
+common-check_license:
 	@echo ">> checking license header"
 	@licRes=$$(for file in $$(find . -type f -iname '*.go' ! -path './vendor/*') ; do \
                awk 'NR<=3' $$file | grep -Eq "(Copyright|generated|GENERATED)" || echo $$file; \
@@ -53,39 +58,39 @@ check_license:
                exit 1; \
        fi
 
-test-short:
+common-test-short:
 	@echo ">> running short tests"
 	$(GO) test -short $(pkgs)
 
-test:
+common-test:
 	@echo ">> running all tests"
 	$(GO) test -race $(pkgs)
 
-format:
+common-format:
 	@echo ">> formatting code"
 	$(GO) fmt $(pkgs)
 
-vet:
+common-vet:
 	@echo ">> vetting code"
 	$(GO) vet $(pkgs)
 
-staticcheck: $(STATICCHECK)
+common-staticcheck: $(STATICCHECK)
 	@echo ">> running staticcheck"
 	$(STATICCHECK) -ignore "$(STATICCHECK_IGNORE)" $(pkgs)
 
-unused: $(GOVENDOR)
+common-unused: $(GOVENDOR)
 	@echo ">> running check for unused packages"
 	@$(GOVENDOR) list +unused | grep . && exit 1 || echo 'No unused packages'
 
-build: promu
+common-build: promu
 	@echo ">> building binaries"
 	$(PROMU) build --prefix $(PREFIX)
 
-tarball: promu
+common-tarball: promu
 	@echo ">> building release tarball"
 	$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
 
-docker:
+common-docker:
 	docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 promu:
@@ -97,4 +102,7 @@ $(FIRST_GOPATH)/bin/staticcheck:
 $(FIRST_GOPATH)/bin/govendor:
 	GOOS= GOARCH= $(GO) get -u github.com/kardianos/govendor
 
-.PHONY: all style check_license format build test vet assets tarball docker promu staticcheck $(FIRST_GOPATH)/bin/staticcheck govendor $(FIRST_GOPATH)/bin/govendor
+.PHONY: all common-style common-check_license common-format common-build \
+	common-test common-vet common-assets common-tarball common-docker \
+	promu staticcheck $(FIRST_GOPATH)/bin/staticcheck govendor \
+	$(FIRST_GOPATH)/bin/govendor
