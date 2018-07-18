@@ -34,6 +34,7 @@ var (
 
 type systemdCollector struct {
 	unitDesc                      *prometheus.Desc
+	unitStartTimeDesc             *prometheus.Desc
 	systemRunningDesc             *prometheus.Desc
 	summaryDesc                   *prometheus.Desc
 	nRestartsDesc                 *prometheus.Desc
@@ -58,6 +59,10 @@ func NewSystemdCollector() (Collector, error) {
 	unitDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_state"),
 		"Systemd unit", []string{"name", "state"}, nil,
+	)
+	unitStartTimeDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
+		"Start time of the unit since unix epoch in seconds.", []string{"name"}, nil,
 	)
 	systemRunningDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "system_running"),
@@ -87,6 +92,7 @@ func NewSystemdCollector() (Collector, error) {
 
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
+		unitStartTimeDesc:             unitStartTimeDesc,
 		systemRunningDesc:             systemRunningDesc,
 		summaryDesc:                   summaryDesc,
 		nRestartsDesc:                 nRestartsDesc,
@@ -110,6 +116,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 
 	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
 	c.collectUnitStatusMetrics(ch, units)
+	c.collectUnitStartTimeMetrics(ch, units)
 	c.collectTimers(ch, units)
 	c.collectSockets(ch, units)
 
@@ -160,6 +167,14 @@ func (c *systemdCollector) collectSockets(ch chan<- prometheus.Metric, units []u
 	return nil
 }
 
+func (c *systemdCollector) collectUnitStartTimeMetrics(ch chan<- prometheus.Metric, units []unit) {
+	for _, unit := range units {
+		ch <- prometheus.MustNewConstMetric(
+			c.unitStartTimeDesc, prometheus.GaugeValue,
+			float64(unit.startTimeUsec)/1e6, unit.Name)
+	}
+}
+
 func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []unit) error {
 	for _, unit := range units {
 		if !strings.HasSuffix(unit.Name, ".timer") {
@@ -198,6 +213,7 @@ func (c *systemdCollector) newDbus() (*dbus.Conn, error) {
 type unit struct {
 	dbus.UnitStatus
 	lastTriggerUsec     uint64
+	startTimeUsec       uint64
 	nRestarts           uint32
 	acceptedConnections uint32
 	currentConnections  uint32
@@ -259,6 +275,17 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 				continue
 			}
 			unit.refusedConnections = refusedConnectionCount.Value.Value().(uint32)
+		}
+
+		if unit.ActiveState != "active" {
+			unit.startTimeUsec = 0
+		} else {
+			timestampValue, err := conn.GetUnitProperty(unit.Name, "ActiveEnterTimestamp")
+			if err != nil {
+				return nil, fmt.Errorf("couldn't get unit '%s' StartTimeUsec: %s", unit.Name, err)
+			}
+
+			unit.startTimeUsec = timestampValue.Value.Value().(uint64)
 		}
 
 		result = append(result, unit)
