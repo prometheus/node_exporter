@@ -227,7 +227,9 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 	}
 	defer conn.Close()
 
-	allUnits, err := conn.ListUnits()
+	// Filter out any units that are not installed and are pulled in only as dependencies.
+	allUnits, err := conn.ListUnitsFiltered([]string{"loaded"})
+
 	if err != nil {
 		return nil, err
 	}

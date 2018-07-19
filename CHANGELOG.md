@@ -2,7 +2,7 @@
 
 **Breaking changes**
 
-* [CHANGE]
+* [CHANGE] Filter out non-installed units when collecting all systemd units #1011
 * [FEATURE] Collect NRefused property for systemd socket units (available as of systemd v239)
 * [FEATURE] Collect NRestarts property for systemd service units
 * [FEATURE] Add socket unit stats to systemd collector #968
