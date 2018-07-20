@@ -1,4 +1,4 @@
-
+# /!\ This file is maintained at https://github.com/openshift/node_exporter
 %global debug_package   %{nil}
 
 %global provider        github
