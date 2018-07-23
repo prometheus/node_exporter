@@ -1,0 +1,21 @@
+name: prometheus-node-exporter
+version: 0.16
+summary: Prometheus
+description: |
+  Prometheus is a system monitoring tool. Data available on HTTP port 9100.
+architectures: [amd64]
+confinement: strict
+grade: stable
+
+parts:
+  node-exporter:
+    plugin: dump
+    source: https://github.com/prometheus/node_exporter/releases/download/v0.16.0/node_exporter-0.16.0.linux-amd64.tar.gz
+    prepare: rm NOTICE
+
+apps:
+  node-exporter:
+    command: node_exporter
+    daemon: simple
+    plugs:
+      [network-bind]
