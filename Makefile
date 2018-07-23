@@ -110,12 +110,12 @@ ifeq ($(MACH), ppc64le)
 	$(eval DOCKERFILE=Dockerfile.ppc64le)
 endif
 	@echo ">> building docker image from $(DOCKERFILE)"
-	@docker build --file $(DOCKERFILE) -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
+	@docker build --file $(DOCKERFILE) -t "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 .PHONY: test-docker
 test-docker:
 	@echo ">> testing docker image"
-	./test_image.sh "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
+	./test_image.sh "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
 
 .PHONY: promtool $(FIRST_GOPATH)/bin/promtool
 $(FIRST_GOPATH)/bin/promtool promtool:
