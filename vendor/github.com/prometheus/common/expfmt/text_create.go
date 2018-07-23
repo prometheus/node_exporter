@@ -21,8 +21,12 @@ import (
 
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/model"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+var ( 
+	instanceLabel = kingpin.Flag("label.instance", "set the instance label to specific value").Default("").String()
+)
 // MetricFamilyToText converts a MetricFamily proto message into text format and
 // writes the resulting lines to 'out'. It returns the number of bytes written
 // and any error encountered. The output will have the same order as the input,
@@ -75,7 +79,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 				)
 			}
 			n, err = writeSample(
-				name, metric, "", "",
+				name, metric, [][2]string{{model.InstanceLabel, *instanceLabel}},
 				metric.Counter.GetValue(),
 				out,
 			)
@@ -86,7 +90,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 				)
 			}
 			n, err = writeSample(
-				name, metric, "", "",
+				name, metric, [][2]string{{model.InstanceLabel, *instanceLabel}},
 				metric.Gauge.GetValue(),
 				out,
 			)
@@ -97,7 +101,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 				)
 			}
 			n, err = writeSample(
-				name, metric, "", "",
+				name, metric, [][2]string{{model.InstanceLabel, *instanceLabel}},
 				metric.Untyped.GetValue(),
 				out,
 			)
@@ -110,7 +114,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 			for _, q := range metric.Summary.Quantile {
 				n, err = writeSample(
 					name, metric,
-					model.QuantileLabel, fmt.Sprint(q.GetQuantile()),
+					[][2]string{{model.QuantileLabel, fmt.Sprint(q.GetQuantile())}},
 					q.GetValue(),
 					out,
 				)
@@ -120,7 +124,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 				}
 			}
 			n, err = writeSample(
-				name+"_sum", metric, "", "",
+				name+"_sum", metric, [][2]string{{model.InstanceLabel, *instanceLabel}},
 				metric.Summary.GetSampleSum(),
 				out,
 			)
@@ -129,7 +133,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 			}
 			written += n
 			n, err = writeSample(
-				name+"_count", metric, "", "",
+				name+"_count", metric, [][2]string{{model.InstanceLabel, *instanceLabel}},
 				float64(metric.Summary.GetSampleCount()),
 				out,
 			)
@@ -143,7 +147,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 			for _, q := range metric.Histogram.Bucket {
 				n, err = writeSample(
 					name+"_bucket", metric,
-					model.BucketLabel, fmt.Sprint(q.GetUpperBound()),
+					[][2]string{{model.InstanceLabel, *instanceLabel}, {model.BucketLabel, fmt.Sprint(q.GetUpperBound())}},
 					float64(q.GetCumulativeCount()),
 					out,
 				)
@@ -158,7 +162,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 			if !infSeen {
 				n, err = writeSample(
 					name+"_bucket", metric,
-					model.BucketLabel, "+Inf",
+					[][2]string{{model.InstanceLabel, *instanceLabel}, {model.BucketLabel, "+Inf"}},
 					float64(metric.Histogram.GetSampleCount()),
 					out,
 				)
@@ -168,7 +172,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 				written += n
 			}
 			n, err = writeSample(
-				name+"_sum", metric, "", "",
+				name+"_sum", metric, [][2]string{{model.InstanceLabel, *instanceLabel}},
 				metric.Histogram.GetSampleSum(),
 				out,
 			)
@@ -177,7 +181,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 			}
 			written += n
 			n, err = writeSample(
-				name+"_count", metric, "", "",
+				name+"_count", metric, [][2]string{{model.InstanceLabel, *instanceLabel}},
 				float64(metric.Histogram.GetSampleCount()),
 				out,
 			)
@@ -201,7 +205,7 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (int, error) {
 func writeSample(
 	name string,
 	metric *dto.Metric,
-	additionalLabelName, additionalLabelValue string,
+	additionalLabels [][2]string,
 	value float64,
 	out io.Writer,
 ) (int, error) {
@@ -213,7 +217,7 @@ func writeSample(
 	}
 	n, err = labelPairsToText(
 		metric.Label,
-		additionalLabelName, additionalLabelValue,
+		additionalLabels,
 		out,
 	)
 	written += n
@@ -249,10 +253,10 @@ func writeSample(
 // bytes written and any error encountered.
 func labelPairsToText(
 	in []*dto.LabelPair,
-	additionalLabelName, additionalLabelValue string,
+	additionalLabels [][2]string,
 	out io.Writer,
 ) (int, error) {
-	if len(in) == 0 && additionalLabelName == "" {
+	if len(in) == 0 && len(additionalLabels) == 0 {
 		return 0, nil
 	}
 	var written int
@@ -268,21 +272,28 @@ func labelPairsToText(
 		}
 		separator = ','
 	}
-	if additionalLabelName != "" {
-		n, err := fmt.Fprintf(
-			out, `%c%s="%s"`,
-			separator, additionalLabelName,
-			escapeString(additionalLabelValue, true),
-		)
+	for _, label := range additionalLabels {
+	    var additionalLabelName string = label[0]
+	    var additionalLabelValue string = label[1]
+		if additionalLabelName != "" && additionalLabelValue != "" {
+			n, err := fmt.Fprintf(
+				out, `%c%s="%s"`,
+				separator, additionalLabelName,
+				escapeString(additionalLabelValue, true),
+			)
+			written += n
+			if err != nil {
+				return written, err
+			}
+			separator = ','
+		}
+	}
+	if separator == ',' {
+		n, err := out.Write([]byte{'}'})
 		written += n
 		if err != nil {
 			return written, err
 		}
-	}
-	n, err := out.Write([]byte{'}'})
-	written += n
-	if err != nil {
-		return written, err
 	}
 	return written, nil
 }
