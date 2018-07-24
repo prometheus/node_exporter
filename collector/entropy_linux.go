@@ -32,7 +32,7 @@ func init() {
 // NewEntropyCollector returns a new Collector exposing entropy stats.
 func NewEntropyCollector() (Collector, error) {
 	return &entropyCollector{
-		entropyAvail: prometheus.NewDesc(
+		entropyAvail: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "entropy_available_bits"),
 			"Bits of available entropy.",
 			nil, nil,

@@ -65,7 +65,7 @@ func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, v := range metrics {
 		desc, ok := c.metricDescs[v.metricName]
 		if !ok {
-			desc = prometheus.NewDesc(
+			desc = PrometheusNewDesc(
 				prometheus.BuildFQName(namespace, memInfoNumaSubsystem, v.metricName),
 				fmt.Sprintf("Memory information field %s.", v.metricName),
 				[]string{"node"}, nil)

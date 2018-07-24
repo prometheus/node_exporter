@@ -31,12 +31,12 @@ func init() {
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
 func NewConntrackCollector() (Collector, error) {
 	return &conntrackCollector{
-		current: prometheus.NewDesc(
+		current: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),
 			"Number of currently allocated flow entries for connection tracking.",
 			nil, nil,
 		),
-		limit: prometheus.NewDesc(
+		limit: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries_limit"),
 			"Maximum size of connection tracking table.",
 			nil, nil,

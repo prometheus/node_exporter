@@ -224,35 +224,35 @@ func NewMdadmCollector() (Collector, error) {
 }
 
 var (
-	isActiveDesc = prometheus.NewDesc(
+	isActiveDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "md", "is_active"),
 		"Indicator whether the md-device is active or not.",
 		[]string{"device"},
 		nil,
 	)
 
-	disksActiveDesc = prometheus.NewDesc(
+	disksActiveDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "md", "disks_active"),
 		"Number of active disks of device.",
 		[]string{"device"},
 		nil,
 	)
 
-	disksTotalDesc = prometheus.NewDesc(
+	disksTotalDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "md", "disks"),
 		"Total number of disks of device.",
 		[]string{"device"},
 		nil,
 	)
 
-	blocksTotalDesc = prometheus.NewDesc(
+	blocksTotalDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "md", "blocks"),
 		"Total number of blocks on device.",
 		[]string{"device"},
 		nil,
 	)
 
-	blocksSyncedDesc = prometheus.NewDesc(
+	blocksSyncedDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "md", "blocks_synced"),
 		"Number of blocks synced on device.",
 		[]string{"device"},

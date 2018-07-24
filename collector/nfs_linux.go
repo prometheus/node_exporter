@@ -51,37 +51,37 @@ func NewNfsCollector() (Collector, error) {
 
 	return &nfsCollector{
 		fs: fs,
-		nfsNetReadsDesc: prometheus.NewDesc(
+		nfsNetReadsDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsSubsystem, "packets_total"),
 			"Total NFSd network packets (sent+received) by protocol type.",
 			[]string{"protocol"},
 			nil,
 		),
-		nfsNetConnectionsDesc: prometheus.NewDesc(
+		nfsNetConnectionsDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsSubsystem, "connections_total"),
 			"Total number of NFSd TCP connections.",
 			nil,
 			nil,
 		),
-		nfsRPCOperationsDesc: prometheus.NewDesc(
+		nfsRPCOperationsDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsSubsystem, "rpcs_total"),
 			"Total number of RPCs performed.",
 			nil,
 			nil,
 		),
-		nfsRPCRetransmissionsDesc: prometheus.NewDesc(
+		nfsRPCRetransmissionsDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsSubsystem, "rpc_retransmissions_total"),
 			"Number of RPC transmissions performed.",
 			nil,
 			nil,
 		),
-		nfsRPCAuthenticationRefreshesDesc: prometheus.NewDesc(
+		nfsRPCAuthenticationRefreshesDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsSubsystem, "rpc_authentication_refreshes_total"),
 			"Number of RPC authentication refreshes performed.",
 			nil,
 			nil,
 		),
-		nfsProceduresDesc: prometheus.NewDesc(
+		nfsProceduresDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsSubsystem, "requests_total"),
 			"Number of NFS procedures invoked.",
 			[]string{"proto", "method"},

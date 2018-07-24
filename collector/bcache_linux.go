@@ -282,7 +282,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 	for _, m := range allMetrics {
 		labels := append(devLabel, m.extraLabel...)
 
-		desc := prometheus.NewDesc(
+		desc := PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, m.name),
 			m.desc,
 			labels,

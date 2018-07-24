@@ -39,32 +39,32 @@ func init() {
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		intr: prometheus.NewDesc(
+		intr: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "intr_total"),
 			"Total number of interrupts serviced.",
 			nil, nil,
 		),
-		ctxt: prometheus.NewDesc(
+		ctxt: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "context_switches_total"),
 			"Total number of context switches.",
 			nil, nil,
 		),
-		forks: prometheus.NewDesc(
+		forks: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "forks_total"),
 			"Total number of forks.",
 			nil, nil,
 		),
-		btime: prometheus.NewDesc(
+		btime: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "boot_time_seconds"),
 			"Node boot time, in unixtime.",
 			nil, nil,
 		),
-		procsRunning: prometheus.NewDesc(
+		procsRunning: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "procs_running"),
 			"Number of processes in runnable state.",
 			nil, nil,
 		),
-		procsBlocked: prometheus.NewDesc(
+		procsBlocked: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", "procs_blocked"),
 			"Number of processes blocked waiting for I/O to complete.",
 			nil, nil,

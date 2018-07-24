@@ -36,25 +36,25 @@ func init() {
 func NewProcessStatCollector() (Collector, error) {
 	subsystem := "processes"
 	return &processCollector{
-		threadAlloc: prometheus.NewDesc(
+		threadAlloc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "threads"),
 			"Allocated threads in system",
 			nil, nil,
 		),
-		threadLimit: prometheus.NewDesc(
+		threadLimit: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "max_threads"),
 			"Limit of threads in the system",
 			nil, nil,
 		),
-		procsState: prometheus.NewDesc(
+		procsState: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "state"),
 			"Number of processes in each state.",
 			[]string{"state"}, nil,
 		),
-		pidUsed: prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "pids"),
+		pidUsed: PrometheusNewDesc(prometheus.BuildFQName(namespace, subsystem, "pids"),
 			"Number of PIDs", nil, nil,
 		),
-		pidMax: prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "max_processes"),
+		pidMax: PrometheusNewDesc(prometheus.BuildFQName(namespace, subsystem, "max_processes"),
 			"Number of max PIDs limit", nil, nil,
 		),
 	}, nil

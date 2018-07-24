@@ -69,70 +69,70 @@ func NewWifiCollector() (Collector, error) {
 	)
 
 	return &wifiCollector{
-		interfaceFrequencyHertz: prometheus.NewDesc(
+		interfaceFrequencyHertz: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "interface_frequency_hertz"),
 			"The current frequency a WiFi interface is operating at, in hertz.",
 			[]string{"device"},
 			nil,
 		),
 
-		stationInfo: prometheus.NewDesc(
+		stationInfo: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_info"),
 			"Labeled WiFi interface station information as provided by the operating system.",
 			[]string{"device", "bssid", "ssid", "mode"},
 			nil,
 		),
 
-		stationConnectedSecondsTotal: prometheus.NewDesc(
+		stationConnectedSecondsTotal: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_connected_seconds_total"),
 			"The total number of seconds a station has been connected to an access point.",
 			labels,
 			nil,
 		),
 
-		stationInactiveSeconds: prometheus.NewDesc(
+		stationInactiveSeconds: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_inactive_seconds"),
 			"The number of seconds since any wireless activity has occurred on a station.",
 			labels,
 			nil,
 		),
 
-		stationReceiveBitsPerSecond: prometheus.NewDesc(
+		stationReceiveBitsPerSecond: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_receive_bits_per_second"),
 			"The current WiFi receive bitrate of a station, in bits per second.",
 			labels,
 			nil,
 		),
 
-		stationTransmitBitsPerSecond: prometheus.NewDesc(
+		stationTransmitBitsPerSecond: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_transmit_bits_per_second"),
 			"The current WiFi transmit bitrate of a station, in bits per second.",
 			labels,
 			nil,
 		),
 
-		stationSignalDBM: prometheus.NewDesc(
+		stationSignalDBM: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_signal_dbm"),
 			"The current WiFi signal strength, in decibel-milliwatts (dBm).",
 			labels,
 			nil,
 		),
 
-		stationTransmitRetriesTotal: prometheus.NewDesc(
+		stationTransmitRetriesTotal: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_transmit_retries_total"),
 			"The total number of times a station has had to retry while sending a packet.",
 			labels,
 			nil,
 		),
 
-		stationTransmitFailedTotal: prometheus.NewDesc(
+		stationTransmitFailedTotal: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_transmit_failed_total"),
 			"The total number of times a station has failed to send a packet.",
 			labels,
 			nil,
 		),
 
-		stationBeaconLossTotal: prometheus.NewDesc(
+		stationBeaconLossTotal: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_beacon_loss_total"),
 			"The total number of times a station has detected a beacon loss.",
 			labels,

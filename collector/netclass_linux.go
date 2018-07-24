@@ -55,7 +55,7 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("could not get net class info: %s", err)
 	}
 	for _, ifaceInfo := range netClass {
-		upDesc := prometheus.NewDesc(
+		upDesc := PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "up"),
 			"Valid operstate for interface.",
 			[]string{"interface", "address", "broadcast", "duplex", "operstate", "ifalias"},
@@ -142,7 +142,7 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, value int64, ifaceName string, valueType prometheus.ValueType) {
-	fieldDesc := prometheus.NewDesc(
+	fieldDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
 		fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
 		[]string{"interface"},

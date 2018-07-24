@@ -71,43 +71,43 @@ func NewFilesystemCollector() (Collector, error) {
 	mountPointPattern := regexp.MustCompile(*ignoredMountPoints)
 	filesystemsTypesPattern := regexp.MustCompile(*ignoredFSTypes)
 
-	sizeDesc := prometheus.NewDesc(
+	sizeDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "size_bytes"),
 		"Filesystem size in bytes.",
 		filesystemLabelNames, nil,
 	)
 
-	freeDesc := prometheus.NewDesc(
+	freeDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "free_bytes"),
 		"Filesystem free space in bytes.",
 		filesystemLabelNames, nil,
 	)
 
-	availDesc := prometheus.NewDesc(
+	availDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "avail_bytes"),
 		"Filesystem space available to non-root users in bytes.",
 		filesystemLabelNames, nil,
 	)
 
-	filesDesc := prometheus.NewDesc(
+	filesDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "files"),
 		"Filesystem total file nodes.",
 		filesystemLabelNames, nil,
 	)
 
-	filesFreeDesc := prometheus.NewDesc(
+	filesFreeDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "files_free"),
 		"Filesystem total free file nodes.",
 		filesystemLabelNames, nil,
 	)
 
-	roDesc := prometheus.NewDesc(
+	roDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "readonly"),
 		"Filesystem read-only status.",
 		filesystemLabelNames, nil,
 	)
 
-	deviceErrorDesc := prometheus.NewDesc(
+	deviceErrorDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "device_error"),
 		"Whether an error occurred while getting statistics for the given device.",
 		filesystemLabelNames, nil,

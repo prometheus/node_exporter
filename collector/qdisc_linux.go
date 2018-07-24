@@ -44,27 +44,27 @@ func init() {
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
 func NewQdiscStatCollector() (Collector, error) {
 	return &qdiscStatCollector{
-		bytes: typedDesc{prometheus.NewDesc(
+		bytes: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "bytes_total"),
 			"Number of bytes sent.",
 			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
-		packets: typedDesc{prometheus.NewDesc(
+		packets: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "packets_total"),
 			"Number of packets sent.",
 			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
-		drops: typedDesc{prometheus.NewDesc(
+		drops: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "drops_total"),
 			"Number of packets dropped.",
 			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
-		requeues: typedDesc{prometheus.NewDesc(
+		requeues: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "requeues_total"),
 			"Number of packets dequeued, not transmitted, and requeued.",
 			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
-		overlimits: typedDesc{prometheus.NewDesc(
+		overlimits: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "overlimits_total"),
 			"Number of overlimit packets.",
 			[]string{"device", "kind"}, nil,

@@ -41,22 +41,22 @@ func NewRunitCollector() (Collector, error) {
 	)
 
 	return &runitCollector{
-		state: typedDesc{prometheus.NewDesc(
+		state: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "state"),
 			"State of runit service.",
 			labelNames, constLabels,
 		), prometheus.GaugeValue},
-		stateDesired: typedDesc{prometheus.NewDesc(
+		stateDesired: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "desired_state"),
 			"Desired state of runit service.",
 			labelNames, constLabels,
 		), prometheus.GaugeValue},
-		stateNormal: typedDesc{prometheus.NewDesc(
+		stateNormal: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "normal_state"),
 			"Normal state of runit service.",
 			labelNames, constLabels,
 		), prometheus.GaugeValue},
-		stateTimestamp: typedDesc{prometheus.NewDesc(
+		stateTimestamp: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "state_last_change_timestamp_seconds"),
 			"Unix timestamp of the last runit service state change.",
 			labelNames, constLabels,

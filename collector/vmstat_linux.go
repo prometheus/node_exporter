@@ -70,7 +70,7 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
+			PrometheusNewDesc(
 				prometheus.BuildFQName(namespace, vmStatSubsystem, parts[0]),
 				fmt.Sprintf("/proc/vmstat information field %s.", parts[0]),
 				nil, nil),

@@ -61,42 +61,42 @@ func newIPVSCollector() (*ipvsCollector, error) {
 		return nil, err
 	}
 
-	c.connections = typedDesc{prometheus.NewDesc(
+	c.connections = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "connections_total"),
 		"The total number of connections made.",
 		nil, nil,
 	), prometheus.CounterValue}
-	c.incomingPackets = typedDesc{prometheus.NewDesc(
+	c.incomingPackets = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "incoming_packets_total"),
 		"The total number of incoming packets.",
 		nil, nil,
 	), prometheus.CounterValue}
-	c.outgoingPackets = typedDesc{prometheus.NewDesc(
+	c.outgoingPackets = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "outgoing_packets_total"),
 		"The total number of outgoing packets.",
 		nil, nil,
 	), prometheus.CounterValue}
-	c.incomingBytes = typedDesc{prometheus.NewDesc(
+	c.incomingBytes = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "incoming_bytes_total"),
 		"The total amount of incoming data.",
 		nil, nil,
 	), prometheus.CounterValue}
-	c.outgoingBytes = typedDesc{prometheus.NewDesc(
+	c.outgoingBytes = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "outgoing_bytes_total"),
 		"The total amount of outgoing data.",
 		nil, nil,
 	), prometheus.CounterValue}
-	c.backendConnectionsActive = typedDesc{prometheus.NewDesc(
+	c.backendConnectionsActive = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "backend_connections_active"),
 		"The current active connections by local and remote address.",
 		ipvsBackendLabelNames, nil,
 	), prometheus.GaugeValue}
-	c.backendConnectionsInact = typedDesc{prometheus.NewDesc(
+	c.backendConnectionsInact = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "backend_connections_inactive"),
 		"The current inactive connections by local and remote address.",
 		ipvsBackendLabelNames, nil,
 	), prometheus.GaugeValue}
-	c.backendWeight = typedDesc{prometheus.NewDesc(
+	c.backendWeight = typedDesc{PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "backend_weight"),
 		"The current backend weight by local and remote address.",
 		ipvsBackendLabelNames, nil,

@@ -52,7 +52,7 @@ func NewKsmdCollector() (Collector, error) {
 	descs := make(map[string]*prometheus.Desc)
 
 	for _, n := range ksmdFiles {
-		descs[n] = prometheus.NewDesc(
+		descs[n] = PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, getCanonicalMetricName(n)),
 			fmt.Sprintf("ksmd '%s' file.", n), nil, nil)
 	}

@@ -36,7 +36,7 @@ func init() {
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector() (Collector, error) {
 	return &arpCollector{
-		entries: prometheus.NewDesc(
+		entries: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "arp", "entries"),
 			"ARP entries by device",
 			[]string{"device"}, nil,

@@ -56,35 +56,35 @@ func init() {
 func NewSystemdCollector() (Collector, error) {
 	const subsystem = "systemd"
 
-	unitDesc := prometheus.NewDesc(
+	unitDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_state"),
 		"Systemd unit", []string{"name", "state"}, nil,
 	)
-	unitStartTimeDesc := prometheus.NewDesc(
+	unitStartTimeDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
 		"Start time of the unit since unix epoch in seconds.", []string{"name"}, nil,
 	)
-	systemRunningDesc := prometheus.NewDesc(
+	systemRunningDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "system_running"),
 		"Whether the system is operational (see 'systemctl is-system-running')",
 		nil, nil,
 	)
-	summaryDesc := prometheus.NewDesc(
+	summaryDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "units"),
 		"Summary of systemd unit states", []string{"state"}, nil)
-	nRestartsDesc := prometheus.NewDesc(
+	nRestartsDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "service_restart_total"),
 		"Service unit count of Restart triggers", []string{"state"}, nil)
-	timerLastTriggerDesc := prometheus.NewDesc(
+	timerLastTriggerDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "timer_last_trigger_seconds"),
 		"Seconds since epoch of last trigger.", []string{"name"}, nil)
-	socketAcceptedConnectionsDesc := prometheus.NewDesc(
+	socketAcceptedConnectionsDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "socket_accepted_connections_total"),
 		"Total number of accepted socket connections", []string{"name"}, nil)
-	socketCurrentConnectionsDesc := prometheus.NewDesc(
+	socketCurrentConnectionsDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "socket_current_connections"),
 		"Current number of socket connections", []string{"name"}, nil)
-	socketRefusedConnectionsDesc := prometheus.NewDesc(
+	socketRefusedConnectionsDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "socket_refused_connections_total"),
 		"Total number of refused socket connections", []string{"name"}, nil)
 	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))

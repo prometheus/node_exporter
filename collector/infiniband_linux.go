@@ -79,7 +79,7 @@ func NewInfiniBandCollector() (Collector, error) {
 	i.metricDescs = make(map[string]*prometheus.Desc)
 
 	for metricName, infinibandMetric := range i.counters {
-		i.metricDescs[metricName] = prometheus.NewDesc(
+		i.metricDescs[metricName] = PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, metricName),
 			infinibandMetric.Help,
 			[]string{"device", "port"},
@@ -88,7 +88,7 @@ func NewInfiniBandCollector() (Collector, error) {
 	}
 
 	for metricName, infinibandMetric := range i.legacyCounters {
-		i.metricDescs[metricName] = prometheus.NewDesc(
+		i.metricDescs[metricName] = PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, metricName),
 			infinibandMetric.Help,
 			[]string{"device", "port"},

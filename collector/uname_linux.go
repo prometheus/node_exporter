@@ -23,7 +23,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-var unameDesc = prometheus.NewDesc(
+var unameDesc = PrometheusNewDesc(
 	prometheus.BuildFQName(namespace, "uname", "info"),
 	"Labeled system information as provided by the uname system call.",
 	[]string{

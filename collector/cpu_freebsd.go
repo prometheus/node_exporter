@@ -93,7 +93,7 @@ func init() {
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
-		temp: typedDesc{prometheus.NewDesc(
+		temp: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "temperature_celsius"),
 			"CPU temperature",
 			[]string{"cpu"}, nil,

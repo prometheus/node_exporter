@@ -84,7 +84,7 @@ func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, val
 	metricName := sysctl.metricName()
 
 	return prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, metricName),
 			string(sysctl),
 			nil,
@@ -99,7 +99,7 @@ func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value 
 	metricName := sysctl.metricName()
 
 	return prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "zfs_zpool", metricName),
 			string(sysctl),
 			[]string{"zpool"},

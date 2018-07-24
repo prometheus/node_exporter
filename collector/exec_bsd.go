@@ -85,7 +85,7 @@ func (c *execCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
+			PrometheusNewDesc(
 				namespace+"_"+m.name,
 				m.description,
 				nil, nil,
