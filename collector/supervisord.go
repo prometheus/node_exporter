@@ -51,25 +51,25 @@ func NewSupervisordCollector() (Collector, error) {
 	)
 	return &supervisordCollector{
 		client: client,
-		upDesc: prometheus.NewDesc(
+		upDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "up"),
 			"Process Up",
 			labelNames,
 			nil,
 		),
-		stateDesc: prometheus.NewDesc(
+		stateDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "state"),
 			"Process State",
 			labelNames,
 			nil,
 		),
-		exitStatusDesc: prometheus.NewDesc(
+		exitStatusDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "exit_status"),
 			"Process Exit Status",
 			labelNames,
 			nil,
 		),
-		uptimeDesc: prometheus.NewDesc(
+		uptimeDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "uptime"),
 			"Process Uptime",
 			labelNames,

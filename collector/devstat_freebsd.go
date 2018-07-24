@@ -51,27 +51,27 @@ func init() {
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
 		devinfo: &C.struct_devinfo{},
-		bytes: typedDesc{prometheus.NewDesc(
+		bytes: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "bytes_total"),
 			"The total number of bytes in transactions.",
 			[]string{"device", "type"}, nil,
 		), prometheus.CounterValue},
-		transfers: typedDesc{prometheus.NewDesc(
+		transfers: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "transfers_total"),
 			"The total number of transactions.",
 			[]string{"device", "type"}, nil,
 		), prometheus.CounterValue},
-		duration: typedDesc{prometheus.NewDesc(
+		duration: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "duration_seconds_total"),
 			"The total duration of transactions in seconds.",
 			[]string{"device", "type"}, nil,
 		), prometheus.CounterValue},
-		busyTime: typedDesc{prometheus.NewDesc(
+		busyTime: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "busy_time_seconds_total"),
 			"Total time the device had one or more transactions outstanding in seconds.",
 			[]string{"device"}, nil,
 		), prometheus.CounterValue},
-		blocks: typedDesc{prometheus.NewDesc(
+		blocks: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "blocks_transferred_total"),
 			"The total number of blocks transferred.",
 			[]string{"device"}, nil,

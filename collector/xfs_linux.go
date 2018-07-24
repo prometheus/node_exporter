@@ -178,7 +178,7 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 	}
 
 	for _, m := range metrics {
-		desc := prometheus.NewDesc(
+		desc := PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, subsystem, m.name),
 			m.desc,
 			labels,

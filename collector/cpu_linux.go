@@ -45,32 +45,32 @@ func init() {
 func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
 		cpu: nodeCPUSecondsDesc,
-		cpuGuest: prometheus.NewDesc(
+		cpuGuest: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
 			"Seconds the cpus spent in guests (VMs) for each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
-		cpuFreq: prometheus.NewDesc(
+		cpuFreq: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
 			"Current cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
-		cpuFreqMin: prometheus.NewDesc(
+		cpuFreqMin: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_min_hertz"),
 			"Minimum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
-		cpuFreqMax: prometheus.NewDesc(
+		cpuFreqMax: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
 			"Maximum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
-		cpuCoreThrottle: prometheus.NewDesc(
+		cpuCoreThrottle: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
 			"Number of times this cpu core has been throttled.",
 			[]string{"package", "core"}, nil,
 		),
-		cpuPackageThrottle: prometheus.NewDesc(
+		cpuPackageThrottle: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
 			"Number of times this cpu package has been throttled.",
 			[]string{"package"}, nil,

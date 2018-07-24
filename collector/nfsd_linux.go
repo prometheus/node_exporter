@@ -47,7 +47,7 @@ func NewNFSdCollector() (Collector, error) {
 
 	return &nfsdCollector{
 		fs: fs,
-		requestsDesc: prometheus.NewDesc(
+		requestsDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "requests_total"),
 			"Total number NFSd Requests by method and protocol.",
 			[]string{"proto", "method"}, nil,
@@ -83,7 +83,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 // updateNFSdReplyCacheStats collects statistics for the reply cache.
 func (c *nfsdCollector) updateNFSdReplyCacheStats(ch chan<- prometheus.Metric, s *nfs.ReplyCache) {
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "reply_cache_hits_total"),
 			"Total number of NFSd Reply Cache hits (client lost server response).",
 			nil,
@@ -92,7 +92,7 @@ func (c *nfsdCollector) updateNFSdReplyCacheStats(ch chan<- prometheus.Metric, s
 		prometheus.CounterValue,
 		float64(s.Hits))
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "reply_cache_misses_total"),
 			"Total number of NFSd Reply Cache an operation that requires caching (idempotent).",
 			nil,
@@ -101,7 +101,7 @@ func (c *nfsdCollector) updateNFSdReplyCacheStats(ch chan<- prometheus.Metric, s
 		prometheus.CounterValue,
 		float64(s.Misses))
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "reply_cache_nocache_total"),
 			"Total number of NFSd Reply Cache non-idempotent operations (rename/delete/…).",
 			nil,
@@ -114,7 +114,7 @@ func (c *nfsdCollector) updateNFSdReplyCacheStats(ch chan<- prometheus.Metric, s
 // updateNFSdFileHandlesStats collects statistics for the file handles.
 func (c *nfsdCollector) updateNFSdFileHandlesStats(ch chan<- prometheus.Metric, s *nfs.FileHandles) {
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "file_handles_stale_total"),
 			"Total number of NFSd stale file handles",
 			nil,
@@ -128,7 +128,7 @@ func (c *nfsdCollector) updateNFSdFileHandlesStats(ch chan<- prometheus.Metric, 
 // updateNFSdInputOutputStats collects statistics for the bytes in/out.
 func (c *nfsdCollector) updateNFSdInputOutputStats(ch chan<- prometheus.Metric, s *nfs.InputOutput) {
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "disk_bytes_read_total"),
 			"Total NFSd bytes read.",
 			nil,
@@ -137,7 +137,7 @@ func (c *nfsdCollector) updateNFSdInputOutputStats(ch chan<- prometheus.Metric, 
 		prometheus.CounterValue,
 		float64(s.Read))
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "disk_bytes_written_total"),
 			"Total NFSd bytes written.",
 			nil,
@@ -150,7 +150,7 @@ func (c *nfsdCollector) updateNFSdInputOutputStats(ch chan<- prometheus.Metric, 
 // updateNFSdThreadsStats collects statistics for kernel server threads.
 func (c *nfsdCollector) updateNFSdThreadsStats(ch chan<- prometheus.Metric, s *nfs.Threads) {
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "server_threads"),
 			"Total number of NFSd kernel threads that are running.",
 			nil,
@@ -163,7 +163,7 @@ func (c *nfsdCollector) updateNFSdThreadsStats(ch chan<- prometheus.Metric, s *n
 // updateNFSdReadAheadCacheStats collects statistics for the read ahead cache.
 func (c *nfsdCollector) updateNFSdReadAheadCacheStats(ch chan<- prometheus.Metric, s *nfs.ReadAheadCache) {
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "read_ahead_cache_size_blocks"),
 			"How large the read ahead cache is in blocks.",
 			nil,
@@ -172,7 +172,7 @@ func (c *nfsdCollector) updateNFSdReadAheadCacheStats(ch chan<- prometheus.Metri
 		prometheus.GaugeValue,
 		float64(s.CacheSize))
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "read_ahead_cache_not_found_total"),
 			"Total number of NFSd read ahead cache not found.",
 			nil,
@@ -184,7 +184,7 @@ func (c *nfsdCollector) updateNFSdReadAheadCacheStats(ch chan<- prometheus.Metri
 
 // updateNFSdNetworkStats collects statistics for network packets/connections.
 func (c *nfsdCollector) updateNFSdNetworkStats(ch chan<- prometheus.Metric, s *nfs.Network) {
-	packetDesc := prometheus.NewDesc(
+	packetDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, nfsdSubsystem, "packets_total"),
 		"Total NFSd network packets (sent+received) by protocol type.",
 		[]string{"proto"},
@@ -199,7 +199,7 @@ func (c *nfsdCollector) updateNFSdNetworkStats(ch chan<- prometheus.Metric, s *n
 		prometheus.CounterValue,
 		float64(s.TCPCount), "tcp")
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "connections_total"),
 			"Total number of NFSd TCP connections.",
 			nil,
@@ -211,7 +211,7 @@ func (c *nfsdCollector) updateNFSdNetworkStats(ch chan<- prometheus.Metric, s *n
 
 // updateNFSdServerRPCStats collects statistics for kernel server RPCs.
 func (c *nfsdCollector) updateNFSdServerRPCStats(ch chan<- prometheus.Metric, s *nfs.ServerRPC) {
-	badRPCDesc := prometheus.NewDesc(
+	badRPCDesc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, nfsdSubsystem, "rpc_errors_total"),
 		"Total number of NFSd RPC errors by error type.",
 		[]string{"error"},
@@ -230,7 +230,7 @@ func (c *nfsdCollector) updateNFSdServerRPCStats(ch chan<- prometheus.Metric, s 
 		prometheus.CounterValue,
 		float64(s.BadcInt), "cInt")
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, nfsdSubsystem, "server_rpcs_total"),
 			"Total number of NFSd RPCs.",
 			nil,

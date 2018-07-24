@@ -105,17 +105,17 @@ func init() {
 // NewDevstatCollector returns a new Collector exposing Device stats.
 func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
-		bytesDesc: prometheus.NewDesc(
+		bytesDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "bytes_total"),
 			"The total number of bytes transferred for reads and writes on the device.",
 			[]string{"device"}, nil,
 		),
-		transfersDesc: prometheus.NewDesc(
+		transfersDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "transfers_total"),
 			"The total number of transactions completed.",
 			[]string{"device"}, nil,
 		),
-		blocksDesc: prometheus.NewDesc(
+		blocksDesc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "blocks_total"),
 			"The total number of bytes given in terms of the devices blocksize.",
 			[]string{"device"}, nil,

@@ -33,7 +33,7 @@ type drbdNumericalMetric struct {
 
 func newDRBDNumericalMetric(name string, desc string, valueType prometheus.ValueType, multiplier float64) drbdNumericalMetric {
 	return drbdNumericalMetric{
-		desc: prometheus.NewDesc(
+		desc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "drbd", name),
 			desc,
 			[]string{"device"}, nil),
@@ -57,7 +57,7 @@ func (metric *drbdStringPairMetric) isOkay(value string) float64 {
 
 func newDRBDStringPairMetric(name string, desc string, valueOkay string) drbdStringPairMetric {
 	return drbdStringPairMetric{
-		desc: prometheus.NewDesc(
+		desc: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "drbd", name),
 			desc,
 			[]string{"device", "node"}, nil),
@@ -139,7 +139,7 @@ var (
 			"UpToDate"),
 	}
 
-	drbdConnected = prometheus.NewDesc(
+	drbdConnected = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "drbd", "connected"),
 		"Whether DRBD is connected to the peer.",
 		[]string{"device"}, nil)

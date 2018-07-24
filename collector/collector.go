@@ -21,6 +21,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"github.com/prometheus/common/model"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -28,13 +29,17 @@ import (
 const namespace = "node"
 
 var (
-	scrapeDurationDesc = prometheus.NewDesc(
+	instanceLabel = kingpin.Flag("label.instance", "set the instance label to specific value").Default("").String()
+)
+
+var (
+	scrapeDurationDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "scrape", "collector_duration_seconds"),
 		"node_exporter: Duration of a collector scrape.",
 		[]string{"collector"},
 		nil,
 	)
-	scrapeSuccessDesc = prometheus.NewDesc(
+	scrapeSuccessDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, "scrape", "collector_success"),
 		"node_exporter: Whether a collector succeeded.",
 		[]string{"collector"},
@@ -152,4 +157,19 @@ type typedDesc struct {
 
 func (d *typedDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
 	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
+}
+
+func PrometheusNewDesc(fqName, help string, variableLabels []string, constLabels prometheus.Labels) *prometheus.Desc {
+	if *instanceLabel != "" {
+		if constLabels == nil {
+			constLabels = prometheus.Labels{model.InstanceLabel: *instanceLabel}
+		} else {
+			constLabels[model.InstanceLabel] = *instanceLabel
+		}
+	}
+	return prometheus.NewDesc(
+		fqName,
+		help,
+		variableLabels, constLabels,
+	)
 }

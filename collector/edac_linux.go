@@ -47,22 +47,22 @@ func init() {
 // NewEdacCollector returns a new Collector exposing edac stats.
 func NewEdacCollector() (Collector, error) {
 	return &edacCollector{
-		ceCount: prometheus.NewDesc(
+		ceCount: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "correctable_errors_total"),
 			"Total correctable memory errors.",
 			[]string{"controller"}, nil,
 		),
-		ueCount: prometheus.NewDesc(
+		ueCount: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "uncorrectable_errors_total"),
 			"Total uncorrectable memory errors.",
 			[]string{"controller"}, nil,
 		),
-		csRowCECount: prometheus.NewDesc(
+		csRowCECount: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "csrow_correctable_errors_total"),
 			"Total correctable memory errors for this csrow.",
 			[]string{"controller", "csrow"}, nil,
 		),
-		csRowUECount: prometheus.NewDesc(
+		csRowUECount: PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "csrow_uncorrectable_errors_total"),
 			"Total uncorrectable memory errors for this csrow.",
 			[]string{"controller", "csrow"}, nil,

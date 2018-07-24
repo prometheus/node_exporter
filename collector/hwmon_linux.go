@@ -167,7 +167,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 	hwmonChipName, err := c.hwmonHumanReadableChipName(dir)
 	if err == nil {
 		// sensor chip metadata
-		desc := prometheus.NewDesc(
+		desc := PrometheusNewDesc(
 			"node_hwmon_chip_names",
 			"Annotation metric for human-readable chip names",
 			hwmonChipNameLabelDesc,
@@ -192,7 +192,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 		if labelText, ok := sensorData["label"]; ok {
 			label := cleanMetricName(labelText)
 			if label != "" {
-				desc := prometheus.NewDesc("node_hwmon_sensor_label", "Label for given chip and sensor",
+				desc := PrometheusNewDesc("node_hwmon_sensor_label", "Label for given chip and sensor",
 					[]string{"chip", "sensor", "label"}, nil)
 				ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 1.0, hwmonName, sensor, label)
 			}
@@ -204,7 +204,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 				value = 1.0
 			}
 			metricName := "node_hwmon_beep_enabled"
-			desc := prometheus.NewDesc(metricName, "Hardware beep enabled", hwmonLabelDesc, nil)
+			desc := PrometheusNewDesc(metricName, "Hardware beep enabled", hwmonLabelDesc, nil)
 			ch <- prometheus.MustNewConstMetric(
 				desc, prometheus.GaugeValue, value, labels...)
 			continue
@@ -215,7 +215,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 				continue
 			}
 			metricName := "node_hwmon_voltage_regulator_version"
-			desc := prometheus.NewDesc(metricName, "Hardware voltage regulator", hwmonLabelDesc, nil)
+			desc := PrometheusNewDesc(metricName, "Hardware voltage regulator", hwmonLabelDesc, nil)
 			ch <- prometheus.MustNewConstMetric(
 				desc, prometheus.GaugeValue, parsedValue, labels...)
 			continue
@@ -226,7 +226,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 				continue
 			}
 			metricName := "node_hwmon_update_interval_seconds"
-			desc := prometheus.NewDesc(metricName, "Hardware monitor update interval", hwmonLabelDesc, nil)
+			desc := PrometheusNewDesc(metricName, "Hardware monitor update interval", hwmonLabelDesc, nil)
 			ch <- prometheus.MustNewConstMetric(
 				desc, prometheus.GaugeValue, parsedValue*0.001, labels...)
 			continue
@@ -256,69 +256,69 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 
 			// special elements, fault, alarm & beep should be handed out without units
 			if element == "fault" || element == "alarm" {
-				desc := prometheus.NewDesc(name, "Hardware sensor "+element+" status ("+sensorType+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name, "Hardware sensor "+element+" status ("+sensorType+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, parsedValue, labels...)
 				continue
 			}
 			if element == "beep" {
-				desc := prometheus.NewDesc(name+"_enabled", "Hardware monitor sensor has beeping enabled", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_enabled", "Hardware monitor sensor has beeping enabled", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, parsedValue, labels...)
 				continue
 			}
 
 			// everything else should get a unit
 			if sensorType == "in" || sensorType == "cpu" {
-				desc := prometheus.NewDesc(name+"_volts", "Hardware monitor for voltage ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_volts", "Hardware monitor for voltage ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue*0.001, labels...)
 				continue
 			}
 			if sensorType == "temp" && element != "type" {
-				desc := prometheus.NewDesc(name+"_celsius", "Hardware monitor for temperature ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_celsius", "Hardware monitor for temperature ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue*0.001, labels...)
 				continue
 			}
 			if sensorType == "curr" {
-				desc := prometheus.NewDesc(name+"_amps", "Hardware monitor for current ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_amps", "Hardware monitor for current ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue*0.001, labels...)
 				continue
 			}
 			if sensorType == "energy" {
-				desc := prometheus.NewDesc(name+"_joule_total", "Hardware monitor for joules used so far ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_joule_total", "Hardware monitor for joules used so far ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.CounterValue, parsedValue/1000000.0, labels...)
 				continue
 			}
 			if sensorType == "power" && element == "accuracy" {
-				desc := prometheus.NewDesc(name, "Hardware monitor power meter accuracy, as a ratio", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name, "Hardware monitor power meter accuracy, as a ratio", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue/1000000.0, labels...)
 				continue
 			}
 			if sensorType == "power" && (element == "average_interval" || element == "average_interval_min" || element == "average_interval_max") {
-				desc := prometheus.NewDesc(name+"_seconds", "Hardware monitor power usage update interval ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_seconds", "Hardware monitor power usage update interval ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue*0.001, labels...)
 				continue
 			}
 			if sensorType == "power" {
-				desc := prometheus.NewDesc(name+"_watt", "Hardware monitor for power usage in watts ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_watt", "Hardware monitor for power usage in watts ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue/1000000.0, labels...)
 				continue
 			}
 
 			if sensorType == "humidity" {
-				desc := prometheus.NewDesc(name, "Hardware monitor for humidity, as a ratio (multiply with 100.0 to get the humidity as a percentage) ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name, "Hardware monitor for humidity, as a ratio (multiply with 100.0 to get the humidity as a percentage) ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue/1000000.0, labels...)
 				continue
 			}
 
 			if sensorType == "fan" && (element == "input" || element == "min" || element == "max" || element == "target") {
-				desc := prometheus.NewDesc(name+"_rpm", "Hardware monitor for fan revolutions per minute ("+element+")", hwmonLabelDesc, nil)
+				desc := PrometheusNewDesc(name+"_rpm", "Hardware monitor for fan revolutions per minute ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue, labels...)
 				continue
@@ -326,7 +326,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 
 			// fallback, just dump the metric as is
 
-			desc := prometheus.NewDesc(name, "Hardware monitor "+sensorType+" element "+element, hwmonLabelDesc, nil)
+			desc := PrometheusNewDesc(name, "Hardware monitor "+sensorType+" element "+element, hwmonLabelDesc, nil)
 			ch <- prometheus.MustNewConstMetric(
 				desc, prometheus.GaugeValue, parsedValue, labels...)
 		}

@@ -64,7 +64,7 @@ func init() {
 // NewTCPStatCollector returns a new Collector exposing network stats.
 func NewTCPStatCollector() (Collector, error) {
 	return &tcpStatCollector{
-		desc: typedDesc{prometheus.NewDesc(
+		desc: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
 			[]string{"state"}, nil,

@@ -58,7 +58,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 		for key, value := range devStats {
 			desc, ok := c.metricDescs[key]
 			if !ok {
-				desc = prometheus.NewDesc(
+				desc = PrometheusNewDesc(
 					prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
 					fmt.Sprintf("Network device statistic %s.", key),
 					[]string{"device"},

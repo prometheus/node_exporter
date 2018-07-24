@@ -34,7 +34,7 @@ func init() {
 // seconds since epoch.
 func NewTimeCollector() (Collector, error) {
 	return &timeCollector{
-		desc: prometheus.NewDesc(
+		desc: PrometheusNewDesc(
 			namespace+"_time_seconds",
 			"System time in seconds since epoch (1970).",
 			nil, nil,

@@ -135,7 +135,7 @@ func (c *memoryCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
+			PrometheusNewDesc(
 				prometheus.BuildFQName(namespace, memorySubsystem, m.name),
 				m.description,
 				nil, nil,
@@ -148,7 +148,7 @@ func (c *memoryCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, memorySubsystem, "swap_used_bytes"),
 			"Currently allocated swap",
 			nil, nil,

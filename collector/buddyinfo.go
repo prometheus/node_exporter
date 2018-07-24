@@ -39,7 +39,7 @@ func init() {
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
 func NewBuddyinfoCollector() (Collector, error) {
-	desc := prometheus.NewDesc(
+	desc := PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
 		"Count of free blocks according to size.",
 		[]string{"node", "zone", "size"}, nil,

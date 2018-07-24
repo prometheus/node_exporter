@@ -51,7 +51,7 @@ func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) error {
 			return fmt.Errorf("invalid value %s in file-nr: %s", value, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
+			PrometheusNewDesc(
 				prometheus.BuildFQName(namespace, fileFDStatSubsystem, name),
 				fmt.Sprintf("File descriptor statistics: %s.", name),
 				nil, nil,

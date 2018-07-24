@@ -46,7 +46,7 @@ func (c *bootTimeCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, "", c.boottime.name),
 			c.boottime.description,
 			nil, nil,

@@ -24,7 +24,7 @@ const (
 )
 
 var (
-	nodeCPUSecondsDesc = prometheus.NewDesc(
+	nodeCPUSecondsDesc = PrometheusNewDesc(
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "seconds_total"),
 		"Seconds the cpus spent in each mode.",
 		[]string{"cpu", "mode"}, nil,

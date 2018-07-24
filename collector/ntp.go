@@ -72,42 +72,42 @@ func NewNtpCollector() (Collector, error) {
 	}
 
 	return &ntpCollector{
-		stratum: typedDesc{prometheus.NewDesc(
+		stratum: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "stratum"),
 			"NTPD stratum.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		leap: typedDesc{prometheus.NewDesc(
+		leap: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "leap"),
 			"NTPD leap second indicator, 2 bits.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		rtt: typedDesc{prometheus.NewDesc(
+		rtt: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "rtt_seconds"),
 			"RTT to NTPD.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		offset: typedDesc{prometheus.NewDesc(
+		offset: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "offset_seconds"),
 			"ClockOffset between NTP and local clock.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		reftime: typedDesc{prometheus.NewDesc(
+		reftime: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "reference_timestamp_seconds"),
 			"NTPD ReferenceTime, UNIX timestamp.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		rootDelay: typedDesc{prometheus.NewDesc(
+		rootDelay: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "root_delay_seconds"),
 			"NTPD RootDelay.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		rootDispersion: typedDesc{prometheus.NewDesc(
+		rootDispersion: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "root_dispersion_seconds"),
 			"NTPD RootDispersion.",
 			nil, nil,
 		), prometheus.GaugeValue},
-		sanity: typedDesc{prometheus.NewDesc(
+		sanity: typedDesc{PrometheusNewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "sanity"),
 			"NTPD sanity according to RFC5905 heuristics and configured limits.",
 			nil, nil,

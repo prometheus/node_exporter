@@ -33,7 +33,7 @@ import (
 
 var (
 	textFileDirectory = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
-	mtimeDesc         = prometheus.NewDesc(
+	mtimeDesc         = PrometheusNewDesc(
 		"node_textfile_mtime_seconds",
 		"Unixtime mtime of textfiles successfully read.",
 		[]string{"file"},
@@ -121,7 +121,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 				quantiles[q.GetQuantile()] = q.GetValue()
 			}
 			ch <- prometheus.MustNewConstSummary(
-				prometheus.NewDesc(
+				PrometheusNewDesc(
 					*metricFamily.Name,
 					metricFamily.GetHelp(),
 					names, nil,
@@ -136,7 +136,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 				buckets[b.GetUpperBound()] = b.GetCumulativeCount()
 			}
 			ch <- prometheus.MustNewConstHistogram(
-				prometheus.NewDesc(
+				PrometheusNewDesc(
 					*metricFamily.Name,
 					metricFamily.GetHelp(),
 					names, nil,
@@ -150,7 +150,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 		}
 		if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
 			ch <- prometheus.MustNewConstMetric(
-				prometheus.NewDesc(
+				PrometheusNewDesc(
 					*metricFamily.Name,
 					metricFamily.GetHelp(),
 					names, nil,
@@ -240,7 +240,7 @@ fileLoop:
 
 	// Export if there were errors.
 	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
+		PrometheusNewDesc(
 			"node_textfile_scrape_error",
 			"1 if there was an error opening or reading a file, 0 otherwise",
 			nil, nil,

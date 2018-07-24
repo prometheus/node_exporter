@@ -29,7 +29,7 @@ func init() {
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
 func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
-		desc: typedDesc{prometheus.NewDesc(
+		desc: typedDesc{PrometheusNewDesc(
 			namespace+"_interrupts_total",
 			"Interrupt details.",
 			interruptLabelNames, nil,
