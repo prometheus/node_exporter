@@ -17,7 +17,11 @@ GOARCH := $(shell $(GO) env GOARCH)
 GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
 
 PROMTOOL    ?= $(GOPATH)/bin/promtool
-PROMU       ?= $(GOPATH)/bin/promu
+ifeq ($(BUILD_PROMU),false)
+        PROMU       ?= promu
+else
+        PROMU       ?= $(GOPATH)/bin/promu
+endif
 STATICCHECK ?= $(GOPATH)/bin/staticcheck
 pkgs         = $(shell $(GO) list ./... | grep -v /vendor/)
 
