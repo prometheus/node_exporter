@@ -162,7 +162,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 		},
 		{
 			name:       "cache_available_percent",
-			desc:       "Percentage of cache device without dirty data, useable for writeback (may contain clean cached data).",
+			desc:       "Percentage of cache device without dirty data, usable for writeback (may contain clean cached data).",
 			value:      float64(s.Bcache.CacheAvailablePercent),
 			metricType: prometheus.GaugeValue,
 		},
@@ -204,7 +204,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			metricType: prometheus.GaugeValue,
 		},
 		{
-			name:       "cache_read_races",
+			name:       "cache_read_races_total",
 			desc:       "Counts instances where while data was being read from the cache, the bucket was reused and invalidated - i.e. where the pointer was stale after the read completed.",
 			value:      float64(s.Bcache.Internal.CacheReadRaces),
 			metricType: prometheus.CounterValue,

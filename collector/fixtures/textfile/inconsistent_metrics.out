@@ -1,0 +1,29 @@
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines{foo=""} 20
+go_goroutines{foo="bar"} 229
+# HELP http_requests_total Total number of HTTP requests made.
+# TYPE http_requests_total counter
+http_requests_total{baz="",code="200",foo="",handler="",method="get"} 11
+http_requests_total{baz="",code="200",foo="",handler="alerts",method="get"} 35
+http_requests_total{baz="",code="200",foo="",handler="config",method="get"} 8
+http_requests_total{baz="",code="200",foo="",handler="flags",method="get"} 18
+http_requests_total{baz="",code="200",foo="",handler="graph",method="get"} 89
+http_requests_total{baz="",code="200",foo="",handler="prometheus",method="get"} 17051
+http_requests_total{baz="",code="200",foo="",handler="query",method="get"} 401
+http_requests_total{baz="",code="200",foo="",handler="query_range",method="get"} 15663
+http_requests_total{baz="",code="200",foo="",handler="rules",method="get"} 7
+http_requests_total{baz="",code="200",foo="",handler="series",method="get"} 221
+http_requests_total{baz="",code="200",foo="",handler="static",method="get"} 1647
+http_requests_total{baz="",code="200",foo="",handler="status",method="get"} 12
+http_requests_total{baz="",code="200",foo="bar",handler="",method="get"} 325
+http_requests_total{baz="",code="206",foo="",handler="static",method="get"} 2
+http_requests_total{baz="",code="400",foo="",handler="query_range",method="get"} 40
+http_requests_total{baz="",code="503",foo="",handler="query_range",method="get"} 3
+http_requests_total{baz="bar",code="200",foo="",handler="",method="get"} 93
+# HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
+# TYPE node_textfile_mtime_seconds gauge
+node_textfile_mtime_seconds{file="metrics.prom"} 1
+# HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
+# TYPE node_textfile_scrape_error gauge
+node_textfile_scrape_error 0

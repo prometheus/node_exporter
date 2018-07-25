@@ -14,164 +14,156 @@
 package collector
 
 import (
-	"errors"
-	"io/ioutil"
+	"fmt"
 	"os"
-	"regexp"
-	"strconv"
-	"strings"
+	"reflect"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"github.com/prometheus/procfs"
+	"github.com/prometheus/procfs/nfs"
 )
 
-var (
-	netLineRE  = regexp.MustCompile(`^net \d+ (\d+) (\d+) (\d+)$`)
-	rpcLineRE  = regexp.MustCompile(`^rpc (\d+) (\d+) (\d+)$`)
-	procLineRE = regexp.MustCompile(`^proc(\d+) \d+ (\d+( \d+)*)$`)
-
-	nfsProcedures = map[string][]string{
-		"2": {
-			"null", "getattr", "setattr", "root", "lookup",
-			"readlink", "read", "writecache", "write", "create",
-			"remove", "rename", "link", "symlink", "mkdir",
-			"rmdir", "readdir", "statfs",
-		},
-		"3": {
-			"null", "getattr", "setattr", "lookup", "access",
-			"readlink", "read", "write", "create", "mkdir",
-			"symlink", "mknod", "remove", "rmdir", "rename",
-			"link", "readdir", "readdirplus", "fsstat", "fsinfo",
-			"pathconf", "commit",
-		},
-		"4": {
-			"null", "read", "write", "commit", "open",
-			"open_confirm", "open_noattr", "open_downgrade",
-			"close", "setattr", "fsinfo", "renew", "setclientid",
-			"setclientid_confirm", "lock", "lockt", "locku",
-			"access", "getattr", "lookup", "lookup_root", "remove",
-			"rename", "link", "symlink", "create", "pathconf",
-			"statfs", "readlink", "readdir", "server_caps",
-			"delegreturn", "getacl", "setacl", "fs_locations",
-			"release_lockowner", "secinfo", "fsid_present",
-			"exchange_id", "create_session", "destroy_session",
-			"sequence", "get_lease_time", "reclaim_complete",
-			"layoutget", "getdeviceinfo", "layoutcommit",
-			"layoutreturn", "secinfo_no_name", "test_stateid",
-			"free_stateid", "getdevicelist",
-			"bind_conn_to_session", "destroy_clientid", "seek",
-			"allocate", "deallocate", "layoutstats", "clone",
-			"copy",
-		},
-	}
-
-	nfsNetReadsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "net_reads"),
-		"Number of reads at the network layer.",
-		[]string{"protocol"},
-		nil,
-	)
-	nfsNetConnectionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "net_connections"),
-		"Number of connections at the network layer.",
-		[]string{"protocol"},
-		nil,
-	)
-
-	nfsRPCOperationsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "rpc_operations"),
-		"Number of RPCs performed.",
-		nil,
-		nil,
-	)
-	nfsRPCRetransmissionsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "rpc_retransmissions"),
-		"Number of RPC transmissions performed.",
-		nil,
-		nil,
-	)
-	nfsRPCAuthenticationRefreshesDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "rpc_authentication_refreshes"),
-		"Number of RPC authentication refreshes performed.",
-		nil,
-		nil,
-	)
-
-	nfsProceduresDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nfs", "procedures"),
-		"Number of NFS procedures invoked.",
-		[]string{"version", "procedure"},
-		nil,
-	)
+const (
+	nfsSubsystem = "nfs"
 )
 
-type nfsCollector struct{}
+type nfsCollector struct {
+	fs                                procfs.FS
+	nfsNetReadsDesc                   *prometheus.Desc
+	nfsNetConnectionsDesc             *prometheus.Desc
+	nfsRPCOperationsDesc              *prometheus.Desc
+	nfsRPCRetransmissionsDesc         *prometheus.Desc
+	nfsRPCAuthenticationRefreshesDesc *prometheus.Desc
+	nfsProceduresDesc                 *prometheus.Desc
+}
 
 func init() {
-	registerCollector("nfs", defaultDisabled, NewNfsCollector)
+	registerCollector("nfs", defaultEnabled, NewNfsCollector)
 }
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.
 func NewNfsCollector() (Collector, error) {
-	return &nfsCollector{}, nil
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
+	}
+
+	return &nfsCollector{
+		fs: fs,
+		nfsNetReadsDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsSubsystem, "packets_total"),
+			"Total NFSd network packets (sent+received) by protocol type.",
+			[]string{"protocol"},
+			nil,
+		),
+		nfsNetConnectionsDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsSubsystem, "connections_total"),
+			"Total number of NFSd TCP connections.",
+			nil,
+			nil,
+		),
+		nfsRPCOperationsDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsSubsystem, "rpcs_total"),
+			"Total number of RPCs performed.",
+			nil,
+			nil,
+		),
+		nfsRPCRetransmissionsDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsSubsystem, "rpc_retransmissions_total"),
+			"Number of RPC transmissions performed.",
+			nil,
+			nil,
+		),
+		nfsRPCAuthenticationRefreshesDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsSubsystem, "rpc_authentication_refreshes_total"),
+			"Number of RPC authentication refreshes performed.",
+			nil,
+			nil,
+		),
+		nfsProceduresDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, nfsSubsystem, "requests_total"),
+			"Number of NFS procedures invoked.",
+			[]string{"proto", "method"},
+			nil,
+		),
+	}, nil
 }
 
 func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
-	statsFile := procFilePath("net/rpc/nfs")
-	content, err := ioutil.ReadFile(statsFile)
+	stats, err := c.fs.NFSClientRPCStats()
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting NFS statistics, as %q does not exist", statsFile)
+			log.Debugf("Not collecting NFS metrics: %s", err)
 			return nil
 		}
-		return err
+		return fmt.Errorf("failed to retrieve nfs stats: %v", err)
 	}
 
-	for _, line := range strings.Split(string(content), "\n") {
-		if fields := netLineRE.FindStringSubmatch(line); fields != nil {
-			value, _ := strconv.ParseFloat(fields[1], 64)
-			ch <- prometheus.MustNewConstMetric(
-				nfsNetReadsDesc, prometheus.CounterValue,
-				value, "udp")
+	c.updateNFSNetworkStats(ch, &stats.Network)
+	c.updateNFSClientRPCStats(ch, &stats.ClientRPC)
+	c.updateNFSRequestsv2Stats(ch, &stats.V2Stats)
+	c.updateNFSRequestsv3Stats(ch, &stats.V3Stats)
+	c.updateNFSRequestsv4Stats(ch, &stats.ClientV4Stats)
 
-			value, _ = strconv.ParseFloat(fields[2], 64)
-			ch <- prometheus.MustNewConstMetric(
-				nfsNetReadsDesc, prometheus.CounterValue,
-				value, "tcp")
-
-			value, _ = strconv.ParseFloat(fields[3], 64)
-			ch <- prometheus.MustNewConstMetric(
-				nfsNetConnectionsDesc, prometheus.CounterValue,
-				value, "tcp")
-		} else if fields := rpcLineRE.FindStringSubmatch(line); fields != nil {
-			value, _ := strconv.ParseFloat(fields[1], 64)
-			ch <- prometheus.MustNewConstMetric(
-				nfsRPCOperationsDesc,
-				prometheus.CounterValue, value)
-
-			value, _ = strconv.ParseFloat(fields[2], 64)
-			ch <- prometheus.MustNewConstMetric(
-				nfsRPCRetransmissionsDesc,
-				prometheus.CounterValue, value)
-
-			value, _ = strconv.ParseFloat(fields[3], 64)
-			ch <- prometheus.MustNewConstMetric(
-				nfsRPCAuthenticationRefreshesDesc,
-				prometheus.CounterValue, value)
-		} else if fields := procLineRE.FindStringSubmatch(line); fields != nil {
-			version := fields[1]
-			for procedure, count := range strings.Split(fields[2], " ") {
-				value, _ := strconv.ParseFloat(count, 64)
-				ch <- prometheus.MustNewConstMetric(
-					nfsProceduresDesc,
-					prometheus.CounterValue,
-					value,
-					version,
-					nfsProcedures[version][procedure])
-			}
-		} else if line != "" {
-			return errors.New("Failed to parse line: " + line)
-		}
-	}
 	return nil
+}
+
+// updateNFSNetworkStats collects statistics for network packets/connections.
+func (c *nfsCollector) updateNFSNetworkStats(ch chan<- prometheus.Metric, s *nfs.Network) {
+	ch <- prometheus.MustNewConstMetric(c.nfsNetReadsDesc, prometheus.CounterValue,
+		float64(s.UDPCount), "udp")
+	ch <- prometheus.MustNewConstMetric(c.nfsNetReadsDesc, prometheus.CounterValue,
+		float64(s.TCPCount), "tcp")
+	ch <- prometheus.MustNewConstMetric(c.nfsNetConnectionsDesc, prometheus.CounterValue,
+		float64(s.TCPConnect))
+}
+
+// updateNFSClientRPCStats collects statistics for kernel server RPCs.
+func (c *nfsCollector) updateNFSClientRPCStats(ch chan<- prometheus.Metric, s *nfs.ClientRPC) {
+	ch <- prometheus.MustNewConstMetric(c.nfsRPCOperationsDesc, prometheus.CounterValue,
+		float64(s.RPCCount))
+	ch <- prometheus.MustNewConstMetric(c.nfsRPCRetransmissionsDesc, prometheus.CounterValue,
+		float64(s.Retransmissions))
+	ch <- prometheus.MustNewConstMetric(c.nfsRPCAuthenticationRefreshesDesc, prometheus.CounterValue,
+		float64(s.AuthRefreshes))
+}
+
+// updateNFSRequestsv2Stats collects statistics for NFSv2 requests.
+func (c *nfsCollector) updateNFSRequestsv2Stats(ch chan<- prometheus.Metric, s *nfs.V2Stats) {
+	const proto = "2"
+
+	v := reflect.ValueOf(s).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+
+		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
+			float64(field.Uint()), proto, v.Type().Field(i).Name)
+	}
+}
+
+// updateNFSRequestsv3Stats collects statistics for NFSv3 requests.
+func (c *nfsCollector) updateNFSRequestsv3Stats(ch chan<- prometheus.Metric, s *nfs.V3Stats) {
+	const proto = "3"
+
+	v := reflect.ValueOf(s).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+
+		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
+			float64(field.Uint()), proto, v.Type().Field(i).Name)
+	}
+}
+
+// updateNFSRequestsv4Stats collects statistics for NFSv4 requests.
+func (c *nfsCollector) updateNFSRequestsv4Stats(ch chan<- prometheus.Metric, s *nfs.ClientV4Stats) {
+	const proto = "4"
+
+	v := reflect.ValueOf(s).Elem()
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+
+		ch <- prometheus.MustNewConstMetric(c.nfsProceduresDesc, prometheus.CounterValue,
+			float64(field.Uint()), proto, v.Type().Field(i).Name)
+	}
 }

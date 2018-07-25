@@ -24,7 +24,6 @@ import (
 )
 
 type statCollector struct {
-	cpu          *prometheus.Desc
 	intr         *prometheus.Desc
 	ctxt         *prometheus.Desc
 	forks        *prometheus.Desc
@@ -40,28 +39,23 @@ func init() {
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "cpu"),
-			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode"}, nil,
-		),
 		intr: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "intr"),
+			prometheus.BuildFQName(namespace, "", "intr_total"),
 			"Total number of interrupts serviced.",
 			nil, nil,
 		),
 		ctxt: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "context_switches"),
+			prometheus.BuildFQName(namespace, "", "context_switches_total"),
 			"Total number of context switches.",
 			nil, nil,
 		),
 		forks: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "forks"),
+			prometheus.BuildFQName(namespace, "", "forks_total"),
 			"Total number of forks.",
 			nil, nil,
 		),
 		btime: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "boot_time"),
+			prometheus.BuildFQName(namespace, "", "boot_time_seconds"),
 			"Node boot time, in unixtime.",
 			nil, nil,
 		),

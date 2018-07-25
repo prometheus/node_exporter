@@ -31,6 +31,7 @@ import (
 /*
 #cgo LDFLAGS:
 #include <stdlib.h>
+#include <limits.h>
 #include <sys/sysctl.h>
 #include <sys/mount.h>
 #include <mach/mach_init.h>
@@ -45,7 +46,7 @@ import (
 import "C"
 
 // ClocksPerSec default value. from time.h
-const ClocksPerSec = float64(128)
+const ClocksPerSec = float64(C.CLK_TCK)
 
 type statCollector struct {
 	cpu *prometheus.Desc
@@ -58,11 +59,7 @@ func init() {
 // NewCPUCollector returns a new Collector exposing CPU stats.
 func NewCPUCollector() (Collector, error) {
 	return &statCollector{
-		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "cpu"),
-			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode"}, nil,
-		),
+		cpu: nodeCPUSecondsDesc,
 	}, nil
 }
 
@@ -111,7 +108,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			"nice":   C.CPU_STATE_NICE,
 			"idle":   C.CPU_STATE_IDLE,
 		} {
-			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(cpuTicks[v])/ClocksPerSec, "cpu"+strconv.Itoa(i), k)
+			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(cpuTicks[v])/ClocksPerSec, strconv.Itoa(i), k)
 		}
 	}
 	return nil

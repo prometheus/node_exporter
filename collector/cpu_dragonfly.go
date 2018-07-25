@@ -94,11 +94,7 @@ func init() {
 // NewStatCollector returns a new Collector exposing CPU stats.
 func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "cpu"),
-			"Seconds the cpus spent in each mode.",
-			[]string{"cpu", "mode"}, nil,
-		),
+		cpu: nodeCPUSecondsDesc,
 	}, nil
 }
 
@@ -143,7 +139,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// Export order: user nice sys intr idle
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
 	for i, value := range cpuTimes {
-		cpux := fmt.Sprintf("cpu%d", i/fieldsCount)
+		cpux := fmt.Sprintf("%d", i/fieldsCount)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
 	}
 

@@ -41,6 +41,7 @@ func init() {
 	registerCollector("qdisc", defaultDisabled, NewQdiscStatCollector)
 }
 
+// NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
 func NewQdiscStatCollector() (Collector, error) {
 	return &qdiscStatCollector{
 		bytes: typedDesc{prometheus.NewDesc(

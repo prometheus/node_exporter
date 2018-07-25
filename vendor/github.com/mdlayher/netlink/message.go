@@ -62,6 +62,20 @@ const (
 	// HeaderFlagsDump requests that netlink return a complete list of
 	// all entries.
 	HeaderFlagsDump HeaderFlags = HeaderFlagsRoot | HeaderFlagsMatch
+
+	// Flags used to create objects.
+
+	// HeaderFlagsReplace indicates request replaces an existing matching object.
+	HeaderFlagsReplace HeaderFlags = 0x100
+
+	// HeaderFlagsExcl  indicates request does not replace the object if it already exists.
+	HeaderFlagsExcl HeaderFlags = 0x200
+
+	// HeaderFlagsCreate indicates request creates an object if it doesn't already exist.
+	HeaderFlagsCreate HeaderFlags = 0x400
+
+	// HeaderFlagsAppend indicates request adds to the end of the object list.
+	HeaderFlagsAppend HeaderFlags = 0x800
 )
 
 // String returns the string representation of a HeaderFlags.
@@ -73,14 +87,12 @@ func (f HeaderFlags) String() string {
 		"echo",
 		"dumpinterrupted",
 		"dumpfiltered",
-		"1<<6",
-		"1<<7",
-		"root",
-		"match",
-		"atomic",
 	}
 
 	var s string
+
+	left := uint(f)
+
 	for i, name := range names {
 		if f&(1<<uint(i)) != 0 {
 			if s != "" {
@@ -88,11 +100,20 @@ func (f HeaderFlags) String() string {
 			}
 
 			s += name
+
+			left ^= (1 << uint(i))
 		}
 	}
 
-	if s == "" {
+	if s == "" && left == 0 {
 		s = "0"
+	}
+
+	if left > 0 {
+		if s != "" {
+			s += "|"
+		}
+		s += fmt.Sprintf("%#x", left)
 	}
 
 	return s
@@ -212,8 +233,17 @@ func (m *Message) UnmarshalBinary(b []byte) error {
 func checkMessage(m Message) error {
 	const success = 0
 
-	// HeaderTypeError may indicate an error code, or success
-	if m.Header.Type != HeaderTypeError {
+	// Both "done" and "error" can contain error codes.
+	isDone := m.Header.Type == HeaderTypeDone
+	isError := m.Header.Type == HeaderTypeError
+
+	switch {
+	// "done" with no data means success.
+	case isDone && len(m.Data) == 0:
+		return nil
+	case isError, isDone:
+		break
+	default:
 		return nil
 	}
 

@@ -42,10 +42,6 @@ var (
 	)
 )
 
-func warnDeprecated(collector string) {
-	log.Warnf("The %s collector is deprecated and will be removed in the future!", collector)
-}
-
 const (
 	defaultEnabled  = true
 	defaultDisabled = false
@@ -80,7 +76,18 @@ type nodeCollector struct {
 }
 
 // NewNodeCollector creates a new NodeCollector
-func NewNodeCollector() (*nodeCollector, error) {
+func NewNodeCollector(filters ...string) (*nodeCollector, error) {
+	f := make(map[string]bool)
+	for _, filter := range filters {
+		enabled, exist := collectorState[filter]
+		if !exist {
+			return nil, fmt.Errorf("missing collector: %s", filter)
+		}
+		if !*enabled {
+			return nil, fmt.Errorf("disabled collector: %s", filter)
+		}
+		f[filter] = true
+	}
 	collectors := make(map[string]Collector)
 	for key, enabled := range collectorState {
 		if *enabled {
@@ -88,7 +95,9 @@ func NewNodeCollector() (*nodeCollector, error) {
 			if err != nil {
 				return nil, err
 			}
-			collectors[key] = collector
+			if len(f) == 0 || f[key] {
+				collectors[key] = collector
+			}
 		}
 	}
 	return &nodeCollector{Collectors: collectors}, nil

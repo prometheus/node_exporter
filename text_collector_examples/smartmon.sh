@@ -7,10 +7,8 @@
 #       data in them than you'd think.
 #       http://arstechnica.com/civis/viewtopic.php?p=22062211
 
-disks="$(/usr/sbin/smartctl --scan | awk '{print $1 "|" $3}')"
-
 parse_smartctl_attributes_awk="$(cat << 'SMARTCTLAWK'
-$1 ~ /^[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
+$1 ~ /^ *[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
   gsub(/-/, "_");
   printf "%s_value{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $4
   printf "%s_worst{%s,smart_id=\"%s\"} %d\n", $2, labels, $1, $5
@@ -34,6 +32,7 @@ host_writes_mib
 host_writes_32mib
 load_cycle_count
 media_wearout_indicator
+wear_leveling_count
 nand_writes_1gib
 offline_uncorrectable
 power_cycle_count
@@ -46,7 +45,9 @@ sata_downshift_count
 spin_retry_count
 spin_up_time
 start_stop_count
+temperature_case
 temperature_celsius
+temperature_internal
 total_lbas_read
 total_lbas_written
 udma_crc_error_count
@@ -72,9 +73,10 @@ parse_smartctl_attributes() {
 parse_smartctl_info() {
   local -i smart_available=0 smart_enabled=0 smart_healthy=0
   local disk="$1" disk_type="$2"
+  local model_family='' device_model='' serial_number='' fw_version='' vendor='' product='' revision='' lun_id=''
   while read line ; do
     info_type="$(echo "${line}" | cut -f1 -d: | tr ' ' '_')"
-    info_value="$(echo "${line}" | cut -f2- -d: | sed 's/^ \+//g')"
+    info_value="$(echo "${line}" | cut -f2- -d: | sed 's/^ \+//g' | sed 's/"/\\"/')"
     case "${info_type}" in
       Model_Family) model_family="${info_value}" ;;
       Device_Model) device_model="${info_value}" ;;
@@ -102,11 +104,7 @@ parse_smartctl_info() {
       esac
     fi
   done
-  if [[ -n "${vendor}" ]] ; then
-    echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",vendor=\"${vendor}\",product=\"${product}\",revision=\"${revision}\",lun_id=\"${lun_id}\"} 1"
-  else
-    echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",model_family=\"${model_family}\",device_model=\"${device_model}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
-  fi
+  echo "device_info{disk=\"${disk}\",type=\"${disk_type}\",vendor=\"${vendor}\",product=\"${product}\",revision=\"${revision}\",lun_id=\"${lun_id}\",model_family=\"${model_family}\",device_model=\"${device_model}\",serial_number=\"${serial_number}\",firmware_version=\"${fw_version}\"} 1"
   echo "device_smart_available{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_available}"
   echo "device_smart_enabled{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_enabled}"
   echo "device_smart_healthy{disk=\"${disk}\",type=\"${disk_type}\"} ${smart_healthy}"
@@ -136,7 +134,7 @@ if [[ "$(expr "${smartctl_version}" : '\([0-9]*\)\..*')" -lt 6 ]] ; then
   exit
 fi
 
-device_list="$(/usr/sbin/smartctl --scan-open | awk '{print $1 "|" $3}')"
+device_list="$(/usr/sbin/smartctl --scan-open | awk '/^\/dev/{print $1 "|" $3}')"
 
 for device in ${device_list}; do
   disk="$(echo ${device} | cut -f1 -d'|')"

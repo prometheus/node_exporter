@@ -1,3 +1,13 @@
+Release v0.2.0
+==============
+
+There are no breaking changes or further deprecations in this release.
+
+**Changes**
+
+* Added `KissCode` to the `Response` structure.
+
+
 Release v0.1.1
 ==============
 
