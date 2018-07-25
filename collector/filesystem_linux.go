@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	defIgnoredMountPoints = "^/(sys|proc|dev)($|/)"
-	defIgnoredFSTypes     = "^(sys|proc|auto)fs$"
+	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker)($|/)"
+	defIgnoredFSTypes     = "^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$"
 	readOnly              = 0x1 // ST_RDONLY
 )
 
@@ -54,7 +54,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				labels:      labels,
 				deviceError: 1,
 			})
-			log.Errorf("Error on statfs() system call for %q: %s", labels.mountPoint, err)
+			log.Debugf("Error on statfs() system call for %q: %s", labels.mountPoint, err)
 			continue
 		}
 

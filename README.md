@@ -25,6 +25,8 @@ Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
+bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
+boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
 diskstats | Exposes disk I/O statistics. | Darwin, Linux
@@ -38,9 +40,11 @@ infiniband | Exposes network statistics specific to InfiniBand and Intel OmniPat
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
-meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux
+meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 netdev | Exposes network interface statistics such as bytes transferred. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
+nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
+nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
@@ -56,7 +60,6 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 
 Name     | Description | OS
 ---------|-------------|----
-bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
@@ -65,22 +68,12 @@ ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
-nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
 runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
-
-### Deprecated
-
-*These collectors will be (re)moved in the future.*
-
-Name     | Description | OS
----------|-------------|----
-gmond | Exposes statistics from Ganglia. | _any_
-megacli | Exposes RAID statistics from MegaCLI. | Linux
 
 ### Textfile Collector
 
@@ -107,7 +100,29 @@ echo 'role{role="application_server"} 1' > /path/to/directory/role.prom.$$
 mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 ```
 
+### Filtering enabled collectors
+
+The `node_exporter` will expose all metrics from enabled collectors by default.  This is the recommended way to collect metrics to avoid errors when comparing metrics of different families.
+
+For advanced use the `node_exporter` can be passed an optional list of collectors to filter metrics. The `collect[]` parameter may be used multiple times.  In Prometheus configuration you can use this syntax under the [scrape config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<scrape_config>).
+
+```
+  params:
+    collect[]:
+      - foo
+      - bar
+```
+
+This can be useful for having different Prometheus servers collect specific metrics from nodes.
+
 ## Building and running
+
+Prerequisites:
+
+* [Go compiler](https://golang.org/dl/)
+* RHEL/CentOS: `glibc-static` package.
+
+Building:
 
     go get github.com/prometheus/node_exporter
     cd ${GOPATH-$HOME/go}/src/github.com/prometheus/node_exporter
@@ -126,25 +141,15 @@ To see all available configuration flags:
 ## Using Docker
 The node\_exporter is designed to monitor the host system. It's not recommended
 to deploy it as Docker container because it requires access to the host system.
-If you need to run it on Docker, you can deploy this exporter using the
-[node-exporter Docker
-image](https://quay.io/repository/prometheus/node-exporter) with the following
-options and bind-mounts:
+Be aware that any non-root mount points you want to monitor will need bind-mounted
+into the container.
 
 ```bash
-docker run -d -p 9100:9100 \
-  -v "/proc:/host/proc:ro" \
-  -v "/sys:/host/sys:ro" \
-  -v "/:/rootfs:ro" \
+docker run -d \
   --net="host" \
-  quay.io/prometheus/node-exporter \
-    --path.procfs /host/proc \
-    --path.sysfs /host/sys \
-    --collector.filesystem.ignored-mount-points "^/(sys|proc|dev|host|etc)($|/)"
+  --pid="host" \
+  quay.io/prometheus/node-exporter
 ```
-
-Be aware though that the mountpoint label in various metrics will now have
-`/rootfs` as prefix.
 
 ## Using a third-party repository for RHEL/CentOS/Fedora
 

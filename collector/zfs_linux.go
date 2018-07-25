@@ -26,10 +26,26 @@ import (
 	"github.com/prometheus/common/log"
 )
 
+// constants from https://github.com/zfsonlinux/zfs/blob/master/lib/libspl/include/sys/kstat.h
+// kept as strings for comparison thus avoiding conversion to int
+const (
+	KSTAT_DATA_CHAR   = "0"
+	KSTAT_DATA_INT32  = "1"
+	KSTAT_DATA_UINT32 = "2"
+	KSTAT_DATA_INT64  = "3"
+	KSTAT_DATA_UINT64 = "4"
+	KSTAT_DATA_LONG   = "5"
+	KSTAT_DATA_ULONG  = "6"
+	KSTAT_DATA_STRING = "7"
+)
+
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 	file, err := os.Open(procFilePath(path))
 	if err != nil {
-		log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", procFilePath(path))
+		// file not found error can occur if:
+		// 1. zfs module is not loaded
+		// 2. zfs version does not have the feature with metrics -- ok to ignore
+		log.Debugf("Cannot open %q for reading", procFilePath(path))
 		return nil, errZFSNotAvailable
 	}
 	return file, nil
@@ -42,7 +58,7 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 	}
 	defer file.Close()
 
-	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v int64) {
+	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v uint64) {
 		ch <- c.constSysctlMetric(subsystem, s, v)
 	})
 }
@@ -60,11 +76,12 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	for _, zpoolPath := range zpoolPaths {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
-			log.Debugf("Cannot open %q for reading. Is the kernel module loaded?", zpoolPath)
+			// this file should exist, but there is a race where an exporting pool can remove the files -- ok to ignore
+			log.Debugf("Cannot open %q for reading", zpoolPath)
 			return errZFSNotAvailable
 		}
 
-		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v int64) {
+		err = c.parsePoolProcfsFile(file, zpoolPath, func(poolName string, s zfsSysctl, v uint64) {
 			ch <- c.constPoolMetric(poolName, s, v)
 		})
 		file.Close()
@@ -76,7 +93,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, int64)) error {
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, uint64)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -93,14 +110,16 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 			continue
 		}
 
-		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
-
-		value, err := strconv.ParseInt(parts[2], 10, 64)
-		if err != nil {
-			return fmt.Errorf("could not parse expected integer value for %q", key)
+		// kstat data type (column 2) should be KSTAT_DATA_UINT64, otherwise ignore
+		// TODO: when other KSTAT_DATA_* types arrive, much of this will need to be restructured
+		if parts[1] == KSTAT_DATA_UINT64 {
+			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
+			value, err := strconv.ParseUint(parts[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("could not parse expected integer value for %q", key)
+			}
+			handler(zfsSysctl(key), value)
 		}
-		handler(zfsSysctl(key), value)
-
 	}
 	if !parseLine {
 		return fmt.Errorf("did not parse a single %q metric", fmtExt)
@@ -109,7 +128,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 	return scanner.Err()
 }
 
-func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, handler func(string, zfsSysctl, int64)) error {
+func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, handler func(string, zfsSysctl, uint64)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -139,7 +158,7 @@ func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, h
 		for i, field := range fields {
 			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", zpoolFile, field)
 
-			value, err := strconv.ParseInt(line[i], 10, 64)
+			value, err := strconv.ParseUint(line[i], 10, 64)
 			if err != nil {
 				return fmt.Errorf("could not parse expected integer value for %q: %v", key, err)
 			}

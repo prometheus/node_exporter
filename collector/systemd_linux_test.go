@@ -22,61 +22,69 @@ import (
 )
 
 // Creates mock UnitLists
-func getUnitListFixtures() [][]dbus.UnitStatus {
-	fixture1 := []dbus.UnitStatus{
+func getUnitListFixtures() [][]unit {
+	fixture1 := []unit{
 		{
-			Name:        "foo",
-			Description: "foo desc",
-			LoadState:   "loaded",
-			ActiveState: "active",
-			SubState:    "running",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/foo",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "foo",
+				Description: "foo desc",
+				LoadState:   "loaded",
+				ActiveState: "active",
+				SubState:    "running",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/foo",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 		{
-			Name:        "bar",
-			Description: "bar desc",
-			LoadState:   "not-found",
-			ActiveState: "inactive",
-			SubState:    "dead",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/bar",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "bar",
+				Description: "bar desc",
+				LoadState:   "not-found",
+				ActiveState: "inactive",
+				SubState:    "dead",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/bar",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 		{
-			Name:        "foobar",
-			Description: "bar desc",
-			LoadState:   "not-found",
-			ActiveState: "inactive",
-			SubState:    "dead",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/bar",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "foobar",
+				Description: "bar desc",
+				LoadState:   "not-found",
+				ActiveState: "inactive",
+				SubState:    "dead",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/bar",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 		{
-			Name:        "baz",
-			Description: "bar desc",
-			LoadState:   "not-found",
-			ActiveState: "inactive",
-			SubState:    "dead",
-			Followed:    "",
-			Path:        "/org/freedesktop/systemd1/unit/bar",
-			JobId:       0,
-			JobType:     "",
-			JobPath:     "/",
+			UnitStatus: dbus.UnitStatus{
+				Name:        "baz",
+				Description: "bar desc",
+				LoadState:   "not-found",
+				ActiveState: "inactive",
+				SubState:    "dead",
+				Followed:    "",
+				Path:        "/org/freedesktop/systemd1/unit/bar",
+				JobId:       0,
+				JobType:     "",
+				JobPath:     "/",
+			},
 		},
 	}
 
-	fixture2 := []dbus.UnitStatus{}
+	fixture2 := []unit{}
 
-	return [][]dbus.UnitStatus{fixture1, fixture2}
+	return [][]unit{fixture1, fixture2}
 }
 
 func TestSystemdCollectorDoesntCrash(t *testing.T) {
@@ -119,5 +127,26 @@ func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	filtered := filterUnits(fixtures[0], collector.unitWhitelistPattern, collector.unitBlacklistPattern)
 	if len(filtered) != len(fixtures[0]) {
 		t.Error("Default filters removed units")
+	}
+}
+
+func TestSystemdSummary(t *testing.T) {
+	fixtures := getUnitListFixtures()
+	summary := summarizeUnits(fixtures[0])
+
+	for _, state := range unitStatesName {
+		if state == "inactive" {
+			testSummaryHelper(t, state, summary[state], 3.0)
+		} else if state == "active" {
+			testSummaryHelper(t, state, summary[state], 1.0)
+		} else {
+			testSummaryHelper(t, state, summary[state], 0.0)
+		}
+	}
+}
+
+func testSummaryHelper(t *testing.T, state string, actual float64, expected float64) {
+	if actual != expected {
+		t.Errorf("Summary mode didn't count %s jobs correctly. Actual: %f, expected: %f", state, actual, expected)
 	}
 }

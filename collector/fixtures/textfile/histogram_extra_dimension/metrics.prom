@@ -1,0 +1,28 @@
+# HELP prometheus_tsdb_compaction_chunk_range Final time range of chunks on their first compaction
+# TYPE prometheus_tsdb_compaction_chunk_range histogram
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="100"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="1600"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="6400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="25600"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="102400"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="409600"} 1.412839e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="1.6384e+06"} 1.69185e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="6.5536e+06"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="2.62144e+07"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="+Inf"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_sum{foo="bar"} 6.71393432189e+11
+prometheus_tsdb_compaction_chunk_range_count{foo="bar"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="100"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="1600"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="6400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="25600"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="102400"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="409600"} 1.412839e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="1.6384e+06"} 1.69185e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="6.5536e+06"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="2.62144e+07"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="+Inf"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_sum{foo="baz"} 6.71393432189e+11
+prometheus_tsdb_compaction_chunk_range_count{foo="baz"} 1.691853e+06

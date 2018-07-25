@@ -2,7 +2,7 @@ FROM  rhel7:7-released
 LABEL maintainer="OpenShift Development <dev@lists.openshift.redhat.com>" \
       com.redhat.component="golang-github-prometheus-node_exporter-docker" \
       name="openshift3/prometheus-node-exporter" \
-      version="v0.15.2" \
+      version="v0.16.0" \
       architecture=x86_64
 
 # The appropriate yum repos are enabled at build time by the CI system

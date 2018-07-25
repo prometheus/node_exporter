@@ -8,7 +8,7 @@ zil_itx_indirect_bytes          4    0
 zil_itx_copied_count            4    0
 zil_itx_copied_bytes            4    0
 zil_itx_needcopy_count          4    0
-zil_itx_needcopy_bytes          4    0
+zil_itx_needcopy_bytes          4    18446744073709537686
 zil_itx_metaslab_normal_count   4    0
 zil_itx_metaslab_normal_bytes   4    0
 zil_itx_metaslab_slog_count     4    0

@@ -14,8 +14,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	_ "net/http/pprof"
+	"sort"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -27,6 +29,43 @@ import (
 
 func init() {
 	prometheus.MustRegister(version.NewCollector("node_exporter"))
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	filters := r.URL.Query()["collect[]"]
+	log.Debugln("collect query:", filters)
+
+	nc, err := collector.NewNodeCollector(filters...)
+	if err != nil {
+		log.Warnln("Couldn't create", err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf("Couldn't create %s", err)))
+		return
+	}
+
+	registry := prometheus.NewRegistry()
+	err = registry.Register(nc)
+	if err != nil {
+		log.Errorln("Couldn't register collector:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Couldn't register collector: %s", err)))
+		return
+	}
+
+	gatherers := prometheus.Gatherers{
+		prometheus.DefaultGatherer,
+		registry,
+	}
+	// Delegate http serving to Prometheus client library, which will call collector.Collect.
+	h := promhttp.InstrumentMetricHandler(
+		registry,
+		promhttp.HandlerFor(gatherers,
+			promhttp.HandlerOpts{
+				ErrorLog:      log.NewErrorLogger(),
+				ErrorHandling: promhttp.ContinueOnError,
+			}),
+	)
+	h.ServeHTTP(w, r)
 }
 
 func main() {
@@ -43,26 +82,22 @@ func main() {
 	log.Infoln("Starting node_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())
 
+	// This instance is only used to check collector creation and logging.
 	nc, err := collector.NewNodeCollector()
 	if err != nil {
 		log.Fatalf("Couldn't create collector: %s", err)
 	}
 	log.Infof("Enabled collectors:")
+	collectors := []string{}
 	for n := range nc.Collectors {
+		collectors = append(collectors, n)
+	}
+	sort.Strings(collectors)
+	for _, n := range collectors {
 		log.Infof(" - %s", n)
 	}
 
-	if err := prometheus.Register(nc); err != nil {
-		log.Fatalf("Couldn't register collector: %s", err)
-	}
-	handler := promhttp.HandlerFor(prometheus.DefaultGatherer,
-		promhttp.HandlerOpts{
-			ErrorLog:      log.NewErrorLogger(),
-			ErrorHandling: promhttp.ContinueOnError,
-		})
-
-	// TODO(ts): Remove deprecated and problematic InstrumentHandler usage.
-	http.Handle(*metricsPath, prometheus.InstrumentHandler("prometheus", handler))
+	http.HandleFunc(*metricsPath, handler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
 			<head><title>Node Exporter</title></head>

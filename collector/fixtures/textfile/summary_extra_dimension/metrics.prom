@@ -1,0 +1,12 @@
+# HELP prometheus_rule_evaluation_duration_seconds The duration for a rule to execute.
+# TYPE prometheus_rule_evaluation_duration_seconds summary
+prometheus_rule_evaluation_duration_seconds{rule_type="alerting",quantile="0.5", handler="foo"} 0.000571464
+prometheus_rule_evaluation_duration_seconds{rule_type="alerting",quantile="0.9"} 0.001765451
+prometheus_rule_evaluation_duration_seconds{rule_type="alerting",quantile="0.99"} 0.018672076
+prometheus_rule_evaluation_duration_seconds_sum{rule_type="alerting"} 214.85081044700146
+prometheus_rule_evaluation_duration_seconds_count{rule_type="alerting"} 185209
+prometheus_rule_evaluation_duration_seconds{rule_type="recording",quantile="0.5"} 4.3132e-05
+prometheus_rule_evaluation_duration_seconds{rule_type="recording",quantile="0.9"} 8.9295e-05
+prometheus_rule_evaluation_duration_seconds{rule_type="recording",quantile="0.99"} 0.000193657
+prometheus_rule_evaluation_duration_seconds_sum{rule_type="recording"} 185091.01317759082
+prometheus_rule_evaluation_duration_seconds_count{rule_type="recording"} 1.0020195e+08

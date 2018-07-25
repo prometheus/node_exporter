@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>io.prometheus.node_exporter</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>sh</string>
+    <string>-c</string>
+    <string>/usr/local/bin/node_exporter $(&lt; /usr/local/etc/node_exporter.args)</string>
+  </array>
+  <key>UserName</key>
+  <string>nobody</string>
+  <key>GroupName</key>
+  <string>nobody</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <false/>
+  <key>WorkingDirectory</key>
+  <string>/usr/local</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/node_exporter.log</string>
+  <key>StandardOutPath</key>
+  <string>/tmp/node_exporter.log</string>
+  <key>HardResourceLimits</key>
+  <dict>
+    <key>NumberOfFiles</key>
+    <integer>4096</integer>
+  </dict>
+  <key>SoftResourceLimits</key>
+  <dict>
+    <key>NumberOfFiles</key>
+    <integer>4096</integer>
+  </dict>
+</dict>
+</plist>

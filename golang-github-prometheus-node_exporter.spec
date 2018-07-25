@@ -10,17 +10,17 @@
 %global import_path     %{provider_prefix}
 # %commit is intended to be set by tito. The values in this spec file will not be kept up to date.
 %{!?commit:
-%global commit          0ad685f9803aea72f3ab6590b173511454af1d16
+%global commit          774a8c9ce7df6ce20b12be3b3f2175a74e8ddb21
 }
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %global gopathdir       %{_sourcedir}/go
-%global upstream_ver    0.15.2
+%global upstream_ver    0.16.0
 %global rpm_ver         %(v=%{upstream_ver}; echo ${v//-/_})
 %global download_prefix %{provider}.%{provider_tld}/openshift/%{repo}
 
 Name:		golang-%{provider}-%{project}-%{repo}
 Version:	%{rpm_ver}
-Release:	3.git%{shortcommit}%{?dist}
+Release:	1.git%{shortcommit}%{?dist}
 Summary:	Prometheus exporter for hardware and OS metrics exposed by *NIX kernels
 License:	ASL 2.0
 URL:		https://prometheus.io/
@@ -80,6 +80,9 @@ install -D -p -m 0644 prometheus-node-exporter.sysconfig \
 %{_sysconfdir}/sysconfig/prometheus-node-exporter
 
 %changelog
+* Wed Jul 25 2018 Paul Gier <pgier@redhat.com> - 0.16.0-1
+- upgrade to 0.16.0
+
 * Wed Jun 20 2018 Simon Pasquier <spasquie@redhat.com> - 0.15.2-3
 - Fix systemd configuration
 
