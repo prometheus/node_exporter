@@ -28,7 +28,7 @@ groups:
   - record: node_disk_written_bytes_total
     expr: node_disk_bytes_written
   - record: node_disk_io_time_seconds_total
-    expr: node_disk_io_time_ms
+    expr: node_disk_io_time_ms / 1000
   - record: node_disk_io_time_weighted_seconds_total
     expr: node_disk_io_time_weighted
   - record: node_disk_reads_completed_total
@@ -36,13 +36,13 @@ groups:
   - record: node_disk_reads_merged_total
     expr: node_disk_reads_merged
   - record: node_disk_read_time_seconds_total
-    expr: node_disk_read_time_ms
+    expr: node_disk_read_time_ms / 1000
   - record: node_disk_writes_completed_total
     expr: node_disk_writes_completed
   - record: node_disk_writes_merged_total
     expr: node_disk_writes_merged
   - record: node_disk_write_time_seconds_total
-    expr: node_disk_write_time_ms
+    expr: node_disk_write_time_ms / 1000
 - name: node_exporter-16-filesystem
   rules:
   - record: node_filesystem_free_bytes
@@ -189,3 +189,7 @@ groups:
     expr: node_nfs_rpc_operations
   - record: node_nfs_rpc_retransmissions_total
     expr: node_nfs_rpc_retransmissions
+- name: node_exporter-16-textfile
+  rules:
+  - record: node_textfile_mtime_seconds
+    expr: node_textfile_mtime
