@@ -20,15 +20,14 @@
 
 Name:		golang-%{provider}-%{project}-%{repo}
 Version:	%{rpm_ver}
-Release:	1.git%{shortcommit}%{?dist}
+Release:	2.git%{shortcommit}%{?dist}
 Summary:	Prometheus exporter for hardware and OS metrics exposed by *NIX kernels
 License:	ASL 2.0
 URL:		https://prometheus.io/
 Source0:	https://%{download_prefix}/archive/%{commit}/%{repo}-%{commit}.tar.gz
 
 # e.g. el6 has ppc64 arch without gcc-go, so EA tag is required
-# promu-based packages FTBFS on aarch64 (#1487462)
-ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 %{arm} ppc64le s390x}
+ExclusiveArch:  %{?go_arches:%{go_arches}}%{!?go_arches:%{ix86} x86_64 aarch64 %{arm} ppc64le s390x}
 # If go_compiler is not set to 1, there is no virtual provide. Use golang instead.
 BuildRequires: %{?go_compiler:compiler(go-compiler)}%{!?go_compiler:golang}
 BuildRequires: glibc-static
@@ -80,6 +79,9 @@ install -D -p -m 0644 prometheus-node-exporter.sysconfig \
 %{_sysconfdir}/sysconfig/prometheus-node-exporter
 
 %changelog
+* Fri Jul 27 2018 Simon Pasquier <spasquie@redhat.com> - 0.16.0-2
+- Enable aarch64
+
 * Wed Jul 25 2018 Paul Gier <pgier@redhat.com> - 0.16.0-1
 - upgrade to 0.16.0
 
