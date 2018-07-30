@@ -109,8 +109,8 @@ func TestSystemdCollectorDoesntCrash(t *testing.T) {
 
 func TestSystemdIgnoreFilter(t *testing.T) {
 	fixtures := getUnitListFixtures()
-	whitelistPattern := regexp.MustCompile("foo")
-	blacklistPattern := regexp.MustCompile("bar")
+	whitelistPattern := regexp.MustCompile("^foo$")
+	blacklistPattern := regexp.MustCompile("^bar$")
 	filtered := filterUnits(fixtures[0], whitelistPattern, blacklistPattern)
 	for _, unit := range filtered {
 		if blacklistPattern.MatchString(unit.Name) || !whitelistPattern.MatchString(unit.Name) {
