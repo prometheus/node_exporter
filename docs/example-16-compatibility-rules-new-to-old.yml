@@ -1,3 +1,4 @@
+groups:
 - name: node_exporter-16-bcache
   rules:
   - expr: node_bcache_cache_read_races
@@ -26,7 +27,7 @@
     record: node_disk_bytes_read
   - expr: node_disk_written_bytes_total
     record: node_disk_bytes_written
-  - expr: node_disk_io_time_seconds_total
+  - expr: node_disk_io_time_seconds_total * 1000
     record: node_disk_io_time_ms
   - expr: node_disk_io_time_weighted_seconds_total
     record: node_disk_io_time_weighted
@@ -34,13 +35,13 @@
     record: node_disk_reads_completed
   - expr: node_disk_reads_merged_total
     record: node_disk_reads_merged
-  - expr: node_disk_read_time_seconds_total
+  - expr: node_disk_read_time_seconds_total * 1000
     record: node_disk_read_time_ms
   - expr: node_disk_writes_completed_total
     record: node_disk_writes_completed
   - expr: node_disk_writes_merged_total
     record: node_disk_writes_merged
-  - expr: node_disk_write_time_seconds_total
+  - expr: node_disk_write_time_seconds_total * 1000
     record: node_disk_write_time_ms
 - name: node_exporter-16-filesystem
   rules:
@@ -188,3 +189,7 @@
     record: node_nfs_rpc_operations
   - expr: node_nfs_rpc_retransmissions_total
     record: node_nfs_rpc_retransmissions
+- name: node_exporter-16-textfile
+  rules:
+  - expr: node_textfile_mtime_seconds
+    record: node_textfile_mtime
