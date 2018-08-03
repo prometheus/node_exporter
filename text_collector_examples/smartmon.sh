@@ -62,7 +62,8 @@ smartmon_attrs="$(echo ${smartmon_attrs} | xargs | tr ' ' '|')"
 parse_smartctl_attributes() {
   local disk="$1"
   local disk_type="$2"
-  local labels="disk=\"${disk}\",type=\"${disk_type}\""
+  local by_id="$3"
+  local labels="disk=\"${disk}\",type=\"${disk_type}\",byid=\"${by_id}\""
   local vars="$(echo "${smartmon_attrs}" | xargs | tr ' ' '|')"
   sed 's/^ \+//g' \
     | awk -v labels="${labels}" "${parse_smartctl_attributes_awk}" 2>/dev/null \
@@ -159,12 +160,13 @@ device_list="$(/usr/sbin/smartctl --scan-open | awk '/^\/dev/{print $1 "|" $3}')
 for device in ${device_list}; do
   disk="$(echo ${device} | cut -f1 -d'|')"
   type="$(echo ${device} | cut -f2 -d'|')"
+  byid="$(udevadm info --query=all --name=${disk} | grep -oP '(?<=ID_SERIAL=).*')"
   echo "smartctl_run{disk=\"${disk}\",type=\"${type}\"}" $(TZ=UTC date '+%s')
   # Get the SMART information and health
   /usr/sbin/smartctl -i -H -d "${type}" "${disk}" | parse_smartctl_info "${disk}" "${type}"
   # Get the SMART attributes
   case ${type} in
-    sat) /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_attributes "${disk}" "${type}" ;;
+    sat) /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_attributes "${disk}" "${type}" "${byid}";;
     scsi) /usr/sbin/smartctl -A -d "${type}" "${disk}" | parse_smartctl_scsi_attributes "${disk}" "${type}" ;;
     *) echo "disk type is not sat or scsi, ${type}"; exit ;;
   esac
