@@ -1,6 +1,6 @@
 name: prometheus-node-exporter
 version: EXPORTER_VERSION
-summary: Prometheus node exporter
+summary: Prometheus Node Exporter
 description: |
   The node exporter is a system monitoring agent for the Prometheus monitoring system.
   Data is available on HTTP port 9100.
