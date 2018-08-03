@@ -157,6 +157,7 @@ fi
 
 device_list="$(/usr/sbin/smartctl --scan-open | awk '/^\/dev/{print $1 "|" $3}')"
 
+# iterate over devices
 for device in ${device_list}; do
   disk="$(echo ${device} | cut -f1 -d'|')"
   type="$(echo ${device} | cut -f2 -d'|')"
