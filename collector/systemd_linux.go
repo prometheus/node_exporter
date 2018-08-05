@@ -148,7 +148,7 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 	}
 }
 
-func (c *systemdCollector) collectSockets(ch chan<- prometheus.Metric, units []unit) error {
+func (c *systemdCollector) collectSockets(ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		if !strings.HasSuffix(unit.Name, ".socket") {
 			continue
@@ -164,7 +164,6 @@ func (c *systemdCollector) collectSockets(ch chan<- prometheus.Metric, units []u
 			c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
 			float64(unit.refusedConnections), unit.Name)
 	}
-	return nil
 }
 
 func (c *systemdCollector) collectUnitStartTimeMetrics(ch chan<- prometheus.Metric, units []unit) {
@@ -175,7 +174,7 @@ func (c *systemdCollector) collectUnitStartTimeMetrics(ch chan<- prometheus.Metr
 	}
 }
 
-func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []unit) error {
+func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		if !strings.HasSuffix(unit.Name, ".timer") {
 			continue
@@ -185,7 +184,6 @@ func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []un
 			c.timerLastTriggerDesc, prometheus.GaugeValue,
 			float64(unit.lastTriggerUsec)/1e6, unit.Name)
 	}
-	return nil
 }
 
 func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, summary map[string]float64) {
