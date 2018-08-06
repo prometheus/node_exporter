@@ -4,7 +4,7 @@
 
 supvervisord collector reports "start_time_seconds" rather than "uptime"
 
-The wifi collector is disabled by default due to suspected cashing issues and goroutine leaks.
+The wifi collector is disabled by default due to suspected caching issues and goroutine leaks.
 * https://github.com/prometheus/node_exporter/issues/870
 * https://github.com/prometheus/node_exporter/issues/1008
 
