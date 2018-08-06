@@ -65,16 +65,16 @@
 			"versionExact": "v1.0.0"
 		},
 		{
-			"checksumSHA1": "tw3ocqSpa9ikzUV6qhcKBAAO6WU=",
-			"path": "github.com/kolo/xmlrpc",
-			"revision": "0826b98aaa29c0766956cb40d45cf7482a597671",
-			"revisionTime": "2015-04-13T19:18:30Z"
-		},
-		{
 			"checksumSHA1": "IdBAvtVSv0sbi8sEsLovnZubims=",
 			"path": "github.com/lufia/iostat",
 			"revision": "9f7362b77ad333b26c01c99de52a11bdb650ded2",
 			"revisionTime": "2017-06-05T15:08:45Z"
+		},
+		{
+			"checksumSHA1": "8uAFFK5p8F39X1MOLsHrgTI0hzw=",
+			"path": "github.com/mattn/go-xmlrpc",
+			"revision": "b7a1b57d9142f44a3a8f5a80aadf8d2d6ea2ca22",
+			"revisionTime": "2018-04-20T00:08:13Z"
 		},
 		{
 			"checksumSHA1": "aodj/cITRyuaZSh84DDhrZjh76U=",
