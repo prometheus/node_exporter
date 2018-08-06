@@ -272,9 +272,9 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 			refusedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NRefused")
 			if err != nil {
 				log.Debugf("couldn't get unit '%s' NRefused: %s\n", unit.Name, err)
-				continue
+			} else {
+				unit.refusedConnections = refusedConnectionCount.Value.Value().(uint32)
 			}
-			unit.refusedConnections = refusedConnectionCount.Value.Value().(uint32)
 		}
 
 		if unit.ActiveState != "active" {

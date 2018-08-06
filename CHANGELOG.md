@@ -13,6 +13,7 @@ supvervisord collector reports "start_time_seconds" rather than "uptime"
 * [BUGFIX]
 
 * [BUGFIX] Fix goroutine leak in supervisord collector
+* [BUGFIX] Fix failing socket unit collection due to failing dbus query
 
 ## 0.16.0 / 2018-05-15
 
