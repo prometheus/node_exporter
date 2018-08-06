@@ -2,7 +2,7 @@
   prometheusRules+:: {
     groups+: [
       {
-        name: 'node-exporter',
+        name: 'node-exporter.rules',
         rules: [
           {
             // This rule gives the number of CPUs per node.
