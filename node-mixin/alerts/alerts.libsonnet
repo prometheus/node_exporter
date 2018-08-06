@@ -2,7 +2,7 @@
   prometheusAlerts+:: {
     groups+: [
       {
-        name: 'node',
+        name: 'node-exporter',
         rules: [
           {
             alert: 'NodeFilesystemSpaceFillingUp',
