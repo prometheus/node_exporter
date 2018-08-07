@@ -4,6 +4,10 @@
 
 supvervisord collector reports "start_time_seconds" rather than "uptime"
 
+The wifi collector is disabled by default due to suspected caching issues and goroutine leaks.
+* https://github.com/prometheus/node_exporter/issues/870
+* https://github.com/prometheus/node_exporter/issues/1008
+
 * [CHANGE] Filter out non-installed units when collecting all systemd units #1011
 * [FEATURE] Collect NRefused property for systemd socket units (available as of systemd v239)
 * [FEATURE] Collect NRestarts property for systemd service units
