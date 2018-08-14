@@ -9,6 +9,7 @@ The wifi collector is disabled by default due to suspected caching issues and go
 * https://github.com/prometheus/node_exporter/issues/1008
 
 * [CHANGE] Filter out non-installed units when collecting all systemd units #1011
+* [CHANGE] `service_restart_total` and `socket_refused_connections_total` will not be reported if you're running an older version of systemd
 * [FEATURE] Collect NRefused property for systemd socket units (available as of systemd v239)
 * [FEATURE] Collect NRestarts property for systemd service units
 * [FEATURE] Add socket unit stats to systemd collector #968
@@ -16,6 +17,7 @@ The wifi collector is disabled by default due to suspected caching issues and go
 * [ENHANCEMENT]
 
 * [BUGFIX] Fix goroutine leak in supervisord collector
+* [BUGFIX] Systemd units will not be ignored if you're running older versions of systemd #1039
 * [BUGFIX] Handle vanishing PIDs #1043
 
 ## 0.16.0 / 2018-05-15

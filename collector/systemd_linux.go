@@ -140,10 +140,10 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 				c.unitDesc, prometheus.GaugeValue, isActive,
 				unit.Name, stateName)
 		}
-		if strings.HasSuffix(unit.Name, ".service") {
+		if strings.HasSuffix(unit.Name, ".service") && unit.nRestarts != nil {
 			ch <- prometheus.MustNewConstMetric(
 				c.nRestartsDesc, prometheus.CounterValue,
-				float64(unit.nRestarts), unit.Name)
+				float64(*unit.nRestarts), unit.Name)
 		}
 	}
 }
@@ -160,9 +160,11 @@ func (c *systemdCollector) collectSockets(ch chan<- prometheus.Metric, units []u
 		ch <- prometheus.MustNewConstMetric(
 			c.socketCurrentConnectionsDesc, prometheus.GaugeValue,
 			float64(unit.currentConnections), unit.Name)
-		ch <- prometheus.MustNewConstMetric(
-			c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
-			float64(unit.refusedConnections), unit.Name)
+		if unit.refusedConnections != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
+				float64(*unit.refusedConnections), unit.Name)
+		}
 	}
 }
 
@@ -212,10 +214,10 @@ type unit struct {
 	dbus.UnitStatus
 	lastTriggerUsec     uint64
 	startTimeUsec       uint64
-	nRestarts           uint32
+	nRestarts           *uint32
 	acceptedConnections uint32
 	currentConnections  uint32
-	refusedConnections  uint32
+	refusedConnections  *uint32
 }
 
 func (c *systemdCollector) getAllUnits() ([]unit, error) {
@@ -241,40 +243,47 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 		if strings.HasSuffix(unit.Name, ".timer") {
 			lastTriggerValue, err := conn.GetUnitTypeProperty(unit.Name, "Timer", "LastTriggerUSec")
 			if err != nil {
-				return nil, fmt.Errorf("couldn't get unit '%s' LastTriggerUSec: %s", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' LastTriggerUSec: %s\n", unit.Name, err)
+				continue
 			}
 
 			unit.lastTriggerUsec = lastTriggerValue.Value.Value().(uint64)
 		}
 		if strings.HasSuffix(unit.Name, ".service") {
-			nRestarts, err := conn.GetUnitTypeProperty(unit.Name, "Service", "NRestarts")
+			// NRestarts wasn't added until systemd 235.
+			restartsCount, err := conn.GetUnitTypeProperty(unit.Name, "Service", "NRestarts")
 			if err != nil {
 				log.Debugf("couldn't get unit '%s' NRestarts: %s\n", unit.Name, err)
-				continue
+			} else {
+				nRestarts := restartsCount.Value.Value().(uint32)
+				unit.nRestarts = &nRestarts
 			}
-			unit.nRestarts = nRestarts.Value.Value().(uint32)
 		}
 
 		if strings.HasSuffix(unit.Name, ".socket") {
 			acceptedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NAccepted")
 			if err != nil {
-				return nil, fmt.Errorf("couldn't get unit '%s' NAccepted: %s", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' NAccepted: %s\n", unit.Name, err)
+				continue
 			}
 
 			unit.acceptedConnections = acceptedConnectionCount.Value.Value().(uint32)
 
 			currentConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NConnections")
 			if err != nil {
-				return nil, fmt.Errorf("couldn't get unit '%s' NConnections: %s", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' NConnections: %s\n", unit.Name, err)
+				continue
 			}
 			unit.currentConnections = currentConnectionCount.Value.Value().(uint32)
 
+			// NRefused wasn't added until systemd 239.
 			refusedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NRefused")
 			if err != nil {
 				log.Debugf("couldn't get unit '%s' NRefused: %s\n", unit.Name, err)
-				continue
+			} else {
+				nRefused := refusedConnectionCount.Value.Value().(uint32)
+				unit.refusedConnections = &nRefused
 			}
-			unit.refusedConnections = refusedConnectionCount.Value.Value().(uint32)
 		}
 
 		if unit.ActiveState != "active" {
@@ -282,7 +291,8 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 		} else {
 			timestampValue, err := conn.GetUnitProperty(unit.Name, "ActiveEnterTimestamp")
 			if err != nil {
-				return nil, fmt.Errorf("couldn't get unit '%s' StartTimeUsec: %s", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' StartTimeUsec: %s\n", unit.Name, err)
+				continue
 			}
 
 			unit.startTimeUsec = timestampValue.Value.Value().(uint64)
