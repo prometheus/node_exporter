@@ -17,6 +17,7 @@ package collector
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 
@@ -42,6 +43,8 @@ type systemdCollector struct {
 	socketAcceptedConnectionsDesc *prometheus.Desc
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
+	serviceMemoryCurrentDesc      *prometheus.Desc
+	serviceMemoryLimitDesc        *prometheus.Desc
 	unitWhitelistPattern          *regexp.Regexp
 	unitBlacklistPattern          *regexp.Regexp
 }
@@ -75,6 +78,12 @@ func NewSystemdCollector() (Collector, error) {
 	nRestartsDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "service_restart_total"),
 		"Service unit count of Restart triggers", []string{"state"}, nil)
+	serviceMemoryCurrentDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "service_memory_current_bytes"),
+		"Service unit memory current usage", []string{"name"}, nil)
+	serviceMemoryLimitDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "service_memory_limit_bytes"),
+		"Service unit memory limit", []string{"name"}, nil)
 	timerLastTriggerDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "timer_last_trigger_seconds"),
 		"Seconds since epoch of last trigger.", []string{"name"}, nil)
@@ -100,6 +109,8 @@ func NewSystemdCollector() (Collector, error) {
 		socketAcceptedConnectionsDesc: socketAcceptedConnectionsDesc,
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
+		serviceMemoryCurrentDesc:      serviceMemoryCurrentDesc,
+		serviceMemoryLimitDesc:        serviceMemoryLimitDesc,
 		unitWhitelistPattern:          unitWhitelistPattern,
 		unitBlacklistPattern:          unitBlacklistPattern,
 	}, nil
@@ -117,6 +128,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
 	c.collectUnitStatusMetrics(ch, units)
 	c.collectUnitStartTimeMetrics(ch, units)
+	c.collectServices(ch, units)
 	c.collectTimers(ch, units)
 	c.collectSockets(ch, units)
 
@@ -139,11 +151,6 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 			ch <- prometheus.MustNewConstMetric(
 				c.unitDesc, prometheus.GaugeValue, isActive,
 				unit.Name, stateName)
-		}
-		if strings.HasSuffix(unit.Name, ".service") {
-			ch <- prometheus.MustNewConstMetric(
-				c.nRestartsDesc, prometheus.CounterValue,
-				float64(unit.nRestarts), unit.Name)
 		}
 	}
 }
@@ -186,6 +193,29 @@ func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []un
 	}
 }
 
+func (c *systemdCollector) collectServices(ch chan<- prometheus.Metric, units []unit) error {
+	for _, unit := range units {
+		if !strings.HasSuffix(unit.Name, ".service") {
+			continue
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			c.nRestartsDesc, prometheus.CounterValue,
+			float64(unit.nRestarts), unit.Name)
+
+		// Only report these if we could get the memory usage
+		if unit.memoryCurrent > 0 {
+			ch <- prometheus.MustNewConstMetric(
+				c.serviceMemoryCurrentDesc, prometheus.GaugeValue,
+				float64(unit.memoryCurrent), unit.Name)
+			ch <- prometheus.MustNewConstMetric(
+				c.serviceMemoryLimitDesc, prometheus.GaugeValue,
+				float64(unit.memoryLimit), unit.Name)
+		}
+	}
+	return nil
+}
+
 func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, summary map[string]float64) {
 	for stateName, count := range summary {
 		ch <- prometheus.MustNewConstMetric(
@@ -216,6 +246,8 @@ type unit struct {
 	acceptedConnections uint32
 	currentConnections  uint32
 	refusedConnections  uint32
+	memoryCurrent       uint64
+	memoryLimit         uint64
 }
 
 func (c *systemdCollector) getAllUnits() ([]unit, error) {
@@ -246,6 +278,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 
 			unit.lastTriggerUsec = lastTriggerValue.Value.Value().(uint64)
 		}
+
 		if strings.HasSuffix(unit.Name, ".service") {
 			nRestarts, err := conn.GetUnitTypeProperty(unit.Name, "Service", "NRestarts")
 			if err != nil {
@@ -253,6 +286,26 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 				continue
 			}
 			unit.nRestarts = nRestarts.Value.Value().(uint32)
+
+			memoryCurrent, err := conn.GetUnitTypeProperty(unit.Name, "Service", "MemoryCurrent")
+			if err != nil {
+				log.Debugf("couldn't get unit '%s' MemoryCurrent: %s\n", unit.Name, err)
+				continue
+			}
+			unit.memoryCurrent = memoryCurrent.Value.Value().(uint64)
+
+			// Systemd reports invalid memory usage for some services
+			if unit.memoryCurrent < math.MaxUint64 {
+				memoryLimit, err := conn.GetUnitTypeProperty(unit.Name, "Service", "MemoryLimit")
+				if err != nil {
+					log.Debugf("couldn't get unit '%s' MemoryLimit: %s\n", unit.Name, err)
+					continue
+				}
+				unit.memoryLimit = memoryLimit.Value.Value().(uint64)
+			} else {
+				log.Debugf("invalid current memory for '%s'\n", unit.Name)
+				unit.memoryCurrent = 0
+			}
 		}
 
 		if strings.HasSuffix(unit.Name, ".socket") {
