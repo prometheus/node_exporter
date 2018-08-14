@@ -14,8 +14,11 @@ The wifi collector is disabled by default due to suspected caching issues and go
 * [FEATURE] Collect NRestarts property for systemd service units
 * [FEATURE] Add socket unit stats to systemd collector #968
 * [FEATURE] Collect start time for systemd units
-* [BUGFIX] Systemd units will not be ignored if you're running older versions of systemd
+* [ENHANCEMENT]
+
 * [BUGFIX] Fix goroutine leak in supervisord collector
+* [BUGFIX] Systemd units will not be ignored if you're running older versions of systemd #1039
+* [BUGFIX] Handle vanishing PIDs #1043
 
 ## 0.16.0 / 2018-05-15
 
