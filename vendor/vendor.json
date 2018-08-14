@@ -85,28 +85,28 @@
 			"versionExact": "v1.0.0"
 		},
 		{
-			"checksumSHA1": "VZIJG8dML/XqZbL9bpeDNgkazcg=",
+			"checksumSHA1": "zLH8BV9kYzpqGB5PS4VDjADFvVM=",
 			"path": "github.com/mdlayher/genetlink",
-			"revision": "76fecce4c787fb8eaa21a8755f722d67c53038e1",
-			"revisionTime": "2017-09-01T18:19:24Z"
+			"revision": "ca85b5a307448462b0aa7a07c67c0846bc12568f",
+			"revisionTime": "2018-07-28T17:03:40Z"
 		},
 		{
-			"checksumSHA1": "S6NatJYh1aOFzSIs6Agp2R0ydtM=",
+			"checksumSHA1": "ybkJbYD6wyjdoPp/KncnDpCyYiU=",
 			"path": "github.com/mdlayher/netlink",
-			"revision": "756e798fb38fac19fb2234d3acc32e902bc1af44",
-			"revisionTime": "2017-12-14T18:12:53Z"
+			"revision": "80a6f93efd374ddee4e0ea862ca0085ef42eed65",
+			"revisionTime": "2018-08-10T15:28:04Z"
 		},
 		{
-			"checksumSHA1": "9nig0WuuiTICStI/8S+pIGqYksc=",
+			"checksumSHA1": "P7eEo2V7/kQEkt2ihW+26S39eEw=",
 			"path": "github.com/mdlayher/netlink/nlenc",
-			"revision": "756e798fb38fac19fb2234d3acc32e902bc1af44",
-			"revisionTime": "2017-12-14T18:12:53Z"
+			"revision": "80a6f93efd374ddee4e0ea862ca0085ef42eed65",
+			"revisionTime": "2018-08-10T15:28:04Z"
 		},
 		{
 			"checksumSHA1": "Y7cjrOeOvA/ic+B8WCp2JyLEuvs=",
 			"path": "github.com/mdlayher/wifi",
-			"revision": "9a2549315201616119128afe421d1601ef3506f9",
-			"revisionTime": "2018-06-15T12:49:15Z"
+			"revision": "efdf3f4195d9fc8b73013b3706fe626b7fb807d8",
+			"revisionTime": "2018-07-27T16:38:19Z"
 		},
 		{
 			"checksumSHA1": "VzutdH69PUqRqhrDVv6F91ebQd4=",
