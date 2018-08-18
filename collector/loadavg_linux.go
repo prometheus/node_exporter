@@ -16,37 +16,20 @@
 package collector
 
 import (
-	"fmt"
-	"io/ioutil"
-	"strconv"
-	"strings"
+	"syscall"
 )
 
-// Read loadavg from /proc.
 func getLoad() (loads []float64, err error) {
-	data, err := ioutil.ReadFile(procFilePath("loadavg"))
-	if err != nil {
-		return nil, err
-	}
-	loads, err = parseLoad(string(data))
-	if err != nil {
-		return nil, err
-	}
-	return loads, nil
-}
+	const scale float64 = 65536 // LINUX_SYSINFO_LOADS_SCALE
+	var sysinfo syscall.Sysinfo_t
 
-// Parse /proc loadavg and return 1m, 5m and 15m.
-func parseLoad(data string) (loads []float64, err error) {
-	loads = make([]float64, 3)
-	parts := strings.Fields(data)
-	if len(parts) < 3 {
-		return nil, fmt.Errorf("unexpected content in %s", procFilePath("loadavg"))
+	if err := syscall.Sysinfo(&sysinfo); err != nil {
+		return nil, err
 	}
-	for i, load := range parts[0:3] {
-		loads[i], err = strconv.ParseFloat(load, 64)
-		if err != nil {
-			return nil, fmt.Errorf("could not parse load '%s': %s", load, err)
-		}
-	}
-	return loads, nil
+
+	return []float64{
+		float64(sysinfo.Loads[0]) / scale,
+		float64(sysinfo.Loads[1]) / scale,
+		float64(sysinfo.Loads[2]) / scale,
+	}, nil
 }

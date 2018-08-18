@@ -13,15 +13,30 @@
 
 package collector
 
-import "testing"
+import (
+	"syscall"
+	"testing"
+
+	"github.com/bouk/monkey"
+)
 
 func TestLoad(t *testing.T) {
-	want := []float64{0.21, 0.37, 0.39}
-	loads, err := parseLoad("0.21 0.37 0.39 1/719 19737")
+	var scale float64 = 65536
+	monkey.Patch(syscall.Sysinfo, func(in *syscall.Sysinfo_t) error {
+		in.Loads = [3]uint64{
+			uint64(0.20 * scale),
+			uint64(0.40 * scale),
+			uint64(0.60 * scale),
+		}
+		return nil
+	})
+	var (
+		want       = []float64{0.20, 0.40, 0.60}
+		loads, err = getLoad()
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	for i, load := range loads {
 		if want[i] != load {
 			t.Fatalf("want load %f, got %f", want[i], load)
