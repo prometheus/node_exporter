@@ -1,0 +1,23 @@
+name: prometheus-node-exporter
+version: EXPORTER_VERSION
+summary: Prometheus Node Exporter
+description: |
+  The node exporter is a system monitoring agent for the Prometheus monitoring system.
+  Data is available on HTTP port 9100.
+architectures: [amd64]
+confinement: strict
+grade: stable
+
+parts:
+  prometheus-node-exporter:
+    plugin: dump
+    source: https://github.com/prometheus/node_exporter/releases/download/vEXPORTER_VERSION/node_exporter-EXPORTER_VERSION.linux-amd64.tar.gz
+    prepare: rm NOTICE
+
+apps:
+  node-exporter:
+    command: node_exporter
+    daemon: simple
+    plugs:
+      [network-bind]
+
