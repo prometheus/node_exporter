@@ -1,0 +1,2 @@
+Num       RefCount Protocol Flags    Type St Inode Path
+0000000000000000: 00000002 00000000 00010000 0001 01 3990228 @/containerd-shim/moby/16b1cd05b9b6e6268fc6cc3271fc09a6384dac585f1d0ba419ab1afebe99ae95/shim.sock@
