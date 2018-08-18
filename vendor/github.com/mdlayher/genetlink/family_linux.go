@@ -16,10 +16,6 @@ var (
 	// errInvalidFamilyVersion is returned when a family's version is greater
 	// than an 8-bit integer.
 	errInvalidFamilyVersion = errors.New("invalid family version attribute")
-
-	// errInvalidMulticastGroupArray is returned when a multicast group array
-	// of attributes is malformed.
-	errInvalidMulticastGroupArray = errors.New("invalid multicast group attribute array")
 )
 
 // getFamily retrieves a generic netlink family with the specified name.
@@ -85,13 +81,8 @@ func (c *Conn) listFamilies() ([]Family, error) {
 func buildFamilies(msgs []Message) ([]Family, error) {
 	families := make([]Family, 0, len(msgs))
 	for _, m := range msgs {
-		attrs, err := netlink.UnmarshalAttributes(m.Data)
-		if err != nil {
-			return nil, err
-		}
-
 		var f Family
-		if err := (&f).parseAttributes(attrs); err != nil {
+		if err := (&f).parseAttributes(m.Data); err != nil {
 			return nil, err
 		}
 
@@ -101,66 +92,79 @@ func buildFamilies(msgs []Message) ([]Family, error) {
 	return families, nil
 }
 
-// parseAttributes parses netlink attributes into a Family's fields.
-func (f *Family) parseAttributes(attrs []netlink.Attribute) error {
-	for _, a := range attrs {
-		switch a.Type {
+// parseAttributes decodes netlink attributes into a Family's fields.
+func (f *Family) parseAttributes(b []byte) error {
+	ad, err := netlink.NewAttributeDecoder(b)
+	if err != nil {
+		return err
+	}
+
+	for ad.Next() {
+		switch ad.Type() {
 		case unix.CTRL_ATTR_FAMILY_ID:
-			f.ID = nlenc.Uint16(a.Data)
+			f.ID = ad.Uint16()
 		case unix.CTRL_ATTR_FAMILY_NAME:
-			f.Name = nlenc.String(a.Data)
+			f.Name = ad.String()
 		case unix.CTRL_ATTR_VERSION:
-			v := nlenc.Uint32(a.Data)
+			v := ad.Uint32()
 			if v > math.MaxUint8 {
 				return errInvalidFamilyVersion
 			}
 
 			f.Version = uint8(v)
 		case unix.CTRL_ATTR_MCAST_GROUPS:
-			groups, err := parseMulticastGroups(a.Data)
-			if err != nil {
-				return err
-			}
+			ad.Do(func(b []byte) error {
+				groups, err := parseMulticastGroups(b)
+				if err != nil {
+					return err
+				}
 
-			f.Groups = groups
+				f.Groups = groups
+				return nil
+			})
 		}
 	}
 
-	return nil
+	return ad.Err()
 }
 
 // parseMulticastGroups parses an array of multicast group nested attributes
 // into a slice of MulticastGroups.
 func parseMulticastGroups(b []byte) ([]MulticastGroup, error) {
-	attrs, err := netlink.UnmarshalAttributes(b)
+	ad, err := netlink.NewAttributeDecoder(b)
 	if err != nil {
 		return nil, err
 	}
 
-	groups := make([]MulticastGroup, 0, len(attrs))
-	for i, a := range attrs {
-		// The type attribute is essentially an array index here; it starts
-		// at 1 and should increment for each new array element
-		if int(a.Type) != i+1 {
-			return nil, errInvalidMulticastGroupArray
-		}
-
-		nattrs, err := netlink.UnmarshalAttributes(a.Data)
-		if err != nil {
-			return nil, err
-		}
-
-		var g MulticastGroup
-		for _, na := range nattrs {
-			switch na.Type {
-			case unix.CTRL_ATTR_MCAST_GRP_NAME:
-				g.Name = nlenc.String(na.Data)
-			case unix.CTRL_ATTR_MCAST_GRP_ID:
-				g.ID = nlenc.Uint32(na.Data)
+	var groups []MulticastGroup
+	for ad.Next() {
+		ad.Do(func(b []byte) error {
+			adi, err := netlink.NewAttributeDecoder(b)
+			if err != nil {
+				return err
 			}
-		}
 
-		groups = append(groups, g)
+			var g MulticastGroup
+			for adi.Next() {
+				switch adi.Type() {
+				case unix.CTRL_ATTR_MCAST_GRP_NAME:
+					g.Name = adi.String()
+				case unix.CTRL_ATTR_MCAST_GRP_ID:
+					g.ID = adi.Uint32()
+				}
+			}
+
+			if err := ad.Err(); err != nil {
+				return err
+			}
+
+			groups = append(groups, g)
+			return nil
+		})
+	}
+
+	if err := ad.Err(); err != nil {
+		return nil, err
 	}
 
 	return groups, nil

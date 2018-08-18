@@ -67,6 +67,16 @@ func (c *Conn) SetBPF(filter []bpf.RawInstruction) error {
 	return c.c.SetBPF(filter)
 }
 
+// RemoveBPF removes a BPF filter from a Conn.
+func (c *Conn) RemoveBPF() error {
+	return c.c.RemoveBPF()
+}
+
+// SetOption enables or disables a netlink socket option for the Conn.
+func (c *Conn) SetOption(option netlink.ConnOption, enable bool) error {
+	return c.c.SetOption(option, enable)
+}
+
 // Send sends a single Message to netlink, wrapping it in a netlink.Message
 // using the specified generic netlink family and flags.  On success, Send
 // returns a copy of the netlink.Message with all parameters populated, for

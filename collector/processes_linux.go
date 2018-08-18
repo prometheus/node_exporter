@@ -17,7 +17,10 @@ package collector
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -62,13 +65,13 @@ func NewProcessStatCollector() (Collector, error) {
 func (t *processCollector) Update(ch chan<- prometheus.Metric) error {
 	pids, states, threads, err := getAllocatedThreads()
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve number of allocated threads %v\n", err)
+		return fmt.Errorf("unable to retrieve number of allocated threads: %q", err)
 	}
 
 	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(threads))
 	maxThreads, err := readUintFromFile(procFilePath("sys/kernel/threads-max"))
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve limit number of threads %v\n", err)
+		return fmt.Errorf("unable to retrieve limit number of threads: %q", err)
 	}
 	ch <- prometheus.MustNewConstMetric(t.threadLimit, prometheus.GaugeValue, float64(maxThreads))
 
@@ -78,7 +81,7 @@ func (t *processCollector) Update(ch chan<- prometheus.Metric) error {
 
 	pidM, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
 	if err != nil {
-		return fmt.Errorf("Unable to retrieve limit number of maximum pids alloved %v\n", err)
+		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %q", err)
 	}
 	ch <- prometheus.MustNewConstMetric(t.pidUsed, prometheus.GaugeValue, float64(pids))
 	ch <- prometheus.MustNewConstMetric(t.pidMax, prometheus.GaugeValue, float64(pidM))
@@ -95,15 +98,22 @@ func getAllocatedThreads() (int, map[string]int32, int, error) {
 	if err != nil {
 		return 0, nil, 0, err
 	}
+	pids := 0
 	thread := 0
 	procStates := make(map[string]int32)
 	for _, pid := range p {
 		stat, err := pid.NewStat()
+		// PIDs can vanish between getting the list and getting stats.
+		if os.IsNotExist(err) {
+			log.Debugf("file not found when retrieving stats: %q", err)
+			continue
+		}
 		if err != nil {
 			return 0, nil, 0, err
 		}
+		pids += 1
 		procStates[stat.State] += 1
 		thread += stat.NumThreads
 	}
-	return len(p), procStates, thread, nil
+	return pids, procStates, thread, nil
 }

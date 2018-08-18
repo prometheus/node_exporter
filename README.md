@@ -152,6 +152,9 @@ docker run -d \
   quay.io/prometheus/node-exporter
 ```
 
+On some systems, the `timex` collector requires an additional Docker flag,
+`--cap-add=SYS_TIME`, in order to access the required syscalls.
+
 ## Using a third-party repository for RHEL/CentOS/Fedora
 
 There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/). It closely follows upstream releases.
