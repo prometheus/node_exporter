@@ -43,8 +43,7 @@ func NewInotifyCollector() (Collector, error) {
 
 func (c *inotifyCollector) Update(ch chan<- prometheus.Metric) error {
 	success := 0.0
-	err := c.tryAddWatch()
-	if err == nil {
+	if err := c.tryAddWatch(); err == nil {
 		success = 1
 	} else {
 		log.Debugf("inotify: not successful: %s", err)
@@ -69,8 +68,7 @@ func (c *inotifyCollector) tryAddWatch() error {
 	}
 	defer unix.Close(fd)
 
-	_, err = unix.InotifyAddWatch(fd, "/", unix.IN_CREATE)
-	if err != nil {
+	if _, err = unix.InotifyAddWatch(fd, "/", unix.IN_CREATE); err != nil {
 		// If this fails, this usually means fs.inotify.max_user_watches is exhausted.
 		return fmt.Errorf("inotify_add_watch() failed: %s", err)
 	}
