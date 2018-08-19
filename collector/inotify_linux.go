@@ -46,7 +46,7 @@ func (c *inotifyCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.tryAddWatch(); err == nil {
 		success = 1
 	} else {
-		log.Debugf("inotify: not successful: %s", err)
+		log.Debugf("inotify: %s", err)
 	}
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
