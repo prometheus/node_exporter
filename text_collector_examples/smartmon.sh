@@ -7,8 +7,6 @@
 #       data in them than you'd think.
 #       http://arstechnica.com/civis/viewtopic.php?p=22062211
 
-PATH="/usr/sbin:$PATH"
-
 set -euo pipefail
 
 parse_smartctl_attributes_awk="$(cat << 'SMARTCTLAWK'
