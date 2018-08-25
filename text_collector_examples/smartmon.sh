@@ -9,7 +9,7 @@
 
 PATH="/usr/sbin:$PATH"
 
-set -eu
+set -euo pipefail
 
 parse_smartctl_attributes_awk="$(cat << 'SMARTCTLAWK'
 $1 ~ /^ *[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
@@ -66,7 +66,7 @@ parse_smartctl_attributes() {
   local disk="$1"
   local disk_type="$2"
   local labels="disk=\"${disk}\",type=\"${disk_type}\""
-  
+
   sed 's/^ \+//g' \
     | awk -v labels="${labels}" "${parse_smartctl_attributes_awk}" 2>/dev/null \
     | tr '[:upper:]' '[:lower:]' \
