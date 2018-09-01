@@ -96,7 +96,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "read_time_seconds_total"),
-					"The total number of milliseconds spent by all reads.",
+					"The total number of seconds spent by all reads.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
