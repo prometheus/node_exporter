@@ -350,7 +350,7 @@ node_disk_read_bytes_total{device="nvme0n1"} 2.377714176e+09
 node_disk_read_bytes_total{device="sda"} 5.13713216512e+11
 node_disk_read_bytes_total{device="sr0"} 0
 node_disk_read_bytes_total{device="vda"} 1.6727491584e+10
-# HELP node_disk_read_time_seconds_total The total number of milliseconds spent by all reads.
+# HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads.
 # TYPE node_disk_read_time_seconds_total counter
 node_disk_read_time_seconds_total{device="dm-0"} 46229.572
 node_disk_read_time_seconds_total{device="dm-1"} 0.084
