@@ -133,7 +133,7 @@ func stuckMountWatcher(mountPoint string, success chan struct{}) {
 }
 
 func mountPointDetails() ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("mounts"))
+	file, err := os.Open(procFilePath("1/mounts"))
 	if err != nil {
 		return nil, err
 	}
@@ -143,10 +143,6 @@ func mountPointDetails() ([]filesystemLabels, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
-		// skip non rootfs paths if rootfsPath defined
-		if !rootfsPathDetect(parts[1]) {
-			continue
-		}
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
@@ -155,7 +151,7 @@ func mountPointDetails() ([]filesystemLabels, error) {
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
-			mountPoint: rootfsStripPrefix(parts[1]),
+			mountPoint: parts[1],
 			fsType:     parts[2],
 			options:    parts[3],
 		})

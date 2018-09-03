@@ -146,8 +146,7 @@ Be aware that any non-root mount points you want to monitor will need bind-mount
 into the container.
 If you start container for host monitoring, specify `path.rootfs` argument.
 This argument must match path in bind-mount of host root. The node\_exporter will use
-`path.rootfs` as prefix to filter entries in ${path.procfs}/mounts and to
-cleanup it from `mountpoint` label.
+`path.rootfs` as prefix to access host filesystem.
 
 ```bash
 docker run -d \

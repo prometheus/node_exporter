@@ -15,7 +15,6 @@ package collector
 
 import (
 	"path"
-	"strings"
 
 	"github.com/prometheus/procfs"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -25,7 +24,7 @@ var (
 	// The path of the proc filesystem.
 	procPath   = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
 	sysPath    = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
-	rootfsPath = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("").String()
+	rootfsPath = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
 )
 
 func procFilePath(name string) string {
@@ -37,28 +36,5 @@ func sysFilePath(name string) string {
 }
 
 func rootfsFilePath(name string) string {
-	if name == "/" {
-		return *rootfsPath
-	}
 	return path.Join(*rootfsPath, name)
-}
-
-func rootfsStripPrefix(path string) string {
-	if path == *rootfsPath {
-		return "/"
-	}
-	if strings.HasPrefix(path, *rootfsPath) {
-		return strings.TrimPrefix(path, *rootfsPath)
-	}
-	return path
-}
-
-func rootfsPathDetect(path string) bool {
-	if *rootfsPath == "" {
-		return true
-	}
-	if strings.HasPrefix(path, *rootfsPath) {
-		return true
-	}
-	return false
 }
