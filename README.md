@@ -147,20 +147,15 @@ into the container.
 If you start container for host monitoring, specify `path.rootfs` argument.
 This argument must match path in bind-mount of host root. The node\_exporter will use
 `path.rootfs` as prefix to filter entries in ${path.procfs}/mounts and to
-cleanup it from `mountpoint` label. You also need bind-mount host proc and host sys
-with `path.procfs` and `path.sysfs` arguments.
-Also you need to use `bind-propagation=rslave` option for bind-mount host rootfs to
-propagate host mounts changes to container (option available since 17.05.0).
+cleanup it from `mountpoint` label.
 
 ```bash
 docker run -d \
   --net="host" \
   --pid="host" \
-  -v "/proc:/host/proc:ro" -v "/sys:/host/sys:ro" \
-  --mount "type=bind,source=/,target=/rootfs,readonly,bind-propagation=rslave" \
+  -v "/:/host:ro,rslave" \
   quay.io/prometheus/node-exporter \
-  --path.procfs /host/proc --path.sysfs /host/sys \
-  --path.rootfs /rootfs
+  --path.rootfs /host
 ```
 
 On some systems, the `timex` collector requires an additional Docker flag,
