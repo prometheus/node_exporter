@@ -17,9 +17,9 @@ fi
 start() {
   if [ -f $LOCKFILE ]
   then
-    echo $"$PROG is already running!"
+    echo "$PROG is already running!"
   else
-    echo -n $"Starting $PROG: "
+    echo -n "Starting $PROG: "
     nohup $EXEC $OPTIONS >/dev/null 2>&1 &
     RETVAL=$?
     [ $RETVAL -eq 0 ] && touch $LOCKFILE && success || failure
@@ -29,7 +29,7 @@ start() {
 }
 
 stop() {
-  echo -n $"Stopping $PROG: "
+  echo -n "Stopping $PROG: "
   killproc $EXEC
   RETVAL=$?
   [ $RETVAL -eq 0 ] && rm -r $LOCKFILE && success || failure
