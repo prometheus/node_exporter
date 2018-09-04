@@ -1,6 +1,3 @@
-# This is a systemd environment file which provides arguments
-# to the systemd prometheus node exporter service.  Each argument must
-# be on a separate line and use "=" as a separator.
 # For more info see: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#EnvironmentFile=
 
 # The collector.textfile.directory will be searched for
@@ -11,8 +8,12 @@ ARGS="--collector.textfile.directory=/etc/prometheus/node-exporter"
 # that are enabled by default can be disabled by providing a
 # --no-collector.<name> flag.
 #
+# Note that systemd EnvironmentFile option does not support variable expansion.
+# You must provide a single line containing all the arguments required.  Therefore
+# you can set ARGS once with all the options required, space delimited.
+#
 # For example, to enable the systemd collector, uncommend the following line:
-#--collector.systemd
+#ARGS="--collector.textfile.directory=/etc/prometheus/node-exporter --collector.systemd"
 
 # A full list of available collectors is available in the github repo
 # https://github.com/prometheus/node_exporter
