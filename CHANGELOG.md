@@ -1,6 +1,6 @@
 ## master / unreleased
 
-**Breaking changes**
+### **Breaking changes**
 
 supvervisord collector reports "start_time_seconds" rather than "uptime"
 
@@ -8,6 +8,9 @@ The wifi collector is disabled by default due to suspected caching issues and go
 * https://github.com/prometheus/node_exporter/issues/870
 * https://github.com/prometheus/node_exporter/issues/1008
 
+Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
+
+### Changes
 * [CHANGE] Filter out non-installed units when collecting all systemd units #1011
 * [CHANGE] `service_restart_total` and `socket_refused_connections_total` will not be reported if you're running an older version of systemd
 * [FEATURE] Collect NRefused property for systemd socket units (available as of systemd v239)
@@ -19,6 +22,7 @@ The wifi collector is disabled by default due to suspected caching issues and go
 * [BUGFIX] Fix goroutine leak in supervisord collector
 * [BUGFIX] Systemd units will not be ignored if you're running older versions of systemd #1039
 * [BUGFIX] Handle vanishing PIDs #1043
+* [BUGFIX] Correctly cast Darwin memory info #1060
 
 ## 0.16.0 / 2018-05-15
 
