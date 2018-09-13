@@ -52,7 +52,7 @@ var (
 )
 
 func init() {
-	registerCollector("ipTables", defaultDisabled, NewIPTablesCollector)
+	registerCollector("iptables", defaultDisabled, NewIPTablesCollector)
 }
 
 // NewIPTablesCollector returns a new Collector exposing IpTables stats.
