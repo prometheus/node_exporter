@@ -59,8 +59,8 @@ func init() {
 func NewIPTablesCollector() (Collector, error) {
 	return &ipTablesCollector{
 		entries: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "iptables", "rules"),
-			"iptables number of rules by tables",
+			prometheus.BuildFQName(namespace, "iptables", "entries"),
+			"iptables number of entries by tables",
 			[]string{"proto", "table"}, nil,
 		),
 	}, nil
