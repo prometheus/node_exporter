@@ -17,76 +17,136 @@
 package collector
 
 import (
-	"github.com/coreos/go-iptables/iptables"
+	"bytes"
+	"encoding/binary"
+	"syscall"
+	"unsafe"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type IptablesCollector struct {
-	entries       *prometheus.Desc
-	ipTableIfaces map[string]*iptables.IPTables
+type ipTablesCollector struct {
+	entries *prometheus.Desc
 }
 
-func init() {
-	registerCollector("iptables", defaultDisabled, NewIptablesCollector)
-}
+type protocol int
 
-// NewIptablesCollector returns a new Collector exposing Iptables stats.
-func NewIptablesCollector() (Collector, error) {
-
-	ipTableIfaces := make(map[string]*iptables.IPTables)
-
-	if ipt, err := iptables.NewWithProtocol(iptables.ProtocolIPv4); err == nil {
-		ipTableIfaces["IPV4"] = ipt
-	}
-
-	if ipt, err := iptables.NewWithProtocol(iptables.ProtocolIPv6); err == nil {
-		ipTableIfaces["IPV6"] = ipt
-	}
-
-	return &IptablesCollector{
-		ipTableIfaces: ipTableIfaces,
-		entries: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "iptables", "rules"),
-			"iptables number of rules by chains",
-			[]string{"proto", "table", "chain"}, nil,
-		),
-	}, nil
-}
+const (
+	ipV4 protocol = iota
+	ipV6
+)
 
 var (
-	cstIptablesTables = []string{
+	_ipTablesTables = []string{
 		"filter",
 		"nat",
 		"mangle",
 		"raw",
 		"security",
 	}
+
+	_ipTablesProto = []protocol{
+		ipV4,
+		ipV6,
+	}
 )
 
-func (c *IptablesCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func init() {
+	registerCollector("ipTables", defaultDisabled, NewIPTablesCollector)
+}
 
-	for _, table := range cstIptablesTables {
+// NewIPTablesCollector returns a new Collector exposing IpTables stats.
+func NewIPTablesCollector() (Collector, error) {
+	return &ipTablesCollector{
+		entries: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "iptables", "rules"),
+			"iptables number of rules by tables",
+			[]string{"proto", "table"}, nil,
+		),
+	}, nil
+}
 
-		for proto, ipt := range c.ipTableIfaces {
-			chains, err := ipt.ListChains(table)
-
+func (c *ipTablesCollector) Update(ch chan<- prometheus.Metric) (err error) {
+	for _, table := range _ipTablesTables {
+		for _, proto := range _ipTablesProto {
+			res, err := ipTablesRules(proto, table)
 			if err != nil {
 				continue
 			}
-
-			for _, chain := range chains {
-
-				res := 0
-
-				rules, err := ipt.List(table, chain)
-
-				if err == nil {
-					res = len(rules) - 1
-				}
-
-				ch <- prometheus.MustNewConstMetric(c.entries, prometheus.GaugeValue, float64(res), proto, table, chain)
-			}
+			ch <- prometheus.MustNewConstMetric(
+				c.entries,
+				prometheus.GaugeValue,
+				float64(res),
+				proto.String(),
+				table)
 		}
+	}
+	return nil
+}
+
+// ipTablesRules returns the number of entries in a table
+// entries are policies, rules, targets, ...
+func ipTablesRules(proto protocol, table string) (int, error) {
+
+	var domain, level int
+
+	switch proto {
+	case ipV6:
+		domain = syscall.AF_INET6
+		level = syscall.IPPROTO_IPV6
+	default:
+		domain = syscall.AF_INET
+		level = syscall.IPPROTO_IP
+	}
+
+	sockFD, err := syscall.Socket(domain, syscall.SOCK_RAW, syscall.IPPROTO_RAW)
+	if err != nil {
+		return 0, err
+	}
+
+	buf := make([]byte, 84)
+	size := uint32(len(buf))
+
+	copy(buf, table)
+
+	err = _getsockopt(sockFD, level, 64, unsafe.Pointer(&buf[0]), &size)
+	if err != nil {
+		return 0, err
+	}
+
+	p := bytes.NewBuffer(buf)
+
+	p.Next(76)
+	binary.Read(p, binary.LittleEndian, &size)
+
+	return int(size), nil
+}
+
+// protocol Stringer
+const _protocolName = "IPV4IPV6"
+
+var _protocolIndex = [...]uint8{0, 4, 8}
+
+func (i protocol) String() string {
+	if i < 0 || i >= protocol(len(_protocolIndex)-1) {
+		return "protocol(Unknown)"
+	}
+	return _protocolName[_protocolIndex[i]:_protocolIndex[i+1]]
+}
+
+// getsockopt implementation using syscall.Syscall6
+func _getsockopt(fd int, level int, name int, val unsafe.Pointer, vallen *uint32) (err error) {
+	_, _, eval := syscall.Syscall6(
+		syscall.SYS_GETSOCKOPT,
+		uintptr(fd),
+		uintptr(level),
+		uintptr(name),
+		uintptr(val),
+		uintptr(unsafe.Pointer(vallen)),
+		0,
+	)
+	if eval != 0 {
+		return eval
 	}
 	return nil
 }
