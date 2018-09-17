@@ -3300,6 +3300,8 @@ node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # TYPE process_start_time_seconds gauge
 # HELP process_virtual_memory_bytes Virtual memory size in bytes.
 # TYPE process_virtual_memory_bytes gauge
+# HELP process_virtual_memory_max_bytes Maximum amount of virtual memory available in bytes.
+# TYPE process_virtual_memory_max_bytes gauge
 # HELP promhttp_metric_handler_requests_in_flight Current number of scrapes being served.
 # TYPE promhttp_metric_handler_requests_in_flight gauge
 promhttp_metric_handler_requests_in_flight 1
