@@ -103,6 +103,7 @@ func ipTablesRules(proto protocol, table string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	defer syscall.Close(sockFD)
 
 	buf := make([]byte, 84)
 	size := uint32(len(buf))
