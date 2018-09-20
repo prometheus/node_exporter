@@ -44,6 +44,23 @@ else
     test-e2e := skip-test-e2e
 endif
 
+# Use CGO for non-Linux builds.
+ifeq ($(GOOS), linux)
+    PROMU_CONF ?= .promu-no-cgo.yml
+else
+    ifndef GOOS
+        ifeq ($(OS_detected), Linux)
+            PROMU_CONF ?= .promu-no-cgo.yml
+        else
+            PROMU_CONF ?= .promu-cgo.yml
+        endif
+    else
+        PROMU_CONF ?= .promu-cgo.yml
+    endif
+endif
+
+PROMU := $(FIRST_GOPATH)/bin/promu --config $(PROMU_CONF)
+
 e2e-out = collector/fixtures/e2e-output.txt
 ifeq ($(MACH), ppc64le)
 	e2e-out = collector/fixtures/e2e-64k-page-output.txt
