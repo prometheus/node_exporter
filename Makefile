@@ -26,37 +26,37 @@ DOCKERFILE              ?= Dockerfile
 STATICCHECK_IGNORE =
 
 ifeq ($(OS),Windows_NT)
-    OS_detected := Windows
+	OS_detected := Windows
 else
-    OS_detected := $(shell uname -s)
+	OS_detected := $(shell uname -s)
 endif
 
 ifeq ($(GOHOSTARCH),amd64)
 	ifeq ($(OS_detected),$(filter $(OS_detected),Linux FreeBSD Darwin Windows))
-                # Only supported on amd64
-                test-flags := -race
-        endif
+		# Only supported on amd64
+		test-flags := -race
+	endif
 endif
 
 ifeq ($(OS_detected), Linux)
-    test-e2e := test-e2e
+	test-e2e := test-e2e
 else
-    test-e2e := skip-test-e2e
+	test-e2e := skip-test-e2e
 endif
 
 # Use CGO for non-Linux builds.
 ifeq ($(GOOS), linux)
-    PROMU_CONF ?= .promu-no-cgo.yml
+	PROMU_CONF ?= .promu-no-cgo.yml
 else
-    ifndef GOOS
-        ifeq ($(OS_detected), Linux)
-            PROMU_CONF ?= .promu-no-cgo.yml
-        else
-            PROMU_CONF ?= .promu-cgo.yml
-        endif
-    else
-        PROMU_CONF ?= .promu-cgo.yml
-    endif
+	ifndef GOOS
+		ifeq ($(OS_detected), Linux)
+			PROMU_CONF ?= .promu-no-cgo.yml
+		else
+			PROMU_CONF ?= .promu-cgo.yml
+		endif
+	else
+		PROMU_CONF ?= .promu-cgo.yml
+	endif
 endif
 
 PROMU := $(FIRST_GOPATH)/bin/promu --config $(PROMU_CONF)
