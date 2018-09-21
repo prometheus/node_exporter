@@ -126,7 +126,8 @@ func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	fixtures := getUnitListFixtures()
 	collector := c.(*systemdCollector)
 	filtered := filterUnits(fixtures[0], collector.unitWhitelistPattern, collector.unitBlacklistPattern)
-	if len(filtered) != len(fixtures[0]) {
+	// Adjust fixtures by 3 "not-found" units.
+	if len(filtered) != len(fixtures[0])-3 {
 		t.Error("Default filters removed units")
 	}
 }

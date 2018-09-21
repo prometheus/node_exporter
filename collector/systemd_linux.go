@@ -228,7 +228,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 	defer conn.Close()
 
 	// Filter out any units that are not installed and are pulled in only as dependencies.
-	allUnits, err := conn.ListUnitsFiltered([]string{"loaded"})
+	allUnits, err := conn.ListUnits()
 
 	if err != nil {
 		return nil, err
@@ -243,7 +243,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 		if strings.HasSuffix(unit.Name, ".timer") {
 			lastTriggerValue, err := conn.GetUnitTypeProperty(unit.Name, "Timer", "LastTriggerUSec")
 			if err != nil {
-				log.Debugf("couldn't get unit '%s' LastTriggerUSec: %s\n", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' LastTriggerUSec: %s", unit.Name, err)
 				continue
 			}
 
@@ -253,7 +253,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 			// NRestarts wasn't added until systemd 235.
 			restartsCount, err := conn.GetUnitTypeProperty(unit.Name, "Service", "NRestarts")
 			if err != nil {
-				log.Debugf("couldn't get unit '%s' NRestarts: %s\n", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' NRestarts: %s", unit.Name, err)
 			} else {
 				nRestarts := restartsCount.Value.Value().(uint32)
 				unit.nRestarts = &nRestarts
@@ -263,7 +263,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 		if strings.HasSuffix(unit.Name, ".socket") {
 			acceptedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NAccepted")
 			if err != nil {
-				log.Debugf("couldn't get unit '%s' NAccepted: %s\n", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' NAccepted: %s", unit.Name, err)
 				continue
 			}
 
@@ -271,7 +271,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 
 			currentConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NConnections")
 			if err != nil {
-				log.Debugf("couldn't get unit '%s' NConnections: %s\n", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' NConnections: %s", unit.Name, err)
 				continue
 			}
 			unit.currentConnections = currentConnectionCount.Value.Value().(uint32)
@@ -279,7 +279,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 			// NRefused wasn't added until systemd 239.
 			refusedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NRefused")
 			if err != nil {
-				log.Debugf("couldn't get unit '%s' NRefused: %s\n", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' NRefused: %s", unit.Name, err)
 			} else {
 				nRefused := refusedConnectionCount.Value.Value().(uint32)
 				unit.refusedConnections = &nRefused
@@ -291,7 +291,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 		} else {
 			timestampValue, err := conn.GetUnitProperty(unit.Name, "ActiveEnterTimestamp")
 			if err != nil {
-				log.Debugf("couldn't get unit '%s' StartTimeUsec: %s\n", unit.Name, err)
+				log.Debugf("couldn't get unit '%s' StartTimeUsec: %s", unit.Name, err)
 				continue
 			}
 
@@ -321,7 +321,8 @@ func summarizeUnits(units []unit) map[string]float64 {
 func filterUnits(units []unit, whitelistPattern, blacklistPattern *regexp.Regexp) []unit {
 	filtered := make([]unit, 0, len(units))
 	for _, unit := range units {
-		if whitelistPattern.MatchString(unit.Name) && !blacklistPattern.MatchString(unit.Name) {
+		if whitelistPattern.MatchString(unit.Name) && !blacklistPattern.MatchString(unit.Name) && unit.LoadState == "loaded" {
+			log.Debugf("Adding unit: %s", unit.Name)
 			filtered = append(filtered, unit)
 		} else {
 			log.Debugf("Ignoring unit: %s", unit.Name)
