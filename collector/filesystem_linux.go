@@ -28,7 +28,7 @@ import (
 
 const (
 	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
-	defIgnoredFSTypes     = "^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$"
+	defIgnoredFSTypes     = "^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$"
 	readOnly              = 0x1 // ST_RDONLY
 	mountTimeout          = 30 * time.Second
 )
