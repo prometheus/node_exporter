@@ -79,6 +79,9 @@ install -D -p -m 0644 prometheus-node-exporter.sysconfig \
 %{_sysconfdir}/sysconfig/prometheus-node-exporter
 
 %changelog
+* Thu Sep 27 2018 Simon Pasquier <spasqui@redhat.com> - 0.16.0-3
+- Fix stop command in systemd unit
+
 * Fri Jul 27 2018 Simon Pasquier <spasquie@redhat.com> - 0.16.0-2
 - Enable aarch64
 
