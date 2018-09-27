@@ -7,7 +7,6 @@ Type=simple
 EnvironmentFile=-/etc/sysconfig/prometheus-node-exporter
 ExecStart=/usr/bin/node_exporter $ARGS
 ExecReload=/bin/kill -SIGHUP $MAINPID
-ExecStop=/bin/kill -SIGKILL $MAINPID
 
 [Install]
 WantedBy=multi-user.target
