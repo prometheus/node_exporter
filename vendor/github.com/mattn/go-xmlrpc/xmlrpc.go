@@ -163,13 +163,17 @@ func next(p *xml.Decoder) (xml.Name, interface{}, error) {
 	case "array":
 		var ar Array
 		nextStart(p) // data
+		nextStart(p) // top of value
 		for {
-			nextStart(p) // top of value
 			_, value, e := next(p)
 			if e != nil {
 				break
 			}
 			ar = append(ar, value)
+
+			if reflect.ValueOf(value).Kind() != reflect.Map {
+				nextStart(p)
+			}
 		}
 		return xml.Name{}, ar, nil
 	case "nil":
