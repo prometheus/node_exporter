@@ -24,6 +24,7 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 * [BUGFIX] Handle vanishing PIDs #1043
 * [BUGFIX] Correctly cast Darwin memory info #1060
 * [BUGFIX] Filter systemd units in Go for compatibility with older versions #1083
+* [BUGFIX] Update cpu collector for OpenBSD 6.4
 
 ## 0.16.0 / 2018-05-15
 
