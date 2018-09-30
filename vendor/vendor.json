@@ -71,10 +71,10 @@
 			"revisionTime": "2017-06-05T15:08:45Z"
 		},
 		{
-			"checksumSHA1": "8uAFFK5p8F39X1MOLsHrgTI0hzw=",
+			"checksumSHA1": "bCmcSbBoZf/rekSo8AE7l0fNCkw=",
 			"path": "github.com/mattn/go-xmlrpc",
-			"revision": "b7a1b57d9142f44a3a8f5a80aadf8d2d6ea2ca22",
-			"revisionTime": "2018-04-20T00:08:13Z"
+			"revision": "6e944673e4c0cc6117326f69df5eb7b210a6362d",
+			"revisionTime": "2018-09-13T19:02:54Z"
 		},
 		{
 			"checksumSHA1": "aodj/cITRyuaZSh84DDhrZjh76U=",
