@@ -24,4 +24,5 @@ crossbuild:
         - linux/mipsle
         - linux/mips64
         - linux/mips64le
+        - linux/ppc64
         - linux/ppc64le
