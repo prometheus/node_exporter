@@ -16,13 +16,10 @@
 package collector
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
 
-	"github.com/mdlayher/netlink"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	"github.com/ti-mo/conntrack"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -38,14 +35,6 @@ var (
 
 func init() {
 	registerCollector("conntrack", defaultEnabled, NewConntrackCollector)
-}
-
-type testType struct {
-	StatLen  uint8
-	_        uint8
-	StatType uint8
-	_        uint8
-	StatVal  uint32
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
@@ -97,111 +86,69 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	return err
 }
 
-type conntrackAttributes uint8
-
-// Maps to ctattr_stats_cpu
-const (
-	ctaUnspecified conntrackAttributes = iota
-
-	ctaSearched // Not used
-	ctaFound
-	ctaNew // Not used
-	ctaInvalid
-	ctaIgnore
-	ctaDelete     // Not used
-	ctaDeleteList // Not used
-	ctaInsert
-	ctaInsertFailed
-	ctaDrop
-	ctaEarlyDrop
-	ctaError
-	ctaSearchRestart
-)
-
-var conntrackAttributeLabels = map[conntrackAttributes]string{
-	ctaUnspecified:   "unspecified",
-	ctaSearched:      "searched",
-	ctaFound:         "found",
-	ctaNew:           "new",
-	ctaInvalid:       "invalid",
-	ctaIgnore:        "ignore",
-	ctaDelete:        "delete",
-	ctaDeleteList:    "delete_list",
-	ctaInsert:        "insert",
-	ctaInsertFailed:  "insert_failed",
-	ctaDrop:          "drop",
-	ctaEarlyDrop:     "early_drop",
-	ctaError:         "error",
-	ctaSearchRestart: "search_restart",
-}
-
-type conntrackStatistic struct {
-	StatLen  uint8
-	_        uint8 // padding
-	StatType conntrackAttributes
-	_        uint8 // Padding
-	StatVal  uint32
-}
-
-const (
-	netlinkFamilyNetfilter = 12
-	// From conntrack.c, nfct_mnl_nlmsghdr_put, nlmsg_type = (subsys << 8) | type
-	// where subsys = NFNL_SUBSYS_CTNETLINK        (include/uapi/linux/netfilter/nfnetlink.h)
-	// and   type   = IPCTNL_MSG_CT_GET_STATS_CPU  (include/uapi/linux/netfilter/nfnetlink_conntrack.h)
-	// gives (1 << 8) | 4 = 260
-	netlinkConntrackStatisticsType = 260
-)
-
 func (c *conntrackCollector) updateConntrackKernelStats(ch chan<- prometheus.Metric) error {
-	conn, err := netlink.Dial(netlinkFamilyNetfilter, nil)
+	conn, err := conntrack.Dial(nil)
+	stats, err := conn.Stats()
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
-
-	log.Debug("Opening netlink connection")
-	req := netlink.Message{
-		Header: netlink.Header{
-			Flags: netlink.HeaderFlagsRequest | netlink.HeaderFlagsDump,
-			Type:  netlinkConntrackStatisticsType,
-		},
-		Data: []byte{0, 0, 0, 0}, // Unclear why this is needed, but conntrack -S sends it, and NL hangs if we don't
-	}
-
-	msgs, err := conn.Execute(req)
-	if err != nil {
-		return err
-	}
-
-	for cpuIdx, m := range msgs {
-		payload := m.Data[4:]
-		if len(payload)%8 != 0 {
-			return fmt.Errorf("Unexpected size of conntrack stats from kernel, got %d bytes, expected multiple of 8")
-		}
-
-		n := int(len(payload) / 8)
-		r := bytes.NewReader(payload)
-		sts := make([]conntrackStatistic, n)
-		err := binary.Read(r, binary.BigEndian, &sts)
-		if err != nil {
-			log.Errorf("Couldn't deserialize conntrack kernel stats")
-			return err
-		}
-
+	for cpuIdx, s := range stats {
 		cpuLabel := fmt.Sprintf("%d", cpuIdx)
-		for _, st := range sts {
-			statisticLabel, ok := conntrackAttributeLabels[st.StatType]
-			if !ok {
-				log.Warnf("Unknown conntrack statistic type %d", st.StatType)
-				continue
-			}
-			ch <- prometheus.MustNewConstMetric(
-				c.kernelStatistic,
-				prometheus.CounterValue,
-				float64(st.StatVal),
-				cpuLabel, statisticLabel,
-			)
-		}
+
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.Found),
+			cpuLabel, "found",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.Invalid),
+			cpuLabel, "invalid",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.Ignore),
+			cpuLabel, "ignore",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.Insert),
+			cpuLabel, "insert",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.InsertFailed),
+			cpuLabel, "insert_failed",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.Drop),
+			cpuLabel, "drop",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.EarlyDrop),
+			cpuLabel, "early_drop",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.Error),
+			cpuLabel, "error",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.kernelStatistic,
+			prometheus.CounterValue,
+			float64(s.SearchRestart),
+			cpuLabel, "search_restart",
+		)
 	}
 
 	return nil
