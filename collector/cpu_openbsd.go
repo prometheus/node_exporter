@@ -59,10 +59,12 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	var cp_time [][C.CPUSTATES]C.int64_t
 	for i := 0; i < int(ncpus); i++ {
 		cp_timeb, err := unix.SysctlRaw("kern.cp_time2", i)
-		if err != nil {
+		if err != nil && err != unix.ENODEV {
 			return err
 		}
-		cp_time = append(cp_time, *(*[C.CPUSTATES]C.int64_t)(unsafe.Pointer(&cp_timeb[0])))
+		if err != unix.ENODEV {
+			cp_time = append(cp_time, *(*[C.CPUSTATES]C.int64_t)(unsafe.Pointer(&cp_timeb[0])))
+		}
 	}
 
 	for cpu, time := range cp_time {
