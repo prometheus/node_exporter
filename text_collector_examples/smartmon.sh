@@ -7,7 +7,7 @@
 #       data in them than you'd think.
 #       http://arstechnica.com/civis/viewtopic.php?p=22062211
 
-set -euo pipefail
+set -uo pipefail
 
 parse_smartctl_attributes_awk="$(cat << 'SMARTCTLAWK'
 $1 ~ /^ *[0-9]+$/ && $2 ~ /^[a-zA-Z0-9_-]+$/ {
