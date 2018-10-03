@@ -3,11 +3,15 @@
 # Description: Expose metrics from apcaccess
 #
 # Author: Erwin Oegema <erwin.oegema@gmail.com>
-
+# Required tools:
+# - apcaccess
+# - bc
+# - awk
+# - cut
 
 set -ue
 
-# It is recommended to check https://linux.die.net/man/8/apcaccess for 
+# It is recommended to check https://linux.die.net/man/8/apcaccess for
 # more properties that could be exposed
 # Example response:
 #
@@ -96,25 +100,25 @@ while read LINE; do
 	VAR_VAL=$(echo $LINE | cut -d : -f 2- | awk '{$1=$1};1')
 
 	case "$VAR_KEY" in
-	STARTTIME)  write_line 'node_apc_start_time' $(convert_date "$VAR_VAL") 'untyped' 'The startup time of the APC' ;;
-	XONBATT) 	write_line 'node_apc_battery_backup_start' $(convert_date "$VAR_VAL") 'untyped' 'Last time the battery backup started being used (power lost)' ;;
-	XOFFBATT) 	write_line 'node_apc_battery_backup_end' $(convert_date "$VAR_VAL") 'untyped' 'Last time the battery backup stopped being used (power recovered)' ;;
-	BATTV) 		write_line 'node_apc_battery_voltage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current voltage of the battery inside the APC' ;;
+	STARTTIME)	write_line 'node_apc_start_time' $(convert_date "$VAR_VAL") 'untyped' 'The startup time of the APC' ;;
+	XONBATT)	write_line 'node_apc_battery_backup_start' $(convert_date "$VAR_VAL") 'untyped' 'Last time the battery backup started being used (power lost)' ;;
+	XOFFBATT)	write_line 'node_apc_battery_backup_end' $(convert_date "$VAR_VAL") 'untyped' 'Last time the battery backup stopped being used (power recovered)' ;;
+	BATTV)		write_line 'node_apc_battery_voltage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current voltage of the battery inside the APC' ;;
 	BCHARGE)	write_line 'node_apc_battery_charge' $(try_convert_number "$VAR_VAL") 'gauge' 'Current charge percentage of the battery inside the APC' ;;
-	LINEV) 		write_line 'node_apc_line_voltage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current voltage of the power connected to the APC' ;;
+	LINEV)		write_line 'node_apc_line_voltage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current voltage of the power connected to the APC' ;;
 	TIMELEFT)	write_line 'node_apc_time_left_seconds' $(try_convert_number "$VAR_VAL") 'gauge' 'Time left until battery is empty, in seconds' ;;
 	LOADPCT)	write_line 'node_apc_load_capacity_percentage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current load capacity on the APC' ;;
 	NUMXFERS)	write_line 'node_apc_transfers' $(try_convert_number "$VAR_VAL") 'counter' 'Amount of times the APC had to switch to battery backup' ;;
-	
+
 	# Read generic info
-	UPSNAME) 	UPS_NAME="$VAR_VAL"; ;;
-	MODEL)   	UPS_MODEL="$VAR_VAL" ;;
-	STATUS)  	UPS_STATUS="$VAR_VAL" ;;
+	UPSNAME)	UPS_NAME="$VAR_VAL"; ;;
+	MODEL)		UPS_MODEL="$VAR_VAL" ;;
+	STATUS)		UPS_STATUS="$VAR_VAL" ;;
 	LASTXFER)	UPS_LAST_TRANSFER_REASON="$VAR_VAL"; ;;
 	BATTDATE)	UPS_BATTERY_DATE="$(convert_date $VAR_VAL)"; ;;
 	# *) echo '# Unused prop ' "$VAR_KEY" "$VAR_VAL"
 	esac
-done <<< "$(echo -e "$RESULT")"
+done <<< "$RESULT"
 
 FIRST_KV=1
 function write_kv {
