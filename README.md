@@ -140,9 +140,9 @@ To see all available configuration flags:
 
 
 ## Using Docker
-The node\_exporter is designed to monitor the host system. It's not recommended
-to deploy it as Docker container because it requires access to the host system.
-Be aware that any non-root mount points you want to monitor will need bind-mounted
+The `node_exporter` is designed to monitor the host system. It's not recommended
+to deploy it as a Docker container because it requires access to the host system.
+Be aware that any non-root mount points you want to monitor will need to be bind-mounted
 into the container.
 
 ```bash
@@ -157,7 +157,7 @@ On some systems, the `timex` collector requires an additional Docker flag,
 
 ## Using a third-party repository for RHEL/CentOS/Fedora
 
-There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/). It closely follows upstream releases.
+There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
