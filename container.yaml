@@ -1,0 +1,3 @@
+compose:
+  packages:
+    - prometheus-node-exporter
