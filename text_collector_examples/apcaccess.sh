@@ -61,11 +61,11 @@ function write_line {
 
 	echo '# HELP' "$key" "$help"
 	echo '# TYPE' "$key" "$type"
-	echo "$key" "$val"
+	echo "$key" "$val" "$data_date"
 }
 
 function try_convert_number {
-	local VAL="$1"
+	local val="$1"
 	val_nmbr=$(echo $val | cut -d ' ' -f 1 | awk '{$1=$1};1')
 	val_type=$(echo $val | cut -d ' ' -f 2 | awk '{$1=$1};1')
 
@@ -93,10 +93,11 @@ ups_shutdown_time_max=""
 ups_shutdown_time_min=""
 ups_last_transfer_reason=""
 ups_battery_date=""
+data_date=""
 
 result=$(/sbin/apcaccess)
 
-while read LINE; do
+while read line; do
 	var_key=$(echo $line | cut -d : -f 1 | awk '{$1=$1};1')
 	var_val=$(echo $line | cut -d : -f 2- | awk '{$1=$1};1')
 
@@ -117,6 +118,9 @@ while read LINE; do
 	STATUS)		ups_status="$var_val" ;;
 	LASTXFER)	ups_last_transfer_reason="$var_val"; ;;
 	BATTDATE)	ups_battery_date="$(convert_date $var_val)"; ;;
+	# This row contains the date the data was received from the APC.
+	# We'll be using it to tag our records with the current date
+	DATE)		data_date="$(convert_date $var_val)"; ;;
 	# *) echo '# Unused prop ' "$var_key" "$var_val"
 	esac
 done <<< "$result"
@@ -153,4 +157,4 @@ write_kv 'shutdown_time_min' "$ups_shutdown_time_min"
 write_kv 'shutdown_time_max' "$ups_shutdown_time_max"
 write_kv 'shutdown_charge_min' "$ups_shutdown_charge_min"
 
-echo '} 1'
+echo "} 1 $data_date"
