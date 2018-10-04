@@ -10,7 +10,7 @@
 # - cut
 
 # Make sure we also terminate on pipe operations
-set -o pipefail
+set -uo pipefail
 
 # It is recommended to check https://linux.die.net/man/8/apcaccess for
 # more properties that could be exposed
