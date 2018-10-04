@@ -20,6 +20,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -144,6 +145,15 @@ func infinibandPorts(infinibandPath, device string) ([]string, error) {
 func readMetric(directory, metricFile string) (uint64, error) {
 	metric, err := readUintFromFile(filepath.Join(directory, metricFile))
 	if err != nil {
+		// Ugly workaround for handling #966, when counters are
+		// `N/A (not available)`.
+		// This was already patched and submitted, see
+		// https://www.spinics.net/lists/linux-rdma/msg68596.html
+		// Remove this as soon as the fix lands in the enterprise distros.
+		if strings.Contains(err.Error(), "N/A (no PMA)") {
+			log.Debugf("%q value is N/A", metricFile)
+			return 0, nil
+		}
 		log.Debugf("Error reading %q file", metricFile)
 		return 0, err
 	}
