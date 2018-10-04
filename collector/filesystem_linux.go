@@ -70,7 +70,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		go stuckMountWatcher(labels.mountPoint, success)
 
 		buf := new(syscall.Statfs_t)
-		err = syscall.Statfs(labels.mountPoint, buf)
+		err = syscall.Statfs(rootfsFilePath(labels.mountPoint), buf)
 
 		stuckMountsMtx.Lock()
 		close(success)
@@ -86,7 +86,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				labels:      labels,
 				deviceError: 1,
 			})
-			log.Debugf("Error on statfs() system call for %q: %s", labels.mountPoint, err)
+			log.Debugf("Error on statfs() system call for %q: %s", rootfsFilePath(labels.mountPoint), err)
 			continue
 		}
 
@@ -133,7 +133,7 @@ func stuckMountWatcher(mountPoint string, success chan struct{}) {
 }
 
 func mountPointDetails() ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("mounts"))
+	file, err := os.Open(procFilePath("1/mounts"))
 	if err != nil {
 		return nil, err
 	}
