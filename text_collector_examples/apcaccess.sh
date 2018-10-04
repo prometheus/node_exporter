@@ -113,14 +113,14 @@ while read line; do
 	NUMXFERS)	write_line 'node_apc_transfers' $(try_convert_number "$var_val") 'counter' 'Amount of times the APC had to switch to battery backup' ;;
 
 	# Read generic info
-	UPSNAME)	ups_name="$var_val"; ;;
+	UPSNAME)	ups_name="$var_val" ;;
 	MODEL)		ups_model="$var_val" ;;
 	STATUS)		ups_status="$var_val" ;;
-	LASTXFER)	ups_last_transfer_reason="$var_val"; ;;
-	BATTDATE)	ups_battery_date="$(convert_date $var_val)"; ;;
+	LASTXFER)	ups_last_transfer_reason="$var_val" ;;
+	BATTDATE)	ups_battery_date="$(convert_date $var_val)" ;;
 	# This row contains the date the data was received from the APC.
 	# We'll be using it to tag our records with the current date
-	DATE)		data_date="$(convert_date $var_val)"; ;;
+	DATE)		data_date="$(convert_date $var_val)" ;;
 	# *) echo '# Unused prop ' "$var_key" "$var_val"
 	esac
 done <<< "$result"
