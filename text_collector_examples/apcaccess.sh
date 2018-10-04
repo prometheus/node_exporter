@@ -97,7 +97,7 @@ data_date=""
 
 result=$(/sbin/apcaccess)
 error_code=$?
-if [[ $? -ne 0 ]]; then
+if [[ $error_code -ne 0 ]]; then
 	(>&2 echo "apcaccess exited with error code $error_code!")
 	exit $error_code
 fi
@@ -168,6 +168,6 @@ write_kv 'battery_date_seconds' "$ups_battery_date"
 write_kv 'last_transfer_reason' "$ups_last_transfer_reason"
 write_kv 'shutdown_time_min_seconds' "$ups_shutdown_time_min"
 write_kv 'shutdown_time_max_seconds' "$ups_shutdown_time_max"
-write_kv 'shutdown_charge_min_voltage' "$ups_shutdown_charge_min"
+write_kv 'shutdown_charge_min_volts' "$ups_shutdown_charge_min"
 
 echo "} 1 $data_date"
