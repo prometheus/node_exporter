@@ -123,6 +123,10 @@ while read line; do
 	STATUS)		ups_status="$var_val" ;;
 	LASTXFER)	ups_last_transfer_reason="$var_val" ;;
 	BATTDATE)	ups_battery_date="$(convert_date $var_val)" ;;
+	MBATTCHG)	ups_shutdown_charge_min="$(try_convert_number "$var_val")" ;;
+	MINTIMEL)	ups_shutdown_time_min="$(try_convert_number "$var_val")" ;;
+	MAXTIME)	ups_shutdown_time_max="$(try_convert_number "$var_val")" ;;
+
 	# This row contains the date the data was received from the APC.
 	# We'll be using it to tag our records with the current date
 	DATE)
@@ -160,10 +164,10 @@ echo -n 'node_apc_ups_info{'
 write_kv 'model' "$ups_model"
 write_kv 'name' "$ups_name"
 write_kv 'status' "$ups_status"
-write_kv 'battery_date' "$ups_battery_date"
+write_kv 'battery_date_seconds' "$ups_battery_date"
 write_kv 'last_transfer_reason' "$ups_last_transfer_reason"
-write_kv 'shutdown_time_min' "$ups_shutdown_time_min"
-write_kv 'shutdown_time_max' "$ups_shutdown_time_max"
-write_kv 'shutdown_charge_min' "$ups_shutdown_charge_min"
+write_kv 'shutdown_time_min_seconds' "$ups_shutdown_time_min"
+write_kv 'shutdown_time_max_seconds' "$ups_shutdown_time_max"
+write_kv 'shutdown_charge_min_voltage' "$ups_shutdown_charge_min"
 
 echo "} 1 $data_date"
