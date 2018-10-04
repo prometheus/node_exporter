@@ -96,9 +96,14 @@ ups_battery_date=""
 data_date=""
 
 result=$(/sbin/apcaccess)
+error_code=$?
+if [[ $? -ne 0 ]]; then
+	(>&2 echo "apcaccess exited with error code $error_code!")
+	exit $error_code
+fi
 
 while read line; do
-	var_key=$(echo $line | cut -d : -f 1 | awk '{$1=$1};1')
+	var_key=$(echo $line | cut -d : -f 1  | awk '{$1=$1};1')
 	var_val=$(echo $line | cut -d : -f 2- | awk '{$1=$1};1')
 
 	case "$var_key" in
@@ -120,7 +125,11 @@ while read line; do
 	BATTDATE)	ups_battery_date="$(convert_date $var_val)" ;;
 	# This row contains the date the data was received from the APC.
 	# We'll be using it to tag our records with the current date
-	DATE)		data_date="$(convert_date $var_val)" ;;
+	DATE)
+		data_date="$(convert_date "$var_val")"
+		# Lets add some milliseconds
+		data_date="${data_date}000"
+	;;
 	# *) echo '# Unused prop ' "$var_key" "$var_val"
 	esac
 done <<< "$result"
