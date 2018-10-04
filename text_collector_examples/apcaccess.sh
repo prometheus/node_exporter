@@ -9,7 +9,8 @@
 # - awk
 # - cut
 
-set -ue
+# Make sure we also terminate on pipe operations
+set -o pipefail
 
 # It is recommended to check https://linux.die.net/man/8/apcaccess for
 # more properties that could be exposed
@@ -53,103 +54,103 @@ set -ue
 # END APC  : 2018-10-03 15:37:04 +0200
 
 function write_line {
-	local KEY="$1"
-	local VAL="$2"
-	local TYPE="$3"
-	local HELP="$4"
+	local key="$1"
+	local val="$2"
+	local type="$3"
+	local help="$4"
 
-	echo '# HELP' "$KEY" "$HELP"
-	echo '# TYPE' "$KEY" "$TYPE"
-	echo "$KEY" "$VAL"
+	echo '# HELP' "$key" "$help"
+	echo '# TYPE' "$key" "$type"
+	echo "$key" "$val"
 }
 
 function try_convert_number {
 	local VAL="$1"
-	VAL_NMBR=$(echo $VAL | cut -d ' ' -f 1 | awk '{$1=$1};1')
-	VAL_TYPE=$(echo $VAL | cut -d ' ' -f 2 | awk '{$1=$1};1')
+	val_nmbr=$(echo $val | cut -d ' ' -f 1 | awk '{$1=$1};1')
+	val_type=$(echo $val | cut -d ' ' -f 2 | awk '{$1=$1};1')
 
-	case "$VAL_TYPE" in
+	case "$val_type" in
 	# Convert to seconds
-	Minutes) VAL_NMBR=$(bc <<< "$VAL_NMBR * 60") ;;
-	Hours)   VAL_NMBR=$(bc <<< "$VAL_NMBR * 3600") ;;
+	Minutes) val_nmbr=$(bc <<< "$val_nmbr * 60") ;;
+	Hours)   val_nmbr=$(bc <<< "$val_nmbr * 3600") ;;
 	esac
 
-	echo "$VAL_NMBR"
+	echo "$val_nmbr"
 }
 
 function convert_date {
-	local VAL="$1"
+	local val="$1"
 	# Format date as time since epoch, in seconds
-	date -d "$VAL" +%s
+	date -d "$val" +%s
 }
 
 # Helper props
-UPS_MODEL="x"
-UPS_NAME=""
-UPS_STATUS=""
-UPS_SHUTDOWN_CHARGE_MIN=""
-UPS_SHUTDOWN_TIME_MAX=""
-UPS_SHUTDOWN_TIME_MIN=""
-UPS_LAST_TRANSFER_REASON=""
-UPS_BATTERY_DATE=""
+ups_model="x"
+ups_name=""
+ups_status=""
+ups_shutdown_charge_min=""
+ups_shutdown_time_max=""
+ups_shutdown_time_min=""
+ups_last_transfer_reason=""
+ups_battery_date=""
 
-RESULT=$(/sbin/apcaccess)
+result=$(/sbin/apcaccess)
 
 while read LINE; do
-	VAR_KEY=$(echo $LINE | cut -d : -f 1 | awk '{$1=$1};1')
-	VAR_VAL=$(echo $LINE | cut -d : -f 2- | awk '{$1=$1};1')
+	var_key=$(echo $line | cut -d : -f 1 | awk '{$1=$1};1')
+	var_val=$(echo $line | cut -d : -f 2- | awk '{$1=$1};1')
 
-	case "$VAR_KEY" in
-	STARTTIME)	write_line 'node_apc_start_time' $(convert_date "$VAR_VAL") 'untyped' 'The startup time of the APC' ;;
-	XONBATT)	write_line 'node_apc_battery_backup_start' $(convert_date "$VAR_VAL") 'untyped' 'Last time the battery backup started being used (power lost)' ;;
-	XOFFBATT)	write_line 'node_apc_battery_backup_end' $(convert_date "$VAR_VAL") 'untyped' 'Last time the battery backup stopped being used (power recovered)' ;;
-	BATTV)		write_line 'node_apc_battery_voltage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current voltage of the battery inside the APC' ;;
-	BCHARGE)	write_line 'node_apc_battery_charge' $(try_convert_number "$VAR_VAL") 'gauge' 'Current charge percentage of the battery inside the APC' ;;
-	LINEV)		write_line 'node_apc_line_voltage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current voltage of the power connected to the APC' ;;
-	TIMELEFT)	write_line 'node_apc_time_left_seconds' $(try_convert_number "$VAR_VAL") 'gauge' 'Time left until battery is empty, in seconds' ;;
-	LOADPCT)	write_line 'node_apc_load_capacity_percentage' $(try_convert_number "$VAR_VAL") 'gauge' 'Current load capacity on the APC' ;;
-	NUMXFERS)	write_line 'node_apc_transfers' $(try_convert_number "$VAR_VAL") 'counter' 'Amount of times the APC had to switch to battery backup' ;;
+	case "$var_key" in
+	STARTTIME)	write_line 'node_apc_start_time' $(convert_date "$var_val") 'gauge' 'The startup time of the APC' ;;
+	XONBATT)	write_line 'node_apc_battery_backup_start' $(convert_date "$var_val") 'gauge' 'Last time the battery backup started being used (power lost)' ;;
+	XOFFBATT)	write_line 'node_apc_battery_backup_end' $(convert_date "$var_val") 'gauge' 'Last time the battery backup stopped being used (power recovered)' ;;
+	BATTV)		write_line 'node_apc_battery_voltage' $(try_convert_number "$var_val") 'gauge' 'Current voltage of the battery inside the APC' ;;
+	BCHARGE)	write_line 'node_apc_battery_charge' $(try_convert_number "$var_val") 'gauge' 'Current charge percentage of the battery inside the APC' ;;
+	LINEV)		write_line 'node_apc_line_voltage' $(try_convert_number "$var_val") 'gauge' 'Current voltage of the power connected to the APC' ;;
+	TIMELEFT)	write_line 'node_apc_time_left_seconds' $(try_convert_number "$var_val") 'gauge' 'Time left until battery is empty, in seconds' ;;
+	LOADPCT)	write_line 'node_apc_load_capacity_percentage' $(try_convert_number "$var_val") 'gauge' 'Current load capacity on the APC' ;;
+	NUMXFERS)	write_line 'node_apc_transfers' $(try_convert_number "$var_val") 'counter' 'Amount of times the APC had to switch to battery backup' ;;
 
 	# Read generic info
-	UPSNAME)	UPS_NAME="$VAR_VAL"; ;;
-	MODEL)		UPS_MODEL="$VAR_VAL" ;;
-	STATUS)		UPS_STATUS="$VAR_VAL" ;;
-	LASTXFER)	UPS_LAST_TRANSFER_REASON="$VAR_VAL"; ;;
-	BATTDATE)	UPS_BATTERY_DATE="$(convert_date $VAR_VAL)"; ;;
-	# *) echo '# Unused prop ' "$VAR_KEY" "$VAR_VAL"
+	UPSNAME)	ups_name="$var_val"; ;;
+	MODEL)		ups_model="$var_val" ;;
+	STATUS)		ups_status="$var_val" ;;
+	LASTXFER)	ups_last_transfer_reason="$var_val"; ;;
+	BATTDATE)	ups_battery_date="$(convert_date $var_val)"; ;;
+	# *) echo '# Unused prop ' "$var_key" "$var_val"
 	esac
-done <<< "$RESULT"
+done <<< "$result"
 
-FIRST_KV=1
+first_kv=1
 function write_kv {
-	local KEY="$1"
-	local VAL="$2"
+	local key="$1"
+	local val="$2"
 
 	# Skip empty values
-	if [ "$VAL" == "" ]; then
+	if [ "$val" == "" ]; then
 		return
 	fi
 
 
-	if [ "$FIRST_KV" == "1" ]; then
-		FIRST_KV=0
+	if [ "$first_kv" == "1" ]; then
+		first_kv=0
 	else
 		echo -n ','
 	fi
 
-	echo -n "$KEY=\"$VAL\""
+	echo -n "$key=\"$val\""
 }
 
 echo '# HELP node_apc_info APC Info key'
 echo -n 'node_apc_ups_info{'
 
-write_kv 'model' "$UPS_MODEL"
-write_kv 'name' "$UPS_NAME"
-write_kv 'status' "$UPS_STATUS"
-write_kv 'battery_date' "$UPS_BATTERY_DATE"
-write_kv 'last_transfer_reason' "$UPS_LAST_TRANSFER_REASON"
-write_kv 'shutdown_time_min' "$UPS_SHUTDOWN_TIME_MIN"
-write_kv 'shutdown_time_max' "$UPS_SHUTDOWN_TIME_MAX"
-write_kv 'shutdown_charge_min' "$UPS_SHUTDOWN_CHARGE_MIN"
+write_kv 'model' "$ups_model"
+write_kv 'name' "$ups_name"
+write_kv 'status' "$ups_status"
+write_kv 'battery_date' "$ups_battery_date"
+write_kv 'last_transfer_reason' "$ups_last_transfer_reason"
+write_kv 'shutdown_time_min' "$ups_shutdown_time_min"
+write_kv 'shutdown_time_max' "$ups_shutdown_time_max"
+write_kv 'shutdown_charge_min' "$ups_shutdown_charge_min"
 
 echo '} 1'
