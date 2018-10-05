@@ -115,7 +115,7 @@ while read line; do
 	LINEV)		write_line 'node_apc_line_voltage' $(try_convert_number "$var_val") 'gauge' 'Current voltage of the power connected to the APC' ;;
 	TIMELEFT)	write_line 'node_apc_time_left_seconds' $(try_convert_number "$var_val") 'gauge' 'Time left until battery is empty, in seconds' ;;
 	LOADPCT)	write_line 'node_apc_load_capacity_percentage' $(try_convert_number "$var_val") 'gauge' 'Current load capacity on the APC' ;;
-	NUMXFERS)	write_line 'node_apc_transfers' $(try_convert_number "$var_val") 'counter' 'Amount of times the APC had to switch to battery backup' ;;
+	NUMXFERS)	write_line 'node_apc_transfer_total' $(try_convert_number "$var_val") 'counter' 'Amount of times the APC had to switch to battery backup' ;;
 
 	# Read generic info
 	UPSNAME)	ups_name="$var_val" ;;
@@ -158,7 +158,7 @@ function write_kv {
 	echo -n "$key=\"$val\""
 }
 
-echo '# HELP node_apc_info APC Info key'
+echo '# HELP node_apc_ups_info APC Info key'
 echo -n 'node_apc_ups_info{'
 
 write_kv 'model' "$ups_model"
