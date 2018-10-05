@@ -61,7 +61,7 @@ function write_line {
 
 	echo '# HELP' "$key" "$help"
 	echo '# TYPE' "$key" "$type"
-	echo "$key" "$val" "$data_date"
+	echo "$key" "$val"
 }
 
 function try_convert_number {
@@ -93,7 +93,6 @@ ups_shutdown_time_max=""
 ups_shutdown_time_min=""
 ups_last_transfer_reason=""
 ups_battery_date=""
-data_date=""
 
 result=$(/sbin/apcaccess)
 error_code=$?
@@ -107,6 +106,7 @@ while read line; do
 	var_val=$(echo $line | cut -d : -f 2- | awk '{$1=$1};1')
 
 	case "$var_key" in
+	DATE)		write_line 'node_textfile_mtime_seconds' $(convert_date "$var_val") 'gauge' 'Last time the daemon received data from the APC' ;;
 	STARTTIME)	write_line 'node_apc_start_time' $(convert_date "$var_val") 'gauge' 'The startup time of the APC' ;;
 	XONBATT)	write_line 'node_apc_battery_backup_start' $(convert_date "$var_val") 'gauge' 'Last time the battery backup started being used (power lost)' ;;
 	XOFFBATT)	write_line 'node_apc_battery_backup_end' $(convert_date "$var_val") 'gauge' 'Last time the battery backup stopped being used (power recovered)' ;;
@@ -127,13 +127,6 @@ while read line; do
 	MINTIMEL)	ups_shutdown_time_min="$(try_convert_number "$var_val")" ;;
 	MAXTIME)	ups_shutdown_time_max="$(try_convert_number "$var_val")" ;;
 
-	# This row contains the date the data was received from the APC.
-	# We'll be using it to tag our records with the current date
-	DATE)
-		data_date="$(convert_date "$var_val")"
-		# Lets add some milliseconds
-		data_date="${data_date}000"
-	;;
 	# *) echo '# Unused prop ' "$var_key" "$var_val"
 	esac
 done <<< "$result"
@@ -170,4 +163,4 @@ write_kv 'shutdown_time_min_seconds' "$ups_shutdown_time_min"
 write_kv 'shutdown_time_max_seconds' "$ups_shutdown_time_max"
 write_kv 'shutdown_charge_min_volts' "$ups_shutdown_charge_min"
 
-echo "} 1 $data_date"
+echo "} 1"
