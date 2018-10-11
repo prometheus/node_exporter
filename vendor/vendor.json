@@ -68,7 +68,9 @@
 			"checksumSHA1": "r6ZMyP/HsdeToXIxvgP3ntL6Bds=",
 			"path": "github.com/konsorten/go-windows-terminal-sequences",
 			"revision": "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242",
-			"revisionTime": "2018-10-04T22:41:46Z"
+			"revisionTime": "2018-10-04T22:41:46Z",
+			"version": "v1.0.1",
+			"versionExact": "v1.0.1"
 		},
 		{
 			"checksumSHA1": "IdBAvtVSv0sbi8sEsLovnZubims=",
