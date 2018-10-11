@@ -35,12 +35,12 @@
 			"revisionTime": "2016-08-04T10:47:26Z"
 		},
 		{
-			"checksumSHA1": "Lxoh+PBVbeSiTNlSvpUmP4yA8QI=",
+			"checksumSHA1": "1txgvJO9bgE703kK2EQ/NATy1Rg=",
 			"path": "github.com/coreos/go-systemd/dbus",
-			"revision": "40e2722dffead74698ca12a750f64ef313ddce05",
-			"revisionTime": "2018-02-02T09:23:58Z",
-			"version": "v16",
-			"versionExact": "v16"
+			"revision": "39ca1b05acc7ad1220e09f133283b8859a8b71ab",
+			"revisionTime": "2018-05-11T13:34:05Z",
+			"version": "v17",
+			"versionExact": "v17"
 		},
 		{
 			"checksumSHA1": "wPbKObbGzS/43nrskRaJVFVEW/A=",
