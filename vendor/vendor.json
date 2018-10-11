@@ -65,6 +65,12 @@
 			"versionExact": "v1.0.0"
 		},
 		{
+			"checksumSHA1": "r6ZMyP/HsdeToXIxvgP3ntL6Bds=",
+			"path": "github.com/konsorten/go-windows-terminal-sequences",
+			"revision": "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242",
+			"revisionTime": "2018-10-04T22:41:46Z"
+		},
+		{
 			"checksumSHA1": "IdBAvtVSv0sbi8sEsLovnZubims=",
 			"path": "github.com/lufia/iostat",
 			"revision": "9f7362b77ad333b26c01c99de52a11bdb650ded2",
@@ -205,12 +211,12 @@
 			"revisionTime": "2018-03-21T23:08:12Z"
 		},
 		{
-			"checksumSHA1": "ySaT8G3I3y4MmnoXOYAAX0rC+p8=",
+			"checksumSHA1": "YjhDOmq6sEghGST0PAiyA+8EAT4=",
 			"path": "github.com/sirupsen/logrus",
-			"revision": "d682213848ed68c0a260ca37d6dd5ace8423f5ba",
-			"revisionTime": "2017-12-05T20:32:29Z",
-			"version": "v1.0.4",
-			"versionExact": "v1.0.4"
+			"revision": "ad15b42461921f1fb3529b058c6786c6a45d5162",
+			"revisionTime": "2018-10-08T20:30:39Z",
+			"version": "v1.1.1",
+			"versionExact": "v1.1.1"
 		},
 		{
 			"checksumSHA1": "uozMgPjB4AggpuuJkGq3FgAs4CA=",
