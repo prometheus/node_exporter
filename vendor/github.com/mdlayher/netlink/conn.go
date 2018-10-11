@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"os"
 	"sync/atomic"
+	"syscall"
 	"time"
 
 	"golang.org/x/net/bpf"
@@ -25,6 +26,8 @@ var (
 	errMulticastGroupsNotSupported = errors.New("multicast groups not supported")
 	errBPFFiltersNotSupported      = errors.New("BPF filters not supported")
 	errOptionsNotSupported         = errors.New("options not supported")
+	errSetBufferNotSupported       = errors.New("setting buffer sizes not supported")
+	errSyscallConnNotSupported     = errors.New("syscall.RawConn operation not supported")
 )
 
 // A Conn is a connection to netlink.  A Conn can be used to send and
@@ -76,7 +79,7 @@ func Dial(family int, config *Config) (*Conn, error) {
 //
 // NewConn is primarily useful for tests. Most applications should use
 // Dial instead.
-func NewConn(c Socket, pid uint32) *Conn {
+func NewConn(sock Socket, pid uint32) *Conn {
 	// Seed the sequence number using a random number generator.
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	seq := r.Uint32()
@@ -88,7 +91,7 @@ func NewConn(c Socket, pid uint32) *Conn {
 	}
 
 	return &Conn{
-		sock: c,
+		sock: sock,
 		seq:  &seq,
 		pid:  pid,
 		d:    d,
@@ -115,8 +118,8 @@ func (c *Conn) Close() error {
 //
 // See the documentation of Conn.Send, Conn.Receive, and Validate for details about
 // each function.
-func (c *Conn) Execute(m Message) ([]Message, error) {
-	req, err := c.Send(m)
+func (c *Conn) Execute(message Message) ([]Message, error) {
+	req, err := c.Send(message)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +151,8 @@ func (c *Conn) fixMsg(m *Message, ml int) {
 }
 
 // SendMessages sends multiple Messages to netlink. The handling of
-// m.Header.Length, Sequence and PID is the same as when calling Send.
+// a Header's Length, Sequence and PID fields is the same as when
+// calling Send.
 func (c *Conn) SendMessages(messages []Message) ([]Message, error) {
 	for idx, m := range messages {
 		ml := nlmsgLength(len(m.Data))
@@ -178,34 +182,34 @@ func (c *Conn) SendMessages(messages []Message) ([]Message, error) {
 	return messages, nil
 }
 
-// Send sends a single Message to netlink.  In most cases, m.Header's Length,
+// Send sends a single Message to netlink.  In most cases, a Header's Length,
 // Sequence, and PID fields should be set to 0, so they can be populated
 // automatically before the Message is sent.  On success, Send returns a copy
 // of the Message with all parameters populated, for later validation.
 //
-// If m.Header.Length is 0, it will be automatically populated using the
+// If Header.Length is 0, it will be automatically populated using the
 // correct length for the Message, including its payload.
 //
-// If m.Header.Sequence is 0, it will be automatically populated using the
+// If Header.Sequence is 0, it will be automatically populated using the
 // next sequence number for this connection.
 //
-// If m.Header.PID is 0, it will be automatically populated using a PID
+// If Header.PID is 0, it will be automatically populated using a PID
 // assigned by netlink.
-func (c *Conn) Send(m Message) (Message, error) {
-	ml := nlmsgLength(len(m.Data))
+func (c *Conn) Send(message Message) (Message, error) {
+	ml := nlmsgLength(len(message.Data))
 
 	// TODO(mdlayher): fine-tune this limit.
 	if ml > (1024 * 32) {
 		return Message{}, errors.New("netlink message data too large")
 	}
 
-	c.fixMsg(&m, ml)
+	c.fixMsg(&message, ml)
 
 	c.debug(func(d *debugger) {
-		d.debugf(1, "send: %+v", m)
+		d.debugf(1, "send: %+v", message)
 	})
 
-	if err := c.sock.Send(m); err != nil {
+	if err := c.sock.Send(message); err != nil {
 		c.debug(func(d *debugger) {
 			d.debugf(1, "send: err: %v", err)
 		})
@@ -213,7 +217,7 @@ func (c *Conn) Send(m Message) (Message, error) {
 		return Message{}, err
 	}
 
-	return m, nil
+	return message, nil
 }
 
 // Receive receives one or more messages from netlink.  Multi-part messages are
@@ -419,6 +423,80 @@ func (c *Conn) SetOption(option ConnOption, enable bool) error {
 	return fc.SetOption(option, enable)
 }
 
+// A bufferSetter is a Socket that supports setting connection buffer sizes.
+type bufferSetter interface {
+	Socket
+	SetReadBuffer(bytes int) error
+	SetWriteBuffer(bytes int) error
+}
+
+// SetReadBuffer sets the size of the operating system's receive buffer
+// associated with the Conn.
+func (c *Conn) SetReadBuffer(bytes int) error {
+	conn, ok := c.sock.(bufferSetter)
+	if !ok {
+		return errSetBufferNotSupported
+	}
+
+	return conn.SetReadBuffer(bytes)
+}
+
+// SetWriteBuffer sets the size of the operating system's transmit buffer
+// associated with the Conn.
+func (c *Conn) SetWriteBuffer(bytes int) error {
+	conn, ok := c.sock.(bufferSetter)
+	if !ok {
+		return errSetBufferNotSupported
+	}
+
+	return conn.SetWriteBuffer(bytes)
+}
+
+var _ syscall.Conn = &Conn{}
+
+// TODO(mdlayher): mutex or similar to enforce syscall.RawConn contract of
+// FD remaining valid for duration of calls?
+
+// SyscallConn returns a raw network connection. This implements the
+// syscall.Conn interface.
+//
+// Only the Control method of the returned syscall.RawConn is currently
+// implemented.
+//
+// SyscallConn is intended for advanced use cases, such as getting and setting
+// arbitrary socket options using the netlink socket's file descriptor.
+//
+// Once invoked, it is the caller's responsibility to ensure that operations
+// performed using Conn and the syscall.RawConn do not conflict with
+// each other.
+func (c *Conn) SyscallConn() (syscall.RawConn, error) {
+	conn, ok := c.sock.(fder)
+	if !ok {
+		return nil, errSyscallConnNotSupported
+	}
+
+	return &rawConn{
+		fd: uintptr(conn.FD()),
+	}, nil
+}
+
+var _ syscall.RawConn = &rawConn{}
+
+// A rawConn is a syscall.RawConn.
+type rawConn struct {
+	fd uintptr
+}
+
+func (rc *rawConn) Control(f func(fd uintptr)) error {
+	f(rc.fd)
+	return nil
+}
+
+// TODO(mdlayher): implement Read and Write?
+
+func (rc *rawConn) Read(_ func(fd uintptr) (done bool)) error  { return errSyscallConnNotSupported }
+func (rc *rawConn) Write(_ func(fd uintptr) (done bool)) error { return errSyscallConnNotSupported }
+
 // nextSequence atomically increments Conn's sequence number and returns
 // the incremented value.
 func (c *Conn) nextSequence() uint32 {
@@ -455,13 +533,7 @@ type Config struct {
 	// no multicast group subscriptions will be made.
 	Groups uint32
 
-	// Experimental: do not lock the internal system call handling goroutine
-	// to its OS thread.  This may result in a speed-up of system call handling,
-	// but may cause unexpected behavior when sending and receiving a large number
-	// of messages.
-	//
-	// This should almost certainly be set to false, but if you come up with a
-	// valid reason for using this, please file an issue at
-	// https://github.com/mdlayher/netlink to discuss your thoughts.
-	NoLockThread bool
+	// Network namespace the Conn needs to operate in. If set to 0,
+	// no network namespace will be entered.
+	NetNS int
 }
