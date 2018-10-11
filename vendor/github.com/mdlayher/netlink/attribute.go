@@ -26,24 +26,22 @@ type Attribute struct {
 	Data []byte
 }
 
-// MarshalBinary marshals an Attribute into a byte slice.
-func (a Attribute) MarshalBinary() ([]byte, error) {
+// marshal marshals the contents of a into b and returns the number of bytes
+// written to b, including attribute alignment padding.
+func (a *Attribute) marshal(b []byte) (int, error) {
 	if int(a.Length) < nlaHeaderLen {
-		return nil, errInvalidAttribute
+		return 0, errInvalidAttribute
 	}
-
-	b := make([]byte, nlaAlign(int(a.Length)))
 
 	nlenc.PutUint16(b[0:2], a.Length)
 	nlenc.PutUint16(b[2:4], a.Type)
+	n := copy(b[nlaHeaderLen:], a.Data)
 
-	copy(b[nlaHeaderLen:], a.Data)
-
-	return b, nil
+	return nlaHeaderLen + nlaAlign(n), nil
 }
 
-// UnmarshalBinary unmarshals the contents of a byte slice into an Attribute.
-func (a *Attribute) UnmarshalBinary(b []byte) error {
+// unmarshal unmarshals the contents of a byte slice into an Attribute.
+func (a *Attribute) unmarshal(b []byte) error {
 	if len(b) < nlaHeaderLen {
 		return errInvalidAttribute
 	}
@@ -75,23 +73,27 @@ func (a *Attribute) UnmarshalBinary(b []byte) error {
 // In most cases, the Length field of each Attribute should be set to 0, so it
 // can be calculated and populated automatically for each Attribute.
 func MarshalAttributes(attrs []Attribute) ([]byte, error) {
+	// Count how many bytes we should allocate to store each attribute's contents.
 	var c int
 	for _, a := range attrs {
-		c += nlaAlign(len(a.Data))
+		c += nlaHeaderLen + nlaAlign(len(a.Data))
 	}
 
-	b := make([]byte, 0, c)
+	// Advance through b with idx to place attribute data at the correct offset.
+	var idx int
+	b := make([]byte, c)
 	for _, a := range attrs {
+		// Infer the length of attribute if zero.
 		if a.Length == 0 {
 			a.Length = uint16(nlaHeaderLen + len(a.Data))
 		}
 
-		ab, err := a.MarshalBinary()
+		// Marshal a into b and advance idx to show many bytes are occupied.
+		n, err := a.marshal(b[idx:])
 		if err != nil {
 			return nil, err
 		}
-
-		b = append(b, ab...)
+		idx += n
 	}
 
 	return b, nil
@@ -110,7 +112,7 @@ func UnmarshalAttributes(b []byte) ([]Attribute, error) {
 		}
 
 		var a Attribute
-		if err := (&a).UnmarshalBinary(b[i:]); err != nil {
+		if err := (&a).unmarshal(b[i:]); err != nil {
 			return nil, err
 		}
 
@@ -207,6 +209,14 @@ func (ad *AttributeDecoder) Err() error {
 	return ad.err
 }
 
+// Bytes returns the raw bytes of the current Attribute's data.
+func (ad *AttributeDecoder) Bytes() []byte {
+	src := ad.data()
+	dest := make([]byte, len(src))
+	copy(dest, src)
+	return dest
+}
+
 // String returns the string representation of the current Attribute's data.
 func (ad *AttributeDecoder) String() string {
 	if ad.err != nil {
@@ -295,4 +305,144 @@ func (ad *AttributeDecoder) Do(fn func(b []byte) error) {
 	if err := fn(b); err != nil {
 		ad.err = err
 	}
+}
+
+// An AttributeEncoder provides a safe way to encode attributes.
+//
+// It is recommended to use an AttributeEncoder where possible instead of
+// calling MarshalAttributes or using package nlenc directly.
+//
+// Errors from intermediate encoding steps are returned in the call to
+// Encode.
+type AttributeEncoder struct {
+	// ByteOrder defines a specific byte order to use when processing integer
+	// attributes.  ByteOrder should be set immediately after creating the
+	// AttributeEncoder: before any attributes are encoded.
+	//
+	// If not set, the native byte order will be used.
+	ByteOrder binary.ByteOrder
+
+	attrs []Attribute
+	err   error
+}
+
+// NewAttributeEncoder creates an AttributeEncoder that encodes Attributes.
+func NewAttributeEncoder() *AttributeEncoder {
+	return &AttributeEncoder{
+		ByteOrder: nlenc.NativeEndian(),
+	}
+}
+
+// Uint8 encodes uint8 data into an Attribute specified by typ.
+func (ae *AttributeEncoder) Uint8(typ uint16, v uint8) {
+	if ae.err != nil {
+		return
+	}
+
+	ae.attrs = append(ae.attrs, Attribute{
+		Type: typ,
+		Data: []byte{v},
+	})
+}
+
+// Uint16 encodes uint16 data into an Attribute specified by typ.
+func (ae *AttributeEncoder) Uint16(typ uint16, v uint16) {
+	if ae.err != nil {
+		return
+	}
+
+	b := make([]byte, 2)
+	ae.ByteOrder.PutUint16(b, v)
+
+	ae.attrs = append(ae.attrs, Attribute{
+		Type: typ,
+		Data: b,
+	})
+}
+
+// Uint32 encodes uint32 data into an Attribute specified by typ.
+func (ae *AttributeEncoder) Uint32(typ uint16, v uint32) {
+	if ae.err != nil {
+		return
+	}
+
+	b := make([]byte, 4)
+	ae.ByteOrder.PutUint32(b, v)
+
+	ae.attrs = append(ae.attrs, Attribute{
+		Type: typ,
+		Data: b,
+	})
+}
+
+// Uint64 encodes uint64 data into an Attribute specified by typ.
+func (ae *AttributeEncoder) Uint64(typ uint16, v uint64) {
+	if ae.err != nil {
+		return
+	}
+
+	b := make([]byte, 8)
+	ae.ByteOrder.PutUint64(b, v)
+
+	ae.attrs = append(ae.attrs, Attribute{
+		Type: typ,
+		Data: b,
+	})
+}
+
+// String encodes string s as a null-terminated string into an Attribute
+// specified by typ.
+func (ae *AttributeEncoder) String(typ uint16, s string) {
+	if ae.err != nil {
+		return
+	}
+
+	ae.attrs = append(ae.attrs, Attribute{
+		Type: typ,
+		Data: nlenc.Bytes(s),
+	})
+}
+
+// Bytes embeds raw byte data into an Attribute specified by typ.
+func (ae *AttributeEncoder) Bytes(typ uint16, b []byte) {
+	if ae.err != nil {
+		return
+	}
+
+	ae.attrs = append(ae.attrs, Attribute{
+		Type: typ,
+		Data: b,
+	})
+}
+
+// Do is a general purpose function to encode arbitrary data into an attribute
+// specified by typ.
+//
+// Do is especially helpful in encoding nested attributes, attribute arrays,
+// or encoding arbitrary types (such as C structures) which don't fit cleanly
+// into an unsigned integer value.
+func (ae *AttributeEncoder) Do(typ uint16, fn func() ([]byte, error)) {
+	if ae.err != nil {
+		return
+	}
+
+	b, err := fn()
+	if err != nil {
+		ae.err = err
+		return
+	}
+
+	ae.attrs = append(ae.attrs, Attribute{
+		Type: typ,
+		Data: b,
+	})
+}
+
+// Encode returns the encoded bytes representing the attributes.
+func (ae *AttributeEncoder) Encode() ([]byte, error) {
+	if ae.err != nil {
+		return nil, ae.err
+	}
+
+	return MarshalAttributes(ae.attrs)
 }
