@@ -228,7 +228,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func getDiskStats() (map[string]map[int]string, error) {
+func getDiskStats() (map[string][]string, error) {
 	file, err := os.Open(procFilePath(diskstatsFilename))
 	if err != nil {
 		return nil, err
@@ -238,9 +238,9 @@ func getDiskStats() (map[string]map[int]string, error) {
 	return parseDiskStats(file)
 }
 
-func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
+func parseDiskStats(r io.Reader) (map[string][]string, error) {
 	var (
-		diskStats = map[string]map[int]string{}
+		diskStats = map[string][]string{}
 		scanner   = bufio.NewScanner(r)
 	)
 
@@ -250,10 +250,7 @@ func parseDiskStats(r io.Reader) (map[string]map[int]string, error) {
 			return nil, fmt.Errorf("invalid line in %s: %s", procFilePath(diskstatsFilename), scanner.Text())
 		}
 		dev := parts[2]
-		diskStats[dev] = map[int]string{}
-		for i, v := range parts[3:] {
-			diskStats[dev][i] = v
-		}
+		diskStats[dev] = parts[3:]
 	}
 
 	return diskStats, scanner.Err()
