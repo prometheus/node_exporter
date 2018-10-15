@@ -290,6 +290,18 @@ node_cpu_seconds_total{cpu="7",mode="softirq"} 0.31
 node_cpu_seconds_total{cpu="7",mode="steal"} 0
 node_cpu_seconds_total{cpu="7",mode="system"} 101.64
 node_cpu_seconds_total{cpu="7",mode="user"} 290.98
+# HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
+# TYPE node_disk_discard_time_seconds_total counter
+node_disk_discard_time_seconds_total{device="sdb"} 11.13
+# HELP node_disk_discarded_sectors_total The total number of sectors discard successfully.
+# TYPE node_disk_discarded_sectors_total counter
+node_disk_discarded_sectors_total{device="sdb"} 1.925173784e+09
+# HELP node_disk_discards_completed_total The total number of discards completed successfully.
+# TYPE node_disk_discards_completed_total counter
+node_disk_discards_completed_total{device="sdb"} 68851
+# HELP node_disk_discards_merged_total The total number of discards merged.
+# TYPE node_disk_discards_merged_total counter
+node_disk_discards_merged_total{device="sdb"} 0
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -303,6 +315,7 @@ node_disk_io_now{device="mmcblk0p1"} 0
 node_disk_io_now{device="mmcblk0p2"} 0
 node_disk_io_now{device="nvme0n1"} 0
 node_disk_io_now{device="sda"} 0
+node_disk_io_now{device="sdb"} 0
 node_disk_io_now{device="sr0"} 0
 node_disk_io_now{device="vda"} 0
 # HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
@@ -318,9 +331,10 @@ node_disk_io_time_seconds_total{device="mmcblk0p1"} 0.024
 node_disk_io_time_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_io_time_seconds_total{device="nvme0n1"} 222.766
 node_disk_io_time_seconds_total{device="sda"} 9653.880000000001
+node_disk_io_time_seconds_total{device="sdb"} 60.730000000000004
 node_disk_io_time_seconds_total{device="sr0"} 0
 node_disk_io_time_seconds_total{device="vda"} 41614.592000000004
-# HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os.
 # TYPE node_disk_io_time_weighted_seconds_total counter
 node_disk_io_time_weighted_seconds_total{device="dm-0"} 1.206301256e+06
 node_disk_io_time_weighted_seconds_total{device="dm-1"} 0.084
@@ -333,6 +347,7 @@ node_disk_io_time_weighted_seconds_total{device="mmcblk0p1"} 0.024
 node_disk_io_time_weighted_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_io_time_weighted_seconds_total{device="nvme0n1"} 1032.546
 node_disk_io_time_weighted_seconds_total{device="sda"} 82621.804
+node_disk_io_time_weighted_seconds_total{device="sdb"} 67.07000000000001
 node_disk_io_time_weighted_seconds_total{device="sr0"} 0
 node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
 # HELP node_disk_read_bytes_total The total number of bytes read successfully.
@@ -348,6 +363,7 @@ node_disk_read_bytes_total{device="mmcblk0p1"} 81920
 node_disk_read_bytes_total{device="mmcblk0p2"} 389120
 node_disk_read_bytes_total{device="nvme0n1"} 2.377714176e+09
 node_disk_read_bytes_total{device="sda"} 5.13713216512e+11
+node_disk_read_bytes_total{device="sdb"} 4.944782848e+09
 node_disk_read_bytes_total{device="sr0"} 0
 node_disk_read_bytes_total{device="vda"} 1.6727491584e+10
 # HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads.
@@ -363,6 +379,7 @@ node_disk_read_time_seconds_total{device="mmcblk0p1"} 0.024
 node_disk_read_time_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_read_time_seconds_total{device="nvme0n1"} 21.650000000000002
 node_disk_read_time_seconds_total{device="sda"} 18492.372
+node_disk_read_time_seconds_total{device="sdb"} 0.084
 node_disk_read_time_seconds_total{device="sr0"} 0
 node_disk_read_time_seconds_total{device="vda"} 8655.768
 # HELP node_disk_reads_completed_total The total number of reads completed successfully.
@@ -378,9 +395,10 @@ node_disk_reads_completed_total{device="mmcblk0p1"} 17
 node_disk_reads_completed_total{device="mmcblk0p2"} 95
 node_disk_reads_completed_total{device="nvme0n1"} 47114
 node_disk_reads_completed_total{device="sda"} 2.5354637e+07
+node_disk_reads_completed_total{device="sdb"} 326552
 node_disk_reads_completed_total{device="sr0"} 0
 node_disk_reads_completed_total{device="vda"} 1.775784e+06
-# HELP node_disk_reads_merged_total The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_reads_merged_total The total number of reads merged.
 # TYPE node_disk_reads_merged_total counter
 node_disk_reads_merged_total{device="dm-0"} 0
 node_disk_reads_merged_total{device="dm-1"} 0
@@ -393,6 +411,7 @@ node_disk_reads_merged_total{device="mmcblk0p1"} 3
 node_disk_reads_merged_total{device="mmcblk0p2"} 0
 node_disk_reads_merged_total{device="nvme0n1"} 4
 node_disk_reads_merged_total{device="sda"} 3.4367663e+07
+node_disk_reads_merged_total{device="sdb"} 841
 node_disk_reads_merged_total{device="sr0"} 0
 node_disk_reads_merged_total{device="vda"} 15386
 # HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
@@ -408,6 +427,7 @@ node_disk_write_time_seconds_total{device="mmcblk0p1"} 0
 node_disk_write_time_seconds_total{device="mmcblk0p2"} 0
 node_disk_write_time_seconds_total{device="nvme0n1"} 1011.053
 node_disk_write_time_seconds_total{device="sda"} 63877.96
+node_disk_write_time_seconds_total{device="sdb"} 5.007
 node_disk_write_time_seconds_total{device="sr0"} 0
 node_disk_write_time_seconds_total{device="vda"} 2.069221364e+06
 # HELP node_disk_writes_completed_total The total number of writes completed successfully.
@@ -423,9 +443,10 @@ node_disk_writes_completed_total{device="mmcblk0p1"} 0
 node_disk_writes_completed_total{device="mmcblk0p2"} 0
 node_disk_writes_completed_total{device="nvme0n1"} 1.07832e+06
 node_disk_writes_completed_total{device="sda"} 2.8444756e+07
+node_disk_writes_completed_total{device="sdb"} 41822
 node_disk_writes_completed_total{device="sr0"} 0
 node_disk_writes_completed_total{device="vda"} 6.038856e+06
-# HELP node_disk_writes_merged_total The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_writes_merged_total The number of writes merged.
 # TYPE node_disk_writes_merged_total counter
 node_disk_writes_merged_total{device="dm-0"} 0
 node_disk_writes_merged_total{device="dm-1"} 0
@@ -438,6 +459,7 @@ node_disk_writes_merged_total{device="mmcblk0p1"} 0
 node_disk_writes_merged_total{device="mmcblk0p2"} 0
 node_disk_writes_merged_total{device="nvme0n1"} 43950
 node_disk_writes_merged_total{device="sda"} 1.1134226e+07
+node_disk_writes_merged_total{device="sdb"} 2895
 node_disk_writes_merged_total{device="sr0"} 0
 node_disk_writes_merged_total{device="vda"} 2.0711856e+07
 # HELP node_disk_written_bytes_total The total number of bytes written successfully.
@@ -453,6 +475,7 @@ node_disk_written_bytes_total{device="mmcblk0p1"} 0
 node_disk_written_bytes_total{device="mmcblk0p2"} 0
 node_disk_written_bytes_total{device="nvme0n1"} 2.0199236096e+10
 node_disk_written_bytes_total{device="sda"} 2.58916880384e+11
+node_disk_written_bytes_total{device="sdb"} 1.01012736e+09
 node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 # HELP node_drbd_activitylog_writes_total Number of updates of the activity log area of the meta data.
