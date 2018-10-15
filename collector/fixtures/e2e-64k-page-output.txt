@@ -290,19 +290,19 @@ node_cpu_seconds_total{cpu="7",mode="softirq"} 0.31
 node_cpu_seconds_total{cpu="7",mode="steal"} 0
 node_cpu_seconds_total{cpu="7",mode="system"} 101.64
 node_cpu_seconds_total{cpu="7",mode="user"} 290.98
-# HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
-# HELP node_disk_discarded_sectors_total The total number of sectors discard successfully. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_discarded_sectors_total The total number of sectors discard successfully.
 # TYPE node_disk_discarded_sectors_total counter
 node_disk_discarded_sectors_total{device="sdb"} 1.925173784e+09
-# HELP node_disk_discards_completed_total The total number of discards completed successfully. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_discards_completed_total The total number of discards completed successfully.
 # TYPE node_disk_discards_completed_total counter
 node_disk_discards_completed_total{device="sdb"} 68851
-# HELP node_disk_discards_merged_total The total number of discards merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_discards_merged_total The total number of discards merged.
 # TYPE node_disk_discards_merged_total counter
 node_disk_discards_merged_total{device="sdb"} 0
-# HELP node_disk_io_now The number of I/Os currently in progress. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
 node_disk_io_now{device="dm-1"} 0
@@ -318,7 +318,7 @@ node_disk_io_now{device="sda"} 0
 node_disk_io_now{device="sdb"} 0
 node_disk_io_now{device="sr0"} 0
 node_disk_io_now{device="vda"} 0
-# HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
 # TYPE node_disk_io_time_seconds_total counter
 node_disk_io_time_seconds_total{device="dm-0"} 11325.968
 node_disk_io_time_seconds_total{device="dm-1"} 0.076
@@ -334,7 +334,7 @@ node_disk_io_time_seconds_total{device="sda"} 9653.880000000001
 node_disk_io_time_seconds_total{device="sdb"} 60.730000000000004
 node_disk_io_time_seconds_total{device="sr0"} 0
 node_disk_io_time_seconds_total{device="vda"} 41614.592000000004
-# HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os.
 # TYPE node_disk_io_time_weighted_seconds_total counter
 node_disk_io_time_weighted_seconds_total{device="dm-0"} 1.206301256e+06
 node_disk_io_time_weighted_seconds_total{device="dm-1"} 0.084
@@ -350,7 +350,7 @@ node_disk_io_time_weighted_seconds_total{device="sda"} 82621.804
 node_disk_io_time_weighted_seconds_total{device="sdb"} 67.07000000000001
 node_disk_io_time_weighted_seconds_total{device="sr0"} 0
 node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
-# HELP node_disk_read_bytes_total The total number of bytes read successfully. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_read_bytes_total The total number of bytes read successfully.
 # TYPE node_disk_read_bytes_total counter
 node_disk_read_bytes_total{device="dm-0"} 5.13708655616e+11
 node_disk_read_bytes_total{device="dm-1"} 1.589248e+06
@@ -366,7 +366,7 @@ node_disk_read_bytes_total{device="sda"} 5.13713216512e+11
 node_disk_read_bytes_total{device="sdb"} 4.944782848e+09
 node_disk_read_bytes_total{device="sr0"} 0
 node_disk_read_bytes_total{device="vda"} 1.6727491584e+10
-# HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads.
 # TYPE node_disk_read_time_seconds_total counter
 node_disk_read_time_seconds_total{device="dm-0"} 46229.572
 node_disk_read_time_seconds_total{device="dm-1"} 0.084
@@ -382,7 +382,7 @@ node_disk_read_time_seconds_total{device="sda"} 18492.372
 node_disk_read_time_seconds_total{device="sdb"} 0.084
 node_disk_read_time_seconds_total{device="sr0"} 0
 node_disk_read_time_seconds_total{device="vda"} 8655.768
-# HELP node_disk_reads_completed_total The total number of reads completed successfully. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_reads_completed_total The total number of reads completed successfully.
 # TYPE node_disk_reads_completed_total counter
 node_disk_reads_completed_total{device="dm-0"} 5.9910002e+07
 node_disk_reads_completed_total{device="dm-1"} 388
@@ -398,7 +398,7 @@ node_disk_reads_completed_total{device="sda"} 2.5354637e+07
 node_disk_reads_completed_total{device="sdb"} 326552
 node_disk_reads_completed_total{device="sr0"} 0
 node_disk_reads_completed_total{device="vda"} 1.775784e+06
-# HELP node_disk_reads_merged_total The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_reads_merged_total The total number of reads merged.
 # TYPE node_disk_reads_merged_total counter
 node_disk_reads_merged_total{device="dm-0"} 0
 node_disk_reads_merged_total{device="dm-1"} 0
@@ -414,7 +414,7 @@ node_disk_reads_merged_total{device="sda"} 3.4367663e+07
 node_disk_reads_merged_total{device="sdb"} 841
 node_disk_reads_merged_total{device="sr0"} 0
 node_disk_reads_merged_total{device="vda"} 15386
-# HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
 # TYPE node_disk_write_time_seconds_total counter
 node_disk_write_time_seconds_total{device="dm-0"} 1.1585578e+06
 node_disk_write_time_seconds_total{device="dm-1"} 0
@@ -430,7 +430,7 @@ node_disk_write_time_seconds_total{device="sda"} 63877.96
 node_disk_write_time_seconds_total{device="sdb"} 5.007
 node_disk_write_time_seconds_total{device="sr0"} 0
 node_disk_write_time_seconds_total{device="vda"} 2.069221364e+06
-# HELP node_disk_writes_completed_total The total number of writes completed successfully. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_writes_completed_total The total number of writes completed successfully.
 # TYPE node_disk_writes_completed_total counter
 node_disk_writes_completed_total{device="dm-0"} 3.9231014e+07
 node_disk_writes_completed_total{device="dm-1"} 74
@@ -446,7 +446,7 @@ node_disk_writes_completed_total{device="sda"} 2.8444756e+07
 node_disk_writes_completed_total{device="sdb"} 41822
 node_disk_writes_completed_total{device="sr0"} 0
 node_disk_writes_completed_total{device="vda"} 6.038856e+06
-# HELP node_disk_writes_merged_total The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_writes_merged_total The number of writes merged.
 # TYPE node_disk_writes_merged_total counter
 node_disk_writes_merged_total{device="dm-0"} 0
 node_disk_writes_merged_total{device="dm-1"} 0
@@ -462,7 +462,7 @@ node_disk_writes_merged_total{device="sda"} 1.1134226e+07
 node_disk_writes_merged_total{device="sdb"} 2895
 node_disk_writes_merged_total{device="sr0"} 0
 node_disk_writes_merged_total{device="vda"} 2.0711856e+07
-# HELP node_disk_written_bytes_total The total number of bytes written successfully. See https://www.kernel.org/doc/Documentation/iostats.txt.
+# HELP node_disk_written_bytes_total The total number of bytes written successfully.
 # TYPE node_disk_written_bytes_total counter
 node_disk_written_bytes_total{device="dm-0"} 2.5891680256e+11
 node_disk_written_bytes_total{device="dm-1"} 303104

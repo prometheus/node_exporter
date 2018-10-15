@@ -33,7 +33,6 @@ const (
 	diskSubsystem     = "disk"
 	diskSectorSize    = 512
 	diskstatsFilename = "diskstats"
-	iostatsDocURL     = "https://www.kernel.org/doc/Documentation/iostats.txt"
 )
 
 var (
@@ -63,17 +62,17 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
+// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 func NewDiskstatsCollector() (Collector, error) {
 	var diskLabelNames = []string{"device"}
 
 	return &diskstatsCollector{
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
-		// Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 		descs: []typedFactorDesc{
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
-					"The total number of reads completed successfully. See "+iostatsDocURL+".",
+					"The total number of reads completed successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -81,7 +80,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "reads_merged_total"),
-					"The total number of reads merged. See "+iostatsDocURL+".",
+					"The total number of reads merged.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -89,7 +88,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "read_bytes_total"),
-					"The total number of bytes read successfully. See "+iostatsDocURL+".",
+					"The total number of bytes read successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -98,7 +97,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "read_time_seconds_total"),
-					"The total number of seconds spent by all reads. See "+iostatsDocURL+".",
+					"The total number of seconds spent by all reads.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -107,7 +106,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed_total"),
-					"The total number of writes completed successfully. See "+iostatsDocURL+".",
+					"The total number of writes completed successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -115,7 +114,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "writes_merged_total"),
-					"The number of writes merged. See "+iostatsDocURL+".",
+					"The number of writes merged.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -123,7 +122,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "written_bytes_total"),
-					"The total number of bytes written successfully. See "+iostatsDocURL+".",
+					"The total number of bytes written successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -132,7 +131,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "write_time_seconds_total"),
-					"This is the total number of seconds spent by all writes. See "+iostatsDocURL+".",
+					"This is the total number of seconds spent by all writes.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -141,7 +140,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "io_now"),
-					"The number of I/Os currently in progress. See "+iostatsDocURL+".",
+					"The number of I/Os currently in progress.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.GaugeValue,
@@ -149,7 +148,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_seconds_total"),
-					"Total seconds spent doing I/Os. See "+iostatsDocURL+".",
+					"Total seconds spent doing I/Os.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -158,7 +157,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_weighted_seconds_total"),
-					"The weighted # of seconds spent doing I/Os. See "+iostatsDocURL+".",
+					"The weighted # of seconds spent doing I/Os.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -167,7 +166,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "discards_completed_total"),
-					"The total number of discards completed successfully. See "+iostatsDocURL+".",
+					"The total number of discards completed successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -175,7 +174,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "discards_merged_total"),
-					"The total number of discards merged. See "+iostatsDocURL+".",
+					"The total number of discards merged.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -183,7 +182,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "discarded_sectors_total"),
-					"The total number of sectors discard successfully. See "+iostatsDocURL+".",
+					"The total number of sectors discard successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
@@ -191,7 +190,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "discard_time_seconds_total"),
-					"This is the total number of seconds spent by all discards. See "+iostatsDocURL+".",
+					"This is the total number of seconds spent by all discards.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
