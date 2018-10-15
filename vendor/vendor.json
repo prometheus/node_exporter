@@ -147,40 +147,40 @@
 			"versionExact": "v0.9.0"
 		},
 		{
-			"checksumSHA1": "DvwvOlPNAgRntBzt3b3OSRMS2N4=",
+			"checksumSHA1": "V8xkqgmP66sq2ZW4QO5wi9a4oZE=",
 			"path": "github.com/prometheus/client_model/go",
-			"revision": "99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c",
-			"revisionTime": "2017-11-17T10:05:41Z"
+			"revision": "5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f",
+			"revisionTime": "2018-07-12T10:51:10Z"
 		},
 		{
-			"checksumSHA1": "+wZ+Pa6NX+NOxUvayXBXGOcqFe8=",
+			"checksumSHA1": "hGf3xT6gRaJh2zAEbWj9YnV+K+0=",
 			"path": "github.com/prometheus/common/expfmt",
-			"revision": "38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a",
-			"revisionTime": "2018-03-26T16:04:09Z"
+			"revision": "bcb74de08d37a417cb6789eec1d6c810040f0470",
+			"revisionTime": "2018-10-15T12:42:27Z"
 		},
 		{
 			"checksumSHA1": "GWlM3d2vPYyNATtTFgftS10/A9w=",
 			"path": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
-			"revision": "38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a",
-			"revisionTime": "2018-03-26T16:04:09Z"
+			"revision": "bcb74de08d37a417cb6789eec1d6c810040f0470",
+			"revisionTime": "2018-10-15T12:42:27Z"
 		},
 		{
 			"checksumSHA1": "MGnqHnmEqc1fjnYiWReSiW8C27A=",
 			"path": "github.com/prometheus/common/log",
-			"revision": "38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a",
-			"revisionTime": "2018-03-26T16:04:09Z"
+			"revision": "bcb74de08d37a417cb6789eec1d6c810040f0470",
+			"revisionTime": "2018-10-15T12:42:27Z"
 		},
 		{
-			"checksumSHA1": "YU+/K48IMawQnToO4ETE6a+hhj4=",
+			"checksumSHA1": "EXTRY7DL9gFW8c341Dk6LDXCBn8=",
 			"path": "github.com/prometheus/common/model",
-			"revision": "38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a",
-			"revisionTime": "2018-03-26T16:04:09Z"
+			"revision": "bcb74de08d37a417cb6789eec1d6c810040f0470",
+			"revisionTime": "2018-10-15T12:42:27Z"
 		},
 		{
 			"checksumSHA1": "91KYK0SpvkaMJJA2+BcxbVnyRO0=",
 			"path": "github.com/prometheus/common/version",
-			"revision": "38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a",
-			"revisionTime": "2018-03-26T16:04:09Z"
+			"revision": "bcb74de08d37a417cb6789eec1d6c810040f0470",
+			"revisionTime": "2018-10-15T12:42:27Z"
 		},
 		{
 			"checksumSHA1": "4zOdjJcskuocAzI+i6rcRzYjSlI=",
