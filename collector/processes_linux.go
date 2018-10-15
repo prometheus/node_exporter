@@ -36,6 +36,7 @@ func init() {
 	registerCollector("processes", defaultDisabled, NewProcessStatCollector)
 }
 
+// NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
 func NewProcessStatCollector() (Collector, error) {
 	subsystem := "processes"
 	return &processCollector{
@@ -111,8 +112,8 @@ func getAllocatedThreads() (int, map[string]int32, int, error) {
 		if err != nil {
 			return 0, nil, 0, err
 		}
-		pids += 1
-		procStates[stat.State] += 1
+		pids++
+		procStates[stat.State]++
 		thread += stat.NumThreads
 	}
 	return pids, procStates, thread, nil
