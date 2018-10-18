@@ -121,6 +121,11 @@ Mode: 755
 Directory: sys/class/infiniband/i40iw0/ports/1/counters
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/i40iw0/ports/1/counters/VL15_dropped
+Lines: 1
+N/A (no PMA)
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/i40iw0/ports/1/counters/excessive_buffer_overrun_errors
 Lines: 1
 N/A (no PMA)
@@ -197,11 +202,6 @@ N/A (no PMA)
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/i40iw0/ports/1/counters/symbol_error
-Lines: 1
-N/A (no PMA)
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/infiniband/i40iw0/ports/1/counters/VL15_dropped
 Lines: 1
 N/A (no PMA)
 Mode: 644
@@ -1871,10 +1871,35 @@ Mode: 755
 Directory: sys/devices/system/cpu/cpu0/cpufreq
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_transition_latency
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/related_cpus
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
+Lines: 1
+performance powersave
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
 Lines: 1
 1699981
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_driver
+Lines: 1
+intel_pstate
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+Lines: 1
+powersave
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 Lines: 1
@@ -1885,6 +1910,11 @@ Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 Lines: 1
 800000
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+Lines: 1
+<unsupported>
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/cpu/cpu0/thermal_throttle
 Mode: 755
@@ -1918,10 +1948,35 @@ Mode: 755
 Directory: sys/devices/system/cpu/cpu1/cpufreq
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/cpuinfo_transition_latency
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/related_cpus
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_available_governors
+Lines: 1
+performance powersave
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_cur_freq
 Lines: 1
 1699981
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_driver
+Lines: 1
+intel_pstate
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_governor
+Lines: 1
+powersave
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq
 Lines: 1
@@ -1932,6 +1987,11 @@ Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq
 Lines: 1
 800000
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_setspeed
+Lines: 1
+<unsupported>
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/cpu/cpu1/thermal_throttle
 Mode: 755
@@ -1965,10 +2025,35 @@ Mode: 755
 Directory: sys/devices/system/cpu/cpu2/cpufreq
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu2/cpufreq/cpuinfo_transition_latency
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu2/cpufreq/related_cpus
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_available_governors
+Lines: 1
+performance powersave
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_cur_freq
 Lines: 1
 8000
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_driver
+Lines: 1
+intel_pstate
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_governor
+Lines: 1
+powersave
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
 Lines: 1
@@ -1979,6 +2064,11 @@ Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
 Lines: 1
 1000
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_setspeed
+Lines: 1
+<unsupported>
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/cpu/cpu2/thermal_throttle
 Mode: 755
@@ -2012,10 +2102,35 @@ Mode: 755
 Directory: sys/devices/system/cpu/cpu3/cpufreq
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu3/cpufreq/cpuinfo_transition_latency
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu3/cpufreq/related_cpus
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu3/cpufreq/scaling_available_governors
+Lines: 1
+performance powersave
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu3/cpufreq/scaling_cur_freq
 Lines: 1
 8000
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu3/cpufreq/scaling_driver
+Lines: 1
+intel_pstate
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu3/cpufreq/scaling_governor
+Lines: 1
+powersave
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu3/cpufreq/scaling_max_freq
 Lines: 1
@@ -2026,6 +2141,11 @@ Path: sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq
 Lines: 1
 1000
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu3/cpufreq/scaling_setspeed
+Lines: 1
+<unsupported>
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/cpu/cpu3/thermal_throttle
 Mode: 755
