@@ -10,13 +10,17 @@
 
 set -o errexit
 set -o nounset
+set -o pipefail
 
 if [ -x /usr/bin/checkupdates ]
 then
     updates=$(/usr/bin/checkupdates | wc -l)
     cache=0
 else
-    updates=$(/usr/bin/pacman -Qu | wc -l)
+    if ! updates=$(/usr/bin/pacman -Qu | wc -l)
+    then
+        updates=0
+    fi
     cache=1
 fi
 
