@@ -17,14 +17,13 @@ package collector
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 type cpuCollector struct {
@@ -86,46 +85,61 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateCPUfreq(ch); err != nil {
 		return err
 	}
+	if err := c.updateThermalThrottle(ch); err != nil {
+		return err
+	}
 	return nil
 }
 
 // updateCPUfreq reads /sys/devices/system/cpu/cpu* and expose cpu frequency statistics.
 func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return fmt.Errorf("failed to open sysfs: %v", err)
+	}
+
+	cpuFreqs, err := fs.NewSystemCpufreq()
+	if err != nil {
+		return err
+	}
+
+	// sysfs cpufreq values are kHz, thus multiply by 1000 to export base units (hz).
+	// See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
+	for _, stats := range cpuFreqs {
+		ch <- prometheus.MustNewConstMetric(
+			c.cpuFreq,
+			prometheus.GaugeValue,
+			float64(stats.CurrentFrequency)*1000.0,
+			stats.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.cpuFreqMin,
+			prometheus.GaugeValue,
+			float64(stats.MinimumFrequency)*1000.0,
+			stats.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.cpuFreqMax,
+			prometheus.GaugeValue,
+			float64(stats.MaximumFrequency)*1000.0,
+			stats.Name,
+		)
+	}
+	return nil
+}
+
+// updateThermalThrottle reads /sys/devices/system/cpu/cpu* and expose thermal throttle statistics.
+func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error {
 	cpus, err := filepath.Glob(sysFilePath("devices/system/cpu/cpu[0-9]*"))
 	if err != nil {
 		return err
 	}
 
-	var value uint64
 	packageThrottles := make(map[uint64]uint64)
 	packageCoreThrottles := make(map[uint64]map[uint64]uint64)
 
 	// cpu loop
 	for _, cpu := range cpus {
-		_, cpuName := filepath.Split(cpu)
-		cpuNum := strings.TrimPrefix(cpuName, "cpu")
-
-		if _, err := os.Stat(filepath.Join(cpu, "cpufreq")); os.IsNotExist(err) {
-			log.Debugf("CPU %v is missing cpufreq", cpu)
-		} else {
-			// sysfs cpufreq values are kHz, thus multiply by 1000 to export base units (hz).
-			// See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
-			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_cur_freq")); err != nil {
-				return err
-			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreq, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
-
-			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_min_freq")); err != nil {
-				return err
-			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMin, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
-
-			if value, err = readUintFromFile(filepath.Join(cpu, "cpufreq", "scaling_max_freq")); err != nil {
-				return err
-			}
-			ch <- prometheus.MustNewConstMetric(c.cpuFreqMax, prometheus.GaugeValue, float64(value)*1000.0, cpuNum)
-		}
-
 		// See
 		// https://www.kernel.org/doc/Documentation/x86/topology.txt
 		// https://www.kernel.org/doc/Documentation/cputopology.txt
