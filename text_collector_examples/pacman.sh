@@ -24,6 +24,10 @@ else
     cache=1
 fi
 
-echo "# HELP updates_pending number of pending updates, derived live or from cache"
+echo "# HELP updates_pending number of pending updates from pacman"
 echo "# TYPE updates_pending gauge"
-echo "updates_pending{package_manager=\"pacman\",from_cache=\"$cache\"} $updates"
+echo "pacman_updates_pending $updates"
+
+echo "# HELP pacman_updates_pending_from_cache pending updates information are from cache"
+echo "# TYPE pacman_updates_pending_from_cache gauge"
+echo "pacman_updates_pending_from_cache $cache"
