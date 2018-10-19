@@ -2,7 +2,20 @@
 
 ### **Breaking changes**
 
-supvervisord collector reports "start_time_seconds" rather than "uptime"
+### Changes
+
+* [BUGFIX]
+* [CHANGE]
+* [ENHANCEMENT]
+* [FEATURE]
+
+## 0.17.0-rc.0 / 2018-10-19
+
+Build note: Linux builds can now be built without CGO.
+
+### **Breaking changes**
+
+supvervisord collector reports "start_time_seconds" rather than "uptime" #952
 
 The wifi collector is disabled by default due to suspected caching issues and goroutine leaks.
 * https://github.com/prometheus/node_exporter/issues/870
@@ -11,20 +24,36 @@ The wifi collector is disabled by default due to suspected caching issues and go
 Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 
 ### Changes
+
 * [CHANGE] Filter out non-installed units when collecting all systemd units #1011
 * [CHANGE] `service_restart_total` and `socket_refused_connections_total` will not be reported if you're running an older version of systemd
-* [FEATURE] Collect NRefused property for systemd socket units (available as of systemd v239)
-* [FEATURE] Collect NRestarts property for systemd service units
+* [CHANGE] Use /proc/mounts instead of statfs(2) for ro state #1002
+* [CHANGE] collector/timex: remove cgo dependency #1079
+* [CHANGE] filesystem: Ignore Docker netns mounts #1047
+* [CHANGE] Ignore additional virtual filesystems #1104
+* [FEATURE] Add netclass collector #851
+* [FEATURE] Add processes collector #950
+* [FEATURE] Collect start time for systemd units #952
 * [FEATURE] Add socket unit stats to systemd collector #968
-* [FEATURE] Collect start time for systemd units
-* [ENHANCEMENT]
+* [FEATURE] Collect NRestarts property for systemd service units #992
+* [FEATURE] Collect NRefused property for systemd socket units (available as of systemd v239) #995
+* [FEATURE] Allow removal of rootfs prefix for run in docker #1058
+* [ENHANCEMENT] Support for octal characters in mountpoints #954
+* [ENHANCEMENT] Update wifi stats to support multiple stations #980
+* [ENHANCEMENT] Handle stuck NFS mounts #997
+* [ENHANCEMENT] infiniband: Handle iWARP RDMA modules N/A #974
+* [ENHANCEMENT] Update diskstats for linux kernel 4.19 #1109
 
-* [BUGFIX] Fix goroutine leak in supervisord collector
+* [BUGFIX] Fix FreeBSD CPU temp #965
+* [BUGFIX] Fix goroutine leak in supervisord collector #978
+* [BUGFIX] Fix mdadm collector issues #985
+* [BUGFIX] Fix ntp collector thread safety #1014
 * [BUGFIX] Systemd units will not be ignored if you're running older versions of systemd #1039
 * [BUGFIX] Handle vanishing PIDs #1043
 * [BUGFIX] Correctly cast Darwin memory info #1060
 * [BUGFIX] Filter systemd units in Go for compatibility with older versions #1083
-* [BUGFIX] Update cpu collector for OpenBSD 6.4
+* [BUGFIX] Update cpu collector for OpenBSD 6.4 #1094
+* [BUGFIX] Fix typo on HELP of `read_time_seconds_total` #1057
 
 ## 0.16.0 / 2018-05-15
 
