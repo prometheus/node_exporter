@@ -33,7 +33,7 @@ jobs:
     steps:
     - checkout
     - run: make promu
-    - run: promu --config .promu-no-cgo.yml crossbuild -v --go 1.11
+    - run: promu crossbuild -v --go 1.11
     - run: promu --config .promu-cgo.yml crossbuild -v --go 1.11
     - persist_to_workspace:
         root: .

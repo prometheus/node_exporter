@@ -46,11 +46,11 @@ endif
 
 # Use CGO for non-Linux builds.
 ifeq ($(GOOS), linux)
-	PROMU_CONF ?= .promu-no-cgo.yml
+	PROMU_CONF ?= .promu.yml
 else
 	ifndef GOOS
 		ifeq ($(OS_detected), Linux)
-			PROMU_CONF ?= .promu-no-cgo.yml
+			PROMU_CONF ?= .promu.yml
 		else
 			PROMU_CONF ?= .promu-cgo.yml
 		endif
