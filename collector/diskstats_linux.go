@@ -182,7 +182,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			{
 				desc: prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, diskSubsystem, "discarded_sectors_total"),
-					"The total number of sectors discard successfully.",
+					"The total number of sectors discarded successfully.",
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
