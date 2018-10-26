@@ -118,6 +118,10 @@ func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
 		if len(parts) == 0 {
 			continue
 		}
+		if len(parts) < 4 {
+			return nil, fmt.Errorf("invalid TCP stats line: %q", scanner.Text())
+		}
+
 		if strings.HasPrefix(parts[0], "sl") {
 			continue
 		}
