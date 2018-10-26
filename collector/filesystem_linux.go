@@ -17,6 +17,8 @@ package collector
 
 import (
 	"bufio"
+	"fmt"
+	"io"
 	"os"
 	"strings"
 	"sync"
@@ -139,10 +141,19 @@ func mountPointDetails() ([]filesystemLabels, error) {
 	}
 	defer file.Close()
 
-	filesystems := []filesystemLabels{}
-	scanner := bufio.NewScanner(file)
+	return parseFilesystemLabels(file)
+}
+
+func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
+	var filesystems []filesystemLabels
+
+	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+
+		if len(parts) < 4 {
+			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
+		}
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
@@ -156,5 +167,6 @@ func mountPointDetails() ([]filesystemLabels, error) {
 			options:    parts[3],
 		})
 	}
+
 	return filesystems, scanner.Err()
 }

@@ -16,10 +16,31 @@
 package collector
 
 import (
+	"strings"
 	"testing"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
+
+func Test_parseFilesystemLabelsError(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+	}{
+		{
+			name: "too few fields",
+			in:   "hello world",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if _, err := parseFilesystemLabels(strings.NewReader(tt.in)); err == nil {
+				t.Fatal("expected an error, but none occurred")
+			}
+		})
+	}
+}
 
 func TestMountPointDetails(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures/proc"}); err != nil {
