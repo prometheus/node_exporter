@@ -29,14 +29,14 @@ import (
 // constants from https://github.com/zfsonlinux/zfs/blob/master/lib/libspl/include/sys/kstat.h
 // kept as strings for comparison thus avoiding conversion to int
 const (
-	KSTAT_DATA_CHAR   = "0"
-	KSTAT_DATA_INT32  = "1"
-	KSTAT_DATA_UINT32 = "2"
-	KSTAT_DATA_INT64  = "3"
-	KSTAT_DATA_UINT64 = "4"
-	KSTAT_DATA_LONG   = "5"
-	KSTAT_DATA_ULONG  = "6"
-	KSTAT_DATA_STRING = "7"
+	kstatDataChar   = "0"
+	kstatDataInt32  = "1"
+	kstatDataUint32 = "2"
+	kstatDataInt64  = "3"
+	kstatDataUint64 = "4"
+	kstatDataLong   = "5"
+	kstatDataUlong  = "6"
+	kstatDataString = "7"
 )
 
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
@@ -112,7 +112,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 
 		// kstat data type (column 2) should be KSTAT_DATA_UINT64, otherwise ignore
 		// TODO: when other KSTAT_DATA_* types arrive, much of this will need to be restructured
-		if parts[1] == KSTAT_DATA_UINT64 {
+		if parts[1] == kstatDataUint64 {
 			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
 			value, err := strconv.ParseUint(parts[2], 10, 64)
 			if err != nil {
