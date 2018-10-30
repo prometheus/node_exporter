@@ -293,7 +293,7 @@ node_cpu_seconds_total{cpu="7",mode="user"} 290.98
 # HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
-# HELP node_disk_discarded_sectors_total The total number of sectors discard successfully.
+# HELP node_disk_discarded_sectors_total The total number of sectors discarded successfully.
 # TYPE node_disk_discarded_sectors_total counter
 node_disk_discarded_sectors_total{device="sdb"} 1.925173784e+09
 # HELP node_disk_discards_completed_total The total number of discards completed successfully.
