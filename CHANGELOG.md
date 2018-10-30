@@ -6,7 +6,7 @@
 
 * [BUGFIX]
 * [CHANGE]
-* [ENHANCEMENT]
+* [ENHANCEMENT] Add Infiniband counters #1120
 * [FEATURE]
 
 ## 0.17.0-rc.0 / 2018-10-19
