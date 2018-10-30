@@ -238,14 +238,59 @@ Lines: 1
 16
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_rcv_constraint_errors
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_rcv_data
 Lines: 1
 4631917
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_rcv_discards
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_xmit_discards
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_rcv_errors
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_rcv_packets
+Lines: 1
+6825908347
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_xmit_constraint_errors
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_xmit_data
 Lines: 1
 3733440
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_xmit_discards
+Lines: 1
+5
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_xmit_packets
+Lines: 1
+6235865
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_xmit_wait
+Lines: 1
+4294967295
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/mlx4_0/ports/1/counters/unicast_rcv_packets
