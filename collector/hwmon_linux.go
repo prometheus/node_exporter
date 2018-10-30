@@ -274,6 +274,9 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 				continue
 			}
 			if sensorType == "temp" && element != "type" {
+				if element == "" {
+					element = "input"
+				}
 				desc := prometheus.NewDesc(name+"_celsius", "Hardware monitor for temperature ("+element+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(
 					desc, prometheus.GaugeValue, parsedValue*0.001, labels...)
