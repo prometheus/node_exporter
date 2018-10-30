@@ -85,7 +85,7 @@ $(eval $(call goarch_pair,amd64,386))
 $(eval $(call goarch_pair,mips64,mips))
 $(eval $(call goarch_pair,mips64el,mipsel))
 
-all: style vet staticcheck checkmetrics build test $(cross-test) $(test-e2e)
+all: style vet staticcheck checkmetrics checkrules build test $(cross-test) $(test-e2e)
 
 .PHONY: test
 test: collector/fixtures/sys/.unpacked
@@ -120,6 +120,11 @@ skip-test-e2e:
 checkmetrics: $(PROMTOOL)
 	@echo ">> checking metrics for correctness"
 	./checkmetrics.sh $(PROMTOOL) $(e2e-out)
+
+.PHONY: checkrules
+checkrules: $(PROMTOOL)
+	@echo ">> checking rules for correctness"
+	find . -name "*rules*.yml" | xargs -I {} $(PROMTOOL) check rules {}
 
 .PHONY: docker
 docker:
