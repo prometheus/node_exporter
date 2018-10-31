@@ -40,7 +40,7 @@ def main(args):
     """ main """
     global storcli_path
     storcli_path = args.storcli_path
-    data = json.loads(get_storcli_json('/cALL show all J'))
+    data = get_storcli_json('/cALL show all J')
 
     # All the information is collected underneath the Controllers key
     data = data['Controllers']
@@ -113,7 +113,7 @@ def handle_megaraid_controller(response):
         add_metric('vd_info', vd_info_label, 1)
 
     if response['Physical Drives'] > 0:
-        data = json.loads(get_storcli_json('/cALL/eALL/sALL show all J'))
+        data = get_storcli_json('/cALL/eALL/sALL show all J')
         drive_info = data['Controllers'][controller_index]['Response Data']
     for physical_drive in response['PD LIST']:
         enclosure = physical_drive.get('EID:Slt').split(':')[0]
@@ -182,8 +182,11 @@ def get_storcli_json(storcli_args):
     proc = subprocess.Popen(
         storcli_cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output_json = proc.communicate()[0]
+    data = json.loads(output_json.decode("utf-8"))
 
-    return output_json.decode("utf-8")
+    if data["Controllers"][0]["Command Status"]["Status"] != "Success":
+        SystemExit(1)
+    return data
 
 
 if __name__ == "__main__":
