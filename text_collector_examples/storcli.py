@@ -12,6 +12,9 @@ Advanced Software Options (ASO) not exposed as metrics currently.
 
 JSON key abbreviations used by StorCLI are documented in the standard command
 output, i.e.  when you omit the trailing 'J' from the command.
+
+Formatting done with YAPF:
+$ yapf -i --style '{COLUMN_LIMIT: 99}' storcli.py
 """
 
 from __future__ import print_function
