@@ -121,11 +121,13 @@ def handle_megaraid_controller(response):
 
         pd_baselabel = 'controller="{}",enclosure="{}",slot="{}"'.format(
             controller_index, enclosure, slot)
-        pd_info_label = pd_baselabel + ',disk_id="{}",interface="{}",media="{}",model="{}"'.format(
-            physical_drive.get('DID'),
-            physical_drive.get('Intf').strip(),
-            physical_drive.get('Med').strip(),
-            physical_drive.get('Model').strip())
+        pd_info_label = pd_baselabel + \
+            ',disk_id="{}",interface="{}",media="{}",model="{}",DG="{}"'.format(
+                physical_drive.get('DID'),
+                physical_drive.get('Intf').strip(),
+                physical_drive.get('Med').strip(),
+                physical_drive.get('Model').strip(),
+                physical_drive.get('DG'))
 
         drive_identifier = 'Drive /c' + str(controller_index) + '/e' + str(enclosure) + '/s' + str(
             slot)
