@@ -22,7 +22,6 @@ import subprocess
 import shlex
 from dateutil.parser import parse
 import collections
-from enum import IntEnum
 
 DESCRIPTION = """Parses StorCLI's JSON output and exposes MegaRAID health as
     Prometheus metrics."""
@@ -32,15 +31,6 @@ storcli_path = ''
 metric_prefix = 'megaraid_'
 metric_list = {}
 metric_list = collections.defaultdict(list)
-
-
-class VD_State(IntEnum):
-    Optl = 0  # Optimal
-    Dgrd = 1  # Degraded
-    Pdgd = 2  # Partially Degraded
-    OfLn = 3  # Offline
-    Rec = 4  # Recovery
-    Cac = 5  # CacheCade
 
 
 def main(args):
@@ -112,10 +102,10 @@ def handle_megaraid_controller(response):
             volume_group = vd_position.split('/')[1]
         vd_baselabel = 'controller="{}",DG="{}",VG="{}"'.format(controller_index, drive_group,
                                                                 volume_group)
-        vd_info_label = vd_baselabel + ',name="{}",cache="{}",type="{}"'.format(
-            virtual_drive.get('Name'), virtual_drive.get('Cache'), virtual_drive.get('TYPE'))
+        vd_info_label = vd_baselabel + ',name="{}",cache="{}",type="{}",state="{}"'.format(
+            virtual_drive.get('Name'), virtual_drive.get('Cache'), virtual_drive.get('TYPE'),
+            virtual_drive.get('State'))
         add_metric('vd_info', vd_info_label, 1)
-        add_metric('vd_status', vd_baselabel, int(VD_State[virtual_drive.get('State')]))
 
     if response['Physical Drives'] > 0:
         data = json.loads(get_storcli_json('/cALL/eALL/sALL show all J'))
