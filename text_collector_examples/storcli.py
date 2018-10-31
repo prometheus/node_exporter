@@ -138,10 +138,9 @@ def handle_megaraid_controller(response):
             settings = info[drive_identifier + ' Policies/Settings']
 
             add_metric('pd_shield_counter', pd_baselabel, state['Shield Counter'])
-            add_metric('pd_media_errors_total', pd_baselabel, state['Media Error Count'])
-            add_metric('pd_other_errors_total', pd_baselabel, state['Other Error Count'])
-            add_metric('pd_predictive_errors_total', pd_baselabel,
-                       state['Predictive Failure Count'])
+            add_metric('pd_media_errors', pd_baselabel, state['Media Error Count'])
+            add_metric('pd_other_errors', pd_baselabel, state['Other Error Count'])
+            add_metric('pd_predictive_errors', pd_baselabel, state['Predictive Failure Count'])
             add_metric('pd_smart_alerted', pd_baselabel,
                        int(state['S.M.A.R.T alert flagged by drive'] == 'Yes'))
             add_metric('pd_link_speed_gbps', pd_baselabel, attributes['Link Speed'].split('.')[0])
