@@ -119,7 +119,9 @@ def handle_megaraid_controller(response):
         pd_baselabel = 'controller="{}",enclosure="{}",slot="{}"'.format(
             controller_index, enclosure, slot)
         pd_info_label = pd_baselabel + ',disk_id="{}",interface="{}",media="{}",model="{}"'.format(
-            physical_drive.get('DID'), physical_drive.get('Intf'), physical_drive.get('Med'),
+            physical_drive.get('DID'),
+            physical_drive.get('Intf').strip(),
+            physical_drive.get('Med').strip(),
             physical_drive.get('Model').strip())
 
         drive_identifier = 'Drive /c' + str(controller_index) + '/e' + str(enclosure) + '/s' + str(
@@ -144,7 +146,7 @@ def handle_megaraid_controller(response):
                        int(settings['Commissioned Spare'] == 'Yes'))
             add_metric('pd_emergency_spare', pd_baselabel,
                        int(settings['Emergency Spare'] == 'Yes'))
-            pd_info_label += ',firmware="{}"'.format(attributes['Firmware Revision'])
+            pd_info_label += ',firmware="{}"'.format(attributes['Firmware Revision'].strip())
         except KeyError:
             pass
         add_metric('pd_info', pd_info_label, 1)
