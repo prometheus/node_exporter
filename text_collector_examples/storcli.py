@@ -28,7 +28,7 @@ import subprocess
 
 DESCRIPTION = """Parses StorCLI's JSON output and exposes MegaRAID health as
     Prometheus metrics."""
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 
 storcli_path = ''
 metric_prefix = 'megaraid_'
