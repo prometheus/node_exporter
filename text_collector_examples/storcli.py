@@ -158,10 +158,13 @@ def handle_megaraid_controller(response):
 
 def add_metric(name, labels, value):
     global metric_list
-    metric_list[name].append({
-        'labels': labels,
-        'value': value,
-    })
+    try:
+        metric_list[name].append({
+            'labels': labels,
+            'value': float(value),
+        })
+    except ValueError:
+        pass
 
 
 def print_all_metrics(metrics):
