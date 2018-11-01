@@ -57,10 +57,6 @@ def main(args):
         elif response['Version']['Driver Name'] == 'mpt3sas':
             handle_sas_controller(response)
 
-    # print_dict_to_exporter({'controller_info': [1]}, controller_info_list)
-    # print_dict_to_exporter({'virtual_disk_info': [1]}, vd_info_list)
-    # print_dict_to_exporter({'physical_disk_info': [1]}, pd_info_list)
-    # print_all_metrics(vd_metric_list)
     print_all_metrics(metric_list)
 
 
