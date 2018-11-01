@@ -18,7 +18,7 @@ $ yapf -i --style '{COLUMN_LIMIT: 99}' storcli.py
 """
 
 from __future__ import print_function
-from dateutil.parser import parse
+from datetime import datetime
 import argparse
 import collections
 import json
@@ -100,8 +100,10 @@ def handle_megaraid_controller(response):
                int('hrs' in response['Scheduled Tasks']['Patrol Read Reoccurrence']))
 
     time_difference_seconds = -1
-    system_time = parse(response['Basics'].get('Current System Date/time'))
-    controller_time = parse(response['Basics'].get('Current Controller Date/Time'))
+    system_time = datetime.strptime(response['Basics'].get('Current System Date/time'),
+                                    "%m/%d/%Y, %H:%M:%S")
+    controller_time = datetime.strptime(response['Basics'].get('Current Controller Date/Time'),
+                                        "%m/%d/%Y, %H:%M:%S")
     if system_time and controller_time:
         time_difference_seconds = abs(system_time - controller_time).seconds
         add_metric('time_difference', baselabel, time_difference_seconds)
