@@ -18,13 +18,13 @@ $ yapf -i --style '{COLUMN_LIMIT: 99}' storcli.py
 """
 
 from __future__ import print_function
+from dateutil.parser import parse
 import argparse
+import collections
 import json
 import os
-import subprocess
 import shlex
-from dateutil.parser import parse
-import collections
+import subprocess
 
 DESCRIPTION = """Parses StorCLI's JSON output and exposes MegaRAID health as
     Prometheus metrics."""
