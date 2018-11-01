@@ -65,19 +65,26 @@ def main(args):
 
 
 def handle_sas_controller(response):
-    pass
+    (controller_index, baselabel) = get_basic_controller_info(response)
+    add_metric('healthy', baselabel, int(response['Status']['Controller Status'] == 'OK'))
+    add_metric('ports', baselabel, response['HwCfg']['Backend Port Count'])
+    try:
+        # The number of physical disks is half of the number of items in this dict
+        # Every disk is listed twice - once for basic info, again for detailed info
+        add_metric('physical_drives', baselabel,
+                   len(response['Physical Device Information'].keys()) / 2)
+    except AttributeError:
+        pass
+    add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celcius)']))
+    for key, basic_disk_info in response['Physical Device Information'].items():
+        if 'Detailed Information' in key:
+            continue
+        create_metrcis_of_physical_drive(basic_disk_info[0],
+                                         response['Physical Device Information'], controller_index)
 
 
 def handle_megaraid_controller(response):
-    controller_index = response['Basics']['Controller']
-    baselabel = 'controller="{}"'.format(controller_index)
-
-    controller_info_label = baselabel + ',model="{}",serial="{}",fwversion="{}"'.format(
-        response['Basics']['Model'],
-        response['Basics']['Serial Number'],
-        response['Version']['Firmware Version'],
-    )
-    add_metric('controller_info', controller_info_label, 1)
+    (controller_index, baselabel) = get_basic_controller_info(response)
 
     # BBU Status Optimal value is 0 for cachevault and 32 for BBU
     add_metric('battery_backup_healthy', baselabel,
@@ -116,44 +123,62 @@ def handle_megaraid_controller(response):
         data = get_storcli_json('/cALL/eALL/sALL show all J')
         drive_info = data['Controllers'][controller_index]['Response Data']
     for physical_drive in response['PD LIST']:
-        enclosure = physical_drive.get('EID:Slt').split(':')[0]
-        slot = physical_drive.get('EID:Slt').split(':')[1]
+        create_metrcis_of_physical_drive(physical_drive, drive_info, controller_index)
 
-        pd_baselabel = 'controller="{}",enclosure="{}",slot="{}"'.format(
-            controller_index, enclosure, slot)
-        pd_info_label = pd_baselabel + \
-            ',disk_id="{}",interface="{}",media="{}",model="{}",DG="{}"'.format(
-                physical_drive.get('DID'),
-                physical_drive.get('Intf').strip(),
-                physical_drive.get('Med').strip(),
-                physical_drive.get('Model').strip(),
-                physical_drive.get('DG'))
 
-        drive_identifier = 'Drive /c' + str(controller_index) + '/e' + str(enclosure) + '/s' + str(
-            slot)
-        try:
-            info = drive_info[drive_identifier + ' - Detailed Information']
-            state = info[drive_identifier + ' State']
-            attributes = info[drive_identifier + ' Device attributes']
-            settings = info[drive_identifier + ' Policies/Settings']
+def get_basic_controller_info(response):
+    controller_index = response['Basics']['Controller']
+    baselabel = 'controller="{}"'.format(controller_index)
 
-            add_metric('pd_shield_counter', pd_baselabel, state['Shield Counter'])
-            add_metric('pd_media_errors', pd_baselabel, state['Media Error Count'])
-            add_metric('pd_other_errors', pd_baselabel, state['Other Error Count'])
-            add_metric('pd_predictive_errors', pd_baselabel, state['Predictive Failure Count'])
-            add_metric('pd_smart_alerted', pd_baselabel,
-                       int(state['S.M.A.R.T alert flagged by drive'] == 'Yes'))
-            add_metric('pd_link_speed_gbps', pd_baselabel, attributes['Link Speed'].split('.')[0])
-            add_metric('pd_device_speed_gbps', pd_baselabel,
-                       attributes['Device Speed'].split('.')[0])
-            add_metric('pd_commissioned_spare', pd_baselabel,
-                       int(settings['Commissioned Spare'] == 'Yes'))
-            add_metric('pd_emergency_spare', pd_baselabel,
-                       int(settings['Emergency Spare'] == 'Yes'))
-            pd_info_label += ',firmware="{}"'.format(attributes['Firmware Revision'].strip())
-        except KeyError:
-            pass
-        add_metric('pd_info', pd_info_label, 1)
+    controller_info_label = baselabel + ',model="{}",serial="{}",fwversion="{}"'.format(
+        response['Basics']['Model'],
+        response['Basics']['Serial Number'],
+        response['Version']['Firmware Version'],
+    )
+    add_metric('controller_info', controller_info_label, 1)
+
+    return (controller_index, baselabel)
+
+
+def create_metrcis_of_physical_drive(physical_drive, detailed_info_array, controller_index):
+    enclosure = physical_drive.get('EID:Slt').split(':')[0]
+    slot = physical_drive.get('EID:Slt').split(':')[1]
+
+    pd_baselabel = 'controller="{}",enclosure="{}",slot="{}"'.format(controller_index, enclosure,
+                                                                     slot)
+    pd_info_label = pd_baselabel + \
+        ',disk_id="{}",interface="{}",media="{}",model="{}",DG="{}"'.format(
+            physical_drive.get('DID'),
+            physical_drive.get('Intf').strip(),
+            physical_drive.get('Med').strip(),
+            physical_drive.get('Model').strip(),
+            physical_drive.get('DG'))
+
+    drive_identifier = 'Drive /c' + str(controller_index) + '/e' + str(enclosure) + '/s' + str(
+        slot)
+    if enclosure == ' ':
+        drive_identifier = 'Drive /c' + str(controller_index) + '/s' + str(slot)
+    try:
+        info = detailed_info_array[drive_identifier + ' - Detailed Information']
+        state = info[drive_identifier + ' State']
+        attributes = info[drive_identifier + ' Device attributes']
+        settings = info[drive_identifier + ' Policies/Settings']
+
+        add_metric('pd_shield_counter', pd_baselabel, state['Shield Counter'])
+        add_metric('pd_media_errors', pd_baselabel, state['Media Error Count'])
+        add_metric('pd_other_errors', pd_baselabel, state['Other Error Count'])
+        add_metric('pd_predictive_errors', pd_baselabel, state['Predictive Failure Count'])
+        add_metric('pd_smart_alerted', pd_baselabel,
+                   int(state['S.M.A.R.T alert flagged by drive'] == 'Yes'))
+        add_metric('pd_link_speed_gbps', pd_baselabel, attributes['Link Speed'].split('.')[0])
+        add_metric('pd_device_speed_gbps', pd_baselabel, attributes['Device Speed'].split('.')[0])
+        add_metric('pd_commissioned_spare', pd_baselabel,
+                   int(settings['Commissioned Spare'] == 'Yes'))
+        add_metric('pd_emergency_spare', pd_baselabel, int(settings['Emergency Spare'] == 'Yes'))
+        pd_info_label += ',firmware="{}"'.format(attributes['Firmware Revision'].strip())
+    except KeyError:
+        pass
+    add_metric('pd_info', pd_info_label, 1)
 
 
 def add_metric(name, labels, value):
