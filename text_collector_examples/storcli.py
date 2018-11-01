@@ -114,8 +114,10 @@ def handle_megaraid_controller(response):
         vd_baselabel = 'controller="{}",DG="{}",VG="{}"'.format(controller_index, drive_group,
                                                                 volume_group)
         vd_info_label = vd_baselabel + ',name="{}",cache="{}",type="{}",state="{}"'.format(
-            virtual_drive.get('Name'), virtual_drive.get('Cache'), virtual_drive.get('TYPE'),
-            virtual_drive.get('State'))
+            str(virtual_drive.get('Name')).strip(),
+            str(virtual_drive.get('Cache')).strip(),
+            str(virtual_drive.get('TYPE')).strip(),
+            str(virtual_drive.get('State')).strip())
         add_metric('vd_info', vd_info_label, 1)
 
     if response['Physical Drives'] > 0:
@@ -130,9 +132,9 @@ def get_basic_controller_info(response):
     baselabel = 'controller="{}"'.format(controller_index)
 
     controller_info_label = baselabel + ',model="{}",serial="{}",fwversion="{}"'.format(
-        response['Basics']['Model'],
-        response['Basics']['Serial Number'],
-        response['Version']['Firmware Version'],
+        str(response['Basics']['Model']).strip(),
+        str(response['Basics']['Serial Number']).strip(),
+        str(response['Version']['Firmware Version']).strip(),
     )
     add_metric('controller_info', controller_info_label, 1)
 
@@ -147,11 +149,11 @@ def create_metrcis_of_physical_drive(physical_drive, detailed_info_array, contro
                                                                      slot)
     pd_info_label = pd_baselabel + \
         ',disk_id="{}",interface="{}",media="{}",model="{}",DG="{}"'.format(
-            physical_drive.get('DID'),
-            physical_drive.get('Intf').strip(),
-            physical_drive.get('Med').strip(),
-            physical_drive.get('Model').strip(),
-            physical_drive.get('DG'))
+            str(physical_drive.get('DID')).strip(),
+            str(physical_drive.get('Intf')).strip(),
+            str(physical_drive.get('Med')).strip(),
+            str(physical_drive.get('Model')).strip(),
+            str(physical_drive.get('DG')).strip())
 
     drive_identifier = 'Drive /c' + str(controller_index) + '/e' + str(enclosure) + '/s' + str(
         slot)
