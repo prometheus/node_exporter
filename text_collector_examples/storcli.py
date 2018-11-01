@@ -42,20 +42,18 @@ def main(args):
     storcli_path = args.storcli_path
     data = get_storcli_json('/cALL show all J')
 
-    # All the information is collected underneath the Controllers key
-    data = data['Controllers']
+    try:
+        # All the information is collected underneath the Controllers key
+        data = data['Controllers']
 
-    # try:
-    #     overview = status['Response Data']['System Overview']
-    # except KeyError:
-    #     pass
-
-    for controller in data:
-        response = controller['Response Data']
-        if response['Version']['Driver Name'] == 'megaraid_sas':
-            handle_megaraid_controller(response)
-        elif response['Version']['Driver Name'] == 'mpt3sas':
-            handle_sas_controller(response)
+        for controller in data:
+            response = controller['Response Data']
+            if response['Version']['Driver Name'] == 'megaraid_sas':
+                handle_megaraid_controller(response)
+            elif response['Version']['Driver Name'] == 'mpt3sas':
+                handle_sas_controller(response)
+    except KeyError:
+        pass
 
     print_all_metrics(metric_list)
 
