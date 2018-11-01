@@ -98,6 +98,7 @@ def handle_megaraid_controller(response):
     add_metric('ports', baselabel, response['HwCfg']['Backend Port Count'])
     add_metric('scheduled_patrol_read', baselabel,
                int('hrs' in response['Scheduled Tasks']['Patrol Read Reoccurrence']))
+    add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
 
     time_difference_seconds = -1
     system_time = datetime.strptime(response['Basics'].get('Current System Date/time'),
