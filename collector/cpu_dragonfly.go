@@ -112,7 +112,7 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 
 	cpuTimes := make([]float64, cpuTimesLength)
 	for i, value := range cput {
-		cpuTimes[i] = float64(value)
+		cpuTimes[i] = float64(value) / float64(1000000)
 	}
 	return cpuTimes, nil
 }
