@@ -155,6 +155,15 @@ docker run -d \
 On some systems, the `timex` collector requires an additional Docker flag,
 `--cap-add=SYS_TIME`, in order to access the required syscalls.
 
+### Collect GPU metrics
+
+You can collect GPU metrics from node_exporter using NVIDIA's [dcgm-exporter](https://github.com/NVIDIA/gpu-monitoring-tools/tree/master/exporters/prometheus-dcgm). Before running dcgm-exporter, make sure you have installed [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) and all the GPUs are [DCGM supported](https://github.com/NVIDIA/gpu-monitoring-tools/blob/master/exporters/prometheus-dcgm/README.md#dcgm-supported-gpus).
+
+```
+docker run -d --runtime=nvidia --rm --name=nvidia-dcgm-exporter nvidia/dcgm-exporter
+docker run -d --rm --net="host" --pid="host" --volumes-from nvidia-dcgm-exporter:ro quay.io/prometheus/node-exporter --collector.textfile.directory="/run/prometheus"
+```
+
 ## Using a third-party repository for RHEL/CentOS/Fedora
 
 There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/). It closely follows upstream releases.
