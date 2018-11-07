@@ -170,3 +170,52 @@ There is a [community-supplied COPR repository](https://copr.fedorainfracloud.or
 [circleci]: https://circleci.com/gh/prometheus/node_exporter
 [quay]: https://quay.io/repository/prometheus/node-exporter
 [goreportcard]: https://goreportcard.com/report/github.com/prometheus/node_exporter
+
+## Alerting rules samples
+
+Following alerting rules should be customized, based on your hardware specs.
+
+- Out of memory (> 90%)
+```
+(node_memory_MemFree{} + node_memory_Cached{} + node_memory_Buffers{}) / node_memory_MemTotal{} * 100 < 10
+```
+- Unexpected network throughput (in > 100MB)
+```
+sum by (instance) (irate(node_network_receive_bytes{}[2m])) / 1024 / 1024 > 100
+```
+- Unexpected network throughput (out > 100MB)
+```
+sum by (instance) (irate(node_network_transmit_bytes{}[2m])) / 1024 / 1024 > 100
+```
+- Unexpected disk throughput (read > 50MB)
+```
+sum by (instance) (irate(node_disk_bytes_read{}[2m])) / 1024 / 1024 > 50
+```
+- Unexpected disk throughput (write > 50MB)
+```
+sum by (instance) (irate(node_disk_bytes_written{}[2m])) / 1024 / 1024 > 50
+```
+- Disk almost full (> 90%)
+```
+node_filesystem_free{mountpoint ="/rootfs"} / node_filesystem_size{mountpoint ="/rootfs"} * 100 < 10
+```
+- Inodes almost full (> 90%)
+```
+node_filesystem_files_free{mountpoint ="/rootfs"} / node_filesystem_files{mountpoint ="/rootfs"} * 100 < 10
+```
+- Unexpected disk read latency (> 100ms)
+```
+rate(node_disk_read_time_ms{}[1m]) / rate(node_disk_reads_completed{}[1m]) > 100
+```
+- Unexpected disk write latency (> 100ms)
+```
+rate(node_disk_write_time_ms{}[1m]) / rate(node_disk_writes_completed{}[1m]) > 100
+```
+- Unexpected CPU load (15min) (> 75%)
+```
+avg by (instance) (sum by (cpu) (rate(node_cpu{mode!="idle"}[5m]))) * 100 > 75
+```
+- Too many context switching (> 1000/s)
+```
+rate(node_context_switches{}[5m]) > 1000
+```
