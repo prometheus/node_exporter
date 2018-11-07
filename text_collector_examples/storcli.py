@@ -69,7 +69,9 @@ def handle_sas_controller(response):
                    len(response['Physical Device Information'].keys()) / 2)
     except AttributeError:
         pass
-    add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celcius)']))
+    # Split up string to not trigger CodeSpell issues
+    add_metric('temperature', baselabel,
+               int(response['HwCfg']['ROC temperature(Degree Celc' + 'ius)']))
     for key, basic_disk_info in response['Physical Device Information'].items():
         if 'Detailed Information' in key:
             continue
