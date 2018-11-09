@@ -2451,6 +2451,10 @@ node_wifi_station_info{bssid="00:11:22:33:44:55",device="wlan0",mode="client",ss
 # TYPE node_wifi_station_receive_bits_per_second gauge
 node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 2.56e+08
 node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.28e+08
+# HELP node_wifi_station_receive_bytes_total The total number of bytes received by a WiFi station.
+# TYPE node_wifi_station_receive_bytes_total counter
+node_wifi_station_receive_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_receive_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_signal_dbm The current WiFi signal strength, in decibel-milliwatts (dBm).
 # TYPE node_wifi_station_signal_dbm gauge
 node_wifi_station_signal_dbm{device="wlan0",mac_address="01:02:03:04:05:06"} -26
@@ -2459,6 +2463,10 @@ node_wifi_station_signal_dbm{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} -52
 # TYPE node_wifi_station_transmit_bits_per_second gauge
 node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 3.28e+08
 node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.64e+08
+# HELP node_wifi_station_transmit_bytes_total The total number of bytes transmitted by a WiFi station.
+# TYPE node_wifi_station_transmit_bytes_total counter
+node_wifi_station_transmit_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_transmit_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_transmit_failed_total The total number of times a station has failed to send a packet.
 # TYPE node_wifi_station_transmit_failed_total counter
 node_wifi_station_transmit_failed_total{device="wlan0",mac_address="01:02:03:04:05:06"} 4
