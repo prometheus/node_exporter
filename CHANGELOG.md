@@ -5,7 +5,7 @@
 ### Changes
 
 * [BUGFIX]
-* [CHANGE]
+* [CHANGE] Add TCPSynRetrans to netstat default filter #1143
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [FEATURE]
 
