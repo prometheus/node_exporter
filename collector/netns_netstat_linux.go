@@ -16,44 +16,74 @@
 package collector
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
+	"github.com/vishvananda/netns"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	netStatsSubsystem = "netstat"
+	netNsNetStatsSubsystem = "netns_netstat"
 )
 
 var (
-	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans)|Tcp_(ActiveOpens|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts))$").String()
+	netNsNetStatFields = kingpin.Flag("collector.netns_netstat.fields", "Regexp of fields to return for netns_netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans)|Tcp_(ActiveOpens|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts))$").String()
 )
 
-type netStatCollector struct {
+type netNsNetStatCollector struct {
 	fieldPattern *regexp.Regexp
 }
 
 func init() {
-	registerCollector("netstat", defaultEnabled, NewNetStatCollector)
+	registerCollector("netns_netstat", defaultDisabled, NewNetNsNetStatCollector)
 }
 
-// NewNetStatCollector takes and returns
-// a new Collector exposing network stats.
-func NewNetStatCollector() (Collector, error) {
-	pattern := regexp.MustCompile(*netStatFields)
-	return &netStatCollector{
+func NewNetNsNetStatCollector() (Collector, error) {
+	pattern := regexp.MustCompile(*netNsNetStatFields)
+	return &netNsNetStatCollector{
 		fieldPattern: pattern,
 	}, nil
 }
 
-func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *netNsNetStatCollector) Update(ch chan<- prometheus.Metric) error {
+	f, err := os.Open("/var/run/netns")
+	if err != nil {
+		log.Debugf("couldn't open /var/run/netns (no ns): %s", err)
+		return nil
+	}
+	fInfo, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		return fmt.Errorf("couldn't list dir /var/run/netns: %s", err)
+	}
+
+	for _, file := range fInfo {
+		ns, err := netns.GetFromName(file.Name())
+		if err != nil {
+			return fmt.Errorf("couldn't get netns %s: %s", file.Name(), err)
+		}
+		err = netns.Set(ns)
+		if err != nil {
+			return fmt.Errorf("couldn't enter netns %s: %s", file.Name(), err)
+		}
+		hostname, _ := os.Hostname()
+		if err != nil {
+			hostname = ""
+		}
+		err = c.UpdateNetstat(ch, file.Name(), hostname)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *netNsNetStatCollector) UpdateNetstat(ch chan<- prometheus.Metric, ns string, hostname string) error {
 	netStats, err := getNetStats(procFilePath("net/netstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)
@@ -86,89 +116,15 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, netStatsSubsystem, key),
+					prometheus.BuildFQName(namespace, netNsNetStatsSubsystem, key),
 					fmt.Sprintf("Statistic %s.", protocol+name),
-					nil, nil,
+					[]string{"netns_ns", "netns_hostname"},
+					nil,
 				),
 				prometheus.UntypedValue, v,
+				ns, hostname,
 			)
 		}
 	}
 	return nil
-}
-
-func getNetStats(fileName string) (map[string]map[string]string, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseNetStats(file, fileName)
-}
-
-func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, error) {
-	var (
-		netStats = map[string]map[string]string{}
-		scanner  = bufio.NewScanner(r)
-	)
-
-	for scanner.Scan() {
-		nameParts := strings.Split(scanner.Text(), " ")
-		scanner.Scan()
-		valueParts := strings.Split(scanner.Text(), " ")
-		// Remove trailing :.
-		protocol := nameParts[0][:len(nameParts[0])-1]
-		netStats[protocol] = map[string]string{}
-		if len(nameParts) != len(valueParts) {
-			return nil, fmt.Errorf("mismatch field count mismatch in %s: %s",
-				fileName, protocol)
-		}
-		for i := 1; i < len(nameParts); i++ {
-			netStats[protocol][nameParts[i]] = valueParts[i]
-		}
-	}
-
-	return netStats, scanner.Err()
-}
-
-func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		// On systems with IPv6 disabled, this file won't exist.
-		// Do nothing.
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseSNMP6Stats(file)
-}
-
-func parseSNMP6Stats(r io.Reader) (map[string]map[string]string, error) {
-	var (
-		netStats = map[string]map[string]string{}
-		scanner  = bufio.NewScanner(r)
-	)
-
-	for scanner.Scan() {
-		stat := strings.Fields(scanner.Text())
-		if len(stat) < 2 {
-			continue
-		}
-		// Expect to have "6" in metric name, skip line otherwise
-		if sixIndex := strings.Index(stat[0], "6"); sixIndex != -1 {
-			protocol := stat[0][:sixIndex+1]
-			name := stat[0][sixIndex+1:]
-			if _, present := netStats[protocol]; !present {
-				netStats[protocol] = map[string]string{}
-			}
-			netStats[protocol][name] = stat[1]
-		}
-	}
-
-	return netStats, scanner.Err()
 }

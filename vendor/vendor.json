@@ -233,6 +233,12 @@
 			"revisionTime": "2015-06-30T19:56:10Z"
 		},
 		{
+			"checksumSHA1": "8Y8hkjXEkSXBzI/dIdJPXYlGu24=",
+			"path": "github.com/vishvananda/netns",
+			"revision": "13995c7128ccc8e51e9a6bd2b551020a27180abd",
+			"revisionTime": "2018-07-20T11:23:40Z"
+		},
+		{
 			"checksumSHA1": "BGm8lKZmvJbf/YOJLeL1rw2WVjA=",
 			"path": "golang.org/x/crypto/ssh/terminal",
 			"revision": "7c1a557ab941a71c619514f229f0b27ccb0c27cf",
