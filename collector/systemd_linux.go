@@ -301,7 +301,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 				log.Debugf("couldn't get unit '%s' TasksCurrent: %s", unit.Name, err)
 			} else {
 				val := tasksCurrentCount.Value.Value().(uint64)
-				// don't set if tasksCurrent if dbus reports MaxUint64
+				// Don't set if tasksCurrent if dbus reports MaxUint64.
 				if val != math.MaxUint64 {
 					unit.tasksCurrent = &val
 				}
@@ -312,7 +312,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 				log.Debugf("couldn't get unit '%s' TasksMax: %s", unit.Name, err)
 			} else {
 				val := tasksMaxCount.Value.Value().(uint64)
-				// don't set if tasksMax if dbus reports MaxUint64
+				// Don't set if tasksMax if dbus reports MaxUint64.
 				if val != math.MaxUint64 {
 					unit.tasksMax = &val
 				}
