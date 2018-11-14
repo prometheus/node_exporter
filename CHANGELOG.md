@@ -43,6 +43,7 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 * [ENHANCEMENT] Handle stuck NFS mounts #997
 * [ENHANCEMENT] infiniband: Handle iWARP RDMA modules N/A #974
 * [ENHANCEMENT] Update diskstats for linux kernel 4.19 #1109
+* [ENHANCEMENT] Collect TasksCurrent, TasksMax per systemd unit #1098
 
 * [BUGFIX] Fix FreeBSD CPU temp #965
 * [BUGFIX] Fix goroutine leak in supervisord collector #978

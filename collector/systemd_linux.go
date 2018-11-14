@@ -24,6 +24,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"math"
 )
 
 var (
@@ -35,6 +36,8 @@ var (
 type systemdCollector struct {
 	unitDesc                      *prometheus.Desc
 	unitStartTimeDesc             *prometheus.Desc
+	unitTasksCurrentDesc          *prometheus.Desc
+	unitTasksMaxDesc              *prometheus.Desc
 	systemRunningDesc             *prometheus.Desc
 	summaryDesc                   *prometheus.Desc
 	nRestartsDesc                 *prometheus.Desc
@@ -63,6 +66,14 @@ func NewSystemdCollector() (Collector, error) {
 	unitStartTimeDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
 		"Start time of the unit since unix epoch in seconds.", []string{"name"}, nil,
+	)
+	unitTasksCurrentDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_tasks_current"),
+		"Current number of tasks per Systemd unit", []string{"name"}, nil,
+	)
+	unitTasksMaxDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_tasks_max"),
+		"Maximum number of tasks per Systemd unit", []string{"name"}, nil,
 	)
 	systemRunningDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "system_running"),
@@ -93,6 +104,8 @@ func NewSystemdCollector() (Collector, error) {
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
 		unitStartTimeDesc:             unitStartTimeDesc,
+		unitTasksCurrentDesc:          unitTasksCurrentDesc,
+		unitTasksMaxDesc:              unitTasksMaxDesc,
 		systemRunningDesc:             systemRunningDesc,
 		summaryDesc:                   summaryDesc,
 		nRestartsDesc:                 nRestartsDesc,
@@ -117,6 +130,8 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
 	c.collectUnitStatusMetrics(ch, units)
 	c.collectUnitStartTimeMetrics(ch, units)
+	c.collectUnitTasksCurrentMetrics(ch, units)
+	c.collectUnitTasksMaxMetrics(ch, units)
 	c.collectTimers(ch, units)
 	c.collectSockets(ch, units)
 
@@ -176,6 +191,26 @@ func (c *systemdCollector) collectUnitStartTimeMetrics(ch chan<- prometheus.Metr
 	}
 }
 
+func (c *systemdCollector) collectUnitTasksCurrentMetrics(ch chan<- prometheus.Metric, units []unit) {
+	for _, unit := range units {
+		if unit.tasksCurrent != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.unitTasksCurrentDesc, prometheus.GaugeValue,
+				float64(*unit.tasksCurrent), unit.Name)
+		}
+	}
+}
+
+func (c *systemdCollector) collectUnitTasksMaxMetrics(ch chan<- prometheus.Metric, units []unit) {
+	for _, unit := range units {
+		if unit.tasksMax != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.unitTasksMaxDesc, prometheus.GaugeValue,
+				float64(*unit.tasksMax), unit.Name)
+		}
+	}
+}
+
 func (c *systemdCollector) collectTimers(ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		if !strings.HasSuffix(unit.Name, ".timer") {
@@ -214,6 +249,8 @@ type unit struct {
 	dbus.UnitStatus
 	lastTriggerUsec     uint64
 	startTimeUsec       uint64
+	tasksCurrent        *uint64
+	tasksMax            *uint64
 	nRestarts           *uint32
 	acceptedConnections uint32
 	currentConnections  uint32
@@ -258,6 +295,29 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 				nRestarts := restartsCount.Value.Value().(uint32)
 				unit.nRestarts = &nRestarts
 			}
+
+			tasksCurrentCount, err := conn.GetUnitTypeProperty(unit.Name, "Service", "TasksCurrent")
+			if err != nil {
+				log.Debugf("couldn't get unit '%s' TasksCurrent: %s", unit.Name, err)
+			} else {
+				val := tasksCurrentCount.Value.Value().(uint64)
+				// Don't set if tasksCurrent if dbus reports MaxUint64.
+				if val != math.MaxUint64 {
+					unit.tasksCurrent = &val
+				}
+			}
+
+			tasksMaxCount, err := conn.GetUnitTypeProperty(unit.Name, "Service", "TasksMax")
+			if err != nil {
+				log.Debugf("couldn't get unit '%s' TasksMax: %s", unit.Name, err)
+			} else {
+				val := tasksMaxCount.Value.Value().(uint64)
+				// Don't set if tasksMax if dbus reports MaxUint64.
+				if val != math.MaxUint64 {
+					unit.tasksMax = &val
+				}
+			}
+
 		}
 
 		if strings.HasSuffix(unit.Name, ".socket") {
