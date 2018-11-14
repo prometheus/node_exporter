@@ -4,7 +4,7 @@ RETVAL=0
 PROG="node_exporter"
 EXEC="/etc/node_exporter/node_exporter"
 LOCKFILE="/var/lock/subsys/$PROG"
-OPTIONS="-web.listen-address=:9201"
+OPTIONS="--web.listen-address=:9100"
 
 # Source function library.
 if [ -f /etc/rc.d/init.d/functions ]; then
