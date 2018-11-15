@@ -7,7 +7,7 @@
 * [BUGFIX]
 * [CHANGE] Add TCPSynRetrans to netstat default filter #1143
 * [ENHANCEMENT] Add Infiniband counters #1120
-* [FEATURE]
+* [FEATURE] Add a flag to disable exporter metrics #1148
 
 ## 0.17.0-rc.0 / 2018-10-19
 
