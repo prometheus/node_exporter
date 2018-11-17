@@ -45,6 +45,13 @@ func NewMemoryCollector() (Collector, error) {
 	}
 	size := float64(tmp32)
 
+	mibSwapTotal := "vm.swap_total"
+	/* swap_total is FreeBSD specific. Fall back to Dfly specific mib if not present. */
+	_, err = unix.SysctlUint32(mibSwapTotal)
+	if err != nil {
+		mibSwapTotal = "vm.swap_size"
+	}
+
 	fromPage := func(v float64) float64 {
 		return v * size
 	}
@@ -98,7 +105,7 @@ func NewMemoryCollector() (Collector, error) {
 			{
 				name:        "swap_size_bytes",
 				description: "Total swap memory size",
-				mib:         "vm.swap_total",
+				mib:         mibSwapTotal,
 				dataType:    bsdSysctlTypeUint64,
 			},
 			// Descriptions via: top(1)
