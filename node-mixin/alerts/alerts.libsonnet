@@ -7,9 +7,9 @@
           {
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
-              predict_linear(node_filesystem_avail{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 24*60*60) < 0
+              predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 24*60*60) < 0
               and
-              node_filesystem_avail{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.4
+              node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.4
               and
               node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
             ||| % $._config,
@@ -24,9 +24,9 @@
           {
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
-              predict_linear(node_filesystem_avail{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 4*60*60) < 0
+              predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 4*60*60) < 0
               and
-              node_filesystem_avail{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.2
+              node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.2
               and
               node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
             ||| % $._config,
@@ -41,7 +41,7 @@
           {
             alert: 'NodeFilesystemOutOfSpace',
             expr: |||
-              node_filesystem_avail{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 5
+              node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 5
               and
               node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
             ||| % $._config,
@@ -56,7 +56,7 @@
           {
             alert: 'NodeFilesystemOutOfSpace',
             expr: |||
-              node_filesystem_avail{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 3
+              node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 3
               and
               node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
             ||| % $._config,
@@ -96,7 +96,7 @@
             ||| % $._config,
             'for': '1h',
             labels: {
-              severity: 'warning',
+              severity: 'critical',
             },
             annotations: {
               message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} is predicted to run out of files within the next 4 hours.',
@@ -135,7 +135,7 @@
           {
             alert: 'NodeNetworkReceiveErrs',
             expr: |||
-              increase(node_network_receive_errs[2m]) > 10
+              increase(node_network_receive_errs_total[2m]) > 10
             ||| % $._config,
             'for': '1h',
             labels: {
@@ -148,7 +148,7 @@
           {
             alert: 'NodeNetworkTransmitErrs',
             expr: |||
-              increase(node_network_transmit_errs[2m]) > 10
+              increase(node_network_transmit_errs_total[2m]) > 10
             ||| % $._config,
             'for': '1h',
             labels: {
