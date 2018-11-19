@@ -34,6 +34,8 @@ type wifiCollector struct {
 	stationInactiveSeconds       *prometheus.Desc
 	stationReceiveBitsPerSecond  *prometheus.Desc
 	stationTransmitBitsPerSecond *prometheus.Desc
+	stationReceiveBytesTotal     *prometheus.Desc
+	stationTransmitBytesTotal    *prometheus.Desc
 	stationSignalDBM             *prometheus.Desc
 	stationTransmitRetriesTotal  *prometheus.Desc
 	stationTransmitFailedTotal   *prometheus.Desc
@@ -107,6 +109,20 @@ func NewWifiCollector() (Collector, error) {
 		stationTransmitBitsPerSecond: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_transmit_bits_per_second"),
 			"The current WiFi transmit bitrate of a station, in bits per second.",
+			labels,
+			nil,
+		),
+
+		stationReceiveBytesTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_receive_bytes_total"),
+			"The total number of bytes received by a WiFi station.",
+			labels,
+			nil,
+		),
+
+		stationTransmitBytesTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_transmit_bytes_total"),
+			"The total number of bytes transmitted by a WiFi station.",
 			labels,
 			nil,
 		),
@@ -252,6 +268,22 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		c.stationTransmitBitsPerSecond,
 		prometheus.GaugeValue,
 		float64(info.TransmitBitrate),
+		device,
+		info.HardwareAddr.String(),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationReceiveBytesTotal,
+		prometheus.CounterValue,
+		float64(info.ReceivedBytes),
+		device,
+		info.HardwareAddr.String(),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationTransmitBytesTotal,
+		prometheus.CounterValue,
+		float64(info.TransmittedBytes),
 		device,
 		info.HardwareAddr.String(),
 	)

@@ -40,6 +40,7 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 * [FEATURE] Allow removal of rootfs prefix for run in docker #1058
 * [ENHANCEMENT] Support for octal characters in mountpoints #954
 * [ENHANCEMENT] Update wifi stats to support multiple stations #980
+* [ENHANCEMENT] Add transmit/receive bytes total for wifi stations #1150
 * [ENHANCEMENT] Handle stuck NFS mounts #997
 * [ENHANCEMENT] infiniband: Handle iWARP RDMA modules N/A #974
 * [ENHANCEMENT] Update diskstats for linux kernel 4.19 #1109
