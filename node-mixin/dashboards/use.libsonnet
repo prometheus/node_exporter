@@ -78,7 +78,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Storage')
         .addPanel(
           g.panel('Disk Capacity') +
-          g.queryPanel('sum(max(node_filesystem_size{fstype=~"ext[24]"} - node_filesystem_free{fstype=~"ext[24]"}) by (device,instance,namespace)) by (instance,namespace) / scalar(sum(max(node_filesystem_size{fstype=~"ext[24]"}) by (device,instance,namespace)))', '{{instance}}', legendLink) +
+          g.queryPanel('sum(max(node_filesystem_size_bytes{fstype=~"ext[24]"} - node_filesystem_free_bytes{fstype=~"ext[24]"}) by (device,instance,namespace)) by (instance,namespace) / scalar(sum(max(node_filesystem_size_bytes{fstype=~"ext[24]"}) by (device,instance,namespace)))', '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         ),
@@ -143,7 +143,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Disk')
         .addPanel(
           g.panel('Disk Utilisation') +
-          g.queryPanel('1 - sum(max by (device, node) (node_filesystem_free{fstype=~"ext[24]"})) / sum(max by (device, node) (node_filesystem_size{fstype=~"ext[24]"}))', 'Disk') +
+          g.queryPanel('1 - sum(max by (device, node) (node_filesystem_free_bytes{fstype=~"ext[24]"})) / sum(max by (device, node) (node_filesystem_size_bytes{fstype=~"ext[24]"}))', 'Disk') +
           { yaxes: g.yaxes('percentunit') },
         ),
       ),
