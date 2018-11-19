@@ -10,6 +10,9 @@ Prometheus exporter for hardware and OS metrics exposed by \*NIX kernels, writte
 in Go with pluggable metric collectors.
 
 The [WMI exporter](https://github.com/martinlindhe/wmi_exporter) is recommended for Windows users.
+To expose NVIDIA GPU metrics, [prometheus-dcgm
+](https://github.com/NVIDIA/gpu-monitoring-tools/tree/master/exporters/prometheus-dcgm)
+can be used.
 
 ## Collectors
 
