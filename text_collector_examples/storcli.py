@@ -171,8 +171,9 @@ def print_all_metrics(metrics):
         print('# HELP {}{} MegaRAID {}'.format(metric_prefix, metric, metric.replace('_', ' ')))
         print('# TYPE {}{} gauge'.format(metric_prefix, metric))
         for measurement in measurements:
-            print('{}{}{} {}'.format(metric_prefix, metric, '{' + measurement['labels'] + '}',
-                                     measurement['value']))
+            if measurement['value'] != 'Unknown':
+                print('{}{}{} {}'.format(metric_prefix, metric, '{' + measurement['labels'] + '}',
+                                         measurement['value']))
 
 
 def get_storcli_json(storcli_args):
