@@ -1,16 +1,24 @@
 ---
 version: 2.1
 
-jobs:
-  test:
+executors:
+  # Whenever the Go version is updated here, .promu.yml should
+  # also be updated.
+  golang:
     docker:
     - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/prometheus/node_exporter
+
+jobs:
+  test:
+    executor: golang
 
     steps:
     - checkout
     - run: make promu
     - run: make
+    - store_artifacts:
+        path: node_exporter
+        destination: /build/node_exporter
     - run: rm -v node_exporter
 
   codespell:
@@ -24,7 +32,6 @@ jobs:
 
   build:
     machine: true
-    working_directory: /home/circleci/.go_workspace/src/github.com/prometheus/node_exporter
 
     environment:
       DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.11-base
@@ -33,12 +40,15 @@ jobs:
     steps:
     - checkout
     - run: make promu
-    - run: promu crossbuild -v --go 1.11
-    - run: promu --config .promu-cgo.yml crossbuild -v --go 1.11
+    - run: promu crossbuild
+    - run: promu --config .promu-cgo.yml crossbuild
     - persist_to_workspace:
         root: .
         paths:
         - .build
+    - store_artifacts:
+        path: .build
+        destination: /build
     - run: ln -s .build/linux-amd64/node_exporter node_exporter
     - run:
         command: |
@@ -58,9 +68,7 @@ jobs:
           fi
 
   docker_hub_master:
-    docker:
-    - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/prometheus/node_exporter
+    executor: golang
 
     steps:
     - checkout
@@ -77,9 +85,7 @@ jobs:
     - run: make docker-publish DOCKER_REPO=quay.io/prometheus
 
   docker_hub_release_tags:
-    docker:
-    - image: circleci/golang:1.11
-    working_directory: /go/src/github.com/prometheus/node_exporter
+    executor: golang
 
     steps:
     - checkout
