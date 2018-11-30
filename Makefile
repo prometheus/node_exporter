@@ -146,7 +146,9 @@ promtool: $(PROMTOOL)
 
 .PHONY: $(PROMTOOL)
 $(PROMTOOL):
-	curl -s -L $(PROMTOOL_URL) | tar -xvz -C /tmp
-	mkdir -v -p $(FIRST_GOPATH)/bin
-	cp -v /tmp/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM)/promtool $(FIRST_GOPATH)/bin/promtool
+	$(eval PROMTOOL_TMP := $(shell mktemp -d))
+	curl -s -L $(PROMTOOL_URL) | tar -xvzf - -C $(PROMTOOL_TMP)
+	mkdir -p $(FIRST_GOPATH)/bin
+	cp $(PROMTOOL_TMP)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM)/promtool $(FIRST_GOPATH)/bin/promtool
+	rm -r $(PROMTOOL_TMP)
 
