@@ -17,7 +17,9 @@ GO     ?= GO15VENDOREXPERIMENT=1 go
 GOARCH := $(shell $(GO) env GOARCH)
 GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
 
-PROMTOOL    ?= $(FIRST_GOPATH)/bin/promtool
+PROMTOOL_VERSION ?= 2.5.0
+PROMTOOL_URL     ?= https://github.com/prometheus/prometheus/releases/download/v$(PROMTOOL_VERSION)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM).tar.gz
+PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
 
 DOCKER_IMAGE_NAME       ?= node-exporter
 MACH                    ?= $(shell uname -m)
@@ -134,6 +136,14 @@ test-docker:
 	@echo ">> testing docker image"
 	./test_image.sh "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
 
-.PHONY: promtool $(FIRST_GOPATH)/bin/promtool
-$(FIRST_GOPATH)/bin/promtool promtool:
-	@GOOS= GOARCH= $(GO) get -u github.com/prometheus/prometheus/cmd/promtool
+.PHONY: promtool
+promtool: $(PROMTOOL)
+
+.PHONY: $(PROMTOOL)
+$(PROMTOOL):
+	$(eval PROMTOOL_TMP := $(shell mktemp -d))
+	curl -s -L $(PROMTOOL_URL) | tar -xvzf - -C $(PROMTOOL_TMP)
+	mkdir -p $(FIRST_GOPATH)/bin
+	cp $(PROMTOOL_TMP)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM)/promtool $(FIRST_GOPATH)/bin/promtool
+	rm -r $(PROMTOOL_TMP)
+
