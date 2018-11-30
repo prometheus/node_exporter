@@ -5,6 +5,7 @@
 ### Changes
 
 * [BUGFIX]
+* [BUGFIX] Add fallback for missing /proc/1/mounts #1172
 * [CHANGE] Add TCPSynRetrans to netstat default filter #1143
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [FEATURE] Add a flag to disable exporter metrics #1148
