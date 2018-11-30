@@ -134,6 +134,11 @@ func stuckMountWatcher(mountPoint string, success chan struct{}) {
 
 func mountPointDetails() ([]filesystemLabels, error) {
 	file, err := os.Open(procFilePath("1/mounts"))
+	if os.IsNotExist(err) {
+		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
+		log.Debugf("Got %q reading root mounts, falling back to system mounts", err)
+		file, err = os.Open(procFilePath("mounts"))
+	}
 	if err != nil {
 		return nil, err
 	}

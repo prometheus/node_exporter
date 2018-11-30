@@ -70,3 +70,24 @@ func TestMountPointDetails(t *testing.T) {
 		}
 	}
 }
+
+func TestMountsFallback(t *testing.T) {
+	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_hidepid/proc"}); err != nil {
+		t.Fatal(err)
+	}
+
+	expected := map[string]string{
+		"/": "",
+	}
+
+	filesystems, err := mountPointDetails()
+	if err != nil {
+		t.Log(err)
+	}
+
+	for _, fs := range filesystems {
+		if _, ok := expected[fs.mountPoint]; !ok {
+			t.Errorf("Got unexpected %s", fs.mountPoint)
+		}
+	}
+}
