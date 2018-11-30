@@ -148,9 +148,9 @@ The `node_exporter` is designed to monitor the host system. It's not recommended
 to deploy it as a Docker container because it requires access to the host system.
 Be aware that any non-root mount points you want to monitor will need to be bind-mounted
 into the container.
-If you start container for host monitoring, specify `path.rootfs` argument.
-This argument must match path in bind-mount of host root. The node\_exporter will use
-`path.rootfs` as prefix to access host filesystem.
+If you start container for host monitoring, specify `path.procfs` and `path.sysfs` arguments.
+These arguments must match path in bind-mount of host root. The node\_exporter will use
+`path.procfs` and `path.sysfs` for the `procfs` and `sysfs` mountpoint.
 
 ```bash
 docker run -d \
@@ -158,7 +158,7 @@ docker run -d \
   --pid="host" \
   -v "/:/host:ro,rslave" \
   quay.io/prometheus/node-exporter \
-  --path.rootfs /host
+  --path.procfs /host/proc --path.sysfs /host/sys
 ```
 
 On some systems, the `timex` collector requires an additional Docker flag,
