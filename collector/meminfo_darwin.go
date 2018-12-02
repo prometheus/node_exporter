@@ -21,18 +21,18 @@ import "C"
 import (
 	"encoding/binary"
 	"fmt"
-	"syscall"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
-	infoCount := C.mach_msg_type_number_t(C.HOST_VM_INFO_COUNT)
-	vmstat := C.vm_statistics_data_t{}
-	ret := C.host_statistics(
-		C.host_t(C.mach_host_self()),
-		C.HOST_VM_INFO,
+	host := C.mach_host_self()
+	infoCount := C.mach_msg_type_number_t(C.HOST_VM_INFO64_COUNT)
+	vmstat := C.vm_statistics64_data_t{}
+	ret := C.host_statistics64(
+		C.host_t(host),
+		C.HOST_VM_INFO64,
 		C.host_info_t(unsafe.Pointer(&vmstat)),
 		&infoCount,
 	)
@@ -46,9 +46,13 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	// Syscall removes terminating NUL which we need to cast to uint64
 	total := binary.LittleEndian.Uint64([]byte(totalb + "\x00"))
 
-	ps := float64(C.natural_t(syscall.Getpagesize()))
+	var pageSize C.vm_size_t
+	C.host_page_size(C.host_t(host), &pageSize)
+
+	ps := float64(pageSize)
 	return map[string]float64{
 		"active_bytes":            ps * float64(vmstat.active_count),
+		"compressed_bytes":        ps * float64(vmstat.compressor_page_count),
 		"inactive_bytes":          ps * float64(vmstat.inactive_count),
 		"wired_bytes":             ps * float64(vmstat.wire_count),
 		"free_bytes":              ps * float64(vmstat.free_count),
