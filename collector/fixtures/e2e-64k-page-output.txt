@@ -1760,6 +1760,12 @@ node_netstat_Tcp_CurrEstab 0
 # HELP node_netstat_Tcp_InErrs Statistic TcpInErrs.
 # TYPE node_netstat_Tcp_InErrs untyped
 node_netstat_Tcp_InErrs 5
+# HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
+# TYPE node_netstat_Tcp_InSegs untyped
+node_netstat_Tcp_InSegs 5.7252008e+07
+# HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
+# TYPE node_netstat_Tcp_OutSegs untyped
+node_netstat_Tcp_OutSegs 5.4915039e+07
 # HELP node_netstat_Tcp_PassiveOpens Statistic TcpPassiveOpens.
 # TYPE node_netstat_Tcp_PassiveOpens untyped
 node_netstat_Tcp_PassiveOpens 230
