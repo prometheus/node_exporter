@@ -29,9 +29,9 @@ Name     | Description | OS
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
-boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD
+boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD, Solaris
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
-cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux
+cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris
 diskstats | Exposes disk I/O statistics. | Darwin, Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
