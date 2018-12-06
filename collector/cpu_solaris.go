@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -27,7 +28,9 @@ import (
 import "C"
 
 type cpuCollector struct {
-	cpu typedDesc
+	cpu		typedDesc
+	cpuFreq		*prometheus.Desc
+	cpuFreqMax	*prometheus.Desc
 }
 
 func init() {
@@ -37,6 +40,16 @@ func init() {
 func NewCpuCollector() (Collector, error) {
 	return &cpuCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
+		cpuFreq: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
+			"Current cpu thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		cpuFreqMax: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
+			"Maximum cpu thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
 	}, nil
 }
 
@@ -51,27 +64,42 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	defer tok.Close()
 
 	for cpu := 0; cpu < int(ncpus); cpu++ {
-		ks, err := tok.Lookup("cpu", cpu, "sys")
+		ks_cpu, err := tok.Lookup("cpu", cpu, "sys")
 		if err != nil {
 			return err
 		}
 
-		idle_v, err := ks.GetNamed("cpu_ticks_idle")
+		ks_cpu_info, err := tok.Lookup("cpu_info", cpu, fmt.Sprintf("cpu_info%d", cpu))
 		if err != nil {
 			return err
 		}
 
-		kernel_v, err := ks.GetNamed("cpu_ticks_kernel")
+		idle_v, err := ks_cpu.GetNamed("cpu_ticks_idle")
 		if err != nil {
 			return err
 		}
 
-		user_v, err := ks.GetNamed("cpu_ticks_user")
+		kernel_v, err := ks_cpu.GetNamed("cpu_ticks_kernel")
 		if err != nil {
 			return err
 		}
 
-		wait_v, err := ks.GetNamed("cpu_ticks_wait")
+		user_v, err := ks_cpu.GetNamed("cpu_ticks_user")
+		if err != nil {
+			return err
+		}
+
+		wait_v, err := ks_cpu.GetNamed("cpu_ticks_wait")
+		if err != nil {
+			return err
+		}
+
+		cpu_freq_v, err := ks_cpu_info.GetNamed("current_clock_Hz")
+		if err != nil {
+			return err
+		}
+
+		cpu_freq_max_v, err := ks_cpu_info.GetNamed("clock_MHz")
 		if err != nil {
 			return err
 		}
@@ -81,6 +109,19 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		ch <- c.cpu.mustNewConstMetric(float64(kernel_v.UintVal), lcpu, "kernel")
 		ch <- c.cpu.mustNewConstMetric(float64(user_v.UintVal), lcpu, "user")
 		ch <- c.cpu.mustNewConstMetric(float64(wait_v.UintVal), lcpu, "wait")
+
+		ch <- prometheus.MustNewConstMetric(
+			c.cpuFreq,
+			prometheus.GaugeValue,
+			float64(cpu_freq_v.UintVal),
+			lcpu,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.cpuFreqMax,
+			prometheus.GaugeValue,
+			float64(cpu_freq_max_v.IntVal)*1000.0,
+			lcpu,
+		)
 	}
 	return err
 }
