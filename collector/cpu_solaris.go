@@ -54,6 +54,16 @@ func NewCpuCollector() (Collector, error) {
 }
 
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
+	if err := c.updateCPUstats(ch); err != nil {
+                return err
+        }
+        if err := c.updateCPUfreq(ch); err != nil {
+                return err
+        }
+        return nil
+}
+
+func (c *cpuCollector) updateCPUstats(ch chan<- prometheus.Metric) (err error) {
 	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
 
 	tok, err := kstat.Open()
@@ -65,11 +75,6 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 
 	for cpu := 0; cpu < int(ncpus); cpu++ {
 		ks_cpu, err := tok.Lookup("cpu", cpu, "sys")
-		if err != nil {
-			return err
-		}
-
-		ks_cpu_info, err := tok.Lookup("cpu_info", cpu, fmt.Sprintf("cpu_info%d", cpu))
 		if err != nil {
 			return err
 		}
@@ -94,6 +99,30 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 			return err
 		}
 
+		lcpu := strconv.Itoa(cpu)
+		ch <- c.cpu.mustNewConstMetric(float64(idle_v.UintVal), lcpu, "idle")
+		ch <- c.cpu.mustNewConstMetric(float64(kernel_v.UintVal), lcpu, "kernel")
+		ch <- c.cpu.mustNewConstMetric(float64(user_v.UintVal), lcpu, "user")
+		ch <- c.cpu.mustNewConstMetric(float64(wait_v.UintVal), lcpu, "wait")
+	}
+	return err
+}
+
+func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) (err error) {
+	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
+
+	tok, err := kstat.Open()
+	if err != nil {
+		return err
+	}
+
+	defer tok.Close()
+
+	for cpu := 0; cpu < int(ncpus); cpu++ {
+		ks_cpu_info, err := tok.Lookup("cpu_info", cpu, fmt.Sprintf("cpu_info%d", cpu))
+		if err != nil {
+			return err
+		}
 		cpu_freq_v, err := ks_cpu_info.GetNamed("current_clock_Hz")
 		if err != nil {
 			return err
@@ -105,11 +134,6 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		}
 
 		lcpu := strconv.Itoa(cpu)
-		ch <- c.cpu.mustNewConstMetric(float64(idle_v.UintVal), lcpu, "idle")
-		ch <- c.cpu.mustNewConstMetric(float64(kernel_v.UintVal), lcpu, "kernel")
-		ch <- c.cpu.mustNewConstMetric(float64(user_v.UintVal), lcpu, "user")
-		ch <- c.cpu.mustNewConstMetric(float64(wait_v.UintVal), lcpu, "wait")
-
 		ch <- prometheus.MustNewConstMetric(
 			c.cpuFreq,
 			prometheus.GaugeValue,
