@@ -140,10 +140,11 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) (err error) {
 			float64(cpu_freq_v.UintVal),
 			lcpu,
 		)
+		// Multiply by 1e+6 to convert MHz to Hz.
 		ch <- prometheus.MustNewConstMetric(
 			c.cpuFreqMax,
 			prometheus.GaugeValue,
-			float64(cpu_freq_max_v.IntVal)*1000.0,
+			float64(cpu_freq_max_v.IntVal)*1e+6,
 			lcpu,
 		)
 	}
