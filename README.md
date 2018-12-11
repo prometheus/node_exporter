@@ -57,7 +57,7 @@ timex | Exposes selected adjtimex(2) system call stats. | Linux
 uname | Exposes system information as provided by the uname system call. | Linux
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
-zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/)
+zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/), Solaris
 
 ### Disabled by default
 
