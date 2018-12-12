@@ -21,12 +21,12 @@ import (
 	"github.com/siebenmann/go-kstat"
 )
 
-type bootTimeCollector struct{
+type bootTimeCollector struct {
 	boottime typedDesc
 }
 
 func init() {
-        registerCollector("boottime", defaultEnabled, newBootTimeCollector)
+	registerCollector("boottime", defaultEnabled, newBootTimeCollector)
 }
 
 func newBootTimeCollector() (Collector, error) {
@@ -34,7 +34,7 @@ func newBootTimeCollector() (Collector, error) {
 		boottime: typedDesc{
 			prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "", "boot_time_seconds"),
-					"Unix time of last boot, including microseconds.",
+				"Unix time of last boot, including microseconds.",
 				nil, nil,
 			), prometheus.GaugeValue},
 	}, nil

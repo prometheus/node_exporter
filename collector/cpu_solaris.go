@@ -28,9 +28,9 @@ import (
 import "C"
 
 type cpuCollector struct {
-	cpu		typedDesc
-	cpuFreq		*prometheus.Desc
-	cpuFreqMax	*prometheus.Desc
+	cpu        typedDesc
+	cpuFreq    *prometheus.Desc
+	cpuFreqMax *prometheus.Desc
 }
 
 func init() {
@@ -55,12 +55,12 @@ func NewCpuCollector() (Collector, error) {
 
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err := c.updateCPUstats(ch); err != nil {
-                return err
-        }
-        if err := c.updateCPUfreq(ch); err != nil {
-                return err
-        }
-        return nil
+		return err
+	}
+	if err := c.updateCPUfreq(ch); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *cpuCollector) updateCPUstats(ch chan<- prometheus.Metric) (err error) {
