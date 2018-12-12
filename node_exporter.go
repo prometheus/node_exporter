@@ -146,6 +146,14 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
+		TLSCert = kingpin.Flag(
+			"web.tls-cert",
+			"Path to PEM file that contains the certificate (and optionally, the private key).",
+		).Default("").String()
+		TLSPrivateKey = kingpin.Flag(
+			"web.tls-private-key",
+			"Path to PEM file that contains the private key (if not contained in web.tls-cert file).",
+		).Default("").String()
 	)
 
 	log.AddFlags(kingpin.CommandLine)
@@ -159,7 +167,7 @@ func main() {
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
-			<head><title>Node Exporter</title></head>
+<head><title>Node Exporter</title></head>
 			<body>
 			<h1>Node Exporter</h1>
 			<p><a href="` + *metricsPath + `">Metrics</a></p>
@@ -167,8 +175,19 @@ func main() {
 			</html>`))
 	})
 
+	server := &http.Server{Addr: *listenAddress, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
-	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
-		log.Fatal(err)
+	if len(*TLSCert) > 0 {
+		targetTLSPrivateKey := *TLSPrivateKey
+		if len(targetTLSPrivateKey) <= 0 {
+			targetTLSPrivateKey = *TLSCert
+		}
+		if err := server.ListenAndServeTLS(*TLSCert, targetTLSPrivateKey); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if err := http.ListenAndServe(*listenAddress, nil); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
