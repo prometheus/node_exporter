@@ -167,7 +167,7 @@ func main() {
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
-<head><title>Node Exporter</title></head>
+			<head><title>Node Exporter</title></head>
 			<body>
 			<h1>Node Exporter</h1>
 			<p><a href="` + *metricsPath + `">Metrics</a></p>
