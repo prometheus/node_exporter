@@ -167,7 +167,13 @@ device_list="$(/usr/sbin/smartctl --scan-open | awk '/^\/dev/{print $1 "|" $3}')
 for device in ${device_list}; do
   disk="$(echo ${device} | cut -f1 -d'|')"
   type="$(echo ${device} | cut -f2 -d'|')"
+  active=1
   echo "smartctl_run{disk=\"${disk}\",type=\"${type}\"}" "$(TZ=UTC date '+%s')"
+  # Check if the device is in a low-power mode
+  /usr/sbin/smartctl -n standby -d "${type}" "${disk}" > /dev/null || active=0
+  echo "device_active{disk=\"${disk}\",type=\"${type}\"}" "${active}"
+  # Skip further metrics to prevent the disk from spinning up
+  test ${active} -eq 0 && continue
   # Get the SMART information and health
   /usr/sbin/smartctl -i -H -d "${type}" "${disk}" | parse_smartctl_info "${disk}" "${type}"
   # Get the SMART attributes
