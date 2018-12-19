@@ -47,7 +47,7 @@ github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d h1:GoAlyOgbOEIFd
 github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
 github.com/sirupsen/logrus v1.1.1 h1:VzGj7lhU7KEB9e9gMpAV/v5XT2NVSvLJhJLCWbnkgXg=
 github.com/sirupsen/logrus v1.1.1/go.mod h1:zrgwTnHtNr00buQ1vSptGe8m1f/BbgsPukg8qsT7A+A=
-github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a h1:TGsOnmXp0mo82KbjaDcsTibGxWIdZNXbKJB18gFn1RM=
+github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a h1:os5OBNhwOwybXZMNLqT96XqtjdTtwRFw2w08uluvNeI=
 github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a/go.mod h1:LeFCbQYJ3KJlPs/FvPz2dy1tkpxyeNESVyCNNzRXFR0=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
