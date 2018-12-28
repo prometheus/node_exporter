@@ -44,9 +44,11 @@ power_cycle_count
 power_on_hours
 program_fail_count
 raw_read_error_rate
+reallocated_event_count
 reallocated_sector_ct
 reported_uncorrect
 sata_downshift_count
+seek_error_rate
 spin_retry_count
 spin_up_time
 start_stop_count
