@@ -21,26 +21,31 @@ import (
 )
 
 type zfsCollector struct {
-	abdstatsLinearCount       *prometheus.Desc
-	abdstatsLinearDataSize    *prometheus.Desc
-	abdstatsScatterChunkWaste *prometheus.Desc
-	abdstatsScatterCount      *prometheus.Desc
-	abdstatsScatterDataSize   *prometheus.Desc
-	abdstatsStructSize        *prometheus.Desc
-	arcstatsAnonSize          *prometheus.Desc
-	arcstatsHeaderSize        *prometheus.Desc
-	arcstatsHits              *prometheus.Desc
-	arcstatsMisses            *prometheus.Desc
-	arcstatsMFUGhostHits      *prometheus.Desc
-	arcstatsMFUGhostSize      *prometheus.Desc
-	arcstatsMFUSize           *prometheus.Desc
-	arcstatsMRUGhostHits      *prometheus.Desc
-	arcstatsMRUGhostSize      *prometheus.Desc
-	arcstatsMRUSize           *prometheus.Desc
-	arcstatsOtherSize         *prometheus.Desc
-	arcstatsSize              *prometheus.Desc
-	zfetchstatsHits           *prometheus.Desc
-	zfetchstatsMisses         *prometheus.Desc
+	abdstatsLinearCount          *prometheus.Desc
+	abdstatsLinearDataSize       *prometheus.Desc
+	abdstatsScatterChunkWaste    *prometheus.Desc
+	abdstatsScatterCount         *prometheus.Desc
+	abdstatsScatterDataSize      *prometheus.Desc
+	abdstatsStructSize           *prometheus.Desc
+	arcstatsAnonSize             *prometheus.Desc
+	arcstatsDataSize             *prometheus.Desc
+	arcstatsDemandDataHits       *prometheus.Desc
+	arcstatsDemandDataMisses     *prometheus.Desc
+	arcstatsDemandMetadataHits   *prometheus.Desc
+	arcstatsDemandMetadataMisses *prometheus.Desc
+	arcstatsHeaderSize           *prometheus.Desc
+	arcstatsHits                 *prometheus.Desc
+	arcstatsMisses               *prometheus.Desc
+	arcstatsMFUGhostHits         *prometheus.Desc
+	arcstatsMFUGhostSize         *prometheus.Desc
+	arcstatsMFUSize              *prometheus.Desc
+	arcstatsMRUGhostHits         *prometheus.Desc
+	arcstatsMRUGhostSize         *prometheus.Desc
+	arcstatsMRUSize              *prometheus.Desc
+	arcstatsOtherSize            *prometheus.Desc
+	arcstatsSize                 *prometheus.Desc
+	zfetchstatsHits              *prometheus.Desc
+	zfetchstatsMisses            *prometheus.Desc
 }
 
 const (
@@ -80,6 +85,26 @@ func NewZfsCollector() (Collector, error) {
 		arcstatsAnonSize: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_anon_size"),
 			"ZFS ARC anon size", nil, nil,
+		),
+		arcstatsDataSize: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_data_size"),
+			"ZFS ARC data size", nil, nil,
+		),
+		arcstatsDemandDataHits: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_data_hits"),
+			"ZFS ARC demand data hits", nil, nil,
+		),
+		arcstatsDemandDataMisses: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_data_misses"),
+			"ZFS ARC demand data misses", nil, nil,
+		),
+		arcstatsDemandMetadataHits: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_metadata_hits"),
+			"ZFS ARC demand metadata hits", nil, nil,
+		),
+		arcstatsDemandMetadataMisses: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_metadata_misses"),
+			"ZFS ARC demand metadata misses", nil, nil,
 		),
 		arcstatsHeaderSize: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_hdr_size"),
@@ -186,17 +211,22 @@ func (c *zfsCollector) updateZfsArcStats(ch chan<- prometheus.Metric) error {
 	}
 
 	for k, v := range map[string]*prometheus.Desc{
-		"anon_size":      c.arcstatsAnonSize,
-		"hdr_size":       c.arcstatsHeaderSize,
-		"hits":           c.arcstatsHits,
-		"misses":         c.arcstatsMisses,
-		"mfu_ghost_hits": c.arcstatsMFUGhostHits,
-		"mfu_ghost_size": c.arcstatsMFUGhostSize,
-		"mfu_size":       c.arcstatsMFUSize,
-		"mru_ghost_hits": c.arcstatsMRUGhostHits,
-		"mru_ghost_size": c.arcstatsMRUGhostSize,
-		"mru_size":       c.arcstatsMRUSize,
-		"size":           c.arcstatsSize,
+		"anon_size":              c.arcstatsAnonSize,
+		"data_size":              c.arcstatsDataSize,
+		"demand_data_hits"  :     c.arcstatsDemandDataHits,
+		"demand_data_misses":     c.arcstatsDemandDataMisses,
+		"demand_metadata_hits"  : c.arcstatsDemandMetadataHits,
+		"demand_metadata_misses": c.arcstatsDemandMetadataMisses,
+		"hdr_size":               c.arcstatsHeaderSize,
+		"hits":                   c.arcstatsHits,
+		"misses":                 c.arcstatsMisses,
+		"mfu_ghost_hits":         c.arcstatsMFUGhostHits,
+		"mfu_ghost_size":         c.arcstatsMFUGhostSize,
+		"mfu_size":               c.arcstatsMFUSize,
+		"mru_ghost_hits":         c.arcstatsMRUGhostHits,
+		"mru_ghost_size":         c.arcstatsMRUGhostSize,
+		"mru_size":               c.arcstatsMRUSize,
+		"size":                   c.arcstatsSize,
 	} {
 		ksZFSInfoValue, err := ksZFSInfo.GetNamed(k)
 		if err != nil {
