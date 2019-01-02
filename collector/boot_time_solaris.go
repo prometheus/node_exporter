@@ -51,13 +51,11 @@ func (c *bootTimeCollector) Update(ch chan<- prometheus.Metric) error {
 	defer tok.Close()
 
 	ks, err := tok.Lookup("unix", 0, "system_misc")
-
 	if err != nil {
 		return err
 	}
 
 	v, err := ks.GetNamed("boot_time")
-
 	if err != nil {
 		return err
 	}

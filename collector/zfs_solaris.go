@@ -1,4 +1,4 @@
-// Copyright 2016 The Prometheus Authors
+// Copyright 2018 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -136,7 +136,7 @@ func NewZfsCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *zfsCollector) updateZfsAbdStats(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) updateZfsAbdStats(ch chan<- prometheus.Metric) error {
 	tok, err := kstat.Open()
 	if err != nil {
 		return err
@@ -144,76 +144,35 @@ func (c *zfsCollector) updateZfsAbdStats(ch chan<- prometheus.Metric) (err error
 
 	defer tok.Close()
 
-	ks_zfs_info, err := tok.Lookup("zfs", 0, "abdstats")
+	ksZFSInfo, err := tok.Lookup("zfs", 0, "abdstats")
 	if err != nil {
 		return err
 	}
 
-	zfs_abdstats_linear_count_v, err := ks_zfs_info.GetNamed("linear_cnt")
-	if err != nil {
-		return err
+	for k, v := range map[string]*prometheus.Desc{
+		"linear_cnt":          c.abdstatsLinearCount,
+		"linear_data_size":    c.abdstatsLinearDataSize,
+		"scatter_chunk_waste": c.abdstatsScatterChunkWaste,
+		"scatter_cnt":         c.abdstatsScatterCount,
+		"scatter_data_size":   c.abdstatsScatterDataSize,
+		"struct_size":         c.abdstatsStructSize,
+	} {
+		ksZFSInfoValue, err := ksZFSInfo.GetNamed(k)
+		if err != nil {
+			return err
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			v,
+			prometheus.GaugeValue,
+			float64(ksZFSInfoValue.UintVal),
+		)
 	}
 
-	zfs_abdstats_linear_data_size_v, err := ks_zfs_info.GetNamed("linear_data_size")
-	if err != nil {
-		return err
-	}
-
-	zfs_abdstats_scatter_chunk_waste_v, err := ks_zfs_info.GetNamed("scatter_chunk_waste")
-	if err != nil {
-		return err
-	}
-
-	zfs_abdstats_scatter_count_v, err := ks_zfs_info.GetNamed("scatter_cnt")
-	if err != nil {
-		return err
-	}
-
-	zfs_abdstats_scatter_data_size_v, err := ks_zfs_info.GetNamed("scatter_data_size")
-	if err != nil {
-		return err
-	}
-
-	zfs_abdstats_struct_size_v, err := ks_zfs_info.GetNamed("struct_size")
-	if err != nil {
-		return err
-	}
-
-	ch <- prometheus.MustNewConstMetric(
-		c.abdstatsLinearCount,
-		prometheus.GaugeValue,
-		float64(zfs_abdstats_linear_count_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.abdstatsLinearDataSize,
-		prometheus.GaugeValue,
-		float64(zfs_abdstats_linear_data_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.abdstatsScatterChunkWaste,
-		prometheus.GaugeValue,
-		float64(zfs_abdstats_scatter_chunk_waste_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.abdstatsScatterCount,
-		prometheus.GaugeValue,
-		float64(zfs_abdstats_scatter_count_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.abdstatsScatterDataSize,
-		prometheus.GaugeValue,
-		float64(zfs_abdstats_scatter_data_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.abdstatsStructSize,
-		prometheus.GaugeValue,
-		float64(zfs_abdstats_struct_size_v.UintVal),
-	)
-
-	return err
+	return nil
 }
 
-func (c *zfsCollector) updateZfsArcStats(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) updateZfsArcStats(ch chan<- prometheus.Metric) error {
 	tok, err := kstat.Open()
 	if err != nil {
 		return err
@@ -221,126 +180,40 @@ func (c *zfsCollector) updateZfsArcStats(ch chan<- prometheus.Metric) (err error
 
 	defer tok.Close()
 
-	ks_zfs_info, err := tok.Lookup("zfs", 0, "arcstats")
+	ksZFSInfo, err := tok.Lookup("zfs", 0, "arcstats")
 	if err != nil {
 		return err
 	}
 
-	zfs_arcstats_anon_size_v, err := ks_zfs_info.GetNamed("anon_size")
-	if err != nil {
-		return err
+	for k, v := range map[string]*prometheus.Desc{
+		"anon_size":      c.arcstatsAnonSize,
+		"hdr_size":       c.arcstatsHeaderSize,
+		"hits":           c.arcstatsHits,
+		"misses":         c.arcstatsMisses,
+		"mfu_ghost_hits": c.arcstatsMFUGhostHits,
+		"mfu_ghost_size": c.arcstatsAnonSize,
+		"mfu_size":       c.arcstatsMFUSize,
+		"mru_ghost_hits": c.arcstatsMRUGhostHits,
+		"mru_ghost_size": c.arcstatsMRUGhostSize,
+		"mru_size":       c.arcstatsMRUSize,
+		"size":           c.arcstatsSize,
+	} {
+		ksZFSInfoValue, err := ksZFSInfo.GetNamed(k)
+		if err != nil {
+			return err
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			v,
+			prometheus.GaugeValue,
+			float64(ksZFSInfoValue.UintVal),
+		)
 	}
 
-	zfs_arcstats_hdr_size_v, err := ks_zfs_info.GetNamed("hdr_size")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_hits_v, err := ks_zfs_info.GetNamed("hits")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_misses_v, err := ks_zfs_info.GetNamed("misses")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_mfu_ghost_hits_v, err := ks_zfs_info.GetNamed("mfu_ghost_hits")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_mfu_ghost_size_v, err := ks_zfs_info.GetNamed("mfu_ghost_size")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_mfu_size_v, err := ks_zfs_info.GetNamed("mfu_size")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_mru_ghost_hits_v, err := ks_zfs_info.GetNamed("mru_ghost_hits")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_mru_ghost_size_v, err := ks_zfs_info.GetNamed("mru_ghost_size")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_mru_size_v, err := ks_zfs_info.GetNamed("mru_size")
-	if err != nil {
-		return err
-	}
-
-	zfs_arcstats_size_v, err := ks_zfs_info.GetNamed("size")
-	if err != nil {
-		return err
-	}
-
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsAnonSize,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_anon_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsHeaderSize,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_hdr_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsHits,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_hits_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsMisses,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_misses_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsMFUGhostHits,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_mfu_ghost_hits_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsMFUGhostSize,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_mfu_ghost_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsMFUSize,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_mfu_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsMRUGhostHits,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_mru_ghost_hits_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsMRUGhostSize,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_mru_ghost_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsMRUSize,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_mru_size_v.UintVal),
-	)
-	ch <- prometheus.MustNewConstMetric(
-		c.arcstatsSize,
-		prometheus.GaugeValue,
-		float64(zfs_arcstats_size_v.UintVal),
-	)
-
-	return err
+	return nil
 }
 
-func (c *zfsCollector) updateZfsFetchStats(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) updateZfsFetchStats(ch chan<- prometheus.Metric) error {
 	tok, err := kstat.Open()
 	if err != nil {
 		return err
@@ -348,34 +221,28 @@ func (c *zfsCollector) updateZfsFetchStats(ch chan<- prometheus.Metric) (err err
 
 	defer tok.Close()
 
-	ks_zfs_info, err := tok.Lookup("zfs", 0, "zfetchstats")
+	ksZFSInfo, err := tok.Lookup("zfs", 0, "zfetchstats")
 
-	zfs_fetchstats_hits_v, err := ks_zfs_info.GetNamed("hits")
-	if err != nil {
-		return err
+	for k, v := range map[string]*prometheus.Desc{
+		"hits":   c.zfetchstatsHits,
+		"misses": c.zfetchstatsMisses,
+	} {
+		ksZFSInfoValue, err := ksZFSInfo.GetNamed(k)
+		if err != nil {
+			return err
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			v,
+			prometheus.GaugeValue,
+			float64(ksZFSInfoValue.UintVal),
+		)
 	}
 
-	zfs_fetchstats_misses_v, err := ks_zfs_info.GetNamed("misses")
-	if err != nil {
-		return err
-	}
-
-	ch <- prometheus.MustNewConstMetric(
-		c.zfetchstatsHits,
-		prometheus.GaugeValue,
-		float64(zfs_fetchstats_hits_v.UintVal),
-	)
-
-	ch <- prometheus.MustNewConstMetric(
-		c.zfetchstatsMisses,
-		prometheus.GaugeValue,
-		float64(zfs_fetchstats_misses_v.UintVal),
-	)
-
-	return err
+	return nil
 }
 
-func (c *zfsCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateZfsAbdStats(ch); err != nil {
 		return err
 	}

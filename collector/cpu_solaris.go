@@ -53,7 +53,7 @@ func NewCpuCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateCPUstats(ch); err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	return nil
 }
 
-func (c *cpuCollector) updateCPUstats(ch chan<- prometheus.Metric) (err error) {
+func (c *cpuCollector) updateCPUstats(ch chan<- prometheus.Metric) error {
 	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
 
 	tok, err := kstat.Open()
@@ -74,41 +74,29 @@ func (c *cpuCollector) updateCPUstats(ch chan<- prometheus.Metric) (err error) {
 	defer tok.Close()
 
 	for cpu := 0; cpu < int(ncpus); cpu++ {
-		ks_cpu, err := tok.Lookup("cpu", cpu, "sys")
+		ksCPU, err := tok.Lookup("cpu", cpu, "sys")
 		if err != nil {
 			return err
 		}
 
-		idle_v, err := ks_cpu.GetNamed("cpu_ticks_idle")
-		if err != nil {
-			return err
-		}
+		for k, v := range map[string]string{
+			"idle":   "cpu_ticks_idle",
+			"kernel": "cpu_ticks_kernel",
+			"user":   "cpu_ticks_user",
+			"wait":   "cpu_ticks_wait",
+		} {
+			kstatValue, err := ksCPU.GetNamed(v)
+			if err != nil {
+				return err
+			}
 
-		kernel_v, err := ks_cpu.GetNamed("cpu_ticks_kernel")
-		if err != nil {
-			return err
+			ch <- c.cpu.mustNewConstMetric(float64(kstatValue.UintVal), strconv.Itoa(cpu), k)
 		}
-
-		user_v, err := ks_cpu.GetNamed("cpu_ticks_user")
-		if err != nil {
-			return err
-		}
-
-		wait_v, err := ks_cpu.GetNamed("cpu_ticks_wait")
-		if err != nil {
-			return err
-		}
-
-		lcpu := strconv.Itoa(cpu)
-		ch <- c.cpu.mustNewConstMetric(float64(idle_v.UintVal), lcpu, "idle")
-		ch <- c.cpu.mustNewConstMetric(float64(kernel_v.UintVal), lcpu, "kernel")
-		ch <- c.cpu.mustNewConstMetric(float64(user_v.UintVal), lcpu, "user")
-		ch <- c.cpu.mustNewConstMetric(float64(wait_v.UintVal), lcpu, "wait")
 	}
-	return err
+	return nil
 }
 
-func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) (err error) {
+func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
 
 	tok, err := kstat.Open()
@@ -119,16 +107,16 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) (err error) {
 	defer tok.Close()
 
 	for cpu := 0; cpu < int(ncpus); cpu++ {
-		ks_cpu_info, err := tok.Lookup("cpu_info", cpu, fmt.Sprintf("cpu_info%d", cpu))
+		ksCPUInfo, err := tok.Lookup("cpu_info", cpu, fmt.Sprintf("cpu_info%d", cpu))
 		if err != nil {
 			return err
 		}
-		cpu_freq_v, err := ks_cpu_info.GetNamed("current_clock_Hz")
+		cpu_freq_v, err := ksCPUInfo.GetNamed("current_clock_Hz")
 		if err != nil {
 			return err
 		}
 
-		cpu_freq_max_v, err := ks_cpu_info.GetNamed("clock_MHz")
+		cpu_freq_max_v, err := ksCPUInfo.GetNamed("clock_MHz")
 		if err != nil {
 			return err
 		}
@@ -148,5 +136,5 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) (err error) {
 			lcpu,
 		)
 	}
-	return err
+	return nil
 }
