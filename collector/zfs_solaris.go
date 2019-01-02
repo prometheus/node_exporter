@@ -191,7 +191,7 @@ func (c *zfsCollector) updateZfsArcStats(ch chan<- prometheus.Metric) error {
 		"hits":           c.arcstatsHits,
 		"misses":         c.arcstatsMisses,
 		"mfu_ghost_hits": c.arcstatsMFUGhostHits,
-		"mfu_ghost_size": c.arcstatsAnonSize,
+		"mfu_ghost_size": c.arcstatsMFUGhostSize,
 		"mfu_size":       c.arcstatsMFUSize,
 		"mru_ghost_hits": c.arcstatsMRUGhostHits,
 		"mru_ghost_size": c.arcstatsMRUGhostSize,
