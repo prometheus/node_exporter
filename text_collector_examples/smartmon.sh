@@ -71,7 +71,7 @@ parse_smartctl_attributes() {
   local disk_type="$2"
   local labels="disk=\"${disk}\",type=\"${disk_type}\""
   local vars="$(echo "${smartmon_attrs}" | xargs | tr ' ' '|')"
-  sed 's/^ \+//g' |
+  sed 's/^[[:space:]]*//g' |
     awk -v labels="${labels}" "${parse_smartctl_attributes_awk}" 2>/dev/null |
     tr A-Z a-z |
     grep -E "(${smartmon_attrs})"
@@ -82,8 +82,8 @@ parse_smartctl_scsi_attributes() {
   local disk_type="$2"
   local labels="disk=\"${disk}\",type=\"${disk_type}\""
   while read line; do
-    attr_type="$(echo "${line}" | tr '=' ':' | cut -f1 -d: | sed 's/^ \+//g' | tr ' ' '_')"
-    attr_value="$(echo "${line}" | tr '=' ':' | cut -f2 -d: | sed 's/^ \+//g')"
+    attr_type="$(echo "${line}" | tr '=' ':' | cut -f1 -d: | sed 's/^[[:space:]]*//g' | tr ' ' '_')"
+    attr_value="$(echo "${line}" | tr '=' ':' | cut -f2 -d: | sed 's/^[[:space:]]*//g')"
     case "${attr_type}" in
     number_of_hours_powered_up_) power_on="$(echo "${attr_value}" | awk '{ printf "%e\n", $1 }')" ;;
     Current_Drive_Temperature) temp_cel="$(echo ${attr_value} | cut -f1 -d' ' | awk '{ printf "%e\n", $1 }')" ;;
@@ -105,7 +105,7 @@ parse_smartctl_info() {
   local model_family='' device_model='' serial_number='' fw_version='' vendor='' product='' revision='' lun_id=''
   while read line; do
     info_type="$(echo "${line}" | cut -f1 -d: | tr ' ' '_')"
-    info_value="$(echo "${line}" | cut -f2- -d: | sed 's/^ \+//g' | sed 's/"/\\"/')"
+    info_value="$(echo "${line}" | cut -f2- -d: | sed 's/^[[:space:]]*//g' | sed 's/"/\\"/')"
     case "${info_type}" in
     Model_Family) model_family="${info_value}" ;;
     Device_Model) device_model="${info_value}" ;;
