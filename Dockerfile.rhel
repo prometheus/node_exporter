@@ -2,7 +2,8 @@ FROM registry.svc.ci.openshift.org/ocp/builder:golang-1.10 AS builder
 
 WORKDIR /go/src/github.com/prometheus/node_exporter
 COPY . .
-RUN make build
+ENV BUILD_PROMU=false
+RUN yum install -y prometheus-promu && make build && yum clean all
 
 FROM  registry.svc.ci.openshift.org/ocp/4.0:base
 LABEL io.k8s.display-name="OpenShift Prometheus Node Exporter" \
