@@ -29,14 +29,14 @@ import (
 // constants from https://github.com/zfsonlinux/zfs/blob/master/lib/libspl/include/sys/kstat.h
 // kept as strings for comparison thus avoiding conversion to int
 const (
-	kstatDataChar   = "0"
-	kstatDataInt32  = "1"
-	kstatDataUint32 = "2"
-	kstatDataInt64  = "3"
+	// kstatDataChar   = "0"
+	// kstatDataInt32  = "1"
+	// kstatDataUint32 = "2"
+	// kstatDataInt64  = "3"
 	kstatDataUint64 = "4"
-	kstatDataLong   = "5"
-	kstatDataUlong  = "6"
-	kstatDataString = "7"
+	// kstatDataLong   = "5"
+	// kstatDataUlong  = "6"
+	// kstatDataString = "7"
 )
 
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
