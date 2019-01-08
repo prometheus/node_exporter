@@ -109,19 +109,19 @@ func NewZfsCollector() (Collector, error) {
 			"ZFS ARC data size", nil, nil,
 		),
 		arcstatsDemandDataHits: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_data_hits"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_data_hits_total"),
 			"ZFS ARC demand data hits", nil, nil,
 		),
 		arcstatsDemandDataMisses: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_data_misses"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_data_misses_total"),
 			"ZFS ARC demand data misses", nil, nil,
 		),
 		arcstatsDemandMetadataHits: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_metadata_hits"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_metadata_hits_total"),
 			"ZFS ARC demand metadata hits", nil, nil,
 		),
 		arcstatsDemandMetadataMisses: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_metadata_misses"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_demand_metadata_misses_total"),
 			"ZFS ARC demand metadata misses", nil, nil,
 		),
 		arcstatsHeaderSize: prometheus.NewDesc(
@@ -129,15 +129,15 @@ func NewZfsCollector() (Collector, error) {
 			"ZFS ARC header size", nil, nil,
 		),
 		arcstatsHits: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_hits"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_hits_total"),
 			"ZFS ARC hits", nil, nil,
 		),
 		arcstatsMisses: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_misses"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_misses_total"),
 			"ZFS ARC misses", nil, nil,
 		),
 		arcstatsMFUGhostHits: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_mfu_ghost_hits"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_mfu_ghost_hits_total"),
 			"ZFS ARC MFU ghost hits", nil, nil,
 		),
 		arcstatsMFUGhostSize: prometheus.NewDesc(
@@ -149,7 +149,7 @@ func NewZfsCollector() (Collector, error) {
 			"ZFS ARC MFU size", nil, nil,
 		),
 		arcstatsMRUGhostHits: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_mru_ghost_hits"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "arcstats_mru_ghost_hits_total"),
 			"ZFS ARC MRU ghost hits", nil, nil,
 		),
 		arcstatsMRUGhostSize: prometheus.NewDesc(
@@ -173,11 +173,11 @@ func NewZfsCollector() (Collector, error) {
 			"ZFS ARC size", nil, nil,
 		),
 		zfetchstatsHits: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "zfetchstats_hits"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "zfetchstats_hits_total"),
 			"ZFS cache fetch hits", nil, nil,
 		),
 		zfetchstatsMisses: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "zfetchstats_misses"),
+			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "zfetchstats_misses_total"),
 			"ZFS cache fetch misses", nil, nil,
 		),
 	}, nil
