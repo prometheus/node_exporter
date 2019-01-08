@@ -111,12 +111,12 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		if err != nil {
 			return err
 		}
-		cpu_freq_v, err := ksCPUInfo.GetNamed("current_clock_Hz")
+		cpuFreqV, err := ksCPUInfo.GetNamed("current_clock_Hz")
 		if err != nil {
 			return err
 		}
 
-		cpu_freq_max_v, err := ksCPUInfo.GetNamed("clock_MHz")
+		cpuFreqMaxV, err := ksCPUInfo.GetNamed("clock_MHz")
 		if err != nil {
 			return err
 		}
@@ -125,14 +125,14 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			c.cpuFreq,
 			prometheus.GaugeValue,
-			float64(cpu_freq_v.UintVal),
+			float64(cpuFreqV.UintVal),
 			lcpu,
 		)
 		// Multiply by 1e+6 to convert MHz to Hz.
 		ch <- prometheus.MustNewConstMetric(
 			c.cpuFreqMax,
 			prometheus.GaugeValue,
-			float64(cpu_freq_max_v.IntVal)*1e+6,
+			float64(cpuFreqMaxV.IntVal)*1e+6,
 			lcpu,
 		)
 	}

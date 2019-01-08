@@ -25,21 +25,21 @@ import (
 // #include <sys/param.h>
 import "C"
 
-func kstatToFloat(ks *kstat.KStat, kstat_key string) float64 {
-	kstat_value, err := ks.GetNamed(kstat_key)
+func kstatToFloat(ks *kstat.KStat, kstatKey string) float64 {
+	kstatValue, err := ks.GetNamed(kstatKey)
 
 	if err != nil {
 		panic(err)
 	}
 
-	kstat_loadavg, err := strconv.ParseFloat(
-		fmt.Sprintf("%.2f", float64(kstat_value.UintVal)/C.FSCALE), 64)
+	kstatLoadavg, err := strconv.ParseFloat(
+		fmt.Sprintf("%.2f", float64(kstatValue.UintVal)/C.FSCALE), 64)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return kstat_loadavg
+	return kstatLoadavg
 }
 
 func getLoad() ([]float64, error) {
@@ -56,9 +56,9 @@ func getLoad() ([]float64, error) {
 		panic(err)
 	}
 
-	loadavg_1min := kstatToFloat(ks, "avenrun_1min")
-	loadavg_5min := kstatToFloat(ks, "avenrun_5min")
-	loadavg_15min := kstatToFloat(ks, "avenrun_15min")
+	loadavg1Min := kstatToFloat(ks, "avenrun_1min")
+	loadavg5Min := kstatToFloat(ks, "avenrun_5min")
+	loadavg15Min := kstatToFloat(ks, "avenrun_15min")
 
-	return []float64{loadavg_1min, loadavg_5min, loadavg_15min}, nil
+	return []float64{loadavg1Min, loadavg5Min, loadavg15Min}, nil
 }
