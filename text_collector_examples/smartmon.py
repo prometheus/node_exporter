@@ -10,6 +10,9 @@ import shlex
 
 device_info_re = re.compile(r'^(?P<k>[^:]+?)(?:(?:\sis|):)\s*(?P<v>.*)$')
 
+ata_error_count_re = re.compile(
+    r'^Error (\d+) \[\d+\] occurred', re.MULTILINE)
+
 device_info_map = {
     'Vendor': 'vendor',
     'Product': 'product',
@@ -110,14 +113,14 @@ def metric_print(metric, prefix=''):
     print(metric_format(metric, prefix))
 
 
-def smart_ctl(*args):
+def smart_ctl(*args, check=True):
     """Wrapper around invoking the smartctl binary.
 
     Returns:
         (str) Data piped to stdout by the smartctl subprocess.
     """
     return subprocess.run(
-        ['smartctl', *args], stdout=subprocess.PIPE, check=True,
+        ['smartctl', *args], stdout=subprocess.PIPE, check=check,
     ).stdout.decode('utf-8')
 
 
@@ -260,6 +263,25 @@ def collect_ata_metrics(device):
                     labels, entry[col])
 
 
+def collect_ata_error_count(device):
+    """Inspect the device error log and report the amount of entries.
+
+    Args:
+        device: (Device) Device in question.
+
+    Yields:
+        (Metric) Device error count.
+    """
+    error_log = smart_ctl(
+        '-l', 'xerror,1', *device.smartctl_select(), check=False)
+
+    m = ata_error_count_re.search(error_log)
+
+    error_count = m.group(1) if m is not None else 0
+
+    yield Metric('device_errors', device.base_labels, error_count)
+
+
 def collect_disks_smart_metrics():
     now = int(datetime.datetime.utcnow().timestamp())
 
@@ -281,6 +303,8 @@ def collect_disks_smart_metrics():
 
         if device.type.startswith('sat'):
             yield from collect_ata_metrics(device)
+
+            yield from collect_ata_error_count(device)
 
 
 def main():
