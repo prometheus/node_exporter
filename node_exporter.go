@@ -19,6 +19,14 @@ import (
 	_ "net/http/pprof"
 	"sort"
 
+	"crypto/tls"
+	"sync"
+	"os"
+	"os/signal"
+	"syscall"
+	//"crypto/rsa"	
+
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
@@ -128,6 +136,56 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
+//TLS Keypair reloading to be extracted to it's own package
+type keyPairReloader struct {
+	certMutex sync.RWMutex
+	cert *tls.Certificate
+	certPath string
+	keyPath string
+}
+
+func NewKeyPairReloader(certPath, keyPath string)(*keyPairReloader, error) {
+	r := &keyPairReloader{
+		certPath: certPath,
+		keyPath: keyPath,
+	}
+	certAndKey, err := tls.LoadX509KeyPair(certPath, keyPath)
+	if err != nil {
+		return nil, err
+	}
+	r.cert = &certAndKey
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGHUP)
+		for range c{
+			log.Infof("Recieved SIGHUP reloading certificate")
+			if err := r.maybeReload(); err != nil{
+				log.Infof("Retaining old TLS certificate. Error: %v", err)
+			}
+		}
+	}()
+	return r, nil 
+}
+
+func (kpr *keyPairReloader) maybeReload() error {
+	newCert, err := tls.LoadX509KeyPair(kpr.certPath, kpr.keyPath)
+	if err != nil {
+		return err
+	}
+	kpr.certMutex.Lock()
+	defer kpr.certMutex.Unlock()
+	kpr.cert = &newCert
+	return nil
+}
+
+func (kpr *keyPairReloader) GetCertificateFunc() func(*tls.ClientHelloInfo)(*tls.Certificate, error){
+	return func(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error){
+		kpr.certMutex.RLock()
+		defer kpr.certMutex.RUnlock()
+		return kpr.cert, nil
+	}
+}
+
 func main() {
 	var (
 		listenAddress = kingpin.Flag(
@@ -175,14 +233,36 @@ func main() {
 			</html>`))
 	})
 
-	server := &http.Server{Addr: *listenAddress, Handler: nil}
+//	cert, err := tls.LoadX509KeyPair(*TLSCert, *TLSPrivateKey)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+
+	kpr, err := NewKeyPairReloader(*TLSCert, *TLSPrivateKey)
+	if err != nil {
+		log.Fatal(err)
+	}	
+		
+	config := &tls.Config{
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			
+		},
+		PreferServerCipherSuites: true,
+		GetCertificate: kpr.GetCertificateFunc(),
+//		Certificates: []tls.Certificate{cert}, 
+	}	
+	
+	//tls config added to server
+	server := &http.Server{Addr: *listenAddress,TLSConfig: config,  Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
 	if len(*TLSCert) > 0 {
-		targetTLSPrivateKey := *TLSPrivateKey
-		if len(targetTLSPrivateKey) <= 0 {
-			targetTLSPrivateKey = *TLSCert
-		}
-		if err := server.ListenAndServeTLS(*TLSCert, targetTLSPrivateKey); err != nil {
+//		targetTLSPrivateKey := *TLSPrivateKey
+//		if len(targetTLSPrivateKey) <= 0 {
+//			targetTLSPrivateKey = *TLSCert
+//		}
+		if err := server.ListenAndServeTLS("",""); err != nil {
 			log.Fatal(err)
 		}
 	} else {
