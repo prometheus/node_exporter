@@ -168,6 +168,50 @@ def device_is_active(device):
     return True
 
 
+def device_info(device):
+    """Query device for basic model information.
+
+    Args:
+        device: (Device) Device in question.
+
+    Returns:
+        (generator): Generator yielding:
+
+            key (str): Key describing the value.
+            value (str): Actual value.
+    """
+    info_lines = smart_ctl(
+        '--info', *device.smartctl_select()
+    ).strip().split('\n')[3:]
+
+    matches = (device_info_re.match(l) for l in info_lines)
+    return (m.groups() for m in matches if m is not None)
+
+
+def device_smart_capabilities(device):
+    """Returns SMART capabilities of the given device.
+
+    Args:
+        device: (Device) Device in question.
+
+    Returns:
+        (tuple): tuple containing:
+
+            (bool): True whenever SMART is available, False otherwise.
+            (bool): True whenever SMART is enabled, False otherwise.
+    """
+    groups = device_info(device)
+
+    state = {
+        g[1].split(' ', 1)[0]
+        for g in groups if g[0] == 'SMART support'}
+
+    smart_available = 'Available' in state
+    smart_enabled = 'Enabled' in state
+
+    return smart_available, smart_enabled
+
+
 def collect_device_info(device):
     """Collect basic device information.
 
@@ -177,27 +221,11 @@ def collect_device_info(device):
     Yields:
         (Metric) metrics describing general device information.
     """
-    info_lines = smart_ctl(
-        '--info', *device.smartctl_select()
-    ).strip().split('\n')[3:]
-
-    matches = (device_info_re.match(l) for l in info_lines)
-    groups = [m.groups() for m in matches if m is not None]
-
-    values = dict(groups)
+    values = dict(device_info(device))
     yield Metric('device_info', {
         **device.base_labels,
         **{v: values[k] for k, v in device_info_map.items() if k in values}
     }, True)
-
-    smart_support = {
-        g[1].split(' ', 1)[0] for g in groups if g[0] == 'SMART support'}
-    yield Metric(
-        'device_smart_available', device.base_labels,
-        'Available' in smart_support)
-    yield Metric(
-        'device_smart_enabled', device.base_labels,
-        'Enabled' in smart_support)
 
 
 def collect_device_health_self_assessment(device):
@@ -298,6 +326,19 @@ def collect_disks_smart_metrics():
             continue
 
         yield from collect_device_info(device)
+
+        smart_available, smart_enabled = device_smart_capabilities(device)
+
+        yield Metric(
+            'device_smart_available', device.base_labels, smart_available)
+        yield Metric(
+            'device_smart_enabled', device.base_labels, smart_enabled)
+
+        # Skip further metrics collection here if SMART is disabled
+        # on the device.  Further smartctl invocations would fail
+        # anyways.
+        if not smart_available:
+            continue
 
         yield from collect_device_health_self_assessment(device)
 
