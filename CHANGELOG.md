@@ -10,6 +10,7 @@
 * [CHANGE] Add a limit to the number of in-flight requests #1166
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [FEATURE] Add a flag to disable exporter metrics #1148
+* [FEATURE] Add kstat-based Solaris metrics for boottime, cpu and zfs collectors #1197
 
 ## 0.17.0 / 2018-11-30
 
