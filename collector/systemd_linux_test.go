@@ -103,13 +103,14 @@ func TestSystemdCollectorDoesntCrash(t *testing.T) {
 	collector := (c).(*systemdCollector)
 	for _, units := range fixtures {
 		collector.collectUnitStatusMetrics(sink, units)
+		collector.collectSockets(sink, units)
 	}
 }
 
 func TestSystemdIgnoreFilter(t *testing.T) {
 	fixtures := getUnitListFixtures()
-	whitelistPattern := regexp.MustCompile("foo")
-	blacklistPattern := regexp.MustCompile("bar")
+	whitelistPattern := regexp.MustCompile("^foo$")
+	blacklistPattern := regexp.MustCompile("^bar$")
 	filtered := filterUnits(fixtures[0], whitelistPattern, blacklistPattern)
 	for _, unit := range filtered {
 		if blacklistPattern.MatchString(unit.Name) || !whitelistPattern.MatchString(unit.Name) {
@@ -125,7 +126,8 @@ func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	fixtures := getUnitListFixtures()
 	collector := c.(*systemdCollector)
 	filtered := filterUnits(fixtures[0], collector.unitWhitelistPattern, collector.unitBlacklistPattern)
-	if len(filtered) != len(fixtures[0]) {
+	// Adjust fixtures by 3 "not-found" units.
+	if len(filtered) != len(fixtures[0])-3 {
 		t.Error("Default filters removed units")
 	}
 }

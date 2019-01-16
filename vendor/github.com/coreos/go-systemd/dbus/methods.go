@@ -313,6 +313,7 @@ func (c *Conn) ListUnitsByPatterns(states []string, patterns []string) ([]UnitSt
 // names and returns an UnitStatus array. Comparing to ListUnitsByPatterns
 // method, this method returns statuses even for inactive or non-existing
 // units. Input array should contain exact unit names, but not patterns.
+// Note: Requires systemd v230 or higher
 func (c *Conn) ListUnitsByNames(units []string) ([]UnitStatus, error) {
 	return c.listUnitsInternal(c.sysobj.Call("org.freedesktop.systemd1.Manager.ListUnitsByNames", 0, units).Store)
 }

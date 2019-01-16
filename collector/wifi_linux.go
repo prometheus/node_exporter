@@ -45,7 +45,7 @@ var (
 )
 
 func init() {
-	registerCollector("wifi", defaultEnabled, NewWifiCollector)
+	registerCollector("wifi", defaultDisabled, NewWifiCollector)
 }
 
 var _ wifiStater = &wifi.Client{}
@@ -55,7 +55,7 @@ type wifiStater interface {
 	BSS(ifi *wifi.Interface) (*wifi.BSS, error)
 	Close() error
 	Interfaces() ([]*wifi.Interface, error)
-	StationInfo(ifi *wifi.Interface) (*wifi.StationInfo, error)
+	StationInfo(ifi *wifi.Interface) ([]*wifi.StationInfo, error)
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
@@ -65,14 +65,14 @@ func NewWifiCollector() (Collector, error) {
 	)
 
 	var (
-		labels = []string{"device"}
+		labels = []string{"device", "mac_address"}
 	)
 
 	return &wifiCollector{
 		interfaceFrequencyHertz: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "interface_frequency_hertz"),
 			"The current frequency a WiFi interface is operating at, in hertz.",
-			labels,
+			[]string{"device"},
 			nil,
 		),
 
@@ -193,10 +193,12 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 				ifi.Name, err)
 		}
 
-		info, err := stat.StationInfo(ifi)
+		stations, err := stat.StationInfo(ifi)
 		switch {
 		case err == nil:
-			c.updateStationStats(ch, ifi.Name, info)
+			for _, station := range stations {
+				c.updateStationStats(ch, ifi.Name, station)
+			}
 		case os.IsNotExist(err):
 			log.Debugf("station information not found for wifi device %q", ifi.Name)
 		default:
@@ -227,6 +229,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.CounterValue,
 		info.Connected.Seconds(),
 		device,
+		info.HardwareAddr.String(),
 	)
 
 	ch <- prometheus.MustNewConstMetric(
@@ -234,6 +237,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.GaugeValue,
 		info.Inactive.Seconds(),
 		device,
+		info.HardwareAddr.String(),
 	)
 
 	ch <- prometheus.MustNewConstMetric(
@@ -241,6 +245,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.GaugeValue,
 		float64(info.ReceiveBitrate),
 		device,
+		info.HardwareAddr.String(),
 	)
 
 	ch <- prometheus.MustNewConstMetric(
@@ -248,6 +253,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.GaugeValue,
 		float64(info.TransmitBitrate),
 		device,
+		info.HardwareAddr.String(),
 	)
 
 	ch <- prometheus.MustNewConstMetric(
@@ -255,6 +261,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.GaugeValue,
 		float64(info.Signal),
 		device,
+		info.HardwareAddr.String(),
 	)
 
 	ch <- prometheus.MustNewConstMetric(
@@ -262,6 +269,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.CounterValue,
 		float64(info.TransmitRetries),
 		device,
+		info.HardwareAddr.String(),
 	)
 
 	ch <- prometheus.MustNewConstMetric(
@@ -269,6 +277,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.CounterValue,
 		float64(info.TransmitFailed),
 		device,
+		info.HardwareAddr.String(),
 	)
 
 	ch <- prometheus.MustNewConstMetric(
@@ -276,6 +285,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		prometheus.CounterValue,
 		float64(info.BeaconLoss),
 		device,
+		info.HardwareAddr.String(),
 	)
 }
 
@@ -346,13 +356,13 @@ func (s *mockWifiStater) Interfaces() ([]*wifi.Interface, error) {
 	return ifis, nil
 }
 
-func (s *mockWifiStater) StationInfo(ifi *wifi.Interface) (*wifi.StationInfo, error) {
+func (s *mockWifiStater) StationInfo(ifi *wifi.Interface) ([]*wifi.StationInfo, error) {
 	p := filepath.Join(ifi.Name, "stationinfo.json")
 
-	var info wifi.StationInfo
-	if err := s.unmarshalJSONFile(p, &info); err != nil {
+	var stations []*wifi.StationInfo
+	if err := s.unmarshalJSONFile(p, &stations); err != nil {
 		return nil, err
 	}
 
-	return &info, nil
+	return stations, nil
 }

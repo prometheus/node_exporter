@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/beevik/ntp"
@@ -40,7 +41,8 @@ var (
 	ntpMaxDistance     = kingpin.Flag("collector.ntp.max-distance", "Max accumulated distance to the root").Default("3.46608s").Duration()
 	ntpOffsetTolerance = kingpin.Flag("collector.ntp.local-offset-tolerance", "Offset between local clock and local ntpd time to tolerate").Default("1ms").Duration()
 
-	leapMidnight time.Time
+	leapMidnight      time.Time
+	leapMidnightMutex = &sync.Mutex{}
 )
 
 type ntpCollector struct {
@@ -143,6 +145,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	// configuration from node_exporter user to the developer.
 
 	maxerr := *ntpOffsetTolerance
+	leapMidnightMutex.Lock()
 	if resp.Leap == ntp.LeapAddSecond || resp.Leap == ntp.LeapDelSecond {
 		// state of leapMidnight is cached as leap flag is dropped right after midnight
 		leapMidnight = resp.Time.Truncate(hour24).Add(hour24)
@@ -151,6 +154,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 		// tolerate leap smearing
 		maxerr += time.Second
 	}
+	leapMidnightMutex.Unlock()
 
 	if resp.Validate() == nil && resp.RootDistance <= *ntpMaxDistance && resp.MinError <= maxerr {
 		ch <- c.sanity.mustNewConstMetric(1)

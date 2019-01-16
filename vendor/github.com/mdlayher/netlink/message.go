@@ -233,17 +233,16 @@ func (m *Message) UnmarshalBinary(b []byte) error {
 func checkMessage(m Message) error {
 	const success = 0
 
-	// Both "done" and "error" can contain error codes.
-	isDone := m.Header.Type == HeaderTypeDone
-	isError := m.Header.Type == HeaderTypeError
-
-	switch {
-	// "done" with no data means success.
-	case isDone && len(m.Data) == 0:
-		return nil
-	case isError, isDone:
-		break
-	default:
+	// Per libnl documentation, only messages that indicate type error can
+	// contain error codes:
+	// https://www.infradead.org/~tgr/libnl/doc/core.html#core_errmsg.
+	//
+	// However, at one point, this package checked both done and error for
+	// error codes.  Because there was no issue associated with the change,
+	// it is unknown whether this change was correct or not.  If you run into
+	// a problem with your application because of this change, please file
+	// an issue.
+	if m.Header.Type != HeaderTypeError {
 		return nil
 	}
 

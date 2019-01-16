@@ -8,11 +8,11 @@ build:
     flags: -a -tags 'netgo static_build'
     ldflags: |
         -s
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.Revision={{.Revision}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.Branch={{.Branch}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.BuildUser={{user}}@{{host}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.BuildDate={{date "20060102-15:04:05"}}
+        -X github.com/prometheus/common/version.Version={{.Version}}
+        -X github.com/prometheus/common/version.Revision={{.Revision}}
+        -X github.com/prometheus/common/version.Branch={{.Branch}}
+        -X github.com/prometheus/common/version.BuildUser={{user}}@{{host}}
+        -X github.com/prometheus/common/version.BuildDate={{date "20060102-15:04:05"}}
 tarball:
     files:
         - LICENSE
@@ -21,12 +21,12 @@ crossbuild:
     platforms:
         - linux/amd64
         - linux/386
-        - darwin/amd64
-        - darwin/386
-        - netbsd/amd64
-        - netbsd/386
         - linux/arm
         - linux/arm64
-        # Temporarily deactivated as this does not currently build with promu.
-        #- linux/mips64
-        #- linux/mips64le
+        - linux/mips
+        - linux/mipsle
+        - linux/mips64
+        - linux/mips64le
+        - linux/ppc64
+        - linux/ppc64le
+        - linux/s390x

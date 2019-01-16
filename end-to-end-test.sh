@@ -36,6 +36,7 @@ enabled_collectors=$(cat << COLLECTORS
   wifi
   xfs
   zfs
+  processes
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
@@ -97,6 +98,7 @@ fi
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
+  --collector.netclass.ignored-devices="(bond0|dmz|int)" \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
