@@ -61,12 +61,6 @@ else
 	endif
 endif
 
-ifeq ($(GET_PROMU), false)
-	PROMU := promu --config $(PROMU_CONF)
-else
-	PROMU := $(FIRST_GOPATH)/bin/promu --config $(PROMU_CONF)
-endif
-
 e2e-out = collector/fixtures/e2e-output.txt
 ifeq ($(MACH), ppc64le)
 	e2e-out = collector/fixtures/e2e-64k-page-output.txt
