@@ -19,16 +19,22 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"sync"
 	"syscall"
+	"time"
 
 	"github.com/prometheus/common/log"
 )
 
 const (
-	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker)($|/)"
-	defIgnoredFSTypes     = "^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$"
+	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
+	defIgnoredFSTypes     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 	readOnly              = 0x1 // ST_RDONLY
+	mountTimeout          = 30 * time.Second
 )
+
+var stuckMounts = make(map[string]struct{})
+var stuckMountsMtx = &sync.Mutex{}
 
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
@@ -46,21 +52,50 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 			log.Debugf("Ignoring fs type: %s", labels.fsType)
 			continue
 		}
+		stuckMountsMtx.Lock()
+		if _, ok := stuckMounts[labels.mountPoint]; ok {
+			stats = append(stats, filesystemStats{
+				labels:      labels,
+				deviceError: 1,
+			})
+			log.Debugf("Mount point %q is in an unresponsive state", labels.mountPoint)
+			stuckMountsMtx.Unlock()
+			continue
+		}
+		stuckMountsMtx.Unlock()
+
+		// The success channel is used do tell the "watcher" that the stat
+		// finished successfully. The channel is closed on success.
+		success := make(chan struct{})
+		go stuckMountWatcher(labels.mountPoint, success)
 
 		buf := new(syscall.Statfs_t)
-		err := syscall.Statfs(labels.mountPoint, buf)
+		err = syscall.Statfs(rootfsFilePath(labels.mountPoint), buf)
+
+		stuckMountsMtx.Lock()
+		close(success)
+		// If the mount has been marked as stuck, unmark it and log it's recovery.
+		if _, ok := stuckMounts[labels.mountPoint]; ok {
+			log.Debugf("Mount point %q has recovered, monitoring will resume", labels.mountPoint)
+			delete(stuckMounts, labels.mountPoint)
+		}
+		stuckMountsMtx.Unlock()
+
 		if err != nil {
 			stats = append(stats, filesystemStats{
 				labels:      labels,
 				deviceError: 1,
 			})
-			log.Debugf("Error on statfs() system call for %q: %s", labels.mountPoint, err)
+			log.Debugf("Error on statfs() system call for %q: %s", rootfsFilePath(labels.mountPoint), err)
 			continue
 		}
 
 		var ro float64
-		if (buf.Flags & readOnly) != 0 {
-			ro = 1
+		for _, option := range strings.Split(labels.options, ",") {
+			if option == "ro" {
+				ro = 1
+				break
+			}
 		}
 
 		stats = append(stats, filesystemStats{
@@ -76,8 +111,34 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	return stats, nil
 }
 
+// stuckMountWatcher listens on the given success channel and if the channel closes
+// then the watcher does nothing. If instead the timeout is reached, the
+// mount point that is being watched is marked as stuck.
+func stuckMountWatcher(mountPoint string, success chan struct{}) {
+	select {
+	case <-success:
+		// Success
+	case <-time.After(mountTimeout):
+		// Timed out, mark mount as stuck
+		stuckMountsMtx.Lock()
+		select {
+		case <-success:
+			// Success came in just after the timeout was reached, don't label the mount as stuck
+		default:
+			log.Debugf("Mount point %q timed out, it is being labeled as stuck and will not be monitored", mountPoint)
+			stuckMounts[mountPoint] = struct{}{}
+		}
+		stuckMountsMtx.Unlock()
+	}
+}
+
 func mountPointDetails() ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("mounts"))
+	file, err := os.Open(procFilePath("1/mounts"))
+	if os.IsNotExist(err) {
+		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
+		log.Debugf("Got %q reading root mounts, falling back to system mounts", err)
+		file, err = os.Open(procFilePath("mounts"))
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -87,10 +148,17 @@ func mountPointDetails() ([]filesystemLabels, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+
+		// Ensure we handle the translation of \040 and \011
+		// as per fstab(5).
+		parts[1] = strings.Replace(parts[1], "\\040", " ", -1)
+		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
+
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
 			mountPoint: parts[1],
 			fsType:     parts[2],
+			options:    parts[3],
 		})
 	}
 	return filesystems, scanner.Err()

@@ -37,22 +37,12 @@ func (c *Conn) Subscribe() error {
 	c.sigconn.BusObject().Call("org.freedesktop.DBus.AddMatch", 0,
 		"type='signal',interface='org.freedesktop.DBus.Properties',member='PropertiesChanged'")
 
-	err := c.sigobj.Call("org.freedesktop.systemd1.Manager.Subscribe", 0).Store()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.sigobj.Call("org.freedesktop.systemd1.Manager.Subscribe", 0).Store()
 }
 
 // Unsubscribe this connection from systemd dbus events.
 func (c *Conn) Unsubscribe() error {
-	err := c.sigobj.Call("org.freedesktop.systemd1.Manager.Unsubscribe", 0).Store()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.sigobj.Call("org.freedesktop.systemd1.Manager.Unsubscribe", 0).Store()
 }
 
 func (c *Conn) dispatch() {

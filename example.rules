@@ -1,8 +1,0 @@
-# The count of CPUs per node, useful for getting CPU time as a percent of total.
-instance:node_cpus:count = count(node_cpu{mode="idle"}) without (cpu,mode)
-
-# CPU in use by CPU.
-instance_cpu:node_cpu_not_idle:rate5m = sum(rate(node_cpu{mode!="idle"}[5m])) without (mode)
-
-# CPU in use by mode.
-instance_mode:node_cpu:rate5m = sum(rate(node_cpu[5m])) without (cpu)

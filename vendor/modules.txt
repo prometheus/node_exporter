@@ -1,0 +1,70 @@
+# github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+github.com/alecthomas/template
+github.com/alecthomas/template/parse
+# github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf
+github.com/alecthomas/units
+# github.com/beevik/ntp v0.2.0
+github.com/beevik/ntp
+# github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
+github.com/beorn7/perks/quantile
+# github.com/coreos/go-systemd v0.0.0-20180511133405-39ca1b05acc7
+github.com/coreos/go-systemd/dbus
+# github.com/ema/qdisc v0.0.0-20180104102928-b307c22d3ce7
+github.com/ema/qdisc
+# github.com/godbus/dbus v4.1.0+incompatible
+github.com/godbus/dbus
+# github.com/golang/protobuf v1.2.0
+github.com/golang/protobuf/proto
+# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+github.com/konsorten/go-windows-terminal-sequences
+# github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
+github.com/lufia/iostat
+# github.com/mattn/go-xmlrpc v0.0.0-20180913190254-6e944673e4c0
+github.com/mattn/go-xmlrpc
+# github.com/matttproud/golang_protobuf_extensions v1.0.1
+github.com/matttproud/golang_protobuf_extensions/pbutil
+# github.com/mdlayher/genetlink v0.0.0-20180917171408-7615bc153978
+github.com/mdlayher/genetlink
+# github.com/mdlayher/netlink v0.0.0-20180920202405-794849f2d5bf
+github.com/mdlayher/netlink
+github.com/mdlayher/netlink/nlenc
+# github.com/mdlayher/wifi v0.0.0-20180727163819-efdf3f4195d9
+github.com/mdlayher/wifi
+github.com/mdlayher/wifi/internal/nl80211
+# github.com/prometheus/client_golang v0.9.1
+github.com/prometheus/client_golang/prometheus
+github.com/prometheus/client_golang/prometheus/promhttp
+github.com/prometheus/client_golang/prometheus/internal
+# github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910
+github.com/prometheus/client_model/go
+# github.com/prometheus/common v0.0.0-20181015124227-bcb74de08d37
+github.com/prometheus/common/log
+github.com/prometheus/common/version
+github.com/prometheus/common/expfmt
+github.com/prometheus/common/model
+github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+# github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d
+github.com/prometheus/procfs
+github.com/prometheus/procfs/bcache
+github.com/prometheus/procfs/nfs
+github.com/prometheus/procfs/sysfs
+github.com/prometheus/procfs/xfs
+github.com/prometheus/procfs/internal/util
+# github.com/sirupsen/logrus v1.1.1
+github.com/sirupsen/logrus
+# github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
+github.com/soundcloud/go-runit/runit
+# golang.org/x/crypto v0.0.0-20181009213950-7c1a557ab941
+golang.org/x/crypto/ssh/terminal
+# golang.org/x/net v0.0.0-20181005035420-146acd28ed58
+golang.org/x/net/ipv4
+golang.org/x/net/bpf
+golang.org/x/net/internal/iana
+golang.org/x/net/internal/socket
+# golang.org/x/sys v0.0.0-20181005133103-4497e2df6f9e
+golang.org/x/sys/unix
+golang.org/x/sys/windows/svc/eventlog
+golang.org/x/sys/windows
+golang.org/x/sys/windows/registry
+# gopkg.in/alecthomas/kingpin.v2 v2.2.6
+gopkg.in/alecthomas/kingpin.v2

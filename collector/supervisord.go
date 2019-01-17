@@ -16,7 +16,9 @@
 package collector
 
 import (
-	"github.com/kolo/xmlrpc"
+	"fmt"
+
+	"github.com/mattn/go-xmlrpc"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -27,11 +29,10 @@ var (
 )
 
 type supervisordCollector struct {
-	client         *xmlrpc.Client
 	upDesc         *prometheus.Desc
 	stateDesc      *prometheus.Desc
 	exitStatusDesc *prometheus.Desc
-	uptimeDesc     *prometheus.Desc
+	startTimeDesc  *prometheus.Desc
 }
 
 func init() {
@@ -40,17 +41,11 @@ func init() {
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
 func NewSupervisordCollector() (Collector, error) {
-	client, err := xmlrpc.NewClient(*supervisordURL, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
 	)
 	return &supervisordCollector{
-		client: client,
 		upDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "up"),
 			"Process Up",
@@ -69,9 +64,9 @@ func NewSupervisordCollector() (Collector, error) {
 			labelNames,
 			nil,
 		),
-		uptimeDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "uptime"),
-			"Process Uptime",
+		startTimeDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "start_time_seconds"),
+			"Process start time",
 			labelNames,
 			nil,
 		),
@@ -98,7 +93,7 @@ func (c *supervisordCollector) isRunning(state int) bool {
 }
 
 func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
-	var infos []struct {
+	var info struct {
 		Name          string `xmlrpc:"name"`
 		Group         string `xmlrpc:"group"`
 		Start         int    `xmlrpc:"start"`
@@ -112,10 +107,35 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 		StderrLogfile string `xmlrcp:"stderr_logfile"`
 		PID           int    `xmlrpc:"pid"`
 	}
-	if err := c.client.Call("supervisor.getAllProcessInfo", nil, &infos); err != nil {
-		return err
+
+	res, err := xmlrpc.Call(*supervisordURL, "supervisor.getAllProcessInfo")
+	if err != nil {
+		return fmt.Errorf("unable to call supervisord: %s", err)
 	}
-	for _, info := range infos {
+
+	for _, p := range res.(xmlrpc.Array) {
+		for k, v := range p.(xmlrpc.Struct) {
+			switch k {
+			case "name":
+				info.Name = v.(string)
+			case "group":
+				info.Group = v.(string)
+			case "start":
+				info.Start = v.(int)
+			case "stop":
+				info.Stop = v.(int)
+			case "now":
+				info.Now = v.(int)
+			case "state":
+				info.State = v.(int)
+			case "statename":
+				info.StateName = v.(string)
+			case "exitstatus":
+				info.ExitStatus = v.(int)
+			case "pid":
+				info.PID = v.(int)
+			}
+		}
 		labels := []string{info.Name, info.Group}
 
 		ch <- prometheus.MustNewConstMetric(c.stateDesc, prometheus.GaugeValue, float64(info.State), labels...)
@@ -123,10 +143,9 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 
 		if c.isRunning(info.State) {
 			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 1, labels...)
-			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, float64(info.Now-info.Start), labels...)
+			ch <- prometheus.MustNewConstMetric(c.startTimeDesc, prometheus.CounterValue, float64(info.Start), labels...)
 		} else {
 			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 0, labels...)
-			ch <- prometheus.MustNewConstMetric(c.uptimeDesc, prometheus.CounterValue, 0, labels...)
 		}
 		log.Debugf("%s:%s is %s on pid %d", info.Group, info.Name, info.StateName, info.PID)
 	}

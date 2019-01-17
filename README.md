@@ -1,4 +1,4 @@
-# Node exporter [![Build Status](https://travis-ci.org/prometheus/node_exporter.svg)][travis]
+# Node exporter
 
 [![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
 [![Buildkite status](https://badge.buildkite.com/94a0c1fb00b1f46883219c256efe9ce01d63b6505f3a942f9b.svg)](https://buildkite.com/prometheus/node-exporter)
@@ -41,6 +41,7 @@ ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_v
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
 meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
+netclass | Exposes network interface info from `/sys/class/net/` | Linux
 netdev | Exposes network interface statistics such as bytes transferred. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
@@ -52,7 +53,6 @@ time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
 uname | Exposes system information as provided by the uname system call. | Linux
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
-wifi | Exposes WiFi device and station statistics. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/)
 
@@ -69,11 +69,13 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
+processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
 runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
+wifi | Exposes WiFi device and station statistics. | Linux
 
 ### Textfile Collector
 
@@ -139,21 +141,29 @@ To see all available configuration flags:
 
 
 ## Using Docker
-The node\_exporter is designed to monitor the host system. It's not recommended
-to deploy it as Docker container because it requires access to the host system.
-Be aware that any non-root mount points you want to monitor will need bind-mounted
+The `node_exporter` is designed to monitor the host system. It's not recommended
+to deploy it as a Docker container because it requires access to the host system.
+Be aware that any non-root mount points you want to monitor will need to be bind-mounted
 into the container.
+If you start container for host monitoring, specify `path.rootfs` argument.
+This argument must match path in bind-mount of host root. The node\_exporter will use
+`path.rootfs` as prefix to access host filesystem.
 
 ```bash
 docker run -d \
   --net="host" \
   --pid="host" \
-  quay.io/prometheus/node-exporter
+  -v "/:/host:ro,rslave" \
+  quay.io/prometheus/node-exporter \
+  --path.rootfs /host
 ```
+
+On some systems, the `timex` collector requires an additional Docker flag,
+`--cap-add=SYS_TIME`, in order to access the required syscalls.
 
 ## Using a third-party repository for RHEL/CentOS/Fedora
 
-There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/). It closely follows upstream releases.
+There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/

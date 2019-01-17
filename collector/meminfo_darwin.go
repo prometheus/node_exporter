@@ -46,14 +46,14 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	// Syscall removes terminating NUL which we need to cast to uint64
 	total := binary.LittleEndian.Uint64([]byte(totalb + "\x00"))
 
-	ps := C.natural_t(syscall.Getpagesize())
+	ps := float64(C.natural_t(syscall.Getpagesize()))
 	return map[string]float64{
-		"active_bytes_total":      float64(ps * vmstat.active_count),
-		"inactive_bytes_total":    float64(ps * vmstat.inactive_count),
-		"wired_bytes_total":       float64(ps * vmstat.wire_count),
-		"free_bytes_total":        float64(ps * vmstat.free_count),
-		"swapped_in_pages_total":  float64(ps * vmstat.pageins),
-		"swapped_out_pages_total": float64(ps * vmstat.pageouts),
-		"bytes_total":             float64(total),
+		"active_bytes":            ps * float64(vmstat.active_count),
+		"inactive_bytes":          ps * float64(vmstat.inactive_count),
+		"wired_bytes":             ps * float64(vmstat.wire_count),
+		"free_bytes":              ps * float64(vmstat.free_count),
+		"swapped_in_bytes_total":  ps * float64(vmstat.pageins),
+		"swapped_out_bytes_total": ps * float64(vmstat.pageouts),
+		"total_bytes":             float64(total),
 	}, nil
 }

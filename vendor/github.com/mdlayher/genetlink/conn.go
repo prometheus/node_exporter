@@ -1,6 +1,8 @@
 package genetlink
 
 import (
+	"syscall"
+
 	"github.com/mdlayher/netlink"
 	"golang.org/x/net/bpf"
 )
@@ -65,6 +67,44 @@ func (c *Conn) LeaveGroup(group uint32) error {
 // SetBPF attaches an assembled BPF program to a Conn.
 func (c *Conn) SetBPF(filter []bpf.RawInstruction) error {
 	return c.c.SetBPF(filter)
+}
+
+// RemoveBPF removes a BPF filter from a Conn.
+func (c *Conn) RemoveBPF() error {
+	return c.c.RemoveBPF()
+}
+
+// SetOption enables or disables a netlink socket option for the Conn.
+func (c *Conn) SetOption(option netlink.ConnOption, enable bool) error {
+	return c.c.SetOption(option, enable)
+}
+
+// SetReadBuffer sets the size of the operating system's receive buffer
+// associated with the Conn.
+func (c *Conn) SetReadBuffer(bytes int) error {
+	return c.c.SetReadBuffer(bytes)
+}
+
+// SetWriteBuffer sets the size of the operating system's transmit buffer
+// associated with the Conn.
+func (c *Conn) SetWriteBuffer(bytes int) error {
+	return c.c.SetWriteBuffer(bytes)
+}
+
+// SyscallConn returns a raw network connection. This implements the
+// syscall.Conn interface.
+//
+// Only the Control method of the returned syscall.RawConn is currently
+// implemented.
+//
+// SyscallConn is intended for advanced use cases, such as getting and setting
+// arbitrary socket options using the netlink socket's file descriptor.
+//
+// Once invoked, it is the caller's responsibility to ensure that operations
+// performed using Conn and the syscall.RawConn do not conflict with
+// each other.
+func (c *Conn) SyscallConn() (syscall.RawConn, error) {
+	return c.c.SyscallConn()
 }
 
 // Send sends a single Message to netlink, wrapping it in a netlink.Message

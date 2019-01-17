@@ -23,7 +23,7 @@ func TestInfiniBandDevices(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if l := len(devices); l != 1 {
+	if l := len(devices); l != 2 {
 		t.Fatalf("Retrieved an unexpected number of InfiniBand devices: %d", l)
 	}
 }

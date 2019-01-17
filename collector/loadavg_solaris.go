@@ -20,8 +20,6 @@ import (
 )
 
 /*
-// Define "__stack_chk_fail" and "__stack_chk_guard" symbols.
-#cgo LDFLAGS: -fno-stack-protector -lssp
 // Ensure "hrtime_t" is defined for sys/loadavg.h
 #include <sys/time.h>
 #include <sys/loadavg.h>

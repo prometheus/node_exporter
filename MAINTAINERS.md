@@ -1,2 +1,2 @@
-* Ben Kochie <superq@gmail.com>
-* Johannes 'fish' Ziemke <github@freigeist.org>
+* Ben Kochie <superq@gmail.com> @SuperQ
+* Johannes 'fish' Ziemke <github@freigeist.org> @discordianfish

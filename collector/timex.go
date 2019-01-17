@@ -16,9 +16,6 @@
 
 package collector
 
-// #include <sys/timex.h>
-import "C"
-
 import (
 	"fmt"
 	"syscall"
@@ -27,10 +24,13 @@ import (
 )
 
 const (
-	// The system clock is not synchronized to a reliable server.
-	timeError = C.TIME_ERROR
-	// The timex.Status time resolution bit, 0 = microsecond, 1 = nanoseconds.
-	staNano = C.STA_NANO
+	// The system clock is not synchronized to a reliable
+	// server (TIME_ERROR).
+	timeError = 5
+	// The timex.Status time resolution bit (STA_NANO),
+	// 0 = microsecond, 1 = nanoseconds.
+	staNano = 0x2000
+
 	// 1 second in
 	nanoSeconds  = 1000000000
 	microSeconds = 1000000
