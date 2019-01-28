@@ -19,15 +19,13 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/prometheus/client_golang/prometheus"
-
 	"golang.org/x/sys/unix"
 )
 
-func (c unameCollector) Update(ch chan<- prometheus.Metric) error {
+func getUname() (unameOutput, error) {
 	var uname unix.Utsname
 	if err := unix.Uname(&uname); err != nil {
-		return err
+		return nil, err
 	}
 
 	// We do a little bit of work here to emulate what happens in the Linux
@@ -46,13 +44,14 @@ func (c unameCollector) Update(ch chan<- prometheus.Metric) error {
 		domainname = split[1]
 	}
 
-	ch <- prometheus.MustNewConstMetric(unameDesc, prometheus.GaugeValue, 1,
-		string(uname.Sysname[:bytes.IndexByte(uname.Sysname[:], 0)]),
-		string(uname.Release[:bytes.IndexByte(uname.Release[:], 0)]),
-		string(uname.Version[:bytes.IndexByte(uname.Version[:], 0)]),
-		string(uname.Machine[:bytes.IndexByte(uname.Machine[:], 0)]),
-		hostname,
-		domainname,
-	)
-	return nil
+	output := unameOutput{
+		"sysname":    string(uname.Sysname[:bytes.IndexByte(uname.Sysname[:], 0)]),
+		"release":    string(uname.Release[:bytes.IndexByte(uname.Release[:], 0)]),
+		"version":    string(uname.Version[:bytes.IndexByte(uname.Version[:], 0)]),
+		"machine":    string(uname.Machine[:bytes.IndexByte(uname.Machine[:], 0)]),
+		"hostname":   hostname,
+		"domainname": domainname,
+	}
+
+	return output, nil
 }
