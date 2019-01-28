@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -29,13 +30,29 @@ func (c unameCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	// We do a little bit of work here to emulate what happens in the Linux
+	// uname calls since FreeBSD uname doesn't have a Domainname.
+	nodename := string(uname.Nodename[:bytes.IndexByte(uname.Nodename[:], 0)])
+	split := strings.SplitN(nodename, ".", 2)
+
+	// We'll always have at least a single element in the array. We assume this
+	// is the hostname.
+	hostname := split[0]
+
+	// If we have more than one element, we assume this is the domainname.
+	// Otherwise leave it to "(none)" like Linux.
+	domainname := "(none)"
+	if len(split) > 1 {
+		domainname = split[1]
+	}
+
 	ch <- prometheus.MustNewConstMetric(unameDesc, prometheus.GaugeValue, 1,
 		string(uname.Sysname[:bytes.IndexByte(uname.Sysname[:], 0)]),
 		string(uname.Release[:bytes.IndexByte(uname.Release[:], 0)]),
 		string(uname.Version[:bytes.IndexByte(uname.Version[:], 0)]),
 		string(uname.Machine[:bytes.IndexByte(uname.Machine[:], 0)]),
-		string(uname.Nodename[:bytes.IndexByte(uname.Nodename[:], 0)]),
-		string(uname.Domainname[:bytes.IndexByte(uname.Domainname[:], 0)]),
+		hostname,
+		domainname,
 	)
 	return nil
 }
