@@ -49,7 +49,7 @@ func getUname() (unameOutput, error) {
 		"release":    string(uname.Release[:bytes.IndexByte(uname.Release[:], 0)]),
 		"version":    string(uname.Version[:bytes.IndexByte(uname.Version[:], 0)]),
 		"machine":    string(uname.Machine[:bytes.IndexByte(uname.Machine[:], 0)]),
-		"hostname":   hostname,
+		"nodename":   hostname,
 		"domainname": domainname,
 	}
 

@@ -56,7 +56,7 @@ func (c unameCollector) Update(ch chan<- prometheus.Metric) error {
 		uname["release"],
 		uname["version"],
 		uname["machine"],
-		uname["hostname"],
+		uname["nodename"],
 		uname["domainname"],
 	)
 
