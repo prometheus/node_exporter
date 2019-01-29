@@ -5,6 +5,7 @@
 * Renamed `interface` label to `device` in netclass collector for consistency with
   other network metrics #1224
 * The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what the driver provides. #1248
+* The labels for the network_up metric have changed, see issue #1236
 
 ### Changes
 
@@ -15,6 +16,7 @@
 * [CHANGE] Add a limit to the number of in-flight requests #1166
 * [CHANGE] Add separate cpufreq and scaling metrics #1248
 * [ENHANCEMENT] Add Infiniband counters #1120
+* [ENHANCEMENT] Move network_up labels into new metric network_info #1236
 * [FEATURE] Add a flag to disable exporter metrics #1148
 * [FEATURE] Add kstat-based Solaris metrics for boottime, cpu and zfs collectors #1197
 * [FEATURE] Add uname collector for FreeBSD #1239
