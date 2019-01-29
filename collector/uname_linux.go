@@ -21,19 +21,19 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func getUname() (unameOutput, error) {
-	var uname unix.Utsname
+func getUname() (uname, error) {
+	var utsname unix.Utsname
 	if err := unix.Uname(&uname); err != nil {
-		return nil, err
+		return uname{}, err
 	}
 
-	output := unameOutput{
-		"sysname":    string(uname.Sysname[:bytes.IndexByte(uname.Sysname[:], 0)]),
-		"release":    string(uname.Release[:bytes.IndexByte(uname.Release[:], 0)]),
-		"version":    string(uname.Version[:bytes.IndexByte(uname.Version[:], 0)]),
-		"machine":    string(uname.Machine[:bytes.IndexByte(uname.Machine[:], 0)]),
-		"nodename":   string(uname.Nodename[:bytes.IndexByte(uname.Nodename[:], 0)]),
-		"domainname": string(uname.Domainname[:bytes.IndexByte(uname.Domainname[:], 0)]),
+	output := uname{
+		"sysname":    string(utsname.Sysname[:bytes.IndexByte(utsname.Sysname[:], 0)]),
+		"release":    string(utsname.Release[:bytes.IndexByte(utsname.Release[:], 0)]),
+		"version":    string(utsname.Version[:bytes.IndexByte(utsname.Version[:], 0)]),
+		"machine":    string(utsname.Machine[:bytes.IndexByte(utsname.Machine[:], 0)]),
+		"nodename":   string(utsname.Nodename[:bytes.IndexByte(utsname.Nodename[:], 0)]),
+		"domainname": string(utsname.Domainname[:bytes.IndexByte(utsname.Domainname[:], 0)]),
 	}
 
 	return output, nil

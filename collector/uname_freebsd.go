@@ -22,15 +22,15 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func getUname() (unameOutput, error) {
-	var uname unix.Utsname
-	if err := unix.Uname(&uname); err != nil {
-		return nil, err
+func getUname() (uname, error) {
+	var utsname unix.Utsname
+	if err := unix.Uname(&utsname); err != nil {
+		return uname{}, err
 	}
 
 	// We do a little bit of work here to emulate what happens in the Linux
 	// uname calls since FreeBSD uname doesn't have a Domainname.
-	nodename := string(uname.Nodename[:bytes.IndexByte(uname.Nodename[:], 0)])
+	nodename := string(utsname.Nodename[:bytes.IndexByte(utsname.Nodename[:], 0)])
 	split := strings.SplitN(nodename, ".", 2)
 
 	// We'll always have at least a single element in the array. We assume this
@@ -44,13 +44,13 @@ func getUname() (unameOutput, error) {
 		domainname = split[1]
 	}
 
-	output := unameOutput{
-		"sysname":    string(uname.Sysname[:bytes.IndexByte(uname.Sysname[:], 0)]),
-		"release":    string(uname.Release[:bytes.IndexByte(uname.Release[:], 0)]),
-		"version":    string(uname.Version[:bytes.IndexByte(uname.Version[:], 0)]),
-		"machine":    string(uname.Machine[:bytes.IndexByte(uname.Machine[:], 0)]),
-		"nodename":   hostname,
-		"domainname": domainname,
+	output := uname{
+		SysName:    string(utsname.Sysname[:bytes.IndexByte(utsname.Sysname[:], 0)]),
+		Release:    string(utsname.Release[:bytes.IndexByte(utsname.Release[:], 0)]),
+		Version:    string(utsname.Version[:bytes.IndexByte(utsname.Version[:], 0)]),
+		Machine:    string(utsname.Machine[:bytes.IndexByte(utsname.Machine[:], 0)]),
+		NodeName:   hostname,
+		DomainName: domainname,
 	}
 
 	return output, nil

@@ -35,7 +35,14 @@ var unameDesc = prometheus.NewDesc(
 )
 
 type unameCollector struct{}
-type unameOutput map[string]string
+type uname struct {
+	SysName    string
+	Release    string
+	Version    string
+	Machine    string
+	NodeName   string
+	DomainName string
+}
 
 func init() {
 	registerCollector("uname", defaultEnabled, newUnameCollector)
@@ -53,12 +60,12 @@ func (c unameCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	ch <- prometheus.MustNewConstMetric(unameDesc, prometheus.GaugeValue, 1,
-		uname["sysname"],
-		uname["release"],
-		uname["version"],
-		uname["machine"],
-		uname["nodename"],
-		uname["domainname"],
+		uname.SysName,
+		uname.Release,
+		uname.Version,
+		uname.Machine,
+		uname.NodeName,
+		uname.DomainName,
 	)
 
 	return nil
