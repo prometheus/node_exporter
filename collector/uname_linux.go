@@ -23,17 +23,17 @@ import (
 
 func getUname() (uname, error) {
 	var utsname unix.Utsname
-	if err := unix.Uname(&uname); err != nil {
+	if err := unix.Uname(&utsname); err != nil {
 		return uname{}, err
 	}
 
 	output := uname{
-		"sysname":    string(utsname.Sysname[:bytes.IndexByte(utsname.Sysname[:], 0)]),
-		"release":    string(utsname.Release[:bytes.IndexByte(utsname.Release[:], 0)]),
-		"version":    string(utsname.Version[:bytes.IndexByte(utsname.Version[:], 0)]),
-		"machine":    string(utsname.Machine[:bytes.IndexByte(utsname.Machine[:], 0)]),
-		"nodename":   string(utsname.Nodename[:bytes.IndexByte(utsname.Nodename[:], 0)]),
-		"domainname": string(utsname.Domainname[:bytes.IndexByte(utsname.Domainname[:], 0)]),
+		SysName:    string(utsname.Sysname[:bytes.IndexByte(utsname.Sysname[:], 0)]),
+		Release:    string(utsname.Release[:bytes.IndexByte(utsname.Release[:], 0)]),
+		Version:    string(utsname.Version[:bytes.IndexByte(utsname.Version[:], 0)]),
+		Machine:    string(utsname.Machine[:bytes.IndexByte(utsname.Machine[:], 0)]),
+		NodeName:   string(utsname.Nodename[:bytes.IndexByte(utsname.Nodename[:], 0)]),
+		DomainName: string(utsname.Domainname[:bytes.IndexByte(utsname.Domainname[:], 0)]),
 	}
 
 	return output, nil
