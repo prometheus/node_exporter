@@ -79,13 +79,15 @@ func NewCPUCollector() (Collector, error) {
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
+	var err error
+
 	if err := c.updateStat(ch); err != nil {
 		return err
 	}
-	if err := c.updateCPUfreq(ch); err != nil {
+	if err = c.updateCPUfreq(ch); err != nil {
 		return err
 	}
-	if err := c.updateThermalThrottle(ch); err != nil {
+	if err = c.updateThermalThrottle(ch); err != nil {
 		return err
 	}
 	return nil
