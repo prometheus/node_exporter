@@ -82,7 +82,7 @@ class Device(collections.namedtuple('DeviceBase', 'path opts')):
 
     @property
     def base_labels(self):
-        return {'disk': self.path, 'type': self.type}
+        return {'disk': self.path}
 
     def smartctl_select(self):
         return ['--device', self.type, self.path]
@@ -283,11 +283,14 @@ def collect_ata_metrics(device):
         entry['raw_value'] = m.group(1)
 
         if entry['name'] in smart_attributes_whitelist:
-            labels = {**device.base_labels, 'smart_id': entry["id"]}
+            labels = {
+                'name': entry['name'],
+                **device.base_labels,
+            }
 
-            for col in 'value', 'worst', 'threshold', 'raw_value':
+            for col in 'value', 'worst', 'threshold':
                 yield Metric(
-                    '{name}_{col}'.format(name=entry["name"], col=col),
+                    'attr_{col}'.format(name=entry["name"], col=col),
                     labels, entry[col])
 
 
