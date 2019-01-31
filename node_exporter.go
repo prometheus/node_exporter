@@ -138,7 +138,7 @@ type wrappedCertificate struct {
 }
 
 func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo ) (*tls.Certificate, error){
-	log.Infoln("Client Hello Recieved")
+	log.Infoln("Client Hello Received")
 	if len(c.keyPath) <= 0 {
 		c.keyPath = c.certPath
 	}
@@ -204,7 +204,7 @@ func main() {
 			</html>`))
 	})
 
-//instanciate wrapped Certificate and pass in initial paths
+//wrapped Certificate struct called,  pass in initial paths
 	wrappedCert := wrappedCertificate{}
 	wrappedCert.loadCertificates(*TLSCert, *TLSPrivateKey)
 	wrappedCert.certPath = *TLSCert
