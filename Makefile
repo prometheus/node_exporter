@@ -13,10 +13,6 @@
 
 include Makefile.common
 
-GO     ?= GO15VENDOREXPERIMENT=1 go
-GOARCH := $(shell $(GO) env GOARCH)
-GOHOSTARCH := $(shell $(GO) env GOHOSTARCH)
-
 PROMTOOL_VERSION ?= 2.5.0
 PROMTOOL_URL     ?= https://github.com/prometheus/prometheus/releases/download/v$(PROMTOOL_VERSION)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM).tar.gz
 PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
@@ -27,20 +23,7 @@ DOCKERFILE              ?= Dockerfile
 
 STATICCHECK_IGNORE =
 
-ifeq ($(OS),Windows_NT)
-	OS_detected := Windows
-else
-	OS_detected := $(shell uname -s)
-endif
-
-ifeq ($(GOHOSTARCH),amd64)
-	ifeq ($(OS_detected),$(filter $(OS_detected),Linux FreeBSD Darwin Windows))
-		# Only supported on amd64
-		test-flags := -race
-	endif
-endif
-
-ifeq ($(OS_detected), Linux)
+ifeq ($(GOHOSTOS), linux)
 	test-e2e := test-e2e
 else
 	test-e2e := skip-test-e2e
@@ -51,7 +34,7 @@ ifeq ($(GOOS), linux)
 	PROMU_CONF ?= .promu.yml
 else
 	ifndef GOOS
-		ifeq ($(OS_detected), Linux)
+		ifeq ($(GOHOSTOS), Linux)
 			PROMU_CONF ?= .promu.yml
 		else
 			PROMU_CONF ?= .promu-cgo.yml
@@ -74,8 +57,8 @@ endif
 # 64bit -> 32bit mapping for cross-checking. At least for amd64/386, the 64bit CPU can execute 32bit code but not the other way around, so we don't support cross-testing upwards.
 cross-test = skip-test-32bit
 define goarch_pair
-	ifeq ($$(OS_detected),Linux)
-		ifeq ($$(GOARCH),$1)
+	ifeq ($$(GOHOSTOS),linux)
+		ifeq ($$(GOHOSTARCH),$1)
 			GOARCH_CROSS = $2
 			cross-test = test-32bit
 		endif
@@ -101,7 +84,7 @@ test-32bit: collector/fixtures/sys/.unpacked
 
 .PHONY: skip-test-32bit
 skip-test-32bit:
-	@echo ">> SKIP running tests in 32-bit mode: not supported on $(OS_detected)/$(GOARCH)"
+	@echo ">> SKIP running tests in 32-bit mode: not supported on $(GOHOSTOS)/$(GOHOSTARCH)"
 
 collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
 	@echo ">> extracting sysfs fixtures"
@@ -116,7 +99,7 @@ test-e2e: build collector/fixtures/sys/.unpacked
 
 .PHONY: skip-test-e2e
 skip-test-e2e:
-	@echo ">> SKIP running end-to-end tests on $(OS_detected)"
+	@echo ">> SKIP running end-to-end tests on $(GOHOSTOS)"
 
 .PHONY: checkmetrics
 checkmetrics: $(PROMTOOL)
@@ -144,7 +127,6 @@ test-docker:
 .PHONY: promtool
 promtool: $(PROMTOOL)
 
-.PHONY: $(PROMTOOL)
 $(PROMTOOL):
 	$(eval PROMTOOL_TMP := $(shell mktemp -d))
 	curl -s -L $(PROMTOOL_URL) | tar -xvzf - -C $(PROMTOOL_TMP)
