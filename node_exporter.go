@@ -133,8 +133,8 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 
 type wrappedCertificate struct {
 	certificate *tls.Certificate
-	certPath string
-	keyPath string
+	certPath	string
+	keyPath		string
 }
 
 func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo ) (*tls.Certificate, error){
@@ -142,7 +142,7 @@ func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo ) (
 	if len(c.keyPath) <= 0 {
 		c.keyPath = c.certPath
 	}
-	c.loadCertificates(c.certPath,c.keyPath)
+	c.loadCertificates(c.certPath, c.keyPath)
 	
 	return c.certificate, nil
 }
@@ -204,27 +204,26 @@ func main() {
 			</html>`))
 	})
 
-//wrapped Certificate struct called,  pass in initial paths
+	//wrapped Certificate struct called,  pass in initial paths
 	wrappedCert := wrappedCertificate{}
 	wrappedCert.loadCertificates(*TLSCert, *TLSPrivateKey)
 	wrappedCert.certPath = *TLSCert
- 	wrappedCert.keyPath = *TLSPrivateKey	
+ 	wrappedCert.keyPath = *TLSPrivateKey
 	config := &tls.Config{
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			
 		},
 		PreferServerCipherSuites: true,
-		GetCertificate: wrappedCert.getCertificate, 
+		GetCertificate:	wrappedCert.getCertificate, 
 	}	
 	
 	//tls config added to server
-	server := &http.Server{Addr: *listenAddress,TLSConfig: config,  Handler: nil}
+	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
 	if len(*TLSCert) > 0 {
 		
-		if err := server.ListenAndServeTLS("",""); err != nil {
+		if err := server.ListenAndServeTLS("", ""); err != nil {
 			log.Fatal(err)
 		}
 	} else {
