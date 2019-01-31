@@ -148,12 +148,13 @@ def create_metrcis_of_physical_drive(physical_drive, detailed_info_array, contro
     pd_baselabel = 'controller="{}",enclosure="{}",slot="{}"'.format(controller_index, enclosure,
                                                                      slot)
     pd_info_label = pd_baselabel + \
-        ',disk_id="{}",interface="{}",media="{}",model="{}",DG="{}"'.format(
+        ',disk_id="{}",interface="{}",media="{}",model="{}",DG="{}",state="{}"'.format(
             str(physical_drive.get('DID')).strip(),
             str(physical_drive.get('Intf')).strip(),
             str(physical_drive.get('Med')).strip(),
             str(physical_drive.get('Model')).strip(),
-            str(physical_drive.get('DG')).strip())
+            str(physical_drive.get('DG')).strip(),
+            str(physical_drive.get('State')).strip())
 
     drive_identifier = 'Drive /c' + str(controller_index) + '/e' + str(enclosure) + '/s' + str(
         slot)
