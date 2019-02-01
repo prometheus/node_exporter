@@ -17,21 +17,23 @@ package collector
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/coreos/go-systemd/dbus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
-	"gopkg.in/alecthomas/kingpin.v2"
-	"math"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	unitWhitelist  = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
-	unitBlacklist  = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.scope").String()
-	systemdPrivate = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
+	unitWhitelist     = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
+	unitBlacklist     = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.scope").String()
+	systemdPrivate    = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
+	enableTaskMetrics = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
 )
 
 type systemdCollector struct {
@@ -62,7 +64,7 @@ func NewSystemdCollector() (Collector, error) {
 
 	unitDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_state"),
-		"Systemd unit", []string{"name", "state"}, nil,
+		"Systemd unit", []string{"name", "state", "type"}, nil,
 	)
 	unitStartTimeDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
@@ -119,6 +121,8 @@ func NewSystemdCollector() (Collector, error) {
 	}, nil
 }
 
+// Update gathers metrics from systemd.  Dbus collection is done in parallel
+// to reduce wait time for responses.
 func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	begin := time.Now()
 	conn, err := c.newDbus()
@@ -142,25 +146,50 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern)
 	log.Debugf("systemd filterUnits took %f", time.Since(begin).Seconds())
 
-	begin = time.Now()
-	c.collectUnitStatusMetrics(conn, ch, units)
-	log.Debugf("systemd collectUnitStatusMetrics took %f", time.Since(begin).Seconds())
+	var wg sync.WaitGroup
+	defer wg.Wait()
 
-	begin = time.Now()
-	c.collectUnitStartTimeMetrics(conn, ch, units)
-	log.Debugf("systemd collectUnitStartTimeMetrics took %f", time.Since(begin).Seconds())
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		begin = time.Now()
+		c.collectUnitStatusMetrics(conn, ch, units)
+		log.Debugf("systemd collectUnitStatusMetrics took %f", time.Since(begin).Seconds())
+	}()
 
-	begin = time.Now()
-	c.collectUnitTasksMetrics(conn, ch, units)
-	log.Debugf("systemd collectUnitTasksMetrics took %f", time.Since(begin).Seconds())
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		begin = time.Now()
+		c.collectUnitStartTimeMetrics(conn, ch, units)
+		log.Debugf("systemd collectUnitStartTimeMetrics took %f", time.Since(begin).Seconds())
+	}()
 
-	begin = time.Now()
-	c.collectTimers(conn, ch, units)
-	log.Debugf("systemd collectTimers took %f", time.Since(begin).Seconds())
+	if *enableTaskMetrics {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			begin = time.Now()
+			c.collectUnitTasksMetrics(conn, ch, units)
+			log.Debugf("systemd collectUnitTasksMetrics took %f", time.Since(begin).Seconds())
+		}()
+	}
 
-	begin = time.Now()
-	c.collectSockets(conn, ch, units)
-	log.Debugf("systemd collectSockets took %f", time.Since(begin).Seconds())
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		begin = time.Now()
+		c.collectTimers(conn, ch, units)
+		log.Debugf("systemd collectTimers took %f", time.Since(begin).Seconds())
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		begin = time.Now()
+		c.collectSockets(conn, ch, units)
+		log.Debugf("systemd collectSockets took %f", time.Since(begin).Seconds())
+	}()
 
 	begin = time.Now()
 	err = c.collectSystemState(conn, ch)
@@ -170,6 +199,22 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 
 func (c *systemdCollector) collectUnitStatusMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
+		serviceType := ""
+		if strings.HasSuffix(unit.Name, ".service") {
+			serviceTypeProperty, err := conn.GetUnitTypeProperty(unit.Name, "Service", "Type")
+			if err != nil {
+				log.Debugf("couldn't get unit '%s' Type: %s", unit.Name, err)
+			} else {
+				serviceType = serviceTypeProperty.Value.Value().(string)
+			}
+		} else if strings.HasSuffix(unit.Name, ".mount") {
+			serviceTypeProperty, err := conn.GetUnitTypeProperty(unit.Name, "Mount", "Type")
+			if err != nil {
+				log.Debugf("couldn't get unit '%s' Type: %s", unit.Name, err)
+			} else {
+				serviceType = serviceTypeProperty.Value.Value().(string)
+			}
+		}
 		for _, stateName := range unitStatesName {
 			isActive := 0.0
 			if stateName == unit.ActiveState {
@@ -177,7 +222,7 @@ func (c *systemdCollector) collectUnitStatusMetrics(conn *dbus.Conn, ch chan<- p
 			}
 			ch <- prometheus.MustNewConstMetric(
 				c.unitDesc, prometheus.GaugeValue, isActive,
-				unit.Name, stateName)
+				unit.Name, stateName, serviceType)
 		}
 		if strings.HasSuffix(unit.Name, ".service") {
 			// NRestarts wasn't added until systemd 235.
@@ -220,7 +265,7 @@ func (c *systemdCollector) collectSockets(conn *dbus.Conn, ch chan<- prometheus.
 		// NRefused wasn't added until systemd 239.
 		refusedConnectionCount, err := conn.GetUnitTypeProperty(unit.Name, "Socket", "NRefused")
 		if err != nil {
-			log.Debugf("couldn't get unit '%s' NRefused: %s", unit.Name, err)
+			//log.Debugf("couldn't get unit '%s' NRefused: %s", unit.Name, err)
 		} else {
 			ch <- prometheus.MustNewConstMetric(
 				c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
