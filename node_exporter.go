@@ -131,34 +131,6 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
-//TLS Keypair reloading to be extracted to it's own package
-
-type wrappedCertificate struct {
-	certificate *tls.Certificate
-	certPath	string
-	keyPath		string
-}
-
-func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo ) (*tls.Certificate, error){
-	log.Infoln("Client Hello Received")
-	if len(c.keyPath) <= 0 {
-		c.keyPath = c.certPath
-	}
-	c.loadCertificates(c.certPath, c.keyPath)
-	
-	return c.certificate, nil
-}
-
-func (c *wrappedCertificate) loadCertificates(certPath, keyPath string) error{
-	certAndKey, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		return err
-	}
-	log.Infoln("Loading Certs")
-	c.certificate = &certAndKey
-	return nil
-}
-
 func main() {
 	var (
 		listenAddress = kingpin.Flag(
