@@ -2,12 +2,15 @@
 
 ### **Breaking changes**
 
+The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what the driver provides. #1248
+
 ### Changes
 
 * [BUGFIX]
 * [BUGFIX] Add fallback for missing /proc/1/mounts #1172
 * [CHANGE] Add TCPSynRetrans to netstat default filter #1143
 * [CHANGE] Add a limit to the number of in-flight requests #1166
+* [CHANGE] Add separate cpufreq and scaling metrics #1248
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [FEATURE] Add a flag to disable exporter metrics #1148
 * [FEATURE] Add kstat-based Solaris metrics for boottime, cpu and zfs collectors #1197

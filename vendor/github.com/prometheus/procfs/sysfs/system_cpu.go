@@ -16,7 +16,6 @@
 package sysfs
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,16 +25,19 @@ import (
 
 // SystemCPUCpufreqStats contains stats from devices/system/cpu/cpu[0-9]*/cpufreq/...
 type SystemCPUCpufreqStats struct {
-	Name               string
-	CurrentFrequency   uint64
-	MinimumFrequency   uint64
-	MaximumFrequency   uint64
-	TransitionLatency  uint64
-	AvailableGovernors string
-	Driver             string
-	Govenor            string
-	RelatedCpus        string
-	SetSpeed           string
+	Name                     string
+	CpuinfoCurrentFrequency  *uint64
+	CpuinfoMinimumFrequency  *uint64
+	CpuinfoMaximumFrequency  *uint64
+	CpuinfoTransitionLatency *uint64
+	ScalingCurrentFrequency  *uint64
+	ScalingMinimumFrequency  *uint64
+	ScalingMaximumFrequency  *uint64
+	AvailableGovernors       string
+	Driver                   string
+	Govenor                  string
+	RelatedCpus              string
+	SetSpeed                 string
 }
 
 // TODO: Add topology support.
@@ -74,14 +76,7 @@ func (fs FS) NewSystemCpufreq() ([]SystemCPUCpufreqStats, error) {
 			return []SystemCPUCpufreqStats{}, err
 		}
 
-		if _, err = os.Stat(filepath.Join(cpuCpufreqPath, "scaling_cur_freq")); err == nil {
-			cpufreq, err = parseCpufreqCpuinfo("scaling", cpuCpufreqPath)
-		} else if _, err = os.Stat(filepath.Join(cpuCpufreqPath, "cpuinfo_cur_freq")); err == nil {
-			// Older kernels have metrics named `cpuinfo_...`.
-			cpufreq, err = parseCpufreqCpuinfo("cpuinfo", cpuCpufreqPath)
-		} else {
-			return []SystemCPUCpufreqStats{}, fmt.Errorf("CPU %v is missing cpufreq", cpu)
-		}
+		cpufreq, err = parseCpufreqCpuinfo(cpuCpufreqPath)
 		if err != nil {
 			return []SystemCPUCpufreqStats{}, err
 		}
@@ -92,22 +87,28 @@ func (fs FS) NewSystemCpufreq() ([]SystemCPUCpufreqStats, error) {
 	return systemCpufreq, nil
 }
 
-func parseCpufreqCpuinfo(prefix string, cpuPath string) (*SystemCPUCpufreqStats, error) {
+func parseCpufreqCpuinfo(cpuPath string) (*SystemCPUCpufreqStats, error) {
 	uintFiles := []string{
-		prefix + "_cur_freq",
-		prefix + "_max_freq",
-		prefix + "_min_freq",
+		"cpuinfo_cur_freq",
+		"cpuinfo_max_freq",
+		"cpuinfo_min_freq",
 		"cpuinfo_transition_latency",
+		"scaling_cur_freq",
+		"scaling_max_freq",
+		"scaling_min_freq",
 	}
-	uintOut := make([]uint64, len(uintFiles))
+	uintOut := make([]*uint64, len(uintFiles))
 
 	for i, f := range uintFiles {
 		v, err := util.ReadUintFromFile(filepath.Join(cpuPath, f))
 		if err != nil {
+			if os.IsNotExist(err) || os.IsPermission(err) {
+				continue
+			}
 			return &SystemCPUCpufreqStats{}, err
 		}
 
-		uintOut[i] = v
+		uintOut[i] = &v
 	}
 
 	stringFiles := []string{
@@ -128,14 +129,17 @@ func parseCpufreqCpuinfo(prefix string, cpuPath string) (*SystemCPUCpufreqStats,
 	}
 
 	return &SystemCPUCpufreqStats{
-		CurrentFrequency:   uintOut[0],
-		MaximumFrequency:   uintOut[1],
-		MinimumFrequency:   uintOut[2],
-		TransitionLatency:  uintOut[3],
-		AvailableGovernors: stringOut[0],
-		Driver:             stringOut[1],
-		Govenor:            stringOut[2],
-		RelatedCpus:        stringOut[3],
-		SetSpeed:           stringOut[4],
+		CpuinfoCurrentFrequency:  uintOut[0],
+		CpuinfoMaximumFrequency:  uintOut[1],
+		CpuinfoMinimumFrequency:  uintOut[2],
+		CpuinfoTransitionLatency: uintOut[3],
+		ScalingCurrentFrequency:  uintOut[4],
+		ScalingMaximumFrequency:  uintOut[5],
+		ScalingMinimumFrequency:  uintOut[6],
+		AvailableGovernors:       stringOut[0],
+		Driver:                   stringOut[1],
+		Govenor:                  stringOut[2],
+		RelatedCpus:              stringOut[3],
+		SetSpeed:                 stringOut[4],
 	}, nil
 }
