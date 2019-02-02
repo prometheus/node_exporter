@@ -32,7 +32,7 @@ bonding | Exposes the number of configured and active slaves of Linux bonding in
 boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD, Solaris
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris
-diskstats | Exposes disk I/O statistics. | Darwin, Linux
+diskstats | Exposes disk I/O statistics. | Darwin, Linux, OpenBSD
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
