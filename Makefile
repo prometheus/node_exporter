@@ -34,7 +34,7 @@ ifeq ($(GOOS), linux)
 	PROMU_CONF ?= .promu.yml
 else
 	ifndef GOOS
-		ifeq ($(GOHOSTOS), Linux)
+		ifeq ($(GOHOSTOS), linux)
 			PROMU_CONF ?= .promu.yml
 		else
 			PROMU_CONF ?= .promu-cgo.yml
