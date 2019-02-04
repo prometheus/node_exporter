@@ -8,6 +8,7 @@ enabled_collectors=$(cat << COLLECTORS
   buddyinfo
   conntrack
   cpu
+  cpufreq
   diskstats
   drbd
   edac
