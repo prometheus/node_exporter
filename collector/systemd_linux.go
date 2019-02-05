@@ -17,14 +17,14 @@ package collector
 
 import (
 	"fmt"
-	"math"
 	"regexp"
 	"strings"
 
 	"github.com/coreos/go-systemd/dbus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/alecthomas/kingpin.v2"
+	"math"
 )
 
 var (
@@ -61,7 +61,7 @@ func NewSystemdCollector() (Collector, error) {
 
 	unitDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_state"),
-		"Systemd unit", []string{"name", "state", "type"}, nil,
+		"Systemd unit", []string{"name", "state"}, nil,
 	)
 	unitStartTimeDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
@@ -153,7 +153,7 @@ func (c *systemdCollector) collectUnitStatusMetrics(ch chan<- prometheus.Metric,
 			}
 			ch <- prometheus.MustNewConstMetric(
 				c.unitDesc, prometheus.GaugeValue, isActive,
-				unit.Name, stateName, unit.serviceType)
+				unit.Name, stateName)
 		}
 		if strings.HasSuffix(unit.Name, ".service") && unit.nRestarts != nil {
 			ch <- prometheus.MustNewConstMetric(
@@ -252,20 +252,9 @@ type unit struct {
 	tasksCurrent        *uint64
 	tasksMax            *uint64
 	nRestarts           *uint32
-	serviceType         string
 	acceptedConnections uint32
 	currentConnections  uint32
 	refusedConnections  *uint32
-}
-
-// unitType gets the suffix after the last "." in the
-// unit name and capitalizes the first letter
-func (u *unit) unitType() string {
-	suffixIndex := strings.LastIndex(u.Name, ".") + 1
-	if suffixIndex < 1 || suffixIndex > len(u.Name) {
-		return ""
-	}
-	return strings.Title(u.Name[suffixIndex:])
 }
 
 func (c *systemdCollector) getAllUnits() ([]unit, error) {
@@ -287,15 +276,7 @@ func (c *systemdCollector) getAllUnits() ([]unit, error) {
 		unit := unit{
 			UnitStatus: status,
 		}
-		unitType := unit.unitType()
-		if unitType == "Service" || unitType == "Mount" {
-			serviceType, err := conn.GetUnitTypeProperty(unit.Name, unitType, "Type")
-			if err != nil {
-				log.Debugf("couldn't get type for unit '%s': %s", unit.Name, err)
-			} else {
-				unit.serviceType = serviceType.Value.Value().(string)
-			}
-		}
+
 		if strings.HasSuffix(unit.Name, ".timer") {
 			lastTriggerValue, err := conn.GetUnitTypeProperty(unit.Name, "Timer", "LastTriggerUSec")
 			if err != nil {
