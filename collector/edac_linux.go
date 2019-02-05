@@ -17,7 +17,6 @@ package collector
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"regexp"
 
@@ -82,28 +81,28 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		controllerNumber := controllerMatch[1]
 
-		value, err := readUintFromFile(path.Join(controller, "ce_count"))
+		value, err := readUintFromFile(filepath.Join(controller, "ce_count"))
 		if err != nil {
 			return fmt.Errorf("couldn't get ce_count for controller %s: %s", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.ceCount, prometheus.CounterValue, float64(value), controllerNumber)
 
-		value, err = readUintFromFile(path.Join(controller, "ce_noinfo_count"))
+		value, err = readUintFromFile(filepath.Join(controller, "ce_noinfo_count"))
 		if err != nil {
 			return fmt.Errorf("couldn't get ce_noinfo_count for controller %s: %s", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.csRowCECount, prometheus.CounterValue, float64(value), controllerNumber, "unknown")
 
-		value, err = readUintFromFile(path.Join(controller, "ue_count"))
+		value, err = readUintFromFile(filepath.Join(controller, "ue_count"))
 		if err != nil {
 			return fmt.Errorf("couldn't get ue_count for controller %s: %s", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.ueCount, prometheus.CounterValue, float64(value), controllerNumber)
 
-		value, err = readUintFromFile(path.Join(controller, "ue_noinfo_count"))
+		value, err = readUintFromFile(filepath.Join(controller, "ue_noinfo_count"))
 		if err != nil {
 			return fmt.Errorf("couldn't get ue_noinfo_count for controller %s: %s", controllerNumber, err)
 		}
@@ -122,14 +121,14 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			csrowNumber := csrowMatch[1]
 
-			value, err = readUintFromFile(path.Join(csrow, "ce_count"))
+			value, err = readUintFromFile(filepath.Join(csrow, "ce_count"))
 			if err != nil {
 				return fmt.Errorf("couldn't get ce_count for controller/csrow %s/%s: %s", controllerNumber, csrowNumber, err)
 			}
 			ch <- prometheus.MustNewConstMetric(
 				c.csRowCECount, prometheus.CounterValue, float64(value), controllerNumber, csrowNumber)
 
-			value, err = readUintFromFile(path.Join(csrow, "ue_count"))
+			value, err = readUintFromFile(filepath.Join(csrow, "ue_count"))
 			if err != nil {
 				return fmt.Errorf("couldn't get ue_count for controller/csrow %s/%s: %s", controllerNumber, csrowNumber, err)
 			}
