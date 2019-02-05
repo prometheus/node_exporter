@@ -28,10 +28,6 @@ import (
 */
 import "C"
 
-const (
-	diskSubsystem = "disk"
-)
-
 type diskstatsCollector struct {
 	rxfer  typedDesc
 	rbytes typedDesc
@@ -46,34 +42,12 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 func NewDiskstatsCollector() (Collector, error) {
-	var diskLabelNames = []string{"device"}
-
 	return &diskstatsCollector{
-		rxfer: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
-			"The total number of reads completed successfully.",
-			diskLabelNames, nil,
-		), prometheus.CounterValue},
-		rbytes: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, diskSubsystem, "read_bytes_total"),
-			"The total number of bytes read successfully.",
-			diskLabelNames, nil,
-		), prometheus.CounterValue},
-		wxfer: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed_total"),
-			"The total number of writes completed successfully.",
-			diskLabelNames, nil,
-		), prometheus.CounterValue},
-		wbytes: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, diskSubsystem, "written_bytes_total"),
-			"The total number of bytes written successfully.",
-			diskLabelNames, nil,
-		), prometheus.CounterValue},
-		time: typedDesc{prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, diskSubsystem, "io_time_seconds_total"),
-			"The total number of seconds spent by all IO.",
-			diskLabelNames, nil,
-		), prometheus.CounterValue},
+		rxfer:  typedDesc{readsCompletedDesc, prometheus.CounterValue},
+		rbytes: typedDesc{readBytesDesc, prometheus.CounterValue},
+		wxfer:  typedDesc{writesCompletedDesc, prometheus.CounterValue},
+		wbytes: typedDesc{writtenBytesDesc, prometheus.CounterValue},
+		time:   typedDesc{ioTimeSecondsDesc, prometheus.CounterValue},
 	}, nil
 }
 
