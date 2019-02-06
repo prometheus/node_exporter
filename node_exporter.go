@@ -14,11 +14,11 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 	"sort"
-	"crypto/tls"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -208,7 +208,7 @@ func main() {
 	wrappedCert := wrappedCertificate{}
 	wrappedCert.loadCertificates(*TLSCert, *TLSPrivateKey)
 	wrappedCert.certPath = *TLSCert
- 	wrappedCert.keyPath = *TLSPrivateKey
+	wrappedCert.keyPath = *TLSPrivateKey
 	config := &tls.Config{
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
