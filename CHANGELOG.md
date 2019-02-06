@@ -15,6 +15,7 @@ The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what 
 * [FEATURE] Add a flag to disable exporter metrics #1148
 * [FEATURE] Add kstat-based Solaris metrics for boottime, cpu and zfs collectors #1197
 * [FEATURE] Add uname collector for FreeBSD #1239
+* [FEATURE] Add diskstats collector for OpenBSD #1250
 
 ## 0.17.0 / 2018-11-30
 
