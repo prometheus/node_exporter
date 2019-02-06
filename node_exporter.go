@@ -26,6 +26,8 @@ import (
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
 	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/prometheus/node_exporter/https"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -129,34 +131,6 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
-//TLS Keypair reloading to be extracted to it's own package
-
-type wrappedCertificate struct {
-	certificate *tls.Certificate
-	certPath    string
-	keyPath     string
-}
-
-func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	log.Infoln("Client Hello Received")
-	if len(c.keyPath) <= 0 {
-		c.keyPath = c.certPath
-	}
-	c.loadCertificates(c.certPath, c.keyPath)
-
-	return c.certificate, nil
-}
-
-func (c *wrappedCertificate) loadCertificates(certPath, keyPath string) error {
-	certAndKey, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		return err
-	}
-	log.Infoln("Loading Certs")
-	c.certificate = &certAndKey
-	return nil
-}
-
 func main() {
 	var (
 		listenAddress = kingpin.Flag(
@@ -205,24 +179,22 @@ func main() {
 	})
 
 	//wrapped Certificate struct called,  pass in initial paths
-	wrappedCert := wrappedCertificate{}
-	wrappedCert.loadCertificates(*TLSCert, *TLSPrivateKey)
-	wrappedCert.certPath = *TLSCert
-	wrappedCert.keyPath = *TLSPrivateKey
+	wrappedCert := https.WrappedCertificate{CertPath: *TLSCert, KeyPath: *TLSPrivateKey}
+	wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
 	config := &tls.Config{
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
 		PreferServerCipherSuites: true,
-		GetCertificate:           wrappedCert.getCertificate,
+		GetCertificate:           wrappedCert.GetCertificate,
 	}
 
 	//tls config added to server
 	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
 	if len(*TLSCert) > 0 {
-
+//		wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
 		if err := server.ListenAndServeTLS("", ""); err != nil {
 			log.Fatal(err)
 		}
