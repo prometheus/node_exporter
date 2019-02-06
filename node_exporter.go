@@ -215,14 +215,14 @@ func main() {
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
 		PreferServerCipherSuites: true,
-		GetCertificate:	wrappedCert.getCertificate, 
-	}	
-	
+		GetCertificate:	wrappedCert.getCertificate,
+	}
+
 	//tls config added to server
 	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
 	if len(*TLSCert) > 0 {
-		
+
 		if err := server.ListenAndServeTLS("", ""); err != nil {
 			log.Fatal(err)
 		}
