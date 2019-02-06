@@ -30,7 +30,6 @@ import (
 )
 
 const (
-	diskSubsystem     = "disk"
 	diskSectorSize    = 512
 	diskstatsFilename = "diskstats"
 )
@@ -70,12 +69,7 @@ func NewDiskstatsCollector() (Collector, error) {
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
 		descs: []typedFactorDesc{
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
-					"The total number of reads completed successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: readsCompletedDesc, valueType: prometheus.CounterValue,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -86,30 +80,15 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.CounterValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "read_bytes_total"),
-					"The total number of bytes read successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: readBytesDesc, valueType: prometheus.CounterValue,
 				factor: diskSectorSize,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "read_time_seconds_total"),
-					"The total number of seconds spent by all reads.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: readTimeSecondsDesc, valueType: prometheus.CounterValue,
 				factor: .001,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed_total"),
-					"The total number of writes completed successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: writesCompletedDesc, valueType: prometheus.CounterValue,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -120,21 +99,11 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.CounterValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "written_bytes_total"),
-					"The total number of bytes written successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: writtenBytesDesc, valueType: prometheus.CounterValue,
 				factor: diskSectorSize,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "write_time_seconds_total"),
-					"This is the total number of seconds spent by all writes.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: writeTimeSecondsDesc, valueType: prometheus.CounterValue,
 				factor: .001,
 			},
 			{
@@ -146,12 +115,7 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_seconds_total"),
-					"Total seconds spent doing I/Os.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: ioTimeSecondsDesc, valueType: prometheus.CounterValue,
 				factor: .001,
 			},
 			{

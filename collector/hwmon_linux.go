@@ -19,7 +19,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -138,7 +137,7 @@ func collectSensorData(dir string, data map[string]map[string]string) error {
 
 		for _, t := range hwmonSensorTypes {
 			if t == sensorType {
-				addValueFile(data, sensorType+strconv.Itoa(sensorNum), sensorProperty, path.Join(dir, file.Name()))
+				addValueFile(data, sensorType+strconv.Itoa(sensorNum), sensorProperty, filepath.Join(dir, file.Name()))
 				break
 			}
 		}
@@ -157,8 +156,8 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat(path.Join(dir, "device")); err == nil {
-		err := collectSensorData(path.Join(dir, "device"), data)
+	if _, err := os.Stat(filepath.Join(dir, "device")); err == nil {
+		err := collectSensorData(filepath.Join(dir, "device"), data)
 		if err != nil {
 			return err
 		}
@@ -353,10 +352,10 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 
 	// preference 1: construct a name based on device name, always unique
 
-	devicePath, devErr := filepath.EvalSymlinks(path.Join(dir, "device"))
+	devicePath, devErr := filepath.EvalSymlinks(filepath.Join(dir, "device"))
 	if devErr == nil {
-		devPathPrefix, devName := path.Split(devicePath)
-		_, devType := path.Split(strings.TrimRight(devPathPrefix, "/"))
+		devPathPrefix, devName := filepath.Split(devicePath)
+		_, devType := filepath.Split(strings.TrimRight(devPathPrefix, "/"))
 
 		cleanDevName := cleanMetricName(devName)
 		cleanDevType := cleanMetricName(devType)
@@ -371,7 +370,7 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 	}
 
 	// preference 2: is there a name file
-	sysnameRaw, nameErr := ioutil.ReadFile(path.Join(dir, "name"))
+	sysnameRaw, nameErr := ioutil.ReadFile(filepath.Join(dir, "name"))
 	if nameErr == nil && string(sysnameRaw) != "" {
 		cleanName := cleanMetricName(string(sysnameRaw))
 		if cleanName != "" {
@@ -388,7 +387,7 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 	}
 
 	// take the last path element, this will be hwmonX
-	_, name := path.Split(realDir)
+	_, name := filepath.Split(realDir)
 	cleanName := cleanMetricName(name)
 	if cleanName != "" {
 		return cleanName, nil
@@ -399,7 +398,7 @@ func (c *hwMonCollector) hwmonName(dir string) (string, error) {
 // hwmonHumanReadableChipName is similar to the methods in hwmonName, but with
 // different precedences -- we can allow duplicates here.
 func (c *hwMonCollector) hwmonHumanReadableChipName(dir string) (string, error) {
-	sysnameRaw, nameErr := ioutil.ReadFile(path.Join(dir, "name"))
+	sysnameRaw, nameErr := ioutil.ReadFile(filepath.Join(dir, "name"))
 	if nameErr != nil {
 		return "", nameErr
 	}
@@ -418,7 +417,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updatesHwmon for each folder
 
-	hwmonPathName := path.Join(sysFilePath("class"), "hwmon")
+	hwmonPathName := filepath.Join(sysFilePath("class"), "hwmon")
 
 	hwmonFiles, err := ioutil.ReadDir(hwmonPathName)
 	if err != nil {
@@ -431,7 +430,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, hwDir := range hwmonFiles {
-		hwmonXPathName := path.Join(hwmonPathName, hwDir.Name())
+		hwmonXPathName := filepath.Join(hwmonPathName, hwDir.Name())
 
 		if hwDir.Mode()&os.ModeSymlink > 0 {
 			hwDir, err = os.Stat(hwmonXPathName)

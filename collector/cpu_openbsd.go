@@ -34,10 +34,10 @@ type cpuCollector struct {
 }
 
 func init() {
-	registerCollector("cpu", defaultEnabled, NewCpuCollector)
+	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }
 
-func NewCpuCollector() (Collector, error) {
+func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 	}, nil
@@ -56,18 +56,18 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 
-	var cp_time [][C.CPUSTATES]C.int64_t
+	var cpTime [][C.CPUSTATES]C.int64_t
 	for i := 0; i < int(ncpus); i++ {
-		cp_timeb, err := unix.SysctlRaw("kern.cp_time2", i)
+		cpb, err := unix.SysctlRaw("kern.cp_time2", i)
 		if err != nil && err != unix.ENODEV {
 			return err
 		}
 		if err != unix.ENODEV {
-			cp_time = append(cp_time, *(*[C.CPUSTATES]C.int64_t)(unsafe.Pointer(&cp_timeb[0])))
+			cpTime = append(cpTime, *(*[C.CPUSTATES]C.int64_t)(unsafe.Pointer(&cpb[0])))
 		}
 	}
 
-	for cpu, time := range cp_time {
+	for cpu, time := range cpTime {
 		lcpu := strconv.Itoa(cpu)
 		ch <- c.cpu.mustNewConstMetric(float64(time[C.CP_USER])/hz, lcpu, "user")
 		ch <- c.cpu.mustNewConstMetric(float64(time[C.CP_NICE])/hz, lcpu, "nice")

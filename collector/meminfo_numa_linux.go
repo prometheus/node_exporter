@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -86,7 +85,7 @@ func getMemInfoNuma() ([]meminfoMetric, error) {
 		return nil, err
 	}
 	for _, node := range nodes {
-		meminfoFile, err := os.Open(path.Join(node, "meminfo"))
+		meminfoFile, err := os.Open(filepath.Join(node, "meminfo"))
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +97,7 @@ func getMemInfoNuma() ([]meminfoMetric, error) {
 		}
 		metrics = append(metrics, numaInfo...)
 
-		numastatFile, err := os.Open(path.Join(node, "numastat"))
+		numastatFile, err := os.Open(filepath.Join(node, "numastat"))
 		if err != nil {
 			return nil, err
 		}
