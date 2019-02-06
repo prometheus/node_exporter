@@ -2,11 +2,14 @@
 
 ### **Breaking changes**
 
-The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what the driver provides. #1248
+* Renamed `interface` label to `device` in netclass collector for consistency with
+  other network metrics #1224
+* The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what the driver provides. #1248
 
 ### Changes
 
 * [BUGFIX]
+* [CHANGE] Renamed `interface` label to `device` in netclass collector #1224
 * [BUGFIX] Add fallback for missing /proc/1/mounts #1172
 * [CHANGE] Add TCPSynRetrans to netstat default filter #1143
 * [CHANGE] Add a limit to the number of in-flight requests #1166

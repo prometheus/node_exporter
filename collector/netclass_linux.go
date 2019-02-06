@@ -57,8 +57,8 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, ifaceInfo := range netClass {
 		upDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "up"),
-			"Valid operstate for interface.",
-			[]string{"interface", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			"Valid operstate for device.",
+			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
 			nil,
 		)
 		upValue := 0.0
@@ -145,7 +145,7 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 	fieldDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
 		fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
-		[]string{"interface"},
+		[]string{"device"},
 		nil,
 	)
 
