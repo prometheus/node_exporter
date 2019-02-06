@@ -133,21 +133,21 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 
 type wrappedCertificate struct {
 	certificate *tls.Certificate
-	certPath	string
-	keyPath		string
+	certPath    string
+	keyPath     string
 }
 
-func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo ) (*tls.Certificate, error){
+func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	log.Infoln("Client Hello Received")
 	if len(c.keyPath) <= 0 {
 		c.keyPath = c.certPath
 	}
 	c.loadCertificates(c.certPath, c.keyPath)
-	
+
 	return c.certificate, nil
 }
 
-func (c *wrappedCertificate) loadCertificates(certPath, keyPath string) error{
+func (c *wrappedCertificate) loadCertificates(certPath, keyPath string) error {
 	certAndKey, err := tls.LoadX509KeyPair(certPath, keyPath)
 	if err != nil {
 		return err
@@ -215,7 +215,7 @@ func main() {
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
 		PreferServerCipherSuites: true,
-		GetCertificate:	wrappedCert.getCertificate,
+		GetCertificate:           wrappedCert.getCertificate,
 	}
 
 	//tls config added to server
