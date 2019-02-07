@@ -7,11 +7,6 @@ import (
 	
 )
 
-type TLSConfig struct {
-	config *tls.Config 	
-
-}
-
 func GetTLSConfig(c func(*tls.ClientHelloInfo)(*tls.Certificate, error))(*tls.Config) {
 	
 	tlsc := &tls.Config{
