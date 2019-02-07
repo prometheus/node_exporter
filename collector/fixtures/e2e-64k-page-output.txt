@@ -1835,6 +1835,9 @@ node_network_iface_link{interface="eth0"} 2
 # HELP node_network_iface_link_mode iface_link_mode value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link_mode gauge
 node_network_iface_link_mode{interface="eth0"} 1
+# HELP node_network_info Non-numeric data from /sys/class/net/<iface>, value is always 1.
+# TYPE node_network_info gauge
+node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up"} 1
 # HELP node_network_mtu_bytes mtu_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_mtu_bytes gauge
 node_network_mtu_bytes{interface="eth0"} 1500
@@ -2045,9 +2048,9 @@ node_network_transmit_packets_total{device="💩0"} 304261
 # HELP node_network_transmit_queue_length transmit_queue_length value of /sys/class/net/<iface>.
 # TYPE node_network_transmit_queue_length gauge
 node_network_transmit_queue_length{interface="eth0"} 1000
-# HELP node_network_up Valid operstate for interface.
+# HELP node_network_up Value is 1 if operstate is 'up', 0 otherwise.
 # TYPE node_network_up gauge
-node_network_up{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",duplex="full",ifalias="",interface="eth0",operstate="up"} 1
+node_network_up{device="eth0"} 1
 # HELP node_nf_conntrack_entries Number of currently allocated flow entries for connection tracking.
 # TYPE node_nf_conntrack_entries gauge
 node_nf_conntrack_entries 123

@@ -22,7 +22,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -57,8 +57,8 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, ifaceInfo := range netClass {
 		upDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "up"),
-			"Valid operstate for device.",
-			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			"Value is 1 if operstate is 'up', 0 otherwise.",
+			[]string{"device"},
 			nil,
 		)
 		upValue := 0.0
@@ -66,7 +66,17 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 			upValue = 1.0
 		}
 
-		ch <- prometheus.MustNewConstMetric(upDesc, prometheus.GaugeValue, upValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
+		ch <- prometheus.MustNewConstMetric(upDesc, prometheus.GaugeValue, upValue, ifaceInfo.Name)
+
+		infoDesc := prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, "info"),
+			"Non-numeric data from /sys/class/net/<iface>, value is always 1.",
+			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			nil,
+		)
+		infoValue := 1.0
+
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
 
 		if ifaceInfo.AddrAssignType != nil {
 			pushMetric(ch, c.subsystem, "address_assign_type", *ifaceInfo.AddrAssignType, ifaceInfo.Name, prometheus.GaugeValue)
