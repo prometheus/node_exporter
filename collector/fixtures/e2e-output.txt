@@ -1837,7 +1837,7 @@ node_network_iface_link{device="eth0"} 2
 node_network_iface_link_mode{device="eth0"} 1
 # HELP node_network_info Non-numeric data from /sys/class/net/<iface>, value is always 1.
 # TYPE node_network_info gauge
-node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",duplex="full",ifalias="",device="eth0",operstate="up"} 1
+node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up"} 1
 # HELP node_network_mtu_bytes mtu_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_mtu_bytes gauge
 node_network_mtu_bytes{device="eth0"} 1500
