@@ -14,7 +14,7 @@
 package main
 
 import (
-	"crypto/tls"
+//	"crypto/tls"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
@@ -25,9 +25,8 @@ import (
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
-	"gopkg.in/alecthomas/kingpin.v2"
-
 	"github.com/prometheus/node_exporter/https"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -180,14 +179,9 @@ func main() {
 
 	//wrapped Certificate struct called,  pass in initial paths
 	wrappedCert := https.WrappedCertificate{CertPath: *TLSCert, KeyPath: *TLSPrivateKey}
-	config := &tls.Config{
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-		},
-		PreferServerCipherSuites: true,
-		GetCertificate:           wrappedCert.GetCertificate,
-	}
+
+	//Config called from config file
+	config := https.GetTLSConfig(wrappedCert.GetCertificate)
 
 	//tls config added to server
 	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
