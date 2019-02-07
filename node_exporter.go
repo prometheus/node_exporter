@@ -14,11 +14,11 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 	"sort"
-	"crypto/tls"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -179,24 +179,21 @@ func main() {
 	})
 
 	//wrapped Certificate struct called,  pass in initial paths
-	wrappedCert := https.WrappedCertificate{}
-	wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
-	wrappedCert.CertPath = *TLSCert
- 	wrappedCert.KeyPath = *TLSPrivateKey
+	wrappedCert := https.WrappedCertificate{CertPath: *TLSCert, KeyPath: *TLSPrivateKey}
 	config := &tls.Config{
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 		},
 		PreferServerCipherSuites: true,
-		GetCertificate:	wrappedCert.GetCertificate, 
-	}	
-	
+		GetCertificate:           wrappedCert.GetCertificate,
+	}
+
 	//tls config added to server
 	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
 	if len(*TLSCert) > 0 {
-		
+		wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
 		if err := server.ListenAndServeTLS("", ""); err != nil {
 			log.Fatal(err)
 		}
