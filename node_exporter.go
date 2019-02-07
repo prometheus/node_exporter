@@ -180,7 +180,6 @@ func main() {
 
 	//wrapped Certificate struct called,  pass in initial paths
 	wrappedCert := https.WrappedCertificate{CertPath: *TLSCert, KeyPath: *TLSPrivateKey}
-	wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
 	config := &tls.Config{
 		CipherSuites: []uint16{
 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
@@ -194,7 +193,7 @@ func main() {
 	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
 	if len(*TLSCert) > 0 {
-//		wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
+		wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
 		if err := server.ListenAndServeTLS("", ""); err != nil {
 			log.Fatal(err)
 		}
