@@ -30,10 +30,12 @@ import (
 )
 
 var (
-	unitWhitelist     = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
-	unitBlacklist     = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.scope").String()
-	systemdPrivate    = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
-	enableTaskMetrics = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
+	unitWhitelist          = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
+	unitBlacklist          = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.scope").String()
+	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
+	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
+	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
+	enableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
 )
 
 type systemdCollector struct {
@@ -157,13 +159,15 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Debugf("systemd collectUnitStatusMetrics took %f", time.Since(begin).Seconds())
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		begin = time.Now()
-		c.collectUnitStartTimeMetrics(conn, ch, units)
-		log.Debugf("systemd collectUnitStartTimeMetrics took %f", time.Since(begin).Seconds())
-	}()
+	if *enableStartTimeMetrics {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			begin = time.Now()
+			c.collectUnitStartTimeMetrics(conn, ch, units)
+			log.Debugf("systemd collectUnitStartTimeMetrics took %f", time.Since(begin).Seconds())
+		}()
+	}
 
 	if *enableTaskMetrics {
 		wg.Add(1)
@@ -224,7 +228,7 @@ func (c *systemdCollector) collectUnitStatusMetrics(conn *dbus.Conn, ch chan<- p
 				c.unitDesc, prometheus.GaugeValue, isActive,
 				unit.Name, stateName, serviceType)
 		}
-		if strings.HasSuffix(unit.Name, ".service") {
+		if *enableRestartsMetrics && strings.HasSuffix(unit.Name, ".service") {
 			// NRestarts wasn't added until systemd 235.
 			restartsCount, err := conn.GetUnitTypeProperty(unit.Name, "Service", "NRestarts")
 			if err != nil {
