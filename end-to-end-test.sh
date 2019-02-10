@@ -37,6 +37,7 @@ enabled_collectors=$(cat << COLLECTORS
   xfs
   zfs
   processes
+  certificate
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
