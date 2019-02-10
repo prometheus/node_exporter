@@ -6,6 +6,7 @@
   other network metrics #1224
 * The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what the driver provides. #1248
 * The labels for the network_up metric have changed, see issue #1236
+* Bonding collector now uses `mii_status` instead of `operstatus` #1124
 
 ### Changes
 
@@ -21,6 +22,7 @@
 * [FEATURE] Add kstat-based Solaris metrics for boottime, cpu and zfs collectors #1197
 * [FEATURE] Add uname collector for FreeBSD #1239
 * [FEATURE] Add diskstats collector for OpenBSD #1250
+* [CHANGE] Bonding state uses mii_status #1124
 
 ## 0.17.0 / 2018-11-30
 

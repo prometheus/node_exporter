@@ -704,6 +704,14 @@ Mode: 644
 Directory: sys/class/net/dmz/slave_eth0
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/net/dmz/slave_eth0/bonding_slave
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/net/dmz/slave_eth0/bonding_slave/mii_status
+Lines: 1
+up
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/net/dmz/slave_eth0/operstate
 Lines: 1
 up
@@ -711,6 +719,14 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/net/dmz/slave_eth4
 Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/net/dmz/slave_eth4/bonding_slave
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/net/dmz/slave_eth4/bonding_slave/mii_status
+Lines: 1
+up
+Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/net/dmz/slave_eth4/operstate
 Lines: 1
@@ -860,6 +876,14 @@ Mode: 644
 Directory: sys/class/net/int/slave_eth1
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/net/int/slave_eth1/bonding_slave
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/net/int/slave_eth1/bonding_slave/mii_status
+Lines: 1
+down
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/net/int/slave_eth1/operstate
 Lines: 1
 down
@@ -867,6 +891,14 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/net/int/slave_eth5
 Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/net/int/slave_eth5/bonding_slave
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/net/int/slave_eth5/bonding_slave/mii_status
+Lines: 1
+up
+Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/net/int/slave_eth5/operstate
 Lines: 1
