@@ -7,6 +7,8 @@
 * The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what the driver provides. #1248
 * The labels for the network_up metric have changed, see issue #1236
 * Bonding collector now uses `mii_status` instead of `operstatus` #1124
+* Several systemd metrics have been turned off by default to improve performance #1254
+  These include unit_tasks_current, unit_tasks_max, service_restart_total, and unit_start_time_seconds
 
 ### Changes
 
@@ -16,6 +18,7 @@
 * [CHANGE] Add TCPSynRetrans to netstat default filter #1143
 * [CHANGE] Add a limit to the number of in-flight requests #1166
 * [CHANGE] Add separate cpufreq and scaling metrics #1248
+* [CHANGE] Several systemd metrics have been turned off by default to improve performance #1254
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [ENHANCEMENT] Move network_up labels into new metric network_info #1236
 * [FEATURE] Add a flag to disable exporter metrics #1148
