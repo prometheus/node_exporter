@@ -165,6 +165,8 @@ func (c *conn) Receive() ([]Message, error) {
 		return nil, errInvalidFamily
 	}
 
+	n = nlmsgAlign(n)
+
 	raw, err := syscall.ParseNetlinkMessage(b[:n])
 	if err != nil {
 		return nil, err

@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/prometheus/procfs/internal/util"
 )
 
@@ -35,7 +37,7 @@ type SystemCPUCpufreqStats struct {
 	ScalingMaximumFrequency  *uint64
 	AvailableGovernors       string
 	Driver                   string
-	Govenor                  string
+	Governor                 string
 	RelatedCpus              string
 	SetSpeed                 string
 }
@@ -56,32 +58,41 @@ func NewSystemCpufreq() ([]SystemCPUCpufreqStats, error) {
 
 // NewSystemCpufreq returns CPU frequency metrics for all CPUs.
 func (fs FS) NewSystemCpufreq() ([]SystemCPUCpufreqStats, error) {
-	var cpufreq = &SystemCPUCpufreqStats{}
+	var g errgroup.Group
 
 	cpus, err := filepath.Glob(fs.Path("devices/system/cpu/cpu[0-9]*"))
 	if err != nil {
-		return []SystemCPUCpufreqStats{}, err
+		return nil, err
 	}
 
-	systemCpufreq := []SystemCPUCpufreqStats{}
-	for _, cpu := range cpus {
-		cpuName := filepath.Base(cpu)
-		cpuNum := strings.TrimPrefix(cpuName, "cpu")
+	systemCpufreq := make([]SystemCPUCpufreqStats, len(cpus))
+	for i, cpu := range cpus {
+		cpuName := strings.TrimPrefix(filepath.Base(cpu), "cpu")
 
 		cpuCpufreqPath := filepath.Join(cpu, "cpufreq")
 		if _, err := os.Stat(cpuCpufreqPath); os.IsNotExist(err) {
 			continue
 		}
 		if err != nil {
-			return []SystemCPUCpufreqStats{}, err
+			return nil, err
 		}
 
-		cpufreq, err = parseCpufreqCpuinfo(cpuCpufreqPath)
-		if err != nil {
-			return []SystemCPUCpufreqStats{}, err
-		}
-		cpufreq.Name = cpuNum
-		systemCpufreq = append(systemCpufreq, *cpufreq)
+		// Execute the parsing of each CPU in parallel.
+		// This is done because the kernel intentionally delays access to each CPU by
+		// 50 milliseconds to avoid DDoSing possibly expensive functions.
+		i := i // https://golang.org/doc/faq#closures_and_goroutines
+		g.Go(func() error {
+			cpufreq, err := parseCpufreqCpuinfo(cpuCpufreqPath)
+			if err == nil {
+				cpufreq.Name = cpuName
+				systemCpufreq[i] = *cpufreq
+			}
+			return err
+		})
+	}
+
+	if err = g.Wait(); err != nil {
+		return nil, err
 	}
 
 	return systemCpufreq, nil
@@ -138,7 +149,7 @@ func parseCpufreqCpuinfo(cpuPath string) (*SystemCPUCpufreqStats, error) {
 		ScalingMinimumFrequency:  uintOut[6],
 		AvailableGovernors:       stringOut[0],
 		Driver:                   stringOut[1],
-		Govenor:                  stringOut[2],
+		Governor:                 stringOut[2],
 		RelatedCpus:              stringOut[3],
 		SetSpeed:                 stringOut[4],
 	}, nil
