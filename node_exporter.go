@@ -15,6 +15,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"sort"
@@ -146,6 +147,10 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
+		unixSockPath = kingpin.Flag(
+			"web.listen-path",
+			"UNIX socket path on which to expose metrics and web interface.",
+		).Default("").String()
 	)
 
 	log.AddFlags(kingpin.CommandLine)
@@ -168,7 +173,16 @@ func main() {
 	})
 
 	log.Infoln("Listening on", *listenAddress)
-	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
-		log.Fatal(err)
+	if *unixSockPath == "" {
+		if err := http.ListenAndServe(*listenAddress, nil); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		server := http.Server{}
+		unixListener, err := net.Listen("unix", *unixSockPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		server.Serve(unixListener)
 	}
 }
