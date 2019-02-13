@@ -29,6 +29,7 @@
 * [FEATURE] Add uname collector for FreeBSD #1239
 * [FEATURE] Add diskstats collector for OpenBSD #1250
 * [CHANGE] Bonding state uses mii_status #1124
+* [FEATURE] Add pressure collector exposing pressure stall information for Linux #1174
 
 ## 0.17.0 / 2018-11-30
 
