@@ -49,7 +49,7 @@ func (a *Attribute) unmarshal(b []byte) error {
 	a.Length = nlenc.Uint16(b[0:2])
 	a.Type = nlenc.Uint16(b[2:4])
 
-	if nlaAlign(int(a.Length)) > len(b) {
+	if int(a.Length) > len(b) {
 		return errInvalidAttribute
 	}
 
@@ -107,7 +107,7 @@ func UnmarshalAttributes(b []byte) ([]Attribute, error) {
 	var attrs []Attribute
 	var i int
 	for {
-		if len(b[i:]) == 0 {
+		if i > len(b) || len(b[i:]) == 0 {
 			break
 		}
 
