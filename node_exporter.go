@@ -210,7 +210,7 @@ func main() {
 	wrappedCert.certPath = *TLSCert
 	wrappedCert.keyPath = *TLSPrivateKey
 	config := &tls.Config{
-		GetCertificate:           wrappedCert.getCertificate,
+		GetCertificate: wrappedCert.getCertificate,
 	}
 
 	//tls config added to server
