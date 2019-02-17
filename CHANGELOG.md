@@ -9,6 +9,7 @@
 * Bonding collector now uses `mii_status` instead of `operstatus` #1124
 * Several systemd metrics have been turned off by default to improve performance #1254
   These include unit_tasks_current, unit_tasks_max, service_restart_total, and unit_start_time_seconds
+* The systemd collector blacklist now includes automount, device, mount, and slice units by default. #1255
 
 ### Changes
 
@@ -19,6 +20,7 @@
 * [CHANGE] Add a limit to the number of in-flight requests #1166
 * [CHANGE] Add separate cpufreq and scaling metrics #1248
 * [CHANGE] Several systemd metrics have been turned off by default to improve performance #1254
+* [CHANGE] Expand systemd collector blacklist #1255
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [ENHANCEMENT] Move network_up labels into new metric network_info #1236
 * [FEATURE] Add a flag to disable exporter metrics #1148
