@@ -17,20 +17,17 @@
 package collector
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/siebenmann/go-kstat"
+	kstat "github.com/siebenmann/go-kstat"
 )
 
 // #include <unistd.h>
 import "C"
 
 type cpuCollector struct {
-	cpu        typedDesc
-	cpuFreq    *prometheus.Desc
-	cpuFreqMax *prometheus.Desc
+	cpu typedDesc
 }
 
 func init() {
@@ -40,30 +37,10 @@ func init() {
 func NewCpuCollector() (Collector, error) {
 	return &cpuCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
-		cpuFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
-			"Current cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		cpuFreqMax: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
-			"Maximum cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
 	}, nil
 }
 
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
-	if err := c.updateCPUstats(ch); err != nil {
-		return err
-	}
-	if err := c.updateCPUfreq(ch); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c *cpuCollector) updateCPUstats(ch chan<- prometheus.Metric) error {
 	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
 
 	tok, err := kstat.Open()
@@ -92,49 +69,6 @@ func (c *cpuCollector) updateCPUstats(ch chan<- prometheus.Metric) error {
 
 			ch <- c.cpu.mustNewConstMetric(float64(kstatValue.UintVal), strconv.Itoa(cpu), k)
 		}
-	}
-	return nil
-}
-
-func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
-	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
-
-	tok, err := kstat.Open()
-	if err != nil {
-		return err
-	}
-
-	defer tok.Close()
-
-	for cpu := 0; cpu < int(ncpus); cpu++ {
-		ksCPUInfo, err := tok.Lookup("cpu_info", cpu, fmt.Sprintf("cpu_info%d", cpu))
-		if err != nil {
-			return err
-		}
-		cpuFreqV, err := ksCPUInfo.GetNamed("current_clock_Hz")
-		if err != nil {
-			return err
-		}
-
-		cpuFreqMaxV, err := ksCPUInfo.GetNamed("clock_MHz")
-		if err != nil {
-			return err
-		}
-
-		lcpu := strconv.Itoa(cpu)
-		ch <- prometheus.MustNewConstMetric(
-			c.cpuFreq,
-			prometheus.GaugeValue,
-			float64(cpuFreqV.UintVal),
-			lcpu,
-		)
-		// Multiply by 1e+6 to convert MHz to Hz.
-		ch <- prometheus.MustNewConstMetric(
-			c.cpuFreqMax,
-			prometheus.GaugeValue,
-			float64(cpuFreqMaxV.IntVal)*1e+6,
-			lcpu,
-		)
 	}
 	return nil
 }

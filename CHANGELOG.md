@@ -21,6 +21,7 @@
 * [CHANGE] Add separate cpufreq and scaling metrics #1248
 * [CHANGE] Several systemd metrics have been turned off by default to improve performance #1254
 * [CHANGE] Expand systemd collector blacklist #1255
+* [CHANGE] Split cpufreq metrics into a separate collector #1253
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [ENHANCEMENT] Move network_up labels into new metric network_info #1236
 * [FEATURE] Add a flag to disable exporter metrics #1148

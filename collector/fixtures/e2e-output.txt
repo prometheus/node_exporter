@@ -2340,6 +2340,7 @@ node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
 node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
+node_scrape_collector_success{collector="cpufreq"} 1
 node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1
