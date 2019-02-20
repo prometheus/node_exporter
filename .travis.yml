@@ -1,0 +1,27 @@
+sudo: false
+
+language: go
+
+go:
+  - 1.11.x
+  - master
+
+env:
+  - GO111MODULE=off
+  - GO111MODULE=on
+
+matrix:
+  allow_failures:
+    - go: master
+
+go_import_path: github.com/prometheus/node_exporter
+
+script:
+  - go install -v ./...
+
+notifications:
+  slack:
+    on_success: change
+    on_failure: always
+    rooms:
+      secure: aAvT7rqWGIb0rU171jIk6MaClH+HI8MjIxNBjxrtmdg6tgQ9NKjkazGSr0ZPEce7GJDLgRtM9EPtms7zHrVY7Z6QsA+cdnIPDqqdNL5THTDyKIBRaRGrgyMmPd4MOV7WKQEKOf7/+hZq1CyDqPL8lIc2b0nDkCBOjTYf83fe3bviNEcrMxC1x1jHPJLfziPa7P0B2/BdkTRsP7yMLlTvp1D4zofvbmMIyN0tlXI6USacxbGSHtOTtyJlmOSMCH4IfpU7eMNzyl/FVPAkUSbkaF7loEbbLtOm0GTMmvM5RzUbcLyfPzQf1Yy6h0iAdgbtBQFtO6jWyN6zkyi9IRZqlmDSlgTI8YRei5hPzxoHDR9owKacvYMlm6V73aRdD9yLoplgX5QZ54NVqLPfs6InH/z/Rdp/shiuD/InCjR4GJBZDn1vKSZOLCCT/PnT562qhDOwgv6Rnmasb2Rh7PKKSgJ4KBJaaB0SsMc27QdieD3e0sXds0KTRLvwdkJAzSoEK0FNyrm9UzLWlnUcGO4t3oEcU0iNWT7+3xh5S8nG6TCgz4oMjd4nUuU1jIGG/Zuzg64vIZTsI64lpY8Ps1AUJ2X2AyPtVmFhCgVJZg7/SUUvFOH2jyGjK8GDb0NB2U8wd75e74AEvmwatYK7YidoUm80XWvp3epMnzRTRa/Mhw4=

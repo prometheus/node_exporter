@@ -19,6 +19,7 @@ import (
 	_ "net/http/pprof"
 	"sort"
 
+	"github.com/percona/exporter_shared"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
@@ -96,6 +97,9 @@ func main() {
 	for _, n := range collectors {
 		log.Infof(" - %s", n)
 	}
+
+	// Use our shared code to run server and exit on error. Upstream's code below will not be executed.
+	exporter_shared.RunServer("Node", *listenAddress, *metricsPath, http.HandlerFunc(handler))
 
 	http.HandleFunc(*metricsPath, handler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

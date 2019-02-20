@@ -1008,7 +1008,9 @@ const (
 	MFD_HUGE_256MB                       = 0x70000000
 	MFD_HUGE_2GB                         = 0x7c000000
 	MFD_HUGE_2MB                         = 0x54000000
+	MFD_HUGE_32MB                        = 0x64000000
 	MFD_HUGE_512KB                       = 0x4c000000
+	MFD_HUGE_512MB                       = 0x74000000
 	MFD_HUGE_64KB                        = 0x40000000
 	MFD_HUGE_8MB                         = 0x5c000000
 	MFD_HUGE_MASK                        = 0x3f
@@ -1021,6 +1023,8 @@ const (
 	MNT_DETACH                           = 0x2
 	MNT_EXPIRE                           = 0x4
 	MNT_FORCE                            = 0x1
+	MODULE_INIT_IGNORE_MODVERSIONS       = 0x1
+	MODULE_INIT_IGNORE_VERMAGIC          = 0x2
 	MSDOS_SUPER_MAGIC                    = 0x4d44
 	MSG_BATCH                            = 0x40000
 	MSG_CMSG_CLOEXEC                     = 0x40000000
@@ -1584,6 +1588,7 @@ const (
 	RTM_DELACTION                        = 0x31
 	RTM_DELADDR                          = 0x15
 	RTM_DELADDRLABEL                     = 0x49
+	RTM_DELCHAIN                         = 0x65
 	RTM_DELLINK                          = 0x11
 	RTM_DELMDB                           = 0x55
 	RTM_DELNEIGH                         = 0x1d
@@ -1604,6 +1609,7 @@ const (
 	RTM_GETADDR                          = 0x16
 	RTM_GETADDRLABEL                     = 0x4a
 	RTM_GETANYCAST                       = 0x3e
+	RTM_GETCHAIN                         = 0x66
 	RTM_GETDCB                           = 0x4e
 	RTM_GETLINK                          = 0x12
 	RTM_GETMDB                           = 0x56
@@ -1618,11 +1624,12 @@ const (
 	RTM_GETSTATS                         = 0x5e
 	RTM_GETTCLASS                        = 0x2a
 	RTM_GETTFILTER                       = 0x2e
-	RTM_MAX                              = 0x63
+	RTM_MAX                              = 0x67
 	RTM_NEWACTION                        = 0x30
 	RTM_NEWADDR                          = 0x14
 	RTM_NEWADDRLABEL                     = 0x48
 	RTM_NEWCACHEREPORT                   = 0x60
+	RTM_NEWCHAIN                         = 0x64
 	RTM_NEWLINK                          = 0x10
 	RTM_NEWMDB                           = 0x54
 	RTM_NEWNDUSEROPT                     = 0x44
@@ -1637,8 +1644,8 @@ const (
 	RTM_NEWSTATS                         = 0x5c
 	RTM_NEWTCLASS                        = 0x28
 	RTM_NEWTFILTER                       = 0x2c
-	RTM_NR_FAMILIES                      = 0x15
-	RTM_NR_MSGTYPES                      = 0x54
+	RTM_NR_FAMILIES                      = 0x16
+	RTM_NR_MSGTYPES                      = 0x58
 	RTM_SETDCB                           = 0x4f
 	RTM_SETLINK                          = 0x13
 	RTM_SETNEIGHTBL                      = 0x43
@@ -1687,6 +1694,7 @@ const (
 	SCM_TIMESTAMPING_OPT_STATS           = 0x36
 	SCM_TIMESTAMPING_PKTINFO             = 0x3a
 	SCM_TIMESTAMPNS                      = 0x23
+	SCM_TXTIME                           = 0x3d
 	SCM_WIFI_STATUS                      = 0x29
 	SECCOMP_MODE_DISABLED                = 0x0
 	SECCOMP_MODE_FILTER                  = 0x2
@@ -1891,6 +1899,7 @@ const (
 	SO_TIMESTAMP                         = 0x1d
 	SO_TIMESTAMPING                      = 0x25
 	SO_TIMESTAMPNS                       = 0x23
+	SO_TXTIME                            = 0x3d
 	SO_TYPE                              = 0x3
 	SO_VM_SOCKETS_BUFFER_MAX_SIZE        = 0x2
 	SO_VM_SOCKETS_BUFFER_MIN_SIZE        = 0x1

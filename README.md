@@ -1,3 +1,11 @@
+# Percona Node exporter
+
+[![Build Status](https://travis-ci.org/percona/node_exporter.svg)](https://travis-ci.org/percona/node_exporter)
+
+This fork adds HTTP Basic authentication and TLS support using [Percona's shared code for exporters](https://github.com/percona/exporter_shared).
+
+Original README below.
+
 # Node exporter
 
 [![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
