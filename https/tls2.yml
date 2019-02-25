@@ -1,0 +1,24 @@
+tlsConfig :
+  certificates : ~
+  nameToCertificate : ~
+  getCertificate : ~
+  getClientCertificate : ~
+  getConfigForClient : ~
+  verifyPeerCertificate : ~
+  rootCAs : ~
+  nextProtos : ~
+  serverName : "localhost"
+  clientAuth : ~ # {tls.RequireAndVerifyClientCert}
+  clientCAs : ~
+  insecureSkipVerify : true
+  cipherSuites : ~
+  preferServerCipherSuites : ~
+  sessionTicketsDisabled : ~
+  sessionTicketKey : ~
+  clientSessionCache : ~
+  minVersion : ~
+  maxVersion : ~
+  curvePreferences : ~
+  dynamicRecordSizingDisabled : ~
+  renegotiation : ~
+testString : "AAAAAAAAAA"
