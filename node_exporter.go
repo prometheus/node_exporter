@@ -14,7 +14,8 @@
 package main
 
 import (
-//	"crypto/tls"
+	//	"crypto/tls"
+
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
@@ -177,25 +178,17 @@ func main() {
 			</html>`))
 	})
 
-	//wrapped Certificate struct called,  pass in initial paths
-//	wrappedCert := https.WrappedCertificate{CertPath: *TLSCert, KeyPath: *TLSPrivateKey}
-
-	//Config called from config file
-//	config := https.GetTLSConfig(wrappedCert.GetCertificate)
-
-	//tls config added to server
-//	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
 	if len(*TLSCert) > 0 {
-		wrappedCert := https.WrappedCertificate{CertPath: *TLSCert, KeyPath: *TLSPrivateKey}
-		wrappedCert.LoadCertificates(*TLSCert, *TLSPrivateKey)
-		config := https.GetTLSConfig(wrappedCert.GetCertificate)
+		//Config called from config file
+		config := https.GetTLSConfig(*TLSCert, *TLSPrivateKey)
+
+		//tls config added to server
 		server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 		if err := server.ListenAndServeTLS("", ""); err != nil {
 			log.Fatal(err)
 		}
 	} else {
-	//	server := &http.Server{Addr: *listenAddress, Handler: nil}
 		if err := http.ListenAndServe(*listenAddress, nil); err != nil {
 			log.Fatal(err)
 		}

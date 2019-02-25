@@ -1,4 +1,4 @@
-package https 
+package https
 
 import (
 	"crypto/tls"
@@ -13,63 +13,74 @@ type config struct {
 	TestString string `yaml:"testString"`
 }
 
-type TLSStruct {
-	Certificates                interface{} `yaml:"certificates"`
-	NameToCertificate           interface{} `yaml:"nameToCertificate"`
-	GetCertificate              interface{} `yaml:"getCertificate"`
-	GetClientCertificate        interface{} `yaml:"getClientCertificate"`
-        GetConfigForClient          interface{} `yaml:"getConfigForClient"`
-        VerifyPeerCertificate       interface{} `yaml:"verifyPeerCertificate"`
-        RootCAs                     interface{} `yaml:"rootCAs"`
-        NextProtos                  interface{} `yaml:"nextProtos"`
-        ServerName                  string      `yaml:"serverName"`
-        ClientAuth                  interface{} `yaml:"clientAuth"`
-        ClientCAs                   interface{} `yaml:"clientCAs"`
-        InsecureSkipVerify          bool        `yaml:"insecureSkipVerify"`
-        CipherSuites                interface{} `yaml:"cipherSuites"`
-        PreferServerCipherSuites    interface{} `yaml:"preferServerCipherSuites"`
-        SessionTicketsDisabled      interface{} `yaml:"sessionTicketsDisabled"`
-        SessionTicketKey            interface{} `yaml:"sessionTicketKey"`
-        ClientSessionCache          interface{} `yaml:"clientSessionCache"`
-        MinVersion                  interface{} `yaml:"minVersion"`
-        MaxVersion                  interface{} `yaml:"maxVersion"`
-        CurvePreferences            interface{} `yaml:"curvePreferences"`
-        DynamicRecordSizingDisabled interface{} `yaml:"dynamicRecordSizingDisabled"`
-        Renegotiation               interface{} `yaml:"renegotiation"`
+type TLSStruct struct {
+        RootCAs	interface{} `yaml:"rootCAs"`
+        ServerName	string      `yaml:"serverName"`
+        ClientAuth	interface{} `yaml:"clientAuth"`
+        ClientCAs	interface{} `yaml:"clientCAs"`
+        InsecureSkipVerify	bool	`yaml:"insecureSkipVerify"`
+        CipherSuites	[]uint16 `yaml:"cipherSuites"`
+        PreferServerCipherSuites	bool	`yaml:"preferServerCipherSuites"`
+        MinVersion	uint16	`yaml:"minVersion"`
+        MaxVersion	uint16	`yaml:"maxVersion"`
 }
 
-func GetTLSConfig(c func(*tls.ClientHelloInfo)(*tls.Certificate, error))(*tls.Config) {
-	var tlsc config
-	tlsc.YamlIn("https/tls2.yml")
+//func GetTLSConfig(c func(*tls.ClientHelloInfo)(*tls.Certificate, error))(*tls.Config) {
+//	var tlsc config
+//	tlsc.YamlIn("https/tls2.yml")
 //	if err != nil {
 //		log.Fatalf("BROKEN YAML")
 //       }	
-	tlsc.TLSConfig.GetCertificate = c
-	
+//	tlsc.TLSConfig.GetCertificate = c
+//	
 //	tlsc := &tls.Config{
 //		GetCertificate: c,
 //		ClientAuth: tls.RequireAndVerifyClientCert,
 //	}
-	tlsc.TLSConfig.BuildNameToCertificate()	
- 	return  &tlsc.TLSConfig 
+//	tlsc.TLSConfig.BuildNameToCertificate()	
+// 	return  &tlsc.TLSConfig 
+//}
+
+//func NewConfig(cfg *config) (*tls.Config, error){
+//	tlsConfig := &tls.Config{
+//		
+//	}
+//}
+
+func GetTLSConfig(cert, key string) *tls.Config {
+	tlsc := &tls.Config{
+		GetCertificate: func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+			cert, err := tls.LoadX509KeyPair(cert, key)
+			if err != nil {
+				return nil, err
+			}
+			return &cert, nil
+		},
+		//		ClientAuth: tls.RequireAndVerifyClientCert,
+	}
+	tlsc, err := LoadConfigFromYaml(tlsc, "https/tls2.yml")
+	if err != nil {
+		log.Fatalf("Config failed to load from Yaml")
+	}
+	tlsc.BuildNameToCertificate()
+	return tlsc	
 }
-func NewConfig(cfg *config) (*tls.Config, error){
+
+func LoadConfigFromYaml(cfg *tls.Config, fileName string)(*tls.Config, error){
 	
-}
-
-func (cfg *config) YamlIn(fileName string)(*config){
-	var defaultC config
-
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Infof("Failed to read file")
-		return &defaultC
+		return cfg, err
 	}
-	 	
-	err = yaml.Unmarshal(content, cfg)
+	c := &config{}
+	err = yaml.Unmarshal(content, c)
 	if err != nil {
-		return &defaultC
+		
+		return cfg, err
 	}
-	log.Infoln(cfg.TestString)
-	return cfg
+
+	log.Infoln(c.TestString)
+	log.Infoln(c.TLSConfig.ServerName)
+	return cfg, nil 
 }

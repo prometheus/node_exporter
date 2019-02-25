@@ -1,24 +1,42 @@
 tlsConfig :
-  certificates : ~
-  nameToCertificate : ~
-  getCertificate : ~
   getClientCertificate : ~
-  getConfigForClient : ~
   verifyPeerCertificate : ~
+  
+  #Root CA's should be a string path to the set of root certificate authorities
+  # type *x509.CertPool
+  # if nil it will use the host's root CA set
   rootCAs : ~
-  nextProtos : ~
+  
+  #Server Name used to verify hostname on returned certs
+  #unless Insecure Skip Verify is true
   serverName : "localhost"
+  
+  #Client auth type used with mtls
   clientAuth : ~ # {tls.RequireAndVerifyClientCert}
+  
+  #Client Ca's similar to root CA's 
   clientCAs : ~
+
+  #Should only be true for testing 
   insecureSkipVerify : true
+
+  #Array of uint16 supported cipher suites
+  #if nil will just use stock go suites
   cipherSuites : ~
+
+  #Boolean true to prefer server's false for client's
   preferServerCipherSuites : ~
-  sessionTicketsDisabled : ~
-  sessionTicketKey : ~
-  clientSessionCache : ~
+
+# sessionTicketsDisabled : ~
+# sessionTicketKey : ~
+#  clientSessionCache : ~
+
+  # min and max version specifies valid tls versions 
+  # uint16 inputs 
   minVersion : ~
   maxVersion : ~
-  curvePreferences : ~
-  dynamicRecordSizingDisabled : ~
-  renegotiation : ~
+ 
+#  curvePreferences : ~
+#  dynamicRecordSizingDisabled : ~
+#  renegotiation : ~
 testString : "AAAAAAAAAA"
