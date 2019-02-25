@@ -10,42 +10,20 @@ import (
 
 type config struct {
 	TLSConfig TLSStruct `yaml:"tlsConfig"`
-	TestString string `yaml:"testString"`
+//	TestString string `yaml:"testString"`
 }
 
 type TLSStruct struct {
-        RootCAs	interface{} `yaml:"rootCAs"`
-        ServerName	string      `yaml:"serverName"`
-        ClientAuth	interface{} `yaml:"clientAuth"`
-        ClientCAs	interface{} `yaml:"clientCAs"`
+//      RootCAs	interface{} `yaml:"rootCAs"`
+        ServerName	string	`yaml:"serverName"`
+	ClientAuth	string	`yaml:"clientAuth"`
+//      ClientCAs	interface{} `yaml:"clientCAs"`
         InsecureSkipVerify	bool	`yaml:"insecureSkipVerify"`
         CipherSuites	[]uint16 `yaml:"cipherSuites"`
         PreferServerCipherSuites	bool	`yaml:"preferServerCipherSuites"`
         MinVersion	uint16	`yaml:"minVersion"`
         MaxVersion	uint16	`yaml:"maxVersion"`
 }
-
-//func GetTLSConfig(c func(*tls.ClientHelloInfo)(*tls.Certificate, error))(*tls.Config) {
-//	var tlsc config
-//	tlsc.YamlIn("https/tls2.yml")
-//	if err != nil {
-//		log.Fatalf("BROKEN YAML")
-//       }	
-//	tlsc.TLSConfig.GetCertificate = c
-//	
-//	tlsc := &tls.Config{
-//		GetCertificate: c,
-//		ClientAuth: tls.RequireAndVerifyClientCert,
-//	}
-//	tlsc.TLSConfig.BuildNameToCertificate()	
-// 	return  &tlsc.TLSConfig 
-//}
-
-//func NewConfig(cfg *config) (*tls.Config, error){
-//	tlsConfig := &tls.Config{
-//		
-//	}
-//}
 
 func GetTLSConfig(cert, key string) *tls.Config {
 	tlsc := &tls.Config{
@@ -67,7 +45,6 @@ func GetTLSConfig(cert, key string) *tls.Config {
 }
 
 func LoadConfigFromYaml(cfg *tls.Config, fileName string)(*tls.Config, error){
-	
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		log.Infof("Failed to read file")
@@ -79,8 +56,44 @@ func LoadConfigFromYaml(cfg *tls.Config, fileName string)(*tls.Config, error){
 		
 		return cfg, err
 	}
-
-	log.Infoln(c.TestString)
-	log.Infoln(c.TLSConfig.ServerName)
+	if len(c.TLSConfig.ServerName) > 0 {
+		cfg.ServerName = c.TLSConfig.ServerName
+	}
+	if (c.TLSConfig.InsecureSkipVerify)==true{
+		cfg.InsecureSkipVerify = true
+	}		
+	if len(c.TLSConfig.CipherSuites) > 0 {
+		cfg.CipherSuites = c.TLSConfig.CipherSuites
+	}
+	if (c.TLSConfig.PreferServerCipherSuites)==true{
+		cfg.PreferServerCipherSuites = c.TLSConfig.PreferServerCipherSuites
+	}
+	if (c.TLSConfig.MinVersion) != 0 {
+		cfg.MinVersion = c.TLSConfig.MinVersion
+	}
+	if (c.TLSConfig.MaxVersion) != 0 {
+                cfg.MaxVersion = c.TLSConfig.MaxVersion
+        }
+//	if len(c.TLSConfig.RootCAs) > 0{
+//	//Append root ca's to certpool
+//	}
+	if len(c.TLSConfig.ClientAuth) > 0 {
+		switch s := (c.TLSConfig.ClientAuth); s{
+		case "RequestClientCert":
+			cfg.ClientAuth = tls.RequestClientCert
+		case "RequireClientCert":
+			cfg.ClientAuth = tls.RequireAnyClientCert
+		case "VerifyClientCertIfGiven":
+			cfg.ClientAuth = tls.VerifyClientCertIfGiven
+		case "RequireAndVerifyClientCert":
+			cfg.ClientAuth = tls.RequireAndVerifyClientCert	
+		default: 
+			cfg.ClientAuth = tls.NoClientCert
+		}
+	}
+	
+	
+//	log.Infoln(c.TLSConfig.ServerName)
+//	log.Infoln(cfg.ServerName)
 	return cfg, nil 
 }
