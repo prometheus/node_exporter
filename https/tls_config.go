@@ -9,36 +9,28 @@ import (
 )
 
 type config struct {
+	TLSCertPath string `yaml:"tlsCertPath"`
+	TLSKeyPath string `yaml:"tlsKeyPath"`
 	TLSConfig TLSStruct `yaml:"tlsConfig"`
-//	TestString string `yaml:"testString"`
 }
 
 type TLSStruct struct {
-//      RootCAs	interface{} `yaml:"rootCAs"`
-        ServerName	string	`yaml:"serverName"`
+//	RootCAs	interface{} `yaml:"rootCAs"`
+	ServerName	string	`yaml:"serverName"`
 	ClientAuth	string	`yaml:"clientAuth"`
-//      ClientCAs	interface{} `yaml:"clientCAs"`
-        InsecureSkipVerify	bool	`yaml:"insecureSkipVerify"`
-        CipherSuites	[]uint16 `yaml:"cipherSuites"`
-        PreferServerCipherSuites	bool	`yaml:"preferServerCipherSuites"`
-        MinVersion	uint16	`yaml:"minVersion"`
-        MaxVersion	uint16	`yaml:"maxVersion"`
+//	ClientCAs	interface{} `yaml:"clientCAs"`
+	InsecureSkipVerify	bool	`yaml:"insecureSkipVerify"`
+	CipherSuites	[]uint16 `yaml:"cipherSuites"`
+	PreferServerCipherSuites	bool	`yaml:"preferServerCipherSuites"`
+	MinVersion	uint16	`yaml:"minVersion"`
+	MaxVersion	uint16	`yaml:"maxVersion"`
 }
 
-func GetTLSConfig(cert, key string) *tls.Config {
-	tlsc := &tls.Config{
-		GetCertificate: func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
-			cert, err := tls.LoadX509KeyPair(cert, key)
-			if err != nil {
-				return nil, err
-			}
-			return &cert, nil
-		},
-		//		ClientAuth: tls.RequireAndVerifyClientCert,
-	}
-	tlsc, err := LoadConfigFromYaml(tlsc, "https/tls2.yml")
+func GetTLSConfig( configPath string) *tls.Config {
+	tlsc := &tls.Config{}
+	tlsc, err := LoadConfigFromYaml(tlsc, configPath)
 	if err != nil {
-		log.Fatalf("Config failed to load from Yaml")
+		log.Fatalf("Config failed to load from Yaml", err)
 	}
 	tlsc.BuildNameToCertificate()
 	return tlsc	
@@ -47,14 +39,21 @@ func GetTLSConfig(cert, key string) *tls.Config {
 func LoadConfigFromYaml(cfg *tls.Config, fileName string)(*tls.Config, error){
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		log.Infof("Failed to read file")
 		return cfg, err
 	}
 	c := &config{}
 	err = yaml.Unmarshal(content, c)
 	if err != nil {
-		
 		return cfg, err
+	}
+	if len(c.TLSCertPath) > 0 {
+		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+			cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
+			if err != nil {
+				return nil, err
+			}
+			return &cert, nil
+		}
 	}
 	if len(c.TLSConfig.ServerName) > 0 {
 		cfg.ServerName = c.TLSConfig.ServerName
@@ -91,9 +90,5 @@ func LoadConfigFromYaml(cfg *tls.Config, fileName string)(*tls.Config, error){
 			cfg.ClientAuth = tls.NoClientCert
 		}
 	}
-	
-	
-//	log.Infoln(c.TLSConfig.ServerName)
-//	log.Infoln(cfg.ServerName)
 	return cfg, nil 
 }

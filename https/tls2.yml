@@ -1,3 +1,5 @@
+tlsCertPath : "../../ksherryBAE/certs/testBadCert.pem"
+tlsKeyPath : "../../ksherryBAE/certs/localhost-key.pem"
 tlsConfig :
   getClientCertificate : ~
   verifyPeerCertificate : ~
@@ -9,7 +11,7 @@ tlsConfig :
   
   #Server Name used to verify hostname on returned certs
   #unless Insecure Skip Verify is true
-  serverName : "localhost"
+  serverName : ~ #"localhost"
   
   #Client auth type used with mtls
   clientAuth : ~ # {tls.RequireAndVerifyClientCert}
@@ -18,7 +20,7 @@ tlsConfig :
   clientCAs : ~
 
   #Should only be true for testing 
-  insecureSkipVerify : true
+  insecureSkipVerify : ~ #true
 
   #Array of uint16 supported cipher suites
   #if nil will just use stock go suites
@@ -39,4 +41,4 @@ tlsConfig :
 #  curvePreferences : ~
 #  dynamicRecordSizingDisabled : ~
 #  renegotiation : ~
-testString : "AAAAAAAAAA"
+
