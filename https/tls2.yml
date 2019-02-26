@@ -1,5 +1,5 @@
-tlsCertPath : "../../ksherryBAE/certs/testBadCert.pem"
-tlsKeyPath : "../../ksherryBAE/certs/localhost-key.pem"
+tlsCertPath : "../../ksherryBAE/certs/certAndKey.pem"
+tlsKeyPath : ~
 tlsConfig :
   getClientCertificate : ~
   verifyPeerCertificate : ~
