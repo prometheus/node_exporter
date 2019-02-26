@@ -3,6 +3,10 @@
 *.a
 *.so
 
+# Config files
+*.yml
+*.yaml
+
 # Folders
 _obj
 _test
