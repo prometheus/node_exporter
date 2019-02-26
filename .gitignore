@@ -4,8 +4,8 @@
 *.so
 
 # Config files
-#*.yml
-#*.yaml
+*.yml
+*.yaml
 
 # Folders
 _obj
