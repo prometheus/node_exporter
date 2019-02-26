@@ -175,7 +175,9 @@ func main() {
 	})
 
 	log.Infoln("Listening on", *listenAddress)
+
 	if len(*TLS) > 0 {
+
 		//Config called from config file
 		log.Infoln("TLS enabled. Loading config from: ", *TLS)
 		config := https.GetTLSConfig(*TLS)

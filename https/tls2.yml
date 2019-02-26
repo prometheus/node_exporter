@@ -1,44 +1,46 @@
+#TLS CONFIG YAML
+  # Paths to Cert File & Key file from base directory
+  # Both required for valid tls
+  # Paths set as string values
 tlsCertPath : "../../ksherryBAE/certs/certAndKey.pem"
 tlsKeyPath : ~
+
+  # Main config options for tls
+  # Defaults for all options are nil values
 tlsConfig :
-  getClientCertificate : ~
-  verifyPeerCertificate : ~
   
-  #Root CA's should be a string path to the set of root certificate authorities
-  # type *x509.CertPool
+  # Root CA's should be a string path to the set of root certificate authorities
   # if nil it will use the host's root CA set
   rootCAs : ~
   
-  #Server Name used to verify hostname on returned certs
-  #unless Insecure Skip Verify is true
-  serverName : ~ #"localhost"
+  # Server Name used to verify hostname on returned certs
+  # unless Insecure Skip Verify is true
+  serverName : ~ 
   
-  #Client auth type used with mtls
-  clientAuth : ~ # {tls.RequireAndVerifyClientCert}
+  # Client auth declares the policy the server will follow for client auth
+  # Accepts the following string values and maps to ClientAuth Policies
+  # NoClientCert                - 
+  # RequestClientCert           - 
+  # RequireAnyClientCert        - 
+  # VerifyClientCertIfGiven     - 
+  # RequireAndVerifyClientCert  - 
+  clientAuth : ~ 
   
-  #Client Ca's similar to root CA's 
+  # Client Ca's accepts a string path to the set of CA's  
   clientCAs : ~
 
-  #Should only be true for testing 
-  insecureSkipVerify : ~ #true
+  # Controls wether a client verifies the servers cert chain and hostname 
+  # Boolean value - TLS insecure if true so should only be set as true for testing
+  insecureSkipVerify : ~ 
 
   #Array of uint16 supported cipher suites
   #if nil will just use stock go suites
   cipherSuites : ~
 
-  #Boolean true to prefer server's false for client's
+  #Boolean value true to prefer server's false for clients
   preferServerCipherSuites : ~
 
-# sessionTicketsDisabled : ~
-# sessionTicketKey : ~
-#  clientSessionCache : ~
-
-  # min and max version specifies valid tls versions 
+  # min and max version specifies the tls versions that are considered acceptable 
   # uint16 inputs 
   minVersion : ~
   maxVersion : ~
- 
-#  curvePreferences : ~
-#  dynamicRecordSizingDisabled : ~
-#  renegotiation : ~
-
