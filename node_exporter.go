@@ -149,14 +149,6 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
-//		TLSCert = kingpin.Flag(
-//			"web.tls-cert",
-//			"Path to PEM file that contains the certificate (and optionally, the private key).",
-//		).Default("").String()
-//		TLSPrivateKey = kingpin.Flag(
-//			"web.tls-private-key",
-//			"Path to PEM file that contains the private key (if not contained in web.tls-cert file).",
-//		).Default("").String()
 		TLS = kingpin.Flag(
 			"web.tls",
 			"Path to TLS config yaml file that enables tls.",

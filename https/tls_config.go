@@ -2,6 +2,7 @@ package https
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"io/ioutil"
 
 	"github.com/prometheus/common/log"
@@ -15,10 +16,10 @@ type config struct {
 }
 
 type TLSStruct struct {
-//	RootCAs	interface{} `yaml:"rootCAs"`
+	RootCAs	string	`yaml:"rootCAs"`
 	ServerName	string	`yaml:"serverName"`
 	ClientAuth	string	`yaml:"clientAuth"`
-//	ClientCAs	interface{} `yaml:"clientCAs"`
+	ClientCAs	string	`yaml:"clientCAs"`
 	InsecureSkipVerify	bool	`yaml:"insecureSkipVerify"`
 	CipherSuites	[]uint16 `yaml:"cipherSuites"`
 	PreferServerCipherSuites	bool	`yaml:"preferServerCipherSuites"`
@@ -73,9 +74,24 @@ func LoadConfigFromYaml(cfg *tls.Config, fileName string)(*tls.Config, error){
 	if (c.TLSConfig.MaxVersion) != 0 {
                 cfg.MaxVersion = c.TLSConfig.MaxVersion
         }
-//	if len(c.TLSConfig.RootCAs) > 0{
-//	//Append root ca's to certpool
-//	}
+	if len(c.TLSConfig.RootCAs) > 0 {
+		rootCertPool := x509.NewCertPool()
+		rootCAFile, err := ioutil.ReadFile(c.TLSConfig.RootCAs)
+		if err != nil {
+			return cfg, err
+		}
+		rootCertPool.AppendCertsFromPEM(rootCAFile)
+		cfg.RootCAs = rootCertPool
+	}
+	if len(c.TLSConfig.ClientCAs) > 0 {
+		clientCAPool := x509.NewCertPool()
+		clientCAFile, err := ioutil.ReadFile(c.TLSConfig.ClientCAs)
+		if err != nil {
+			return cfg, err
+		}
+		clientCAPool.AppendCertsFromPEM(clientCAFile)
+		cfg.ClientCAs = clientCAPool
+	}
 	if len(c.TLSConfig.ClientAuth) > 0 {
 		switch s := (c.TLSConfig.ClientAuth); s{
 		case "RequestClientCert":
