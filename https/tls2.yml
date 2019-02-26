@@ -2,8 +2,8 @@
   # Paths to Cert File & Key file from base directory
   # Both required for valid tls
   # Paths set as string values
-tlsCertPath : "../../ksherryBAE/certs/certAndKey.pem"
-tlsKeyPath : ~
+tlsCertPath : ""
+tlsKeyPath : ""
 
   # Main config options for tls
   # Defaults for all options are nil values
