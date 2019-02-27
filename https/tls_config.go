@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type config struct {
+type Config struct {
 	TLSCertPath string    `yaml:"tlsCertPath"`
 	TLSKeyPath  string    `yaml:"tlsKeyPath"`
 	TLSConfig   TLSStruct `yaml:"tlsConfig"`
@@ -29,23 +29,31 @@ type TLSStruct struct {
 }
 
 func GetTLSConfig(configPath string) *tls.Config {
-	tlsc, err := loadConfigFromYaml(configPath)
+	config, err := loadConfigFromYaml(configPath)
 	if err != nil {
 		log.Fatal("Config failed to load from Yaml", err)
+	}
+	tlsc, err := LoadTLSConfig(config)
+	if err != nil {
+		log.Fatal("Failed to convert Config to tls.Config", err)
 	}
 	return tlsc
 }
 
-func loadConfigFromYaml(fileName string) (*tls.Config, error) {
+func loadConfigFromYaml(fileName string) (*Config, error) {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return nil, err
 	}
-	c := &config{}
+	c := &Config{}
 	err = yaml.Unmarshal(content, c)
 	if err != nil {
 		return nil, err
 	}
+	return c, nil
+}
+
+func LoadTLSConfig(c *Config) (*tls.Config, error) {
 	cfg := &tls.Config{}
 	if len(c.TLSCertPath) > 0 {
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
