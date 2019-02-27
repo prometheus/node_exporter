@@ -1,3 +1,4 @@
+//Package https allows the implementation of tls
 package https
 
 import (
@@ -17,15 +18,11 @@ type Config struct {
 }
 
 type TLSStruct struct {
-	RootCAs                  string   `yaml:"rootCAs"`
-	ServerName               string   `yaml:"serverName"`
-	ClientAuth               string   `yaml:"clientAuth"`
-	ClientCAs                string   `yaml:"clientCAs"`
-	InsecureSkipVerify       bool     `yaml:"insecureSkipVerify"`
-	CipherSuites             []uint16 `yaml:"cipherSuites"`
-	PreferServerCipherSuites bool     `yaml:"preferServerCipherSuites"`
-	MinVersion               uint16   `yaml:"minVersion"`
-	MaxVersion               uint16   `yaml:"maxVersion"`
+	RootCAs            string `yaml:"rootCAs"`
+	ServerName         string `yaml:"serverName"`
+	ClientAuth         string `yaml:"clientAuth"`
+	ClientCAs          string `yaml:"clientCAs"`
+	InsecureSkipVerify bool   `yaml:"insecureSkipVerify"`
 }
 
 func GetTLSConfig(configPath string) *tls.Config {
@@ -68,20 +65,8 @@ func LoadTLSConfig(c *Config) (*tls.Config, error) {
 	if len(c.TLSConfig.ServerName) > 0 {
 		cfg.ServerName = c.TLSConfig.ServerName
 	}
-	if (c.TLSConfig.InsecureSkipVerify) == true {
+	if c.TLSConfig.InsecureSkipVerify {
 		cfg.InsecureSkipVerify = true
-	}
-	if len(c.TLSConfig.CipherSuites) > 0 {
-		cfg.CipherSuites = c.TLSConfig.CipherSuites
-	}
-	if (c.TLSConfig.PreferServerCipherSuites) == true {
-		cfg.PreferServerCipherSuites = c.TLSConfig.PreferServerCipherSuites
-	}
-	if (c.TLSConfig.MinVersion) != 0 {
-		cfg.MinVersion = c.TLSConfig.MinVersion
-	}
-	if (c.TLSConfig.MaxVersion) != 0 {
-		cfg.MaxVersion = c.TLSConfig.MaxVersion
 	}
 	if len(c.TLSConfig.RootCAs) > 0 {
 		rootCertPool := x509.NewCertPool()
