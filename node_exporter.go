@@ -181,17 +181,12 @@ func main() {
 
 		//Config called from config file
 		log.Infoln("TLS enabled. Loading config from: ", *TLS)
-		config := https.GetTLSConfig(*TLS)
 
 		//tls config added to server
-		server.TLSConfig = config
+		server.TLSConfig = https.GetTLSConfig(*TLS)
 
-		if err := server.ListenAndServeTLS("", ""); err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		if err := server.ListenAndServe(); err != nil {
-			log.Fatal(err)
-		}
+	}
+	if err := https.Listen(server); err != nil {
+		log.Fatal(err)
 	}
 }

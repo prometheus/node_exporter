@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"net/http"
 
 	"github.com/prometheus/common/log"
 	"gopkg.in/yaml.v2"
@@ -107,4 +108,12 @@ func loadConfigFromYaml(fileName string) (*tls.Config, error) {
 		}
 	}
 	return cfg, nil
+}
+
+func Listen(server *http.Server) error {
+	if server.TLSConfig != nil {
+		return server.ListenAndServeTLS("", "")
+	} else {
+		return server.ListenAndServe()
+	}
 }
