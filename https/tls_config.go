@@ -13,10 +13,10 @@ import (
 type config struct {
 	TLSCertPath string    `yaml:"tlsCertPath"`
 	TLSKeyPath  string    `yaml:"tlsKeyPath"`
-	TLSConfig   tlsStruct `yaml:"tlsConfig"`
+	TLSConfig   TLSStruct `yaml:"tlsConfig"`
 }
 
-type tlsStruct struct {
+type TLSStruct struct {
 	RootCAs                  string   `yaml:"rootCAs"`
 	ServerName               string   `yaml:"serverName"`
 	ClientAuth               string   `yaml:"clientAuth"`
