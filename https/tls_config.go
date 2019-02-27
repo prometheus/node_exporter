@@ -12,10 +12,10 @@ import (
 type config struct {
 	TLSCertPath string    `yaml:"tlsCertPath"`
 	TLSKeyPath  string    `yaml:"tlsKeyPath"`
-	TLSConfig   TLSStruct `yaml:"tlsConfig"`
+	TLSConfig   tlsStruct `yaml:"tlsConfig"`
 }
 
-type TLSStruct struct {
+type tlsStruct struct {
 	RootCAs                  string   `yaml:"rootCAs"`
 	ServerName               string   `yaml:"serverName"`
 	ClientAuth               string   `yaml:"clientAuth"`
@@ -29,7 +29,7 @@ type TLSStruct struct {
 
 func GetTLSConfig(configPath string) *tls.Config {
 	tlsc := &tls.Config{}
-	tlsc, err := LoadConfigFromYaml(tlsc, configPath)
+	tlsc, err := loadConfigFromYaml(tlsc, configPath)
 	if err != nil {
 		log.Fatal("Config failed to load from Yaml", err)
 	}
@@ -37,7 +37,7 @@ func GetTLSConfig(configPath string) *tls.Config {
 	return tlsc
 }
 
-func LoadConfigFromYaml(cfg *tls.Config, fileName string) (*tls.Config, error) {
+func loadConfigFromYaml(cfg *tls.Config, fileName string) (*tls.Config, error) {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return cfg, err
