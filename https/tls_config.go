@@ -28,24 +28,24 @@ type tlsStruct struct {
 }
 
 func GetTLSConfig(configPath string) *tls.Config {
-	tlsc := &tls.Config{}
-	tlsc, err := loadConfigFromYaml(tlsc, configPath)
+	tlsc, err := loadConfigFromYaml(configPath)
 	if err != nil {
 		log.Fatal("Config failed to load from Yaml", err)
 	}
 	return tlsc
 }
 
-func loadConfigFromYaml(cfg *tls.Config, fileName string) (*tls.Config, error) {
+func loadConfigFromYaml(fileName string) (*tls.Config, error) {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		return cfg, err
+		return nil, err
 	}
 	c := &config{}
 	err = yaml.Unmarshal(content, c)
 	if err != nil {
-		return cfg, err
+		return nil, err
 	}
+	cfg := &tls.Config{}
 	if len(c.TLSCertPath) > 0 {
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 			cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
