@@ -31,7 +31,7 @@ func GetTLSConfig(configPath string) *tls.Config {
 	tlsc := &tls.Config{}
 	tlsc, err := LoadConfigFromYaml(tlsc, configPath)
 	if err != nil {
-		log.Fatalf("Config failed to load from Yaml", err)
+		log.Fatal("Config failed to load from Yaml", err)
 	}
 	tlsc.BuildNameToCertificate()
 	return tlsc
