@@ -14,7 +14,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
@@ -25,6 +24,7 @@ import (
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
+	"github.com/prometheus/node_exporter/https"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -129,34 +129,6 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
-//TLS Keypair reloading to be extracted to it's own package
-
-type wrappedCertificate struct {
-	certificate *tls.Certificate
-	certPath    string
-	keyPath     string
-}
-
-func (c *wrappedCertificate) getCertificate(clientHello *tls.ClientHelloInfo) (*tls.Certificate, error) {
-	log.Infoln("Client Hello Received")
-	if len(c.keyPath) <= 0 {
-		c.keyPath = c.certPath
-	}
-	c.loadCertificates(c.certPath, c.keyPath)
-
-	return c.certificate, nil
-}
-
-func (c *wrappedCertificate) loadCertificates(certPath, keyPath string) error {
-	certAndKey, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		return err
-	}
-	log.Infoln("Loading Certs")
-	c.certificate = &certAndKey
-	return nil
-}
-
 func main() {
 	var (
 		listenAddress = kingpin.Flag(
@@ -175,13 +147,9 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
-		TLSCert = kingpin.Flag(
-			"web.tls-cert",
-			"Path to PEM file that contains the certificate (and optionally, the private key).",
-		).Default("").String()
-		TLSPrivateKey = kingpin.Flag(
-			"web.tls-private-key",
-			"Path to PEM file that contains the private key (if not contained in web.tls-cert file).",
+		TLS = kingpin.Flag(
+			"web.tls-config",
+			"Path to TLS config yaml file that enables tls.",
 		).Default("").String()
 	)
 
@@ -204,26 +172,19 @@ func main() {
 			</html>`))
 	})
 
-	//wrapped Certificate struct called,  pass in initial paths
-	wrappedCert := wrappedCertificate{}
-	wrappedCert.loadCertificates(*TLSCert, *TLSPrivateKey)
-	wrappedCert.certPath = *TLSCert
-	wrappedCert.keyPath = *TLSPrivateKey
-	config := &tls.Config{
-		GetCertificate: wrappedCert.getCertificate,
-	}
-
-	//tls config added to server
-	server := &http.Server{Addr: *listenAddress, TLSConfig: config, Handler: nil}
 	log.Infoln("Listening on", *listenAddress)
-	if len(*TLSCert) > 0 {
 
-		if err := server.ListenAndServeTLS("", ""); err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		if err := http.ListenAndServe(*listenAddress, nil); err != nil {
-			log.Fatal(err)
-		}
+	server := &http.Server{Addr: *listenAddress, Handler: nil}
+	if len(*TLS) > 0 {
+
+		//Config called from config file
+		log.Infoln("TLS enabled. Loading config from: ", *TLS)
+
+		//tls config added to server
+		server.TLSConfig = https.GetTLSConfig(*TLS)
+
+	}
+	if err := https.Listen(server); err != nil {
+		log.Fatal(err)
 	}
 }
