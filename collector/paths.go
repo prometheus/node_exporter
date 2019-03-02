@@ -22,10 +22,15 @@ import (
 
 var (
 	// The path of the proc filesystem.
+	etcPath    = kingpin.Flag("path.etcfs", "etcfs mountpoint.").Default("/etc").String()
 	procPath   = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
 	sysPath    = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
 	rootfsPath = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
 )
+
+func etcFilePath(name string) string {
+	return filepath.Join(*etcPath, name)
+}
 
 func procFilePath(name string) string {
 	return filepath.Join(*procPath, name)

@@ -45,6 +45,7 @@ disabled_collectors=$(cat << COLLECTORS
   time
   timex
   uname
+  release
 COLLECTORS
 )
 cd "$(dirname $0)"
