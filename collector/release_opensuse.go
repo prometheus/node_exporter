@@ -78,6 +78,7 @@ func getRelease() (release, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Split(scanner.Text(), "=")
+		parts[1] = strings.Replace(parts[1], "\"", "", -1)
 		if "ID" == parts[0] {
 			release.ID = parts[1]
 		} else if "VERSION_ID" == parts[0] {
