@@ -34,7 +34,7 @@ import (
 */
 import "C"
 
-func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
+func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp) (map[string]map[string]string, error) {
 	netDev := map[string]map[string]string{}
 
 	var ifap, ifa *C.struct_ifaddrs
@@ -46,7 +46,11 @@ func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error)
 	for ifa = ifap; ifa != nil; ifa = ifa.ifa_next {
 		if ifa.ifa_addr.sa_family == C.AF_LINK {
 			dev := C.GoString(ifa.ifa_name)
-			if ignore.MatchString(dev) {
+			if ignore != nil && ignore.MatchString(dev) {
+				log.Debugf("Ignoring device: %s", dev)
+				continue
+			}
+			if accept != nil && !accept.MatchString(dev) {
 				log.Debugf("Ignoring device: %s", dev)
 				continue
 			}

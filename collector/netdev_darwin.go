@@ -27,7 +27,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
+func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp) (map[string]map[string]string, error) {
 	netDev := map[string]map[string]string{}
 
 	ifs, err := net.Interfaces()
@@ -43,6 +43,10 @@ func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error)
 		}
 
 		if ignore.MatchString(iface.Name) {
+			log.Debugf("Ignoring device: %s", iface.Name)
+			continue
+		}
+		if accept != nil && !accept.MatchString(iface.Name) {
 			log.Debugf("Ignoring device: %s", iface.Name)
 			continue
 		}
