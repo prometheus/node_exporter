@@ -7,7 +7,7 @@ If the config is kept within the https directory
 
 The layout of the config file should be as below:
 
-#TLS CONFIG YAML
+`#TLS CONFIG YAML
   # Paths to Cert File & Key file from base directory
   # Both required for valid tls
   # Paths set as string values
@@ -41,3 +41,4 @@ tlsConfig :
   # Controls whether a client verifies the servers cert chain and hostname
   # Boolean value - TLS insecure if true so should only be set as true for testing
   insecureSkipVerify : ~
+`
