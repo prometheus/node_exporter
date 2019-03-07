@@ -149,7 +149,7 @@ func main() {
 	)
 
 	log.AddFlags(kingpin.CommandLine)
-	kingpin.Version(version.Print("node_exporter"))
+	kingpin.Version(version.Print("node_exporter(fullnat) by changwei5"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
