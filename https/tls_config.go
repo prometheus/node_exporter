@@ -28,11 +28,11 @@ type TLSStruct struct {
 func GetTLSConfig(configPath string) *tls.Config {
 	config, err := loadConfigFromYaml(configPath)
 	if err != nil {
-		log.Fatal("Config failed to load from Yaml", err)
+		log.Error("Config failed to load from Yaml", err)
 	}
 	tlsc, err := LoadTLSConfig(config)
 	if err != nil {
-		log.Fatal("Failed to convert Config to tls.Config", err)
+		log.Error("Failed to convert Config to tls.Config", err)
 	}
 	return tlsc
 }
@@ -60,14 +60,11 @@ func LoadTLSConfig(c *Config) (*tls.Config, error) {
 			}
 			return &cert, nil
 		}
-		cfg.BuildNameToCertificate()
 	}
-	if len(c.TLSConfig.ServerName) > 0 {
-		cfg.ServerName = c.TLSConfig.ServerName
-	}
-	if c.TLSConfig.InsecureSkipVerify {
-		cfg.InsecureSkipVerify = true
-	}
+	cfg.ServerName = c.TLSConfig.ServerName
+
+	cfg.InsecureSkipVerify = c.TLSConfig.InsecureSkipVerify
+
 	if len(c.TLSConfig.RootCAs) > 0 {
 		rootCertPool := x509.NewCertPool()
 		rootCAFile, err := ioutil.ReadFile(c.TLSConfig.RootCAs)

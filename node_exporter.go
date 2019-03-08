@@ -148,7 +148,7 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
-		TLS = kingpin.Flag(
+		tlsFile = kingpin.Flag(
 			"web.tls-config",
 			"Path to TLS config yaml file that enables tls.",
 		).Default("").String()
@@ -176,13 +176,13 @@ func main() {
 	log.Infoln("Listening on", *listenAddress)
 
 	server := &http.Server{Addr: *listenAddress, Handler: nil}
-	if len(*TLS) > 0 {
+	if len(*tlsFile) > 0 {
 
 		//Config called from config file
-		log.Infoln("TLS enabled. Loading config from: ", *TLS)
+		log.Infoln("TLS enabled. Loading config from: ", *tlsFile)
 
 		//tls config added to server
-		server.TLSConfig = https.GetTLSConfig(*TLS)
+		server.TLSConfig = https.GetTLSConfig(*tlsFile)
 
 	}
 	if err := https.Listen(server); err != nil {
