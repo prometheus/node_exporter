@@ -43,6 +43,53 @@ type FNATStatsPerCpu struct {
 	OutgoingBytes uint64
 }
 
+type ExtStatsPerCpu = map[string]uint64
+type FNATExtStats struct {
+	FullnatAddToaOk             ExtStatsPerCpu
+	FullnatAddToaFailLen        ExtStatsPerCpu
+	FullnatAddToaHeadFull       ExtStatsPerCpu
+	FullnatAddToaFailMem        ExtStatsPerCpu
+	FullnatAddToaFailProto      ExtStatsPerCpu
+	FullnatConnReused           ExtStatsPerCpu
+	FullnatConnReusedClose      ExtStatsPerCpu
+	FullnatConnReusedTimewait   ExtStatsPerCpu
+	FullnatConnReusedFinwait    ExtStatsPerCpu
+	FullnatConnReusedClosewait  ExtStatsPerCpu
+	FullnatConnReusedLastack    ExtStatsPerCpu
+	FullnatConnReusedEstab      ExtStatsPerCpu
+	SynproxyRsError             ExtStatsPerCpu
+	SynproxyNullAck             ExtStatsPerCpu
+	SynproxyBadAck              ExtStatsPerCpu
+	SynproxyOkAck               ExtStatsPerCpu
+	SynproxySynCnt              ExtStatsPerCpu
+	SynproxyAckstorm            ExtStatsPerCpu
+	SynproxySynsendQlen         ExtStatsPerCpu
+	SynproxyConnReused          ExtStatsPerCpu
+	SynproxyConnReusedClose     ExtStatsPerCpu
+	SynproxyConnReusedTimewait  ExtStatsPerCpu
+	SynproxyConnReusedFinwait   ExtStatsPerCpu
+	SynproxyConnReusedClosewait ExtStatsPerCpu
+	SynproxyConnReusedLastack   ExtStatsPerCpu
+	DefenceIpFragDrop           ExtStatsPerCpu
+	DefenceIpFragGather         ExtStatsPerCpu
+	DefenceTcpDrop              ExtStatsPerCpu
+	DefenceUdpDrop              ExtStatsPerCpu
+	FastXmitReject              ExtStatsPerCpu
+	FastXmitPass                ExtStatsPerCpu
+	FastXmitSkbCopy             ExtStatsPerCpu
+	FastXmitNoMac               ExtStatsPerCpu
+	FastXmitSynproxySave        ExtStatsPerCpu
+	FastXmitDevLost             ExtStatsPerCpu
+	RstInSynSent                ExtStatsPerCpu
+	RstOutSynSent               ExtStatsPerCpu
+	RstInEstablished            ExtStatsPerCpu
+	RstOutEstablished           ExtStatsPerCpu
+	GroPass                     ExtStatsPerCpu
+	LroReject                   ExtStatsPerCpu
+	XmitUnexpectedMtu           ExtStatsPerCpu
+	ConnSchedUnreach            ExtStatsPerCpu
+}
+
 // FNATBackendStatus holds current metrics of one virtual / real address pair.
 type FNATBackendStatus struct {
 	// The local (virtual) IP address.
@@ -145,6 +192,152 @@ func parseFNATStats(file io.Reader) (FNATStats, error) {
 	return stats, nil
 }
 
+// NewFNATExtStats reads the FNAT ext statistics.
+func NewFNATExtStats() (FNATExtStats, error) {
+	fs, err := NewFS(DefaultMountPoint)
+	if err != nil {
+		return FNATExtStats{}, err
+	}
+
+	return fs.NewFNATExtStats()
+}
+
+// NewFNATStats reads the FNAT  ext statistics from the specified `proc` filesystem.
+func (fs FS) NewFNATExtStats() (FNATExtStats, error) {
+	file, err := os.Open(fs.Path("net/ip_vs_ext_stats"))
+	if err != nil {
+		return FNATExtStats{}, err
+	}
+	defer file.Close()
+
+	return parseFNATExtStats(file)
+}
+
+func parseFNATExtStats(file io.Reader) (FNATExtStats, error) {
+	var (
+		status  FNATExtStats = FNATExtStats{}
+		title   []string     = make([]string, 0)
+		scanner              = bufio.NewScanner(file)
+	)
+
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), ":")
+		if len(line) == 1 {
+			title = strings.Fields(line[0])
+			continue
+		}
+		fields := strings.Fields(line[1])
+
+		if len(fields) == 0 {
+			continue
+		}
+
+		switch {
+		case strings.TrimSpace(line[0]) == "fullnat_add_toa_ok":
+			status.FullnatAddToaOk = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_add_toa_fail_len":
+			status.FullnatAddToaFailLen = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_add_toa_head_full":
+			status.FullnatAddToaHeadFull = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_add_toa_fail_mem":
+			status.FullnatAddToaFailMem = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_add_toa_fail_proto":
+			status.FullnatAddToaFailProto = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_conn_reused":
+			status.FullnatConnReused = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_conn_reused_close":
+			status.FullnatConnReusedClose = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_conn_reused_timewait":
+			status.FullnatConnReusedTimewait = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_conn_reused_finwait":
+			status.FullnatConnReusedFinwait = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_conn_reused_closewait":
+			status.FullnatConnReusedClosewait = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_conn_reused_lastack":
+			status.FullnatConnReusedLastack = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fullnat_conn_reused_estab":
+			status.FullnatConnReusedEstab = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_rs_error":
+			status.SynproxyRsError = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_null_ack":
+			status.SynproxyNullAck = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_bad_ack":
+			status.SynproxyBadAck = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_ok_ack":
+			status.SynproxyOkAck = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_syn_cnt":
+			status.SynproxySynCnt = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_ackstorm":
+			status.SynproxyAckstorm = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_synsend_qlen":
+			status.SynproxySynsendQlen = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_conn_reused":
+			status.SynproxyConnReused = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_conn_reused_close":
+			status.SynproxyConnReusedClose = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_conn_reused_timewait":
+			status.SynproxyConnReusedTimewait = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_conn_reused_finwait":
+			status.SynproxyConnReusedFinwait = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_conn_reused_closewait":
+			status.SynproxyConnReusedClosewait = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "synproxy_conn_reused_lastack":
+			status.SynproxyConnReusedLastack = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "defence_ip_frag_drop":
+			status.DefenceIpFragDrop = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "defence_ip_frag_gather":
+			status.DefenceIpFragGather = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "defence_tcp_drop":
+			status.DefenceTcpDrop = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "defence_udp_drop":
+			status.DefenceUdpDrop = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fast_xmit_reject":
+			status.FastXmitReject = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fast_xmit_pass":
+			status.FastXmitPass = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fast_xmit_skb_copy":
+			status.FastXmitSkbCopy = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fast_xmit_no_mac":
+			status.FastXmitNoMac = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fast_xmit_synproxy_save":
+			status.FastXmitSynproxySave = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "fast_xmit_dev_lost":
+			status.FastXmitDevLost = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "rst_in_syn_sent":
+			status.RstInSynSent = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "rst_out_syn_sent":
+			status.RstOutSynSent = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "rst_in_established":
+			status.RstInEstablished = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "rst_out_established":
+			status.RstOutEstablished = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "gro_pass":
+			status.GroPass = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "lro_reject":
+			status.LroReject = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "xmit_unexpected_mtu":
+			status.XmitUnexpectedMtu = initExtStatsPerCpu(title, fields)
+		case strings.TrimSpace(line[0]) == "conn_sched_unreach":
+			status.ConnSchedUnreach = initExtStatsPerCpu(title, fields)
+
+		}
+
+	}
+	return status, nil
+}
+
+func initExtStatsPerCpu(title, f []string) ExtStatsPerCpu {
+	ret := make(ExtStatsPerCpu)
+	var err error
+	for k, v := range f {
+		ret[title[k]], err = strconv.ParseUint(v, 16, 64)
+		if err != nil {
+			continue
+		}
+	}
+	return ret
+}
+
 // NewFNATBackendStatus reads and returns the status of all (virtual,real) server pairs.
 func NewFNATBackendStatus() ([]FNATBackendStatus, error) {
 	fs, err := NewFS(DefaultMountPoint)
@@ -178,6 +371,7 @@ func parseFNATBackendStatus(file io.Reader) ([]FNATBackendStatus, error) {
 	)
 
 	for scanner.Scan() {
+
 		fields := strings.Fields(scanner.Text())
 		if len(fields) == 0 {
 			continue
