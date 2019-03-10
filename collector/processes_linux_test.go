@@ -16,6 +16,8 @@
 package collector
 
 import (
+	"os"
+	"reflect"
 	"testing"
 
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -26,7 +28,7 @@ func TestReadProcessStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := 1
-	pids, states, threads, err := getAllocatedThreads()
+	pids, states, threads, pidToUsage, err := getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
 	}
@@ -43,5 +45,11 @@ func TestReadProcessStatus(t *testing.T) {
 	}
 	if uint64(pids) > maxPid || pids == 0 {
 		t.Fatalf("Total running pids cannot be greater than %d or equals to 0", maxPid)
+	}
+
+	expectedPidToUsage := make(map[int]procResUsage)
+	expectedPidToUsage[10] = procResUsage{rss: 9 * os.Getpagesize(), vsize: 7, cpuTime: 0.140000}
+	if !reflect.DeepEqual(pidToUsage, expectedPidToUsage) {
+		t.Fatalf("Invalid per proc parsing.")
 	}
 }

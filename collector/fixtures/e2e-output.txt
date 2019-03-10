@@ -2304,6 +2304,11 @@ node_processes_state{state="S"} 1
 # HELP node_processes_threads Allocated threads in system
 # TYPE node_processes_threads gauge
 node_processes_threads 1
+# HELP node_processes_usage Per process usage of system resources
+# TYPE node_processes_usage gauge
+node_processes_usage{pid="10",resource="cpu_time"} 0.14
+node_processes_usage{pid="10",resource="rss"} 36864
+node_processes_usage{pid="10",resource="vsize"} 7
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
