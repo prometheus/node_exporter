@@ -25,15 +25,15 @@ import (
 )
 
 type Config struct {
-	TLSCertPath string    `yaml:"tlsCertPath"`
-	TLSKeyPath  string    `yaml:"tlsKeyPath"`
-	TLSConfig   TLSStruct `yaml:"tlsConfig"`
+	TLSConfig TLSStruct `yaml:"tlsConfig"`
 }
 
 type TLSStruct struct {
-	ServerName         string `yaml:"serverName"`
-	ClientAuth         string `yaml:"clientAuth"`
-	ClientCAs          string `yaml:"clientCAs"`
+	TLSCertPath string `yaml:"tlsCertPath"`
+	TLSKeyPath  string `yaml:"tlsKeyPath"`
+	ServerName  string `yaml:"serverName"`
+	ClientAuth  string `yaml:"clientAuth"`
+	ClientCAs   string `yaml:"clientCAs"`
 }
 
 func GetTLSConfig(configPath string) *tls.Config {
@@ -63,9 +63,9 @@ func loadConfigFromYaml(fileName string) (*Config, error) {
 
 func ConfigToTLSConfig(c *Config) (*tls.Config, error) {
 	cfg := &tls.Config{}
-	if len(c.TLSCertPath) > 0 {
+	if len(c.TLSConfig.TLSCertPath) > 0 {
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
-			cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
+			cert, err := tls.LoadX509KeyPair(c.TLSConfig.TLSCertPath, c.TLSConfig.TLSKeyPath)
 			if err != nil {
 				return nil, err
 			}

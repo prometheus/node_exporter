@@ -1,13 +1,14 @@
 #TLS CONFIG YAML
-  # Paths to Cert File & Key file from base directory
-  # Both required for valid tls
-  # Paths set as string values
-tlsCertPath : ""
-tlsKeyPath : ""
 
   # Main config options for tls
   # Defaults for all options are nil values
 tlsConfig :
+
+  # Paths to Cert File & Key file from base directory
+  # Both required for valid tls
+  # Paths set as string values
+  tlsCertPath : ""
+  tlsKeyPath : ""
 
   # ServerName used to verify hostname on returned certs
   # unless Insecure Skip Verify is true
