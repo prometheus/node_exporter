@@ -9,10 +9,6 @@ tlsKeyPath : ""
   # Defaults for all options are nil values
 tlsConfig :
 
-  # RootCA's should be a string path to the set of root certificate authorities
-  # if nil it will use the host's root CA set
-  rootCAs : ~
-
   # ServerName used to verify hostname on returned certs
   # unless Insecure Skip Verify is true
   serverName : ~ 
@@ -29,6 +25,3 @@ tlsConfig :
   # ClientCa's accepts a string path to the set of CA's  
   clientCAs : ~
 
-  # InsecureSkipVerify controls whether a client verifies the servers cert chain and hostname 
-  # Boolean value - TLS insecure if true so should only be set as true for testing
-  insecureSkipVerify : ~

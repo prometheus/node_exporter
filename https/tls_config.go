@@ -1,3 +1,16 @@
+// Copyright 2019 The Prometheus Authors
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Package https allows the implementation of tls
 package https
 
@@ -18,19 +31,17 @@ type Config struct {
 }
 
 type TLSStruct struct {
-	RootCAs            string `yaml:"rootCAs"`
 	ServerName         string `yaml:"serverName"`
 	ClientAuth         string `yaml:"clientAuth"`
 	ClientCAs          string `yaml:"clientCAs"`
-	InsecureSkipVerify bool   `yaml:"insecureSkipVerify"`
 }
 
 func GetTLSConfig(configPath string) *tls.Config {
 	config, err := loadConfigFromYaml(configPath)
 	if err != nil {
-		log.Error("Config failed to load from Yaml", err)
+		log.Error("config failed to load from YAML", err)
 	}
-	tlsc, err := LoadTLSConfig(config)
+	tlsc, err := ConfigToTLSConfig(config)
 	if err != nil {
 		log.Error("Failed to convert Config to tls.Config", err)
 	}
@@ -50,7 +61,7 @@ func loadConfigFromYaml(fileName string) (*Config, error) {
 	return c, nil
 }
 
-func LoadTLSConfig(c *Config) (*tls.Config, error) {
+func ConfigToTLSConfig(c *Config) (*tls.Config, error) {
 	cfg := &tls.Config{}
 	if len(c.TLSCertPath) > 0 {
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
@@ -63,17 +74,6 @@ func LoadTLSConfig(c *Config) (*tls.Config, error) {
 	}
 	cfg.ServerName = c.TLSConfig.ServerName
 
-	cfg.InsecureSkipVerify = c.TLSConfig.InsecureSkipVerify
-
-	if len(c.TLSConfig.RootCAs) > 0 {
-		rootCertPool := x509.NewCertPool()
-		rootCAFile, err := ioutil.ReadFile(c.TLSConfig.RootCAs)
-		if err != nil {
-			return cfg, err
-		}
-		rootCertPool.AppendCertsFromPEM(rootCAFile)
-		cfg.RootCAs = rootCertPool
-	}
 	if len(c.TLSConfig.ClientCAs) > 0 {
 		clientCAPool := x509.NewCertPool()
 		clientCAFile, err := ioutil.ReadFile(c.TLSConfig.ClientCAs)
