@@ -21,7 +21,7 @@ tlsConfig :
   # RequireAnyClientCert         
   # VerifyClientCertIfGiven      
   # RequireAndVerifyClientCert   
-  clientAuth : ~ 
+  clientAuth : ~
 
   # ClientCa's accepts a string path to the set of CA's  
   clientCAs : ~

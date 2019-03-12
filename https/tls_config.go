@@ -17,6 +17,7 @@ package https
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"io/ioutil"
 	"net/http"
 
@@ -39,11 +40,11 @@ type TLSStruct struct {
 func GetTLSConfig(configPath string) *tls.Config {
 	config, err := loadConfigFromYaml(configPath)
 	if err != nil {
-		log.Error("config failed to load from YAML", err)
+		log.Error("config failed to load from YAML: ", err)
 	}
 	tlsc, err := ConfigToTLSConfig(config)
 	if err != nil {
-		log.Error("Failed to convert Config to tls.Config", err)
+		log.Error("failed to convert Config to tls.Config: ", err)
 	}
 	return tlsc
 }
@@ -78,7 +79,7 @@ func ConfigToTLSConfig(c *Config) (*tls.Config, error) {
 		clientCAPool := x509.NewCertPool()
 		clientCAFile, err := ioutil.ReadFile(c.TLSConfig.ClientCAs)
 		if err != nil {
-			return cfg, err
+			return nil, err
 		}
 		clientCAPool.AppendCertsFromPEM(clientCAFile)
 		cfg.ClientCAs = clientCAPool
@@ -94,7 +95,7 @@ func ConfigToTLSConfig(c *Config) (*tls.Config, error) {
 		case "RequireAndVerifyClientCert":
 			cfg.ClientAuth = tls.RequireAndVerifyClientCert
 		default:
-			cfg.ClientAuth = tls.NoClientCert
+			return nil,(errors.New("Invalid string provided to ClientAuth"))
 		}
 	}
 	return cfg, nil

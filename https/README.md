@@ -1,25 +1,25 @@
-# https Package for prometheus
+# Https Package for prometheus
 
 The `https` directory contains files and a template config for the implementation of tls.
-When running a server with tls use the flag --web.tls-config=" /path to config/.yml "
+When running a server with tls use the flag `--web.tls-config`
 Where the path is from where the exporter was run.
 
 e.g. `./node_exporter --web.tls-config="https/tls-config.yml"`
 If the config is kept within the https directory 
 
-## TLS Config Layout
+### TLS Config Layout
 
 ```
 #TLS CONFIG YAML
+  # Main config options for tls
+
+tlsConfig :
+
   # Paths to Cert File & Key file from base directory
   # Both required for valid tls
   # Paths set as string values
-tlsCertPath : ""
-tlsKeyPath : ""
-
-  # Main config options for tls
-  # Defaults for all options are nil values
-tlsConfig :
+  tlsCertPath : ""
+  tlsKeyPath : ""
 
   # RootCA's should be a string path to the set of root certificate authorities
   # if nil it will use the host's root CA set

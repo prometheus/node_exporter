@@ -150,7 +150,7 @@ func main() {
 		).Default("40").Int()
 		tlsFile = kingpin.Flag(
 			"web.tls-config",
-			"Path to TLS config yaml file that enables tls.",
+			"Path to TLS config yaml file that enables TLS.",
 		).Default("").String()
 	)
 
