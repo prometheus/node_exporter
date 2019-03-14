@@ -1,28 +1,12 @@
-#TLS CONFIG YAML
-
-  # Main config options for tls
-  # Defaults for all options are nil values
+#TLS Config YAML
 tlsConfig :
 
-  # Paths to Cert File & Key file from base directory
-  # Both required for valid tls
-  # Paths set as string values
-  tlsCertPath : ""
-  tlsKeyPath : ""
+  tlsCertPath : "valid_cert_file"
 
-  # ServerName used to verify hostname on returned certs
-  # unless Insecure Skip Verify is true
-  serverName : ""
+  tlsKeyPath : "valid_key_file"
 
-  # ClientAuth declares the policy the server will follow for client auth
-  # Accepts the following string values and maps to ClientAuth Policies
-  # NoClientCert                 
-  # RequestClientCert            
-  # RequireAnyClientCert         
-  # VerifyClientCertIfGiven      
-  # RequireAndVerifyClientCert   
-  clientAuth : ""
+  serverName : "localhost:1234"
 
-  # ClientCa's accepts a string path to the set of CA's  
-  clientCAs : ""
+  clientAuth : "RequireAndVerifyClientCert"
 
+  clientCAs : "valid_ca_file"

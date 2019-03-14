@@ -176,16 +176,8 @@ func main() {
 	log.Infoln("Listening on", *listenAddress)
 
 	server := &http.Server{Addr: *listenAddress, Handler: nil}
-	if len(*tlsFile) > 0 {
 
-		//Config called from config file
-		log.Infoln("TLS enabled. Loading config from: ", *tlsFile)
-
-		//tls config added to server
-		server.TLSConfig = https.GetTLSConfig(*tlsFile)
-
-	}
-	if err := https.Listen(server); err != nil {
+	if err := https.Listen(server, *tlsFile); err != nil {
 		log.Fatal(err)
 	}
 }

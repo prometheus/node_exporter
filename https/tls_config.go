@@ -37,16 +37,18 @@ type TLSStruct struct {
 	ClientCAs   string `yaml:"clientCAs"`
 }
 
-func GetTLSConfig(configPath string) *tls.Config {
+func getTLSConfig(configPath string) (*tls.Config, error) {
 	config, err := loadConfigFromYaml(configPath)
 	if err != nil {
 		log.Error("config failed to load from YAML: ", err)
+		return nil, err
 	}
-	tlsc, err := ConfigToTLSConfig(config)
+	tlsc, err := configToTLSConfig(config)
 	if err != nil {
 		log.Error("failed to convert Config to tls.Config: ", err)
+		return nil, err
 	}
-	return tlsc
+	return tlsc, nil
 }
 
 func loadConfigFromYaml(fileName string) (*Config, error) {
@@ -62,7 +64,7 @@ func loadConfigFromYaml(fileName string) (*Config, error) {
 	return c, nil
 }
 
-func ConfigToTLSConfig(c *Config) (*tls.Config, error) {
+func configToTLSConfig(c *Config) (*tls.Config, error) {
 	cfg := &tls.Config{}
 	if len(c.TLSConfig.TLSCertPath) > 0 {
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
@@ -101,8 +103,19 @@ func ConfigToTLSConfig(c *Config) (*tls.Config, error) {
 	return cfg, nil
 }
 
-func Listen(server *http.Server) error {
-	if server.TLSConfig != nil {
+// When the listen function is called if the tlsConfigPath is an empty string an HTTP server is started
+// If the tlsConfigPath is a valid config file then an HTTPS server will be started
+// The listen function also sets the GetConfigForClient method of the HTTPS server so that the config and certs are reloaded on new connections
+func Listen(server *http.Server, tlsConfigPath string) error {
+	if len(tlsConfigPath) > 0 {
+		var err error
+		server.TLSConfig, err = getTLSConfig(tlsConfigPath)
+		if err != nil {
+			return err
+		}
+		server.TLSConfig.GetConfigForClient = func(*tls.ClientHelloInfo) (*tls.Config, error) {
+			return getTLSConfig(tlsConfigPath)
+		}
 		return server.ListenAndServeTLS("", "")
 	} else {
 		return server.ListenAndServe()
