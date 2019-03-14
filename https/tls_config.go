@@ -17,10 +17,10 @@ package https
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"io/ioutil"
 	"net/http"
 
+	"github.com/pkg/errors"
 	"github.com/prometheus/common/log"
 	"gopkg.in/yaml.v2"
 )
@@ -95,7 +95,7 @@ func ConfigToTLSConfig(c *Config) (*tls.Config, error) {
 		case "RequireAndVerifyClientCert":
 			cfg.ClientAuth = tls.RequireAndVerifyClientCert
 		default:
-			return nil,(errors.New("Invalid string provided to ClientAuth"))
+			return nil, errors.New("Invalid string provided to ClientAuth")
 		}
 	}
 	return cfg, nil

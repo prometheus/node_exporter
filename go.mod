@@ -11,6 +11,7 @@ require (
 	github.com/mattn/go-xmlrpc v0.0.1
 	github.com/mdlayher/genetlink v0.0.0-20190828143517-e35f2bf499b9 // indirect
 	github.com/mdlayher/wifi v0.0.0-20190303161829-b1436901ddee
+	github.com/pkg/errors v0.8.0
 	github.com/prometheus/client_golang v1.0.0
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 	github.com/prometheus/common v0.7.0

@@ -12,7 +12,7 @@ tlsConfig :
 
   # ServerName used to verify hostname on returned certs
   # unless Insecure Skip Verify is true
-  serverName : ~ 
+  serverName : ""
 
   # ClientAuth declares the policy the server will follow for client auth
   # Accepts the following string values and maps to ClientAuth Policies
@@ -21,8 +21,8 @@ tlsConfig :
   # RequireAnyClientCert         
   # VerifyClientCertIfGiven      
   # RequireAndVerifyClientCert   
-  clientAuth : ~
+  clientAuth : ""
 
   # ClientCa's accepts a string path to the set of CA's  
-  clientCAs : ~
+  clientCAs : ""
 
