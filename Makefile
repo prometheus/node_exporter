@@ -11,6 +11,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Ensure that 'all' is the default target otherwise it will be the first target from Makefile.common.
+all::
+
 include Makefile.common
 
 PROMTOOL_VERSION ?= 2.5.0
@@ -70,7 +73,7 @@ $(eval $(call goarch_pair,amd64,386))
 $(eval $(call goarch_pair,mips64,mips))
 $(eval $(call goarch_pair,mips64el,mipsel))
 
-all: style vet staticcheck checkmetrics checkrules build test $(cross-test) $(test-e2e)
+all:: vet checkmetrics checkrules common-all $(cross-test) $(test-e2e)
 
 .PHONY: test
 test: collector/fixtures/sys/.unpacked
