@@ -5,8 +5,6 @@ tlsConfig :
 
   tlsKeyPath : "valid_key_file"
 
-  serverName : "localhost:1234"
-
   clientAuth : "RequireAndVerifyClientCert"
 
   clientCAs : "valid_ca_file"

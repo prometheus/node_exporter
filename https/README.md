@@ -25,9 +25,6 @@ tlsConfig :
   tlsCertPath : <filename>
   tlsKeyPath : <filename>
 
-  # ServerName used to verify hostname on returned certs
-  [ serverName : <string> ]
-
   # ClientAuth declares the policy the server will follow for client auth
   # Accepts the following string values and maps to ClientAuth Policies
   # NoClientCert                

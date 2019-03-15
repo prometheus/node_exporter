@@ -32,7 +32,6 @@ type Config struct {
 type TLSStruct struct {
 	TLSCertPath string `yaml:"tlsCertPath"`
 	TLSKeyPath  string `yaml:"tlsKeyPath"`
-	ServerName  string `yaml:"serverName"`
 	ClientAuth  string `yaml:"clientAuth"`
 	ClientCAs   string `yaml:"clientCAs"`
 }
@@ -75,7 +74,6 @@ func configToTLSConfig(c *Config) (*tls.Config, error) {
 			return &cert, nil
 		}
 	}
-	cfg.ServerName = c.TLSConfig.ServerName
 
 	if len(c.TLSConfig.ClientCAs) > 0 {
 		clientCAPool := x509.NewCertPool()
@@ -88,6 +86,8 @@ func configToTLSConfig(c *Config) (*tls.Config, error) {
 	}
 	if len(c.TLSConfig.ClientAuth) > 0 {
 		switch s := (c.TLSConfig.ClientAuth); s {
+		case "NoClientCert":
+			cfg.ClientAuth = tls.NoClientCert
 		case "RequestClientCert":
 			cfg.ClientAuth = tls.RequestClientCert
 		case "RequireClientCert":
@@ -117,7 +117,6 @@ func Listen(server *http.Server, tlsConfigPath string) error {
 			return getTLSConfig(tlsConfigPath)
 		}
 		return server.ListenAndServeTLS("", "")
-	} else {
-		return server.ListenAndServe()
 	}
+	return server.ListenAndServe()
 }
