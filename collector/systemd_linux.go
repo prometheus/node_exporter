@@ -36,6 +36,7 @@ var (
 	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
 	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
 	enableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
+	enableProcessMetrics   = kingpin.Flag("collector.systemd.enable-process-metrics", "Enables service unit process metrics").Bool()
 )
 
 type systemdCollector struct {
@@ -159,6 +160,16 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Debugf("systemd collectUnitStatusMetrics took %f", time.Since(begin).Seconds())
 	}()
 
+	if *enableProcessMetrics {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			begin = time.Now()
+			c.collectUnitProcessMetrics(conn, ch, units)
+			log.Debugf("systemd collectUnitProcessMetrics took %f", time.Since(begin).Seconds())
+		}()
+	}
+
 	if *enableStartTimeMetrics {
 		wg.Add(1)
 		go func() {
@@ -199,6 +210,42 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	err = c.collectSystemState(conn, ch)
 	log.Debugf("systemd collectSystemState took %f", time.Since(begin).Seconds())
 	return err
+}
+
+func (c *systemdCollector) collectUnitProcessMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+	for _, unit := range units {
+		if !strings.HasSuffix(unit.Name, ".service") {
+			continue
+		}
+
+		// TODO: ExecStart type property, has a slice with process information.
+		// When systemd manages multiple processes, maybe we should add them all?
+		mainPID, err := conn.GetUnitTypeProperty(unit.Name, "Service", "MainPID")
+		if err != nil {
+			log.Debugf("couldn't get unit '%s' MainPid: %s", unit.Name, err)
+			continue
+		}
+		pid, ok := mainPID.Value.Value().(uint32)
+		if !ok {
+			log.Debugf("couldn't convert unit '%s' MainPid: %v to uint32", unit.Name, mainPID.Value.Value())
+			continue
+		}
+
+		// MainPID 0 when the service currently has no main PID
+		if pid == 0 {
+			continue
+		}
+
+		procCollector := prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{
+			PidFn: func() (int, error) {
+				return int(pid), nil
+			},
+			Namespace:    "node_systemd_" + cleanMetricName(strings.TrimSuffix(unit.Name, ".service")),
+			ReportErrors: false,
+		})
+
+		procCollector.Collect(ch)
+	}
 }
 
 func (c *systemdCollector) collectUnitStatusMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
