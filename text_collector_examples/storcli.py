@@ -52,7 +52,8 @@ def main(args):
                 handle_megaraid_controller(response)
             elif response['Version']['Driver Name'] == 'mpt3sas':
                 handle_sas_controller(response)
-    except KeyError:
+    except KeyError as e:
+        print("# ERROR:", e)
         pass
 
     print_all_metrics(metric_list)
@@ -95,8 +96,10 @@ def handle_megaraid_controller(response):
     add_metric('scheduled_patrol_read', baselabel,
                int('hrs' in response['Scheduled Tasks']['Patrol Read Reoccurrence']))
     add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
-    for cvidx, cvinfo in enumerate(response['Cachevault_Info']):
-        add_metric('cv_temperature', baselabel + ',cvidx="' + str(cvidx) + '"', int(cvinfo['Temp'].replace('C','')))
+
+    if 'Cachevault_Info' in response:
+        for cvidx, cvinfo in enumerate(response['Cachevault_Info']):
+            add_metric('cv_temperature', baselabel + ',cvidx="' + str(cvidx) + '"', int(cvinfo['Temp'].replace('C','')))
 
     time_difference_seconds = -1
     system_time = datetime.strptime(response['Basics'].get('Current System Date/time'),
