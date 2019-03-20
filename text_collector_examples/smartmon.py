@@ -5,13 +5,15 @@ import csv
 import datetime
 import decimal
 import re
-import subprocess
 import shlex
+import subprocess
 
 device_info_re = re.compile(r'^(?P<k>[^:]+?)(?:(?:\sis|):)\s*(?P<v>.*)$')
 
 ata_error_count_re = re.compile(
     r'^Error (\d+) \[\d+\] occurred', re.MULTILINE)
+
+self_test_re = re.compile(r'^SMART.*(PASSED|OK)$', re.MULTILINE)
 
 device_info_map = {
     'Vendor': 'vendor',
@@ -119,10 +121,12 @@ def smart_ctl(*args, check=True):
     Returns:
         (str) Data piped to stdout by the smartctl subprocess.
     """
-    return subprocess.run(
-        ['smartctl', *args], stdout=subprocess.PIPE, check=check,
-    ).stdout.decode('utf-8')
-
+    try:
+        return subprocess.run(
+            ['smartctl', *args], stdout=subprocess.PIPE, check=check
+        ).stdout.decode('utf-8')
+    except subprocess.CalledProcessError as e:
+        return e.output.decode('utf-8')
 
 def smart_ctl_version():
     return smart_ctl('-V').split('\n')[0].split()[1]
@@ -237,12 +241,12 @@ def collect_device_health_self_assessment(device):
     Yields:
         (Metric) Device health self assessment.
     """
-    out = smart_ctl(
-        '--health', *device.smartctl_select()
-    ).strip().split('\n')
+    out = smart_ctl('--health', *device.smartctl_select())
 
-    self_assessment_passed = \
-        out[4].endswith('PASSED') or out[4].endswith('OK')
+    if self_test_re.search(out):
+        self_assessment_passed = True
+    else:
+        self_assessment_passed = False
 
     yield Metric(
         'device_smart_healthy', device.base_labels, self_assessment_passed)
@@ -372,4 +376,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
