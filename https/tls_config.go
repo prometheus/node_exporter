@@ -21,7 +21,6 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/log"
 	"gopkg.in/yaml.v2"
 )
 
@@ -39,12 +38,10 @@ type TLSStruct struct {
 func getTLSConfig(configPath string) (*tls.Config, error) {
 	config, err := loadConfigFromYaml(configPath)
 	if err != nil {
-		log.Error("config failed to load from YAML: ", err)
 		return nil, err
 	}
 	tlsc, err := configToTLSConfig(config)
 	if err != nil {
-		log.Error("failed to convert Config to tls.Config: ", err)
 		return nil, err
 	}
 	return tlsc, nil
@@ -65,7 +62,11 @@ func loadConfigFromYaml(fileName string) (*Config, error) {
 
 func configToTLSConfig(c *Config) (*tls.Config, error) {
 	cfg := &tls.Config{}
-	if len(c.TLSConfig.TLSCertPath) > 0 {
+	if len(c.TLSConfig.TLSCertPath) > 0 && len(c.TLSConfig.TLSKeyPath) > 0 {
+		_, err := tls.LoadX509KeyPair(c.TLSConfig.TLSCertPath, c.TLSConfig.TLSKeyPath)
+		if err != nil {
+			return nil, err
+		}
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 			cert, err := tls.LoadX509KeyPair(c.TLSConfig.TLSCertPath, c.TLSConfig.TLSKeyPath)
 			if err != nil {
