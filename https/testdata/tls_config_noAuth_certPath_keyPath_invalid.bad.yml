@@ -1,0 +1,10 @@
+#TLS Config YAML
+tlsConfig :
+
+  tlsCertPath : "somefile"
+
+  tlsKeyPath : "somefile"
+
+#  clientAuth : "RequireAndVerifyClientCert"
+
+#  clientCAs : "valid_ca_file"
