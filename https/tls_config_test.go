@@ -50,7 +50,7 @@ func TestListen(t *testing.T) {
 	}
 
 	TLSClient := func() *http.Client {
-		cert, err := ioutil.ReadFile("./testdata/tls-ca-chain.pem")
+		cert, err := ioutil.ReadFile("testdata/tls-ca-chain.pem")
 		if err != nil {
 			log.Fatal("Unable to start TLS client. Check cert path")
 		}
@@ -307,7 +307,7 @@ func runTest(test *TestInputs) (passed bool) {
 
 	// If goroutines block, return false
 	go func() {
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 		connected(false, "test timed out")
 	}()
 
@@ -321,6 +321,7 @@ func runTest(test *TestInputs) (passed bool) {
 
 	// Try to connect with provided nonTLSClient and URL
 	go func() {
+		time.Sleep(1 * time.Second)
 		defer func() {
 			recover()
 		}()
