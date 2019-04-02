@@ -189,7 +189,7 @@ func (dec *decoder) decode(s string, depth int) interface{} {
 			panic(FormatError("input exceeds container depth limit"))
 		}
 		length := dec.decode("u", depth).(uint32)
-		v := reflect.MakeSlice(reflect.SliceOf(typeFor(s[1:])), 0, int(length))
+		v := reflect.MakeSlice(reflect.SliceOf(typeFor(s[1:])), 0, 0)
 		// Even for empty arrays, the correct padding must be included
 		align := alignment(typeFor(s[1:]))
 		if len(s) > 1 && s[1] == '(' {
