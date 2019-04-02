@@ -4,7 +4,7 @@ require (
 	github.com/beevik/ntp v0.2.0
 	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142
 	github.com/ema/qdisc v0.0.0-20180104102928-b307c22d3ce7
-	github.com/godbus/dbus v0.0.0-20181101234600-2ff6f7ffd60f
+	github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
 	github.com/mattn/go-xmlrpc v0.0.0-20180914005235-ceecee2c45b7
