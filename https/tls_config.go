@@ -47,7 +47,7 @@ func getTLSConfig(configPath string) (*tls.Config, error) {
 	return tlsc, nil
 }
 
-func loadConfigFromYaml(fileName string) (*Config, error) {
+func loadConfigFromYaml(fileName string) (*TLSConfig, error) {
 	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return nil, err
@@ -57,36 +57,42 @@ func loadConfigFromYaml(fileName string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	return c, nil
+	return &c.TLSConfig, nil
 }
 
-func configToTLSConfig(c *Config) (*tls.Config, error) {
+func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 	cfg := &tls.Config{}
-	if len(c.TLSConfig.TLSCertPath) > 0 && len(c.TLSConfig.TLSKeyPath) > 0 {
-		_, err := tls.LoadX509KeyPair(c.TLSConfig.TLSCertPath, c.TLSConfig.TLSKeyPath)
-		if err != nil {
-			return nil, err
-		}
-		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
-			cert, err := tls.LoadX509KeyPair(c.TLSConfig.TLSCertPath, c.TLSConfig.TLSKeyPath)
+	if len(c.TLSCertPath) > 0 && len(c.TLSKeyPath) > 0 {
+
+		loadCert := func() (*tls.Certificate, error) {
+			cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
 			if err != nil {
 				return nil, err
 			}
 			return &cert, nil
 		}
+
+		//Errors if either the certpath or keypath is invalid
+		if _, err := loadCert(); err != nil {
+			return nil, err
+		}
+
+		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+			return loadCert()
+		}
 	}
 
-	if len(c.TLSConfig.ClientCAs) > 0 {
+	if len(c.ClientCAs) > 0 {
 		clientCAPool := x509.NewCertPool()
-		clientCAFile, err := ioutil.ReadFile(c.TLSConfig.ClientCAs)
+		clientCAFile, err := ioutil.ReadFile(c.ClientCAs)
 		if err != nil {
 			return nil, err
 		}
 		clientCAPool.AppendCertsFromPEM(clientCAFile)
 		cfg.ClientCAs = clientCAPool
 	}
-	if len(c.TLSConfig.ClientAuth) > 0 {
-		switch s := (c.TLSConfig.ClientAuth); s {
+	if len(c.ClientAuth) > 0 {
+		switch s := (c.ClientAuth); s {
 		case "NoClientCert":
 			cfg.ClientAuth = tls.NoClientCert
 		case "RequestClientCert":
@@ -98,7 +104,7 @@ func configToTLSConfig(c *Config) (*tls.Config, error) {
 		case "RequireAndVerifyClientCert":
 			cfg.ClientAuth = tls.RequireAndVerifyClientCert
 		default:
-			return nil, errors.New("Invalid string provided to ClientAuth")
+			return nil, errors.New("Invalid string provided to ClientAuth: " + s)
 		}
 	}
 	return cfg, nil
