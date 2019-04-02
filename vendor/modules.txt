@@ -7,19 +7,19 @@ github.com/alecthomas/units
 github.com/beevik/ntp
 # github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
 github.com/beorn7/perks/quantile
-# github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142
+# github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e
 github.com/coreos/go-systemd/dbus
 # github.com/ema/qdisc v0.0.0-20180104102928-b307c22d3ce7
 github.com/ema/qdisc
 # github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 github.com/godbus/dbus
-# github.com/golang/protobuf v1.2.0
+# github.com/golang/protobuf v1.3.1
 github.com/golang/protobuf/proto
-# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+# github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
 github.com/lufia/iostat
-# github.com/mattn/go-xmlrpc v0.0.0-20180914005235-ceecee2c45b7
+# github.com/mattn/go-xmlrpc v0.0.1
 github.com/mattn/go-xmlrpc
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
 github.com/matttproud/golang_protobuf_extensions/pbutil
@@ -52,20 +52,18 @@ github.com/prometheus/procfs/xfs
 github.com/prometheus/procfs/internal/util
 # github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
 github.com/siebenmann/go-kstat
-# github.com/sirupsen/logrus v1.3.0
+# github.com/sirupsen/logrus v1.4.1
 github.com/sirupsen/logrus
 # github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 github.com/soundcloud/go-runit/runit
-# golang.org/x/crypto v0.0.0-20190208162236-193df9c0f06f
-golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20190206173232-65e2d4e15006
+# golang.org/x/net v0.0.0-20190328230028-74de082e2cca
 golang.org/x/net/ipv4
 golang.org/x/net/bpf
 golang.org/x/net/internal/iana
 golang.org/x/net/internal/socket
-# golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
+# golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20190209173611-3b5209105503
+# golang.org/x/sys v0.0.0-20190402142545-baf5eb976a8c
 golang.org/x/sys/unix
 golang.org/x/sys/windows/svc/eventlog
 golang.org/x/sys/windows
