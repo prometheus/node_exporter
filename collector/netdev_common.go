@@ -27,8 +27,8 @@ import (
 )
 
 var (
-	netdevIgnoredDevices = kingpin.Flag("collector.netdev.ignored-devices", "Regexp of net devices to ignore for netdev collector (mutually exclusive to accept-devices).").String()
-	netdevAcceptDevices  = kingpin.Flag("collector.netdev.accept-devices", "Regexp of net devices to accept for netdev colletor (mutually exclusive to ignored-devices).").String()
+	netdevIgnoredDevices = kingpin.Flag("collector.netdev.device-blacklist", "Regexp of net devices to blacklist (mutually exclusive to device-whitelist).").String()
+	netdevAcceptDevices  = kingpin.Flag("collector.netdev.device-whitelist", "Regexp of net devices to whitelist (mutually exclusive to device-blacklist).").String()
 )
 
 type netDevCollector struct {
@@ -45,7 +45,7 @@ func init() {
 // NewNetDevCollector returns a new Collector exposing network device stats.
 func NewNetDevCollector() (Collector, error) {
 	if *netdevIgnoredDevices != "" && *netdevAcceptDevices != "" {
-		return nil, errors.New("ignored-devices & accept-devices are mutually exclusive")
+		return nil, errors.New("device-blacklist & accept-devices are mutually exclusive")
 	}
 
 	var ignorePattern *regexp.Regexp = nil
