@@ -11,7 +11,7 @@ github.com/beorn7/perks/quantile
 github.com/coreos/go-systemd/dbus
 # github.com/ema/qdisc v0.0.0-20180104102928-b307c22d3ce7
 github.com/ema/qdisc
-# github.com/godbus/dbus v0.0.0-20181101234600-2ff6f7ffd60f
+# github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 github.com/godbus/dbus
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
