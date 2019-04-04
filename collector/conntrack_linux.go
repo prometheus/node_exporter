@@ -77,7 +77,7 @@ func NewConntrackCollector() (Collector, error) {
 		genericTimeout: buildDesc("nf_conntrack_generic_timeout", "Default for generic timeout"),
 
 		frag6HighTresh: buildDesc("nf_conntrack_frag6_high_thresh", "Maximum memory used to reassemble IPv6 fragments"),
-		frag6LowTresh:  buildDesc("nf_conntrack_frag6_low_thresh", "Amount of memory the fragment handler will go back to when the high treshold is reached"),
+		frag6LowTresh:  buildDesc("nf_conntrack_frag6_low_thresh", "Amount of memory the fragment handler will go back to when the high threshold is reached"),
 		frag6Timeout:   buildDesc("nf_conntrack_frag6_timeout", "Time to keep an IPv6 fragment in memory"),
 
 		icmpTimeout:  buildDesc("nf_conntrack_icmp_timeout", "Default for ICMP timeout"),
@@ -153,7 +153,7 @@ func readAndSendValue(ch chan<- prometheus.Metric, file string, desc *prometheus
 	if err == nil {
 		ch <- prometheus.MustNewConstMetric(desc, valueType, float64(value))
 	} else {
-		log.Warn(fmt.Sprintf("a problem occured while reading the file: %s", err))
+		log.Warn(fmt.Sprintf("a problem occurred while reading the file: %s", err))
 	}
 	return err
 }

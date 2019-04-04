@@ -2072,7 +2072,7 @@ node_nf_conntrack_expect_max 1024
 # HELP node_nf_conntrack_frag6_high_thresh Maximum memory used to reassemble IPv6 fragments
 # TYPE node_nf_conntrack_frag6_high_thresh gauge
 node_nf_conntrack_frag6_high_thresh 4.194304e+06
-# HELP node_nf_conntrack_frag6_low_thresh Amount of memory the fragment handler will go back to when the high treshold is reached
+# HELP node_nf_conntrack_frag6_low_thresh Amount of memory the fragment handler will go back to when the high threshold is reached
 # TYPE node_nf_conntrack_frag6_low_thresh gauge
 node_nf_conntrack_frag6_low_thresh 3.145728e+06
 # HELP node_nf_conntrack_frag6_timeout Time to keep an IPv6 fragment in memory
