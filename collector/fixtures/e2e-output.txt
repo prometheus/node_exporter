@@ -2051,12 +2051,99 @@ node_network_transmit_queue_length{device="eth0"} 1000
 # HELP node_network_up Value is 1 if operstate is 'up', 0 otherwise.
 # TYPE node_network_up gauge
 node_network_up{device="eth0"} 1
-# HELP node_nf_conntrack_entries Number of currently allocated flow entries for connection tracking.
+# HELP node_nf_conntrack_acct Are new connections counted (0 = disabled)
+# TYPE node_nf_conntrack_acct gauge
+node_nf_conntrack_acct 0
+# HELP node_nf_conntrack_buckets Size of the hash table
+# TYPE node_nf_conntrack_buckets gauge
+node_nf_conntrack_buckets 65536
+# HELP node_nf_conntrack_checksum Is the checksum of incoming packets verified (0 = disabled)
+# TYPE node_nf_conntrack_checksum gauge
+node_nf_conntrack_checksum 1
+# HELP node_nf_conntrack_entries Number of currently allocated flow entries
 # TYPE node_nf_conntrack_entries gauge
-node_nf_conntrack_entries 123
-# HELP node_nf_conntrack_entries_limit Maximum size of connection tracking table.
-# TYPE node_nf_conntrack_entries_limit gauge
-node_nf_conntrack_entries_limit 65536
+node_nf_conntrack_entries 100
+# HELP node_nf_conntrack_events Is the connection tracking code providing userspace with connection tracking events via ctnetlink
+# TYPE node_nf_conntrack_events gauge
+node_nf_conntrack_events 1
+# HELP node_nf_conntrack_expect_max Maximum size of expectation table.
+# TYPE node_nf_conntrack_expect_max gauge
+node_nf_conntrack_expect_max 1024
+# HELP node_nf_conntrack_frag6_high_thresh Maximum memory used to reassemble IPv6 fragments
+# TYPE node_nf_conntrack_frag6_high_thresh gauge
+node_nf_conntrack_frag6_high_thresh 4.194304e+06
+# HELP node_nf_conntrack_frag6_low_thresh Amount of memory the fragment handler will go back to when the high treshold is reached
+# TYPE node_nf_conntrack_frag6_low_thresh gauge
+node_nf_conntrack_frag6_low_thresh 3.145728e+06
+# HELP node_nf_conntrack_frag6_timeout Time to keep an IPv6 fragment in memory
+# TYPE node_nf_conntrack_frag6_timeout gauge
+node_nf_conntrack_frag6_timeout 60
+# HELP node_nf_conntrack_generic_timeout Default for generic timeout
+# TYPE node_nf_conntrack_generic_timeout gauge
+node_nf_conntrack_generic_timeout 600
+# HELP node_nf_conntrack_helper Enable automatic conntrack helper assignment (0 = disabled)
+# TYPE node_nf_conntrack_helper gauge
+node_nf_conntrack_helper 0
+# HELP node_nf_conntrack_icmp_timeout Default for ICMP timeout
+# TYPE node_nf_conntrack_icmp_timeout gauge
+node_nf_conntrack_icmp_timeout 30
+# HELP node_nf_conntrack_icmpv6_timeout Default for ICMP6 timeout
+# TYPE node_nf_conntrack_icmpv6_timeout gauge
+node_nf_conntrack_icmpv6_timeout 30
+# HELP node_nf_conntrack_log_invalid Log invalid packets of a type specified by value (0 = disabled; 1 = ICMP; 6 = TCP; 17 = UDP; 33 = DCCP; 41 = ICMPv6: 136 = UDPLITE; 255 = any)
+# TYPE node_nf_conntrack_log_invalid gauge
+node_nf_conntrack_log_invalid 0
+# HELP node_nf_conntrack_max Size of connection tracking table
+# TYPE node_nf_conntrack_max gauge
+node_nf_conntrack_max 262144
+# HELP node_nf_conntrack_tcp_be_liberal If it's non-zero, we mark only out of window RST segments as INVALID
+# TYPE node_nf_conntrack_tcp_be_liberal gauge
+node_nf_conntrack_tcp_be_liberal 0
+# HELP node_nf_conntrack_tcp_loose If it is set to zero, we disable picking up already established connections
+# TYPE node_nf_conntrack_tcp_loose gauge
+node_nf_conntrack_tcp_loose 1
+# HELP node_nf_conntrack_tcp_max_retrans Maximum number of packets that can be retransmitted without received an (acceptable) ACK from the destination
+# TYPE node_nf_conntrack_tcp_max_retrans gauge
+node_nf_conntrack_tcp_max_retrans 3
+# HELP node_nf_conntrack_tcp_timeout_close Timeout, in seconds, for closing TCP connections
+# TYPE node_nf_conntrack_tcp_timeout_close gauge
+node_nf_conntrack_tcp_timeout_close 10
+# HELP node_nf_conntrack_tcp_timeout_close_wait Timeout, in seconds, for waiting during the closing of a TCP connection
+# TYPE node_nf_conntrack_tcp_timeout_close_wait gauge
+node_nf_conntrack_tcp_timeout_close_wait 60
+# HELP node_nf_conntrack_tcp_timeout_established Timeout, in seconds, for established TCP connections
+# TYPE node_nf_conntrack_tcp_timeout_established gauge
+node_nf_conntrack_tcp_timeout_established 432000
+# HELP node_nf_conntrack_tcp_timeout_fin_wait Timeout, in seconds, for FIN of a TCP connections
+# TYPE node_nf_conntrack_tcp_timeout_fin_wait gauge
+node_nf_conntrack_tcp_timeout_fin_wait 120
+# HELP node_nf_conntrack_tcp_timeout_last_ack Timeout, in seconds, for last ACK of a TCP connection
+# TYPE node_nf_conntrack_tcp_timeout_last_ack gauge
+node_nf_conntrack_tcp_timeout_last_ack 30
+# HELP node_nf_conntrack_tcp_timeout_max_retrans Timeout, in seconds, for the maximum retransmission of a TCP connection
+# TYPE node_nf_conntrack_tcp_timeout_max_retrans gauge
+node_nf_conntrack_tcp_timeout_max_retrans 300
+# HELP node_nf_conntrack_tcp_timeout_syn_recv Timeout, in seconds, for receiving the syn of a TCP connection
+# TYPE node_nf_conntrack_tcp_timeout_syn_recv gauge
+node_nf_conntrack_tcp_timeout_syn_recv 60
+# HELP node_nf_conntrack_tcp_timeout_syn_sent Timeout in seconds
+# TYPE node_nf_conntrack_tcp_timeout_syn_sent gauge
+node_nf_conntrack_tcp_timeout_syn_sent 120
+# HELP node_nf_conntrack_tcp_timeout_time_wait Timeout in seconds
+# TYPE node_nf_conntrack_tcp_timeout_time_wait gauge
+node_nf_conntrack_tcp_timeout_time_wait 120
+# HELP node_nf_conntrack_tcp_timeout_unacknowledged Timeout in seconds
+# TYPE node_nf_conntrack_tcp_timeout_unacknowledged gauge
+node_nf_conntrack_tcp_timeout_unacknowledged 300
+# HELP node_nf_conntrack_timestamp Is connection tracking flow timestamping enabled
+# TYPE node_nf_conntrack_timestamp gauge
+node_nf_conntrack_timestamp 0
+# HELP node_nf_conntrack_udp_timeout Timeout for UDP connections
+# TYPE node_nf_conntrack_udp_timeout gauge
+node_nf_conntrack_udp_timeout 30
+# HELP node_nf_conntrack_udp_timeout_stream The extended timeout that will be used in case there is an UDP stream	detected
+# TYPE node_nf_conntrack_udp_timeout_stream gauge
+node_nf_conntrack_udp_timeout_stream 120
 # HELP node_nfs_connections_total Total number of NFSd TCP connections.
 # TYPE node_nfs_connections_total counter
 node_nfs_connections_total 45
