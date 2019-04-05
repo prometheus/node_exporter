@@ -64,41 +64,41 @@ func init() {
 func NewConntrackCollector() (Collector, error) {
 	//a lot of the description have been taken from here (and modified for some): https://www.kernel.org/doc/Documentation/networking/nf_conntrack-sysctl.txt
 	return &conntrackCollector{
-		acct:           buildDesc("nf_conntrack_acct", "Are new connections counted (0 = disabled)"),
-		buckets:        buildDesc("nf_conntrack_buckets", "Size of the hash table"),
-		checksum:       buildDesc("nf_conntrack_checksum", "Is the checksum of incoming packets verified (0 = disabled)"),
-		count:          buildDesc("nf_conntrack_entries", "Number of currently allocated flow entries"),
-		events:         buildDesc("nf_conntrack_events", "Is the connection tracking code providing userspace with connection tracking events via ctnetlink"),
-		expectMax:      buildDesc("nf_conntrack_expect_max", "Maximum size of expectation table."),
-		max:            buildDesc("nf_conntrack_max", "Size of connection tracking table"),
-		helper:         buildDesc("nf_conntrack_helper", "Enable automatic conntrack helper assignment (0 = disabled)"),
-		timestamp:      buildDesc("nf_conntrack_timestamp", "Is connection tracking flow timestamping enabled"),
-		logInvalid:     buildDesc("nf_conntrack_log_invalid", "Log invalid packets of a type specified by value (0 = disabled; 1 = ICMP; 6 = TCP; 17 = UDP; 33 = DCCP; 41 = ICMPv6: 136 = UDPLITE; 255 = any)"),
-		genericTimeout: buildDesc("nf_conntrack_generic_timeout", "Default for generic timeout"),
+		acct:           buildDesc("acct", "Are new connections counted (0 = disabled)"),
+		buckets:        buildDesc("buckets", "Size of the hash table"),
+		checksum:       buildDesc("checksum", "Is the checksum of incoming packets verified (0 = disabled)"),
+		count:          buildDesc("entries", "Number of currently allocated flow entries"),
+		events:         buildDesc("events", "Is the connection tracking code providing userspace with connection tracking events via ctnetlink"),
+		expectMax:      buildDesc("expect_max", "Maximum size of expectation table."),
+		max:            buildDesc("max", "Size of connection tracking table"),
+		helper:         buildDesc("helper", "Enable automatic conntrack helper assignment (0 = disabled)"),
+		timestamp:      buildDesc("timestamp", "Is connection tracking flow timestamping enabled"),
+		logInvalid:     buildDesc("log_invalid", "Log invalid packets of a type specified by value (0 = disabled; 1 = ICMP; 6 = TCP; 17 = UDP; 33 = DCCP; 41 = ICMPv6: 136 = UDPLITE; 255 = any)"),
+		genericTimeout: buildDesc("generic_timeout", "Default for generic timeout"),
 
-		frag6HighTresh: buildDesc("nf_conntrack_frag6_high_thresh", "Maximum memory used to reassemble IPv6 fragments"),
-		frag6LowTresh:  buildDesc("nf_conntrack_frag6_low_thresh", "Amount of memory the fragment handler will go back to when the high threshold is reached"),
-		frag6Timeout:   buildDesc("nf_conntrack_frag6_timeout", "Time to keep an IPv6 fragment in memory"),
+		frag6HighTresh: buildDesc("frag6_high_thresh", "Maximum memory used to reassemble IPv6 fragments"),
+		frag6LowTresh:  buildDesc("frag6_low_thresh", "Amount of memory the fragment handler will go back to when the high threshold is reached"),
+		frag6Timeout:   buildDesc("frag6_timeout", "Time to keep an IPv6 fragment in memory"),
 
-		icmpTimeout:  buildDesc("nf_conntrack_icmp_timeout", "Default for ICMP timeout"),
-		icmp6Timeout: buildDesc("nf_conntrack_icmpv6_timeout", "Default for ICMP6 timeout"),
+		icmpTimeout:  buildDesc("icmp_timeout", "Default for ICMP timeout"),
+		icmp6Timeout: buildDesc("icmpv6_timeout", "Default for ICMP6 timeout"),
 
-		udpTimeout: buildDesc("nf_conntrack_udp_timeout", "Timeout for UDP connections"),
-		udpTimeoutStream: buildDesc("nf_conntrack_udp_timeout_stream", "The extended timeout that will be used in case there is an UDP stream	detected"),
+		udpTimeout: buildDesc("udp_timeout", "Timeout for UDP connections"),
+		udpTimeoutStream: buildDesc("udp_timeout_stream", "The extended timeout that will be used in case there is an UDP stream	detected"),
 
-		tcpBeLiberal:             buildDesc("nf_conntrack_tcp_be_liberal", "If it's non-zero, we mark only out of window RST segments as INVALID"),
-		tcpLoose:                 buildDesc("nf_conntrack_tcp_loose", "If it is set to zero, we disable picking up already established connections"),
-		tcpMaxRestrans:           buildDesc("nf_conntrack_tcp_max_retrans", "Maximum number of packets that can be retransmitted without received an (acceptable) ACK from the destination"),
-		tcpTimeoutClose:          buildDesc("nf_conntrack_tcp_timeout_close", "Timeout, in seconds, for closing TCP connections"),
-		tcpTimeoutCloseWait:      buildDesc("nf_conntrack_tcp_timeout_close_wait", "Timeout, in seconds, for waiting during the closing of a TCP connection"),
-		tcpTimeoutEstablished:    buildDesc("nf_conntrack_tcp_timeout_established", "Timeout, in seconds, for established TCP connections"),
-		tcpTimeoutFinWait:        buildDesc("nf_conntrack_tcp_timeout_fin_wait", "Timeout, in seconds, for FIN of a TCP connections"),
-		tcpTimeoutLastAck:        buildDesc("nf_conntrack_tcp_timeout_last_ack", "Timeout, in seconds, for last ACK of a TCP connection"),
-		tcpTimeoutMaxRetrans:     buildDesc("nf_conntrack_tcp_timeout_max_retrans", "Timeout, in seconds, for the maximum retransmission of a TCP connection"),
-		tcpTimeoutSynRecv:        buildDesc("nf_conntrack_tcp_timeout_syn_recv", "Timeout, in seconds, for receiving the syn of a TCP connection"),
-		tcpTimeoutSynSent:        buildDesc("nf_conntrack_tcp_timeout_syn_sent", "Timeout in seconds"),
-		tcpTimeoutTimeWait:       buildDesc("nf_conntrack_tcp_timeout_time_wait", "Timeout in seconds"),
-		tcpTimeoutUnacknowledged: buildDesc("nf_conntrack_tcp_timeout_unacknowledged", "Timeout in seconds"),
+		tcpBeLiberal:             buildDesc("tcp_be_liberal", "If it's non-zero, we mark only out of window RST segments as INVALID"),
+		tcpLoose:                 buildDesc("tcp_loose", "If it is set to zero, we disable picking up already established connections"),
+		tcpMaxRestrans:           buildDesc("tcp_max_retrans", "Maximum number of packets that can be retransmitted without received an (acceptable) ACK from the destination"),
+		tcpTimeoutClose:          buildDesc("tcp_timeout_close", "Timeout, in seconds, for closing TCP connections"),
+		tcpTimeoutCloseWait:      buildDesc("tcp_timeout_close_wait", "Timeout, in seconds, for waiting during the closing of a TCP connection"),
+		tcpTimeoutEstablished:    buildDesc("tcp_timeout_established", "Timeout, in seconds, for established TCP connections"),
+		tcpTimeoutFinWait:        buildDesc("tcp_timeout_fin_wait", "Timeout, in seconds, for FIN of a TCP connections"),
+		tcpTimeoutLastAck:        buildDesc("tcp_timeout_last_ack", "Timeout, in seconds, for last ACK of a TCP connection"),
+		tcpTimeoutMaxRetrans:     buildDesc("tcp_timeout_max_retrans", "Timeout, in seconds, for the maximum retransmission of a TCP connection"),
+		tcpTimeoutSynRecv:        buildDesc("tcp_timeout_syn_recv", "Timeout, in seconds, for receiving the syn of a TCP connection"),
+		tcpTimeoutSynSent:        buildDesc("tcp_timeout_syn_sent", "Timeout in seconds"),
+		tcpTimeoutTimeWait:       buildDesc("tcp_timeout_time_wait", "Timeout in seconds"),
+		tcpTimeoutUnacknowledged: buildDesc("tcp_timeout_unacknowledged", "Timeout in seconds"),
 	}, nil
 }
 
@@ -142,7 +142,7 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 
 func buildDesc(name, description string) *prometheus.Desc {
 	return prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", name),
+		prometheus.BuildFQName(namespace, "netfilter", name),
 		description,
 		nil, nil,
 	)
