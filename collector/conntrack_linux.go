@@ -56,6 +56,8 @@ type conntrackCollector struct {
 	udpTimeoutStream *prometheus.Desc
 }
 
+var baseFile = "sys/net/netfilter/nf_conntrack_"
+
 func init() {
 	registerCollector("conntrack", defaultDisabled, NewConntrackCollector)
 }
@@ -103,40 +105,40 @@ func NewConntrackCollector() (Collector, error) {
 }
 
 func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
-	if err := readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_count", c.count, prometheus.GaugeValue); err != nil {
+	if err := readAndSendValue(ch, baseFile+"count", c.count, prometheus.GaugeValue); err != nil {
 		// Conntrack probably not loaded into the kernel.
 		return nil
 	}
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_acct", c.acct, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_buckets", c.buckets, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_checksum", c.checksum, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_events", c.events, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_expect_max", c.expectMax, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_frag6_high_thresh", c.frag6HighTresh, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_frag6_low_thresh", c.frag6LowTresh, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_frag6_timeout", c.frag6Timeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_generic_timeout", c.genericTimeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_max", c.max, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_helper", c.helper, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_log_invalid", c.logInvalid, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_timestamp", c.timestamp, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_icmp_timeout", c.icmpTimeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_icmpv6_timeout", c.icmp6Timeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_udp_timeout", c.udpTimeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_udp_timeout_stream", c.udpTimeoutStream, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_be_liberal", c.tcpBeLiberal, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_loose", c.tcpLoose, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_max_retrans", c.tcpMaxRestrans, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_close", c.tcpTimeoutClose, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_close_wait", c.tcpTimeoutCloseWait, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_established", c.tcpTimeoutEstablished, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_fin_wait", c.tcpTimeoutFinWait, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_last_ack", c.tcpTimeoutLastAck, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_max_retrans", c.tcpTimeoutMaxRetrans, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_syn_recv", c.tcpTimeoutSynRecv, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_syn_sent", c.tcpTimeoutSynSent, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_time_wait", c.tcpTimeoutTimeWait, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, "sys/net/netfilter/nf_conntrack_tcp_timeout_unacknowledged", c.tcpTimeoutUnacknowledged, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"acct", c.acct, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"buckets", c.buckets, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"checksum", c.checksum, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"events", c.events, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"expect_max", c.expectMax, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"frag6_high_thresh", c.frag6HighTresh, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"frag6_low_thresh", c.frag6LowTresh, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"frag6_timeout", c.frag6Timeout, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"generic_timeout", c.genericTimeout, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"max", c.max, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"helper", c.helper, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"log_invalid", c.logInvalid, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"timestamp", c.timestamp, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"icmp_timeout", c.icmpTimeout, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"icmpv6_timeout", c.icmp6Timeout, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"udp_timeout", c.udpTimeout, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"udp_timeout_stream", c.udpTimeoutStream, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_be_liberal", c.tcpBeLiberal, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_loose", c.tcpLoose, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_max_retrans", c.tcpMaxRestrans, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_close", c.tcpTimeoutClose, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_close_wait", c.tcpTimeoutCloseWait, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_established", c.tcpTimeoutEstablished, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_fin_wait", c.tcpTimeoutFinWait, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_last_ack", c.tcpTimeoutLastAck, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_max_retrans", c.tcpTimeoutMaxRetrans, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_syn_recv", c.tcpTimeoutSynRecv, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_syn_sent", c.tcpTimeoutSynSent, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_time_wait", c.tcpTimeoutTimeWait, prometheus.GaugeValue)
+	_ = readAndSendValue(ch, baseFile+"tcp_timeout_unacknowledged", c.tcpTimeoutUnacknowledged, prometheus.GaugeValue)
 	return nil
 }
 
