@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu
 
 # Dependencies: nvme-cli (package)
@@ -56,13 +56,13 @@ for device in ${device_list}; do
   echo "controller_busy_time_seconds{disk=\"${DISK}\"} ${value_controller_busy_time}"
 
   value_available_spare=$(echo "$CHECK" | awk '$1 == "available_spare" {print $3}' | sed 's/%\+//g')
-  echo "available_spare{disk=\"${DISK}\"} ${value_available_spare}"
+  echo "available_spare_pct{disk=\"${DISK}\"} ${value_available_spare}"
 
   value_available_spare_threshold=$(echo "$CHECK" | awk '$1 == "available_spare_threshold" {print $3}' | sed 's/%\+//g')
-  echo "available_spare_threshold{disk=\"${DISK}\"} ${value_available_spare_threshold}"
+  echo "available_spare_threshold_pct{disk=\"${DISK}\"} ${value_available_spare_threshold}"
 
   value_percentage_used=$(echo "$CHECK" | awk '$1 == "percentage_used" {print $3}' | sed 's/%\+//g')
-  echo "percentage_used=\"${DISK}\"} ${value_percentage_used}"
+  echo "percentage_used_pct{disk=\"${DISK}\"} ${value_percentage_used}"
 
   value_data_units_written=$(echo "$CHECK" | awk '$1 == "data_units_written" {print $3}' | sed 's/,\+//g')
   echo "data_units_written_total{disk=\"${DISK}\"} ${value_data_units_written}"
@@ -75,4 +75,5 @@ for device in ${device_list}; do
 
   value_host_write_commands=$(echo "$CHECK" | awk '$1 == "host_write_commands" {print $3}' | sed 's/,\+//g')
   echo "host_write_commands_total{disk=\"${DISK}\"} ${value_host_write_commands}"
+
 done | format_output
