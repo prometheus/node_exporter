@@ -105,40 +105,48 @@ func NewConntrackCollector() (Collector, error) {
 }
 
 func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
-	if err := readAndSendValue(ch, baseFile+"count", c.count, prometheus.GaugeValue); err != nil {
-		// Conntrack probably not loaded into the kernel.
-		return nil
+	for file, desc := range map[string]*prometheus.Desc{
+		"count":                      c.count,
+		"acct":                       c.acct,
+		"buckets":                    c.buckets,
+		"checksum":                   c.checksum,
+		"events":                     c.events,
+		"expect_max":                 c.expectMax,
+		"frag6_high_thresh":          c.frag6HighTresh,
+		"frag6_low_thresh":           c.frag6LowTresh,
+		"frag6_timeout":              c.frag6Timeout,
+		"generic_timeout":            c.genericTimeout,
+		"max":                        c.max,
+		"helper":                     c.helper,
+		"log_invalid":                c.logInvalid,
+		"timestamp":                  c.timestamp,
+		"icmp_timeout":               c.icmpTimeout,
+		"icmpv6_timeout":             c.icmp6Timeout,
+		"udp_timeout":                c.udpTimeout,
+		"udp_timeout_stream":         c.udpTimeoutStream,
+		"tcp_be_liberal":             c.tcpBeLiberal,
+		"tcp_loose":                  c.tcpLoose,
+		"tcp_max_retrans":            c.tcpMaxRestrans,
+		"tcp_timeout_close":          c.tcpTimeoutClose,
+		"tcp_timeout_close_wait":     c.tcpTimeoutCloseWait,
+		"tcp_timeout_established":    c.tcpTimeoutEstablished,
+		"tcp_timeout_fin_wait":       c.tcpTimeoutFinWait,
+		"tcp_timeout_last_ack":       c.tcpTimeoutLastAck,
+		"tcp_timeout_max_retrans":    c.tcpTimeoutMaxRetrans,
+		"tcp_timeout_syn_recv":       c.tcpTimeoutSynRecv,
+		"tcp_timeout_syn_sent":       c.tcpTimeoutSynSent,
+		"tcp_timeout_time_wait":      c.tcpTimeoutTimeWait,
+		"tcp_timeout_unacknowledged": c.tcpTimeoutUnacknowledged,
+	} {
+		completePath := procFilePath(baseFile + file)
+		log.Debugf("reading from file %s", completePath)
+		value, err := readUintFromFile(completePath)
+		if err == nil {
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(value))
+		} else {
+			log.Warn(fmt.Sprintf("an error (%s) occured while reading the file %s", err.Error(), completePath))
+		}
 	}
-	_ = readAndSendValue(ch, baseFile+"acct", c.acct, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"buckets", c.buckets, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"checksum", c.checksum, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"events", c.events, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"expect_max", c.expectMax, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"frag6_high_thresh", c.frag6HighTresh, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"frag6_low_thresh", c.frag6LowTresh, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"frag6_timeout", c.frag6Timeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"generic_timeout", c.genericTimeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"max", c.max, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"helper", c.helper, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"log_invalid", c.logInvalid, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"timestamp", c.timestamp, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"icmp_timeout", c.icmpTimeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"icmpv6_timeout", c.icmp6Timeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"udp_timeout", c.udpTimeout, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"udp_timeout_stream", c.udpTimeoutStream, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_be_liberal", c.tcpBeLiberal, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_loose", c.tcpLoose, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_max_retrans", c.tcpMaxRestrans, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_close", c.tcpTimeoutClose, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_close_wait", c.tcpTimeoutCloseWait, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_established", c.tcpTimeoutEstablished, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_fin_wait", c.tcpTimeoutFinWait, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_last_ack", c.tcpTimeoutLastAck, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_max_retrans", c.tcpTimeoutMaxRetrans, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_syn_recv", c.tcpTimeoutSynRecv, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_syn_sent", c.tcpTimeoutSynSent, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_time_wait", c.tcpTimeoutTimeWait, prometheus.GaugeValue)
-	_ = readAndSendValue(ch, baseFile+"tcp_timeout_unacknowledged", c.tcpTimeoutUnacknowledged, prometheus.GaugeValue)
 	return nil
 }
 
@@ -148,14 +156,4 @@ func buildDesc(name, description string) *prometheus.Desc {
 		description,
 		nil, nil,
 	)
-}
-
-func readAndSendValue(ch chan<- prometheus.Metric, file string, desc *prometheus.Desc, valueType prometheus.ValueType) error {
-	value, err := readUintFromFile(procFilePath(file))
-	if err == nil {
-		ch <- prometheus.MustNewConstMetric(desc, valueType, float64(value))
-	} else {
-		log.Warn(fmt.Sprintf("a problem occurred while reading the file: %s", err))
-	}
-	return err
 }
