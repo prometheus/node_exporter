@@ -28,7 +28,7 @@ nvme_version="$(nvme version | awk '$1 == "nvme" {print $3}')"
 echo "nvmecli{version=\"${nvme_version}\"} 1" | format_output
 
 # Cut device name to /dev/nvmeX
-device_list="$(nvme list | awk '/^\/dev/{print $1}' | cut -c1-10)"
+device_list="$(nvme list | awk '/^\/dev/{print $1}')"
 
 # Loop through the NVMe devices
 for device in ${device_list}; do
