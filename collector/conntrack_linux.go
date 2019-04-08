@@ -56,8 +56,6 @@ type conntrackCollector struct {
 	udpTimeoutStream *prometheus.Desc
 }
 
-var baseFile = "sys/net/netfilter/nf_conntrack_"
-
 func init() {
 	registerCollector("conntrack", defaultDisabled, NewConntrackCollector)
 }
@@ -138,7 +136,7 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 		"tcp_timeout_time_wait":      c.tcpTimeoutTimeWait,
 		"tcp_timeout_unacknowledged": c.tcpTimeoutUnacknowledged,
 	} {
-		completePath := procFilePath(baseFile + file)
+		completePath := procFilePath("sys/net/netfilter/nf_conntrack_" + file)
 		log.Debugf("reading from file %s", completePath)
 		value, err := readUintFromFile(completePath)
 		if err == nil {
