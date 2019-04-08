@@ -32,26 +32,24 @@ device_list="$(nvme list | awk '/^\/dev/{print $1}' | cut -c1-10)"
 
 # Loop through the NVMe devices
 for device in ${device_list}; do
-  normal_check="$(nvme smart-log "${device}")"
   json_check="$(nvme smart-log -o json "${device}")"
   disk="$(echo "${device}" | cut -c6-10)"
 
-  # Normal output checks ######################################################
-  # Converting percentage to ratio is easier with awk
-  value_available_spare="$(echo "$normal_check" | sed 's/%$//' | awk '$1 == "available_spare" {print $3 / 100}')"
-  echo "available_spare_ratio{disk=\"${disk}\"} ${value_available_spare}"
-
-  value_available_spare_threshold="$(echo "$normal_check" | sed 's/%$//' | awk '$1 == "available_spare_threshold" {print $3 / 100}')"
-  echo "available_spare_threshold_ratio{disk=\"${disk}\"} ${value_available_spare_threshold}"
-
-  value_percentage_used="$(echo "$normal_check" | sed 's/%$//' | awk '$1 == "percentage_used" {print $3 / 100}')"
-  echo "percentage_used_ratio{disk=\"${disk}\"} ${value_percentage_used}"
-
-  # The temperature value in JSON is odd, hence checking with "normal"
-  value_temperature="$(echo "$normal_check" | awk '$1 == "temperature" {print $3}')"
+  # The temperature value in JSON is in Kelvin, we want Celsius
+  # Source: https://rosettacode.org/wiki/Temperature_conversion#bash
+  tempk="$(echo "$json_check" | jq '.temperature')"
+  value_temperature="$(bc<<<"${tempk}-273")"
   echo "temperature_celcius{disk=\"${disk}\"} ${value_temperature}"
 
-  # JSON output checks ########################################################
+  value_available_spare="$(echo "$json_check" | jq '.avail_spare / 100')"
+  echo "available_spare_ratio{disk=\"${disk}\"} ${value_available_spare}"
+
+  value_available_spare_threshold="$(echo "$json_check" | jq '.spare_thresh / 100')"
+  echo "available_spare_threshold_ratio{disk=\"${disk}\"} ${value_available_spare_threshold}"
+
+  value_percentage_used="$(echo "$json_check" | jq '.percent_used / 100')"
+  echo "percentage_used_ratio{disk=\"${disk}\"} ${value_percentage_used}"
+
   value_critical_warning="$(echo "$json_check" | jq '.critical_warning')"
   echo "critical_warning_total{disk=\"${disk}\"} ${value_critical_warning}"
 
