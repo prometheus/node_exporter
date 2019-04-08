@@ -30,19 +30,33 @@ import (
 )
 
 var (
-	unitWhitelist          = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
-	unitBlacklist          = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.(automount|device|mount|scope|slice)").String()
-	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
-	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
-	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
-	enableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
+	unitWhitelist              = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
+	unitBlacklist              = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.(automount|device|mount|scope|slice)").String()
+	systemdPrivate             = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus.").Bool()
+	enableResourceUsageMetrics = kingpin.Flag("collector.systemd.enable-resource-usage-metrics", "Enables service unit resource usage metrics (CPU, memory, tasks, IP)").Bool()
+	enableRestartsMetrics      = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
+	enableStartTimeMetrics     = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
 )
 
 type systemdCollector struct {
 	unitDesc                      *prometheus.Desc
 	unitStartTimeDesc             *prometheus.Desc
+	unitCPUUsageDesc              *prometheus.Desc
+	unitCPUWeightDesc             *prometheus.Desc
+	unitStartupCPUWeightDesc      *prometheus.Desc
+	unitCPUQuotaDesc              *prometheus.Desc
+	unitMemoryCurrentDesc         *prometheus.Desc
+	unitMemoryMinDesc             *prometheus.Desc
+	unitMemoryLowDesc             *prometheus.Desc
+	unitMemoryHighDesc            *prometheus.Desc
+	unitMemoryMaxDesc             *prometheus.Desc
+	unitMemorySwapMaxDesc         *prometheus.Desc
 	unitTasksCurrentDesc          *prometheus.Desc
 	unitTasksMaxDesc              *prometheus.Desc
+	unitIPIngressBytesDesc        *prometheus.Desc
+	unitIPIngressPacketsDesc      *prometheus.Desc
+	unitIPEgressBytesDesc         *prometheus.Desc
+	unitIPEgressPacketsDesc       *prometheus.Desc
 	systemRunningDesc             *prometheus.Desc
 	summaryDesc                   *prometheus.Desc
 	nRestartsDesc                 *prometheus.Desc
@@ -72,6 +86,46 @@ func NewSystemdCollector() (Collector, error) {
 		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
 		"Start time of the unit since unix epoch in seconds.", []string{"name"}, nil,
 	)
+	unitCPUUsageDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_cpu_usage_seconds"),
+		"CPU usage per Systemd unit", []string{"name"}, nil,
+	)
+	unitCPUWeightDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_cpu_weight"),
+		"CPU time weight (between 1 and 10000) per Systemd unit", []string{"name"}, nil,
+	)
+	unitStartupCPUWeightDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_startup_cpu_weight"),
+		"Startup CPU time weight (between 1 and 10000) per Systemd unit", []string{"name"}, nil,
+	)
+	unitCPUQuotaDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_cpu_quota"),
+		"CPU time quota per Systemd unit", []string{"name"}, nil,
+	)
+	unitMemoryCurrentDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_memory_current_bytes"),
+		"Current memory usage per Systemd unit", []string{"name"}, nil,
+	)
+	unitMemoryMinDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_memory_min_bytes"),
+		"Memory usage protection per Systemd unit", []string{"name"}, nil,
+	)
+	unitMemoryLowDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_memory_low_bytes"),
+		"Best-effort memory usage protection per Systemd unit", []string{"name"}, nil,
+	)
+	unitMemoryHighDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_memory_high_bytes"),
+		"High memory limit per Systemd unit", []string{"name"}, nil,
+	)
+	unitMemoryMaxDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_memory_max_bytes"),
+		"Absolute limit on memory usage per Systemd unit", []string{"name"}, nil,
+	)
+	unitMemorySwapMaxDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_memory_swap_max_bytes"),
+		"Absolute limit on swap usage per Systemd unit", []string{"name"}, nil,
+	)
 	unitTasksCurrentDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_tasks_current"),
 		"Current number of tasks per Systemd unit", []string{"name"}, nil,
@@ -79,6 +133,22 @@ func NewSystemdCollector() (Collector, error) {
 	unitTasksMaxDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_tasks_max"),
 		"Maximum number of tasks per Systemd unit", []string{"name"}, nil,
+	)
+	unitIPIngressBytesDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_ip_ingress_bytes"),
+		"IP ingress bytes per Systemd unit", []string{"name"}, nil,
+	)
+	unitIPIngressPacketsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_ip_ingress_packets"),
+		"IP ingress packets per Systemd unit", []string{"name"}, nil,
+	)
+	unitIPEgressBytesDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_ip_egress_bytes"),
+		"IP egress bytes per Systemd unit", []string{"name"}, nil,
+	)
+	unitIPEgressPacketsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_ip_egress_packets"),
+		"IP egress packets per Systemd unit", []string{"name"}, nil,
 	)
 	systemRunningDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "system_running"),
@@ -109,8 +179,22 @@ func NewSystemdCollector() (Collector, error) {
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
 		unitStartTimeDesc:             unitStartTimeDesc,
+		unitCPUUsageDesc:              unitCPUUsageDesc,
+		unitCPUWeightDesc:             unitCPUWeightDesc,
+		unitStartupCPUWeightDesc:      unitStartupCPUWeightDesc,
+		unitCPUQuotaDesc:              unitCPUQuotaDesc,
+		unitMemoryCurrentDesc:         unitMemoryCurrentDesc,
+		unitMemoryMinDesc:             unitMemoryMinDesc,
+		unitMemoryLowDesc:             unitMemoryLowDesc,
+		unitMemoryHighDesc:            unitMemoryHighDesc,
+		unitMemoryMaxDesc:             unitMemoryMaxDesc,
+		unitMemorySwapMaxDesc:         unitMemorySwapMaxDesc,
 		unitTasksCurrentDesc:          unitTasksCurrentDesc,
 		unitTasksMaxDesc:              unitTasksMaxDesc,
+		unitIPIngressBytesDesc:        unitIPIngressBytesDesc,
+		unitIPIngressPacketsDesc:      unitIPIngressPacketsDesc,
+		unitIPEgressBytesDesc:         unitIPEgressBytesDesc,
+		unitIPEgressPacketsDesc:       unitIPEgressPacketsDesc,
 		systemRunningDesc:             systemRunningDesc,
 		summaryDesc:                   summaryDesc,
 		nRestartsDesc:                 nRestartsDesc,
@@ -169,13 +253,13 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		}()
 	}
 
-	if *enableTaskMetrics {
+	if *enableResourceUsageMetrics {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			begin = time.Now()
-			c.collectUnitTasksMetrics(conn, ch, units)
-			log.Debugf("systemd collectUnitTasksMetrics took %f", time.Since(begin).Seconds())
+			c.collectUnitResourceUsageMetrics(conn, ch, units)
+			log.Debugf("systemd collectUnitResourceUsageMetrics took %f", time.Since(begin).Seconds())
 		}()
 	}
 
@@ -299,34 +383,51 @@ func (c *systemdCollector) collectUnitStartTimeMetrics(conn *dbus.Conn, ch chan<
 	}
 }
 
-func (c *systemdCollector) collectUnitTasksMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
-	var val uint64
+func getServicePropertyUint64(conn *dbus.Conn, unitName, propertyName string, ch chan<- prometheus.Metric, desc *prometheus.Desc) bool {
+	if property, err := conn.GetUnitTypeProperty(unitName, "Service", propertyName); err != nil {
+		log.Debugf("couldn't get unit '%s' %s: %s", unitName, propertyName, err)
+		return false
+	} else if val := property.Value.Value().(uint64); val != math.MaxUint64 {
+		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(val), unitName)
+	}
+	return true
+}
+
+func (c *systemdCollector) collectUnitResourceUsageMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		if strings.HasSuffix(unit.Name, ".service") {
-			tasksCurrentCount, err := conn.GetUnitTypeProperty(unit.Name, "Service", "TasksCurrent")
-			if err != nil {
-				log.Debugf("couldn't get unit '%s' TasksCurrent: %s", unit.Name, err)
-			} else {
-				val = tasksCurrentCount.Value.Value().(uint64)
-				// Don't set if tasksCurrent if dbus reports MaxUint64.
-				if val != math.MaxUint64 {
-					ch <- prometheus.MustNewConstMetric(
-						c.unitTasksCurrentDesc, prometheus.GaugeValue,
-						float64(val), unit.Name)
-				}
+			// CPU
+			getServicePropertyUint64(conn, unit.Name, "CPUUsageNSec", ch, c.unitCPUUsageDesc)
+			// CPUWeight replaces CPUShares
+			if !getServicePropertyUint64(conn, unit.Name, "CPUWeight", ch, c.unitCPUWeightDesc) {
+				getServicePropertyUint64(conn, unit.Name, "CPUShares", ch, c.unitCPUWeightDesc)
 			}
-			tasksMaxCount, err := conn.GetUnitTypeProperty(unit.Name, "Service", "TasksMax")
-			if err != nil {
-				log.Debugf("couldn't get unit '%s' TasksMax: %s", unit.Name, err)
-			} else {
-				val = tasksMaxCount.Value.Value().(uint64)
-				// Don't set if tasksMax if dbus reports MaxUint64.
-				if val != math.MaxUint64 {
-					ch <- prometheus.MustNewConstMetric(
-						c.unitTasksMaxDesc, prometheus.GaugeValue,
-						float64(val), unit.Name)
-				}
+			// StartupCPUWeight replaces StartupCPUShares
+			if !getServicePropertyUint64(conn, unit.Name, "StartupCPUWeight", ch, c.unitStartupCPUWeightDesc) {
+				getServicePropertyUint64(conn, unit.Name, "StartupCPUShares", ch, c.unitStartupCPUWeightDesc)
 			}
+			getServicePropertyUint64(conn, unit.Name, "CPUQuota", ch, c.unitCPUQuotaDesc)
+
+			// Memory
+			getServicePropertyUint64(conn, unit.Name, "MemoryCurrent", ch, c.unitMemoryCurrentDesc)
+			getServicePropertyUint64(conn, unit.Name, "MemoryMin", ch, c.unitMemoryMinDesc)
+			getServicePropertyUint64(conn, unit.Name, "MemoryLow", ch, c.unitMemoryLowDesc)
+			getServicePropertyUint64(conn, unit.Name, "MemoryHigh", ch, c.unitMemoryHighDesc)
+			// MemoryMax replaces MemoryLimit
+			if !getServicePropertyUint64(conn, unit.Name, "MemoryMax", ch, c.unitMemoryHighDesc) {
+				getServicePropertyUint64(conn, unit.Name, "MemoryLimit", ch, c.unitMemoryHighDesc)
+			}
+			getServicePropertyUint64(conn, unit.Name, "MemorySwapMax", ch, c.unitMemorySwapMaxDesc)
+
+			// Tasks
+			getServicePropertyUint64(conn, unit.Name, "TasksCurrent", ch, c.unitTasksCurrentDesc)
+			getServicePropertyUint64(conn, unit.Name, "TasksMax", ch, c.unitTasksMaxDesc)
+
+			// IP
+			getServicePropertyUint64(conn, unit.Name, "IPIngressBytes", ch, c.unitIPIngressBytesDesc)
+			getServicePropertyUint64(conn, unit.Name, "IPIngressPackets", ch, c.unitIPIngressPacketsDesc)
+			getServicePropertyUint64(conn, unit.Name, "IPEgressBytes", ch, c.unitIPEgressBytesDesc)
+			getServicePropertyUint64(conn, unit.Name, "IPEgressPackets", ch, c.unitIPEgressPacketsDesc)
 		}
 	}
 }
