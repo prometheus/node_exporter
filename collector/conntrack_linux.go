@@ -144,7 +144,7 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 		if err == nil {
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(value))
 		} else {
-			log.Warn(fmt.Sprintf("an error (%s) occured while reading the file %s", err.Error(), completePath))
+			log.Warn(fmt.Sprintf("an error (%s) occurred while reading the file %s", err.Error(), completePath))
 		}
 	}
 	return nil
