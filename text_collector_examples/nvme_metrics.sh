@@ -4,15 +4,32 @@ set -eu
 # Dependencies: nvme-cli, jq (packages)
 # Based on code from
 # - https://github.com/prometheus/node_exporter/blob/master/text_collector_examples/smartmon.sh
+# - https://github.com/prometheus/node_exporter/blob/master/text_collector_examples/mellanox_hca_temp
 # - https://github.com/vorlon/check_nvme/blob/master/check_nvme.sh
+#
 # Author: Henk <henk@wearespindle.com>
+
+# Check if we are root
+if [ "$EUID" -ne 0 ]; then
+  echo "${0##*/}: Please run as root!" >&2
+  exit 1
+fi
+
+# Check if programs are installed
+if ! command -v nvme >/dev/null 2>&1; then
+  echo "${0##*/}: nvme is not installed. Aborting." >&2
+  exit 1
+fi
 
 output_format_awk="$(
   cat <<'OUTPUTAWK'
 BEGIN { v = "" }
 v != $1 {
   print "# HELP nvme_" $1 " SMART metric " $1;
-  print "# TYPE nvme_" $1 " gauge";
+  if ($1 ~ /_total$/)
+    print "# TYPE nvme_" $1 " counter";
+  else
+    print "# TYPE nvme_" $1 " gauge";
   v = $1
 }
 {print "nvme_" $0}
@@ -27,7 +44,7 @@ format_output() {
 nvme_version="$(nvme version | awk '$1 == "nvme" {print $3}')"
 echo "nvmecli{version=\"${nvme_version}\"} 1" | format_output
 
-# Cut device name to /dev/nvmeX
+# Get devices
 device_list="$(nvme list | awk '/^\/dev/{print $1}')"
 
 # Loop through the NVMe devices
