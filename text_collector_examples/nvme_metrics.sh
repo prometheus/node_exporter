@@ -36,9 +36,7 @@ for device in ${device_list}; do
   disk="$(echo "${device}" | cut -c6-10)"
 
   # The temperature value in JSON is in Kelvin, we want Celsius
-  # Source: https://rosettacode.org/wiki/Temperature_conversion#bash
-  tempk="$(echo "$json_check" | jq '.temperature')"
-  value_temperature="$(bc<<<"${tempk}-273")"
+  value_temperature="$(echo "$json_check" | jq '.temperature - 273')"
   echo "temperature_celcius{disk=\"${disk}\"} ${value_temperature}"
 
   value_available_spare="$(echo "$json_check" | jq '.avail_spare / 100')"
