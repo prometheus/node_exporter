@@ -51,6 +51,8 @@ def printPrometheusformat(metric, values):
     for labels in values:
         if labels is None:
             print("chronyd_%s %f" % (metric, values[labels]))
+        elif (metric == "peer_status"):
+            print("chronyd_%s{%s} %d" % (metric, labels, values[labels]))
         else:
             print("chronyd_%s{%s} %f" % (metric, labels, values[labels]))
 
@@ -65,10 +67,11 @@ def main(argv):
     for line in chrony_sourcestats.split('\n'):
         if (len(line)) > 0:
             x = line.split(',')
-            common_labels = "remote=\"%s\"" % (x[0])
-            freq_metrics[common_labels] = float(x[4])
-            freq_skew_metrics[common_labels] = float(x[5])
-            std_dev_metrics[common_labels] = float(x[7])
+            if len(x) == 8:
+                common_labels = "remote=\"%s\"" % (x[0])
+                freq_metrics[common_labels] = float(x[4])
+                freq_skew_metrics[common_labels] = float(x[5])
+                std_dev_metrics[common_labels] = float(x[7])
 
     printPrometheusformat('freq_skew_ppm', freq_skew_metrics)
     printPrometheusformat('freq_ppm', freq_metrics)
@@ -78,16 +81,19 @@ def main(argv):
     for line in chrony_source.split('\n'):
         if (len(line)) > 0:
             x = line.split(',')
-            stratum = x[3]
-            mode = metrics_mode[x[0]]
-            common_labels = "remote=\"%s\"" % (x[2])
-            peer_labels = "%s,stratum=\"%s\",mode=\"%s\"" % (
-                common_labels,
-                stratum,
-                mode,
-            )
-            peer_status_metrics[peer_labels] = float(status_types[x[1]])
-            offset_metrics[common_labels] = float(x[8])
+            if len(x) == 10:
+                stratum = x[3]
+                mode = metrics_mode[x[0]]
+                status = metrics_source[x[1]]
+                common_labels = "remote=\"%s\"" % (x[2])
+                peer_labels = "%s,stratum=\"%s\",mode=\"%s\",status=\"%s\"" % (
+                    common_labels,
+                    stratum,
+                    mode,
+                    status,
+                )
+                peer_status_metrics[peer_labels] = float(status_types[x[1]])
+                offset_metrics[common_labels] = float(x[8])
 
     printPrometheusformat('peer_status', peer_status_metrics)
     printPrometheusformat('offset_seconds', offset_metrics)
