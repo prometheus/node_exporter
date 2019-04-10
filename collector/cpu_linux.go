@@ -26,6 +26,7 @@ import (
 )
 
 type cpuCollector struct {
+	fs                 procfs.FS
 	cpu                *prometheus.Desc
 	cpuGuest           *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
@@ -38,7 +39,12 @@ func init() {
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector() (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
+	}
 	return &cpuCollector{
+		fs:  fs,
 		cpu: nodeCPUSecondsDesc,
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
@@ -149,11 +155,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 
 // updateStat reads /proc/stat through procfs and exports cpu related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
-	}
-	stats, err := fs.NewStat()
+	stats, err := c.fs.NewStat()
 	if err != nil {
 		return err
 	}

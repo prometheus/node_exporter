@@ -30,6 +30,7 @@ const (
 )
 
 type buddyinfoCollector struct {
+	fs   procfs.FS
 	desc *prometheus.Desc
 }
 
@@ -44,18 +45,17 @@ func NewBuddyinfoCollector() (Collector, error) {
 		"Count of free blocks according to size.",
 		[]string{"node", "zone", "size"}, nil,
 	)
-	return &buddyinfoCollector{desc}, nil
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
+	}
+	return &buddyinfoCollector{fs, desc}, nil
 }
 
 // Update calls (*buddyinfoCollector).getBuddyInfo to get the platform specific
 // buddyinfo metrics.
 func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
-	}
-
-	buddyInfo, err := fs.NewBuddyInfo()
+	buddyInfo, err := c.fs.NewBuddyInfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get buddyinfo: %s", err)
 	}
