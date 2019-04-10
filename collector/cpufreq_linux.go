@@ -23,6 +23,7 @@ import (
 )
 
 type cpuFreqCollector struct {
+	fs             sysfs.FS
 	cpuFreq        *prometheus.Desc
 	cpuFreqMin     *prometheus.Desc
 	cpuFreqMax     *prometheus.Desc
@@ -37,7 +38,13 @@ func init() {
 
 // NewCPUFreqCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUFreqCollector() (Collector, error) {
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+	}
+
 	return &cpuFreqCollector{
+		fs: fs,
 		cpuFreq: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
 			"Current cpu thread frequency in hertz.",
@@ -73,12 +80,7 @@ func NewCPUFreqCollector() (Collector, error) {
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := sysfs.NewFS(*sysPath)
-	if err != nil {
-		return fmt.Errorf("failed to open sysfs: %v", err)
-	}
-
-	cpuFreqs, err := fs.NewSystemCpufreq()
+	cpuFreqs, err := c.fs.NewSystemCpufreq()
 	if err != nil {
 		return err
 	}

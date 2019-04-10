@@ -25,6 +25,7 @@ import (
 )
 
 type processCollector struct {
+	fs          procfs.FS
 	threadAlloc *prometheus.Desc
 	threadLimit *prometheus.Desc
 	procsState  *prometheus.Desc
@@ -38,8 +39,13 @@ func init() {
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
 func NewProcessStatCollector() (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
+	}
 	subsystem := "processes"
 	return &processCollector{
+		fs: fs,
 		threadAlloc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "threads"),
 			"Allocated threads in system",
@@ -64,7 +70,7 @@ func NewProcessStatCollector() (Collector, error) {
 	}, nil
 }
 func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
-	pids, states, threads, err := getAllocatedThreads()
+	pids, states, threads, err := c.getAllocatedThreads()
 	if err != nil {
 		return fmt.Errorf("unable to retrieve number of allocated threads: %q", err)
 	}
@@ -90,12 +96,8 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func getAllocatedThreads() (int, map[string]int32, int, error) {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return 0, nil, 0, err
-	}
-	p, err := fs.AllProcs()
+func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, error) {
+	p, err := c.fs.AllProcs()
 	if err != nil {
 		return 0, nil, 0, err
 	}

@@ -30,6 +30,7 @@ var (
 )
 
 type netClassCollector struct {
+	fs                    sysfs.FS
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
@@ -41,8 +42,13 @@ func init() {
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
 func NewNetClassCollector() (Collector, error) {
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+	}
 	pattern := regexp.MustCompile(*netclassIgnoredDevices)
 	return &netClassCollector{
+		fs:                    fs,
 		subsystem:             "network",
 		ignoredDevicesPattern: pattern,
 		metricDescs:           map[string]*prometheus.Desc{},
@@ -50,7 +56,7 @@ func NewNetClassCollector() (Collector, error) {
 }
 
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
-	netClass, err := getNetClassInfo(c.ignoredDevicesPattern)
+	netClass, err := c.getNetClassInfo()
 	if err != nil {
 		return fmt.Errorf("could not get net class info: %s", err)
 	}
@@ -162,19 +168,15 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, float64(value), ifaceName)
 }
 
-func getNetClassInfo(ignore *regexp.Regexp) (sysfs.NetClass, error) {
-	fs, err := sysfs.NewFS(*sysPath)
-	if err != nil {
-		return nil, err
-	}
-	netClass, err := fs.NewNetClass()
+func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
+	netClass, err := c.fs.NewNetClass()
 
 	if err != nil {
 		return netClass, fmt.Errorf("error obtaining net class info: %s", err)
 	}
 
 	for device := range netClass {
-		if ignore.MatchString(device) {
+		if c.ignoredDevicesPattern.MatchString(device) {
 			delete(netClass, device)
 		}
 	}

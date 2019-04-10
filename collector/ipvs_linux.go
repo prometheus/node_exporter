@@ -58,7 +58,7 @@ func newIPVSCollector() (*ipvsCollector, error) {
 
 	c.fs, err = procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
 	}
 
 	c.connections = typedDesc{prometheus.NewDesc(

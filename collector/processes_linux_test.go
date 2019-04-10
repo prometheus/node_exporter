@@ -18,7 +18,8 @@ package collector
 import (
 	"testing"
 
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/prometheus/procfs"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 func TestReadProcessStatus(t *testing.T) {
@@ -26,7 +27,12 @@ func TestReadProcessStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := 1
-	pids, states, threads, err := getAllocatedThreads()
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		t.Errorf("failed to open procfs: %v", err)
+	}
+	c := processCollector{fs: fs}
+	pids, states, threads, err := c.getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
 	}

@@ -24,6 +24,7 @@ import (
 )
 
 type statCollector struct {
+	fs           procfs.FS
 	intr         *prometheus.Desc
 	ctxt         *prometheus.Desc
 	forks        *prometheus.Desc
@@ -38,7 +39,12 @@ func init() {
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
 func NewStatCollector() (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
+	}
 	return &statCollector{
+		fs: fs,
 		intr: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "intr_total"),
 			"Total number of interrupts serviced.",
@@ -74,11 +80,7 @@ func NewStatCollector() (Collector, error) {
 
 // Update implements Collector and exposes kernel and system statistics.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
-	}
-	stats, err := fs.NewStat()
+	stats, err := c.fs.NewStat()
 	if err != nil {
 		return err
 	}
