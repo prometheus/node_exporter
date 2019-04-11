@@ -24,6 +24,7 @@
 * [CHANGE] Split cpufreq metrics into a separate collector #1253
 * [ENHANCEMENT] Add Infiniband counters #1120
 * [ENHANCEMENT] Move network_up labels into new metric network_info #1236
+* [ENHANCEMENT] Use 64-bit counters for Darwin netstat
 * [FEATURE] Add a flag to disable exporter metrics #1148
 * [FEATURE] Add kstat-based Solaris metrics for boottime, cpu and zfs collectors #1197
 * [FEATURE] Add uname collector for FreeBSD #1239
