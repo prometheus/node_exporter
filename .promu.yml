@@ -5,7 +5,7 @@ repository:
 build:
     binaries:
         - name: node_exporter
-    flags: -a -tags 'netgo static_build'
+    flags: -a -mod=vendor -tags 'netgo static_build'
     ldflags: |
         -s
         -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}
