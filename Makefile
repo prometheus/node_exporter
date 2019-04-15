@@ -14,6 +14,9 @@
 # Ensure that 'all' is the default target otherwise it will be the first target from Makefile.common.
 all::
 
+# Needs to be defined before including Makefile.common to auto-generate targets
+DOCKER_ARCHS ?= amd64 armv7 arm64 ppc64le
+
 include Makefile.common
 
 PROMTOOL_VERSION ?= 2.5.0
@@ -22,7 +25,6 @@ PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
 
 DOCKER_IMAGE_NAME       ?= node-exporter
 MACH                    ?= $(shell uname -m)
-DOCKERFILE              ?= Dockerfile
 
 STATICCHECK_IGNORE =
 
@@ -114,18 +116,10 @@ checkrules: $(PROMTOOL)
 	@echo ">> checking rules for correctness"
 	find . -name "*rules*.yml" | xargs -I {} $(PROMTOOL) check rules {}
 
-.PHONY: docker
-docker:
-ifeq ($(MACH), ppc64le)
-	$(eval DOCKERFILE=Dockerfile.ppc64le)
-endif
-	@echo ">> building docker image from $(DOCKERFILE)"
-	@docker build --file $(DOCKERFILE) -t "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
-
 .PHONY: test-docker
 test-docker:
 	@echo ">> testing docker image"
-	./test_image.sh "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
+	./test_image.sh "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-amd64:$(DOCKER_IMAGE_TAG)" 9100
 
 .PHONY: promtool
 promtool: $(PROMTOOL)
