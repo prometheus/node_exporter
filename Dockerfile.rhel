@@ -1,4 +1,4 @@
-FROM registry.svc.ci.openshift.org/ocp/builder:golang-1.10 AS builder
+FROM registry.svc.ci.openshift.org/ocp/builder:golang-1.11 AS builder
 
 WORKDIR /go/src/github.com/prometheus/node_exporter
 COPY . .
