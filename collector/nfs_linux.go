@@ -20,7 +20,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
-	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/nfs"
 )
 
@@ -29,7 +28,7 @@ const (
 )
 
 type nfsCollector struct {
-	fs                                procfs.FS
+	fs                                nfs.FS
 	nfsNetReadsDesc                   *prometheus.Desc
 	nfsNetConnectionsDesc             *prometheus.Desc
 	nfsRPCOperationsDesc              *prometheus.Desc
@@ -44,7 +43,7 @@ func init() {
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.
 func NewNfsCollector() (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := nfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %v", err)
 	}
@@ -91,7 +90,7 @@ func NewNfsCollector() (Collector, error) {
 }
 
 func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.NFSClientRPCStats()
+	stats, err := c.fs.ClientRPCStats()
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Debugf("Not collecting NFS metrics: %s", err)

@@ -17,13 +17,12 @@ import (
 	"fmt"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/procfs/sysfs"
 	"github.com/prometheus/procfs/xfs"
 )
 
 // An xfsCollector is a Collector which gathers metrics from XFS filesystems.
 type xfsCollector struct {
-	fs sysfs.FS
+	fs xfs.FS
 }
 
 func init() {
@@ -32,7 +31,7 @@ func init() {
 
 // NewXFSCollector returns a new Collector exposing XFS statistics.
 func NewXFSCollector() (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := xfs.NewFS(*procPath, *sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %v", err)
 	}
@@ -44,7 +43,7 @@ func NewXFSCollector() (Collector, error) {
 
 // Update implements Collector.
 func (c *xfsCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.XFSStats()
+	stats, err := c.fs.SysStats()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve XFS stats: %v", err)
 	}
