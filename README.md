@@ -50,6 +50,7 @@ netdev | Exposes network interface statistics such as bytes transferred. | Darwi
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
+pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/accounting/psi.txt))
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
@@ -73,7 +74,6 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
-pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/accounting/psi.txt))
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
 runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
