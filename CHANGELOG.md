@@ -14,6 +14,7 @@
 ### Changes
 
 * [BUGFIX]
+* [BUGFIX] Fix node_textfile_mtime_seconds to work properly on symlinks #1326
 * [CHANGE] Renamed `interface` label to `device` in netclass collector #1224
 * [BUGFIX] Add fallback for missing /proc/1/mounts #1172
 * [CHANGE] Add TCPSynRetrans to netstat default filter #1143
