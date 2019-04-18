@@ -204,9 +204,9 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 			error = 1.0
 			continue
 		}
+		defer file.Close()
 		var parser expfmt.TextParser
 		parsedFamilies, err := parser.TextToMetricFamilies(file)
-		file.Close()
 		if err != nil {
 			log.Errorf("Error parsing %q: %v", path, err)
 			error = 1.0
@@ -227,7 +227,13 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 
 		// Only set this once it has been parsed and validated, so that
 		// a failure does not appear fresh.
-		mtimes[f.Name()] = f.ModTime()
+		stat, err := file.Stat()
+		if err != nil {
+			log.Errorf("Error stat'ing %q: %v", path, err)
+			error = 1.0
+			continue
+		}
+		mtimes[f.Name()] = stat.ModTime()
 
 		for _, mf := range parsedFamilies {
 			convertMetricFamily(mf, ch)
