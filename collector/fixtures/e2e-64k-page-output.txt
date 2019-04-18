@@ -2289,6 +2289,21 @@ node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
+# HELP node_pressure_cpu_waiting_seconds_total Total time in seconds that processes have waited for CPU time
+# TYPE node_pressure_cpu_waiting_seconds_total counter
+node_pressure_cpu_waiting_seconds_total 14.036781000000001
+# HELP node_pressure_io_stalled_seconds_total Total time in seconds no process could make progress due to IO congestion
+# TYPE node_pressure_io_stalled_seconds_total counter
+node_pressure_io_stalled_seconds_total 159.229614
+# HELP node_pressure_io_waiting_seconds_total Total time in seconds that processes have waited due to IO congestion
+# TYPE node_pressure_io_waiting_seconds_total counter
+node_pressure_io_waiting_seconds_total 159.886802
+# HELP node_pressure_memory_stalled_seconds_total Total time in seconds no process could make progress due to memory congestion
+# TYPE node_pressure_memory_stalled_seconds_total counter
+node_pressure_memory_stalled_seconds_total 0
+# HELP node_pressure_memory_waiting_seconds_total Total time in seconds that processes have waited for memory
+# TYPE node_pressure_memory_waiting_seconds_total counter
+node_pressure_memory_waiting_seconds_total 0
 # HELP node_processes_max_processes Number of max PIDs limit
 # TYPE node_processes_max_processes gauge
 node_processes_max_processes 123
@@ -2361,6 +2376,7 @@ node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
+node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="sockstat"} 1
