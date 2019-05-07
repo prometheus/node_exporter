@@ -15,6 +15,8 @@ github.com/ema/qdisc
 github.com/godbus/dbus
 # github.com/golang/protobuf v1.3.1
 github.com/golang/protobuf/proto
+# github.com/hodgesds/perf-utils v0.0.6
+github.com/hodgesds/perf-utils
 # github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
@@ -57,6 +59,10 @@ github.com/siebenmann/go-kstat
 github.com/sirupsen/logrus
 # github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 github.com/soundcloud/go-runit/runit
+# go.uber.org/atomic v1.3.2
+go.uber.org/atomic
+# go.uber.org/multierr v1.1.0
+go.uber.org/multierr
 # golang.org/x/net v0.0.0-20190328230028-74de082e2cca
 golang.org/x/net/ipv4
 golang.org/x/net/bpf
