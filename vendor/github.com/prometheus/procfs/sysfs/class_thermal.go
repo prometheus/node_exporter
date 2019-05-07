@@ -37,7 +37,7 @@ type ClassThermalZoneStats struct {
 
 // NewClassThermalZoneStats returns Thermal Zone metrics for all zones.
 func (fs FS) NewClassThermalZoneStats() ([]ClassThermalZoneStats, error) {
-	zones, err := filepath.Glob(fs.Path("class/thermal/thermal_zone[0-9]*"))
+	zones, err := filepath.Glob(fs.sys.Path("class/thermal/thermal_zone[0-9]*"))
 	if err != nil {
 		return []ClassThermalZoneStats{}, err
 	}
