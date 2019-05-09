@@ -323,6 +323,10 @@ const (
 	CRDLY                                = 0x600
 	CREAD                                = 0x80
 	CRTSCTS                              = 0x80000000
+	CRYPTO_MAX_NAME                      = 0x40
+	CRYPTO_MSG_MAX                       = 0x15
+	CRYPTO_NR_MSGTYPES                   = 0x6
+	CRYPTO_REPORT_MAXSIZE                = 0x160
 	CS5                                  = 0x0
 	CS6                                  = 0x10
 	CS7                                  = 0x20
@@ -501,6 +505,7 @@ const (
 	FAN_ALL_MARK_FLAGS                   = 0xff
 	FAN_ALL_OUTGOING_EVENTS              = 0x3403b
 	FAN_ALL_PERM_EVENTS                  = 0x30000
+	FAN_ATTRIB                           = 0x4
 	FAN_AUDIT                            = 0x10
 	FAN_CLASS_CONTENT                    = 0x4
 	FAN_CLASS_NOTIF                      = 0x0
@@ -509,8 +514,12 @@ const (
 	FAN_CLOSE                            = 0x18
 	FAN_CLOSE_NOWRITE                    = 0x10
 	FAN_CLOSE_WRITE                      = 0x8
+	FAN_CREATE                           = 0x100
+	FAN_DELETE                           = 0x200
+	FAN_DELETE_SELF                      = 0x400
 	FAN_DENY                             = 0x2
 	FAN_ENABLE_AUDIT                     = 0x40
+	FAN_EVENT_INFO_TYPE_FID              = 0x1
 	FAN_EVENT_METADATA_LEN               = 0x18
 	FAN_EVENT_ON_CHILD                   = 0x8000000
 	FAN_MARK_ADD                         = 0x1
@@ -524,6 +533,10 @@ const (
 	FAN_MARK_ONLYDIR                     = 0x8
 	FAN_MARK_REMOVE                      = 0x2
 	FAN_MODIFY                           = 0x2
+	FAN_MOVE                             = 0xc0
+	FAN_MOVED_FROM                       = 0x40
+	FAN_MOVED_TO                         = 0x80
+	FAN_MOVE_SELF                        = 0x800
 	FAN_NOFD                             = -0x1
 	FAN_NONBLOCK                         = 0x2
 	FAN_ONDIR                            = 0x40000000
@@ -532,6 +545,7 @@ const (
 	FAN_OPEN_EXEC_PERM                   = 0x40000
 	FAN_OPEN_PERM                        = 0x10000
 	FAN_Q_OVERFLOW                       = 0x4000
+	FAN_REPORT_FID                       = 0x200
 	FAN_REPORT_TID                       = 0x100
 	FAN_UNLIMITED_MARKS                  = 0x20
 	FAN_UNLIMITED_QUEUE                  = 0x10
@@ -1489,6 +1503,7 @@ const (
 	PR_SET_TSC                           = 0x1a
 	PR_SET_UNALIGN                       = 0x6
 	PR_SPEC_DISABLE                      = 0x4
+	PR_SPEC_DISABLE_NOEXEC               = 0x10
 	PR_SPEC_ENABLE                       = 0x2
 	PR_SPEC_FORCE_DISABLE                = 0x8
 	PR_SPEC_INDIRECT_BRANCH              = 0x1
@@ -2010,6 +2025,7 @@ const (
 	SO_ATTACH_REUSEPORT_CBPF             = 0x35
 	SO_ATTACH_REUSEPORT_EBPF             = 0x36
 	SO_BINDTODEVICE                      = 0xd
+	SO_BINDTOIFINDEX                     = 0x41
 	SO_BPF_EXTENSIONS                    = 0x32
 	SO_BROADCAST                         = 0x20
 	SO_BSDCOMPAT                         = 0x400
@@ -2058,6 +2074,8 @@ const (
 	SO_RCVBUFFORCE                       = 0x100b
 	SO_RCVLOWAT                          = 0x800
 	SO_RCVTIMEO                          = 0x2000
+	SO_RCVTIMEO_NEW                      = 0x44
+	SO_RCVTIMEO_OLD                      = 0x2000
 	SO_REUSEADDR                         = 0x4
 	SO_REUSEPORT                         = 0x200
 	SO_RXQ_OVFL                          = 0x24
@@ -2069,9 +2087,17 @@ const (
 	SO_SNDBUFFORCE                       = 0x100a
 	SO_SNDLOWAT                          = 0x1000
 	SO_SNDTIMEO                          = 0x4000
+	SO_SNDTIMEO_NEW                      = 0x45
+	SO_SNDTIMEO_OLD                      = 0x4000
 	SO_TIMESTAMP                         = 0x1d
 	SO_TIMESTAMPING                      = 0x23
+	SO_TIMESTAMPING_NEW                  = 0x43
+	SO_TIMESTAMPING_OLD                  = 0x23
 	SO_TIMESTAMPNS                       = 0x21
+	SO_TIMESTAMPNS_NEW                   = 0x42
+	SO_TIMESTAMPNS_OLD                   = 0x21
+	SO_TIMESTAMP_NEW                     = 0x46
+	SO_TIMESTAMP_OLD                     = 0x1d
 	SO_TXTIME                            = 0x3f
 	SO_TYPE                              = 0x1008
 	SO_VM_SOCKETS_BUFFER_MAX_SIZE        = 0x2
@@ -2362,8 +2388,10 @@ const (
 	UBI_IOCMKVOL                         = 0x80986f00
 	UBI_IOCRMVOL                         = 0x80046f01
 	UBI_IOCRNVOL                         = 0x91106f03
+	UBI_IOCRPEB                          = 0x80046f04
 	UBI_IOCRSVOL                         = 0x800c6f02
 	UBI_IOCSETVOLPROP                    = 0x80104f06
+	UBI_IOCSPEB                          = 0x80046f05
 	UBI_IOCVOLCRBLK                      = 0x80804f07
 	UBI_IOCVOLRMBLK                      = 0x20004f08
 	UBI_IOCVOLUP                         = 0x80084f00

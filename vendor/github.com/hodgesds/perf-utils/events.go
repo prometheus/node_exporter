@@ -16,9 +16,11 @@ const (
 	PERF_TYPE_TRACEPOINT = 2
 )
 
-// AvailableEvents returns the list of available events.
+// AvailableEvents returns a mapping of available subsystems and their
+// corresponding list of available events.
 func AvailableEvents() (map[string][]string, error) {
 	events := map[string][]string{}
+	// BUG(hodgesds): this should ideally check mounts for debugfs
 	rawEvents, err := fileToStrings(TracingDir + "/available_events")
 	// Events are colon delimited by type so parse the type and add sub
 	// events appropriately.
@@ -40,6 +42,26 @@ func AvailableEvents() (map[string][]string, error) {
 	return events, err
 }
 
+// AvailableSubsystems returns a slice of available subsystems.
+func AvailableSubsystems() ([]string, error) {
+	subsystems := []string{}
+	// BUG(hodgesds): this should ideally check mounts for debugfs
+	rawEvents, err := fileToStrings(TracingDir + "/available_events")
+	// Events are colon delimited by type so parse the type and add sub
+	// events appropriately.
+	if err != nil {
+		return subsystems, err
+	}
+	for _, rawEvent := range rawEvents {
+		splits := strings.Split(rawEvent, ":")
+		if len(splits) <= 1 {
+			continue
+		}
+		subsystems = append(subsystems, splits[0])
+	}
+	return subsystems, nil
+}
+
 // AvailableTracers returns the list of available tracers.
 func AvailableTracers() ([]string, error) {
 	return fileToStrings(TracingDir + "/available_tracers")
@@ -51,21 +73,22 @@ func CurrentTracer() (string, error) {
 	return res[0], err
 }
 
-// getTracepointConfig is used to get the configuration for a trace event.
-func getTracepointConfig(kind, event string) (uint64, error) {
-	res, err := fileToStrings(TracingDir + fmt.Sprintf("/events/%s/%s/id", kind, event))
+// GetTracepointConfig is used to get the configuration for a trace event.
+func GetTracepointConfig(subsystem, event string) (uint64, error) {
+	res, err := fileToStrings(
+		TracingDir + fmt.Sprintf("/events/%s/%s/id", subsystem, event))
 	if err != nil {
 		return 0, err
 	}
 	return strconv.ParseUint(res[0], 10, 64)
 }
 
-// ProfileTracepoint is used to profile a kernel tracepoint event. Events can
-// be listed with `perf list` for Tracepoint Events or in the
-// /sys/kernel/debug/tracing/events directory with the kind being the directory
-// and the event being the subdirectory.
-func ProfileTracepoint(kind, event string, pid, cpu int, opts ...int) (BPFProfiler, error) {
-	config, err := getTracepointConfig(kind, event)
+// ProfileTracepoint is used to profile a kernel tracepoint event for a
+// specific PID. Events can be listed with `perf list` for Tracepoint Events or
+// in the /sys/kernel/debug/tracing/events directory with the kind being the
+// directory and the event being the subdirectory.
+func ProfileTracepoint(subsystem, event string, pid, cpu int, opts ...int) (BPFProfiler, error) {
+	config, err := GetTracepointConfig(subsystem, event)
 	if err != nil {
 		return nil, err
 	}
@@ -94,5 +117,21 @@ func ProfileTracepoint(kind, event string, pid, cpu int, opts ...int) (BPFProfil
 
 	return &profiler{
 		fd: fd,
+	}, nil
+}
+
+// TracepointEventAttr is used to return an PerfEventAttr for a trace event.
+func TracepointEventAttr(subsystem, event string) (*unix.PerfEventAttr, error) {
+	config, err := GetTracepointConfig(subsystem, event)
+	if err != nil {
+		return nil, err
+	}
+	return &unix.PerfEventAttr{
+		Type:        PERF_TYPE_TRACEPOINT,
+		Config:      config,
+		Size:        uint32(unsafe.Sizeof(unix.PerfEventAttr{})),
+		Bits:        unix.PerfBitDisabled | unix.PerfBitExcludeHv,
+		Read_format: unix.PERF_FORMAT_TOTAL_TIME_RUNNING | unix.PERF_FORMAT_TOTAL_TIME_ENABLED,
+		Sample_type: PERF_SAMPLE_IDENTIFIER,
 	}, nil
 }

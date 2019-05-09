@@ -5,7 +5,7 @@ github.com/alecthomas/template/parse
 github.com/alecthomas/units
 # github.com/beevik/ntp v0.2.0
 github.com/beevik/ntp
-# github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
+# github.com/beorn7/perks v1.0.0
 github.com/beorn7/perks/quantile
 # github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e
 github.com/coreos/go-systemd/dbus
@@ -15,7 +15,7 @@ github.com/ema/qdisc
 github.com/godbus/dbus
 # github.com/golang/protobuf v1.3.1
 github.com/golang/protobuf/proto
-# github.com/hodgesds/perf-utils v0.0.6
+# github.com/hodgesds/perf-utils v0.0.7
 github.com/hodgesds/perf-utils
 # github.com/konsorten/go-windows-terminal-sequences v1.0.2
 github.com/konsorten/go-windows-terminal-sequences
@@ -39,13 +39,13 @@ github.com/prometheus/client_golang/prometheus/promhttp
 github.com/prometheus/client_golang/prometheus/internal
 # github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 github.com/prometheus/client_model/go
-# github.com/prometheus/common v0.2.0
+# github.com/prometheus/common v0.3.0
 github.com/prometheus/common/log
 github.com/prometheus/common/version
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/model
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
-# github.com/prometheus/procfs v0.0.0-20190503130316-740c07785007
+# github.com/prometheus/procfs v0.0.0-20190507043628-bc6930f2d510
 github.com/prometheus/procfs
 github.com/prometheus/procfs/bcache
 github.com/prometheus/procfs/nfs
@@ -63,14 +63,14 @@ github.com/soundcloud/go-runit/runit
 go.uber.org/atomic
 # go.uber.org/multierr v1.1.0
 go.uber.org/multierr
-# golang.org/x/net v0.0.0-20190328230028-74de082e2cca
+# golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c
 golang.org/x/net/ipv4
 golang.org/x/net/bpf
 golang.org/x/net/internal/iana
 golang.org/x/net/internal/socket
 # golang.org/x/sync v0.0.0-20190423024810-112230192c58
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20190402142545-baf5eb976a8c
+# golang.org/x/sys v0.0.0-20190507053917-2953c62de483
 golang.org/x/sys/unix
 golang.org/x/sys/windows/svc/eventlog
 golang.org/x/sys/windows
