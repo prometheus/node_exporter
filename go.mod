@@ -27,6 +27,6 @@ require (
 	go.uber.org/multierr v1.1.0 // indirect
 	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c // indirect
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
-	golang.org/x/sys v0.0.0-20190507053917-2953c62de483
+	golang.org/x/sys v0.0.0-20190509141414-a5b02f93d862
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )

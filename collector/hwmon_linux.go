@@ -23,10 +23,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -86,9 +86,9 @@ func sysReadFile(file string) ([]byte, error) {
 	// Go's ioutil.ReadFile implementation to poll forever.
 	//
 	// Since we either want to read data or bail immediately, do the simplest
-	// possible read using syscall directly.
+	// possible read using system call directly.
 	b := make([]byte, 128)
-	n, err := syscall.Read(int(f.Fd()), b)
+	n, err := unix.Read(int(f.Fd()), b)
 	if err != nil {
 		return nil, err
 	}

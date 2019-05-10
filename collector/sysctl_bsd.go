@@ -18,7 +18,6 @@ package collector
 
 import (
 	"fmt"
-	"syscall"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -98,16 +97,16 @@ func (b bsdSysctl) getStructTimeval() (float64, error) {
 		return 0, err
 	}
 
-	if len(raw) != int(unsafe.Sizeof(syscall.Timeval{})) {
+	if len(raw) != int(unsafe.Sizeof(unix.Timeval{})) {
 		// Shouldn't get here.
 		return 0, fmt.Errorf(
 			"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
 			len(raw),
-			unsafe.Sizeof(syscall.Timeval{}),
+			unsafe.Sizeof(unix.Timeval{}),
 		)
 	}
 
-	tv := *(*syscall.Timeval)(unsafe.Pointer(&raw[0]))
+	tv := *(*unix.Timeval)(unsafe.Pointer(&raw[0]))
 
 	// This conversion maintains the usec precision.  Using the time
 	// package did not.

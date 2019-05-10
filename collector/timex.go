@@ -18,9 +18,9 @@ package collector
 
 import (
 	"fmt"
-	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -156,9 +156,9 @@ func NewTimexCollector() (Collector, error) {
 func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	var syncStatus float64
 	var divisor float64
-	var timex = new(syscall.Timex)
+	var timex = new(unix.Timex)
 
-	status, err := syscall.Adjtimex(timex)
+	status, err := unix.Adjtimex(timex)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve adjtimex stats: %v", err)
 	}

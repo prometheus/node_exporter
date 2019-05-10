@@ -22,10 +22,10 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/prometheus/common/log"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -70,9 +70,8 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		success := make(chan struct{})
 		go stuckMountWatcher(labels.mountPoint, success)
 
-		buf := new(syscall.Statfs_t)
-		err = syscall.Statfs(rootfsFilePath(labels.mountPoint), buf)
-
+		buf := new(unix.Statfs_t)
+		err = unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
 		stuckMountsMtx.Lock()
 		close(success)
 		// If the mount has been marked as stuck, unmark it and log it's recovery.
