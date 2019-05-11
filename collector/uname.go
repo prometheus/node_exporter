@@ -53,7 +53,7 @@ func newUnameCollector() (Collector, error) {
 	return &unameCollector{}, nil
 }
 
-func (c unameCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *unameCollector) Update(ch chan<- prometheus.Metric) error {
 	uname, err := getUname()
 	if err != nil {
 		return err
