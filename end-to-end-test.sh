@@ -42,6 +42,7 @@ enabled_collectors=$(cat << COLLECTORS
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
+  thermal
   filesystem
   time
   timex
