@@ -59,7 +59,7 @@ for MD_DEVICE in /dev/md/*; do
 
     # Output RAID "Devices", "Size" and "Event" metrics, from the output of "mdadm --detail"
     while IFS= read -r line ; do
-      # Filter out these keys that have numberic values that increment up
+      # Filter out these keys that have numeric values that increment up
       if echo "$line" | grep -E -q "Devices :|Array Size :| Used Dev Size :|Events :"; then
         MDADM_DETAIL_KEY=$(echo "$line" | cut -d ":" -f 1 | tr -cd '[a-zA-Z0-9]._-')
         MDADM_DETAIL_VALUE=$(echo "$line" | cut -d ":" -f 2 | cut -d " " -f 2 | sed 's:^ ::')
