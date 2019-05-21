@@ -1,4 +1,4 @@
-// +build linux aix
+// +build linux aix solaris
 
 package logrus
 
