@@ -14,6 +14,14 @@
 // Package xfs provides access to statistics exposed by the XFS filesystem.
 package xfs
 
+import (
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/prometheus/procfs/internal/fs"
+)
+
 // Stats contains XFS filesystem runtime statistics, parsed from
 // /proc/fs/xfs/stat.
 //
@@ -160,4 +168,77 @@ type ExtendedPrecisionStats struct {
 	FlushBytes uint64
 	WriteBytes uint64
 	ReadBytes  uint64
+}
+
+// FS represents the pseudo-filesystems proc and sys, which provides an interface to
+// kernel data structures.
+type FS struct {
+	proc *fs.FS
+	sys  *fs.FS
+}
+
+// NewFS returns a new XFS handle using the given proc and sys mountPoints. It will error
+// if either of the mounts point can't be read.
+func NewFS(procMountPoint string, sysMountPoint string) (FS, error) {
+	if strings.TrimSpace(procMountPoint) == "" {
+		procMountPoint = fs.DefaultProcMountPoint
+	}
+	procfs, err := fs.NewFS(procMountPoint)
+	if err != nil {
+		return FS{}, err
+	}
+	if strings.TrimSpace(sysMountPoint) == "" {
+		sysMountPoint = fs.DefaultSysMountPoint
+	}
+	sysfs, err := fs.NewFS(sysMountPoint)
+	if err != nil {
+		return FS{}, err
+	}
+	return FS{&procfs, &sysfs}, nil
+}
+
+// ProcStat retrieves XFS filesystem runtime statistics
+// from proc/fs/xfs/stat given the profs mount point.
+func (fs FS) ProcStat() (*Stats, error) {
+	f, err := os.Open(fs.proc.Path("fs/xfs/stat"))
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	return ParseStats(f)
+}
+
+// SysStats retrieves XFS filesystem runtime statistics for each mounted XFS
+// filesystem.  Only available on kernel 4.4+.  On older kernels, an empty
+// slice of *xfs.Stats will be returned.
+func (fs FS) SysStats() ([]*Stats, error) {
+	matches, err := filepath.Glob(fs.sys.Path("fs/xfs/*/stats/stats"))
+	if err != nil {
+		return nil, err
+	}
+
+	stats := make([]*Stats, 0, len(matches))
+	for _, m := range matches {
+		f, err := os.Open(m)
+		if err != nil {
+			return nil, err
+		}
+
+		// "*" used in glob above indicates the name of the filesystem.
+		name := filepath.Base(filepath.Dir(filepath.Dir(m)))
+
+		// File must be closed after parsing, regardless of success or
+		// failure.  Defer is not used because of the loop.
+		s, err := ParseStats(f)
+		_ = f.Close()
+		if err != nil {
+			return nil, err
+		}
+
+		s.Name = name
+		stats = append(stats, s)
+	}
+
+	return stats, nil
 }

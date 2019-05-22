@@ -76,14 +76,14 @@ func NewSupervisordCollector() (Collector, error) {
 func (c *supervisordCollector) isRunning(state int) bool {
 	// http://supervisord.org/subprocess.html#process-states
 	const (
-		STOPPED  = 0
+		// STOPPED  = 0
 		STARTING = 10
 		RUNNING  = 20
-		BACKOFF  = 30
+		// BACKOFF  = 30
 		STOPPING = 40
-		EXITED   = 100
-		FATAL    = 200
-		UNKNOWN  = 1000
+		// EXITED   = 100
+		// FATAL    = 200
+		// UNKNOWN  = 1000
 	)
 	switch state {
 	case STARTING, RUNNING, STOPPING:

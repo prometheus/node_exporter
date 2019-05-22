@@ -19,12 +19,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/prometheus/procfs/internal/util"
 )
+
+const netclassPath = "class/net"
 
 // NetClassIface contains info from files in /sys/class/net/<iface>
 // for single interface (iface).
@@ -72,26 +75,42 @@ func NewNetClass() (NetClass, error) {
 	return fs.NewNetClass()
 }
 
-// NewNetClass returns info for all net interfaces (iface) read from /sys/class/net/<iface>.
-func (fs FS) NewNetClass() (NetClass, error) {
-	path := fs.Path("class/net")
+// NetClassDevices scans /sys/class/net for devices and returns them as a list of names.
+func (fs FS) NetClassDevices() ([]string, error) {
+	var res []string
+	path := fs.sys.Path(netclassPath)
 
 	devices, err := ioutil.ReadDir(path)
 	if err != nil {
-		return NetClass{}, fmt.Errorf("cannot access %s dir %s", path, err)
+		return res, fmt.Errorf("cannot access %s dir %s", path, err)
 	}
 
-	netClass := NetClass{}
 	for _, deviceDir := range devices {
 		if deviceDir.Mode().IsRegular() {
 			continue
 		}
-		interfaceClass, err := netClass.parseNetClassIface(path + "/" + deviceDir.Name())
+		res = append(res, deviceDir.Name())
+	}
+
+	return res, nil
+}
+
+// NewNetClass returns info for all net interfaces (iface) read from /sys/class/net/<iface>.
+func (fs FS) NewNetClass() (NetClass, error) {
+	devices, err := fs.NetClassDevices()
+	if err != nil {
+		return nil, err
+	}
+
+	path := fs.sys.Path(netclassPath)
+	netClass := NetClass{}
+	for _, deviceDir := range devices {
+		interfaceClass, err := netClass.parseNetClassIface(filepath.Join(path, deviceDir))
 		if err != nil {
 			return nil, err
 		}
-		interfaceClass.Name = deviceDir.Name()
-		netClass[deviceDir.Name()] = *interfaceClass
+		interfaceClass.Name = deviceDir
+		netClass[deviceDir] = *interfaceClass
 	}
 	return netClass, nil
 }

@@ -18,7 +18,6 @@ import (
 	"testing"
 
 	"github.com/coreos/go-systemd/dbus"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Creates mock UnitLists
@@ -85,26 +84,6 @@ func getUnitListFixtures() [][]unit {
 	fixture2 := []unit{}
 
 	return [][]unit{fixture1, fixture2}
-}
-
-func TestSystemdCollectorDoesntCrash(t *testing.T) {
-	c, err := NewSystemdCollector()
-	if err != nil {
-		t.Fatal(err)
-	}
-	sink := make(chan prometheus.Metric)
-	go func() {
-		for {
-			<-sink
-		}
-	}()
-
-	fixtures := getUnitListFixtures()
-	collector := (c).(*systemdCollector)
-	for _, units := range fixtures {
-		collector.collectUnitStatusMetrics(sink, units)
-		collector.collectSockets(sink, units)
-	}
 }
 
 func TestSystemdIgnoreFilter(t *testing.T) {

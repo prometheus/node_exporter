@@ -19,14 +19,13 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
-	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/nfs"
 )
 
 // A nfsdCollector is a Collector which gathers metrics from /proc/net/rpc/nfsd.
 // See: https://www.svennd.be/nfsd-stats-explained-procnetrpcnfsd/
 type nfsdCollector struct {
-	fs           procfs.FS
+	fs           nfs.FS
 	requestsDesc *prometheus.Desc
 }
 
@@ -40,7 +39,7 @@ const (
 
 // NewNFSdCollector returns a new Collector exposing /proc/net/rpc/nfsd statistics.
 func NewNFSdCollector() (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := nfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %v", err)
 	}
@@ -57,7 +56,7 @@ func NewNFSdCollector() (Collector, error) {
 
 // Update implements Collector.
 func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.NFSdServerRPCStats()
+	stats, err := c.fs.ServerRPCStats()
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Debugf("Not collecting NFSd metrics: %s", err)

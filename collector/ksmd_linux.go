@@ -17,7 +17,7 @@ package collector
 
 import (
 	"fmt"
-	"path"
+	"path/filepath"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -62,7 +62,7 @@ func NewKsmdCollector() (Collector, error) {
 // Update implements Collector and exposes kernel and system statistics.
 func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
-		val, err := readUintFromFile(sysFilePath(path.Join("kernel/mm/ksm", n)))
+		val, err := readUintFromFile(sysFilePath(filepath.Join("kernel/mm/ksm", n)))
 		if err != nil {
 			return err
 		}

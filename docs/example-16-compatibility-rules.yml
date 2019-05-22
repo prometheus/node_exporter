@@ -11,6 +11,8 @@ groups:
   rules:
   - record: node_boot_time_seconds
     expr: node_boot_time
+  - record: node_time_seconds
+    expr: node_time
   - record: node_context_switches_total
     expr: node_context_switches
   - record: node_forks_total
@@ -117,6 +119,10 @@ groups:
     expr: node_memory_PageTables
   - record: node_memory_Shmem_bytes
     expr: node_memory_Shmem
+  - record: node_memory_ShmemHugePages_bytes
+    expr: node_memory_ShmemHugePages
+  - record: node_memory_ShmemPmdMapped_bytes
+    expr: node_memory_ShmemPmdMapped
   - record: node_memory_Slab_bytes
     expr: node_memory_Slab
   - record: node_memory_SReclaimable_bytes

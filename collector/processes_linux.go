@@ -25,6 +25,7 @@ import (
 )
 
 type processCollector struct {
+	fs          procfs.FS
 	threadAlloc *prometheus.Desc
 	threadLimit *prometheus.Desc
 	procsState  *prometheus.Desc
@@ -38,8 +39,13 @@ func init() {
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
 func NewProcessStatCollector() (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
+	}
 	subsystem := "processes"
 	return &processCollector{
+		fs: fs,
 		threadAlloc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "threads"),
 			"Allocated threads in system",
@@ -63,39 +69,35 @@ func NewProcessStatCollector() (Collector, error) {
 		),
 	}, nil
 }
-func (t *processCollector) Update(ch chan<- prometheus.Metric) error {
-	pids, states, threads, err := getAllocatedThreads()
+func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
+	pids, states, threads, err := c.getAllocatedThreads()
 	if err != nil {
 		return fmt.Errorf("unable to retrieve number of allocated threads: %q", err)
 	}
 
-	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(threads))
+	ch <- prometheus.MustNewConstMetric(c.threadAlloc, prometheus.GaugeValue, float64(threads))
 	maxThreads, err := readUintFromFile(procFilePath("sys/kernel/threads-max"))
 	if err != nil {
 		return fmt.Errorf("unable to retrieve limit number of threads: %q", err)
 	}
-	ch <- prometheus.MustNewConstMetric(t.threadLimit, prometheus.GaugeValue, float64(maxThreads))
+	ch <- prometheus.MustNewConstMetric(c.threadLimit, prometheus.GaugeValue, float64(maxThreads))
 
 	for state := range states {
-		ch <- prometheus.MustNewConstMetric(t.procsState, prometheus.GaugeValue, float64(states[state]), state)
+		ch <- prometheus.MustNewConstMetric(c.procsState, prometheus.GaugeValue, float64(states[state]), state)
 	}
 
 	pidM, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
 	if err != nil {
 		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %q", err)
 	}
-	ch <- prometheus.MustNewConstMetric(t.pidUsed, prometheus.GaugeValue, float64(pids))
-	ch <- prometheus.MustNewConstMetric(t.pidMax, prometheus.GaugeValue, float64(pidM))
+	ch <- prometheus.MustNewConstMetric(c.pidUsed, prometheus.GaugeValue, float64(pids))
+	ch <- prometheus.MustNewConstMetric(c.pidMax, prometheus.GaugeValue, float64(pidM))
 
 	return nil
 }
 
-func getAllocatedThreads() (int, map[string]int32, int, error) {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return 0, nil, 0, err
-	}
-	p, err := fs.AllProcs()
+func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, error) {
+	p, err := c.fs.AllProcs()
 	if err != nil {
 		return 0, nil, 0, err
 	}
