@@ -71,12 +71,12 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 }
 
 // NodeCollector implements the prometheus.Collector interface.
-type nodeCollector struct {
+type NodeCollector struct {
 	Collectors map[string]Collector
 }
 
-// NewNodeCollector creates a new NodeCollector
-func NewNodeCollector(filters ...string) (*nodeCollector, error) {
+// NewNodeCollector creates a new NodeCollector.
+func NewNodeCollector(filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
 		enabled, exist := collectorState[filter]
@@ -100,17 +100,17 @@ func NewNodeCollector(filters ...string) (*nodeCollector, error) {
 			}
 		}
 	}
-	return &nodeCollector{Collectors: collectors}, nil
+	return &NodeCollector{Collectors: collectors}, nil
 }
 
 // Describe implements the prometheus.Collector interface.
-func (n nodeCollector) Describe(ch chan<- *prometheus.Desc) {
+func (n NodeCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- scrapeDurationDesc
 	ch <- scrapeSuccessDesc
 }
 
 // Collect implements the prometheus.Collector interface.
-func (n nodeCollector) Collect(ch chan<- prometheus.Metric) {
+func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(n.Collectors))
 	for name, c := range n.Collectors {

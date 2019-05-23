@@ -15,8 +15,29 @@ package collector
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
+
+func Test_parseTCPStatsError(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+	}{
+		{
+			name: "too few fields",
+			in:   "hello world",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if _, err := parseTCPStats(strings.NewReader(tt.in)); err == nil {
+				t.Fatal("expected an error, but none occurred")
+			}
+		})
+	}
+}
 
 func TestTCPStat(t *testing.T) {
 	file, err := os.Open("fixtures/proc/net/tcpstat")

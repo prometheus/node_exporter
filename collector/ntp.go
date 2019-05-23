@@ -68,7 +68,7 @@ func NewNtpCollector() (Collector, error) {
 	}
 
 	if *ntpOffsetTolerance < 0 {
-		return nil, fmt.Errorf("Offset tolerance must be non-negative")
+		return nil, fmt.Errorf("offset tolerance must be non-negative")
 	}
 
 	return &ntpCollector{

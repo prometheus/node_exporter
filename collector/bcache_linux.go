@@ -21,7 +21,6 @@ import (
 	// https://godoc.org/github.com/prometheus/client_golang/prometheus
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
-	"github.com/prometheus/procfs/sysfs"
 )
 
 func init() {
@@ -30,13 +29,13 @@ func init() {
 
 // A bcacheCollector is a Collector which gathers metrics from Linux bcache.
 type bcacheCollector struct {
-	fs sysfs.FS
+	fs bcache.FS
 }
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
 func NewBcacheCollector() (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := bcache.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %v", err)
 	}
@@ -49,7 +48,7 @@ func NewBcacheCollector() (Collector, error) {
 // Update reads and exposes bcache stats.
 // It implements the Collector interface.
 func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.BcacheStats()
+	stats, err := c.fs.Stats()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve bcache stats: %v", err)
 	}

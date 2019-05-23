@@ -1,0 +1,12 @@
+#!/bin/ksh
+# Shawn Craver, 2019-04-02
+
+
+daemon="/usr/local/bin/node_exporter"
+
+. /etc/rc.d/rc.subr
+
+rc_bg=YES
+
+rc_cmd $1
+

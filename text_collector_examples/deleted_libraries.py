@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Script to count the number of deleted libraries that are linked by running
 processes and expose a summary as Prometheus metrics.
@@ -20,7 +20,7 @@ def main():
         try:
             with open(path, 'rb') as file:
                 for line in file:
-                    part = line.strip().split()
+                    part = line.decode().strip().split()
 
                     if len(part) == 7:
                         library = part[5]
@@ -42,9 +42,9 @@ def main():
 
     num_processes_per_library = {}
 
-    for process, library_count in processes_linking_deleted_libraries.iteritems():
+    for process, library_count in processes_linking_deleted_libraries.items():
         libraries_seen = set()
-        for library, count in library_count.iteritems():
+        for library, count in library_count.items():
             if library in libraries_seen:
                 continue
 
@@ -59,7 +59,7 @@ def main():
     print('# HELP {0} {1}'.format(metric_name, description))
     print('# TYPE {0} gauge'.format(metric_name))
 
-    for library, count in num_processes_per_library.iteritems():
+    for library, count in num_processes_per_library.items():
         dir_path, basename = os.path.split(library)
         basename = basename.replace('"', '\\"')
         dir_path = dir_path.replace('"', '\\"')

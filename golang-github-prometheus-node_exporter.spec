@@ -14,7 +14,7 @@
 }
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %global gopathdir       %{_sourcedir}/go
-%global upstream_ver    0.17.0
+%global upstream_ver    0.18.0
 %global rpm_ver         %(v=%{upstream_ver}; echo ${v//-/_})
 %global download_prefix %{provider}.%{provider_tld}/openshift/%{repo}
 
@@ -79,6 +79,9 @@ install -D -p -m 0644 prometheus-node-exporter.sysconfig \
 %{_sysconfdir}/sysconfig/prometheus-node-exporter
 
 %changelog
+* Wed May 22 2019 Paul Gier <pgier@redhat.com> - 0.18.0-1
+- upgrade to 0.18.0
+
 * Tue Jan 15 2019 Paul Gier <pgier@redhat.com> - 0.17.0-1
 - upgrade to 0.17.0
 

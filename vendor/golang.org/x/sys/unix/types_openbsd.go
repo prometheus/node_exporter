@@ -261,6 +261,10 @@ const (
 	POLLWRNORM = C.POLLWRNORM
 )
 
+// Signal Sets
+
+type Sigset_t C.sigset_t
+
 // Uname
 
 type Utsname C.struct_utsname
@@ -270,3 +274,9 @@ type Utsname C.struct_utsname
 const SizeofUvmexp = C.sizeof_struct_uvmexp
 
 type Uvmexp C.struct_uvmexp
+
+// Clockinfo
+
+const SizeofClockinfo = C.sizeof_struct_clockinfo
+
+type Clockinfo C.struct_clockinfo

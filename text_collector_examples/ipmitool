@@ -1,4 +1,4 @@
-#!/usr/bin/awk -nf
+#!/usr/bin/awk -f
 
 #
 # Converts output of `ipmitool sensor` to prometheus format.

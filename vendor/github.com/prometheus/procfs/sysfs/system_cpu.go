@@ -16,26 +16,30 @@
 package sysfs
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/prometheus/procfs/internal/util"
 )
 
 // SystemCPUCpufreqStats contains stats from devices/system/cpu/cpu[0-9]*/cpufreq/...
 type SystemCPUCpufreqStats struct {
-	Name               string
-	CurrentFrequency   uint64
-	MinimumFrequency   uint64
-	MaximumFrequency   uint64
-	TransitionLatency  uint64
-	AvailableGovernors string
-	Driver             string
-	Govenor            string
-	RelatedCpus        string
-	SetSpeed           string
+	Name                     string
+	CpuinfoCurrentFrequency  *uint64
+	CpuinfoMinimumFrequency  *uint64
+	CpuinfoMaximumFrequency  *uint64
+	CpuinfoTransitionLatency *uint64
+	ScalingCurrentFrequency  *uint64
+	ScalingMinimumFrequency  *uint64
+	ScalingMaximumFrequency  *uint64
+	AvailableGovernors       string
+	Driver                   string
+	Governor                 string
+	RelatedCpus              string
+	SetSpeed                 string
 }
 
 // TODO: Add topology support.
@@ -54,60 +58,68 @@ func NewSystemCpufreq() ([]SystemCPUCpufreqStats, error) {
 
 // NewSystemCpufreq returns CPU frequency metrics for all CPUs.
 func (fs FS) NewSystemCpufreq() ([]SystemCPUCpufreqStats, error) {
-	var cpufreq = &SystemCPUCpufreqStats{}
+	var g errgroup.Group
 
-	cpus, err := filepath.Glob(fs.Path("devices/system/cpu/cpu[0-9]*"))
+	cpus, err := filepath.Glob(fs.sys.Path("devices/system/cpu/cpu[0-9]*"))
 	if err != nil {
-		return []SystemCPUCpufreqStats{}, err
+		return nil, err
 	}
 
-	systemCpufreq := []SystemCPUCpufreqStats{}
-	for _, cpu := range cpus {
-		cpuName := filepath.Base(cpu)
-		cpuNum := strings.TrimPrefix(cpuName, "cpu")
+	systemCpufreq := make([]SystemCPUCpufreqStats, len(cpus))
+	for i, cpu := range cpus {
+		cpuName := strings.TrimPrefix(filepath.Base(cpu), "cpu")
 
 		cpuCpufreqPath := filepath.Join(cpu, "cpufreq")
-		if _, err := os.Stat(cpuCpufreqPath); os.IsNotExist(err) {
+		_, err = os.Stat(cpuCpufreqPath)
+		if os.IsNotExist(err) {
 			continue
-		}
-		if err != nil {
-			return []SystemCPUCpufreqStats{}, err
+		} else if err != nil {
+			return nil, err
 		}
 
-		if _, err = os.Stat(filepath.Join(cpuCpufreqPath, "scaling_cur_freq")); err == nil {
-			cpufreq, err = parseCpufreqCpuinfo("scaling", cpuCpufreqPath)
-		} else if _, err = os.Stat(filepath.Join(cpuCpufreqPath, "cpuinfo_cur_freq")); err == nil {
-			// Older kernels have metrics named `cpuinfo_...`.
-			cpufreq, err = parseCpufreqCpuinfo("cpuinfo", cpuCpufreqPath)
-		} else {
-			return []SystemCPUCpufreqStats{}, fmt.Errorf("CPU %v is missing cpufreq", cpu)
-		}
-		if err != nil {
-			return []SystemCPUCpufreqStats{}, err
-		}
-		cpufreq.Name = cpuNum
-		systemCpufreq = append(systemCpufreq, *cpufreq)
+		// Execute the parsing of each CPU in parallel.
+		// This is done because the kernel intentionally delays access to each CPU by
+		// 50 milliseconds to avoid DDoSing possibly expensive functions.
+		i := i // https://golang.org/doc/faq#closures_and_goroutines
+		g.Go(func() error {
+			cpufreq, err := parseCpufreqCpuinfo(cpuCpufreqPath)
+			if err == nil {
+				cpufreq.Name = cpuName
+				systemCpufreq[i] = *cpufreq
+			}
+			return err
+		})
+	}
+
+	if err = g.Wait(); err != nil {
+		return nil, err
 	}
 
 	return systemCpufreq, nil
 }
 
-func parseCpufreqCpuinfo(prefix string, cpuPath string) (*SystemCPUCpufreqStats, error) {
+func parseCpufreqCpuinfo(cpuPath string) (*SystemCPUCpufreqStats, error) {
 	uintFiles := []string{
-		prefix + "_cur_freq",
-		prefix + "_max_freq",
-		prefix + "_min_freq",
+		"cpuinfo_cur_freq",
+		"cpuinfo_max_freq",
+		"cpuinfo_min_freq",
 		"cpuinfo_transition_latency",
+		"scaling_cur_freq",
+		"scaling_max_freq",
+		"scaling_min_freq",
 	}
-	uintOut := make([]uint64, len(uintFiles))
+	uintOut := make([]*uint64, len(uintFiles))
 
 	for i, f := range uintFiles {
 		v, err := util.ReadUintFromFile(filepath.Join(cpuPath, f))
 		if err != nil {
+			if os.IsNotExist(err) || os.IsPermission(err) {
+				continue
+			}
 			return &SystemCPUCpufreqStats{}, err
 		}
 
-		uintOut[i] = v
+		uintOut[i] = &v
 	}
 
 	stringFiles := []string{
@@ -128,14 +140,17 @@ func parseCpufreqCpuinfo(prefix string, cpuPath string) (*SystemCPUCpufreqStats,
 	}
 
 	return &SystemCPUCpufreqStats{
-		CurrentFrequency:   uintOut[0],
-		MaximumFrequency:   uintOut[1],
-		MinimumFrequency:   uintOut[2],
-		TransitionLatency:  uintOut[3],
-		AvailableGovernors: stringOut[0],
-		Driver:             stringOut[1],
-		Govenor:            stringOut[2],
-		RelatedCpus:        stringOut[3],
-		SetSpeed:           stringOut[4],
+		CpuinfoCurrentFrequency:  uintOut[0],
+		CpuinfoMaximumFrequency:  uintOut[1],
+		CpuinfoMinimumFrequency:  uintOut[2],
+		CpuinfoTransitionLatency: uintOut[3],
+		ScalingCurrentFrequency:  uintOut[4],
+		ScalingMaximumFrequency:  uintOut[5],
+		ScalingMinimumFrequency:  uintOut[6],
+		AvailableGovernors:       stringOut[0],
+		Driver:                   stringOut[1],
+		Governor:                 stringOut[2],
+		RelatedCpus:              stringOut[3],
+		SetSpeed:                 stringOut[4],
 	}, nil
 }

@@ -184,24 +184,6 @@ node_cpu_core_throttles_total{core="0",package="0"} 5
 node_cpu_core_throttles_total{core="0",package="1"} 0
 node_cpu_core_throttles_total{core="1",package="0"} 0
 node_cpu_core_throttles_total{core="1",package="1"} 9
-# HELP node_cpu_frequency_hertz Current cpu thread frequency in hertz.
-# TYPE node_cpu_frequency_hertz gauge
-node_cpu_frequency_hertz{cpu="0"} 1.699981e+09
-node_cpu_frequency_hertz{cpu="1"} 1.699981e+09
-node_cpu_frequency_hertz{cpu="2"} 8e+06
-node_cpu_frequency_hertz{cpu="3"} 8e+06
-# HELP node_cpu_frequency_max_hertz Maximum cpu thread frequency in hertz.
-# TYPE node_cpu_frequency_max_hertz gauge
-node_cpu_frequency_max_hertz{cpu="0"} 3.7e+09
-node_cpu_frequency_max_hertz{cpu="1"} 3.7e+09
-node_cpu_frequency_max_hertz{cpu="2"} 4.2e+09
-node_cpu_frequency_max_hertz{cpu="3"} 4.2e+09
-# HELP node_cpu_frequency_min_hertz Minimum cpu thread frequency in hertz.
-# TYPE node_cpu_frequency_min_hertz gauge
-node_cpu_frequency_min_hertz{cpu="0"} 8e+08
-node_cpu_frequency_min_hertz{cpu="1"} 8e+08
-node_cpu_frequency_min_hertz{cpu="2"} 1e+06
-node_cpu_frequency_min_hertz{cpu="3"} 1e+06
 # HELP node_cpu_guest_seconds_total Seconds the cpus spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
@@ -224,6 +206,24 @@ node_cpu_guest_seconds_total{cpu="7",mode="user"} 0.09
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30
 node_cpu_package_throttles_total{package="1"} 6
+# HELP node_cpu_scaling_frequency_hertz Current scaled cpu thread frequency in hertz.
+# TYPE node_cpu_scaling_frequency_hertz gauge
+node_cpu_scaling_frequency_hertz{cpu="0"} 1.699981e+09
+node_cpu_scaling_frequency_hertz{cpu="1"} 1.699981e+09
+node_cpu_scaling_frequency_hertz{cpu="2"} 8e+06
+node_cpu_scaling_frequency_hertz{cpu="3"} 8e+06
+# HELP node_cpu_scaling_frequency_max_hrts Maximum scaled cpu thread frequency in hertz.
+# TYPE node_cpu_scaling_frequency_max_hrts gauge
+node_cpu_scaling_frequency_max_hrts{cpu="0"} 3.7e+09
+node_cpu_scaling_frequency_max_hrts{cpu="1"} 3.7e+09
+node_cpu_scaling_frequency_max_hrts{cpu="2"} 4.2e+09
+node_cpu_scaling_frequency_max_hrts{cpu="3"} 4.2e+09
+# HELP node_cpu_scaling_frequency_min_hrts Minimum scaled cpu thread frequency in hertz.
+# TYPE node_cpu_scaling_frequency_min_hrts gauge
+node_cpu_scaling_frequency_min_hrts{cpu="0"} 8e+08
+node_cpu_scaling_frequency_min_hrts{cpu="1"} 8e+08
+node_cpu_scaling_frequency_min_hrts{cpu="2"} 1e+06
+node_cpu_scaling_frequency_min_hrts{cpu="3"} 1e+06
 # HELP node_cpu_seconds_total Seconds the cpus spent in each mode.
 # TYPE node_cpu_seconds_total counter
 node_cpu_seconds_total{cpu="0",mode="idle"} 10870.69
@@ -826,6 +826,14 @@ node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_multicast_packets_transmitted_total counter
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_constraint_errors_received_total Number of packets received on the switch physical port that are discarded
+# TYPE node_infiniband_port_constraint_errors_received_total counter
+node_infiniband_port_constraint_errors_received_total{device="i40iw0",port="1"} 0
+node_infiniband_port_constraint_errors_received_total{device="mlx4_0",port="1"} 0
+# HELP node_infiniband_port_constraint_errors_transmitted_total Number of packets not transmitted from the switch physical port
+# TYPE node_infiniband_port_constraint_errors_transmitted_total counter
+node_infiniband_port_constraint_errors_transmitted_total{device="i40iw0",port="1"} 0
+node_infiniband_port_constraint_errors_transmitted_total{device="mlx4_0",port="1"} 0
 # HELP node_infiniband_port_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_port_data_received_bytes_total counter
 node_infiniband_port_data_received_bytes_total{device="i40iw0",port="1"} 0
@@ -836,6 +844,29 @@ node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="2"} 0
 node_infiniband_port_data_transmitted_bytes_total{device="i40iw0",port="1"} 0
 node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="1"} 1.493376e+07
 node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_discards_received_total Number of inbound packets discarded by the port because the port is down or congested
+# TYPE node_infiniband_port_discards_received_total counter
+node_infiniband_port_discards_received_total{device="mlx4_0",port="1"} 0
+# HELP node_infiniband_port_discards_transmitted_total Number of outbound packets discarded by the port because the port is down or congested
+# TYPE node_infiniband_port_discards_transmitted_total counter
+node_infiniband_port_discards_transmitted_total{device="i40iw0",port="1"} 0
+node_infiniband_port_discards_transmitted_total{device="mlx4_0",port="1"} 5
+# HELP node_infiniband_port_errors_received_total Number of packets containing an error that were received on this port
+# TYPE node_infiniband_port_errors_received_total counter
+node_infiniband_port_errors_received_total{device="i40iw0",port="1"} 0
+node_infiniband_port_errors_received_total{device="mlx4_0",port="1"} 0
+# HELP node_infiniband_port_packets_received_total Number of packets received on all VLs by this port (including errors)
+# TYPE node_infiniband_port_packets_received_total counter
+node_infiniband_port_packets_received_total{device="i40iw0",port="1"} 0
+node_infiniband_port_packets_received_total{device="mlx4_0",port="1"} 6.825908347e+09
+# HELP node_infiniband_port_packets_transmitted_total Number of packets transmitted on all VLs from this port (including errors)
+# TYPE node_infiniband_port_packets_transmitted_total counter
+node_infiniband_port_packets_transmitted_total{device="i40iw0",port="1"} 0
+node_infiniband_port_packets_transmitted_total{device="mlx4_0",port="1"} 6.235865e+06
+# HELP node_infiniband_port_transmit_wait_total Number of ticks during which the port had data to transmit but no data was sent during the entire tick
+# TYPE node_infiniband_port_transmit_wait_total counter
+node_infiniband_port_transmit_wait_total{device="i40iw0",port="1"} 0
+node_infiniband_port_transmit_wait_total{device="mlx4_0",port="1"} 4.294967295e+09
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
 node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
@@ -1729,6 +1760,12 @@ node_netstat_Tcp_CurrEstab 0
 # HELP node_netstat_Tcp_InErrs Statistic TcpInErrs.
 # TYPE node_netstat_Tcp_InErrs untyped
 node_netstat_Tcp_InErrs 5
+# HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
+# TYPE node_netstat_Tcp_InSegs untyped
+node_netstat_Tcp_InSegs 5.7252008e+07
+# HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
+# TYPE node_netstat_Tcp_OutSegs untyped
+node_netstat_Tcp_OutSegs 5.4915039e+07
 # HELP node_netstat_Tcp_PassiveOpens Statistic TcpPassiveOpens.
 # TYPE node_netstat_Tcp_PassiveOpens untyped
 node_netstat_Tcp_PassiveOpens 230
@@ -1767,49 +1804,52 @@ node_netstat_Udp_NoPorts 120
 node_netstat_Udp_OutDatagrams 53028
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
-node_network_address_assign_type{interface="eth0"} 3
+node_network_address_assign_type{device="eth0"} 3
 # HELP node_network_carrier carrier value of /sys/class/net/<iface>.
 # TYPE node_network_carrier gauge
-node_network_carrier{interface="eth0"} 1
+node_network_carrier{device="eth0"} 1
 # HELP node_network_carrier_changes_total carrier_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_changes_total counter
-node_network_carrier_changes_total{interface="eth0"} 2
+node_network_carrier_changes_total{device="eth0"} 2
 # HELP node_network_carrier_down_changes_total carrier_down_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_down_changes_total counter
-node_network_carrier_down_changes_total{interface="eth0"} 1
+node_network_carrier_down_changes_total{device="eth0"} 1
 # HELP node_network_carrier_up_changes_total carrier_up_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_up_changes_total counter
-node_network_carrier_up_changes_total{interface="eth0"} 1
+node_network_carrier_up_changes_total{device="eth0"} 1
 # HELP node_network_device_id device_id value of /sys/class/net/<iface>.
 # TYPE node_network_device_id gauge
-node_network_device_id{interface="eth0"} 32
+node_network_device_id{device="eth0"} 32
 # HELP node_network_dormant dormant value of /sys/class/net/<iface>.
 # TYPE node_network_dormant gauge
-node_network_dormant{interface="eth0"} 1
+node_network_dormant{device="eth0"} 1
 # HELP node_network_flags flags value of /sys/class/net/<iface>.
 # TYPE node_network_flags gauge
-node_network_flags{interface="eth0"} 4867
+node_network_flags{device="eth0"} 4867
 # HELP node_network_iface_id iface_id value of /sys/class/net/<iface>.
 # TYPE node_network_iface_id gauge
-node_network_iface_id{interface="eth0"} 2
+node_network_iface_id{device="eth0"} 2
 # HELP node_network_iface_link iface_link value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link gauge
-node_network_iface_link{interface="eth0"} 2
+node_network_iface_link{device="eth0"} 2
 # HELP node_network_iface_link_mode iface_link_mode value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link_mode gauge
-node_network_iface_link_mode{interface="eth0"} 1
+node_network_iface_link_mode{device="eth0"} 1
+# HELP node_network_info Non-numeric data from /sys/class/net/<iface>, value is always 1.
+# TYPE node_network_info gauge
+node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up"} 1
 # HELP node_network_mtu_bytes mtu_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_mtu_bytes gauge
-node_network_mtu_bytes{interface="eth0"} 1500
+node_network_mtu_bytes{device="eth0"} 1500
 # HELP node_network_name_assign_type name_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_name_assign_type gauge
-node_network_name_assign_type{interface="eth0"} 2
+node_network_name_assign_type{device="eth0"} 2
 # HELP node_network_net_dev_group net_dev_group value of /sys/class/net/<iface>.
 # TYPE node_network_net_dev_group gauge
-node_network_net_dev_group{interface="eth0"} 0
+node_network_net_dev_group{device="eth0"} 0
 # HELP node_network_protocol_type protocol_type value of /sys/class/net/<iface>.
 # TYPE node_network_protocol_type gauge
-node_network_protocol_type{interface="eth0"} 1
+node_network_protocol_type{device="eth0"} 1
 # HELP node_network_receive_bytes_total Network device statistic receive_bytes.
 # TYPE node_network_receive_bytes_total counter
 node_network_receive_bytes_total{device="docker0"} 6.4910168e+07
@@ -1908,7 +1948,7 @@ node_network_receive_packets_total{device="wlan0"} 1.3899359e+07
 node_network_receive_packets_total{device="💩0"} 105557
 # HELP node_network_speed_bytes speed_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_speed_bytes gauge
-node_network_speed_bytes{interface="eth0"} 1.25e+08
+node_network_speed_bytes{device="eth0"} 1.25e+08
 # HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
 # TYPE node_network_transmit_bytes_total counter
 node_network_transmit_bytes_total{device="docker0"} 2.681662018e+09
@@ -2007,10 +2047,10 @@ node_network_transmit_packets_total{device="wlan0"} 1.17262e+07
 node_network_transmit_packets_total{device="💩0"} 304261
 # HELP node_network_transmit_queue_length transmit_queue_length value of /sys/class/net/<iface>.
 # TYPE node_network_transmit_queue_length gauge
-node_network_transmit_queue_length{interface="eth0"} 1000
-# HELP node_network_up Valid operstate for interface.
+node_network_transmit_queue_length{device="eth0"} 1000
+# HELP node_network_up Value is 1 if operstate is 'up', 0 otherwise.
 # TYPE node_network_up gauge
-node_network_up{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",duplex="full",ifalias="",interface="eth0",operstate="up"} 1
+node_network_up{device="eth0"} 1
 # HELP node_nf_conntrack_entries Number of currently allocated flow entries for connection tracking.
 # TYPE node_nf_conntrack_entries gauge
 node_nf_conntrack_entries 123
@@ -2249,6 +2289,21 @@ node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
+# HELP node_pressure_cpu_waiting_seconds_total Total time in seconds that processes have waited for CPU time
+# TYPE node_pressure_cpu_waiting_seconds_total counter
+node_pressure_cpu_waiting_seconds_total 14.036781000000001
+# HELP node_pressure_io_stalled_seconds_total Total time in seconds no process could make progress due to IO congestion
+# TYPE node_pressure_io_stalled_seconds_total counter
+node_pressure_io_stalled_seconds_total 159.229614
+# HELP node_pressure_io_waiting_seconds_total Total time in seconds that processes have waited due to IO congestion
+# TYPE node_pressure_io_waiting_seconds_total counter
+node_pressure_io_waiting_seconds_total 159.886802
+# HELP node_pressure_memory_stalled_seconds_total Total time in seconds no process could make progress due to memory congestion
+# TYPE node_pressure_memory_stalled_seconds_total counter
+node_pressure_memory_stalled_seconds_total 0
+# HELP node_pressure_memory_waiting_seconds_total Total time in seconds that processes have waited for memory
+# TYPE node_pressure_memory_waiting_seconds_total counter
+node_pressure_memory_waiting_seconds_total 0
 # HELP node_processes_max_processes Number of max PIDs limit
 # TYPE node_processes_max_processes gauge
 node_processes_max_processes 123
@@ -2300,6 +2355,7 @@ node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
 node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
+node_scrape_collector_success{collector="cpufreq"} 1
 node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1
@@ -2320,6 +2376,7 @@ node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
+node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="sockstat"} 1
@@ -2420,6 +2477,10 @@ node_wifi_station_info{bssid="00:11:22:33:44:55",device="wlan0",mode="client",ss
 # TYPE node_wifi_station_receive_bits_per_second gauge
 node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 2.56e+08
 node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.28e+08
+# HELP node_wifi_station_receive_bytes_total The total number of bytes received by a WiFi station.
+# TYPE node_wifi_station_receive_bytes_total counter
+node_wifi_station_receive_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_receive_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_signal_dbm The current WiFi signal strength, in decibel-milliwatts (dBm).
 # TYPE node_wifi_station_signal_dbm gauge
 node_wifi_station_signal_dbm{device="wlan0",mac_address="01:02:03:04:05:06"} -26
@@ -2428,6 +2489,10 @@ node_wifi_station_signal_dbm{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} -52
 # TYPE node_wifi_station_transmit_bits_per_second gauge
 node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 3.28e+08
 node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.64e+08
+# HELP node_wifi_station_transmit_bytes_total The total number of bytes transmitted by a WiFi station.
+# TYPE node_wifi_station_transmit_bytes_total counter
+node_wifi_station_transmit_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_transmit_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_transmit_failed_total The total number of times a station has failed to send a packet.
 # TYPE node_wifi_station_transmit_failed_total counter
 node_wifi_station_transmit_failed_total{device="wlan0",mac_address="01:02:03:04:05:06"} 4
