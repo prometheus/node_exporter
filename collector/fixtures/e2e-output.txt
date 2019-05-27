@@ -840,6 +840,11 @@ node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_multicast_packets_transmitted_total counter
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_physical_state_id Physical state of the InfiniBand port (0: no change, 1: sleep, 2: polling, 3: disable, 4: shift, 5: link up, 6: link error recover, 7: phytest)
+# TYPE node_infiniband_physical_state_id gauge
+node_infiniband_physical_state_id{device="i40iw0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="2"} 5
 # HELP node_infiniband_port_constraint_errors_received_total Number of packets received on the switch physical port that are discarded
 # TYPE node_infiniband_port_constraint_errors_received_total counter
 node_infiniband_port_constraint_errors_received_total{device="mlx4_0",port="1"} 0
@@ -872,6 +877,16 @@ node_infiniband_port_packets_transmitted_total{device="mlx4_0",port="1"} 6.23586
 # HELP node_infiniband_port_transmit_wait_total Number of ticks during which the port had data to transmit but no data was sent during the entire tick
 # TYPE node_infiniband_port_transmit_wait_total counter
 node_infiniband_port_transmit_wait_total{device="mlx4_0",port="1"} 4.294967295e+09
+# HELP node_infiniband_rate_bytes_per_second Maximum signal transfer rate
+# TYPE node_infiniband_rate_bytes_per_second gauge
+node_infiniband_rate_bytes_per_second{device="i40iw0",port="1"} 1.25e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="1"} 5e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="2"} 5e+09
+# HELP node_infiniband_state_id State of the InfiniBand port (0: no change, 1: down, 2: init, 3: armed, 4: active, 5: act defer)
+# TYPE node_infiniband_state_id gauge
+node_infiniband_state_id{device="i40iw0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="2"} 4
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
 node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
