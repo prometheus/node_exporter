@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Collect per-device btrfs filesystem errors.
 # Designed to work on Debian and Centos 6 (with python2.6).
