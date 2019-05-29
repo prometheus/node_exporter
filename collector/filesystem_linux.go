@@ -76,8 +76,13 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		close(success)
 		// If the mount has been marked as stuck, unmark it and log it's recovery.
 		if _, ok := stuckMounts[labels.mountPoint]; ok {
-			log.Debugf("Mount point %q has recovered, monitoring will resume", labels.mountPoint)
-			delete(stuckMounts, labels.mountPoint)
+			if err != nil {
+				log.Debugf("Mount point %q has responded with an error. Will start to monitor in background until it recovers fully.", labels.mountPoint)
+				go monitorMountHealth(labels.mountPoint)
+			} else {
+				log.Debugf("Mount point %q has recovered, monitoring will resume", labels.mountPoint)
+				delete(stuckMounts, labels.mountPoint)
+			}
 		}
 		stuckMountsMtx.Unlock()
 
@@ -109,6 +114,28 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		})
 	}
 	return stats, nil
+}
+
+// monitorMounthHealth continually stats a previously stuck mount until it
+// returns from a stat call without an error. When it does, it then marks it
+// as unstuck.
+func monitorMountHealth(mountPoint string) {
+	for {
+		time.Sleep(mountTimeout)
+		buf := new(unix.Statfs_t)
+		err := unix.Statfs(rootfsFilePath(mountPoint), buf)
+
+		stuckMountsMtx.Lock()
+		if err != nil {
+			log.Debugf("Mount point %q has responded with an error. Will continue to monitor in background until it recovers fully.", mountPoint)
+		} else {
+			log.Debugf("Mount point %q has recovered, monitoring will resume", mountPoint)
+			delete(stuckMounts, mountPoint)
+			stuckMountsMtx.Unlock()
+			return
+		}
+		stuckMountsMtx.Unlock()
+	}
 }
 
 // stuckMountWatcher listens on the given success channel and if the channel closes
