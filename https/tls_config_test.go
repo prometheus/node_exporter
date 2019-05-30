@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"regexp"
@@ -33,7 +32,6 @@ var (
 
 	ErrorMap = map[string]*regexp.Regexp{
 		"HTTP Response to HTTPS":       regexp.MustCompile(`server gave HTTP response to HTTPS client`),
-		"Server Panic":                 regexp.MustCompile(`Panic starting server`),
 		"No such file":                 regexp.MustCompile(`no such file`),
 		"Invalid argument":             regexp.MustCompile(`invalid argument`),
 		"YAML error":                   regexp.MustCompile(`yaml`),
@@ -46,7 +44,7 @@ var (
 func getPort() string {
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	defer listener.Close()
 	p := listener.Addr().(*net.TCPAddr).Port
@@ -127,12 +125,6 @@ func TestYAMLFiles(t *testing.T) {
 
 func TestServerBehaviour(t *testing.T) {
 	testTables := []*TestInputs{
-		{
-			Name:           `nil Server and default client`,
-			UseNilServer:   true,
-			YAMLConfigPath: "",
-			ExpectedError:  ErrorMap["Server Panic"],
-		},
 		{
 			Name:           `empty string YAMLConfigPath and default client`,
 			YAMLConfigPath: "",
@@ -307,7 +299,13 @@ func (test *TestInputs) Test(t *testing.T) {
 	}()
 	err := <-errorChannel
 	if test.isCorrectError(err) == false {
-		t.Errorf(" *** Failed test: %s *** Returned error: %v *** Expected error: %v", test.Name, err, test.ExpectedError)
+		if test.ExpectedError == nil {
+			t.Logf("Expected no error, got error: %v", err)
+		} else {
+			t.Logf("Expected error matching regular expression: %v", test.ExpectedError)
+			t.Logf("Got: %v", err)
+		}
+		t.Fail()
 	}
 }
 
@@ -324,7 +322,7 @@ func (test *TestInputs) isCorrectError(returnedError error) bool {
 func getTLSClient() *http.Client {
 	cert, err := ioutil.ReadFile("testdata/tls-ca-chain.pem")
 	if err != nil {
-		log.Fatal("Unable to start TLS client. Check cert path")
+		panic("Unable to start TLS client. Check cert path")
 	}
 	client := &http.Client{
 		Transport: &http.Transport{

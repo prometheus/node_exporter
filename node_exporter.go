@@ -175,7 +175,7 @@ func main() {
 
 	log.Infoln("Listening on", *listenAddress)
 
-	server := &http.Server{Addr: *listenAddress, Handler: nil}
+	server := &http.Server{Addr: *listenAddress}
 
 	if err := https.Listen(server, *tlsFile); err != nil {
 		log.Fatal(err)

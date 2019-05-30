@@ -1,42 +1,10 @@
-# HTTPS Package for prometheus
+# HTTPS Package for Prometheus
 
-The `https` directory contains files and a template config for the implementation of tls.
+The `https` directory contains files and a template config for the implementation of TLS.
 When running a server with tls use the flag `--web.tls-config`
 Where the path is from where the exporter was run.
 
 e.g. `./node_exporter --web.tls-config="https/tls-config.yml"`
-If the config is kept within the https directory 
+If the config is kept within the https directory.
 
-The config file should is written in YAML format.
-The layout is outlined below, with optional parameters in brackets.
-
-For more detail on the clientAuth option: [ClientAuthType](https://golang.org/pkg/crypto/tls/#ClientAuthType)
-
-### TLS Config Layout
-
-```
-#TLS CONFIG YAML
-  # Main config options for tls
-
-tlsConfig :
-
-  # Paths to Cert File & Key file from base directory
-  # Both required for valid tls
-  # Paths set as string values
-  # These are reloaded on initial connection 
-  tlsCertPath : <filename>
-  tlsKeyPath : <filename>
-
-  # ClientAuth declares the policy the server will follow for client authentication
-  # Accepts the following string values and maps to ClientAuth Policies
-  # NoClientCert                
-  # RequestClientCert           
-  # RequireAnyClientCert        
-  # VerifyClientCertIfGiven     
-  # RequireAndVerifyClientCert  
-  [ clientAuth : <string> | default = "NoClientCert" ]
-
-  # ClientCa's accepts a string path to the set of CA's
-  [ clientCAs : <filename> ]
-  
-```
+The config file should is written in YAML format, and is reloaded on each connection to check for new certificates and/or authentication policy.

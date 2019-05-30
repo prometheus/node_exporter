@@ -1,10 +1,11 @@
-#TLS Config YAML
 tlsConfig :
+  # Certificate and key files for server to use to authenticate to client
+  tlsCertPath : <filename>
+  tlsKeyPath : <filename>
 
-  tlsCertPath : "valid_cert_file"
+  # Server policy for client authentication. Maps to ClientAuth Policies
+  # For more detail on clientAuth options: [ClientAuthType](https://golang.org/pkg/crypto/tls/#ClientAuthType)
+  [ clientAuth : <string> | default = "NoClientCert" ]
 
-  tlsKeyPath : "valid_key_file"
-
-  clientAuth : "RequireAndVerifyClientCert"
-
-  clientCAs : "valid_ca_file"
+  # CA certificate for client certificate authentication to the server
+  [ clientCAs : <filename> ]

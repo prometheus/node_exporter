@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package https allows the implementation of tls
+// Package https allows the implementation of TLS.
 package https
 
 import (
@@ -36,19 +36,7 @@ type TLSStruct struct {
 }
 
 func getTLSConfig(configPath string) (*tls.Config, error) {
-	config, err := loadConfigFromYaml(configPath)
-	if err != nil {
-		return nil, err
-	}
-	tlsc, err := configToTLSConfig(config)
-	if err != nil {
-		return nil, err
-	}
-	return tlsc, nil
-}
-
-func loadConfigFromYaml(fileName string) (*TLSConfig, error) {
-	content, err := ioutil.ReadFile(fileName)
+	content, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
@@ -57,13 +45,12 @@ func loadConfigFromYaml(fileName string) (*TLSConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &c.TLSConfig, nil
+	return configToTLSConfig(&c.TLSConfig)
 }
 
 func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 	cfg := &tls.Config{}
 	if len(c.TLSCertPath) > 0 && len(c.TLSKeyPath) > 0 {
-
 		loadCert := func() (*tls.Certificate, error) {
 			cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
 			if err != nil {
@@ -71,17 +58,14 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 			}
 			return &cert, nil
 		}
-
-		//Errors if either the certpath or keypath is invalid
+		// Confirm that certificate and key paths are valid
 		if _, err := loadCert(); err != nil {
 			return nil, err
 		}
-
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 			return loadCert()
 		}
 	}
-
 	if len(c.ClientCAs) > 0 {
 		clientCAPool := x509.NewCertPool()
 		clientCAFile, err := ioutil.ReadFile(c.ClientCAs)

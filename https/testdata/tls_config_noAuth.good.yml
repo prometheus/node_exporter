@@ -1,11 +1,5 @@
-#TLS Config YAML
 tlsConfig :
-
   tlsCertPath : "testdata/server.crt"
-
   tlsKeyPath : "testdata/server.key"
-
   clientAuth : "NoClientCert"
-
   clientCAs: "testdata/tls-ca-chain.pem"
-

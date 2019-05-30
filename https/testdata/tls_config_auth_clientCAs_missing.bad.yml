@@ -1,8 +1,4 @@
-#TLS Config YAML
 tlsConfig :
-
   tlsCertPath : "testdata/server.crt"
-
   tlsKeyPath : "testdata/server.key"
-
   clientAuth : "RequireAndVerifyClientCert"

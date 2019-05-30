@@ -1,10 +1,5 @@
 tlsConfig :
-
   tlsCertPath : "testdata/server.crt"
-
   tlsKeyPath : "testdata/server.key"
-
   clientAuth : "RequireAndVerifyClientCert"
-
   clientCAs: "testdata/tls-ca-chain.pem"
-
