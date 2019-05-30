@@ -18,7 +18,7 @@ require (
 	github.com/prometheus/client_golang v0.9.2
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 	github.com/prometheus/common v0.3.0
-	github.com/prometheus/procfs v0.0.0-20190507043628-bc6930f2d510
+	github.com/prometheus/procfs v0.0.0-20190529155944-65bdadfa96ae
 	github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
 	github.com/sirupsen/logrus v1.4.1 // indirect
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
