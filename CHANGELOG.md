@@ -2,9 +2,12 @@
 
 ### **Breaking changes**
 
+* The netdev collector CLI argument `--collector.netdev.ignored-devices` was renamed to `--collector.netdev.device-blacklist` in order to conform with the systemd collector. #1279
+
+
 ### Changes
 
-* [CHANGE]
+* [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX] Fix incorrect sysctl call in BSD meminfo collector, resulting in broken swap metrics on FreeBSD #1345
