@@ -31,6 +31,7 @@ device 192.168.1.1:/srv/test mounted on /mnt/nfs/test-dupe with fstype nfs4 stat
 	        NULL: 0 0 0 0 0 0 0 0
 	        READ: 1298 1298 0 207680 1210292152 6 79386 79407
 	       WRITE: 0 0 0 0 0 0 0 0
+	      ACCESS: 2927395007 2927394995 0 526931094212 362996810236 18446743919241604546 1667369447 1953587717
 
 device 192.168.1.1:/srv/test mounted on /mnt/nfs/test-dupe with fstype nfs4 statvers=1.1
 	opts:	rw,vers=4.0,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=udp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=192.168.1.5,local_lock=none
@@ -46,3 +47,4 @@ device 192.168.1.1:/srv/test mounted on /mnt/nfs/test-dupe with fstype nfs4 stat
 	        NULL: 0 0 0 0 0 0 0 0
 	        READ: 1298 1298 0 207680 1210292152 6 79386 79407
 	       WRITE: 0 0 0 0 0 0 0 0
+	      ACCESS: 2927395007 2927394995 0 526931094212 362996810236 18446743919241604546 1667369447 1953587717

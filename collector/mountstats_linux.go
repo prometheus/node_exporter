@@ -21,6 +21,11 @@ import (
 	"github.com/prometheus/procfs"
 )
 
+var (
+	// 64-bit float mantissa: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+	float64Mantissa uint64 = 9007199254740992
+)
+
 type mountStatsCollector struct {
 	// General statistics
 	NFSAgeSecondsTotal *prometheus.Desc
@@ -618,7 +623,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, export
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportIdleTimeSeconds,
 		prometheus.GaugeValue,
-		s.Transport.IdleTime.Seconds(),
+		float64(s.Transport.IdleTimeSeconds%float64Mantissa),
 		export,
 		protocol,
 	)
@@ -728,7 +733,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, export
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsQueueTimeSecondsTotal,
 			prometheus.CounterValue,
-			op.CumulativeQueueTime.Seconds(),
+			float64(op.CumulativeQueueMilliseconds%float64Mantissa)/1000.0,
 			export,
 			protocol,
 			op.Operation,
@@ -737,7 +742,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, export
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsResponseTimeSecondsTotal,
 			prometheus.CounterValue,
-			op.CumulativeTotalResponseTime.Seconds(),
+			float64(op.CumulativeTotalResponseMilliseconds%float64Mantissa)/1000.0,
 			export,
 			protocol,
 			op.Operation,
@@ -746,7 +751,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, export
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsRequestTimeSecondsTotal,
 			prometheus.CounterValue,
-			op.CumulativeTotalRequestTime.Seconds(),
+			float64(op.CumulativeTotalRequestMilliseconds%float64Mantissa)/1000.0,
 			export,
 			protocol,
 			op.Operation,

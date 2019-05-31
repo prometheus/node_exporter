@@ -27,7 +27,7 @@ type FS struct {
 const DefaultMountPoint = fs.DefaultProcMountPoint
 
 // NewFS returns a new proc FS mounted under the given proc mountPoint. It will error
-// if the mount point dirctory can't be read or is a file.
+// if the mount point directory can't be read or is a file.
 func NewFS(mountPoint string) (FS, error) {
 	fs, err := fs.NewFS(mountPoint)
 	if err != nil {
