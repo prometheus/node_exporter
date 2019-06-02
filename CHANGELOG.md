@@ -63,9 +63,10 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 
 ### Changes
 
+* [CHANGE] Use /proc/mounts instead of statfs(2) for ro state #1002
+* [CHANGE] Exclude only subdirectories of /var/lib/docker #1003
 * [CHANGE] Filter out non-installed units when collecting all systemd units #1011
 * [CHANGE] `service_restart_total` and `socket_refused_connections_total` will not be reported if you're running an older version of systemd
-* [CHANGE] Use /proc/mounts instead of statfs(2) for ro state #1002
 * [CHANGE] collector/timex: remove cgo dependency #1079
 * [CHANGE] filesystem: Ignore Docker netns mounts #1047
 * [CHANGE] Ignore additional virtual filesystems #1104
