@@ -113,9 +113,9 @@ def handle_megaraid_controller(response):
         if vd_position:
             drive_group = vd_position.split('/')[0]
             volume_group = vd_position.split('/')[1]
-        vd_baselabel = 'controller="{}",DG="{}",VG="{}"'.format(controller_index, drive_group,
+        vd_baselabel = 'controller="{0}",DG="{1}",VG="{2}"'.format(controller_index, drive_group,
                                                                 volume_group)
-        vd_info_label = vd_baselabel + ',name="{}",cache="{}",type="{}",state="{}"'.format(
+        vd_info_label = vd_baselabel + ',name="{0}",cache="{1}",type="{2}",state="{3}"'.format(
             str(virtual_drive.get('Name')).strip(),
             str(virtual_drive.get('Cache')).strip(),
             str(virtual_drive.get('TYPE')).strip(),
@@ -131,9 +131,9 @@ def handle_megaraid_controller(response):
 
 def get_basic_controller_info(response):
     controller_index = response['Basics']['Controller']
-    baselabel = 'controller="{}"'.format(controller_index)
+    baselabel = 'controller="{0}"'.format(controller_index)
 
-    controller_info_label = baselabel + ',model="{}",serial="{}",fwversion="{}"'.format(
+    controller_info_label = baselabel + ',model="{0}",serial="{1}",fwversion="{2}"'.format(
         str(response['Basics']['Model']).strip(),
         str(response['Basics']['Serial Number']).strip(),
         str(response['Version']['Firmware Version']).strip(),
@@ -147,10 +147,10 @@ def create_metrcis_of_physical_drive(physical_drive, detailed_info_array, contro
     enclosure = physical_drive.get('EID:Slt').split(':')[0]
     slot = physical_drive.get('EID:Slt').split(':')[1]
 
-    pd_baselabel = 'controller="{}",enclosure="{}",slot="{}"'.format(controller_index, enclosure,
+    pd_baselabel = 'controller="{0}",enclosure="{1}",slot="{2}"'.format(controller_index, enclosure,
                                                                      slot)
     pd_info_label = pd_baselabel + \
-        ',disk_id="{}",interface="{}",media="{}",model="{}",DG="{}",state="{}"'.format(
+        ',disk_id="{0}",interface="{1}",media="{2}",model="{3}",DG="{4}",state="{5}"'.format(
             str(physical_drive.get('DID')).strip(),
             str(physical_drive.get('Intf')).strip(),
             str(physical_drive.get('Med')).strip(),
@@ -179,7 +179,7 @@ def create_metrcis_of_physical_drive(physical_drive, detailed_info_array, contro
         add_metric('pd_commissioned_spare', pd_baselabel,
                    int(settings['Commissioned Spare'] == 'Yes'))
         add_metric('pd_emergency_spare', pd_baselabel, int(settings['Emergency Spare'] == 'Yes'))
-        pd_info_label += ',firmware="{}"'.format(attributes['Firmware Revision'].strip())
+        pd_info_label += ',firmware="{0}"'.format(attributes['Firmware Revision'].strip())
     except KeyError:
         pass
     add_metric('pd_info', pd_info_label, 1)
@@ -198,11 +198,11 @@ def add_metric(name, labels, value):
 
 def print_all_metrics(metrics):
     for metric, measurements in metrics.items():
-        print('# HELP {}{} MegaRAID {}'.format(metric_prefix, metric, metric.replace('_', ' ')))
-        print('# TYPE {}{} gauge'.format(metric_prefix, metric))
+        print('# HELP {0}{1} MegaRAID {2}'.format(metric_prefix, metric, metric.replace('_', ' ')))
+        print('# TYPE {0}{1} gauge'.format(metric_prefix, metric))
         for measurement in measurements:
             if measurement['value'] != 'Unknown':
-                print('{}{}{} {}'.format(metric_prefix, metric, '{' + measurement['labels'] + '}',
+                print('{0}{1}{2} {3}'.format(metric_prefix, metric, '{' + measurement['labels'] + '}',
                                          measurement['value']))
 
 
@@ -227,7 +227,7 @@ if __name__ == "__main__":
         description=DESCRIPTION, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     PARSER.add_argument(
         '--storcli_path', default='/opt/MegaRAID/storcli/storcli64', help='path to StorCLi binary')
-    PARSER.add_argument('--version', action='version', version='%(prog)s {}'.format(VERSION))
+    PARSER.add_argument('--version', action='version', version='%(prog)s {0}'.format(VERSION))
     ARGS = PARSER.parse_args()
 
     main(ARGS)
