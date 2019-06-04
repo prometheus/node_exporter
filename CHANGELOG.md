@@ -7,6 +7,10 @@
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
+
+## 0.18.1 / 2019-06-04
+
+### Changes
 * [BUGFIX] Fix incorrect sysctl call in BSD meminfo collector, resulting in broken swap metrics on FreeBSD #1345
 * [BUGFIX] Fix rollover bug in mountstats collector #1364
 
