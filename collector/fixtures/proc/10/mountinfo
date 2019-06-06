@@ -1,0 +1,7 @@
+1 1 0:5 /  /root rw,nosuid shared:8 - rootfs rootfs rw
+16 21 0:16 / /sys rw,nosuid,nodev,noexec,relatime shared:7 - sysfs sysfs rw
+17 21 0:4 / /proc rw,nosuid,nodev,noexec,relatime shared:12 - proc proc rw
+21 0 8:1 / / rw,relatime shared:1 - ext4 /dev/sda1 rw,errors=remount-ro,data=ordered
+194 21 0:42 / /mnt/nfs/test rw shared:144 - nfs4 192.168.1.1:/srv/test rw,vers=4.0,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=192.168.1.5,addr=192.168.1.1,local_lock=none
+177 21 0:42 / /mnt/nfs/test rw shared:130 - nfs4 192.168.1.1:/srv/test rw,vers=4.0,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,port=0,timeo=600,retrans=2,sec=sys,clientaddr=192.168.1.5,addr=192.168.1.1,local_lock=none
+1398 798 0:44 / /mnt/nfs/test rw,relatime shared:1154 - nfs 192.168.1.1:/srv/test rw,vers=3,rsize=32768,wsize=32768,namlen=255,hard,proto=udp,timeo=11,retrans=3,sec=sys,mountaddr=192.168.1.1,mountvers=3,mountport=49602,mountproto=udp,local_lock=none,addr=192.168.1.1
