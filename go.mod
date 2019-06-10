@@ -20,13 +20,13 @@ require (
 	github.com/prometheus/common v0.3.0
 	github.com/prometheus/procfs v0.0.0-20190529155944-65bdadfa96ae
 	github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
-	github.com/sirupsen/logrus v1.4.1 // indirect
+	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	github.com/stretchr/testify v1.3.0 // indirect
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
 	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c // indirect
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
-	golang.org/x/sys v0.0.0-20190509141414-a5b02f93d862
+	golang.org/x/sys v0.0.0-20190610081024-1e42afee0f76
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
