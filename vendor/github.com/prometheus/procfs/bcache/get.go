@@ -32,6 +32,12 @@ type FS struct {
 	sys *fs.FS
 }
 
+// NewDefaultFS returns a new Bcache using the default sys fs mount point. It will error
+// if the mount point can't be read.
+func NewDefaultFS() (FS, error) {
+	return NewFS(fs.DefaultSysMountPoint)
+}
+
 // NewFS returns a new Bcache using the given sys fs mount point. It will error
 // if the mount point can't be read.
 func NewFS(mountPoint string) (FS, error) {

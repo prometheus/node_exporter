@@ -102,18 +102,8 @@ type PowerSupply struct {
 // The map keys are the names of the power supplies.
 type PowerSupplyClass map[string]PowerSupply
 
-// NewPowerSupplyClass returns info for all power supplies read from /sys/class/power_supply/.
-func NewPowerSupplyClass() (PowerSupplyClass, error) {
-	fs, err := NewFS(DefaultMountPoint)
-	if err != nil {
-		return nil, err
-	}
-
-	return fs.NewPowerSupplyClass()
-}
-
-// NewPowerSupplyClass returns info for all power supplies read from /sys/class/power_supply/.
-func (fs FS) NewPowerSupplyClass() (PowerSupplyClass, error) {
+// PowerSupplyClass returns info for all power supplies read from /sys/class/power_supply/.
+func (fs FS) PowerSupplyClass() (PowerSupplyClass, error) {
 	path := fs.sys.Path("class/power_supply")
 
 	powerSupplyDirs, err := ioutil.ReadDir(path)
