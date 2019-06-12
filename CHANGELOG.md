@@ -4,7 +4,7 @@
 
 ### Changes
 
-* [CHANGE]
+* [CHANGE] Add thermal zones collector #1347
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX] Fix incorrect sysctl call in BSD meminfo collector, resulting in broken swap metrics on FreeBSD #1345
