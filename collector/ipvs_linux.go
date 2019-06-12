@@ -106,7 +106,7 @@ func newIPVSCollector() (*ipvsCollector, error) {
 }
 
 func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
-	ipvsStats, err := c.fs.NewIPVSStats()
+	ipvsStats, err := c.fs.IPVSStats()
 	if err != nil {
 		// Cannot access ipvs metrics, report no error.
 		if os.IsNotExist(err) {
@@ -121,7 +121,7 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- c.incomingBytes.mustNewConstMetric(float64(ipvsStats.IncomingBytes))
 	ch <- c.outgoingBytes.mustNewConstMetric(float64(ipvsStats.OutgoingBytes))
 
-	backendStats, err := c.fs.NewIPVSBackendStatus()
+	backendStats, err := c.fs.IPVSBackendStatus()
 	if err != nil {
 		return fmt.Errorf("could not get backend status: %s", err)
 	}

@@ -275,6 +275,12 @@ type FS struct {
 	proc *fs.FS
 }
 
+// NewDefaultFS returns a new FS mounted under the default mountPoint. It will error
+// if the mount point can't be read.
+func NewDefaultFS() (FS, error) {
+	return NewFS(fs.DefaultProcMountPoint)
+}
+
 // NewFS returns a new FS mounted under the given mountPoint. It will error
 // if the mount point can't be read.
 func NewFS(mountPoint string) (FS, error) {

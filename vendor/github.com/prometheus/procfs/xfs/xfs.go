@@ -177,6 +177,12 @@ type FS struct {
 	sys  *fs.FS
 }
 
+// NewDefaultFS returns a new XFS handle using the default proc and sys mountPoints.
+// It will error if either of the mounts point can't be read.
+func NewDefaultFS() (FS, error) {
+	return NewFS(fs.DefaultProcMountPoint, fs.DefaultSysMountPoint)
+}
+
 // NewFS returns a new XFS handle using the given proc and sys mountPoints. It will error
 // if either of the mounts point can't be read.
 func NewFS(procMountPoint string, sysMountPoint string) (FS, error) {
