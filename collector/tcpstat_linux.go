@@ -16,9 +16,9 @@
 package collector
 
 import (
-	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -108,23 +108,21 @@ func getTCPStats(statsFile string) (map[tcpConnectionState]float64, error) {
 }
 
 func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
-	var (
-		tcpStats = map[tcpConnectionState]float64{}
-		scanner  = bufio.NewScanner(r)
-	)
+	tcpStats := map[tcpConnectionState]float64{}
+	contents, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 
-	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
+	for _, line := range strings.Split(string(contents), "\n")[1:] {
+		parts := strings.Fields(line)
 		if len(parts) == 0 {
 			continue
 		}
 		if len(parts) < 4 {
-			return nil, fmt.Errorf("invalid TCP stats line: %q", scanner.Text())
+			return nil, fmt.Errorf("invalid TCP stats line: %q", line)
 		}
 
-		if strings.HasPrefix(parts[0], "sl") {
-			continue
-		}
 		st, err := strconv.ParseInt(parts[3], 16, 8)
 		if err != nil {
 			return nil, err
@@ -133,7 +131,7 @@ func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
 		tcpStats[tcpConnectionState(st)]++
 	}
 
-	return tcpStats, scanner.Err()
+	return tcpStats, nil
 }
 
 func (st tcpConnectionState) String() string {
