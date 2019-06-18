@@ -90,7 +90,7 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 					fmt.Sprintf("Statistic %s.", protocol+name),
 					nil, nil,
 				),
-				prometheus.UntypedValue, v,
+				prometheus.CounterValue, v,
 			)
 		}
 	}
