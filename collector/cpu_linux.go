@@ -155,7 +155,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 
 // updateStat reads /proc/stat through procfs and exports cpu related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.NewStat()
+	stats, err := c.fs.Stat()
 	if err != nil {
 		return err
 	}

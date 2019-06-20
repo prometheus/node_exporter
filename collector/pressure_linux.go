@@ -82,7 +82,7 @@ func NewPressureStatsCollector() (Collector, error) {
 func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, res := range psiResources {
 		log.Debugf("collecting statistics for resource: %s", res)
-		vals, err := c.fs.NewPSIStatsForResource(res)
+		vals, err := c.fs.PSIStatsForResource(res)
 		if err != nil {
 			log.Debug("pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
 			return nil

@@ -105,7 +105,7 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 	thread := 0
 	procStates := make(map[string]int32)
 	for _, pid := range p {
-		stat, err := pid.NewStat()
+		stat, err := pid.Stat()
 		// PIDs can vanish between getting the list and getting stats.
 		if os.IsNotExist(err) {
 			log.Debugf("file not found when retrieving stats for pid %v: %q", pid, err)

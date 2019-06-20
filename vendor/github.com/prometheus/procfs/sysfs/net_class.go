@@ -65,16 +65,6 @@ type NetClassIface struct {
 // are interface (iface) names.
 type NetClass map[string]NetClassIface
 
-// NewNetClass returns info for all net interfaces (iface) read from /sys/class/net/<iface>.
-func NewNetClass() (NetClass, error) {
-	fs, err := NewFS(DefaultMountPoint)
-	if err != nil {
-		return nil, err
-	}
-
-	return fs.NewNetClass()
-}
-
 // NetClassDevices scans /sys/class/net for devices and returns them as a list of names.
 func (fs FS) NetClassDevices() ([]string, error) {
 	var res []string
@@ -95,8 +85,8 @@ func (fs FS) NetClassDevices() ([]string, error) {
 	return res, nil
 }
 
-// NewNetClass returns info for all net interfaces (iface) read from /sys/class/net/<iface>.
-func (fs FS) NewNetClass() (NetClass, error) {
+// NetClass returns info for all net interfaces (iface) read from /sys/class/net/<iface>.
+func (fs FS) NetClass() (NetClass, error) {
 	devices, err := fs.NetClassDevices()
 	if err != nil {
 		return nil, err
