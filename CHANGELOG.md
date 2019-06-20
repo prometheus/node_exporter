@@ -8,7 +8,7 @@
 ### Changes
 
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
-* [FEATURE]
+* [FEATURE] Add iscsi collector get Read, Write and OPS. #1386
 * [ENHANCEMENT]
 
 ## 0.18.1 / 2019-06-04

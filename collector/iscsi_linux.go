@@ -33,7 +33,6 @@ const (
 // An lioCollector is a Collector which gathers iscsi RBD
 // iops (iscsi commands) , Read in byte and Write in byte.
 // ( original reading sysfs is in MB )
-
 type lioCollector struct {
 	fs      iscsi.FS
 	metrics *lioMetric
@@ -103,65 +102,65 @@ func newLioMetric() (*lioMetric, error) {
 
 	return &lioMetric{
 		lioFileIops: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioFileioSubsystem, "iops"),
+			prometheus.BuildFQName(namespace, lioFileioSubsystem, "iops_total"),
 			"iSCSI FileIO backstore transport operations.",
 			[]string{"iqn", "tpgt", "lun", "fileio", "object", "filename"}, nil,
 		),
 		lioFileRead: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioFileioSubsystem, "read"),
+			prometheus.BuildFQName(namespace, lioFileioSubsystem, "read_total"),
 			"iSCSI FileIO backstore Read in byte.",
 			[]string{"iqn", "tpgt", "lun", "fileio", "object", "filename"}, nil,
 		),
 		lioFileWrite: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioFileioSubsystem, "write"),
+			prometheus.BuildFQName(namespace, lioFileioSubsystem, "write_total"),
 			"iSCSI FileIO backstore Write in byte.",
 			[]string{"iqn", "tpgt", "lun", "fileio", "object", "filename"}, nil,
 		),
 
 		lioBlockIops: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioIblockSubsystem, "iops"),
+			prometheus.BuildFQName(namespace, lioIblockSubsystem, "iops_total"),
 			"iSCSI IBlock backstore transport operations.",
 			[]string{"iqn", "tpgt", "lun", "iblock", "object", "blockname"}, nil,
 		),
 		lioBlockRead: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioIblockSubsystem, "read"),
+			prometheus.BuildFQName(namespace, lioIblockSubsystem, "read_total"),
 			"iSCSI IBlock backstore Read in byte.",
 			[]string{"iqn", "tpgt", "lun", "iblock", "object", "blockname"}, nil,
 		),
 		lioBlockWrite: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioIblockSubsystem, "write"),
+			prometheus.BuildFQName(namespace, lioIblockSubsystem, "write_total"),
 			"iSCSI IBlock backstore Write in byte.",
 			[]string{"iqn", "tpgt", "lun", "iblock", "object", "blockname"}, nil,
 		),
 
 		lioRbdIops: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioRbdSubsystem, "iops"),
+			prometheus.BuildFQName(namespace, lioRbdSubsystem, "iops_total"),
 			"iSCSI RBD backstore transport operations.",
 			[]string{"iqn", "tpgt", "lun", "rbd", "pool", "image"}, nil,
 		),
 		lioRbdRead: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioRbdSubsystem, "read"),
+			prometheus.BuildFQName(namespace, lioRbdSubsystem, "read_total"),
 			"iSCSI RBD backstore Read in byte.",
 			[]string{"iqn", "tpgt", "lun", "rbd", "pool", "image"}, nil,
 		),
 		lioRbdWrite: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioRbdSubsystem, "write"),
+			prometheus.BuildFQName(namespace, lioRbdSubsystem, "write_total"),
 			"iSCSI RBD backstore Write in byte.",
 			[]string{"iqn", "tpgt", "lun", "rbd", "pool", "image"}, nil,
 		),
 
 		lioRdmcpIops: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioRdmcpSubsystem, "iops"),
+			prometheus.BuildFQName(namespace, lioRdmcpSubsystem, "iops_total"),
 			"iSCSI Memory Copy RAMDisk backstore transport operations.",
 			[]string{"iqn", "tpgt", "lun", "rdmcp", "object"}, nil,
 		),
 		lioRdmcpRead: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioRdmcpSubsystem, "read"),
+			prometheus.BuildFQName(namespace, lioRdmcpSubsystem, "read_total"),
 			"iSCSI Memory Copy RAMDisk backstore Read in byte.",
 			[]string{"iqn", "tpgt", "lun", "rdmcp", "object"}, nil,
 		),
 		lioRdmcpWrite: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, lioRdmcpSubsystem, "write"),
+			prometheus.BuildFQName(namespace, lioRdmcpSubsystem, "write_total"),
 			"iSCSI Memory Copy RAMDisk backstore Write in byte.",
 			[]string{"iqn", "tpgt", "lun", "rdmcp", "object"}, nil,
 		),
@@ -171,7 +170,6 @@ func newLioMetric() (*lioMetric, error) {
 // /sys/kernel/config/target/iscsi/iqn*/tpgt_*/lun/lun_*/ which link
 // back to the following
 // /sys/kernel/config/target/core/{backstoreType}_{number}/{objectName}/
-
 func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) error {
 
 	log.Debugf("lio updateStat iscsi %s path", s.Name)
@@ -323,7 +321,6 @@ func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graph
 // /sys/kernel/config/target/core/rbd_{X}/{pool}-{images}/
 //
 // the rbd_{X} / {pool}-{image} should match the following
-
 func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
 	rbd := new(iscsi.RBD)
