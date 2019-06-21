@@ -18,10 +18,12 @@ package collector
 import (
 	"bufio"
 	"bytes"
-	"github.com/prometheus/client_golang/prometheus"
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type conntrackCollector struct {
@@ -107,7 +109,11 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return nil
 	}
-	connStat := parseNfConntrackStat(data)
+	connStat, err := parseNfConntrackStat(data)
+	if err != nil {
+		return err
+	}
+
 	ch <- prometheus.MustNewConstMetric(
 		c.searched, prometheus.GaugeValue, float64(connStat.Searched))
 	ch <- prometheus.MustNewConstMetric(
@@ -121,7 +127,7 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func parseNfConntrackStat(data []byte) *ConntrackStatistics {
+func parseNfConntrackStat(data []byte) (*ConntrackStatistics, error) {
 	connstat := ConntrackStatistics{}
 
 	r := bytes.NewReader(data)
@@ -129,25 +135,45 @@ func parseNfConntrackStat(data []byte) *ConntrackStatistics {
 
 	for scanner.Scan() {
 		fields := strings.Fields(scanner.Text())
-		parseFields(&connstat, fields)
+		err := parseFields(&connstat, fields)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return &connstat
+	return &connstat, nil
 }
 
-func parseFields(cs *ConntrackStatistics, fields []string) {
-	searched, _ := strconv.ParseUint(fields[1], 16, 64)
+func parseFields(cs *ConntrackStatistics, fields []string) error {
+	searched, err := strconv.ParseUint(fields[1], 16, 64)
+	if err != nil {
+		return fmt.Errorf("couldn't parse searched field: %s", err)
+	}
 	cs.Searched += searched
 
-	delete, _ := strconv.ParseUint(fields[6], 16, 64)
+	delete, err := strconv.ParseUint(fields[6], 16, 64)
+	if err != nil {
+		return fmt.Errorf("couldn't parse delete field: %s", err)
+	}
 	cs.Delete += delete
 
-	insert, _ := strconv.ParseUint(fields[8], 16, 64)
+	insert, err := strconv.ParseUint(fields[8], 16, 64)
+	if err != nil {
+		return fmt.Errorf("couldn't parse insert field: %s", err)
+	}
 	cs.Insert += insert
 
-	insertFailed, _ := strconv.ParseUint(fields[9], 16, 64)
+	insertFailed, err := strconv.ParseUint(fields[9], 16, 64)
+	if err != nil {
+		return fmt.Errorf("couldn't parse insert_failed field: %s", err)
+	}
 	cs.InsertFailed += insertFailed
 
-	drop, _ := strconv.ParseUint(fields[10], 16, 64)
+	drop, err := strconv.ParseUint(fields[10], 16, 64)
+	if err != nil {
+		return fmt.Errorf("couldn't parse drop field: %s", err)
+	}
 	cs.Drop += drop
+
+	return nil
 }
