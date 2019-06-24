@@ -3,6 +3,7 @@
 ### **Breaking changes**
 
 * The netdev collector CLI argument `--collector.netdev.ignored-devices` was renamed to `--collector.netdev.device-blacklist` in order to conform with the systemd collector. #1279
+* The label named `state` on `node_systemd_service_restart_total` metrics was changed to `name` to better describe the metric. #1393
 
 
 ### Changes
@@ -10,6 +11,7 @@
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [FEATURE]
 * [ENHANCEMENT]
+* [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 
 ## 0.18.1 / 2019-06-04
 
