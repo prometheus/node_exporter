@@ -22,10 +22,10 @@ import (
 
 var (
 	// The path of the proc filesystem.
-	procPath	= kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
-	sysPath		= kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
-	rootfsPath	= kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
-	configfsPath= kingpin.Flag("path.configfs", "configfs mountpoint.").Default("/sys/kernel/config").String()
+	procPath     = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
+	sysPath      = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
+	rootfsPath   = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
+	configfsPath = kingpin.Flag("path.configfs", "configfs mountpoint.").Default("/sys/kernel/config").String()
 )
 
 func procFilePath(name string) string {
