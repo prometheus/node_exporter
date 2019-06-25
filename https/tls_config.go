@@ -54,7 +54,7 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 		loadCert := func() (*tls.Certificate, error) {
 			cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "Loading of X509KeyPair failed, invalid CertPath or KeyPath")
 			}
 			return &cert, nil
 		}
@@ -65,6 +65,8 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 			return loadCert()
 		}
+	} else {
+		return nil, errors.New("Invalid TLS Config file, missing CertPath or KeyPath")
 	}
 	if len(c.ClientCAs) > 0 {
 		clientCAPool := x509.NewCertPool()
@@ -94,20 +96,19 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 	return cfg, nil
 }
 
-// When the listen function is called if the tlsConfigPath is an empty string an HTTP server is started
-// If the tlsConfigPath is a valid config file then an HTTPS server will be started
-// The listen function also sets the GetConfigForClient method of the HTTPS server so that the config and certs are reloaded on new connections
+// Listen starts the server on the given address. If tlsConfigPath isn't empty the connection will be using TLS.
 func Listen(server *http.Server, tlsConfigPath string) error {
-	if len(tlsConfigPath) > 0 {
-		var err error
-		server.TLSConfig, err = getTLSConfig(tlsConfigPath)
-		if err != nil {
-			return err
-		}
-		server.TLSConfig.GetConfigForClient = func(*tls.ClientHelloInfo) (*tls.Config, error) {
-			return getTLSConfig(tlsConfigPath)
-		}
-		return server.ListenAndServeTLS("", "")
+	if (tlsConfigPath) == "" {
+		return server.ListenAndServe()
 	}
-	return server.ListenAndServe()
+	var err error
+	server.TLSConfig, err = getTLSConfig(tlsConfigPath)
+	if err != nil {
+		return err
+	}
+	// The listen function also sets the GetConfigForClient method of the HTTPS server so that the config and certs are reloaded on new connections
+	server.TLSConfig.GetConfigForClient = func(*tls.ClientHelloInfo) (*tls.Config, error) {
+		return getTLSConfig(tlsConfigPath)
+	}
+	return server.ListenAndServeTLS("", "")
 }
