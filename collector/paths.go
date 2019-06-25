@@ -41,5 +41,5 @@ func rootfsFilePath(name string) string {
 }
 
 func configfsFilePath(name string) string {
-	return filepath.Join(configfsPath, name)
+	return filepath.Join(*configfsPath, name)
 }
