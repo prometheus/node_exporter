@@ -71,9 +71,9 @@ func init() {
 
 // NewLioCollector returns a new Collector with iscsi statistics.
 func NewLioCollector() (Collector, error) {
-	fs, err := iscsi.NewFS(*sysPath)
+	fs, err := iscsi.NewFS(*sysPath, *configfsPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs / configfs: %v", err)
 	}
 
 	metrics, _ := newLioMetric()
@@ -231,7 +231,7 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
 func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
 	fileio := new(iscsi.FILEIO)
-	fileio, err := fileio.GetFileioUdev(c.fs.Path(iscsi.TargetCore), label.image, label.pool)
+	fileio, err := fileio.GetFileioUdev(label.image, label.pool)
 
 	if err != nil {
 		return err
@@ -273,7 +273,7 @@ func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graph
 func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
 	iblock := new(iscsi.IBLOCK)
-	iblock, err := iblock.GetIblockUdev(c.fs.Path(iscsi.TargetCore), label.image, label.pool)
+	iblock, err := iblock.GetIblockUdev(label.image, label.pool)
 	if err != nil {
 		return err
 	}
@@ -324,7 +324,7 @@ func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graph
 func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
 	rbd := new(iscsi.RBD)
-	rbd, err := rbd.GetRBDMatch(c.fs.Path(iscsi.TargetCore), label.image, label.pool)
+	rbd, err := rbd.GetRBDMatch(label.image, label.pool)
 
 	if err != nil {
 		return err
@@ -365,7 +365,7 @@ func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLab
 // there won't be udev_path for ramdisk so not image name either
 func (c *lioCollector) updateRDMCPStat(ch chan<- prometheus.Metric, label graphLabel) error {
 	rdmcp := new(iscsi.RDMCP)
-	rdmcp, err := rdmcp.GetRDMCPPath(c.fs.Path(iscsi.TargetCore), label.image, label.pool)
+	rdmcp, err := rdmcp.GetRDMCPPath(label.image, label.pool)
 	if err != nil {
 		return err
 	}
