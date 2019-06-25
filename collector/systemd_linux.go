@@ -90,7 +90,7 @@ func NewSystemdCollector() (Collector, error) {
 		"Summary of systemd unit states", []string{"state"}, nil)
 	nRestartsDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "service_restart_total"),
-		"Service unit count of Restart triggers", []string{"state"}, nil)
+		"Service unit count of Restart triggers", []string{"name"}, nil)
 	timerLastTriggerDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "timer_last_trigger_seconds"),
 		"Seconds since epoch of last trigger.", []string{"name"}, nil)
