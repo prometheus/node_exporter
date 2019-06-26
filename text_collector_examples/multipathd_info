@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Description: Expose device mapper multipathing metrics from multipathd.
+#
+# Author: Saket Sinha <saket.sinha@cloud.ionos.com>
+
+echo '# HELP node_dmpath_info State info for dev-mapper path'
+echo '# TYPE node_dmpath_info gauge'
+/sbin/multipathd show paths format '%d %t %T' | /usr/bin/awk '{ if ( NR > 1) {print "node_dmpath_info{device=\""$1"\"," "dm_path_state=\""$2"\"," "path_state=\""$3"\"}" " 1"}}'
