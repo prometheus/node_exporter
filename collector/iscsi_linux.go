@@ -176,12 +176,11 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
 	tpgtS := s.Tpgt
 	for _, tpgt := range tpgtS {
 		tpgtPath := tpgt.TpgtPath
-		iscsiEnable := tpgt.IsEnable
 
-		log.Debugf("lio: iscsi %s isEnable=%t", tpgtPath, iscsiEnable)
+		log.Debugf("lio: iscsi %s isEnable=%t", tpgtPath, tpgt.IsEnable)
 		// let's not putting more line into the graph with multiple
 		// disable lun, it may create problem for bigger cluster
-		if iscsiEnable {
+		if tpgt.IsEnable {
 
 			lunS := tpgt.Luns
 			for _, lun := range lunS {
@@ -197,22 +196,26 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
 					s.Name, tpgt.Name, lun.Name, backstoreType, objectName, typeNumber)
 
 				switch {
-				case strings.Compare(backstoreType, "fileio") == 0:
+				// case strings.Compare(backstoreType, "fileio") == 0:
+				case backstoreType == "fileio":
 					if err := c.updateFileIOStat(ch, label); err != nil {
 						return fmt.Errorf("failed fileio stat : %v", err)
 					}
 					break
-				case strings.Compare(backstoreType, "iblock") == 0:
+				// case strings.Compare(backstoreType, "iblock") == 0:
+				case backstoreType == "iblock":
 					if err := c.updateIBlockStat(ch, label); err != nil {
 						return fmt.Errorf("failed iblock stat : %v", err)
 					}
 					break
-				case strings.Compare(backstoreType, "rbd") == 0:
+				//case strings.Compare(backstoreType, "rbd") == 0:
+				case backstoreType == "rbd":
 					if err := c.updateRBDStat(ch, label); err != nil {
 						return fmt.Errorf("failed rbd stat : %v", err)
 					}
 					break
-				case strings.Compare(backstoreType, "rdmcp") == 0:
+				//case strings.Compare(backstoreType, "rdmcp") == 0:
+				case backstoreType == "rdmcp":
 					if err := c.updateRDMCPStat(ch, label); err != nil {
 						return fmt.Errorf("failed rdmcp stat : %v", err)
 					}
