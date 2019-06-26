@@ -16,7 +16,6 @@ package collector
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -92,7 +91,9 @@ func (c *lioCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("lio: failed to update iscsi stat : %v", err)
 	}
 	for _, s := range stats {
-		c.updateStat(ch, s)
+		if err := c.updateStat(ch, s); err != nil {
+			return fmt.Errorf("lio: failed in updateStae: %v", err)
+		}
 	}
 	return nil
 }
@@ -196,30 +197,22 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
 					s.Name, tpgt.Name, lun.Name, backstoreType, objectName, typeNumber)
 
 				switch {
-				// case strings.Compare(backstoreType, "fileio") == 0:
 				case backstoreType == "fileio":
 					if err := c.updateFileIOStat(ch, label); err != nil {
 						return fmt.Errorf("failed fileio stat : %v", err)
 					}
-					break
-				// case strings.Compare(backstoreType, "iblock") == 0:
 				case backstoreType == "iblock":
 					if err := c.updateIBlockStat(ch, label); err != nil {
 						return fmt.Errorf("failed iblock stat : %v", err)
 					}
-					break
-				//case strings.Compare(backstoreType, "rbd") == 0:
 				case backstoreType == "rbd":
 					if err := c.updateRBDStat(ch, label); err != nil {
 						return fmt.Errorf("failed rbd stat : %v", err)
 					}
-					break
-				//case strings.Compare(backstoreType, "rdmcp") == 0:
 				case backstoreType == "rdmcp":
 					if err := c.updateRDMCPStat(ch, label); err != nil {
 						return fmt.Errorf("failed rdmcp stat : %v", err)
 					}
-					break
 				default:
 					continue
 				}
@@ -233,8 +226,7 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
 // udev_path has the file name
 func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
-	fileio := new(iscsi.FILEIO)
-	fileio, err := fileio.GetFileioUdev(label.image, label.pool)
+	fileio, err := c.fs.GetFileioUdev(label.image, label.pool)
 
 	if err != nil {
 		return err
@@ -275,8 +267,7 @@ func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graph
 // udev_path has the file name
 func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
-	iblock := new(iscsi.IBLOCK)
-	iblock, err := iblock.GetIblockUdev(label.image, label.pool)
+	iblock, err := c.fs.GetIblockUdev(label.image, label.pool)
 	if err != nil {
 		return err
 	}
@@ -326,8 +317,7 @@ func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graph
 // the rbd_{X} / {pool}-{image} should match the following
 func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
-	rbd := new(iscsi.RBD)
-	rbd, err := rbd.GetRBDMatch(label.image, label.pool)
+	rbd, err := c.fs.GetRBDMatch(label.image, label.pool)
 
 	if err != nil {
 		return err
@@ -367,8 +357,7 @@ func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLab
 // /sys/kernel/config/target/core/rdmcp_{typeNumber}/{object}/
 // there won't be udev_path for ramdisk so not image name either
 func (c *lioCollector) updateRDMCPStat(ch chan<- prometheus.Metric, label graphLabel) error {
-	rdmcp := new(iscsi.RDMCP)
-	rdmcp, err := rdmcp.GetRDMCPPath(label.image, label.pool)
+	rdmcp, err := c.fs.GetRDMCPPath(label.image, label.pool)
 	if err != nil {
 		return err
 	}

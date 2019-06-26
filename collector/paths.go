@@ -39,7 +39,3 @@ func sysFilePath(name string) string {
 func rootfsFilePath(name string) string {
 	return filepath.Join(*rootfsPath, name)
 }
-
-func configfsFilePath(name string) string {
-	return filepath.Join(*configfsPath, name)
-}
