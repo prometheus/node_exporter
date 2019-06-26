@@ -94,7 +94,16 @@ def handle_megaraid_controller(response):
     add_metric('ports', baselabel, response['HwCfg']['Backend Port Count'])
     add_metric('scheduled_patrol_read', baselabel,
                int('hrs' in response['Scheduled Tasks']['Patrol Read Reoccurrence']))
-    add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
+    
+    # add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
+    # Due to storcli64 spelling mistake 
+    # /opt/MegaRAID/storcli/storcli64 /cALL show all J | grep Degree
+	#		"ROC temperature(Degree Celcius)" : 49
+     try:
+         add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
+     except:
+         add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celcius)']))
+            
     for cvidx, cvinfo in enumerate(response['Cachevault_Info']):
         add_metric('cv_temperature', baselabel + ',cvidx="' + str(cvidx) + '"', int(cvinfo['Temp'].replace('C','')))
 
