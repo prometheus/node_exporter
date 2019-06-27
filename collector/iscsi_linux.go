@@ -75,7 +75,7 @@ func NewLioCollector() (Collector, error) {
 		return nil, fmt.Errorf("failed to open sysfs / configfs: %v", err)
 	}
 
-	metrics, _ := newLioMetric()
+	metrics := newLioMetric()
 
 	return &lioCollector{
 		fs:      fs,
@@ -99,7 +99,7 @@ func (c *lioCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 //newLioMetric create the LIO metric data structure to return for node_exporter
-func newLioMetric() (*lioMetric, error) {
+func newLioMetric() *lioMetric {
 
 	return &lioMetric{
 		lioFileIops: prometheus.NewDesc(
@@ -165,7 +165,7 @@ func newLioMetric() (*lioMetric, error) {
 			"iSCSI Memory Copy RAMDisk backstore Write in byte.",
 			[]string{"iqn", "tpgt", "lun", "rdmcp", "object"}, nil,
 		),
-	}, nil
+	}
 }
 
 // /sys/kernel/config/target/iscsi/iqn*/tpgt_*/lun/lun_*/ which link
