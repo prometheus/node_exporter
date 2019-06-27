@@ -526,7 +526,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 		var mountAddress string
 		if idx < len(mountsInfo) {
-			// The mount entry order in the /proc/self/mountstats and /proc/self/mountinfo is the same
+			// The mount entry order in the /proc/self/mountstats and /proc/self/mountinfo is the same.
 			miStats := mountsInfo[idx]
 			mountAddress = miStats.SuperOptions["addr"]
 		}
