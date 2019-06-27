@@ -24,7 +24,7 @@ func TestThermalStats(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error in getting fixture data: %v", err)
 	}
-	stats, err := fs.NewClassThermalZoneStats()
+	stats, err := fs.ClassThermalZoneStats()
 	if err != nil {
 		t.Fatalf("Error in getting fixture data: %v", err)
 	}

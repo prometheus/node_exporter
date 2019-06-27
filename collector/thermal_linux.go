@@ -55,7 +55,7 @@ func NewThermalCollector() (Collector, error) {
 }
 
 func (c *thermalCollector) Update(ch chan<- prometheus.Metric) error {
-	tzStats, err := c.fs.NewClassThermalZoneStats()
+	tzStats, err := c.fs.ClassThermalZoneStats()
 	if err != nil {
 		return err
 	}

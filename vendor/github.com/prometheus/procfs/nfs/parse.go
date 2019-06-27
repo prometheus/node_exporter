@@ -118,7 +118,7 @@ func parseClientRPC(v []uint64) (ClientRPC, error) {
 
 func parseV2Stats(v []uint64) (V2Stats, error) {
 	values := int(v[0])
-	if len(v[1:]) != values || values != 18 {
+	if len(v[1:]) != values || values < 18 {
 		return V2Stats{}, fmt.Errorf("invalid V2Stats line %q", v)
 	}
 
@@ -146,7 +146,7 @@ func parseV2Stats(v []uint64) (V2Stats, error) {
 
 func parseV3Stats(v []uint64) (V3Stats, error) {
 	values := int(v[0])
-	if len(v[1:]) != values || values != 22 {
+	if len(v[1:]) != values || values < 22 {
 		return V3Stats{}, fmt.Errorf("invalid V3Stats line %q", v)
 	}
 
