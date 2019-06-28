@@ -1812,52 +1812,52 @@ node_netstat_Udp_NoPorts 120
 node_netstat_Udp_OutDatagrams 53028
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
-node_network_address_assign_type{interface="eth0"} 3
+node_network_address_assign_type{device="eth0"} 3
 # HELP node_network_carrier carrier value of /sys/class/net/<iface>.
 # TYPE node_network_carrier gauge
-node_network_carrier{interface="eth0"} 1
+node_network_carrier{device="eth0"} 1
 # HELP node_network_carrier_changes_total carrier_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_changes_total counter
-node_network_carrier_changes_total{interface="eth0"} 2
+node_network_carrier_changes_total{device="eth0"} 2
 # HELP node_network_carrier_down_changes_total carrier_down_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_down_changes_total counter
-node_network_carrier_down_changes_total{interface="eth0"} 1
+node_network_carrier_down_changes_total{device="eth0"} 1
 # HELP node_network_carrier_up_changes_total carrier_up_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_up_changes_total counter
-node_network_carrier_up_changes_total{interface="eth0"} 1
+node_network_carrier_up_changes_total{device="eth0"} 1
 # HELP node_network_device_id device_id value of /sys/class/net/<iface>.
 # TYPE node_network_device_id gauge
-node_network_device_id{interface="eth0"} 32
+node_network_device_id{device="eth0"} 32
 # HELP node_network_dormant dormant value of /sys/class/net/<iface>.
 # TYPE node_network_dormant gauge
-node_network_dormant{interface="eth0"} 1
+node_network_dormant{device="eth0"} 1
 # HELP node_network_flags flags value of /sys/class/net/<iface>.
 # TYPE node_network_flags gauge
-node_network_flags{interface="eth0"} 4867
+node_network_flags{device="eth0"} 4867
 # HELP node_network_iface_id iface_id value of /sys/class/net/<iface>.
 # TYPE node_network_iface_id gauge
-node_network_iface_id{interface="eth0"} 2
+node_network_iface_id{device="eth0"} 2
 # HELP node_network_iface_link iface_link value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link gauge
-node_network_iface_link{interface="eth0"} 2
+node_network_iface_link{device="eth0"} 2
 # HELP node_network_iface_link_mode iface_link_mode value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link_mode gauge
-node_network_iface_link_mode{interface="eth0"} 1
+node_network_iface_link_mode{device="eth0"} 1
 # HELP node_network_info Non-numeric data from /sys/class/net/<iface>, value is always 1.
 # TYPE node_network_info gauge
 node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up"} 1
 # HELP node_network_mtu_bytes mtu_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_mtu_bytes gauge
-node_network_mtu_bytes{interface="eth0"} 1500
+node_network_mtu_bytes{device="eth0"} 1500
 # HELP node_network_name_assign_type name_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_name_assign_type gauge
-node_network_name_assign_type{interface="eth0"} 2
+node_network_name_assign_type{device="eth0"} 2
 # HELP node_network_net_dev_group net_dev_group value of /sys/class/net/<iface>.
 # TYPE node_network_net_dev_group gauge
-node_network_net_dev_group{interface="eth0"} 0
+node_network_net_dev_group{device="eth0"} 0
 # HELP node_network_protocol_type protocol_type value of /sys/class/net/<iface>.
 # TYPE node_network_protocol_type gauge
-node_network_protocol_type{interface="eth0"} 1
+node_network_protocol_type{device="eth0"} 1
 # HELP node_network_receive_bytes_total Network device statistic receive_bytes.
 # TYPE node_network_receive_bytes_total counter
 node_network_receive_bytes_total{device="docker0"} 6.4910168e+07
@@ -1956,7 +1956,7 @@ node_network_receive_packets_total{device="wlan0"} 1.3899359e+07
 node_network_receive_packets_total{device="💩0"} 105557
 # HELP node_network_speed_bytes speed_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_speed_bytes gauge
-node_network_speed_bytes{interface="eth0"} 1.25e+08
+node_network_speed_bytes{device="eth0"} 1.25e+08
 # HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
 # TYPE node_network_transmit_bytes_total counter
 node_network_transmit_bytes_total{device="docker0"} 2.681662018e+09
@@ -2055,7 +2055,7 @@ node_network_transmit_packets_total{device="wlan0"} 1.17262e+07
 node_network_transmit_packets_total{device="💩0"} 304261
 # HELP node_network_transmit_queue_length transmit_queue_length value of /sys/class/net/<iface>.
 # TYPE node_network_transmit_queue_length gauge
-node_network_transmit_queue_length{interface="eth0"} 1000
+node_network_transmit_queue_length{device="eth0"} 1000
 # HELP node_network_up Value is 1 if operstate is 'up', 0 otherwise.
 # TYPE node_network_up gauge
 node_network_up{device="eth0"} 1
