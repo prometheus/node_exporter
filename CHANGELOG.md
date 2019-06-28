@@ -4,11 +4,15 @@
 
 * The netdev collector CLI argument `--collector.netdev.ignored-devices` was renamed to `--collector.netdev.device-blacklist` in order to conform with the systemd collector. #1279
 * The label named `state` on `node_systemd_service_restart_total` metrics was changed to `name` to better describe the metric. #1393
-
+* Refactoring of the mdadm collector changes several metrics
+    - `node_md_disks_active` is removed
+    - `node_md_disks` now has a `state` label for "fail", "spare", "active" disks.
+    - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
 
 ### Changes
 
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
+* [CHANGE] Refactor mdadm collector #1403
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
