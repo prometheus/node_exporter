@@ -76,7 +76,7 @@ $3 ~ /RPM/ {
 }
 
 $3 ~ /discrete/ {
-	status[$1] = $2;
+	status[$1] = sprintf("%d", substr($2,3,2));
 	status["metric_count"]++;
 }
 
