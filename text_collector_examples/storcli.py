@@ -48,6 +48,8 @@ def main(args):
 
         for controller in data:
             response = controller['Response Data']
+            
+            handle_common_controller(response)
             if response['Version']['Driver Name'] == 'megaraid_sas':
                 handle_megaraid_controller(response)
             elif response['Version']['Driver Name'] == 'mpt3sas':
@@ -57,6 +59,13 @@ def main(args):
 
     print_all_metrics(metric_list)
 
+def handle_common_controller(response):
+    (controller_index, baselabel) = get_basic_controller_info(response)
+
+    # Split up string to not trigger CodeSpell issues
+    if 'ROC temperature(Degree Celc' + 'ius)' in response['HwCfg'].keys():
+        response['HwCfg']['ROC temperature(Degree Celsius)'] = response['HwCfg'].pop('ROC temperature(Degree Celc' + 'ius)')
+    add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
 
 def handle_sas_controller(response):
     (controller_index, baselabel) = get_basic_controller_info(response)
@@ -69,9 +78,7 @@ def handle_sas_controller(response):
                    len(response['Physical Device Information'].keys()) / 2)
     except AttributeError:
         pass
-    # Split up string to not trigger CodeSpell issues
-    add_metric('temperature', baselabel,
-               int(response['HwCfg']['ROC temperature(Degree Celc' + 'ius)']))
+
     for key, basic_disk_info in response['Physical Device Information'].items():
         if 'Detailed Information' in key:
             continue
@@ -94,7 +101,6 @@ def handle_megaraid_controller(response):
     add_metric('ports', baselabel, response['HwCfg']['Backend Port Count'])
     add_metric('scheduled_patrol_read', baselabel,
                int('hrs' in response['Scheduled Tasks']['Patrol Read Reoccurrence']))
-    add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
     for cvidx, cvinfo in enumerate(response['Cachevault_Info']):
         add_metric('cv_temperature', baselabel + ',cvidx="' + str(cvidx) + '"', int(cvinfo['Temp'].replace('C','')))
 
