@@ -275,7 +275,9 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			counters.PortRcvConstraintErrors = vp.PUInt64()
 		case "port_rcv_data":
 			counters.PortRcvData = vp.PUInt64()
-			*counters.PortRcvData *= 4
+			if counters.PortRcvData != nil {
+				*counters.PortRcvData *= 4
+			}
 		case "port_rcv_discards":
 			counters.PortRcvDiscards = vp.PUInt64()
 		case "port_rcv_errors":
@@ -286,7 +288,9 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			counters.PortXmitConstraintErrors = vp.PUInt64()
 		case "port_xmit_data":
 			counters.PortXmitData = vp.PUInt64()
-			*counters.PortXmitData *= 4
+			if counters.PortXmitData != nil {
+				*counters.PortXmitData *= 4
+			}
 		case "port_xmit_discards":
 			counters.PortXmitDiscards = vp.PUInt64()
 		case "port_xmit_packets":
@@ -339,7 +343,9 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			counters.LegacyPortMulticastXmitPackets = vp.PUInt64()
 		case "port_rcv_data_64":
 			counters.LegacyPortRcvData64 = vp.PUInt64()
-			*counters.LegacyPortRcvData64 *= 4
+			if counters.LegacyPortRcvData64 != nil {
+				*counters.LegacyPortRcvData64 *= 4
+			}
 		case "port_rcv_packets_64":
 			counters.LegacyPortRcvPackets64 = vp.PUInt64()
 		case "port_unicast_rcv_packets":
@@ -348,7 +354,9 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			counters.LegacyPortUnicastXmitPackets = vp.PUInt64()
 		case "port_xmit_data_64":
 			counters.LegacyPortXmitData64 = vp.PUInt64()
-			*counters.LegacyPortXmitData64 *= 4
+			if counters.LegacyPortXmitData64 != nil {
+				*counters.LegacyPortXmitData64 *= 4
+			}
 		case "port_xmit_packets_64":
 			counters.LegacyPortXmitPackets64 = vp.PUInt64()
 		}
