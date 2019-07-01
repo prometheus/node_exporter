@@ -48,27 +48,28 @@ def main(args):
 
         for controller in data:
             response = controller['Response Data']
-            
-            handle_common_controller(response)
+            (controller_index, baselabel) = get_basic_controller_info(response)
+
+            handle_common_controller(response,controller_index, baselabel)
             if response['Version']['Driver Name'] == 'megaraid_sas':
-                handle_megaraid_controller(response)
+                handle_megaraid_controller(response,controller_index, baselabel)
             elif response['Version']['Driver Name'] == 'mpt3sas':
-                handle_sas_controller(response)
+                handle_sas_controller(response,controller_index, baselabel)
     except KeyError:
         pass
 
     print_all_metrics(metric_list)
 
-def handle_common_controller(response):
-    (controller_index, baselabel) = get_basic_controller_info(response)
+def handle_common_controller(response,controller_index, baselabel):
+    try:
+        # Split up string to not trigger CodeSpell issues
+        if 'ROC temperature(Degree Celc' + 'ius)' in response['HwCfg'].keys():
+            response['HwCfg']['ROC temperature(Degree Celsius)'] = response['HwCfg'].pop('ROC temperature(Degree Celc' + 'ius)')
+        add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
+    except:
+        pass
 
-    # Split up string to not trigger CodeSpell issues
-    if 'ROC temperature(Degree Celc' + 'ius)' in response['HwCfg'].keys():
-        response['HwCfg']['ROC temperature(Degree Celsius)'] = response['HwCfg'].pop('ROC temperature(Degree Celc' + 'ius)')
-    add_metric('temperature', baselabel, int(response['HwCfg']['ROC temperature(Degree Celsius)']))
-
-def handle_sas_controller(response):
-    (controller_index, baselabel) = get_basic_controller_info(response)
+def handle_sas_controller(response,controller_index, baselabel):
     add_metric('healthy', baselabel, int(response['Status']['Controller Status'] == 'OK'))
     add_metric('ports', baselabel, response['HwCfg']['Backend Port Count'])
     try:
@@ -86,9 +87,7 @@ def handle_sas_controller(response):
                                          response['Physical Device Information'], controller_index)
 
 
-def handle_megaraid_controller(response):
-    (controller_index, baselabel) = get_basic_controller_info(response)
-
+def handle_megaraid_controller(response,controller_index, baselabel):
     # BBU Status Optimal value is 0 for cachevault and 32 for BBU
     add_metric('battery_backup_healthy', baselabel,
                int(response['Status']['BBU Status'] in [0, 32]))
