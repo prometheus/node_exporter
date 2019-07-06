@@ -4,7 +4,7 @@ local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
-local promgrafonnet = import '../lib/promgrafonnet/promgrafonnet.libsonnet';
+local promgrafonnet = import 'promgrafonnet/promgrafonnet.libsonnet';
 local gauge = promgrafonnet.gauge;
 
 {
