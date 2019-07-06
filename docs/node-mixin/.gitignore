@@ -1,3 +1,4 @@
-/jsonnetfile.lock.json
-/vendor/
-
+jsonnetfile.lock.json
+vendor
+*.yaml
+dashboards_out
