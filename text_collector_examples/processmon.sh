@@ -4,7 +4,7 @@
 # It takes input the way you would like to capture the process and what name you would like the process to have 
 # Usage: add this to crontab:
 # argument 1 : the way you want to capture the process , it could be a custom one lines bash script as example below in between () these brackets
-# argument 2 : the process name you would like to add to that captured proces
+# argument 2 : the process name you would like to add to that captured process
 # example I am pullig splunk main process info by using a custom logic in ()
 # */5 * * * * sh processmon.sh '(grep splunkd | grep process-runner)' splunk | sponge /var/lib/node_exporter/yourprocess_info.prom
 #
