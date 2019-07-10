@@ -15,6 +15,7 @@ package collector
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/prometheus/procfs"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -37,4 +38,11 @@ func sysFilePath(name string) string {
 
 func rootfsFilePath(name string) string {
 	return filepath.Join(*rootfsPath, name)
+}
+
+func rootfsStripPrefix(path string) string {
+	if *rootfsPath == "/" {
+		return path
+	}
+	return strings.TrimPrefix(path, *rootfsPath)
 }

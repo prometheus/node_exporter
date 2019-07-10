@@ -69,7 +69,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		stats = append(stats, filesystemStats{
 			labels: filesystemLabels{
 				device:     device,
-				mountPoint: mountpoint,
+				mountPoint: rootfsStripPrefix(mountpoint),
 				fsType:     fstype,
 			},
 			size:      float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
