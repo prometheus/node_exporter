@@ -8,11 +8,11 @@
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 24*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
               and
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.4
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} < 0.4
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -27,11 +27,11 @@
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 4*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
               and
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.2
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} < 0.2
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -46,9 +46,9 @@
             alert: 'NodeFilesystemOutOfSpace',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 5
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 5
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -63,9 +63,9 @@
             alert: 'NodeFilesystemOutOfSpace',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 3
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 3
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -80,11 +80,11 @@
             alert: 'NodeFilesystemFilesFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 24*60*60) < 0
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
               and
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.4
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} < 0.4
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -99,11 +99,11 @@
             alert: 'NodeFilesystemFilesFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelectors)s}[6h], 4*60*60) < 0
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
               and
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelectors)s} < 0.2
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} < 0.2
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -118,9 +118,9 @@
             alert: 'NodeFilesystemOutOfFiles',
             expr: |||
               (
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 5
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 5
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
@@ -135,9 +135,9 @@
             alert: 'NodeFilesystemOutOfSpace',
             expr: |||
               (
-                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelectors)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelectors)s} * 100 < 3
+                node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 3
               and
-                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelectors)s} == 0
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
             'for': '1h',
