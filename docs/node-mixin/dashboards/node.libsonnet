@@ -47,10 +47,15 @@ local gauge = promgrafonnet.gauge;
         )
         .addTarget(prometheus.target(
           |||
-            node_memory_MemTotal{%(nodeExporterSelector)s, instance="$instance"}
-            - node_memory_MemFree{%(nodeExporterSelector)s, instance="$instance"}
-            - node_memory_Buffers{%(nodeExporterSelector)s, instance="$instance"}
-            - node_memory_Cached{%(nodeExporterSelector)s, instance="$instance"}
+            (
+              node_memory_MemTotal{%(nodeExporterSelector)s, instance="$instance"}
+            -
+              node_memory_MemFree{%(nodeExporterSelector)s, instance="$instance"}
+            -
+              node_memory_Buffers{%(nodeExporterSelector)s, instance="$instance"}
+            -
+              node_memory_Cached{%(nodeExporterSelector)s, instance="$instance"}
+            )
           ||| % $._config, legendFormat='memory used'
         ))
         .addTarget(prometheus.target('node_memory_Buffers{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory buffers'))
@@ -60,10 +65,12 @@ local gauge = promgrafonnet.gauge;
       local memoryGauge = gauge.new(
         'Memory Usage',
         |||
-          node_memory_MemAvailable{%(nodeExporterSelector)s, instance="$instance"}
+          (
+            node_memory_MemAvailable{%(nodeExporterSelector)s, instance="$instance"}
           /
-          node_memory_MemTotal{%(nodeExporterSelector)s, instance="$instance"}
-	  * 100
+            node_memory_MemTotal{%(nodeExporterSelector)s, instance="$instance"}
+          )
+          * 100
         ||| % $._config,
       ).withLowerBeingBetter();
 
@@ -96,11 +103,13 @@ local gauge = promgrafonnet.gauge;
       local diskSpaceUsage = gauge.new(
         'Disk Space Usage',
         |||
-          100 - (
-              sum(node_filesystem_free{%(nodeExporterSelector)s, device!="rootfs", instance="$instance"}
-            /
-              sum(node_filesystem_size{%(nodeExporterSelector)s, device!="rootfs", instance="$instance"}
-          ) * 100
+          100 -
+          (
+            sum(node_filesystem_free{%(nodeExporterSelector)s, device!="rootfs", instance="$instance"}
+          /
+            sum(node_filesystem_size{%(nodeExporterSelector)s, device!="rootfs", instance="$instance"}
+          * 100
+          )
         ||| % $._config,
       ).withLowerBeingBetter();
 

@@ -29,9 +29,11 @@
             // Can go over 100%.  >100% is bad.
             record: 'instance:node_cpu_saturation_load1:',
             expr: |||
-              sum by (instance) (node_load1{%(nodeExporterSelector)s})
+              (
+                sum by (instance) (node_load1{%(nodeExporterSelector)s})
               /
-              instance:node_num_cpu:sum
+                instance:node_num_cpu:sum
+              )
             ||| % $._config,
           },
           {
@@ -48,9 +50,9 @@
             record: 'instance:node_memory_utilisation:ratio',
             expr: |||
               1 - (
-                  node_memory_MemAvailable_bytes{%(nodeExporterSelector)s}
-                /
-                  node_memory_MemTotal_bytes{%(nodeExporterSelector)s}
+                node_memory_MemAvailable_bytes{%(nodeExporterSelector)s}
+              /
+                node_memory_MemTotal_bytes{%(nodeExporterSelector)s}
               )
             ||| % $._config,
           },
@@ -58,8 +60,9 @@
             record: 'instance:node_memory_swap_io_bytes:sum_rate',
             expr: |||
               1e3 * sum by (instance) (
-                (rate(node_vmstat_pgpgin{%(nodeExporterSelector)s}[1m])
-                 + rate(node_vmstat_pgpgout{%(nodeExporterSelector)s}[1m]))
+                rate(node_vmstat_pgpgin{%(nodeExporterSelector)s}[1m])
+              +
+                rate(node_vmstat_pgpgout{%(nodeExporterSelector)s}[1m])
               )
             ||| % $._config,
           },
@@ -85,8 +88,9 @@
             record: 'instance:node_net_utilisation:sum_irate',
             expr: |||
               sum by (instance) (
-                (irate(node_network_receive_bytes_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]) +
-                 irate(node_network_transmit_bytes_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]))
+                irate(node_network_receive_bytes_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m])
+              +
+                irate(node_network_transmit_bytes_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m])
               )
             ||| % $._config,
           },
@@ -94,8 +98,9 @@
             record: 'instance:node_net_saturation:sum_irate',
             expr: |||
               sum by (instance) (
-                (irate(node_network_receive_drop_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]) +
-                 irate(node_network_transmit_drop_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m]))
+                irate(node_network_receive_drop_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m])
+              +
+                irate(node_network_transmit_drop_total{%(nodeExporterSelector)s,device=~"eth[0-9]+"}[1m])
               )
             ||| % $._config,
           },

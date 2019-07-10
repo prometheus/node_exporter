@@ -44,9 +44,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Disk IO Utilisation') +
           // Full utilisation would be all disks on each node spending an average of
           // 1 sec per second doing I/O, normalize by node count for stacked charts
-          g.queryPanel(|||
-            instance:node_disk_utilisation:sum_irate / scalar(sum(up{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}}', legendLink) +
+          g.queryPanel('instance:node_disk_utilisation:sum_irate / scalar(sum(up{%(nodeExporterSelector)s}))' % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
