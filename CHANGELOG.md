@@ -13,7 +13,7 @@
 
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
-* [FEATURE]
+* [FEATURE] Add new schedstat collector #1389
 * [ENHANCEMENT]
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 
