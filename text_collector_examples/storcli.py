@@ -95,9 +95,6 @@ def handle_megaraid_controller(response):
     add_metric('degraded', baselabel, int(response['Status']['Controller Status'] == 'Degraded'))
     add_metric('failed', baselabel, int(response['Status']['Controller Status'] == 'Failed'))
     add_metric('healthy', baselabel, int(response['Status']['Controller Status'] == 'Optimal'))
-    add_metric('drive_groups', baselabel, response['Drive Groups'])
-    add_metric('virtual_drives', baselabel, response['Virtual Drives'])
-    add_metric('physical_drives', baselabel, response['Physical Drives'])
     add_metric('ports', baselabel, response['HwCfg']['Backend Port Count'])
     add_metric('scheduled_patrol_read', baselabel,
                int('hrs' in response['Scheduled Tasks']['Patrol Read Reoccurrence']))
@@ -113,20 +110,26 @@ def handle_megaraid_controller(response):
         time_difference_seconds = abs(system_time - controller_time).seconds
         add_metric('time_difference', baselabel, time_difference_seconds)
 
-    for virtual_drive in response['VD LIST']:
-        vd_position = virtual_drive.get('DG/VD')
-        drive_group, volume_group = -1, -1
-        if vd_position:
-            drive_group = vd_position.split('/')[0]
-            volume_group = vd_position.split('/')[1]
-        vd_baselabel = 'controller="{0}",DG="{1}",VG="{2}"'.format(controller_index, drive_group,
-                                                                volume_group)
-        vd_info_label = vd_baselabel + ',name="{0}",cache="{1}",type="{2}",state="{3}"'.format(
-            str(virtual_drive.get('Name')).strip(),
-            str(virtual_drive.get('Cache')).strip(),
-            str(virtual_drive.get('TYPE')).strip(),
-            str(virtual_drive.get('State')).strip())
-        add_metric('vd_info', vd_info_label, 1)
+    # Make sure it doesn't crash if it's a JBOD setup
+    if 'Drive Groups' in response.keys():
+        add_metric('drive_groups', baselabel, response['Drive Groups'])
+        add_metric('virtual_drives', baselabel, response['Virtual Drives'])
+        add_metric('physical_drives', baselabel, response['Physical Drives'])
+
+        for virtual_drive in response['VD LIST']:
+            vd_position = virtual_drive.get('DG/VD')
+            drive_group, volume_group = -1, -1
+            if vd_position:
+                drive_group = vd_position.split('/')[0]
+                volume_group = vd_position.split('/')[1]
+            vd_baselabel = 'controller="{0}",DG="{1}",VG="{2}"'.format(controller_index, drive_group,
+                                                                    volume_group)
+            vd_info_label = vd_baselabel + ',name="{0}",cache="{1}",type="{2}",state="{3}"'.format(
+                str(virtual_drive.get('Name')).strip(),
+                str(virtual_drive.get('Cache')).strip(),
+                str(virtual_drive.get('TYPE')).strip(),
+                str(virtual_drive.get('State')).strip())
+            add_metric('vd_info', vd_info_label, 1)
 
     if response['Physical Drives'] > 0:
         data = get_storcli_json('/cALL/eALL/sALL show all J')
