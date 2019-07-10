@@ -114,7 +114,6 @@ def handle_megaraid_controller(response):
     if 'Drive Groups' in response.keys():
         add_metric('drive_groups', baselabel, response['Drive Groups'])
         add_metric('virtual_drives', baselabel, response['Virtual Drives'])
-        add_metric('physical_drives', baselabel, response['Physical Drives'])
 
         for virtual_drive in response['VD LIST']:
             vd_position = virtual_drive.get('DG/VD')
@@ -131,6 +130,7 @@ def handle_megaraid_controller(response):
                 str(virtual_drive.get('State')).strip())
             add_metric('vd_info', vd_info_label, 1)
 
+    add_metric('physical_drives', baselabel, response['Physical Drives'])
     if response['Physical Drives'] > 0:
         data = get_storcli_json('/cALL/eALL/sALL show all J')
         drive_info = data['Controllers'][controller_index]['Response Data']
