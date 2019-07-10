@@ -63,6 +63,7 @@ local gauge = promgrafonnet.gauge;
           node_memory_MemAvailable{%(nodeExporterSelector)s, instance="$instance"}
           /
           node_memory_MemTotal{%(nodeExporterSelector)s, instance="$instance"}
+	  * 100
         ||| % $._config,
       ).withLowerBeingBetter();
 
@@ -95,11 +96,11 @@ local gauge = promgrafonnet.gauge;
       local diskSpaceUsage = gauge.new(
         'Disk Space Usage',
         |||
-          1 - (
+          100 - (
               sum(node_filesystem_free{%(nodeExporterSelector)s, device!="rootfs", instance="$instance"}
             /
               sum(node_filesystem_size{%(nodeExporterSelector)s, device!="rootfs", instance="$instance"}
-          )
+          ) * 100
         ||| % $._config,
       ).withLowerBeingBetter();
 
