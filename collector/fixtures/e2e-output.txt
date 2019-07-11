@@ -2373,6 +2373,7 @@ node_scrape_collector_success{collector="hwmon"} 1
 node_scrape_collector_success{collector="infiniband"} 1
 node_scrape_collector_success{collector="interrupts"} 1
 node_scrape_collector_success{collector="ipvs"} 1
+node_scrape_collector_success{collector="iscsi"} 1
 node_scrape_collector_success{collector="ksmd"} 1
 node_scrape_collector_success{collector="loadavg"} 1
 node_scrape_collector_success{collector="mdadm"} 1
