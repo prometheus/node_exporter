@@ -1,6 +1,9 @@
 ---
 version: 2.1
 
+orbs:
+  prometheus: prometheus/prometheus@0.1.0
+
 executors:
   # Whenever the Go version is updated here, .promu.yml should
   # also be updated.
@@ -13,13 +16,10 @@ jobs:
     executor: golang
 
     steps:
-    - checkout
-    - run: make promu
+    - prometheus/setup_environment
     - run: make
-    - store_artifacts:
-        path: node_exporter
-        destination: /build/node_exporter
-    - run: rm -v node_exporter
+    - prometheus/store_artifact:
+        file: node_exporter
 
   codespell:
     docker:
@@ -68,61 +68,6 @@ jobs:
             make test-docker
           fi
 
-  docker_hub_master:
-    executor: golang
-
-    steps:
-    - checkout
-    - setup_remote_docker:
-        version: 18.06.0-ce
-    - run: docker run --privileged linuxkit/binfmt:v0.6
-    - attach_workspace:
-        at: .
-    - run: make docker
-    - run: make docker DOCKER_REPO=quay.io/prometheus
-    - run: docker images
-    - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-    - run: docker login -u $QUAY_LOGIN -p $QUAY_PASSWORD quay.io
-    - run: make docker-publish
-    - run: make docker-publish DOCKER_REPO=quay.io/prometheus
-    - run: make docker-manifest
-    - run: make docker-manifest DOCKER_REPO=quay.io/prometheus
-
-  docker_hub_release_tags:
-    executor: golang
-
-    steps:
-    - checkout
-    - setup_remote_docker:
-        version: 18.06.0-ce
-    - run: docker run --privileged linuxkit/binfmt:v0.6
-    - attach_workspace:
-        at: .
-    - run: make promu
-    - run: promu crossbuild tarballs
-    - run: promu checksum .tarballs
-    - run: promu release .tarballs
-    - store_artifacts:
-        path: .tarballs
-        destination: releases
-    - run: make docker DOCKER_IMAGE_TAG=$CIRCLE_TAG
-    - run: make docker DOCKER_IMAGE_TAG=$CIRCLE_TAG DOCKER_REPO=quay.io/prometheus
-    - run: docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-    - run: docker login -u $QUAY_LOGIN -p $QUAY_PASSWORD quay.io
-    - run: make docker-publish DOCKER_IMAGE_TAG="$CIRCLE_TAG"
-    - run: make docker-publish DOCKER_IMAGE_TAG="$CIRCLE_TAG" DOCKER_REPO=quay.io/prometheus
-    - run: make docker-manifest DOCKER_IMAGE_TAG="$CIRCLE_TAG"
-    - run: make docker-manifest DOCKER_IMAGE_TAG="$CIRCLE_TAG" DOCKER_REPO=quay.io/prometheus
-    - run: |
-        if [[ "$CIRCLE_TAG" =~ ^v[0-9]+(\.[0-9]+){2}$ ]]; then
-          make docker-tag-latest DOCKER_IMAGE_TAG="$CIRCLE_TAG"
-          make docker-tag-latest DOCKER_IMAGE_TAG="$CIRCLE_TAG" DOCKER_REPO=quay.io/prometheus
-          make docker-publish DOCKER_IMAGE_TAG="latest"
-          make docker-publish DOCKER_IMAGE_TAG="latest" DOCKER_REPO=quay.io/prometheus
-          make docker-manifest DOCKER_IMAGE_TAG="latest"
-          make docker-manifest DOCKER_IMAGE_TAG="latest" DOCKER_REPO=quay.io/prometheus
-        fi
-
 workflows:
   version: 2
   node_exporter:
@@ -139,7 +84,7 @@ workflows:
         filters:
           tags:
             only: /.*/
-    - docker_hub_master:
+    - prometheus/publish_master:
         context: org-context
         requires:
         - test
@@ -147,7 +92,7 @@ workflows:
         filters:
           branches:
             only: master
-    - docker_hub_release_tags:
+    - prometheus/publish_release:
         context: org-context
         requires:
         - test
