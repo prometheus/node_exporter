@@ -33,6 +33,7 @@ enabled_collectors=$(cat << COLLECTORS
   schedstat
   sockstat
   stat
+  thermal_zone
   textfile
   bonding
   vmstat
