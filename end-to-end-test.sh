@@ -18,6 +18,7 @@ enabled_collectors=$(cat << COLLECTORS
   infiniband
   interrupts
   ipvs
+  iscsi
   ksmd
   loadavg
   mdadm

@@ -48,6 +48,7 @@ github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
 # github.com/prometheus/procfs v0.0.4-0.20190702183519-8f55e607908e
 github.com/prometheus/procfs
 github.com/prometheus/procfs/bcache
+github.com/prometheus/procfs/iscsi
 github.com/prometheus/procfs/nfs
 github.com/prometheus/procfs/sysfs
 github.com/prometheus/procfs/xfs

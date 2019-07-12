@@ -14,6 +14,7 @@
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
 * [FEATURE] Add new schedstat collector #1389
+* [FEATURE] Add iscsi collector get Read, Write and OPS. #1386
 * [ENHANCEMENT]
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
