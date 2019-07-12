@@ -300,3 +300,12 @@ func (p Proc) FileDescriptorsInfo() (ProcFDInfos, error) {
 
 	return fdinfos, nil
 }
+
+// Schedstat returns task scheduling information for the process.
+func (p Proc) Schedstat() (ProcSchedstat, error) {
+	contents, err := ioutil.ReadFile(p.path("schedstat"))
+	if err != nil {
+		return ProcSchedstat{}, err
+	}
+	return parseProcSchedstat(string(contents))
+}

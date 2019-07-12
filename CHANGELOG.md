@@ -17,6 +17,7 @@
 * [FEATURE] Add iscsi collector get Read, Write and OPS. #1386
 * [ENHANCEMENT]
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
+* [BUGFIX] Fix netdev nil reference on Darwin #1414
 
 ## 0.18.1 / 2019-06-04
 
