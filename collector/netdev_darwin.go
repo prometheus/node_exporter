@@ -42,7 +42,7 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp) (map[string]ma
 			continue
 		}
 
-		if ignore.MatchString(iface.Name) {
+		if ignore != nil && ignore.MatchString(iface.Name) {
 			log.Debugf("Ignoring device: %s", iface.Name)
 			continue
 		}
