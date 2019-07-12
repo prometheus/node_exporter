@@ -1,16 +1,11 @@
-FROM registry.svc.ci.openshift.org/openshift/release:golang-1.11 AS builder
+ARG ARCH="amd64"
+ARG OS="linux"
+FROM quay.io/prometheus/busybox-${OS}-${ARCH}:glibc
+LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
 
-WORKDIR /go/src/github.com/prometheus/node_exporter
-COPY . .
-RUN make build
-
-FROM  registry.svc.ci.openshift.org/openshift/origin-v4.0:base
-LABEL io.k8s.display-name="OpenShift Prometheus Node Exporter" \
-      io.k8s.description="Prometheus exporter for machine metrics" \
-      io.openshift.tags="prometheus,monitoring" \
-      maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
-
-COPY --from=builder /go/src/github.com/prometheus/node_exporter/node_exporter /bin/node_exporter
+ARG ARCH="amd64"
+ARG OS="linux"
+COPY .build/${OS}-${ARCH}/node_exporter /bin/node_exporter
 
 EXPOSE      9100
 USER        nobody
