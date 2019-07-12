@@ -10,16 +10,30 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('CPU')
         .addPanel(
           g.panel('CPU Utilisation') +
-          g.queryPanel('instance:node_cpu_utilisation:avg1m * instance:node_num_cpu:sum / scalar(sum(instance:node_num_cpu:sum))', '{{instance}}', legendLink) +
+          g.queryPanel(|||
+            (
+              instance:node_cpu_utilisation:avg1m
+            *
+              instance:node_num_cpu:sum
+            / ignoring (instance) group_left
+              sum without (instance) (instance:node_num_cpu:sum)
+            )
+          |||, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
         .addPanel(
-          g.panel('CPU Saturation (Load1)') +
+          // TODO: Is this a useful panel?
+          g.panel('CPU Saturation (load1 per CPU)') +
           g.queryPanel(|||
-            instance:node_cpu_saturation_load1: / scalar(sum(up{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}}', legendLink) +
+            (
+              instance:node_load1_per_cpu:ratio
+            / ignoring (instance) group_left
+              count without (instance) (instance:node_load1_per_cpu:ratio)
+            )
+          |||, '{{instance}}', legendLink) +
           g.stack +
+          // TODO: Does `max: 1` make sense? The stack can go over 1 in high-load scenarios.
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
       )
@@ -43,16 +57,26 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Disk IO Utilisation') +
           // Full utilisation would be all disks on each node spending an average of
-          // 1 sec per second doing I/O, normalize by node count for stacked charts
-          g.queryPanel('instance:node_disk_utilisation:sum_irate / scalar(sum(up{%(nodeExporterSelector)s}))' % $._config, '{{instance}}', legendLink) +
+          // 1 second per second doing I/O, normalize by metric cardinality for stacked charts.
+          g.queryPanel(|||
+            (
+              instance:node_disk_utilisation:sum_irate
+            / ignoring (instance) group_left
+              count without (instance) (instance:node_disk_utilisation:sum_irate)
+            )
+          |||, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
         .addPanel(
           g.panel('Disk IO Saturation') +
           g.queryPanel(|||
-            instance:node_disk_saturation:sum_irate / scalar(sum(up{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}}', legendLink) +
+            (
+              instance:node_disk_saturation:sum_irate
+            / ignoring (instance) group_left
+              count without (instance) (instance:node_disk_saturation:sum_irate)
+            )
+          |||, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
@@ -76,7 +100,21 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Storage')
         .addPanel(
           g.panel('Disk Capacity') +
-          g.queryPanel('sum(max(node_filesystem_size_bytes{fstype=~"ext[24]"} - node_filesystem_free_bytes{fstype=~"ext[24]"}) by (device,instance,namespace)) by (instance,namespace) / scalar(sum(max(node_filesystem_size_bytes{fstype=~"ext[24]"}) by (device,instance,namespace)))', '{{instance}}', legendLink) +
+          g.queryPanel(|||
+            (
+              sum without (device) (
+                max without (fstype, mountpoint) (
+                  node_filesystem_size_bytes{fstype=~"ext[24]"} - node_filesystem_avail_bytes{fstype=~"ext[24]"}
+                )
+              ) 
+            / ignoring (instance) group_left
+              sum without (instance, device) (
+                max without (fstype, mountpoint) (
+                  node_filesystem_size_bytes{fstype=~"ext[24]"}
+                )
+              )
+            )  
+          |||, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         ),
@@ -106,9 +144,9 @@ local g = import 'grafana-builder/grafana.libsonnet';
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
-          g.panel('Memory Saturation (Swap I/O)') +
-          g.queryPanel('instance:node_memory_swap_io_bytes:sum_rate{instance="$instance"}', 'Swap IO') +
-          { yaxes: g.yaxes('Bps') },
+          g.panel('Memory Saturation (pages swapped per second)') +
+          g.queryPanel('instance:node_memory_swap_io_pages:sum_rate{instance="$instance"}', 'Swap IO') +
+          { yaxes: g.yaxes('short') },
         )
       )
       .addRow(
@@ -141,7 +179,14 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Disk')
         .addPanel(
           g.panel('Disk Utilisation') +
-          g.queryPanel('1 - sum(max by (device, node) (node_filesystem_free_bytes{fstype=~"ext[24]"})) / sum(max by (device, node) (node_filesystem_size_bytes{fstype=~"ext[24]"}))', 'Disk') +
+          g.queryPanel(|||
+            1 -
+            (
+              sum(max without (mountpoint, fstype) (node_filesystem_avail_bytes{fstype=~"ext[24]"}))
+            /
+              sum(max without (mountpoint, fstype) (node_filesystem_size_bytes{fstype=~"ext[24]"}))
+            )
+          |||, 'Disk') +
           { yaxes: g.yaxes('percentunit') },
         ),
       ),
