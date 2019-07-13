@@ -45,7 +45,7 @@ github.com/prometheus/common/version
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/model
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
-# github.com/prometheus/procfs v0.0.4-0.20190702183519-8f55e607908e
+# github.com/prometheus/procfs v0.0.4-0.20190731153504-5da962fa40f1
 github.com/prometheus/procfs
 github.com/prometheus/procfs/bcache
 github.com/prometheus/procfs/nfs

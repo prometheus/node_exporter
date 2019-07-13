@@ -20,6 +20,8 @@ import (
 	"github.com/prometheus/procfs"
 )
 
+const nsPerSec = 1e9
+
 var (
 	runningSecondsTotal = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "schedstat", "running_seconds_total"),
@@ -71,14 +73,14 @@ func (c *schedstatCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			runningSecondsTotal,
 			prometheus.CounterValue,
-			cpu.RunningSeconds(),
+			float64(cpu.RunningNanoseconds)/nsPerSec,
 			cpu.CPUNum,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			waitingSecondsTotal,
 			prometheus.CounterValue,
-			cpu.WaitingSeconds(),
+			float64(cpu.WaitingNanoseconds)/nsPerSec,
 			cpu.CPUNum,
 		)
 
