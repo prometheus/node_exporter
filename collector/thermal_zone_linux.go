@@ -43,7 +43,7 @@ func NewThermalZoneCollector() (Collector, error) {
 		zoneTemp: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "thermal_zone", "temp"),
 			"Zone temperature in Celsius",
-			[]string{"zone"}, nil,
+			[]string{"zone", "type"}, nil,
 		),
 	}, nil
 }
@@ -60,6 +60,7 @@ func (c *thermalZoneCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.GaugeValue,
 			float64(stats.Temp)/1000.0,
 			stats.Name,
+			stats.Type,
 		)
 	}
 

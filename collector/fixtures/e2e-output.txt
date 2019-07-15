@@ -2542,7 +2542,7 @@ node_sockstat_sockets_used 229
 node_textfile_scrape_error 0
 # HELP node_thermal_zone_temp Zone temperature in Celsius
 # TYPE node_thermal_zone_temp gauge
-node_thermal_zone_temp{zone="0"} 12.376
+node_thermal_zone_temp{type="cpu-thermal",zone="0"} 12.376
 # HELP node_vmstat_oom_kill /proc/vmstat information field oom_kill.
 # TYPE node_vmstat_oom_kill untyped
 node_vmstat_oom_kill 0
