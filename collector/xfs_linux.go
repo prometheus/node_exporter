@@ -174,6 +174,71 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 			desc:  "Number of block map B-tree records deleted for a filesystem.",
 			value: float64(s.BlockMapBTree.RecordsDeleted),
 		},
+		{
+			name:  "directory_operation_lookup_total",
+			desc:  "Number of file name directory lookups which miss the operating systems directory name lookup cache.",
+			value: float64(s.DirectoryOperation.Lookups),
+		},
+		{
+			name:  "directory_operation_create_total",
+			desc:  "Number of times a new directory entry was created for a filesystem.",
+			value: float64(s.DirectoryOperation.Creates),
+		},
+		{
+			name:  "directory_operation_remove_total",
+			desc:  "Number of times an existing directory entry was created for a filesystem.",
+			value: float64(s.DirectoryOperation.Removes),
+		},
+		{
+			name:  "directory_operation_getdents_total",
+			desc:  "Number of times the directory getdents operation was performed for a filesystem.",
+			value: float64(s.DirectoryOperation.Getdents),
+		},
+		{
+			name:  "read_calls_total",
+			desc:  "Number of read(2) system calls made to files in a filesystem.",
+			value: float64(s.ReadWrite.Read),
+		},
+		{
+			name:  "write_calls_total",
+			desc:  "Number of write(2) system calls made to files in a filesystem.",
+			value: float64(s.ReadWrite.Write),
+		},
+		{
+			name:  "vnode_active_total",
+			desc:  "Number of vnodes not on free lists for a filesystem.",
+			value: float64(s.Vnode.Active),
+		},
+		{
+			name:  "vnode_allocate_total",
+			desc:  "Number of times vn_alloc called for a filesystem.",
+			value: float64(s.Vnode.Allocate),
+		},
+		{
+			name:  "vnode_get_total",
+			desc:  "Number of times vn_get called for a filesystem.",
+			value: float64(s.Vnode.Get),
+		},
+		{
+			name:  "vnode_hold_total",
+			desc:  "Number of times vn_hold called for a filesystem.",
+			value: float64(s.Vnode.Hold),
+		},
+		{
+			name:  "vnode_release_total",
+			desc:  "Number of times vn_rele called for a filesystem.",
+			value: float64(s.Vnode.Release),
+		},
+		{
+			name:  "vnode_reclaim_total",
+			desc:  "Number of times vn_reclaim called for a filesystem.",
+			value: float64(s.Vnode.Reclaim),
+		},
+		{
+			name:  "vnode_remove_total",
+			desc:  "Number of times vn_remove called for a filesystem.",
+			value: float64(s.Vnode.Remove),
+		},
 	}
 
 	for _, m := range metrics {

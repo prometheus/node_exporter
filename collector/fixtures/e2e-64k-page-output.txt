@@ -2652,6 +2652,18 @@ node_xfs_block_mapping_unmaps_total{device="sda1"} 1
 # HELP node_xfs_block_mapping_writes_total Number of block map for write operations for a filesystem.
 # TYPE node_xfs_block_mapping_writes_total counter
 node_xfs_block_mapping_writes_total{device="sda1"} 29
+# HELP node_xfs_directory_operation_create_total Number of times a new directory entry was created for a filesystem.
+# TYPE node_xfs_directory_operation_create_total counter
+node_xfs_directory_operation_create_total{device="sda1"} 2
+# HELP node_xfs_directory_operation_getdents_total Number of times the directory getdents operation was performed for a filesystem.
+# TYPE node_xfs_directory_operation_getdents_total counter
+node_xfs_directory_operation_getdents_total{device="sda1"} 52
+# HELP node_xfs_directory_operation_lookup_total Number of file name directory lookups which miss the operating systems directory name lookup cache.
+# TYPE node_xfs_directory_operation_lookup_total counter
+node_xfs_directory_operation_lookup_total{device="sda1"} 3
+# HELP node_xfs_directory_operation_remove_total Number of times an existing directory entry was created for a filesystem.
+# TYPE node_xfs_directory_operation_remove_total counter
+node_xfs_directory_operation_remove_total{device="sda1"} 1
 # HELP node_xfs_extent_allocation_blocks_allocated_total Number of blocks allocated for a filesystem.
 # TYPE node_xfs_extent_allocation_blocks_allocated_total counter
 node_xfs_extent_allocation_blocks_allocated_total{device="sda1"} 872
@@ -2664,6 +2676,33 @@ node_xfs_extent_allocation_extents_allocated_total{device="sda1"} 1
 # HELP node_xfs_extent_allocation_extents_freed_total Number of extents freed for a filesystem.
 # TYPE node_xfs_extent_allocation_extents_freed_total counter
 node_xfs_extent_allocation_extents_freed_total{device="sda1"} 0
+# HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
+# TYPE node_xfs_read_calls_total counter
+node_xfs_read_calls_total{device="sda1"} 28
+# HELP node_xfs_vnode_active_total Number of vnodes not on free lists for a filesystem.
+# TYPE node_xfs_vnode_active_total counter
+node_xfs_vnode_active_total{device="sda1"} 4
+# HELP node_xfs_vnode_allocate_total Number of times vn_alloc called for a filesystem.
+# TYPE node_xfs_vnode_allocate_total counter
+node_xfs_vnode_allocate_total{device="sda1"} 0
+# HELP node_xfs_vnode_get_total Number of times vn_get called for a filesystem.
+# TYPE node_xfs_vnode_get_total counter
+node_xfs_vnode_get_total{device="sda1"} 0
+# HELP node_xfs_vnode_hold_total Number of times vn_hold called for a filesystem.
+# TYPE node_xfs_vnode_hold_total counter
+node_xfs_vnode_hold_total{device="sda1"} 0
+# HELP node_xfs_vnode_reclaim_total Number of times vn_reclaim called for a filesystem.
+# TYPE node_xfs_vnode_reclaim_total counter
+node_xfs_vnode_reclaim_total{device="sda1"} 1
+# HELP node_xfs_vnode_release_total Number of times vn_rele called for a filesystem.
+# TYPE node_xfs_vnode_release_total counter
+node_xfs_vnode_release_total{device="sda1"} 1
+# HELP node_xfs_vnode_remove_total Number of times vn_remove called for a filesystem.
+# TYPE node_xfs_vnode_remove_total counter
+node_xfs_vnode_remove_total{device="sda1"} 1
+# HELP node_xfs_write_calls_total Number of write(2) system calls made to files in a filesystem.
+# TYPE node_xfs_write_calls_total counter
+node_xfs_write_calls_total{device="sda1"} 0
 # HELP node_zfs_abd_linear_cnt kstat.zfs.misc.abdstats.linear_cnt
 # TYPE node_zfs_abd_linear_cnt untyped
 node_zfs_abd_linear_cnt 62
