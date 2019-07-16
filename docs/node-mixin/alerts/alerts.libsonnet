@@ -8,9 +8,9 @@
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
-              and
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} < 0.4
+              and
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
@@ -20,16 +20,17 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} is predicted to run out of space within the next 24 hours.',
+              summary: 'Filesystem is predicted to run out of space within the next 24 hours.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up.',
             },
           },
           {
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
-              and
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} < 0.2
+              and
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
@@ -39,7 +40,8 @@
               severity: 'critical',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} is predicted to run out of space within the next 4 hours.',
+              summary: 'Filesystem is predicted to run out of space within the next 4 hours.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up fast.',
             },
           },
           {
@@ -56,7 +58,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ $value }}% available space left.',
+              summary: 'Filesystem has less than 5% space left.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
           {
@@ -73,16 +76,17 @@
               severity: 'critical',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ $value }}% available space left.',
+              summary: 'Filesystem has less than 3% space left.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
           {
             alert: 'NodeFilesystemFilesFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
-              and
                 node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} < 0.4
+              and
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
@@ -92,16 +96,17 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} is predicted to run out of files within the next 24 hours.',
+              summary: 'Filesystem is predicted to run out of inodes within the next 24 hours.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up.',
             },
           },
           {
             alert: 'NodeFilesystemFilesFillingUp',
             expr: |||
               (
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
-              and
                 node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} < 0.2
+              and
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
@@ -111,7 +116,8 @@
               severity: 'critical',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} is predicted to run out of files within the next 4 hours.',
+              summary: 'Filesystem is predicted to run out of inodes within the next 4 hours.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up fast.',
             },
           },
           {
@@ -128,7 +134,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ $value }}% available inodes left.',
+              summary: 'Filesystem has less than 5% inodes left.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
             },
           },
           {
@@ -145,7 +152,8 @@
               severity: 'critical',
             },
             annotations: {
-              message: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ $value }}% available space left.',
+              summary: 'Filesystem has less than 3% inodes left.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
             },
           },
           {
@@ -158,7 +166,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: '{{ $labels.instance }} interface {{ $labels.device }} shows errors while receiving packets ({{ $value }} errors in two minutes).',
+              summary: 'Network interface is reporting many receive errors.',
+              description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} receive errors in the last two minutes.',
             },
           },
           {
@@ -171,7 +180,8 @@
               severity: 'warning',
             },
             annotations: {
-              message: '{{ $labels.instance }} interface {{ $labels.device }} shows errors while transmitting packets ({{ $value }} errors in two minutes).',
+              summary: 'Network interface is reporting many transmit errors.',
+              description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} transmit errors in the last two minutes.',
             },
           },
         ],
