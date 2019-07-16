@@ -20,8 +20,9 @@ local gauge = promgrafonnet.gauge;
           min=0,
         )
         .addTarget(prometheus.target(
+          // TODO: Consider using `${__interval}` as range and a 1m min step.
           |||
-            1 - avg by (cpu) (irate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[1m]))
+            1 - avg by (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[1m]))
           ||| % $._config,
           legendFormat='{{cpu}}',
           intervalFactor=10,
@@ -81,9 +82,10 @@ local gauge = promgrafonnet.gauge;
           datasource='$datasource',
           span=9,
         )
-        .addTarget(prometheus.target('sum by (instance) (irate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='read'))
-        .addTarget(prometheus.target('sum by (instance) (irate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='written'))
-        .addTarget(prometheus.target('sum by (instance) (irate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s,  instance="$instance"}[1m]))' % $._config, legendFormat='io time')) +
+        // TODO: Consider using `${__interval}` as range and a 1m min step.
+        .addTarget(prometheus.target('sum by (instance, device) (rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='{{device}} read'))
+        .addTarget(prometheus.target('sum by (instance, device) (rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='{{device}} written'))
+        .addTarget(prometheus.target('sum by (instance, device) (rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s,  %(diskDeviceSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='{{device}} io time')) +
         {
           seriesOverrides: [
             {
@@ -122,7 +124,8 @@ local gauge = promgrafonnet.gauge;
           span=6,
           format='bytes',
         )
-        .addTarget(prometheus.target('irate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[1m])' % $._config, legendFormat='{{device}}'));
+        // TODO: Consider using `${__interval}` as range and a 1m min step.
+        .addTarget(prometheus.target('rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[1m])' % $._config, legendFormat='{{device}}'));
 
       local networkTransmitted =
         graphPanel.new(
@@ -131,7 +134,8 @@ local gauge = promgrafonnet.gauge;
           span=6,
           format='bytes',
         )
-        .addTarget(prometheus.target('irate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[1m])' % $._config, legendFormat='{{device}}'));
+        // TODO: Consider using `${__interval}` as range and a 1m min step.
+        .addTarget(prometheus.target('rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[1m])' % $._config, legendFormat='{{device}}'));
 
       dashboard.new('Nodes', time_from='now-1h')
       .addTemplate(

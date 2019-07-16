@@ -43,7 +43,7 @@
             },
           },
           {
-            alert: 'NodeFilesystemOutOfSpace',
+            alert: 'NodeFilesystemAlmostOutOfSpace',
             expr: |||
               (
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 5
@@ -60,7 +60,7 @@
             },
           },
           {
-            alert: 'NodeFilesystemOutOfSpace',
+            alert: 'NodeFilesystemAlmostOutOfSpace',
             expr: |||
               (
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 3
@@ -115,7 +115,7 @@
             },
           },
           {
-            alert: 'NodeFilesystemOutOfFiles',
+            alert: 'NodeFilesystemAlmostOutOfFiles',
             expr: |||
               (
                 node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 5
@@ -132,7 +132,7 @@
             },
           },
           {
-            alert: 'NodeFilesystemOutOfSpace',
+            alert: 'NodeFilesystemAlmostOutOfFiles',
             expr: |||
               (
                 node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 3
@@ -155,7 +155,7 @@
             ||| % $._config,
             'for': '1h',
             labels: {
-              severity: 'critical',
+              severity: 'warning',
             },
             annotations: {
               message: '{{ $labels.instance }} interface {{ $labels.device }} shows errors while receiving packets ({{ $value }} errors in two minutes).',
@@ -168,7 +168,7 @@
             ||| % $._config,
             'for': '1h',
             labels: {
-              severity: 'critical',
+              severity: 'warning',
             },
             annotations: {
               message: '{{ $labels.instance }} interface {{ $labels.device }} shows errors while transmitting packets ({{ $value }} errors in two minutes).',

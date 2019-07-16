@@ -12,7 +12,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('CPU Utilisation') +
           g.queryPanel(|||
             (
-              instance:node_cpu_utilisation:avg1m
+              instance:node_cpu_utilisation:avg_rate1m
             *
               instance:node_num_cpu:sum
             / ignoring (instance) group_left
@@ -60,9 +60,9 @@ local g = import 'grafana-builder/grafana.libsonnet';
           // 1 second per second doing I/O, normalize by metric cardinality for stacked charts.
           g.queryPanel(|||
             (
-              instance:node_disk_utilisation:sum_irate
+              instance:node_disk_io_time:sum_rate1m
             / ignoring (instance) group_left
-              count without (instance) (instance:node_disk_utilisation:sum_irate)
+              count without (instance) (instance:node_disk_io_time:sum_rate1m)
             )
           |||, '{{instance}}', legendLink) +
           g.stack +
@@ -72,9 +72,9 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Disk IO Saturation') +
           g.queryPanel(|||
             (
-              instance:node_disk_saturation:sum_irate
+              instance:node_disk_io_time_weighted:sum_rate1m
             / ignoring (instance) group_left
-              count without (instance) (instance:node_disk_saturation:sum_irate)
+              count without (instance) (instance:node_disk_io_time_weighted:sum_rate1m)
             )
           |||, '{{instance}}', legendLink) +
           g.stack +
@@ -127,7 +127,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('CPU')
         .addPanel(
           g.panel('CPU Utilisation') +
-          g.queryPanel('instance:node_cpu_utilisation:avg1m{instance="$instance"}', 'Utilisation') +
+          g.queryPanel('instance:node_cpu_utilisation:avg_rate1m{instance="$instance"}', 'Utilisation') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
@@ -145,7 +145,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         )
         .addPanel(
           g.panel('Memory Saturation (pages swapped per second)') +
-          g.queryPanel('instance:node_memory_swap_io_pages:sum_rate{instance="$instance"}', 'Swap IO') +
+          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{instance="$instance"}', 'Swap IO') +
           { yaxes: g.yaxes('short') },
         )
       )
@@ -153,26 +153,32 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Disk')
         .addPanel(
           g.panel('Disk IO Utilisation') +
-          g.queryPanel('instance:node_disk_utilisation:sum_irate{instance="$instance"}', 'Utilisation') +
+          g.queryPanel('instance:node_disk_io_time:sum_rate1m{instance="$instance"}', 'Utilisation') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
           g.panel('Disk IO Saturation') +
-          g.queryPanel('instance:node_disk_saturation:sum_irate{instance="$instance"}', 'Saturation') +
+          g.queryPanel('instance:node_disk_io_time_weighted:sum_rate1m{instance="$instance"}', 'Saturation') +
           { yaxes: g.yaxes('percentunit') },
         )
       )
       .addRow(
         g.row('Net')
         .addPanel(
-          g.panel('Net Utilisation (Transmitted)') +
-          g.queryPanel('instance:node_net_utilisation:sum_irate{instance="$instance"}', 'Utilisation') +
+          g.panel('Net Utilisation (Bytes Receive/Transmit)') +
+          g.queryPanel(
+            ['node_network_receive_bytes_total{instance="$instance"}', '-node_network_transmit_bytes_total{instance="$instance"}'],
+            ['Receive', 'Transmit'],
+          ) +
           { yaxes: g.yaxes('Bps') },
         )
         .addPanel(
-          g.panel('Net Saturation (Dropped)') +
-          g.queryPanel('instance:node_net_saturation:sum_irate{instance="$instance"}', 'Saturation') +
-          { yaxes: g.yaxes('Bps') },
+          g.panel('Net Saturation (Drops Receive/Transmit)') +
+          g.queryPanel(
+            ['node_network_receive_drop_total{instance="$instance"}', '-node_network_transmit_drop_total{instance="$instance"}'],
+            ['Receive drops', 'Transmit drops'],
+          ) +
+          { yaxes: g.yaxes('rps') },
         )
       )
       .addRow(

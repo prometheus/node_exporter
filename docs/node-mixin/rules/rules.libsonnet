@@ -17,7 +17,7 @@
           },
           {
             // CPU utilisation is % CPU is not idle.
-            record: 'instance:node_cpu_utilisation:avg1m',
+            record: 'instance:node_cpu_utilisation:avg_rate1m',
             expr: |||
               1 - avg without (cpu, mode) (
                 rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}[1m])
@@ -48,7 +48,7 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_memory_swap_io_pages:sum_rate',
+            record: 'instance:node_memory_swap_io_pages:rate1m',
             expr: |||
               (
                 rate(node_vmstat_pgpgin{%(nodeExporterSelector)s}[1m])
@@ -58,42 +58,54 @@
             ||| % $._config,
           },
           {
-            // Disk utilisation (ms spent, 1 second irate())
-            record: 'instance:node_disk_utilisation:sum_irate',
+            // Disk utilisation (seconds spent, 1 second rate)
+            record: 'instance:node_disk_io_time:sum_rate1m',
             expr: |||
               sum without (device) (
-                irate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
+                rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
               )
             ||| % $._config,
           },
           {
-            // Disk saturation (ms spent, by rate() it's bound by 1 second)
-            record: 'instance:node_disk_saturation:sum_irate',
+            // Disk saturation (weighted seconds spent, 1 second rate)
+            record: 'instance:node_disk_io_time_weighted:sum_rate1m',
             expr: |||
               sum without (device) (
-                irate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
+                rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
               )
             ||| % $._config,
           },
-          // TODO: For the following two rules, consider configurable filtering to exclude more network
+          // TODO: For the following rules, consider configurable filtering to exclude more network
           // device names than just "lo".
           {
-            record: 'instance:node_net_utilisation:sum_irate',
+            record: 'instance:node_network_receive_bytes:sum_rate1m',
             expr: |||
               sum without (device) (
-                irate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
-              +
-                irate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
               )
             ||| % $._config,
           },
           {
-            record: 'instance:node_net_saturation:sum_irate',
+            record: 'instance:node_network_transmit_bytes:sum_rate1m',
             expr: |||
               sum without (device) (
-                irate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
-              +
-                irate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+              )
+            ||| % $._config,
+          },
+          {
+            record: 'instance:node_network_receive_drop:sum_rate1m',
+            expr: |||
+              sum without (device) (
+                rate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+              )
+            ||| % $._config,
+          },
+          {
+            record: 'instance:node_network_transmit_drop:sum_rate1m',
+            expr: |||
+              sum without (device) (
+                rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
               )
             ||| % $._config,
           },
