@@ -62,7 +62,7 @@
             record: 'instance:node_disk_utilisation:sum_irate',
             expr: |||
               sum without (device) (
-                irate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s,device=~"(sd|xvd).+"}[1m])
+                irate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
               )
             ||| % $._config,
           },
@@ -71,7 +71,7 @@
             record: 'instance:node_disk_saturation:sum_irate',
             expr: |||
               sum without (device) (
-                irate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s,device=~"(sd|xvd).+"}[1m])
+                irate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
               )
             ||| % $._config,
           },

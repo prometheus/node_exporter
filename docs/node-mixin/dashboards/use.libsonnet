@@ -104,17 +104,17 @@ local g = import 'grafana-builder/grafana.libsonnet';
             (
               sum without (device) (
                 max without (fstype, mountpoint) (
-                  node_filesystem_size_bytes{fstype=~"ext[24]"} - node_filesystem_avail_bytes{fstype=~"ext[24]"}
+                  node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
                 )
               ) 
             / ignoring (instance) group_left
               sum without (instance, device) (
                 max without (fstype, mountpoint) (
-                  node_filesystem_size_bytes{fstype=~"ext[24]"}
+                  node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
                 )
               )
             )  
-          |||, '{{instance}}', legendLink) +
+          ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         ),
@@ -182,11 +182,11 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.queryPanel(|||
             1 -
             (
-              sum(max without (mountpoint, fstype) (node_filesystem_avail_bytes{fstype=~"ext[24]"}))
+              sum(max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}))
             /
-              sum(max without (mountpoint, fstype) (node_filesystem_size_bytes{fstype=~"ext[24]"}))
+              sum(max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s}))
             )
-          |||, 'Disk') +
+          ||| % $._config, 'Disk') +
           { yaxes: g.yaxes('percentunit') },
         ),
       ),
