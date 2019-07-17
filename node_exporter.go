@@ -150,7 +150,7 @@ func main() {
 		).Default("40").Int()
 		tlsFile = kingpin.Flag(
 			"web.tls-config",
-			"Path to TLS config yaml file that enables TLS.",
+			"Path to the YAML configuration file that enables TLS.",
 		).Default("").String()
 	)
 
@@ -174,9 +174,7 @@ func main() {
 	})
 
 	log.Infoln("Listening on", *listenAddress)
-
 	server := &http.Server{Addr: *listenAddress}
-
 	if err := https.Listen(server, *tlsFile); err != nil {
 		log.Fatal(err)
 	}
