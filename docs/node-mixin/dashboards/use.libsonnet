@@ -12,13 +12,13 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('CPU Utilisation') +
           g.queryPanel(|||
             (
-              instance:node_cpu_utilisation:avg_rate1m
+              instance:node_cpu_utilisation:avg_rate1m{%(nodeExporterSelector)s}
             *
-              instance:node_num_cpu:sum
+              instance:node_num_cpu:sum{%(nodeExporterSelector)s}
             / ignoring (instance) group_left
-              sum without (instance) (instance:node_num_cpu:sum)
+              sum without (instance) (instance:node_num_cpu:sum{%(nodeExporterSelector)s})
             )
-          |||, '{{instance}}', legendLink) +
+          ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
@@ -27,11 +27,11 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('CPU Saturation (load1 per CPU)') +
           g.queryPanel(|||
             (
-              instance:node_load1_per_cpu:ratio
+              instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}
             / ignoring (instance) group_left
-              count without (instance) (instance:node_load1_per_cpu:ratio)
+              count without (instance) (instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s})
             )
-          |||, '{{instance}}', legendLink) +
+          ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           // TODO: Does `max: 1` make sense? The stack can go over 1 in high-load scenarios.
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -41,13 +41,13 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Memory')
         .addPanel(
           g.panel('Memory Utilisation') +
-          g.queryPanel('instance:node_memory_utilisation:ratio', '{{instance}}', legendLink) +
+          g.queryPanel('instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
         .addPanel(
           g.panel('Memory Saturation (Swap I/O)') +
-          g.queryPanel('instance:node_memory_swap_io_bytes:sum_rate', '{{instance}}', legendLink) +
+          g.queryPanel('instance:node_memory_swap_io_bytes:sum_rate{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes('Bps') },
         )
@@ -60,11 +60,11 @@ local g = import 'grafana-builder/grafana.libsonnet';
           // 1 second per second doing I/O, normalize by metric cardinality for stacked charts.
           g.queryPanel(|||
             (
-              instance:node_disk_io_time:sum_rate1m
+              instance:node_disk_io_time_seconds:sum_rate1m{%(nodeExporterSelector)s}
             / ignoring (instance) group_left
-              count without (instance) (instance:node_disk_io_time:sum_rate1m)
+              count without (instance) (instance:node_disk_io_time_seconds:sum_rate1m{%(nodeExporterSelector)s})
             )
-          |||, '{{instance}}', legendLink) +
+          ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
@@ -72,11 +72,11 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Disk IO Saturation') +
           g.queryPanel(|||
             (
-              instance:node_disk_io_time_weighted:sum_rate1m
+              instance:node_disk_io_time_weighted_seconds:sum_rate1m{%(nodeExporterSelector)s}
             / ignoring (instance) group_left
-              count without (instance) (instance:node_disk_io_time_weighted:sum_rate1m)
+              count without (instance) (instance:node_disk_io_time_weighted_seconds:sum_rate1m{%(nodeExporterSelector)s})
             )
-          |||, '{{instance}}', legendLink) +
+          ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
@@ -84,16 +84,30 @@ local g = import 'grafana-builder/grafana.libsonnet';
       .addRow(
         g.row('Network')
         .addPanel(
-          g.panel('Net Utilisation (Transmitted)') +
-          g.queryPanel('instance:node_net_utilisation:sum_irate', '{{instance}}', legendLink) +
+          g.panel('Net Utilisation (Bytes Receive/Transmit)') +
+          g.queryPanel(
+            [
+              'instance:node_network_receive_bytes:sum_rate1m{%(nodeExporterSelector)s}' % $._config,
+              '-instance:node_network_transmit_bytes:sum_rate1m{%(nodeExporterSelector)s}' % $._config,
+            ],
+            ['{{instance}} Receive', '{{instance}} Transmit'],
+            legendLink,
+          ) +
           g.stack +
           { yaxes: g.yaxes('Bps') },
         )
         .addPanel(
-          g.panel('Net Saturation (Dropped)') +
-          g.queryPanel('instance:node_net_saturation:sum_irate', '{{instance}}', legendLink) +
+          g.panel('Net Saturation (Drops Receive/Transmit)') +
+          g.queryPanel(
+            [
+              'instance:node_network_receive_drop:sum_rate1m{%(nodeExporterSelector)s}' % $._config,
+              '-instance:node_network_transmit_drop:sum_rate1m{%(nodeExporterSelector)s}' % $._config,
+            ],
+            ['{{instance}} Receive', '{{instance}} Transmit'],
+            legendLink,
+          ) +
           g.stack +
-          { yaxes: g.yaxes('Bps') },
+          { yaxes: g.yaxes('rps') },
         )
       )
       .addRow(
@@ -127,12 +141,12 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('CPU')
         .addPanel(
           g.panel('CPU Utilisation') +
-          g.queryPanel('instance:node_cpu_utilisation:avg_rate1m{instance="$instance"}', 'Utilisation') +
+          g.queryPanel('instance:node_cpu_utilisation:avg_rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
           g.panel('CPU Saturation (Load1)') +
-          g.queryPanel('instance:node_cpu_saturation_load1:{instance="$instance"}', 'Saturation') +
+          g.queryPanel('instance:node_cpu_saturation_load1:{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation') +
           { yaxes: g.yaxes('percentunit') },
         )
       )
@@ -140,12 +154,12 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Memory')
         .addPanel(
           g.panel('Memory Utilisation') +
-          g.queryPanel('instance:node_memory_utilisation:ratio{instance="$instance"}', 'Memory') +
+          g.queryPanel('instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Memory') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
           g.panel('Memory Saturation (pages swapped per second)') +
-          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{instance="$instance"}', 'Swap IO') +
+          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Swap IO') +
           { yaxes: g.yaxes('short') },
         )
       )
@@ -153,12 +167,12 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Disk')
         .addPanel(
           g.panel('Disk IO Utilisation') +
-          g.queryPanel('instance:node_disk_io_time:sum_rate1m{instance="$instance"}', 'Utilisation') +
+          g.queryPanel('instance:node_disk_io_time_seconds:sum_rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
           g.panel('Disk IO Saturation') +
-          g.queryPanel('instance:node_disk_io_time_weighted:sum_rate1m{instance="$instance"}', 'Saturation') +
+          g.queryPanel('instance:node_disk_io_time_weighted_seconds:sum_rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation') +
           { yaxes: g.yaxes('percentunit') },
         )
       )
@@ -167,7 +181,10 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Net Utilisation (Bytes Receive/Transmit)') +
           g.queryPanel(
-            ['node_network_receive_bytes_total{instance="$instance"}', '-node_network_transmit_bytes_total{instance="$instance"}'],
+            [
+              'instance:node_network_receive_bytes:sum_rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              '-instance:node_network_transmit_bytes:sum_rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+            ],
             ['Receive', 'Transmit'],
           ) +
           { yaxes: g.yaxes('Bps') },
@@ -175,7 +192,10 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Net Saturation (Drops Receive/Transmit)') +
           g.queryPanel(
-            ['node_network_receive_drop_total{instance="$instance"}', '-node_network_transmit_drop_total{instance="$instance"}'],
+            [
+              'instance:node_network_receive_drop:sum_rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              '-instance:node_network_transmit_drop:sum_rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+            ],
             ['Receive drops', 'Transmit drops'],
           ) +
           { yaxes: g.yaxes('rps') },

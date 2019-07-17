@@ -9,7 +9,7 @@
             record: 'instance:node_num_cpu:sum',
             expr: |||
               count without (cpu) (
-                sum without (mode) (
+                count without (mode) (
                   node_cpu_seconds_total{%(nodeExporterSelector)s}
                 )
               )
@@ -26,7 +26,9 @@
           },
           {
             // This is CPU saturation: 1min avg run queue length / number of CPUs.
-            // Can go over 1. >1 is bad.
+            // Can go over 1.
+            // TODO: There are situation where a run queue >1/core is just normal and fine.
+            //       We need to clarify how to lead this metric and if its usage is helpful at all.
             record: 'instance:node_load1_per_cpu:ratio',
             expr: |||
               (
@@ -59,7 +61,9 @@
           },
           {
             // Disk utilisation (seconds spent, 1 second rate)
-            record: 'instance:node_disk_io_time:sum_rate1m',
+            // TODO: This should probably not aggregate over all devices but
+            //       keep them separate.
+            record: 'instance:node_disk_io_time_seconds:sum_rate1m',
             expr: |||
               sum without (device) (
                 rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
@@ -68,7 +72,9 @@
           },
           {
             // Disk saturation (weighted seconds spent, 1 second rate)
-            record: 'instance:node_disk_io_time_weighted:sum_rate1m',
+            // TODO: This should probably not aggregate over all devices but
+            //       keep them separate.
+            record: 'instance:node_disk_io_time_weighted_seconds:sum_rate1m',
             expr: |||
               sum without (device) (
                 rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
@@ -93,6 +99,7 @@
               )
             ||| % $._config,
           },
+          // TODO: Find out if those drops ever happen on modern switched networks.
           {
             record: 'instance:node_network_receive_drop:sum_rate1m',
             expr: |||

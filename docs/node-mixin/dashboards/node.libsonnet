@@ -22,7 +22,7 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           // TODO: Consider using `${__interval}` as range and a 1m min step.
           |||
-            1 - avg by (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[1m]))
+            1 - rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[1m])
           ||| % $._config,
           legendFormat='{{cpu}}',
           intervalFactor=10,
@@ -64,15 +64,18 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target('node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory cached'))
         .addTarget(prometheus.target('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory free'));
 
+      // TODO: It would be nicer to have a gauge that gets a 0-1 range and displays it as a percentage 0%-100%.
+      // This needs to be added upstream in the promgrafonnet library and then changed here.
       local memoryGauge = gauge.new(
         'Memory Usage',
         |||
+          100 -
           (
             node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"}
           /
             node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
-          )
           * 100
+          )
         ||| % $._config,
       ).withLowerBeingBetter();
 
@@ -82,10 +85,11 @@ local gauge = promgrafonnet.gauge;
           datasource='$datasource',
           span=9,
         )
+        // TODO: Does it make sense to have those three in the same panel?
         // TODO: Consider using `${__interval}` as range and a 1m min step.
-        .addTarget(prometheus.target('sum by (instance, device) (rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='{{device}} read'))
-        .addTarget(prometheus.target('sum by (instance, device) (rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='{{device}} written'))
-        .addTarget(prometheus.target('sum by (instance, device) (rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s,  %(diskDeviceSelector)s, instance="$instance"}[1m]))' % $._config, legendFormat='{{device}} io time')) +
+        .addTarget(prometheus.target('rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m])' % $._config, legendFormat='{{device}} read'))
+        .addTarget(prometheus.target('rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m])' % $._config, legendFormat='{{device}} written'))
+        .addTarget(prometheus.target('rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s,  %(diskDeviceSelector)s, instance="$instance"}[1m])' % $._config, legendFormat='{{device}} io time')) +
         {
           seriesOverrides: [
             {
@@ -103,6 +107,8 @@ local gauge = promgrafonnet.gauge;
           ],
         };
 
+      // TODO: It would be nicer to have a gauge that gets a 0-1 range and displays it as a percentage 0%-100%.
+      // This needs to be added upstream in the promgrafonnet library and then changed here.
       // TODO: Should this be partitioned by mountpoint?
       local diskSpaceUsage = gauge.new(
         'Disk Space Usage',
@@ -158,7 +164,7 @@ local gauge = promgrafonnet.gauge;
         template.new(
           'instance',
           '$datasource',
-          'label_values(node_boot_time_seconds{%(nodeExporterSelector)s}, instance)' % $._config,
+          'label_values(node_exporter_build_info{%(nodeExporterSelector)s}, instance)' % $._config,
           refresh='time',
         )
       )
