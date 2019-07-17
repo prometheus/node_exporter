@@ -35,10 +35,11 @@ var (
 		"No such file":                 regexp.MustCompile(`no such file`),
 		"Invalid argument":             regexp.MustCompile(`invalid argument`),
 		"YAML error":                   regexp.MustCompile(`yaml`),
-		"Invalid ClientAuth":           regexp.MustCompile(`ClientAuth`),
+		"Invalid ClientAuth":           regexp.MustCompile(`invalid ClientAuth`),
 		"TLS handshake":                regexp.MustCompile(`tls`),
 		"HTTP Request to HTTPS server": regexp.MustCompile(`HTTP`),
-		"Invalid CertPath or KeyPath":  regexp.MustCompile(`Invalid TLS Config file, missing CertPath or KeyPath`),
+		"Invalid CertPath":             regexp.MustCompile(`missing TLSCertPath`),
+		"Invalid KeyPath":              regexp.MustCompile(`missing TLSKeyPath`),
 	}
 )
 
@@ -71,7 +72,7 @@ func TestYAMLFiles(t *testing.T) {
 		{
 			Name:           `empty config yml`,
 			YAMLConfigPath: "testdata/tls_config_empty.yml",
-			ExpectedError:  ErrorMap["Invalid CertPath or KeyPath"],
+			ExpectedError:  ErrorMap["Invalid CertPath"],
 		},
 		{
 			Name:           `invalid config yml (invalid structure)`,
@@ -81,17 +82,17 @@ func TestYAMLFiles(t *testing.T) {
 		{
 			Name:           `invalid config yml (cert path empty)`,
 			YAMLConfigPath: "testdata/tls_config_noAuth_certPath_empty.bad.yml",
-			ExpectedError:  ErrorMap["Invalid CertPath or KeyPath"],
+			ExpectedError:  ErrorMap["Invalid CertPath"],
 		},
 		{
 			Name:           `invalid config yml (key path empty)`,
 			YAMLConfigPath: "testdata/tls_config_noAuth_keyPath_empty.bad.yml",
-			ExpectedError:  ErrorMap["Invalid CertPath or KeyPath"],
+			ExpectedError:  ErrorMap["Invalid KeyPath"],
 		},
 		{
 			Name:           `invalid config yml (cert path and key path empty)`,
 			YAMLConfigPath: "testdata/tls_config_noAuth_certPath_keyPath_empty.bad.yml",
-			ExpectedError:  ErrorMap["Invalid CertPath or KeyPath"],
+			ExpectedError:  ErrorMap["Invalid CertPath"],
 		},
 		{
 			Name:           `invalid config yml (cert path invalid)`,

@@ -50,24 +50,27 @@ func getTLSConfig(configPath string) (*tls.Config, error) {
 
 func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 	cfg := &tls.Config{}
-	if len(c.TLSCertPath) > 0 && len(c.TLSKeyPath) > 0 {
-		loadCert := func() (*tls.Certificate, error) {
-			cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
-			if err != nil {
-				return nil, errors.Wrap(err, "Loading of X509KeyPair failed, invalid CertPath or KeyPath")
-			}
-			return &cert, nil
-		}
-		// Confirm that certificate and key paths are valid
-		if _, err := loadCert(); err != nil {
-			return nil, err
-		}
-		cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
-			return loadCert()
-		}
-	} else {
-		return nil, errors.New("Invalid TLS Config file, missing CertPath or KeyPath")
+	if len(c.TLSCertPath) == 0 {
+		return nil, errors.New("missing TLSCertPath")
 	}
+	if len(c.TLSKeyPath) == 0 {
+		return nil, errors.New("missing TLSKeyPath")
+	}
+	loadCert := func() (*tls.Certificate, error) {
+		cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to load X509KeyPair")
+		}
+		return &cert, nil
+	}
+	// Confirm that certificate and key paths are valid.
+	if _, err := loadCert(); err != nil {
+		return nil, err
+	}
+	cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
+		return loadCert()
+	}
+
 	if len(c.ClientCAs) > 0 {
 		clientCAPool := x509.NewCertPool()
 		clientCAFile, err := ioutil.ReadFile(c.ClientCAs)
@@ -90,13 +93,14 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 		case "RequireAndVerifyClientCert":
 			cfg.ClientAuth = tls.RequireAndVerifyClientCert
 		default:
-			return nil, errors.New("Invalid string provided to ClientAuth: " + s)
+			return nil, errors.New("invalid ClientAuth: " + s)
 		}
 	}
 	return cfg, nil
 }
 
-// Listen starts the server on the given address. If tlsConfigPath isn't empty the connection will be using TLS.
+// Listen starts the server on the given address. If tlsConfigPath isn't empty,
+// the connection will be using TLS.
 func Listen(server *http.Server, tlsConfigPath string) error {
 	if (tlsConfigPath) == "" {
 		return server.ListenAndServe()
@@ -106,7 +110,8 @@ func Listen(server *http.Server, tlsConfigPath string) error {
 	if err != nil {
 		return err
 	}
-	// The listen function also sets the GetConfigForClient method of the HTTPS server so that the config and certs are reloaded on new connections
+	// Set the GetConfigForClient method of the HTTPS server so that the config
+	// and certs are reloaded on new connections.
 	server.TLSConfig.GetConfigForClient = func(*tls.ClientHelloInfo) (*tls.Config, error) {
 		return getTLSConfig(tlsConfigPath)
 	}
