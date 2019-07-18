@@ -17,7 +17,7 @@
           },
           {
             // CPU utilisation is % CPU is not idle.
-            record: 'instance:node_cpu_utilisation:avg_rate1m',
+            record: 'instance:node_cpu_utilisation:rate1m',
             expr: |||
               1 - avg without (cpu, mode) (
                 rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}[1m])
@@ -63,7 +63,7 @@
             // Disk utilisation (seconds spent, 1 second rate)
             // TODO: This should probably not aggregate over all devices but
             //       keep them separate.
-            record: 'instance:node_disk_io_time_seconds:sum_rate1m',
+            record: 'instance:node_disk_io_time_seconds:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
@@ -74,7 +74,7 @@
             // Disk saturation (weighted seconds spent, 1 second rate)
             // TODO: This should probably not aggregate over all devices but
             //       keep them separate.
-            record: 'instance:node_disk_io_time_weighted_seconds:sum_rate1m',
+            record: 'instance:node_disk_io_time_weighted_seconds:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
@@ -84,7 +84,7 @@
           // TODO: For the following rules, consider configurable filtering to exclude more network
           // device names than just "lo".
           {
-            record: 'instance:node_network_receive_bytes:sum_rate1m',
+            record: 'instance:node_network_receive_bytes:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
@@ -92,7 +92,7 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_bytes:sum_rate1m',
+            record: 'instance:node_network_transmit_bytes:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
@@ -101,7 +101,7 @@
           },
           // TODO: Find out if those drops ever happen on modern switched networks.
           {
-            record: 'instance:node_network_receive_drop:sum_rate1m',
+            record: 'instance:node_network_receive_drop:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
@@ -109,7 +109,7 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_drop:sum_rate1m',
+            record: 'instance:node_network_transmit_drop:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
