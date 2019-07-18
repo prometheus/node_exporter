@@ -60,11 +60,11 @@ local g = import 'grafana-builder/grafana.libsonnet';
           // 1 second per second doing I/O, normalize by metric cardinality for stacked charts.
           g.queryPanel(|||
             (
-              instance:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}
-            / ignoring (instance) group_left
-              count without (instance) (instance:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s})
+              instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}
+            / ignoring (instance, device) group_left
+              count without (instance, device) (instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s})
             )
-          ||| % $._config, '{{instance}}', legendLink) +
+          ||| % $._config, '{{instance}} {{device}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
@@ -72,11 +72,11 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Disk IO Saturation') +
           g.queryPanel(|||
             (
-              instance:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s}
-            / ignoring (instance) group_left
-              count without (instance) (instance:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s})
+              instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s}
+            / ignoring (instance, device) group_left
+              count without (instance, device) (instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s})
             )
-          ||| % $._config, '{{instance}}', legendLink) +
+          ||| % $._config, '{{instance}} {{device}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
@@ -167,12 +167,12 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Disk')
         .addPanel(
           g.panel('Disk IO Utilisation') +
-          g.queryPanel('instance:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation') +
+          g.queryPanel('instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation {{device}}') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
           g.panel('Disk IO Saturation') +
-          g.queryPanel('instance:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation') +
+          g.queryPanel('instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation {{device}}') +
           { yaxes: g.yaxes('percentunit') },
         )
       )

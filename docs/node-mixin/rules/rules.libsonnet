@@ -61,24 +61,16 @@
           },
           {
             // Disk utilisation (seconds spent, 1 second rate)
-            // TODO: This should probably not aggregate over all devices but
-            //       keep them separate.
-            record: 'instance:node_disk_io_time_seconds:rate1m',
+            record: 'instance_device:node_disk_io_time_seconds:rate1m',
             expr: |||
-              sum without (device) (
-                rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
-              )
+              rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
             ||| % $._config,
           },
           {
             // Disk saturation (weighted seconds spent, 1 second rate)
-            // TODO: This should probably not aggregate over all devices but
-            //       keep them separate.
-            record: 'instance:node_disk_io_time_weighted_seconds:rate1m',
+            record: 'instance_device:node_disk_io_time_weighted_seconds:rate1m',
             expr: |||
-              sum without (device) (
-                rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
-              )
+              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
             ||| % $._config,
           },
           // TODO: For the following rules, consider configurable filtering to exclude more network
