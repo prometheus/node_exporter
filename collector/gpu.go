@@ -68,11 +68,11 @@ func (this *gpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, gpuStat := range stats {
-		ch <- prometheus.MustNewConstMetric(this.total, prometheus.CounterValue, gpuStat.TotalMem, gpuStat.Host, gpuStat.Count, gpuStat.UUID)
-		ch <- prometheus.MustNewConstMetric(this.used, prometheus.CounterValue, gpuStat.UsedMem, gpuStat.Host, gpuStat.Count, gpuStat.UUID)
-		ch <- prometheus.MustNewConstMetric(this.free, prometheus.CounterValue, gpuStat.FreeMem, gpuStat.Host, gpuStat.Count, gpuStat.UUID)
-		ch <- prometheus.MustNewConstMetric(this.utilization, prometheus.CounterValue, gpuStat.Utilization, gpuStat.Host, gpuStat.Count, gpuStat.UUID)
-		ch <- prometheus.MustNewConstMetric(this.temp, prometheus.CounterValue, gpuStat.Temp, gpuStat.Host, gpuStat.Count, gpuStat.UUID)
+		ch <- prometheus.MustNewConstMetric(this.total, prometheus.CounterValue, gpuStat.TotalMem, gpuStat.Host, gpuStat.Count, gpuStat.UUID, gpuStat.Types)
+		ch <- prometheus.MustNewConstMetric(this.used, prometheus.CounterValue, gpuStat.UsedMem, gpuStat.Host, gpuStat.Count, gpuStat.UUID, gpuStat.Types)
+		ch <- prometheus.MustNewConstMetric(this.free, prometheus.CounterValue, gpuStat.FreeMem, gpuStat.Host, gpuStat.Count, gpuStat.UUID, gpuStat.Types)
+		ch <- prometheus.MustNewConstMetric(this.utilization, prometheus.CounterValue, gpuStat.Utilization, gpuStat.Host, gpuStat.Count, gpuStat.UUID, gpuStat.Types)
+		ch <- prometheus.MustNewConstMetric(this.temp, prometheus.CounterValue, gpuStat.Temp, gpuStat.Host, gpuStat.Count, gpuStat.UUID, gpuStat.Types)
 	}
 	return nil
 }

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"github.com/prometheus/common/log"
@@ -33,47 +32,17 @@ type gpuInfo struct {
 	Host        string
 	UUID        string
 	Count       string
+	Types       string
 }
 
 type gpuCache struct{}
 
-/*
-nvidia-smi -q|grep -E 'Minor Number|UUID|GPU Current Temp|Gpu|Total|Used|Free'|cut -d ':' -f2|awk '{print $1}'
-GPU-1111111111111111111111
-0
-11178
-0
-11178
-256
-2
-254
-0
-N/A
-N/A
-N/A
-N/A
-31
-GPU-a2222222222222222222222222222
-1
-11178
-0
-11178
-256
-2
-254
-0
-N/A
-N/A
-N/A
-N/A
-28
-*/
 func (this gpuCache) Stat() ([]gpuInfo, error) {
 	var (
 		result []gpuInfo
 		// err    error
 	)
-	command := "nvidia-smi -q|grep -E 'Minor Number|UUID|GPU Current Temp|Gpu|Total|Used|Free'|grep -v 'Used GPU Memory'|cut -d ':' -f2|awk '{print $1}'"
+	command := "nvidia-smi -q|grep -E 'Minor Number|UUID|GPU Current Temp|Gpu|Total|Used|Free|Product Name'|grep -v 'Used GPU Memory'|cut -d ':' -f2|sed 's/^[[:space:]]//g'"
 	data, err := execCommand(command)
 	if err != nil {
 		return nil, err
@@ -82,29 +51,33 @@ func (this gpuCache) Stat() ([]gpuInfo, error) {
 	result = []gpuInfo{}
 	var tmp gpuInfo
 	for n, x := range strings.Split(data, "\n") {
-		// fmt.Println(n, n%14, n/14, x)
-		log.Debug(n, n%14, n/14, x)
-		if n%14 == 0 && n != 0 {
+		// fmt.Println(n, n%15, n/15, x)
+		if n%15 == 0 && n != 0 {
 			result = append(result, tmp)
+			fmt.Println("n = 0", x)
 			tmp = gpuInfo{}
 			tmp.Host = hostname
-			tmp.UUID = strings.TrimSpace(x)
-		} else if n%14 == 0 && n == 0 {
+			tmp.Types = strings.TrimSpace(x)
+		} else if n%15 == 0 && n == 0 {
+			fmt.Println("n = 0", x)
 			tmp = gpuInfo{}
 			tmp.Host = hostname
+			tmp.Types = strings.TrimSpace(x)
+		} else if n%15 == 1 {
 			tmp.UUID = strings.TrimSpace(x)
-		} else if n%14 == 1 {
+		} else if n%15 == 2 {
 			tmp.Count = strings.TrimSpace(x)
-		} else if n%14 == 2 {
-			tmp.TotalMem, _ = strconv.ParseFloat(strings.TrimSpace(x), 64)
-		} else if n%14 == 3 {
-			tmp.UsedMem, _ = strconv.ParseFloat(strings.TrimSpace(x), 64)
-		} else if n%14 == 4 {
-			tmp.FreeMem, _ = strconv.ParseFloat(strings.TrimSpace(x), 64)
-		} else if n%14 == 8 {
-			tmp.Utilization, _ = strconv.ParseFloat(strings.TrimSpace(x), 64)
-		} else if n%14 == 13 {
-			tmp.Temp, _ = strconv.ParseFloat(strings.TrimSpace(x), 64)
+		} else if n%15 == 3 {
+			tmp.TotalMem = strings.TrimSpace(strings.Split(x, " ")[0])
+		} else if n%15 == 4 {
+			tmp.UsedMem = strings.TrimSpace(strings.Split(x, " ")[0])
+		} else if n%15 == 5 {
+			tmp.FreeMem = strings.TrimSpace(strings.Split(x, " ")[0])
+		} else if n%15 == 9 {
+			tmp.Utilization = strings.TrimSpace(strings.Split(x, " ")[0])
+		} else if n%15 == 14 {
+			fmt.Println("temp", x)
+			tmp.Temp = strings.TrimSpace(strings.Split(x, " ")[0])
 		}
 	}
 	return result, nil

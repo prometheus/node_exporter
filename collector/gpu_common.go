@@ -8,5 +8,5 @@ const (
 )
 
 var (
-	gpuLabelNames = []string{"hostname", "id", "uuid"}
+	gpuLabelNames = []string{"hostname", "id", "uuid", "type"}
 )
