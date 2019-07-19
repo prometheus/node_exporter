@@ -112,3 +112,30 @@ func TestMountsFallback(t *testing.T) {
 		}
 	}
 }
+
+func TestPathRootfs(t *testing.T) {
+	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_bindmount/proc", "--path.rootfs", "/host"}); err != nil {
+		t.Fatal(err)
+	}
+
+	expected := map[string]string{
+		// should modify these mountpoints (removes /host, see fixture proc file)
+		"/media/volume1": "",
+		"/media/volume2": "",
+		// should not modify these mountpoints
+		"/dev/shm":       "",
+		"/run/lock":      "",
+		"/sys/fs/cgroup": "",
+	}
+
+	filesystems, err := mountPointDetails()
+	if err != nil {
+		t.Log(err)
+	}
+
+	for _, fs := range filesystems {
+		if _, ok := expected[fs.mountPoint]; !ok {
+			t.Errorf("Got unexpected %s", fs.mountPoint)
+		}
+	}
+}
