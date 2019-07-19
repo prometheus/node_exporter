@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/prometheus/common/log"
@@ -52,14 +53,13 @@ func (this gpuCache) Stat() ([]gpuInfo, error) {
 	var tmp gpuInfo
 	for n, x := range strings.Split(data, "\n") {
 		// fmt.Println(n, n%15, n/15, x)
+		log.Debug(n, n%15, n/15, x)
 		if n%15 == 0 && n != 0 {
 			result = append(result, tmp)
-			fmt.Println("n = 0", x)
 			tmp = gpuInfo{}
 			tmp.Host = hostname
 			tmp.Types = strings.TrimSpace(x)
 		} else if n%15 == 0 && n == 0 {
-			fmt.Println("n = 0", x)
 			tmp = gpuInfo{}
 			tmp.Host = hostname
 			tmp.Types = strings.TrimSpace(x)
@@ -68,16 +68,15 @@ func (this gpuCache) Stat() ([]gpuInfo, error) {
 		} else if n%15 == 2 {
 			tmp.Count = strings.TrimSpace(x)
 		} else if n%15 == 3 {
-			tmp.TotalMem = strings.TrimSpace(strings.Split(x, " ")[0])
+			tmp.TotalMem, _ = strconv.ParseFloat(strings.TrimSpace(strings.Split(x, " ")[0]), 64)
 		} else if n%15 == 4 {
-			tmp.UsedMem = strings.TrimSpace(strings.Split(x, " ")[0])
+			tmp.UsedMem, _ = strconv.ParseFloat(strings.TrimSpace(strings.Split(x, " ")[0]), 64)
 		} else if n%15 == 5 {
-			tmp.FreeMem = strings.TrimSpace(strings.Split(x, " ")[0])
+			tmp.FreeMem, _ = strconv.ParseFloat(strings.TrimSpace(strings.Split(x, " ")[0]), 64)
 		} else if n%15 == 9 {
-			tmp.Utilization = strings.TrimSpace(strings.Split(x, " ")[0])
+			tmp.Utilization, _ = strconv.ParseFloat(strings.TrimSpace(strings.Split(x, " ")[0]), 64)
 		} else if n%15 == 14 {
-			fmt.Println("temp", x)
-			tmp.Temp = strings.TrimSpace(strings.Split(x, " ")[0])
+			tmp.Temp, _ = strconv.ParseFloat(strings.TrimSpace(strings.Split(x, " ")[0]), 64)
 		}
 	}
 	return result, nil
