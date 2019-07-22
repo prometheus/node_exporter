@@ -23,7 +23,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
         .addPanel(
-          // TODO: Is this a useful panel?
+          // TODO: Is this a useful panel? At least there should be some explanation how load
+          // average relates to the "CPU saturation" in the title.
           g.panel('CPU Saturation (load1 per CPU)') +
           g.queryPanel(|||
             (
@@ -58,6 +59,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Disk IO Utilisation') +
           // Full utilisation would be all disks on each node spending an average of
           // 1 second per second doing I/O, normalize by metric cardinality for stacked charts.
+          // TODO: Does the partition by device make sense? Using the most utilized device per
+          // instance might make more sense.
           g.queryPanel(|||
             (
               instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}
@@ -113,7 +116,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
       .addRow(
         g.row('Storage')
         .addPanel(
-          g.panel('Disk Capacity') +
+          g.panel('Disk Space Utilisation') +
           g.queryPanel(|||
             (
               sum without (device) (
@@ -145,6 +148,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
+          // TODO: Is this a useful panel? At least there should be some explanation how load
+          // average relates to the "CPU saturation" in the title.
           g.panel('CPU Saturation (Load1)') +
           g.queryPanel('instance:node_cpu_saturation_load1:{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation') +
           { yaxes: g.yaxes('percentunit') },

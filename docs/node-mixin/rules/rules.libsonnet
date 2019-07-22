@@ -28,7 +28,7 @@
             // This is CPU saturation: 1min avg run queue length / number of CPUs.
             // Can go over 1.
             // TODO: There are situation where a run queue >1/core is just normal and fine.
-            //       We need to clarify how to lead this metric and if its usage is helpful at all.
+            //       We need to clarify how to read this metric and if its usage is helpful at all.
             record: 'instance:node_load1_per_cpu:ratio',
             expr: |||
               (
@@ -39,7 +39,7 @@
             ||| % $._config,
           },
           {
-            // Memory utilisation per node, normalized by per-node memory
+            // Memory utilisation (ratio of used memory per instance).
             record: 'instance:node_memory_utilisation:ratio',
             expr: |||
               1 - (
@@ -60,14 +60,14 @@
             ||| % $._config,
           },
           {
-            // Disk utilisation (seconds spent, 1 second rate)
+            // Disk utilisation (seconds spent, 1 second rate).
             record: 'instance_device:node_disk_io_time_seconds:rate1m',
             expr: |||
               rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
             ||| % $._config,
           },
           {
-            // Disk saturation (weighted seconds spent, 1 second rate)
+            // Disk saturation (weighted seconds spent, 1 second rate).
             record: 'instance_device:node_disk_io_time_weighted_seconds:rate1m',
             expr: |||
               rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
