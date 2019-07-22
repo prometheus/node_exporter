@@ -37,7 +37,7 @@ func NewUptimeCollector() (Collector, error) {
 			"Node uptime in seconds.",
 			nil, nil,
 		),
-	}, nilbonding
+	}, nil
 }
 
 func (c *UptimeCollector) Update(ch chan<- prometheus.Metric) error {
