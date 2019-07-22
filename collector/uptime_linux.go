@@ -21,7 +21,7 @@ import (
 	"syscall"
 )
 
-type uptimeCollector struct {
+type UptimeCollector struct {
 	desc *prometheus.Desc
 }
 
@@ -40,7 +40,7 @@ func NewUptimeCollector() (Collector, error) {
 	}, nilbonding
 }
 
-func (c *UptimeCollector) update(ch chan<- prometheus.Metric) error {
+func (c *UptimeCollector) Update(ch chan<- prometheus.Metric) error {
 	s := &syscall.Sysinfo_t{}
 	err := syscall.Sysinfo(s)
 	if err != nil {
