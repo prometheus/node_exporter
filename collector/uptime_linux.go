@@ -26,7 +26,7 @@ type UptimeCollector struct {
 }
 
 func init() {
-	registerCollector("time", defaultEnabled, NewUptimeCollector)
+	registerCollector("uptime", defaultEnabled, NewUptimeCollector)
 }
 
 // NewUptimeCollector returns a new Collector exposing the current node uptime in seconds.
@@ -47,8 +47,8 @@ func (c *UptimeCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Errorf("Error reading uptime %s", err)
 	}
 
-	uptime := s.Uptime
+	uptime := float64(s.Uptime)
 	log.Debugf("Return uptime: %f", uptime)
-	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(uptime))
+	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, uptime)
 	return nil
 }
