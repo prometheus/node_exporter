@@ -90,8 +90,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Net Utilisation (Bytes Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_bytes:rate1m{%(nodeExporterSelector)s}' % $._config,
-              '-instance:node_network_transmit_bytes:rate1m{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_receive_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+              '-instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
             ],
             ['{{instance}} Receive', '{{instance}} Transmit'],
             legendLink,
@@ -103,8 +103,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Net Saturation (Drops Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_drop:rate1m{%(nodeExporterSelector)s}' % $._config,
-              '-instance:node_network_transmit_drop:rate1m{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_receive_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+              '-instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
             ],
             ['{{instance}} Receive', '{{instance}} Transmit'],
             legendLink,
@@ -187,8 +187,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Net Utilisation (Bytes Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_bytes:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              '-instance:node_network_transmit_bytes:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_receive_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              '-instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
             ],
             ['Receive', 'Transmit'],
           ) +
@@ -198,8 +198,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.panel('Net Saturation (Drops Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_drop:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              '-instance:node_network_transmit_drop:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_receive_drop_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              '-instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
             ],
             ['Receive drops', 'Transmit drops'],
           ) +

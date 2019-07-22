@@ -73,10 +73,8 @@
               rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
             ||| % $._config,
           },
-          // TODO: For the following rules, consider configurable filtering to exclude more network
-          // device names than just "lo".
           {
-            record: 'instance:node_network_receive_bytes:rate1m',
+            record: 'instance:node_network_receive_bytes_excluding_lo:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
@@ -84,7 +82,7 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_bytes:rate1m',
+            record: 'instance:node_network_transmit_bytes_excluding_lo:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
@@ -93,7 +91,7 @@
           },
           // TODO: Find out if those drops ever happen on modern switched networks.
           {
-            record: 'instance:node_network_receive_drop:rate1m',
+            record: 'instance:node_network_receive_drop_excluding_lo:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
@@ -101,7 +99,7 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_drop:rate1m',
+            record: 'instance:node_network_transmit_drop_excluding_lo:rate1m',
             expr: |||
               sum without (device) (
                 rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
