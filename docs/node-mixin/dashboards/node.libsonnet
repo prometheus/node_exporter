@@ -87,9 +87,9 @@ local gauge = promgrafonnet.gauge;
         )
         // TODO: Does it make sense to have those three in the same panel?
         // TODO: Consider using `${__interval}` as range and a 1m min step.
-        .addTarget(prometheus.target('rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m])' % $._config, legendFormat='{{device}} read'))
-        .addTarget(prometheus.target('rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s, instance="$instance"}[1m])' % $._config, legendFormat='{{device}} written'))
-        .addTarget(prometheus.target('rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s,  %(diskDeviceSelector)s, instance="$instance"}[1m])' % $._config, legendFormat='{{device}} io time')) +
+        .addTarget(prometheus.target('rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[1m])' % $._config, legendFormat='{{device}} read'))
+        .addTarget(prometheus.target('rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[1m])' % $._config, legendFormat='{{device}} written'))
+        .addTarget(prometheus.target('rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[1m])' % $._config, legendFormat='{{device}} io time')) +
         {
           seriesOverrides: [
             {
@@ -115,9 +115,9 @@ local gauge = promgrafonnet.gauge;
         |||
           100 -
           (
-            sum(node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}
+            sum(node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
           /
-            sum(node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}
+            sum(node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
           * 100
           )
         ||| % $._config,
