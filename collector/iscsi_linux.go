@@ -33,8 +33,8 @@ const (
 // iops (iscsi commands) , Read in byte and Write in byte.
 // ( original reading sysfs is in MB )
 type lioCollector struct {
-	fs      iscsi.FS
-	metrics *lioMetric
+	Fs      iscsi.FS
+	Metrics *lioMetric
 }
 
 type lioMetric struct {
@@ -70,7 +70,18 @@ func init() {
 
 // NewLioCollector returns a new Collector with iscsi statistics.
 func NewLioCollector() (Collector, error) {
-	fs, err := iscsi.NewFS(*sysPath, *configfsPath)
+	return realLioCollector("", "")
+}
+
+func realLioCollector(newSysPath string, newConfigfsPath string) (Collector, error) {
+	if newSysPath == "" {
+		newSysPath = *sysPath
+	}
+	if newConfigfsPath == "" {
+		newConfigfsPath = *configfsPath
+	}
+
+	fs, err := iscsi.NewFS(newSysPath, newConfigfsPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs / configfs: %v", err)
 	}
@@ -78,14 +89,14 @@ func NewLioCollector() (Collector, error) {
 	metrics := newLioMetric()
 
 	return &lioCollector{
-		fs:      fs,
-		metrics: metrics}, nil
+		Fs:      fs,
+		Metrics: metrics}, nil
 }
 
 // Update implement the lioCollector.
 func (c *lioCollector) Update(ch chan<- prometheus.Metric) error {
 
-	stats, err := c.fs.ISCSIStats()
+	stats, err := c.Fs.ISCSIStats()
 	log.Debugf("lio: Update lioCollector")
 	if err != nil {
 		return fmt.Errorf("lio: failed to update iscsi stat : %v", err)
@@ -226,7 +237,7 @@ func (c *lioCollector) updateStat(ch chan<- prometheus.Metric, s *iscsi.Stats) e
 // udev_path has the file name
 func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
-	fileio, err := c.fs.GetFileioUdev(label.image, label.pool)
+	fileio, err := c.Fs.GetFileioUdev(label.image, label.pool)
 
 	if err != nil {
 		return err
@@ -248,15 +259,15 @@ func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graph
 	fIops := float64(iops)
 	log.Debugf("lio: Fileio OPS float %f", fIops)
 
-	ch <- prometheus.MustNewConstMetric(c.metrics.lioFileRead,
+	ch <- prometheus.MustNewConstMetric(c.Metrics.lioFileRead,
 		prometheus.CounterValue, fReadMB, label.iqn, label.tpgt, label.lun,
 		fileio.Name, fileio.ObjectName, fileio.Filename)
 
-	ch <- prometheus.MustNewConstMetric(c.metrics.lioFileWrite,
+	ch <- prometheus.MustNewConstMetric(c.Metrics.lioFileWrite,
 		prometheus.CounterValue, fWriteMB, label.iqn, label.tpgt, label.lun,
 		fileio.Name, fileio.ObjectName, fileio.Filename)
 
-	ch <- prometheus.MustNewConstMetric(c.metrics.lioFileIops,
+	ch <- prometheus.MustNewConstMetric(c.Metrics.lioFileIops,
 		prometheus.CounterValue, fIops, label.iqn, label.tpgt, label.lun,
 		fileio.Name, fileio.ObjectName, fileio.Filename)
 
@@ -267,7 +278,7 @@ func (c *lioCollector) updateFileIOStat(ch chan<- prometheus.Metric, label graph
 // udev_path has the file name
 func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
-	iblock, err := c.fs.GetIblockUdev(label.image, label.pool)
+	iblock, err := c.Fs.GetIblockUdev(label.image, label.pool)
 	if err != nil {
 		return err
 	}
@@ -287,15 +298,15 @@ func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graph
 	fIops := float64(iops)
 	log.Debugf("lio: IBlock OPS float %f", fIops)
 
-	ch <- prometheus.MustNewConstMetric(c.metrics.lioBlockRead,
+	ch <- prometheus.MustNewConstMetric(c.Metrics.lioBlockRead,
 		prometheus.CounterValue, fReadMB, label.iqn, label.tpgt, label.lun,
 		iblock.Name, iblock.ObjectName, iblock.Iblock)
 
-	ch <- prometheus.MustNewConstMetric(c.metrics.lioBlockWrite,
+	ch <- prometheus.MustNewConstMetric(c.Metrics.lioBlockWrite,
 		prometheus.CounterValue, fWriteMB, label.iqn, label.tpgt, label.lun,
 		iblock.Name, iblock.ObjectName, iblock.Iblock)
 
-	ch <- prometheus.MustNewConstMetric(c.metrics.lioBlockIops,
+	ch <- prometheus.MustNewConstMetric(c.Metrics.lioBlockIops,
 		prometheus.CounterValue, fIops, label.iqn, label.tpgt, label.lun,
 		iblock.Name, iblock.ObjectName, iblock.Iblock)
 
@@ -317,7 +328,7 @@ func (c *lioCollector) updateIBlockStat(ch chan<- prometheus.Metric, label graph
 // the rbd_{X} / {pool}-{image} should match the following
 func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLabel) error {
 
-	rbd, err := c.fs.GetRBDMatch(label.image, label.pool)
+	rbd, err := c.Fs.GetRBDMatch(label.image, label.pool)
 
 	if err != nil {
 		return err
@@ -339,15 +350,15 @@ func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLab
 		fIops := float64(iops)
 		log.Debugf("lio: RBD OPS float %f", fIops)
 
-		ch <- prometheus.MustNewConstMetric(c.metrics.lioRbdRead,
+		ch <- prometheus.MustNewConstMetric(c.Metrics.lioRbdRead,
 			prometheus.CounterValue, fReadMB, label.iqn, label.tpgt, label.lun,
 			rbd.Name, rbd.Pool, rbd.Image)
 
-		ch <- prometheus.MustNewConstMetric(c.metrics.lioRbdWrite,
+		ch <- prometheus.MustNewConstMetric(c.Metrics.lioRbdWrite,
 			prometheus.CounterValue, fWriteMB, label.iqn, label.tpgt, label.lun,
 			rbd.Name, rbd.Pool, rbd.Image)
 
-		ch <- prometheus.MustNewConstMetric(c.metrics.lioRbdIops,
+		ch <- prometheus.MustNewConstMetric(c.Metrics.lioRbdIops,
 			prometheus.CounterValue, fIops, label.iqn, label.tpgt, label.lun,
 			rbd.Name, rbd.Pool, rbd.Image)
 	}
@@ -357,7 +368,7 @@ func (c *lioCollector) updateRBDStat(ch chan<- prometheus.Metric, label graphLab
 // /sys/kernel/config/target/core/rdmcp_{typeNumber}/{object}/
 // there won't be udev_path for ramdisk so not image name either
 func (c *lioCollector) updateRDMCPStat(ch chan<- prometheus.Metric, label graphLabel) error {
-	rdmcp, err := c.fs.GetRDMCPPath(label.image, label.pool)
+	rdmcp, err := c.Fs.GetRDMCPPath(label.image, label.pool)
 	if err != nil {
 		return err
 	}
@@ -378,15 +389,15 @@ func (c *lioCollector) updateRDMCPStat(ch chan<- prometheus.Metric, label graphL
 		fIops := float64(iops)
 		log.Debugf("lio: RDMCP OPS float %f", fIops)
 
-		ch <- prometheus.MustNewConstMetric(c.metrics.lioRdmcpRead,
+		ch <- prometheus.MustNewConstMetric(c.Metrics.lioRdmcpRead,
 			prometheus.CounterValue, fReadMB, label.iqn, label.tpgt, label.lun,
 			rdmcp.Name, rdmcp.ObjectName)
 
-		ch <- prometheus.MustNewConstMetric(c.metrics.lioRdmcpWrite,
+		ch <- prometheus.MustNewConstMetric(c.Metrics.lioRdmcpWrite,
 			prometheus.CounterValue, fWriteMB, label.iqn, label.tpgt, label.lun,
 			rdmcp.Name, rdmcp.ObjectName)
 
-		ch <- prometheus.MustNewConstMetric(c.metrics.lioRdmcpIops,
+		ch <- prometheus.MustNewConstMetric(c.Metrics.lioRdmcpIops,
 			prometheus.CounterValue, fIops, label.iqn, label.tpgt, label.lun,
 			rdmcp.Name, rdmcp.ObjectName)
 	}

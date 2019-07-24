@@ -18,12 +18,14 @@ import (
 )
 
 func TestIscsi(t *testing.T) {
-	lioCollector, err := NewLioCollector()
+	c, err := realLioCollector("./fixtures/sys", "./fixtures/sys/kernel/config")
 	if err != nil {
 		t.Fatalf("failed to access sysfs/configfs: %v", err)
 	}
+	lioCollector := c.(*lioCollector)
 
-	if lioCollector == nil {
-		t.Fatalf("failed to access sysfs/configfs: %v", err)
+	if lioCollector.Fs.Path() != "fixtures/sys/kernel/config" {
+		t.Fatalf("could not set fixture to fixtures/sys/kernel/config")
 	}
+
 }
