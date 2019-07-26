@@ -116,6 +116,7 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 			ErrorLog:            log.NewErrorLogger(),
 			ErrorHandling:       promhttp.ContinueOnError,
 			MaxRequestsInFlight: h.maxRequests,
+			Registry:            h.exporterMetricsRegistry,
 		},
 	)
 	if h.includeExporterMetrics {
