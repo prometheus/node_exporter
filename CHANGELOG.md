@@ -8,11 +8,13 @@
     - `node_md_disks_active` is removed
     - `node_md_disks` now has a `state` label for "fail", "spare", "active" disks.
     - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
+* Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
 
 ### Changes
 
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
+* [CHANGE] Add `mountaddr` label to NFS metrics. #1417
 * [FEATURE] Add new schedstat collector #1389
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439

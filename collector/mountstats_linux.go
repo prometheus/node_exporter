@@ -95,8 +95,9 @@ type mountStatsCollector struct {
 
 // used to uniquely identify an NFS mount to prevent duplicates
 type nfsDeviceIdentifier struct {
-	Device   string
-	Protocol string
+	Device       string
+	Protocol     string
+	MountAddress string
 }
 
 func init() {
@@ -121,8 +122,8 @@ func NewMountStatsCollector() (Collector, error) {
 	)
 
 	var (
-		labels   = []string{"export", "protocol"}
-		opLabels = []string{"export", "protocol", "operation"}
+		labels   = []string{"export", "protocol", "mountaddr"}
+		opLabels = []string{"export", "protocol", "mountaddr", "operation"}
 	)
 
 	return &mountStatsCollector{
@@ -507,17 +508,30 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("failed to parse mountstats: %v", err)
 	}
 
+	mountsInfo, err := c.proc.MountInfo()
+	if err != nil {
+		return fmt.Errorf("failed to parse mountinfo: %v", err)
+	}
+
 	// store all seen nfsDeviceIdentifiers for deduplication
 	deviceList := make(map[nfsDeviceIdentifier]bool)
 
-	for _, m := range mounts {
+	for idx, m := range mounts {
 		// For the time being, only NFS statistics are available via this mechanism
 		stats, ok := m.Stats.(*procfs.MountStatsNFS)
+
 		if !ok {
 			continue
 		}
 
-		deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport.Protocol}
+		var mountAddress string
+		if idx < len(mountsInfo) {
+			// The mount entry order in the /proc/self/mountstats and /proc/self/mountinfo is the same.
+			miStats := mountsInfo[idx]
+			mountAddress = miStats.SuperOptions["addr"]
+		}
+
+		deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport.Protocol, mountAddress}
 		i := deviceList[deviceIdentifier]
 		if i {
 			log.Debugf("Skipping duplicate device entry %q", deviceIdentifier)
@@ -525,236 +539,204 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		deviceList[deviceIdentifier] = true
-		c.updateNFSStats(ch, m.Device, stats.Transport.Protocol, stats)
+		c.updateNFSStats(ch, stats, m.Device, stats.Transport.Protocol, mountAddress)
 	}
 
 	return nil
 }
 
-func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, export string, protocol string, s *procfs.MountStatsNFS) {
+func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *procfs.MountStatsNFS, export, protocol, mountAddress string) {
+	labelValues := []string{export, protocol, mountAddress}
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSAgeSecondsTotal,
 		prometheus.CounterValue,
 		s.Age.Seconds(),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSReadBytesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.Read),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSWriteBytesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.Write),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSDirectReadBytesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.DirectRead),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSDirectWriteBytesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.DirectWrite),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTotalReadBytesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.ReadTotal),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTotalWriteBytesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.WriteTotal),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSReadPagesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.ReadPages),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSWritePagesTotal,
 		prometheus.CounterValue,
 		float64(s.Bytes.WritePages),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportBindTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.Bind),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportConnectTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.Connect),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportIdleTimeSeconds,
 		prometheus.GaugeValue,
 		float64(s.Transport.IdleTimeSeconds%float64Mantissa),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportSendsTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.Sends),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportReceivesTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.Receives),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportBadTransactionIDsTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.BadTransactionIDs),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportBacklogQueueTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.CumulativeBacklog),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportMaximumRPCSlots,
 		prometheus.GaugeValue,
 		float64(s.Transport.MaximumRPCSlotsUsed),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportSendingQueueTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.CumulativeSendingQueue),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportPendingQueueTotal,
 		prometheus.CounterValue,
 		float64(s.Transport.CumulativePendingQueue),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	for _, op := range s.Operations {
+		opLabelValues := []string{export, protocol, mountAddress, op.Operation}
+
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsRequestsTotal,
 			prometheus.CounterValue,
 			float64(op.Requests),
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsTransmissionsTotal,
 			prometheus.CounterValue,
 			float64(op.Transmissions),
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsMajorTimeoutsTotal,
 			prometheus.CounterValue,
 			float64(op.MajorTimeouts),
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsSentBytesTotal,
 			prometheus.CounterValue,
 			float64(op.BytesSent),
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsReceivedBytesTotal,
 			prometheus.CounterValue,
 			float64(op.BytesReceived),
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsQueueTimeSecondsTotal,
 			prometheus.CounterValue,
 			float64(op.CumulativeQueueMilliseconds%float64Mantissa)/1000.0,
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsResponseTimeSecondsTotal,
 			prometheus.CounterValue,
 			float64(op.CumulativeTotalResponseMilliseconds%float64Mantissa)/1000.0,
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsRequestTimeSecondsTotal,
 			prometheus.CounterValue,
 			float64(op.CumulativeTotalRequestMilliseconds%float64Mantissa)/1000.0,
-			export,
-			protocol,
-			op.Operation,
+			opLabelValues...,
 		)
 	}
 
@@ -762,207 +744,181 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, export
 		c.NFSEventInodeRevalidateTotal,
 		prometheus.CounterValue,
 		float64(s.Events.InodeRevalidate),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventDnodeRevalidateTotal,
 		prometheus.CounterValue,
 		float64(s.Events.DnodeRevalidate),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventDataInvalidateTotal,
 		prometheus.CounterValue,
 		float64(s.Events.DataInvalidate),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventAttributeInvalidateTotal,
 		prometheus.CounterValue,
 		float64(s.Events.AttributeInvalidate),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSOpenTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSOpen),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSLookupTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSLookup),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSAccessTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSAccess),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSUpdatePageTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSUpdatePage),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSReadPageTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSReadPage),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSReadPagesTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSReadPages),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSWritePageTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSWritePage),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSWritePagesTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSWritePages),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSGetdentsTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSGetdents),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSSetattrTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSSetattr),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSFlushTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSFlush),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSFsyncTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSFsync),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSLockTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSLock),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventVFSFileReleaseTotal,
 		prometheus.CounterValue,
 		float64(s.Events.VFSFileRelease),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventTruncationTotal,
 		prometheus.CounterValue,
 		float64(s.Events.Truncation),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventWriteExtensionTotal,
 		prometheus.CounterValue,
 		float64(s.Events.WriteExtension),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventSillyRenameTotal,
 		prometheus.CounterValue,
 		float64(s.Events.SillyRename),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventShortReadTotal,
 		prometheus.CounterValue,
 		float64(s.Events.ShortRead),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventShortWriteTotal,
 		prometheus.CounterValue,
 		float64(s.Events.ShortWrite),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventJukeboxDelayTotal,
 		prometheus.CounterValue,
 		float64(s.Events.JukeboxDelay),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventPNFSReadTotal,
 		prometheus.CounterValue,
 		float64(s.Events.PNFSRead),
-		export,
-		protocol,
+		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSEventPNFSWriteTotal,
 		prometheus.CounterValue,
 		float64(s.Events.PNFSWrite),
-		export,
-		protocol,
+		labelValues...,
 	)
 }
