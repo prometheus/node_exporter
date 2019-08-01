@@ -149,8 +149,8 @@ func main() {
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
 		tlsFile = kingpin.Flag(
-			"web.tls-config",
-			"Path to the YAML configuration file that enables TLS.",
+			"web.https-config",
+			"Path to https config yaml file that enables TLS.",
 		).Default("").String()
 	)
 

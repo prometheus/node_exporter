@@ -21,6 +21,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/log"
 	"gopkg.in/yaml.v2"
 )
 
@@ -96,11 +97,13 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 			return nil, errors.New("invalid ClientAuth: " + s)
 		}
 	}
+	if len(c.ClientCAs) > 0 && len(c.ClientAuth) == 0 {
+		log.Warnln("Client CA's have been configured without a Client Auth Policy")
+	}
 	return cfg, nil
 }
 
-// Listen starts the server on the given address. If tlsConfigPath isn't empty,
-// the connection will be using TLS.
+// Listen starts the server on the given address. If tlsConfigPath isn't empty the server connection will be started using TLS.
 func Listen(server *http.Server, tlsConfigPath string) error {
 	if (tlsConfigPath) == "" {
 		return server.ListenAndServe()
