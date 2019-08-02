@@ -97,7 +97,7 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 		}
 	}
 	if len(c.ClientCAs) > 0 && len(c.ClientAuth) == 0 {
-		return nil, errors.New("Client CAs have been configured without a Client Auth Policy")
+		return nil, errors.New("Client CA's have been configured without a Client Auth Policy")
 	}
 	return cfg, nil
 }
