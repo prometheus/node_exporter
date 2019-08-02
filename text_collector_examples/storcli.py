@@ -48,7 +48,7 @@ def main(args):
 
         for controller in data:
             response = controller['Response Data']
-            
+
             handle_common_controller(response)
             if response['Version']['Driver Name'] == 'megaraid_sas':
                 handle_megaraid_controller(response)
@@ -82,7 +82,7 @@ def handle_sas_controller(response):
     for key, basic_disk_info in response['Physical Device Information'].items():
         if 'Detailed Information' in key:
             continue
-        create_metrcis_of_physical_drive(basic_disk_info[0],
+        create_metrics_of_physical_drive(basic_disk_info[0],
                                          response['Physical Device Information'], controller_index)
 
 
@@ -95,9 +95,6 @@ def handle_megaraid_controller(response):
     add_metric('degraded', baselabel, int(response['Status']['Controller Status'] == 'Degraded'))
     add_metric('failed', baselabel, int(response['Status']['Controller Status'] == 'Failed'))
     add_metric('healthy', baselabel, int(response['Status']['Controller Status'] == 'Optimal'))
-    add_metric('drive_groups', baselabel, response['Drive Groups'])
-    add_metric('virtual_drives', baselabel, response['Virtual Drives'])
-    add_metric('physical_drives', baselabel, response['Physical Drives'])
     add_metric('ports', baselabel, response['HwCfg']['Backend Port Count'])
     add_metric('scheduled_patrol_read', baselabel,
                int('hrs' in response['Scheduled Tasks']['Patrol Read Reoccurrence']))
@@ -113,26 +110,32 @@ def handle_megaraid_controller(response):
         time_difference_seconds = abs(system_time - controller_time).seconds
         add_metric('time_difference', baselabel, time_difference_seconds)
 
-    for virtual_drive in response['VD LIST']:
-        vd_position = virtual_drive.get('DG/VD')
-        drive_group, volume_group = -1, -1
-        if vd_position:
-            drive_group = vd_position.split('/')[0]
-            volume_group = vd_position.split('/')[1]
-        vd_baselabel = 'controller="{0}",DG="{1}",VG="{2}"'.format(controller_index, drive_group,
-                                                                volume_group)
-        vd_info_label = vd_baselabel + ',name="{0}",cache="{1}",type="{2}",state="{3}"'.format(
-            str(virtual_drive.get('Name')).strip(),
-            str(virtual_drive.get('Cache')).strip(),
-            str(virtual_drive.get('TYPE')).strip(),
-            str(virtual_drive.get('State')).strip())
-        add_metric('vd_info', vd_info_label, 1)
+    # Make sure it doesn't crash if it's a JBOD setup
+    if 'Drive Groups' in response.keys():
+        add_metric('drive_groups', baselabel, response['Drive Groups'])
+        add_metric('virtual_drives', baselabel, response['Virtual Drives'])
 
+        for virtual_drive in response['VD LIST']:
+            vd_position = virtual_drive.get('DG/VD')
+            drive_group, volume_group = -1, -1
+            if vd_position:
+                drive_group = vd_position.split('/')[0]
+                volume_group = vd_position.split('/')[1]
+            vd_baselabel = 'controller="{0}",DG="{1}",VG="{2}"'.format(controller_index, drive_group,
+                                                                    volume_group)
+            vd_info_label = vd_baselabel + ',name="{0}",cache="{1}",type="{2}",state="{3}"'.format(
+                str(virtual_drive.get('Name')).strip(),
+                str(virtual_drive.get('Cache')).strip(),
+                str(virtual_drive.get('TYPE')).strip(),
+                str(virtual_drive.get('State')).strip())
+            add_metric('vd_info', vd_info_label, 1)
+
+    add_metric('physical_drives', baselabel, response['Physical Drives'])
     if response['Physical Drives'] > 0:
         data = get_storcli_json('/cALL/eALL/sALL show all J')
         drive_info = data['Controllers'][controller_index]['Response Data']
     for physical_drive in response['PD LIST']:
-        create_metrcis_of_physical_drive(physical_drive, drive_info, controller_index)
+        create_metrics_of_physical_drive(physical_drive, drive_info, controller_index)
 
 
 def get_basic_controller_info(response):
@@ -149,7 +152,7 @@ def get_basic_controller_info(response):
     return (controller_index, baselabel)
 
 
-def create_metrcis_of_physical_drive(physical_drive, detailed_info_array, controller_index):
+def create_metrics_of_physical_drive(physical_drive, detailed_info_array, controller_index):
     enclosure = physical_drive.get('EID:Slt').split(':')[0]
     slot = physical_drive.get('EID:Slt').split(':')[1]
 
