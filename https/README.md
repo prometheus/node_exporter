@@ -1,9 +1,9 @@
 # HTTPS Package for Prometheus
 
 The `https` directory contains a Go package and a sample configuration file for running `node_exporter` with HTTPS instead of HTTP.
-When running a server with TLS use the flag `--web.https-config`
+When running a server with TLS use the flag `--web.authentication-config`
 
-e.g. `./node_exporter --web.https-config="https/tls-config.yml"`
+e.g. `./node_exporter --web.authentication-config="https/tls-config.yml"`
 If the config is kept within the https directory.
 
 The config file should be written in YAML format, and is reloaded on each connection to check for new certificates and/or authentication policy.
@@ -20,6 +20,5 @@ tlsConfig :
   [ clientAuth : <string> | default = "NoClientCert" ]
 
   # CA certificate for client certificate authentication to the server
-  # If this is being used ensure that a ClientAuth policy is also in place
   [ clientCAs : <filename> ]
 ```
