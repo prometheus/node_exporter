@@ -66,7 +66,7 @@ func NewSystemdCollector() (Collector, error) {
 
 	unitDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_state"),
-		"Systemd unit", []string{"name", "state", "type"}, nil,
+		"Systemd unit", []string{"name", "state", "substate", "type"}, nil,
 	)
 	unitStartTimeDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
@@ -226,7 +226,7 @@ func (c *systemdCollector) collectUnitStatusMetrics(conn *dbus.Conn, ch chan<- p
 			}
 			ch <- prometheus.MustNewConstMetric(
 				c.unitDesc, prometheus.GaugeValue, isActive,
-				unit.Name, stateName, serviceType)
+				unit.Name, stateName, unit.SubState, serviceType)
 		}
 		if *enableRestartsMetrics && strings.HasSuffix(unit.Name, ".service") {
 			// NRestarts wasn't added until systemd 235.
