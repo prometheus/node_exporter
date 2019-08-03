@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build darwin freebsd openbsd
 // +build !nouname
 
 package collector
@@ -28,30 +29,35 @@ func getUname() (uname, error) {
 		return uname{}, err
 	}
 
-	// We do a little bit of work here to emulate what happens in the Linux
-	// uname calls since FreeBSD uname doesn't have a Domainname.
-	nodename := string(utsname.Nodename[:bytes.IndexByte(utsname.Nodename[:], 0)])
-	split := strings.SplitN(nodename, ".", 2)
-
-	// We'll always have at least a single element in the array. We assume this
-	// is the hostname.
-	hostname := split[0]
-
-	// If we have more than one element, we assume this is the domainname.
-	// Otherwise leave it to "(none)" like Linux.
-	domainname := "(none)"
-	if len(split) > 1 {
-		domainname = split[1]
-	}
+	nodeName, domainName := parseHostNameAndDomainName(utsname)
 
 	output := uname{
 		SysName:    string(utsname.Sysname[:bytes.IndexByte(utsname.Sysname[:], 0)]),
 		Release:    string(utsname.Release[:bytes.IndexByte(utsname.Release[:], 0)]),
 		Version:    string(utsname.Version[:bytes.IndexByte(utsname.Version[:], 0)]),
 		Machine:    string(utsname.Machine[:bytes.IndexByte(utsname.Machine[:], 0)]),
-		NodeName:   hostname,
-		DomainName: domainname,
+		NodeName:   nodeName,
+		DomainName: domainName,
 	}
 
 	return output, nil
+}
+
+// parseHostNameAndDomainName for FreeBSD,OpenBSD,Darwin.
+// Attempts to emulate what happens in the Linux uname calls since these OS doesn't have a Domainname.
+func parseHostNameAndDomainName(utsname unix.Utsname) (hostname string, domainname string) {
+	nodename := string(utsname.Nodename[:bytes.IndexByte(utsname.Nodename[:], 0)])
+	split := strings.SplitN(nodename, ".", 2)
+
+	// We'll always have at least a single element in the array. We assume this
+	// is the hostname.
+	hostname = split[0]
+
+	// If we have more than one element, we assume this is the domainname.
+	// Otherwise leave it to "(none)" like Linux.
+	domainname = "(none)"
+	if len(split) > 1 {
+		domainname = split[1]
+	}
+	return hostname, domainname
 }

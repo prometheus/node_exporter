@@ -57,7 +57,7 @@ stat | Exposes various statistics from `/proc/stat`. This includes boot time, fo
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
-uname | Exposes system information as provided by the uname system call. | FreeBSD, Linux
+uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/), Solaris

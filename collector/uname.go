@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build freebsd linux
+// +build darwin freebsd openbsd linux
 // +build !nouname
 
 package collector
