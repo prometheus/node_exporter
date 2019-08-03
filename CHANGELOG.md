@@ -16,6 +16,7 @@
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417
 * [FEATURE] Add new schedstat collector #1389
+* [FEATURE] Add uname support for Darwin and OpenBSD #1433
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
