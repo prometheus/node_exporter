@@ -2488,6 +2488,7 @@ node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="textfile"} 1
+node_scrape_collector_success{collector="thermal_zone"} 1
 node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
@@ -2539,6 +2540,9 @@ node_sockstat_sockets_used 229
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
+# HELP node_thermal_zone_temp Zone temperature in Celsius
+# TYPE node_thermal_zone_temp gauge
+node_thermal_zone_temp{type="cpu-thermal",zone="0"} 12.376
 # HELP node_vmstat_oom_kill /proc/vmstat information field oom_kill.
 # TYPE node_vmstat_oom_kill untyped
 node_vmstat_oom_kill 0

@@ -920,6 +920,12 @@ Lines: 1
 1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/thermal
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/thermal/thermal_zone0
+SymlinkTo: ../../devices/virtual/thermal/thermal_zone0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2458,6 +2464,30 @@ numa_foreign 2624528
 interleave_hit 7286
 local_node 26719046550
 other_node 9860526920
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/virtual
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/virtual/thermal
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/virtual/thermal/thermal_zone0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/virtual/thermal/thermal_zone0/policy
+Lines: 1
+step_wise
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/virtual/thermal/thermal_zone0/temp
+Lines: 1
+12376
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/virtual/thermal/thermal_zone0/type
+Lines: 1
+cpu-thermal
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/fs
