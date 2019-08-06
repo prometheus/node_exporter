@@ -2440,16 +2440,16 @@ node_qdisc_requeues_total{device="eth0",kind="pfifo_fast"} 2
 node_qdisc_requeues_total{device="wlan0",kind="fq"} 1
 # HELP node_schedstat_running_seconds_total Number of seconds CPU spent running a process.
 # TYPE node_schedstat_running_seconds_total counter
-node_schedstat_running_seconds_total{cpu="0"} 2.045936778163039e+13
-node_schedstat_running_seconds_total{cpu="1"} 1.904686152592476e+13
+node_schedstat_running_seconds_total{cpu="0"} 2.045936778163039e+06
+node_schedstat_running_seconds_total{cpu="1"} 1.904686152592476e+06
 # HELP node_schedstat_timeslices_total Number of timeslices executed by CPU.
 # TYPE node_schedstat_timeslices_total counter
 node_schedstat_timeslices_total{cpu="0"} 4.767485306e+09
 node_schedstat_timeslices_total{cpu="1"} 5.145567945e+09
 # HELP node_schedstat_waiting_seconds_total Number of seconds spent by processing waiting for this CPU.
 # TYPE node_schedstat_waiting_seconds_total counter
-node_schedstat_waiting_seconds_total{cpu="0"} 3.43796328169361e+12
-node_schedstat_waiting_seconds_total{cpu="1"} 3.64107263788241e+12
+node_schedstat_waiting_seconds_total{cpu="0"} 343796.328169361
+node_schedstat_waiting_seconds_total{cpu="1"} 364107.263788241
 # HELP node_scrape_collector_duration_seconds node_exporter: Duration of a collector scrape.
 # TYPE node_scrape_collector_duration_seconds gauge
 # HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.

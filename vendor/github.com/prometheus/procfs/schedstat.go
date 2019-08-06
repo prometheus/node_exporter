@@ -31,6 +31,12 @@ var (
 // See
 // https://www.kernel.org/doc/Documentation/scheduler/sched-stats.txt
 // for a detailed description of what these numbers mean.
+//
+// Note the current kernel documentation claims some of the time units are in
+// jiffies when they are actually in nanoseconds since 2.6.23 with the
+// introduction of CFS. A fix to the documentation is pending. See
+// https://lore.kernel.org/patchwork/project/lkml/list/?series=403473
+
 type Schedstat struct {
 	CPUs []*SchedstatCPU
 }
@@ -39,16 +45,16 @@ type Schedstat struct {
 type SchedstatCPU struct {
 	CPUNum string
 
-	RunningJiffies uint64
-	WaitingJiffies uint64
-	RunTimeslices  uint64
+	RunningNanoseconds uint64
+	WaitingNanoseconds uint64
+	RunTimeslices      uint64
 }
 
 // ProcSchedstat contains the values from /proc/<pid>/schedstat
 type ProcSchedstat struct {
-	RunningJiffies uint64
-	WaitingJiffies uint64
-	RunTimeslices  uint64
+	RunningNanoseconds uint64
+	WaitingNanoseconds uint64
+	RunTimeslices      uint64
 }
 
 func (fs FS) Schedstat() (*Schedstat, error) {
@@ -67,12 +73,12 @@ func (fs FS) Schedstat() (*Schedstat, error) {
 			cpu := &SchedstatCPU{}
 			cpu.CPUNum = match[1]
 
-			cpu.RunningJiffies, err = strconv.ParseUint(match[8], 10, 64)
+			cpu.RunningNanoseconds, err = strconv.ParseUint(match[8], 10, 64)
 			if err != nil {
 				continue
 			}
 
-			cpu.WaitingJiffies, err = strconv.ParseUint(match[9], 10, 64)
+			cpu.WaitingNanoseconds, err = strconv.ParseUint(match[9], 10, 64)
 			if err != nil {
 				continue
 			}
@@ -93,12 +99,12 @@ func parseProcSchedstat(contents string) (stats ProcSchedstat, err error) {
 	match := procLineRE.FindStringSubmatch(contents)
 
 	if match != nil {
-		stats.RunningJiffies, err = strconv.ParseUint(match[1], 10, 64)
+		stats.RunningNanoseconds, err = strconv.ParseUint(match[1], 10, 64)
 		if err != nil {
 			return
 		}
 
-		stats.WaitingJiffies, err = strconv.ParseUint(match[2], 10, 64)
+		stats.WaitingNanoseconds, err = strconv.ParseUint(match[2], 10, 64)
 		if err != nil {
 			return
 		}
@@ -109,20 +115,4 @@ func parseProcSchedstat(contents string) (stats ProcSchedstat, err error) {
 
 	err = errors.New("could not parse schedstat")
 	return
-}
-
-func (stat *SchedstatCPU) RunningSeconds() float64 {
-	return float64(stat.RunningJiffies) / userHZ
-}
-
-func (stat *SchedstatCPU) WaitingSeconds() float64 {
-	return float64(stat.WaitingJiffies) / userHZ
-}
-
-func (stat *ProcSchedstat) RunningSeconds() float64 {
-	return float64(stat.RunningJiffies) / userHZ
-}
-
-func (stat *ProcSchedstat) WaitingSeconds() float64 {
-	return float64(stat.WaitingJiffies) / userHZ
 }
