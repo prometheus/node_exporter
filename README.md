@@ -179,7 +179,7 @@ docker run -d \
   --pid="host" \
   -v "/:/host:ro,rslave" \
   quay.io/prometheus/node-exporter \
-  --path.rootfs /host
+  --path.rootfs=/host
 ```
 
 On some systems, the `timex` collector requires an additional Docker flag,
