@@ -138,7 +138,7 @@ This can be useful for having different Prometheus servers collect specific metr
  1. Get the code from the official repository:
  
     ```bash
-    go get github.com/prometheus/node_exporter
+    go get -u github.com/prometheus/node_exporter
     ```
  2. Switch to the buld directory and run ``make``:
  
