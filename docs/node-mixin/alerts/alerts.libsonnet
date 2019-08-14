@@ -37,7 +37,7 @@
             ||| % $._config,
             'for': '1h',
             labels: {
-              severity: 'critical',
+              severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of space within the next 4 hours.',
@@ -73,7 +73,7 @@
             ||| % $._config,
             'for': '1h',
             labels: {
-              severity: 'critical',
+              severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
               summary: 'Filesystem has less than 3% space left.',
@@ -113,7 +113,7 @@
             ||| % $._config,
             'for': '1h',
             labels: {
-              severity: 'critical',
+              severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of inodes within the next 4 hours.',
@@ -149,7 +149,7 @@
             ||| % $._config,
             'for': '1h',
             labels: {
-              severity: 'critical',
+              severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
               summary: 'Filesystem has less than 3% inodes left.',
