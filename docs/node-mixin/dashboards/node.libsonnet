@@ -25,7 +25,7 @@ local gauge = promgrafonnet.gauge;
             (
               (1 - rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[$__interval]))
             / ignoring(cpu) group_left
-              count without (cpu)( node_cpu_seconds_total{job="default/node-exporter", mode="idle", instance="$instance"})
+              count without (cpu)( node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"})
             )
           ||| % $._config,
           legendFormat='{{cpu}}',
