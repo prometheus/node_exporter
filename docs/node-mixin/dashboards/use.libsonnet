@@ -42,19 +42,80 @@ local g = import 'grafana-builder/grafana.libsonnet';
         g.row('Memory')
         .addPanel(
           g.panel('Memory Utilisation') +
-          g.queryPanel('instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
+          g.queryPanel(|||
+            (
+              instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}
+            / ignoring (instance) group_left
+              count without (instance) (instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s})
+            )
+          ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
         .addPanel(
           g.panel('Memory Saturation (Swapped Pages)') +
-          g.queryPanel('instance:node_memory_swap_io_pages:rate{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
+          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes('rps') },
         )
       )
       .addRow(
-        g.row('Disk')
+        g.row('Network')
+        .addPanel(
+          g.panel('Net Utilisation (Bytes Receive/Transmit)') +
+          g.queryPanel(
+            [
+              'instance:node_network_receive_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+            ],
+            ['{{instance}} Receive', '{{instance}} Transmit'],
+            legendLink,
+          ) +
+          g.stack +
+          {
+            yaxes: g.yaxes({ format: 'Bps', min: null }),
+            seriesOverrides: [
+              {
+                alias: '/ Receive/',
+                stack: 'A',
+              },
+              {
+                alias: '/ Transmit/',
+                stack: 'B',
+                transform: 'negative-Y',
+              },
+            ],
+          },
+        )
+        .addPanel(
+          g.panel('Net Saturation (Drops Receive/Transmit)') +
+          g.queryPanel(
+            [
+              'instance:node_network_receive_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+            ],
+            ['{{instance}} Receive', '{{instance}} Transmit'],
+            legendLink,
+          ) +
+          g.stack +
+          {
+            yaxes: g.yaxes({ format: 'rps', min: null }),
+            seriesOverrides: [
+              {
+                alias: '/ Receive/',
+                stack: 'A',
+              },
+              {
+                alias: '/ Transmit/',
+                stack: 'B',
+                transform: 'negative-Y',
+              },
+            ],
+          },
+        )
+      )
+      .addRow(
+        g.row('Disk IO')
         .addPanel(
           g.panel('Disk IO Utilisation') +
           // Full utilisation would be all disks on each node spending an average of
@@ -85,36 +146,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
         )
       )
       .addRow(
-        g.row('Network')
-        .addPanel(
-          g.panel('Net Utilisation (Bytes Receive/Transmit)') +
-          g.queryPanel(
-            [
-              'instance:node_network_receive_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
-              '-instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
-            ],
-            ['{{instance}} Receive', '{{instance}} Transmit'],
-            legendLink,
-          ) +
-          g.stack +
-          { yaxes: g.yaxes('Bps') },
-        )
-        .addPanel(
-          g.panel('Net Saturation (Drops Receive/Transmit)') +
-          g.queryPanel(
-            [
-              'instance:node_network_receive_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
-              '-instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
-            ],
-            ['{{instance}} Receive', '{{instance}} Transmit'],
-            legendLink,
-          ) +
-          g.stack +
-          { yaxes: g.yaxes('rps') },
-        )
-      )
-      .addRow(
-        g.row('Storage')
+        g.row('Disk Space')
         .addPanel(
           g.panel('Disk Space Utilisation') +
           g.queryPanel(|||
@@ -145,14 +177,20 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('CPU Utilisation') +
           g.queryPanel('instance:node_cpu_utilisation:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation') +
-          { yaxes: g.yaxes('percentunit') },
+          {
+            yaxes: g.yaxes('percentunit'),
+            legend+: { show: false },
+          },
         )
         .addPanel(
           // TODO: Is this a useful panel? At least there should be some explanation how load
           // average relates to the "CPU saturation" in the title.
-          g.panel('CPU Saturation (Load1)') +
-          g.queryPanel('instance:node_cpu_saturation_load1:{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation') +
-          { yaxes: g.yaxes('percentunit') },
+          g.panel('CPU Saturation (Load1 per CPU)') +
+          g.queryPanel('instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation') +
+          {
+            yaxes: g.yaxes('percentunit'),
+            legend+: { show: false },
+          },
         )
       )
       .addRow(
@@ -165,20 +203,10 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Memory Saturation (pages swapped per second)') +
           g.queryPanel('instance:node_memory_swap_io_pages:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Swap IO') +
-          { yaxes: g.yaxes('short') },
-        )
-      )
-      .addRow(
-        g.row('Disk')
-        .addPanel(
-          g.panel('Disk IO Utilisation') +
-          g.queryPanel('instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation {{device}}') +
-          { yaxes: g.yaxes('percentunit') },
-        )
-        .addPanel(
-          g.panel('Disk IO Saturation') +
-          g.queryPanel('instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation {{device}}') +
-          { yaxes: g.yaxes('percentunit') },
+          {
+            yaxes: g.yaxes('short'),
+            legend+: { show: false },
+          },
         )
       )
       .addRow(
@@ -188,37 +216,79 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.queryPanel(
             [
               'instance:node_network_receive_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              '-instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
             ],
             ['Receive', 'Transmit'],
           ) +
-          { yaxes: g.yaxes('Bps') },
+          {
+            yaxes: g.yaxes({ format: 'Bps', min: null }),
+            seriesOverrides: [
+              {
+                alias: '/Receive/',
+                stack: 'A',
+              },
+              {
+                alias: '/Transmit/',
+                stack: 'B',
+                transform: 'negative-Y',
+              },
+            ],
+          },
         )
         .addPanel(
           g.panel('Net Saturation (Drops Receive/Transmit)') +
           g.queryPanel(
             [
               'instance:node_network_receive_drop_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              '-instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
             ],
             ['Receive drops', 'Transmit drops'],
           ) +
-          { yaxes: g.yaxes('rps') },
+          {
+            yaxes: g.yaxes({ format: 'rps', min: null }),
+            seriesOverrides: [
+              {
+                alias: '/Receive/',
+                stack: 'A',
+              },
+              {
+                alias: '/Transmit/',
+                stack: 'B',
+                transform: 'negative-Y',
+              },
+            ],
+          },
         )
       )
       .addRow(
-        g.row('Disk')
+        g.row('Disk IO')
         .addPanel(
-          g.panel('Disk Utilisation') +
+          g.panel('Disk IO Utilisation') +
+          g.queryPanel('instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
+          { yaxes: g.yaxes('percentunit') },
+        )
+        .addPanel(
+          g.panel('Disk IO Saturation') +
+          g.queryPanel('instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
+          { yaxes: g.yaxes('percentunit') },
+        )
+      )
+      .addRow(
+        g.row('Disk Space')
+        .addPanel(
+          g.panel('Disk Space Utilisation') +
           g.queryPanel(|||
             1 -
             (
-              sum(max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}))
+              max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}})
             /
-              sum(max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s}))
+              max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}})
             )
-          ||| % $._config, 'Disk') +
-          { yaxes: g.yaxes('percentunit') },
+          ||| % $._config, '{{device}}') +
+          {
+            yaxes: g.yaxes('percentunit'),
+            legend+: { show: false },
+          },
         ),
       ),
   },
