@@ -12,7 +12,7 @@ local gauge = promgrafonnet.gauge;
     'nodes.json':
       local idleCPU =
         graphPanel.new(
-          'Idle CPU',
+          'CPU Usage',
           datasource='$datasource',
           span=6,
           format='percentunit',
