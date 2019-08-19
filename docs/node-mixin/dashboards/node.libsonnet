@@ -12,7 +12,7 @@ local gauge = promgrafonnet.gauge;
     'nodes.json':
       local idleCPU =
         graphPanel.new(
-          'Idle CPU',
+          'CPU Usage',
           datasource='$datasource',
           span=6,
           format='percentunit',
@@ -39,11 +39,13 @@ local gauge = promgrafonnet.gauge;
           datasource='$datasource',
           span=6,
           format='short',
+          min=0,
           fill=0,
         )
         .addTarget(prometheus.target('node_load1{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='1m load average'))
         .addTarget(prometheus.target('node_load5{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='5m load average'))
-        .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='15m load average'));
+        .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='15m load average'))
+        .addTarget(prometheus.target('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % $._config, legendFormat='logical cores'));
 
       local memoryGraph =
         graphPanel.new(
@@ -90,7 +92,8 @@ local gauge = promgrafonnet.gauge;
         graphPanel.new(
           'Disk I/O',
           datasource='$datasource',
-          span=9,
+          span=6,
+          min=0,
           fill=0,
         )
         // TODO: Does it make sense to have those three in the same panel?
@@ -126,21 +129,51 @@ local gauge = promgrafonnet.gauge;
           ],
         };
 
-      // TODO: It would be nicer to have a gauge that gets a 0-1 range and displays it as a percentage 0%-100%.
-      // This needs to be added upstream in the promgrafonnet library and then changed here.
-      // TODO: Should this be partitioned by mountpoint?
-      local diskSpaceUsage = gauge.new(
-        'Disk Space Usage',
-        |||
-          100 -
-          (
-            sum(node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
-          /
-            sum(node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
-          * 100
-          )
-        ||| % $._config,
-      ).withLowerBeingBetter();
+      // TODO: Somehow partition this by device while excluding read-only devices.
+      local diskSpaceUsage =
+        graphPanel.new(
+          'Disk Space Usage',
+          datasource='$datasource',
+          span=6,
+          format='bytes',
+          min=0,
+          fill=1,
+          stack=true,
+        )
+        .addTarget(prometheus.target(
+          |||
+            sum(
+              max by (device) (
+                node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s}
+              -
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s}
+              )
+            )
+          ||| % $._config,
+          legendFormat='used',
+        ))
+        .addTarget(prometheus.target(
+          |||
+            sum(
+              max by (device) (
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s}
+              )
+            )
+          ||| % $._config,
+          legendFormat='available',
+        )) +
+        {
+          seriesOverrides: [
+            {
+              alias: 'used',
+              color: '#E0B400',
+            },
+            {
+              alias: 'available',
+              color: '#73BF69',
+            },
+          ],
+        };
 
       local networkReceived =
         graphPanel.new(
@@ -148,6 +181,7 @@ local gauge = promgrafonnet.gauge;
           datasource='$datasource',
           span=6,
           format='bytes',
+          min=0,
           fill=0,
         )
         .addTarget(prometheus.target(
@@ -162,6 +196,7 @@ local gauge = promgrafonnet.gauge;
           datasource='$datasource',
           span=6,
           format='bytes',
+          min=0,
           fill=0,
         )
         .addTarget(prometheus.target(
