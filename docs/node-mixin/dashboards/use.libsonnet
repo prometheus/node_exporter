@@ -3,7 +3,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
 {
   grafanaDashboards+:: {
     'node-cluster-rsrc-use.json':
-      local legendLink = '%s/dashboard/file/k8s-node-rsrc-use.json' % $._config.grafana_prefix;
+      local legendLink = '%s/dashboard/file/node-rsrc-use.json' % $._config.grafana_prefix;
 
       g.dashboard('USE Method / Cluster')
       .addRow(
