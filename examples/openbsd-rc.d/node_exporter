@@ -1,12 +1,47 @@
-#!/bin/ksh
-# Shawn Craver, 2019-04-02
-
+#!/bin/sh
+#
 
 daemon="/usr/local/bin/node_exporter"
+node_exporter_textfile_dir="/var/node_exporter"
+daemon_flags="--web.listen-address=0.0.0.0:9100\
+ --collector.boottime\
+ --collector.cpu\
+ --collector.diskstats\
+ --collector.filesystem\
+ --collector.loadavg\
+ --collector.meminfo\
+ --collector.netdev\
+ --collector.ntp\
+ --collector.textfile\
+ --collector.textfile.directory=$node_exporter_textfile_dir\
+ --collector.time"
+daemon_user="_node_exporter"
+daemon_group="_node_exporter"
 
 . /etc/rc.d/rc.subr
 
+pexp="${daemon}.*"
 rc_bg=YES
+rc_reload=NO
+
+rc_pre() { 
+    if ! id ${daemon_user}; then
+        groupadd _node_exporter
+        useradd -g _node_exporter -c "Prometheus Node Exporter agent"\
+        -d /var/empty -s /sbin/nologin -L node_exporter _node_exporter
+    fi
+    if [ ! -d ${node_exporter_textfile_dir} ]; then
+        install \
+            -d \
+            -o ${daemon_user} \
+            -g ${daemon_group} \
+            -m 1755 \
+            ${node_exporter_textfile_dir}
+    fi
+}
+
+rc_start() {
+    ${rcexec} "${daemon} ${daemon_flags} < /dev/null 2>&1"
+}
 
 rc_cmd $1
-
