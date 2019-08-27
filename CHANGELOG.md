@@ -19,6 +19,7 @@
 * [FEATURE] Add uname support for Darwin and OpenBSD #1433
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
+* [ENHANCEMENT] Expose IPVS firewall mark as a label #1455
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421
