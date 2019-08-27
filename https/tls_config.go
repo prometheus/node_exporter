@@ -93,10 +93,10 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 		case "RequireAndVerifyClientCert":
 			cfg.ClientAuth = tls.RequireAndVerifyClientCert
 		default:
-			return nil, errors.New("invalid ClientAuth: " + s)
+			cfg.ClientAuth = tls.NoClientCert
 		}
 	}
-	if len(c.ClientCAs) > 0 && len(c.ClientAuth) == 0 {
+	if len(c.ClientCAs) > 0 && cfg.ClientAuth == tls.NoClientCert {
 		return nil, errors.New("Client CA's have been configured without a Client Auth Policy")
 	}
 	return cfg, nil

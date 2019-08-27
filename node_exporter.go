@@ -148,9 +148,9 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
-		authFile = kingpin.Flag(
-			"web.authentication-config",
-			"Path to authentication config yaml file that can enable TLS.",
+		configFile = kingpin.Flag(
+			"web.config",
+			"Path to config yaml file that can enable TLS or authentication.",
 		).Default("").String()
 	)
 
@@ -175,7 +175,7 @@ func main() {
 
 	log.Infoln("Listening on", *listenAddress)
 	server := &http.Server{Addr: *listenAddress}
-	if err := https.Listen(server, *authFile); err != nil {
+	if err := https.Listen(server, *configFile); err != nil {
 		log.Fatal(err)
 	}
 }

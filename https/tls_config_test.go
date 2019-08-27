@@ -40,6 +40,7 @@ var (
 		"HTTP Request to HTTPS server": regexp.MustCompile(`HTTP`),
 		"Invalid CertPath":             regexp.MustCompile(`missing TLSCertPath`),
 		"Invalid KeyPath":              regexp.MustCompile(`missing TLSKeyPath`),
+		"ClientCA set without policy":  regexp.MustCompile(`Client CA's have been configured without a Client Auth Policy`),
 	}
 )
 
@@ -112,7 +113,7 @@ func TestYAMLFiles(t *testing.T) {
 		{
 			Name:           `invalid config yml (invalid ClientAuth)`,
 			YAMLConfigPath: "testdata/tls_config_noAuth.bad.yml",
-			ExpectedError:  ErrorMap["Invalid ClientAuth"],
+			ExpectedError:  ErrorMap["ClientCA set without policy"],
 		},
 		{
 			Name:           `invalid config yml (invalid ClientCAs filepath)`,
