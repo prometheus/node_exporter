@@ -49,6 +49,14 @@ type Stats struct {
 	Vnode              VnodeStats
 	Buffer             BufferStats
 	ExtendedPrecision  ExtendedPrecisionStats
+	Xstrat             XstratStats            // xstrat
+	PushAil            PushAilStats           // push_ail
+	Debug              DebugStats             // debug
+	QuotaManager       QuotaManagerStats      // qm
+	BtreeAllocBlocks2  BtreeAllocBlocks2Stats // abtb2
+	BtreeAllocContig2  BtreeAllocContig2Stats // abtc2
+	BtreeBlockMap2     BtreeBlockMap2Stats    // bmbt2
+	BtreeInode2        BtreeInode2Stats       // ibt2
 }
 
 // ExtentAllocationStats contains statistics regarding XFS extent allocations.
@@ -168,6 +176,119 @@ type ExtendedPrecisionStats struct {
 	FlushBytes uint64
 	WriteBytes uint64
 	ReadBytes  uint64
+}
+
+// PushAilStats contains statistics on tail-pushing operations.
+type PushAilStats struct {
+	TryLogspace   uint32
+	SleepLogspace uint32
+	Pushes        uint32
+	Success       uint32
+	PushBuf       uint32
+	Pinned        uint32
+	Locked        uint32
+	Flushing      uint32
+	Restarts      uint32
+	Flush         uint32
+}
+
+// QuotaManagerStats contain statistics regarding quota processing.
+type QuotaManagerStats struct {
+	Reclaims      uint32
+	ReclaimMisses uint32
+	DquoteDups    uint32
+	CacheMisses   uint32
+	CacheHits     uint32
+	Wants         uint32
+	ShakeReclaims uint32
+	InactReclaims uint32
+}
+
+// XstratStats contains statistics regarding bytes processed by the XFS daemon.
+type XstratStats struct {
+	Quick uint32
+	Split uint32
+}
+
+// DebugStats indicate if XFS debugging is enabled.
+type DebugStats struct {
+	Enabled uint32
+}
+
+// BtreeAllocBlocks2Stats contains statistics on B-Tree v2 allocations.
+type BtreeAllocBlocks2Stats struct {
+	Lookup    uint32
+	Compare   uint32
+	Insrec    uint32
+	Delrec    uint32
+	NewRoot   uint32
+	KillRoot  uint32
+	Increment uint32
+	Decrement uint32
+	Lshift    uint32
+	Rshift    uint32
+	Split     uint32
+	Join      uint32
+	Alloc     uint32
+	Free      uint32
+	Moves     uint32
+}
+
+// BtreeAllocContig2Stats contain statistics on B-tree v2 free-space-by-size record operations.
+type BtreeAllocContig2Stats struct {
+	Lookup    uint32
+	Compare   uint32
+	Insrec    uint32
+	Delrec    uint32
+	NewRoot   uint32
+	KillRoot  uint32
+	Increment uint32
+	Decrement uint32
+	Lshift    uint32
+	Rshift    uint32
+	Split     uint32
+	Join      uint32
+	Alloc     uint32
+	Free      uint32
+	Moves     uint32
+}
+
+// BtreeBlockMap2Stats contain statistics on B-tree v2 block map operations.
+type BtreeBlockMap2Stats struct {
+	Lookup    uint32
+	Compare   uint32
+	Insrec    uint32
+	Delrec    uint32
+	NewRoot   uint32
+	KillRoot  uint32
+	Increment uint32
+	Decrement uint32
+	Lshift    uint32
+	Rshift    uint32
+	Split     uint32
+	Join      uint32
+	Alloc     uint32
+	Free      uint32
+	Moves     uint32
+}
+
+// BtreeInode2Stats contain statistics on B-tree v2 inode allocations.
+type BtreeInode2Stats struct {
+	Lookup    uint32
+	Compare   uint32
+	Insrec    uint32
+	Delrec    uint32
+	NewRoot   uint32
+	KillRoot  uint32
+	Increment uint32
+	Decrement uint32
+	Lshift    uint32
+	Rshift    uint32
+	Split     uint32
+	Join      uint32
+	Alloc     uint32
+	Free      uint32
+	Moves     uint32
 }
 
 // FS represents the pseudo-filesystems proc and sys, which provides an interface to
