@@ -24,7 +24,7 @@ import (
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -80,7 +80,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	filteredHandler.ServeHTTP(w, r)
 }
 
-// innerHandler is used to create buth the one unfiltered http.Handler to be
+// innerHandler is used to create both the one unfiltered http.Handler to be
 // wrapped by the outer handler and also the filtered handlers created on the
 // fly. The former is accomplished by calling innerHandler without any arguments
 // (in which case it will log all the collectors enabled via command-line
@@ -147,6 +147,10 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
+		disableDefaultCollectors = kingpin.Flag(
+			"collectors.disable-default",
+			"Set all collectors to disabled by default.",
+		).Default("false").Bool()
 	)
 
 	log.AddFlags(kingpin.CommandLine)
@@ -154,6 +158,9 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
+	if *disableDefaultCollectors {
+		collector.DisableDefaultCollectors()
+	}
 	log.Infoln("Starting node_exporter", version.Info())
 	log.Infoln("Build context", version.BuildContext())
 
