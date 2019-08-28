@@ -92,8 +92,10 @@ func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
 			cfg.ClientAuth = tls.VerifyClientCertIfGiven
 		case "RequireAndVerifyClientCert":
 			cfg.ClientAuth = tls.RequireAndVerifyClientCert
-		default:
+		case "":
 			cfg.ClientAuth = tls.NoClientCert
+		default:
+			return nil, errors.New("Invalid ClientAuth: " + s)
 		}
 	}
 	if len(c.ClientCAs) > 0 && cfg.ClientAuth == tls.NoClientCert {
