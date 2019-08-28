@@ -13,6 +13,7 @@
 
 ### Changes
 
+* [FEATURE] New flag to disable default collectors #735, #1276
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417

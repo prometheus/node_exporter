@@ -29,7 +29,7 @@ import (
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/node_exporter/collector"
 	"github.com/prometheus/node_exporter/https"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -157,6 +157,10 @@ func main() {
 			"web.config",
 			"Path to config yaml file that can enable TLS or authentication.",
 		).Default("").String()
+		disableDefaultCollectors = kingpin.Flag(
+			"collectors.disable-default",
+			"Set all collectors to disabled by default.",
+		).Default("false").Bool()
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -166,6 +170,9 @@ func main() {
 	kingpin.Parse()
 	logger := promlog.New(promlogConfig)
 
+	if *disableDefaultCollectors {
+		collector.DisableDefaultCollectors()
+	}
 	level.Info(logger).Log("msg", "Starting node_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
 
