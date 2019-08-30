@@ -4,8 +4,7 @@ tlsConfig :
   tlsKeyPath : <filename>
 
   # Server policy for client authentication. Maps to ClientAuth Policies
-  # For more detail on clientAuth options: [ClientAuthType](https://golang.org/pkg/crypto/tls/#ClientAuthType)
-  [ clientAuth : <string> | default = "NoClientCert" ]
+  [ clientAuth : <string> ]
 
   # CA certificate for client certificate authentication to the server
   [ clientCAs : <filename> ]
