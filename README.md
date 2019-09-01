@@ -1,6 +1,6 @@
 # Percona Node exporter
 
-[![Build Status](https://travis-ci.org/percona/node_exporter.svg)](https://travis-ci.org/percona/node_exporter)
+[![Build Status](https://travis-ci.com/percona/node_exporter.svg)](https://travis-ci.com/percona/node_exporter)
 
 This fork adds HTTP Basic authentication and TLS support using [Percona's shared code for exporters](https://github.com/percona/exporter_shared).
 
@@ -174,7 +174,7 @@ On some systems, the `timex` collector requires an additional Docker flag,
 
 There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
 
-[travis]: https://travis-ci.org/prometheus/node_exporter
+[travis]: https://travis-ci.com/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
 [circleci]: https://circleci.com/gh/prometheus/node_exporter
 [quay]: https://quay.io/repository/prometheus/node-exporter
