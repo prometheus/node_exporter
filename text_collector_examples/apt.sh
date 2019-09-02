@@ -12,7 +12,7 @@ upgrades="$(/usr/bin/apt-get --just-print upgrade \
   | /usr/bin/uniq -c \
   | awk '{ gsub(/\\\\/, "\\\\", $2); gsub(/\"/, "\\\"", $2);
            gsub(/\[/, "", $3); gsub(/\]/, "", $3);
-           print "apt_upgrades_pending{origin=\"" $2 "\",arch=\"" $3 "\"} " $1}'
+           print "apt_upgrades_pending{origin=\"" $2 "\",arch=\"" $NF "\"} " $1}'
 )"
 
 echo '# HELP apt_upgrades_pending Apt package pending updates by origin.'
