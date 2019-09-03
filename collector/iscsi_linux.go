@@ -83,7 +83,8 @@ func realLioCollector(newSysPath string, newConfigfsPath string) (Collector, err
 
 	fs, err := iscsi.NewFS(newSysPath, newConfigfsPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs / configfs: %v", err)
+		log.Debugf("lio: failed to open sysfs / configfs: %v", err)
+		return nil, nil
 	}
 
 	metrics := newLioMetric()
@@ -99,11 +100,13 @@ func (c *lioCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.Fs.ISCSIStats()
 	log.Debugf("lio: Update lioCollector")
 	if err != nil {
-		return fmt.Errorf("lio: failed to update iscsi stat : %v", err)
+		log.Debugf("lio: kernel configfs may be not available: %v", err)
+		return nil
 	}
 	for _, s := range stats {
 		if err := c.updateStat(ch, s); err != nil {
-			return fmt.Errorf("lio: failed in updateStae: %v", err)
+			log.Debugf("lio: failed in updateStae: %v", err)
+			return nil
 		}
 	}
 	return nil
