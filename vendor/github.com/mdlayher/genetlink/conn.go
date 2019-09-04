@@ -2,6 +2,7 @@ package genetlink
 
 import (
 	"syscall"
+	"time"
 
 	"github.com/mdlayher/netlink"
 	"golang.org/x/net/bpf"
@@ -10,8 +11,12 @@ import (
 // Protocol is the netlink protocol constant used to specify generic netlink.
 const Protocol = 0x10 // unix.NETLINK_GENERIC
 
-// A Conn is a generic netlink connection.  A Conn can be used to send and
+// A Conn is a generic netlink connection. A Conn can be used to send and
 // receive generic netlink messages to and from netlink.
+//
+// A Conn is safe for concurrent use, but to avoid contention in
+// high-throughput applications, the caller should almost certainly create a
+// pool of Conns and distribute them among workers.
 type Conn struct {
 	// Operating system-specific netlink connection.
 	c *netlink.Conn
@@ -38,13 +43,16 @@ func NewConn(c *netlink.Conn) *Conn {
 	return &Conn{c: c}
 }
 
-// Close closes the connection.
+// Close closes the connection. Close will unblock any concurrent calls to
+// Receive which are waiting on a response from the kernel.
 func (c *Conn) Close() error {
 	return c.c.Close()
 }
 
-// GetFamily retrieves a generic netlink family with the specified name.  If the
-// family does not exist, the error value can be checked using os.IsNotExist.
+// GetFamily retrieves a generic netlink family with the specified name.
+//
+// If the family does not exist, the error value can be checked using
+// netlink.IsNotExist.
 func (c *Conn) GetFamily(name string) (Family, error) {
 	return c.getFamily(name)
 }
@@ -94,8 +102,10 @@ func (c *Conn) SetWriteBuffer(bytes int) error {
 // SyscallConn returns a raw network connection. This implements the
 // syscall.Conn interface.
 //
-// Only the Control method of the returned syscall.RawConn is currently
-// implemented.
+// On Go 1.12+, all methods of the returned syscall.RawConn are supported and
+// the Conn is integrated with the runtime network poller. On versions of Go
+// prior to Go 1.12, only the Control method of the returned syscall.RawConn
+// is implemented.
 //
 // SyscallConn is intended for advanced use cases, such as getting and setting
 // arbitrary socket options using the netlink socket's file descriptor.
@@ -107,23 +117,39 @@ func (c *Conn) SyscallConn() (syscall.RawConn, error) {
 	return c.c.SyscallConn()
 }
 
+// SetDeadline sets the read and write deadlines associated with the connection.
+//
+// Deadline functionality is only supported on Go 1.12+. Calling this function
+// on older versions of Go will result in an error.
+func (c *Conn) SetDeadline(t time.Time) error {
+	return c.c.SetDeadline(t)
+}
+
+// SetReadDeadline sets the read deadline associated with the connection.
+//
+// Deadline functionality is only supported on Go 1.12+. Calling this function
+// on older versions of Go will result in an error.
+func (c *Conn) SetReadDeadline(t time.Time) error {
+	return c.c.SetReadDeadline(t)
+}
+
+// SetWriteDeadline sets the write deadline associated with the connection.
+//
+// Deadline functionality is only supported on Go 1.12+. Calling this function
+// on older versions of Go will result in an error.
+func (c *Conn) SetWriteDeadline(t time.Time) error {
+	return c.c.SetWriteDeadline(t)
+}
+
 // Send sends a single Message to netlink, wrapping it in a netlink.Message
 // using the specified generic netlink family and flags.  On success, Send
 // returns a copy of the netlink.Message with all parameters populated, for
 // later validation.
 func (c *Conn) Send(m Message, family uint16, flags netlink.HeaderFlags) (netlink.Message, error) {
-	nm := netlink.Message{
-		Header: netlink.Header{
-			Type:  netlink.HeaderType(family),
-			Flags: flags,
-		},
-	}
-
-	mb, err := m.MarshalBinary()
+	nm, err := packMessage(m, family, flags)
 	if err != nil {
 		return netlink.Message{}, err
 	}
-	nm.Data = mb
 
 	reqnm, err := c.c.Send(nm)
 	if err != nil {
@@ -141,39 +167,69 @@ func (c *Conn) Receive() ([]Message, []netlink.Message, error) {
 		return nil, nil, err
 	}
 
-	gmsgs := make([]Message, 0, len(msgs))
-	for _, nm := range msgs {
-		var gm Message
-		if err := (&gm).UnmarshalBinary(nm.Data); err != nil {
-			return nil, nil, err
-		}
-
-		gmsgs = append(gmsgs, gm)
+	gmsgs, err := unpackMessages(msgs)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return gmsgs, msgs, nil
 }
 
-// Execute sends a single Message to netlink using Conn.Send, receives one or
-// more replies using Conn.Receive, and then checks the validity of the replies
-// against the request using netlink.Validate.
+// Execute sends a single Message to netlink using Send, receives one or more
+// replies using Receive, and then checks the validity of the replies against
+// the request using netlink.Validate.
 //
-// See the documentation of Conn.Send, Conn.Receive, and netlink.Validate for
-// details about each function.
+// Execute acquires a lock for the duration of the function call which blocks
+// concurrent calls to Send and Receive, in order to ensure consistency between
+// generic netlink request/reply messages.
+//
+// See the documentation of Send, Receive, and netlink.Validate for details
+// about each function.
 func (c *Conn) Execute(m Message, family uint16, flags netlink.HeaderFlags) ([]Message, error) {
-	req, err := c.Send(m, family, flags)
+	nm, err := packMessage(m, family, flags)
 	if err != nil {
 		return nil, err
 	}
 
-	msgs, replies, err := c.Receive()
+	// Locking behavior handled by netlink.Conn.Execute.
+	msgs, err := c.c.Execute(nm)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := netlink.Validate(req, replies); err != nil {
-		return nil, err
+	return unpackMessages(msgs)
+}
+
+// packMessage packs a generic netlink Message into a netlink.Message with the
+// appropriate generic netlink family and netlink flags.
+func packMessage(m Message, family uint16, flags netlink.HeaderFlags) (netlink.Message, error) {
+	nm := netlink.Message{
+		Header: netlink.Header{
+			Type:  netlink.HeaderType(family),
+			Flags: flags,
+		},
 	}
 
-	return msgs, nil
+	mb, err := m.MarshalBinary()
+	if err != nil {
+		return netlink.Message{}, err
+	}
+	nm.Data = mb
+
+	return nm, nil
+}
+
+// unpackMessages unpacks generic netlink Messages from a slice of netlink.Messages.
+func unpackMessages(msgs []netlink.Message) ([]Message, error) {
+	gmsgs := make([]Message, 0, len(msgs))
+	for _, nm := range msgs {
+		var gm Message
+		if err := (&gm).UnmarshalBinary(nm.Data); err != nil {
+			return nil, err
+		}
+
+		gmsgs = append(gmsgs, gm)
+	}
+
+	return gmsgs, nil
 }
