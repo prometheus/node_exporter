@@ -7,12 +7,10 @@ import (
 	"runtime"
 )
 
-var (
-	// errUnimplemented is returned by all functions on platforms that
-	// cannot make use of netlink sockets.
-	errUnimplemented = fmt.Errorf("netlink: not implemented on %s/%s",
-		runtime.GOOS, runtime.GOARCH)
-)
+// errUnimplemented is returned by all functions on platforms that
+// cannot make use of netlink sockets.
+var errUnimplemented = fmt.Errorf("netlink: not implemented on %s/%s",
+	runtime.GOOS, runtime.GOARCH)
 
 var _ Socket = &conn{}
 

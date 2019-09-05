@@ -197,8 +197,11 @@ const (
 	FILE_MAP_READ    = 0x04
 	FILE_MAP_EXECUTE = 0x20
 
-	CTRL_C_EVENT     = 0
-	CTRL_BREAK_EVENT = 1
+	CTRL_C_EVENT        = 0
+	CTRL_BREAK_EVENT    = 1
+	CTRL_CLOSE_EVENT    = 2
+	CTRL_LOGOFF_EVENT   = 5
+	CTRL_SHUTDOWN_EVENT = 6
 
 	// Windows reserves errors >= 1<<29 for application use.
 	APPLICATION_ERROR = 1 << 29
@@ -1187,6 +1190,28 @@ const (
 	REG_QWORD = REG_QWORD_LITTLE_ENDIAN
 )
 
+const (
+	EVENT_MODIFY_STATE = 0x0002
+	EVENT_ALL_ACCESS   = STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0x3
+
+	MUTANT_QUERY_STATE = 0x0001
+	MUTANT_ALL_ACCESS  = STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | MUTANT_QUERY_STATE
+
+	SEMAPHORE_MODIFY_STATE = 0x0002
+	SEMAPHORE_ALL_ACCESS   = STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0x3
+
+	TIMER_QUERY_STATE  = 0x0001
+	TIMER_MODIFY_STATE = 0x0002
+	TIMER_ALL_ACCESS   = STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | TIMER_QUERY_STATE | TIMER_MODIFY_STATE
+
+	MUTEX_MODIFY_STATE = MUTANT_QUERY_STATE
+	MUTEX_ALL_ACCESS   = MUTANT_ALL_ACCESS
+
+	CREATE_EVENT_MANUAL_RESET  = 0x1
+	CREATE_EVENT_INITIAL_SET   = 0x2
+	CREATE_MUTEX_INITIAL_OWNER = 0x1
+)
+
 type AddrinfoW struct {
 	Flags     int32
 	Family    int32
@@ -1630,3 +1655,36 @@ const (
 	JobObjectNotificationLimitInformation2      = 34
 	JobObjectSecurityLimitInformation           = 5
 )
+
+const (
+	KF_FLAG_DEFAULT                          = 0x00000000
+	KF_FLAG_FORCE_APP_DATA_REDIRECTION       = 0x00080000
+	KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET = 0x00040000
+	KF_FLAG_FORCE_PACKAGE_REDIRECTION        = 0x00020000
+	KF_FLAG_NO_PACKAGE_REDIRECTION           = 0x00010000
+	KF_FLAG_FORCE_APPCONTAINER_REDIRECTION   = 0x00020000
+	KF_FLAG_NO_APPCONTAINER_REDIRECTION      = 0x00010000
+	KF_FLAG_CREATE                           = 0x00008000
+	KF_FLAG_DONT_VERIFY                      = 0x00004000
+	KF_FLAG_DONT_UNEXPAND                    = 0x00002000
+	KF_FLAG_NO_ALIAS                         = 0x00001000
+	KF_FLAG_INIT                             = 0x00000800
+	KF_FLAG_DEFAULT_PATH                     = 0x00000400
+	KF_FLAG_NOT_PARENT_RELATIVE              = 0x00000200
+	KF_FLAG_SIMPLE_IDLIST                    = 0x00000100
+	KF_FLAG_ALIAS_ONLY                       = 0x80000000
+)
+
+type OsVersionInfoEx struct {
+	osVersionInfoSize uint32
+	MajorVersion      uint32
+	MinorVersion      uint32
+	BuildNumber       uint32
+	PlatformId        uint32
+	CsdVersion        [128]uint16
+	ServicePackMajor  uint16
+	ServicePackMinor  uint16
+	SuiteMask         uint16
+	ProductType       byte
+	_                 byte
+}
