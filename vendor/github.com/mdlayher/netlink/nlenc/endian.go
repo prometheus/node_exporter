@@ -1,8 +1,6 @@
 package nlenc
 
-import (
-	"encoding/binary"
-)
+import "encoding/binary"
 
 // NativeEndian returns the native byte order of this system.
 func NativeEndian() binary.ByteOrder {

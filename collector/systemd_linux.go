@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"math"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -27,6 +28,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
+)
+
+const (
+	// minSystemdVersionSystemState is the minimum SystemD version for availability of
+	// the 'SystemState' manager property and the timer property 'LastTriggerUSec'
+	// https://github.com/prometheus/node_exporter/issues/291
+	minSystemdVersionSystemState = 212
 )
 
 var (
@@ -50,6 +58,8 @@ type systemdCollector struct {
 	socketAcceptedConnectionsDesc *prometheus.Desc
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
+	systemdVersionDesc            *prometheus.Desc
+	systemdVersion                int
 	unitWhitelistPattern          *regexp.Regexp
 	unitBlacklistPattern          *regexp.Regexp
 }
@@ -103,8 +113,17 @@ func NewSystemdCollector() (Collector, error) {
 	socketRefusedConnectionsDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "socket_refused_connections_total"),
 		"Total number of refused socket connections", []string{"name"}, nil)
+	systemdVersionDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "version"),
+		"Detected systemd version", []string{}, nil)
 	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))
 	unitBlacklistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitBlacklist))
+
+	systemdVersion := getSystemdVersion()
+	if systemdVersion < minSystemdVersionSystemState {
+		log.Warnf("Detected systemd version %v is lower than minimum %v", systemdVersion, minSystemdVersionSystemState)
+		log.Warn("Some systemd state and timer metrics will not be available")
+	}
 
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
@@ -118,6 +137,8 @@ func NewSystemdCollector() (Collector, error) {
 		socketAcceptedConnectionsDesc: socketAcceptedConnectionsDesc,
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
+		systemdVersionDesc:            systemdVersionDesc,
+		systemdVersion:                systemdVersion,
 		unitWhitelistPattern:          unitWhitelistPattern,
 		unitBlacklistPattern:          unitBlacklistPattern,
 	}, nil
@@ -127,7 +148,7 @@ func NewSystemdCollector() (Collector, error) {
 // to reduce wait time for responses.
 func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	begin := time.Now()
-	conn, err := c.newDbus()
+	conn, err := newSystemdDbusConn()
 	if err != nil {
 		return fmt.Errorf("couldn't get dbus connection: %s", err)
 	}
@@ -179,13 +200,15 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		}()
 	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		begin = time.Now()
-		c.collectTimers(conn, ch, units)
-		log.Debugf("systemd collectTimers took %f", time.Since(begin).Seconds())
-	}()
+	if c.systemdVersion >= minSystemdVersionSystemState {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			begin = time.Now()
+			c.collectTimers(conn, ch, units)
+			log.Debugf("systemd collectTimers took %f", time.Since(begin).Seconds())
+		}()
+	}
 
 	wg.Add(1)
 	go func() {
@@ -195,9 +218,15 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		log.Debugf("systemd collectSockets took %f", time.Since(begin).Seconds())
 	}()
 
-	begin = time.Now()
-	err = c.collectSystemState(conn, ch)
-	log.Debugf("systemd collectSystemState took %f", time.Since(begin).Seconds())
+	if c.systemdVersion >= minSystemdVersionSystemState {
+		begin = time.Now()
+		err = c.collectSystemState(conn, ch)
+		log.Debugf("systemd collectSystemState took %f", time.Since(begin).Seconds())
+	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.systemdVersionDesc, prometheus.GaugeValue, float64(c.systemdVersion))
+
 	return err
 }
 
@@ -369,7 +398,7 @@ func (c *systemdCollector) collectSystemState(conn *dbus.Conn, ch chan<- prometh
 	return nil
 }
 
-func (c *systemdCollector) newDbus() (*dbus.Conn, error) {
+func newSystemdDbusConn() (*dbus.Conn, error) {
 	if *systemdPrivate {
 		return dbus.NewSystemdConnection()
 	}
@@ -423,4 +452,25 @@ func filterUnits(units []unit, whitelistPattern, blacklistPattern *regexp.Regexp
 	}
 
 	return filtered
+}
+
+func getSystemdVersion() int {
+	conn, err := newSystemdDbusConn()
+	if err != nil {
+		log.Warnf("Unable to get systemd dbus connection, defaulting systemd version to 0: %s", err)
+		return 0
+	}
+	defer conn.Close()
+	version, err := conn.GetManagerProperty("Version")
+	if err != nil {
+		log.Warn("Unable to get systemd version property, defaulting to 0")
+		return 0
+	}
+	version = strings.Replace(version, "\"", "", 2)
+	v, err := strconv.Atoi(version)
+	if err != nil {
+		log.Warnf("Got invalid systemd version: %v", version)
+		return 0
+	}
+	return v
 }

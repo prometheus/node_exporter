@@ -39,6 +39,9 @@ for Grafana:
 $ make dashboards_out
 ```
 
+Note that some of the generated dashboards require recording rules specified in
+the previously generated `node_rules.yaml`.
+
 For more advanced uses of mixins, see
 https://github.com/monitoring-mixins/docs.
 

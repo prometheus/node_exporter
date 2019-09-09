@@ -4,7 +4,7 @@ package netlink
 
 func Fuzz(data []byte) int {
 	return fuzzAttributes(data)
-	//return fuzzMessage(data)
+	// return fuzzMessage(data)
 }
 
 func fuzzAttributes(data []byte) int {
