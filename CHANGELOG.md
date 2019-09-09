@@ -25,6 +25,7 @@
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421
 * [FEATURE] Add new thermal_zone collector #1425
+* [BUGFIX] Fix empty string in path.rootfs #1464
 
 ## 0.18.1 / 2019-06-04
 
