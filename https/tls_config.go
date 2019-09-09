@@ -48,7 +48,7 @@ func getTLSConfig(configPath string) (*tls.Config, error) {
 	return configToTLSConfig(&c.TLSConfig)
 }
 
-func configToTLSConfig(c *TLSConfig) (*tls.Config, error) {
+func configToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 	cfg := &tls.Config{}
 	if len(c.TLSCertPath) == 0 {
 		return nil, errors.New("missing TLSCertPath")
