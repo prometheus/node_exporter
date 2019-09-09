@@ -32,8 +32,11 @@ import (
 )
 
 var (
-	textFileDirectory = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
-	mtimeDesc         = prometheus.NewDesc(
+	textFileDirectory   = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
+	textFileDirectoryLr = kingpin.Flag("collector.textfile.directory.lr", "Directory to read text files with low resolution metrics from.").String()
+	textFileDirectoryMr = kingpin.Flag("collector.textfile.directory.mr", "Directory to read text files with medium resolution metrics from.").String()
+	textFileDirectoryHr = kingpin.Flag("collector.textfile.directory.hr", "Directory to read text files with high resolution metrics from.").String()
+	mtimeDesc           = prometheus.NewDesc(
 		"node_textfile_mtime_seconds",
 		"Unixtime mtime of textfiles successfully read.",
 		[]string{"file"},
@@ -48,7 +51,37 @@ type textFileCollector struct {
 }
 
 func init() {
-	registerCollector("textfile", defaultEnabled, NewTextFileCollector)
+	registerCollector("textfile", defaultEnabled, NewTextFileCollector) // Alias for "textfile.mr" for backward compatibility.
+	registerCollector("textfile.lr", defaultDisabled, NewTextFileCollectorLr)
+	registerCollector("textfile.mr", defaultDisabled, NewTextFileCollectorMr)
+	registerCollector("textfile.hr", defaultDisabled, NewTextFileCollectorHr)
+}
+
+// NewTextFileCollector returns a new Collector exposing metrics read from files
+// in the given textfile lr directory.
+func NewTextFileCollectorLr() (Collector, error) {
+	c := &textFileCollector{
+		path: *textFileDirectoryLr,
+	}
+	return c, nil
+}
+
+// NewTextFileCollector returns a new Collector exposing metrics read from files
+// in the given textfile mr directory.
+func NewTextFileCollectorMr() (Collector, error) {
+	c := &textFileCollector{
+		path: *textFileDirectoryMr,
+	}
+	return c, nil
+}
+
+// NewTextFileCollector returns a new Collector exposing metrics read from files
+// in the given textfile hr directory.
+func NewTextFileCollectorHr() (Collector, error) {
+	c := &textFileCollector{
+		path: *textFileDirectoryHr,
+	}
+	return c, nil
 }
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files
