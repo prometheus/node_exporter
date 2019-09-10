@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
@@ -53,8 +54,8 @@ func NewCPUCollector() (Collector, error) {
 		),
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
-			"Number of times this cpu core has been throttled.",
-			[]string{"package", "core"}, nil,
+			"Number of times this cpu has been throttled.",
+			[]string{"package", "core", "cpu"}, nil,
 		),
 		cpuPackageThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
@@ -83,7 +84,6 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 	}
 
 	packageThrottles := make(map[uint64]uint64)
-	packageCoreThrottles := make(map[uint64]map[uint64]uint64)
 
 	// cpu loop
 	for _, cpu := range cpus {
@@ -111,45 +111,33 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 		// are cpu+kernel combinations that only present core throttles
 		// but no package throttles.
 		// Seen e.g. on an Intel Xeon E5472 system with RHEL 6.9 kernel.
-		if _, present := packageCoreThrottles[physicalPackageID]; !present {
-			packageCoreThrottles[physicalPackageID] = make(map[uint64]uint64)
-		}
-		if _, present := packageCoreThrottles[physicalPackageID][coreID]; !present {
-			// Read thermal_throttle/core_throttle_count only once
-			if coreThrottleCount, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err == nil {
-				packageCoreThrottles[physicalPackageID][coreID] = coreThrottleCount
-			} else {
-				log.Debugf("CPU %v is missing core_throttle_count", cpu)
-			}
+		if coreThrottleCount, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err == nil {
+			ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle,
+				prometheus.CounterValue,
+				float64(coreThrottleCount),
+				strconv.FormatUint(physicalPackageID, 10),
+				strconv.FormatUint(coreID, 10),
+				strings.TrimPrefix(filepath.Base(cpu), "cpu"))
+		} else {
+			log.Debugf("CPU %v is missing core_throttle_count", cpu)
 		}
 
 		// metric node_cpu_package_throttles_total
+		// All CPUs in the same package have the same value for package_throttles, so we only need one metric per package
 		if _, present := packageThrottles[physicalPackageID]; !present {
 			// Read thermal_throttle/package_throttle_count only once
 			if packageThrottleCount, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle", "package_throttle_count")); err == nil {
 				packageThrottles[physicalPackageID] = packageThrottleCount
+				ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle,
+					prometheus.CounterValue,
+					float64(packageThrottleCount),
+					strconv.FormatUint(physicalPackageID, 10))
 			} else {
 				log.Debugf("CPU %v is missing package_throttle_count", cpu)
 			}
 		}
 	}
 
-	for physicalPackageID, packageThrottleCount := range packageThrottles {
-		ch <- prometheus.MustNewConstMetric(c.cpuPackageThrottle,
-			prometheus.CounterValue,
-			float64(packageThrottleCount),
-			strconv.FormatUint(physicalPackageID, 10))
-	}
-
-	for physicalPackageID, coreMap := range packageCoreThrottles {
-		for coreID, coreThrottleCount := range coreMap {
-			ch <- prometheus.MustNewConstMetric(c.cpuCoreThrottle,
-				prometheus.CounterValue,
-				float64(coreThrottleCount),
-				strconv.FormatUint(physicalPackageID, 10),
-				strconv.FormatUint(coreID, 10))
-		}
-	}
 	return nil
 }
 

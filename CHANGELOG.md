@@ -12,6 +12,7 @@
 
 ### Changes
 
+* [CHANGE] Report cpu_core_throttles for all CPUs.  Add label "cpu". #1479
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417
