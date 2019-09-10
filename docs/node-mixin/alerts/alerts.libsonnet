@@ -197,6 +197,44 @@
               severity: 'warning',
             },
           },
+          {
+            alert: 'NodeClockSkewDetected',
+            expr: |||
+              (
+                node_timex_offset_seconds > 0.05
+              and
+                deriv(node_timex_offset_seconds[5m]) >= 0
+              )
+              or
+              (
+                node_timex_offset_seconds < 0.05
+              and
+                deriv(node_timex_offset_seconds[5m]) <= 0
+              )
+            ||| % $._config,
+            'for': '10m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Clock skew detected.',
+              message: 'Clock on {{ $labels.instance }} is out of sync by more than 300s. Ensure NTP is configured correctly on this host.',
+            },
+          },
+          {
+            alert: 'NodeClockNotSynchronising',
+            expr: |||
+              min_over_time(node_timex_sync_status[5m]) == 0
+            ||| % $._config,
+            'for': '10m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Clock not synchronising.',
+              message: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
+            },
+          },
         ],
       },
     ],
