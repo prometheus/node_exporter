@@ -4,9 +4,7 @@
 
 ### Changes
 
-* [CHANGE]
-* [FEATURE]
-* [ENHANCEMENT]
+* [FEATURE] Add new metric node_cpu_info #1489
 
 ## 0.18.1 / 2019-06-04
 

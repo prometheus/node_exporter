@@ -30,3 +30,5 @@ require (
 	golang.org/x/sys v0.0.0-20190507053917-2953c62de483
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
+
+replace github.com/prometheus/procfs => github.com/pgier/procfs v0.0.0-20191009150458-7d6f90cdaf41

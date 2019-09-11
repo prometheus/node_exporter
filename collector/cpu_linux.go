@@ -23,15 +23,21 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 type cpuCollector struct {
 	fs                 procfs.FS
 	cpu                *prometheus.Desc
+	cpuInfo            *prometheus.Desc
 	cpuGuest           *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
 	cpuPackageThrottle *prometheus.Desc
 }
+
+var (
+	enableCPUInfo = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
+)
 
 func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
@@ -46,6 +52,11 @@ func NewCPUCollector() (Collector, error) {
 	return &cpuCollector{
 		fs:  fs,
 		cpu: nodeCPUSecondsDesc,
+		cpuInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
+			"CPU information from /proc/cpuinfo.",
+			[]string{"package", "core", "cpu", "vendor", "family", "model", "microcode", "cachesize"}, nil,
+		),
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
 			"Seconds the cpus spent in guests (VMs) for each mode.",
@@ -66,11 +77,38 @@ func NewCPUCollector() (Collector, error) {
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
+	if *enableCPUInfo {
+		if err := c.updateInfo(ch); err != nil {
+			return err
+		}
+	}
 	if err := c.updateStat(ch); err != nil {
 		return err
 	}
 	if err := c.updateThermalThrottle(ch); err != nil {
 		return err
+	}
+	return nil
+}
+
+// updateInfo reads /proc/cpuinfo
+func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
+	info, err := c.fs.CPUInfo()
+	if err != nil {
+		return err
+	}
+	for _, cpu := range info {
+		ch <- prometheus.MustNewConstMetric(c.cpuInfo,
+			prometheus.GaugeValue,
+			1,
+			cpu.PhysicalID,
+			cpu.CoreID,
+			fmt.Sprintf("%d", cpu.Processor),
+			cpu.VendorID,
+			cpu.CPUFamily,
+			cpu.Model,
+			cpu.Microcode,
+			cpu.CacheSize)
 	}
 	return nil
 }
