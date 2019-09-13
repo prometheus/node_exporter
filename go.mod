@@ -13,10 +13,9 @@ require (
 	github.com/mdlayher/wifi v0.0.0-20190303161829-b1436901ddee
 	github.com/prometheus/client_golang v1.0.0
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
-	github.com/prometheus/common v0.4.1
+	github.com/prometheus/common v0.7.0
 	github.com/prometheus/procfs v0.0.5
 	github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
-	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	go.uber.org/atomic v1.3.2 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
