@@ -26,14 +26,17 @@ import (
 
 	"github.com/prometheus/common/log"
 	"golang.org/x/sys/unix"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
 	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
 	defIgnoredFSTypes     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
-	mountTimeout          = 30 * time.Second
 )
 
+var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
+	"how long to wait for a mount to respond before marking it as stale").
+	Hidden().Default("5s").Duration()
 var stuckMounts = make(map[string]struct{})
 var stuckMountsMtx = &sync.Mutex{}
 
@@ -118,7 +121,7 @@ func stuckMountWatcher(mountPoint string, success chan struct{}) {
 	select {
 	case <-success:
 		// Success
-	case <-time.After(mountTimeout):
+	case <-time.After(*mountTimeout):
 		// Timed out, mark mount as stuck
 		stuckMountsMtx.Lock()
 		select {
