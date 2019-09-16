@@ -18,6 +18,8 @@
 * [FEATURE] Add new schedstat collector #1389
 * [FEATURE] Add uname support for Darwin and OpenBSD #1433
 * [FEATURE] Add new metric node_cpu_info #1489
+* [FEATURE] Add new thermal_zone collector #1425
+* [FEATURE] Add new cooling_device metrics to thermal zone collector #1445
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
 * [ENHANCEMENT] Expose IPVS firewall mark as a label #1455
@@ -26,8 +28,6 @@
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421
 * [BUGFIX] Fix empty string in path.rootfs #1464
-* [FEATURE] Add new thermal_zone collector #1425
-* [FEATURE] Add new cooling_device metrics to thermal zone collector #1445
 
 ## 0.18.1 / 2019-06-04
 
