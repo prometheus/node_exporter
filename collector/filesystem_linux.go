@@ -163,11 +163,20 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 		parts[1] = strings.Replace(parts[1], "\\040", " ", -1)
 		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
 
+		mountPoint := parts[1]
+		var pvcName string
+		pvcName = ""
+		if strings.Index(mountPoint, "/pvc-") >= 0 {
+			pvcNameArray := strings.Split(mountPoint,"/")
+			pvcName = pvcNameArray[len(pvcNameArray) - 2]
+		}
+
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
-			mountPoint: rootfsStripPrefix(parts[1]),
+			mountPoint: rootfsStripPrefix(mountPoint),
 			fsType:     parts[2],
 			options:    parts[3],
+			volumename:	pvcName,
 		})
 	}
 
