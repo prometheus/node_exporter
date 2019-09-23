@@ -280,9 +280,9 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.queryPanel(|||
             1 -
             (
-              max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}})
+              max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"})
             /
-              max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}})
+              max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"})
             )
           ||| % $._config, '{{device}}') +
           {

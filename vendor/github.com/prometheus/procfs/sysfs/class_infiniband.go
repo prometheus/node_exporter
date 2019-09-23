@@ -244,13 +244,16 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 	}
 
 	for _, f := range files {
-		if f.IsDir() {
+		if !f.Mode().IsRegular() {
 			continue
 		}
 
 		name := filepath.Join(path, f.Name())
 		value, err := util.SysReadFile(name)
 		if err != nil {
+			if os.IsNotExist(err) || err.Error() == "operation not supported" || err.Error() == "invalid argument" {
+				continue
+			}
 			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
 		}
 
@@ -324,13 +327,16 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 	}
 
 	for _, f := range files {
-		if f.IsDir() {
+		if !f.Mode().IsRegular() {
 			continue
 		}
 
 		name := filepath.Join(path, f.Name())
 		value, err := util.SysReadFile(name)
 		if err != nil {
+			if os.IsNotExist(err) || err.Error() == "operation not supported" || err.Error() == "invalid argument" {
+				continue
+			}
 			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
 		}
 

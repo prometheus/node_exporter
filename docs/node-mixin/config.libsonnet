@@ -9,13 +9,13 @@
     // empty, all filesystems are selected. If you have unusual
     // filesystem you don't want to include in dashboards and
     // alerting, you can exclude them here, e.g. 'fstype!="tmpfs"'.
-    fsSelector: '',
+    fsSelector: 'fstype!=""',
 
     // Select the device for disk-related queries. If left empty, all
     // devices are selected. If you have unusual devices you don't
     // want to include in dashboards and alerting, you can exclude
     // them here, e.g. 'device!="tmpfs"'.
-    diskDeviceSelector: '',
+    diskDeviceSelector: 'device!=""',
 
     // Some of the alerts are meant to fire if a critical failure of a
     // node is imminent (e.g. the disk is about to run full). In a

@@ -35,23 +35,25 @@ func ParseStats(r io.Reader) (*Stats, error) {
 		fieldTrans       = "trans"
 		fieldIg          = "ig"
 		fieldLog         = "log"
+		fieldPushAil     = "push_ail"
+		fieldXstrat      = "xstrat"
 		fieldRw          = "rw"
 		fieldAttr        = "attr"
 		fieldIcluster    = "icluster"
 		fieldVnodes      = "vnodes"
 		fieldBuf         = "buf"
 		fieldXpc         = "xpc"
-
+		fieldAbtb2       = "abtb2"
+		fieldAbtc2       = "abtc2"
+		fieldBmbt2       = "bmbt2"
+		fieldIbt2        = "ibt2"
+		//fieldFibt2 = "fibt2"
+		fieldQm    = "qm"
+		fieldDebug = "debug"
 		// Unimplemented at this time due to lack of documentation.
-		// fieldPushAil = "push_ail"
-		// fieldXstrat  = "xstrat"
-		// fieldAbtb2   = "abtb2"
-		// fieldAbtc2   = "abtc2"
-		// fieldBmbt2   = "bmbt2"
-		// fieldIbt2    = "ibt2"
-		// fieldFibt2   = "fibt2"
-		// fieldQm      = "qm"
-		// fieldDebug   = "debug"
+		//fieldRmapbt = "rmapbt"
+		//fieldRefcntbt = "refcntbt"
+
 	)
 
 	var xfss Stats
@@ -115,6 +117,23 @@ func ParseStats(r io.Reader) (*Stats, error) {
 			xfss.Vnode, err = vnodeStats(us)
 		case fieldBuf:
 			xfss.Buffer, err = bufferStats(us)
+		case fieldPushAil:
+			xfss.PushAil, err = pushAilStats(us)
+		case fieldXstrat:
+			xfss.Xstrat, err = xStratStats(us)
+		case fieldAbtb2:
+			xfss.BtreeAllocBlocks2, err = btreeAllocBlocks2Stats(us)
+		case fieldAbtc2:
+			xfss.BtreeAllocContig2, err = btreeAllocContig2Stats(us)
+		case fieldBmbt2:
+			xfss.BtreeBlockMap2, err = btreeBlockMap2Stats(us)
+		case fieldIbt2:
+			xfss.BtreeInode2, err = btreeInode2Stats(us)
+		//case fieldFibt2:
+		case fieldQm:
+			xfss.QuotaManager, err = quotaManagerStats(us)
+		case fieldDebug:
+			xfss.Debug, err = debugStats(us)
 		}
 		if err != nil {
 			return nil, err
@@ -228,7 +247,39 @@ func logOperationStats(us []uint32) (LogOperationStats, error) {
 	}, nil
 }
 
-// ReadWriteStats builds a ReadWriteStats from a slice of uint32s.
+// push_ail
+func pushAilStats(us []uint32) (PushAilStats, error) {
+	if l := len(us); l != 10 {
+		return PushAilStats{}, fmt.Errorf("incorrect number of values for XFS push ail stats: %d", l)
+	}
+
+	return PushAilStats{
+		TryLogspace:   us[0],
+		SleepLogspace: us[1],
+		Pushes:        us[2],
+		Success:       us[3],
+		PushBuf:       us[4],
+		Pinned:        us[5],
+		Locked:        us[6],
+		Flushing:      us[7],
+		Restarts:      us[8],
+		Flush:         us[9],
+	}, nil
+}
+
+// xstrat
+func xStratStats(us []uint32) (XstratStats, error) {
+	if l := len(us); l != 2 {
+		return XstratStats{}, fmt.Errorf("incorrect number of values for XFS  xstrat stats: %d", l)
+	}
+
+	return XstratStats{
+		Quick: us[0],
+		Split: us[1],
+	}, nil
+}
+
+// rw
 func readWriteStats(us []uint32) (ReadWriteStats, error) {
 	if l := len(us); l != 2 {
 		return ReadWriteStats{}, fmt.Errorf("incorrect number of values for XFS read write stats: %d", l)
@@ -326,5 +377,132 @@ func extendedPrecisionStats(us []uint64) (ExtendedPrecisionStats, error) {
 		FlushBytes: us[0],
 		WriteBytes: us[1],
 		ReadBytes:  us[2],
+	}, nil
+}
+
+func quotaManagerStats(us []uint32) (QuotaManagerStats, error) {
+	if l := len(us); l != 8 {
+		return QuotaManagerStats{}, fmt.Errorf("incorrect number of values for XFS quota stats: %d", l)
+	}
+
+	return QuotaManagerStats{
+		Reclaims:      us[0],
+		ReclaimMisses: us[1],
+		DquoteDups:    us[2],
+		CacheMisses:   us[3],
+		CacheHits:     us[4],
+		Wants:         us[5],
+		ShakeReclaims: us[6],
+		InactReclaims: us[7],
+	}, nil
+}
+
+func debugStats(us []uint32) (DebugStats, error) {
+	if l := len(us); l != 1 {
+		return DebugStats{}, fmt.Errorf("incorrect number of values for XFS debug stats: %d", l)
+	}
+
+	return DebugStats{
+		Enabled: us[0],
+	}, nil
+}
+
+// abtb2
+func btreeAllocBlocks2Stats(us []uint32) (BtreeAllocBlocks2Stats, error) {
+	if l := len(us); l != 15 {
+		return BtreeAllocBlocks2Stats{}, fmt.Errorf("incorrect number of values for abtb2 stats: %d", 1)
+	}
+
+	return BtreeAllocBlocks2Stats{
+		Lookup:    us[0],
+		Compare:   us[1],
+		Insrec:    us[2],
+		Delrec:    us[3],
+		NewRoot:   us[4],
+		KillRoot:  us[5],
+		Increment: us[6],
+		Decrement: us[7],
+		Lshift:    us[8],
+		Rshift:    us[9],
+		Split:     us[10],
+		Join:      us[11],
+		Alloc:     us[12],
+		Free:      us[13],
+		Moves:     us[14],
+	}, nil
+}
+
+// abtc2
+func btreeAllocContig2Stats(us []uint32) (BtreeAllocContig2Stats, error) {
+	if l := len(us); l != 15 {
+		return BtreeAllocContig2Stats{}, fmt.Errorf("incorrect number of values for abtc2 stats: %d", 1)
+	}
+
+	return BtreeAllocContig2Stats{
+		Lookup:    us[0],
+		Compare:   us[1],
+		Insrec:    us[2],
+		Delrec:    us[3],
+		NewRoot:   us[4],
+		KillRoot:  us[5],
+		Increment: us[6],
+		Decrement: us[7],
+		Lshift:    us[8],
+		Rshift:    us[9],
+		Split:     us[10],
+		Join:      us[11],
+		Alloc:     us[12],
+		Free:      us[13],
+		Moves:     us[14],
+	}, nil
+}
+
+// bmbt2
+func btreeBlockMap2Stats(us []uint32) (BtreeBlockMap2Stats, error) {
+	if l := len(us); l != 15 {
+		return BtreeBlockMap2Stats{}, fmt.Errorf("incorrect number of values for bmbt2 stats: %d", 1)
+	}
+
+	return BtreeBlockMap2Stats{
+		Lookup:    us[0],
+		Compare:   us[1],
+		Insrec:    us[2],
+		Delrec:    us[3],
+		NewRoot:   us[4],
+		KillRoot:  us[5],
+		Increment: us[6],
+		Decrement: us[7],
+		Lshift:    us[8],
+		Rshift:    us[9],
+		Split:     us[10],
+		Join:      us[11],
+		Alloc:     us[12],
+		Free:      us[13],
+		Moves:     us[14],
+	}, nil
+}
+
+// ibt2
+func btreeInode2Stats(us []uint32) (BtreeInode2Stats, error) {
+	if l := len(us); l != 15 {
+		return BtreeInode2Stats{}, fmt.Errorf("incorrect number of values for ibt2 stats: %d", 1)
+	}
+
+	return BtreeInode2Stats{
+		Lookup:    us[0],
+		Compare:   us[1],
+		Insrec:    us[2],
+		Delrec:    us[3],
+		NewRoot:   us[4],
+		KillRoot:  us[5],
+		Increment: us[6],
+		Decrement: us[7],
+		Lshift:    us[8],
+		Rshift:    us[9],
+		Split:     us[10],
+		Join:      us[11],
+		Alloc:     us[12],
+		Free:      us[13],
+		Moves:     us[14],
 	}, nil
 }

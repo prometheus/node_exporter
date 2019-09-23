@@ -172,8 +172,9 @@ func NewCallbackCDecl(fn interface{}) uintptr {
 //sys	CancelIo(s Handle) (err error)
 //sys	CancelIoEx(s Handle, o *Overlapped) (err error)
 //sys	CreateProcess(appName *uint16, commandLine *uint16, procSecurity *SecurityAttributes, threadSecurity *SecurityAttributes, inheritHandles bool, creationFlags uint32, env *uint16, currentDir *uint16, startupInfo *StartupInfo, outProcInfo *ProcessInformation) (err error) = CreateProcessW
-//sys	OpenProcess(da uint32, inheritHandle bool, pid uint32) (handle Handle, err error)
+//sys	OpenProcess(desiredAccess uint32, inheritHandle bool, processId uint32) (handle Handle, err error)
 //sys	ShellExecute(hwnd Handle, verb *uint16, file *uint16, args *uint16, cwd *uint16, showCmd int32) (err error) = shell32.ShellExecuteW
+//sys	shGetKnownFolderPath(id *KNOWNFOLDERID, flags uint32, token Token, path **uint16) (ret error) = shell32.SHGetKnownFolderPath
 //sys	TerminateProcess(handle Handle, exitcode uint32) (err error)
 //sys	GetExitCodeProcess(handle Handle, exitcode *uint32) (err error)
 //sys	GetStartupInfo(startupInfo *StartupInfo) (err error) = GetStartupInfoW
@@ -256,6 +257,10 @@ func NewCallbackCDecl(fn interface{}) uintptr {
 //sys	SetEvent(event Handle) (err error) = kernel32.SetEvent
 //sys	ResetEvent(event Handle) (err error) = kernel32.ResetEvent
 //sys	PulseEvent(event Handle) (err error) = kernel32.PulseEvent
+//sys	CreateMutex(mutexAttrs *SecurityAttributes, initialOwner bool, name *uint16) (handle Handle, err error) = kernel32.CreateMutexW
+//sys	CreateMutexEx(mutexAttrs *SecurityAttributes, name *uint16, flags uint32, desiredAccess uint32) (handle Handle, err error) = kernel32.CreateMutexExW
+//sys	OpenMutex(desiredAccess uint32, inheritHandle bool, name *uint16) (handle Handle, err error) = kernel32.OpenMutexW
+//sys	ReleaseMutex(mutex Handle) (err error) = kernel32.ReleaseMutex
 //sys	SleepEx(milliseconds uint32, alertable bool) (ret uint32) = kernel32.SleepEx
 //sys	CreateJobObject(jobAttr *SecurityAttributes, name *uint16) (handle Handle, err error) = kernel32.CreateJobObjectW
 //sys	AssignProcessToJobObject(job Handle, process Handle) (err error) = kernel32.AssignProcessToJobObject
@@ -266,6 +271,9 @@ func NewCallbackCDecl(fn interface{}) uintptr {
 //sys	GetPriorityClass(process Handle) (ret uint32, err error) = kernel32.GetPriorityClass
 //sys	SetInformationJobObject(job Handle, JobObjectInformationClass uint32, JobObjectInformation uintptr, JobObjectInformationLength uint32) (ret int, err error)
 //sys	GenerateConsoleCtrlEvent(ctrlEvent uint32, processGroupID uint32) (err error)
+//sys	GetProcessId(process Handle) (id uint32, err error)
+//sys	OpenThread(desiredAccess uint32, inheritHandle bool, threadId uint32) (handle Handle, err error)
+//sys	SetProcessPriorityBoost(process Handle, disable bool) (err error) = kernel32.SetProcessPriorityBoost
 
 // Volume Management Functions
 //sys	DefineDosDevice(flags uint32, deviceName *uint16, targetPath *uint16) (err error) = DefineDosDeviceW
@@ -291,6 +299,9 @@ func NewCallbackCDecl(fn interface{}) uintptr {
 //sys	clsidFromString(lpsz *uint16, pclsid *GUID) (ret error) = ole32.CLSIDFromString
 //sys	stringFromGUID2(rguid *GUID, lpsz *uint16, cchMax int32) (chars int32) = ole32.StringFromGUID2
 //sys	coCreateGuid(pguid *GUID) (ret error) = ole32.CoCreateGuid
+//sys	CoTaskMemFree(address unsafe.Pointer) = ole32.CoTaskMemFree
+//sys	rtlGetVersion(info *OsVersionInfoEx) (ret error) = ntdll.RtlGetVersion
+//sys	rtlGetNtVersionNumbers(majorVersion *uint32, minorVersion *uint32, buildNumber *uint32) = ntdll.RtlGetNtVersionNumbers
 
 // syscall interface implementation for other packages
 
@@ -1281,4 +1292,43 @@ func (guid GUID) String() string {
 		return ""
 	}
 	return string(utf16.Decode(str[:chars-1]))
+}
+
+// KnownFolderPath returns a well-known folder path for the current user, specified by one of
+// the FOLDERID_ constants, and chosen and optionally created based on a KF_ flag.
+func KnownFolderPath(folderID *KNOWNFOLDERID, flags uint32) (string, error) {
+	return Token(0).KnownFolderPath(folderID, flags)
+}
+
+// KnownFolderPath returns a well-known folder path for the user token, specified by one of
+// the FOLDERID_ constants, and chosen and optionally created based on a KF_ flag.
+func (t Token) KnownFolderPath(folderID *KNOWNFOLDERID, flags uint32) (string, error) {
+	var p *uint16
+	err := shGetKnownFolderPath(folderID, flags, t, &p)
+	if err != nil {
+		return "", err
+	}
+	defer CoTaskMemFree(unsafe.Pointer(p))
+	return UTF16ToString((*[(1 << 30) - 1]uint16)(unsafe.Pointer(p))[:]), nil
+}
+
+// RtlGetVersion returns the version of the underlying operating system, ignoring
+// manifest semantics but is affected by the application compatibility layer.
+func RtlGetVersion() *OsVersionInfoEx {
+	info := &OsVersionInfoEx{}
+	info.osVersionInfoSize = uint32(unsafe.Sizeof(*info))
+	// According to documentation, this function always succeeds.
+	// The function doesn't even check the validity of the
+	// osVersionInfoSize member. Disassembling ntdll.dll indicates
+	// that the documentation is indeed correct about that.
+	_ = rtlGetVersion(info)
+	return info
+}
+
+// RtlGetNtVersionNumbers returns the version of the underlying operating system,
+// ignoring manifest semantics and the application compatibility layer.
+func RtlGetNtVersionNumbers() (majorVersion, minorVersion, buildNumber uint32) {
+	rtlGetNtVersionNumbers(&majorVersion, &minorVersion, &buildNumber)
+	buildNumber &= 0xffff
+	return
 }

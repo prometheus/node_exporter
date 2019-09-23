@@ -44,5 +44,9 @@ func rootfsStripPrefix(path string) string {
 	if *rootfsPath == "/" {
 		return path
 	}
-	return strings.TrimPrefix(path, *rootfsPath)
+	stripped := strings.TrimPrefix(path, *rootfsPath)
+	if stripped == "" {
+		return "/"
+	}
+	return stripped
 }

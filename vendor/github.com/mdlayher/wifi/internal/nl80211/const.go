@@ -1,6 +1,8 @@
 // WARNING: This file has automatically been generated on Thu, 29 Dec 2016 08:53:57 EST.
 // By https://git.io/cgogen. DO NOT EDIT.
 
+//lint:file-ignore U1000 Ignore all unused code, it's generated.
+
 package nl80211
 
 const (

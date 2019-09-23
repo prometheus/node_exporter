@@ -926,6 +926,9 @@ Mode: 755
 Path: sys/class/thermal/thermal_zone0
 SymlinkTo: ../../devices/virtual/thermal/thermal_zone0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/thermal/cooling_device0
+SymlinkTo: ../../devices/virtual/thermal/cooling_device0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2471,6 +2474,24 @@ Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/virtual/thermal
 Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/virtual/thermal/cooling_device0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/virtual/thermal/cooling_device0/cur_state
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/virtual/thermal/cooling_device0/max_state
+Lines: 1
+3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/virtual/thermal/cooling_device0/type
+Lines: 1
+Processor
+Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/virtual/thermal/thermal_zone0
 Mode: 755

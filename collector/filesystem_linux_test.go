@@ -120,6 +120,7 @@ func TestPathRootfs(t *testing.T) {
 
 	expected := map[string]string{
 		// should modify these mountpoints (removes /host, see fixture proc file)
+		"/":              "",
 		"/media/volume1": "",
 		"/media/volume2": "",
 		// should not modify these mountpoints
