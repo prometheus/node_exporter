@@ -24,8 +24,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -54,6 +55,8 @@ func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) pr
 type diskstatsCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
 	descs                 []typedFactorDesc
+
+	logger log.Logger
 }
 
 func init() {
@@ -62,7 +65,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector() (Collector, error) {
+func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 
 	return &diskstatsCollector{
@@ -161,6 +164,7 @@ func NewDiskstatsCollector() (Collector, error) {
 				factor: .001,
 			},
 		},
+		logger: logger,
 	}, nil
 }
 
@@ -172,7 +176,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for dev, stats := range diskStats {
 		if c.ignoredDevicesPattern.MatchString(dev) {
-			log.Debugf("Ignoring device: %s", dev)
+			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev)
 			continue
 		}
 

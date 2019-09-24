@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"unsafe"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -75,7 +76,8 @@ import "C"
 const maxCPUTimesLen = C.MAXCPU * C.CPUSTATES
 
 type statCollector struct {
-	cpu *prometheus.Desc
+	cpu    *prometheus.Desc
+	logger log.Logger
 }
 
 func init() {
@@ -83,9 +85,10 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector() (Collector, error) {
+func NewStatCollector(logger log.Logger) (Collector, error) {
 	return &statCollector{
-		cpu: nodeCPUSecondsDesc,
+		cpu:    nodeCPUSecondsDesc,
+		logger: logger,
 	}, nil
 }
 

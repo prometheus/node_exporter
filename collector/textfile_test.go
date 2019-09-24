@@ -20,10 +20,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/log"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 type collectorAdapter struct {
@@ -95,16 +94,9 @@ func TestTextfileCollector(t *testing.T) {
 	for i, test := range tests {
 		mtime := 1.0
 		c := &textFileCollector{
-			path:  test.path,
-			mtime: &mtime,
-		}
-
-		// Suppress a log message about `nonexistent_path` not existing, this is
-		// expected and clutters the test output.
-		log.AddFlags(kingpin.CommandLine)
-		_, err := kingpin.CommandLine.Parse([]string{"--log.level", "fatal"})
-		if err != nil {
-			t.Fatal(err)
+			path:   test.path,
+			mtime:  &mtime,
+			logger: log.NewNopLogger(),
 		}
 
 		registry := prometheus.NewRegistry()

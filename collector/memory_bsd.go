@@ -19,6 +19,7 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -31,6 +32,8 @@ type memoryCollector struct {
 	pageSize uint64
 	sysctls  []bsdSysctl
 	kvm      kvm
+
+	logger log.Logger
 }
 
 func init() {
@@ -38,7 +41,7 @@ func init() {
 }
 
 // NewMemoryCollector returns a new Collector exposing memory stats.
-func NewMemoryCollector() (Collector, error) {
+func NewMemoryCollector(logger log.Logger) (Collector, error) {
 	tmp32, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
 	if err != nil {
 		return nil, fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %s", err)
@@ -124,6 +127,7 @@ func NewMemoryCollector() (Collector, error) {
 				conversion:  fromPage,
 			},
 		},
+		logger: logger,
 	}, nil
 }
 

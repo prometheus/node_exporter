@@ -16,8 +16,9 @@
 package collector
 
 import (
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/soundcloud/go-runit/runit"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -26,6 +27,8 @@ var runitServiceDir = kingpin.Flag("collector.runit.servicedir", "Path to runit 
 
 type runitCollector struct {
 	state, stateDesired, stateNormal, stateTimestamp typedDesc
+
+	logger log.Logger
 }
 
 func init() {
@@ -33,7 +36,7 @@ func init() {
 }
 
 // NewRunitCollector returns a new Collector exposing runit statistics.
-func NewRunitCollector() (Collector, error) {
+func NewRunitCollector(logger log.Logger) (Collector, error) {
 	var (
 		subsystem   = "service"
 		constLabels = prometheus.Labels{"supervisor": "runit"}
@@ -61,6 +64,7 @@ func NewRunitCollector() (Collector, error) {
 			"Unix timestamp of the last runit service state change.",
 			labelNames, constLabels,
 		), prometheus.GaugeValue},
+		logger: logger,
 	}, nil
 }
 
@@ -73,11 +77,11 @@ func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, service := range services {
 		status, err := service.Status()
 		if err != nil {
-			log.Debugf("Couldn't get status for %s: %s, skipping...", service.Name, err)
+			level.Debug(c.logger).Log("msg", "Couldn't get status", "service", service.Name, "error", err)
 			continue
 		}
 
-		log.Debugf("%s is %d on pid %d for %d seconds", service.Name, status.State, status.Pid, status.Duration)
+		level.Debug(c.logger).Log("msg", "duration", "service", service.Name, "status", status.State, "pid", status.Pid, "duration", status.Duration)
 		ch <- c.state.mustNewConstMetric(float64(status.State), service.Name)
 		ch <- c.stateDesired.mustNewConstMetric(float64(status.Want), service.Name)
 		ch <- c.stateTimestamp.mustNewConstMetric(float64(status.Timestamp.Unix()), service.Name)

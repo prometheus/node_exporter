@@ -20,8 +20,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 // Numerical metric provided by /proc/drbd.
@@ -145,14 +146,16 @@ var (
 		[]string{"device"}, nil)
 )
 
-type drbdCollector struct{}
+type drbdCollector struct {
+	logger log.Logger
+}
 
 func init() {
 	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
-func newDRBDCollector() (Collector, error) {
-	return &drbdCollector{}, nil
+func newDRBDCollector(logger log.Logger) (Collector, error) {
+	return &drbdCollector{logger: logger}, nil
 }
 
 func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
@@ -160,7 +163,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	file, err := os.Open(statsFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting DRBD statistics, as %s does not exist: %s", statsFile, err)
+			level.Debug(c.logger).Log("msg", "Not collecting DRBD statistics, as %s does not exist", "file", statsFile, "error", err)
 			return nil
 		}
 		return err
@@ -203,10 +206,10 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 					drbdConnected, prometheus.GaugeValue,
 					connected, device)
 			} else {
-				log.Debugf("Don't know how to process key-value pair [%s: %q]", kv[0], kv[1])
+				level.Debug(c.logger).Log("msg", "Don't know how to process key-value pair", "key", kv[0], "value", kv[1])
 			}
 		} else {
-			log.Debugf("Don't know how to process string %q", field)
+			level.Debug(c.logger).Log("msg", "Don't know how to process string", "field", field)
 		}
 	}
 	return scanner.Err()

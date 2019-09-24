@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -33,15 +34,17 @@ const (
 // Used for calculating the total memory bytes on TCP and UDP.
 var pageSize = os.Getpagesize()
 
-type sockStatCollector struct{}
+type sockStatCollector struct {
+	logger log.Logger
+}
 
 func init() {
 	registerCollector(sockStatSubsystem, defaultEnabled, NewSockStatCollector)
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector() (Collector, error) {
-	return &sockStatCollector{}, nil
+func NewSockStatCollector(logger log.Logger) (Collector, error) {
+	return &sockStatCollector{logger: logger}, nil
 }
 
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {

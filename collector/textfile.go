@@ -24,10 +24,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
-	"github.com/prometheus/common/log"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -45,6 +46,8 @@ type textFileCollector struct {
 	path string
 	// Only set for testing to get predictable output.
 	mtime *float64
+
+	logger log.Logger
 }
 
 func init() {
@@ -53,14 +56,15 @@ func init() {
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files
 // in the given textfile directory.
-func NewTextFileCollector() (Collector, error) {
+func NewTextFileCollector(logger log.Logger) (Collector, error) {
 	c := &textFileCollector{
-		path: *textFileDirectory,
+		path:   *textFileDirectory,
+		logger: logger,
 	}
 	return c, nil
 }
 
-func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Metric) {
+func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Metric, logger log.Logger) {
 	var valType prometheus.ValueType
 	var val float64
 
@@ -76,7 +80,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 
 	for _, metric := range metricFamily.Metric {
 		if metric.TimestampMs != nil {
-			log.Warnf("Ignoring unsupported custom timestamp on textfile collector metric %v", metric)
+			level.Warn(logger).Log("msg", "Ignoring unsupported custom timestamp on textfile collector metric", "metric", metric)
 		}
 
 		labels := metric.GetLabel()
@@ -189,7 +193,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	// Iterate over files and accumulate their metrics.
 	files, err := ioutil.ReadDir(c.path)
 	if err != nil && c.path != "" {
-		log.Errorf("Error reading textfile collector directory %q: %s", c.path, err)
+		level.Error(c.logger).Log("msg", "Error reading textfile collector directory", "path", c.path, "error", err)
 		error = 1.0
 	}
 
@@ -200,7 +204,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		path := filepath.Join(c.path, f.Name())
 		file, err := os.Open(path)
 		if err != nil {
-			log.Errorf("Error opening %q: %v", path, err)
+			level.Error(c.logger).Log("msg", "Error opening file", "path", path, "error", err)
 			error = 1.0
 			continue
 		}
@@ -208,12 +212,12 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		var parser expfmt.TextParser
 		parsedFamilies, err := parser.TextToMetricFamilies(file)
 		if err != nil {
-			log.Errorf("Error parsing %q: %v", path, err)
+			level.Error(c.logger).Log("msg", "Error parsing file", "path", path, "error", err)
 			error = 1.0
 			continue
 		}
 		if hasTimestamps(parsedFamilies) {
-			log.Errorf("Textfile %q contains unsupported client-side timestamps, skipping entire file", path)
+			level.Error(c.logger).Log("msg", "Textfile contains unsupported client-side timestamps, skipping entire file", "path", path)
 			error = 1.0
 			continue
 		}
@@ -229,14 +233,14 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		// a failure does not appear fresh.
 		stat, err := file.Stat()
 		if err != nil {
-			log.Errorf("Error stat'ing %q: %v", path, err)
+			level.Error(c.logger).Log("msg", "Error stat'ing", "path", path, "error", err)
 			error = 1.0
 			continue
 		}
 		mtimes[f.Name()] = stat.ModTime()
 
 		for _, mf := range parsedFamilies {
-			convertMetricFamily(mf, ch)
+			convertMetricFamily(mf, ch, c.logger)
 		}
 	}
 

@@ -19,8 +19,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -48,11 +49,11 @@ const (
 )
 
 var (
-	factories      = make(map[string]func() (Collector, error))
+	factories      = make(map[string]func(log.Logger) (Collector, error))
 	collectorState = make(map[string]*bool)
 )
 
-func registerCollector(collector string, isDefaultEnabled bool, factory func() (Collector, error)) {
+func registerCollector(collector string, isDefaultEnabled bool, factory func(logger log.Logger) (Collector, error)) {
 	var helpDefaultState string
 	if isDefaultEnabled {
 		helpDefaultState = "enabled"
@@ -73,10 +74,12 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func() (
 // NodeCollector implements the prometheus.Collector interface.
 type NodeCollector struct {
 	Collectors map[string]Collector
+
+	logger log.Logger
 }
 
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(filters ...string) (*NodeCollector, error) {
+func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
 		enabled, exist := collectorState[filter]
@@ -91,7 +94,7 @@ func NewNodeCollector(filters ...string) (*NodeCollector, error) {
 	collectors := make(map[string]Collector)
 	for key, enabled := range collectorState {
 		if *enabled {
-			collector, err := factories[key]()
+			collector, err := factories[key](logger)
 			if err != nil {
 				return nil, err
 			}
@@ -100,7 +103,7 @@ func NewNodeCollector(filters ...string) (*NodeCollector, error) {
 			}
 		}
 	}
-	return &NodeCollector{Collectors: collectors}, nil
+	return &NodeCollector{Collectors: collectors, logger: logger}, nil
 }
 
 // Describe implements the prometheus.Collector interface.
@@ -115,24 +118,24 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Add(len(n.Collectors))
 	for name, c := range n.Collectors {
 		go func(name string, c Collector) {
-			execute(name, c, ch)
+			execute(name, c, ch, n.logger)
 			wg.Done()
 		}(name, c)
 	}
 	wg.Wait()
 }
 
-func execute(name string, c Collector, ch chan<- prometheus.Metric) {
+func execute(name string, c Collector, ch chan<- prometheus.Metric, logger log.Logger) {
 	begin := time.Now()
 	err := c.Update(ch)
 	duration := time.Since(begin)
 	var success float64
 
 	if err != nil {
-		log.Errorf("ERROR: %s collector failed after %fs: %s", name, duration.Seconds(), err)
+		level.Error(logger).Log("msg", "collector failed", "name", name, "duration", duration.Seconds(), "error", err)
 		success = 0
 	} else {
-		log.Debugf("OK: %s collector succeeded after %fs.", name, duration.Seconds())
+		level.Error(logger).Log("msg", "collector failed", "name", name, "duration", duration.Seconds())
 		success = 1
 	}
 	ch <- prometheus.MustNewConstMetric(scrapeDurationDesc, prometheus.GaugeValue, duration.Seconds(), name)

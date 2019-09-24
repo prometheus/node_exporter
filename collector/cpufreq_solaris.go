@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	kstat "github.com/siebenmann/go-kstat"
 )
@@ -30,13 +31,15 @@ import "C"
 type cpuFreqCollector struct {
 	cpuFreq    *prometheus.Desc
 	cpuFreqMax *prometheus.Desc
+
+	logger log.Logger
 }
 
 func init() {
 	registerCollector("cpufreq", defaultEnabled, NewCpuFreqCollector)
 }
 
-func NewFreqCpuCollector() (Collector, error) {
+func NewFreqCpuCollector(logger log.Logger) (Collector, error) {
 	return &cpuFreqCollector{
 		cpuFreq: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
@@ -48,6 +51,8 @@ func NewFreqCpuCollector() (Collector, error) {
 			"Maximum cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
+
+		logger: logger,
 	}, nil
 }
 

@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/procfs"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,6 +32,8 @@ type statCollector struct {
 	btime        *prometheus.Desc
 	procsRunning *prometheus.Desc
 	procsBlocked *prometheus.Desc
+
+	logger log.Logger
 }
 
 func init() {
@@ -38,7 +41,7 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector() (Collector, error) {
+func NewStatCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %v", err)
@@ -75,6 +78,7 @@ func NewStatCollector() (Collector, error) {
 			"Number of processes blocked waiting for I/O to complete.",
 			nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

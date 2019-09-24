@@ -21,6 +21,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -30,7 +31,7 @@ func TestIPVSCollector(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
-	collector, err := newIPVSCollector()
+	collector, err := newIPVSCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +80,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
-	collector, err := NewIPVSCollector()
+	collector, err := NewIPVSCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

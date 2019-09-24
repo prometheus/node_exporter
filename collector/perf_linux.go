@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/go-kit/kit/log"
 	perf "github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -39,15 +40,19 @@ type perfCollector struct {
 	perfSwProfilers    map[int]perf.SoftwareProfiler
 	perfCacheProfilers map[int]perf.CacheProfiler
 	desc               map[string]*prometheus.Desc
+
+	logger log.Logger
 }
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
-func NewPerfCollector() (Collector, error) {
+func NewPerfCollector(logger log.Logger) (Collector, error) {
 	collector := &perfCollector{
 		perfHwProfilers:    map[int]perf.HardwareProfiler{},
 		perfSwProfilers:    map[int]perf.SoftwareProfiler{},
 		perfCacheProfilers: map[int]perf.CacheProfiler{},
+
+		logger: logger,
 	}
 	ncpus := runtime.NumCPU()
 	for i := 0; i < ncpus; i++ {

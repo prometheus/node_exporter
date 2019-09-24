@@ -20,8 +20,9 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -31,6 +32,7 @@ type cpuCollector struct {
 	cpuGuest           *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
 	cpuPackageThrottle *prometheus.Desc
+	logger             log.Logger
 }
 
 func init() {
@@ -38,7 +40,7 @@ func init() {
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUCollector() (Collector, error) {
+func NewCPUCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %v", err)
@@ -61,6 +63,7 @@ func NewCPUCollector() (Collector, error) {
 			"Number of times this cpu package has been throttled.",
 			[]string{"package"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 
@@ -96,12 +99,12 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 
 		// topology/physical_package_id
 		if physicalPackageID, err = readUintFromFile(filepath.Join(cpu, "topology", "physical_package_id")); err != nil {
-			log.Debugf("CPU %v is missing physical_package_id", cpu)
+			level.Debug(c.logger).Log("msg", "CPU is missing physical_package_id", "cpu", cpu)
 			continue
 		}
 		// topology/core_id
 		if coreID, err = readUintFromFile(filepath.Join(cpu, "topology", "core_id")); err != nil {
-			log.Debugf("CPU %v is missing core_id", cpu)
+			level.Debug(c.logger).Log("msg", "CPU is missing core_id", "cpu", cpu)
 			continue
 		}
 
@@ -119,7 +122,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 			if coreThrottleCount, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err == nil {
 				packageCoreThrottles[physicalPackageID][coreID] = coreThrottleCount
 			} else {
-				log.Debugf("CPU %v is missing core_throttle_count", cpu)
+				level.Debug(c.logger).Log("msg", "CPU is missing core_throttle_count", "cpu", cpu)
 			}
 		}
 
@@ -129,7 +132,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 			if packageThrottleCount, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle", "package_throttle_count")); err == nil {
 				packageThrottles[physicalPackageID] = packageThrottleCount
 			} else {
-				log.Debugf("CPU %v is missing package_throttle_count", cpu)
+				level.Debug(c.logger).Log("msg", "CPU is missing package_throttle_count", "cpu", cpu)
 			}
 		}
 	}

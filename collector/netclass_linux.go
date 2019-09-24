@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -34,6 +35,8 @@ type netClassCollector struct {
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
+
+	logger log.Logger
 }
 
 func init() {
@@ -41,7 +44,7 @@ func init() {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector() (Collector, error) {
+func NewNetClassCollector(logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %v", err)
@@ -52,6 +55,7 @@ func NewNetClassCollector() (Collector, error) {
 		subsystem:             "network",
 		ignoredDevicesPattern: pattern,
 		metricDescs:           map[string]*prometheus.Desc{},
+		logger:                logger,
 	}, nil
 }
 

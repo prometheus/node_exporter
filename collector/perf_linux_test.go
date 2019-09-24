@@ -21,6 +21,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -37,7 +38,7 @@ func TestPerfCollector(t *testing.T) {
 	if paranoid >= 1 {
 		t.Skip("Skipping perf tests, set perf_event_paranoid to 0")
 	}
-	collector, err := NewPerfCollector()
+	collector, err := NewPerfCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
