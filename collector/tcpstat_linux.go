@@ -52,6 +52,10 @@ const (
 	tcpListen
 	// TCP_CLOSING
 	tcpClosing
+	// TCP_RX_BUFFER
+	tcpRxQueuedBytes
+	// TCP_TX_BUFFER
+	tcpTxQueuedBytes
 )
 
 type tcpStatCollector struct {
@@ -122,9 +126,26 @@ func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
 		if len(parts) == 0 {
 			continue
 		}
-		if len(parts) < 4 {
+		if len(parts) < 5 {
 			return nil, fmt.Errorf("invalid TCP stats line: %q", line)
 		}
+
+		qu := strings.Split(parts[4], ":")
+		if len(qu) < 2 {
+			return nil, fmt.Errorf("cannot parse tx_queues and rx_queues: %q", line)
+		}
+
+		tx, err := strconv.ParseUint(qu[0], 16, 64)
+		if err != nil {
+			return nil, err
+		}
+		tcpStats[tcpConnectionState(tcpTxQueuedBytes)] += float64(tx)
+
+		rx, err := strconv.ParseUint(qu[1], 16, 64)
+		if err != nil {
+			return nil, err
+		}
+		tcpStats[tcpConnectionState(tcpRxQueuedBytes)] += float64(rx)
 
 		st, err := strconv.ParseInt(parts[3], 16, 8)
 		if err != nil {
@@ -132,6 +153,7 @@ func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
 		}
 
 		tcpStats[tcpConnectionState(st)]++
+
 	}
 
 	return tcpStats, nil
@@ -161,6 +183,10 @@ func (st tcpConnectionState) String() string {
 		return "listen"
 	case tcpClosing:
 		return "closing"
+	case tcpRxQueuedBytes:
+		return "rx_queued_bytes"
+	case tcpTxQueuedBytes:
+		return "tx_queued_bytes"
 	default:
 		return "unknown"
 	}
