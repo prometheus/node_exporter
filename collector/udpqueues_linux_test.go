@@ -40,7 +40,7 @@ func Test_parseUDPqueues(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "reading valid lines, no issue should happend",
+			name: "reading valid lines, no issue should happen",
 			args: args{
 				strings.NewReader(
 					"sl  local_address rem_address   st tx_queue rx_queue \n" +
