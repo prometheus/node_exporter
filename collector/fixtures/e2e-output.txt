@@ -816,12 +816,10 @@ node_infiniband_legacy_unicast_packets_transmitted_total{device="mlx4_0",port="1
 node_infiniband_legacy_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 61239
 # HELP node_infiniband_link_downed_total Number of times the link failed to recover from an error state and went down
 # TYPE node_infiniband_link_downed_total counter
-node_infiniband_link_downed_total{device="i40iw0",port="1"} 0
 node_infiniband_link_downed_total{device="mlx4_0",port="1"} 0
 node_infiniband_link_downed_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_link_error_recovery_total Number of times the link successfully recovered from an error state
 # TYPE node_infiniband_link_error_recovery_total counter
-node_infiniband_link_error_recovery_total{device="i40iw0",port="1"} 0
 node_infiniband_link_error_recovery_total{device="mlx4_0",port="1"} 0
 node_infiniband_link_error_recovery_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_multicast_packets_received_total Number of multicast packets received (including errors)
@@ -834,20 +832,16 @@ node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_port_constraint_errors_received_total Number of packets received on the switch physical port that are discarded
 # TYPE node_infiniband_port_constraint_errors_received_total counter
-node_infiniband_port_constraint_errors_received_total{device="i40iw0",port="1"} 0
 node_infiniband_port_constraint_errors_received_total{device="mlx4_0",port="1"} 0
 # HELP node_infiniband_port_constraint_errors_transmitted_total Number of packets not transmitted from the switch physical port
 # TYPE node_infiniband_port_constraint_errors_transmitted_total counter
-node_infiniband_port_constraint_errors_transmitted_total{device="i40iw0",port="1"} 0
 node_infiniband_port_constraint_errors_transmitted_total{device="mlx4_0",port="1"} 0
 # HELP node_infiniband_port_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_port_data_received_bytes_total counter
-node_infiniband_port_data_received_bytes_total{device="i40iw0",port="1"} 0
 node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
 node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_port_data_transmitted_bytes_total Number of data octets transmitted on all links
 # TYPE node_infiniband_port_data_transmitted_bytes_total counter
-node_infiniband_port_data_transmitted_bytes_total{device="i40iw0",port="1"} 0
 node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="1"} 1.493376e+07
 node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_port_discards_received_total Number of inbound packets discarded by the port because the port is down or congested
@@ -855,23 +849,18 @@ node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="2"} 0
 node_infiniband_port_discards_received_total{device="mlx4_0",port="1"} 0
 # HELP node_infiniband_port_discards_transmitted_total Number of outbound packets discarded by the port because the port is down or congested
 # TYPE node_infiniband_port_discards_transmitted_total counter
-node_infiniband_port_discards_transmitted_total{device="i40iw0",port="1"} 0
 node_infiniband_port_discards_transmitted_total{device="mlx4_0",port="1"} 5
 # HELP node_infiniband_port_errors_received_total Number of packets containing an error that were received on this port
 # TYPE node_infiniband_port_errors_received_total counter
-node_infiniband_port_errors_received_total{device="i40iw0",port="1"} 0
 node_infiniband_port_errors_received_total{device="mlx4_0",port="1"} 0
 # HELP node_infiniband_port_packets_received_total Number of packets received on all VLs by this port (including errors)
 # TYPE node_infiniband_port_packets_received_total counter
-node_infiniband_port_packets_received_total{device="i40iw0",port="1"} 0
 node_infiniband_port_packets_received_total{device="mlx4_0",port="1"} 6.825908347e+09
 # HELP node_infiniband_port_packets_transmitted_total Number of packets transmitted on all VLs from this port (including errors)
 # TYPE node_infiniband_port_packets_transmitted_total counter
-node_infiniband_port_packets_transmitted_total{device="i40iw0",port="1"} 0
 node_infiniband_port_packets_transmitted_total{device="mlx4_0",port="1"} 6.235865e+06
 # HELP node_infiniband_port_transmit_wait_total Number of ticks during which the port had data to transmit but no data was sent during the entire tick
 # TYPE node_infiniband_port_transmit_wait_total counter
-node_infiniband_port_transmit_wait_total{device="i40iw0",port="1"} 0
 node_infiniband_port_transmit_wait_total{device="mlx4_0",port="1"} 4.294967295e+09
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
