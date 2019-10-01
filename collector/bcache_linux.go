@@ -18,7 +18,6 @@ package collector
 import (
 	"fmt"
 
-	// https://godoc.org/github.com/prometheus/client_golang/prometheus
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
 )
