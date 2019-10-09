@@ -47,7 +47,7 @@ func NewMemoryCollector() (Collector, error) {
 
 	mibSwapTotal := "vm.swap_total"
 	/* swap_total is FreeBSD specific. Fall back to Dfly specific mib if not present. */
-	_, err = unix.SysctlUint32(mibSwapTotal)
+	_, err = unix.SysctlUint64(mibSwapTotal)
 	if err != nil {
 		mibSwapTotal = "vm.swap_size"
 	}

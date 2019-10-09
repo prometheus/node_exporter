@@ -1577,6 +1577,7 @@ node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",p
 node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_major_timeouts_total Number of times a request has had a major timeout for a given operation.
 # TYPE node_mountstats_nfs_operations_major_timeouts_total counter
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 0
 node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 0
@@ -1585,6 +1586,7 @@ node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/tes
 node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_queue_time_seconds_total Duration all requests spent queued for transmission for a given operation before they were sent, in seconds.
 # TYPE node_mountstats_nfs_operations_queue_time_seconds_total counter
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 9.007044786793922e+12
 node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 0.006
@@ -1593,6 +1595,7 @@ node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv
 node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_received_bytes_total Number of bytes received for a given operation, including RPC headers and payload.
 # TYPE node_mountstats_nfs_operations_received_bytes_total counter
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 3.62996810236e+11
 node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 1.210292152e+09
@@ -1601,6 +1604,7 @@ node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/tes
 node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_request_time_seconds_total Duration all requests took from when a request was enqueued to when it was completely handled for a given operation, in seconds.
 # TYPE node_mountstats_nfs_operations_request_time_seconds_total counter
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 1.953587717e+06
 node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 79.407
@@ -1609,6 +1613,7 @@ node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/s
 node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_requests_total Number of requests performed for a given operation.
 # TYPE node_mountstats_nfs_operations_requests_total counter
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 2.927395007e+09
 node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 1298
@@ -1617,6 +1622,7 @@ node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",ope
 node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_response_time_seconds_total Duration all requests took to get a reply back after a request for a given operation was transmitted, in seconds.
 # TYPE node_mountstats_nfs_operations_response_time_seconds_total counter
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 1.667369447e+06
 node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 79.386
@@ -1625,6 +1631,7 @@ node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/
 node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_sent_bytes_total Number of bytes sent for a given operation, including RPC headers and payload.
 # TYPE node_mountstats_nfs_operations_sent_bytes_total counter
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 5.26931094212e+11
 node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 207680
@@ -1633,6 +1640,7 @@ node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",o
 node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_transmissions_total Number of times an actual RPC request has been transmitted for a given operation.
 # TYPE node_mountstats_nfs_operations_transmissions_total counter
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="ACCESS",protocol="udp"} 2.927394995e+09
 node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
 node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
 node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 1298
