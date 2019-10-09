@@ -49,6 +49,10 @@ github.com/mdlayher/netlink v0.0.0-20181210160939-e069752bc835/go.mod h1:a3TlQHk
 github.com/mdlayher/wifi v0.0.0-20180727163819-efdf3f4195d9 h1:ag57ienknXLMhoSbkYvaZLF9Taxu9GtBHUJ4jP5ER8s=
 github.com/mdlayher/wifi v0.0.0-20180727163819-efdf3f4195d9/go.mod h1:Evt/EIne46u9PtQbeTx2NTcqURpr5K4SvKtGmBuDPN8=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
+github.com/pgier/procfs v0.0.0-20191009064913-fd8fc01072a6 h1:SO5nDu8vkv19D83+QgKOjtCJ4VekKCmkJXJBsONzoyM=
+github.com/pgier/procfs v0.0.0-20191009064913-fd8fc01072a6/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsTZCD3I8kEA=
+github.com/pgier/procfs v0.0.0-20191009150458-7d6f90cdaf41 h1:UABs4w4saEiPTwAJqcuGEZXHRV1iEtggSM0jl+E4WbQ=
+github.com/pgier/procfs v0.0.0-20191009150458-7d6f90cdaf41/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsTZCD3I8kEA=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
@@ -63,10 +67,6 @@ github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90/go.mod h1:
 github.com/prometheus/common v0.0.0-20181126121408-4724e9255275/go.mod h1:daVV7qP5qjZbuso7PdcryaAu0sAZbrN9i7WWcTMWvro=
 github.com/prometheus/common v0.3.0 h1:taZ4h8Tkxv2kNyoSctBvfXEHmBmxrwmIidZTIaHons4=
 github.com/prometheus/common v0.3.0/go.mod h1:TNfzLD0ON7rHzMJeJkieUDPYmFC7Snx/y86RQel1bk4=
-github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
-github.com/prometheus/procfs v0.0.0-20181204211112-1dc9a6cbc91a/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
-github.com/prometheus/procfs v0.0.0-20190529155944-65bdadfa96ae h1:kF6Y/ES9NQmW3t400V0XH+lO1jqvCpXBC1XoLDkvuMM=
-github.com/prometheus/procfs v0.0.0-20190529155944-65bdadfa96ae/go.mod h1:TjEm7ze935MbeOT/UhFTIMYKhuLP4wbCsTZCD3I8kEA=
 github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745 h1:IuH7WumZNax0D+rEqmy2TyhKCzrtMGqbZO0b8rO00JA=
 github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745/go.mod h1:G81aIFAMS9ECrwBYR9YxhlPjWgrItd+Kje78O6+uqm8=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
