@@ -9,6 +9,7 @@
     - `node_md_disks` now has a `state` label for "fail", "spare", "active" disks.
     - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
 * Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
+* Metrics node_cpu_scaling_frequency_min_hrts and node_cpu_scaling_frequency_max_hrts of the cpufreq collector were renamed to node_cpu_scaling_frequency_min_hertz and node_cpu_scaling_frequency_max_hertz. #1510
 
 ### Changes
 
@@ -28,6 +29,7 @@
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421
 * [BUGFIX] Fix empty string in path.rootfs #1464
+* [BUGFIX] Fix typo in cpufreq metric names #1510
 
 ## 0.18.1 / 2019-06-04
 
