@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	perf "github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
@@ -28,10 +29,7 @@ const (
 )
 
 var (
-	cpus                = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
-	hwProfilerCpuMap    = make(map[*perf.HardwareProfiler]int)
-	swProfilerCpuMap    = make(map[*perf.SoftwareProfiler]int)
-	cacheProfilerCpuMap = make(map[*perf.CacheProfiler]int)
+	perfCpusFlag = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
 )
 
 func init() {
@@ -44,14 +42,17 @@ func init() {
 // settings not all profiler values may be exposed on the target system at any
 // given time.
 type perfCollector struct {
-	perfHwProfilers    map[int]perf.HardwareProfiler
-	perfSwProfilers    map[int]perf.SoftwareProfiler
-	perfCacheProfilers map[int]perf.CacheProfiler
-	desc               map[string]*prometheus.Desc
+	hwProfilerCpuMap    map[*perf.HardwareProfiler]int
+	swProfilerCpuMap    map[*perf.SoftwareProfiler]int
+	cacheProfilerCpuMap map[*perf.CacheProfiler]int
+	perfHwProfilers     map[int]perf.HardwareProfiler
+	perfSwProfilers     map[int]perf.SoftwareProfiler
+	perfCacheProfilers  map[int]perf.CacheProfiler
+	desc                map[string]*prometheus.Desc
 }
 
 func isValidCPUString(cpus *string) bool {
-	if cpus == nil || *cpus == "" || !strings.Contains(*cpus, "-") || strings.Count(*cpus, "-") != 1 {
+	if !strings.Contains(*cpus, "-") || strings.Count(*cpus, "-") != 1 {
 		return false
 	}
 
@@ -71,17 +72,19 @@ func NewPerfCollector() (Collector, error) {
 	ncpus := 0
 	var err error
 
-	if !isValidCPUString(cpus) {
+	if perfCpusFlag == nil || *perfCpusFlag == "" {
 		start = 0
 		ncpus = runtime.NumCPU() - 1
+	} else if !isValidCPUString(perfCpusFlag) {
+		return nil, errors.New("--collector.perf.cpus flag value is invalid, it must be a range (e.g. 2-6)")
 	} else {
-		cpu_range := strings.Split(*cpus, "-")
-		start, err = strconv.Atoi(cpu_range[0])
+		cpuRange := strings.Split(*perfCpusFlag, "-")
+		start, err = strconv.Atoi(cpuRange[0])
 		if err != nil {
 			start = 0
 		}
 
-		ncpus, err = strconv.Atoi(cpu_range[1])
+		ncpus, err = strconv.Atoi(cpuRange[1])
 		if err != nil {
 			ncpus = runtime.NumCPU() - 1
 		}
@@ -95,7 +98,7 @@ func NewPerfCollector() (Collector, error) {
 		if err := collector.perfHwProfilers[idx].Start(); err != nil {
 			return collector, err
 		} else {
-			hwProfilerCpuMap[&p] = i
+			collector.hwProfilerCpuMap[&p] = i
 		}
 
 		p2 := perf.NewSoftwareProfiler(-1, i)
@@ -103,7 +106,7 @@ func NewPerfCollector() (Collector, error) {
 		if err := collector.perfSwProfilers[i].Start(); err != nil {
 			return collector, err
 		} else {
-			swProfilerCpuMap[&p2] = i
+			collector.swProfilerCpuMap[&p2] = i
 		}
 
 		p3 := perf.NewCacheProfiler(-1, i)
@@ -111,7 +114,7 @@ func NewPerfCollector() (Collector, error) {
 		if err := collector.perfCacheProfilers[i].Start(); err != nil {
 			return collector, err
 		} else {
-			cacheProfilerCpuMap[&p3] = i
+			collector.cacheProfilerCpuMap[&p3] = i
 		}
 	}
 
@@ -380,7 +383,7 @@ func (c *perfCollector) Update(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 	for _, profiler := range c.perfHwProfilers {
-		cpuid := hwProfilerCpuMap[&profiler]
+		cpuid := c.hwProfilerCpuMap[&profiler]
 		cpuStr := fmt.Sprintf("%d", cpuid)
 		hwProfile, err := profiler.Profile()
 		if err != nil {
@@ -452,7 +455,7 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 	for _, profiler := range c.perfSwProfilers {
-		cpuid := swProfilerCpuMap[&profiler]
+		cpuid := c.swProfilerCpuMap[&profiler]
 		cpuStr := fmt.Sprintf("%d", cpuid)
 		swProfile, err := profiler.Profile()
 		if err != nil {
@@ -508,7 +511,7 @@ func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateCacheStats(ch chan<- prometheus.Metric) error {
 	for _, profiler := range c.perfCacheProfilers {
-		cpuid := cacheProfilerCpuMap[&profiler]
+		cpuid := c.cacheProfilerCpuMap[&profiler]
 		cpuStr := fmt.Sprintf("%d", cpuid)
 		cacheProfile, err := profiler.Profile()
 		if err != nil {
