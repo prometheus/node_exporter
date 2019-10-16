@@ -86,7 +86,8 @@ By default, the perf collector will only collect metrics of the CPUs that
 `node_exporter` can run on. If this is insufficient (e.g. if you run `node_exporter` with
 its CPU affinity set to specific CPUs) You can specify a list of alternate CPUs by using the
 `--collector.perf.cpus` flag. For example, to collect metrics on CPUs 2-6, you
-would specify: `--collector.perf --collector.perf.cpus=2-6`.
+would specify: `--collector.perf --collector.perf.cpus=2-6`. The CPU ids start
+at 0.
 
 
 Name     | Description | OS
