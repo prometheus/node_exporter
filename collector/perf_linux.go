@@ -63,9 +63,12 @@ func isValidCPUString(cpus *string) bool {
 // per CPU.
 func NewPerfCollector() (Collector, error) {
 	collector := &perfCollector{
-		perfHwProfilers:    map[int]perf.HardwareProfiler{},
-		perfSwProfilers:    map[int]perf.SoftwareProfiler{},
-		perfCacheProfilers: map[int]perf.CacheProfiler{},
+		perfHwProfilers:     map[int]perf.HardwareProfiler{},
+		perfSwProfilers:     map[int]perf.SoftwareProfiler{},
+		perfCacheProfilers:  map[int]perf.CacheProfiler{},
+		hwProfilerCpuMap:    map[*perf.HardwareProfiler]int{},
+		swProfilerCpuMap:    map[*perf.SoftwareProfiler]int{},
+		cacheProfilerCpuMap: map[*perf.CacheProfiler]int{},
 	}
 
 	start := 0
