@@ -36,7 +36,7 @@ func init() {
 	registerCollector("cpufreq", defaultEnabled, NewCpuFreqCollector)
 }
 
-func NewFreqCpuCollector() (Collector, error) {
+func NewCpuFreqCollector() (Collector, error) {
 	return &cpuFreqCollector{
 		cpuFreq: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
@@ -51,7 +51,7 @@ func NewFreqCpuCollector() (Collector, error) {
 	}, nil
 }
 
-func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
 
 	tok, err := kstat.Open()
