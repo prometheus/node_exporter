@@ -53,8 +53,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
         .addPanel(
-          g.panel('Memory Saturation (Swapped Pages)') +
-          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
+          g.panel('Memory Saturation (Major Page Faults)') +
+          g.queryPanel('instance:node_vmstat_pgmajfault:rate1m{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes('rps') },
         )
@@ -201,8 +201,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
-          g.panel('Memory Saturation (pages swapped per second)') +
-          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Swap IO') +
+          g.panel('Memory Saturation (Major Page Faults)') +
+          g.queryPanel('instance:node_vmstat_pgmajfault:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Major page faults') +
           {
             yaxes: g.yaxes('short'),
             legend+: { show: false },
