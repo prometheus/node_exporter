@@ -34,8 +34,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
             )
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
-          // TODO: Does `max: 1` make sense? The stack can go over 1 in high-load scenarios.
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
+          { yaxes: g.yaxes({ format: 'percentunit' }) },
         )
       )
       .addRow(
@@ -50,7 +49,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
             )
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
+          { yaxes: g.yaxes({ format: 'percentunit' }) },
         )
         .addPanel(
           g.panel('Memory Saturation (Major Page Faults)') +
