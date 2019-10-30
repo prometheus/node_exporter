@@ -8,7 +8,7 @@ require (
 	github.com/hodgesds/perf-utils v0.0.7
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
-	github.com/mattn/go-xmlrpc v0.0.1
+	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/genetlink v0.0.0-20190828143517-e35f2bf499b9 // indirect
 	github.com/mdlayher/wifi v0.0.0-20190303161829-b1436901ddee
 	github.com/prometheus/client_golang v1.0.0
