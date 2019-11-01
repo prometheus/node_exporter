@@ -16,7 +16,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
             *
               instance:node_num_cpu:sum{%(nodeExporterSelector)s}
             )
-	    / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s}))
+            / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
