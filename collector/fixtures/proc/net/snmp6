@@ -80,6 +80,6 @@ UdpLite6InDatagrams             	0
 UdpLite6NoPorts                 	0
 UdpLite6InErrors                	0
 UdpLite6OutDatagrams            	0
-UdpLite6RcvbufErrors            	0
-UdpLite6SndbufErrors            	0
+UdpLite6RcvbufErrors            	9
+UdpLite6SndbufErrors            	8
 UdpLite6InCsumErrors            	0
