@@ -86,11 +86,11 @@ func testSNMP6Stats(t *testing.T, fileName string) {
 		t.Errorf("want netstat ICPM6 OutMsgs %s, got %s", want, got)
 	}
 
-	if want, got := "9", snmp6Stats["UdpLite6"]["RcvbufErrors"]; want != got {
-		t.Errorf("want netstat UdpLite6 RcvbufErrors %s, got %s", want, got)
+	if want, got := "9", snmp6Stats["Udp6"]["RcvbufErrors"]; want != got {
+		t.Errorf("want netstat Udp6 RcvbufErrors %s, got %s", want, got)
 	}
 
-	if want, got := "8", snmp6Stats["UdpLite6"]["SndbufErrors"]; want != got {
-		t.Errorf("want netstat UdpLite6 SndbufErrors %s, got %s", want, got)
+	if want, got := "8", snmp6Stats["Udp6"]["SndbufErrors"]; want != got {
+		t.Errorf("want netstat Udp6 SndbufErrors %s, got %s", want, got)
 	}
 }
