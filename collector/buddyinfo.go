@@ -55,7 +55,7 @@ func NewBuddyinfoCollector() (Collector, error) {
 // Update calls (*buddyinfoCollector).getBuddyInfo to get the platform specific
 // buddyinfo metrics.
 func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
-	buddyInfo, err := c.fs.NewBuddyInfo()
+	buddyInfo, err := c.fs.BuddyInfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get buddyinfo: %s", err)
 	}

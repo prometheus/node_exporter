@@ -1,5 +1,17 @@
 // Package netlink provides low-level access to Linux netlink sockets.
 //
+// If you have any questions or you'd like some guidance, please join us on
+// Gophers Slack (https://invite.slack.golangbridge.org) in the #networking
+// channel!
+//
+//
+// Network namespaces
+//
+// This package is aware of Linux network namespaces, and can enter different
+// network namespaces either implicitly or explicitly, depending on
+// configuration. The Config structure passed to Dial to create a Conn controls
+// these behaviors. See the documentation of Config.NetNS for details.
+//
 //
 // Debugging
 //
@@ -20,3 +32,5 @@
 //
 //   level=N: specify the debugging level (only "1" is currently supported)
 package netlink
+
+//go:generate dot netlink.dot -T svg -o netlink.svg

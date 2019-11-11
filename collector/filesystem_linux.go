@@ -22,18 +22,21 @@ import (
 	"os"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/prometheus/common/log"
+	"golang.org/x/sys/unix"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
 	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
-	defIgnoredFSTypes     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
-	mountTimeout          = 30 * time.Second
+	defIgnoredFSTypes     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 )
 
+var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
+	"how long to wait for a mount to respond before marking it as stale").
+	Hidden().Default("5s").Duration()
 var stuckMounts = make(map[string]struct{})
 var stuckMountsMtx = &sync.Mutex{}
 
@@ -70,9 +73,8 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		success := make(chan struct{})
 		go stuckMountWatcher(labels.mountPoint, success)
 
-		buf := new(syscall.Statfs_t)
-		err = syscall.Statfs(rootfsFilePath(labels.mountPoint), buf)
-
+		buf := new(unix.Statfs_t)
+		err = unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
 		stuckMountsMtx.Lock()
 		close(success)
 		// If the mount has been marked as stuck, unmark it and log it's recovery.
@@ -119,7 +121,7 @@ func stuckMountWatcher(mountPoint string, success chan struct{}) {
 	select {
 	case <-success:
 		// Success
-	case <-time.After(mountTimeout):
+	case <-time.After(*mountTimeout):
 		// Timed out, mark mount as stuck
 		stuckMountsMtx.Lock()
 		select {
@@ -166,7 +168,7 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
-			mountPoint: parts[1],
+			mountPoint: rootfsStripPrefix(parts[1]),
 			fsType:     parts[2],
 			options:    parts[3],
 		})

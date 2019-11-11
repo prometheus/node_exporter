@@ -30,8 +30,10 @@ enabled_collectors=$(cat << COLLECTORS
   nfsd
   pressure
   qdisc
+  schedstat
   sockstat
   stat
+  thermal_zone
   textfile
   bonding
   vmstat

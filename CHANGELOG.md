@@ -2,9 +2,34 @@
 
 ### **Breaking changes**
 
+* The netdev collector CLI argument `--collector.netdev.ignored-devices` was renamed to `--collector.netdev.device-blacklist` in order to conform with the systemd collector. #1279
+* The label named `state` on `node_systemd_service_restart_total` metrics was changed to `name` to better describe the metric. #1393
+* Refactoring of the mdadm collector changes several metrics
+    - `node_md_disks_active` is removed
+    - `node_md_disks` now has a `state` label for "fail", "spare", "active" disks.
+    - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
+* Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
+* Metrics node_cpu_scaling_frequency_min_hrts and node_cpu_scaling_frequency_max_hrts of the cpufreq collector were renamed to node_cpu_scaling_frequency_min_hertz and node_cpu_scaling_frequency_max_hertz. #1510
+
 ### Changes
 
+* [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
+* [CHANGE] Refactor mdadm collector #1403
+* [CHANGE] Add `mountaddr` label to NFS metrics. #1417
+* [FEATURE] Add new schedstat collector #1389
+* [FEATURE] Add uname support for Darwin and OpenBSD #1433
 * [FEATURE] Add new metric node_cpu_info #1489
+* [FEATURE] Add new thermal_zone collector #1425
+* [FEATURE] Add new cooling_device metrics to thermal zone collector #1445
+* [ENHANCEMENT] Include additional XFS runtime statistics. #1423
+* [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
+* [ENHANCEMENT] Expose IPVS firewall mark as a label #1455
+* [ENHANCEMENT] Add check for systemd version before attempting to query certain metrics. #1413
+* [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
+* [BUGFIX] Fix netdev nil reference on Darwin #1414
+* [BUGFIX] Strip path.rootfs from mountpoint labels #1421
+* [BUGFIX] Fix empty string in path.rootfs #1464
+* [BUGFIX] Fix typo in cpufreq metric names #1510
 
 ## 0.18.1 / 2019-06-04
 
@@ -63,9 +88,10 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 
 ### Changes
 
+* [CHANGE] Use /proc/mounts instead of statfs(2) for ro state #1002
+* [CHANGE] Exclude only subdirectories of /var/lib/docker #1003
 * [CHANGE] Filter out non-installed units when collecting all systemd units #1011
 * [CHANGE] `service_restart_total` and `socket_refused_connections_total` will not be reported if you're running an older version of systemd
-* [CHANGE] Use /proc/mounts instead of statfs(2) for ro state #1002
 * [CHANGE] collector/timex: remove cgo dependency #1079
 * [CHANGE] filesystem: Ignore Docker netns mounts #1047
 * [CHANGE] Ignore additional virtual filesystems #1104

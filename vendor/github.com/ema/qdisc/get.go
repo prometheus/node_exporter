@@ -19,7 +19,7 @@ const (
 	TCA_FCNT
 	TCA_STATS2
 	TCA_STAB
-	__TCA_MAX
+	// __TCA_MAX
 )
 
 const (
@@ -29,7 +29,7 @@ const (
 	TCA_STATS_QUEUE
 	TCA_STATS_APP
 	TCA_STATS_RATE_EST64
-	__TCA_STATS_MAX
+	// __TCA_STATS_MAX
 )
 
 // See struct tc_stats in /usr/include/linux/pkt_sched.h
@@ -157,10 +157,10 @@ func parseTC_Fq_Qd_Stats(attr netlink.Attribute) (TC_Fq_Qd_Stats, error) {
 func getQdiscMsgs(c *netlink.Conn) ([]netlink.Message, error) {
 	req := netlink.Message{
 		Header: netlink.Header{
-			Flags: netlink.HeaderFlagsRequest | netlink.HeaderFlagsDump,
+			Flags: netlink.Request | netlink.Dump,
 			Type:  38, // RTM_GETQDISC
 		},
-		Data: []byte{0},
+		Data: make([]byte, 20),
 	}
 
 	// Perform a request, receive replies, and validate the replies
@@ -192,7 +192,7 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 	*/
 
 	if len(msg.Data) < 20 {
-		return m, fmt.Errorf("Short message, len=%d", len(msg.Data))
+		return m, fmt.Errorf("short message, len=%d", len(msg.Data))
 	}
 
 	ifaceIdx := nlenc.Uint32(msg.Data[4:8])

@@ -8,10 +8,8 @@ import (
 	"github.com/mdlayher/netlink/nlenc"
 )
 
-var (
-	// errInvalidAttribute specifies if an Attribute's length is incorrect.
-	errInvalidAttribute = errors.New("invalid attribute; length too short or too large")
-)
+// errInvalidAttribute specifies if an Attribute's length is incorrect.
+var errInvalidAttribute = errors.New("invalid attribute; length too short or too large")
 
 // An Attribute is a netlink attribute.  Attributes are packed and unpacked
 // to and from the Data field of Message for some netlink families.
@@ -180,12 +178,8 @@ func (ad *AttributeDecoder) Next() bool {
 
 	ad.i++
 
-	if len(ad.attrs) < ad.i {
-		// No more attributes, stop iteration.
-		return false
-	}
-
-	return true
+	// More attributes?
+	return len(ad.attrs) >= ad.i
 }
 
 // Type returns the Attribute.Type field of the current netlink attribute

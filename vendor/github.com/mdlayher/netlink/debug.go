@@ -8,10 +8,8 @@ import (
 	"strings"
 )
 
-var (
-	// Arguments used to create a debugger.
-	debugArgs []string
-)
+// Arguments used to create a debugger.
+var debugArgs []string
 
 func init() {
 	// Is netlink debugging enabled?

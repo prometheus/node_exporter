@@ -19,14 +19,14 @@ import (
 	"testing"
 )
 
-func TestNetDevStats(t *testing.T) {
+func TestNetDevStatsIgnore(t *testing.T) {
 	file, err := os.Open("fixtures/proc/net/dev")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer file.Close()
 
-	netStats, err := parseNetDevStats(file, regexp.MustCompile("^veth"))
+	netStats, err := parseNetDevStats(file, regexp.MustCompile("^veth"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,6 +55,26 @@ func TestNetDevStats(t *testing.T) {
 		t.Error("want fixture interface ibr10:30 to exist, but it does not")
 	}
 
+	if want, got := "72", netStats["💩0"]["receive_multicast"]; want != got {
+		t.Error("want fixture interface 💩0 to exist, but it does not")
+	}
+}
+
+func TestNetDevStatsAccept(t *testing.T) {
+	file, err := os.Open("fixtures/proc/net/dev")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+
+	netStats, err := parseNetDevStats(file, nil, regexp.MustCompile("^💩0$"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := 1, len(netStats); want != got {
+		t.Errorf("want count of devices to be %d, got %d", want, got)
+	}
 	if want, got := "72", netStats["💩0"]["receive_multicast"]; want != got {
 		t.Error("want fixture interface 💩0 to exist, but it does not")
 	}

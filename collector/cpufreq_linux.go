@@ -66,12 +66,12 @@ func NewCPUFreqCollector() (Collector, error) {
 			[]string{"cpu"}, nil,
 		),
 		scalingFreqMin: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_min_hrts"),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_min_hertz"),
 			"Minimum scaled cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		scalingFreqMax: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_max_hrts"),
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_max_hertz"),
 			"Maximum scaled cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
@@ -80,7 +80,7 @@ func NewCPUFreqCollector() (Collector, error) {
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
-	cpuFreqs, err := c.fs.NewSystemCpufreq()
+	cpuFreqs, err := c.fs.SystemCpufreq()
 	if err != nil {
 		return err
 	}

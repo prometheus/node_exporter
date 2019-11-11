@@ -38,8 +38,12 @@ func TestFileDescriptorLeak(t *testing.T) {
 	if _, err := os.Stat(binary); err != nil {
 		t.Skipf("node_exporter binary not available, try to run `make build` first: %s", err)
 	}
-	if _, err := procfs.NewStat(); err != nil {
+	fs, err := procfs.NewDefaultFS()
+	if err != nil {
 		t.Skipf("proc filesystem is not available, but currently required to read number of open file descriptors: %s", err)
+	}
+	if _, err := fs.Stat(); err != nil {
+		t.Errorf("unable to read process stats: %s", err)
 	}
 
 	exporter := exec.Command(binary, "--web.listen-address", address)

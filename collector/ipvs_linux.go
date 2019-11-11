@@ -50,6 +50,7 @@ func newIPVSCollector() (*ipvsCollector, error) {
 			"remote_address",
 			"remote_port",
 			"proto",
+			"local_mark",
 		}
 		c         ipvsCollector
 		err       error
@@ -106,7 +107,7 @@ func newIPVSCollector() (*ipvsCollector, error) {
 }
 
 func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
-	ipvsStats, err := c.fs.NewIPVSStats()
+	ipvsStats, err := c.fs.IPVSStats()
 	if err != nil {
 		// Cannot access ipvs metrics, report no error.
 		if os.IsNotExist(err) {
@@ -121,18 +122,23 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- c.incomingBytes.mustNewConstMetric(float64(ipvsStats.IncomingBytes))
 	ch <- c.outgoingBytes.mustNewConstMetric(float64(ipvsStats.OutgoingBytes))
 
-	backendStats, err := c.fs.NewIPVSBackendStatus()
+	backendStats, err := c.fs.IPVSBackendStatus()
 	if err != nil {
 		return fmt.Errorf("could not get backend status: %s", err)
 	}
 
 	for _, backend := range backendStats {
+		localAddress := ""
+		if backend.LocalAddress.String() != "<nil>" {
+			localAddress = backend.LocalAddress.String()
+		}
 		labelValues := []string{
-			backend.LocalAddress.String(),
+			localAddress,
 			strconv.FormatUint(uint64(backend.LocalPort), 10),
 			backend.RemoteAddress.String(),
 			strconv.FormatUint(uint64(backend.RemotePort), 10),
 			backend.Proto,
+			backend.LocalMark,
 		}
 		ch <- c.backendConnectionsActive.mustNewConstMetric(float64(backend.ActiveConn), labelValues...)
 		ch <- c.backendConnectionsInact.mustNewConstMetric(float64(backend.InactConn), labelValues...)
