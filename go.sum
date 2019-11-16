@@ -51,8 +51,8 @@ github.com/konsorten/go-windows-terminal-sequences v1.0.2/go.mod h1:T0+1ngSBFLxv
 github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515/go.mod h1:+0opPa2QZZtGFBFZlji/RkVcI2GknAs/DXo4wKdlNEc=
 github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3 h1:XGhvld9vIpj929Gri5ybjukYZeyZwKkFkqgATqBQiOs=
 github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3/go.mod h1:lRgtFVamD7L7GaXOSwBiuXMwU3Aicfn5h66LVs4u2SA=
-github.com/mattn/go-xmlrpc v0.0.1 h1:JY8G+sH4jcjzZvxAY5P+wNrWA2WYC+aK+2bsYOl4z0Q=
-github.com/mattn/go-xmlrpc v0.0.1/go.mod h1:mqc2dz7tP5x5BKlCahN/n+hs7OSZKJkS9JsHNBRlrxA=
+github.com/mattn/go-xmlrpc v0.0.3 h1:Y6WEMLEsqs3RviBrAa1/7qmbGB7DVD3brZIbqMbQdGY=
+github.com/mattn/go-xmlrpc v0.0.3/go.mod h1:mqc2dz7tP5x5BKlCahN/n+hs7OSZKJkS9JsHNBRlrxA=
 github.com/matttproud/golang_protobuf_extensions v1.0.1 h1:4hp9jkHxhMHkqkrB3Ix0jegS5sx/RkqARlsWZ6pIwiU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/mdlayher/genetlink v0.0.0-20190828143517-e35f2bf499b9 h1:o+ckyx58UC6Itoo7sEwmXMpHcnI31lRK6w4M5gQMIMw=

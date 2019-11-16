@@ -21,7 +21,7 @@ github.com/hodgesds/perf-utils
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
 github.com/lufia/iostat
-# github.com/mattn/go-xmlrpc v0.0.1
+# github.com/mattn/go-xmlrpc v0.0.3
 github.com/mattn/go-xmlrpc
 # github.com/matttproud/golang_protobuf_extensions v1.0.1
 github.com/matttproud/golang_protobuf_extensions/pbutil
