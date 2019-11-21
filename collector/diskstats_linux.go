@@ -160,6 +160,23 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.CounterValue,
 				factor: .001,
 			},
+			{
+				desc: prometheus.NewDesc(
+					prometheus.BuildFQName(namespace, diskSubsystem, "flush_requests_total"),
+					"The total number of flush requests completed successfully",
+					diskLabelNames,
+					nil,
+				), valueType: prometheus.CounterValue,
+			},
+			{
+				desc: prometheus.NewDesc(
+					prometheus.BuildFQName(namespace, diskSubsystem, "flush_requests_time_seconds_total"),
+					"This is the total number of seconds spent by all flush requests.",
+					diskLabelNames,
+					nil,
+				), valueType: prometheus.CounterValue,
+				factor: .001,
+			},
 		},
 	}, nil
 }
