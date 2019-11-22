@@ -298,11 +298,6 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_xmit_discards
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/mlx4_0/ports/1/counters/port_rcv_errors
 Lines: 1
 0
@@ -1278,14 +1273,15 @@ Path: sys/class/power_supply/BAT0/voltage_now
 Lines: 1
 11660000
 Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/thermal
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/thermal/thermal_zone0
-SymlinkTo: ../../devices/virtual/thermal/thermal_zone0
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/thermal/cooling_device0
 SymlinkTo: ../../devices/virtual/thermal/cooling_device0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/thermal/thermal_zone0
+SymlinkTo: ../../devices/virtual/thermal/thermal_zone0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices
 Mode: 755
@@ -3198,9 +3194,5 @@ Mode: 644
 Path: sys/kernel/mm/ksm/sleep_millisecs
 Lines: 1
 20
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/.unpacked
-Lines: 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
