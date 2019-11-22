@@ -18,10 +18,10 @@ rm -f "${v}" || true
 touch "${v}"
 if [ -x /usr/sbin/virt-what ]
 then
-  platforms="$( virt-what )"
+  platforms=$(echo $( virt-what ) | tr '\n' ' ')
   echo '# HELP virt_platform reports one series per detected virtualization type. If no type is detected, the type is "none".' >>"${v}"
   echo '# TYPE virt_platform gauge' >>"${v}"
-  for platform in "${platforms}"; do
+  for platform in ${platforms}; do
     if [[ -z "${platform}" ]]; then
       continue
     fi
