@@ -13,7 +13,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-v="${TMPDIR}/virt.working"
+v="${TMPDIR:-/tmp}/virt.working"
 rm -f "${v}" || true
 touch "${v}"
 if [ -x /usr/sbin/virt-what ]
