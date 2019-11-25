@@ -21,11 +21,13 @@
 * [FEATURE] Add new metric node_cpu_info #1489
 * [FEATURE] Add new thermal_zone collector #1425
 * [FEATURE] Add new cooling_device metrics to thermal zone collector #1445
+* [ENHANCEMENT] Collect InfiniBand port state and physical state #1357
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
 * [ENHANCEMENT] Expose IPVS firewall mark as a label #1455
 * [ENHANCEMENT] Add check for systemd version before attempting to query certain metrics. #1413
-* [ENHANCEMENT] The sockstat collector now exposes IPv6 statistics in addition to the existing IPv4 support.
+* [ENHANCEMENT] Add new counters for flush requests in Linux 5.5 #1548
+* [ENHANCEMENT] The sockstat collector now exposes IPv6 statistics in addition to the existing IPv4 support. #1552
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421
