@@ -20,6 +20,7 @@ import (
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -47,14 +48,22 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("failed to open procfs: %v", err)
 	}
 
+	// If IPv4 and/or IPv6 are disabled on this kernel, handle it gracefully.
 	stat4, err := fs.NetSockstat()
-	if err != nil {
+	switch {
+	case err == nil:
+	case os.IsNotExist(err):
+		log.Debug("IPv4 sockstat statistics not found, skipping")
+	default:
 		return fmt.Errorf("failed to get IPv4 sockstat data: %v", err)
 	}
 
-	// If IPv6 is disabled on this kernel, handle it gracefully.
 	stat6, err := fs.NetSockstat6()
-	if err != nil && !os.IsNotExist(err) {
+	switch {
+	case err == nil:
+	case os.IsNotExist(err):
+		log.Debug("IPv6 sockstat statistics not found, skipping")
+	default:
 		return fmt.Errorf("failed to get IPv6 sockstat data: %v", err)
 	}
 
