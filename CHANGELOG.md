@@ -25,6 +25,7 @@
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
 * [ENHANCEMENT] Expose IPVS firewall mark as a label #1455
 * [ENHANCEMENT] Add check for systemd version before attempting to query certain metrics. #1413
+* [ENHANCEMENT] The sockstat collector now exposes IPv6 statistics in addition to the existing IPv4 support.
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421

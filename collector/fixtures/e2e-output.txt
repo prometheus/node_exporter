@@ -2575,15 +2575,27 @@ node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
+# HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
+# TYPE node_sockstat_FRAG6_inuse gauge
+node_sockstat_FRAG6_inuse 0
+# HELP node_sockstat_FRAG6_memory Number of FRAG6 sockets in state memory.
+# TYPE node_sockstat_FRAG6_memory gauge
+node_sockstat_FRAG6_memory 0
 # HELP node_sockstat_FRAG_inuse Number of FRAG sockets in state inuse.
 # TYPE node_sockstat_FRAG_inuse gauge
 node_sockstat_FRAG_inuse 0
 # HELP node_sockstat_FRAG_memory Number of FRAG sockets in state memory.
 # TYPE node_sockstat_FRAG_memory gauge
 node_sockstat_FRAG_memory 0
+# HELP node_sockstat_RAW6_inuse Number of RAW6 sockets in state inuse.
+# TYPE node_sockstat_RAW6_inuse gauge
+node_sockstat_RAW6_inuse 1
 # HELP node_sockstat_RAW_inuse Number of RAW sockets in state inuse.
 # TYPE node_sockstat_RAW_inuse gauge
 node_sockstat_RAW_inuse 0
+# HELP node_sockstat_TCP6_inuse Number of TCP6 sockets in state inuse.
+# TYPE node_sockstat_TCP6_inuse gauge
+node_sockstat_TCP6_inuse 17
 # HELP node_sockstat_TCP_alloc Number of TCP sockets in state alloc.
 # TYPE node_sockstat_TCP_alloc gauge
 node_sockstat_TCP_alloc 17
@@ -2602,6 +2614,12 @@ node_sockstat_TCP_orphan 0
 # HELP node_sockstat_TCP_tw Number of TCP sockets in state tw.
 # TYPE node_sockstat_TCP_tw gauge
 node_sockstat_TCP_tw 4
+# HELP node_sockstat_UDP6_inuse Number of UDP6 sockets in state inuse.
+# TYPE node_sockstat_UDP6_inuse gauge
+node_sockstat_UDP6_inuse 9
+# HELP node_sockstat_UDPLITE6_inuse Number of UDPLITE6 sockets in state inuse.
+# TYPE node_sockstat_UDPLITE6_inuse gauge
+node_sockstat_UDPLITE6_inuse 0
 # HELP node_sockstat_UDPLITE_inuse Number of UDPLITE sockets in state inuse.
 # TYPE node_sockstat_UDPLITE_inuse gauge
 node_sockstat_UDPLITE_inuse 0
@@ -2614,7 +2632,7 @@ node_sockstat_UDP_mem 0
 # HELP node_sockstat_UDP_mem_bytes Number of UDP sockets in state mem_bytes.
 # TYPE node_sockstat_UDP_mem_bytes gauge
 node_sockstat_UDP_mem_bytes 0
-# HELP node_sockstat_sockets_used Number of sockets sockets in state used.
+# HELP node_sockstat_sockets_used Number of IPv4 sockets in use.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
