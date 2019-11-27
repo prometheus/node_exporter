@@ -17,10 +17,10 @@
           },
           {
             // CPU utilisation is % CPU is not idle.
-            record: 'instance:node_cpu_utilisation:rate1m',
+            record: 'instance:node_cpu_utilisation:rate5m',
             expr: |||
               1 - avg without (cpu, mode) (
-                rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}[1m])
+                rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}[5m])
               )
             ||| % $._config,
           },
@@ -50,55 +50,55 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_vmstat_pgmajfault:rate1m',
+            record: 'instance:node_vmstat_pgmajfault:rate5m',
             expr: |||
-              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[1m])
+              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[5m])
             ||| % $._config,
           },
           {
             // Disk utilisation (seconds spent, 1 second rate).
-            record: 'instance_device:node_disk_io_time_seconds:rate1m',
+            record: 'instance_device:node_disk_io_time_seconds:rate5m',
             expr: |||
-              rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
+              rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[5m])
             ||| % $._config,
           },
           {
             // Disk saturation (weighted seconds spent, 1 second rate).
-            record: 'instance_device:node_disk_io_time_weighted_seconds:rate1m',
+            record: 'instance_device:node_disk_io_time_weighted_seconds:rate5m',
             expr: |||
-              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
+              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[5m])
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_receive_bytes_excluding_lo:rate1m',
+            record: 'instance:node_network_receive_bytes_excluding_lo:rate5m',
             expr: |||
               sum without (device) (
-                rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[5m])
               )
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_bytes_excluding_lo:rate1m',
+            record: 'instance:node_network_transmit_bytes_excluding_lo:rate5m',
             expr: |||
               sum without (device) (
-                rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[5m])
               )
             ||| % $._config,
           },
           // TODO: Find out if those drops ever happen on modern switched networks.
           {
-            record: 'instance:node_network_receive_drop_excluding_lo:rate1m',
+            record: 'instance:node_network_receive_drop_excluding_lo:rate5m',
             expr: |||
               sum without (device) (
-                rate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[5m])
               )
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_drop_excluding_lo:rate1m',
+            record: 'instance:node_network_transmit_drop_excluding_lo:rate5m',
             expr: |||
               sum without (device) (
-                rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[5m])
               )
             ||| % $._config,
           },
