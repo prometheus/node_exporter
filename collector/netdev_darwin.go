@@ -21,15 +21,14 @@ import (
 	"fmt"
 	"net"
 	"regexp"
-	"strconv"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
-	netDev := map[string]map[string]string{}
+func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (netDevStats, error) {
+	netDev := netDevStats{}
 
 	ifs, err := net.Interfaces()
 	if err != nil {
@@ -52,16 +51,16 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 			continue
 		}
 
-		devStats := map[string]string{}
-		devStats["receive_packets"] = strconv.FormatUint(ifaceData.Data.Ipackets, 10)
-		devStats["transmit_packets"] = strconv.FormatUint(ifaceData.Data.Opackets, 10)
-		devStats["receive_errs"] = strconv.FormatUint(ifaceData.Data.Ierrors, 10)
-		devStats["transmit_errs"] = strconv.FormatUint(ifaceData.Data.Oerrors, 10)
-		devStats["receive_bytes"] = strconv.FormatUint(ifaceData.Data.Ibytes, 10)
-		devStats["transmit_bytes"] = strconv.FormatUint(ifaceData.Data.Obytes, 10)
-		devStats["receive_multicast"] = strconv.FormatUint(ifaceData.Data.Imcasts, 10)
-		devStats["transmit_multicast"] = strconv.FormatUint(ifaceData.Data.Omcasts, 10)
-		netDev[iface.Name] = devStats
+		netDev[iface.Name] = map[string]uint64{
+			"receive_packets":    ifaceData.Data.Ipackets,
+			"transmit_packets":   ifaceData.Data.Opackets,
+			"receive_errs":       ifaceData.Data.Ierrors,
+			"transmit_errs":      ifaceData.Data.Oerrors,
+			"receive_bytes":      ifaceData.Data.Ibytes,
+			"transmit_bytes":     ifaceData.Data.Obytes,
+			"receive_multicast":  ifaceData.Data.Imcasts,
+			"transmit_multicast": ifaceData.Data.Omcasts,
+		}
 	}
 
 	return netDev, nil

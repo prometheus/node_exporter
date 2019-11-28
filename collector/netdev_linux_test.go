@@ -32,16 +32,16 @@ func TestNetDevStatsIgnore(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if want, got := "10437182923", netStats["wlan0"]["receive_bytes"]; want != got {
-		t.Errorf("want netstat wlan0 bytes %s, got %s", want, got)
+	if want, got := uint64(10437182923), netStats["wlan0"]["receive_bytes"]; want != got {
+		t.Errorf("want netstat wlan0 bytes %v, got %v", want, got)
 	}
 
-	if want, got := "68210035552", netStats["eth0"]["receive_bytes"]; want != got {
-		t.Errorf("want netstat eth0 bytes %s, got %s", want, got)
+	if want, got := uint64(68210035552), netStats["eth0"]["receive_bytes"]; want != got {
+		t.Errorf("want netstat eth0 bytes %v, got %v", want, got)
 	}
 
-	if want, got := "934", netStats["tun0"]["transmit_packets"]; want != got {
-		t.Errorf("want netstat tun0 packets %s, got %s", want, got)
+	if want, got := uint64(934), netStats["tun0"]["transmit_packets"]; want != got {
+		t.Errorf("want netstat tun0 packets %v, got %v", want, got)
 	}
 
 	if want, got := 9, len(netStats); want != got {
@@ -52,11 +52,11 @@ func TestNetDevStatsIgnore(t *testing.T) {
 		t.Error("want fixture interface veth4B09XN to not exist, but it does")
 	}
 
-	if want, got := "0", netStats["ibr10:30"]["receive_fifo"]; want != got {
+	if want, got := uint64(0), netStats["ibr10:30"]["receive_fifo"]; want != got {
 		t.Error("want fixture interface ibr10:30 to exist, but it does not")
 	}
 
-	if want, got := "72", netStats["💩0"]["receive_multicast"]; want != got {
+	if want, got := uint64(72), netStats["💩0"]["receive_multicast"]; want != got {
 		t.Error("want fixture interface 💩0 to exist, but it does not")
 	}
 }
@@ -76,7 +76,7 @@ func TestNetDevStatsAccept(t *testing.T) {
 	if want, got := 1, len(netStats); want != got {
 		t.Errorf("want count of devices to be %d, got %d", want, got)
 	}
-	if want, got := "72", netStats["💩0"]["receive_multicast"]; want != got {
+	if want, got := uint64(72), netStats["💩0"]["receive_multicast"]; want != got {
 		t.Error("want fixture interface 💩0 to exist, but it does not")
 	}
 }
