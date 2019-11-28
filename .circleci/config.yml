@@ -35,7 +35,7 @@ jobs:
       image: ubuntu-1604:201903-01
 
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.11-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.13-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
