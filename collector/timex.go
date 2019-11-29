@@ -160,7 +160,7 @@ func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 
 	status, err := unix.Adjtimex(timex)
 	if err != nil {
-		return fmt.Errorf("failed to retrieve adjtimex stats: %v", err)
+		return fmt.Errorf("failed to retrieve adjtimex stats: %w", err)
 	}
 
 	if status == timeError {

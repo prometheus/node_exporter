@@ -44,7 +44,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	var uvmexp C.struct_uvmexp
 
 	if _, err := C.sysctl_uvmexp(&uvmexp); err != nil {
-		return nil, fmt.Errorf("sysctl CTL_VM VM_UVMEXP failed: %v", err)
+		return nil, fmt.Errorf("sysctl CTL_VM VM_UVMEXP failed: %w", err)
 	}
 
 	ps := float64(uvmexp.pagesize)

@@ -94,7 +94,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	fs, errFs := procfs.NewFS(*procPath)
 
 	if errFs != nil {
-		return fmt.Errorf("failed to open procfs: %v", errFs)
+		return fmt.Errorf("failed to open procfs: %w", errFs)
 	}
 
 	mdStats, err := fs.MDStat()
