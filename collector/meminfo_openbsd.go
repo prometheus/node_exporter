@@ -58,7 +58,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	var bcstats C.struct_bcachestats
 
 	if _, err := C.sysctl_uvmexp(&uvmexp); err != nil {
-		return nil, fmt.Errorf("sysctl CTL_VM VM_UVMEXP failed: %v", err)
+		return nil, fmt.Errorf("sysctl CTL_VM VM_UVMEXP failed: %w", err)
 	}
 
 	if _, err := C.sysctl_bcstats(&bcstats); err != nil {

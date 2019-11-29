@@ -41,7 +41,7 @@ const (
 func NewNFSdCollector() (Collector, error) {
 	fs, err := nfs.NewFS(*procPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %v", err)
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	return &nfsdCollector{
@@ -62,7 +62,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 			log.Debugf("Not collecting NFSd metrics: %s", err)
 			return nil
 		}
-		return fmt.Errorf("failed to retrieve nfsd stats: %v", err)
+		return fmt.Errorf("failed to retrieve nfsd stats: %w", err)
 	}
 
 	c.updateNFSdReplyCacheStats(ch, &stats.ReplyCache)

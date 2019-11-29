@@ -170,13 +170,13 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			return nil
 		}
 
-		return fmt.Errorf("failed to access wifi data: %v", err)
+		return fmt.Errorf("failed to access wifi data: %w", err)
 	}
 	defer stat.Close()
 
 	ifis, err := stat.Interfaces()
 	if err != nil {
-		return fmt.Errorf("failed to retrieve wifi interfaces: %v", err)
+		return fmt.Errorf("failed to retrieve wifi interfaces: %w", err)
 	}
 
 	for _, ifi := range ifis {

@@ -47,7 +47,7 @@ func NewBuddyinfoCollector() (Collector, error) {
 	)
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %v", err)
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 	return &buddyinfoCollector{fs, desc}, nil
 }

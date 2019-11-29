@@ -45,7 +45,7 @@ func NewSockStatCollector() (Collector, error) {
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
+		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	// If IPv4 and/or IPv6 are disabled on this kernel, handle it gracefully.
@@ -55,7 +55,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	case os.IsNotExist(err):
 		log.Debug("IPv4 sockstat statistics not found, skipping")
 	default:
-		return fmt.Errorf("failed to get IPv4 sockstat data: %v", err)
+		return fmt.Errorf("failed to get IPv4 sockstat data: %w", err)
 	}
 
 	stat6, err := fs.NetSockstat6()
@@ -64,7 +64,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	case os.IsNotExist(err):
 		log.Debug("IPv6 sockstat statistics not found, skipping")
 	default:
-		return fmt.Errorf("failed to get IPv6 sockstat data: %v", err)
+		return fmt.Errorf("failed to get IPv6 sockstat data: %w", err)
 	}
 
 	stats := []struct {

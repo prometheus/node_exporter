@@ -40,7 +40,7 @@ func NewInfiniBandCollector() (Collector, error) {
 
 	i.fs, err = sysfs.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	// Detailed description for all metrics.

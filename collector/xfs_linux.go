@@ -33,7 +33,7 @@ func init() {
 func NewXFSCollector() (Collector, error) {
 	fs, err := xfs.NewFS(*procPath, *sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &xfsCollector{
@@ -45,7 +45,7 @@ func NewXFSCollector() (Collector, error) {
 func (c *xfsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.SysStats()
 	if err != nil {
-		return fmt.Errorf("failed to retrieve XFS stats: %v", err)
+		return fmt.Errorf("failed to retrieve XFS stats: %w", err)
 	}
 
 	for _, s := range stats {

@@ -108,12 +108,12 @@ func init() {
 func NewMountStatsCollector() (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %v", err)
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	proc, err := fs.Self()
 	if err != nil {
-		return nil, fmt.Errorf("failed to open /proc/self: %v", err)
+		return nil, fmt.Errorf("failed to open /proc/self: %w", err)
 	}
 
 	const (
@@ -505,12 +505,12 @@ func NewMountStatsCollector() (Collector, error) {
 func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 	mounts, err := c.proc.MountStats()
 	if err != nil {
-		return fmt.Errorf("failed to parse mountstats: %v", err)
+		return fmt.Errorf("failed to parse mountstats: %w", err)
 	}
 
 	mountsInfo, err := c.proc.MountInfo()
 	if err != nil {
-		return fmt.Errorf("failed to parse mountinfo: %v", err)
+		return fmt.Errorf("failed to parse mountinfo: %w", err)
 	}
 
 	// store all seen nfsDeviceIdentifiers for deduplication
