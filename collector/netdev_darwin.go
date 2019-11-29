@@ -18,7 +18,7 @@ package collector
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
+	"fmt"
 	"net"
 	"regexp"
 	"strconv"
@@ -32,7 +32,7 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp) (map[string]ma
 
 	ifs, err := net.Interfaces()
 	if err != nil {
-		return nil, errors.New("net.Interfaces() failed")
+		return nil, fmt.Errorf("net.Interfaces() failed: %w", err)
 	}
 
 	for _, iface := range ifs {
