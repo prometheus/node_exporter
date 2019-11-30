@@ -14,7 +14,6 @@
 package collector
 
 import (
-	"errors"
 	"fmt"
 	"runtime"
 	"strconv"
@@ -30,7 +29,7 @@ const (
 )
 
 var (
-	perfCpusFlag = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
+	perfCPUsFlag = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
 )
 
 func init() {
@@ -52,12 +51,49 @@ type perfCollector struct {
 	desc                map[string]*prometheus.Desc
 }
 
-func isValidCPUString(cpus *string) bool {
-	if !strings.Contains(*cpus, "-") || strings.Count(*cpus, "-") != 1 {
-		return false
+// perfCPUFlagToCPUs returns a set of CPUs for the perf collectors to monitor.
+func perfCPUFlagToCPUs(cpuFlag string) ([]int, error) {
+	var err error
+	cpus := []int{}
+	for _, subset := range strings.Split(cpuFlag, ",") {
+		// First parse a single CPU.
+		if !strings.Contains(subset, "-") {
+			cpu, err := strconv.Atoi(subset)
+			if err != nil {
+				return nil, err
+			}
+			cpus = append(cpus, cpu)
+			continue
+		}
+
+		stride := 1
+		// Handle strides, ie 1-10:5 should yield 1,5,10
+		strideSet := strings.Split(subset, ":")
+		if len(strideSet) == 2 {
+			stride, err = strconv.Atoi(strideSet[1])
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		rangeSet := strings.Split(strideSet[0], "-")
+		if len(rangeSet) != 2 {
+			return nil, fmt.Errorf("invalid flag value %q", cpuFlag)
+		}
+		start, err := strconv.Atoi(rangeSet[0])
+		if err != nil {
+			return nil, err
+		}
+		end, err := strconv.Atoi(rangeSet[1])
+		if err != nil {
+			return nil, err
+		}
+		for i := start; i <= end; i += stride {
+			cpus = append(cpus, i)
+		}
 	}
 
-	return true
+	return cpus, nil
 }
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
@@ -72,51 +108,52 @@ func NewPerfCollector() (Collector, error) {
 		cacheProfilerCPUMap: map[*perf.CacheProfiler]int{},
 	}
 
-	start := 0
-	ncpus := 0
-	var err error
+	if perfCPUsFlag != nil && *perfCPUsFlag != "" {
+		cpus, err := perfCPUFlagToCPUs(*perfCPUsFlag)
+		if err != nil {
+			return nil, err
+		}
+		for _, cpu := range cpus {
+			// Use -1 to profile all processes on the CPU, see:
+			// man perf_event_open
+			hwProf := perf.NewHardwareProfiler(-1, cpu)
+			if err := hwProf.Start(); err != nil {
+				return nil, err
+			}
+			collector.perfHwProfilers[cpu] = &hwProf
 
-	if perfCpusFlag == nil || *perfCpusFlag == "" {
-		start = 0
-		ncpus = runtime.NumCPU() - 1
-	} else if !isValidCPUString(perfCpusFlag) {
-		return nil, errors.New("--collector.perf.cpus flag value is invalid, it must be a range (e.g. 2-6)")
+			swProf := perf.NewSoftwareProfiler(-1, cpu)
+			if err := swProf.Start(); err != nil {
+				return nil, err
+			}
+			collector.perfSwProfilers[cpu] = &swProf
+
+			cacheProf := perf.NewCacheProfiler(-1, cpu)
+			if err := cacheProf.Start(); err != nil {
+				return nil, err
+			}
+			collector.perfCacheProfilers[cpu] = &cacheProf
+		}
 	} else {
-		cpuRange := strings.Split(*perfCpusFlag, "-")
-		start, err = strconv.Atoi(cpuRange[0])
-		if err != nil {
-			start = 0
-		}
+		for i := 0; i < runtime.NumCPU(); i++ {
+			hwProf := perf.NewHardwareProfiler(-1, i)
+			if err := hwProf.Start(); err != nil {
+				return nil, err
+			}
+			collector.perfHwProfilers[i] = &hwProf
 
-		ncpus, err = strconv.Atoi(cpuRange[1])
-		if err != nil {
-			ncpus = runtime.NumCPU() - 1
-		}
-	}
+			swProf := perf.NewSoftwareProfiler(-1, i)
+			if err := swProf.Start(); err != nil {
+				return nil, err
+			}
+			collector.perfSwProfilers[i] = &swProf
 
-	for i, idx := start, 0; i <= ncpus; i, idx = i+1, idx+1 {
-		// Use -1 to profile all processes on the CPU, see:
-		// man perf_event_open
-		p := perf.NewHardwareProfiler(-1, i)
-		collector.perfHwProfilers[idx] = &p
-		if err := p.Start(); err != nil {
-			return collector, err
+			cacheProf := perf.NewCacheProfiler(-1, i)
+			if err := cacheProf.Start(); err != nil {
+				return nil, err
+			}
+			collector.perfCacheProfilers[i] = &cacheProf
 		}
-		collector.hwProfilerCPUMap[&p] = i
-
-		p2 := perf.NewSoftwareProfiler(-1, i)
-		collector.perfSwProfilers[i] = &p2
-		if err := p2.Start(); err != nil {
-			return collector, err
-		}
-		collector.swProfilerCPUMap[&p2] = i
-
-		p3 := perf.NewCacheProfiler(-1, i)
-		collector.perfCacheProfilers[i] = &p3
-		if err := p3.Start(); err != nil {
-			return collector, err
-		}
-		collector.cacheProfilerCPUMap[&p3] = i
 	}
 
 	collector.desc = map[string]*prometheus.Desc{
