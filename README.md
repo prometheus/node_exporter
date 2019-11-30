@@ -90,8 +90,8 @@ specific CPUs) You can specify a list of alternate CPUs by using the
 `--collector.perf.cpus` flag. For example, to collect metrics on CPUs 2-6, you
 would specify: `--collector.perf --collector.perf.cpus=2-6`. The CPU
 configuration is zero indexed and can also take a stride value
-`--collector.perf --collector.perf.cpus=1-4:10`, would collect on CPUs
-1, 2, 3, 4, and 10.
+`--collector.perf --collector.perf.cpus=1-10:5`, would collect on CPUs
+1, 5, and 10.
 
 
 Name     | Description | OS
