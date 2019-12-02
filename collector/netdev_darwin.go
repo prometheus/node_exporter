@@ -20,14 +20,13 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
-	"regexp"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	ifs, err := net.Interfaces()
@@ -36,11 +35,7 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 	}
 
 	for _, iface := range ifs {
-		if ignore != nil && ignore.MatchString(iface.Name) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", iface.Name)
-			continue
-		}
-		if accept != nil && !accept.MatchString(iface.Name) {
+		if filter.ignored(iface.Name) {
 			level.Debug(logger).Log("msg", "Ignoring device", "device", iface.Name)
 			continue
 		}

@@ -19,7 +19,6 @@ package collector
 import (
 	"errors"
 	"fmt"
-	"regexp"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -35,11 +34,10 @@ var (
 )
 
 type netDevCollector struct {
-	subsystem            string
-	deviceExcludePattern *regexp.Regexp
-	deviceIncludePattern *regexp.Regexp
-	metricDescs          map[string]*prometheus.Desc
-	logger               log.Logger
+	subsystem    string
+	deviceFilter netDevFilter
+	metricDescs  map[string]*prometheus.Desc
+	logger       log.Logger
 }
 
 type netDevStats map[string]map[string]uint64
@@ -72,29 +70,24 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 		return nil, errors.New("device-exclude & device-include are mutually exclusive")
 	}
 
-	var excludePattern *regexp.Regexp
 	if *netdevDeviceExclude != "" {
 		level.Info(logger).Log("msg", "Parsed flag --collector.netdev.device-exclude", "flag", *netdevDeviceExclude)
-		excludePattern = regexp.MustCompile(*netdevDeviceExclude)
 	}
 
-	var includePattern *regexp.Regexp
 	if *netdevDeviceInclude != "" {
 		level.Info(logger).Log("msg", "Parsed Flag --collector.netdev.device-include", "flag", *netdevDeviceInclude)
-		includePattern = regexp.MustCompile(*netdevDeviceInclude)
 	}
 
 	return &netDevCollector{
-		subsystem:            "network",
-		deviceExcludePattern: excludePattern,
-		deviceIncludePattern: includePattern,
-		metricDescs:          map[string]*prometheus.Desc{},
-		logger:               logger,
+		subsystem:    "network",
+		deviceFilter: newNetDevFilter(*netdevDeviceExclude, *netdevDeviceInclude),
+		metricDescs:  map[string]*prometheus.Desc{},
+		logger:       logger,
 	}, nil
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(c.deviceExcludePattern, c.deviceIncludePattern, c.logger)
+	netDev, err := getNetDevStats(&c.deviceFilter, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}

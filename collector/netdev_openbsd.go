@@ -17,7 +17,6 @@ package collector
 
 import (
 	"errors"
-	"regexp"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -31,7 +30,7 @@ import (
 */
 import "C"
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	var ifap, ifa *C.struct_ifaddrs
@@ -46,11 +45,7 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 		}
 
 		dev := C.GoString(ifa.ifa_name)
-		if ignore != nil && ignore.MatchString(dev) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
-			continue
-		}
-		if accept != nil && !accept.MatchString(dev) {
+		if filter.ignored(dev) {
 			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
 			continue
 		}
