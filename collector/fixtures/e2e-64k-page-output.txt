@@ -792,6 +792,10 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp2"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp3"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
+# HELP node_infiniband_info Non-numeric data from /sys/class/infiniband/<device>, value is always 1.
+# TYPE node_infiniband_info gauge
+node_infiniband_info{board_id="I40IW Board ID",device="i40iw0",firmware_version="0.2",hca_type="I40IW"} 1
+node_infiniband_info{board_id="SM_1141000001000",device="mlx4_0",firmware_version="2.31.5050",hca_type="MT4099"} 1
 # HELP node_infiniband_legacy_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_legacy_data_received_bytes_total counter
 node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
