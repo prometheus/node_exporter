@@ -126,9 +126,9 @@ common-vet:
 common-staticcheck: $(STATICCHECK)
 	@echo ">> running staticcheck"
 ifdef GO111MODULE
-	GO111MODULE=$(GO111MODULE) $(STATICCHECK) -ignore "$(STATICCHECK_IGNORE)" -checks "SA*" $(pkgs)
+	GO111MODULE=$(GO111MODULE) $(STATICCHECK) -checks "SA*" $(pkgs)
 else
-	$(STATICCHECK) -ignore "$(STATICCHECK_IGNORE)" $(pkgs)
+	$(STATICCHECK) $(pkgs)
 endif
 
 .PHONY: common-unused
@@ -196,7 +196,7 @@ ifdef GO111MODULE
 	mkdir -p $${tmpModule}/staticcheck && \
 	cd "$${tmpModule}"/staticcheck && \
 	GO111MODULE=on $(GO) mod init example.com/staticcheck && \
-	GO111MODULE=on GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck@next && \
+	GO111MODULE=on GOOS= GOARCH= $(GO) get -u honnef.co/go/tools/cmd/staticcheck && \
 	rm -rf $${tmpModule};
 else
 	GOOS= GOARCH= GO111MODULE=off $(GO) get -u honnef.co/go/tools/cmd/staticcheck

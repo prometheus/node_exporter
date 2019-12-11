@@ -21,3 +21,5 @@ require (
 	golang.org/x/sys v0.0.0-20181116152217-5ac8a444bdc5
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
+
+go 1.12
