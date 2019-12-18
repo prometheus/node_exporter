@@ -184,6 +184,20 @@
               description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} transmit errors in the last two minutes.',
             },
           },
+          {
+            alert: 'NodeDiskSaturated',
+            expr: |||
+              instance_device:node_disk_io_time_weighted_seconds:rate1m{%(diskAlertSelector)s} > 2
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Disk is saturated.',
+              description: '{{ $labels.instance }} disk {{ $labels.device }} weighted number of seconds spent doing I/Os is {{ printf "%d" $value }}.',
+            },
+          },
         ],
       },
     ],

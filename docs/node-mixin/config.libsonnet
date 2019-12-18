@@ -22,6 +22,10 @@
     // them here, e.g. 'device!="tmpfs"'.
     diskDeviceSelector: 'device!=""',
 
+    // Labels to add to disk alerts. For example, if you wanted to
+    // target only a specific device, you could use 'device="sda"`.
+    diskAlertSelector: '',
+
     // Some of the alerts are meant to fire if a critical failure of a
     // node is imminent (e.g. the disk is about to run full). In a
     // true “cloud native” setup, failures of a single node should be
