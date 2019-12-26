@@ -11,14 +11,19 @@ github.com/beorn7/perks/quantile
 github.com/coreos/go-systemd/dbus
 # github.com/ema/qdisc v0.0.0-20190904071900-b82c76788043
 github.com/ema/qdisc
+# github.com/go-kit/kit v0.9.0
+github.com/go-kit/kit/log
+github.com/go-kit/kit/log/level
+# github.com/go-logfmt/logfmt v0.4.0
+github.com/go-logfmt/logfmt
 # github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 github.com/godbus/dbus
 # github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
 # github.com/hodgesds/perf-utils v0.0.7
 github.com/hodgesds/perf-utils
-# github.com/konsorten/go-windows-terminal-sequences v1.0.2
-github.com/konsorten/go-windows-terminal-sequences
+# github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515
+github.com/kr/logfmt
 # github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
 github.com/lufia/iostat
 # github.com/mattn/go-xmlrpc v0.0.3
@@ -44,8 +49,9 @@ github.com/prometheus/client_model/go
 # github.com/prometheus/common v0.7.0
 github.com/prometheus/common/expfmt
 github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
-github.com/prometheus/common/log
 github.com/prometheus/common/model
+github.com/prometheus/common/promlog
+github.com/prometheus/common/promlog/flag
 github.com/prometheus/common/version
 # github.com/prometheus/procfs v0.0.8
 github.com/prometheus/procfs
@@ -57,8 +63,6 @@ github.com/prometheus/procfs/sysfs
 github.com/prometheus/procfs/xfs
 # github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
 github.com/siebenmann/go-kstat
-# github.com/sirupsen/logrus v1.4.2
-github.com/sirupsen/logrus
 # github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 github.com/soundcloud/go-runit/runit
 # go.uber.org/atomic v1.3.2
@@ -75,8 +79,6 @@ golang.org/x/sync/errgroup
 # golang.org/x/sys v0.0.0-20190902133755-9109b7679e13
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-golang.org/x/sys/windows/registry
-golang.org/x/sys/windows/svc/eventlog
 # gopkg.in/alecthomas/kingpin.v2 v2.2.6
 gopkg.in/alecthomas/kingpin.v2
 # gopkg.in/yaml.v2 v2.2.2

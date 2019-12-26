@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -30,6 +31,7 @@ type cpuFreqCollector struct {
 	scalingFreq    *prometheus.Desc
 	scalingFreqMin *prometheus.Desc
 	scalingFreqMax *prometheus.Desc
+	logger         log.Logger
 }
 
 func init() {
@@ -37,7 +39,7 @@ func init() {
 }
 
 // NewCPUFreqCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUFreqCollector() (Collector, error) {
+func NewCPUFreqCollector(logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -75,6 +77,7 @@ func NewCPUFreqCollector() (Collector, error) {
 			"Maximum scaled cpu thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

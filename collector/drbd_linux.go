@@ -20,8 +20,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 // Numerical metric provided by /proc/drbd.
@@ -74,13 +75,14 @@ type drbdCollector struct {
 	numerical  map[string]drbdNumericalMetric
 	stringPair map[string]drbdStringPairMetric
 	connected  *prometheus.Desc
+	logger     log.Logger
 }
 
 func init() {
 	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
-func newDRBDCollector() (Collector, error) {
+func newDRBDCollector(logger log.Logger) (Collector, error) {
 	return &drbdCollector{
 		numerical: map[string]drbdNumericalMetric{
 			"ns": newDRBDNumericalMetric(
@@ -176,6 +178,7 @@ func newDRBDCollector() (Collector, error) {
 			[]string{"device"},
 			nil,
 		),
+		logger: logger,
 	}, nil
 }
 
@@ -184,7 +187,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	file, err := os.Open(statsFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("drbd: %s does not exist, skipping: %s", statsFile, err)
+			level.Debug(c.logger).Log("msg", "stats file does not exist, skipping", "file", statsFile, "err", err)
 			return nil
 		}
 
@@ -201,7 +204,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 
 		kv := strings.Split(field, ":")
 		if len(kv) != 2 {
-			log.Debugf("drbd: skipping invalid key:value pair %q", field)
+			level.Debug(c.logger).Log("msg", "skipping invalid key:value pair", "field", field)
 			continue
 		}
 
@@ -267,7 +270,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		log.Debugf("drbd: unhandled key-value pair: [%s: %q]", kv[0], kv[1])
+		level.Debug(c.logger).Log("msg", "unhandled key-value pair", "key", kv[0], "value", kv[1])
 	}
 
 	return scanner.Err()

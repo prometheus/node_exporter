@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
 )
@@ -28,19 +29,21 @@ func init() {
 
 // A bcacheCollector is a Collector which gathers metrics from Linux bcache.
 type bcacheCollector struct {
-	fs bcache.FS
+	fs     bcache.FS
+	logger log.Logger
 }
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
-func NewBcacheCollector() (Collector, error) {
+func NewBcacheCollector(logger log.Logger) (Collector, error) {
 	fs, err := bcache.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &bcacheCollector{
-		fs: fs,
+		fs:     fs,
+		logger: logger,
 	}, nil
 }
 

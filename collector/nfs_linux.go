@@ -18,8 +18,9 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs/nfs"
 )
 
@@ -35,6 +36,7 @@ type nfsCollector struct {
 	nfsRPCRetransmissionsDesc         *prometheus.Desc
 	nfsRPCAuthenticationRefreshesDesc *prometheus.Desc
 	nfsProceduresDesc                 *prometheus.Desc
+	logger                            log.Logger
 }
 
 func init() {
@@ -42,7 +44,7 @@ func init() {
 }
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.
-func NewNfsCollector() (Collector, error) {
+func NewNfsCollector(logger log.Logger) (Collector, error) {
 	fs, err := nfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -86,6 +88,7 @@ func NewNfsCollector() (Collector, error) {
 			[]string{"proto", "method"},
 			nil,
 		),
+		logger: logger,
 	}, nil
 }
 
@@ -93,7 +96,7 @@ func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.ClientRPCStats()
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting NFS metrics: %s", err)
+			level.Debug(c.logger).Log("msg", "Not collecting NFS metrics", "err", err)
 			return nil
 		}
 		return fmt.Errorf("failed to retrieve nfs stats: %w", err)

@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -30,6 +31,7 @@ type thermalZoneCollector struct {
 	coolingDeviceCurState *prometheus.Desc
 	coolingDeviceMaxState *prometheus.Desc
 	zoneTemp              *prometheus.Desc
+	logger                log.Logger
 }
 
 func init() {
@@ -37,7 +39,7 @@ func init() {
 }
 
 // NewThermalZoneCollector returns a new Collector exposing kernel/system statistics.
-func NewThermalZoneCollector() (Collector, error) {
+func NewThermalZoneCollector(logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -60,6 +62,7 @@ func NewThermalZoneCollector() (Collector, error) {
 			"Maximum throttle state of the cooling device",
 			[]string{"name", "type"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

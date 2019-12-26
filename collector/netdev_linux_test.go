@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"github.com/go-kit/kit/log"
 	"os"
 	"regexp"
 	"testing"
@@ -26,7 +27,7 @@ func TestNetDevStatsIgnore(t *testing.T) {
 	}
 	defer file.Close()
 
-	netStats, err := parseNetDevStats(file, regexp.MustCompile("^veth"), nil)
+	netStats, err := parseNetDevStats(file, regexp.MustCompile("^veth"), nil, log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +68,7 @@ func TestNetDevStatsAccept(t *testing.T) {
 	}
 	defer file.Close()
 
-	netStats, err := parseNetDevStats(file, nil, regexp.MustCompile("^💩0$"))
+	netStats, err := parseNetDevStats(file, nil, regexp.MustCompile("^💩0$"), log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

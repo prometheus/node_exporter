@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 
 	"github.com/ema/qdisc"
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -31,6 +32,7 @@ type qdiscStatCollector struct {
 	drops      typedDesc
 	requeues   typedDesc
 	overlimits typedDesc
+	logger     log.Logger
 }
 
 var (
@@ -42,7 +44,7 @@ func init() {
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
-func NewQdiscStatCollector() (Collector, error) {
+func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
 	return &qdiscStatCollector{
 		bytes: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "bytes_total"),
@@ -69,6 +71,7 @@ func NewQdiscStatCollector() (Collector, error) {
 			"Number of overlimit packets.",
 			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
+		logger: logger,
 	}, nil
 }
 

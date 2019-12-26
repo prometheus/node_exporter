@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -27,6 +28,7 @@ import (
 type infinibandCollector struct {
 	fs          sysfs.FS
 	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
 }
 
 func init() {
@@ -34,7 +36,7 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector() (Collector, error) {
+func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 
@@ -42,6 +44,7 @@ func NewInfiniBandCollector() (Collector, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
+	i.logger = logger
 
 	// Detailed description for all metrics.
 	descriptions := map[string]string{
