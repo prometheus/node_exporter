@@ -2547,6 +2547,7 @@ node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="sockstat"} 1
+node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
@@ -2596,6 +2597,24 @@ node_sockstat_UDP_mem_bytes 0
 # HELP node_sockstat_sockets_used Number of sockets sockets in state used.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
+# HELP node_softnet_dropped_total Number of dropped packets
+# TYPE node_softnet_dropped_total counter
+node_softnet_dropped_total{cpu="0"} 0
+node_softnet_dropped_total{cpu="1"} 41
+node_softnet_dropped_total{cpu="2"} 0
+node_softnet_dropped_total{cpu="3"} 0
+# HELP node_softnet_processed_total Number of processed packets
+# TYPE node_softnet_processed_total counter
+node_softnet_processed_total{cpu="0"} 299641
+node_softnet_processed_total{cpu="1"} 916354
+node_softnet_processed_total{cpu="2"} 5.577791e+06
+node_softnet_processed_total{cpu="3"} 3.113785e+06
+# HELP node_softnet_times_squeezed_total Number of times processing packets ran out of quota
+# TYPE node_softnet_times_squeezed_total counter
+node_softnet_times_squeezed_total{cpu="0"} 1
+node_softnet_times_squeezed_total{cpu="1"} 10
+node_softnet_times_squeezed_total{cpu="2"} 85
+node_softnet_times_squeezed_total{cpu="3"} 50
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
 # TYPE node_textfile_mtime_seconds gauge
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
