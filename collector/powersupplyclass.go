@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -33,18 +34,20 @@ type powerSupplyClassCollector struct {
 	subsystem      string
 	ignoredPattern *regexp.Regexp
 	metricDescs    map[string]*prometheus.Desc
+	logger         log.Logger
 }
 
 func init() {
 	registerCollector("powersupplyclass", defaultEnabled, NewPowerSupplyClassCollector)
 }
 
-func NewPowerSupplyClassCollector() (Collector, error) {
+func NewPowerSupplyClassCollector(logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*powerSupplyClassIgnoredPowerSupplies)
 	return &powerSupplyClassCollector{
 		subsystem:      "power_supply",
 		ignoredPattern: pattern,
 		metricDescs:    map[string]*prometheus.Desc{},
+		logger:         logger,
 	}, nil
 }
 

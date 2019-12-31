@@ -17,7 +17,8 @@ import (
 	"fmt"
 	"runtime"
 
-	perf "github.com/hodgesds/perf-utils"
+	"github.com/go-kit/kit/log"
+	"github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -29,7 +30,7 @@ func init() {
 	registerCollector(perfSubsystem, defaultDisabled, NewPerfCollector)
 }
 
-// perfCollector is a Collecter that uses the perf subsystem to collect
+// perfCollector is a Collector that uses the perf subsystem to collect
 // metrics. It uses perf_event_open an ioctls for profiling. Due to the fact
 // that the perf subsystem is highly dependent on kernel configuration and
 // settings not all profiler values may be exposed on the target system at any
@@ -39,34 +40,36 @@ type perfCollector struct {
 	perfSwProfilers    map[int]perf.SoftwareProfiler
 	perfCacheProfilers map[int]perf.CacheProfiler
 	desc               map[string]*prometheus.Desc
+	logger             log.Logger
 }
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
-func NewPerfCollector() (Collector, error) {
-	collector := &perfCollector{
+func NewPerfCollector(logger log.Logger) (Collector, error) {
+	c := &perfCollector{
 		perfHwProfilers:    map[int]perf.HardwareProfiler{},
 		perfSwProfilers:    map[int]perf.SoftwareProfiler{},
 		perfCacheProfilers: map[int]perf.CacheProfiler{},
+		logger:             logger,
 	}
 	ncpus := runtime.NumCPU()
 	for i := 0; i < ncpus; i++ {
 		// Use -1 to profile all processes on the CPU, see:
 		// man perf_event_open
-		collector.perfHwProfilers[i] = perf.NewHardwareProfiler(-1, i)
-		if err := collector.perfHwProfilers[i].Start(); err != nil {
-			return collector, err
+		c.perfHwProfilers[i] = perf.NewHardwareProfiler(-1, i)
+		if err := c.perfHwProfilers[i].Start(); err != nil {
+			return c, err
 		}
-		collector.perfSwProfilers[i] = perf.NewSoftwareProfiler(-1, i)
-		if err := collector.perfSwProfilers[i].Start(); err != nil {
-			return collector, err
+		c.perfSwProfilers[i] = perf.NewSoftwareProfiler(-1, i)
+		if err := c.perfSwProfilers[i].Start(); err != nil {
+			return c, err
 		}
-		collector.perfCacheProfilers[i] = perf.NewCacheProfiler(-1, i)
-		if err := collector.perfCacheProfilers[i].Start(); err != nil {
-			return collector, err
+		c.perfCacheProfilers[i] = perf.NewCacheProfiler(-1, i)
+		if err := c.perfCacheProfilers[i].Start(); err != nil {
+			return c, err
 		}
 	}
-	collector.desc = map[string]*prometheus.Desc{
+	c.desc = map[string]*prometheus.Desc{
 		"cpucycles_total": prometheus.NewDesc(
 			prometheus.BuildFQName(
 				namespace,
@@ -309,7 +312,7 @@ func NewPerfCollector() (Collector, error) {
 		),
 	}
 
-	return collector, nil
+	return c, nil
 }
 
 // Update implements the Collector interface and will collect metrics per CPU.

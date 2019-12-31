@@ -15,6 +15,7 @@ package collector
 
 import (
 	"fmt"
+	"github.com/go-kit/kit/log"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -30,7 +31,7 @@ func TestIPVSCollector(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
-	collector, err := newIPVSCollector()
+	collector, err := newIPVSCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +80,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
-	collector, err := NewIPVSCollector()
+	collector, err := NewIPVSCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -20,8 +20,9 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -30,6 +31,7 @@ type ipvsCollector struct {
 	fs                                                                          procfs.FS
 	backendConnectionsActive, backendConnectionsInact, backendWeight            typedDesc
 	connections, incomingPackets, outgoingPackets, incomingBytes, outgoingBytes typedDesc
+	logger                                                                      log.Logger
 }
 
 func init() {
@@ -38,11 +40,11 @@ func init() {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector() (Collector, error) {
-	return newIPVSCollector()
+func NewIPVSCollector(logger log.Logger) (Collector, error) {
+	return newIPVSCollector(logger)
 }
 
-func newIPVSCollector() (*ipvsCollector, error) {
+func newIPVSCollector(logger log.Logger) (*ipvsCollector, error) {
 	var (
 		ipvsBackendLabelNames = []string{
 			"local_address",
@@ -57,6 +59,7 @@ func newIPVSCollector() (*ipvsCollector, error) {
 		subsystem = "ipvs"
 	)
 
+	c.logger = logger
 	c.fs, err = procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -111,7 +114,7 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		// Cannot access ipvs metrics, report no error.
 		if os.IsNotExist(err) {
-			log.Debug("ipvs collector metrics are not available for this system")
+			level.Debug(c.logger).Log("msg", "ipvs collector metrics are not available for this system")
 			return nil
 		}
 		return fmt.Errorf("could not get IPVS stats: %s", err)

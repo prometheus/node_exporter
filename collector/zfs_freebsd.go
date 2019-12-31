@@ -16,11 +16,13 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type zfsCollector struct {
 	sysctls []bsdSysctl
+	logger  log.Logger
 }
 
 const (
@@ -31,7 +33,7 @@ func init() {
 	registerCollector("zfs", defaultEnabled, NewZfsCollector)
 }
 
-func NewZfsCollector() (Collector, error) {
+func NewZfsCollector(logger log.Logger) (Collector, error) {
 	return &zfsCollector{
 		sysctls: []bsdSysctl{
 			{
@@ -238,6 +240,7 @@ func NewZfsCollector() (Collector, error) {
 				valueType:   prometheus.CounterValue,
 			},
 		},
+		logger: logger,
 	}, nil
 }
 

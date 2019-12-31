@@ -16,6 +16,7 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -46,17 +47,18 @@ var (
 )
 
 // NewSchedstatCollector returns a new Collector exposing task scheduler statistics
-func NewSchedstatCollector() (Collector, error) {
+func NewSchedstatCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	return &schedstatCollector{fs: fs}, nil
+	return &schedstatCollector{fs, logger}, nil
 }
 
 type schedstatCollector struct {
-	fs procfs.FS
+	fs     procfs.FS
+	logger log.Logger
 }
 
 func init() {
