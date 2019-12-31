@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -28,6 +29,7 @@ type softnetCollector struct {
 	processed    *prometheus.Desc
 	dropped      *prometheus.Desc
 	timeSqueezed *prometheus.Desc
+	logger       log.Logger
 }
 
 const (
@@ -39,7 +41,7 @@ func init() {
 }
 
 // NewSoftnetCollector returns a new Collector exposing softnet metrics.
-func NewSoftnetCollector() (Collector, error) {
+func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -62,6 +64,7 @@ func NewSoftnetCollector() (Collector, error) {
 			"Number of times processing packets ran out of quota",
 			[]string{"cpu"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 
