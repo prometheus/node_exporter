@@ -34,6 +34,7 @@
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421
 * [BUGFIX] Fix empty string in path.rootfs #1464
 * [BUGFIX] Fix typo in cpufreq metric names #1510
+* [BUGFIX] Fix network speed math #1580
 
 ## 0.18.1 / 2019-06-04
 

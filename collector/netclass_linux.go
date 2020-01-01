@@ -144,7 +144,7 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		if ifaceInfo.Speed != nil {
-			speedBytes := int64(*ifaceInfo.Speed / 8 * 1000 * 1000)
+			speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
 			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
