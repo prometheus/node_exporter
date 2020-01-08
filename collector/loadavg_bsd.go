@@ -1,4 +1,4 @@
-// Copyright 2015 The Prometheus Authors
+// Copyright 2016 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,23 +11,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build darwin dragonfly netbsd openbsd
+// +build darwin dragonfly freebsd netbsd openbsd
 // +build !noloadavg
 
 package collector
 
 import (
-	"errors"
+	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
-// #include <stdlib.h>
-import "C"
-
 func getLoad() ([]float64, error) {
-	var loadavg [3]C.double
-	samples := C.getloadavg(&loadavg[0], 3)
-	if samples != 3 {
-		return nil, errors.New("failed to get load average")
+	type loadavg struct {
+		load  [3]uint32
+		scale int
 	}
-	return []float64{float64(loadavg[0]), float64(loadavg[1]), float64(loadavg[2])}, nil
+	b, err := unix.SysctlRaw("vm.loadavg")
+	if err != nil {
+		return nil, err
+	}
+	load := *(*loadavg)(unsafe.Pointer((&b[0])))
+	scale := float64(load.scale)
+	return []float64{
+		float64(load.load[0]) / scale,
+		float64(load.load[1]) / scale,
+		float64(load.load[2]) / scale,
+	}, nil
 }
