@@ -21,13 +21,15 @@ then
   platforms=$(echo $( virt-what ) | tr '\n' ' ')
   echo '# HELP virt_platform reports one series per detected virtualization type. If no type is detected, the type is "none".' >>"${v}"
   echo '# TYPE virt_platform gauge' >>"${v}"
+  count=0
   for platform in ${platforms}; do
     if [[ -z "${platform}" ]]; then
       continue
     fi
+    count=$(( count + 1 ))
     echo "virt_platform{type=\"${platform}\"} 1" >>"${v}"
   done
-  if [[ -z "${platforms}" ]]; then
+  if [[ "${count}" -eq 0 ]]; then
     echo "virt_platform{type=\"none\"} 1" >>"${v}"
   fi
 fi
