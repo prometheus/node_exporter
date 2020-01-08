@@ -29,6 +29,19 @@ then
     count=$(( count + 1 ))
     echo "virt_platform{type=\"${platform}\"} 1" >>"${v}"
   done
+
+  # Attempt AWS detection on older (m4) and newer (m5) instance types, taken from https://serverfault.com/a/903599
+  if ([ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]) ||
+      ([ -r /sys/devices/virtual/dmi/id/product_uuid ] && [ `head -c 3 /sys/devices/virtual/dmi/id/product_uuid` == "EC2" ]); then
+    count=$(( count + 1 ))
+    echo "virt_platform{type=\"aws\"} 1" >>"${v}"
+  fi
+  # Attempt GCP detection
+  if dmidecode -s bios-vendor | grep Google; then
+    count=$(( count + 1 ))
+    echo "virt_platform{type=\"gcp\"} 1" >>"${v}"
+  fi
+
   if [[ "${count}" -eq 0 ]]; then
     echo "virt_platform{type=\"none\"} 1" >>"${v}"
   fi
