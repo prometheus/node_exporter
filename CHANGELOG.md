@@ -22,6 +22,7 @@
 * [FEATURE] Add new thermal_zone collector #1425
 * [FEATURE] Add new cooling_device metrics to thermal zone collector #1445
 * [FEATURE] Add new softnet collector #1576
+* [FEATURE] Add RAPL collector #1523
 * [ENHANCEMENT] Collect InfiniBand port state and physical state #1357
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
