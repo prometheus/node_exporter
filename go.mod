@@ -1,10 +1,12 @@
 module github.com/prometheus/node_exporter
 
 require (
+	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/beevik/ntp v0.2.0
 	github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e
 	github.com/ema/qdisc v0.0.0-20190904071900-b82c76788043
 	github.com/go-kit/kit v0.9.0
+	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 	github.com/hodgesds/perf-utils v0.0.7
 	github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
@@ -16,6 +18,7 @@ require (
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 	github.com/prometheus/common v0.7.0
 	github.com/prometheus/procfs v0.0.8
+	github.com/shirou/gopsutil v2.19.12+incompatible
 	github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	go.uber.org/atomic v1.3.2 // indirect
