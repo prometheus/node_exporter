@@ -16,12 +16,12 @@
 package collector
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 
 	"github.com/go-kit/kit/log"
-	"github.com/shirou/gopsutil/disk"  
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/shirou/gopsutil/disk"
 )
 
 type typedDescFunc struct {
@@ -146,7 +146,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get diskstats: %s", err)
 	}
 
-	for _, stats := range diskStats { 
+	for _, stats := range diskStats {
 		for _, desc := range c.descs {
 			v := desc.value(stats)
 			ch <- desc.mustNewConstMetric(v, stats.Name)
