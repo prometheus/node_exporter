@@ -1,3 +1,5 @@
+# github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d
+github.com/StackExchange/wmi
 # github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 github.com/alecthomas/template
 github.com/alecthomas/template/parse
@@ -16,6 +18,9 @@ github.com/go-kit/kit/log
 github.com/go-kit/kit/log/level
 # github.com/go-logfmt/logfmt v0.4.0
 github.com/go-logfmt/logfmt
+# github.com/go-ole/go-ole v1.2.4
+github.com/go-ole/go-ole
+github.com/go-ole/go-ole/oleutil
 # github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 github.com/godbus/dbus
 # github.com/golang/protobuf v1.3.2
@@ -61,6 +66,9 @@ github.com/prometheus/procfs/internal/util
 github.com/prometheus/procfs/nfs
 github.com/prometheus/procfs/sysfs
 github.com/prometheus/procfs/xfs
+# github.com/shirou/gopsutil v2.19.12+incompatible
+github.com/shirou/gopsutil/disk
+github.com/shirou/gopsutil/internal/common
 # github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
 github.com/siebenmann/go-kstat
 # github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
