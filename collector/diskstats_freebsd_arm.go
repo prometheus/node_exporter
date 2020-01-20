@@ -21,19 +21,16 @@ const (
 	sizeOfDevstat = 240
 
 	//byte offsets for stats for this arch
-	busyTimeFracStart = 176
-	busyTimeFracStop  = 184
-	busyTimeSecStart  = 172
-	busyTimeSecStop   = 176
-
-	bytesReadStart  = 68
-	bytesReadStop   = 76
-	bytesWriteStart = 76
-	bytesWriteStop  = 84
-
-	deviceNameStart = 36
-	deviceNameStop  = 52
-
+	busyTimeFracStart      = 176
+	busyTimeFracStop       = 184
+	busyTimeSecStart       = 172
+	busyTimeSecStop        = 176
+	bytesReadStart         = 68
+	bytesReadStop          = 76
+	bytesWriteStart        = 76
+	bytesWriteStop         = 84
+	deviceNameStart        = 36
+	deviceNameStop         = 52
 	durationReadFracStart  = 140
 	durationReadFracStop   = 148
 	durationReadSecStart   = 136
@@ -42,12 +39,10 @@ const (
 	durationWriteFracStop  = 160
 	durationWriteSecStart  = 148
 	durationWriteSecStop   = 152
-
-	operationsReadStart  = 100
-	operationsReadStop   = 108
-	operationsWriteStart = 108
-	operationsWriteStop  = 116
-
-	unitNumberStart = 56
-	unitNumberStop  = 60
+	operationsReadStart    = 100
+	operationsReadStop     = 108
+	operationsWriteStart   = 108
+	operationsWriteStop    = 116
+	unitNumberStart        = 56
+	unitNumberStop         = 60
 )
