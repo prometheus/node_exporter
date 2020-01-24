@@ -309,15 +309,25 @@ node_cpu_seconds_total{cpu="7",mode="user"} 290.98
 # HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
+node_disk_discard_time_seconds_total{device="sdc"} 11.13
 # HELP node_disk_discarded_sectors_total The total number of sectors discarded successfully.
 # TYPE node_disk_discarded_sectors_total counter
 node_disk_discarded_sectors_total{device="sdb"} 1.925173784e+09
+node_disk_discarded_sectors_total{device="sdc"} 1.25173784e+08
 # HELP node_disk_discards_completed_total The total number of discards completed successfully.
 # TYPE node_disk_discards_completed_total counter
 node_disk_discards_completed_total{device="sdb"} 68851
+node_disk_discards_completed_total{device="sdc"} 18851
 # HELP node_disk_discards_merged_total The total number of discards merged.
 # TYPE node_disk_discards_merged_total counter
 node_disk_discards_merged_total{device="sdb"} 0
+node_disk_discards_merged_total{device="sdc"} 0
+# HELP node_disk_flush_requests_time_seconds_total This is the total number of seconds spent by all flush requests.
+# TYPE node_disk_flush_requests_time_seconds_total counter
+node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
+# HELP node_disk_flush_requests_total The total number of flush requests completed successfully
+# TYPE node_disk_flush_requests_total counter
+node_disk_flush_requests_total{device="sdc"} 1555
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -332,6 +342,7 @@ node_disk_io_now{device="mmcblk0p2"} 0
 node_disk_io_now{device="nvme0n1"} 0
 node_disk_io_now{device="sda"} 0
 node_disk_io_now{device="sdb"} 0
+node_disk_io_now{device="sdc"} 0
 node_disk_io_now{device="sr0"} 0
 node_disk_io_now{device="vda"} 0
 # HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
@@ -348,6 +359,7 @@ node_disk_io_time_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_io_time_seconds_total{device="nvme0n1"} 222.766
 node_disk_io_time_seconds_total{device="sda"} 9653.880000000001
 node_disk_io_time_seconds_total{device="sdb"} 60.730000000000004
+node_disk_io_time_seconds_total{device="sdc"} 10.73
 node_disk_io_time_seconds_total{device="sr0"} 0
 node_disk_io_time_seconds_total{device="vda"} 41614.592000000004
 # HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os.
@@ -364,6 +376,7 @@ node_disk_io_time_weighted_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_io_time_weighted_seconds_total{device="nvme0n1"} 1032.546
 node_disk_io_time_weighted_seconds_total{device="sda"} 82621.804
 node_disk_io_time_weighted_seconds_total{device="sdb"} 67.07000000000001
+node_disk_io_time_weighted_seconds_total{device="sdc"} 17.07
 node_disk_io_time_weighted_seconds_total{device="sr0"} 0
 node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
 # HELP node_disk_read_bytes_total The total number of bytes read successfully.
@@ -380,6 +393,7 @@ node_disk_read_bytes_total{device="mmcblk0p2"} 389120
 node_disk_read_bytes_total{device="nvme0n1"} 2.377714176e+09
 node_disk_read_bytes_total{device="sda"} 5.13713216512e+11
 node_disk_read_bytes_total{device="sdb"} 4.944782848e+09
+node_disk_read_bytes_total{device="sdc"} 8.48782848e+08
 node_disk_read_bytes_total{device="sr0"} 0
 node_disk_read_bytes_total{device="vda"} 1.6727491584e+10
 # HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads.
@@ -396,6 +410,7 @@ node_disk_read_time_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_read_time_seconds_total{device="nvme0n1"} 21.650000000000002
 node_disk_read_time_seconds_total{device="sda"} 18492.372
 node_disk_read_time_seconds_total{device="sdb"} 0.084
+node_disk_read_time_seconds_total{device="sdc"} 0.014
 node_disk_read_time_seconds_total{device="sr0"} 0
 node_disk_read_time_seconds_total{device="vda"} 8655.768
 # HELP node_disk_reads_completed_total The total number of reads completed successfully.
@@ -412,6 +427,7 @@ node_disk_reads_completed_total{device="mmcblk0p2"} 95
 node_disk_reads_completed_total{device="nvme0n1"} 47114
 node_disk_reads_completed_total{device="sda"} 2.5354637e+07
 node_disk_reads_completed_total{device="sdb"} 326552
+node_disk_reads_completed_total{device="sdc"} 126552
 node_disk_reads_completed_total{device="sr0"} 0
 node_disk_reads_completed_total{device="vda"} 1.775784e+06
 # HELP node_disk_reads_merged_total The total number of reads merged.
@@ -428,6 +444,7 @@ node_disk_reads_merged_total{device="mmcblk0p2"} 0
 node_disk_reads_merged_total{device="nvme0n1"} 4
 node_disk_reads_merged_total{device="sda"} 3.4367663e+07
 node_disk_reads_merged_total{device="sdb"} 841
+node_disk_reads_merged_total{device="sdc"} 141
 node_disk_reads_merged_total{device="sr0"} 0
 node_disk_reads_merged_total{device="vda"} 15386
 # HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
@@ -444,6 +461,7 @@ node_disk_write_time_seconds_total{device="mmcblk0p2"} 0
 node_disk_write_time_seconds_total{device="nvme0n1"} 1011.053
 node_disk_write_time_seconds_total{device="sda"} 63877.96
 node_disk_write_time_seconds_total{device="sdb"} 5.007
+node_disk_write_time_seconds_total{device="sdc"} 1.0070000000000001
 node_disk_write_time_seconds_total{device="sr0"} 0
 node_disk_write_time_seconds_total{device="vda"} 2.069221364e+06
 # HELP node_disk_writes_completed_total The total number of writes completed successfully.
@@ -460,6 +478,7 @@ node_disk_writes_completed_total{device="mmcblk0p2"} 0
 node_disk_writes_completed_total{device="nvme0n1"} 1.07832e+06
 node_disk_writes_completed_total{device="sda"} 2.8444756e+07
 node_disk_writes_completed_total{device="sdb"} 41822
+node_disk_writes_completed_total{device="sdc"} 11822
 node_disk_writes_completed_total{device="sr0"} 0
 node_disk_writes_completed_total{device="vda"} 6.038856e+06
 # HELP node_disk_writes_merged_total The number of writes merged.
@@ -476,6 +495,7 @@ node_disk_writes_merged_total{device="mmcblk0p2"} 0
 node_disk_writes_merged_total{device="nvme0n1"} 43950
 node_disk_writes_merged_total{device="sda"} 1.1134226e+07
 node_disk_writes_merged_total{device="sdb"} 2895
+node_disk_writes_merged_total{device="sdc"} 1895
 node_disk_writes_merged_total{device="sr0"} 0
 node_disk_writes_merged_total{device="vda"} 2.0711856e+07
 # HELP node_disk_written_bytes_total The total number of bytes written successfully.
@@ -492,6 +512,7 @@ node_disk_written_bytes_total{device="mmcblk0p2"} 0
 node_disk_written_bytes_total{device="nvme0n1"} 2.0199236096e+10
 node_disk_written_bytes_total{device="sda"} 2.58916880384e+11
 node_disk_written_bytes_total{device="sdb"} 1.01012736e+09
+node_disk_written_bytes_total{device="sdc"} 8.852736e+07
 node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 # HELP node_drbd_activitylog_writes_total Number of updates of the activity log area of the meta data.
@@ -840,6 +861,11 @@ node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_multicast_packets_transmitted_total counter
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_physical_state_id Physical state of the InfiniBand port (0: no change, 1: sleep, 2: polling, 3: disable, 4: shift, 5: link up, 6: link error recover, 7: phytest)
+# TYPE node_infiniband_physical_state_id gauge
+node_infiniband_physical_state_id{device="i40iw0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="2"} 5
 # HELP node_infiniband_port_constraint_errors_received_total Number of packets received on the switch physical port that are discarded
 # TYPE node_infiniband_port_constraint_errors_received_total counter
 node_infiniband_port_constraint_errors_received_total{device="mlx4_0",port="1"} 0
@@ -872,6 +898,16 @@ node_infiniband_port_packets_transmitted_total{device="mlx4_0",port="1"} 6.23586
 # HELP node_infiniband_port_transmit_wait_total Number of ticks during which the port had data to transmit but no data was sent during the entire tick
 # TYPE node_infiniband_port_transmit_wait_total counter
 node_infiniband_port_transmit_wait_total{device="mlx4_0",port="1"} 4.294967295e+09
+# HELP node_infiniband_rate_bytes_per_second Maximum signal transfer rate
+# TYPE node_infiniband_rate_bytes_per_second gauge
+node_infiniband_rate_bytes_per_second{device="i40iw0",port="1"} 1.25e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="1"} 5e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="2"} 5e+09
+# HELP node_infiniband_state_id State of the InfiniBand port (0: no change, 1: down, 2: init, 3: armed, 4: active, 5: act defer)
+# TYPE node_infiniband_state_id gauge
+node_infiniband_state_id{device="i40iw0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="2"} 4
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
 node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
@@ -2393,6 +2429,40 @@ node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
+# HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_capacity gauge
+node_power_supply_capacity{power_supply="BAT0"} 81
+# HELP node_power_supply_cyclecount cyclecount value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_cyclecount gauge
+node_power_supply_cyclecount{power_supply="BAT0"} 0
+# HELP node_power_supply_energy_full energy_full value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_energy_full gauge
+node_power_supply_energy_full{power_supply="BAT0"} 45.07
+# HELP node_power_supply_energy_full_design energy_full_design value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_energy_full_design gauge
+node_power_supply_energy_full_design{power_supply="BAT0"} 47.52
+# HELP node_power_supply_energy_watthour energy_watthour value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_energy_watthour gauge
+node_power_supply_energy_watthour{power_supply="BAT0"} 36.58
+# HELP node_power_supply_info info of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_info gauge
+node_power_supply_info{power_supply="AC",type="Mains"} 1
+node_power_supply_info{capacity_level="Normal",manufacturer="LGC",model_name="LNV-45N1",power_supply="BAT0",serial_number="38109",status="Discharging",technology="Li-ion",type="Battery"} 1
+# HELP node_power_supply_online online value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_online gauge
+node_power_supply_online{power_supply="AC"} 0
+# HELP node_power_supply_power_watt power_watt value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_power_watt gauge
+node_power_supply_power_watt{power_supply="BAT0"} 5.002
+# HELP node_power_supply_present present value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_present gauge
+node_power_supply_present{power_supply="BAT0"} 1
+# HELP node_power_supply_voltage_min_design voltage_min_design value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_voltage_min_design gauge
+node_power_supply_voltage_min_design{power_supply="BAT0"} 10.8
+# HELP node_power_supply_voltage_volt voltage_volt value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_voltage_volt gauge
+node_power_supply_voltage_volt{power_supply="BAT0"} 11.66
 # HELP node_pressure_cpu_waiting_seconds_total Total time in seconds that processes have waited for CPU time
 # TYPE node_pressure_cpu_waiting_seconds_total counter
 node_pressure_cpu_waiting_seconds_total 14.036781000000001
@@ -2492,11 +2562,13 @@ node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
+node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="sockstat"} 1
+node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
@@ -2504,15 +2576,27 @@ node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
+# HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
+# TYPE node_sockstat_FRAG6_inuse gauge
+node_sockstat_FRAG6_inuse 0
+# HELP node_sockstat_FRAG6_memory Number of FRAG6 sockets in state memory.
+# TYPE node_sockstat_FRAG6_memory gauge
+node_sockstat_FRAG6_memory 0
 # HELP node_sockstat_FRAG_inuse Number of FRAG sockets in state inuse.
 # TYPE node_sockstat_FRAG_inuse gauge
 node_sockstat_FRAG_inuse 0
 # HELP node_sockstat_FRAG_memory Number of FRAG sockets in state memory.
 # TYPE node_sockstat_FRAG_memory gauge
 node_sockstat_FRAG_memory 0
+# HELP node_sockstat_RAW6_inuse Number of RAW6 sockets in state inuse.
+# TYPE node_sockstat_RAW6_inuse gauge
+node_sockstat_RAW6_inuse 1
 # HELP node_sockstat_RAW_inuse Number of RAW sockets in state inuse.
 # TYPE node_sockstat_RAW_inuse gauge
 node_sockstat_RAW_inuse 0
+# HELP node_sockstat_TCP6_inuse Number of TCP6 sockets in state inuse.
+# TYPE node_sockstat_TCP6_inuse gauge
+node_sockstat_TCP6_inuse 17
 # HELP node_sockstat_TCP_alloc Number of TCP sockets in state alloc.
 # TYPE node_sockstat_TCP_alloc gauge
 node_sockstat_TCP_alloc 17
@@ -2531,6 +2615,12 @@ node_sockstat_TCP_orphan 0
 # HELP node_sockstat_TCP_tw Number of TCP sockets in state tw.
 # TYPE node_sockstat_TCP_tw gauge
 node_sockstat_TCP_tw 4
+# HELP node_sockstat_UDP6_inuse Number of UDP6 sockets in state inuse.
+# TYPE node_sockstat_UDP6_inuse gauge
+node_sockstat_UDP6_inuse 9
+# HELP node_sockstat_UDPLITE6_inuse Number of UDPLITE6 sockets in state inuse.
+# TYPE node_sockstat_UDPLITE6_inuse gauge
+node_sockstat_UDPLITE6_inuse 0
 # HELP node_sockstat_UDPLITE_inuse Number of UDPLITE sockets in state inuse.
 # TYPE node_sockstat_UDPLITE_inuse gauge
 node_sockstat_UDPLITE_inuse 0
@@ -2543,9 +2633,27 @@ node_sockstat_UDP_mem 0
 # HELP node_sockstat_UDP_mem_bytes Number of UDP sockets in state mem_bytes.
 # TYPE node_sockstat_UDP_mem_bytes gauge
 node_sockstat_UDP_mem_bytes 0
-# HELP node_sockstat_sockets_used Number of sockets sockets in state used.
+# HELP node_sockstat_sockets_used Number of IPv4 sockets in use.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
+# HELP node_softnet_dropped_total Number of dropped packets
+# TYPE node_softnet_dropped_total counter
+node_softnet_dropped_total{cpu="0"} 0
+node_softnet_dropped_total{cpu="1"} 41
+node_softnet_dropped_total{cpu="2"} 0
+node_softnet_dropped_total{cpu="3"} 0
+# HELP node_softnet_processed_total Number of processed packets
+# TYPE node_softnet_processed_total counter
+node_softnet_processed_total{cpu="0"} 299641
+node_softnet_processed_total{cpu="1"} 916354
+node_softnet_processed_total{cpu="2"} 5.577791e+06
+node_softnet_processed_total{cpu="3"} 3.113785e+06
+# HELP node_softnet_times_squeezed_total Number of times processing packets ran out of quota
+# TYPE node_softnet_times_squeezed_total counter
+node_softnet_times_squeezed_total{cpu="0"} 1
+node_softnet_times_squeezed_total{cpu="1"} 10
+node_softnet_times_squeezed_total{cpu="2"} 85
+node_softnet_times_squeezed_total{cpu="3"} 50
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
 # TYPE node_textfile_mtime_seconds gauge
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise

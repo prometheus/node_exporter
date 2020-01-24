@@ -22,8 +22,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 // constants from https://github.com/zfsonlinux/zfs/blob/master/lib/libspl/include/sys/kstat.h
@@ -45,7 +45,7 @@ func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 		// file not found error can occur if:
 		// 1. zfs module is not loaded
 		// 2. zfs version does not have the feature with metrics -- ok to ignore
-		log.Debugf("Cannot open %q for reading", procFilePath(path))
+		level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", procFilePath(path))
 		return nil, errZFSNotAvailable
 	}
 	return file, nil
@@ -77,7 +77,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
 			// this file should exist, but there is a race where an exporting pool can remove the files -- ok to ignore
-			log.Debugf("Cannot open %q for reading", zpoolPath)
+			level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", zpoolPath)
 			return errZFSNotAvailable
 		}
 
