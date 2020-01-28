@@ -16,7 +16,12 @@
 package collector
 
 import (
+	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"net/url"
+	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -27,6 +32,7 @@ import (
 
 var (
 	supervisordURL = kingpin.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").String()
+	xrpc           *xmlrpc.Client
 )
 
 type supervisordCollector struct {
@@ -47,6 +53,21 @@ func NewSupervisordCollector(logger log.Logger) (Collector, error) {
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
 	)
+
+	if u, err := url.Parse(*supervisordURL); err == nil && u.Scheme == "unix" {
+		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
+		// about a non-http(s) transport.
+		xrpc = xmlrpc.NewClient("http://unix/RPC2")
+		xrpc.HttpClient.Transport = &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				d := net.Dialer{Timeout: 10 * time.Second}
+				return d.DialContext(ctx, "unix", u.Path)
+			},
+		}
+	} else {
+		xrpc = xmlrpc.NewClient(*supervisordURL)
+	}
+
 	return &supervisordCollector{
 		upDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "up"),
@@ -111,7 +132,7 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 		PID           int    `xmlrpc:"pid"`
 	}
 
-	res, err := xmlrpc.Call(*supervisordURL, "supervisor.getAllProcessInfo")
+	res, err := xrpc.Call("supervisor.getAllProcessInfo")
 	if err != nil {
 		return fmt.Errorf("unable to call supervisord: %s", err)
 	}
