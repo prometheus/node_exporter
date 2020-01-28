@@ -56,7 +56,7 @@ func NewSupervisordCollector(logger log.Logger) (Collector, error) {
 
 	if u, err := url.Parse(*supervisordURL); err == nil && u.Scheme == "unix" {
 		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
-		// about a non-http(s) transports
+		// about a non-http(s) transport.
 		xrpc = xmlrpc.NewClient("http://unix/RPC2")
 		xrpc.HttpClient.Transport = &http.Transport{
 			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
