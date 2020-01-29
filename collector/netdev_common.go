@@ -50,12 +50,12 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 		return nil, errors.New("device-blacklist & accept-devices are mutually exclusive")
 	}
 
-	var ignorePattern *regexp.Regexp = nil
+	var ignorePattern *regexp.Regexp
 	if *netdevIgnoredDevices != "" {
 		ignorePattern = regexp.MustCompile(*netdevIgnoredDevices)
 	}
 
-	var acceptPattern *regexp.Regexp = nil
+	var acceptPattern *regexp.Regexp
 	if *netdevAcceptDevices != "" {
 		acceptPattern = regexp.MustCompile(*netdevAcceptDevices)
 	}
