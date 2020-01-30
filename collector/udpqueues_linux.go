@@ -17,18 +17,18 @@ package collector
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
-type udpQueuesCollector struct {
-	desc typedDesc
-}
+type (
+	udpQueuesCollector struct {
+		fs   procfs.FS
+		desc *prometheus.Desc
+	}
+)
 
 func init() {
 	registerCollector("udp_queues", defaultDisabled, NewUDPqueuesCollector)
@@ -36,83 +36,39 @@ func init() {
 
 // NewUDPqueuesCollector returns a new Collector exposing network udp queued bytes.
 func NewUDPqueuesCollector() (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
+	}
 	return &udpQueuesCollector{
-		desc: typedDesc{prometheus.NewDesc(
+		fs: fs,
+		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "udp", "queues"),
 			"Number of allocated memory in the kernel for UDP datagrams in bytes.",
-			[]string{"queue"}, nil,
-		), prometheus.GaugeValue},
+			[]string{"queue", "ip"}, nil,
+		),
 	}, nil
 }
 
 func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
-	updQueues, err := getUDPqueues(procFilePath("net/udp"))
+	s, err := c.fs.NetUDPSummary()
 	if err != nil {
 		return fmt.Errorf("couldn't get upd queued bytes: %s", err)
 	}
+	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.TxQueueLength), "tx", "v4")
+	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.RxQueueLength), "rx", "v4")
 
 	// if enabled ipv6 system
 	udp6File := procFilePath("net/udp6")
-	if _, hasIPv6 := os.Stat(udp6File); hasIPv6 == nil {
-		udp6Queues, err := getUDPqueues(udp6File)
+	if _, err := os.Stat(udp6File); err == nil {
+		s6, err := c.fs.NetUDP6Summary()
 		if err != nil {
-			return fmt.Errorf("couldn't get udp6 queued bytes: %s", err)
+			return fmt.Errorf("couldn't get upd6 queued bytes: %s", err)
 		}
-
-		for qu, value := range udp6Queues {
-			updQueues[qu] += value
-		}
-	}
-
-	for qu, value := range updQueues {
-		ch <- c.desc.mustNewConstMetric(value, qu)
+		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.TxQueueLength), "tx", "v6")
+		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.RxQueueLength), "rx", "v6")
+	} else {
+		fmt.Printf("err = %+v\n", err)
 	}
 	return nil
-}
-
-func getUDPqueues(statsFile string) (map[string]float64, error) {
-	file, err := os.Open(statsFile)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseUDPqueues(file)
-}
-
-func parseUDPqueues(r io.Reader) (map[string]float64, error) {
-	updQueues := map[string]float64{}
-	contents, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, line := range strings.Split(string(contents), "\n")[1:] {
-		fields := strings.Fields(line)
-		if len(fields) == 0 {
-			continue
-		}
-		if len(fields) < 5 {
-			return nil, fmt.Errorf("invalid line in file: %q", line)
-		}
-
-		qu := strings.Split(fields[4], ":")
-		if len(qu) < 2 {
-			return nil, fmt.Errorf("cannot parse tx_queues and rx_queues: %q", line)
-		}
-
-		tx, err := strconv.ParseUint(qu[0], 16, 64)
-		if err != nil {
-			return nil, err
-		}
-		updQueues["tx_queue"] += float64(tx)
-
-		rx, err := strconv.ParseUint(qu[1], 16, 64)
-		if err != nil {
-			return nil, err
-		}
-		updQueues["rx_queue"] += float64(rx)
-	}
-
-	return updQueues, nil
 }
