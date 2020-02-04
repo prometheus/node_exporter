@@ -41,6 +41,11 @@ then
     count=$(( count + 1 ))
     echo "virt_platform{type=\"gcp\"} 1" >>"${v}"
   fi
+  # Attempt OpenStack detection
+  if dmidecode | grep "Product Name: OpenStack Compute"; then
+    count=$(( count + 1 ))
+    echo "virt_platform{type=\"openstack\"} 1" >>"${v}"
+  fi
 
   if [[ "${count}" -eq 0 ]]; then
     echo "virt_platform{type=\"none\"} 1" >>"${v}"
