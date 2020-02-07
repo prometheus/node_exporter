@@ -18,9 +18,11 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -104,6 +106,10 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.InfiniBandClass()
 	if err != nil {
+		if os.IsNotExist(err) {
+			level.Debug(c.logger).Log("msg", "IPv4 sockstat statistics not found, skipping")
+			return nil
+		}
 		return fmt.Errorf("error obtaining InfiniBand class info: %s", err)
 	}
 
