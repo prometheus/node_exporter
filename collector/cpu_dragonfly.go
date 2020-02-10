@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"unsafe"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -31,7 +32,7 @@ import (
 #include <stdio.h>
 
 int
-getCPUTimes(uint64_t **cputime, size_t *cpu_times_len, long *freq) {
+getCPUTimes(uint64_t **cputime, size_t *cpu_times_len) {
 	size_t len;
 
 	// Get number of cpu cores.
@@ -41,15 +42,6 @@ getCPUTimes(uint64_t **cputime, size_t *cpu_times_len, long *freq) {
 	mib[1] = HW_NCPU;
 	len = sizeof(ncpu);
 	if (sysctl(mib, 2, &ncpu, &len, NULL, 0)) {
-		return -1;
-	}
-
-	// The bump on each statclock is
-	// ((cur_systimer - prev_systimer) * systimer_freq) >> 32
-	// where
-	// systimer_freq = sysctl kern.cputimer.freq
-	len = sizeof(*freq);
-	if (sysctlbyname("kern.cputimer.freq", freq, &len, NULL, 0)) {
 		return -1;
 	}
 
@@ -84,7 +76,8 @@ import "C"
 const maxCPUTimesLen = C.MAXCPU * C.CPUSTATES
 
 type statCollector struct {
-	cpu *prometheus.Desc
+	cpu    *prometheus.Desc
+	logger log.Logger
 }
 
 func init() {
@@ -92,9 +85,10 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector() (Collector, error) {
+func NewStatCollector(logger log.Logger) (Collector, error) {
 	return &statCollector{
-		cpu: nodeCPUSecondsDesc,
+		cpu:    nodeCPUSecondsDesc,
+		logger: logger,
 	}, nil
 }
 
@@ -103,18 +97,16 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// States: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
 	//
-	// Each value is a counter incremented at frequency
-	//   kern.cputimer.freq
+	// Each value is in microseconds
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
 	var (
 		cpuTimesC      *C.uint64_t
-		cpuTimerFreq   C.long
 		cpuTimesLength C.size_t
 	)
 
-	if C.getCPUTimes(&cpuTimesC, &cpuTimesLength, &cpuTimerFreq) == -1 {
+	if C.getCPUTimes(&cpuTimesC, &cpuTimesLength) == -1 {
 		return nil, errors.New("could not retrieve CPU times")
 	}
 	defer C.free(unsafe.Pointer(cpuTimesC))
@@ -123,7 +115,7 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 
 	cpuTimes := make([]float64, cpuTimesLength)
 	for i, value := range cput {
-		cpuTimes[i] = float64(value) / float64(cpuTimerFreq)
+		cpuTimes[i] = float64(value) / float64(1000000)
 	}
 	return cpuTimes, nil
 }

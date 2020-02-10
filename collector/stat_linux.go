@@ -18,18 +18,20 @@ package collector
 import (
 	"fmt"
 
-	"github.com/prometheus/procfs"
-
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
 type statCollector struct {
+	fs           procfs.FS
 	intr         *prometheus.Desc
 	ctxt         *prometheus.Desc
 	forks        *prometheus.Desc
 	btime        *prometheus.Desc
 	procsRunning *prometheus.Desc
 	procsBlocked *prometheus.Desc
+	logger       log.Logger
 }
 
 func init() {
@@ -37,8 +39,13 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector() (Collector, error) {
+func NewStatCollector(logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
 	return &statCollector{
+		fs: fs,
 		intr: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "intr_total"),
 			"Total number of interrupts serviced.",
@@ -69,16 +76,13 @@ func NewStatCollector() (Collector, error) {
 			"Number of processes blocked waiting for I/O to complete.",
 			nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
 
 // Update implements Collector and exposes kernel and system statistics.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
-	}
-	stats, err := fs.NewStat()
+	stats, err := c.fs.Stat()
 	if err != nil {
 		return err
 	}

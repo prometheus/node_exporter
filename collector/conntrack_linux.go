@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -34,6 +35,7 @@ type conntrackCollector struct {
 	insertFailed *prometheus.Desc
 	delete       *prometheus.Desc
 	drop         *prometheus.Desc
+	logger       log.Logger
 }
 
 type ConntrackStatistics struct {
@@ -49,7 +51,7 @@ func init() {
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector() (Collector, error) {
+func NewConntrackCollector(logger log.Logger) (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),
@@ -86,6 +88,7 @@ func NewConntrackCollector() (Collector, error) {
 			"Number of packets dropped due to conntrack failure.",
 			nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

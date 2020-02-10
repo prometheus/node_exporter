@@ -22,7 +22,59 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/prometheus/procfs/internal/fs"
 )
+
+// FS represents the pseudo-filesystem proc, which provides an interface to
+// kernel data structures.
+type FS struct {
+	sys *fs.FS
+}
+
+// NewDefaultFS returns a new Bcache using the default sys fs mount point. It will error
+// if the mount point can't be read.
+func NewDefaultFS() (FS, error) {
+	return NewFS(fs.DefaultSysMountPoint)
+}
+
+// NewFS returns a new Bcache using the given sys fs mount point. It will error
+// if the mount point can't be read.
+func NewFS(mountPoint string) (FS, error) {
+	if strings.TrimSpace(mountPoint) == "" {
+		mountPoint = fs.DefaultSysMountPoint
+	}
+	fs, err := fs.NewFS(mountPoint)
+	if err != nil {
+		return FS{}, err
+	}
+	return FS{&fs}, nil
+}
+
+// Stats retrieves bcache runtime statistics for each bcache.
+func (fs FS) Stats() ([]*Stats, error) {
+	matches, err := filepath.Glob(fs.sys.Path("fs/bcache/*-*"))
+	if err != nil {
+		return nil, err
+	}
+
+	stats := make([]*Stats, 0, len(matches))
+	for _, uuidPath := range matches {
+		// "*-*" in glob above indicates the name of the bcache.
+		name := filepath.Base(uuidPath)
+
+		// stats
+		s, err := GetStats(uuidPath)
+		if err != nil {
+			return nil, err
+		}
+
+		s.Name = name
+		stats = append(stats, s)
+	}
+
+	return stats, nil
+}
 
 // ParsePseudoFloat parses the peculiar format produced by bcache's bch_hprint.
 func parsePseudoFloat(str string) (float64, error) {

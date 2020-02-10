@@ -14,11 +14,13 @@
 package expfmt
 
 import (
-	"bytes"
+	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/prometheus/common/model"
@@ -26,7 +28,7 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
-// enhancedWriter has all the enhanced write functions needed here. bytes.Buffer
+// enhancedWriter has all the enhanced write functions needed here. bufio.Writer
 // implements it.
 type enhancedWriter interface {
 	io.Writer
@@ -36,14 +38,13 @@ type enhancedWriter interface {
 }
 
 const (
-	initialBufSize    = 512
 	initialNumBufSize = 24
 )
 
 var (
 	bufPool = sync.Pool{
 		New: func() interface{} {
-			return bytes.NewBuffer(make([]byte, 0, initialNumBufSize))
+			return bufio.NewWriter(ioutil.Discard)
 		},
 	}
 	numBufPool = sync.Pool{
@@ -74,16 +75,14 @@ func MetricFamilyToText(out io.Writer, in *dto.MetricFamily) (written int, err e
 	}
 
 	// Try the interface upgrade. If it doesn't work, we'll use a
-	// bytes.Buffer from the sync.Pool and write out its content to out in a
-	// single go in the end.
+	// bufio.Writer from the sync.Pool.
 	w, ok := out.(enhancedWriter)
 	if !ok {
-		b := bufPool.Get().(*bytes.Buffer)
-		b.Reset()
+		b := bufPool.Get().(*bufio.Writer)
+		b.Reset(out)
 		w = b
 		defer func() {
-			bWritten, bErr := out.Write(b.Bytes())
-			written = bWritten
+			bErr := b.Flush()
 			if err == nil {
 				err = bErr
 			}
@@ -416,32 +415,17 @@ func writeLabelPairs(
 
 // writeEscapedString replaces '\' by '\\', new line character by '\n', and - if
 // includeDoubleQuote is true - '"' by '\"'.
+var (
+	escaper       = strings.NewReplacer("\\", `\\`, "\n", `\n`)
+	quotedEscaper = strings.NewReplacer("\\", `\\`, "\n", `\n`, "\"", `\"`)
+)
+
 func writeEscapedString(w enhancedWriter, v string, includeDoubleQuote bool) (int, error) {
-	var (
-		written, n int
-		err        error
-	)
-	for _, r := range v {
-		switch r {
-		case '\\':
-			n, err = w.WriteString(`\\`)
-		case '\n':
-			n, err = w.WriteString(`\n`)
-		case '"':
-			if includeDoubleQuote {
-				n, err = w.WriteString(`\"`)
-			} else {
-				n, err = w.WriteRune(r)
-			}
-		default:
-			n, err = w.WriteRune(r)
-		}
-		written += n
-		if err != nil {
-			return written, err
-		}
+	if includeDoubleQuote {
+		return quotedEscaper.WriteString(w, v)
+	} else {
+		return escaper.WriteString(w, v)
 	}
-	return written, nil
 }
 
 // writeFloat is equivalent to fmt.Fprint with a float64 argument but hardcodes

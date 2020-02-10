@@ -26,7 +26,7 @@ func Test_parseTCPStatsError(t *testing.T) {
 	}{
 		{
 			name: "too few fields",
-			in:   "hello world",
+			in:   "sl  local_address\n  0: 00000000:0016",
 		},
 	}
 

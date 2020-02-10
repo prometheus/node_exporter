@@ -1,15 +1,19 @@
+go:
+    # Whenever the Go version is updated here, .travis.yml and
+    # .circle/config.yml should also be updated.
+    version: 1.13
 repository:
     path: github.com/prometheus/node_exporter
 build:
     binaries:
         - name: node_exporter
-    flags: -a -tags 'netgo static_build'
+    flags: -mod=vendor -a -tags 'netgo static_build'
     ldflags: |
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.Revision={{.Revision}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.Branch={{.Branch}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.BuildUser={{user}}@{{host}}
-        -X {{repoPath}}/vendor/github.com/prometheus/common/version.BuildDate={{date "20060102-15:04:05"}}
+        -X github.com/prometheus/common/version.Version={{.Version}}
+        -X github.com/prometheus/common/version.Revision={{.Revision}}
+        -X github.com/prometheus/common/version.Branch={{.Branch}}
+        -X github.com/prometheus/common/version.BuildUser={{user}}@{{host}}
+        -X github.com/prometheus/common/version.BuildDate={{date "20060102-15:04:05"}}
 tarball:
     files:
         - LICENSE

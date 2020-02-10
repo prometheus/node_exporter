@@ -18,12 +18,9 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/lufia/iostat"
 	"github.com/prometheus/client_golang/prometheus"
-)
-
-const (
-	diskSubsystem = "disk"
 )
 
 type typedDescFunc struct {
@@ -32,7 +29,8 @@ type typedDescFunc struct {
 }
 
 type diskstatsCollector struct {
-	descs []typedDescFunc
+	descs  []typedDescFunc
+	logger log.Logger
 }
 
 func init() {
@@ -40,19 +38,14 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector() (Collector, error) {
+func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 
 	return &diskstatsCollector{
 		descs: []typedDescFunc{
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
-						"The total number of reads completed successfully.",
-						diskLabelNames,
-						nil,
-					),
+					desc:      readsCompletedDesc,
 					valueType: prometheus.CounterValue,
 				},
 				value: func(stat *iostat.DriveStats) float64 {
@@ -75,12 +68,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "read_time_seconds_total"),
-						"The total number of seconds spent by all reads.",
-						diskLabelNames,
-						nil,
-					),
+					desc:      readTimeSecondsDesc,
 					valueType: prometheus.CounterValue,
 				},
 				value: func(stat *iostat.DriveStats) float64 {
@@ -89,12 +77,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed_total"),
-						"The total number of writes completed successfully.",
-						diskLabelNames,
-						nil,
-					),
+					desc:      writesCompletedDesc,
 					valueType: prometheus.CounterValue,
 				},
 				value: func(stat *iostat.DriveStats) float64 {
@@ -117,12 +100,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "write_time_seconds_total"),
-						"This is the total number of seconds spent by all writes.",
-						diskLabelNames,
-						nil,
-					),
+					desc:      writeTimeSecondsDesc,
 					valueType: prometheus.CounterValue,
 				},
 				value: func(stat *iostat.DriveStats) float64 {
@@ -131,12 +109,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "read_bytes_total"),
-						"The total number of bytes read successfully.",
-						diskLabelNames,
-						nil,
-					),
+					desc:      readBytesDesc,
 					valueType: prometheus.CounterValue,
 				},
 				value: func(stat *iostat.DriveStats) float64 {
@@ -145,12 +118,7 @@ func NewDiskstatsCollector() (Collector, error) {
 			},
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "written_bytes_total"),
-						"The total number of bytes written successfully.",
-						diskLabelNames,
-						nil,
-					),
+					desc:      writtenBytesDesc,
 					valueType: prometheus.CounterValue,
 				},
 				value: func(stat *iostat.DriveStats) float64 {
@@ -158,6 +126,7 @@ func NewDiskstatsCollector() (Collector, error) {
 				},
 			},
 		},
+		logger: logger,
 	}, nil
 }
 

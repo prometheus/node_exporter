@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -30,9 +31,11 @@ var (
 )
 
 type netClassCollector struct {
+	fs                    sysfs.FS
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
+	logger                log.Logger
 }
 
 func init() {
@@ -40,25 +43,31 @@ func init() {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector() (Collector, error) {
+func NewNetClassCollector(logger log.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
 	pattern := regexp.MustCompile(*netclassIgnoredDevices)
 	return &netClassCollector{
+		fs:                    fs,
 		subsystem:             "network",
 		ignoredDevicesPattern: pattern,
 		metricDescs:           map[string]*prometheus.Desc{},
+		logger:                logger,
 	}, nil
 }
 
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
-	netClass, err := getNetClassInfo(c.ignoredDevicesPattern)
+	netClass, err := c.getNetClassInfo()
 	if err != nil {
 		return fmt.Errorf("could not get net class info: %s", err)
 	}
 	for _, ifaceInfo := range netClass {
 		upDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "up"),
-			"Valid operstate for interface.",
-			[]string{"interface", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			"Value is 1 if operstate is 'up', 0 otherwise.",
+			[]string{"device"},
 			nil,
 		)
 		upValue := 0.0
@@ -66,7 +75,17 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 			upValue = 1.0
 		}
 
-		ch <- prometheus.MustNewConstMetric(upDesc, prometheus.GaugeValue, upValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
+		ch <- prometheus.MustNewConstMetric(upDesc, prometheus.GaugeValue, upValue, ifaceInfo.Name)
+
+		infoDesc := prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, "info"),
+			"Non-numeric data from /sys/class/net/<iface>, value is always 1.",
+			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			nil,
+		)
+		infoValue := 1.0
+
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
 
 		if ifaceInfo.AddrAssignType != nil {
 			pushMetric(ch, c.subsystem, "address_assign_type", *ifaceInfo.AddrAssignType, ifaceInfo.Name, prometheus.GaugeValue)
@@ -125,7 +144,7 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		if ifaceInfo.Speed != nil {
-			speedBytes := int64(*ifaceInfo.Speed / 8 * 1000 * 1000)
+			speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
 			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
@@ -145,26 +164,22 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 	fieldDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
 		fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
-		[]string{"interface"},
+		[]string{"device"},
 		nil,
 	)
 
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, float64(value), ifaceName)
 }
 
-func getNetClassInfo(ignore *regexp.Regexp) (sysfs.NetClass, error) {
-	fs, err := sysfs.NewFS(*sysPath)
-	if err != nil {
-		return nil, err
-	}
-	netClass, err := fs.NewNetClass()
+func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
+	netClass, err := c.fs.NetClass()
 
 	if err != nil {
 		return netClass, fmt.Errorf("error obtaining net class info: %s", err)
 	}
 
 	for device := range netClass {
-		if ignore.MatchString(device) {
+		if c.ignoredDevicesPattern.MatchString(device) {
 			delete(netClass, device)
 		}
 	}

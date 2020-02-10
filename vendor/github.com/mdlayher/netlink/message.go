@@ -21,61 +21,56 @@ type HeaderFlags uint16
 const (
 	// General netlink communication flags.
 
-	// HeaderFlagsRequest indicates a request to netlink.
-	HeaderFlagsRequest HeaderFlags = 1
+	// Request indicates a request to netlink.
+	Request HeaderFlags = 1
 
-	// HeaderFlagsMulti indicates a multi-part message, terminated
-	// by HeaderTypeDone on the last message.
-	HeaderFlagsMulti HeaderFlags = 2
+	// Multi indicates a multi-part message, terminated by Done on the
+	// last message.
+	Multi HeaderFlags = 2
 
-	// HeaderFlagsAcknowledge requests that netlink reply with
-	// an acknowledgement using HeaderTypeError and, if needed,
-	// an error code.
-	HeaderFlagsAcknowledge HeaderFlags = 4
+	// Acknowledge requests that netlink reply with an acknowledgement
+	// using Error and, if needed, an error code.
+	Acknowledge HeaderFlags = 4
 
-	// HeaderFlagsEcho requests that netlink echo this request
-	// back to the sender.
-	HeaderFlagsEcho HeaderFlags = 8
+	// Echo requests that netlink echo this request back to the sender.
+	Echo HeaderFlags = 8
 
-	// HeaderFlagsDumpInterrupted indicates that a dump was
-	// inconsistent due to a sequence change.
-	HeaderFlagsDumpInterrupted HeaderFlags = 16
+	// DumpInterrupted indicates that a dump was inconsistent due to a
+	// sequence change.
+	DumpInterrupted HeaderFlags = 16
 
-	// HeaderFlagsDumpFiltered indicates that a dump was filtered
-	// as requested.
-	HeaderFlagsDumpFiltered HeaderFlags = 32
+	// DumpFiltered indicates that a dump was filtered as requested.
+	DumpFiltered HeaderFlags = 32
 
 	// Flags used to retrieve data from netlink.
 
-	// HeaderFlagsRoot requests that netlink return a complete table instead
-	// of a single entry.
-	HeaderFlagsRoot HeaderFlags = 0x100
+	// Root requests that netlink return a complete table instead of a
+	// single entry.
+	Root HeaderFlags = 0x100
 
-	// HeaderFlagsMatch requests that netlink return a list of all matching
-	// entries.
-	HeaderFlagsMatch HeaderFlags = 0x200
+	// Match requests that netlink return a list of all matching entries.
+	Match HeaderFlags = 0x200
 
-	// HeaderFlagsAtomic requests that netlink send an atomic snapshot of
-	// its entries.  Requires CAP_NET_ADMIN or an effective UID of 0.
-	HeaderFlagsAtomic HeaderFlags = 0x400
+	// Atomic requests that netlink send an atomic snapshot of its entries.
+	// Requires CAP_NET_ADMIN or an effective UID of 0.
+	Atomic HeaderFlags = 0x400
 
-	// HeaderFlagsDump requests that netlink return a complete list of
-	// all entries.
-	HeaderFlagsDump HeaderFlags = HeaderFlagsRoot | HeaderFlagsMatch
+	// Dump requests that netlink return a complete list of all entries.
+	Dump HeaderFlags = Root | Match
 
 	// Flags used to create objects.
 
-	// HeaderFlagsReplace indicates request replaces an existing matching object.
-	HeaderFlagsReplace HeaderFlags = 0x100
+	// Replace indicates request replaces an existing matching object.
+	Replace HeaderFlags = 0x100
 
-	// HeaderFlagsExcl  indicates request does not replace the object if it already exists.
-	HeaderFlagsExcl HeaderFlags = 0x200
+	// Excl indicates request does not replace the object if it already exists.
+	Excl HeaderFlags = 0x200
 
-	// HeaderFlagsCreate indicates request creates an object if it doesn't already exist.
-	HeaderFlagsCreate HeaderFlags = 0x400
+	// Create indicates request creates an object if it doesn't already exist.
+	Create HeaderFlags = 0x400
 
-	// HeaderFlagsAppend indicates request adds to the end of the object list.
-	HeaderFlagsAppend HeaderFlags = 0x800
+	// Append indicates request adds to the end of the object list.
+	Append HeaderFlags = 0x800
 )
 
 // String returns the string representation of a HeaderFlags.
@@ -123,30 +118,30 @@ func (f HeaderFlags) String() string {
 type HeaderType uint16
 
 const (
-	// HeaderTypeNoop indicates that no action was taken.
-	HeaderTypeNoop HeaderType = 0x1
+	// Noop indicates that no action was taken.
+	Noop HeaderType = 0x1
 
-	// HeaderTypeError indicates an error code is present, which is also
-	// used to indicate success when the code is 0.
-	HeaderTypeError HeaderType = 0x2
+	// Error indicates an error code is present, which is also used to indicate
+	// success when the code is 0.
+	Error HeaderType = 0x2
 
-	// HeaderTypeDone indicates the end of a multi-part message.
-	HeaderTypeDone HeaderType = 0x3
+	// Done indicates the end of a multi-part message.
+	Done HeaderType = 0x3
 
-	// HeaderTypeOverrun indicates that data was lost from this message.
-	HeaderTypeOverrun HeaderType = 0x4
+	// Overrun indicates that data was lost from this message.
+	Overrun HeaderType = 0x4
 )
 
 // String returns the string representation of a HeaderType.
 func (t HeaderType) String() string {
 	switch t {
-	case HeaderTypeNoop:
+	case Noop:
 		return "noop"
-	case HeaderTypeError:
+	case Error:
 		return "error"
-	case HeaderTypeDone:
+	case Done:
 		return "done"
-	case HeaderTypeOverrun:
+	case Overrun:
 		return "overrun"
 	default:
 		return fmt.Sprintf("unknown(%d)", t)
@@ -231,6 +226,10 @@ func (m *Message) UnmarshalBinary(b []byte) error {
 
 // checkMessage checks a single Message for netlink errors.
 func checkMessage(m Message) error {
+	// NB: All non-nil errors returned from this function *must* be of type
+	// OpError in order to maintain the appropriate contract with callers of
+	// this package.
+
 	const success = 0
 
 	// Per libnl documentation, only messages that indicate type error can
@@ -242,18 +241,19 @@ func checkMessage(m Message) error {
 	// it is unknown whether this change was correct or not.  If you run into
 	// a problem with your application because of this change, please file
 	// an issue.
-	if m.Header.Type != HeaderTypeError {
+	if m.Header.Type != Error {
 		return nil
 	}
 
 	if len(m.Data) < 4 {
-		return errShortErrorMessage
+		return newOpError("receive", errShortErrorMessage)
 	}
 
 	if c := nlenc.Int32(m.Data[0:4]); c != success {
-		// Error code is a negative integer, convert it into
-		// an OS-specific system call error
-		return newError(-1 * int(c))
+		// Error code is a negative integer, convert it into an OS-specific raw
+		// system call error, but do not wrap with os.NewSyscallError to signify
+		// that this error was produced by a netlink message; not a system call.
+		return newOpError("receive", newError(-1*int(c)))
 	}
 
 	return nil

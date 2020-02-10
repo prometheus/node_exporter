@@ -16,21 +16,49 @@
 package collector
 
 import (
-	"errors"
+	"fmt"
+	"strconv"
+
+	"github.com/siebenmann/go-kstat"
 )
 
-/*
-// Ensure "hrtime_t" is defined for sys/loadavg.h
-#include <sys/time.h>
-#include <sys/loadavg.h>
-*/
+// #include <sys/param.h>
 import "C"
 
-func getLoad() ([]float64, error) {
-	var loadavg [3]C.double
-	samples := C.getloadavg(&loadavg[0], 3)
-	if samples != 3 {
-		return nil, errors.New("failed to get load average")
+func kstatToFloat(ks *kstat.KStat, kstatKey string) float64 {
+	kstatValue, err := ks.GetNamed(kstatKey)
+
+	if err != nil {
+		panic(err)
 	}
-	return []float64{float64(loadavg[0]), float64(loadavg[1]), float64(loadavg[2])}, nil
+
+	kstatLoadavg, err := strconv.ParseFloat(
+		fmt.Sprintf("%.2f", float64(kstatValue.UintVal)/C.FSCALE), 64)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return kstatLoadavg
+}
+
+func getLoad() ([]float64, error) {
+	tok, err := kstat.Open()
+	if err != nil {
+		panic(err)
+	}
+
+	defer tok.Close()
+
+	ks, err := tok.Lookup("unix", 0, "system_misc")
+
+	if err != nil {
+		panic(err)
+	}
+
+	loadavg1Min := kstatToFloat(ks, "avenrun_1min")
+	loadavg5Min := kstatToFloat(ks, "avenrun_5min")
+	loadavg15Min := kstatToFloat(ks, "avenrun_15min")
+
+	return []float64{loadavg1Min, loadavg5Min, loadavg15Min}, nil
 }

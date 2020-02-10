@@ -2,20 +2,90 @@
 
 ### **Breaking changes**
 
+* The netdev collector CLI argument `--collector.netdev.ignored-devices` was renamed to `--collector.netdev.device-blacklist` in order to conform with the systemd collector. #1279
+* The label named `state` on `node_systemd_service_restart_total` metrics was changed to `name` to better describe the metric. #1393
+* Refactoring of the mdadm collector changes several metrics
+    - `node_md_disks_active` is removed
+    - `node_md_disks` now has a `state` label for "fail", "spare", "active" disks.
+    - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
+* Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
+* Metrics node_cpu_scaling_frequency_min_hrts and node_cpu_scaling_frequency_max_hrts of the cpufreq collector were renamed to node_cpu_scaling_frequency_min_hertz and node_cpu_scaling_frequency_max_hertz. #1510
+
 ### Changes
 
-* [BUGFIX]
-* [CHANGE] Add TCPSynRetrans to netstat default filter #1143
-* [ENHANCEMENT] Add Infiniband counters #1120
-* [FEATURE]
+* [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
+* [CHANGE] Refactor mdadm collector #1403
+* [CHANGE] Add `mountaddr` label to NFS metrics. #1417
+* [FEATURE] Add new schedstat collector #1389
+* [FEATURE] Add uname support for Darwin and OpenBSD #1433
+* [FEATURE] Add new metric node_cpu_info #1489
+* [FEATURE] Add new thermal_zone collector #1425
+* [FEATURE] Add new cooling_device metrics to thermal zone collector #1445
+* [FEATURE] Add new softnet collector #1576
+* [FEATURE] Add RAPL collector #1523
+* [ENHANCEMENT] Collect InfiniBand port state and physical state #1357
+* [ENHANCEMENT] Include additional XFS runtime statistics. #1423
+* [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
+* [ENHANCEMENT] Expose IPVS firewall mark as a label #1455
+* [ENHANCEMENT] Add check for systemd version before attempting to query certain metrics. #1413
+* [ENHANCEMENT] Add new counters for flush requests in Linux 5.5 #1548
+* [ENHANCEMENT] The sockstat collector now exposes IPv6 statistics in addition to the existing IPv4 support. #1552
+* [ENHANCEMENT] Add unix socket support for supervisord collector #262
+* [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
+* [BUGFIX] Fix netdev nil reference on Darwin #1414
+* [BUGFIX] Strip path.rootfs from mountpoint labels #1421
+* [BUGFIX] Fix empty string in path.rootfs #1464
+* [BUGFIX] Fix typo in cpufreq metric names #1510
+* [BUGFIX] Fix network speed math #1580
 
-## 0.17.0-rc.0 / 2018-10-19
+## 0.18.1 / 2019-06-04
+
+### Changes
+* [BUGFIX] Fix incorrect sysctl call in BSD meminfo collector, resulting in broken swap metrics on FreeBSD #1345
+* [BUGFIX] Fix rollover bug in mountstats collector #1364
+
+## 0.18.0 / 2019-05-09
+
+### **Breaking changes**
+
+* Renamed `interface` label to `device` in netclass collector for consistency with
+  other network metrics #1224
+* The cpufreq metrics now separate the `cpufreq` and `scaling` data based on what the driver provides. #1248
+* The labels for the network_up metric have changed, see issue #1236
+* Bonding collector now uses `mii_status` instead of `operstatus` #1124
+* Several systemd metrics have been turned off by default to improve performance #1254
+  These include unit_tasks_current, unit_tasks_max, service_restart_total, and unit_start_time_seconds
+* The systemd collector blacklist now includes automount, device, mount, and slice units by default. #1255
+
+### Changes
+
+* [CHANGE] Bonding state uses mii_status #1124
+* [CHANGE] Add a limit to the number of in-flight requests #1166
+* [CHANGE] Renamed `interface` label to `device` in netclass collector #1224
+* [CHANGE] Add separate cpufreq and scaling metrics #1248
+* [CHANGE] Several systemd metrics have been turned off by default to improve performance #1254
+* [CHANGE] Expand systemd collector blacklist #1255
+* [CHANGE] Split cpufreq metrics into a separate collector #1253
+* [FEATURE] Add a flag to disable exporter metrics #1148
+* [FEATURE] Add kstat-based Solaris metrics for boottime, cpu and zfs collectors #1197
+* [FEATURE] Add uname collector for FreeBSD #1239
+* [FEATURE] Add diskstats collector for OpenBSD #1250
+* [FEATURE] Add pressure collector exposing pressure stall information for Linux #1174
+* [FEATURE] Add perf exporter for Linux #1274
+* [ENHANCEMENT] Add Infiniband counters #1120
+* [ENHANCEMENT] Add TCPSynRetrans to netstat default filter #1143
+* [ENHANCEMENT] Move network_up labels into new metric network_info #1236
+* [ENHANCEMENT] Use 64-bit counters for Darwin netstat
+* [BUGFIX] Add fallback for missing /proc/1/mounts #1172
+* [BUGFIX] Fix node_textfile_mtime_seconds to work properly on symlinks #1326
+
+## 0.17.0 / 2018-11-30
 
 Build note: Linux builds can now be built without CGO.
 
 ### **Breaking changes**
 
-supvervisord collector reports "start_time_seconds" rather than "uptime" #952
+supvervisord collector reports `start_time_seconds` rather than `uptime` #952
 
 The wifi collector is disabled by default due to suspected caching issues and goroutine leaks.
 * https://github.com/prometheus/node_exporter/issues/870
@@ -25,9 +95,10 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 
 ### Changes
 
+* [CHANGE] Use /proc/mounts instead of statfs(2) for ro state #1002
+* [CHANGE] Exclude only subdirectories of /var/lib/docker #1003
 * [CHANGE] Filter out non-installed units when collecting all systemd units #1011
 * [CHANGE] `service_restart_total` and `socket_refused_connections_total` will not be reported if you're running an older version of systemd
-* [CHANGE] Use /proc/mounts instead of statfs(2) for ro state #1002
 * [CHANGE] collector/timex: remove cgo dependency #1079
 * [CHANGE] filesystem: Ignore Docker netns mounts #1047
 * [CHANGE] Ignore additional virtual filesystems #1104
@@ -40,9 +111,11 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 * [FEATURE] Allow removal of rootfs prefix for run in docker #1058
 * [ENHANCEMENT] Support for octal characters in mountpoints #954
 * [ENHANCEMENT] Update wifi stats to support multiple stations #980
+* [ENHANCEMENT] Add transmit/receive bytes total for wifi stations #1150
 * [ENHANCEMENT] Handle stuck NFS mounts #997
 * [ENHANCEMENT] infiniband: Handle iWARP RDMA modules N/A #974
 * [ENHANCEMENT] Update diskstats for linux kernel 4.19 #1109
+* [ENHANCEMENT] Collect TasksCurrent, TasksMax per systemd unit #1098
 
 * [BUGFIX] Fix FreeBSD CPU temp #965
 * [BUGFIX] Fix goroutine leak in supervisord collector #978
@@ -54,6 +127,11 @@ Darwin meminfo metrics have been renamed to match Prometheus conventions. #1060
 * [BUGFIX] Filter systemd units in Go for compatibility with older versions #1083
 * [BUGFIX] Update cpu collector for OpenBSD 6.4 #1094
 * [BUGFIX] Fix typo on HELP of `read_time_seconds_total` #1057
+* [BUGFIX] collector/diskstats: don't fail if there are extra stats #1125
+* [BUGFIX] collector/hwmon\_linux: handle temperature sensor file #1123
+* [BUGFIX] collector/filesystem: add bounds check #1133
+* [BUGFIX] Fix dragonfly's CPU counting frequency #1140
+* [BUGFIX] Add fallback for missing /proc/1/mounts #1172
 
 ## 0.16.0 / 2018-05-15
 

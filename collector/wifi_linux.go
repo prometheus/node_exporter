@@ -20,9 +20,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/mdlayher/wifi"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -34,10 +35,14 @@ type wifiCollector struct {
 	stationInactiveSeconds       *prometheus.Desc
 	stationReceiveBitsPerSecond  *prometheus.Desc
 	stationTransmitBitsPerSecond *prometheus.Desc
+	stationReceiveBytesTotal     *prometheus.Desc
+	stationTransmitBytesTotal    *prometheus.Desc
 	stationSignalDBM             *prometheus.Desc
 	stationTransmitRetriesTotal  *prometheus.Desc
 	stationTransmitFailedTotal   *prometheus.Desc
 	stationBeaconLossTotal       *prometheus.Desc
+
+	logger log.Logger
 }
 
 var (
@@ -59,7 +64,7 @@ type wifiStater interface {
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector() (Collector, error) {
+func NewWifiCollector(logger log.Logger) (Collector, error) {
 	const (
 		subsystem = "wifi"
 	)
@@ -111,6 +116,20 @@ func NewWifiCollector() (Collector, error) {
 			nil,
 		),
 
+		stationReceiveBytesTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_receive_bytes_total"),
+			"The total number of bytes received by a WiFi station.",
+			labels,
+			nil,
+		),
+
+		stationTransmitBytesTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_transmit_bytes_total"),
+			"The total number of bytes transmitted by a WiFi station.",
+			labels,
+			nil,
+		),
+
 		stationSignalDBM: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_signal_dbm"),
 			"The current WiFi signal strength, in decibel-milliwatts (dBm).",
@@ -138,6 +157,7 @@ func NewWifiCollector() (Collector, error) {
 			labels,
 			nil,
 		),
+		logger: logger,
 	}, nil
 }
 
@@ -146,21 +166,21 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		// Cannot access wifi metrics, report no error.
 		if os.IsNotExist(err) {
-			log.Debug("wifi collector metrics are not available for this system")
+			level.Debug(c.logger).Log("msg", "wifi collector metrics are not available for this system")
 			return nil
 		}
 		if os.IsPermission(err) {
-			log.Debug("wifi collector got permission denied when accessing metrics")
+			level.Debug(c.logger).Log("msg", "wifi collector got permission denied when accessing metrics")
 			return nil
 		}
 
-		return fmt.Errorf("failed to access wifi data: %v", err)
+		return fmt.Errorf("failed to access wifi data: %w", err)
 	}
 	defer stat.Close()
 
 	ifis, err := stat.Interfaces()
 	if err != nil {
-		return fmt.Errorf("failed to retrieve wifi interfaces: %v", err)
+		return fmt.Errorf("failed to retrieve wifi interfaces: %w", err)
 	}
 
 	for _, ifi := range ifis {
@@ -169,7 +189,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		log.Debugf("probing wifi device %q with type %q", ifi.Name, ifi.Type)
+		level.Debug(c.logger).Log("msg", "probing wifi device with type", "wifi", ifi.Name, "type", ifi.Type)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.interfaceFrequencyHertz,
@@ -187,7 +207,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 		case err == nil:
 			c.updateBSSStats(ch, ifi.Name, bss)
 		case os.IsNotExist(err):
-			log.Debugf("BSS information not found for wifi device %q", ifi.Name)
+			level.Debug(c.logger).Log("msg", "BSS information not found for wifi device", "name", ifi.Name)
 		default:
 			return fmt.Errorf("failed to retrieve BSS for device %s: %v",
 				ifi.Name, err)
@@ -200,7 +220,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 				c.updateStationStats(ch, ifi.Name, station)
 			}
 		case os.IsNotExist(err):
-			log.Debugf("station information not found for wifi device %q", ifi.Name)
+			level.Debug(c.logger).Log("msg", "station information not found for wifi device", "name", ifi.Name)
 		default:
 			return fmt.Errorf("failed to retrieve station info for device %q: %v",
 				ifi.Name, err)
@@ -252,6 +272,22 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		c.stationTransmitBitsPerSecond,
 		prometheus.GaugeValue,
 		float64(info.TransmitBitrate),
+		device,
+		info.HardwareAddr.String(),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationReceiveBytesTotal,
+		prometheus.CounterValue,
+		float64(info.ReceivedBytes),
+		device,
+		info.HardwareAddr.String(),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationTransmitBytesTotal,
+		prometheus.CounterValue,
+		float64(info.TransmittedBytes),
 		device,
 		info.HardwareAddr.String(),
 	)
