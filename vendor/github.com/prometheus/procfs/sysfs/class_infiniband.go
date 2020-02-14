@@ -97,7 +97,7 @@ func (fs FS) InfiniBandClass() (InfiniBandClass, error) {
 
 	dirs, err := ioutil.ReadDir(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list InfiniBand devices at %q: %v", path, err)
+		return nil, err
 	}
 
 	ibc := make(InfiniBandClass, len(dirs))

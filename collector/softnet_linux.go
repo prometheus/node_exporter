@@ -70,7 +70,7 @@ func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 
 // Update gets parsed softnet statistics using procfs.
 func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.GatherSoftnetStats()
+	stats, err := c.fs.NetSoftnetStat()
 	if err != nil {
 		return fmt.Errorf("could not get softnet statistics: %s", err)
 	}
