@@ -7,7 +7,6 @@ build:
         - name: node_exporter
     flags: -mod=vendor -tags 'netgo static_build'
     ldflags: |-
-        -L/usr/osxcross/SDK/MacOSX10.11.sdk
         -X github.com/prometheus/common/version.Version={{.Version}}
         -X github.com/prometheus/common/version.Revision={{.Revision}}
         -X github.com/prometheus/common/version.Branch={{.Branch}}
