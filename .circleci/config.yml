@@ -48,6 +48,12 @@ jobs:
       GOVERSION: 1.13.8
       DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.13-base
       REPO_PATH: github.com/prometheus/node_exporter
+      OSXCROSS_PATH: /usr/osxcross
+      OSXCROSS_REV: 3034f7149716d815bc473d0a7b35d17e4cf175aa
+      SDK_VERSION: 10.11
+      DARWIN_VERSION: 15
+      OSX_VERSION_MIN: 10.6
+      OSXCROSS_SDK_URL: https://www.dropbox.com/s/bwlbtwywvlu1au7/MacOSX10.11.sdk.tar.xz
 
     steps:
     - checkout
@@ -58,6 +64,30 @@ jobs:
           wget https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz
           sudo tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz
           rm -f go${GOVERSION}.linux-amd64.tar.gz
+    - run:
+        name: install  build requirements
+        command: |
+          dpkg --add-architecture i386 \
+          && apt-get update && apt-get install -y --no-install-recommends \
+              clang \
+              g++ \
+              gcc \
+              gcc-multilib \
+              libc6-dev \
+              libc6-dev-i386 \
+              linux-libc-dev:i386 \
+              mingw-w64 \
+              patch \
+              xz-utils
+
+          mkdir -p /tmp/osxcross && cd /tmp/osxcross \
+          && curl -sSL "https://codeload.github.com/tpoechtrager/osxcross/tar.gz/${OSXCROSS_REV}" \
+              | tar -C /tmp/osxcross --strip=1 -xzf - \
+          && curl -sSLo tarballs/MacOSX${SDK_VERSION}.sdk.tar.xz ${OSXCROSS_SDK_URL} \
+          && UNATTENDED=yes ./build.sh >/dev/null \
+          && mv target "${OSXCROSS_PATH}" \
+          && rm -rf /tmp/osxcross "/usr/osxcross/SDK/MacOSX${SDK_VERSION}.sdk/usr/share/man"
+
     - run: make promu
     - run: promu crossbuild
     - run: promu --config .promu-cgo.yml crossbuild
