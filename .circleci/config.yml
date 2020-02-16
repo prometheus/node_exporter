@@ -13,10 +13,20 @@ executors:
 
 jobs:
   test:
-    executor: golang
+    environment:
+      GOVERSION: 1.13.8
+    machine:
+      enabled: true
 
     steps:
-    - prometheus/setup_environment
+    - checkout
+    - run:
+        name: install go
+        command: |
+          sudo rm -rf /usr/local/go
+          wget https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz
+          rm -f go${GOVERSION}.linux-amd64.tar.gz
     - run: make
     - prometheus/store_artifact:
         file: node_exporter
@@ -35,12 +45,19 @@ jobs:
       image: ubuntu-1604:201903-01
 
     environment:
+      GOVERSION: 1.13.8
       DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.13-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
     - checkout
-    - run: docker run --privileged linuxkit/binfmt:v0.7
+    - run:
+        name: install go
+        command: |
+          sudo rm -rf /usr/local/go
+          wget https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz
+          rm -f go${GOVERSION}.linux-amd64.tar.gz
     - run: make promu
     - run: promu crossbuild
     - run: promu --config .promu-cgo.yml crossbuild
