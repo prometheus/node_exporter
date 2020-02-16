@@ -91,10 +91,10 @@ jobs:
 
           echo "export PATH='$OSXCROSS_PATH/bin:$PATH'" >> $BASH_ENV
     - run: env && make promu
-    - run: CC="o64-clang" CXX="o64-clang++" promu --config .promu-cgo.yml crossbuild -p "darwin/amd64"
-    - run: CC="o32-clang" CXX="o32-clang++" promu --config .promu-cgo.yml crossbuild -p "darwin/386"
-    - run: promu --config .promu-cgo.yml crossbuild -p "netbsd/amd64"
-    - run: promu --config .promu-cgo.yml crossbuild -p "netbsd/386"
+    - run: CC="o64-clang" CXX="o64-clang++" promu --config .promu-cgo.yml crossbuild -v -p "darwin/amd64"
+    - run: CC="o32-clang" CXX="o32-clang++" promu --config .promu-cgo.yml crossbuild -v -p "darwin/386"
+    - run: promu --config .promu-cgo.yml crossbuild -v -p "netbsd/amd64"
+    - run: promu --config .promu-cgo.yml crossbuild -v -p "netbsd/386"
     - persist_to_workspace:
         root: .
         paths:
