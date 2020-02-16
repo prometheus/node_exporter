@@ -85,11 +85,13 @@ jobs:
           && curl -sSL "https://codeload.github.com/tpoechtrager/osxcross/tar.gz/${OSXCROSS_REV}" \
               | tar -C /tmp/osxcross --strip=1 -xzf - \
           && curl -sSLo tarballs/MacOSX${SDK_VERSION}.sdk.tar.xz ${OSXCROSS_SDK_URL} \
-          && UNATTENDED=yes ./build.sh >/dev/null \
+          && UNATTENDED=yes bash -x ./build.sh >/dev/null \
           && sudo mv target "${OSXCROSS_PATH}" \
           && sudo rm -rf /tmp/osxcross "/usr/osxcross/SDK/MacOSX${SDK_VERSION}.sdk/usr/share/man"
 
           echo "export PATH='$OSXCROSS_PATH/bin:$PATH'" >> $BASH_ENV
+          cat $BASH_ENV
+          find ${OSXCROSS_PATH}
     - run: make promu
     - run: promu crossbuild
     - run: promu --config .promu-cgo.yml crossbuild
