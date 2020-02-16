@@ -66,6 +66,7 @@ jobs:
           rm -f go${GOVERSION}.linux-amd64.tar.gz
     - run:
         name: install  build requirements
+        shell: /bin/bash -x -eo pipefail
         command: |
           sudo dpkg --add-architecture i386 \
           && sudo apt-get update && sudo apt-get install -y --no-install-recommends \
