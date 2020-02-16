@@ -42,8 +42,8 @@ jobs:
     - checkout
     - run: docker run --privileged linuxkit/binfmt:v0.7
     - run: make promu
-    - run: promu crossbuild
-    - run: promu --config .promu-cgo.yml crossbuild
+    - run: promu -v crossbuild
+    - run: promu -v --config .promu-cgo.yml crossbuild
     - persist_to_workspace:
         root: .
         paths:
