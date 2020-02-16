@@ -67,8 +67,8 @@ jobs:
     - run:
         name: install  build requirements
         command: |
-          dpkg --add-architecture i386 \
-          && apt-get update && apt-get install -y --no-install-recommends \
+          sudo dpkg --add-architecture i386 \
+          && sudo apt-get update && sudo apt-get install -y --no-install-recommends \
               clang \
               g++ \
               gcc \
@@ -85,8 +85,8 @@ jobs:
               | tar -C /tmp/osxcross --strip=1 -xzf - \
           && curl -sSLo tarballs/MacOSX${SDK_VERSION}.sdk.tar.xz ${OSXCROSS_SDK_URL} \
           && UNATTENDED=yes ./build.sh >/dev/null \
-          && mv target "${OSXCROSS_PATH}" \
-          && rm -rf /tmp/osxcross "/usr/osxcross/SDK/MacOSX${SDK_VERSION}.sdk/usr/share/man"
+          && sudo mv target "${OSXCROSS_PATH}" \
+          && sudo rm -rf /tmp/osxcross "/usr/osxcross/SDK/MacOSX${SDK_VERSION}.sdk/usr/share/man"
 
           echo "export PATH='$OSXCROSS_PATH/bin:$PATH'" >> $BASH_ENV
     - run: make promu
