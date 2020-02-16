@@ -57,6 +57,7 @@ jobs:
 
     steps:
     - checkout
+    - run: docker run --privileged linuxkit/binfmt:v0.7
     - run:
         name: install go
         command: |
