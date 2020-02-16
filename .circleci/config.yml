@@ -88,6 +88,7 @@ jobs:
           && mv target "${OSXCROSS_PATH}" \
           && rm -rf /tmp/osxcross "/usr/osxcross/SDK/MacOSX${SDK_VERSION}.sdk/usr/share/man"
 
+          echo "export PATH='$OSXCROSS_PATH/bin:$PATH'" >> $BASH_ENV
     - run: make promu
     - run: promu crossbuild
     - run: promu --config .promu-cgo.yml crossbuild
