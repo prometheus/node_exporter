@@ -14,7 +14,7 @@ executors:
 jobs:
   test:
     environment:
-      GOVERSION: 1.13.8
+      GOVERSION: 1.12.17
     machine:
       enabled: true
 
@@ -45,7 +45,7 @@ jobs:
       image: ubuntu-1604:201903-01
 
     environment:
-      GOVERSION: 1.13.8
+      GOVERSION: 1.12.17
       DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.13-base
       REPO_PATH: github.com/prometheus/node_exporter
       OSXCROSS_PATH: /usr/osxcross
