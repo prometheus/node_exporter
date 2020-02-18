@@ -189,7 +189,7 @@ Ngid:	0
 Pid:	26231
 PPid:	1
 TracerPid:	0
-Uid:	0	0	0	0
+Uid:	1000	1000	1000	0
 Gid:	0	0	0	0
 FDSize:	128
 Groups:
@@ -554,7 +554,7 @@ power management:
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: fixtures/proc/crypto
-Lines: 971
+Lines: 972
 name         : ccm(aes)
 driver       : ccm_base(ctr(aes-aesni),cbcmac(aes-aesni))
 module       : ccm
@@ -588,6 +588,7 @@ refcnt       : 1
 selftest     : passed
 internal     : no
 type         : kpp
+async        : yes
 
 name         : ecb(arc4)
 driver       : ecb(arc4)-generic
@@ -1528,6 +1529,11 @@ max keysize  : 32
 
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: fixtures/proc/loadavg
+Lines: 1
+0.02 0.04 0.05 1/497 11947
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: fixtures/proc/diskstats
 Lines: 49
    1       0 ram0 0 0 0 0 0 0 0 0 0 0 0
@@ -1825,6 +1831,27 @@ Lines: 1
 00015c73 00020e76 F0000769 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: fixtures/proc/net/udp
+Lines: 4
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+   0: 0A000005:0016 00000000:0000 0A 00000000:00000001 00:00000000 00000000     0        0 2740 1 ffff88003d3af3c0 100 0 0 10 0
+   1: 00000000:0016 00000000:0000 0A 00000001:00000000 00:00000000 00000000     0        0 2740 1 ffff88003d3af3c0 100 0 0 10 0
+   2: 00000000:0016 00000000:0000 0A 00000001:00000001 00:00000000 00000000     0        0 2740 1 ffff88003d3af3c0 100 0 0 10 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: fixtures/proc/net/udp6
+Lines: 3
+  sl  local_address                         remote_address                        st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode ref pointer drops
+ 1315: 00000000000000000000000000000000:14EB 00000000000000000000000000000000:0000 07 00000000:00000000 00:00000000 00000000   981        0 21040 2 0000000013726323 0
+ 6073: 000080FE00000000FFADE15609667CFE:C781 00000000000000000000000000000000:0000 07 00000000:00000000 00:00000000 00000000  1000        0 11337031 2 00000000b9256fdd 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: fixtures/proc/net/udp_broken
+Lines: 2
+  sl  local_address rem_address   st
+   1: 00000000:0016 00000000:0000 0A
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: fixtures/proc/net/unix
 Lines: 6
 Num       RefCount Protocol Flags    Type St Inode Path
@@ -1929,6 +1956,12 @@ procs_running 2
 procs_blocked 1
 softirq 5057579 250191 1481983 1647 211099 186066 0 1783454 622196 12499 508444
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: fixtures/proc/swaps
+Lines: 2
+Filename				Type		Size	Used	Priority
+/dev/dm-2                               partition	131068	176	-2
+Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: fixtures/proc/symlinktargets
 Mode: 755

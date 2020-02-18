@@ -53,7 +53,7 @@ github.com/prometheus/common/model
 github.com/prometheus/common/promlog
 github.com/prometheus/common/promlog/flag
 github.com/prometheus/common/version
-# github.com/prometheus/procfs v0.0.8
+# github.com/prometheus/procfs v0.0.10
 github.com/prometheus/procfs
 github.com/prometheus/procfs/bcache
 github.com/prometheus/procfs/internal/fs
