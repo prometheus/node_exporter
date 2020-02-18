@@ -1,4 +1,4 @@
-# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge

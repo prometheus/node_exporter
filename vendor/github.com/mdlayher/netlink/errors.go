@@ -32,6 +32,8 @@ func notSupported(op string) error {
 // Errors types created by this package, such as OpError, can be used with
 // IsNotExist, but this function also defers to the behavior of os.IsNotExist
 // for unrecognized error types.
+//
+// Deprecated: make use of errors.Unwrap and errors.Is in Go 1.13+.
 func IsNotExist(err error) bool {
 	switch err := err.(type) {
 	case *OpError:
@@ -44,8 +46,12 @@ func IsNotExist(err error) bool {
 	}
 }
 
-var _ error = &OpError{}
-var _ net.Error = &OpError{}
+var (
+	_ error     = &OpError{}
+	_ net.Error = &OpError{}
+	// Ensure compatibility with Go 1.13+ errors package.
+	_ interface{ Unwrap() error } = &OpError{}
+)
 
 // An OpError is an error produced as the result of a failed netlink operation.
 type OpError struct {
@@ -83,6 +89,9 @@ func (e *OpError) Error() string {
 
 	return fmt.Sprintf("netlink %s: %v", e.Op, e.Err)
 }
+
+// Unwrap unwraps the internal Err field for use with errors.Unwrap.
+func (e *OpError) Unwrap() error { return e.Err }
 
 // Portions of this code taken from the Go standard library:
 //
