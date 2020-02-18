@@ -48,7 +48,11 @@ then
   fi
 
   if [[ "${count}" -eq 0 ]]; then
-    echo "virt_platform{type=\"none\"} 1" >>"${v}"
+    line="$( printf 'virt_platform{type="none",bios_vendor="%q",bios_version="%q",system_manufacturer="%q",system_product_name="%q",system_version="%q",baseboard_manufacturer="%q",baseboard_product_name="%q"} 1' \
+      "$( dmidecode -s bios-vendor )" "$( dmidecode -s bios-version )" \
+      "$( dmidecode -s system-manufacturer )" "$( dmidecode -s system-product-name )" "$( dmidecode -s system-version )" \
+      "$( dmidecode -s baseboard-manufacturer )" "$( dmidecode -s baseboard-product-name )" )"
+    echo "${line//\\ / }" >>"${v}"
   fi
 fi
 mv "${v}" virt.prom
