@@ -15,6 +15,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -131,7 +132,11 @@ func execute(name string, c Collector, ch chan<- prometheus.Metric, logger log.L
 	var success float64
 
 	if err != nil {
-		level.Error(logger).Log("msg", "collector failed", "name", name, "duration_seconds", duration.Seconds(), "err", err)
+		if IsNoDataError(err) {
+			level.Debug(logger).Log("msg", "collector returned no data", "name", name, "duration_seconds", duration.Seconds(), "err", err)
+		} else {
+			level.Error(logger).Log("msg", "collector failed", "name", name, "duration_seconds", duration.Seconds(), "err", err)
+		}
 		success = 0
 	} else {
 		level.Debug(logger).Log("msg", "collector succeeded", "name", name, "duration_seconds", duration.Seconds())
@@ -154,4 +159,11 @@ type typedDesc struct {
 
 func (d *typedDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
 	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
+}
+
+// ErrNoData indicates the collector found no data to collect, but had no other error.
+var ErrNoData = errors.New("collector returned no data")
+
+func IsNoDataError(err error) bool {
+	return err == ErrNoData
 }

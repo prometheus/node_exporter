@@ -63,7 +63,7 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			level.Debug(c.logger).Log("msg", "Not collecting NFSd metrics", "err", err)
-			return nil
+			return ErrNoData
 		}
 		return fmt.Errorf("failed to retrieve nfsd stats: %w", err)
 	}
