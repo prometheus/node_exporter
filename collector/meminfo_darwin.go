@@ -69,7 +69,6 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		"swapped_out_bytes_total": ps * float64(vmstat.pageouts),
 		"total_bytes":             float64(total),
 		"swap_used_bytes":         float64(swap.xsu_used),
-		"swap_free_bytes":         float64(swap.xsu_avail),
 		"swap_total_bytes":        float64(swap.xsu_total),
 	}, nil
 }

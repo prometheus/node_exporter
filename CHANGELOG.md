@@ -24,6 +24,7 @@
 * [FEATURE] Add new softnet collector #1576
 * [FEATURE] Add RAPL collector #1523
 * [FEATURE] Add Btrfs collector #1512
+* [FEATURE] Add swap usage on darwin #1508
 * [ENHANCEMENT] Collect InfiniBand port state and physical state #1357
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
