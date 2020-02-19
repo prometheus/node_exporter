@@ -49,7 +49,7 @@ type perfCollector struct {
 	perfSwProfilers     map[int]*perf.SoftwareProfiler
 	perfCacheProfilers  map[int]*perf.CacheProfiler
 	desc                map[string]*prometheus.Desc
-  logger             log.Logger
+	logger              log.Logger
 }
 
 // perfCPUFlagToCPUs returns a set of CPUs for the perf collectors to monitor.
