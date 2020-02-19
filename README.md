@@ -51,8 +51,10 @@ netstat | Exposes network statistics from `/proc/net/netstat`. This is the same 
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
 pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/accounting/psi.txt))
+rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
 schedstat | Exposes task scheduler statistics from `/proc/schedstat`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
+softnet | Exposes statistics from `/proc/net/softnet_stat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/class/thermal`. | Linux

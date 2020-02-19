@@ -19,8 +19,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -31,21 +32,23 @@ const (
 // Used for calculating the total memory bytes on TCP and UDP.
 var pageSize = os.Getpagesize()
 
-type sockStatCollector struct{}
+type sockStatCollector struct {
+	logger log.Logger
+}
 
 func init() {
 	registerCollector(sockStatSubsystem, defaultEnabled, NewSockStatCollector)
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector() (Collector, error) {
-	return &sockStatCollector{}, nil
+func NewSockStatCollector(logger log.Logger) (Collector, error) {
+	return &sockStatCollector{logger}, nil
 }
 
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
+		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	// If IPv4 and/or IPv6 are disabled on this kernel, handle it gracefully.
@@ -53,18 +56,18 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	switch {
 	case err == nil:
 	case os.IsNotExist(err):
-		log.Debug("IPv4 sockstat statistics not found, skipping")
+		level.Debug(c.logger).Log("msg", "IPv4 sockstat statistics not found, skipping")
 	default:
-		return fmt.Errorf("failed to get IPv4 sockstat data: %v", err)
+		return fmt.Errorf("failed to get IPv4 sockstat data: %w", err)
 	}
 
 	stat6, err := fs.NetSockstat6()
 	switch {
 	case err == nil:
 	case os.IsNotExist(err):
-		log.Debug("IPv6 sockstat statistics not found, skipping")
+		level.Debug(c.logger).Log("msg", "IPv6 sockstat statistics not found, skipping")
 	default:
-		return fmt.Errorf("failed to get IPv6 sockstat data: %v", err)
+		return fmt.Errorf("failed to get IPv6 sockstat data: %w", err)
 	}
 
 	stats := []struct {

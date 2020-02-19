@@ -35,12 +35,12 @@ jobs:
       image: ubuntu-1604:201903-01
 
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.11-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.13-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
     - checkout
-    - run: docker run --privileged linuxkit/binfmt:v0.6
+    - run: docker run --privileged linuxkit/binfmt:v0.7
     - run: make promu
     - run: promu crossbuild
     - run: promu --config .promu-cgo.yml crossbuild

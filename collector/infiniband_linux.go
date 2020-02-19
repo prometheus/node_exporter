@@ -18,8 +18,11 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -27,6 +30,7 @@ import (
 type infinibandCollector struct {
 	fs          sysfs.FS
 	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
 	subsystem   string
 }
 
@@ -35,14 +39,15 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector() (Collector, error) {
+func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 
 	i.fs, err = sysfs.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
+	i.logger = logger
 
 	// Detailed description for all metrics.
 	descriptions := map[string]string{
@@ -103,6 +108,10 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.InfiniBandClass()
 	if err != nil {
+		if os.IsNotExist(err) {
+			level.Debug(c.logger).Log("msg", "IPv4 sockstat statistics not found, skipping")
+			return nil
+		}
 		return fmt.Errorf("error obtaining InfiniBand class info: %s", err)
 	}
 

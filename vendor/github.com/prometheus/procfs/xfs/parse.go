@@ -381,11 +381,15 @@ func extendedPrecisionStats(us []uint64) (ExtendedPrecisionStats, error) {
 }
 
 func quotaManagerStats(us []uint32) (QuotaManagerStats, error) {
-	if l := len(us); l != 8 {
+	// The "Unused" attribute first appears in Linux 4.20
+	// As a result either 8 or 9 elements may appear in this slice depending on
+	// the kernel version.
+	l := len(us)
+	if l != 8 && l != 9 {
 		return QuotaManagerStats{}, fmt.Errorf("incorrect number of values for XFS quota stats: %d", l)
 	}
 
-	return QuotaManagerStats{
+	s := QuotaManagerStats{
 		Reclaims:      us[0],
 		ReclaimMisses: us[1],
 		DquoteDups:    us[2],
@@ -394,7 +398,13 @@ func quotaManagerStats(us []uint32) (QuotaManagerStats, error) {
 		Wants:         us[5],
 		ShakeReclaims: us[6],
 		InactReclaims: us[7],
-	}, nil
+	}
+
+	if l > 8 {
+		s.Unused = us[8]
+	}
+
+	return s, nil
 }
 
 func debugStats(us []uint32) (DebugStats, error) {

@@ -20,9 +20,10 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -34,6 +35,7 @@ type netClassCollector struct {
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
+	logger                log.Logger
 }
 
 func init() {
@@ -41,10 +43,10 @@ func init() {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector() (Collector, error) {
+func NewNetClassCollector(logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 	pattern := regexp.MustCompile(*netclassIgnoredDevices)
 	return &netClassCollector{
@@ -52,6 +54,7 @@ func NewNetClassCollector() (Collector, error) {
 		subsystem:             "network",
 		ignoredDevicesPattern: pattern,
 		metricDescs:           map[string]*prometheus.Desc{},
+		logger:                logger,
 	}, nil
 }
 
@@ -141,7 +144,7 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		if ifaceInfo.Speed != nil {
-			speedBytes := int64(*ifaceInfo.Speed / 8 * 1000 * 1000)
+			speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
 			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 

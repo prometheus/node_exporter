@@ -24,9 +24,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"golang.org/x/sys/unix"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -42,18 +43,18 @@ var stuckMountsMtx = &sync.Mutex{}
 
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	mps, err := mountPointDetails()
+	mps, err := mountPointDetails(c.logger)
 	if err != nil {
 		return nil, err
 	}
 	stats := []filesystemStats{}
 	for _, labels := range mps {
 		if c.ignoredMountPointsPattern.MatchString(labels.mountPoint) {
-			log.Debugf("Ignoring mount point: %s", labels.mountPoint)
+			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", labels.mountPoint)
 			continue
 		}
 		if c.ignoredFSTypesPattern.MatchString(labels.fsType) {
-			log.Debugf("Ignoring fs type: %s", labels.fsType)
+			level.Debug(c.logger).Log("msg", "Ignoring fs", "type", labels.fsType)
 			continue
 		}
 		stuckMountsMtx.Lock()
@@ -62,7 +63,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				labels:      labels,
 				deviceError: 1,
 			})
-			log.Debugf("Mount point %q is in an unresponsive state", labels.mountPoint)
+			level.Debug(c.logger).Log("msg", "Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
 			stuckMountsMtx.Unlock()
 			continue
 		}
@@ -71,7 +72,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		// The success channel is used do tell the "watcher" that the stat
 		// finished successfully. The channel is closed on success.
 		success := make(chan struct{})
-		go stuckMountWatcher(labels.mountPoint, success)
+		go stuckMountWatcher(labels.mountPoint, success, c.logger)
 
 		buf := new(unix.Statfs_t)
 		err = unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
@@ -79,7 +80,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		close(success)
 		// If the mount has been marked as stuck, unmark it and log it's recovery.
 		if _, ok := stuckMounts[labels.mountPoint]; ok {
-			log.Debugf("Mount point %q has recovered, monitoring will resume", labels.mountPoint)
+			level.Debug(c.logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
 			delete(stuckMounts, labels.mountPoint)
 		}
 		stuckMountsMtx.Unlock()
@@ -89,7 +90,8 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				labels:      labels,
 				deviceError: 1,
 			})
-			log.Debugf("Error on statfs() system call for %q: %s", rootfsFilePath(labels.mountPoint), err)
+
+			level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
 			continue
 		}
 
@@ -117,7 +119,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}) {
+func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
 	select {
 	case <-success:
 		// Success
@@ -128,18 +130,18 @@ func stuckMountWatcher(mountPoint string, success chan struct{}) {
 		case <-success:
 			// Success came in just after the timeout was reached, don't label the mount as stuck
 		default:
-			log.Debugf("Mount point %q timed out, it is being labeled as stuck and will not be monitored", mountPoint)
+			level.Debug(logger).Log("msg", "Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
 			stuckMounts[mountPoint] = struct{}{}
 		}
 		stuckMountsMtx.Unlock()
 	}
 }
 
-func mountPointDetails() ([]filesystemLabels, error) {
+func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
 	file, err := os.Open(procFilePath("1/mounts"))
 	if os.IsNotExist(err) {
 		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
-		log.Debugf("Got %q reading root mounts, falling back to system mounts", err)
+		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
 		file, err = os.Open(procFilePath("mounts"))
 	}
 	if err != nil {

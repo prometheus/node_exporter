@@ -20,6 +20,7 @@ import (
 
 func TestNetStats(t *testing.T) {
 	testNetStats(t, "fixtures/proc/net/netstat")
+	testSNMPStats(t, "fixtures/proc/net/snmp")
 	testSNMP6Stats(t, "fixtures/proc/net/snmp6")
 }
 
@@ -44,6 +45,27 @@ func testNetStats(t *testing.T, fileName string) {
 	}
 }
 
+func testSNMPStats(t *testing.T, fileName string) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+
+	snmpStats, err := parseNetStats(file, fileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := "9", snmpStats["Udp"]["RcvbufErrors"]; want != got {
+		t.Errorf("want netstat Udp RcvbufErrors %s, got %s", want, got)
+	}
+
+	if want, got := "8", snmpStats["Udp"]["SndbufErrors"]; want != got {
+		t.Errorf("want netstat Udp SndbufErrors %s, got %s", want, got)
+	}
+}
+
 func testSNMP6Stats(t *testing.T, fileName string) {
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -62,5 +84,13 @@ func testSNMP6Stats(t *testing.T, fileName string) {
 
 	if want, got := "8", snmp6Stats["Icmp6"]["OutMsgs"]; want != got {
 		t.Errorf("want netstat ICPM6 OutMsgs %s, got %s", want, got)
+	}
+
+	if want, got := "9", snmp6Stats["Udp6"]["RcvbufErrors"]; want != got {
+		t.Errorf("want netstat Udp6 RcvbufErrors %s, got %s", want, got)
+	}
+
+	if want, got := "8", snmp6Stats["Udp6"]["SndbufErrors"]; want != got {
+		t.Errorf("want netstat Udp6 SndbufErrors %s, got %s", want, got)
 	}
 }

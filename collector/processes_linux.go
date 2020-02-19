@@ -19,8 +19,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -31,6 +32,7 @@ type processCollector struct {
 	procsState  *prometheus.Desc
 	pidUsed     *prometheus.Desc
 	pidMax      *prometheus.Desc
+	logger      log.Logger
 }
 
 func init() {
@@ -38,10 +40,10 @@ func init() {
 }
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
-func NewProcessStatCollector() (Collector, error) {
+func NewProcessStatCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %v", err)
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 	subsystem := "processes"
 	return &processCollector{
@@ -67,6 +69,7 @@ func NewProcessStatCollector() (Collector, error) {
 		pidMax: prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "max_processes"),
 			"Number of max PIDs limit", nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
 func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
@@ -108,11 +111,11 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 		stat, err := pid.Stat()
 		// PIDs can vanish between getting the list and getting stats.
 		if os.IsNotExist(err) {
-			log.Debugf("file not found when retrieving stats for pid %v: %q", pid, err)
+			level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
 			continue
 		}
 		if err != nil {
-			log.Debugf("error reading stat for pid %v: %q", pid, err)
+			level.Debug(c.logger).Log("msg", "error reading stat for pid", "pid", pid, "err", err)
 			return 0, nil, 0, err
 		}
 		pids++

@@ -17,11 +17,13 @@
 package collector
 
 import (
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type execCollector struct {
 	sysctls []bsdSysctl
+	logger  log.Logger
 }
 
 func init() {
@@ -29,7 +31,7 @@ func init() {
 }
 
 // NewExecCollector returns a new Collector exposing system execution statistics.
-func NewExecCollector() (Collector, error) {
+func NewExecCollector(logger log.Logger) (Collector, error) {
 	// From sys/vm/vm_meter.c:
 	// All are of type CTLTYPE_UINT.
 	//
@@ -73,6 +75,7 @@ func NewExecCollector() (Collector, error) {
 				mib:         "vm.stats.vm.v_forks",
 			},
 		},
+		logger: logger,
 	}, nil
 }
 
