@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"fmt"
 	"runtime"
 	"strconv"
 	"strings"
@@ -99,7 +100,7 @@ func perfCPUFlagToCPUs(cpuFlag string) ([]int, error) {
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
-func NewPerfCollector() (Collector, error) {
+func NewPerfCollector(logger log.Logger) (Collector, error) {
 	collector := &perfCollector{
 		perfHwProfilers:     map[int]*perf.HardwareProfiler{},
 		perfSwProfilers:     map[int]*perf.SoftwareProfiler{},
@@ -107,6 +108,7 @@ func NewPerfCollector() (Collector, error) {
 		hwProfilerCPUMap:    map[*perf.HardwareProfiler]int{},
 		swProfilerCPUMap:    map[*perf.SoftwareProfiler]int{},
 		cacheProfilerCPUMap: map[*perf.CacheProfiler]int{},
+		logger:              logger,
 	}
 
 	if perfCPUsFlag != nil && *perfCPUsFlag != "" {
@@ -400,7 +402,7 @@ func NewPerfCollector() (Collector, error) {
 		),
 	}
 
-	return c, nil
+	return collector, nil
 }
 
 // Update implements the Collector interface and will collect metrics per CPU.
