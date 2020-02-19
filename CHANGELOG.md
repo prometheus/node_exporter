@@ -10,12 +10,14 @@
     - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
 * Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
 * Metrics node_cpu_scaling_frequency_min_hrts and node_cpu_scaling_frequency_max_hrts of the cpufreq collector were renamed to node_cpu_scaling_frequency_min_hertz and node_cpu_scaling_frequency_max_hertz. #1510
+* Collectors that are enabled, but are unable to find data to collect, now return 0 for `node_scrape_collector_success`.
 
 ### Changes
 
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417
+* [CHANGE] Don't count empty collectors as success. #...
 * [FEATURE] Add new schedstat collector #1389
 * [FEATURE] Add uname support for Darwin and OpenBSD #1433
 * [FEATURE] Add new metric node_cpu_info #1489

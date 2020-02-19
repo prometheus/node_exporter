@@ -109,8 +109,8 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.InfiniBandClass()
 	if err != nil {
 		if os.IsNotExist(err) {
-			level.Debug(c.logger).Log("msg", "IPv4 sockstat statistics not found, skipping")
-			return nil
+			level.Debug(c.logger).Log("msg", "infiniband statistics not found, skipping")
+			return ErrNoData
 		}
 		return fmt.Errorf("error obtaining InfiniBand class info: %s", err)
 	}
