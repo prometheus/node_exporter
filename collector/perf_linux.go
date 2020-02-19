@@ -14,8 +14,8 @@
 package collector
 
 import (
-	"fmt"
 	"runtime"
+	"strconv"
 
 	"github.com/go-kit/kit/log"
 	"github.com/hodgesds/perf-utils"
@@ -334,7 +334,7 @@ func (c *perfCollector) Update(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 	for cpu, profiler := range c.perfHwProfilers {
-		cpuStr := fmt.Sprintf("%d", cpu)
+		cpuStr := strconv.Itoa(cpu)
 		hwProfile, err := profiler.Profile()
 		if err != nil {
 			return err
@@ -405,7 +405,7 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 	for cpu, profiler := range c.perfSwProfilers {
-		cpuStr := fmt.Sprintf("%d", cpu)
+		cpuStr := strconv.Itoa(cpu)
 		swProfile, err := profiler.Profile()
 		if err != nil {
 			return err
@@ -460,7 +460,7 @@ func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateCacheStats(ch chan<- prometheus.Metric) error {
 	for cpu, profiler := range c.perfCacheProfilers {
-		cpuStr := fmt.Sprintf("%d", cpu)
+		cpuStr := strconv.Itoa(cpu)
 		cacheProfile, err := profiler.Profile()
 		if err != nil {
 			return err
