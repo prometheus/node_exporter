@@ -2,7 +2,12 @@
   _config+:: {
     // Selectors are inserted between {} in Prometheus queries.
 
-    // Select the metrics coming from the node exporter.
+    // Select the metrics coming from the node exporter. Note that all
+    // the selected metrics are shown stacked on top of each other in
+    // the 'USE Method / Cluster' dashboard. Consider disabling that
+    // dashboard if mixing up all those metrics in the same dashboard
+    // doesn't make sense (e.g. because they are coming from different
+    // clusters).
     nodeExporterSelector: 'job="node"',
 
     // Select the fstype for filesystem-related queries. If left

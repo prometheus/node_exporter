@@ -1,0 +1,3 @@
+tlsConfig :
+  tlsCertPath : "testdata/server.crt"
+  tlsKeyPath : ""

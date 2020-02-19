@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"unsafe"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -49,7 +50,8 @@ import "C"
 const ClocksPerSec = float64(C.CLK_TCK)
 
 type statCollector struct {
-	cpu *prometheus.Desc
+	cpu    *prometheus.Desc
+	logger log.Logger
 }
 
 func init() {
@@ -57,9 +59,10 @@ func init() {
 }
 
 // NewCPUCollector returns a new Collector exposing CPU stats.
-func NewCPUCollector() (Collector, error) {
+func NewCPUCollector(logger log.Logger) (Collector, error) {
 	return &statCollector{
-		cpu: nodeCPUSecondsDesc,
+		cpu:    nodeCPUSecondsDesc,
+		logger: logger,
 	}, nil
 }
 

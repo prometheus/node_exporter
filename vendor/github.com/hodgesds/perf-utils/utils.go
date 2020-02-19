@@ -4,6 +4,7 @@ package perf
 
 import (
 	"encoding/binary"
+	"math/rand"
 	"runtime"
 	"syscall"
 	"unsafe"
@@ -16,10 +17,22 @@ var (
 	EventAttrSize = uint32(unsafe.Sizeof(unix.PerfEventAttr{}))
 )
 
-// profileFn is a helper function to profile a function.
-func profileFn(eventAttr *unix.PerfEventAttr, f func() error) (*ProfileValue, error) {
+// LockThread locks an goroutine to an OS thread and then sets the affinity of
+// the thread to a processor core.
+func LockThread(core int) (func(), error) {
 	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
+	cpuSet := unix.CPUSet{}
+	cpuSet.Set(core)
+	return runtime.UnlockOSThread, unix.SchedSetaffinity(0, &cpuSet)
+}
+
+// profileFn is a helper function to profile a function, it will randomly choose a core to run on.
+func profileFn(eventAttr *unix.PerfEventAttr, f func() error) (*ProfileValue, error) {
+	cb, err := LockThread(rand.Intn(runtime.NumCPU()))
+	if err != nil {
+		return nil, err
+	}
+	defer cb()
 	fd, err := unix.PerfEventOpen(
 		eventAttr,
 		unix.Gettid(),

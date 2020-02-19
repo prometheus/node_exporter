@@ -18,8 +18,11 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -27,6 +30,7 @@ import (
 type infinibandCollector struct {
 	fs          sysfs.FS
 	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
 }
 
 func init() {
@@ -34,14 +38,15 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector() (Collector, error) {
+func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 
 	i.fs, err = sysfs.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
+	i.logger = logger
 
 	// Detailed description for all metrics.
 	descriptions := map[string]string{
@@ -57,6 +62,7 @@ func NewInfiniBandCollector() (Collector, error) {
 		"link_error_recovery_total":                  "Number of times the link successfully recovered from an error state",
 		"multicast_packets_received_total":           "Number of multicast packets received (including errors)",
 		"multicast_packets_transmitted_total":        "Number of multicast packets transmitted (including errors)",
+		"physical_state_id":                          "Physical state of the InfiniBand port (0: no change, 1: sleep, 2: polling, 3: disable, 4: shift, 5: link up, 6: link error recover, 7: phytest)",
 		"port_constraint_errors_received_total":      "Number of packets received on the switch physical port that are discarded",
 		"port_constraint_errors_transmitted_total":   "Number of packets not transmitted from the switch physical port",
 		"port_data_received_bytes_total":             "Number of data octets received on all links",
@@ -67,6 +73,8 @@ func NewInfiniBandCollector() (Collector, error) {
 		"port_packets_received_total":                "Number of packets received on all VLs by this port (including errors)",
 		"port_packets_transmitted_total":             "Number of packets transmitted on all VLs from this port (including errors)",
 		"port_transmit_wait_total":                   "Number of ticks during which the port had data to transmit but no data was sent during the entire tick",
+		"rate_bytes_per_second":                      "Maximum signal transfer rate",
+		"state_id":                                   "State of the InfiniBand port (0: no change, 1: down, 2: init, 3: armed, 4: active, 5: act defer)",
 		"unicast_packets_received_total":             "Number of unicast packets received (including errors)",
 		"unicast_packets_transmitted_total":          "Number of unicast packets transmitted (including errors)",
 	}
@@ -98,12 +106,20 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.InfiniBandClass()
 	if err != nil {
+		if os.IsNotExist(err) {
+			level.Debug(c.logger).Log("msg", "IPv4 sockstat statistics not found, skipping")
+			return nil
+		}
 		return fmt.Errorf("error obtaining InfiniBand class info: %s", err)
 	}
 
 	for _, device := range devices {
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
+
+			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, prometheus.GaugeValue)
+			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, prometheus.GaugeValue)
+			c.pushMetric(ch, "rate_bytes_per_second", port.Rate, port.Name, portStr, prometheus.GaugeValue)
 
 			c.pushCounter(ch, "legacy_multicast_packets_received_total", port.Counters.LegacyPortMulticastRcvPackets, port.Name, portStr)
 			c.pushCounter(ch, "legacy_multicast_packets_transmitted_total", port.Counters.LegacyPortMulticastXmitPackets, port.Name, portStr)

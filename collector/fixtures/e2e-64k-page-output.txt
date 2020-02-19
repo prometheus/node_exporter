@@ -1,4 +1,4 @@
-# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
@@ -840,6 +840,11 @@ node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_multicast_packets_transmitted_total counter
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_physical_state_id Physical state of the InfiniBand port (0: no change, 1: sleep, 2: polling, 3: disable, 4: shift, 5: link up, 6: link error recover, 7: phytest)
+# TYPE node_infiniband_physical_state_id gauge
+node_infiniband_physical_state_id{device="i40iw0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="2"} 5
 # HELP node_infiniband_port_constraint_errors_received_total Number of packets received on the switch physical port that are discarded
 # TYPE node_infiniband_port_constraint_errors_received_total counter
 node_infiniband_port_constraint_errors_received_total{device="mlx4_0",port="1"} 0
@@ -872,6 +877,16 @@ node_infiniband_port_packets_transmitted_total{device="mlx4_0",port="1"} 6.23586
 # HELP node_infiniband_port_transmit_wait_total Number of ticks during which the port had data to transmit but no data was sent during the entire tick
 # TYPE node_infiniband_port_transmit_wait_total counter
 node_infiniband_port_transmit_wait_total{device="mlx4_0",port="1"} 4.294967295e+09
+# HELP node_infiniband_rate_bytes_per_second Maximum signal transfer rate
+# TYPE node_infiniband_rate_bytes_per_second gauge
+node_infiniband_rate_bytes_per_second{device="i40iw0",port="1"} 1.25e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="1"} 5e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="2"} 5e+09
+# HELP node_infiniband_state_id State of the InfiniBand port (0: no change, 1: down, 2: init, 3: armed, 4: active, 5: act defer)
+# TYPE node_infiniband_state_id gauge
+node_infiniband_state_id{device="i40iw0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="2"} 4
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
 node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
@@ -1888,6 +1903,12 @@ node_netstat_Udp6_NoPorts 0
 # HELP node_netstat_Udp6_OutDatagrams Statistic Udp6OutDatagrams.
 # TYPE node_netstat_Udp6_OutDatagrams untyped
 node_netstat_Udp6_OutDatagrams 0
+# HELP node_netstat_Udp6_RcvbufErrors Statistic Udp6RcvbufErrors.
+# TYPE node_netstat_Udp6_RcvbufErrors untyped
+node_netstat_Udp6_RcvbufErrors 9
+# HELP node_netstat_Udp6_SndbufErrors Statistic Udp6SndbufErrors.
+# TYPE node_netstat_Udp6_SndbufErrors untyped
+node_netstat_Udp6_SndbufErrors 8
 # HELP node_netstat_UdpLite6_InErrors Statistic UdpLite6InErrors.
 # TYPE node_netstat_UdpLite6_InErrors untyped
 node_netstat_UdpLite6_InErrors 0
@@ -1906,6 +1927,12 @@ node_netstat_Udp_NoPorts 120
 # HELP node_netstat_Udp_OutDatagrams Statistic UdpOutDatagrams.
 # TYPE node_netstat_Udp_OutDatagrams untyped
 node_netstat_Udp_OutDatagrams 53028
+# HELP node_netstat_Udp_RcvbufErrors Statistic UdpRcvbufErrors.
+# TYPE node_netstat_Udp_RcvbufErrors untyped
+node_netstat_Udp_RcvbufErrors 9
+# HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
+# TYPE node_netstat_Udp_SndbufErrors untyped
+node_netstat_Udp_SndbufErrors 8
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
 node_network_address_assign_type{device="eth0"} 3
@@ -2393,6 +2420,40 @@ node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
+# HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_capacity gauge
+node_power_supply_capacity{power_supply="BAT0"} 81
+# HELP node_power_supply_cyclecount cyclecount value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_cyclecount gauge
+node_power_supply_cyclecount{power_supply="BAT0"} 0
+# HELP node_power_supply_energy_full energy_full value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_energy_full gauge
+node_power_supply_energy_full{power_supply="BAT0"} 4.507e+07
+# HELP node_power_supply_energy_full_design energy_full_design value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_energy_full_design gauge
+node_power_supply_energy_full_design{power_supply="BAT0"} 4.752e+07
+# HELP node_power_supply_energy_now energy_now value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_energy_now gauge
+node_power_supply_energy_now{power_supply="BAT0"} 3.658e+07
+# HELP node_power_supply_info info of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_info gauge
+node_power_supply_info{power_supply="AC",type="Mains"} 1
+node_power_supply_info{capacity_level="Normal",manufacturer="LGC",model_name="LNV-45N1",power_supply="BAT0",serial_number="38109",status="Discharging",technology="Li-ion",type="Battery"} 1
+# HELP node_power_supply_online online value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_online gauge
+node_power_supply_online{power_supply="AC"} 0
+# HELP node_power_supply_power_now power_now value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_power_now gauge
+node_power_supply_power_now{power_supply="BAT0"} 5.002e+06
+# HELP node_power_supply_present present value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_present gauge
+node_power_supply_present{power_supply="BAT0"} 1
+# HELP node_power_supply_voltage_min_design voltage_min_design value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_voltage_min_design gauge
+node_power_supply_voltage_min_design{power_supply="BAT0"} 1.08e+07
+# HELP node_power_supply_voltage_now voltage_now value of /sys/class/power_supply/<power_supply>.
+# TYPE node_power_supply_voltage_now gauge
+node_power_supply_voltage_now{power_supply="BAT0"} 1.166e+07
 # HELP node_pressure_cpu_waiting_seconds_total Total time in seconds that processes have waited for CPU time
 # TYPE node_pressure_cpu_waiting_seconds_total counter
 node_pressure_cpu_waiting_seconds_total 14.036781000000001
@@ -2449,6 +2510,12 @@ node_qdisc_packets_total{device="wlan0",kind="fq"} 42
 # TYPE node_qdisc_requeues_total counter
 node_qdisc_requeues_total{device="eth0",kind="pfifo_fast"} 2
 node_qdisc_requeues_total{device="wlan0",kind="fq"} 1
+# HELP node_rapl_core_joules_total Current RAPL core value in joules
+# TYPE node_rapl_core_joules_total counter
+node_rapl_core_joules_total{index="0"} 118821.284256
+# HELP node_rapl_package_joules_total Current RAPL package value in joules
+# TYPE node_rapl_package_joules_total counter
+node_rapl_package_joules_total{index="0"} 240422.366267
 # HELP node_schedstat_running_seconds_total Number of seconds CPU spent running a process.
 # TYPE node_schedstat_running_seconds_total counter
 node_schedstat_running_seconds_total{cpu="0"} 2.045936778163039e+06
@@ -2492,11 +2559,14 @@ node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
+node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
+node_scrape_collector_success{collector="rapl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="sockstat"} 1
+node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
@@ -2546,6 +2616,24 @@ node_sockstat_UDP_mem_bytes 0
 # HELP node_sockstat_sockets_used Number of sockets sockets in state used.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
+# HELP node_softnet_dropped_total Number of dropped packets
+# TYPE node_softnet_dropped_total counter
+node_softnet_dropped_total{cpu="0"} 0
+node_softnet_dropped_total{cpu="1"} 41
+node_softnet_dropped_total{cpu="2"} 0
+node_softnet_dropped_total{cpu="3"} 0
+# HELP node_softnet_processed_total Number of processed packets
+# TYPE node_softnet_processed_total counter
+node_softnet_processed_total{cpu="0"} 299641
+node_softnet_processed_total{cpu="1"} 916354
+node_softnet_processed_total{cpu="2"} 5.577791e+06
+node_softnet_processed_total{cpu="3"} 3.113785e+06
+# HELP node_softnet_times_squeezed_total Number of times processing packets ran out of quota
+# TYPE node_softnet_times_squeezed_total counter
+node_softnet_times_squeezed_total{cpu="0"} 1
+node_softnet_times_squeezed_total{cpu="1"} 10
+node_softnet_times_squeezed_total{cpu="2"} 85
+node_softnet_times_squeezed_total{cpu="3"} 50
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
 # TYPE node_textfile_mtime_seconds gauge
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise

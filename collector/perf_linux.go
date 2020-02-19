@@ -14,12 +14,12 @@
 package collector
 
 import (
-	"fmt"
 	"runtime"
 	"strconv"
 	"strings"
 
-	perf "github.com/hodgesds/perf-utils"
+	"github.com/go-kit/kit/log"
+	"github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -36,7 +36,7 @@ func init() {
 	registerCollector(perfSubsystem, defaultDisabled, NewPerfCollector)
 }
 
-// perfCollector is a Collecter that uses the perf subsystem to collect
+// perfCollector is a Collector that uses the perf subsystem to collect
 // metrics. It uses perf_event_open an ioctls for profiling. Due to the fact
 // that the perf subsystem is highly dependent on kernel configuration and
 // settings not all profiler values may be exposed on the target system at any
@@ -49,6 +49,7 @@ type perfCollector struct {
 	perfSwProfilers     map[int]*perf.SoftwareProfiler
 	perfCacheProfilers  map[int]*perf.CacheProfiler
 	desc                map[string]*prometheus.Desc
+  logger             log.Logger
 }
 
 // perfCPUFlagToCPUs returns a set of CPUs for the perf collectors to monitor.
@@ -399,7 +400,7 @@ func NewPerfCollector() (Collector, error) {
 		),
 	}
 
-	return collector, nil
+	return c, nil
 }
 
 // Update implements the Collector interface and will collect metrics per CPU.

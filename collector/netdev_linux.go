@@ -23,7 +23,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 )
 
 var (
@@ -31,17 +32,17 @@ var (
 	procNetDevFieldSep    = regexp.MustCompile(` +`)
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp) (map[string]map[string]string, error) {
+func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
 	file, err := os.Open(procFilePath("net/dev"))
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return parseNetDevStats(file, ignore, accept)
+	return parseNetDevStats(file, ignore, accept, logger)
 }
 
-func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp) (map[string]map[string]string, error) {
+func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Scan() // skip first header
 	scanner.Scan()
@@ -65,11 +66,11 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp)
 
 		dev := parts[1]
 		if ignore != nil && ignore.MatchString(dev) {
-			log.Debugf("Ignoring device: %s", dev)
+			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
 			continue
 		}
 		if accept != nil && !accept.MatchString(dev) {
-			log.Debugf("Ignoring device: %s", dev)
+			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
 			continue
 		}
 

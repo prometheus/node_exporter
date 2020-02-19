@@ -22,6 +22,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -36,6 +37,7 @@ type netDevCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
 	acceptDevicesPattern  *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
+	logger                log.Logger
 }
 
 func init() {
@@ -43,17 +45,17 @@ func init() {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector() (Collector, error) {
+func NewNetDevCollector(logger log.Logger) (Collector, error) {
 	if *netdevIgnoredDevices != "" && *netdevAcceptDevices != "" {
 		return nil, errors.New("device-blacklist & accept-devices are mutually exclusive")
 	}
 
-	var ignorePattern *regexp.Regexp = nil
+	var ignorePattern *regexp.Regexp
 	if *netdevIgnoredDevices != "" {
 		ignorePattern = regexp.MustCompile(*netdevIgnoredDevices)
 	}
 
-	var acceptPattern *regexp.Regexp = nil
+	var acceptPattern *regexp.Regexp
 	if *netdevAcceptDevices != "" {
 		acceptPattern = regexp.MustCompile(*netdevAcceptDevices)
 	}
@@ -63,11 +65,12 @@ func NewNetDevCollector() (Collector, error) {
 		ignoredDevicesPattern: ignorePattern,
 		acceptDevicesPattern:  acceptPattern,
 		metricDescs:           map[string]*prometheus.Desc{},
+		logger:                logger,
 	}, nil
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(c.ignoredDevicesPattern, c.acceptDevicesPattern)
+	netDev, err := getNetDevStats(c.ignoredDevicesPattern, c.acceptDevicesPattern, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)
 	}
