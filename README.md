@@ -178,6 +178,17 @@ To see all available configuration flags:
 
     make test
 
+## TLS endpoint
+
+** EXPERIMENTAL **
+
+The exporter supports TLS via a new web configuration file.
+
+```console
+./node_exporter --web.config=web-config.yml
+```
+
+See the [https package](https/README.md) for more details.
 
 ## Using Docker
 The `node_exporter` is designed to monitor the host system. It's not recommended
