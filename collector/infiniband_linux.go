@@ -31,6 +31,7 @@ type infinibandCollector struct {
 	fs          sysfs.FS
 	metricDescs map[string]*prometheus.Desc
 	logger      log.Logger
+	subsystem   string
 }
 
 func init() {
@@ -80,10 +81,11 @@ func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)
+	i.subsystem = "infiniband"
 
 	for metricName, description := range descriptions {
 		i.metricDescs[metricName] = prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "infiniband", metricName),
+			prometheus.BuildFQName(namespace, i.subsystem, metricName),
 			description,
 			[]string{"device", "port"},
 			nil,
@@ -114,6 +116,15 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, device := range devices {
+		infoDesc := prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, "info"),
+			"Non-numeric data from /sys/class/infiniband/<device>, value is always 1.",
+			[]string{"device", "board_id", "firmware_version", "hca_type"},
+			nil,
+		)
+		infoValue := 1.0
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, device.Name, device.BoardID, device.FirmwareVersion, device.HCAType)
+
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
 
