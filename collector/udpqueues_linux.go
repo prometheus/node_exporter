@@ -19,14 +19,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
 type (
 	udpQueuesCollector struct {
-		fs   procfs.FS
-		desc *prometheus.Desc
+		fs     procfs.FS
+		desc   *prometheus.Desc
+		logger log.Logger
 	}
 )
 
@@ -35,7 +37,7 @@ func init() {
 }
 
 // NewUDPqueuesCollector returns a new Collector exposing network udp queued bytes.
-func NewUDPqueuesCollector() (Collector, error) {
+func NewUDPqueuesCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %v", err)
@@ -47,6 +49,7 @@ func NewUDPqueuesCollector() (Collector, error) {
 			"Number of allocated memory in the kernel for UDP datagrams in bytes.",
 			[]string{"queue", "ip"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 
