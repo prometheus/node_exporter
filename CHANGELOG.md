@@ -18,6 +18,7 @@
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417
 * [CHANGE] Don't count empty collectors as success. #...
+* [FEATURE] New flag to disable default collectors #1276
 * [FEATURE] Add new schedstat collector #1389
 * [FEATURE] Add uname support for Darwin and OpenBSD #1433
 * [FEATURE] Add new metric node_cpu_info #1489
