@@ -50,8 +50,8 @@ const (
 )
 
 var (
-	factories      = make(map[string]func(logger log.Logger) (Collector, error))
-	collectorState = make(map[string]*bool)
+	factories        = make(map[string]func(logger log.Logger) (Collector, error))
+	collectorState   = make(map[string]*bool)
 	forcedCollectors = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
