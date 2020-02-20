@@ -16,16 +16,23 @@
 package collector
 
 import (
+	"context"
 	"fmt"
+	"net"
+	"net/http"
+	"net/url"
+	"time"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/mattn/go-xmlrpc"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
 	supervisordURL = kingpin.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").String()
+	xrpc           *xmlrpc.Client
 )
 
 type supervisordCollector struct {
@@ -33,6 +40,7 @@ type supervisordCollector struct {
 	stateDesc      *prometheus.Desc
 	exitStatusDesc *prometheus.Desc
 	startTimeDesc  *prometheus.Desc
+	logger         log.Logger
 }
 
 func init() {
@@ -40,11 +48,26 @@ func init() {
 }
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
-func NewSupervisordCollector() (Collector, error) {
+func NewSupervisordCollector(logger log.Logger) (Collector, error) {
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
 	)
+
+	if u, err := url.Parse(*supervisordURL); err == nil && u.Scheme == "unix" {
+		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
+		// about a non-http(s) transport.
+		xrpc = xmlrpc.NewClient("http://unix/RPC2")
+		xrpc.HttpClient.Transport = &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				d := net.Dialer{Timeout: 10 * time.Second}
+				return d.DialContext(ctx, "unix", u.Path)
+			},
+		}
+	} else {
+		xrpc = xmlrpc.NewClient(*supervisordURL)
+	}
+
 	return &supervisordCollector{
 		upDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "up"),
@@ -70,6 +93,7 @@ func NewSupervisordCollector() (Collector, error) {
 			labelNames,
 			nil,
 		),
+		logger: logger,
 	}, nil
 }
 
@@ -108,7 +132,7 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 		PID           int    `xmlrpc:"pid"`
 	}
 
-	res, err := xmlrpc.Call(*supervisordURL, "supervisor.getAllProcessInfo")
+	res, err := xrpc.Call("supervisor.getAllProcessInfo")
 	if err != nil {
 		return fmt.Errorf("unable to call supervisord: %s", err)
 	}
@@ -147,7 +171,7 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 		} else {
 			ch <- prometheus.MustNewConstMetric(c.upDesc, prometheus.GaugeValue, 0, labels...)
 		}
-		log.Debugf("%s:%s is %s on pid %d", info.Group, info.Name, info.StateName, info.PID)
+		level.Debug(c.logger).Log("msg", "process info", "group", info.Group, "name", info.Name, "state", info.StateName, "pid", info.PID)
 	}
 
 	return nil

@@ -1,10 +1,10 @@
 # Node Mixin
 
-_This is work in progress. We aim for it to become a good role model for alerts
+_This is a work in progress. We aim for it to become a good role model for alerts
 and dashboards eventually, but it is not quite there yet._
 
 The Node Mixin is a set of configurable, reusable, and extensible alerts and
-dashboards based on the metrics exported by the Node Exporter. The mixin create
+dashboards based on the metrics exported by the Node Exporter. The mixin creates
 recording and alerting rules for Prometheus and suitable dashboard descriptions
 for Grafana.
 
@@ -38,6 +38,9 @@ for Grafana:
 ```bash
 $ make dashboards_out
 ```
+
+Note that some of the generated dashboards require recording rules specified in
+the previously generated `node_rules.yaml`.
 
 For more advanced uses of mixins, see
 https://github.com/monitoring-mixins/docs.

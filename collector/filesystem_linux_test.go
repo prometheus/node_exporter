@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"github.com/go-kit/kit/log"
 	"strings"
 	"testing"
 
@@ -80,7 +81,7 @@ func TestMountPointDetails(t *testing.T) {
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
 	}
 
-	filesystems, err := mountPointDetails()
+	filesystems, err := mountPointDetails(log.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
@@ -101,7 +102,7 @@ func TestMountsFallback(t *testing.T) {
 		"/": "",
 	}
 
-	filesystems, err := mountPointDetails()
+	filesystems, err := mountPointDetails(log.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
@@ -120,6 +121,7 @@ func TestPathRootfs(t *testing.T) {
 
 	expected := map[string]string{
 		// should modify these mountpoints (removes /host, see fixture proc file)
+		"/":              "",
 		"/media/volume1": "",
 		"/media/volume2": "",
 		// should not modify these mountpoints
@@ -128,7 +130,7 @@ func TestPathRootfs(t *testing.T) {
 		"/sys/fs/cgroup": "",
 	}
 
-	filesystems, err := mountPointDetails()
+	filesystems, err := mountPointDetails(log.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}

@@ -50,13 +50,9 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_memory_swap_io_pages:rate1m',
+            record: 'instance:node_vmstat_pgmajfault:rate1m',
             expr: |||
-              (
-                rate(node_vmstat_pgpgin{%(nodeExporterSelector)s}[1m])
-              +
-                rate(node_vmstat_pgpgout{%(nodeExporterSelector)s}[1m])
-              )
+              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[1m])
             ||| % $._config,
           },
           {

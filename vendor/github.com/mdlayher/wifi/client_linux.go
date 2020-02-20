@@ -76,7 +76,7 @@ func (c *client) Interfaces() ([]*Interface, error) {
 		},
 	}
 
-	flags := netlink.HeaderFlagsRequest | netlink.HeaderFlagsDump
+	flags := netlink.Request | netlink.Dump
 	msgs, err := c.c.Execute(req, c.familyID, flags)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (c *client) BSS(ifi *Interface) (*BSS, error) {
 		Data: b,
 	}
 
-	flags := netlink.HeaderFlagsRequest | netlink.HeaderFlagsDump
+	flags := netlink.Request | netlink.Dump
 	msgs, err := c.c.Execute(req, c.familyID, flags)
 	if err != nil {
 		return nil, err
@@ -140,7 +140,7 @@ func (c *client) StationInfo(ifi *Interface) ([]*StationInfo, error) {
 		Data: b,
 	}
 
-	flags := netlink.HeaderFlagsRequest | netlink.HeaderFlagsDump
+	flags := netlink.Request | netlink.Dump
 	msgs, err := c.c.Execute(req, c.familyID, flags)
 	if err != nil {
 		return nil, err
@@ -163,7 +163,6 @@ func (c *client) StationInfo(ifi *Interface) ([]*StationInfo, error) {
 
 	return stations, nil
 }
-
 
 // checkMessages verifies that response messages from generic netlink contain
 // the command and family version we expect.

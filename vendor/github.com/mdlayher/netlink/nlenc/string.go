@@ -10,5 +10,9 @@ func Bytes(s string) []byte {
 // String returns a string with the contents of b from a null-terminated
 // byte slice.
 func String(b []byte) string {
-	return string(bytes.TrimSuffix(b, []byte{0x00}))
+	// If the string has more than one NULL terminator byte, we want to remove
+	// all of them before returning the string to the caller; hence the use of
+	// strings.TrimRight instead of strings.TrimSuffix (which previously only
+	// removed a single NULL).
+	return string(bytes.TrimRight(b, "\x00"))
 }

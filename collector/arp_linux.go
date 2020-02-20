@@ -22,11 +22,13 @@ import (
 	"os"
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type arpCollector struct {
 	entries *prometheus.Desc
+	logger  log.Logger
 }
 
 func init() {
@@ -34,13 +36,14 @@ func init() {
 }
 
 // NewARPCollector returns a new Collector exposing ARP stats.
-func NewARPCollector() (Collector, error) {
+func NewARPCollector(logger log.Logger) (Collector, error) {
 	return &arpCollector{
 		entries: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "arp", "entries"),
 			"ARP entries by device",
 			[]string{"device"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

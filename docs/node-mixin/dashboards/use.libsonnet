@@ -15,9 +15,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
               instance:node_cpu_utilisation:rate1m{%(nodeExporterSelector)s}
             *
               instance:node_num_cpu:sum{%(nodeExporterSelector)s}
-            / ignoring (instance) group_left
-              sum without (instance) (instance:node_num_cpu:sum{%(nodeExporterSelector)s})
             )
+            / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -27,11 +26,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           // average relates to the "CPU saturation" in the title.
           g.panel('CPU Saturation (load1 per CPU)') +
           g.queryPanel(|||
-            (
-              instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}
-            / ignoring (instance) group_left
-              count without (instance) (instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s})
-            )
+            instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}
+            / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           // TODO: Does `max: 1` make sense? The stack can go over 1 in high-load scenarios.
@@ -43,18 +39,15 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Memory Utilisation') +
           g.queryPanel(|||
-            (
-              instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}
-            / ignoring (instance) group_left
-              count without (instance) (instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s})
-            )
+            instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}
+            / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         )
         .addPanel(
-          g.panel('Memory Saturation (Swapped Pages)') +
-          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
+          g.panel('Memory Saturation (Major Page Faults)') +
+          g.queryPanel('instance:node_vmstat_pgmajfault:rate1m{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes('rps') },
         )
@@ -123,11 +116,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           // TODO: Does the partition by device make sense? Using the most utilized device per
           // instance might make more sense.
           g.queryPanel(|||
-            (
-              instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}
-            / ignoring (instance, device) group_left
-              count without (instance, device) (instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s})
-            )
+            instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}
+            / scalar(count(instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}} {{device}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -135,11 +125,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Disk IO Saturation') +
           g.queryPanel(|||
-            (
-              instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s}
-            / ignoring (instance, device) group_left
-              count without (instance, device) (instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s})
-            )
+            instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s}
+            / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}} {{device}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -150,19 +137,12 @@ local g = import 'grafana-builder/grafana.libsonnet';
         .addPanel(
           g.panel('Disk Space Utilisation') +
           g.queryPanel(|||
-            (
-              sum without (device) (
-                max without (fstype, mountpoint) (
-                  node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
-                )
-              ) 
-            / ignoring (instance) group_left
-              sum without (instance, device) (
-                max without (fstype, mountpoint) (
-                  node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
-                )
+            sum without (device) (
+              max without (fstype, mountpoint) (
+                node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
               )
-            )  
+            ) 
+            / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s})))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -201,8 +181,8 @@ local g = import 'grafana-builder/grafana.libsonnet';
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
-          g.panel('Memory Saturation (pages swapped per second)') +
-          g.queryPanel('instance:node_memory_swap_io_pages:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Swap IO') +
+          g.panel('Memory Saturation (Major Page Faults)') +
+          g.queryPanel('instance:node_vmstat_pgmajfault:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Major page faults') +
           {
             yaxes: g.yaxes('short'),
             legend+: { show: false },
@@ -280,9 +260,9 @@ local g = import 'grafana-builder/grafana.libsonnet';
           g.queryPanel(|||
             1 -
             (
-              max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}})
+              max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"})
             /
-              max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"}})
+              max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"})
             )
           ||| % $._config, '{{device}}') +
           {

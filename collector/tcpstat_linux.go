@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -54,7 +55,8 @@ const (
 )
 
 type tcpStatCollector struct {
-	desc typedDesc
+	desc   typedDesc
+	logger log.Logger
 }
 
 func init() {
@@ -62,13 +64,14 @@ func init() {
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
-func NewTCPStatCollector() (Collector, error) {
+func NewTCPStatCollector(logger log.Logger) (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
 			[]string{"state"}, nil,
 		), prometheus.GaugeValue},
+		logger: logger,
 	}, nil
 }
 

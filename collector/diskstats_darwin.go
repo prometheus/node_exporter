@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/lufia/iostat"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -28,7 +29,8 @@ type typedDescFunc struct {
 }
 
 type diskstatsCollector struct {
-	descs []typedDescFunc
+	descs  []typedDescFunc
+	logger log.Logger
 }
 
 func init() {
@@ -36,7 +38,7 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector() (Collector, error) {
+func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 
 	return &diskstatsCollector{
@@ -124,6 +126,7 @@ func NewDiskstatsCollector() (Collector, error) {
 				},
 			},
 		},
+		logger: logger,
 	}, nil
 }
 

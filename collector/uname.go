@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -34,7 +35,9 @@ var unameDesc = prometheus.NewDesc(
 	nil,
 )
 
-type unameCollector struct{}
+type unameCollector struct {
+	logger log.Logger
+}
 type uname struct {
 	SysName    string
 	Release    string
@@ -49,8 +52,8 @@ func init() {
 }
 
 // NewUnameCollector returns new unameCollector.
-func newUnameCollector() (Collector, error) {
-	return &unameCollector{}, nil
+func newUnameCollector(logger log.Logger) (Collector, error) {
+	return &unameCollector{logger}, nil
 }
 
 func (c *unameCollector) Update(ch chan<- prometheus.Metric) error {

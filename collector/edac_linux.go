@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -37,6 +38,7 @@ type edacCollector struct {
 	ueCount      *prometheus.Desc
 	csRowCECount *prometheus.Desc
 	csRowUECount *prometheus.Desc
+	logger       log.Logger
 }
 
 func init() {
@@ -44,7 +46,7 @@ func init() {
 }
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector() (Collector, error) {
+func NewEdacCollector(logger log.Logger) (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "correctable_errors_total"),
@@ -66,6 +68,7 @@ func NewEdacCollector() (Collector, error) {
 			"Total uncorrectable memory errors for this csrow.",
 			[]string{"controller", "csrow"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

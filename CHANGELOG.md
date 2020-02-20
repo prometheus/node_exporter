@@ -9,22 +9,39 @@
     - `node_md_disks` now has a `state` label for "fail", "spare", "active" disks.
     - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
 * Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
+* Metrics node_cpu_scaling_frequency_min_hrts and node_cpu_scaling_frequency_max_hrts of the cpufreq collector were renamed to node_cpu_scaling_frequency_min_hertz and node_cpu_scaling_frequency_max_hertz. #1510
+* Collectors that are enabled, but are unable to find data to collect, now return 0 for `node_scrape_collector_success`.
 
 ### Changes
 
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417
+* [CHANGE] Don't count empty collectors as success. #...
+* [FEATURE] New flag to disable default collectors #1276
 * [FEATURE] Add new schedstat collector #1389
 * [FEATURE] Add uname support for Darwin and OpenBSD #1433
-* [FEATURE] New flag to disable default collectors #735, #1276
+* [FEATURE] Add new metric node_cpu_info #1489
+* [FEATURE] Add new thermal_zone collector #1425
+* [FEATURE] Add new cooling_device metrics to thermal zone collector #1445
+* [FEATURE] Add new softnet collector #1576
+* [FEATURE] Add RAPL collector #1523
+* [FEATURE] Add Btrfs collector #1512
+* [FEATURE] Add swap usage on darwin #1508
+* [ENHANCEMENT] Collect InfiniBand port state and physical state #1357
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
 * [ENHANCEMENT] Report non-fatal collection errors in the exporter metric. #1439
 * [ENHANCEMENT] Expose IPVS firewall mark as a label #1455
+* [ENHANCEMENT] Add check for systemd version before attempting to query certain metrics. #1413
+* [ENHANCEMENT] Add new counters for flush requests in Linux 5.5 #1548
+* [ENHANCEMENT] The sockstat collector now exposes IPv6 statistics in addition to the existing IPv4 support. #1552
+* [ENHANCEMENT] Add unix socket support for supervisord collector #262
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
 * [BUGFIX] Strip path.rootfs from mountpoint labels #1421
-* [FEATURE] Add new thermal_zone collector #1425
+* [BUGFIX] Fix empty string in path.rootfs #1464
+* [BUGFIX] Fix typo in cpufreq metric names #1510
+* [BUGFIX] Fix network speed math #1580
 
 ## 0.18.1 / 2019-06-04
 
