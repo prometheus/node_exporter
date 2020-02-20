@@ -14,6 +14,7 @@
 
 ### Changes
 
+* [ENHANCEMENT] Add `--collector.perf.cpus` to allow setting the CPU list for perf stats.
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417

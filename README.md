@@ -84,6 +84,18 @@ Depending on the configured value different metrics will be available, for most
 cases `0` will provide the most complete set. For more information see [`man 2
 perf_event_open`](http://man7.org/linux/man-pages/man2/perf_event_open.2.html).
 
+By default, the perf collector will only collect metrics of the CPUs that
+`node_exporter` is running on (ie
+[`runtime.NumCPU`](https://golang.org/pkg/runtime/#NumCPU). If this is
+insufficient (e.g. if you run `node_exporter` with its CPU affinity set to
+specific CPUs) You can specify a list of alternate CPUs by using the
+`--collector.perf.cpus` flag. For example, to collect metrics on CPUs 2-6, you
+would specify: `--collector.perf --collector.perf.cpus=2-6`. The CPU
+configuration is zero indexed and can also take a stride value
+`--collector.perf --collector.perf.cpus=1-10:5`, would collect on CPUs
+1, 5, and 10.
+
+
 Name     | Description | OS
 ---------|-------------|----
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
