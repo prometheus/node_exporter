@@ -17,11 +17,12 @@ package collector
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 type (
@@ -29,20 +30,7 @@ type (
 		fs     procfs.FS
 		desc   *prometheus.Desc
 		logger log.Logger
-		ip_v4  bool
-		ip_v6  bool
 	}
-)
-
-var (
-	ipv4 = kingpin.Flag(
-		"collector.udp_queues.ipv4",
-		"Read ipv4 based udp queues from /proc/net/udp (default). Disable the collection via '--no-collector.udp_queues.ipv4'.",
-	).Default("true").Bool()
-	ipv6 = kingpin.Flag(
-		"collector.udp_queues.ipv6",
-		"Read ipv6 based udp queues from /proc/net/udp6 (default). Disable the collection via '--no-collector.udp_queues.ipv6'.",
-	).Default("true").Bool()
 )
 
 func init() {
@@ -51,10 +39,6 @@ func init() {
 
 // NewUDPqueuesCollector returns a new Collector exposing network udp queued bytes.
 func NewUDPqueuesCollector(logger log.Logger) (Collector, error) {
-	if !*ipv4 && !*ipv6 {
-		return nil,
-			fmt.Errorf("Both flags '--no-collector.udp_queues.ipv4' and '--no-collector.udp_queues.ipv6' are set. So, nothing to collect.")
-	}
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %v", err)
@@ -67,27 +51,30 @@ func NewUDPqueuesCollector(logger log.Logger) (Collector, error) {
 			[]string{"queue", "ip"}, nil,
 		),
 		logger: logger,
-		ip_v4:  *ipv4,
-		ip_v6:  *ipv6,
 	}, nil
 }
 
 func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
-	if c.ip_v4 {
-		s, err := c.fs.NetUDPSummary()
-		if err != nil {
-			return fmt.Errorf("couldn't get upd queued bytes: %s", err)
+	s, err := c.fs.NetUDPSummary()
+	if err != nil {
+		if os.IsNotExist(err) {
+			level.Debug(c.logger).Log("msg", "not collecting ipv4 based metrics")
+			return ErrNoIpv4
 		}
-		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.TxQueueLength), "tx", "v4")
-		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.RxQueueLength), "rx", "v4")
+		return fmt.Errorf("couldn't get upd queued bytes: %s", err)
 	}
-	if c.ip_v6 {
-		s6, err := c.fs.NetUDP6Summary()
-		if err != nil {
-			return fmt.Errorf("couldn't get upd6 queued bytes: %s", err)
+	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.TxQueueLength), "tx", "v4")
+	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.RxQueueLength), "rx", "v4")
+
+	s6, err := c.fs.NetUDP6Summary()
+	if err != nil {
+		if os.IsNotExist(err) {
+			level.Debug(c.logger).Log("msg", "not collecting ipv6 based metrics")
+			return ErrNoIpv6
 		}
-		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.TxQueueLength), "tx", "v6")
-		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.RxQueueLength), "rx", "v6")
+		return fmt.Errorf("couldn't get upd6 queued bytes: %s", err)
 	}
+	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.TxQueueLength), "tx", "v6")
+	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.RxQueueLength), "rx", "v6")
 	return nil
 }
