@@ -37,11 +37,11 @@ type (
 var (
 	ipv4 = kingpin.Flag(
 		"collector.udp_queues.ipv4",
-		"Read ipv4 based udp queues from /proc/net/udp (default: true). Disable the collection via '--no-collector.udp_queues.ipv4'.",
+		"Read ipv4 based udp queues from /proc/net/udp (default). Disable the collection via '--no-collector.udp_queues.ipv4'.",
 	).Default("true").Bool()
 	ipv6 = kingpin.Flag(
 		"collector.udp_queues.ipv6",
-		"Read ipv6 based udp queues from /proc/net/udp6 (default: true).Disable the collection via '--no-collector.udp_queues.ipv6'.",
+		"Read ipv6 based udp queues from /proc/net/udp6 (default). Disable the collection via '--no-collector.udp_queues.ipv6'.",
 	).Default("true").Bool()
 )
 
@@ -53,7 +53,7 @@ func init() {
 func NewUDPqueuesCollector(logger log.Logger) (Collector, error) {
 	if !*ipv4 && !*ipv6 {
 		return nil,
-			fmt.Errorf("Both flags '--no-collector.udp_queues.ipv4' and '--no-collector.udp_queues.ipv6' are set to 'false'. So, nothing to collect.")
+			fmt.Errorf("Both flags '--no-collector.udp_queues.ipv4' and '--no-collector.udp_queues.ipv6' are set. So, nothing to collect.")
 	}
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
