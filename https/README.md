@@ -8,7 +8,7 @@ If the config is kept within the https directory.
 
 The config file should be written in YAML format, and is reloaded on each connection to check for new certificates and/or authentication policy.
 
-##Sample Config:
+## Sample Config
 ```
 tlsConfig :
   # Certificate and key files for server to use to authenticate to client
