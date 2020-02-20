@@ -2,7 +2,7 @@
 
 * [CHANGE]
 * [FEATURE]
-* [ENHANCEMENT]
+* [ENHANCEMENT] Add model_name and stepping to node_cpu_info metric #1617
 * [BUGFIX]
 
 ## 1.0.0-rc.0 / 2020-02-20

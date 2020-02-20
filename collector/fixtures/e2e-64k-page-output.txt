@@ -210,14 +210,14 @@ node_cpu_guest_seconds_total{cpu="7",mode="nice"} 0.08
 node_cpu_guest_seconds_total{cpu="7",mode="user"} 0.09
 # HELP node_cpu_info CPU information from /proc/cpuinfo.
 # TYPE node_cpu_info gauge
-node_cpu_info{cachesize="8192 KB",core="0",cpu="0",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
-node_cpu_info{cachesize="8192 KB",core="0",cpu="4",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
-node_cpu_info{cachesize="8192 KB",core="1",cpu="1",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
-node_cpu_info{cachesize="8192 KB",core="1",cpu="5",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
-node_cpu_info{cachesize="8192 KB",core="2",cpu="2",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
-node_cpu_info{cachesize="8192 KB",core="2",cpu="6",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
-node_cpu_info{cachesize="8192 KB",core="3",cpu="3",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
-node_cpu_info{cachesize="8192 KB",core="3",cpu="7",family="6",microcode="0xb4",model="142",package="0",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="0",cpu="0",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="0",cpu="4",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="1",cpu="1",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="1",cpu="5",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="2",cpu="2",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="2",cpu="6",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="3",cpu="3",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+node_cpu_info{cachesize="8192 KB",core="3",cpu="7",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 # HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30
