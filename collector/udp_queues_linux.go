@@ -55,26 +55,33 @@ func NewUDPqueuesCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
-	s, err := c.fs.NetUDPSummary()
-	if err != nil {
-		if os.IsNotExist(err) {
-			level.Debug(c.logger).Log("msg", "not collecting ipv4 based metrics")
-			return ErrNoIpv4
-		}
-		return fmt.Errorf("couldn't get upd queued bytes: %s", err)
-	}
-	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.TxQueueLength), "tx", "v4")
-	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s.RxQueueLength), "rx", "v4")
 
-	s6, err := c.fs.NetUDP6Summary()
-	if err != nil {
-		if os.IsNotExist(err) {
-			level.Debug(c.logger).Log("msg", "not collecting ipv6 based metrics")
-			return ErrNoIpv6
+	s4, errIPv4 := c.fs.NetUDPSummary()
+	if errIPv4 == nil {
+		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.TxQueueLength), "tx", "v4")
+		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.RxQueueLength), "rx", "v4")
+	} else {
+		if os.IsNotExist(errIPv4) {
+			level.Debug(c.logger).Log("msg", "not collecting ipv4 based metrics")
+		} else {
+			return fmt.Errorf("couldn't get upd queued bytes: %s", errIPv4)
 		}
-		return fmt.Errorf("couldn't get upd6 queued bytes: %s", err)
 	}
-	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.TxQueueLength), "tx", "v6")
-	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.RxQueueLength), "rx", "v6")
+
+	s6, errIPv6 := c.fs.NetUDP6Summary()
+	if errIPv6 == nil {
+		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.TxQueueLength), "tx", "v6")
+		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.RxQueueLength), "rx", "v6")
+	} else {
+		if os.IsNotExist(errIPv6) {
+			level.Debug(c.logger).Log("msg", "not collecting ipv6 based metrics")
+		} else {
+			return fmt.Errorf("couldn't get upd6 queued bytes: %s", errIPv6)
+		}
+	}
+
+	if os.IsNotExist(errIPv4) && os.IsNotExist(errIPv4) {
+		return ErrNoData
+	}
 	return nil
 }

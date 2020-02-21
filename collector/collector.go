@@ -184,15 +184,9 @@ func (d *typedDesc) mustNewConstMetric(value float64, labels ...string) promethe
 	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
 }
 
-var (
-	// ErrNoData indicates the collector found no data to collect, but had no other error.
-	ErrNoData = errors.New("collector returned no data")
-	// ErrNoIpv4 indicates the collector found no ipv4 specific data to collect, but had no other error.
-	ErrNoIpv4 = errors.New("collector returned no ipv4 specific data")
-	// ErrNoIpv6 indicates the collector found no ipv6 specific data to collect, but had no other error.
-	ErrNoIpv6 = errors.New("collector returned no ipv6 specific data")
-)
+// ErrNoData indicates the collector found no data to collect, but had no other error.
+var ErrNoData = errors.New("collector returned no data")
 
 func IsNoDataError(err error) bool {
-	return (err == ErrNoData) || (err == ErrNoIpv4) || (err == ErrNoIpv6)
+	return err == ErrNoData
 }
