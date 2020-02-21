@@ -80,7 +80,7 @@ func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 	}
 
-	if os.IsNotExist(errIPv4) && os.IsNotExist(errIPv4) {
+	if os.IsNotExist(errIPv4) && os.IsNotExist(errIPv6) {
 		return ErrNoData
 	}
 	return nil
