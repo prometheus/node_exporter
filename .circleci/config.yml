@@ -24,9 +24,7 @@ jobs:
         name: install go
         command: |
           sudo rm -rf /usr/local/go
-          wget https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz
-          rm -f go${GOVERSION}.linux-amd64.tar.gz
+          curl https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
     - run: make
     - prometheus/store_artifact:
         file: node_exporter
@@ -62,9 +60,7 @@ jobs:
         name: install go
         command: |
           sudo rm -rf /usr/local/go
-          wget https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go${GOVERSION}.linux-amd64.tar.gz
-          rm -f go${GOVERSION}.linux-amd64.tar.gz
+          curl https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
     - run:
         name: install  build requirements
         shell: /bin/bash -x -eo pipefail
