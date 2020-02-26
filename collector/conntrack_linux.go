@@ -16,34 +16,36 @@
 package collector
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
-	"io/ioutil"
-	"strconv"
-	"strings"
 
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
 type conntrackCollector struct {
-	current      *prometheus.Desc
-	limit        *prometheus.Desc
-	searched     *prometheus.Desc
-	insert       *prometheus.Desc
-	insertFailed *prometheus.Desc
-	delete       *prometheus.Desc
-	drop         *prometheus.Desc
-	logger       log.Logger
+	current       *prometheus.Desc
+	limit         *prometheus.Desc
+	found         *prometheus.Desc
+	invalid       *prometheus.Desc
+	ignore        *prometheus.Desc
+	insert        *prometheus.Desc
+	insertFailed  *prometheus.Desc
+	drop          *prometheus.Desc
+	earlyDrop     *prometheus.Desc
+	searchRestart *prometheus.Desc
+	logger        log.Logger
 }
 
-type ConntrackStatistics struct {
-	Searched     uint64 // Number of conntrack table lookups performed
-	Delete       uint64 // Number of conntrack entries which were removed
-	Insert       uint64 // Number of entries inserted into the list
-	InsertFailed uint64 // Number of entries for which list insertion was attempted but failed (happens if the same entry is already present)
-	Drop         uint64 // Number of packets dropped due to conntrack failure. Either new conntrack entry allocation failed, or protocol helper dropped the packet
+type conntrackStatistics struct {
+	found         uint64 // Number of searched entries which were successful
+	invalid       uint64 // Number of packets seen which can not be tracked
+	ignore        uint64 // Number of packets seen which are already connected to a conntrack entry
+	insert        uint64 // Number of entries inserted into the list
+	insertFailed  uint64 // Number of entries for which list insertion was attempted but failed (happens if the same entry is already present)
+	drop          uint64 // Number of packets dropped due to conntrack failure. Either new conntrack entry allocation failed, or protocol helper dropped the packet
+	earlyDrop     uint64 // Number of dropped conntrack entries to make room for new ones, if maximum table size was reached
+	searchRestart uint64 // Number of conntrack table lookups which had to be restarted due to hashtable resizes
 }
 
 func init() {
@@ -63,9 +65,19 @@ func NewConntrackCollector(logger log.Logger) (Collector, error) {
 			"Maximum size of connection tracking table.",
 			nil, nil,
 		),
-		searched: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_searched"),
-			"Number of conntrack table lookups performed.",
+		found: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_found"),
+			"Number of searched entries which were successful.",
+			nil, nil,
+		),
+		invalid: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_invalid"),
+			"Number of packets seen which can not be tracked.",
+			nil, nil,
+		),
+		ignore: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_ignore"),
+			"Number of packets seen which are already connected to a conntrack entry.",
 			nil, nil,
 		),
 		insert: prometheus.NewDesc(
@@ -78,14 +90,19 @@ func NewConntrackCollector(logger log.Logger) (Collector, error) {
 			"Number of entries for which list insertion was attempted but failed.",
 			nil, nil,
 		),
-		delete: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_delete"),
-			"Number of conntrack entries which were removed.",
-			nil, nil,
-		),
 		drop: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_drop"),
 			"Number of packets dropped due to conntrack failure.",
+			nil, nil,
+		),
+		earlyDrop: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_early_drop"),
+			"Number of dropped conntrack entries to make room for new ones, if maximum table size was reached.",
+			nil, nil,
+		),
+		searchRestart: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "nf_conntrack_stat_search_restart"),
+			"Number of conntrack table lookups which had to be restarted due to hashtable resizes.",
 			nil, nil,
 		),
 		logger: logger,
@@ -96,87 +113,65 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	value, err := readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_count"))
 	if err != nil {
 		// Conntrack probably not loaded into the kernel.
-		return nil
+		return err
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.current, prometheus.GaugeValue, float64(value))
 
 	value, err = readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_max"))
 	if err != nil {
-		return nil
+		return err
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.limit, prometheus.GaugeValue, float64(value))
 
-	data, err := ioutil.ReadFile(procFilePath("net/stat/nf_conntrack"))
-	if err != nil {
-		return nil
-	}
-	connStat, err := parseNfConntrackStat(data)
+	conntrackStats, err := getConntrackStatistics()
 	if err != nil {
 		return err
 	}
 
 	ch <- prometheus.MustNewConstMetric(
-		c.searched, prometheus.GaugeValue, float64(connStat.Searched))
+		c.found, prometheus.GaugeValue, float64(conntrackStats.found))
 	ch <- prometheus.MustNewConstMetric(
-		c.insert, prometheus.GaugeValue, float64(connStat.Insert))
+		c.invalid, prometheus.GaugeValue, float64(conntrackStats.invalid))
 	ch <- prometheus.MustNewConstMetric(
-		c.insertFailed, prometheus.GaugeValue, float64(connStat.InsertFailed))
+		c.ignore, prometheus.GaugeValue, float64(conntrackStats.ignore))
 	ch <- prometheus.MustNewConstMetric(
-		c.delete, prometheus.GaugeValue, float64(connStat.Delete))
+		c.insert, prometheus.GaugeValue, float64(conntrackStats.insert))
 	ch <- prometheus.MustNewConstMetric(
-		c.drop, prometheus.GaugeValue, float64(connStat.Drop))
+		c.insertFailed, prometheus.GaugeValue, float64(conntrackStats.insertFailed))
+	ch <- prometheus.MustNewConstMetric(
+		c.drop, prometheus.GaugeValue, float64(conntrackStats.drop))
+	ch <- prometheus.MustNewConstMetric(
+		c.earlyDrop, prometheus.GaugeValue, float64(conntrackStats.earlyDrop))
+	ch <- prometheus.MustNewConstMetric(
+		c.searchRestart, prometheus.GaugeValue, float64(conntrackStats.searchRestart))
 	return nil
 }
 
-func parseNfConntrackStat(data []byte) (*ConntrackStatistics, error) {
-	connstat := ConntrackStatistics{}
+func getConntrackStatistics() (*conntrackStatistics, error) {
+	c := conntrackStatistics{}
 
-	r := bytes.NewReader(data)
-	scanner := bufio.NewScanner(r)
-
-	for scanner.Scan() {
-		fields := strings.Fields(scanner.Text())
-		err := parseFields(&connstat, fields)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &connstat, nil
-}
-
-func parseFields(cs *ConntrackStatistics, fields []string) error {
-	searched, err := strconv.ParseUint(fields[1], 16, 64)
+	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return fmt.Errorf("couldn't parse searched field: %s", err)
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
-	cs.Searched += searched
 
-	delete, err := strconv.ParseUint(fields[6], 16, 64)
+	connStats, err := fs.ConntrackStat()
 	if err != nil {
-		return fmt.Errorf("couldn't parse delete field: %s", err)
+		return nil, err
 	}
-	cs.Delete += delete
 
-	insert, err := strconv.ParseUint(fields[8], 16, 64)
-	if err != nil {
-		return fmt.Errorf("couldn't parse insert field: %s", err)
+	for _, connStat := range connStats {
+		c.found += connStat.Found
+		c.invalid += connStat.Invalid
+		c.ignore += connStat.Ignore
+		c.insert += connStat.Insert
+		c.insertFailed += connStat.InsertFailed
+		c.drop += connStat.Drop
+		c.earlyDrop += connStat.EarlyDrop
+		c.searchRestart += connStat.SearchRestart
 	}
-	cs.Insert += insert
 
-	insertFailed, err := strconv.ParseUint(fields[9], 16, 64)
-	if err != nil {
-		return fmt.Errorf("couldn't parse insert_failed field: %s", err)
-	}
-	cs.InsertFailed += insertFailed
-
-	drop, err := strconv.ParseUint(fields[10], 16, 64)
-	if err != nil {
-		return fmt.Errorf("couldn't parse drop field: %s", err)
-	}
-	cs.Drop += drop
-
-	return nil
+	return &c, nil
 }
