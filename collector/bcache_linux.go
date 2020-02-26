@@ -55,7 +55,13 @@ func NewBcacheCollector(logger log.Logger) (Collector, error) {
 // Update reads and exposes bcache stats.
 // It implements the Collector interface.
 func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.Stats(*priorityStats)
+	var stats []*bcache.Stats
+	var err error
+	if *priorityStats {
+		stats, err = c.fs.Stats()
+	} else {
+		stats, err = c.fs.StatsWithoutPriority()
+	}
 	if err != nil {
 		return fmt.Errorf("failed to retrieve bcache stats: %w", err)
 	}
