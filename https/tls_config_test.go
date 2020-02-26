@@ -213,13 +213,13 @@ func TestConfigReloading(t *testing.T) {
 
 	err := TestClientConnection()
 	if err == nil {
-		recordConnectionError(errors.New("Connection accepted but should have failed."))
+		recordConnectionError(errors.New("connection accepted but should have failed"))
 	} else {
 		swapFileContents(goodYAMLPath, badYAMLPath)
 		defer swapFileContents(goodYAMLPath, badYAMLPath)
 		err = TestClientConnection()
 		if err != nil {
-			recordConnectionError(errors.New("Connection failed but should have been accepted."))
+			recordConnectionError(errors.New("connection failed but should have been accepted"))
 		} else {
 
 			recordConnectionError(nil)
