@@ -106,7 +106,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			1,
 			cpu.PhysicalID,
 			cpu.CoreID,
-			fmt.Sprintf("%d", cpu.Processor),
+			strconv.Itoa(int(cpu.Processor)),
 			cpu.VendorID,
 			cpu.CPUFamily,
 			cpu.Model,
@@ -202,7 +202,7 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	}
 
 	for cpuID, cpuStat := range stats.CPU {
-		cpuNum := fmt.Sprintf("%d", cpuID)
+		cpuNum := strconv.Itoa(cpuID)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.User, cpuNum, "user")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Nice, cpuNum, "nice")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.System, cpuNum, "system")

@@ -12,16 +12,18 @@ channel!
 
 ## Stability
 
-At this time, package `netlink` is in a pre-v1.0.0 state. Changes are being made
-which may impact the exported API of this package and others in its ecosystem.
-To follow along on the status of a v1.0.0 release, [see the associated issue](https://github.com/mdlayher/netlink/issues/123).
+See the [CHANGELOG](./CHANGELOG.md) file for a description of changes between
+releases.
+
+This package has a stable v1 API and any future breaking changes will prompt
+the release of a new major version. Features and bug fixes will continue to
+occur in the v1.x.x series.
 
 The general policy of this package is to only support the latest, stable version
 of Go. Compatibility shims may be added for prior versions of Go on an as-needed
 basis. If you would like to raise a concern, please [file an issue](https://github.com/mdlayher/netlink/issues/new).
 
-**If you depend on this package in your applications, please vendor it or use Go
-modules when building your application.**
+**If you depend on this package in your applications, please use Go modules.**
 
 ## Design
 

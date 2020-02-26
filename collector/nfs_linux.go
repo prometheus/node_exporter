@@ -97,7 +97,7 @@ func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			level.Debug(c.logger).Log("msg", "Not collecting NFS metrics", "err", err)
-			return nil
+			return ErrNoData
 		}
 		return fmt.Errorf("failed to retrieve nfs stats: %w", err)
 	}

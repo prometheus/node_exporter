@@ -1,4 +1,4 @@
-# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
@@ -792,6 +792,10 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp2"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp3"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
+# HELP node_infiniband_info Non-numeric data from /sys/class/infiniband/<device>, value is always 1.
+# TYPE node_infiniband_info gauge
+node_infiniband_info{board_id="I40IW Board ID",device="i40iw0",firmware_version="0.2",hca_type="I40IW"} 1
+node_infiniband_info{board_id="SM_1141000001000",device="mlx4_0",firmware_version="2.31.5050",hca_type="MT4099"} 1
 # HELP node_infiniband_legacy_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_legacy_data_received_bytes_total counter
 node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
@@ -1903,6 +1907,12 @@ node_netstat_Udp6_NoPorts 0
 # HELP node_netstat_Udp6_OutDatagrams Statistic Udp6OutDatagrams.
 # TYPE node_netstat_Udp6_OutDatagrams untyped
 node_netstat_Udp6_OutDatagrams 0
+# HELP node_netstat_Udp6_RcvbufErrors Statistic Udp6RcvbufErrors.
+# TYPE node_netstat_Udp6_RcvbufErrors untyped
+node_netstat_Udp6_RcvbufErrors 9
+# HELP node_netstat_Udp6_SndbufErrors Statistic Udp6SndbufErrors.
+# TYPE node_netstat_Udp6_SndbufErrors untyped
+node_netstat_Udp6_SndbufErrors 8
 # HELP node_netstat_UdpLite6_InErrors Statistic UdpLite6InErrors.
 # TYPE node_netstat_UdpLite6_InErrors untyped
 node_netstat_UdpLite6_InErrors 0
@@ -1921,6 +1931,12 @@ node_netstat_Udp_NoPorts 120
 # HELP node_netstat_Udp_OutDatagrams Statistic UdpOutDatagrams.
 # TYPE node_netstat_Udp_OutDatagrams untyped
 node_netstat_Udp_OutDatagrams 53028
+# HELP node_netstat_Udp_RcvbufErrors Statistic UdpRcvbufErrors.
+# TYPE node_netstat_Udp_RcvbufErrors untyped
+node_netstat_Udp_RcvbufErrors 9
+# HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
+# TYPE node_netstat_Udp_SndbufErrors untyped
+node_netstat_Udp_SndbufErrors 8
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
 node_network_address_assign_type{device="eth0"} 3

@@ -167,11 +167,11 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 		// Cannot access wifi metrics, report no error.
 		if os.IsNotExist(err) {
 			level.Debug(c.logger).Log("msg", "wifi collector metrics are not available for this system")
-			return nil
+			return ErrNoData
 		}
 		if os.IsPermission(err) {
 			level.Debug(c.logger).Log("msg", "wifi collector got permission denied when accessing metrics")
-			return nil
+			return ErrNoData
 		}
 
 		return fmt.Errorf("failed to access wifi data: %w", err)

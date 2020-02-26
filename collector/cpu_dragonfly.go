@@ -17,7 +17,7 @@ package collector
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
 	"unsafe"
 
 	"github.com/go-kit/kit/log"
@@ -131,7 +131,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// Export order: user nice sys intr idle
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
 	for i, value := range cpuTimes {
-		cpux := fmt.Sprintf("%d", i/fieldsCount)
+		cpux := strconv.Itoa(i / fieldsCount)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
 	}
 

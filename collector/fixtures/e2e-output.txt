@@ -1,4 +1,4 @@
-# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
@@ -140,6 +140,54 @@ node_bonding_slaves{master="int"} 2
 # HELP node_boot_time_seconds Node boot time, in unixtime.
 # TYPE node_boot_time_seconds gauge
 node_boot_time_seconds 1.418183276e+09
+# HELP node_btrfs_allocation_ratio Data allocation ratio for a layout/data type
+# TYPE node_btrfs_allocation_ratio gauge
+node_btrfs_allocation_ratio{block_group_type="data",mode="raid0",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+node_btrfs_allocation_ratio{block_group_type="data",mode="raid5",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.3333333333333333
+node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
+node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+node_btrfs_allocation_ratio{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
+node_btrfs_allocation_ratio{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+# HELP node_btrfs_device_size_bytes Size of a device that is part of the filesystem.
+# TYPE node_btrfs_device_size_bytes gauge
+node_btrfs_device_size_bytes{device="loop22",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop23",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop24",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop25",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop25",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop26",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.073741824e+10
+# HELP node_btrfs_global_rsv_size_bytes Size of global reserve.
+# TYPE node_btrfs_global_rsv_size_bytes gauge
+node_btrfs_global_rsv_size_bytes{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.6777216e+07
+node_btrfs_global_rsv_size_bytes{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.6777216e+07
+# HELP node_btrfs_info Filesystem information
+# TYPE node_btrfs_info gauge
+node_btrfs_info{label="",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1
+node_btrfs_info{label="fixture",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+# HELP node_btrfs_reserved_bytes Amount of space reserved for a data type
+# TYPE node_btrfs_reserved_bytes gauge
+node_btrfs_reserved_bytes{block_group_type="data",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
+node_btrfs_reserved_bytes{block_group_type="data",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+node_btrfs_reserved_bytes{block_group_type="metadata",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
+node_btrfs_reserved_bytes{block_group_type="metadata",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+node_btrfs_reserved_bytes{block_group_type="system",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
+node_btrfs_reserved_bytes{block_group_type="system",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_size_bytes Amount of space allocated for a layout/data type
+# TYPE node_btrfs_size_bytes gauge
+node_btrfs_size_bytes{block_group_type="data",mode="raid0",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2.147483648e+09
+node_btrfs_size_bytes{block_group_type="data",mode="raid5",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 6.44087808e+08
+node_btrfs_size_bytes{block_group_type="metadata",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.073741824e+09
+node_btrfs_size_bytes{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 4.29391872e+08
+node_btrfs_size_bytes{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 8.388608e+06
+node_btrfs_size_bytes{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.6777216e+07
+# HELP node_btrfs_used_bytes Amount of used space by a layout/data type
+# TYPE node_btrfs_used_bytes gauge
+node_btrfs_used_bytes{block_group_type="data",mode="raid0",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 8.08189952e+08
+node_btrfs_used_bytes{block_group_type="data",mode="raid5",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+node_btrfs_used_bytes{block_group_type="metadata",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 933888
+node_btrfs_used_bytes{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 114688
+node_btrfs_used_bytes{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 16384
+node_btrfs_used_bytes{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 16384
 # HELP node_buddyinfo_blocks Count of free blocks according to size.
 # TYPE node_buddyinfo_blocks gauge
 node_buddyinfo_blocks{node="0",size="0",zone="DMA"} 1
@@ -813,6 +861,10 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp2"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp3"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
+# HELP node_infiniband_info Non-numeric data from /sys/class/infiniband/<device>, value is always 1.
+# TYPE node_infiniband_info gauge
+node_infiniband_info{board_id="I40IW Board ID",device="i40iw0",firmware_version="0.2",hca_type="I40IW"} 1
+node_infiniband_info{board_id="SM_1141000001000",device="mlx4_0",firmware_version="2.31.5050",hca_type="MT4099"} 1
 # HELP node_infiniband_legacy_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_legacy_data_received_bytes_total counter
 node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
@@ -1924,6 +1976,12 @@ node_netstat_Udp6_NoPorts 0
 # HELP node_netstat_Udp6_OutDatagrams Statistic Udp6OutDatagrams.
 # TYPE node_netstat_Udp6_OutDatagrams untyped
 node_netstat_Udp6_OutDatagrams 0
+# HELP node_netstat_Udp6_RcvbufErrors Statistic Udp6RcvbufErrors.
+# TYPE node_netstat_Udp6_RcvbufErrors untyped
+node_netstat_Udp6_RcvbufErrors 9
+# HELP node_netstat_Udp6_SndbufErrors Statistic Udp6SndbufErrors.
+# TYPE node_netstat_Udp6_SndbufErrors untyped
+node_netstat_Udp6_SndbufErrors 8
 # HELP node_netstat_UdpLite6_InErrors Statistic UdpLite6InErrors.
 # TYPE node_netstat_UdpLite6_InErrors untyped
 node_netstat_UdpLite6_InErrors 0
@@ -1942,6 +2000,12 @@ node_netstat_Udp_NoPorts 120
 # HELP node_netstat_Udp_OutDatagrams Statistic UdpOutDatagrams.
 # TYPE node_netstat_Udp_OutDatagrams untyped
 node_netstat_Udp_OutDatagrams 53028
+# HELP node_netstat_Udp_RcvbufErrors Statistic UdpRcvbufErrors.
+# TYPE node_netstat_Udp_RcvbufErrors untyped
+node_netstat_Udp_RcvbufErrors 9
+# HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
+# TYPE node_netstat_Udp_SndbufErrors untyped
+node_netstat_Udp_SndbufErrors 8
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
 node_network_address_assign_type{device="eth0"} 3
@@ -2544,6 +2608,7 @@ node_schedstat_waiting_seconds_total{cpu="1"} 364107.263788241
 node_scrape_collector_success{collector="arp"} 1
 node_scrape_collector_success{collector="bcache"} 1
 node_scrape_collector_success{collector="bonding"} 1
+node_scrape_collector_success{collector="btrfs"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
 node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
