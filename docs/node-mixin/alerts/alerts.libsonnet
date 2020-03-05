@@ -184,6 +184,19 @@
               description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} transmit errors in the last two minutes.',
             },
           },
+          {
+            alert: 'NodeHighNumberConntrackEntriesUsed',
+            expr: |||
+              (node_nf_conntrack_entries / node_nf_conntrack_entries_limit) > 0.75
+            ||| % $._config,
+            annotations: {
+              summary: 'Number of conntrack are getting close to the limit'
+              description: '{{ $value | humanizePercentage }} of conntrack entries are used',
+            },
+            labels: {
+              severity: 'warning',
+            },
+          },
         ],
       },
     ],
