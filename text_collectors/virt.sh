@@ -31,10 +31,12 @@ then
   done
 
   # Attempt AWS detection on older (m4) and newer (m5) instance types, taken from https://serverfault.com/a/903599
-  if ([ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]) ||
-      ([ -r /sys/devices/virtual/dmi/id/product_uuid ] && [ `head -c 3 /sys/devices/virtual/dmi/id/product_uuid` == "EC2" ]); then
-    count=$(( count + 1 ))
-    echo "virt_platform{type=\"aws\"} 1" >>"${v}"
+  if ! grep -q -s -F '{type="aws"}' "${v}"; then
+    if ([ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]) ||
+        ([ -r /sys/devices/virtual/dmi/id/product_uuid ] && [ `head -c 3 /sys/devices/virtual/dmi/id/product_uuid` == "EC2" ]); then
+      count=$(( count + 1 ))
+      echo "virt_platform{type=\"aws\"} 1" >>"${v}"
+    fi
   fi
   # Attempt GCP detection
   if dmidecode -s bios-vendor | grep Google; then
