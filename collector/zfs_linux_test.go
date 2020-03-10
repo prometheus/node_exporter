@@ -311,6 +311,46 @@ func TestZpoolParsing(t *testing.T) {
 	}
 }
 
+func TestZpoolObjsetParsing(t *testing.T) {
+	zpoolPaths, err := filepath.Glob("fixtures/proc/spl/kstat/zfs/*/objset-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	for _, zpoolPath := range zpoolPaths {
+		file, err := os.Open(zpoolPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = c.parsePoolObjsetFile(file, zpoolPath, func(poolName string, datasetName string, s zfsSysctl, v uint64) {
+			if s != zfsSysctl("kstat.zfs.misc.objset.writes") {
+				return
+			}
+
+			handlerCalled = true
+
+			if v != uint64(0) && v != uint64(4) && v != uint64(10) {
+				t.Fatalf("Incorrect value parsed from procfs data %v", v)
+			}
+
+		})
+		file.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !handlerCalled {
+		t.Fatal("Zpool parsing handler was not called for some expected sysctls")
+	}
+}
+
 func TestAbdstatsParsing(t *testing.T) {
 	abdstatsFile, err := os.Open("fixtures/proc/spl/kstat/zfs/abdstats")
 	if err != nil {
