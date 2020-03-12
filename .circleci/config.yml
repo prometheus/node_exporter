@@ -62,11 +62,19 @@ jobs:
           sudo rm -rf /usr/local/go
           curl https://dl.google.com/go/go${GOVERSION}.linux-amd64.tar.gz | sudo tar -C /usr/local -xz
     - run:
-        name: install  build requirements
+        name: install build requirements
         shell: /bin/bash -x -eo pipefail
         command: |
           sudo dpkg --add-architecture i386 \
           && sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+          build-essential \
+              ca-certificates \
+              curl \
+              git \
+              bzr \
+              gnupg \
+              libsnmp-dev \
+              make \
               clang \
               g++ \
               gcc \
