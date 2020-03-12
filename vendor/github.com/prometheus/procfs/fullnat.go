@@ -44,6 +44,7 @@ type FNATStatsPerCpu struct {
 }
 
 type ExtStatsPerCpu = map[string]uint64
+
 type FNATExtStats struct {
 	FullnatAddToaOk             ExtStatsPerCpu
 	FullnatAddToaFailLen        ExtStatsPerCpu
@@ -124,7 +125,7 @@ func NewFNATStats() (FNATStats, error) {
 
 // NewFNATStats reads the FNAT statistics from the specified `proc` filesystem.
 func (fs FS) NewFNATStats() (FNATStats, error) {
-	file, err := os.Open(fs.Path("net/ip_vs_stats"))
+	file, err := os.Open(fs.proc.Path("net/ip_vs_stats"))
 	if err != nil {
 		return FNATStats{}, err
 	}
@@ -204,7 +205,7 @@ func NewFNATExtStats() (FNATExtStats, error) {
 
 // NewFNATStats reads the FNAT  ext statistics from the specified `proc` filesystem.
 func (fs FS) NewFNATExtStats() (FNATExtStats, error) {
-	file, err := os.Open(fs.Path("net/ip_vs_ext_stats"))
+	file, err := os.Open(fs.proc.Path("net/ip_vs_ext_stats"))
 	if err != nil {
 		return FNATExtStats{}, err
 	}
@@ -350,7 +351,7 @@ func NewFNATBackendStatus() ([]FNATBackendStatus, error) {
 
 // NewFNATBackendStatus reads and returns the status of all (virtual,real) server pairs from the specified `proc` filesystem.
 func (fs FS) NewFNATBackendStatus() ([]FNATBackendStatus, error) {
-	file, err := os.Open(fs.Path("net/ip_vs"))
+	file, err := os.Open(fs.proc.Path("net/ip_vs"))
 	if err != nil {
 		return nil, err
 	}

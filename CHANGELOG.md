@@ -20,6 +20,7 @@
 * Collectors that are enabled, but are unable to find data to collect, now return 0 for `node_scrape_collector_success`.
 
 ### Changes
+* [FEATURE] Add new exar's acceleration card collector (`--collector.exar.stats`)
 
 * [ENHANCEMENT] Add `--collector.perf.cpus` to allow setting the CPU list for perf stats.
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279

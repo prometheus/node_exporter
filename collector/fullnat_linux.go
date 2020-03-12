@@ -20,8 +20,9 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -40,6 +41,7 @@ type fnatCollector struct {
 	fastXmitPass, fastXmitSkbCopy, fastXmitNoMac, fastXmitSynproxySave, fastXmitDevLost                                       typedDesc
 	rstInSynSent, rstOutSynSent, rstInEstablished, rstOutEstablished, groPass, lroReject, xmitUnexpectedMtu, connSchedUnreach typedDesc
 	stat                                                                                                                      typedDesc
+	logger                                                                                                                    log.Logger
 }
 
 func init() {
@@ -48,11 +50,11 @@ func init() {
 
 // NewFNATCollector sets up a new collector for FNAT metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewFNATCollector() (Collector, error) {
-	return newFNATCollector()
+func NewFNATCollector(logger log.Logger) (Collector, error) {
+	return newFNATCollector(logger)
 }
 
-func newFNATCollector() (*fnatCollector, error) {
+func newFNATCollector(logger log.Logger) (*fnatCollector, error) {
 	var (
 		fnatStatLabelNames = []string{
 			"CPU",
@@ -68,7 +70,7 @@ func newFNATCollector() (*fnatCollector, error) {
 		err       error
 		subsystem = "fnat"
 	)
-
+	c.logger = logger
 	c.fs, err = procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, err
@@ -342,7 +344,7 @@ func (c *fnatCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		// Cannot access ipvs metrics, report no error.
 		if os.IsNotExist(err) {
-			log.Debug("fnat collector metrics are not available for this system")
+			level.Debug(c.logger).Log("fnat collector metrics are not available for this system")
 			return nil
 		}
 		return fmt.Errorf("could not get FNAT stats: %s", err)
