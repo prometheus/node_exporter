@@ -20,9 +20,10 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -30,9 +31,11 @@ var (
 )
 
 type netClassCollector struct {
+	fs                    sysfs.FS
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
+	logger                log.Logger
 }
 
 func init() {
@@ -40,17 +43,23 @@ func init() {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector() (Collector, error) {
+func NewNetClassCollector(logger log.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
 	pattern := regexp.MustCompile(*netclassIgnoredDevices)
 	return &netClassCollector{
+		fs:                    fs,
 		subsystem:             "network",
 		ignoredDevicesPattern: pattern,
 		metricDescs:           map[string]*prometheus.Desc{},
+		logger:                logger,
 	}, nil
 }
 
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
-	netClass, err := getNetClassInfo(c.ignoredDevicesPattern)
+	netClass, err := c.getNetClassInfo()
 	if err != nil {
 		return fmt.Errorf("could not get net class info: %s", err)
 	}
@@ -135,7 +144,7 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		if ifaceInfo.Speed != nil {
-			speedBytes := int64(*ifaceInfo.Speed / 8 * 1000 * 1000)
+			speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
 			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
 		}
 
@@ -162,19 +171,15 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, float64(value), ifaceName)
 }
 
-func getNetClassInfo(ignore *regexp.Regexp) (sysfs.NetClass, error) {
-	fs, err := sysfs.NewFS(*sysPath)
-	if err != nil {
-		return nil, err
-	}
-	netClass, err := fs.NewNetClass()
+func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
+	netClass, err := c.fs.NetClass()
 
 	if err != nil {
 		return netClass, fmt.Errorf("error obtaining net class info: %s", err)
 	}
 
 	for device := range netClass {
-		if ignore.MatchString(device) {
+		if c.ignoredDevicesPattern.MatchString(device) {
 			delete(netClass, device)
 		}
 	}

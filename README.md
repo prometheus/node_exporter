@@ -50,17 +50,51 @@ netdev | Exposes network interface statistics such as bytes transferred. | Darwi
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
+pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/accounting/psi.txt))
+rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
+schedstat | Exposes task scheduler statistics from `/proc/schedstat`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
+softnet | Exposes statistics from `/proc/net/softnet_stat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
+thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/class/thermal`. | Linux
 time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
-uname | Exposes system information as provided by the uname system call. | FreeBSD, Linux
+uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/), Solaris
 
 ### Disabled by default
+
+The perf collector may not work by default on all Linux systems due to kernel
+configuration and security settings. To allow access, set the following sysctl
+parameter:
+
+```
+sysctl -w kernel.perf_event_paranoid=X
+```
+
+- 2 allow only user-space measurements (default since Linux 4.6).
+- 1 allow both kernel and user measurements (default before Linux 4.6).
+- 0 allow access to CPU-specific data but not raw tracepoint samples.
+- -1 no restrictions.
+
+Depending on the configured value different metrics will be available, for most
+cases `0` will provide the most complete set. For more information see [`man 2
+perf_event_open`](http://man7.org/linux/man-pages/man2/perf_event_open.2.html).
+
+By default, the perf collector will only collect metrics of the CPUs that
+`node_exporter` is running on (ie
+[`runtime.NumCPU`](https://golang.org/pkg/runtime/#NumCPU). If this is
+insufficient (e.g. if you run `node_exporter` with its CPU affinity set to
+specific CPUs) You can specify a list of alternate CPUs by using the
+`--collector.perf.cpus` flag. For example, to collect metrics on CPUs 2-6, you
+would specify: `--collector.perf --collector.perf.cpus=2-6`. The CPU
+configuration is zero indexed and can also take a stride value
+`--collector.perf --collector.perf.cpus=1-10:5`, would collect on CPUs
+1, 5, and 10.
+
 
 Name     | Description | OS
 ---------|-------------|----
@@ -80,6 +114,7 @@ supervisord | Exposes service status from [supervisord](http://supervisord.org/)
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
+perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 
 ### Textfile Collector
 
@@ -92,7 +127,7 @@ that are tied to a machine.
 To use it, set the `--collector.textfile.directory` flag on the Node exporter. The
 collector will parse all files in that directory matching the glob `*.prom`
 using the [text
-format](http://prometheus.io/docs/instrumenting/exposition_formats/).
+format](http://prometheus.io/docs/instrumenting/exposition_formats/). **Note:** Timestamps are not supported.
 
 To atomically push completion time for a cron job:
 ```
@@ -143,6 +178,17 @@ To see all available configuration flags:
 
     make test
 
+## TLS endpoint
+
+** EXPERIMENTAL **
+
+The exporter supports TLS via a new web configuration file.
+
+```console
+./node_exporter --web.config=web-config.yml
+```
+
+See the [https package](https/README.md) for more details.
 
 ## Using Docker
 The `node_exporter` is designed to monitor the host system. It's not recommended
@@ -159,7 +205,7 @@ docker run -d \
   --pid="host" \
   -v "/:/host:ro,rslave" \
   quay.io/prometheus/node-exporter \
-  --path.rootfs /host
+  --path.rootfs=/host
 ```
 
 On some systems, the `timex` collector requires an additional Docker flag,

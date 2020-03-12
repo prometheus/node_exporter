@@ -1,15 +1,11 @@
 package genetlink
 
-import (
-	"errors"
-)
+import "errors"
 
-var (
-	// errInvalidMessage is returned when a Message is malformed.
-	errInvalidMessage = errors.New("generic netlink message is invalid or too short")
-)
+// errInvalidMessage is returned when a Message is malformed.
+var errInvalidMessage = errors.New("generic netlink message is invalid or too short")
 
-// A Header is a generic netlink header.  A Header is sent and received with
+// A Header is a generic netlink header. A Header is sent and received with
 // each generic netlink message to indicate metadata regarding a Message.
 type Header struct {
 	// Command specifies a command to issue to netlink.
@@ -22,13 +18,13 @@ type Header struct {
 // headerLen is the length of a Header.
 const headerLen = 4 // unix.GENL_HDRLEN
 
-// A Message is a generic netlink message.  It contains a Header and an
+// A Message is a generic netlink message. It contains a Header and an
 // arbitrary byte payload, which may be decoded using information from the
 // Header.
 //
-// Data is encoded using the native endianness of the host system.  Use
-// the netlink.Uint* and netlink.PutUint* functions to encode and decode
-// integers.
+// Data is encoded using the native endianness of the host system. Use
+// the netlink.AttributeDecoder and netlink.AttributeEncoder types to decode
+// and encode data.
 type Message struct {
 	Header Header
 	Data   []byte

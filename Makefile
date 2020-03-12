@@ -11,6 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Ensure that 'all' is the default target otherwise it will be the first target from Makefile.common.
+all::
+
+# Needs to be defined before including Makefile.common to auto-generate targets
+DOCKER_ARCHS ?= amd64 armv7 arm64 ppc64le s390x
+
 include Makefile.common
 
 PROMTOOL_VERSION ?= 2.5.0
@@ -19,7 +25,6 @@ PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
 
 DOCKER_IMAGE_NAME       ?= node-exporter
 MACH                    ?= $(shell uname -m)
-DOCKERFILE              ?= Dockerfile
 
 STATICCHECK_IGNORE =
 
@@ -70,7 +75,7 @@ $(eval $(call goarch_pair,amd64,386))
 $(eval $(call goarch_pair,mips64,mips))
 $(eval $(call goarch_pair,mips64el,mipsel))
 
-all: style vet staticcheck checkmetrics checkrules build test $(cross-test) $(test-e2e)
+all:: vet checkmetrics checkrules common-all $(cross-test) $(test-e2e)
 
 .PHONY: test
 test: collector/fixtures/sys/.unpacked
@@ -86,11 +91,15 @@ test-32bit: collector/fixtures/sys/.unpacked
 skip-test-32bit:
 	@echo ">> SKIP running tests in 32-bit mode: not supported on $(GOHOSTOS)/$(GOHOSTARCH)"
 
-collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
-	@echo ">> extracting sysfs fixtures"
-	if [ -d collector/fixtures/sys ] ; then rm -r collector/fixtures/sys ; fi
-	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
+%/.unpacked: %.ttar
+	@echo ">> extracting fixtures"
+	if [ -d $(dir $@) ] ; then rm -r $(dir $@) ; fi
+	./ttar -C $(dir $*) -x -f $*.ttar
 	touch $@
+
+update_fixtures:
+	rm -vf collector/fixtures/sys/.unpacked
+	./ttar -C collector/fixtures -c -f collector/fixtures/sys.ttar sys
 
 .PHONY: test-e2e
 test-e2e: build collector/fixtures/sys/.unpacked
@@ -111,18 +120,10 @@ checkrules: $(PROMTOOL)
 	@echo ">> checking rules for correctness"
 	find . -name "*rules*.yml" | xargs -I {} $(PROMTOOL) check rules {}
 
-.PHONY: docker
-docker:
-ifeq ($(MACH), ppc64le)
-	$(eval DOCKERFILE=Dockerfile.ppc64le)
-endif
-	@echo ">> building docker image from $(DOCKERFILE)"
-	@docker build --file $(DOCKERFILE) -t "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
-
 .PHONY: test-docker
 test-docker:
 	@echo ">> testing docker image"
-	./test_image.sh "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" 9100
+	./test_image.sh "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-amd64:$(DOCKER_IMAGE_TAG)" 9100
 
 .PHONY: promtool
 promtool: $(PROMTOOL)

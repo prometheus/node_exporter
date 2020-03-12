@@ -17,22 +17,27 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	netdevIgnoredDevices = kingpin.Flag("collector.netdev.ignored-devices", "Regexp of net devices to ignore for netdev collector.").Default("^$").String()
+	netdevIgnoredDevices = kingpin.Flag("collector.netdev.device-blacklist", "Regexp of net devices to blacklist (mutually exclusive to device-whitelist).").String()
+	netdevAcceptDevices  = kingpin.Flag("collector.netdev.device-whitelist", "Regexp of net devices to whitelist (mutually exclusive to device-blacklist).").String()
 )
 
 type netDevCollector struct {
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
+	acceptDevicesPattern  *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
+	logger                log.Logger
 }
 
 func init() {
@@ -40,17 +45,32 @@ func init() {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector() (Collector, error) {
-	pattern := regexp.MustCompile(*netdevIgnoredDevices)
+func NewNetDevCollector(logger log.Logger) (Collector, error) {
+	if *netdevIgnoredDevices != "" && *netdevAcceptDevices != "" {
+		return nil, errors.New("device-blacklist & accept-devices are mutually exclusive")
+	}
+
+	var ignorePattern *regexp.Regexp
+	if *netdevIgnoredDevices != "" {
+		ignorePattern = regexp.MustCompile(*netdevIgnoredDevices)
+	}
+
+	var acceptPattern *regexp.Regexp
+	if *netdevAcceptDevices != "" {
+		acceptPattern = regexp.MustCompile(*netdevAcceptDevices)
+	}
+
 	return &netDevCollector{
 		subsystem:             "network",
-		ignoredDevicesPattern: pattern,
+		ignoredDevicesPattern: ignorePattern,
+		acceptDevicesPattern:  acceptPattern,
 		metricDescs:           map[string]*prometheus.Desc{},
+		logger:                logger,
 	}, nil
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(c.ignoredDevicesPattern)
+	netDev, err := getNetDevStats(c.ignoredDevicesPattern, c.acceptDevicesPattern, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %s", err)
 	}

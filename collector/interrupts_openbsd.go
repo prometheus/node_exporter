@@ -108,7 +108,7 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- c.desc.mustNewConstMetric(
 				value,
 				strconv.Itoa(cpuNo),
-				fmt.Sprintf("%d", interrupt.vector),
+				strconv.Itoa(interrupt.vector),
 				dev,
 			)
 		}

@@ -12,11 +12,9 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-var (
-	// errInvalidFamilyVersion is returned when a family's version is greater
-	// than an 8-bit integer.
-	errInvalidFamilyVersion = errors.New("invalid family version attribute")
-)
+// errInvalidFamilyVersion is returned when a family's version is greater
+// than an 8-bit integer.
+var errInvalidFamilyVersion = errors.New("invalid family version attribute")
 
 // getFamily retrieves a generic netlink family with the specified name.
 func (c *Conn) getFamily(name string) (Family, error) {
@@ -37,7 +35,7 @@ func (c *Conn) getFamily(name string) (Family, error) {
 		Data: b,
 	}
 
-	msgs, err := c.Execute(req, unix.GENL_ID_CTRL, netlink.HeaderFlagsRequest)
+	msgs, err := c.Execute(req, unix.GENL_ID_CTRL, netlink.Request)
 	if err != nil {
 		return Family{}, err
 	}
@@ -67,7 +65,7 @@ func (c *Conn) listFamilies() ([]Family, error) {
 		},
 	}
 
-	flags := netlink.HeaderFlagsRequest | netlink.HeaderFlagsDump
+	flags := netlink.Request | netlink.Dump
 	msgs, err := c.Execute(req, unix.GENL_ID_CTRL, flags)
 	if err != nil {
 		return nil, err
@@ -113,13 +111,8 @@ func (f *Family) parseAttributes(b []byte) error {
 
 			f.Version = uint8(v)
 		case unix.CTRL_ATTR_MCAST_GROUPS:
-			ad.Do(func(b []byte) error {
-				groups, err := parseMulticastGroups(b)
-				if err != nil {
-					return err
-				}
-
-				f.Groups = groups
+			ad.Nested(func(nad *netlink.AttributeDecoder) error {
+				f.Groups = parseMulticastGroups(nad)
 				return nil
 			})
 		}
@@ -130,32 +123,18 @@ func (f *Family) parseAttributes(b []byte) error {
 
 // parseMulticastGroups parses an array of multicast group nested attributes
 // into a slice of MulticastGroups.
-func parseMulticastGroups(b []byte) ([]MulticastGroup, error) {
-	ad, err := netlink.NewAttributeDecoder(b)
-	if err != nil {
-		return nil, err
-	}
-
-	var groups []MulticastGroup
+func parseMulticastGroups(ad *netlink.AttributeDecoder) []MulticastGroup {
+	groups := make([]MulticastGroup, 0, ad.Len())
 	for ad.Next() {
-		ad.Do(func(b []byte) error {
-			adi, err := netlink.NewAttributeDecoder(b)
-			if err != nil {
-				return err
-			}
-
+		ad.Nested(func(nad *netlink.AttributeDecoder) error {
 			var g MulticastGroup
-			for adi.Next() {
-				switch adi.Type() {
+			for nad.Next() {
+				switch nad.Type() {
 				case unix.CTRL_ATTR_MCAST_GRP_NAME:
-					g.Name = adi.String()
+					g.Name = nad.String()
 				case unix.CTRL_ATTR_MCAST_GRP_ID:
-					g.ID = adi.Uint32()
+					g.ID = nad.Uint32()
 				}
-			}
-
-			if err := ad.Err(); err != nil {
-				return err
 			}
 
 			groups = append(groups, g)
@@ -163,9 +142,5 @@ func parseMulticastGroups(b []byte) ([]MulticastGroup, error) {
 		})
 	}
 
-	if err := ad.Err(); err != nil {
-		return nil, err
-	}
-
-	return groups, nil
+	return groups
 }

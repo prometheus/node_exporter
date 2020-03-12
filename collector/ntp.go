@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/beevik/ntp"
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -47,6 +48,7 @@ var (
 
 type ntpCollector struct {
 	stratum, leap, rtt, offset, reftime, rootDelay, rootDispersion, sanity typedDesc
+	logger                                                                 log.Logger
 }
 
 func init() {
@@ -57,7 +59,7 @@ func init() {
 // Default definition of "local" is:
 // - collector.ntp.server address is a loopback address (or collector.ntp.server-is-mine flag is turned on)
 // - the server is reachable with outgoin IP_TTL = 1
-func NewNtpCollector() (Collector, error) {
+func NewNtpCollector(logger log.Logger) (Collector, error) {
 	ipaddr := net.ParseIP(*ntpServer)
 	if !*ntpServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
 		return nil, fmt.Errorf("only IP address of local NTP server is valid for --collector.ntp.server")
@@ -112,6 +114,7 @@ func NewNtpCollector() (Collector, error) {
 			"NTPD sanity according to RFC5905 heuristics and configured limits.",
 			nil, nil,
 		), prometheus.GaugeValue},
+		logger: logger,
 	}, nil
 }
 

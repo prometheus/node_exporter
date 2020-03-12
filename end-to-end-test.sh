@@ -5,6 +5,7 @@ set -euf -o pipefail
 enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
+  btrfs
   buddyinfo
   conntrack
   cpu
@@ -28,9 +29,13 @@ enabled_collectors=$(cat << COLLECTORS
   netstat
   nfs
   nfsd
+  pressure
   qdisc
+  rapl
+  schedstat
   sockstat
   stat
+  thermal_zone
   textfile
   bonding
   vmstat
@@ -100,6 +105,7 @@ fi
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --collector.netclass.ignored-devices="(bond0|dmz|int)" \
+  --collector.cpu.info \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
