@@ -19,7 +19,7 @@ import (
 	"bytes"
 	"unsafe"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
@@ -54,14 +54,14 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	for _, fs := range buf {
 		mountpoint := gostring(fs.Mntonname[:])
 		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
-			log.Debugf("Ignoring mount point: %s", mountpoint)
+			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
 		device := gostring(fs.Mntfromname[:])
 		fstype := gostring(fs.Fstypename[:])
 		if c.ignoredFSTypesPattern.MatchString(fstype) {
-			log.Debugf("Ignoring fs type: %s", fstype)
+			level.Debug(c.logger).Log("msg", "Ignoring fs type", "type", fstype)
 			continue
 		}
 

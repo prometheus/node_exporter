@@ -7,6 +7,16 @@ import (
 	"github.com/mdlayher/netlink/nlenc"
 )
 
+// Flags which may apply to netlink attribute types when communicating with
+// certain netlink families.
+const (
+	Nested       uint16 = 0x8000
+	NetByteOrder uint16 = 0x4000
+
+	// attrTypeMask masks off Type bits used for the above flags.
+	attrTypeMask uint16 = 0x3fff
+)
+
 // Various errors which may occur when attempting to marshal or unmarshal
 // a Message to and from its binary form.
 var (
@@ -174,8 +184,8 @@ type Header struct {
 // A Message is a netlink message.  It contains a Header and an arbitrary
 // byte payload, which may be decoded using information from the Header.
 //
-// Data is encoded in the native endianness of the host system.  For easier
-// of encoding and decoding of integers, use package nlenc.
+// Data is often populated with netlink attributes. For easy encoding and
+// decoding of attributes, see the AttributeDecoder and AttributeEncoder types.
 type Message struct {
 	Header Header
 	Data   []byte

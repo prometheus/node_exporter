@@ -8,7 +8,7 @@
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 40
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceFillingUpWarningThreshold)d
               and
                 predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 24*60*60) < 0
               and
@@ -28,7 +28,7 @@
             alert: 'NodeFilesystemSpaceFillingUp',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 20
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceFillingUpCriticalThreshold)d
               and
                 predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s}[6h], 4*60*60) < 0
               and

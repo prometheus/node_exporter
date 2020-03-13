@@ -19,6 +19,7 @@ package collector
 import (
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -48,6 +49,7 @@ type filesystemCollector struct {
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
+	logger                        log.Logger
 }
 
 type filesystemLabels struct {
@@ -66,7 +68,7 @@ func init() {
 }
 
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.
-func NewFilesystemCollector() (Collector, error) {
+func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 	subsystem := "filesystem"
 	mountPointPattern := regexp.MustCompile(*ignoredMountPoints)
 	filesystemsTypesPattern := regexp.MustCompile(*ignoredFSTypes)
@@ -123,6 +125,7 @@ func NewFilesystemCollector() (Collector, error) {
 		filesFreeDesc:             filesFreeDesc,
 		roDesc:                    roDesc,
 		deviceErrorDesc:           deviceErrorDesc,
+		logger:                    logger,
 	}, nil
 }
 

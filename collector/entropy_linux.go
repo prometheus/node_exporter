@@ -18,11 +18,13 @@ package collector
 import (
 	"fmt"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type entropyCollector struct {
 	entropyAvail *prometheus.Desc
+	logger       log.Logger
 }
 
 func init() {
@@ -30,13 +32,14 @@ func init() {
 }
 
 // NewEntropyCollector returns a new Collector exposing entropy stats.
-func NewEntropyCollector() (Collector, error) {
+func NewEntropyCollector(logger log.Logger) (Collector, error) {
 	return &entropyCollector{
 		entropyAvail: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "entropy_available_bits"),
 			"Bits of available entropy.",
 			nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

@@ -15,7 +15,7 @@
 all::
 
 # Needs to be defined before including Makefile.common to auto-generate targets
-DOCKER_ARCHS ?= amd64 armv7 arm64 ppc64le
+DOCKER_ARCHS ?= amd64 armv7 arm64 ppc64le s390x
 
 include Makefile.common
 
@@ -91,11 +91,15 @@ test-32bit: collector/fixtures/sys/.unpacked
 skip-test-32bit:
 	@echo ">> SKIP running tests in 32-bit mode: not supported on $(GOHOSTOS)/$(GOHOSTARCH)"
 
-collector/fixtures/sys/.unpacked: collector/fixtures/sys.ttar
-	@echo ">> extracting sysfs fixtures"
-	if [ -d collector/fixtures/sys ] ; then rm -r collector/fixtures/sys ; fi
-	./ttar -C collector/fixtures -x -f collector/fixtures/sys.ttar
+%/.unpacked: %.ttar
+	@echo ">> extracting fixtures"
+	if [ -d $(dir $@) ] ; then rm -r $(dir $@) ; fi
+	./ttar -C $(dir $*) -x -f $*.ttar
 	touch $@
+
+update_fixtures:
+	rm -vf collector/fixtures/sys/.unpacked
+	./ttar -C collector/fixtures -c -f collector/fixtures/sys.ttar sys
 
 .PHONY: test-e2e
 test-e2e: build collector/fixtures/sys/.unpacked

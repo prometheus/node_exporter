@@ -202,6 +202,7 @@ type QuotaManagerStats struct {
 	Wants         uint32
 	ShakeReclaims uint32
 	InactReclaims uint32
+	Unused        uint32
 }
 
 // XstratStats contains statistics regarding bytes processed by the XFS daemon.

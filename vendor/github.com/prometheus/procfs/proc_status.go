@@ -15,10 +15,10 @@ package procfs
 
 import (
 	"bytes"
-	"io/ioutil"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/prometheus/procfs/internal/util"
 )
 
 // ProcStatus provides status information about the process,
@@ -71,17 +71,14 @@ type ProcStatus struct {
 	VoluntaryCtxtSwitches uint64
 	// Number of involuntary context switches.
 	NonVoluntaryCtxtSwitches uint64
+
+	// UIDs of the process (Real, effective, saved set, and filesystem UIDs (GIDs))
+	UIDs [4]string
 }
 
 // NewStatus returns the current status information of the process.
 func (p Proc) NewStatus() (ProcStatus, error) {
-	f, err := os.Open(p.path("status"))
-	if err != nil {
-		return ProcStatus{}, err
-	}
-	defer f.Close()
-
-	data, err := ioutil.ReadAll(f)
+	data, err := util.ReadFileNoStat(p.path("status"))
 	if err != nil {
 		return ProcStatus{}, err
 	}
@@ -120,6 +117,8 @@ func (s *ProcStatus) fillStatus(k string, vString string, vUint uint64, vUintByt
 		s.TGID = int(vUint)
 	case "Name":
 		s.Name = vString
+	case "Uid":
+		copy(s.UIDs[:], strings.Split(vString, "\t"))
 	case "VmPeak":
 		s.VmPeak = vUintBytes
 	case "VmSize":

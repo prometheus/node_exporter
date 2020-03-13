@@ -319,7 +319,7 @@ func makeRequest(name string, args ...interface{}) *bytes.Buffer {
 }
 
 func call(client *http.Client, url, name string, args ...interface{}) (v interface{}, e error) {
-	r, e := httpClient.Post(url, "text/xml", makeRequest(name, args...))
+	r, e := client.Post(url, "text/xml", makeRequest(name, args...))
 	if e != nil {
 		return nil, e
 	}

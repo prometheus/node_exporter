@@ -2,7 +2,12 @@
   _config+:: {
     // Selectors are inserted between {} in Prometheus queries.
 
-    // Select the metrics coming from the node exporter.
+    // Select the metrics coming from the node exporter. Note that all
+    // the selected metrics are shown stacked on top of each other in
+    // the 'USE Method / Cluster' dashboard. Consider disabling that
+    // dashboard if mixing up all those metrics in the same dashboard
+    // doesn't make sense (e.g. because they are coming from different
+    // clusters).
     nodeExporterSelector: 'job="node"',
 
     // Select the fstype for filesystem-related queries. If left
@@ -29,6 +34,18 @@
     // could make this critical for traditional database masters but
     // just a warning for K8s nodes.
     nodeCriticalSeverity: 'critical',
+
+    // Available disk space (%) thresholds on which to trigger the
+    // 'NodeFilesystemSpaceFillingUp' alerts. These alerts fire if the disk
+    // usage grows in a way that it is predicted to run out in 4h or 1d
+    // and if the provided thresholds have been reached right now.
+    // In some cases you'll want to adjust these, e.g. by default Kubernetes
+    // runs the image garbage collection when the disk usage reaches 85%
+    // of its available space. In that case, you'll want to reduce the
+    // critical threshold below to something like 14 or 15, otherwise
+    // the alert could fire under normal node usage.
+    fsSpaceFillingUpWarningThreshold: 40,
+    fsSpaceFillingUpCriticalThreshold: 20,
 
     grafana_prefix: '',
   },

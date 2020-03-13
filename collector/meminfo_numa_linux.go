@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -43,6 +44,7 @@ type meminfoMetric struct {
 
 type meminfoNumaCollector struct {
 	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
 }
 
 func init() {
@@ -50,9 +52,10 @@ func init() {
 }
 
 // NewMeminfoNumaCollector returns a new Collector exposing memory stats.
-func NewMeminfoNumaCollector() (Collector, error) {
+func NewMeminfoNumaCollector(logger log.Logger) (Collector, error) {
 	return &meminfoNumaCollector{
 		metricDescs: map[string]*prometheus.Desc{},
+		logger:      logger,
 	}, nil
 }
 

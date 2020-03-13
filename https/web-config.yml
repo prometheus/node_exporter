@@ -1,0 +1,10 @@
+tlsConfig :
+  # Certificate and key files for server to use to authenticate to client
+  tlsCertPath : <filename>
+  tlsKeyPath : <filename>
+
+  # Server policy for client authentication. Maps to ClientAuth Policies
+  [ clientAuth : <string> ]
+
+  # CA certificate for client certificate authentication to the server
+  [ clientCAs : <filename> ]

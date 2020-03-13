@@ -18,36 +18,37 @@ package collector
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
+	"fmt"
 	"net"
 	"regexp"
 	"strconv"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp) (map[string]map[string]string, error) {
+func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
 	netDev := map[string]map[string]string{}
 
 	ifs, err := net.Interfaces()
 	if err != nil {
-		return nil, errors.New("net.Interfaces() failed")
+		return nil, fmt.Errorf("net.Interfaces() failed: %w", err)
 	}
 
 	for _, iface := range ifs {
 		ifaceData, err := getIfaceData(iface.Index)
 		if err != nil {
-			log.Debugf("failed to load data for interface %q: %v", iface.Name, err)
+			level.Debug(logger).Log("msg", "failed to load data for interface", "device", iface.Name, "err", err)
 			continue
 		}
 
 		if ignore != nil && ignore.MatchString(iface.Name) {
-			log.Debugf("Ignoring device: %s", iface.Name)
+			level.Debug(logger).Log("msg", "Ignoring device", "device", iface.Name)
 			continue
 		}
 		if accept != nil && !accept.MatchString(iface.Name) {
-			log.Debugf("Ignoring device: %s", iface.Name)
+			level.Debug(logger).Log("msg", "Ignoring device", "device", iface.Name)
 			continue
 		}
 

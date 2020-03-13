@@ -7,6 +7,6 @@ IcmpMsg: 104 120
 Tcp: RtoAlgorithm RtoMin RtoMax MaxConn ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts InCsumErrors
 Tcp: 1 200 120000 -1 3556 230 341 161 0 57252008 54915039 227 5 1003 0
 Udp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors
-Udp: 88542 120 0 53028 0 0 0
+Udp: 88542 120 0 53028 9 8 0
 UdpLite: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors InCsumErrors
 UdpLite: 0 0 0 0 0 0 0

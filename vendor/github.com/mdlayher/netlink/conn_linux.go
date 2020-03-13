@@ -3,6 +3,7 @@
 package netlink
 
 import (
+	"errors"
 	"math"
 	"os"
 	"runtime"
@@ -339,7 +340,7 @@ type sysSocket struct {
 // to a single thread.
 func newSysSocket(config *Config) (*sysSocket, error) {
 	// Determine network namespaces using the threadNetNS function.
-	g, err := newLockedNetNSGoroutine(config.NetNS, threadNetNS)
+	g, err := newLockedNetNSGoroutine(config.NetNS, threadNetNS, !config.DisableNSLockThread)
 	if err != nil {
 		return nil, err
 	}
@@ -542,13 +543,8 @@ func (s *sysSocket) Recvmsg(p, oob []byte, flags int) (int, int, int, unix.Socka
 	doErr := s.read(func(fd int) bool {
 		n, oobn, recvflags, from, err = unix.Recvmsg(fd, p, oob, flags)
 
-		// When the socket is in non-blocking mode, we might see
-		// EAGAIN and end up here. In that case, return false to
-		// let the poller wait for readiness. See the source code
-		// for internal/poll.FD.RawRead for more details.
-		//
-		// If the socket is in blocking mode, EAGAIN should never occur.
-		return err != syscall.EAGAIN
+		// Check for readiness.
+		return ready(err)
 	})
 	if doErr != nil {
 		return 0, 0, 0, nil, doErr
@@ -562,8 +558,8 @@ func (s *sysSocket) Sendmsg(p, oob []byte, to unix.Sockaddr, flags int) error {
 	doErr := s.write(func(fd int) bool {
 		err = unix.Sendmsg(fd, p, oob, to, flags)
 
-		// Analogous to Recvmsg. See the comments there.
-		return err != syscall.EAGAIN
+		// Check for readiness.
+		return ready(err)
 	})
 	if doErr != nil {
 		return doErr
@@ -613,6 +609,28 @@ func (s *sysSocket) SetSockoptSockFprog(level, opt int, fprog *unix.SockFprog) e
 	return err
 }
 
+// ready indicates readiness based on the value of err.
+func ready(err error) bool {
+	// When a socket is in non-blocking mode, we might see
+	// EAGAIN. In that case, return false to let the poller wait for readiness.
+	// See the source code for internal/poll.FD.RawRead for more details.
+	//
+	// Starting in Go 1.14, goroutines are asynchronously preemptible. The 1.14
+	// release notes indicate that applications should expect to see EINTR more
+	// often on slow system calls (like recvmsg while waiting for input), so
+	// we must handle that case as well.
+	//
+	// If the socket is in blocking mode, EAGAIN should never occur.
+	switch err {
+	case syscall.EAGAIN, syscall.EINTR:
+		// Not ready.
+		return false
+	default:
+		// Ready whether there was error or no error.
+		return true
+	}
+}
+
 // lockedNetNSGoroutine is a worker goroutine locked to an operating system
 // thread, optionally configured to run in a non-default network namespace.
 type lockedNetNSGoroutine struct {
@@ -624,9 +642,15 @@ type lockedNetNSGoroutine struct {
 // newLockedNetNSGoroutine creates a lockedNetNSGoroutine that will enter the
 // specified network namespace netNS (by file descriptor), and will use the
 // getNS function to produce netNS handles.
-func newLockedNetNSGoroutine(netNS int, getNS func() (*netNS, error)) (*lockedNetNSGoroutine, error) {
+func newLockedNetNSGoroutine(netNS int, getNS func() (*netNS, error), lockThread bool) (*lockedNetNSGoroutine, error) {
 	// Any bare syscall errors (e.g. setns) should be wrapped with
 	// os.NewSyscallError for the remainder of this function.
+
+	// If the caller has instructed us to not lock OS thread but also attempts
+	// to set a namespace, return an error.
+	if !lockThread && netNS != 0 {
+		return nil, errors.New("netlink Conn attempted to set a namespace with OS thread locking disabled")
+	}
 
 	callerNS, err := getNS()
 	if err != nil {
@@ -660,9 +684,16 @@ func newLockedNetNSGoroutine(netNS int, getNS func() (*netNS, error)) (*lockedNe
 		// with the Go runtime for threads which are not unlocked, we have
 		// elected to temporarily unlock the thread when the goroutine terminates:
 		// https://github.com/golang/go/issues/25128#issuecomment-410764489.
+		//
+		// Locking the thread is not implemented if the caller explicitly asks
+		// for an unlocked thread.
 
-		runtime.LockOSThread()
-		defer runtime.UnlockOSThread()
+		// Only lock the tread, if the lockThread is set.
+		if lockThread {
+			runtime.LockOSThread()
+			defer runtime.UnlockOSThread()
+		}
+
 		defer g.wg.Done()
 
 		// Get the current namespace of the thread the goroutine is locked to.

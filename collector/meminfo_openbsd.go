@@ -23,6 +23,7 @@ import (
 /*
 #include <sys/param.h>
 #include <sys/types.h>
+#include <sys/mount.h>
 #include <sys/sysctl.h>
 
 int
@@ -37,14 +38,31 @@ sysctl_uvmexp(struct uvmexp *uvmexp)
         return 0;
 }
 
+int
+sysctl_bcstats(struct bcachestats *bcstats)
+{
+        static int bcstats_mib[] = {CTL_VFS, VFS_GENERIC, VFS_BCACHESTAT};
+        size_t sz = sizeof(struct bcachestats);
+
+        if(sysctl(bcstats_mib, 3, bcstats, &sz, NULL, 0) < 0)
+                return -1;
+
+        return 0;
+}
+
 */
 import "C"
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	var uvmexp C.struct_uvmexp
+	var bcstats C.struct_bcachestats
 
 	if _, err := C.sysctl_uvmexp(&uvmexp); err != nil {
-		return nil, fmt.Errorf("sysctl CTL_VM VM_UVMEXP failed: %v", err)
+		return nil, fmt.Errorf("sysctl CTL_VM VM_UVMEXP failed: %w", err)
+	}
+
+	if _, err := C.sysctl_bcstats(&bcstats); err != nil {
+		return nil, fmt.Errorf("sysctl CTL_VFS VFS_GENERIC VFS_BCACHESTAT failed: %v", err)
 	}
 
 	ps := float64(uvmexp.pagesize)
@@ -52,7 +70,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	// see uvm(9)
 	return map[string]float64{
 		"active_bytes":                  ps * float64(uvmexp.active),
-		"cache_bytes":                   ps * float64(uvmexp.vnodepages),
+		"cache_bytes":                   ps * float64(bcstats.numbufpages),
 		"free_bytes":                    ps * float64(uvmexp.free),
 		"inactive_bytes":                ps * float64(uvmexp.inactive),
 		"size_bytes":                    ps * float64(uvmexp.npages),
