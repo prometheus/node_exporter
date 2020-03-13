@@ -103,7 +103,7 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	if ifaces == nil || len(ifaces) == 0 {
+	if len(ifaces) == 0 {
 		defaultIfaces = true
 	} else {
 		defaultIfaces = false
