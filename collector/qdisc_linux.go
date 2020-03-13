@@ -34,7 +34,8 @@ type qdiscStatCollector struct {
 }
 
 var (
-	collectorQdisc = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
+	collectorQdisc       = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
+	collectorQdiscIfaces = kingpin.Flag("collector.qdisc.iface", "list of interfaces to gather qdisc collector stats about").Default("").Strings()
 )
 
 func init() {
@@ -87,8 +88,10 @@ func testQdiscGet(fixtures string) ([]qdisc.QdiscInfo, error) {
 func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 	var msgs []qdisc.QdiscInfo
 	var err error
+	var defaultIfaces bool
 
 	fixtures := *collectorQdisc
+	ifaces := *collectorQdiscIfaces
 
 	if fixtures == "" {
 		msgs, err = qdisc.Get()
@@ -100,10 +103,30 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	if ifaces == nil {
+		defaultIfaces = true
+	} else {
+		defaultIfaces = false
+	}
+
 	for _, msg := range msgs {
-		// Only report root qdisc information.
-		if msg.Parent != 0 {
-			continue
+		if defaultIfaces {
+			// Only report root qdisc information.
+			if msg.Parent != 0 {
+				continue
+			}
+		} else {
+			foundIface := false
+			for _, iface := range ifaces {
+				if iface == msg.IfaceName {
+					foundIface = true
+					break
+				}
+			}
+
+			if !foundIface {
+				continue
+			}
 		}
 
 		ch <- c.bytes.mustNewConstMetric(float64(msg.Bytes), msg.IfaceName, msg.Kind)

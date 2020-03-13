@@ -13,6 +13,7 @@
 
 ### Changes
 
+* [ENHANCEMENT] Add `--collector.qdisc.iface` for specifying network interface for qdisc stats.
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417
