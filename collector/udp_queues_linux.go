@@ -34,7 +34,7 @@ type (
 )
 
 func init() {
-	registerCollector("udp_queues", defaultDisabled, NewUDPqueuesCollector)
+	registerCollector("udp_queues", defaultEnabled, NewUDPqueuesCollector)
 }
 
 // NewUDPqueuesCollector returns a new Collector exposing network udp queued bytes.

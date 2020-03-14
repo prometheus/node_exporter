@@ -60,6 +60,7 @@ textfile | Exposes statistics read from local disk. The `--collector.textfile.di
 thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/class/thermal`. | Linux
 time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
+udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
 uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
@@ -113,7 +114,6 @@ runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
-udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 

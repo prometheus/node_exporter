@@ -38,6 +38,7 @@ enabled_collectors=$(cat << COLLECTORS
   thermal_zone
   textfile
   bonding
+  udp_queues 
   vmstat
   wifi
   xfs
