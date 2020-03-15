@@ -310,8 +310,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
-github.com/tomwilkie/iostat v0.0.0-20200315130352-9dd29a371515 h1:AFgQAZizXVfJmEXbHIx574Bpppn7Rhm7n5l7goI4ZD0=
-github.com/tomwilkie/iostat v0.0.0-20200315130352-9dd29a371515/go.mod h1:p2FqcavvJ7T+Bxi+uBIASRIBhkIQ8oKZbs6Cj4xgVog=
+github.com/tomwilkie/iostat v0.0.0-20200315132525-1e5139ea8325 h1:vq5NN30ny2gDI3iicP/HFmayR+5h+z9gVj0JDmFb4/4=
+github.com/tomwilkie/iostat v0.0.0-20200315132525-1e5139ea8325/go.mod h1:p2FqcavvJ7T+Bxi+uBIASRIBhkIQ8oKZbs6Cj4xgVog=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=

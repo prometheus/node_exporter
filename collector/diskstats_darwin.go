@@ -153,6 +153,34 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 					return float64(stat.WriteErrors)
 				},
 			},
+			{
+				typedDesc: typedDesc{
+					desc: prometheus.NewDesc(
+						prometheus.BuildFQName(namespace, diskSubsystem, "read_retries_total"),
+						"The total number of read retries.",
+						diskLabelNames,
+						nil,
+					),
+					valueType: prometheus.CounterValue,
+				},
+				value: func(stat *iostat.DriveStats) float64 {
+					return float64(stat.ReadRetries)
+				},
+			},
+			{
+				typedDesc: typedDesc{
+					desc: prometheus.NewDesc(
+						prometheus.BuildFQName(namespace, diskSubsystem, "write_retries_total"),
+						"The total number of write retries.",
+						diskLabelNames,
+						nil,
+					),
+					valueType: prometheus.CounterValue,
+				},
+				value: func(stat *iostat.DriveStats) float64 {
+					return float64(stat.WriteRetries)
+				},
+			},
 		},
 		logger: logger,
 	}, nil

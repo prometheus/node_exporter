@@ -30,6 +30,6 @@ require (
 	gopkg.in/yaml.v2 v2.2.8
 )
 
-replace github.com/lufia/iostat => github.com/tomwilkie/iostat v0.0.0-20200315130352-9dd29a371515
+replace github.com/lufia/iostat => github.com/tomwilkie/iostat v0.0.0-20200315132525-1e5139ea8325
 
 go 1.13
