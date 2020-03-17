@@ -18,7 +18,7 @@ require (
 	github.com/prometheus/client_golang v1.4.1
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.9.1
-	github.com/prometheus/procfs v0.0.10
+	github.com/prometheus/procfs v0.0.11-0.20200317004316-46159f73e74d
 	github.com/siebenmann/go-kstat v0.0.0-20160321171754-d34789b79745
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	go.uber.org/atomic v1.5.1 // indirect
