@@ -9,7 +9,7 @@ require (
 	github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 	github.com/golang/protobuf v1.3.3 // indirect
 	github.com/hodgesds/perf-utils v0.0.8
-	github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
+	github.com/lufia/iostat v1.1.0
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/genetlink v1.0.0 // indirect
 	github.com/mdlayher/netlink v1.1.0 // indirect
@@ -29,7 +29,5 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.2.8
 )
-
-replace github.com/lufia/iostat => github.com/tomwilkie/iostat v0.0.0-20200315132525-1e5139ea8325
 
 go 1.13
