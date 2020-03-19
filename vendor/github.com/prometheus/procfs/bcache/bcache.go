@@ -29,7 +29,7 @@ type Stats struct {
 }
 
 // BcacheStats contains statistics tied to a bcache ID.
-type BcacheStats struct {
+type BcacheStats struct { // nolint:golint
 	AverageKeySize        uint64
 	BtreeCacheSize        uint64
 	CacheAvailablePercent uint64
