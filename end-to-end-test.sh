@@ -105,6 +105,7 @@ fi
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --collector.netclass.ignored-devices="(bond0|dmz|int)" \
+  --collector.bcache.priorityStats \
   --collector.cpu.info \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
