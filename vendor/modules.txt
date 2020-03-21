@@ -30,7 +30,7 @@ github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/hodgesds/perf-utils v0.0.8
 github.com/hodgesds/perf-utils
-# github.com/lufia/iostat v0.0.0-20170605150913-9f7362b77ad3
+# github.com/lufia/iostat v1.1.0
 github.com/lufia/iostat
 # github.com/mattn/go-xmlrpc v0.0.3
 github.com/mattn/go-xmlrpc
