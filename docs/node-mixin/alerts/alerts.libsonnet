@@ -190,7 +190,7 @@
               (node_nf_conntrack_entries / node_nf_conntrack_entries_limit) > 0.75
             ||| % $._config,
             annotations: {
-              summary: 'Number of conntrack are getting close to the limit'
+              summary: 'Number of conntrack are getting close to the limit',
               description: '{{ $value | humanizePercentage }} of conntrack entries are used',
             },
             labels: {
