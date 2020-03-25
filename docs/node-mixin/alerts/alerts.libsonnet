@@ -207,7 +207,7 @@
               )
               or
               (
-                node_timex_offset_seconds < 0.05
+                node_timex_offset_seconds < -0.05
               and
                 deriv(node_timex_offset_seconds[5m]) <= 0
               )
