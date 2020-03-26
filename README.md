@@ -99,6 +99,7 @@ configuration is zero indexed and can also take a stride value
 Name     | Description | OS
 ---------|-------------|----
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
+crio | crio runtime metrics | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
