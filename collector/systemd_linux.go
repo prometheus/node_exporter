@@ -469,7 +469,8 @@ func getSystemdVersion(logger log.Logger) int {
 		level.Warn(logger).Log("msg", "Unable to get systemd version property, defaulting to 0")
 		return 0
 	}
-	version = strings.Replace(version, "\"", "", 2)
+	re := regexp.MustCompile(`[0-9][0-9][0-9]`)
+	version = re.FindString(version)
 	v, err := strconv.Atoi(version)
 	if err != nil {
 		level.Warn(logger).Log("msg", "Got invalid systemd version", "version", version)
