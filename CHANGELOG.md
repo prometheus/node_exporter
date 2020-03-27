@@ -4,7 +4,7 @@
 * [FEATURE]
 * [ENHANCEMENT] Add model_name and stepping to node_cpu_info metric #1617
 * [ENHANCEMENT] Add metrics for IO errors and retires on Darwin. #1636
-* [BUGFIX]
+* [BUGFIX] collector/systemd: use regexp to extract systemd version #1647
 
 ## 1.0.0-rc.0 / 2020-02-20
 
