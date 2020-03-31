@@ -223,6 +223,46 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabel:      []string{"backing_device"},
 				extraLabelValue: bdev.Name,
 			},
+			{
+				name:            "dirty_target_bytes",
+				desc:            "Current dirty data target threshold in bytes.",
+				value:           float64(bdev.WritebackRateDebug.Target),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_rate",
+				desc:            "Current writeback rate in bytes.",
+				value:           float64(bdev.WritebackRateDebug.Rate),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_rate_proportinal_term",
+				desc:            "Current result of proportional controller, part of writeback rate",
+				value:           float64(bdev.WritebackRateDebug.Proportional),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_rate_integral_term",
+				desc:            "Current result of integral controller, part of writeback rate",
+				value:           float64(bdev.WritebackRateDebug.Integral),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_change",
+				desc:            "Last writeback rate change.",
+				value:           float64(bdev.WritebackRateDebug.Change),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
 		}
 		allMetrics = append(allMetrics, metrics...)
 
