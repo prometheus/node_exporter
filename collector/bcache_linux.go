@@ -225,7 +225,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			},
 			{
 				name:            "dirty_target_bytes",
-				desc:            "Current dirty data target threshold in bytes.",
+				desc:            "Current dirty data target threshold for this backing device in bytes.",
 				value:           float64(bdev.WritebackRateDebug.Target),
 				metricType:      prometheus.GaugeValue,
 				extraLabel:      []string{"backing_device"},
@@ -233,7 +233,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			},
 			{
 				name:            "writeback_rate",
-				desc:            "Current writeback rate in bytes.",
+				desc:            "Current writeback rate for this backing device in bytes.",
 				value:           float64(bdev.WritebackRateDebug.Rate),
 				metricType:      prometheus.GaugeValue,
 				extraLabel:      []string{"backing_device"},
@@ -257,7 +257,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			},
 			{
 				name:            "writeback_change",
-				desc:            "Last writeback rate change.",
+				desc:            "Last writeback rate change step for this backing device.",
 				value:           float64(bdev.WritebackRateDebug.Change),
 				metricType:      prometheus.GaugeValue,
 				extraLabel:      []string{"backing_device"},
