@@ -35,7 +35,8 @@ type TLSStruct struct {
 	ClientCAs   string `yaml:"clientCAs"`
 }
 
-func getTLSConfig(configPath string) (*tls.Config, error) {
+// GetTLSConfig unmarshals TLS configuration at the given configPath and returns a *tls.Config.
+func GetTLSConfig(configPath string) (*tls.Config, error) {
 	content, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return nil, err
@@ -110,14 +111,14 @@ func Listen(server *http.Server, tlsConfigPath string) error {
 		return server.ListenAndServe()
 	}
 	var err error
-	server.TLSConfig, err = getTLSConfig(tlsConfigPath)
+	server.TLSConfig, err = GetTLSConfig(tlsConfigPath)
 	if err != nil {
 		return err
 	}
 	// Set the GetConfigForClient method of the HTTPS server so that the config
 	// and certs are reloaded on new connections.
 	server.TLSConfig.GetConfigForClient = func(*tls.ClientHelloInfo) (*tls.Config, error) {
-		return getTLSConfig(tlsConfigPath)
+		return GetTLSConfig(tlsConfigPath)
 	}
 	return server.ListenAndServeTLS("", "")
 }
