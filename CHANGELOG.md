@@ -41,6 +41,7 @@
 * [FEATURE] Add Btrfs collector #1512
 * [FEATURE] Add RAPL collector #1523
 * [FEATURE] Add new softnet collector #1576
+* [FEATURE] Add new udp_queues collector #1503
 * [ENHANCEMENT] Log pid when there is a problem reading the process stats #1341
 * [ENHANCEMENT] Collect InfiniBand port state and physical state #1357
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
