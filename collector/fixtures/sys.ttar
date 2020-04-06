@@ -2741,6 +2741,49 @@ Lines: 1
 1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/cpu/vulnerabilities
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/itlb_multihit
+Lines: 1
+Not affected
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/l1tf
+Lines: 1
+Not affected
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/mds
+Lines: 1
+Not affected
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/meltdown
+Lines: 1
+Not affected
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/spec_store_bypass
+Lines: 1
+Mitigation: Speculative Store Bypass disabled via prctl and seccomp
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/spectre_v1
+Lines: 1
+Mitigation: usercopy/swapgs barriers and __user pointer sanitization
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/spectre_v2
+Lines: 1
+Mitigation: Full AMD retpoline, IBPB: conditional, STIBP: disabled, RSB filling
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/vulnerabilities/tsx_async_abort
+Lines: 1
+Not affected
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/edac
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

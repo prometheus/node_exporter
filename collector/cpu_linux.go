@@ -17,8 +17,10 @@ package collector
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -91,6 +93,33 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateThermalThrottle(ch); err != nil {
 		return err
 	}
+	if err := c.updateVulnerabilities(ch); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *cpuCollector) updateVulnerabilities(ch chan<- prometheus.Metric) error {
+	path := sysFilePath("devices/system/cpu/vulnerabilities/")
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		return err
+	}
+
+	var names []string
+	var vulns []string
+	for _, file := range files {
+		value, err := sysReadFile(filepath.Join(path, file.Name()))
+		if err != nil {
+			return err
+		}
+		names = append(names, file.Name())
+		vulns = append(vulns, strings.TrimRight(string(value), "\n"))
+	}
+	desc := prometheus.NewDesc(prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "vulnerabilities"),
+		"CPU vulnerabilities from /sys/devices/system/cpu/vulnerabilities/",
+		names, nil)
+	ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0, vulns...)
 	return nil
 }
 

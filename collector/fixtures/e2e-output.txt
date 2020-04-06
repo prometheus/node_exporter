@@ -354,6 +354,9 @@ node_cpu_seconds_total{cpu="7",mode="softirq"} 0.31
 node_cpu_seconds_total{cpu="7",mode="steal"} 0
 node_cpu_seconds_total{cpu="7",mode="system"} 101.64
 node_cpu_seconds_total{cpu="7",mode="user"} 290.98
+# HELP node_cpu_vulnerabilities CPU vulnerabilities from /sys/devices/system/cpu/vulnerabilities/
+# TYPE node_cpu_vulnerabilities gauge
+node_cpu_vulnerabilities{itlb_multihit="Not affected",l1tf="Not affected",mds="Not affected",meltdown="Not affected",spec_store_bypass="Mitigation: Speculative Store Bypass disabled via prctl and seccomp",spectre_v1="Mitigation: usercopy/swapgs barriers and __user pointer sanitization",spectre_v2="Mitigation: Full AMD retpoline, IBPB: conditional, STIBP: disabled, RSB filling",tsx_async_abort="Not affected"} 0
 # HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
