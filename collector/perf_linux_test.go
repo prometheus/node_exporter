@@ -25,7 +25,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func canTestPerf(t *testing.T) bool {
+func canTestPerf(t *testing.T) {
 	paranoidBytes, err := ioutil.ReadFile("/proc/sys/kernel/perf_event_paranoid")
 	if err != nil {
 		t.Skip("Procfs not mounted, skipping perf tests")
@@ -63,7 +63,9 @@ func TestPerfCollectorStride(t *testing.T) {
 	canTestPerf(t)
 
 	tests := []struct {
-		name string
+		name   string
+		flag   string
+		exCpus []int
 	}{
 		{
 			name:   "valid single cpu",
@@ -101,14 +103,16 @@ func TestPerfCollectorStride(t *testing.T) {
 			}
 
 			c := collector.(*perfCollector)
-			if len(c.perfHwProfilers) != len(c.hwProfilerCPUMap) != test.exCpus {
-				t.Fatalf("Expected %v profilers, got: %v", test.exCpus, c.perfHwProfilers)
-			}
-			if len(c.perfSwProfilers) != len(c.swProfilerCPUMap) != test.exCpus {
-				t.Fatalf("Expected %v profilers, got: %v", test.exCpus, c.perfHwProfilers)
-			}
-			if len(c.perfCacheProfilers) != len(c.cacheProfilerCPUMap) != test.exCpus {
-				t.Fatalf("Expected %v profilers, got: %v", test.exCpus, c.perfHwProfilers)
+			for _, cpu := range test.exCpus {
+				if _, ok := c.perfHwProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in hardware profilers", cpu)
+				}
+				if _, ok := c.perfSwProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in software profilers", cpu)
+				}
+				if _, ok := c.perfCacheProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in cache profilers", cpu)
+				}
 			}
 		})
 	}
