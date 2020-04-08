@@ -78,24 +78,20 @@ func TestPerfCollectorStride(t *testing.T) {
 			exCpus: []int{1, 2, 3, 4, 5},
 		},
 		{
-			name:   "valid double digit",
-			flag:   "10",
-			exCpus: []int{10},
-		},
-		{
-			name:   "valid double digit range",
-			flag:   "10-12",
-			exCpus: []int{10, 11, 12},
-		},
-		{
-			name:   "valid double digit stride",
-			flag:   "10-20:5",
-			exCpus: []int{10, 15, 20},
+			name:   "valid stride",
+			flag:   "1-8:2",
+			exCpus: []int{1, 3, 5, 7},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			ncpu := runtime.NumCPU()
+			for _, cpu := range test.exCpus {
+				if cpu > ncpu {
+					t.Skipf("Skipping test because runtime.NumCPU < %d", cpu)
+				}
+			}
 			perfCPUsFlag = &test.flag
 			collector, err := NewPerfCollector(log.NewNopLogger())
 			if err != nil {
