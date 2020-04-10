@@ -514,7 +514,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	mountsInfo, err := c.proc.MountInfo()
 	if err != nil {
-		return fmt.Errorf("failed to parse mountinfo: %w", err)
+		level.Warn(c.logger).Log("msg", "failed to parse mountinfo", "err", err)
 	}
 
 	// store all seen nfsDeviceIdentifiers for deduplication
