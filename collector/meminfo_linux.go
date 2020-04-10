@@ -45,6 +45,9 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Fields(line)
+		if len(parts) == 0 {
+			continue
+		}
 		fv, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
 			return nil, fmt.Errorf("invalid value in meminfo: %s", err)
