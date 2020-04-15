@@ -131,13 +131,13 @@ func TestPerfCPUFlagToCPUs(t *testing.T) {
 func TestPerfTracepointFlagToTracepoints(t *testing.T) {
 	tests := []struct {
 		name          string
-		flag          string
+		flag          []string
 		exTracepoints []*perfTracepoint
 		errStr        string
 	}{
 		{
 			name: "valid single tracepoint",
-			flag: "sched:sched_kthread_stop",
+			flag: []string{"sched:sched_kthread_stop"},
 			exTracepoints: []*perfTracepoint{
 				{
 					subsystem: "sched",
@@ -147,7 +147,7 @@ func TestPerfTracepointFlagToTracepoints(t *testing.T) {
 		},
 		{
 			name: "valid multiple tracepoints",
-			flag: "sched:sched_kthread_stop,sched:sched_process_fork",
+			flag: []string{"sched:sched_kthread_stop", "sched:sched_process_fork"},
 			exTracepoints: []*perfTracepoint{
 				{
 					subsystem: "sched",

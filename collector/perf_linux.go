@@ -32,8 +32,8 @@ const (
 )
 
 var (
-	perfCPUsFlag        = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
-	perfTracepointsFlag = kingpin.Flag("collector.perf.tracepoints", "perf tracepoint that should be collected").Default("").String()
+	perfCPUsFlag       = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
+	perfTracepointFlag = kingpin.Flag("collector.perf.tracepoint", "perf tracepoint that should be collected").Strings()
 )
 
 func init() {
@@ -41,11 +41,10 @@ func init() {
 }
 
 // perfTracepointFlagToTracepoints returns the set of configured tracepoints.
-func perfTracepointFlagToTracepoints(tracepointFlag string) ([]*perfTracepoint, error) {
-	tracepointStrs := strings.Split(tracepointFlag, ",")
-	tracepoints := make([]*perfTracepoint, len(tracepointStrs))
+func perfTracepointFlagToTracepoints(tracepointsFlag []string) ([]*perfTracepoint, error) {
+	tracepoints := make([]*perfTracepoint, len(tracepointsFlag))
 
-	for i, tracepoint := range tracepointStrs {
+	for i, tracepoint := range tracepointsFlag {
 		split := strings.Split(tracepoint, ":")
 		if len(split) != 2 {
 			return nil, fmt.Errorf("Invalid tracepoint config %v", tracepoint)
@@ -183,10 +182,10 @@ func (c *perfTracepointCollector) updateCPU(cpu int, ch chan<- prometheus.Metric
 // newPerfTracepointCollector returns a configured perfTracepointCollector.
 func newPerfTracepointCollector(
 	logger log.Logger,
-	tracepointFlag string,
+	tracepointsFlag []string,
 	cpus []int,
 ) (*perfTracepointCollector, error) {
-	tracepoints, err := perfTracepointFlagToTracepoints(tracepointFlag)
+	tracepoints, err := perfTracepointFlagToTracepoints(tracepointsFlag)
 	if err != nil {
 		return nil, err
 	}
@@ -271,8 +270,8 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 	}
 
 	// First configure any tracepoints.
-	if *perfTracepointsFlag != "" {
-		tracepointCollector, err := newPerfTracepointCollector(logger, *perfTracepointsFlag, cpus)
+	if *perfTracepointFlag != nil && len(*perfTracepointFlag) > 0 {
+		tracepointCollector, err := newPerfTracepointCollector(logger, *perfTracepointFlag, cpus)
 		if err != nil {
 			return nil, err
 		}
