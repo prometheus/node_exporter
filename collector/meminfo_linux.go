@@ -45,6 +45,7 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Fields(line)
+		// Workaround for empty lines occasionally occur in CentOS 6.2 kernel 3.10.90.
 		if len(parts) == 0 {
 			continue
 		}
