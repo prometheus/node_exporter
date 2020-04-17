@@ -180,8 +180,74 @@ func TestPerfCPUFlagToCPUs(t *testing.T) {
 				if test.exCpus[i] != cpus[i] {
 					t.Fatalf(
 						"expected cpus %v, got %v",
-						test.exCpus,
-						cpus,
+						test.exCpus[i],
+						cpus[i],
+					)
+				}
+			}
+		})
+	}
+}
+
+func TestPerfTracepointFlagToTracepoints(t *testing.T) {
+	tests := []struct {
+		name          string
+		flag          []string
+		exTracepoints []*perfTracepoint
+		errStr        string
+	}{
+		{
+			name: "valid single tracepoint",
+			flag: []string{"sched:sched_kthread_stop"},
+			exTracepoints: []*perfTracepoint{
+				{
+					subsystem: "sched",
+					event:     "sched_kthread_stop",
+				},
+			},
+		},
+		{
+			name: "valid multiple tracepoints",
+			flag: []string{"sched:sched_kthread_stop", "sched:sched_process_fork"},
+			exTracepoints: []*perfTracepoint{
+				{
+					subsystem: "sched",
+					event:     "sched_kthread_stop",
+				},
+				{
+					subsystem: "sched",
+					event:     "sched_process_fork",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			tracepoints, err := perfTracepointFlagToTracepoints(test.flag)
+			if test.errStr != "" {
+				if err != nil {
+					t.Fatal("expected error to not be nil")
+				}
+				if test.errStr != err.Error() {
+					t.Fatalf(
+						"expected error %q, got %q",
+						test.errStr,
+						err.Error(),
+					)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			for i := range tracepoints {
+				if test.exTracepoints[i].event != tracepoints[i].event &&
+					test.exTracepoints[i].subsystem != tracepoints[i].subsystem {
+					t.Fatalf(
+						"expected tracepoint %v, got %v",
+						test.exTracepoints[i],
+						tracepoints[i],
 					)
 				}
 			}

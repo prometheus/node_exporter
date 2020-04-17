@@ -96,6 +96,13 @@ configuration is zero indexed and can also take a stride value; e.g.
 `--collector.perf --collector.perf.cpus=1-10:5` would collect on CPUs
 1, 5, and 10.
 
+The perf collector is also able to collect
+[tracepoint](https://www.kernel.org/doc/html/latest/core-api/tracepoint.html)
+counts when using the `--collector.perf.tracepoint` flag. Tracepoints can be
+found using [`perf list`](http://man7.org/linux/man-pages/man1/perf.1.html) or
+from debugfs. And example usage of this would be
+`--collector.perf.tracepoint="sched:sched_process_exec"`.
+
 
 Name     | Description | OS
 ---------|-------------|----

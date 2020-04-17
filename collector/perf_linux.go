@@ -20,8 +20,10 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -30,27 +32,29 @@ const (
 )
 
 var (
-	perfCPUsFlag = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
+	perfCPUsFlag       = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
+	perfTracepointFlag = kingpin.Flag("collector.perf.tracepoint", "perf tracepoint that should be collected").Strings()
 )
 
 func init() {
 	registerCollector(perfSubsystem, defaultDisabled, NewPerfCollector)
 }
 
-// perfCollector is a Collector that uses the perf subsystem to collect
-// metrics. It uses perf_event_open an ioctls for profiling. Due to the fact
-// that the perf subsystem is highly dependent on kernel configuration and
-// settings not all profiler values may be exposed on the target system at any
-// given time.
-type perfCollector struct {
-	hwProfilerCPUMap    map[*perf.HardwareProfiler]int
-	swProfilerCPUMap    map[*perf.SoftwareProfiler]int
-	cacheProfilerCPUMap map[*perf.CacheProfiler]int
-	perfHwProfilers     map[int]*perf.HardwareProfiler
-	perfSwProfilers     map[int]*perf.SoftwareProfiler
-	perfCacheProfilers  map[int]*perf.CacheProfiler
-	desc                map[string]*prometheus.Desc
-	logger              log.Logger
+// perfTracepointFlagToTracepoints returns the set of configured tracepoints.
+func perfTracepointFlagToTracepoints(tracepointsFlag []string) ([]*perfTracepoint, error) {
+	tracepoints := make([]*perfTracepoint, len(tracepointsFlag))
+
+	for i, tracepoint := range tracepointsFlag {
+		split := strings.Split(tracepoint, ":")
+		if len(split) != 2 {
+			return nil, fmt.Errorf("Invalid tracepoint config %v", tracepoint)
+		}
+		tracepoints[i] = &perfTracepoint{
+			subsystem: split[0],
+			event:     split[1],
+		}
+	}
+	return tracepoints, nil
 }
 
 // perfCPUFlagToCPUs returns a set of CPUs for the perf collectors to monitor.
@@ -98,6 +102,144 @@ func perfCPUFlagToCPUs(cpuFlag string) ([]int, error) {
 	return cpus, nil
 }
 
+// perfTracepoint is a struct for holding tracepoint information.
+type perfTracepoint struct {
+	subsystem string
+	event     string
+}
+
+// label returns the tracepoint name in the format of subsystem_tracepoint.
+func (t *perfTracepoint) label() string {
+	return t.subsystem + "_" + t.event
+}
+
+// tracepoint returns the tracepoint name in the format of subsystem:tracepoint.
+func (t *perfTracepoint) tracepoint() string {
+	return t.subsystem + ":" + t.event
+}
+
+// perfCollector is a Collector that uses the perf subsystem to collect
+// metrics. It uses perf_event_open an ioctls for profiling. Due to the fact
+// that the perf subsystem is highly dependent on kernel configuration and
+// settings not all profiler values may be exposed on the target system at any
+// given time.
+type perfCollector struct {
+	hwProfilerCPUMap    map[*perf.HardwareProfiler]int
+	swProfilerCPUMap    map[*perf.SoftwareProfiler]int
+	cacheProfilerCPUMap map[*perf.CacheProfiler]int
+	perfHwProfilers     map[int]*perf.HardwareProfiler
+	perfSwProfilers     map[int]*perf.SoftwareProfiler
+	perfCacheProfilers  map[int]*perf.CacheProfiler
+	desc                map[string]*prometheus.Desc
+	logger              log.Logger
+	tracepointCollector *perfTracepointCollector
+}
+
+type perfTracepointCollector struct {
+	// desc is the mapping of subsystem to tracepoint *prometheus.Desc.
+	descs map[string]map[string]*prometheus.Desc
+	// collection order is the sorted configured collection order of the profiler.
+	collectionOrder []string
+
+	logger    log.Logger
+	profilers map[int]perf.GroupProfiler
+}
+
+// update is used collect all tracepoints across all tracepoint profilers.
+func (c *perfTracepointCollector) update(ch chan<- prometheus.Metric) error {
+	for cpu := range c.profilers {
+		if err := c.updateCPU(cpu, ch); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// updateCPU is used to update metrics per CPU profiler.
+func (c *perfTracepointCollector) updateCPU(cpu int, ch chan<- prometheus.Metric) error {
+	cpuStr := fmt.Sprintf("%d", cpu)
+	profiler := c.profilers[cpu]
+	p, err := profiler.Profile()
+	if err != nil {
+		level.Error(c.logger).Log("msg", "Failed to collect tracepoint profile", "err", err)
+		return err
+	}
+
+	for i, value := range p.Values {
+		// Get the Desc from the ordered group value.
+		descKey := c.collectionOrder[i]
+		descKeySlice := strings.Split(descKey, ":")
+		ch <- prometheus.MustNewConstMetric(
+			c.descs[descKeySlice[0]][descKeySlice[1]],
+			prometheus.CounterValue,
+			float64(value),
+			cpuStr,
+		)
+	}
+	return nil
+}
+
+// newPerfTracepointCollector returns a configured perfTracepointCollector.
+func newPerfTracepointCollector(
+	logger log.Logger,
+	tracepointsFlag []string,
+	cpus []int,
+) (*perfTracepointCollector, error) {
+	tracepoints, err := perfTracepointFlagToTracepoints(tracepointsFlag)
+	if err != nil {
+		return nil, err
+	}
+
+	collectionOrder := make([]string, len(tracepoints))
+	descs := map[string]map[string]*prometheus.Desc{}
+	eventAttrs := make([]unix.PerfEventAttr, len(tracepoints))
+
+	for i, tracepoint := range tracepoints {
+		eventAttr, err := perf.TracepointEventAttr(tracepoint.subsystem, tracepoint.event)
+		if err != nil {
+			return nil, err
+		}
+		eventAttrs[i] = *eventAttr
+		collectionOrder[i] = tracepoint.tracepoint()
+		if _, ok := descs[tracepoint.subsystem]; !ok {
+			descs[tracepoint.subsystem] = map[string]*prometheus.Desc{}
+		}
+		descs[tracepoint.subsystem][tracepoint.event] = prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				tracepoint.label(),
+			),
+			"Perf tracepoint "+tracepoint.tracepoint(),
+			[]string{"cpu"},
+			nil,
+		)
+	}
+
+	profilers := make(map[int]perf.GroupProfiler, len(cpus))
+	for _, cpu := range cpus {
+		profiler, err := perf.NewGroupProfiler(-1, cpu, 0, eventAttrs...)
+		if err != nil {
+			return nil, err
+		}
+		profilers[cpu] = profiler
+	}
+
+	c := &perfTracepointCollector{
+		descs:           descs,
+		collectionOrder: collectionOrder,
+		profilers:       profilers,
+		logger:          logger,
+	}
+
+	for _, profiler := range c.profilers {
+		if err := profiler.Start(); err != nil {
+			return nil, err
+		}
+	}
+	return c, nil
+}
+
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
 func NewPerfCollector(logger log.Logger) (Collector, error) {
@@ -127,6 +269,16 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 		}
 	}
 
+	// First configure any tracepoints.
+	if *perfTracepointFlag != nil && len(*perfTracepointFlag) > 0 {
+		tracepointCollector, err := newPerfTracepointCollector(logger, *perfTracepointFlag, cpus)
+		if err != nil {
+			return nil, err
+		}
+		collector.tracepointCollector = tracepointCollector
+	}
+
+	// Configure all profilers for the specified CPUs.
 	for _, cpu := range cpus {
 		// Use -1 to profile all processes on the CPU, see:
 		// man perf_event_open
@@ -410,6 +562,9 @@ func (c *perfCollector) Update(ch chan<- prometheus.Metric) error {
 
 	if err := c.updateCacheStats(ch); err != nil {
 		return err
+	}
+	if c.tracepointCollector != nil {
+		return c.tracepointCollector.update(ch)
 	}
 
 	return nil
