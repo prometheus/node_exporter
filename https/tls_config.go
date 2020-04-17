@@ -45,11 +45,10 @@ func getTLSConfig(configPath string) (*tls.Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ConfigToTLSConfig(&c.TLSConfig)
+	return configToTLSConfig(&c.TLSConfig)
 }
 
-// ConfigToTLSConfig generates the golang tls.Config from the TLSStruct config.
-func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
+func configToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 	cfg := &tls.Config{}
 	if len(c.TLSCertPath) == 0 {
 		return nil, errors.New("missing TLSCertPath")
