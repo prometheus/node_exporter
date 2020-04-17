@@ -16,16 +16,18 @@
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
 	"io/ioutil"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/go-kit/kit/log"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func TestPerfCollector(t *testing.T) {
+func canTestPerf(t *testing.T) {
 	paranoidBytes, err := ioutil.ReadFile("/proc/sys/kernel/perf_event_paranoid")
 	if err != nil {
 		t.Skip("Procfs not mounted, skipping perf tests")
@@ -38,6 +40,10 @@ func TestPerfCollector(t *testing.T) {
 	if paranoid >= 1 {
 		t.Skip("Skipping perf tests, set perf_event_paranoid to 0")
 	}
+}
+
+func TestPerfCollector(t *testing.T) {
+	canTestPerf(t)
 	collector, err := NewPerfCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
@@ -52,6 +58,61 @@ func TestPerfCollector(t *testing.T) {
 	}()
 	if err := collector.Update(metrics); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestPerfCollectorStride(t *testing.T) {
+	canTestPerf(t)
+
+	tests := []struct {
+		name   string
+		flag   string
+		exCpus []int
+	}{
+		{
+			name:   "valid single cpu",
+			flag:   "1",
+			exCpus: []int{1},
+		},
+		{
+			name:   "valid range cpus",
+			flag:   "1-5",
+			exCpus: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:   "valid stride",
+			flag:   "1-8:2",
+			exCpus: []int{1, 3, 5, 7},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ncpu := runtime.NumCPU()
+			for _, cpu := range test.exCpus {
+				if cpu > ncpu {
+					t.Skipf("Skipping test because runtime.NumCPU < %d", cpu)
+				}
+			}
+			perfCPUsFlag = &test.flag
+			collector, err := NewPerfCollector(log.NewNopLogger())
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			c := collector.(*perfCollector)
+			for _, cpu := range test.exCpus {
+				if _, ok := c.perfHwProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in hardware profilers", cpu)
+				}
+				if _, ok := c.perfSwProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in software profilers", cpu)
+				}
+				if _, ok := c.perfCacheProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in cache profilers", cpu)
+				}
+			}
+		})
 	}
 }
 
