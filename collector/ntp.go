@@ -35,7 +35,7 @@ const (
 var (
 	ntpServer          = kingpin.Flag("collector.ntp.server", "NTP server to use for ntp collector").Default("127.0.0.1").String()
 	ntpProtocolVersion = kingpin.Flag("collector.ntp.protocol-version", "NTP protocol version").Default("4").Int()
-	ntpServerIsLocal   = kingpin.Flag("collector.ntp.server-is-local", "Certify that collector.ntp.server address is the same local host as this collector.").Default("false").Bool()
+	ntpServerIsLocal   = kingpin.Flag("collector.ntp.server-is-local", "Certify that collector.ntp.server address is not a public ntp server").Default("false").Bool()
 	ntpIPTTL           = kingpin.Flag("collector.ntp.ip-ttl", "IP TTL to use while sending NTP query").Default("1").Int()
 	// 3.46608s ~ 1.5s + PHI * (1 << maxPoll), where 1.5s is MAXDIST from ntp.org, it is 1.0 in RFC5905
 	// max-distance option is used as-is without phi*(1<<poll)
