@@ -235,6 +235,20 @@
               message: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
             },
           },
+          {
+            alert: 'NodeTemperatureIsGettingHigh',
+            expr: |||
+              predict_linear(node_hwmon_temp_celsius{%(nodeExporterSelector)s}[30m], 5 * 60) > node_hwmon_temp_crit_celsius{%(nodeExporterSelector)s}
+            ||| % $._config,
+            'for': '2m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Node is predicted to reach critical temperature within next 5 minutes.',
+              description: 'Node chip {{ $labels.chip }} sensor {{ $labels.sensor }} at {{ $labels.instance }} is at {{ printf "%.2f" $value }} celsius.',
+            },
+          },
         ],
       },
     ],
