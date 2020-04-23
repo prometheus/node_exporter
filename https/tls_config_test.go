@@ -28,7 +28,8 @@ import (
 )
 
 var (
-	port = getPort()
+	port       = getPort()
+	testlogger = &testLogger{}
 
 	ErrorMap = map[string]*regexp.Regexp{
 		"HTTP Response to HTTPS":       regexp.MustCompile(`server gave HTTP response to HTTPS client`),
@@ -38,11 +39,20 @@ var (
 		"Invalid ClientAuth":           regexp.MustCompile(`invalid ClientAuth`),
 		"TLS handshake":                regexp.MustCompile(`tls`),
 		"HTTP Request to HTTPS server": regexp.MustCompile(`HTTP`),
-		"Invalid CertPath":             regexp.MustCompile(`missing TLSCertPath`),
-		"Invalid KeyPath":              regexp.MustCompile(`missing TLSKeyPath`),
+		"Invalid CertPath":             regexp.MustCompile(`missing cert_file`),
+		"Invalid KeyPath":              regexp.MustCompile(`missing key_file`),
 		"ClientCA set without policy":  regexp.MustCompile(`Client CA's have been configured without a Client Auth Policy`),
+		"Bad password":                 regexp.MustCompile(`hashedSecret too short to be a bcrypted password`),
+		"Unauthorized":                 regexp.MustCompile(`Unauthorized`),
+		"Forbidden":                    regexp.MustCompile(`Forbidden`),
 	}
 )
+
+type testLogger struct{}
+
+func (t *testLogger) Log(keyvals ...interface{}) error {
+	return nil
+}
 
 func getPort() string {
 	listener, err := net.Listen("tcp", ":0")
@@ -61,6 +71,8 @@ type TestInputs struct {
 	YAMLConfigPath string
 	ExpectedError  *regexp.Regexp
 	UseTLSClient   bool
+	Username       string
+	Password       string
 }
 
 func TestYAMLFiles(t *testing.T) {
@@ -73,11 +85,16 @@ func TestYAMLFiles(t *testing.T) {
 		{
 			Name:           `empty config yml`,
 			YAMLConfigPath: "testdata/tls_config_empty.yml",
-			ExpectedError:  ErrorMap["Invalid CertPath"],
+			ExpectedError:  nil,
 		},
 		{
 			Name:           `invalid config yml (invalid structure)`,
 			YAMLConfigPath: "testdata/tls_config_junk.yml",
+			ExpectedError:  ErrorMap["YAML error"],
+		},
+		{
+			Name:           `invalid config yml (invalid key)`,
+			YAMLConfigPath: "testdata/tls_config_junk_key.yml",
 			ExpectedError:  ErrorMap["YAML error"],
 		},
 		{
@@ -119,6 +136,11 @@ func TestYAMLFiles(t *testing.T) {
 			Name:           `invalid config yml (invalid ClientCAs filepath)`,
 			YAMLConfigPath: "testdata/tls_config_auth_clientCAs_invalid.bad.yml",
 			ExpectedError:  ErrorMap["No such file"],
+		},
+		{
+			Name:           `invalid config yml (invalid user list)`,
+			YAMLConfigPath: "testdata/tls_config_auth_user_list_invalid.bad.yml",
+			ExpectedError:  ErrorMap["Bad password"],
 		},
 	}
 	for _, testInputs := range testTables {
@@ -189,7 +211,7 @@ func TestConfigReloading(t *testing.T) {
 				recordConnectionError(errors.New("Panic starting server"))
 			}
 		}()
-		err := Listen(server, badYAMLPath)
+		err := Listen(server, badYAMLPath, testlogger)
 		recordConnectionError(err)
 	}()
 
@@ -266,21 +288,28 @@ func (test *TestInputs) Test(t *testing.T) {
 				recordConnectionError(errors.New("Panic starting server"))
 			}
 		}()
-		err := Listen(server, test.YAMLConfigPath)
+		err := Listen(server, test.YAMLConfigPath, testlogger)
 		recordConnectionError(err)
 	}()
 
-	var ClientConnection func() (*http.Response, error)
-	if test.UseTLSClient {
-		ClientConnection = func() (*http.Response, error) {
-			client := getTLSClient()
-			return client.Get("https://localhost" + port)
+	ClientConnection := func() (*http.Response, error) {
+		var client *http.Client
+		var proto string
+		if test.UseTLSClient {
+			client = getTLSClient()
+			proto = "https"
+		} else {
+			client = http.DefaultClient
+			proto = "http"
 		}
-	} else {
-		ClientConnection = func() (*http.Response, error) {
-			client := http.DefaultClient
-			return client.Get("http://localhost" + port)
+		req, err := http.NewRequest("GET", proto+"://localhost"+port, nil)
+		if err != nil {
+			t.Error(err)
 		}
+		if test.Username != "" {
+			req.SetBasicAuth(test.Username, test.Password)
+		}
+		return client.Do(req)
 	}
 	go func() {
 		time.Sleep(250 * time.Millisecond)
@@ -359,4 +388,62 @@ func swapFileContents(file1, file2 string) error {
 		return err
 	}
 	return nil
+}
+
+func TestUsers(t *testing.T) {
+	testTables := []*TestInputs{
+		{
+			Name:           `without basic auth`,
+			YAMLConfigPath: "testdata/tls_config_users_noTLS.good.yml",
+			ExpectedError:  ErrorMap["Unauthorized"],
+		},
+		{
+			Name:           `with correct basic auth`,
+			YAMLConfigPath: "testdata/tls_config_users_noTLS.good.yml",
+			Username:       "dave",
+			Password:       "dave123",
+			ExpectedError:  nil,
+		},
+		{
+			Name:           `without basic auth and TLS`,
+			YAMLConfigPath: "testdata/tls_config_users.good.yml",
+			UseTLSClient:   true,
+			ExpectedError:  ErrorMap["Unauthorized"],
+		},
+		{
+			Name:           `with correct basic auth and TLS`,
+			YAMLConfigPath: "testdata/tls_config_users.good.yml",
+			UseTLSClient:   true,
+			Username:       "dave",
+			Password:       "dave123",
+			ExpectedError:  nil,
+		},
+		{
+			Name:           `with another correct basic auth and TLS`,
+			YAMLConfigPath: "testdata/tls_config_users.good.yml",
+			UseTLSClient:   true,
+			Username:       "carol",
+			Password:       "carol123",
+			ExpectedError:  nil,
+		},
+		{
+			Name:           `with bad password and TLS`,
+			YAMLConfigPath: "testdata/tls_config_users.good.yml",
+			UseTLSClient:   true,
+			Username:       "dave",
+			Password:       "bad",
+			ExpectedError:  ErrorMap["Forbidden"],
+		},
+		{
+			Name:           `with bad username and TLS`,
+			YAMLConfigPath: "testdata/tls_config_users.good.yml",
+			UseTLSClient:   true,
+			Username:       "nonexistent",
+			Password:       "nonexistent",
+			ExpectedError:  ErrorMap["Forbidden"],
+		},
+	}
+	for _, testInputs := range testTables {
+		t.Run(testInputs.Name, testInputs.Test)
+	}
 }
