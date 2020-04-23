@@ -25,14 +25,14 @@ import (
 )
 
 type Config struct {
-	TLSConfig TLSStruct `yaml:"tlsConfig"`
+	TLSConfig TLSStruct `yaml:"tls_config"`
 }
 
 type TLSStruct struct {
-	TLSCertPath string `yaml:"tlsCertPath"`
-	TLSKeyPath  string `yaml:"tlsKeyPath"`
-	ClientAuth  string `yaml:"clientAuth"`
-	ClientCAs   string `yaml:"clientCAs"`
+	TLSCertPath string `yaml:"cert_file"`
+	TLSKeyPath  string `yaml:"key_file"`
+	ClientAuth  string `yaml:"client_auth_type"`
+	ClientCAs   string `yaml:"client_ca_file"`
 }
 
 func getTLSConfig(configPath string) (*tls.Config, error) {
