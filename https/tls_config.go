@@ -50,7 +50,9 @@ func getTLSConfig(configPath string) (*tls.Config, error) {
 
 // ConfigToTLSConfig generates the golang tls.Config from the TLSStruct config.
 func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
-	cfg := &tls.Config{}
+	cfg := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
 	if len(c.TLSCertPath) == 0 {
 		return nil, errors.New("missing TLSCertPath")
 	}
