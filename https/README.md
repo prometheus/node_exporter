@@ -9,16 +9,17 @@ If the config is kept within the https directory.
 The config file should be written in YAML format, and is reloaded on each connection to check for new certificates and/or authentication policy.
 
 ## Sample Config
+
 ```
-tlsConfig :
+tls_config:
   # Certificate and key files for server to use to authenticate to client
-  tlsCertPath : <filename>
-  tlsKeyPath : <filename>
+  cert_file: <filename>
+  key_file: <filename>
 
   # Server policy for client authentication. Maps to ClientAuth Policies
   # For more detail on clientAuth options: [ClientAuthType](https://golang.org/pkg/crypto/tls/#ClientAuthType)
-  [ clientAuth : <string> | default = "NoClientCert" ]
+  [ client_auth_type: <string> | default = "NoClientCert" ]
 
   # CA certificate for client certificate authentication to the server
-  [ clientCAs : <filename> ]
+  [ client_ca_file: <filename> ]
 ```

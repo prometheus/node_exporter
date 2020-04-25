@@ -1,4 +1,4 @@
-tlsConfig :
-  tlsCertPath : "testdata/server.crt"
-  tlsKeyPath : "testdata/server.key"
-  clientCAs : "testdata/tls-ca-chain.pem" 
+tls_config :
+  cert_file : "testdata/server.crt"
+  key_file : "testdata/server.key"
+  client_ca_file : "testdata/tls-ca-chain.pem" 
