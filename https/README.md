@@ -41,7 +41,8 @@ There are several tools out there to generate bcrypt passwords, e.g.
 `htpasswd -nBC 10 "" | tr -d ':\n`
 
 That command will prompt you for a password and output the hashed password,
-which will look like: `$2y$10$X0h1gDsPszWURQaxFh.zoubFi6DXncSjhoQNJgRrnGs7EsimhC7zG`
+which will look something like:
+`$2y$10$X0h1gDsPszWURQaxFh.zoubFi6DXncSjhoQNJgRrnGs7EsimhC7zG`
 
 The cost (10 in the example) influences the time it takes for computing the
 hash. A higher cost will en up slowing down the authentication process.
