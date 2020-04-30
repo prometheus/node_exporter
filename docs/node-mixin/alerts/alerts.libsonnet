@@ -190,8 +190,21 @@
               (node_nf_conntrack_entries / node_nf_conntrack_entries_limit) > 0.75
             ||| % $._config,
             annotations: {
-              summary: 'Number of conntrack are getting close to the limit',
-              description: '{{ $value | humanizePercentage }} of conntrack entries are used',
+              summary: 'Number of conntrack are getting close to the limit.',
+              description: '{{ $value | humanizePercentage }} of conntrack entries are used.',
+            },
+            labels: {
+              severity: 'warning',
+            },
+          },
+          {
+            alert: 'NodeTextFileCollectorScrapeError',
+            expr: |||
+              node_textfile_scrape_error{%(nodeExporterSelector)s} == 1
+            ||| % $._config,
+            annotations: {
+              summary: 'Node Exporter text file collector failed to scrape.',
+              description: 'Node Exporter text file collector failed to scrape.',
             },
             labels: {
               severity: 'warning',
