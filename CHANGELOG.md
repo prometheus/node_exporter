@@ -2,6 +2,7 @@
 
 * [CHANGE]
 * [FEATURE]
+* [FEATURE] Add basic authentication #1673
 * [ENHANCEMENT] Add model_name and stepping to node_cpu_info metric #1617
 * [ENHANCEMENT] Add metrics for IO errors and retires on Darwin. #1636
 * [BUGFIX] collector/systemd: use regexp to extract systemd version #1647
