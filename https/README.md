@@ -15,16 +15,46 @@ The config file should be written in YAML format, and is reloaded on each connec
 
 ```
 tls_config:
-  # Certificate and key files for server to use to authenticate to client
+  # Certificate and key files for server to use to authenticate to client.
   cert_file: <filename>
   key_file: <filename>
 
-  # Server policy for client authentication. Maps to ClientAuth Policies
+  # Server policy for client authentication. Maps to ClientAuth Policies.
   # For more detail on clientAuth options: [ClientAuthType](https://golang.org/pkg/crypto/tls/#ClientAuthType)
   [ client_auth_type: <string> | default = "NoClientCert" ]
 
-  # CA certificate for client certificate authentication to the server
+  # CA certificate for client certificate authentication to the server.
   [ client_ca_file: <filename> ]
+
+  # Minimum TLS version that is acceptable.
+  [ min_version: <string> | default = "TLS1.2" ]
+
+  # Maximum TLS version that is acceptable.
+  [ max_version: <string> | default = "TLS1.3" ]
+
+  # List of supported cipher suites for TLS versions up to TLS 1.2. If empty,
+  # Go default cipher suites are used. Available cipher suites are documented
+  # below.
+  [ cipher_suites:
+    - <string> ] ]
+
+  # Disable HTTP/2 support. This can not be toggled on the fly.
+  [ disable_http2: <bool> | default = false ]
+
+  # prefer_server_cipher_suites controls whether the server selects the
+  # client's most preferred ciphersuite, or the server's most preferred
+  # ciphersuite. If true then the server's preference, as expressed in
+  # the order of elements in CipherSuites, is used.
+  [ prefer_server_cipher_suites: <bool> | default = false ]
+
+  # session_tickets_disabled may be set to true to disable session ticket and
+  # PSK (resumption) support.
+  [ session_tickets_disabled: <bool> | default = false ]
+
+  # Elliptic curves that will be used in an ECDHE handshake, in preference
+  # order. Available supported groups are documented below.
+  [ supported_groups:
+    - <string> ] ]
 
 # List of usernames and hashed passwords that have full access to the web
 # server via basic authentication. If empty, no basic authentication is
@@ -49,3 +79,40 @@ hash. A higher cost will en up slowing down the authentication process.
 Depending on the machine, a cost of 10 will take about ~70ms where a cost of
 18 can take up to a few seconds. That hash will be computed on every
 password-protected request.
+
+
+## Available cipher suites
+
+List of available cipher suites for TLS up to 1.2 (we only permit
+ciphersuites marked by go as 'secure'):
+
+- TLS_RSA_WITH_3DES_EDE_CBC_SHA
+- TLS_RSA_WITH_AES_128_CBC_SHA
+- TLS_RSA_WITH_AES_256_CBC_SHA
+- TLS_RSA_WITH_AES_128_GCM_SHA256
+- TLS_RSA_WITH_AES_256_GCM_SHA384
+- TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+- TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+- TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
+- TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+- TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+- TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+- TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+- TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+- TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+
+List of available cipher suites for TLS 1.3 (TLS 1.3 ciphersuites are not
+configurable):
+
+- TLS_AES_128_GCM_SHA256
+- TLS_AES_256_GCM_SHA384
+- TLS_CHACHA20_POLY1305_SHA256
+
+## Available supported groups
+
+- CurveP256
+- CurveP384
+- CurveP521
+- X25519

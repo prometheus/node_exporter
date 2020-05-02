@@ -17,8 +17,10 @@ package https
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -37,10 +39,17 @@ type Config struct {
 }
 
 type TLSStruct struct {
-	TLSCertPath string `yaml:"cert_file"`
-	TLSKeyPath  string `yaml:"key_file"`
-	ClientAuth  string `yaml:"client_auth_type"`
-	ClientCAs   string `yaml:"client_ca_file"`
+	TLSCertPath              string   `yaml:"cert_file"`
+	TLSKeyPath               string   `yaml:"key_file"`
+	ClientAuth               string   `yaml:"client_auth_type"`
+	ClientCAs                string   `yaml:"client_ca_file"`
+	CipherSuites             []cipher `yaml:"cipher_suites"`
+	CurveIDs                 []curve  `yaml:"supported_groups"`
+	MinVersion               string   `yaml:"min_version"`
+	MaxVersion               string   `yaml:"max_version"`
+	PreferServerCipherSuites bool     `yaml:"prefer_server_cipher_suites"`
+	DisableHTTP2             bool     `yaml:"disable_http2"`
+	SessionTicketsDisabled   bool     `yaml:"session_tickets_disabled"`
 }
 
 func getConfig(configPath string) (*Config, error) {
@@ -73,9 +82,7 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 	if c.TLSKeyPath == "" {
 		return nil, errors.New("missing key_file")
 	}
-	cfg := &tls.Config{
-		MinVersion: tls.VersionTLS12,
-	}
+
 	loadCert := func() (*tls.Certificate, error) {
 		cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
 		if err != nil {
@@ -83,12 +90,46 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 		}
 		return &cert, nil
 	}
+
+	minVersion, err := pickMinVersion(c.MinVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	maxVersion, err := pickMaxVersion(c.MaxVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg := &tls.Config{
+		MinVersion:               minVersion,
+		MaxVersion:               maxVersion,
+		PreferServerCipherSuites: c.PreferServerCipherSuites,
+		SessionTicketsDisabled:   c.SessionTicketsDisabled,
+	}
+
 	// Confirm that certificate and key paths are valid.
 	if _, err := loadCert(); err != nil {
 		return nil, err
 	}
 	cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 		return loadCert()
+	}
+
+	var cf []uint16
+	for _, c := range c.CipherSuites {
+		cf = append(cf, (uint16)(c))
+	}
+	if len(cf) > 0 {
+		cfg.CipherSuites = cf
+	}
+
+	var sg []tls.CurveID
+	for _, c := range c.CurveIDs {
+		sg = append(sg, (tls.CurveID)(c))
+	}
+	if len(sg) > 0 {
+		cfg.CurvePreferences = sg
 	}
 
 	if c.ClientCAs != "" {
@@ -145,11 +186,20 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 		handler:       handler,
 	}
 
-	config, err := getTLSConfig(tlsConfigPath)
+	c, err := getConfig(tlsConfigPath)
+	if err != nil {
+		return err
+	}
+	config, err := ConfigToTLSConfig(&c.TLSConfig)
 	switch err {
 	case nil:
+		withHTTP2 := "with HTTP/2 support"
+		if c.TLSConfig.DisableHTTP2 {
+			withHTTP2 = "without HTTP/2 support"
+			server.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
+		}
 		// Valid TLS config.
-		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.")
+		level.Info(logger).Log("msg", "TLS "+withHTTP2+" is enabled and it cannot be disabled on the fly.")
 	case errNoTLSConfig:
 		// No TLS config, back to plain HTTP.
 		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.")
@@ -167,4 +217,45 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 		return getTLSConfig(tlsConfigPath)
 	}
 	return server.ListenAndServeTLS("", "")
+}
+
+// For go1.14, unmarshalling is done properly in tls_ciphers.go.
+type cipher uint16
+
+type curve tls.CurveID
+
+func (c *curve) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal((*string)(&s))
+	if err != nil {
+		return err
+	}
+	switch strings.ToUpper(s) {
+	case "CURVEP256":
+		*c = (curve)(tls.CurveP256)
+	case "CURVEP384":
+		*c = (curve)(tls.CurveP384)
+	case "CURVEP521":
+		*c = (curve)(tls.CurveP521)
+	case "X25519":
+		*c = (curve)(tls.X25519)
+	default:
+		return errors.New("unknown supported group: " + s)
+	}
+	return nil
+}
+
+func (c curve) MarshalYAML() (interface{}, error) {
+	switch c {
+	case (curve)(tls.CurveP256):
+		return "CurveP256", nil
+	case (curve)(tls.CurveP384):
+		return "CurveP384", nil
+	case (curve)(tls.CurveP521):
+		return "CurveP521", nil
+	case (curve)(tls.X25519):
+		return "X25519", nil
+	default:
+		return fmt.Sprintf("%v", c), nil
+	}
 }
