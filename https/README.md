@@ -27,10 +27,10 @@ tls_config:
   [ client_ca_file: <filename> ]
 
   # Minimum TLS version that is acceptable.
-  [ min_version: <string> | default = "TLS1.2" ]
+  [ min_version: <string> | default = "TLS12" ]
 
   # Maximum TLS version that is acceptable.
-  [ max_version: <string> | default = "TLS1.3" ]
+  [ max_version: <string> | default = "TLS13" ]
 
   # List of supported cipher suites for TLS versions up to TLS 1.2. If empty,
   # Go default cipher suites are used. Available cipher suites are documented

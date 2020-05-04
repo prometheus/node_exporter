@@ -5,6 +5,6 @@ tls_config :
   client_ca_file : "testdata/tls-ca-chain.pem"
   cipher_suites:
     - TLS_RSA_WITH_AES_128_CBC_SHA
-  max_version: TLS1.2
+  max_version: TLS12
 http_config:
   disable_http2: true

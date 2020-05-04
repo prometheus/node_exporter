@@ -21,14 +21,14 @@ import (
 
 func pickMinVersion(s string) (uint16, error) {
 	switch s {
-	case "TLS1.3":
+	case "TLS13":
 		return tls.VersionTLS13, nil
-	case "TLS1.2", "":
+	case "TLS12", "":
 		// This is the default value.
 		return tls.VersionTLS12, nil
-	case "TLS1.1":
+	case "TLS11":
 		return tls.VersionTLS11, nil
-	case "TLS1.0":
+	case "TLS10":
 		return tls.VersionTLS10, nil
 	default:
 		return 0, errors.New("unknown min_version: " + s)
@@ -37,14 +37,14 @@ func pickMinVersion(s string) (uint16, error) {
 
 func pickMaxVersion(s string) (uint16, error) {
 	switch s {
-	case "TLS1.3", "":
+	case "TLS13", "":
 		// This is the default value.
 		return tls.VersionTLS13, nil
-	case "TLS1.2":
+	case "TLS12":
 		return tls.VersionTLS12, nil
-	case "TLS1.1":
+	case "TLS11":
 		return tls.VersionTLS11, nil
-	case "TLS1.0":
+	case "TLS10":
 		return tls.VersionTLS10, nil
 	default:
 		return 0, errors.New("unknown max_version: " + s)
