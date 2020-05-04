@@ -34,9 +34,10 @@ tls_config:
 
   # List of supported cipher suites for TLS versions up to TLS 1.2. If empty,
   # Go default cipher suites are used. Available cipher suites are documented
-  # below.
+  # in the go documentation:
+  # https://golang.org/pkg/crypto/tls/#pkg-constants
   [ cipher_suites:
-    - <string> ] ]
+    [ - <string> ] ]
 
   # prefer_server_cipher_suites controls whether the server selects the
   # client's most preferred ciphersuite, or the server's most preferred
@@ -49,9 +50,10 @@ tls_config:
   [ session_tickets_disabled: <bool> | default = false ]
 
   # Elliptic curves that will be used in an ECDHE handshake, in preference
-  # order. Available supported groups are documented below.
-  [ supported_groups:
-    - <string> ] ]
+  # order. Available curves are documented in the go documentation:
+  # https://golang.org/pkg/crypto/tls/#CurveID
+  [ curve_preferences:
+    [ - <string> ] ]
 
 http_config:
   # Disable HTTP/2 support. HTTP is always disabled in HTTP. This can not be
@@ -81,40 +83,3 @@ hash. A higher cost will en up slowing down the authentication process.
 Depending on the machine, a cost of 10 will take about ~70ms where a cost of
 18 can take up to a few seconds. That hash will be computed on every
 password-protected request.
-
-
-## Available cipher suites
-
-List of available cipher suites for TLS up to 1.2 (we only permit
-ciphersuites marked by go as 'secure'):
-
-- TLS_RSA_WITH_3DES_EDE_CBC_SHA
-- TLS_RSA_WITH_AES_128_CBC_SHA
-- TLS_RSA_WITH_AES_256_CBC_SHA
-- TLS_RSA_WITH_AES_128_GCM_SHA256
-- TLS_RSA_WITH_AES_256_GCM_SHA384
-- TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
-- TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
-- TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
-- TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
-- TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
-- TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-- TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-- TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
-- TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
-
-List of available cipher suites for TLS 1.3 (TLS 1.3 ciphersuites are not
-configurable):
-
-- TLS_AES_128_GCM_SHA256
-- TLS_AES_256_GCM_SHA384
-- TLS_CHACHA20_POLY1305_SHA256
-
-## Available supported groups
-
-- CurveP256
-- CurveP384
-- CurveP521
-- X25519

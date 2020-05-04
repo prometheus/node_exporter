@@ -15,7 +15,6 @@ package https
 
 import (
 	"crypto/tls"
-	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -37,7 +36,7 @@ func pickMinVersion(s string) (uint16, error) {
 }
 
 func pickMaxVersion(s string) (uint16, error) {
-	switch strings.ToUpper(s) {
+	switch s {
 	case "TLS1.3", "":
 		// This is the default value.
 		return tls.VersionTLS13, nil

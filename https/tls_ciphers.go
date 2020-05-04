@@ -17,7 +17,6 @@ package https
 
 import (
 	"crypto/tls"
-	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -28,7 +27,6 @@ func (c *cipher) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err != nil {
 		return err
 	}
-	s = strings.ToUpper(s)
 	for _, cs := range tls.CipherSuites() {
 		if cs.Name == s {
 			*c = (cipher)(cs.ID)
