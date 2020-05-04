@@ -11,8 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build go1.12
-
 package https
 
 import (
@@ -23,10 +21,11 @@ import (
 )
 
 func pickMinVersion(s string) (uint16, error) {
-	switch strings.ToUpper(s) {
+	switch s {
 	case "TLS1.3":
 		return tls.VersionTLS13, nil
 	case "TLS1.2", "":
+		// This is the default value.
 		return tls.VersionTLS12, nil
 	case "TLS1.1":
 		return tls.VersionTLS11, nil
@@ -40,6 +39,7 @@ func pickMinVersion(s string) (uint16, error) {
 func pickMaxVersion(s string) (uint16, error) {
 	switch strings.ToUpper(s) {
 	case "TLS1.3", "":
+		// This is the default value.
 		return tls.VersionTLS13, nil
 	case "TLS1.2":
 		return tls.VersionTLS12, nil

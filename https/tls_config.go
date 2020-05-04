@@ -34,8 +34,9 @@ var (
 )
 
 type Config struct {
-	TLSConfig TLSStruct                     `yaml:"tls_config"`
-	Users     map[string]config_util.Secret `yaml:"basic_auth_users"`
+	TLSConfig  TLSStruct                     `yaml:"tls_config"`
+	HTTPConfig HTTPStruct                    `yaml:"http_config"`
+	Users      map[string]config_util.Secret `yaml:"basic_auth_users"`
 }
 
 type TLSStruct struct {
@@ -44,12 +45,15 @@ type TLSStruct struct {
 	ClientAuth               string   `yaml:"client_auth_type"`
 	ClientCAs                string   `yaml:"client_ca_file"`
 	CipherSuites             []cipher `yaml:"cipher_suites"`
-	CurveIDs                 []curve  `yaml:"supported_groups"`
+	CurvePreferences         []curve  `yaml:"curve_preferences"`
 	MinVersion               string   `yaml:"min_version"`
 	MaxVersion               string   `yaml:"max_version"`
 	PreferServerCipherSuites bool     `yaml:"prefer_server_cipher_suites"`
-	DisableHTTP2             bool     `yaml:"disable_http2"`
 	SessionTicketsDisabled   bool     `yaml:"session_tickets_disabled"`
+}
+
+type HTTPStruct struct {
+	DisableHTTP2 bool `yaml:"disable_http2"`
 }
 
 func getConfig(configPath string) (*Config, error) {
@@ -79,6 +83,7 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 	if c.TLSCertPath == "" {
 		return nil, errors.New("missing cert_file")
 	}
+
 	if c.TLSKeyPath == "" {
 		return nil, errors.New("missing key_file")
 	}
@@ -89,6 +94,11 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 			return nil, errors.Wrap(err, "failed to load X509KeyPair")
 		}
 		return &cert, nil
+	}
+
+	// Confirm that certificate and key paths are valid.
+	if _, err := loadCert(); err != nil {
+		return nil, err
 	}
 
 	minVersion, err := pickMinVersion(c.MinVersion)
@@ -108,10 +118,6 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 		SessionTicketsDisabled:   c.SessionTicketsDisabled,
 	}
 
-	// Confirm that certificate and key paths are valid.
-	if _, err := loadCert(); err != nil {
-		return nil, err
-	}
 	cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 		return loadCert()
 	}
@@ -124,12 +130,12 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 		cfg.CipherSuites = cf
 	}
 
-	var sg []tls.CurveID
-	for _, c := range c.CurveIDs {
-		sg = append(sg, (tls.CurveID)(c))
+	var cp []tls.CurveID
+	for _, c := range c.CurvePreferences {
+		cp = append(cp, (tls.CurveID)(c))
 	}
-	if len(sg) > 0 {
-		cfg.CurvePreferences = sg
+	if len(cp) > 0 {
+		cfg.CurvePreferences = cp
 	}
 
 	if c.ClientCAs != "" {
@@ -193,13 +199,13 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 	config, err := ConfigToTLSConfig(&c.TLSConfig)
 	switch err {
 	case nil:
-		withHTTP2 := "with HTTP/2 support"
-		if c.TLSConfig.DisableHTTP2 {
-			withHTTP2 = "without HTTP/2 support"
+		withHTTP2 := "enabled"
+		if c.HTTPConfig.DisableHTTP2 {
+			withHTTP2 = "disabled"
 			server.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
 		}
 		// Valid TLS config.
-		level.Info(logger).Log("msg", "TLS "+withHTTP2+" is enabled and it cannot be disabled on the fly.")
+		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.", "http2", withHTTP2)
 	case errNoTLSConfig:
 		// No TLS config, back to plain HTTP.
 		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.")

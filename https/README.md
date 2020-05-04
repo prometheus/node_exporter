@@ -38,9 +38,6 @@ tls_config:
   [ cipher_suites:
     - <string> ] ]
 
-  # Disable HTTP/2 support. This can not be toggled on the fly.
-  [ disable_http2: <bool> | default = false ]
-
   # prefer_server_cipher_suites controls whether the server selects the
   # client's most preferred ciphersuite, or the server's most preferred
   # ciphersuite. If true then the server's preference, as expressed in
@@ -55,6 +52,11 @@ tls_config:
   # order. Available supported groups are documented below.
   [ supported_groups:
     - <string> ] ]
+
+http_config:
+  # Disable HTTP/2 support. HTTP is always disabled in HTTP. This can not be
+  # toggled on the fly.
+  [ disable_http2: <bool> | default = false ]
 
 # List of usernames and hashed passwords that have full access to the web
 # server via basic authentication. If empty, no basic authentication is

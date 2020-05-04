@@ -151,12 +151,12 @@ func TestYAMLFiles(t *testing.T) {
 			ExpectedError:  ErrorMap["Bad password"],
 		},
 		{
-			Name:           `invalid config yml (bas cipher)`,
+			Name:           `invalid config yml (bad cipher)`,
 			YAMLConfigPath: "testdata/tls_config_noAuth_inventedCiphers.bad.yml",
 			ExpectedError:  ErrorMap["Unknown cipher"],
 		},
 		{
-			Name:           `invalid config yml (bas curves)`,
+			Name:           `invalid config yml (bad curves)`,
 			YAMLConfigPath: "testdata/tls_config_noAuth_inventedCurves.bad.yml",
 			ExpectedError:  ErrorMap["Unknown supported group"],
 		},

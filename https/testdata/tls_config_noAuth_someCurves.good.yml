@@ -4,5 +4,5 @@ tls_config :
   client_auth_type : "VerifyClientCertIfGiven"
   client_ca_file : "testdata/tls-ca-chain.pem"
   min_version: TLS1.3
-  supported_groups:
+  curve_preferences:
   - CurveP521
