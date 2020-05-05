@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -35,7 +34,7 @@ var (
 
 type Config struct {
 	TLSConfig  TLSStruct                     `yaml:"tls_config"`
-	HTTPConfig HTTPStruct                    `yaml:"http_config"`
+	HTTPConfig HTTPStruct                    `yaml:"http_server_config"`
 	Users      map[string]config_util.Secret `yaml:"basic_auth_users"`
 }
 
@@ -225,10 +224,35 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 	return server.ListenAndServeTLS("", "")
 }
 
-// For go1.14, unmarshalling is done properly in tls_ciphers.go.
 type cipher uint16
 
+func (c *cipher) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal((*string)(&s))
+	if err != nil {
+		return err
+	}
+	for _, cs := range tls.CipherSuites() {
+		if cs.Name == s {
+			*c = (cipher)(cs.ID)
+			return nil
+		}
+	}
+	return errors.New("unknown cipher: " + s)
+}
+
+func (c cipher) MarshalYAML() (interface{}, error) {
+	return tls.CipherSuiteName((uint16)(c)), nil
+}
+
 type curve tls.CurveID
+
+var curves = map[string]curve{
+	"CurveP256": (curve)(tls.CurveP256),
+	"CurveP384": (curve)(tls.CurveP384),
+	"CurveP521": (curve)(tls.CurveP521),
+	"X25519":    (curve)(tls.X25519),
+}
 
 func (c *curve) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var s string
@@ -236,32 +260,18 @@ func (c *curve) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err != nil {
 		return err
 	}
-	switch strings.ToUpper(s) {
-	case "CURVEP256":
-		*c = (curve)(tls.CurveP256)
-	case "CURVEP384":
-		*c = (curve)(tls.CurveP384)
-	case "CURVEP521":
-		*c = (curve)(tls.CurveP521)
-	case "X25519":
-		*c = (curve)(tls.X25519)
-	default:
-		return errors.New("unknown supported group: " + s)
+	if curveid, ok := curves[s]; ok {
+		*c = curveid
+		return nil
 	}
-	return nil
+	return errors.New("unknown curve: " + s)
 }
 
-func (c curve) MarshalYAML() (interface{}, error) {
-	switch c {
-	case (curve)(tls.CurveP256):
-		return "CurveP256", nil
-	case (curve)(tls.CurveP384):
-		return "CurveP384", nil
-	case (curve)(tls.CurveP521):
-		return "CurveP521", nil
-	case (curve)(tls.X25519):
-		return "X25519", nil
-	default:
-		return fmt.Sprintf("%v", c), nil
+func (c *curve) MarshalYAML() (interface{}, error) {
+	for s, curveid := range curves {
+		if *c == curveid {
+			return s, nil
+		}
 	}
+	return fmt.Sprintf("%v", c), nil
 }

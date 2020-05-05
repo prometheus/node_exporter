@@ -49,7 +49,7 @@ var (
 		"Forbidden":                    regexp.MustCompile(`Forbidden`),
 		"Handshake failure":            regexp.MustCompile(`handshake failure`),
 		"Unknown cipher":               regexp.MustCompile(`unknown cipher`),
-		"Unknown supported group":      regexp.MustCompile(`unknown supported group`),
+		"Unknown curve":                regexp.MustCompile(`unknown curve`),
 		"No HTTP2 cipher":              regexp.MustCompile(`TLSConfig.CipherSuites is missing an HTTP/2-required`),
 	}
 )
@@ -158,7 +158,7 @@ func TestYAMLFiles(t *testing.T) {
 		{
 			Name:           `invalid config yml (bad curves)`,
 			YAMLConfigPath: "testdata/tls_config_noAuth_inventedCurves.bad.yml",
-			ExpectedError:  ErrorMap["Unknown supported group"],
+			ExpectedError:  ErrorMap["Unknown curve"],
 		},
 	}
 	for _, testInputs := range testTables {

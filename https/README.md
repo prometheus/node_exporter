@@ -55,9 +55,9 @@ tls_config:
   [ curve_preferences:
     [ - <string> ] ]
 
-http_config:
-  # Disable HTTP/2 support. HTTP is always disabled in HTTP. This can not be
-  # toggled on the fly.
+http_server_config:
+  # Disable HTTP/2 support. Note that HTTP/2 is only supported with TLS.
+  # This can not be changed on the fly.
   [ disable_http2: <bool> | default = false ]
 
 # List of usernames and hashed passwords that have full access to the web
