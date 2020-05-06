@@ -307,35 +307,3 @@ func pickMaxTLSVersion(s string) (uint16, error) {
 		return 0, errors.New("unknown max_version: " + s)
 	}
 }
-
-func pickMinVersion(s string) (uint16, error) {
-	switch s {
-	case "TLS13":
-		return tls.VersionTLS13, nil
-	case "TLS12", "":
-		// This is the default value.
-		return tls.VersionTLS12, nil
-	case "TLS11":
-		return tls.VersionTLS11, nil
-	case "TLS10":
-		return tls.VersionTLS10, nil
-	default:
-		return 0, errors.New("unknown min_version: " + s)
-	}
-}
-
-func pickMaxVersion(s string) (uint16, error) {
-	switch s {
-	case "TLS13", "":
-		// This is the default value.
-		return tls.VersionTLS13, nil
-	case "TLS12":
-		return tls.VersionTLS12, nil
-	case "TLS11":
-		return tls.VersionTLS11, nil
-	case "TLS10":
-		return tls.VersionTLS10, nil
-	default:
-		return 0, errors.New("unknown max_version: " + s)
-	}
-}
