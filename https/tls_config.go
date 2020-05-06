@@ -172,7 +172,7 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 // Listen starts the server on the given address. If tlsConfigPath isn't empty the server connection will be started using TLS.
 func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error {
 	if tlsConfigPath == "" {
-		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.")
+		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.", "http2", false)
 		return server.ListenAndServe()
 	}
 
@@ -198,16 +198,14 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 	config, err := ConfigToTLSConfig(&c.TLSConfig)
 	switch err {
 	case nil:
-		withHTTP2 := "enabled"
 		if c.HTTPConfig.DisableHTTP2 {
-			withHTTP2 = "disabled"
 			server.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
 		}
 		// Valid TLS config.
-		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.", "http2", withHTTP2)
+		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.", "http2", !c.HTTPConfig.DisableHTTP2)
 	case errNoTLSConfig:
 		// No TLS config, back to plain HTTP.
-		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.")
+		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.", "http2", false)
 		return server.ListenAndServe()
 	default:
 		// Invalid TLS config.
