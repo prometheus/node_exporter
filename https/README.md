@@ -14,7 +14,7 @@ The config file should be written in YAML format, and is reloaded on each connec
 ## Sample Config
 
 ```
-tls_config:
+tls_server_config:
   # Certificate and key files for server to use to authenticate to client.
   cert_file: <filename>
   key_file: <filename>
