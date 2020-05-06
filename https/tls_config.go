@@ -100,12 +100,12 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 		return nil, err
 	}
 
-	minVersion, err := pickMinVersion(c.MinVersion)
+	minVersion, err := pickMinTLSVersion(c.MinVersion)
 	if err != nil {
 		return nil, err
 	}
 
-	maxVersion, err := pickMaxVersion(c.MaxVersion)
+	maxVersion, err := pickMaxTLSVersion(c.MaxVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -274,4 +274,68 @@ func (c *curve) MarshalYAML() (interface{}, error) {
 		}
 	}
 	return fmt.Sprintf("%v", c), nil
+}
+
+func pickMinTLSVersion(s string) (uint16, error) {
+	switch s {
+	case "TLS13":
+		return tls.VersionTLS13, nil
+	case "TLS12", "":
+		// This is the default value.
+		return tls.VersionTLS12, nil
+	case "TLS11":
+		return tls.VersionTLS11, nil
+	case "TLS10":
+		return tls.VersionTLS10, nil
+	default:
+		return 0, errors.New("unknown min_version: " + s)
+	}
+}
+
+func pickMaxTLSVersion(s string) (uint16, error) {
+	switch s {
+	case "TLS13", "":
+		// This is the default value.
+		return tls.VersionTLS13, nil
+	case "TLS12":
+		return tls.VersionTLS12, nil
+	case "TLS11":
+		return tls.VersionTLS11, nil
+	case "TLS10":
+		return tls.VersionTLS10, nil
+	default:
+		return 0, errors.New("unknown max_version: " + s)
+	}
+}
+
+func pickMinVersion(s string) (uint16, error) {
+	switch s {
+	case "TLS13":
+		return tls.VersionTLS13, nil
+	case "TLS12", "":
+		// This is the default value.
+		return tls.VersionTLS12, nil
+	case "TLS11":
+		return tls.VersionTLS11, nil
+	case "TLS10":
+		return tls.VersionTLS10, nil
+	default:
+		return 0, errors.New("unknown min_version: " + s)
+	}
+}
+
+func pickMaxVersion(s string) (uint16, error) {
+	switch s {
+	case "TLS13", "":
+		// This is the default value.
+		return tls.VersionTLS13, nil
+	case "TLS12":
+		return tls.VersionTLS12, nil
+	case "TLS11":
+		return tls.VersionTLS11, nil
+	case "TLS10":
+		return tls.VersionTLS10, nil
+	default:
+		return 0, errors.New("unknown max_version: " + s)
+	}
 }
