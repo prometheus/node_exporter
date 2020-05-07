@@ -7,4 +7,4 @@ tls_server_config :
     - TLS_RSA_WITH_AES_128_CBC_SHA
   max_version: TLS12
 http_server_config:
-  disable_http2: true
+  http2: false

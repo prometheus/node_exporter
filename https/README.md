@@ -46,9 +46,9 @@ tls_server_config:
     [ - <string> ] ]
 
 http_server_config:
-  # Disable HTTP/2 support. Note that HTTP/2 is only supported with TLS.
+  # Enable HTTP/2 support. Note that HTTP/2 is only supported with TLS.
   # This can not be changed on the fly.
-  [ disable_http2: <bool> | default = false ]
+  [ http2: <bool> | default = true ]
 
 # List of usernames and hashed passwords that have full access to the web
 # server via basic authentication. If empty, no basic authentication is

@@ -50,7 +50,7 @@ type TLSStruct struct {
 }
 
 type HTTPStruct struct {
-	DisableHTTP2 bool `yaml:"disable_http2"`
+	HTTP2 bool `yaml:"http2"`
 }
 
 func getConfig(configPath string) (*Config, error) {
@@ -58,7 +58,9 @@ func getConfig(configPath string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := &Config{}
+	c := &Config{
+		HTTPConfig: HTTPStruct{HTTP2: true},
+	}
 	err = yaml.UnmarshalStrict(content, c)
 	return c, err
 }
@@ -195,11 +197,11 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 	config, err := ConfigToTLSConfig(&c.TLSConfig)
 	switch err {
 	case nil:
-		if c.HTTPConfig.DisableHTTP2 {
+		if !c.HTTPConfig.HTTP2 {
 			server.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
 		}
 		// Valid TLS config.
-		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.", "http2", !c.HTTPConfig.DisableHTTP2)
+		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.", "http2", c.HTTPConfig.HTTP2)
 	case errNoTLSConfig:
 		// No TLS config, back to plain HTTP.
 		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.", "http2", false)
