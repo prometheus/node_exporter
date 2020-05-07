@@ -50,7 +50,9 @@ var (
 		"Handshake failure":            regexp.MustCompile(`handshake failure`),
 		"Unknown cipher":               regexp.MustCompile(`unknown cipher`),
 		"Unknown curve":                regexp.MustCompile(`unknown curve`),
+		"Unknown TLS version":          regexp.MustCompile(`unknown TLS version`),
 		"No HTTP2 cipher":              regexp.MustCompile(`TLSConfig.CipherSuites is missing an HTTP/2-required`),
+		"Incompatible TLS version":     regexp.MustCompile(`protocol version not supported`),
 	}
 )
 
@@ -71,16 +73,17 @@ func getPort() string {
 }
 
 type TestInputs struct {
-	Name             string
-	Server           func() *http.Server
-	UseNilServer     bool
-	YAMLConfigPath   string
-	ExpectedError    *regexp.Regexp
-	UseTLSClient     bool
-	CipherSuites     []uint16
-	CurvePreferences []tls.CurveID
-	Username         string
-	Password         string
+	Name                string
+	Server              func() *http.Server
+	UseNilServer        bool
+	YAMLConfigPath      string
+	ExpectedError       *regexp.Regexp
+	UseTLSClient        bool
+	ClientMaxTLSVersion uint16
+	CipherSuites        []uint16
+	CurvePreferences    []tls.CurveID
+	Username            string
+	Password            string
 }
 
 func TestYAMLFiles(t *testing.T) {
@@ -160,6 +163,11 @@ func TestYAMLFiles(t *testing.T) {
 			YAMLConfigPath: "testdata/tls_config_noAuth_inventedCurves.bad.yml",
 			ExpectedError:  ErrorMap["Unknown curve"],
 		},
+		{
+			Name:           `invalid config yml (bad TLS version)`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_wrongTLSVersion.bad.yml",
+			ExpectedError:  ErrorMap["Unknown TLS version"],
+		},
 	}
 	for _, testInputs := range testTables {
 		t.Run(testInputs.Name, testInputs.Test)
@@ -189,6 +197,13 @@ func TestServerBehaviour(t *testing.T) {
 			YAMLConfigPath: "testdata/tls_config_noAuth.good.yml",
 			UseTLSClient:   true,
 			ExpectedError:  nil,
+		},
+		{
+			Name:                `valid tls config yml with TLS 1.1 client`,
+			YAMLConfigPath:      "testdata/tls_config_noAuth.good.yml",
+			UseTLSClient:        true,
+			ClientMaxTLSVersion: tls.VersionTLS11,
+			ExpectedError:       ErrorMap["Incompatible TLS version"],
 		},
 		{
 			Name:           `valid tls config yml with all ciphers`,
@@ -367,12 +382,12 @@ func (test *TestInputs) Test(t *testing.T) {
 		var proto string
 		if test.UseTLSClient {
 			client = getTLSClient()
+			t := client.Transport.(*http.Transport)
+			t.TLSClientConfig.MaxVersion = test.ClientMaxTLSVersion
 			if len(test.CipherSuites) > 0 {
-				t := client.Transport.(*http.Transport)
 				t.TLSClientConfig.CipherSuites = test.CipherSuites
 			}
 			if len(test.CurvePreferences) > 0 {
-				t := client.Transport.(*http.Transport)
 				t.TLSClientConfig.CurvePreferences = test.CurvePreferences
 			}
 			proto = "https"

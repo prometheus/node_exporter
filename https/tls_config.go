@@ -39,14 +39,14 @@ type Config struct {
 }
 
 type TLSStruct struct {
-	TLSCertPath      string   `yaml:"cert_file"`
-	TLSKeyPath       string   `yaml:"key_file"`
-	ClientAuth       string   `yaml:"client_auth_type"`
-	ClientCAs        string   `yaml:"client_ca_file"`
-	CipherSuites     []cipher `yaml:"cipher_suites"`
-	CurvePreferences []curve  `yaml:"curve_preferences"`
-	MinVersion       string   `yaml:"min_version"`
-	MaxVersion       string   `yaml:"max_version"`
+	TLSCertPath      string     `yaml:"cert_file"`
+	TLSKeyPath       string     `yaml:"key_file"`
+	ClientAuth       string     `yaml:"client_auth_type"`
+	ClientCAs        string     `yaml:"client_ca_file"`
+	CipherSuites     []cipher   `yaml:"cipher_suites"`
+	CurvePreferences []curve    `yaml:"curve_preferences"`
+	MinVersion       tlsVersion `yaml:"min_version"`
+	MaxVersion       tlsVersion `yaml:"max_version"`
 }
 
 type HTTPStruct struct {
@@ -59,6 +59,10 @@ func getConfig(configPath string) (*Config, error) {
 		return nil, err
 	}
 	c := &Config{
+		TLSConfig: TLSStruct{
+			MinVersion: tls.VersionTLS12,
+			MaxVersion: tls.VersionTLS13,
+		},
 		HTTPConfig: HTTPStruct{HTTP2: true},
 	}
 	err = yaml.UnmarshalStrict(content, c)
@@ -100,19 +104,9 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 		return nil, err
 	}
 
-	minVersion, err := pickMinTLSVersion(c.MinVersion)
-	if err != nil {
-		return nil, err
-	}
-
-	maxVersion, err := pickMaxTLSVersion(c.MaxVersion)
-	if err != nil {
-		return nil, err
-	}
-
 	cfg := &tls.Config{
-		MinVersion:               minVersion,
-		MaxVersion:               maxVersion,
+		MinVersion:               (uint16)(c.MinVersion),
+		MaxVersion:               (uint16)(c.MaxVersion),
 		PreferServerCipherSuites: true,
 	}
 
@@ -273,34 +267,33 @@ func (c *curve) MarshalYAML() (interface{}, error) {
 	return fmt.Sprintf("%v", c), nil
 }
 
-func pickMinTLSVersion(s string) (uint16, error) {
-	switch s {
-	case "TLS13":
-		return tls.VersionTLS13, nil
-	case "TLS12", "":
-		// This is the default value.
-		return tls.VersionTLS12, nil
-	case "TLS11":
-		return tls.VersionTLS11, nil
-	case "TLS10":
-		return tls.VersionTLS10, nil
-	default:
-		return 0, errors.New("unknown min_version: " + s)
-	}
+type tlsVersion uint16
+
+var tlsVersions = map[string]tlsVersion{
+	"TLS13": (tlsVersion)(tls.VersionTLS13),
+	"TLS12": (tlsVersion)(tls.VersionTLS12),
+	"TLS11": (tlsVersion)(tls.VersionTLS11),
+	"TLS10": (tlsVersion)(tls.VersionTLS10),
 }
 
-func pickMaxTLSVersion(s string) (uint16, error) {
-	switch s {
-	case "TLS13", "":
-		// This is the default value.
-		return tls.VersionTLS13, nil
-	case "TLS12":
-		return tls.VersionTLS12, nil
-	case "TLS11":
-		return tls.VersionTLS11, nil
-	case "TLS10":
-		return tls.VersionTLS10, nil
-	default:
-		return 0, errors.New("unknown max_version: " + s)
+func (tv *tlsVersion) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal((*string)(&s))
+	if err != nil {
+		return err
 	}
+	if v, ok := tlsVersions[s]; ok {
+		*tv = v
+		return nil
+	}
+	return errors.New("unknown TLS version: " + s)
+}
+
+func (tv *tlsVersion) MarshalYAML() (interface{}, error) {
+	for s, v := range tlsVersions {
+		if *tv == v {
+			return s, nil
+		}
+	}
+	return fmt.Sprintf("%v", tv), nil
 }
