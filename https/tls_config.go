@@ -48,7 +48,6 @@ type TLSStruct struct {
 	MinVersion               string   `yaml:"min_version"`
 	MaxVersion               string   `yaml:"max_version"`
 	PreferServerCipherSuites bool     `yaml:"prefer_server_cipher_suites"`
-	SessionTicketsDisabled   bool     `yaml:"session_tickets_disabled"`
 }
 
 type HTTPStruct struct {
@@ -114,7 +113,6 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 		MinVersion:               minVersion,
 		MaxVersion:               maxVersion,
 		PreferServerCipherSuites: c.PreferServerCipherSuites,
-		SessionTicketsDisabled:   c.SessionTicketsDisabled,
 	}
 
 	cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
