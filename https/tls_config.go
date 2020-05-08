@@ -39,14 +39,15 @@ type Config struct {
 }
 
 type TLSStruct struct {
-	TLSCertPath      string     `yaml:"cert_file"`
-	TLSKeyPath       string     `yaml:"key_file"`
-	ClientAuth       string     `yaml:"client_auth_type"`
-	ClientCAs        string     `yaml:"client_ca_file"`
-	CipherSuites     []cipher   `yaml:"cipher_suites"`
-	CurvePreferences []curve    `yaml:"curve_preferences"`
-	MinVersion       tlsVersion `yaml:"min_version"`
-	MaxVersion       tlsVersion `yaml:"max_version"`
+	TLSCertPath              string     `yaml:"cert_file"`
+	TLSKeyPath               string     `yaml:"key_file"`
+	ClientAuth               string     `yaml:"client_auth_type"`
+	ClientCAs                string     `yaml:"client_ca_file"`
+	CipherSuites             []cipher   `yaml:"cipher_suites"`
+	CurvePreferences         []curve    `yaml:"curve_preferences"`
+	MinVersion               tlsVersion `yaml:"min_version"`
+	MaxVersion               tlsVersion `yaml:"max_version"`
+	PreferServerCipherSuites bool       `yaml:"prefer_server_cipher_suites"`
 }
 
 type HTTPStruct struct {
@@ -60,8 +61,9 @@ func getConfig(configPath string) (*Config, error) {
 	}
 	c := &Config{
 		TLSConfig: TLSStruct{
-			MinVersion: tls.VersionTLS12,
-			MaxVersion: tls.VersionTLS13,
+			MinVersion:               tls.VersionTLS12,
+			MaxVersion:               tls.VersionTLS13,
+			PreferServerCipherSuites: true,
 		},
 		HTTPConfig: HTTPStruct{HTTP2: true},
 	}
@@ -107,7 +109,7 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 	cfg := &tls.Config{
 		MinVersion:               (uint16)(c.MinVersion),
 		MaxVersion:               (uint16)(c.MaxVersion),
-		PreferServerCipherSuites: true,
+		PreferServerCipherSuites: c.PreferServerCipherSuites,
 	}
 
 	cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
