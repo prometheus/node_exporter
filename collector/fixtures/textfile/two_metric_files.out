@@ -17,3 +17,7 @@ testmetric2_1{foo="bar"} 30
 # HELP testmetric2_2 Metric read from fixtures/textfile/two_metric_files/metrics2.prom
 # TYPE testmetric2_2 untyped
 testmetric2_2{foo="baz"} 40
+# HELP testmetric_samename common metric name
+# TYPE testmetric_samename untyped
+testmetric_samename{foo="1"} 100
+testmetric_samename{foo="2"} 200
