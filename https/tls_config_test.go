@@ -81,6 +81,7 @@ type TestInputs struct {
 	UseTLSClient        bool
 	ClientMaxTLSVersion uint16
 	CipherSuites        []uint16
+	ActualCipher        uint16
 	CurvePreferences    []tls.CurveID
 	Username            string
 	Password            string
@@ -224,6 +225,28 @@ func TestServerBehaviour(t *testing.T) {
 			UseTLSClient:   true,
 			CipherSuites:   []uint16{tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA},
 			ExpectedError:  ErrorMap["Handshake failure"],
+		},
+		{
+			Name:           `valid tls config yml with multiple client ciphers`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_someCiphers.good.yml",
+			UseTLSClient:   true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			},
+			ActualCipher:  tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			ExpectedError: nil,
+		},
+		{
+			Name:           `valid tls config yml with multiple client ciphers, client chooses cipher`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_someCiphers_noOrder.good.yml",
+			UseTLSClient:   true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			},
+			ActualCipher:  tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			ExpectedError: nil,
 		},
 		{
 			Name:           `valid tls config yml with all curves`,
@@ -411,6 +434,18 @@ func (test *TestInputs) Test(t *testing.T) {
 			recordConnectionError(err)
 			return
 		}
+
+		if test.ActualCipher != 0 {
+			if r.TLS.CipherSuite != test.ActualCipher {
+				recordConnectionError(
+					fmt.Errorf("bad cipher suite selected. Expected: %s, got: %s",
+						tls.CipherSuiteName(r.TLS.CipherSuite),
+						tls.CipherSuiteName(test.ActualCipher),
+					),
+				)
+			}
+		}
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			recordConnectionError(err)
