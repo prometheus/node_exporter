@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build go1.14
+
 package https
 
 import (
@@ -45,6 +47,12 @@ var (
 		"Bad password":                 regexp.MustCompile(`hashedSecret too short to be a bcrypted password`),
 		"Unauthorized":                 regexp.MustCompile(`Unauthorized`),
 		"Forbidden":                    regexp.MustCompile(`Forbidden`),
+		"Handshake failure":            regexp.MustCompile(`handshake failure`),
+		"Unknown cipher":               regexp.MustCompile(`unknown cipher`),
+		"Unknown curve":                regexp.MustCompile(`unknown curve`),
+		"Unknown TLS version":          regexp.MustCompile(`unknown TLS version`),
+		"No HTTP2 cipher":              regexp.MustCompile(`TLSConfig.CipherSuites is missing an HTTP/2-required`),
+		"Incompatible TLS version":     regexp.MustCompile(`protocol version not supported`),
 	}
 )
 
@@ -65,14 +73,18 @@ func getPort() string {
 }
 
 type TestInputs struct {
-	Name           string
-	Server         func() *http.Server
-	UseNilServer   bool
-	YAMLConfigPath string
-	ExpectedError  *regexp.Regexp
-	UseTLSClient   bool
-	Username       string
-	Password       string
+	Name                string
+	Server              func() *http.Server
+	UseNilServer        bool
+	YAMLConfigPath      string
+	ExpectedError       *regexp.Regexp
+	UseTLSClient        bool
+	ClientMaxTLSVersion uint16
+	CipherSuites        []uint16
+	ActualCipher        uint16
+	CurvePreferences    []tls.CurveID
+	Username            string
+	Password            string
 }
 
 func TestYAMLFiles(t *testing.T) {
@@ -142,6 +154,21 @@ func TestYAMLFiles(t *testing.T) {
 			YAMLConfigPath: "testdata/tls_config_auth_user_list_invalid.bad.yml",
 			ExpectedError:  ErrorMap["Bad password"],
 		},
+		{
+			Name:           `invalid config yml (bad cipher)`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_inventedCiphers.bad.yml",
+			ExpectedError:  ErrorMap["Unknown cipher"],
+		},
+		{
+			Name:           `invalid config yml (bad curves)`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_inventedCurves.bad.yml",
+			ExpectedError:  ErrorMap["Unknown curve"],
+		},
+		{
+			Name:           `invalid config yml (bad TLS version)`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_wrongTLSVersion.bad.yml",
+			ExpectedError:  ErrorMap["Unknown TLS version"],
+		},
 	}
 	for _, testInputs := range testTables {
 		t.Run(testInputs.Name, testInputs.Test)
@@ -171,6 +198,87 @@ func TestServerBehaviour(t *testing.T) {
 			YAMLConfigPath: "testdata/tls_config_noAuth.good.yml",
 			UseTLSClient:   true,
 			ExpectedError:  nil,
+		},
+		{
+			Name:                `valid tls config yml with TLS 1.1 client`,
+			YAMLConfigPath:      "testdata/tls_config_noAuth.good.yml",
+			UseTLSClient:        true,
+			ClientMaxTLSVersion: tls.VersionTLS11,
+			ExpectedError:       ErrorMap["Incompatible TLS version"],
+		},
+		{
+			Name:           `valid tls config yml with all ciphers`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_allCiphers.good.yml",
+			UseTLSClient:   true,
+			ExpectedError:  nil,
+		},
+		{
+			Name:           `valid tls config yml with some ciphers`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_someCiphers.good.yml",
+			UseTLSClient:   true,
+			CipherSuites:   []uint16{tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256},
+			ExpectedError:  nil,
+		},
+		{
+			Name:           `valid tls config yml with no common cipher`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_someCiphers.good.yml",
+			UseTLSClient:   true,
+			CipherSuites:   []uint16{tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA},
+			ExpectedError:  ErrorMap["Handshake failure"],
+		},
+		{
+			Name:           `valid tls config yml with multiple client ciphers`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_someCiphers.good.yml",
+			UseTLSClient:   true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			},
+			ActualCipher:  tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			ExpectedError: nil,
+		},
+		{
+			Name:           `valid tls config yml with multiple client ciphers, client chooses cipher`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_someCiphers_noOrder.good.yml",
+			UseTLSClient:   true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			},
+			ActualCipher:  tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			ExpectedError: nil,
+		},
+		{
+			Name:           `valid tls config yml with all curves`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_allCurves.good.yml",
+			UseTLSClient:   true,
+			ExpectedError:  nil,
+		},
+		{
+			Name:             `valid tls config yml with some curves`,
+			YAMLConfigPath:   "testdata/tls_config_noAuth_someCurves.good.yml",
+			UseTLSClient:     true,
+			CurvePreferences: []tls.CurveID{tls.CurveP521},
+			ExpectedError:    nil,
+		},
+		{
+			Name:             `valid tls config yml with no common curves`,
+			YAMLConfigPath:   "testdata/tls_config_noAuth_someCurves.good.yml",
+			UseTLSClient:     true,
+			CurvePreferences: []tls.CurveID{tls.CurveP384},
+			ExpectedError:    ErrorMap["Handshake failure"],
+		},
+		{
+			Name:           `valid tls config yml with non-http2 ciphers`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_noHTTP2.good.yml",
+			UseTLSClient:   true,
+			ExpectedError:  nil,
+		},
+		{
+			Name:           `valid tls config yml with non-http2 ciphers but http2 enabled`,
+			YAMLConfigPath: "testdata/tls_config_noAuth_noHTTP2Cipher.bad.yml",
+			UseTLSClient:   true,
+			ExpectedError:  ErrorMap["No HTTP2 cipher"],
 		},
 	}
 	for _, testInputs := range testTables {
@@ -297,6 +405,14 @@ func (test *TestInputs) Test(t *testing.T) {
 		var proto string
 		if test.UseTLSClient {
 			client = getTLSClient()
+			t := client.Transport.(*http.Transport)
+			t.TLSClientConfig.MaxVersion = test.ClientMaxTLSVersion
+			if len(test.CipherSuites) > 0 {
+				t.TLSClientConfig.CipherSuites = test.CipherSuites
+			}
+			if len(test.CurvePreferences) > 0 {
+				t.TLSClientConfig.CurvePreferences = test.CurvePreferences
+			}
 			proto = "https"
 		} else {
 			client = http.DefaultClient
@@ -318,6 +434,18 @@ func (test *TestInputs) Test(t *testing.T) {
 			recordConnectionError(err)
 			return
 		}
+
+		if test.ActualCipher != 0 {
+			if r.TLS.CipherSuite != test.ActualCipher {
+				recordConnectionError(
+					fmt.Errorf("bad cipher suite selected. Expected: %s, got: %s",
+						tls.CipherSuiteName(r.TLS.CipherSuite),
+						tls.CipherSuiteName(test.ActualCipher),
+					),
+				)
+			}
+		}
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			recordConnectionError(err)

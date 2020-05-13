@@ -17,6 +17,7 @@ package https
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -32,15 +33,25 @@ var (
 )
 
 type Config struct {
-	TLSConfig TLSStruct                     `yaml:"tls_config"`
-	Users     map[string]config_util.Secret `yaml:"basic_auth_users"`
+	TLSConfig  TLSStruct                     `yaml:"tls_server_config"`
+	HTTPConfig HTTPStruct                    `yaml:"http_server_config"`
+	Users      map[string]config_util.Secret `yaml:"basic_auth_users"`
 }
 
 type TLSStruct struct {
-	TLSCertPath string `yaml:"cert_file"`
-	TLSKeyPath  string `yaml:"key_file"`
-	ClientAuth  string `yaml:"client_auth_type"`
-	ClientCAs   string `yaml:"client_ca_file"`
+	TLSCertPath              string     `yaml:"cert_file"`
+	TLSKeyPath               string     `yaml:"key_file"`
+	ClientAuth               string     `yaml:"client_auth_type"`
+	ClientCAs                string     `yaml:"client_ca_file"`
+	CipherSuites             []cipher   `yaml:"cipher_suites"`
+	CurvePreferences         []curve    `yaml:"curve_preferences"`
+	MinVersion               tlsVersion `yaml:"min_version"`
+	MaxVersion               tlsVersion `yaml:"max_version"`
+	PreferServerCipherSuites bool       `yaml:"prefer_server_cipher_suites"`
+}
+
+type HTTPStruct struct {
+	HTTP2 bool `yaml:"http2"`
 }
 
 func getConfig(configPath string) (*Config, error) {
@@ -48,7 +59,14 @@ func getConfig(configPath string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := &Config{}
+	c := &Config{
+		TLSConfig: TLSStruct{
+			MinVersion:               tls.VersionTLS12,
+			MaxVersion:               tls.VersionTLS13,
+			PreferServerCipherSuites: true,
+		},
+		HTTPConfig: HTTPStruct{HTTP2: true},
+	}
 	err = yaml.UnmarshalStrict(content, c)
 	return c, err
 }
@@ -70,12 +88,11 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 	if c.TLSCertPath == "" {
 		return nil, errors.New("missing cert_file")
 	}
+
 	if c.TLSKeyPath == "" {
 		return nil, errors.New("missing key_file")
 	}
-	cfg := &tls.Config{
-		MinVersion: tls.VersionTLS12,
-	}
+
 	loadCert := func() (*tls.Certificate, error) {
 		cert, err := tls.LoadX509KeyPair(c.TLSCertPath, c.TLSKeyPath)
 		if err != nil {
@@ -83,12 +100,36 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 		}
 		return &cert, nil
 	}
+
 	// Confirm that certificate and key paths are valid.
 	if _, err := loadCert(); err != nil {
 		return nil, err
 	}
+
+	cfg := &tls.Config{
+		MinVersion:               (uint16)(c.MinVersion),
+		MaxVersion:               (uint16)(c.MaxVersion),
+		PreferServerCipherSuites: c.PreferServerCipherSuites,
+	}
+
 	cfg.GetCertificate = func(*tls.ClientHelloInfo) (*tls.Certificate, error) {
 		return loadCert()
+	}
+
+	var cf []uint16
+	for _, c := range c.CipherSuites {
+		cf = append(cf, (uint16)(c))
+	}
+	if len(cf) > 0 {
+		cfg.CipherSuites = cf
+	}
+
+	var cp []tls.CurveID
+	for _, c := range c.CurvePreferences {
+		cp = append(cp, (tls.CurveID)(c))
+	}
+	if len(cp) > 0 {
+		cfg.CurvePreferences = cp
 	}
 
 	if c.ClientCAs != "" {
@@ -126,7 +167,7 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
 // Listen starts the server on the given address. If tlsConfigPath isn't empty the server connection will be started using TLS.
 func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error {
 	if tlsConfigPath == "" {
-		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.")
+		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.", "http2", false)
 		return server.ListenAndServe()
 	}
 
@@ -145,14 +186,21 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 		handler:       handler,
 	}
 
-	config, err := getTLSConfig(tlsConfigPath)
+	c, err := getConfig(tlsConfigPath)
+	if err != nil {
+		return err
+	}
+	config, err := ConfigToTLSConfig(&c.TLSConfig)
 	switch err {
 	case nil:
+		if !c.HTTPConfig.HTTP2 {
+			server.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler))
+		}
 		// Valid TLS config.
-		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.")
+		level.Info(logger).Log("msg", "TLS is enabled and it cannot be disabled on the fly.", "http2", c.HTTPConfig.HTTP2)
 	case errNoTLSConfig:
 		// No TLS config, back to plain HTTP.
-		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.")
+		level.Info(logger).Log("msg", "TLS is disabled and it cannot be enabled on the fly.", "http2", false)
 		return server.ListenAndServe()
 	default:
 		// Invalid TLS config.
@@ -167,4 +215,87 @@ func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error 
 		return getTLSConfig(tlsConfigPath)
 	}
 	return server.ListenAndServeTLS("", "")
+}
+
+type cipher uint16
+
+func (c *cipher) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal((*string)(&s))
+	if err != nil {
+		return err
+	}
+	for _, cs := range tls.CipherSuites() {
+		if cs.Name == s {
+			*c = (cipher)(cs.ID)
+			return nil
+		}
+	}
+	return errors.New("unknown cipher: " + s)
+}
+
+func (c cipher) MarshalYAML() (interface{}, error) {
+	return tls.CipherSuiteName((uint16)(c)), nil
+}
+
+type curve tls.CurveID
+
+var curves = map[string]curve{
+	"CurveP256": (curve)(tls.CurveP256),
+	"CurveP384": (curve)(tls.CurveP384),
+	"CurveP521": (curve)(tls.CurveP521),
+	"X25519":    (curve)(tls.X25519),
+}
+
+func (c *curve) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal((*string)(&s))
+	if err != nil {
+		return err
+	}
+	if curveid, ok := curves[s]; ok {
+		*c = curveid
+		return nil
+	}
+	return errors.New("unknown curve: " + s)
+}
+
+func (c *curve) MarshalYAML() (interface{}, error) {
+	for s, curveid := range curves {
+		if *c == curveid {
+			return s, nil
+		}
+	}
+	return fmt.Sprintf("%v", c), nil
+}
+
+type tlsVersion uint16
+
+var tlsVersions = map[string]tlsVersion{
+	"TLS13": (tlsVersion)(tls.VersionTLS13),
+	"TLS12": (tlsVersion)(tls.VersionTLS12),
+	"TLS11": (tlsVersion)(tls.VersionTLS11),
+	"TLS10": (tlsVersion)(tls.VersionTLS10),
+}
+
+func (tv *tlsVersion) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal((*string)(&s))
+	if err != nil {
+		return err
+	}
+	if v, ok := tlsVersions[s]; ok {
+		*tv = v
+		return nil
+	}
+	return errors.New("unknown TLS version: " + s)
+}
+
+func (tv *tlsVersion) MarshalYAML() (interface{}, error) {
+	for s, v := range tlsVersions {
+		if *tv == v {
+			return s, nil
+		}
+	}
+	return fmt.Sprintf("%v", tv), nil
 }
