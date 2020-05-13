@@ -11,7 +11,7 @@ in Go with pluggable metric collectors.
 
 The [WMI exporter](https://github.com/martinlindhe/wmi_exporter) is recommended for Windows users.
 To expose NVIDIA GPU metrics, [prometheus-dcgm
-](https://github.com/NVIDIA/gpu-monitoring-tools/tree/master/exporters/prometheus-dcgm)
+](https://github.com/NVIDIA/gpu-monitoring-tools/)
 can be used.
 
 ## Collectors
