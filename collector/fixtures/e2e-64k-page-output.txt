@@ -3584,6 +3584,42 @@ node_zfs_zil_zil_itx_needcopy_bytes 1.8446744073709537e+19
 # HELP node_zfs_zil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
 # TYPE node_zfs_zil_zil_itx_needcopy_count untyped
 node_zfs_zil_zil_itx_needcopy_count 0
+# HELP node_zfs_zpool_dataset_nread kstat.zfs.misc.objset.nread
+# TYPE node_zfs_zpool_dataset_nread untyped
+node_zfs_zpool_dataset_nread{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nread{dataset="pool1/dataset1",zpool="pool1"} 28
+node_zfs_zpool_dataset_nread{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nread{dataset="poolz1/dataset1",zpool="poolz1"} 28
+# HELP node_zfs_zpool_dataset_nunlinked kstat.zfs.misc.objset.nunlinked
+# TYPE node_zfs_zpool_dataset_nunlinked untyped
+node_zfs_zpool_dataset_nunlinked{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nunlinked{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinked{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nunlinked{dataset="poolz1/dataset1",zpool="poolz1"} 14
+# HELP node_zfs_zpool_dataset_nunlinks kstat.zfs.misc.objset.nunlinks
+# TYPE node_zfs_zpool_dataset_nunlinks untyped
+node_zfs_zpool_dataset_nunlinks{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nunlinks{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinks{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nunlinks{dataset="poolz1/dataset1",zpool="poolz1"} 14
+# HELP node_zfs_zpool_dataset_nwritten kstat.zfs.misc.objset.nwritten
+# TYPE node_zfs_zpool_dataset_nwritten untyped
+node_zfs_zpool_dataset_nwritten{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nwritten{dataset="pool1/dataset1",zpool="pool1"} 12302
+node_zfs_zpool_dataset_nwritten{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nwritten{dataset="poolz1/dataset1",zpool="poolz1"} 32806
+# HELP node_zfs_zpool_dataset_reads kstat.zfs.misc.objset.reads
+# TYPE node_zfs_zpool_dataset_reads untyped
+node_zfs_zpool_dataset_reads{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_reads{dataset="pool1/dataset1",zpool="pool1"} 2
+node_zfs_zpool_dataset_reads{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_reads{dataset="poolz1/dataset1",zpool="poolz1"} 2
+# HELP node_zfs_zpool_dataset_writes kstat.zfs.misc.objset.writes
+# TYPE node_zfs_zpool_dataset_writes untyped
+node_zfs_zpool_dataset_writes{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_writes{dataset="pool1/dataset1",zpool="pool1"} 4
+node_zfs_zpool_dataset_writes{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_writes{dataset="poolz1/dataset1",zpool="poolz1"} 10
 # HELP node_zfs_zpool_nread kstat.zfs.misc.io.nread
 # TYPE node_zfs_zpool_nread untyped
 node_zfs_zpool_nread{zpool="pool1"} 1.88416e+06

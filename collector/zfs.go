@@ -34,17 +34,19 @@ func init() {
 }
 
 type zfsCollector struct {
-	linuxProcpathBase string
-	linuxZpoolIoPath  string
-	linuxPathMap      map[string]string
-	logger            log.Logger
+	linuxProcpathBase    string
+	linuxZpoolIoPath     string
+	linuxZpoolObjsetPath string
+	linuxPathMap         map[string]string
+	logger               log.Logger
 }
 
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
 func NewZFSCollector(logger log.Logger) (Collector, error) {
 	return &zfsCollector{
-		linuxProcpathBase: "spl/kstat/zfs",
-		linuxZpoolIoPath:  "/*/io",
+		linuxProcpathBase:    "spl/kstat/zfs",
+		linuxZpoolIoPath:     "/*/io",
+		linuxZpoolObjsetPath: "/*/objset-*",
 		linuxPathMap: map[string]string{
 			"zfs_abd":         "abdstats",
 			"zfs_arc":         "arcstats",
@@ -111,5 +113,22 @@ func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value 
 		prometheus.UntypedValue,
 		float64(value),
 		poolName,
+	)
+}
+
+func (c *zfsCollector) constPoolObjsetMetric(poolName string, datasetName string, sysctl zfsSysctl, value uint64) prometheus.Metric {
+	metricName := sysctl.metricName()
+
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "zfs_zpool_dataset", metricName),
+			string(sysctl),
+			[]string{"zpool", "dataset"},
+			nil,
+		),
+		prometheus.UntypedValue,
+		float64(value),
+		poolName,
+		datasetName,
 	)
 }
