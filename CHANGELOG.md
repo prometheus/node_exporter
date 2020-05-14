@@ -2,12 +2,10 @@
 
 * [CHANGE]
 * [FEATURE]
-* [FEATURE] Add basic authentication #1673
-* [ENHANCEMENT] Add model_name and stepping to node_cpu_info metric #1617
-* [ENHANCEMENT] Add metrics for IO errors and retires on Darwin. #1636
-* [BUGFIX] collector/systemd: use regexp to extract systemd version #1647
+* [ENHANCEMENT]
+* [BUGFIX]
 
-## 1.0.0-rc.0 / 2020-02-20
+## 1.0.0-rc.1 / 2020-05-14
 
 ### **Breaking changes**
 
@@ -23,14 +21,13 @@
 
 ### Changes
 
-* [ENHANCEMENT] Add `--collector.perf.cpus` to allow setting the CPU list for perf stats.
 * [CHANGE] Add `--collector.netdev.device-whitelist`. #1279
 * [CHANGE] Ignore iso9600 filesystem on Linux #1355
 * [CHANGE] Refactor mdadm collector #1403
 * [CHANGE] Add `mountaddr` label to NFS metrics. #1417
 * [CHANGE] Don't count empty collectors as success. #1613
 * [FEATURE] New flag to disable default collectors #1276
-* [FEATURE] Add experimental TLS support #1277
+* [FEATURE] Add experimental TLS support #1277, #1687, #1695
 * [FEATURE] Add collector for Power Supply Class #1280
 * [FEATURE] Add new schedstat collector #1389
 * [FEATURE] Add FreeBSD zfs support #1394
@@ -43,6 +40,7 @@
 * [FEATURE] Add RAPL collector #1523
 * [FEATURE] Add new softnet collector #1576
 * [FEATURE] Add new udp_queues collector #1503
+* [FEATURE] Add basic authentication #1673
 * [ENHANCEMENT] Log pid when there is a problem reading the process stats #1341
 * [ENHANCEMENT] Collect InfiniBand port state and physical state #1357
 * [ENHANCEMENT] Include additional XFS runtime statistics. #1423
@@ -56,6 +54,11 @@
 * [ENHANCEMENT] Add infiniband info metric #1563
 * [ENHANCEMENT] Add unix socket support for supervisord collector #1592
 * [ENHANCEMENT] Implement loadavg on all BSDs without cgo #1584
+* [ENHANCEMENT] Add model_name and stepping to node_cpu_info metric #1617
+* [ENHANCEMENT] Add `--collector.perf.cpus` to allow setting the CPU list for perf stats. #1561
+* [ENHANCEMENT] Add metrics for IO errors and retires on Darwin. #1636
+* [ENHANCEMENT] Add perf tracepoint collection flag #1664
+* [ENHANCEMENT] ZFS: read contents of objset file #1632
 * [BUGFIX] Read /proc/net files with a single read syscall #1380
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
@@ -67,6 +70,9 @@
 * [BUGFIX] Fix OpenBSD cache memory information #1542
 * [BUGFIX] Refactor textfile collector to avoid looping defer #1549
 * [BUGFIX] Fix network speed math #1580
+* [BUGFIX] collector/systemd: use regexp to extract systemd version #1647
+* [BUGFIX] Fix initialization in perf collector when using multiple CPUs #1665
+* [BUGFIX] Fix accidentally empty lines in meminfo_linux #1671
 
 ## 0.18.1 / 2019-06-04
 
