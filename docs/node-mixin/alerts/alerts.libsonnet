@@ -157,6 +157,23 @@
             },
           },
           {
+            alert: 'NodeFilesystemReadOnly',
+            expr: |||
+              (
+                node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} > 0
+              and
+                changes(node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s}[5m]) > 0
+              )
+            ||| % $._config,
+            labels: {
+              severity: '%(nodeCriticalSeverity)s',
+            },
+            annotations: {
+              summary: 'Filesystem has been remounted as read-only.',
+              description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has been remounted as read-only possibly to prevent data corruption.',
+            },
+          },
+          {
             alert: 'NodeNetworkReceiveErrs',
             expr: |||
               increase(node_network_receive_errs_total[2m]) > 10
