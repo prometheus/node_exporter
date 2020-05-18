@@ -68,7 +68,7 @@ basic_auth_users:
 There are several tools out there to generate bcrypt passwords, e.g.
 [htpasswd](https://httpd.apache.org/docs/2.4/programs/htpasswd.html):
 
-`htpasswd -nBC 10 "" | tr -d ':\n`
+`htpasswd -nBC 10 "" | tr -d ':\n'`
 
 That command will prompt you for a password and output the hashed password,
 which will look something like:
