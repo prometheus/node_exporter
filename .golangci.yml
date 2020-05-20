@@ -1,0 +1,20 @@
+---
+linters-settings:
+  lll:
+    line-length: 140
+    tab-width: 4
+
+  unused:
+    check-exported: true
+
+  unparam:
+    check-exported: true
+
+linters:
+  enable-all: true
+
+issues:
+  exclude-use-default: false
+  exclude:
+    # gas: Duplicated errcheck checks
+    - 'G104: Errors unhandled'
