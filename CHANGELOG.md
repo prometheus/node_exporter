@@ -3,7 +3,7 @@
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
-* [BUGFIX]
+* [BUGFIX] Linux CPU: Cache CPU metrics to make them monotonically increasing #1711
 
 ## 1.0.0-rc.1 / 2020-05-14
 

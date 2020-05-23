@@ -28,7 +28,7 @@ jobs:
     steps:
     - checkout
     - run: sudo pip install codespell
-    - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem" -L uint,packages\',uptodate
+    - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem,./collector/fixtures" -L uint,packages\',uptodate
 
   build:
     machine:
