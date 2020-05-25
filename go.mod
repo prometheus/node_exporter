@@ -28,7 +28,7 @@ require (
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/net v0.0.0-20200513185701-a91f0712d120 // indirect
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a // indirect
-	golang.org/x/sys v0.0.0-20200513112337-417ce2331b5c
+	golang.org/x/sys v0.0.0-20200523222454-059865788121
 	golang.org/x/tools v0.0.0-20200513201620-d5fe73897c97 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.3.0

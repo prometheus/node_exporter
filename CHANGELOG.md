@@ -3,9 +3,9 @@
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
-* [BUGFIX] Linux CPU: Cache CPU metrics to make them monotonically increasing #1711
+* [BUGFIX]
 
-## 1.0.0-rc.1 / 2020-05-14
+## 1.0.0 / 2020-05-25
 
 ### **Breaking changes**
 
@@ -59,6 +59,7 @@
 * [ENHANCEMENT] Add metrics for IO errors and retires on Darwin. #1636
 * [ENHANCEMENT] Add perf tracepoint collection flag #1664
 * [ENHANCEMENT] ZFS: read contents of objset file #1632
+* [ENHANCEMENT] Linux CPU: Cache CPU metrics to make them monotonically increasing #1711
 * [BUGFIX] Read /proc/net files with a single read syscall #1380
 * [BUGFIX] Renamed label `state` to `name` on `node_systemd_service_restart_total`. #1393
 * [BUGFIX] Fix netdev nil reference on Darwin #1414
