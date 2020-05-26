@@ -123,7 +123,7 @@ golang.org/x/net/trace
 # golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 ## explicit
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20200513112337-417ce2331b5c
+# golang.org/x/sys v0.0.0-20200523222454-059865788121
 ## explicit
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
