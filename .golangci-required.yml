@@ -1,0 +1,13 @@
+---
+# The most valuable linters; they are required to pass for PR to be merged.
+linters:
+  disable-all: true
+  enable:
+    - depguard
+    - goimports
+    - ineffassign
+    - govet
+    - staticcheck
+
+issues:
+  exclude-use-default: false

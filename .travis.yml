@@ -21,6 +21,16 @@ branches:
 
 go_import_path: github.com/prometheus/node_exporter
 
+install:
+  # install reviewdog and golangci-lin
+  - curl https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
+  - curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
+
+before_script:
+  # static analyze
+  - bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
+  - bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+
 script:
   - go install -v ./...
 
