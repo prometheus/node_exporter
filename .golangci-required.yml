@@ -1,19 +1,5 @@
 ---
 # The most valuable linters; they are required to pass for PR to be merged.
-
-linters-settings:
-  depguard:
-    list-type: blacklist
-    include-go-root: true
-    packages:
-      # use "github.com/pkg/errors" instead
-      - errors
-      # use "github.com/golang/protobuf/proto" instead
-      - github.com/gogo/protobuf/proto
-
-  goimports:
-    local-prefixes: github.com/percona/node_exporter
-
 linters:
   disable-all: true
   enable:
