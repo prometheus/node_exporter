@@ -44,10 +44,11 @@ func parseMemInfo(v, s interface{}) error {
 func mergeInfo(infors, s map[string]float64, prefix string) error {
 	// Merged values
 	for k, v := range infors {
+		// change fields name
 		if k == "usedPercent" {
 			k = prefix + "_used_percent"
 		} else {
-			k = k + "_bytes"
+			k = prefix + "_" + k + "_bytes"
 		}
 
 		s[k] = v
