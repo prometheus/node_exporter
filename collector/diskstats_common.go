@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nodiskstats
-// +build openbsd linux darwin
+// +build openbsd linux darwin windows
 
 package collector
 
