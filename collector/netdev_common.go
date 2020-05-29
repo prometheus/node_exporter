@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nonetdev
-// +build linux freebsd openbsd dragonfly darwin
+// +build linux freebsd openbsd dragonfly darwin windows
 
 package collector
 
@@ -28,7 +28,7 @@ import (
 )
 
 var (
-	netdevIgnoredDevices = kingpin.Flag("collector.netdev.device-blacklist", "Regexp of net devices to blacklist (mutually exclusive to device-whitelist).").String()
+	netdevIgnoredDevices = kingpin.Flag("collector.netdev.device-blacklist", "Regexp of net devices to blacklist (mutually exclusive to device-whitelist).").Default("^(Teredo|Reusable|isatap.|Loopback)").String()
 	netdevAcceptDevices  = kingpin.Flag("collector.netdev.device-whitelist", "Regexp of net devices to whitelist (mutually exclusive to device-blacklist).").String()
 )
 
