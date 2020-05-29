@@ -74,15 +74,11 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 			v, _ := strconv.ParseFloat(v, 10)
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
-					prometheus.BuildFQName(
-						namespace,
-						subsystem,
-						fmt.Sprintf(`%s_mem_%s`, procName, k),
-					),
-					fmt.Sprintf("Memory information field %s of process %s.", k, procName),
-					nil, nil,
+					prometheus.BuildFQName(namespace, subsystem, "memory_bytes"),
+					"Memory information field kinds of processes.",
+					[]string{"process_name", "parameter_name"}, nil,
 				),
-				prometheus.GaugeValue, v,
+				prometheus.GaugeValue, v, procName, k,
 			)
 		}
 
@@ -91,15 +87,11 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 			v, _ := strconv.ParseFloat(v, 10)
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
-					prometheus.BuildFQName(
-						namespace,
-						subsystem,
-						fmt.Sprintf(`%s_iocounters_%s`, procName, k),
-					),
-					fmt.Sprintf("IOCounters information field %s of process %s.", k, procName),
-					nil, nil,
+					prometheus.BuildFQName(namespace, subsystem, "iocounters_bytes"),
+					fmt.Sprintf("IOCounters information field kinds of processes."),
+					[]string{"process_name", "parameter_name"}, nil,
 				),
-				prometheus.GaugeValue, v,
+				prometheus.GaugeValue, v, procName, k,
 			)
 		}
 	}
@@ -163,7 +155,7 @@ func getMemoryInfo(proc *process.Process) (map[string]string, error) {
 	json.Unmarshal(memBytes, &tgMI)
 
 	for k, v := range tgMI {
-		gMI[k+"_bytes"] = fmt.Sprintf(`%v`, v)
+		gMI[k] = fmt.Sprintf(`%v`, v)
 	}
 
 	// get memory percent
