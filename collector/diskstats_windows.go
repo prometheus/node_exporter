@@ -216,17 +216,17 @@ func getDiskIOCounters() (map[string][]string, error) {
 	}
 	for dev, diskIOC := range diskIOCs {
 		diskIOCounters[dev] = []string{
-			strconv.FormatUint(diskIOC.ReadCount, 10),
-			strconv.FormatUint(diskIOC.MergedReadCount, 10),
-			strconv.FormatUint(diskIOC.ReadBytes, 10),
-			strconv.FormatUint(diskIOC.ReadTime, 10),
-			strconv.FormatUint(diskIOC.WriteCount, 10),
-			strconv.FormatUint(diskIOC.MergedWriteCount, 10),
-			strconv.FormatUint(diskIOC.WriteBytes, 10),
-			strconv.FormatUint(diskIOC.WriteTime, 10),
-			strconv.FormatUint(diskIOC.IopsInProgress, 10),
-			strconv.FormatUint(diskIOC.IoTime, 10),
-			strconv.FormatUint(diskIOC.WeightedIO, 10),
+			fmt.Sprintf(`%v`, diskIOC.ReadCount),
+			fmt.Sprintf(`%v`, diskIOC.MergedReadCount),
+			fmt.Sprintf(`%v`, diskIOC.ReadBytes),
+			fmt.Sprintf(`%v`, diskIOC.ReadTime),
+			fmt.Sprintf(`%v`, diskIOC.WriteCount),
+			fmt.Sprintf(`%v`, diskIOC.MergedWriteCount),
+			fmt.Sprintf(`%v`, diskIOC.WriteBytes),
+			fmt.Sprintf(`%v`, diskIOC.WriteTime),
+			fmt.Sprintf(`%v`, diskIOC.IopsInProgress),
+			fmt.Sprintf(`%v`, diskIOC.IoTime),
+			fmt.Sprintf(`%v`, diskIOC.WeightedIO),
 		}
 	}
 	return diskIOCounters, nil
@@ -244,9 +244,9 @@ func getDiskUsages() (map[string][]string, error) {
 			return diskUsages, err
 		}
 		diskUsages[partition.Device] = []string{
-			strconv.FormatUint(devUsages.Total, 10),
-			strconv.FormatUint(devUsages.Free, 10),
-			strconv.FormatUint(devUsages.Used, 10),
+			fmt.Sprintf(`%v`, devUsages.Total),
+			fmt.Sprintf(`%v`, devUsages.Free),
+			fmt.Sprintf(`%v`, devUsages.Used),
 			fmt.Sprintf("%.6f", devUsages.UsedPercent),
 		}
 	}
