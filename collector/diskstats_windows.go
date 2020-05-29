@@ -239,11 +239,11 @@ func getDiskUsages() (map[string][]string, error) {
 		return diskUsages, err
 	}
 	for _, partition := range partitions {
-		devUsages, err := disk.Usage(partition.Device)
+		devUsages, err := disk.Usage(partition.Mountpoint)
 		if err != nil {
 			return diskUsages, err
 		}
-		diskUsages[partition.Device] = []string{
+		diskUsages[partition.Mountpoint] = []string{
 			fmt.Sprintf(`%v`, devUsages.Total),
 			fmt.Sprintf(`%v`, devUsages.Free),
 			fmt.Sprintf(`%v`, devUsages.Used),
