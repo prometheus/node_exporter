@@ -56,11 +56,11 @@ http_server_config:
   # This can not be changed on the fly.
   [ http2: <bool> | default = true ]
 
-# List of usernames and hashed passwords that have full access to the web
+# Usernames and hashed passwords that have full access to the web
 # server via basic authentication. If empty, no basic authentication is
 # required. Passwords are hashed with bcrypt.
 basic_auth_users:
-  [ <username>: <password> ... ]
+  [ <string>: <secret> ... ]
 ```
 
 ## About bcrypt
