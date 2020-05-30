@@ -16,6 +16,8 @@
 package collector
 
 import (
+	"bytes"
+
 	"github.com/go-kit/kit/log/level"
 	"golang.org/x/sys/unix"
 )
@@ -40,14 +42,19 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	}
 	stats := []filesystemStats{}
 	for _, fs := range buf {
-		mountpoint := string(fs.Mntonname[:])
+		// We need to work out the lengths of the actual strings here,
+		// otherwuse we will end up with null bytes in our label values.
+		mountpoint_len := bytes.Index(fs.Mntonname[:], []byte{0})
+		mountpoint := string(fs.Mntonname[:mountpoint_len])
 		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
 			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
-		device := string(fs.Mntfromname[:])
-		fstype := string(fs.Fstypename[:])
+		device_len := bytes.Index(fs.Mntfromname[:], []byte{0})
+		fstype_len := bytes.Index(fs.Fstypename[:], []byte{0})
+		device := string(fs.Mntfromname[:device_len])
+		fstype := string(fs.Fstypename[:fstype_len])
 		if c.ignoredFSTypesPattern.MatchString(fstype) {
 			level.Debug(c.logger).Log("msg", "Ignoring fs type", "type", fstype)
 			continue
