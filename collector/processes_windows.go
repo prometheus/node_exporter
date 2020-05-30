@@ -71,10 +71,15 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 	for procName, procInfo := range procStats {
 		// Update memory information
 		for k, v := range procInfo["mem"] {
+			var key = "mem_bytes"
+			if k == "used_percent" {
+				key = "mem_percent"
+			}
+
 			v, _ := strconv.ParseFloat(v, 10)
 			ch <- prometheus.MustNewConstMetric(
 				prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, subsystem, "memory_bytes"),
+					prometheus.BuildFQName(namespace, subsystem, key),
 					"Memory information field kinds of processes.",
 					[]string{"process_name", "parameter_name"}, nil,
 				),
