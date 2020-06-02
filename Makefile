@@ -19,7 +19,7 @@ DOCKER_ARCHS ?= amd64 armv7 arm64 ppc64le s390x
 
 include Makefile.common
 
-PROMTOOL_VERSION ?= 2.5.0
+PROMTOOL_VERSION ?= 2.18.1
 PROMTOOL_URL     ?= https://github.com/prometheus/prometheus/releases/download/v$(PROMTOOL_VERSION)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM).tar.gz
 PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
 
@@ -129,9 +129,5 @@ test-docker:
 promtool: $(PROMTOOL)
 
 $(PROMTOOL):
-	$(eval PROMTOOL_TMP := $(shell mktemp -d))
-	curl -s -L $(PROMTOOL_URL) | tar -xvzf - -C $(PROMTOOL_TMP)
 	mkdir -p $(FIRST_GOPATH)/bin
-	cp $(PROMTOOL_TMP)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM)/promtool $(FIRST_GOPATH)/bin/promtool
-	rm -r $(PROMTOOL_TMP)
-
+	curl -fsS -L $(PROMTOOL_URL) | tar -xvzf - -C $(FIRST_GOPATH)/bin --no-anchored --strip 1 promtool
