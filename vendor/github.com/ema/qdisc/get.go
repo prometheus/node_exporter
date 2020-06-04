@@ -86,6 +86,8 @@ type QdiscInfo struct {
 	GcFlows     uint64
 	Throttled   uint64
 	FlowsPlimit uint64
+	Qlen        uint32
+	Backlog     uint32
 }
 
 func parseTCAStats(attr netlink.Attribute) TC_Stats {
@@ -237,6 +239,8 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 			// requeues only available in TCA_STATS2, not in TCA_STATS
 			m.Requeues = s2.Requeues
 			m.Overlimits = s2.Overlimits
+			m.Qlen = s2.Qlen
+			m.Backlog = s2.Backlog
 		case TCA_STATS:
 			// Legacy
 			s = parseTCAStats(attr)
@@ -244,6 +248,8 @@ func parseMessage(msg netlink.Message) (QdiscInfo, error) {
 			m.Packets = s.Packets
 			m.Drops = s.Drops
 			m.Overlimits = s.Overlimits
+			m.Qlen = s.Qlen
+			m.Backlog = s.Backlog
 		default:
 			// TODO: TCA_OPTIONS and TCA_XSTATS
 		}
