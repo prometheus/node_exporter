@@ -2,7 +2,7 @@
 
 * [CHANGE]
 * [FEATURE]
-* [ENHANCEMENT]
+* [ENHANCEMENT] Include TCP OutRsts in netstat metrics
 * [BUGFIX]
 
 ## 1.0.0 / 2020-05-25
