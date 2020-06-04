@@ -4,7 +4,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/beevik/ntp v0.3.0
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
-	github.com/ema/qdisc v0.0.0-20190904071900-b82c76788043
+	github.com/ema/qdisc v0.0.0-20200603082823-62d0308e3e00
 	github.com/go-kit/kit v0.10.0
 	github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 	github.com/golang/protobuf v1.4.1 // indirect
@@ -26,9 +26,9 @@ require (
 	go.uber.org/multierr v1.5.0 // indirect
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
-	golang.org/x/net v0.0.0-20200513185701-a91f0712d120 // indirect
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a // indirect
-	golang.org/x/sys v0.0.0-20200523222454-059865788121
+	golang.org/x/sys v0.0.0-20200602225109-6fdc65e7d980
 	golang.org/x/tools v0.0.0-20200513201620-d5fe73897c97 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.3.0

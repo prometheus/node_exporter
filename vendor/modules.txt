@@ -14,7 +14,7 @@ github.com/cespare/xxhash/v2
 # github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 ## explicit
 github.com/coreos/go-systemd/dbus
-# github.com/ema/qdisc v0.0.0-20190904071900-b82c76788043
+# github.com/ema/qdisc v0.0.0-20200603082823-62d0308e3e00
 ## explicit
 github.com/ema/qdisc
 # github.com/go-kit/kit v0.10.0
@@ -108,7 +108,7 @@ golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
 # golang.org/x/lint v0.0.0-20200302205851-738671d3881b
 ## explicit
-# golang.org/x/net v0.0.0-20200513185701-a91f0712d120
+# golang.org/x/net v0.0.0-20200602114024-627f9648deb9
 ## explicit
 golang.org/x/net/bpf
 golang.org/x/net/http/httpguts
@@ -123,7 +123,7 @@ golang.org/x/net/trace
 # golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 ## explicit
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20200523222454-059865788121
+# golang.org/x/sys v0.0.0-20200602225109-6fdc65e7d980
 ## explicit
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
