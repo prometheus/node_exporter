@@ -2497,10 +2497,18 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_qdisc_backlog Number of bytes currently in queue to be sent.
+# TYPE node_qdisc_backlog gauge
+node_qdisc_backlog{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_backlog{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_bytes_total Number of bytes sent.
 # TYPE node_qdisc_bytes_total counter
 node_qdisc_bytes_total{device="eth0",kind="pfifo_fast"} 83
 node_qdisc_bytes_total{device="wlan0",kind="fq"} 42
+# HELP node_qdisc_current_queue_length Number of packets currently in queue to be sent.
+# TYPE node_qdisc_current_queue_length gauge
+node_qdisc_current_queue_length{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_current_queue_length{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_drops_total Number of packets dropped.
 # TYPE node_qdisc_drops_total counter
 node_qdisc_drops_total{device="eth0",kind="pfifo_fast"} 0
