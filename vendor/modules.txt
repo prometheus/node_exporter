@@ -81,7 +81,7 @@ github.com/prometheus/common/model
 github.com/prometheus/common/promlog
 github.com/prometheus/common/promlog/flag
 github.com/prometheus/common/version
-# github.com/prometheus/procfs v0.0.11
+# github.com/prometheus/procfs v0.1.3
 ## explicit
 github.com/prometheus/procfs
 github.com/prometheus/procfs/bcache
@@ -123,7 +123,7 @@ golang.org/x/net/trace
 # golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
 ## explicit
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20200523222454-059865788121
+# golang.org/x/sys v0.0.0-20200602225109-6fdc65e7d980
 ## explicit
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
