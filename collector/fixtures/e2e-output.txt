@@ -2261,6 +2261,30 @@ node_nf_conntrack_entries 123
 # HELP node_nf_conntrack_entries_limit Maximum size of connection tracking table.
 # TYPE node_nf_conntrack_entries_limit gauge
 node_nf_conntrack_entries_limit 65536
+# HELP node_nf_conntrack_stat_drop Number of packets dropped due to conntrack failure.
+# TYPE node_nf_conntrack_stat_drop gauge
+node_nf_conntrack_stat_drop 0
+# HELP node_nf_conntrack_stat_early_drop Number of dropped conntrack entries to make room for new ones, if maximum table size was reached.
+# TYPE node_nf_conntrack_stat_early_drop gauge
+node_nf_conntrack_stat_early_drop 0
+# HELP node_nf_conntrack_stat_found Number of searched entries which were successful.
+# TYPE node_nf_conntrack_stat_found gauge
+node_nf_conntrack_stat_found 0
+# HELP node_nf_conntrack_stat_ignore Number of packets seen which are already connected to a conntrack entry.
+# TYPE node_nf_conntrack_stat_ignore gauge
+node_nf_conntrack_stat_ignore 89738
+# HELP node_nf_conntrack_stat_insert Number of entries inserted into the list.
+# TYPE node_nf_conntrack_stat_insert gauge
+node_nf_conntrack_stat_insert 0
+# HELP node_nf_conntrack_stat_insert_failed Number of entries for which list insertion was attempted but failed.
+# TYPE node_nf_conntrack_stat_insert_failed gauge
+node_nf_conntrack_stat_insert_failed 0
+# HELP node_nf_conntrack_stat_invalid Number of packets seen which can not be tracked.
+# TYPE node_nf_conntrack_stat_invalid gauge
+node_nf_conntrack_stat_invalid 53
+# HELP node_nf_conntrack_stat_search_restart Number of conntrack table lookups which had to be restarted due to hashtable resizes.
+# TYPE node_nf_conntrack_stat_search_restart gauge
+node_nf_conntrack_stat_search_restart 7
 # HELP node_nfs_connections_total Total number of NFSd TCP connections.
 # TYPE node_nfs_connections_total counter
 node_nfs_connections_total 45
@@ -2550,13 +2574,14 @@ node_processes_max_processes 123
 node_processes_max_threads 7801
 # HELP node_processes_pids Number of PIDs
 # TYPE node_processes_pids gauge
-node_processes_pids 1
+node_processes_pids 3
 # HELP node_processes_state Number of processes in each state.
 # TYPE node_processes_state gauge
-node_processes_state{state="S"} 1
+node_processes_state{state="I"} 1
+node_processes_state{state="S"} 2
 # HELP node_processes_threads Allocated threads in system
 # TYPE node_processes_threads gauge
-node_processes_threads 1
+node_processes_threads 3
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
