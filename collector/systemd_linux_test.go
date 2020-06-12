@@ -89,11 +89,11 @@ func getUnitListFixtures() [][]unit {
 
 func TestSystemdIgnoreFilter(t *testing.T) {
 	fixtures := getUnitListFixtures()
-	whitelistPattern := regexp.MustCompile("^foo$")
-	blacklistPattern := regexp.MustCompile("^bar$")
-	filtered := filterUnits(fixtures[0], whitelistPattern, blacklistPattern, log.NewNopLogger())
+	includePattern := regexp.MustCompile("^foo$")
+	excludePattern := regexp.MustCompile("^bar$")
+	filtered := filterUnits(fixtures[0], includePattern, excludePattern, log.NewNopLogger())
 	for _, unit := range filtered {
-		if blacklistPattern.MatchString(unit.Name) || !whitelistPattern.MatchString(unit.Name) {
+		if excludePattern.MatchString(unit.Name) || !includePattern.MatchString(unit.Name) {
 			t.Error(unit.Name, "should not be in the filtered list")
 		}
 	}
@@ -106,7 +106,7 @@ func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	}
 	fixtures := getUnitListFixtures()
 	collector := c.(*systemdCollector)
-	filtered := filterUnits(fixtures[0], collector.unitWhitelistPattern, collector.unitBlacklistPattern, logger)
+	filtered := filterUnits(fixtures[0], collector.unitIncludePattern, collector.unitExcludePattern, logger)
 	// Adjust fixtures by 3 "not-found" units.
 	if len(filtered) != len(fixtures[0])-3 {
 		t.Error("Default filters removed units")

@@ -1,5 +1,6 @@
 ## master / unreleased
 
+* [CHANGE] Improve filter flag names.
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
