@@ -12,6 +12,7 @@
 // limitations under the License.
 
 // +build solaris
+// +build !nozfs
 
 package collector
 
