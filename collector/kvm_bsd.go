@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !nomeminfo
+// +build !nokvm
 // +build freebsd dragonfly
 
 package collector
