@@ -4,7 +4,7 @@
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
-* [BUGFIX]
+* [BUGFIX] Handle no data from powersupplyclass
 
 ## 1.0.0 / 2020-05-25
 
