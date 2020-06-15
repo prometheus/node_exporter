@@ -42,22 +42,26 @@ type InfiniBandCounters struct {
 	LegacyPortXmitData64           *uint64 // counters_ext/port_xmit_data_64
 	LegacyPortXmitPackets64        *uint64 // counters_ext/port_xmit_packets_64
 
-	LinkDowned               *uint64 // counters/link_downed
-	LinkErrorRecovery        *uint64 // counters/link_error_recovery
-	MulticastRcvPackets      *uint64 // counters/multicast_rcv_packets
-	MulticastXmitPackets     *uint64 // counters/multicast_xmit_packets
-	PortRcvConstraintErrors  *uint64 // counters/port_rcv_constraint_errors
-	PortRcvData              *uint64 // counters/port_rcv_data
-	PortRcvDiscards          *uint64 // counters/port_rcv_discards
-	PortRcvErrors            *uint64 // counters/port_rcv_errors
-	PortRcvPackets           *uint64 // counters/port_rcv_packets
-	PortXmitConstraintErrors *uint64 // counters/port_xmit_constraint_errors
-	PortXmitData             *uint64 // counters/port_xmit_data
-	PortXmitDiscards         *uint64 // counters/port_xmit_discards
-	PortXmitPackets          *uint64 // counters/port_xmit_packets
-	PortXmitWait             *uint64 // counters/port_xmit_wait
-	UnicastRcvPackets        *uint64 // counters/unicast_rcv_packets
-	UnicastXmitPackets       *uint64 // counters/unicast_xmit_packets
+	LinkDowned                  *uint64 // counters/link_downed
+	LinkErrorRecovery           *uint64 // counters/link_error_recovery
+	MulticastRcvPackets         *uint64 // counters/multicast_rcv_packets
+	MulticastXmitPackets        *uint64 // counters/multicast_xmit_packets
+	PortRcvConstraintErrors     *uint64 // counters/port_rcv_constraint_errors
+	PortRcvData                 *uint64 // counters/port_rcv_data
+	PortRcvDiscards             *uint64 // counters/port_rcv_discards
+	PortRcvErrors               *uint64 // counters/port_rcv_errors
+	PortRcvPackets              *uint64 // counters/port_rcv_packets
+	PortRcvRemotePhysicalErrors *uint64 // counters/port_rcv_remote_physical_errors
+	PortRcvSwitchRelayErrors    *uint64 // counters/port_rcv_switch_relay_errors
+	PortXmitConstraintErrors    *uint64 // counters/port_xmit_constraint_errors
+	PortXmitData                *uint64 // counters/port_xmit_data
+	PortXmitDiscards            *uint64 // counters/port_xmit_discards
+	PortXmitPackets             *uint64 // counters/port_xmit_packets
+	PortXmitWait                *uint64 // counters/port_xmit_wait
+	SymbolError                 *uint64 // counters/symbol_error
+	UnicastRcvPackets           *uint64 // counters/unicast_rcv_packets
+	UnicastXmitPackets          *uint64 // counters/unicast_xmit_packets
+	VL15Dropped                 *uint64 // counters/VL15_dropped
 }
 
 // InfiniBandPort contains info from files in
@@ -287,6 +291,10 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			counters.PortRcvErrors = vp.PUInt64()
 		case "port_rcv_packets":
 			counters.PortRcvPackets = vp.PUInt64()
+		case "port_rcv_remote_physical_errors":
+			counters.PortRcvRemotePhysicalErrors = vp.PUInt64()
+		case "port_rcv_switch_relay_errors":
+			counters.PortRcvSwitchRelayErrors = vp.PUInt64()
 		case "port_xmit_constraint_errors":
 			counters.PortXmitConstraintErrors = vp.PUInt64()
 		case "port_xmit_data":
@@ -300,10 +308,14 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			counters.PortXmitPackets = vp.PUInt64()
 		case "port_xmit_wait":
 			counters.PortXmitWait = vp.PUInt64()
+		case "symbol_error":
+			counters.SymbolError = vp.PUInt64()
 		case "unicast_rcv_packets":
 			counters.UnicastRcvPackets = vp.PUInt64()
 		case "unicast_xmit_packets":
 			counters.UnicastXmitPackets = vp.PUInt64()
+		case "VL15_dropped":
+			counters.VL15Dropped = vp.PUInt64()
 		}
 
 		if err := vp.Err(); err != nil {
