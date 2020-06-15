@@ -4,7 +4,14 @@
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
-* [BUGFIX] Handle no data from powersupplyclass
+* [BUGFIX]
+
+## 1.0.1 / 2020-06-15
+
+* [BUGFIX] filesystem_freebsd: Fix label values #1728
+* [BUGFIX] Update prometheus/procfs to fix log noise #1735
+* [BUGFIX] Fix build tags for collectors #1745
+* [BUGFIX] Handle no data from powersupplyclass #1747, #1749
 
 ## 1.0.0 / 2020-05-25
 
