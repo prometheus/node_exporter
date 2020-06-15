@@ -84,7 +84,7 @@ func parseARPEntries(data io.Reader) (map[string]uint32, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to parse ARP info: %s", err)
+		return nil, fmt.Errorf("failed to parse ARP info: %w", err)
 	}
 
 	return entries, nil
@@ -93,7 +93,7 @@ func parseARPEntries(data io.Reader) (map[string]uint32, error) {
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 	entries, err := getARPEntries()
 	if err != nil {
-		return fmt.Errorf("could not get ARP entries: %s", err)
+		return fmt.Errorf("could not get ARP entries: %w", err)
 	}
 
 	for device, entryCount := range entries {

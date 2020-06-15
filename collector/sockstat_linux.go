@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -55,7 +56,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	stat4, err := fs.NetSockstat()
 	switch {
 	case err == nil:
-	case os.IsNotExist(err):
+	case errors.Is(err, os.ErrNotExist):
 		level.Debug(c.logger).Log("msg", "IPv4 sockstat statistics not found, skipping")
 	default:
 		return fmt.Errorf("failed to get IPv4 sockstat data: %w", err)
@@ -64,7 +65,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	stat6, err := fs.NetSockstat6()
 	switch {
 	case err == nil:
-	case os.IsNotExist(err):
+	case errors.Is(err, os.ErrNotExist):
 		level.Debug(c.logger).Log("msg", "IPv6 sockstat statistics not found, skipping")
 	default:
 		return fmt.Errorf("failed to get IPv6 sockstat data: %w", err)

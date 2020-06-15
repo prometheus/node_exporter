@@ -250,7 +250,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {
-			return fmt.Errorf("couldn't get sysctl: %s", err)
+			return fmt.Errorf("couldn't get sysctl: %w", err)
 		}
 
 		ch <- prometheus.MustNewConstMetric(

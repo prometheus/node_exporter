@@ -95,7 +95,7 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 	netDev, err := getNetDevStats(c.deviceExcludePattern, c.deviceIncludePattern, c.logger)
 	if err != nil {
-		return fmt.Errorf("couldn't get netstats: %s", err)
+		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
 	for dev, devStats := range netDev {
 		for key, value := range devStats {
@@ -111,7 +111,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
+				return fmt.Errorf("invalid value %s in netstats: %w", value, err)
 			}
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, v, dev)
 		}

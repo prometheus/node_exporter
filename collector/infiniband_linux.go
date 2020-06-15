@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -108,11 +109,11 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.InfiniBandClass()
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "infiniband statistics not found, skipping")
 			return ErrNoData
 		}
-		return fmt.Errorf("error obtaining InfiniBand class info: %s", err)
+		return fmt.Errorf("error obtaining InfiniBand class info: %w", err)
 	}
 
 	for _, device := range devices {

@@ -238,14 +238,14 @@ func (c *textFileCollector) processFile(name string, ch chan<- prometheus.Metric
 	path := filepath.Join(c.path, name)
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open textfile data file %q: %v", path, err)
+		return nil, fmt.Errorf("failed to open textfile data file %q: %w", path, err)
 	}
 	defer f.Close()
 
 	var parser expfmt.TextParser
 	families, err := parser.TextToMetricFamilies(f)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse textfile data from %q: %v", path, err)
+		return nil, fmt.Errorf("failed to parse textfile data from %q: %w", path, err)
 	}
 
 	if hasTimestamps(families) {
@@ -267,7 +267,7 @@ func (c *textFileCollector) processFile(name string, ch chan<- prometheus.Metric
 	// a failure does not appear fresh.
 	stat, err := f.Stat()
 	if err != nil {
-		return nil, fmt.Errorf("failed to stat %q: %v", path, err)
+		return nil, fmt.Errorf("failed to stat %q: %w", path, err)
 	}
 
 	t := stat.ModTime()

@@ -189,7 +189,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	diskStats, err := iostat.ReadDriveStats()
 	if err != nil {
-		return fmt.Errorf("couldn't get diskstats: %s", err)
+		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
 
 	for _, stats := range diskStats {

@@ -17,6 +17,7 @@ package collector
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -167,11 +168,11 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 	stat, err := newWifiStater(*collectorWifi)
 	if err != nil {
 		// Cannot access wifi metrics, report no error.
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "wifi collector metrics are not available for this system")
 			return ErrNoData
 		}
-		if os.IsPermission(err) {
+		if errors.Is(err, os.ErrPermission) {
 			level.Debug(c.logger).Log("msg", "wifi collector got permission denied when accessing metrics")
 			return ErrNoData
 		}
@@ -201,14 +202,14 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 
 		// When a statistic is not available for a given interface, package wifi
-		// returns an error compatible with os.IsNotExist.  We leverage this to
-		// only export metrics which are actually valid for given interface types.
+		// returns a os.ErrNotExist error.  We leverage this to only export
+		// metrics which are actually valid for given interface types.
 
 		bss, err := stat.BSS(ifi)
 		switch {
 		case err == nil:
 			c.updateBSSStats(ch, ifi.Name, bss)
-		case os.IsNotExist(err):
+		case errors.Is(err, os.ErrNotExist):
 			level.Debug(c.logger).Log("msg", "BSS information not found for wifi device", "name", ifi.Name)
 		default:
 			return fmt.Errorf("failed to retrieve BSS for device %s: %v",
@@ -221,7 +222,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			for _, station := range stations {
 				c.updateStationStats(ch, ifi.Name, station)
 			}
-		case os.IsNotExist(err):
+		case errors.Is(err, os.ErrNotExist):
 			level.Debug(c.logger).Log("msg", "station information not found for wifi device", "name", ifi.Name)
 		default:
 			return fmt.Errorf("failed to retrieve station info for device %q: %v",

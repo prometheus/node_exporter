@@ -134,7 +134,7 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 
 	res, err := xrpc.Call("supervisor.getAllProcessInfo")
 	if err != nil {
-		return fmt.Errorf("unable to call supervisord: %s", err)
+		return fmt.Errorf("unable to call supervisord: %w", err)
 	}
 
 	for _, p := range res.(xmlrpc.Array) {

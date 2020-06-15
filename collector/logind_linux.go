@@ -92,7 +92,7 @@ func NewLogindCollector(logger log.Logger) (Collector, error) {
 func (lc *logindCollector) Update(ch chan<- prometheus.Metric) error {
 	c, err := newDbus()
 	if err != nil {
-		return fmt.Errorf("unable to connect to dbus: %s", err)
+		return fmt.Errorf("unable to connect to dbus: %w", err)
 	}
 	defer c.conn.Close()
 
@@ -102,12 +102,12 @@ func (lc *logindCollector) Update(ch chan<- prometheus.Metric) error {
 func collectMetrics(ch chan<- prometheus.Metric, c logindInterface) error {
 	seats, err := c.listSeats()
 	if err != nil {
-		return fmt.Errorf("unable to get seats: %s", err)
+		return fmt.Errorf("unable to get seats: %w", err)
 	}
 
 	sessionList, err := c.listSessions()
 	if err != nil {
-		return fmt.Errorf("unable to get sessions: %s", err)
+		return fmt.Errorf("unable to get sessions: %w", err)
 	}
 
 	sessions := make(map[logindSession]float64)
