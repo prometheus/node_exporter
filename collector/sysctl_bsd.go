@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build freebsd dragonfly openbsd netbsd darwin
-// +build !nomeminfo
+// +build cgo
 
 package collector
 

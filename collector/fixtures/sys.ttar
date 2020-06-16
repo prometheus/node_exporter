@@ -1756,6 +1756,17 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/writeback_rate_debug
+Lines: 7
+rate:           1.1M/sec
+dirty:          20.4G
+target:         20.4G
+proportional:   427.5k
+integral:       790.0k
+change:         321.5k/sec
+next io:        17ms
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/pci0000:00/0000:00:0d.0/ata5
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
