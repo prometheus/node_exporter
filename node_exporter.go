@@ -222,7 +222,6 @@ func main() {
 		os.Chmod(*socketPath, os.FileMode(*socketPermissions))
 		go func() {
 			err = server.Serve(unixListener)
-			println(err)
 			if err != nil && err != http.ErrServerClosed {
 				level.Error(logger).Log("err", err)
 				os.Exit(1)
@@ -231,7 +230,7 @@ func main() {
 
 		<-done
 		level.Info(logger).Log("msg", "Connection closed", "path", *socketPath)
-		unixListener.Close()
+		server.Close()
 		os.Exit(0)
 	}
 }
