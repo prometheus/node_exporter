@@ -103,6 +103,9 @@ then
 fi
 
 if [ ${socket} -ne 0 ]; then
+  # create the file instead socket file so that check that
+  # node_exporter removes it and creates the right socket file
+  touch "${unix_socket}"
   connection_params="--web.socket-path=${unix_socket}"
 else
   connection_params="--web.listen-address=127.0.0.1:${port}"
@@ -141,11 +144,25 @@ EOF
 
   if [ ${keep} -eq 0 ]
   then
-    kill -9 "$(cat ${tmpdir}/node_exporter.pid)"
+    if [ ${socket} -ne 0 ]; then
+      signal="-15"
+    else
+      signal="-9"
+    fi
+    kill ${signal} "$(cat ${tmpdir}/node_exporter.pid)"
     # This silences the "Killed" message
     set +e
     wait "$(cat ${tmpdir}/node_exporter.pid)" > /dev/null 2>&1
+    rc=0
+    if [ ${socket} -ne 0 ]; then
+      ls -l "${unix_socket}" &> /dev/null
+      if [ $? -eq 0 ]; then
+        echo "Node exporter didn't remove the socket file after it's closed"
+        rc=1
+      fi
+    fi
     rm -rf "${tmpdir}"
+    exit $rc
   fi
 }
 
