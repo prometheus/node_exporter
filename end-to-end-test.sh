@@ -57,6 +57,7 @@ cd "$(dirname $0)"
 
 port="$((10000 + (RANDOM % 10000)))"
 tmpdir=$(mktemp -d /tmp/node_exporter_e2e_test.XXXXXX)
+unix_socket="${tmpdir}/node_exporter.socket"
 
 skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds)"
 
@@ -67,8 +68,8 @@ case "${arch}" in
   *) fixture='collector/fixtures/e2e-output.txt' ;;
 esac
 
-keep=0; update=0; verbose=0
-while getopts 'hkuv' opt
+keep=0; update=0; verbose=0; socket=0;
+while getopts 'hkuvs' opt
 do
   case "$opt" in
     k)
@@ -76,6 +77,9 @@ do
       ;;
     u)
       update=1
+      ;;
+    s)
+      socket=1
       ;;
     v)
       verbose=1
@@ -86,6 +90,7 @@ do
       echo "  -k: keep temporary files and leave node_exporter running"
       echo "  -u: update fixture"
       echo "  -v: verbose output"
+      echo "  -s: use unix socket instead http connection"
       exit 1
       ;;
   esac
@@ -97,6 +102,13 @@ then
     exit 1
 fi
 
+if [ ${socket} -ne 0 ]; then
+  connection_params="--web.socket-path=${unix_socket}"
+else
+  connection_params="--web.listen-address=127.0.0.1:${port}"
+fi
+
+
 ./node_exporter \
   --path.procfs="collector/fixtures/proc" \
   --path.sysfs="collector/fixtures/sys" \
@@ -107,7 +119,7 @@ fi
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --collector.netclass.ignored-devices="(bond0|dmz|int)" \
   --collector.cpu.info \
-  --web.listen-address "127.0.0.1:${port}" \
+  ${connection_params} \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
 echo $! > "${tmpdir}/node_exporter.pid"
@@ -154,7 +166,11 @@ get() {
 
 sleep 1
 
-get "127.0.0.1:${port}/metrics" | grep -E -v "${skip_re}" > "${tmpdir}/e2e-output.txt"
+if [ ${socket} -ne 0 ]; then
+  curl -s -X GET --unix-socket "${unix_socket}" ./metrics | grep -E -v "${skip_re}" > "${tmpdir}/e2e-output.txt"
+else
+  get "127.0.0.1:${port}/metrics" | grep -E -v "${skip_re}" > "${tmpdir}/e2e-output.txt"
+fi
 
 diff -u \
   "${fixture}" \

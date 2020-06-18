@@ -105,6 +105,8 @@ update_fixtures:
 test-e2e: build collector/fixtures/sys/.unpacked
 	@echo ">> running end-to-end tests"
 	./end-to-end-test.sh
+	@echo ">> running end-to-end tests with unix socket"
+	./end-to-end-test.sh -s
 
 .PHONY: skip-test-e2e
 skip-test-e2e:

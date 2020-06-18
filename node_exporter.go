@@ -219,7 +219,11 @@ func main() {
 			level.Error(logger).Log("err", err)
 			os.Exit(1)
 		}
-		os.Chmod(*socketPath, os.FileMode(*socketPermissions))
+		err = os.Chmod(*socketPath, os.FileMode(*socketPermissions))
+		if err != nil {
+			level.Error(logger).Log("err", err)
+			os.Exit(1)
+		}
 		go func() {
 			err = server.Serve(unixListener)
 			if err != nil && err != http.ErrServerClosed {
