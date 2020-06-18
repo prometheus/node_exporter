@@ -15,10 +15,13 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"os/signal"
 	"sort"
+	"syscall"
 
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
@@ -137,7 +140,19 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 }
 
 func main() {
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
+
 	var (
+		socketPath = kingpin.Flag(
+			"web.socket-path",
+			"Path to unix socket file.",
+		).String()
+		socketPermissions = kingpin.Flag(
+			"web.socket-permissions",
+			"Permissions of unix socket file.",
+		).Default("0640").Int32()
 		listenAddress = kingpin.Flag(
 			"web.listen-address",
 			"Address on which to expose metrics and web interface.",
@@ -188,10 +203,35 @@ func main() {
 			</html>`))
 	})
 
-	level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
-	server := &http.Server{Addr: *listenAddress}
-	if err := https.Listen(server, *configFile, logger); err != nil {
-		level.Error(logger).Log("err", err)
-		os.Exit(1)
+	if *socketPath == "" {
+		level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
+		server := &http.Server{Addr: *listenAddress}
+		if err := https.Listen(server, *configFile, logger); err != nil {
+			level.Error(logger).Log("err", err)
+			os.Exit(1)
+		}
+	} else {
+		level.Info(logger).Log("msg", "Listening unix socket on", "path", *socketPath)
+		server := &http.Server{}
+		os.Remove(*socketPath)
+		unixListener, err := net.Listen("unix", *socketPath)
+		if err != nil {
+			level.Error(logger).Log("err", err)
+			os.Exit(1)
+		}
+		os.Chmod(*socketPath, os.FileMode(*socketPermissions))
+		go func() {
+			err = server.Serve(unixListener)
+			println(err)
+			if err != nil && err != http.ErrServerClosed {
+				level.Error(logger).Log("err", err)
+				os.Exit(1)
+			}
+		}()
+
+		<-done
+		level.Info(logger).Log("msg", "Connection closed", "path", *socketPath)
+		unixListener.Close()
+		os.Exit(0)
 	}
 }
