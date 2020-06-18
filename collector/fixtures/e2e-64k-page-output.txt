@@ -1886,6 +1886,9 @@ node_netstat_Tcp_InErrs 5
 # HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
 # TYPE node_netstat_Tcp_InSegs untyped
 node_netstat_Tcp_InSegs 5.7252008e+07
+# HELP node_netstat_Tcp_OutRsts Statistic TcpOutRsts.
+# TYPE node_netstat_Tcp_OutRsts untyped
+node_netstat_Tcp_OutRsts 1003
 # HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
 # TYPE node_netstat_Tcp_OutSegs untyped
 node_netstat_Tcp_OutSegs 5.4915039e+07
