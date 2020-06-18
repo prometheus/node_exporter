@@ -144,12 +144,7 @@ EOF
 
   if [ ${keep} -eq 0 ]
   then
-    if [ ${socket} -ne 0 ]; then
-      signal="-15"
-    else
-      signal="-9"
-    fi
-    kill ${signal} "$(cat ${tmpdir}/node_exporter.pid)"
+    kill "$(cat ${tmpdir}/node_exporter.pid)"
     # This silences the "Killed" message
     set +e
     wait "$(cat ${tmpdir}/node_exporter.pid)" > /dev/null 2>&1

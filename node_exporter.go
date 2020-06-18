@@ -203,38 +203,40 @@ func main() {
 			</html>`))
 	})
 
+	var server *http.Server
 	if *socketPath == "" {
 		level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
-		server := &http.Server{Addr: *listenAddress}
-		if err := https.Listen(server, *configFile, logger); err != nil {
-			level.Error(logger).Log("err", err)
-			os.Exit(1)
-		}
+		server = &http.Server{Addr: *listenAddress}
+		go func() {
+			if err := https.Listen(server, *configFile, logger); err != nil {
+				level.Error(logger).Log("err", err)
+				os.Exit(1)
+			}
+		}()
+		<-done
+		level.Info(logger).Log("msg", "Connection closed", "address", *listenAddress)
 	} else {
 		level.Info(logger).Log("msg", "Listening unix socket on", "path", *socketPath)
-		server := &http.Server{}
+		server = &http.Server{}
 		os.Remove(*socketPath)
 		unixListener, err := net.Listen("unix", *socketPath)
 		if err != nil {
 			level.Error(logger).Log("err", err)
 			os.Exit(1)
 		}
-		err = os.Chmod(*socketPath, os.FileMode(*socketPermissions))
-		if err != nil {
+		if err := os.Chmod(*socketPath, os.FileMode(*socketPermissions)); err != nil {
 			level.Error(logger).Log("err", err)
 			os.Exit(1)
 		}
 		go func() {
-			err = server.Serve(unixListener)
-			if err != nil && err != http.ErrServerClosed {
+			if err := server.Serve(unixListener); err != nil {
 				level.Error(logger).Log("err", err)
 				os.Exit(1)
 			}
 		}()
-
 		<-done
 		level.Info(logger).Log("msg", "Connection closed", "path", *socketPath)
-		server.Close()
-		os.Exit(0)
 	}
+	server.Close()
+	os.Exit(0)
 }
