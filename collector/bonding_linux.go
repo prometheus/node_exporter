@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -59,7 +60,7 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
 	statusfile := sysFilePath("class/net")
 	bondingStats, err := readBondingStats(statusfile)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "Not collecting bonding, file does not exist", "file", statusfile)
 			return ErrNoData
 		}
@@ -86,7 +87,7 @@ func readBondingStats(root string) (status map[string][2]int, err error) {
 		sstat := [2]int{0, 0}
 		for _, slave := range strings.Fields(string(slaves)) {
 			state, err := ioutil.ReadFile(filepath.Join(root, master, fmt.Sprintf("lower_%s", slave), "bonding_slave", "mii_status"))
-			if os.IsNotExist(err) {
+			if errors.Is(err, os.ErrNotExist) {
 				// some older? kernels use slave_ prefix
 				state, err = ioutil.ReadFile(filepath.Join(root, master, fmt.Sprintf("slave_%s", slave), "bonding_slave", "mii_status"))
 			}

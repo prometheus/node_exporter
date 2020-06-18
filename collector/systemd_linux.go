@@ -175,13 +175,13 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	begin := time.Now()
 	conn, err := newSystemdDbusConn()
 	if err != nil {
-		return fmt.Errorf("couldn't get dbus connection: %s", err)
+		return fmt.Errorf("couldn't get dbus connection: %w", err)
 	}
 	defer conn.Close()
 
 	allUnits, err := c.getAllUnits(conn)
 	if err != nil {
-		return fmt.Errorf("couldn't get units: %s", err)
+		return fmt.Errorf("couldn't get units: %w", err)
 	}
 	level.Debug(c.logger).Log("msg", "getAllUnits took", "duration_seconds", time.Since(begin).Seconds())
 
@@ -413,7 +413,7 @@ func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, su
 func (c *systemdCollector) collectSystemState(conn *dbus.Conn, ch chan<- prometheus.Metric) error {
 	systemState, err := conn.GetManagerProperty("SystemState")
 	if err != nil {
-		return fmt.Errorf("couldn't get system state: %s", err)
+		return fmt.Errorf("couldn't get system state: %w", err)
 	}
 	isSystemRunning := 0.0
 	if systemState == `"running"` {

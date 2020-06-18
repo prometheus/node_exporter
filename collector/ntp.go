@@ -125,7 +125,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 		Timeout: time.Second, // default `ntpdate` timeout
 	})
 	if err != nil {
-		return fmt.Errorf("couldn't get SNTP reply: %s", err)
+		return fmt.Errorf("couldn't get SNTP reply: %w", err)
 	}
 
 	ch <- c.stratum.mustNewConstMetric(float64(resp.Stratum))

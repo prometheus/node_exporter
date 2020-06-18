@@ -187,7 +187,7 @@ func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, h
 
 			value, err := strconv.ParseUint(line[i], 10, 64)
 			if err != nil {
-				return fmt.Errorf("could not parse expected integer value for %q: %v", key, err)
+				return fmt.Errorf("could not parse expected integer value for %q: %w", key, err)
 			}
 			handler(zpoolName, zfsSysctl(key), value)
 		}

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -140,11 +141,11 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 	ipvsStats, err := c.fs.IPVSStats()
 	if err != nil {
 		// Cannot access ipvs metrics, report no error.
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "ipvs collector metrics are not available for this system")
 			return ErrNoData
 		}
-		return fmt.Errorf("could not get IPVS stats: %s", err)
+		return fmt.Errorf("could not get IPVS stats: %w", err)
 	}
 	ch <- c.connections.mustNewConstMetric(float64(ipvsStats.Connections))
 	ch <- c.incomingPackets.mustNewConstMetric(float64(ipvsStats.IncomingPackets))
@@ -154,7 +155,7 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	backendStats, err := c.fs.IPVSBackendStatus()
 	if err != nil {
-		return fmt.Errorf("could not get backend status: %s", err)
+		return fmt.Errorf("could not get backend status: %w", err)
 	}
 
 	sums := map[string]ipvsBackendStatus{}

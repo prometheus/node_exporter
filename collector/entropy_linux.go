@@ -46,7 +46,7 @@ func NewEntropyCollector(logger log.Logger) (Collector, error) {
 func (c *entropyCollector) Update(ch chan<- prometheus.Metric) error {
 	value, err := readUintFromFile(procFilePath("sys/kernel/random/entropy_avail"))
 	if err != nil {
-		return fmt.Errorf("couldn't get entropy_avail: %s", err)
+		return fmt.Errorf("couldn't get entropy_avail: %w", err)
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.entropyAvail, prometheus.GaugeValue, float64(value))

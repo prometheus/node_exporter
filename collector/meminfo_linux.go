@@ -54,7 +54,7 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 		}
 		fv, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid value in meminfo: %s", err)
+			return nil, fmt.Errorf("invalid value in meminfo: %w", err)
 		}
 		key := parts[0][:len(parts[0])-1] // remove trailing : from key
 		// Active(anon) -> Active_anon

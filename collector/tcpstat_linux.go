@@ -82,7 +82,7 @@ func NewTCPStatCollector(logger log.Logger) (Collector, error) {
 func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	tcpStats, err := getTCPStats(procFilePath("net/tcp"))
 	if err != nil {
-		return fmt.Errorf("couldn't get tcpstats: %s", err)
+		return fmt.Errorf("couldn't get tcpstats: %w", err)
 	}
 
 	// if enabled ipv6 system
@@ -90,7 +90,7 @@ func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	if _, hasIPv6 := os.Stat(tcp6File); hasIPv6 == nil {
 		tcp6Stats, err := getTCPStats(tcp6File)
 		if err != nil {
-			return fmt.Errorf("couldn't get tcp6stats: %s", err)
+			return fmt.Errorf("couldn't get tcp6stats: %w", err)
 		}
 
 		for st, value := range tcp6Stats {
