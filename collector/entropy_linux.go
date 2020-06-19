@@ -70,7 +70,7 @@ func (c *entropyCollector) Update(ch chan<- prometheus.Metric) error {
 		c.entropyAvail, prometheus.GaugeValue, float64(*stats.EntropyAvaliable))
 
 	if stats.PoolSize == nil {
-		return fmt.Errorf("couldn't get entropy pool size")
+		return fmt.Errorf("couldn't get entropy poolsize")
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.entropyPoolSize, prometheus.GaugeValue, float64(*stats.PoolSize))

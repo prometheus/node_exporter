@@ -3,7 +3,7 @@
 * [CHANGE] Improve filter flag names.
 * [CHANGE]
 * [FEATURE]
-* [ENHANCEMENT]
+* [ENHANCEMENT] Include TCP OutRsts in netstat metrics
 * [BUGFIX]
 
 ## 1.0.1 / 2020-06-15

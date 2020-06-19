@@ -48,7 +48,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	var metricType prometheus.ValueType
 	memInfo, err := c.getMemInfo()
 	if err != nil {
-		return fmt.Errorf("couldn't get meminfo: %s", err)
+		return fmt.Errorf("couldn't get meminfo: %w", err)
 	}
 	level.Debug(c.logger).Log("msg", "Set node_mem", "memInfo", memInfo)
 	for k, v := range memInfo {

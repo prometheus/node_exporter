@@ -59,7 +59,7 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 		if errors.Is(err, os.ErrNotExist) {
 			return ErrNoData
 		}
-		return fmt.Errorf("could not get power_supply class info: %s", err)
+		return fmt.Errorf("could not get power_supply class info: %w", err)
 	}
 	for _, powerSupply := range powerSupplyClass {
 
