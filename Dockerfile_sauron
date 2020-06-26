@@ -1,4 +1,6 @@
-FROM phx.ocir.io/odx-sre/sauron/oraclelinux-golang:1.12.10_1 AS build_base
+ARG GOLANG_IMG
+ARG ORACLE_LINUX_IMG
+FROM $GOLANG_IMG AS build_base
 
 # Need to use specific WORKDIR to match node_exporter's source packages
 WORKDIR /go/src/github.com/prometheus/node_exporter
@@ -17,7 +19,8 @@ FROM build_base AS server_builder
 COPY . .
 RUN go install -a node_exporter.go
 
-FROM phx.ocir.io/odx-sre/sauron/oraclelinux-mirror:7-slim AS node_exporter
+
+FROM $ORACLE_LINUX_IMG AS node_exporter
 COPY --from=server_builder /usr/bin/node_exporter /bin/node_exporter
 EXPOSE 9100
 USER nobody
