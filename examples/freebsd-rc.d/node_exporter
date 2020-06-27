@@ -1,0 +1,34 @@
+#!/bin/sh
+# A FreeBSD rc.d script for node_exporter
+#
+# Put the node_exporter binary in /usr/local/bin and this file 
+# in /usr/local/etc/rc.d and set its executable flag.
+#
+# Configuration variables which can be set in /etc/rc.conf:
+#
+# * node_exporter_enable: enables/disables node_exporter, defaults to yes
+# * node_exporter_flags : add additional flags to the node_exporter command
+# * node_exporter_binary: location of the node_exporter binary,
+#                         defaults to /usr/local/bin/node_exporter
+# * node_exporter_run_as: the user to run node_exporter as, defaults to nobody
+
+# PROVIDE: node_exporter
+# REQUIRE: netif
+# KEYWORD: nojail
+
+. /etc/rc.subr
+
+name="node_exporter"
+rcvar="${name}_enable"
+pidfile="/var/run/${name}.pid"
+logfile="/var/log/${name}.log"
+
+load_rc_config $name
+: ${node_exporter_enable:=yes}
+: ${node_exporter_binary:=/usr/local/bin/node_exporter}
+: ${node_exporter_run_as:=nobody}
+
+command="/usr/sbin/daemon"
+command_args="-c -P ${pidfile} -o ${logfile} -t ${name} -u nobody -r ${node_exporter_binary}"
+
+run_rc_command "$1"
