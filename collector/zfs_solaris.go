@@ -12,12 +12,14 @@
 // limitations under the License.
 
 // +build solaris
+// +build !nozfs
 
 package collector
 
 import (
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/siebenmann/go-kstat"
 )
@@ -52,6 +54,7 @@ type zfsCollector struct {
 	arcstatsSize                 *prometheus.Desc
 	zfetchstatsHits              *prometheus.Desc
 	zfetchstatsMisses            *prometheus.Desc
+	logger                       log.Logger
 }
 
 const (
@@ -62,7 +65,7 @@ func init() {
 	registerCollector("zfs", defaultEnabled, NewZfsCollector)
 }
 
-func NewZfsCollector() (Collector, error) {
+func NewZfsCollector(logger log.Logger) (Collector, error) {
 	return &zfsCollector{
 		abdstatsLinearCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "abdstats_linear_count_total"),
@@ -180,6 +183,7 @@ func NewZfsCollector() (Collector, error) {
 			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "zfetchstats_misses_total"),
 			"ZFS cache fetch misses", nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2017 The Prometheus Authors
+// Copyright 2017-2019 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,31 +17,21 @@
 package collector
 
 import (
-	"errors"
+	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
+	"strconv"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-)
-
-const infinibandPath = "class/infiniband"
-
-var (
-	errInfinibandNoDevicesFound = errors.New("no InfiniBand devices detected")
-	errInfinibandNoPortsFound   = errors.New("no InfiniBand ports detected")
+	"github.com/prometheus/procfs/sysfs"
 )
 
 type infinibandCollector struct {
-	metricDescs    map[string]*prometheus.Desc
-	counters       map[string]infinibandMetric
-	legacyCounters map[string]infinibandMetric
-}
-
-type infinibandMetric struct {
-	File string
-	Help string
+	fs          sysfs.FS
+	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
+	subsystem   string
 }
 
 func init() {
@@ -49,57 +39,54 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector() (Collector, error) {
+func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	var i infinibandCollector
+	var err error
 
-	// Filenames of all InfiniBand counter metrics including a detailed description.
-	i.counters = map[string]infinibandMetric{
-		"link_downed_total":                        {"link_downed", "Number of times the link failed to recover from an error state and went down"},
-		"link_error_recovery_total":                {"link_error_recovery", "Number of times the link successfully recovered from an error state"},
-		"multicast_packets_received_total":         {"multicast_rcv_packets", "Number of multicast packets received (including errors)"},
-		"multicast_packets_transmitted_total":      {"multicast_xmit_packets", "Number of multicast packets transmitted (including errors)"},
-		"port_constraint_errors_received_total":    {"port_rcv_constraint_errors", "Number of packets received on the switch physical port that are discarded"},
-		"port_constraint_errors_transmitted_total": {"port_xmit_constraint_errors", "Number of packets not transmitted from the switch physical port"},
-		"port_data_received_bytes_total":           {"port_rcv_data", "Number of data octets received on all links"},
-		"port_data_transmitted_bytes_total":        {"port_xmit_data", "Number of data octets transmitted on all links"},
-		"port_discards_received_total":             {"port_rcv_discards", "Number of inbound packets discarded by the port because the port is down or congested"},
-		"port_discards_transmitted_total":          {"port_xmit_discards", "Number of outbound packets discarded by the port because the port is down or congested"},
-		"port_errors_received_total":               {"port_rcv_errors", "Number of packets containing an error that were received on this port"},
-		"port_packets_received_total":              {"port_rcv_packets", "Number of packets received on all VLs by this port (including errors)"},
-		"port_packets_transmitted_total":           {"port_xmit_packets", "Number of packets transmitted on all VLs from this port (including errors)"},
-		"port_transmit_wait_total":                 {"port_xmit_wait", "Number of ticks during which the port had data to transmit but no data was sent during the entire tick"},
-		"unicast_packets_received_total":           {"unicast_rcv_packets", "Number of unicast packets received (including errors)"},
-		"unicast_packets_transmitted_total":        {"unicast_xmit_packets", "Number of unicast packets transmitted (including errors)"},
+	i.fs, err = sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
+	i.logger = logger
+
+	// Detailed description for all metrics.
+	descriptions := map[string]string{
+		"legacy_multicast_packets_received_total":    "Number of multicast packets received",
+		"legacy_multicast_packets_transmitted_total": "Number of multicast packets transmitted",
+		"legacy_data_received_bytes_total":           "Number of data octets received on all links",
+		"legacy_packets_received_total":              "Number of data packets received on all links",
+		"legacy_unicast_packets_received_total":      "Number of unicast packets received",
+		"legacy_unicast_packets_transmitted_total":   "Number of unicast packets transmitted",
+		"legacy_data_transmitted_bytes_total":        "Number of data octets transmitted on all links",
+		"legacy_packets_transmitted_total":           "Number of data packets received on all links",
+		"link_downed_total":                          "Number of times the link failed to recover from an error state and went down",
+		"link_error_recovery_total":                  "Number of times the link successfully recovered from an error state",
+		"multicast_packets_received_total":           "Number of multicast packets received (including errors)",
+		"multicast_packets_transmitted_total":        "Number of multicast packets transmitted (including errors)",
+		"physical_state_id":                          "Physical state of the InfiniBand port (0: no change, 1: sleep, 2: polling, 3: disable, 4: shift, 5: link up, 6: link error recover, 7: phytest)",
+		"port_constraint_errors_received_total":      "Number of packets received on the switch physical port that are discarded",
+		"port_constraint_errors_transmitted_total":   "Number of packets not transmitted from the switch physical port",
+		"port_data_received_bytes_total":             "Number of data octets received on all links",
+		"port_data_transmitted_bytes_total":          "Number of data octets transmitted on all links",
+		"port_discards_received_total":               "Number of inbound packets discarded by the port because the port is down or congested",
+		"port_discards_transmitted_total":            "Number of outbound packets discarded by the port because the port is down or congested",
+		"port_errors_received_total":                 "Number of packets containing an error that were received on this port",
+		"port_packets_received_total":                "Number of packets received on all VLs by this port (including errors)",
+		"port_packets_transmitted_total":             "Number of packets transmitted on all VLs from this port (including errors)",
+		"port_transmit_wait_total":                   "Number of ticks during which the port had data to transmit but no data was sent during the entire tick",
+		"rate_bytes_per_second":                      "Maximum signal transfer rate",
+		"state_id":                                   "State of the InfiniBand port (0: no change, 1: down, 2: init, 3: armed, 4: active, 5: act defer)",
+		"unicast_packets_received_total":             "Number of unicast packets received (including errors)",
+		"unicast_packets_transmitted_total":          "Number of unicast packets transmitted (including errors)",
 	}
 
-	// Deprecated counters for some older versions of InfiniBand drivers.
-	i.legacyCounters = map[string]infinibandMetric{
-		"legacy_multicast_packets_received_total":    {"port_multicast_rcv_packets", "Number of multicast packets received"},
-		"legacy_multicast_packets_transmitted_total": {"port_multicast_xmit_packets", "Number of multicast packets transmitted"},
-		"legacy_data_received_bytes_total":           {"port_rcv_data_64", "Number of data octets received on all links"},
-		"legacy_packets_received_total":              {"port_rcv_packets_64", "Number of data packets received on all links"},
-		"legacy_unicast_packets_received_total":      {"port_unicast_rcv_packets", "Number of unicast packets received"},
-		"legacy_unicast_packets_transmitted_total":   {"port_unicast_xmit_packets", "Number of unicast packets transmitted"},
-		"legacy_data_transmitted_bytes_total":        {"port_xmit_data_64", "Number of data octets transmitted on all links"},
-		"legacy_packets_transmitted_total":           {"port_xmit_packets_64", "Number of data packets received on all links"},
-	}
-
-	subsystem := "infiniband"
 	i.metricDescs = make(map[string]*prometheus.Desc)
+	i.subsystem = "infiniband"
 
-	for metricName, infinibandMetric := range i.counters {
+	for metricName, description := range descriptions {
 		i.metricDescs[metricName] = prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, metricName),
-			infinibandMetric.Help,
-			[]string{"device", "port"},
-			nil,
-		)
-	}
-
-	for metricName, infinibandMetric := range i.legacyCounters {
-		i.metricDescs[metricName] = prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, metricName),
-			infinibandMetric.Help,
+			prometheus.BuildFQName(namespace, i.subsystem, metricName),
+			description,
 			[]string{"device", "port"},
 			nil,
 		)
@@ -108,141 +95,67 @@ func NewInfiniBandCollector() (Collector, error) {
 	return &i, nil
 }
 
-// infinibandDevices retrieves a list of InfiniBand devices.
-func infinibandDevices(infinibandPath string) ([]string, error) {
-	devices, err := filepath.Glob(filepath.Join(infinibandPath, "/*"))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(devices) < 1 {
-		log.Debugf("Unable to detect InfiniBand devices")
-		err = errInfinibandNoDevicesFound
-		return nil, err
-	}
-
-	// Extract just the filenames which equate to the device names.
-	for i, device := range devices {
-		devices[i] = filepath.Base(device)
-	}
-
-	return devices, nil
+func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName string, port string, valueType prometheus.ValueType) {
+	ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, float64(value), deviceName, port)
 }
 
-// Retrieve a list of ports for the InfiniBand device.
-func infinibandPorts(infinibandPath, device string) ([]string, error) {
-	ports, err := filepath.Glob(filepath.Join(infinibandPath, device, "ports/*"))
-	if err != nil {
-		return nil, err
+func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName string, port string) {
+	if value != nil {
+		c.pushMetric(ch, name, *value, deviceName, port, prometheus.CounterValue)
 	}
-
-	if len(ports) < 1 {
-		log.Debugf("Unable to detect ports for %s", device)
-		err = errInfinibandNoPortsFound
-		return nil, err
-	}
-
-	// Extract just the filenames which equates to the port numbers.
-	for i, port := range ports {
-		ports[i] = filepath.Base(port)
-	}
-
-	return ports, nil
-}
-
-func readMetric(directory, metricFile string) (uint64, error) {
-	metric, err := readUintFromFile(filepath.Join(directory, metricFile))
-	if err != nil {
-		// Ugly workaround for handling #966, when counters are
-		// `N/A (not available)`.
-		// This was already patched and submitted, see
-		// https://www.spinics.net/lists/linux-rdma/msg68596.html
-		// Remove this as soon as the fix lands in the enterprise distros.
-		if strings.Contains(err.Error(), "N/A (no PMA)") {
-			log.Debugf("%q value is N/A", metricFile)
-			return 0, nil
-		}
-		log.Debugf("Error reading %q file", metricFile)
-		return 0, err
-	}
-
-	// According to Mellanox, the following metrics "are divided by 4 unconditionally"
-	// as they represent the amount of data being transmitted and received per lane.
-	// Mellanox cards have 4 lanes per port, so all values must be multiplied by 4
-	// to get the expected value.
-	switch metricFile {
-	case "port_rcv_data", "port_xmit_data", "port_rcv_data_64", "port_xmit_data_64":
-		metric *= 4
-	}
-
-	return metric, nil
 }
 
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
-	devices, err := infinibandDevices(sysFilePath(infinibandPath))
-
-	// If no devices are found or another error is raised while attempting to find devices,
-	// InfiniBand is likely not installed and the collector should be skipped.
-	switch err {
-	case nil:
-	case errInfinibandNoDevicesFound:
-		return nil
-	default:
-		return err
+	devices, err := c.fs.InfiniBandClass()
+	if err != nil {
+		if os.IsNotExist(err) {
+			level.Debug(c.logger).Log("msg", "infiniband statistics not found, skipping")
+			return ErrNoData
+		}
+		return fmt.Errorf("error obtaining InfiniBand class info: %s", err)
 	}
 
 	for _, device := range devices {
-		ports, err := infinibandPorts(sysFilePath(infinibandPath), device)
+		infoDesc := prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, "info"),
+			"Non-numeric data from /sys/class/infiniband/<device>, value is always 1.",
+			[]string{"device", "board_id", "firmware_version", "hca_type"},
+			nil,
+		)
+		infoValue := 1.0
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, device.Name, device.BoardID, device.FirmwareVersion, device.HCAType)
 
-		// If no ports are found for the specified device, skip to the next device.
-		switch err {
-		case nil:
-		case errInfinibandNoPortsFound:
-			continue
-		default:
-			return err
-		}
+		for _, port := range device.Ports {
+			portStr := strconv.FormatUint(uint64(port.Port), 10)
 
-		for _, port := range ports {
-			portFiles := sysFilePath(filepath.Join(infinibandPath, device, "ports", port))
+			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, prometheus.GaugeValue)
+			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, prometheus.GaugeValue)
+			c.pushMetric(ch, "rate_bytes_per_second", port.Rate, port.Name, portStr, prometheus.GaugeValue)
 
-			// Add metrics for the InfiniBand counters.
-			for metricName, infinibandMetric := range c.counters {
-				if _, err := os.Stat(filepath.Join(portFiles, "counters", infinibandMetric.File)); os.IsNotExist(err) {
-					continue
-				}
-				metric, err := readMetric(filepath.Join(portFiles, "counters"), infinibandMetric.File)
-				if err != nil {
-					return err
-				}
-
-				ch <- prometheus.MustNewConstMetric(
-					c.metricDescs[metricName],
-					prometheus.CounterValue,
-					float64(metric),
-					device,
-					port,
-				)
-			}
-
-			// Add metrics for the legacy InfiniBand counters.
-			for metricName, infinibandMetric := range c.legacyCounters {
-				if _, err := os.Stat(filepath.Join(portFiles, "counters_ext", infinibandMetric.File)); os.IsNotExist(err) {
-					continue
-				}
-				metric, err := readMetric(filepath.Join(portFiles, "counters_ext"), infinibandMetric.File)
-				if err != nil {
-					return err
-				}
-
-				ch <- prometheus.MustNewConstMetric(
-					c.metricDescs[metricName],
-					prometheus.CounterValue,
-					float64(metric),
-					device,
-					port,
-				)
-			}
+			c.pushCounter(ch, "legacy_multicast_packets_received_total", port.Counters.LegacyPortMulticastRcvPackets, port.Name, portStr)
+			c.pushCounter(ch, "legacy_multicast_packets_transmitted_total", port.Counters.LegacyPortMulticastXmitPackets, port.Name, portStr)
+			c.pushCounter(ch, "legacy_data_received_bytes_total", port.Counters.LegacyPortRcvData64, port.Name, portStr)
+			c.pushCounter(ch, "legacy_packets_received_total", port.Counters.LegacyPortRcvPackets64, port.Name, portStr)
+			c.pushCounter(ch, "legacy_unicast_packets_received_total", port.Counters.LegacyPortUnicastRcvPackets, port.Name, portStr)
+			c.pushCounter(ch, "legacy_unicast_packets_transmitted_total", port.Counters.LegacyPortUnicastXmitPackets, port.Name, portStr)
+			c.pushCounter(ch, "legacy_data_transmitted_bytes_total", port.Counters.LegacyPortXmitData64, port.Name, portStr)
+			c.pushCounter(ch, "legacy_packets_transmitted_total", port.Counters.LegacyPortXmitPackets64, port.Name, portStr)
+			c.pushCounter(ch, "link_downed_total", port.Counters.LinkDowned, port.Name, portStr)
+			c.pushCounter(ch, "link_error_recovery_total", port.Counters.LinkErrorRecovery, port.Name, portStr)
+			c.pushCounter(ch, "multicast_packets_received_total", port.Counters.MulticastRcvPackets, port.Name, portStr)
+			c.pushCounter(ch, "multicast_packets_transmitted_total", port.Counters.MulticastXmitPackets, port.Name, portStr)
+			c.pushCounter(ch, "port_constraint_errors_received_total", port.Counters.PortRcvConstraintErrors, port.Name, portStr)
+			c.pushCounter(ch, "port_constraint_errors_transmitted_total", port.Counters.PortXmitConstraintErrors, port.Name, portStr)
+			c.pushCounter(ch, "port_data_received_bytes_total", port.Counters.PortRcvData, port.Name, portStr)
+			c.pushCounter(ch, "port_data_transmitted_bytes_total", port.Counters.PortXmitData, port.Name, portStr)
+			c.pushCounter(ch, "port_discards_received_total", port.Counters.PortRcvDiscards, port.Name, portStr)
+			c.pushCounter(ch, "port_discards_transmitted_total", port.Counters.PortXmitDiscards, port.Name, portStr)
+			c.pushCounter(ch, "port_errors_received_total", port.Counters.PortRcvErrors, port.Name, portStr)
+			c.pushCounter(ch, "port_packets_received_total", port.Counters.PortRcvPackets, port.Name, portStr)
+			c.pushCounter(ch, "port_packets_transmitted_total", port.Counters.PortXmitPackets, port.Name, portStr)
+			c.pushCounter(ch, "port_transmit_wait_total", port.Counters.PortXmitWait, port.Name, portStr)
+			c.pushCounter(ch, "unicast_packets_received_total", port.Counters.UnicastRcvPackets, port.Name, portStr)
+			c.pushCounter(ch, "unicast_packets_transmitted_total", port.Counters.UnicastXmitPackets, port.Name, portStr)
 		}
 	}
 

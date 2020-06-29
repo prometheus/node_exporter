@@ -15,6 +15,7 @@ package collector
 
 import (
 	"fmt"
+	"github.com/go-kit/kit/log"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -30,7 +31,7 @@ func TestIPVSCollector(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
-	collector, err := newIPVSCollector()
+	collector, err := newIPVSCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,14 +43,14 @@ func TestIPVSCollector(t *testing.T) {
 		}
 	}()
 	for expected, got := range map[string]string{
-		prometheus.NewDesc("node_ipvs_connections_total", "The total number of connections made.", nil, nil).String():                                                                                                                  (<-sink).Desc().String(),
-		prometheus.NewDesc("node_ipvs_incoming_packets_total", "The total number of incoming packets.", nil, nil).String():                                                                                                             (<-sink).Desc().String(),
-		prometheus.NewDesc("node_ipvs_outgoing_packets_total", "The total number of outgoing packets.", nil, nil).String():                                                                                                             (<-sink).Desc().String(),
-		prometheus.NewDesc("node_ipvs_incoming_bytes_total", "The total amount of incoming data.", nil, nil).String():                                                                                                                  (<-sink).Desc().String(),
-		prometheus.NewDesc("node_ipvs_outgoing_bytes_total", "The total amount of outgoing data.", nil, nil).String():                                                                                                                  (<-sink).Desc().String(),
-		prometheus.NewDesc("node_ipvs_backend_connections_active", "The current active connections by local and remote address.", []string{"local_address", "local_port", "remote_address", "remote_port", "proto"}, nil).String():     (<-sink).Desc().String(),
-		prometheus.NewDesc("node_ipvs_backend_connections_inactive", "The current inactive connections by local and remote address.", []string{"local_address", "local_port", "remote_address", "remote_port", "proto"}, nil).String(): (<-sink).Desc().String(),
-		prometheus.NewDesc("node_ipvs_backend_weight", "The current backend weight by local and remote address.", []string{"local_address", "local_port", "remote_address", "remote_port", "proto"}, nil).String():                     (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_connections_total", "The total number of connections made.", nil, nil).String():                                                                                                                                (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_incoming_packets_total", "The total number of incoming packets.", nil, nil).String():                                                                                                                           (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_outgoing_packets_total", "The total number of outgoing packets.", nil, nil).String():                                                                                                                           (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_incoming_bytes_total", "The total amount of incoming data.", nil, nil).String():                                                                                                                                (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_outgoing_bytes_total", "The total amount of outgoing data.", nil, nil).String():                                                                                                                                (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_backend_connections_active", "The current active connections by local and remote address.", []string{"local_address", "local_port", "remote_address", "remote_port", "proto", "local_mark"}, nil).String():     (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_backend_connections_inactive", "The current inactive connections by local and remote address.", []string{"local_address", "local_port", "remote_address", "remote_port", "proto", "local_mark"}, nil).String(): (<-sink).Desc().String(),
+		prometheus.NewDesc("node_ipvs_backend_weight", "The current backend weight by local and remote address.", []string{"local_address", "local_port", "remote_address", "remote_port", "proto", "local_mark"}, nil).String():                     (<-sink).Desc().String(),
 	} {
 		if expected != got {
 			t.Fatalf("Expected '%s' but got '%s'", expected, got)
@@ -79,7 +80,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}
-	collector, err := NewIPVSCollector()
+	collector, err := NewIPVSCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

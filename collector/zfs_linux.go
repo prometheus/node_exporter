@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nozfs
+
 package collector
 
 import (
@@ -22,8 +24,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 // constants from https://github.com/zfsonlinux/zfs/blob/master/lib/libspl/include/sys/kstat.h
@@ -45,7 +47,7 @@ func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 		// file not found error can occur if:
 		// 1. zfs module is not loaded
 		// 2. zfs version does not have the feature with metrics -- ok to ignore
-		log.Debugf("Cannot open %q for reading", procFilePath(path))
+		level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", procFilePath(path))
 		return nil, errZFSNotAvailable
 	}
 	return file, nil
@@ -77,7 +79,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
 			// this file should exist, but there is a race where an exporting pool can remove the files -- ok to ignore
-			log.Debugf("Cannot open %q for reading", zpoolPath)
+			level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", zpoolPath)
 			return errZFSNotAvailable
 		}
 
@@ -90,6 +92,31 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		}
 	}
 
+	zpoolObjsetPaths, err := filepath.Glob(procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolObjsetPath)))
+	if err != nil {
+		return err
+	}
+
+	if zpoolObjsetPaths == nil {
+		return nil
+	}
+
+	for _, zpoolPath := range zpoolObjsetPaths {
+		file, err := os.Open(zpoolPath)
+		if err != nil {
+			// this file should exist, but there is a race where an exporting pool can remove the files -- ok to ignore
+			level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", zpoolPath)
+			return errZFSNotAvailable
+		}
+
+		err = c.parsePoolObjsetFile(file, zpoolPath, func(poolName string, datasetName string, s zfsSysctl, v uint64) {
+			ch <- c.constPoolObjsetMetric(poolName, datasetName, s, v)
+		})
+		file.Close()
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -164,6 +191,46 @@ func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, h
 			}
 			handler(zpoolName, zfsSysctl(key), value)
 		}
+	}
+
+	return scanner.Err()
+}
+
+func (c *zfsCollector) parsePoolObjsetFile(reader io.Reader, zpoolPath string, handler func(string, string, zfsSysctl, uint64)) error {
+	scanner := bufio.NewScanner(reader)
+
+	parseLine := false
+	var zpoolName, datasetName string
+	for scanner.Scan() {
+		parts := strings.Fields(scanner.Text())
+
+		if !parseLine && len(parts) == 3 && parts[0] == "name" && parts[1] == "type" && parts[2] == "data" {
+			parseLine = true
+			continue
+		}
+
+		if !parseLine || len(parts) < 3 {
+			continue
+		}
+		if parts[0] == "dataset_name" {
+			zpoolPathElements := strings.Split(zpoolPath, "/")
+			pathLen := len(zpoolPathElements)
+			zpoolName = zpoolPathElements[pathLen-2]
+			datasetName = parts[2]
+			continue
+		}
+
+		if parts[1] == kstatDataUint64 {
+			key := fmt.Sprintf("kstat.zfs.misc.objset.%s", parts[0])
+			value, err := strconv.ParseUint(parts[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("could not parse expected integer value for %q", key)
+			}
+			handler(zpoolName, datasetName, zfsSysctl(key), value)
+		}
+	}
+	if !parseLine {
+		return fmt.Errorf("did not parse a single %s %s metric", zpoolName, datasetName)
 	}
 
 	return scanner.Err()

@@ -18,12 +18,14 @@ package collector
 import (
 	"time"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 type timeCollector struct {
-	desc *prometheus.Desc
+	desc   *prometheus.Desc
+	logger log.Logger
 }
 
 func init() {
@@ -32,19 +34,20 @@ func init() {
 
 // NewTimeCollector returns a new Collector exposing the current system time in
 // seconds since epoch.
-func NewTimeCollector() (Collector, error) {
+func NewTimeCollector(logger log.Logger) (Collector, error) {
 	return &timeCollector{
 		desc: prometheus.NewDesc(
 			namespace+"_time_seconds",
 			"System time in seconds since epoch (1970).",
 			nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
 
 func (c *timeCollector) Update(ch chan<- prometheus.Metric) error {
 	now := float64(time.Now().UnixNano()) / 1e9
-	log.Debugf("Return time: %f", now)
+	level.Debug(c.logger).Log("msg", "Return time", "now", now)
 	ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, now)
 	return nil
 }

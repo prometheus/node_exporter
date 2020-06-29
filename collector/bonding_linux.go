@@ -22,12 +22,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 )
 
 type bondingCollector struct {
 	slaves, active typedDesc
+	logger         log.Logger
 }
 
 func init() {
@@ -36,7 +38,7 @@ func init() {
 
 // NewBondingCollector returns a newly allocated bondingCollector.
 // It exposes the number of configured and active slave of linux bonding interfaces.
-func NewBondingCollector() (Collector, error) {
+func NewBondingCollector(logger log.Logger) (Collector, error) {
 	return &bondingCollector{
 		slaves: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "bonding", "slaves"),
@@ -48,6 +50,7 @@ func NewBondingCollector() (Collector, error) {
 			"Number of active slaves per bonding interface.",
 			[]string{"master"}, nil,
 		), prometheus.GaugeValue},
+		logger: logger,
 	}, nil
 }
 
@@ -57,8 +60,8 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
 	bondingStats, err := readBondingStats(statusfile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debugf("Not collecting bonding, file does not exist: %s", statusfile)
-			return nil
+			level.Debug(c.logger).Log("msg", "Not collecting bonding, file does not exist", "file", statusfile)
+			return ErrNoData
 		}
 		return err
 	}

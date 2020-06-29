@@ -10,7 +10,7 @@ OPTIONS="--web.listen-address=:9100"
 if [ -f /etc/rc.d/init.d/functions ]; then
   . /etc/rc.d/init.d/functions
 else
-  echo "/etc/rc.d/init.d/functions is not exists"
+  echo "/etc/rc.d/init.d/functions does not exist"
   exit 0
 fi
 

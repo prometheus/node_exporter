@@ -23,10 +23,11 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"syscall"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -45,12 +46,14 @@ func init() {
 	registerCollector("hwmon", defaultEnabled, NewHwMonCollector)
 }
 
-type hwMonCollector struct{}
+type hwMonCollector struct {
+	logger log.Logger
+}
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector() (Collector, error) {
-	return &hwMonCollector{}, nil
+func NewHwMonCollector(logger log.Logger) (Collector, error) {
+	return &hwMonCollector{logger}, nil
 }
 
 func cleanMetricName(name string) string {
@@ -86,9 +89,9 @@ func sysReadFile(file string) ([]byte, error) {
 	// Go's ioutil.ReadFile implementation to poll forever.
 	//
 	// Since we either want to read data or bail immediately, do the simplest
-	// possible read using syscall directly.
+	// possible read using system call directly.
 	b := make([]byte, 128)
-	n, err := syscall.Read(int(f.Fd()), b)
+	n, err := unix.Read(int(f.Fd()), b)
 	if err != nil {
 		return nil, err
 	}
@@ -422,8 +425,8 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	hwmonFiles, err := ioutil.ReadDir(hwmonPathName)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Debug("hwmon collector metrics are not available for this system")
-			return nil
+			level.Debug(c.logger).Log("msg", "hwmon collector metrics are not available for this system")
+			return ErrNoData
 		}
 
 		return err

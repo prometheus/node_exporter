@@ -72,8 +72,8 @@ Udp6InDatagrams                 	0
 Udp6NoPorts                     	0
 Udp6InErrors                    	0
 Udp6OutDatagrams                	0
-Udp6RcvbufErrors                	0
-Udp6SndbufErrors                	0
+Udp6RcvbufErrors                	9
+Udp6SndbufErrors                	8
 Udp6InCsumErrors                	0
 Udp6IgnoredMulti                	0
 UdpLite6InDatagrams             	0

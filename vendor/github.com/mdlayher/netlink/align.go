@@ -1,8 +1,6 @@
 package netlink
 
-import (
-	"unsafe"
-)
+import "unsafe"
 
 // Functions and values used to properly align netlink messages, headers,
 // and attributes.  Definitions taken from Linux kernel source.
