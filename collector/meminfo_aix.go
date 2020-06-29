@@ -47,7 +47,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	defer C.free(unsafe.Pointer(&memnow))
 
 	// perfstat_memory_total returns data in number of 4k pages.
-	ps := float64(4000)
+	ps := float64(4096)
 	return map[string]float64{
 		"real_total_bytes":   ps * float64(memnow.real_total),
 		"real_free_bytes":    ps * float64(memnow.real_free),
