@@ -21,7 +21,7 @@
 * The label named `state` on `node_systemd_service_restart_total` metrics was changed to `name` to better describe the metric. #1393
 * Refactoring of the mdadm collector changes several metrics
     - `node_md_disks_active` is removed
-    - `node_md_disks` now has a `state` label for "fail", "spare", "active" disks.
+    - `node_md_disks` now has a `state` label for "failed", "spare", "active" disks.
     - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
 * Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
 * Metrics node_cpu_scaling_frequency_min_hrts and node_cpu_scaling_frequency_max_hrts of the cpufreq collector were renamed to node_cpu_scaling_frequency_min_hertz and node_cpu_scaling_frequency_max_hertz. #1510
