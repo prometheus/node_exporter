@@ -58,10 +58,11 @@ import "C"
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
+	"unsafe"
+
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
-	"unsafe"
 )
 
 const ClocksPerSec = float64(C.CLK_TCK)
@@ -102,7 +103,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for i, value := range cpuTicks {
-		cpux := fmt.Sprintf("CPU %d", i/fieldsCount)
+		cpux := strconv.Itoa(i / fieldsCount)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
 	}
 
