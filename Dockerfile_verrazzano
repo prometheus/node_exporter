@@ -23,7 +23,7 @@ FROM oraclelinux:7-slim AS node_exporter
 COPY --from=server_builder /usr/bin/node_exporter /bin/node_exporter
 
 # Add license files to the image 
-COPY LICENSE README.md /license/
+COPY LICENSE README.md THIRD_PARTY_LICENSES.txt /license/
 
 EXPOSE 9100
 USER nobody
