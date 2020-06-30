@@ -1,5 +1,4 @@
 ARG GOLANG_IMG
-ARG ORACLE_LINUX_IMG
 FROM $GOLANG_IMG AS build_base
 
 # Need to use specific WORKDIR to match node_exporter's source packages
@@ -20,8 +19,12 @@ COPY . .
 RUN go install -a node_exporter.go
 
 
-FROM $ORACLE_LINUX_IMG AS node_exporter
+FROM oraclelinux:7-slim AS node_exporter
 COPY --from=server_builder /usr/bin/node_exporter /bin/node_exporter
+
+# Add license files to the image 
+COPY LICENSE README.md /license/
+
 EXPOSE 9100
 USER nobody
 ENTRYPOINT ["/bin/node_exporter"]
