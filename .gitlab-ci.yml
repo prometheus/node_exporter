@@ -1,0 +1,59 @@
+image: phx.ocir.io/odx-sre/sauron/gitlab-dind:0.35
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_REPO: phx.ocir.io/odx-sre/sauron
+  DOCKER_IMAGE_NAME: node-exporter-mirror
+  DOCKERFILE_SAURON: Dockerfile_sauron
+  DOCKER_CI_IMAGE_NAME: node-exporter-ci
+  SCAN_IMAGE_NAMESPACE: ${DOCKER_REPO}
+  SCAN_IMAGE_NAME: ${DOCKER_IMAGE_NAME}
+  SCAN_IMAGE_BRANCH_VERSION: ${CI_PIPELINE_ID}
+  SCAN_IMAGE_BRANCH_NAME: ${DOCKER_CI_IMAGE_NAME}
+
+stages:
+  - build
+  - push
+
+before_script:
+  - docker login --username ${USERNAME} --password "${REGISTRYTOKEN}" ${DOCKER_REPO}
+  - docker container prune -f
+  - docker system prune -a -f --volumes
+
+build:
+  stage: build
+  only:
+    - branches
+    - tags
+  script:
+    - echo "#### Building ${DOCKER_IMAGE_NAME}:${CI_JOB_ID}..."
+    - docker build --file ${DOCKERFILE_SAURON} --pull --no-cache --tag ${DOCKER_IMAGE_NAME}:${CI_JOB_ID} .
+    - echo "#### Running ${DOCKER_IMAGE_NAME}:${CI_JOB_ID}..."
+    - docker run --detach --name ${DOCKER_IMAGE_NAME}-${CI_JOB_ID} --publish-all --rm ${DOCKER_IMAGE_NAME}:${CI_JOB_ID}
+    - docker stop ${DOCKER_IMAGE_NAME}-${CI_JOB_ID}
+    - docker tag ${DOCKER_IMAGE_NAME}:${CI_JOB_ID} ${DOCKER_REPO}/${DOCKER_CI_IMAGE_NAME}:${SCAN_IMAGE_BRANCH_VERSION}
+    - docker push ${DOCKER_REPO}/${DOCKER_CI_IMAGE_NAME}:${SCAN_IMAGE_BRANCH_VERSION}
+
+push:
+  stage: push
+  only:
+    - tags
+  script:
+    - export CI_COMMIT_TAG=${CI_COMMIT_TAG:?Variable CI_COMMIT_TAG must be defined}
+    - echo "#### Building ${DOCKER_IMAGE_NAME}:${CI_COMMIT_TAG}..."
+    - docker build --pull --no-cache --build-arg CI_COMMIT_TAG=${CI_COMMIT_TAG} --build-arg OCI_USER=${OCI_USER} --build-arg OCI_AUTH_TOKEN=${OCI_AUTH_TOKEN} --file ${DOCKERFILE_SAURON} --tag ${DOCKER_IMAGE_NAME}:${CI_COMMIT_TAG} .
+    - echo "#### Tagging ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${CI_COMMIT_TAG}..."
+    - docker tag ${DOCKER_IMAGE_NAME}:${CI_COMMIT_TAG} ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${CI_COMMIT_TAG}
+    - echo "#### Pushing ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${CI_COMMIT_TAG}..."
+    - docker push ${DOCKER_REPO}/${DOCKER_IMAGE_NAME}:${CI_COMMIT_TAG}
+
+after_script:
+  - docker logout ${DOCKER_REPO}
+  - docker container prune -f
+  - docker system prune -a -f --volumes
+
+# Include the container scan task.
+include:
+  - project: 'sauron/gitlab-templates'
+    ref: master
+    file: '/templates/clair-container-scanning.gitlab-ci.yml'
