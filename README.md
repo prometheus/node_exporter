@@ -117,6 +117,7 @@ mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes
 ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
+rcctl | Exposes service status from [rcctl](https://man.openbsd.org/rcctl). | OpenBSD
 runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux

@@ -2,6 +2,7 @@
 
 * [CHANGE] Improve filter flag names.
 * [CHANGE]
+* [FEATURE] Add rcctl service exporter for OpenBSD
 * [FEATURE]
 * [ENHANCEMENT] Include TCP OutRsts in netstat metrics
 * [BUGFIX]
