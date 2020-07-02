@@ -37,30 +37,34 @@ func NewLnstatCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
-
 	const (
 		subsystem = "lnstat"
 	)
 
-	lnstats, err := procfs.Lnstat()
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return fmt.Errorf("failed to open procfs: %w", err)
+	}
+
+	lnstats, err := fs.Lnstat()
 	if err != nil {
 		return fmt.Errorf("Lnstat error: %s", err)
 	}
 
-	for _, lnstat := range lnstats {
+	for _, lnstatFile := range lnstats {
 		labelNames := []string{"subsystem", "cpu"}
-		var cpu uint64 = 0
-		for _, v := range lnstat.Value {
-			labelValues := []string{lnstat.Filename, strconv.FormatUint(cpu, 10)}
-			ch <- prometheus.MustNewConstMetric(
-				prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, subsystem, lnstat.Name),
-					fmt.Sprintf("linux network cache stats"),
-					labelNames, nil,
-				),
-				prometheus.CounterValue, float64(v), labelValues...,
-			)
-			cpu++
+		for header, stats := range lnstatFile.Stats {
+			for cpu, value := range stats {
+				labelValues := []string{lnstatFile.Filename, strconv.Itoa(cpu)}
+				ch <- prometheus.MustNewConstMetric(
+					prometheus.NewDesc(
+						prometheus.BuildFQName(namespace, subsystem, header),
+						fmt.Sprintf("linux network cache stats"),
+						labelNames, nil,
+					),
+					prometheus.CounterValue, float64(value), labelValues...,
+				)
+			}
 		}
 	}
 	return nil
