@@ -4,7 +4,7 @@
 
 This collector is intended for usage with local NTPD like [ntp.org](http://ntp.org/), [chrony](https://chrony.tuxfamily.org/comparison.html) or [OpenNTPD](http://www.openntpd.org/).
 
-Note, some chrony packages have `local stratum 10` configuration value making chrony a valid server when it it is unsynchronised. This configuration makes one of `node_ntp_sanity` heuristics unreliable.
+Note, some chrony packages have `local stratum 10` configuration value making chrony a valid server when it is unsynchronised. This configuration makes one of `node_ntp_sanity` heuristics unreliable.
 
 Note, OpenNTPD does not listen for SNTP queries by default, you should add `listen on 127.0.0.1` configuration line to use this collector with OpenNTPD.
 

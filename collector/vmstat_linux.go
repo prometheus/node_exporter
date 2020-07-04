@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -37,6 +38,7 @@ var (
 
 type vmStatCollector struct {
 	fieldPattern *regexp.Regexp
+	logger       log.Logger
 }
 
 func init() {
@@ -44,10 +46,11 @@ func init() {
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
-func NewvmStatCollector() (Collector, error) {
+func NewvmStatCollector(logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*vmStatFields)
 	return &vmStatCollector{
 		fieldPattern: pattern,
+		logger:       logger,
 	}, nil
 }
 

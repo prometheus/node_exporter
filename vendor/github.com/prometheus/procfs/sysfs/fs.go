@@ -26,6 +26,12 @@ type FS struct {
 // DefaultMountPoint is the common mount point of the sys filesystem.
 const DefaultMountPoint = fs.DefaultSysMountPoint
 
+// NewDefaultFS returns a new FS mounted under the default mountPoint. It will error
+// if the mount point can't be read.
+func NewDefaultFS() (FS, error) {
+	return NewFS(DefaultMountPoint)
+}
+
 // NewFS returns a new FS mounted under the given mountPoint. It will error
 // if the mount point can't be read.
 func NewFS(mountPoint string) (FS, error) {

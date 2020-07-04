@@ -95,6 +95,10 @@ static struct {
 	{kIOBlockStorageDriverStatisticsTotalWriteTimeKey, offsetof(DriveStats, writetime)},
 	{kIOBlockStorageDriverStatisticsLatentReadTimeKey, offsetof(DriveStats, readlat)},
 	{kIOBlockStorageDriverStatisticsLatentWriteTimeKey, offsetof(DriveStats, writelat)},
+	{kIOBlockStorageDriverStatisticsReadErrorsKey, offsetof(DriveStats, readerrs)},
+	{kIOBlockStorageDriverStatisticsWriteErrorsKey, offsetof(DriveStats, writeerrs)},
+	{kIOBlockStorageDriverStatisticsReadRetriesKey, offsetof(DriveStats, readretries)},
+	{kIOBlockStorageDriverStatisticsWriteRetriesKey, offsetof(DriveStats, writeretries)},
 };
 
 static int

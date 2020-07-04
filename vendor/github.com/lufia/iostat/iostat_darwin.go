@@ -32,6 +32,10 @@ func ReadDriveStats() ([]*DriveStats, error) {
 			TotalWriteTime: time.Duration(buf[i].writetime),
 			ReadLatency:    time.Duration(buf[i].readlat),
 			WriteLatency:   time.Duration(buf[i].writelat),
+			ReadErrors:     int64(buf[i].readerrs),
+			WriteErrors:    int64(buf[i].writeerrs),
+			ReadRetries:    int64(buf[i].readretries),
+			WriteRetries:   int64(buf[i].writeretries),
 		}
 	}
 	return stats, nil

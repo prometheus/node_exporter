@@ -20,7 +20,8 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 )
 
 /*
@@ -31,7 +32,7 @@ import (
 */
 import "C"
 
-func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
+func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
 	netDev := map[string]map[string]string{}
 
 	var ifap, ifa *C.struct_ifaddrs
@@ -43,8 +44,12 @@ func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error)
 	for ifa = ifap; ifa != nil; ifa = ifa.ifa_next {
 		if ifa.ifa_addr.sa_family == C.AF_LINK {
 			dev := C.GoString(ifa.ifa_name)
-			if ignore.MatchString(dev) {
-				log.Debugf("Ignoring device: %s", dev)
+			if ignore != nil && ignore.MatchString(dev) {
+				level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
+				continue
+			}
+			if accept != nil && !accept.MatchString(dev) {
+				level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
 				continue
 			}
 

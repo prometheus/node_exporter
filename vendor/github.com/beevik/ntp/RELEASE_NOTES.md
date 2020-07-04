@@ -1,3 +1,13 @@
+Release v0.3.0
+==============
+
+There have been no breaking changes or further deprecations since the
+previous release.
+
+**Changes**
+
+* Fixed a bug in the calculation of NTP timestamps.
+
 Release v0.2.0
 ==============
 

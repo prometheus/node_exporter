@@ -51,12 +51,17 @@ netstat | Exposes network statistics from `/proc/net/netstat`. This is the same 
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
 pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/accounting/psi.txt))
+rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
+schedstat | Exposes task scheduler statistics from `/proc/schedstat`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
+softnet | Exposes statistics from `/proc/net/softnet_stat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
+thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/class/thermal`. | Linux
 time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
-uname | Exposes system information as provided by the uname system call. | FreeBSD, Linux
+udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
+uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/), Solaris
@@ -79,6 +84,25 @@ sysctl -w kernel.perf_event_paranoid=X
 Depending on the configured value different metrics will be available, for most
 cases `0` will provide the most complete set. For more information see [`man 2
 perf_event_open`](http://man7.org/linux/man-pages/man2/perf_event_open.2.html).
+
+By default, the perf collector will only collect metrics of the CPUs that
+`node_exporter` is running on (ie
+[`runtime.NumCPU`](https://golang.org/pkg/runtime/#NumCPU). If this is
+insufficient (e.g. if you run `node_exporter` with its CPU affinity set to
+specific CPUs), you can specify a list of alternate CPUs by using the
+`--collector.perf.cpus` flag. For example, to collect metrics on CPUs 2-6, you
+would specify: `--collector.perf --collector.perf.cpus=2-6`. The CPU
+configuration is zero indexed and can also take a stride value; e.g.
+`--collector.perf --collector.perf.cpus=1-10:5` would collect on CPUs
+1, 5, and 10.
+
+The perf collector is also able to collect
+[tracepoint](https://www.kernel.org/doc/html/latest/core-api/tracepoint.html)
+counts when using the `--collector.perf.tracepoint` flag. Tracepoints can be
+found using [`perf list`](http://man7.org/linux/man-pages/man1/perf.1.html) or
+from debugfs. And example usage of this would be
+`--collector.perf.tracepoint="sched:sched_process_exec"`.
+
 
 Name     | Description | OS
 ---------|-------------|----
@@ -162,6 +186,17 @@ To see all available configuration flags:
 
     make test
 
+## TLS endpoint
+
+** EXPERIMENTAL **
+
+The exporter supports TLS via a new web configuration file.
+
+```console
+./node_exporter --web.config=web-config.yml
+```
+
+See the [https package](https/README.md) for more details.
 
 ## Using Docker
 The `node_exporter` is designed to monitor the host system. It's not recommended
@@ -178,7 +213,7 @@ docker run -d \
   --pid="host" \
   -v "/:/host:ro,rslave" \
   quay.io/prometheus/node-exporter \
-  --path.rootfs /host
+  --path.rootfs=/host
 ```
 
 On some systems, the `timex` collector requires an additional Docker flag,

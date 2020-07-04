@@ -16,10 +16,7 @@
 package collector
 
 import (
-	"bytes"
-	"unsafe"
-
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
@@ -29,15 +26,6 @@ const (
 	readOnly              = 0x1 // MNT_RDONLY
 	noWait                = 0x2 // MNT_NOWAIT
 )
-
-func gostring(b []int8) string {
-	bb := *(*[]byte)(unsafe.Pointer(&b))
-	idx := bytes.IndexByte(bb, 0)
-	if idx < 0 {
-		return ""
-	}
-	return string(bb[:idx])
-}
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
@@ -52,16 +40,16 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	}
 	stats := []filesystemStats{}
 	for _, fs := range buf {
-		mountpoint := gostring(fs.Mntonname[:])
+		mountpoint := bytesToString(fs.Mntonname[:])
 		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
-			log.Debugf("Ignoring mount point: %s", mountpoint)
+			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
-		device := gostring(fs.Mntfromname[:])
-		fstype := gostring(fs.Fstypename[:])
+		device := bytesToString(fs.Mntfromname[:])
+		fstype := bytesToString(fs.Fstypename[:])
 		if c.ignoredFSTypesPattern.MatchString(fstype) {
-			log.Debugf("Ignoring fs type: %s", fstype)
+			level.Debug(c.logger).Log("msg", "Ignoring fs type", "type", fstype)
 			continue
 		}
 
@@ -73,7 +61,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		stats = append(stats, filesystemStats{
 			labels: filesystemLabels{
 				device:     device,
-				mountPoint: mountpoint,
+				mountPoint: rootfsStripPrefix(mountpoint),
 				fsType:     fstype,
 			},
 			size:      float64(fs.Blocks) * float64(fs.Bsize),

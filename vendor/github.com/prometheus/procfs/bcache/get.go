@@ -32,6 +32,12 @@ type FS struct {
 	sys *fs.FS
 }
 
+// NewDefaultFS returns a new Bcache using the default sys fs mount point. It will error
+// if the mount point can't be read.
+func NewDefaultFS() (FS, error) {
+	return NewFS(fs.DefaultSysMountPoint)
+}
+
 // NewFS returns a new Bcache using the given sys fs mount point. It will error
 // if the mount point can't be read.
 func NewFS(mountPoint string) (FS, error) {
@@ -45,8 +51,21 @@ func NewFS(mountPoint string) (FS, error) {
 	return FS{&fs}, nil
 }
 
-// Stats retrieves bcache runtime statistics for each bcache.
+// Stats is a wrapper around stats()
+// It returns full available statistics
 func (fs FS) Stats() ([]*Stats, error) {
+	return fs.stats(true)
+}
+
+// StatsWithoutPriority is a wrapper around stats().
+// It ignores priority_stats file, because it is expensive to read.
+func (fs FS) StatsWithoutPriority() ([]*Stats, error) {
+	return fs.stats(false)
+}
+
+// stats() retrieves bcache runtime statistics for each bcache.
+// priorityStats flag controls if we need to read priority_stats.
+func (fs FS) stats(priorityStats bool) ([]*Stats, error) {
 	matches, err := filepath.Glob(fs.sys.Path("fs/bcache/*-*"))
 	if err != nil {
 		return nil, err
@@ -58,7 +77,7 @@ func (fs FS) Stats() ([]*Stats, error) {
 		name := filepath.Base(uuidPath)
 
 		// stats
-		s, err := GetStats(uuidPath)
+		s, err := GetStats(uuidPath, priorityStats)
 		if err != nil {
 			return nil, err
 		}
@@ -155,6 +174,17 @@ func dehumanize(hbytes []byte) (uint64, error) {
 	return res, nil
 }
 
+func dehumanizeSigned(str string) (int64, error) {
+	value, err := dehumanize([]byte(strings.TrimPrefix(str, "-")))
+	if err != nil {
+		return 0, err
+	}
+	if strings.HasPrefix(str, "-") {
+		return int64(-value), nil
+	}
+	return int64(value), nil
+}
+
 type parser struct {
 	uuidPath   string
 	subDir     string
@@ -213,6 +243,72 @@ func parsePriorityStats(line string, ps *PriorityStats) error {
 	return nil
 }
 
+// ParseWritebackRateDebug parses lines from the writeback_rate_debug file.
+func parseWritebackRateDebug(line string, wrd *WritebackRateDebugStats) error {
+	switch {
+	case strings.HasPrefix(line, "rate:"):
+		fields := strings.Fields(line)
+		rawValue := fields[len(fields)-1]
+		valueStr := strings.TrimSuffix(rawValue, "/sec")
+		value, err := dehumanize([]byte(valueStr))
+		if err != nil {
+			return err
+		}
+		wrd.Rate = value
+	case strings.HasPrefix(line, "dirty:"):
+		fields := strings.Fields(line)
+		valueStr := fields[len(fields)-1]
+		value, err := dehumanize([]byte(valueStr))
+		if err != nil {
+			return err
+		}
+		wrd.Dirty = value
+	case strings.HasPrefix(line, "target:"):
+		fields := strings.Fields(line)
+		valueStr := fields[len(fields)-1]
+		value, err := dehumanize([]byte(valueStr))
+		if err != nil {
+			return err
+		}
+		wrd.Target = value
+	case strings.HasPrefix(line, "proportional:"):
+		fields := strings.Fields(line)
+		valueStr := fields[len(fields)-1]
+		value, err := dehumanizeSigned(valueStr)
+		if err != nil {
+			return err
+		}
+		wrd.Proportional = value
+	case strings.HasPrefix(line, "integral:"):
+		fields := strings.Fields(line)
+		valueStr := fields[len(fields)-1]
+		value, err := dehumanizeSigned(valueStr)
+		if err != nil {
+			return err
+		}
+		wrd.Integral = value
+	case strings.HasPrefix(line, "change:"):
+		fields := strings.Fields(line)
+		rawValue := fields[len(fields)-1]
+		valueStr := strings.TrimSuffix(rawValue, "/sec")
+		value, err := dehumanizeSigned(valueStr)
+		if err != nil {
+			return err
+		}
+		wrd.Change = value
+	case strings.HasPrefix(line, "next io:"):
+		fields := strings.Fields(line)
+		rawValue := fields[len(fields)-1]
+		valueStr := strings.TrimSuffix(rawValue, "ms")
+		value, err := strconv.ParseInt(valueStr, 10, 64)
+		if err != nil {
+			return err
+		}
+		wrd.NextIO = value
+	}
+	return nil
+}
+
 func (p *parser) getPriorityStats() PriorityStats {
 	var res PriorityStats
 
@@ -244,8 +340,37 @@ func (p *parser) getPriorityStats() PriorityStats {
 	return res
 }
 
+func (p *parser) getWritebackRateDebug() WritebackRateDebugStats {
+	var res WritebackRateDebugStats
+
+	if p.err != nil {
+		return res
+	}
+	path := path.Join(p.currentDir, "writeback_rate_debug")
+	file, err := os.Open(path)
+	if err != nil {
+		p.err = fmt.Errorf("failed to read: %s", path)
+		return res
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		err = parseWritebackRateDebug(scanner.Text(), &res)
+		if err != nil {
+			p.err = fmt.Errorf("failed to parse: %s (%s)", path, err)
+			return res
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		p.err = fmt.Errorf("failed to parse: %s (%s)", path, err)
+		return res
+	}
+	return res
+}
+
 // GetStats collects from sysfs files data tied to one bcache ID.
-func GetStats(uuidPath string) (*Stats, error) {
+func GetStats(uuidPath string, priorityStats bool) (*Stats, error) {
 	var bs Stats
 
 	par := parser{uuidPath: uuidPath}
@@ -320,6 +445,9 @@ func GetStats(uuidPath string) (*Stats, error) {
 		par.setSubDir(bds.Name)
 		bds.DirtyData = par.readValue("dirty_data")
 
+		wrd := par.getWritebackRateDebug()
+		bds.WritebackRateDebug = wrd
+
 		// dir <uuidPath>/<bds.Name>/stats_five_minute
 		par.setSubDir(bds.Name, "stats_five_minute")
 		bds.FiveMin.Bypassed = par.readValue("bypassed")
@@ -364,8 +492,10 @@ func GetStats(uuidPath string) (*Stats, error) {
 		cs.MetadataWritten = par.readValue("metadata_written")
 		cs.Written = par.readValue("written")
 
-		ps := par.getPriorityStats()
-		cs.Priority = ps
+		if priorityStats {
+			ps := par.getPriorityStats()
+			cs.Priority = ps
+		}
 	}
 
 	if par.err != nil {

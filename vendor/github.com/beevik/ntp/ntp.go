@@ -76,8 +76,12 @@ type ntpTime uint64
 // and returns the corresponding time.Duration value.
 func (t ntpTime) Duration() time.Duration {
 	sec := (t >> 32) * nanoPerSec
-	frac := (t & 0xffffffff) * nanoPerSec >> 32
-	return time.Duration(sec + frac)
+	frac := (t & 0xffffffff) * nanoPerSec
+	nsec := frac >> 32
+	if uint32(frac) >= 0x80000000 {
+		nsec++
+	}
+	return time.Duration(sec + nsec)
 }
 
 // Time interprets the fixed-point ntpTime as an absolute time and returns
@@ -91,10 +95,11 @@ func (t ntpTime) Time() time.Time {
 func toNtpTime(t time.Time) ntpTime {
 	nsec := uint64(t.Sub(ntpEpoch))
 	sec := nsec / nanoPerSec
-	// Round up the fractional component so that repeated conversions
-	// between time.Time and ntpTime do not yield continually decreasing
-	// results.
-	frac := (((nsec - sec*nanoPerSec) << 32) + nanoPerSec - 1) / nanoPerSec
+	nsec = uint64(nsec-sec*nanoPerSec) << 32
+	frac := uint64(nsec / nanoPerSec)
+	if nsec%nanoPerSec >= nanoPerSec/2 {
+		frac++
+	}
 	return ntpTime(sec<<32 | frac)
 }
 
@@ -105,10 +110,13 @@ type ntpTimeShort uint32
 // Duration interprets the fixed-point ntpTimeShort as a number of elapsed
 // seconds and returns the corresponding time.Duration value.
 func (t ntpTimeShort) Duration() time.Duration {
-	t64 := uint64(t)
-	sec := (t64 >> 16) * nanoPerSec
-	frac := (t64 & 0xffff) * nanoPerSec >> 16
-	return time.Duration(sec + frac)
+	sec := uint64(t>>16) * nanoPerSec
+	frac := uint64(t&0xffff) * nanoPerSec
+	nsec := frac >> 16
+	if uint16(frac) >= 0x8000 {
+		nsec++
+	}
+	return time.Duration(sec + nsec)
 }
 
 // msg is an internal representation of an NTP packet.

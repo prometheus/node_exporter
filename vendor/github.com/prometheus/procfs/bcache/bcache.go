@@ -29,7 +29,7 @@ type Stats struct {
 }
 
 // BcacheStats contains statistics tied to a bcache ID.
-type BcacheStats struct {
+type BcacheStats struct { // nolint:golint
 	AverageKeySize        uint64
 	BtreeCacheSize        uint64
 	CacheAvailablePercent uint64
@@ -43,10 +43,11 @@ type BcacheStats struct {
 
 // BdevStats contains statistics for one backing device.
 type BdevStats struct {
-	Name      string
-	DirtyData uint64
-	FiveMin   PeriodStats
-	Total     PeriodStats
+	Name               string
+	DirtyData          uint64
+	FiveMin            PeriodStats
+	Total              PeriodStats
+	WritebackRateDebug WritebackRateDebugStats
 }
 
 // CacheStats contains statistics for one cache device.
@@ -81,4 +82,15 @@ type PeriodStats struct {
 	CacheMissCollisions uint64
 	CacheMisses         uint64
 	CacheReadaheads     uint64
+}
+
+// WritebackRateDebugStats contains bcache writeback statistics.
+type WritebackRateDebugStats struct {
+	Rate         uint64
+	Dirty        uint64
+	Target       uint64
+	Proportional int64
+	Integral     int64
+	Change       int64
+	NextIO       int64
 }

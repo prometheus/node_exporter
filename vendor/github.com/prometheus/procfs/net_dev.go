@@ -47,23 +47,13 @@ type NetDevLine struct {
 // are interface names.
 type NetDev map[string]NetDevLine
 
-// NewNetDev returns kernel/system statistics read from /proc/net/dev.
-func NewNetDev() (NetDev, error) {
-	fs, err := NewFS(DefaultMountPoint)
-	if err != nil {
-		return nil, err
-	}
-
-	return fs.NewNetDev()
-}
-
-// NewNetDev returns kernel/system statistics read from /proc/net/dev.
-func (fs FS) NewNetDev() (NetDev, error) {
+// NetDev returns kernel/system statistics read from /proc/net/dev.
+func (fs FS) NetDev() (NetDev, error) {
 	return newNetDev(fs.proc.Path("net/dev"))
 }
 
-// NewNetDev returns kernel/system statistics read from /proc/[pid]/net/dev.
-func (p Proc) NewNetDev() (NetDev, error) {
+// NetDev returns kernel/system statistics read from /proc/[pid]/net/dev.
+func (p Proc) NetDev() (NetDev, error) {
 	return newNetDev(p.path("net/dev"))
 }
 
@@ -192,7 +182,6 @@ func (netDev NetDev) Total() NetDevLine {
 	for _, ifc := range netDev {
 		names = append(names, ifc.Name)
 		total.RxBytes += ifc.RxBytes
-		total.RxPackets += ifc.RxPackets
 		total.RxPackets += ifc.RxPackets
 		total.RxErrors += ifc.RxErrors
 		total.RxDropped += ifc.RxDropped

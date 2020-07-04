@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/beevik/ntp"
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -34,7 +35,7 @@ const (
 var (
 	ntpServer          = kingpin.Flag("collector.ntp.server", "NTP server to use for ntp collector").Default("127.0.0.1").String()
 	ntpProtocolVersion = kingpin.Flag("collector.ntp.protocol-version", "NTP protocol version").Default("4").Int()
-	ntpServerIsLocal   = kingpin.Flag("collector.ntp.server-is-local", "Certify that collector.ntp.server address is the same local host as this collector.").Default("false").Bool()
+	ntpServerIsLocal   = kingpin.Flag("collector.ntp.server-is-local", "Certify that collector.ntp.server address is not a public ntp server").Default("false").Bool()
 	ntpIPTTL           = kingpin.Flag("collector.ntp.ip-ttl", "IP TTL to use while sending NTP query").Default("1").Int()
 	// 3.46608s ~ 1.5s + PHI * (1 << maxPoll), where 1.5s is MAXDIST from ntp.org, it is 1.0 in RFC5905
 	// max-distance option is used as-is without phi*(1<<poll)
@@ -47,6 +48,7 @@ var (
 
 type ntpCollector struct {
 	stratum, leap, rtt, offset, reftime, rootDelay, rootDispersion, sanity typedDesc
+	logger                                                                 log.Logger
 }
 
 func init() {
@@ -57,7 +59,7 @@ func init() {
 // Default definition of "local" is:
 // - collector.ntp.server address is a loopback address (or collector.ntp.server-is-mine flag is turned on)
 // - the server is reachable with outgoin IP_TTL = 1
-func NewNtpCollector() (Collector, error) {
+func NewNtpCollector(logger log.Logger) (Collector, error) {
 	ipaddr := net.ParseIP(*ntpServer)
 	if !*ntpServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
 		return nil, fmt.Errorf("only IP address of local NTP server is valid for --collector.ntp.server")
@@ -112,6 +114,7 @@ func NewNtpCollector() (Collector, error) {
 			"NTPD sanity according to RFC5905 heuristics and configured limits.",
 			nil, nil,
 		), prometheus.GaugeValue},
+		logger: logger,
 	}, nil
 }
 

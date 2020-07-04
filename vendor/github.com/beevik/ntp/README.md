@@ -21,22 +21,23 @@ time, err := ntp.Time("0.beevik-ntp.pool.ntp.org")
 ## Querying time metadata
 
 To obtain the current time as well as some additional metadata about the time,
-use the `Query` function:
+use the [`Query`](https://godoc.org/github.com/beevik/ntp#Query) function:
 ```go
 response, err := ntp.Query("0.beevik-ntp.pool.ntp.org")
 time := time.Now().Add(response.ClockOffset)
 ```
 
-Alternatively, use the `QueryWithOptions` function if you want to change the
-default behavior used by the `Query` function:
+Alternatively, use the [`QueryWithOptions`](https://godoc.org/github.com/beevik/ntp#QueryWithOptions)
+function if you want to change the default behavior used by the `Query`
+function:
 ```go
 options := ntp.QueryOptions{ Timeout: 30*time.Second, TTL: 5 }
 response, err := ntp.QueryWithOptions("0.beevik-ntp.pool.ntp.org", options)
 time := time.Now().Add(response.ClockOffset)
 ```
 
-The `Response` structure returned by `Query` includes the following
-information:
+The [`Response`](https://godoc.org/github.com/beevik/ntp#Response) structure
+returned by `Query` includes the following information:
 * `Time`: The time the server transmitted its response, according to its own clock.
 * `ClockOffset`: The estimated offset of the local system clock relative to the server's clock. For a more accurate time reading, you may add this offset to any subsequent system clock reading.
 * `RTT`: An estimate of the round-trip-time delay between the client and the server.
@@ -52,9 +53,9 @@ information:
 * `KissCode`: A 4-character string describing the reason for a "kiss of death" response (stratum=0).
 * `Poll`: The maximum polling interval between successive messages to the server.
 
-The `Response` structure's `Validate` method performs additional sanity checks
-to determine whether the response is suitable for time synchronization
-purposes.
+The `Response` structure's [`Validate`](https://godoc.org/github.com/beevik/ntp#Response.Validate)
+method performs additional sanity checks to determine whether the response is
+suitable for time synchronization purposes.
 ```go
 err := response.Validate()
 if err == nil {

@@ -17,14 +17,17 @@ package collector
 
 import (
 	"io/ioutil"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/go-kit/kit/log"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func TestPerfCollector(t *testing.T) {
+func canTestPerf(t *testing.T) {
 	paranoidBytes, err := ioutil.ReadFile("/proc/sys/kernel/perf_event_paranoid")
 	if err != nil {
 		t.Skip("Procfs not mounted, skipping perf tests")
@@ -37,7 +40,11 @@ func TestPerfCollector(t *testing.T) {
 	if paranoid >= 1 {
 		t.Skip("Skipping perf tests, set perf_event_paranoid to 0")
 	}
-	collector, err := NewPerfCollector()
+}
+
+func TestPerfCollector(t *testing.T) {
+	canTestPerf(t)
+	collector, err := NewPerfCollector(log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,5 +58,199 @@ func TestPerfCollector(t *testing.T) {
 	}()
 	if err := collector.Update(metrics); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestPerfCollectorStride(t *testing.T) {
+	canTestPerf(t)
+
+	tests := []struct {
+		name   string
+		flag   string
+		exCpus []int
+	}{
+		{
+			name:   "valid single cpu",
+			flag:   "1",
+			exCpus: []int{1},
+		},
+		{
+			name:   "valid range cpus",
+			flag:   "1-5",
+			exCpus: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:   "valid stride",
+			flag:   "1-8:2",
+			exCpus: []int{1, 3, 5, 7},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			ncpu := runtime.NumCPU()
+			for _, cpu := range test.exCpus {
+				if cpu > ncpu {
+					t.Skipf("Skipping test because runtime.NumCPU < %d", cpu)
+				}
+			}
+			perfCPUsFlag = &test.flag
+			collector, err := NewPerfCollector(log.NewNopLogger())
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			c := collector.(*perfCollector)
+			for _, cpu := range test.exCpus {
+				if _, ok := c.perfHwProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in hardware profilers", cpu)
+				}
+				if _, ok := c.perfSwProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in software profilers", cpu)
+				}
+				if _, ok := c.perfCacheProfilers[cpu]; !ok {
+					t.Fatalf("Expected CPU %v in cache profilers", cpu)
+				}
+			}
+		})
+	}
+}
+
+func TestPerfCPUFlagToCPUs(t *testing.T) {
+	tests := []struct {
+		name   string
+		flag   string
+		exCpus []int
+		errStr string
+	}{
+		{
+			name:   "valid single cpu",
+			flag:   "1",
+			exCpus: []int{1},
+		},
+		{
+			name:   "valid range cpus",
+			flag:   "1-5",
+			exCpus: []int{1, 2, 3, 4, 5},
+		},
+		{
+			name:   "valid double digit",
+			flag:   "10",
+			exCpus: []int{10},
+		},
+		{
+			name:   "valid double digit range",
+			flag:   "10-12",
+			exCpus: []int{10, 11, 12},
+		},
+		{
+			name:   "valid double digit stride",
+			flag:   "10-20:5",
+			exCpus: []int{10, 15, 20},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cpus, err := perfCPUFlagToCPUs(test.flag)
+			if test.errStr != "" {
+				if err != nil {
+					t.Fatal("expected error to not be nil")
+				}
+				if test.errStr != err.Error() {
+					t.Fatalf(
+						"expected error %q, got %q",
+						test.errStr,
+						err.Error(),
+					)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(cpus) != len(test.exCpus) {
+				t.Fatalf(
+					"expected cpus %v, got %v",
+					test.exCpus,
+					cpus,
+				)
+			}
+			for i := range cpus {
+				if test.exCpus[i] != cpus[i] {
+					t.Fatalf(
+						"expected cpus %v, got %v",
+						test.exCpus[i],
+						cpus[i],
+					)
+				}
+			}
+		})
+	}
+}
+
+func TestPerfTracepointFlagToTracepoints(t *testing.T) {
+	tests := []struct {
+		name          string
+		flag          []string
+		exTracepoints []*perfTracepoint
+		errStr        string
+	}{
+		{
+			name: "valid single tracepoint",
+			flag: []string{"sched:sched_kthread_stop"},
+			exTracepoints: []*perfTracepoint{
+				{
+					subsystem: "sched",
+					event:     "sched_kthread_stop",
+				},
+			},
+		},
+		{
+			name: "valid multiple tracepoints",
+			flag: []string{"sched:sched_kthread_stop", "sched:sched_process_fork"},
+			exTracepoints: []*perfTracepoint{
+				{
+					subsystem: "sched",
+					event:     "sched_kthread_stop",
+				},
+				{
+					subsystem: "sched",
+					event:     "sched_process_fork",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			tracepoints, err := perfTracepointFlagToTracepoints(test.flag)
+			if test.errStr != "" {
+				if err != nil {
+					t.Fatal("expected error to not be nil")
+				}
+				if test.errStr != err.Error() {
+					t.Fatalf(
+						"expected error %q, got %q",
+						test.errStr,
+						err.Error(),
+					)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			for i := range tracepoints {
+				if test.exTracepoints[i].event != tracepoints[i].event &&
+					test.exTracepoints[i].subsystem != tracepoints[i].subsystem {
+					t.Fatalf(
+						"expected tracepoint %v, got %v",
+						test.exTracepoints[i],
+						tracepoints[i],
+					)
+				}
+			}
+		})
 	}
 }
