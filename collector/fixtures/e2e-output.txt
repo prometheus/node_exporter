@@ -54,6 +54,12 @@
 # TYPE go_memstats_sys_bytes gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
+# HELP node_aio_max_nr Maximum size of asynchronous io contexts.
+# TYPE node_aio_max_nr gauge
+node_aio_max_nr 65536
+# HELP node_aio_nr Number of currently active asynchronous io contexts.
+# TYPE node_aio_nr gauge
+node_aio_nr 0
 # HELP node_arp_entries ARP entries by device
 # TYPE node_arp_entries gauge
 node_arp_entries{device="eth0"} 3
@@ -2616,6 +2622,7 @@ node_schedstat_waiting_seconds_total{cpu="1"} 364107.263788241
 # TYPE node_scrape_collector_duration_seconds gauge
 # HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.
 # TYPE node_scrape_collector_success gauge
+node_scrape_collector_success{collector="aio"} 1
 node_scrape_collector_success{collector="arp"} 1
 node_scrape_collector_success{collector="bcache"} 1
 node_scrape_collector_success{collector="bonding"} 1
