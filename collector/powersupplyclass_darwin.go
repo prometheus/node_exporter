@@ -312,8 +312,8 @@ func getPowerSourceDescriptorMap(info *C.struct_macos_powersupply) map[string]*f
 		"max_capacity":          convertValue(info.MaxCapacity),
 		"design_capacity":       convertValue(info.DesignCapacity),
 		"nominal_capacity":      convertValue(info.NominalCapacity),
-		"time_to_empty_seconds": convertValue(info.TimeToEmpty),
-		"time_to_full_seconds":  convertValue(info.TimeToFullCharge),
+		"time_to_empty_seconds": minutesToSeconds(info.TimeToEmpty),
+		"time_to_full_seconds":  minutesToSeconds(info.TimeToFullCharge),
 		"voltage_volt":          scaleValue(info.Voltage, 1e3),
 		"current_ampere":        scaleValue(info.Current, 1e3),
 		"temp_celsius":          convertValue(info.Temperature),
@@ -376,13 +376,30 @@ func convertValue(value *C.int) *float64 {
 	return ret
 }
 
-func scaleValue(value *C.int, scale int) *float64 {
+func scaleValue(value *C.int, scale float64) *float64 {
 	ret := convertValue(value)
 	if ret == nil {
 		return nil
 	}
 
-	*ret = *ret / float64(scale)
+	*ret /= scale
+
+	return ret
+}
+
+// minutesToSeconds converts *C.int minutes into *float64 seconds.
+//
+// Only positive values will be scaled to seconds, because negative ones
+// have special meanings. I.e. -1 indicates "Still Calculating the Time"
+func minutesToSeconds(minutes *C.int) *float64 {
+	ret := convertValue(minutes)
+	if ret == nil {
+		return nil
+	}
+
+	if *ret > 0 {
+		*ret *= 60
+	}
 
 	return ret
 }
