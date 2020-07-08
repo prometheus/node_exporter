@@ -1,4 +1,4 @@
-FROM oraclelinux:7-slim AS build_base
+FROM container-registry.oracle.com/os/oraclelinux:7-slim AS build_base
 
 LABEL maintainer = "Verrazzano developers <verrazzano_ww@oracle.com>"
 ENV GOBIN=/usr/bin
@@ -35,7 +35,7 @@ COPY . .
 RUN go install -a node_exporter.go
 
 
-FROM oraclelinux:7-slim AS node_exporter
+FROM container-registry.oracle.com/os/oraclelinux:7-slim AS node_exporter
 COPY --from=server_builder /usr/bin/node_exporter /bin/node_exporter
 
 # Add license files to the image 
