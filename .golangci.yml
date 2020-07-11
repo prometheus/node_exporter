@@ -1,6 +1,3 @@
-run:
-  modules-download-mode: vendor
-
 linters:
   enable:
   - golint
