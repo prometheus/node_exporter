@@ -52,32 +52,32 @@ func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
 
 	// Detailed description for all metrics.
 	descriptions := map[string]string{
-		"dumped_frames_total":      "Number of dumped frames",
-		"loss_of_signal_total":     "Number of times signal has been lost",
-		"loss_of_sync_total":       "Number of failures on either bit or transmission word boundaries",
-		"rx_frames_total":          "Number of frames received",
-		"error_frames_total":       "Number of errors in frames",
-		"invalid_tx_word_total":    "Number of invalid words transmitted by host port",
-		"seconds_since_last_reset": "Number of seconds since last host port reset",
-		"tx_words_total":           "Number of words transmitted by host port",
-		"invalid_crc_total":        "Invalid Cyclic Redundancy Check count",
-		"nos_total":                "Number Not_Operational Primitive Sequence received by host port",
-		"fcp_packet_aborts_total":  "Number of aborted packets",
-		"rx_words_total":           "Number of words received by host port",
-		"tx_frames_total":          "Number of frames transmitted by host port",
-		"link_failure_total":       "Number of times the host port link has failed",
-		"name":                     "Name of Fibre Channel HBA",
-		"speed":                    "Current operating speed",
-		"port_state":               "Current port state",
-		"port_type":                "Port type, what the port is connected to",
-		"symbolic_name":            "Symoblic Name",
-		"node_name":                "Node Name as hexadecimal string",
-		"port_id":                  "Port ID as string",
-		"port_name":                "Port Name as hexadecimal string",
-		"fabric_name":              "Fabric Name; 0 if PTP",
-		"dev_loss_tmo":             "Device Loss Timeout in seconds",
-		"supported_classes":        "The FC classes supported",
-		"supported_speeds":         "The FC speeds supported",
+		"dumped_frames_total":            "Number of dumped frames",
+		"loss_of_signal_total":           "Number of times signal has been lost",
+		"loss_of_sync_total":             "Number of failures on either bit or transmission word boundaries",
+		"rx_frames_total":                "Number of frames received",
+		"error_frames_total":             "Number of errors in frames",
+		"invalid_tx_word_total":          "Number of invalid words transmitted by host port",
+		"seconds_since_last_reset_total": "Number of seconds since last host port reset",
+		"tx_words_total":                 "Number of words transmitted by host port",
+		"invalid_crc_total":              "Invalid Cyclic Redundancy Check count",
+		"nos_total":                      "Number Not_Operational Primitive Sequence received by host port",
+		"fcp_packet_aborts_total":        "Number of aborted packets",
+		"rx_words_total":                 "Number of words received by host port",
+		"tx_frames_total":                "Number of frames transmitted by host port",
+		"link_failure_total":             "Number of times the host port link has failed",
+		"name":                           "Name of Fibre Channel HBA",
+		"speed":                          "Current operating speed",
+		"port_state":                     "Current port state",
+		"port_type":                      "Port type, what the port is connected to",
+		"symbolic_name":                  "Symoblic Name",
+		"node_name":                      "Node Name as hexadecimal string",
+		"port_id":                        "Port ID as string",
+		"port_name":                      "Port Name as hexadecimal string",
+		"fabric_name":                    "Fabric Name; 0 if PTP",
+		"dev_loss_tmo":                   "Device Loss Timeout in seconds",
+		"supported_classes":              "The FC classes supported",
+		"supported_speeds":               "The FC speeds supported",
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)
@@ -136,7 +136,7 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		c.pushCounter(ch, "rx_words_total", host.Counters.RXWords, host.Name)
 		c.pushCounter(ch, "tx_frames_total", host.Counters.TXFrames, host.Name)
 		c.pushCounter(ch, "tx_words_total", host.Counters.TXWords, host.Name)
-		c.pushCounter(ch, "seconds_since_last_reset", host.Counters.SecondsSinceLastReset, host.Name)
+		c.pushCounter(ch, "seconds_since_last_reset_total", host.Counters.SecondsSinceLastReset, host.Name)
 		c.pushCounter(ch, "invalid_tx_word_total", host.Counters.InvalidTXWordCount, host.Name)
 		c.pushCounter(ch, "link_failure_total", host.Counters.LinkFailureCount, host.Name)
 		c.pushCounter(ch, "loss_of_sync_total", host.Counters.LossOfSyncCount, host.Name)

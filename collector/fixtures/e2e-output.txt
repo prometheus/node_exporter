@@ -662,9 +662,9 @@ node_fibrechannel_rx_frames_total{host="host0"} 3
 # HELP node_fibrechannel_rx_words_total Number of words received by host port
 # TYPE node_fibrechannel_rx_words_total counter
 node_fibrechannel_rx_words_total{host="host0"} 4
-# HELP node_fibrechannel_seconds_since_last_reset Number of seconds since last host port reset
-# TYPE node_fibrechannel_seconds_since_last_reset counter
-node_fibrechannel_seconds_since_last_reset{host="host0"} 7
+# HELP node_fibrechannel_seconds_since_last_reset_total Number of seconds since last host port reset
+# TYPE node_fibrechannel_seconds_since_last_reset_total counter
+node_fibrechannel_seconds_since_last_reset_total{host="host0"} 7
 # HELP node_fibrechannel_tx_frames_total Number of frames transmitted by host port
 # TYPE node_fibrechannel_tx_frames_total counter
 node_fibrechannel_tx_frames_total{host="host0"} 5
