@@ -60,7 +60,7 @@ distance being less than `collector.ntp.max-distance` and causality violation
 being less than `collector.ntp.local-offset-tolerance`.
 
 Causality violation is lower bound estimate of clock error done using SNTP,
-it's calculated as positive portion of `abs(node_ntp_offset) - node_ntp_rtt / 2`.
+it's calculated as positive portion of `abs(node_ntp_offset_seconds) - node_ntp_rtt_seconds / 2`.
 
 ## `timex` collector
 
