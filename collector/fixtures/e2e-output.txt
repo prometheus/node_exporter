@@ -629,48 +629,48 @@ node_edac_uncorrectable_errors_total{controller="0"} 5
 node_entropy_available_bits 1337
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built.
 # TYPE node_exporter_build_info gauge
-# HELP node_fibrechannel_error_frames Number of errors in frames
-# TYPE node_fibrechannel_error_frames counter
-node_fibrechannel_error_frames{host="host0"} 0
-# HELP node_fibrechannel_fcp_packet_aborts Number of aborted packets
-# TYPE node_fibrechannel_fcp_packet_aborts counter
-node_fibrechannel_fcp_packet_aborts{host="host0"} 19
+# HELP node_fibrechannel_error_frames_total Number of errors in frames
+# TYPE node_fibrechannel_error_frames_total counter
+node_fibrechannel_error_frames_total{host="host0"} 0
+# HELP node_fibrechannel_fcp_packet_aborts_total Number of aborted packets
+# TYPE node_fibrechannel_fcp_packet_aborts_total counter
+node_fibrechannel_fcp_packet_aborts_total{host="host0"} 19
 # HELP node_fibrechannel_info Non-numeric data from /sys/class/fc_host/<host>, value is always 1.
 # TYPE node_fibrechannel_info gauge
 node_fibrechannel_info{dev_loss_tmo="30",fabric_name="0",host="host0",port_id="000002",port_name="1000e0071bce95f2",port_state="Online",port_type="Point-To-Point (direct nport connection)",speed="16 Gbit",supported_classes="Class 3",supported_speeds="4 Gbit, 8 Gbit, 16 Gbit",symbolic_name="Emulex SN1100E2P FV12.4.270.3 DV12.4.0.0. HN:gotest. OS:Linux"} 1
-# HELP node_fibrechannel_invalid_crc_count Invalid Cyclic Redundancy Check count
-# TYPE node_fibrechannel_invalid_crc_count counter
-node_fibrechannel_invalid_crc_count{host="host0"} 2
-# HELP node_fibrechannel_invalid_tx_word_count Number of invalid words transmitted by host port
-# TYPE node_fibrechannel_invalid_tx_word_count counter
-node_fibrechannel_invalid_tx_word_count{host="host0"} 8
-# HELP node_fibrechannel_link_failure_count Number of times the host port link has failed
-# TYPE node_fibrechannel_link_failure_count counter
-node_fibrechannel_link_failure_count{host="host0"} 9
-# HELP node_fibrechannel_loss_of_signal_count Number of times signal has been lost
-# TYPE node_fibrechannel_loss_of_signal_count counter
-node_fibrechannel_loss_of_signal_count{host="host0"} 17
-# HELP node_fibrechannel_loss_of_sync_count Number of failures on either bit or transmission word boundaries
-# TYPE node_fibrechannel_loss_of_sync_count counter
-node_fibrechannel_loss_of_sync_count{host="host0"} 16
-# HELP node_fibrechannel_nos_count Number Not_Operational Primitive Sequence received by host port
-# TYPE node_fibrechannel_nos_count counter
-node_fibrechannel_nos_count{host="host0"} 18
-# HELP node_fibrechannel_rx_frames Number of frames received
-# TYPE node_fibrechannel_rx_frames counter
-node_fibrechannel_rx_frames{host="host0"} 3
-# HELP node_fibrechannel_rx_words Number of words received by host port
-# TYPE node_fibrechannel_rx_words counter
-node_fibrechannel_rx_words{host="host0"} 4
+# HELP node_fibrechannel_invalid_crc_total Invalid Cyclic Redundancy Check count
+# TYPE node_fibrechannel_invalid_crc_total counter
+node_fibrechannel_invalid_crc_total{host="host0"} 2
+# HELP node_fibrechannel_invalid_tx_word_total Number of invalid words transmitted by host port
+# TYPE node_fibrechannel_invalid_tx_word_total counter
+node_fibrechannel_invalid_tx_word_total{host="host0"} 8
+# HELP node_fibrechannel_link_failure_total Number of times the host port link has failed
+# TYPE node_fibrechannel_link_failure_total counter
+node_fibrechannel_link_failure_total{host="host0"} 9
+# HELP node_fibrechannel_loss_of_signal_total Number of times signal has been lost
+# TYPE node_fibrechannel_loss_of_signal_total counter
+node_fibrechannel_loss_of_signal_total{host="host0"} 17
+# HELP node_fibrechannel_loss_of_sync_total Number of failures on either bit or transmission word boundaries
+# TYPE node_fibrechannel_loss_of_sync_total counter
+node_fibrechannel_loss_of_sync_total{host="host0"} 16
+# HELP node_fibrechannel_nos_total Number Not_Operational Primitive Sequence received by host port
+# TYPE node_fibrechannel_nos_total counter
+node_fibrechannel_nos_total{host="host0"} 18
+# HELP node_fibrechannel_rx_frames_total Number of frames received
+# TYPE node_fibrechannel_rx_frames_total counter
+node_fibrechannel_rx_frames_total{host="host0"} 3
+# HELP node_fibrechannel_rx_words_total Number of words received by host port
+# TYPE node_fibrechannel_rx_words_total counter
+node_fibrechannel_rx_words_total{host="host0"} 4
 # HELP node_fibrechannel_seconds_since_last_reset Number of seconds since last host port reset
 # TYPE node_fibrechannel_seconds_since_last_reset counter
 node_fibrechannel_seconds_since_last_reset{host="host0"} 7
-# HELP node_fibrechannel_tx_frames Number of frames transmitted by host port
-# TYPE node_fibrechannel_tx_frames counter
-node_fibrechannel_tx_frames{host="host0"} 5
-# HELP node_fibrechannel_tx_words Number of words transmitted by host port
-# TYPE node_fibrechannel_tx_words counter
-node_fibrechannel_tx_words{host="host0"} 6
+# HELP node_fibrechannel_tx_frames_total Number of frames transmitted by host port
+# TYPE node_fibrechannel_tx_frames_total counter
+node_fibrechannel_tx_frames_total{host="host0"} 5
+# HELP node_fibrechannel_tx_words_total Number of words transmitted by host port
+# TYPE node_fibrechannel_tx_words_total counter
+node_fibrechannel_tx_words_total{host="host0"} 6
 # HELP node_filefd_allocated File descriptor statistics: allocated.
 # TYPE node_filefd_allocated gauge
 node_filefd_allocated 1024
