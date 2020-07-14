@@ -218,6 +218,18 @@ node_cpu_info{cachesize="8192 KB",core="2",cpu="2",family="6",microcode="0xb4",m
 node_cpu_info{cachesize="8192 KB",core="2",cpu="6",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="3",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="7",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+# HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_flag_info gauge
+node_cpu_flag_info{flag="aes"} 1
+node_cpu_flag_info{flag="avx"} 1
+node_cpu_flag_info{flag="avx2"} 1
+node_cpu_flag_info{flag="constant_tsc"} 1
+# HELP node_cpu_bug_info The `bugs` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_bug_info gauge
+node_cpu_bug_info{bug="cpu_meltdown"} 1
+node_cpu_bug_info{bug="spectre_v1"} 1
+node_cpu_bug_info{bug="spectre_v2"} 1
+node_cpu_bug_info{bug="mds"} 1
 # HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30

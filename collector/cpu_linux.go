@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"sync"
 
@@ -32,16 +33,23 @@ type cpuCollector struct {
 	fs                 procfs.FS
 	cpu                *prometheus.Desc
 	cpuInfo            *prometheus.Desc
+	cpuFlagsInfo       *prometheus.Desc
+	cpuBugsInfo        *prometheus.Desc
 	cpuGuest           *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
 	cpuPackageThrottle *prometheus.Desc
 	logger             log.Logger
 	cpuStats           []procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
+
+	cpuFlagsIncludeRegexp *regexp.Regexp
+	cpuBugsIncludeRegexp  *regexp.Regexp
 }
 
 var (
 	enableCPUInfo = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
+	flagsInclude  = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
+	bugsInclude   = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
 )
 
 func init() {
@@ -54,13 +62,23 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
-	return &cpuCollector{
+	c := &cpuCollector{
 		fs:  fs,
 		cpu: nodeCPUSecondsDesc,
 		cpuInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
 			"CPU information from /proc/cpuinfo.",
 			[]string{"package", "core", "cpu", "vendor", "family", "model", "model_name", "microcode", "stepping", "cachesize"}, nil,
+		),
+		cpuFlagsInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "flag_info"),
+			"The `flags` field of CPU information from /proc/cpuinfo.",
+			[]string{"flag"}, nil,
+		),
+		cpuBugsInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "bug_info"),
+			"The `bugs` field of CPU information from /proc/cpuinfo.",
+			[]string{"bug"}, nil,
 		),
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
@@ -78,7 +96,36 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 			[]string{"package"}, nil,
 		),
 		logger: logger,
-	}, nil
+	}
+	err = c.compileIncludeFlags(flagsInclude, bugsInclude)
+	if err != nil {
+		return nil, fmt.Errorf("fail to compile --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include, the values of them must be regular expressions: %w", err)
+	}
+	return c, nil
+}
+
+func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *string) error {
+	if !*enableCPUInfo {
+		if flagsIncludeFlag != nil || bugsIncludeFlag != nil {
+			level.Info(c.logger).Log("msg", "--collector.cpu.info.flags-include and --collector.cpu.info.bugs-include will not take effect until --collector.cpu.info is set to true")
+		}
+		return nil
+	}
+	var err error
+
+	if flagsIncludeFlag != nil {
+		c.cpuFlagsIncludeRegexp, err = regexp.Compile(*flagsIncludeFlag)
+		if err != nil {
+			return err
+		}
+	}
+	if bugsIncludeFlag != nil {
+		c.cpuBugsIncludeRegexp, err = regexp.Compile(*bugsIncludeFlag)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
@@ -117,6 +164,43 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.Microcode,
 			cpu.Stepping,
 			cpu.CacheSize)
+
+		if err := c.updateFlagInfo(cpu, ch); err != nil {
+			return err
+		}
+		if err := c.updateBugInfo(cpu, ch); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// updateFlagInfo reads the flags field from /proc/cpuinfo, and filters them through input regular expressions
+func (c *cpuCollector) updateFlagInfo(cpu procfs.CPUInfo, ch chan<- prometheus.Metric) error {
+	if c.cpuFlagsIncludeRegexp == nil {
+		return nil
+	}
+	for _, flag := range filterByRegexp(cpu.Flags, c.cpuFlagsIncludeRegexp) {
+		ch <- prometheus.MustNewConstMetric(c.cpuFlagsInfo,
+			prometheus.GaugeValue,
+			1,
+			flag,
+		)
+	}
+	return nil
+}
+
+// updateFlagInfo reads the bugs field from /proc/cpuinfo, and filters them through input regular expressions
+func (c *cpuCollector) updateBugInfo(cpu procfs.CPUInfo, ch chan<- prometheus.Metric) error {
+	if c.cpuBugsIncludeRegexp == nil {
+		return nil
+	}
+	for _, bug := range filterByRegexp(cpu.Bugs, c.cpuBugsIncludeRegexp) {
+		ch <- prometheus.MustNewConstMetric(c.cpuBugsInfo,
+			prometheus.GaugeValue,
+			1,
+			bug,
+		)
 	}
 	return nil
 }
@@ -303,4 +387,14 @@ func (c *cpuCollector) updateCPUStats(newStats []procfs.CPUStat) {
 			level.Warn(c.logger).Log("msg", "CPU GuestNice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].GuestNice, "new_value", n.GuestNice)
 		}
 	}
+}
+
+func filterByRegexp(list []string, reg *regexp.Regexp) []string {
+	var res []string
+	for _, s := range list {
+		if reg.MatchString(s) {
+			res = append(res, s)
+		}
+	}
+	return res
 }
