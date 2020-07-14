@@ -3,8 +3,8 @@ sudo: false
 language: go
 
 go:
-  - 1.13.x
-  - master
+  - 1.14.x
+  - tip
 
 env:
   - GO111MODULE=off
@@ -13,7 +13,7 @@ env:
 
 matrix:
   allow_failures:
-    - go: master
+    - go: tip
 
 # skip non-trunk PMM-XXXX branch builds, but still build pull requests
 branches:
