@@ -17,6 +17,7 @@ jobs:
 
     steps:
     - prometheus/setup_environment
+    - run: go mod download
     - run: make
     - prometheus/store_artifact:
         file: node_exporter
