@@ -190,7 +190,7 @@ func (c *cpuCollector) updateFlagInfo(cpu procfs.CPUInfo, ch chan<- prometheus.M
 	return nil
 }
 
-// updateFlagInfo reads the bugs field from /proc/cpuinfo, and filters them through input regular expressions
+// updateBugInfo reads the bugs field from /proc/cpuinfo, and filters them through input regular expressions
 func (c *cpuCollector) updateBugInfo(cpu procfs.CPUInfo, ch chan<- prometheus.Metric) error {
 	if c.cpuBugsIncludeRegexp == nil {
 		return nil
