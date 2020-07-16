@@ -165,41 +165,29 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.Stepping,
 			cpu.CacheSize)
 
-		if err := c.updateFlagInfo(cpu, ch); err != nil {
+		if err := updateFieldInfo(cpu.Flags, c.cpuFlagsIncludeRegexp, c.cpuFlagsInfo, ch); err != nil {
 			return err
 		}
-		if err := c.updateBugInfo(cpu, ch); err != nil {
+		if err := updateFieldInfo(cpu.Bugs, c.cpuBugsIncludeRegexp, c.cpuBugsInfo, ch); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// updateFlagInfo reads the flags field from /proc/cpuinfo, and filters them through input regular expressions
-func (c *cpuCollector) updateFlagInfo(cpu procfs.CPUInfo, ch chan<- prometheus.Metric) error {
-	if c.cpuFlagsIncludeRegexp == nil {
+func updateFieldInfo(valueList []string, filter *regexp.Regexp, desc *prometheus.Desc, ch chan<- prometheus.Metric) error {
+	if filter == nil {
 		return nil
 	}
-	for _, flag := range filterByRegexp(cpu.Flags, c.cpuFlagsIncludeRegexp) {
-		ch <- prometheus.MustNewConstMetric(c.cpuFlagsInfo,
-			prometheus.GaugeValue,
-			1,
-			flag,
-		)
-	}
-	return nil
-}
 
-// updateBugInfo reads the bugs field from /proc/cpuinfo, and filters them through input regular expressions
-func (c *cpuCollector) updateBugInfo(cpu procfs.CPUInfo, ch chan<- prometheus.Metric) error {
-	if c.cpuBugsIncludeRegexp == nil {
-		return nil
-	}
-	for _, bug := range filterByRegexp(cpu.Bugs, c.cpuBugsIncludeRegexp) {
-		ch <- prometheus.MustNewConstMetric(c.cpuBugsInfo,
+	for _, val := range valueList {
+		if !filter.MatchString(val) {
+			continue
+		}
+		ch <- prometheus.MustNewConstMetric(desc,
 			prometheus.GaugeValue,
 			1,
-			bug,
+			val,
 		)
 	}
 	return nil
@@ -387,14 +375,4 @@ func (c *cpuCollector) updateCPUStats(newStats []procfs.CPUStat) {
 			level.Warn(c.logger).Log("msg", "CPU GuestNice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].GuestNice, "new_value", n.GuestNice)
 		}
 	}
-}
-
-func filterByRegexp(list []string, reg *regexp.Regexp) []string {
-	var res []string
-	for _, s := range list {
-		if reg.MatchString(s) {
-			res = append(res, s)
-		}
-	}
-	return res
 }
