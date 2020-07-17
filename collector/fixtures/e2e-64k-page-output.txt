@@ -184,12 +184,24 @@ node_cooling_device_cur_state{name="0",type="Processor"} 0
 # HELP node_cooling_device_max_state Maximum throttle state of the cooling device
 # TYPE node_cooling_device_max_state gauge
 node_cooling_device_max_state{name="0",type="Processor"} 3
+# HELP node_cpu_bug_info The `bugs` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_bug_info gauge
+node_cpu_bug_info{bug="cpu_meltdown"} 1
+node_cpu_bug_info{bug="mds"} 1
+node_cpu_bug_info{bug="spectre_v1"} 1
+node_cpu_bug_info{bug="spectre_v2"} 1
 # HELP node_cpu_core_throttles_total Number of times this cpu core has been throttled.
 # TYPE node_cpu_core_throttles_total counter
 node_cpu_core_throttles_total{core="0",package="0"} 5
 node_cpu_core_throttles_total{core="0",package="1"} 0
 node_cpu_core_throttles_total{core="1",package="0"} 0
 node_cpu_core_throttles_total{core="1",package="1"} 9
+# HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_flag_info gauge
+node_cpu_flag_info{flag="aes"} 1
+node_cpu_flag_info{flag="avx"} 1
+node_cpu_flag_info{flag="avx2"} 1
+node_cpu_flag_info{flag="constant_tsc"} 1
 # HELP node_cpu_guest_seconds_total Seconds the cpus spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
