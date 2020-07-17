@@ -105,14 +105,12 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *string) error {
-	if !*enableCPUInfo {
-		if *flagsIncludeFlag != "" || *bugsIncludeFlag != "" {
-			level.Info(c.logger).Log("msg", "--collector.cpu.info.flags-include and --collector.cpu.info.bugs-include will not take effect until --collector.cpu.info is set to true")
-		}
-		return nil
+	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*enableCPUInfo {
+		*enableCPUInfo = true
+		level.Info(c.logger).Log("msg", "--collector.cpu.info has been set to `true` because you set the following flags, like --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include")
 	}
-	var err error
 
+	var err error
 	if *flagsIncludeFlag != "" {
 		c.cpuFlagsIncludeRegexp, err = regexp.Compile(*flagsIncludeFlag)
 		if err != nil {
