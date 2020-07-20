@@ -46,16 +46,16 @@ func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	lnstats, err := fs.Lnstat()
+	netStats, err := fs.NetStat()
 	if err != nil {
 		return fmt.Errorf("Lnstat error: %s", err)
 	}
 
-	for _, lnstatFile := range lnstats {
+	for _, netStatFile := range netStats {
 		labelNames := []string{"subsystem", "cpu"}
-		for header, stats := range lnstatFile.Stats {
+		for header, stats := range netStatFile.Stats {
 			for cpu, value := range stats {
-				labelValues := []string{lnstatFile.Filename, strconv.Itoa(cpu)}
+				labelValues := []string{netStatFile.Filename, strconv.Itoa(cpu)}
 				ch <- prometheus.MustNewConstMetric(
 					prometheus.NewDesc(
 						prometheus.BuildFQName(namespace, subsystem, header),
