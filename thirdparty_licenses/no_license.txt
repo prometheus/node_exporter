@@ -1,1 +1,0 @@
-github.com/siebenmann/go-kstat@v0.0.0-20160321171754-d34789b79745
