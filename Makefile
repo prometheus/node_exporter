@@ -80,7 +80,7 @@ all:: vet checkmetrics checkrules common-all $(cross-test) $(test-e2e)
 .PHONY: test
 test: collector/fixtures/sys/.unpacked
 	@echo ">> running tests"
-	$(GO) test -short $(test-flags) $(pkgs)
+	$(GOTEST) -short $(test-flags) $(pkgs)
 
 .PHONY: test-32bit
 test-32bit: collector/fixtures/sys/.unpacked
