@@ -18,9 +18,10 @@ package collector
 
 import (
 	"fmt"
-	"syscall"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -54,6 +55,7 @@ type timexCollector struct {
 	stbcnt,
 	tai,
 	syncStatus typedDesc
+	logger log.Logger
 }
 
 func init() {
@@ -61,7 +63,7 @@ func init() {
 }
 
 // NewTimexCollector returns a new Collector exposing adjtime(3) stats.
-func NewTimexCollector() (Collector, error) {
+func NewTimexCollector(logger log.Logger) (Collector, error) {
 	const subsystem = "timex"
 
 	return &timexCollector{
@@ -150,17 +152,18 @@ func NewTimexCollector() (Collector, error) {
 			"Is clock synchronized to a reliable server (1 = yes, 0 = no).",
 			nil, nil,
 		), prometheus.GaugeValue},
+		logger: logger,
 	}, nil
 }
 
 func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	var syncStatus float64
 	var divisor float64
-	var timex = new(syscall.Timex)
+	var timex = new(unix.Timex)
 
-	status, err := syscall.Adjtimex(timex)
+	status, err := unix.Adjtimex(timex)
 	if err != nil {
-		return fmt.Errorf("failed to retrieve adjtimex stats: %v", err)
+		return fmt.Errorf("failed to retrieve adjtimex stats: %w", err)
 	}
 
 	if status == timeError {

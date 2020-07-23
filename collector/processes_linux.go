@@ -16,20 +16,24 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
 type processCollector struct {
+	fs          procfs.FS
 	threadAlloc *prometheus.Desc
 	threadLimit *prometheus.Desc
 	procsState  *prometheus.Desc
 	pidUsed     *prometheus.Desc
 	pidMax      *prometheus.Desc
+	logger      log.Logger
 }
 
 func init() {
@@ -37,9 +41,14 @@ func init() {
 }
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
-func NewProcessStatCollector() (Collector, error) {
+func NewProcessStatCollector(logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
 	subsystem := "processes"
 	return &processCollector{
+		fs: fs,
 		threadAlloc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "threads"),
 			"Allocated threads in system",
@@ -61,41 +70,38 @@ func NewProcessStatCollector() (Collector, error) {
 		pidMax: prometheus.NewDesc(prometheus.BuildFQName(namespace, subsystem, "max_processes"),
 			"Number of max PIDs limit", nil, nil,
 		),
+		logger: logger,
 	}, nil
 }
-func (t *processCollector) Update(ch chan<- prometheus.Metric) error {
-	pids, states, threads, err := getAllocatedThreads()
+func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
+	pids, states, threads, err := c.getAllocatedThreads()
 	if err != nil {
-		return fmt.Errorf("unable to retrieve number of allocated threads: %q", err)
+		return fmt.Errorf("unable to retrieve number of allocated threads: %w", err)
 	}
 
-	ch <- prometheus.MustNewConstMetric(t.threadAlloc, prometheus.GaugeValue, float64(threads))
+	ch <- prometheus.MustNewConstMetric(c.threadAlloc, prometheus.GaugeValue, float64(threads))
 	maxThreads, err := readUintFromFile(procFilePath("sys/kernel/threads-max"))
 	if err != nil {
-		return fmt.Errorf("unable to retrieve limit number of threads: %q", err)
+		return fmt.Errorf("unable to retrieve limit number of threads: %w", err)
 	}
-	ch <- prometheus.MustNewConstMetric(t.threadLimit, prometheus.GaugeValue, float64(maxThreads))
+	ch <- prometheus.MustNewConstMetric(c.threadLimit, prometheus.GaugeValue, float64(maxThreads))
 
 	for state := range states {
-		ch <- prometheus.MustNewConstMetric(t.procsState, prometheus.GaugeValue, float64(states[state]), state)
+		ch <- prometheus.MustNewConstMetric(c.procsState, prometheus.GaugeValue, float64(states[state]), state)
 	}
 
 	pidM, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
 	if err != nil {
-		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %q", err)
+		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %w", err)
 	}
-	ch <- prometheus.MustNewConstMetric(t.pidUsed, prometheus.GaugeValue, float64(pids))
-	ch <- prometheus.MustNewConstMetric(t.pidMax, prometheus.GaugeValue, float64(pidM))
+	ch <- prometheus.MustNewConstMetric(c.pidUsed, prometheus.GaugeValue, float64(pids))
+	ch <- prometheus.MustNewConstMetric(c.pidMax, prometheus.GaugeValue, float64(pidM))
 
 	return nil
 }
 
-func getAllocatedThreads() (int, map[string]int32, int, error) {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return 0, nil, 0, err
-	}
-	p, err := fs.AllProcs()
+func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, error) {
+	p, err := c.fs.AllProcs()
 	if err != nil {
 		return 0, nil, 0, err
 	}
@@ -103,13 +109,14 @@ func getAllocatedThreads() (int, map[string]int32, int, error) {
 	thread := 0
 	procStates := make(map[string]int32)
 	for _, pid := range p {
-		stat, err := pid.NewStat()
+		stat, err := pid.Stat()
 		// PIDs can vanish between getting the list and getting stats.
-		if os.IsNotExist(err) {
-			log.Debugf("file not found when retrieving stats: %q", err)
+		if errors.Is(err, os.ErrNotExist) {
+			level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
 			continue
 		}
 		if err != nil {
+			level.Debug(c.logger).Log("msg", "error reading stat for pid", "pid", pid, "err", err)
 			return 0, nil, 0, err
 		}
 		pids++

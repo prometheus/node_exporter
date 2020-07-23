@@ -1,0 +1,6 @@
+/dev/nvme1n0 /host ext4 rw,seclabel,relatime,data=ordered 0 0
+/dev/nvme1n1 /host/media/volume1 ext4 rw,seclabel,relatime,data=ordered 0 0
+/dev/nvme1n2 /host/media/volume2 ext4 rw,seclabel,relatime,data=ordered 0 0
+tmpfs /dev/shm tmpfs rw,nosuid,nodev 0 0
+tmpfs /run/lock tmpfs rw,nosuid,nodev,noexec,relatime,size=5120k 0 0
+tmpfs /sys/fs/cgroup tmpfs ro,nosuid,nodev,noexec,mode=755 0 0

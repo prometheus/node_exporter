@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -24,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -33,11 +35,12 @@ const (
 )
 
 var (
-	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*)|Tcp_(ActiveOpens|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts))$").String()
+	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$").String()
 )
 
 type netStatCollector struct {
 	fieldPattern *regexp.Regexp
+	logger       log.Logger
 }
 
 func init() {
@@ -46,25 +49,26 @@ func init() {
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector() (Collector, error) {
+func NewNetStatCollector(logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*netStatFields)
 	return &netStatCollector{
 		fieldPattern: pattern,
+		logger:       logger,
 	}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	netStats, err := getNetStats(procFilePath("net/netstat"))
 	if err != nil {
-		return fmt.Errorf("couldn't get netstats: %s", err)
+		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
 	snmpStats, err := getNetStats(procFilePath("net/snmp"))
 	if err != nil {
-		return fmt.Errorf("couldn't get SNMP stats: %s", err)
+		return fmt.Errorf("couldn't get SNMP stats: %w", err)
 	}
 	snmp6Stats, err := getSNMP6Stats(procFilePath("net/snmp6"))
 	if err != nil {
-		return fmt.Errorf("couldn't get SNMP6 stats: %s", err)
+		return fmt.Errorf("couldn't get SNMP6 stats: %w", err)
 	}
 	// Merge the results of snmpStats into netStats (collisions are possible, but
 	// we know that the keys are always unique for the given use case).
@@ -79,7 +83,7 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 			key := protocol + "_" + name
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
+				return fmt.Errorf("invalid value %s in netstats: %w", value, err)
 			}
 			if !c.fieldPattern.MatchString(key) {
 				continue
@@ -137,7 +141,7 @@ func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
 	if err != nil {
 		// On systems with IPv6 disabled, this file won't exist.
 		// Do nothing.
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			return nil, nil
 		}
 

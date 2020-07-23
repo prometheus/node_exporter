@@ -22,6 +22,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -29,26 +30,28 @@ const (
 	fileFDStatSubsystem = "filefd"
 )
 
-type fileFDStatCollector struct{}
+type fileFDStatCollector struct {
+	logger log.Logger
+}
 
 func init() {
 	registerCollector(fileFDStatSubsystem, defaultEnabled, NewFileFDStatCollector)
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
-func NewFileFDStatCollector() (Collector, error) {
-	return &fileFDStatCollector{}, nil
+func NewFileFDStatCollector(logger log.Logger) (Collector, error) {
+	return &fileFDStatCollector{logger}, nil
 }
 
 func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) error {
 	fileFDStat, err := parseFileFDStats(procFilePath("sys/fs/file-nr"))
 	if err != nil {
-		return fmt.Errorf("couldn't get file-nr: %s", err)
+		return fmt.Errorf("couldn't get file-nr: %w", err)
 	}
 	for name, value := range fileFDStat {
 		v, err := strconv.ParseFloat(value, 64)
 		if err != nil {
-			return fmt.Errorf("invalid value %s in file-nr: %s", value, err)
+			return fmt.Errorf("invalid value %s in file-nr: %w", value, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(

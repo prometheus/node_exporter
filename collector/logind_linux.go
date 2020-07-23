@@ -20,6 +20,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/go-kit/kit/log"
 	"github.com/godbus/dbus"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -43,7 +44,9 @@ var (
 	)
 )
 
-type logindCollector struct{}
+type logindCollector struct {
+	logger log.Logger
+}
 
 type logindDbus struct {
 	conn   *dbus.Conn
@@ -82,14 +85,14 @@ func init() {
 }
 
 // NewLogindCollector returns a new Collector exposing logind statistics.
-func NewLogindCollector() (Collector, error) {
-	return &logindCollector{}, nil
+func NewLogindCollector(logger log.Logger) (Collector, error) {
+	return &logindCollector{logger}, nil
 }
 
 func (lc *logindCollector) Update(ch chan<- prometheus.Metric) error {
 	c, err := newDbus()
 	if err != nil {
-		return fmt.Errorf("unable to connect to dbus: %s", err)
+		return fmt.Errorf("unable to connect to dbus: %w", err)
 	}
 	defer c.conn.Close()
 
@@ -99,12 +102,12 @@ func (lc *logindCollector) Update(ch chan<- prometheus.Metric) error {
 func collectMetrics(ch chan<- prometheus.Metric, c logindInterface) error {
 	seats, err := c.listSeats()
 	if err != nil {
-		return fmt.Errorf("unable to get seats: %s", err)
+		return fmt.Errorf("unable to get seats: %w", err)
 	}
 
 	sessionList, err := c.listSessions()
 	if err != nil {
-		return fmt.Errorf("unable to get sessions: %s", err)
+		return fmt.Errorf("unable to get sessions: %w", err)
 	}
 
 	sessions := make(map[logindSession]float64)

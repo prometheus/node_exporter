@@ -17,10 +17,10 @@ package collector
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 	"regexp"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -38,6 +38,7 @@ type edacCollector struct {
 	ueCount      *prometheus.Desc
 	csRowCECount *prometheus.Desc
 	csRowUECount *prometheus.Desc
+	logger       log.Logger
 }
 
 func init() {
@@ -45,7 +46,7 @@ func init() {
 }
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector() (Collector, error) {
+func NewEdacCollector(logger log.Logger) (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "correctable_errors_total"),
@@ -67,6 +68,7 @@ func NewEdacCollector() (Collector, error) {
 			"Total uncorrectable memory errors for this csrow.",
 			[]string{"controller", "csrow"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 
@@ -82,30 +84,30 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		controllerNumber := controllerMatch[1]
 
-		value, err := readUintFromFile(path.Join(controller, "ce_count"))
+		value, err := readUintFromFile(filepath.Join(controller, "ce_count"))
 		if err != nil {
-			return fmt.Errorf("couldn't get ce_count for controller %s: %s", controllerNumber, err)
+			return fmt.Errorf("couldn't get ce_count for controller %s: %w", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.ceCount, prometheus.CounterValue, float64(value), controllerNumber)
 
-		value, err = readUintFromFile(path.Join(controller, "ce_noinfo_count"))
+		value, err = readUintFromFile(filepath.Join(controller, "ce_noinfo_count"))
 		if err != nil {
-			return fmt.Errorf("couldn't get ce_noinfo_count for controller %s: %s", controllerNumber, err)
+			return fmt.Errorf("couldn't get ce_noinfo_count for controller %s: %w", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.csRowCECount, prometheus.CounterValue, float64(value), controllerNumber, "unknown")
 
-		value, err = readUintFromFile(path.Join(controller, "ue_count"))
+		value, err = readUintFromFile(filepath.Join(controller, "ue_count"))
 		if err != nil {
-			return fmt.Errorf("couldn't get ue_count for controller %s: %s", controllerNumber, err)
+			return fmt.Errorf("couldn't get ue_count for controller %s: %w", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.ueCount, prometheus.CounterValue, float64(value), controllerNumber)
 
-		value, err = readUintFromFile(path.Join(controller, "ue_noinfo_count"))
+		value, err = readUintFromFile(filepath.Join(controller, "ue_noinfo_count"))
 		if err != nil {
-			return fmt.Errorf("couldn't get ue_noinfo_count for controller %s: %s", controllerNumber, err)
+			return fmt.Errorf("couldn't get ue_noinfo_count for controller %s: %w", controllerNumber, err)
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.csRowUECount, prometheus.CounterValue, float64(value), controllerNumber, "unknown")
@@ -122,16 +124,16 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			csrowNumber := csrowMatch[1]
 
-			value, err = readUintFromFile(path.Join(csrow, "ce_count"))
+			value, err = readUintFromFile(filepath.Join(csrow, "ce_count"))
 			if err != nil {
-				return fmt.Errorf("couldn't get ce_count for controller/csrow %s/%s: %s", controllerNumber, csrowNumber, err)
+				return fmt.Errorf("couldn't get ce_count for controller/csrow %s/%s: %w", controllerNumber, csrowNumber, err)
 			}
 			ch <- prometheus.MustNewConstMetric(
 				c.csRowCECount, prometheus.CounterValue, float64(value), controllerNumber, csrowNumber)
 
-			value, err = readUintFromFile(path.Join(csrow, "ue_count"))
+			value, err = readUintFromFile(filepath.Join(csrow, "ue_count"))
 			if err != nil {
-				return fmt.Errorf("couldn't get ue_count for controller/csrow %s/%s: %s", controllerNumber, csrowNumber, err)
+				return fmt.Errorf("couldn't get ue_count for controller/csrow %s/%s: %w", controllerNumber, csrowNumber, err)
 			}
 			ch <- prometheus.MustNewConstMetric(
 				c.csRowUECount, prometheus.CounterValue, float64(value), controllerNumber, csrowNumber)
