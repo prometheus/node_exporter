@@ -21,6 +21,8 @@ jobs:
     - run: make
     - prometheus/store_artifact:
         file: node_exporter
+    - store_test_results:
+        path: test-results
 
   codespell:
     docker:
