@@ -14,11 +14,11 @@
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
 	"regexp"
 	"testing"
 
 	"github.com/coreos/go-systemd/dbus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Creates mock UnitLists
@@ -87,26 +87,45 @@ func getUnitListFixtures() [][]unit {
 	return [][]unit{fixture1, fixture2}
 }
 
+func TestSystemdCollectorDoesntCrash(t *testing.T) {
+	c, err := NewSystemdCollector()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sink := make(chan prometheus.Metric)
+	go func() {
+		for {
+			<-sink
+		}
+	}()
+
+	fixtures := getUnitListFixtures()
+	collector := (c).(*systemdCollector)
+	for _, units := range fixtures {
+		collector.collectUnitStatusMetrics(sink, units)
+		collector.collectSockets(sink, units)
+	}
+}
+
 func TestSystemdIgnoreFilter(t *testing.T) {
 	fixtures := getUnitListFixtures()
-	includePattern := regexp.MustCompile("^foo$")
-	excludePattern := regexp.MustCompile("^bar$")
-	filtered := filterUnits(fixtures[0], includePattern, excludePattern, log.NewNopLogger())
+	whitelistPattern := regexp.MustCompile("^foo$")
+	blacklistPattern := regexp.MustCompile("^bar$")
+	filtered := filterUnits(fixtures[0], whitelistPattern, blacklistPattern)
 	for _, unit := range filtered {
-		if excludePattern.MatchString(unit.Name) || !includePattern.MatchString(unit.Name) {
+		if blacklistPattern.MatchString(unit.Name) || !whitelistPattern.MatchString(unit.Name) {
 			t.Error(unit.Name, "should not be in the filtered list")
 		}
 	}
 }
 func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
-	logger := log.NewNopLogger()
-	c, err := NewSystemdCollector(logger)
+	c, err := NewSystemdCollector()
 	if err != nil {
 		t.Fatal(err)
 	}
 	fixtures := getUnitListFixtures()
 	collector := c.(*systemdCollector)
-	filtered := filterUnits(fixtures[0], collector.unitIncludePattern, collector.unitExcludePattern, logger)
+	filtered := filterUnits(fixtures[0], collector.unitWhitelistPattern, collector.unitBlacklistPattern)
 	// Adjust fixtures by 3 "not-found" units.
 	if len(filtered) != len(fixtures[0])-3 {
 		t.Error("Default filters removed units")

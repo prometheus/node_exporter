@@ -11,19 +11,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !nonfs
-
 package collector
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"reflect"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
+	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/nfs"
 )
 
@@ -32,14 +29,13 @@ const (
 )
 
 type nfsCollector struct {
-	fs                                nfs.FS
+	fs                                procfs.FS
 	nfsNetReadsDesc                   *prometheus.Desc
 	nfsNetConnectionsDesc             *prometheus.Desc
 	nfsRPCOperationsDesc              *prometheus.Desc
 	nfsRPCRetransmissionsDesc         *prometheus.Desc
 	nfsRPCAuthenticationRefreshesDesc *prometheus.Desc
 	nfsProceduresDesc                 *prometheus.Desc
-	logger                            log.Logger
 }
 
 func init() {
@@ -47,10 +43,10 @@ func init() {
 }
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.
-func NewNfsCollector(logger log.Logger) (Collector, error) {
-	fs, err := nfs.NewFS(*procPath)
+func NewNfsCollector() (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %w", err)
+		return nil, fmt.Errorf("failed to open procfs: %v", err)
 	}
 
 	return &nfsCollector{
@@ -91,18 +87,17 @@ func NewNfsCollector(logger log.Logger) (Collector, error) {
 			[]string{"proto", "method"},
 			nil,
 		),
-		logger: logger,
 	}, nil
 }
 
 func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.ClientRPCStats()
+	stats, err := c.fs.NFSClientRPCStats()
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "Not collecting NFS metrics", "err", err)
-			return ErrNoData
+		if os.IsNotExist(err) {
+			log.Debugf("Not collecting NFS metrics: %s", err)
+			return nil
 		}
-		return fmt.Errorf("failed to retrieve nfs stats: %w", err)
+		return fmt.Errorf("failed to retrieve nfs stats: %v", err)
 	}
 
 	c.updateNFSNetworkStats(ch, &stats.Network)

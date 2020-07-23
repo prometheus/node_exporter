@@ -14,20 +14,19 @@
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
 	"os"
 	"regexp"
 	"testing"
 )
 
-func TestNetDevStatsIgnore(t *testing.T) {
+func TestNetDevStats(t *testing.T) {
 	file, err := os.Open("fixtures/proc/net/dev")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer file.Close()
 
-	netStats, err := parseNetDevStats(file, regexp.MustCompile("^veth"), nil, log.NewNopLogger())
+	netStats, err := parseNetDevStats(file, regexp.MustCompile("^veth"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,26 +55,6 @@ func TestNetDevStatsIgnore(t *testing.T) {
 		t.Error("want fixture interface ibr10:30 to exist, but it does not")
 	}
 
-	if want, got := "72", netStats["💩0"]["receive_multicast"]; want != got {
-		t.Error("want fixture interface 💩0 to exist, but it does not")
-	}
-}
-
-func TestNetDevStatsAccept(t *testing.T) {
-	file, err := os.Open("fixtures/proc/net/dev")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer file.Close()
-
-	netStats, err := parseNetDevStats(file, nil, regexp.MustCompile("^💩0$"), log.NewNopLogger())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if want, got := 1, len(netStats); want != got {
-		t.Errorf("want count of devices to be %d, got %d", want, got)
-	}
 	if want, got := "72", netStats["💩0"]["receive_multicast"]; want != got {
 		t.Error("want fixture interface 💩0 to exist, but it does not")
 	}

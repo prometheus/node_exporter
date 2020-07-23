@@ -19,7 +19,6 @@ import (
 	"strconv"
 	"unsafe"
 
-	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -31,18 +30,16 @@ import (
 import "C"
 
 type cpuCollector struct {
-	cpu    typedDesc
-	logger log.Logger
+	cpu typedDesc
 }
 
 func init() {
-	registerCollector("cpu", defaultEnabled, NewCPUCollector)
+	registerCollector("cpu", defaultEnabled, NewCpuCollector)
 }
 
-func NewCPUCollector(logger log.Logger) (Collector, error) {
+func NewCpuCollector() (Collector, error) {
 	return &cpuCollector{
-		cpu:    typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
-		logger: logger,
+		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 	}, nil
 }
 
@@ -59,18 +56,18 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 
-	var cpTime [][C.CPUSTATES]C.int64_t
+	var cp_time [][C.CPUSTATES]C.int64_t
 	for i := 0; i < int(ncpus); i++ {
-		cpb, err := unix.SysctlRaw("kern.cp_time2", i)
+		cp_timeb, err := unix.SysctlRaw("kern.cp_time2", i)
 		if err != nil && err != unix.ENODEV {
 			return err
 		}
 		if err != unix.ENODEV {
-			cpTime = append(cpTime, *(*[C.CPUSTATES]C.int64_t)(unsafe.Pointer(&cpb[0])))
+			cp_time = append(cp_time, *(*[C.CPUSTATES]C.int64_t)(unsafe.Pointer(&cp_timeb[0])))
 		}
 	}
 
-	for cpu, time := range cpTime {
+	for cpu, time := range cp_time {
 		lcpu := strconv.Itoa(cpu)
 		ch <- c.cpu.mustNewConstMetric(float64(time[C.CP_USER])/hz, lcpu, "user")
 		ch <- c.cpu.mustNewConstMetric(float64(time[C.CP_NICE])/hz, lcpu, "nice")

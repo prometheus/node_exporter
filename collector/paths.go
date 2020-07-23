@@ -14,11 +14,10 @@
 package collector
 
 import (
-	"path/filepath"
-	"strings"
+	"path"
 
 	"github.com/prometheus/procfs"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
@@ -29,24 +28,13 @@ var (
 )
 
 func procFilePath(name string) string {
-	return filepath.Join(*procPath, name)
+	return path.Join(*procPath, name)
 }
 
 func sysFilePath(name string) string {
-	return filepath.Join(*sysPath, name)
+	return path.Join(*sysPath, name)
 }
 
 func rootfsFilePath(name string) string {
-	return filepath.Join(*rootfsPath, name)
-}
-
-func rootfsStripPrefix(path string) string {
-	if *rootfsPath == "/" {
-		return path
-	}
-	stripped := strings.TrimPrefix(path, *rootfsPath)
-	if stripped == "" {
-		return "/"
-	}
-	return stripped
+	return path.Join(*rootfsPath, name)
 }

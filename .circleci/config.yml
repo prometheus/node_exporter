@@ -1,26 +1,24 @@
 ---
 version: 2.1
 
-orbs:
-  prometheus: prometheus/prometheus@0.4.0
-
 executors:
-  # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
-  # should also be updated.
+  # Whenever the Go version is updated here, .promu.yml should
+  # also be updated.
   golang:
     docker:
-    - image: circleci/golang:1.14
+    - image: circleci/golang:1.11
 
 jobs:
   test:
     executor: golang
 
     steps:
-    - prometheus/setup_environment
-    - run: go mod download
+    - checkout
+    - run: make promu
     - run: make
-    - prometheus/store_artifact:
-        file: node_exporter
+    - store_artifacts:
+        path: node_exporter
+        destination: /build/node_exporter
     - run: rm -v node_exporter
 
   codespell:
@@ -30,19 +28,17 @@ jobs:
     steps:
     - checkout
     - run: sudo pip install codespell
-    - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem,./collector/fixtures" -L uint,packages\',uptodate
+    - run: codespell --skip=".git,./vendor,ttar" -L uint
 
   build:
-    machine:
-      image: ubuntu-1604:201903-01
+    machine: true
 
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.14-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.11-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
     - checkout
-    - run: docker run --privileged linuxkit/binfmt:v0.7
     - run: make promu
     - run: promu crossbuild
     - run: promu --config .promu-cgo.yml crossbuild
@@ -135,16 +131,14 @@ workflows:
         filters:
           tags:
             only: /.*/
-    - prometheus/publish_master:
-        context: org-context
+    - docker_hub_master:
         requires:
         - test
         - build
         filters:
           branches:
             only: master
-    - prometheus/publish_release:
-        context: org-context
+    - docker_hub_release_tags:
         requires:
         - test
         - build

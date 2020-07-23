@@ -21,7 +21,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -42,7 +41,6 @@ type devstatCollector struct {
 	duration  typedDesc
 	busyTime  typedDesc
 	blocks    typedDesc
-	logger    log.Logger
 }
 
 func init() {
@@ -50,7 +48,7 @@ func init() {
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector(logger log.Logger) (Collector, error) {
+func NewDevstatCollector() (Collector, error) {
 	return &devstatCollector{
 		devinfo: &C.struct_devinfo{},
 		bytes: typedDesc{prometheus.NewDesc(
@@ -78,7 +76,6 @@ func NewDevstatCollector(logger log.Logger) (Collector, error) {
 			"The total number of blocks transferred.",
 			[]string{"device"}, nil,
 		), prometheus.CounterValue},
-		logger: logger,
 	}, nil
 }
 

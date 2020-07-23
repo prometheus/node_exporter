@@ -101,14 +101,14 @@ var (
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	interrupts, err := getInterrupts()
 	if err != nil {
-		return fmt.Errorf("couldn't get interrupts: %w", err)
+		return fmt.Errorf("couldn't get interrupts: %s", err)
 	}
 	for dev, interrupt := range interrupts {
 		for cpuNo, value := range interrupt.values {
 			ch <- c.desc.mustNewConstMetric(
 				value,
 				strconv.Itoa(cpuNo),
-				strconv.Itoa(interrupt.vector),
+				fmt.Sprintf("%d", interrupt.vector),
 				dev,
 			)
 		}

@@ -17,10 +17,9 @@ package collector
 
 import (
 	"errors"
-	"strconv"
+	"fmt"
 	"unsafe"
 
-	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -32,7 +31,7 @@ import (
 #include <stdio.h>
 
 int
-getCPUTimes(uint64_t **cputime, size_t *cpu_times_len) {
+getCPUTimes(uint64_t **cputime, size_t *cpu_times_len, long *freq) {
 	size_t len;
 
 	// Get number of cpu cores.
@@ -42,6 +41,15 @@ getCPUTimes(uint64_t **cputime, size_t *cpu_times_len) {
 	mib[1] = HW_NCPU;
 	len = sizeof(ncpu);
 	if (sysctl(mib, 2, &ncpu, &len, NULL, 0)) {
+		return -1;
+	}
+
+	// The bump on each statclock is
+	// ((cur_systimer - prev_systimer) * systimer_freq) >> 32
+	// where
+	// systimer_freq = sysctl kern.cputimer.freq
+	len = sizeof(*freq);
+	if (sysctlbyname("kern.cputimer.freq", freq, &len, NULL, 0)) {
 		return -1;
 	}
 
@@ -76,8 +84,7 @@ import "C"
 const maxCPUTimesLen = C.MAXCPU * C.CPUSTATES
 
 type statCollector struct {
-	cpu    *prometheus.Desc
-	logger log.Logger
+	cpu *prometheus.Desc
 }
 
 func init() {
@@ -85,10 +92,9 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(logger log.Logger) (Collector, error) {
+func NewStatCollector() (Collector, error) {
 	return &statCollector{
-		cpu:    nodeCPUSecondsDesc,
-		logger: logger,
+		cpu: nodeCPUSecondsDesc,
 	}, nil
 }
 
@@ -97,16 +103,18 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// States: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
 	//
-	// Each value is in microseconds
+	// Each value is a counter incremented at frequency
+	//   kern.cputimer.freq
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
 	var (
 		cpuTimesC      *C.uint64_t
+		cpuTimerFreq   C.long
 		cpuTimesLength C.size_t
 	)
 
-	if C.getCPUTimes(&cpuTimesC, &cpuTimesLength) == -1 {
+	if C.getCPUTimes(&cpuTimesC, &cpuTimesLength, &cpuTimerFreq) == -1 {
 		return nil, errors.New("could not retrieve CPU times")
 	}
 	defer C.free(unsafe.Pointer(cpuTimesC))
@@ -115,7 +123,7 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 
 	cpuTimes := make([]float64, cpuTimesLength)
 	for i, value := range cput {
-		cpuTimes[i] = float64(value) / float64(1000000)
+		cpuTimes[i] = float64(value) / float64(cpuTimerFreq)
 	}
 	return cpuTimes, nil
 }
@@ -131,7 +139,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// Export order: user nice sys intr idle
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
 	for i, value := range cpuTimes {
-		cpux := strconv.Itoa(i / fieldsCount)
+		cpux := fmt.Sprintf("%d", i/fieldsCount)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
 	}
 

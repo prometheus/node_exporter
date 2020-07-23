@@ -16,106 +16,52 @@
 package collector
 
 import (
-	"bytes"
-	"encoding/binary"
-	"fmt"
-	"net"
+	"errors"
 	"regexp"
 	"strconv"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	"golang.org/x/sys/unix"
+	"github.com/prometheus/common/log"
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
+/*
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <ifaddrs.h>
+#include <net/if.h>
+*/
+import "C"
+
+func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
 	netDev := map[string]map[string]string{}
 
-	ifs, err := net.Interfaces()
-	if err != nil {
-		return nil, fmt.Errorf("net.Interfaces() failed: %w", err)
+	var ifap, ifa *C.struct_ifaddrs
+	if C.getifaddrs(&ifap) == -1 {
+		return nil, errors.New("getifaddrs() failed")
 	}
+	defer C.freeifaddrs(ifap)
 
-	for _, iface := range ifs {
-		ifaceData, err := getIfaceData(iface.Index)
-		if err != nil {
-			level.Debug(logger).Log("msg", "failed to load data for interface", "device", iface.Name, "err", err)
-			continue
-		}
+	for ifa = ifap; ifa != nil; ifa = ifa.ifa_next {
+		if ifa.ifa_addr.sa_family == C.AF_LINK {
+			dev := C.GoString(ifa.ifa_name)
+			if ignore.MatchString(dev) {
+				log.Debugf("Ignoring device: %s", dev)
+				continue
+			}
 
-		if ignore != nil && ignore.MatchString(iface.Name) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", iface.Name)
-			continue
+			devStats := map[string]string{}
+			data := (*C.struct_if_data)(ifa.ifa_data)
+			devStats["receive_packets"] = strconv.FormatUint(uint64(data.ifi_ipackets), 10)
+			devStats["transmit_packets"] = strconv.FormatUint(uint64(data.ifi_opackets), 10)
+			devStats["receive_errs"] = strconv.FormatUint(uint64(data.ifi_ierrors), 10)
+			devStats["transmit_errs"] = strconv.FormatUint(uint64(data.ifi_oerrors), 10)
+			devStats["receive_bytes"] = strconv.FormatUint(uint64(data.ifi_ibytes), 10)
+			devStats["transmit_bytes"] = strconv.FormatUint(uint64(data.ifi_obytes), 10)
+			devStats["receive_multicast"] = strconv.FormatUint(uint64(data.ifi_imcasts), 10)
+			devStats["transmit_multicast"] = strconv.FormatUint(uint64(data.ifi_omcasts), 10)
+			netDev[dev] = devStats
 		}
-		if accept != nil && !accept.MatchString(iface.Name) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", iface.Name)
-			continue
-		}
-
-		devStats := map[string]string{}
-		devStats["receive_packets"] = strconv.FormatUint(ifaceData.Data.Ipackets, 10)
-		devStats["transmit_packets"] = strconv.FormatUint(ifaceData.Data.Opackets, 10)
-		devStats["receive_errs"] = strconv.FormatUint(ifaceData.Data.Ierrors, 10)
-		devStats["transmit_errs"] = strconv.FormatUint(ifaceData.Data.Oerrors, 10)
-		devStats["receive_bytes"] = strconv.FormatUint(ifaceData.Data.Ibytes, 10)
-		devStats["transmit_bytes"] = strconv.FormatUint(ifaceData.Data.Obytes, 10)
-		devStats["receive_multicast"] = strconv.FormatUint(ifaceData.Data.Imcasts, 10)
-		devStats["transmit_multicast"] = strconv.FormatUint(ifaceData.Data.Omcasts, 10)
-		netDev[iface.Name] = devStats
 	}
 
 	return netDev, nil
-}
-
-func getIfaceData(index int) (*ifMsghdr2, error) {
-	var data ifMsghdr2
-	rawData, err := unix.SysctlRaw("net", unix.AF_ROUTE, 0, 0, unix.NET_RT_IFLIST2, index)
-	if err != nil {
-		return nil, err
-	}
-	err = binary.Read(bytes.NewReader(rawData), binary.LittleEndian, &data)
-	return &data, err
-}
-
-type ifMsghdr2 struct {
-	Msglen    uint16
-	Version   uint8
-	Type      uint8
-	Addrs     int32
-	Flags     int32
-	Index     uint16
-	_         [2]byte
-	SndLen    int32
-	SndMaxlen int32
-	SndDrops  int32
-	Timer     int32
-	Data      ifData64
-}
-
-type ifData64 struct {
-	Type       uint8
-	Typelen    uint8
-	Physical   uint8
-	Addrlen    uint8
-	Hdrlen     uint8
-	Recvquota  uint8
-	Xmitquota  uint8
-	Unused1    uint8
-	Mtu        uint32
-	Metric     uint32
-	Baudrate   uint64
-	Ipackets   uint64
-	Ierrors    uint64
-	Opackets   uint64
-	Oerrors    uint64
-	Collisions uint64
-	Ibytes     uint64
-	Obytes     uint64
-	Imcasts    uint64
-	Omcasts    uint64
-	Iqdrops    uint64
-	Noproto    uint64
-	Recvtiming uint32
-	Xmittiming uint32
-	Lastchange unix.Timeval32
 }

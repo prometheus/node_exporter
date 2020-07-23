@@ -5,10 +5,12 @@ if [[ ( -z "$1" ) || ( -z "$2" ) ]]; then
     exit 1
 fi
 
-# Ignore known issues in auto-generated and network specific collectors.
-lint=$($1 check metrics < "$2" 2>&1 | grep -v -E "^node_(entropy|memory|netstat|wifi_station)_")
+# Only check node_exporter's metrics, as the Prometheus Go client currently
+# exposes a metric with a unit of microseconds.  Once that is fixed, remove
+# this filter.
+lint=$($1 check metrics < $2 2>&1 | grep "node_")
 
-if [[ -n $lint ]]; then
+if [[ ! -z $lint ]]; then
     echo -e "Some Prometheus metrics do not follow best practices:\n"
     echo "$lint"
 

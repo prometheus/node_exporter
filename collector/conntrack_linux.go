@@ -16,14 +16,12 @@
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type conntrackCollector struct {
 	current *prometheus.Desc
 	limit   *prometheus.Desc
-	logger  log.Logger
 }
 
 func init() {
@@ -31,7 +29,7 @@ func init() {
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(logger log.Logger) (Collector, error) {
+func NewConntrackCollector() (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),
@@ -43,7 +41,6 @@ func NewConntrackCollector(logger log.Logger) (Collector, error) {
 			"Maximum size of connection tracking table.",
 			nil, nil,
 		),
-		logger: logger,
 	}, nil
 }
 

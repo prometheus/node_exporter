@@ -20,26 +20,23 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 )
 
 const (
 	memInfoSubsystem = "memory"
 )
 
-type meminfoCollector struct {
-	logger log.Logger
-}
+type meminfoCollector struct{}
 
 func init() {
 	registerCollector("meminfo", defaultEnabled, NewMeminfoCollector)
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger log.Logger) (Collector, error) {
-	return &meminfoCollector{logger}, nil
+func NewMeminfoCollector() (Collector, error) {
+	return &meminfoCollector{}, nil
 }
 
 // Update calls (*meminfoCollector).getMemInfo to get the platform specific
@@ -48,9 +45,9 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	var metricType prometheus.ValueType
 	memInfo, err := c.getMemInfo()
 	if err != nil {
-		return fmt.Errorf("couldn't get meminfo: %w", err)
+		return fmt.Errorf("couldn't get meminfo: %s", err)
 	}
-	level.Debug(c.logger).Log("msg", "Set node_mem", "memInfo", memInfo)
+	log.Debugf("Set node_mem: %#v", memInfo)
 	for k, v := range memInfo {
 		if strings.HasSuffix(k, "_total") {
 			metricType = prometheus.CounterValue

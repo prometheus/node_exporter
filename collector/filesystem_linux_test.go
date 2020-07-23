@@ -11,35 +11,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nofilesystem
+
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
-	"strings"
 	"testing"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
-
-func Test_parseFilesystemLabelsError(t *testing.T) {
-	tests := []struct {
-		name string
-		in   string
-	}{
-		{
-			name: "too few fields",
-			in:   "hello world",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if _, err := parseFilesystemLabels(strings.NewReader(tt.in)); err == nil {
-				t.Fatal("expected an error, but none occurred")
-			}
-		})
-	}
-}
 
 func TestMountPointDetails(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures/proc"}); err != nil {
@@ -79,56 +59,7 @@ func TestMountPointDetails(t *testing.T) {
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
 	}
 
-	filesystems, err := mountPointDetails(log.NewNopLogger())
-	if err != nil {
-		t.Log(err)
-	}
-
-	for _, fs := range filesystems {
-		if _, ok := expected[fs.mountPoint]; !ok {
-			t.Errorf("Got unexpected %s", fs.mountPoint)
-		}
-	}
-}
-
-func TestMountsFallback(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_hidepid/proc"}); err != nil {
-		t.Fatal(err)
-	}
-
-	expected := map[string]string{
-		"/": "",
-	}
-
-	filesystems, err := mountPointDetails(log.NewNopLogger())
-	if err != nil {
-		t.Log(err)
-	}
-
-	for _, fs := range filesystems {
-		if _, ok := expected[fs.mountPoint]; !ok {
-			t.Errorf("Got unexpected %s", fs.mountPoint)
-		}
-	}
-}
-
-func TestPathRootfs(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_bindmount/proc", "--path.rootfs", "/host"}); err != nil {
-		t.Fatal(err)
-	}
-
-	expected := map[string]string{
-		// should modify these mountpoints (removes /host, see fixture proc file)
-		"/":              "",
-		"/media/volume1": "",
-		"/media/volume2": "",
-		// should not modify these mountpoints
-		"/dev/shm":       "",
-		"/run/lock":      "",
-		"/sys/fs/cgroup": "",
-	}
-
-	filesystems, err := mountPointDetails(log.NewNopLogger())
+	filesystems, err := mountPointDetails()
 	if err != nil {
 		t.Log(err)
 	}

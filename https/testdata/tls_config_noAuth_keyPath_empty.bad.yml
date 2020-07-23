@@ -1,3 +1,0 @@
-tls_server_config :
-  cert_file : "testdata/server.crt"
-  key_file : ""

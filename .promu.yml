@@ -1,7 +1,3 @@
-go:
-    # Whenever the Go version is updated here, .circle/config.yml and
-    # .promu-cgo.yml should also be updated.
-    version: 1.14
 repository:
     path: github.com/prometheus/node_exporter
 build:

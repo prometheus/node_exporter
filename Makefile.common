@@ -71,31 +71,15 @@ PROMU_URL     := https://github.com/prometheus/promu/releases/download/v$(PROMU_
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
-DOCKERFILE_PATH         ?= ./Dockerfile
-DOCKERBUILD_CONTEXT     ?= ./
 DOCKER_REPO             ?= prom
 
 .PHONY: all
 all: precheck style staticcheck unused build test
 
-BUILD_DOCKER_ARCHS = $(addprefix common-docker-,$(DOCKER_ARCHS))
-PUBLISH_DOCKER_ARCHS = $(addprefix common-docker-publish-,$(DOCKER_ARCHS))
-TAG_DOCKER_ARCHS = $(addprefix common-docker-tag-latest-,$(DOCKER_ARCHS))
-
-ifeq ($(GOHOSTARCH),amd64)
-        ifeq ($(GOHOSTOS),$(filter $(GOHOSTOS),linux freebsd darwin windows))
-                # Only supported on amd64
-                test-flags := -race
-        endif
-endif
-
 # This rule is used to forward a target like "build" to "common-build".  This
 # allows a new "build" target to be defined in a Makefile which includes this
 # one and override "common-build" without override warnings.
 %: common-% ;
-
-.PHONY: common-all
-common-all: precheck style check_license lint unused build test
 
 .PHONY: common-style
 common-style:
@@ -118,38 +102,15 @@ common-check_license:
                exit 1; \
        fi
 
-.PHONY: common-deps
-common-deps:
-	@echo ">> getting dependencies"
-ifdef GO111MODULE
-	GO111MODULE=$(GO111MODULE) $(GO) mod download
-else
-	$(GO) get $(GOOPTS) -t ./...
-endif
-
-.PHONY: update-go-deps
-update-go-deps:
-	@echo ">> updating Go dependencies"
-	@for m in $$($(GO) list -mod=readonly -m -f '{{ if and (not .Indirect) (not .Main)}}{{.Path}}{{end}}' all); do \
-		$(GO) get $$m; \
-	done
-	GO111MODULE=$(GO111MODULE) $(GO) mod tidy
-ifneq (,$(wildcard vendor))
-	GO111MODULE=$(GO111MODULE) $(GO) mod vendor
-endif
-
 .PHONY: common-test-short
-common-test-short: $(GOTEST_DIR)
+common-test-short:
 	@echo ">> running short tests"
 	GO111MODULE=$(GO111MODULE) $(GO) test -short $(GOOPTS) $(pkgs)
 
 .PHONY: common-test
-common-test: $(GOTEST_DIR)
+common-test:
 	@echo ">> running all tests"
 	GO111MODULE=$(GO111MODULE) $(GO) test -race $(GOOPTS) $(pkgs)
-
-$(GOTEST_DIR):
-	@mkdir -p $@
 
 .PHONY: common-format
 common-format:
@@ -161,21 +122,6 @@ common-vet:
 	@echo ">> vetting code"
 	GO111MODULE=$(GO111MODULE) $(GO) vet $(GOOPTS) $(pkgs)
 
-.PHONY: common-lint
-common-lint: $(GOLANGCI_LINT)
-ifdef GOLANGCI_LINT
-	@echo ">> running golangci-lint"
-ifdef GO111MODULE
-# 'go list' needs to be executed before staticcheck to prepopulate the modules cache.
-# Otherwise staticcheck might fail randomly for some reason not yet explained.
-	GO111MODULE=$(GO111MODULE) $(GO) list -e -compiled -test=true -export=false -deps=true -find=false -tags= -- ./... > /dev/null
-	GO111MODULE=$(GO111MODULE) $(GOLANGCI_LINT) run $(GOLANGCI_LINT_OPTS) $(pkgs)
-else
-	$(GOLANGCI_LINT) run $(pkgs)
-endif
-endif
-
-# For backward-compatibility.
 .PHONY: common-staticcheck
 common-staticcheck: $(STATICCHECK)
 	@echo ">> running staticcheck"
@@ -213,29 +159,17 @@ common-tarball: promu
 	@echo ">> building release tarball"
 	$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
 
-.PHONY: common-docker $(BUILD_DOCKER_ARCHS)
-common-docker: $(BUILD_DOCKER_ARCHS)
-$(BUILD_DOCKER_ARCHS): common-docker-%:
-	docker build -t "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-$*:$(DOCKER_IMAGE_TAG)" \
-		-f $(DOCKERFILE_PATH) \
-		--build-arg ARCH="$*" \
-		--build-arg OS="linux" \
-		$(DOCKERBUILD_CONTEXT)
+.PHONY: common-docker
+common-docker:
+	docker build -t "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
-.PHONY: common-docker-publish $(PUBLISH_DOCKER_ARCHS)
-common-docker-publish: $(PUBLISH_DOCKER_ARCHS)
-$(PUBLISH_DOCKER_ARCHS): common-docker-publish-%:
-	docker push "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-$*:$(DOCKER_IMAGE_TAG)"
+.PHONY: common-docker-publish
+common-docker-publish:
+	docker push "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)"
 
-.PHONY: common-docker-tag-latest $(TAG_DOCKER_ARCHS)
-common-docker-tag-latest: $(TAG_DOCKER_ARCHS)
-$(TAG_DOCKER_ARCHS): common-docker-tag-latest-%:
-	docker tag "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-$*:$(DOCKER_IMAGE_TAG)" "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-$*:latest"
-
-.PHONY: common-docker-manifest
-common-docker-manifest:
-	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest create -a "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" $(foreach ARCH,$(DOCKER_ARCHS),$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-$(ARCH):$(DOCKER_IMAGE_TAG))
-	DOCKER_CLI_EXPERIMENTAL=enabled docker manifest push "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)"
+.PHONY: common-docker-tag-latest
+common-docker-tag-latest:
+	docker tag "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME):latest"
 
 .PHONY: promu
 promu: $(PROMU)

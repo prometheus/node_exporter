@@ -20,9 +20,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -31,9 +30,7 @@ const (
 )
 
 type buddyinfoCollector struct {
-	fs     procfs.FS
-	desc   *prometheus.Desc
-	logger log.Logger
+	desc *prometheus.Desc
 }
 
 func init() {
@@ -41,28 +38,29 @@ func init() {
 }
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
-func NewBuddyinfoCollector(logger log.Logger) (Collector, error) {
+func NewBuddyinfoCollector() (Collector, error) {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
 		"Count of free blocks according to size.",
 		[]string{"node", "zone", "size"}, nil,
 	)
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %w", err)
-	}
-	return &buddyinfoCollector{fs, desc, logger}, nil
+	return &buddyinfoCollector{desc}, nil
 }
 
 // Update calls (*buddyinfoCollector).getBuddyInfo to get the platform specific
 // buddyinfo metrics.
 func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
-	buddyInfo, err := c.fs.BuddyInfo()
+	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return fmt.Errorf("couldn't get buddyinfo: %w", err)
+		return fmt.Errorf("failed to open procfs: %v", err)
 	}
 
-	level.Debug(c.logger).Log("msg", "Set node_buddy", "buddyInfo", buddyInfo)
+	buddyInfo, err := fs.NewBuddyInfo()
+	if err != nil {
+		return fmt.Errorf("couldn't get buddyinfo: %s", err)
+	}
+
+	log.Debugf("Set node_buddy: %#v", buddyInfo)
 	for _, entry := range buddyInfo {
 		for size, value := range entry.Sizes {
 			ch <- prometheus.MustNewConstMetric(

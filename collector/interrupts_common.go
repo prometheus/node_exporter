@@ -16,14 +16,10 @@
 
 package collector
 
-import (
-	"github.com/go-kit/kit/log"
-	"github.com/prometheus/client_golang/prometheus"
-)
+import "github.com/prometheus/client_golang/prometheus"
 
 type interruptsCollector struct {
-	desc   typedDesc
-	logger log.Logger
+	desc typedDesc
 }
 
 func init() {
@@ -31,13 +27,12 @@ func init() {
 }
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
-func NewInterruptsCollector(logger log.Logger) (Collector, error) {
+func NewInterruptsCollector() (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			namespace+"_interrupts_total",
 			"Interrupt details.",
 			interruptLabelNames, nil,
 		), prometheus.CounterValue},
-		logger: logger,
 	}, nil
 }

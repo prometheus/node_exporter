@@ -17,30 +17,22 @@
 package collector
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	netdevDeviceInclude    = kingpin.Flag("collector.netdev.device-include", "Regexp of net devices to include (mutually exclusive to device-exclude).").String()
-	oldNetdevDeviceInclude = kingpin.Flag("collector.netdev.device-whitelist", "DEPRECATED: Use collector.netdev.device-include").Hidden().String()
-	netdevDeviceExclude    = kingpin.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").String()
-	oldNetdevDeviceExclude = kingpin.Flag("collector.netdev.device-blacklist", "DEPRECATED: Use collector.netdev.device-exclude").Hidden().String()
+	netdevIgnoredDevices = kingpin.Flag("collector.netdev.ignored-devices", "Regexp of net devices to ignore for netdev collector.").Default("^$").String()
 )
 
 type netDevCollector struct {
-	subsystem            string
-	deviceExcludePattern *regexp.Regexp
-	deviceIncludePattern *regexp.Regexp
-	metricDescs          map[string]*prometheus.Desc
-	logger               log.Logger
+	subsystem             string
+	ignoredDevicesPattern *regexp.Regexp
+	metricDescs           map[string]*prometheus.Desc
 }
 
 func init() {
@@ -48,54 +40,19 @@ func init() {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector(logger log.Logger) (Collector, error) {
-	if *oldNetdevDeviceInclude != "" {
-		if *netdevDeviceInclude == "" {
-			level.Warn(logger).Log("msg", "--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")
-			*netdevDeviceInclude = *oldNetdevDeviceInclude
-		} else {
-			return nil, errors.New("--collector.netdev.device-whitelist and --collector.netdev.device-include are mutually exclusive")
-		}
-	}
-
-	if *oldNetdevDeviceExclude != "" {
-		if *netdevDeviceExclude == "" {
-			level.Warn(logger).Log("msg", "--collector.netdev.device-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-exclude")
-			*netdevDeviceExclude = *oldNetdevDeviceExclude
-		} else {
-			return nil, errors.New("--collector.netdev.device-blacklist and --collector.netdev.device-exclude are mutually exclusive")
-		}
-	}
-
-	if *netdevDeviceExclude != "" && *netdevDeviceInclude != "" {
-		return nil, errors.New("device-exclude & device-include are mutually exclusive")
-	}
-
-	var excludePattern *regexp.Regexp
-	if *netdevDeviceExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.netdev.device-exclude", "flag", *netdevDeviceExclude)
-		excludePattern = regexp.MustCompile(*netdevDeviceExclude)
-	}
-
-	var includePattern *regexp.Regexp
-	if *netdevDeviceInclude != "" {
-		level.Info(logger).Log("msg", "Parsed Flag --collector.netdev.device-include", "flag", *netdevDeviceInclude)
-		includePattern = regexp.MustCompile(*netdevDeviceInclude)
-	}
-
+func NewNetDevCollector() (Collector, error) {
+	pattern := regexp.MustCompile(*netdevIgnoredDevices)
 	return &netDevCollector{
-		subsystem:            "network",
-		deviceExcludePattern: excludePattern,
-		deviceIncludePattern: includePattern,
-		metricDescs:          map[string]*prometheus.Desc{},
-		logger:               logger,
+		subsystem:             "network",
+		ignoredDevicesPattern: pattern,
+		metricDescs:           map[string]*prometheus.Desc{},
 	}, nil
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(c.deviceExcludePattern, c.deviceIncludePattern, c.logger)
+	netDev, err := getNetDevStats(c.ignoredDevicesPattern)
 	if err != nil {
-		return fmt.Errorf("couldn't get netstats: %w", err)
+		return fmt.Errorf("couldn't get netstats: %s", err)
 	}
 	for dev, devStats := range netDev {
 		for key, value := range devStats {
@@ -111,7 +68,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return fmt.Errorf("invalid value %s in netstats: %w", value, err)
+				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
 			}
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, v, dev)
 		}
