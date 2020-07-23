@@ -16,7 +16,6 @@ require (
 	github.com/mdlayher/netlink v1.1.0 // indirect
 	github.com/mdlayher/wifi v0.0.0-20190303161829-b1436901ddee
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
-	github.com/percona/exporter_shared v0.7.2
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.6.0
 	github.com/prometheus/client_model v0.2.0
