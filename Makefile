@@ -78,14 +78,14 @@ $(eval $(call goarch_pair,mips64el,mipsel))
 all:: vet checkmetrics checkrules common-all $(cross-test) $(test-e2e)
 
 .PHONY: test
-test: collector/fixtures/sys/.unpacked $(GOTEST_DIR)
+test: collector/fixtures/sys/.unpacked $(GOTEST_DIR) save-tests-results
 	@echo ">> running tests"
 	$(GOTEST) -short $(test-flags) $(pkgs)
 
 .PHONY: test-32bit
-test-32bit: collector/fixtures/sys/.unpacked
+test-32bit: collector/fixtures/sys/.unpacked $(GOTEST_DIR) save-tests-results
 	@echo ">> running tests in 32-bit mode"
-	@env GOARCH=$(GOARCH_CROSS) $(GO) test $(pkgs)
+	@env GOARCH=$(GOARCH_CROSS) $(GOTEST) $(pkgs)
 
 .PHONY: skip-test-32bit
 skip-test-32bit:
