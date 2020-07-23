@@ -13,7 +13,10 @@
 
 package unix
 
-import "unsafe"
+import (
+	"syscall"
+	"unsafe"
+)
 
 /*
  * Wrapped
@@ -227,7 +230,7 @@ func anyToSockaddr(fd int, rsa *RawSockaddrAny) (Sockaddr, error) {
 
 		// Some versions of AIX have a bug in getsockname (see IV78655).
 		// We can't rely on sa.Len being set correctly.
-		n := SizeofSockaddrUnix - 3 // subtract leading Family, Len, terminating NUL.
+		n := SizeofSockaddrUnix - 3 // substract leading Family, Len, terminating NUL.
 		for i := 0; i < n; i++ {
 			if pp.Path[i] == 0 {
 				n = i
@@ -268,36 +271,13 @@ func Gettimeofday(tv *Timeval) (err error) {
 	return
 }
 
-func Sendfile(outfd int, infd int, offset *int64, count int) (written int, err error) {
-	if raceenabled {
-		raceReleaseMerge(unsafe.Pointer(&ioSync))
-	}
-	return sendfile(outfd, infd, offset, count)
-}
-
 // TODO
 func sendfile(outfd int, infd int, offset *int64, count int) (written int, err error) {
 	return -1, ENOSYS
 }
 
-func direntIno(buf []byte) (uint64, bool) {
-	return readInt(buf, unsafe.Offsetof(Dirent{}.Ino), unsafe.Sizeof(Dirent{}.Ino))
-}
-
-func direntReclen(buf []byte) (uint64, bool) {
-	return readInt(buf, unsafe.Offsetof(Dirent{}.Reclen), unsafe.Sizeof(Dirent{}.Reclen))
-}
-
-func direntNamlen(buf []byte) (uint64, bool) {
-	reclen, ok := direntReclen(buf)
-	if !ok {
-		return 0, false
-	}
-	return reclen - uint64(unsafe.Offsetof(Dirent{}.Name)), true
-}
-
 //sys	getdirent(fd int, buf []byte) (n int, err error)
-func Getdents(fd int, buf []byte) (n int, err error) {
+func ReadDirent(fd int, buf []byte) (n int, err error) {
 	return getdirent(fd, buf)
 }
 
@@ -350,11 +330,48 @@ func (w WaitStatus) Signal() Signal {
 
 func (w WaitStatus) Continued() bool { return w&0x01000000 != 0 }
 
-func (w WaitStatus) CoreDump() bool { return w&0x80 == 0x80 }
+func (w WaitStatus) CoreDump() bool { return w&0x200 != 0 }
 
 func (w WaitStatus) TrapCause() int { return -1 }
 
 //sys	ioctl(fd int, req uint, arg uintptr) (err error)
+
+// ioctl itself should not be exposed directly, but additional get/set
+// functions for specific types are permissible.
+
+// IoctlSetInt performs an ioctl operation which sets an integer value
+// on fd, using the specified request number.
+func IoctlSetInt(fd int, req uint, value int) error {
+	return ioctl(fd, req, uintptr(value))
+}
+
+func ioctlSetWinsize(fd int, req uint, value *Winsize) error {
+	return ioctl(fd, req, uintptr(unsafe.Pointer(value)))
+}
+
+func ioctlSetTermios(fd int, req uint, value *Termios) error {
+	return ioctl(fd, req, uintptr(unsafe.Pointer(value)))
+}
+
+// IoctlGetInt performs an ioctl operation which gets an integer value
+// from fd, using the specified request number.
+func IoctlGetInt(fd int, req uint) (int, error) {
+	var value int
+	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))
+	return value, err
+}
+
+func IoctlGetWinsize(fd int, req uint) (*Winsize, error) {
+	var value Winsize
+	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))
+	return &value, err
+}
+
+func IoctlGetTermios(fd int, req uint) (*Termios, error) {
+	var value Termios
+	err := ioctl(fd, req, uintptr(unsafe.Pointer(&value)))
+	return &value, err
+}
 
 // fcntl must never be called with cmd=F_DUP2FD because it doesn't work on AIX
 // There is no way to create a custom fcntl and to keep //sys fcntl easily,
@@ -367,6 +384,10 @@ func (w WaitStatus) TrapCause() int { return -1 }
 //sys	FcntlFlock(fd uintptr, cmd int, lk *Flock_t) (err error) = fcntl
 
 //sys	fcntl(fd int, cmd int, arg int) (val int, err error)
+
+func Flock(fd int, how int) (err error) {
+	return syscall.Flock(fd, how)
+}
 
 /*
  * Direct access
@@ -423,6 +444,8 @@ func (w WaitStatus) TrapCause() int { return -1 }
 //sysnb	Times(tms *Tms) (ticks uintptr, err error)
 //sysnb	Umask(mask int) (oldmask int)
 //sysnb	Uname(buf *Utsname) (err error)
+//TODO umount
+// //sys	Unmount(target string, flags int) (err error) = umount
 //sys   Unlink(path string) (err error)
 //sys   Unlinkat(dirfd int, path string, flags int) (err error)
 //sys	Ustat(dev int, ubuf *Ustat_t) (err error)
@@ -433,8 +456,8 @@ func (w WaitStatus) TrapCause() int { return -1 }
 //sys	Dup2(oldfd int, newfd int) (err error)
 //sys	Fadvise(fd int, offset int64, length int64, advice int) (err error) = posix_fadvise64
 //sys	Fchown(fd int, uid int, gid int) (err error)
-//sys	fstat(fd int, stat *Stat_t) (err error)
-//sys	fstatat(dirfd int, path string, stat *Stat_t, flags int) (err error) = fstatat
+//sys	Fstat(fd int, stat *Stat_t) (err error)
+//sys	Fstatat(dirfd int, path string, stat *Stat_t, flags int) (err error) = fstatat
 //sys	Fstatfs(fd int, buf *Statfs_t) (err error)
 //sys	Ftruncate(fd int, length int64) (err error)
 //sysnb	Getegid() (egid int)
@@ -443,17 +466,18 @@ func (w WaitStatus) TrapCause() int { return -1 }
 //sysnb	Getuid() (uid int)
 //sys	Lchown(path string, uid int, gid int) (err error)
 //sys	Listen(s int, n int) (err error)
-//sys	lstat(path string, stat *Stat_t) (err error)
+//sys	Lstat(path string, stat *Stat_t) (err error)
 //sys	Pause() (err error)
 //sys	Pread(fd int, p []byte, offset int64) (n int, err error) = pread64
 //sys	Pwrite(fd int, p []byte, offset int64) (n int, err error) = pwrite64
-//sys	Select(nfd int, r *FdSet, w *FdSet, e *FdSet, timeout *Timeval) (n int, err error)
+//TODO Select
+// //sys	Select(nfd int, r *FdSet, w *FdSet, e *FdSet, timeout *Timeval) (n int, err error)
 //sys	Pselect(nfd int, r *FdSet, w *FdSet, e *FdSet, timeout *Timespec, sigmask *Sigset_t) (n int, err error)
 //sysnb	Setregid(rgid int, egid int) (err error)
 //sysnb	Setreuid(ruid int, euid int) (err error)
 //sys	Shutdown(fd int, how int) (err error)
 //sys	Splice(rfd int, roff *int64, wfd int, woff *int64, len int, flags int) (n int64, err error)
-//sys	stat(path string, statptr *Stat_t) (err error)
+//sys	Stat(path string, stat *Stat_t) (err error)
 //sys	Statfs(path string, buf *Statfs_t) (err error)
 //sys	Truncate(path string, length int64) (err error)
 
@@ -469,10 +493,8 @@ func (w WaitStatus) TrapCause() int { return -1 }
 //sysnb	getsockname(fd int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error)
 //sys	recvfrom(fd int, p []byte, flags int, from *RawSockaddrAny, fromlen *_Socklen) (n int, err error)
 //sys	sendto(s int, buf []byte, flags int, to unsafe.Pointer, addrlen _Socklen) (err error)
-
-// In order to use msghdr structure with Control, Controllen, nrecvmsg and nsendmsg must be used.
-//sys	recvmsg(s int, msg *Msghdr, flags int) (n int, err error) = nrecvmsg
-//sys	sendmsg(s int, msg *Msghdr, flags int) (n int, err error) = nsendmsg
+//sys	recvmsg(s int, msg *Msghdr, flags int) (n int, err error)
+//sys	sendmsg(s int, msg *Msghdr, flags int) (n int, err error)
 
 //sys	munmap(addr uintptr, length uintptr) (err error)
 
@@ -523,14 +545,3 @@ func Poll(fds []PollFd, timeout int) (n int, err error) {
 //sys	gettimeofday(tv *Timeval, tzp *Timezone) (err error)
 //sysnb	Time(t *Time_t) (tt Time_t, err error)
 //sys	Utime(path string, buf *Utimbuf) (err error)
-
-//sys	Getsystemcfg(label int) (n uint64)
-
-//sys	umount(target string) (err error)
-func Unmount(target string, flags int) (err error) {
-	if flags != 0 {
-		// AIX doesn't have any flags for umount.
-		return ENOSYS
-	}
-	return umount(target)
-}
