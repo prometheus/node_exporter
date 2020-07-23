@@ -78,7 +78,7 @@ $(eval $(call goarch_pair,mips64el,mipsel))
 all:: vet checkmetrics checkrules common-all $(cross-test) $(test-e2e)
 
 .PHONY: test
-test: collector/fixtures/sys/.unpacked
+test: collector/fixtures/sys/.unpacked $(GOTEST_DIR)
 	@echo ">> running tests"
 	$(GOTEST) -short $(test-flags) $(pkgs)
 
