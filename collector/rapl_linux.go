@@ -19,7 +19,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-	"github.com/prometheus/prometheus/util/strutil"
 	"strconv"
 )
 
@@ -61,15 +60,16 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 		index := strconv.Itoa(rz.Index)
 
 		descriptor := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "rapl", strutil.SanitizeLabelName(rz.Name)+"_joules_total"),
+			prometheus.BuildFQName(namespace, "rapl", "joules_total"),
 			"Current RAPL "+rz.Name+" value in joules",
-			[]string{"index"}, nil,
+			[]string{"name","index"}, nil,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			descriptor,
 			prometheus.CounterValue,
 			float64(newMicrojoules)/1000000.0,
+			rz.Name,
 			index,
 		)
 	}
