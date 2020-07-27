@@ -16,12 +16,11 @@
 package collector
 
 import (
-	"strconv"
-	"strings"
-
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+	"github.com/prometheus/prometheus/util/strutil"
+	"strconv"
 )
 
 type raplCollector struct {
@@ -62,7 +61,7 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 		index := strconv.Itoa(rz.Index)
 
 		descriptor := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "rapl", strings.ReplaceAll(rz.Name, "-", "_")+"_joules_total"),
+			prometheus.BuildFQName(namespace, "rapl", strutil.SanitizeLabelName(rz.Name)+"_joules_total"),
 			"Current RAPL "+rz.Name+" value in joules",
 			[]string{"index"}, nil,
 		)
