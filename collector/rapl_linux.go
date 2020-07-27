@@ -17,6 +17,7 @@ package collector
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
