@@ -248,6 +248,33 @@
               message: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
             },
           },
+          {
+            alert: 'NodeRAIDDegraded',
+            expr: |||
+              'node_md_disks_required - ignoring (state) (node_md_disks{state="active"}) > 0'
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'critical',
+            },
+            annotations: {
+              summary: 'RAID Array is degraded',
+              description: 'RAID array '{{ $labels.device }}' on {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.',
+            },
+          },
+          {
+            alert: 'NodeRAIDDiskFailure',
+            expr: |||
+              node_md_disks{state="fail"} > 0
+            ||| % $._config,
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Failed device in RAID array',
+              description: 'At least one device in RAID array on {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.',
+            },
+          },
         ],
       },
     ],
