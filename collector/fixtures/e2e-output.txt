@@ -232,24 +232,12 @@ node_cooling_device_cur_state{name="0",type="Processor"} 0
 # HELP node_cooling_device_max_state Maximum throttle state of the cooling device
 # TYPE node_cooling_device_max_state gauge
 node_cooling_device_max_state{name="0",type="Processor"} 3
-# HELP node_cpu_bug_info The `bugs` field of CPU information from /proc/cpuinfo.
-# TYPE node_cpu_bug_info gauge
-node_cpu_bug_info{bug="cpu_meltdown"} 1
-node_cpu_bug_info{bug="mds"} 1
-node_cpu_bug_info{bug="spectre_v1"} 1
-node_cpu_bug_info{bug="spectre_v2"} 1
 # HELP node_cpu_core_throttles_total Number of times this cpu core has been throttled.
 # TYPE node_cpu_core_throttles_total counter
 node_cpu_core_throttles_total{core="0",package="0"} 5
 node_cpu_core_throttles_total{core="0",package="1"} 0
 node_cpu_core_throttles_total{core="1",package="0"} 0
 node_cpu_core_throttles_total{core="1",package="1"} 9
-# HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo.
-# TYPE node_cpu_flag_info gauge
-node_cpu_flag_info{flag="aes"} 1
-node_cpu_flag_info{flag="avx"} 1
-node_cpu_flag_info{flag="avx2"} 1
-node_cpu_flag_info{flag="constant_tsc"} 1
 # HELP node_cpu_guest_seconds_total Seconds the cpus spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
@@ -1967,9 +1955,6 @@ node_netstat_Tcp_InErrs 5
 # HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
 # TYPE node_netstat_Tcp_InSegs untyped
 node_netstat_Tcp_InSegs 5.7252008e+07
-# HELP node_netstat_Tcp_OutRsts Statistic TcpOutRsts.
-# TYPE node_netstat_Tcp_OutRsts untyped
-node_netstat_Tcp_OutRsts 1003
 # HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
 # TYPE node_netstat_Tcp_OutSegs untyped
 node_netstat_Tcp_OutSegs 5.4915039e+07
@@ -2578,18 +2563,10 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
-# HELP node_qdisc_backlog Number of bytes currently in queue to be sent.
-# TYPE node_qdisc_backlog gauge
-node_qdisc_backlog{device="eth0",kind="pfifo_fast"} 0
-node_qdisc_backlog{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_bytes_total Number of bytes sent.
 # TYPE node_qdisc_bytes_total counter
 node_qdisc_bytes_total{device="eth0",kind="pfifo_fast"} 83
 node_qdisc_bytes_total{device="wlan0",kind="fq"} 42
-# HELP node_qdisc_current_queue_length Number of packets currently in queue to be sent.
-# TYPE node_qdisc_current_queue_length gauge
-node_qdisc_current_queue_length{device="eth0",kind="pfifo_fast"} 0
-node_qdisc_current_queue_length{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_drops_total Number of packets dropped.
 # TYPE node_qdisc_drops_total counter
 node_qdisc_drops_total{device="eth0",kind="pfifo_fast"} 0
@@ -2606,12 +2583,9 @@ node_qdisc_packets_total{device="wlan0",kind="fq"} 42
 # TYPE node_qdisc_requeues_total counter
 node_qdisc_requeues_total{device="eth0",kind="pfifo_fast"} 2
 node_qdisc_requeues_total{device="wlan0",kind="fq"} 1
-# HELP node_rapl_core_joules_total Current RAPL core value in joules
-# TYPE node_rapl_core_joules_total counter
-node_rapl_core_joules_total{index="0"} 118821.284256
-# HELP node_rapl_package_joules_total Current RAPL package value in joules
-# TYPE node_rapl_package_joules_total counter
-node_rapl_package_joules_total{index="0"} 240422.366267
+# HELP node_rapl_joules_total Current RAPL package value in joules
+# TYPE node_rapl_joules_total counter
+node_rapl_joules_total{index="0",name="package"} 240422.366267
 # HELP node_schedstat_running_seconds_total Number of seconds CPU spent running a process.
 # TYPE node_schedstat_running_seconds_total counter
 node_schedstat_running_seconds_total{cpu="0"} 2.045936778163039e+06
