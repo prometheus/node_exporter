@@ -64,6 +64,12 @@ var (
 		[]string{"device"},
 		prometheus.Labels{"state": "resync"},
 	)
+	checkDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "check"},
+	)
 
 	disksDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "disks"),
@@ -171,6 +177,13 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			resyncDesc,
 			prometheus.GaugeValue,
 			stateVals["resyncing"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			checkDesc,
+			prometheus.GaugeValue,
+			stateVals["checking"],
 			mdStat.Name,
 		)
 
