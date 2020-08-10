@@ -21,6 +21,11 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
 )
 
 func init() {
@@ -50,7 +55,13 @@ func NewBcacheCollector(logger log.Logger) (Collector, error) {
 // Update reads and exposes bcache stats.
 // It implements the Collector interface.
 func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.Stats()
+	var stats []*bcache.Stats
+	var err error
+	if *priorityStats {
+		stats, err = c.fs.Stats()
+	} else {
+		stats, err = c.fs.StatsWithoutPriority()
+	}
 	if err != nil {
 		return fmt.Errorf("failed to retrieve bcache stats: %w", err)
 	}
@@ -259,23 +270,28 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabel:      []string{"cache_device"},
 				extraLabelValue: cache.Name,
 			},
+		}
+		if *priorityStats {
 			// metrics in /sys/fs/bcache/<uuid>/<cache>/priority_stats
-			{
-				name:            "priority_stats_unused_percent",
-				desc:            "The percentage of the cache that doesn't contain any data.",
-				value:           float64(cache.Priority.UnusedPercent),
-				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"cache_device"},
-				extraLabelValue: cache.Name,
-			},
-			{
-				name:            "priority_stats_metadata_percent",
-				desc:            "Bcache's metadata overhead.",
-				value:           float64(cache.Priority.MetadataPercent),
-				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"cache_device"},
-				extraLabelValue: cache.Name,
-			},
+			priorityStatsMetrics := []bcacheMetric{
+				{
+					name:            "priority_stats_unused_percent",
+					desc:            "The percentage of the cache that doesn't contain any data.",
+					value:           float64(cache.Priority.UnusedPercent),
+					metricType:      prometheus.GaugeValue,
+					extraLabel:      []string{"cache_device"},
+					extraLabelValue: cache.Name,
+				},
+				{
+					name:            "priority_stats_metadata_percent",
+					desc:            "Bcache's metadata overhead.",
+					value:           float64(cache.Priority.MetadataPercent),
+					metricType:      prometheus.GaugeValue,
+					extraLabel:      []string{"cache_device"},
+					extraLabelValue: cache.Name,
+				},
+			}
+			metrics = append(metrics, priorityStatsMetrics...)
 		}
 		allMetrics = append(allMetrics, metrics...)
 	}
