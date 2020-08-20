@@ -50,7 +50,7 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 	// nil zones are fine when platform doesn't have powercap files present.
 	zones, err := sysfs.GetRaplZones(c.fs)
 	if err != nil {
-		return nil
+		return ErrNoData
 	}
 
 	for _, rz := range zones {

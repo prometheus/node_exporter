@@ -89,7 +89,7 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		vals, err := c.fs.PSIStatsForResource(res)
 		if err != nil {
 			level.Debug(c.logger).Log("msg", "pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
-			return nil
+			return ErrNoData
 		}
 		switch res {
 		case "cpu":
