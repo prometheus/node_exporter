@@ -51,14 +51,14 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	value, err := readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_count"))
 	if err != nil {
 		// Conntrack probably not loaded into the kernel.
-		return nil
+		return err
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.current, prometheus.GaugeValue, float64(value))
 
 	value, err = readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_max"))
 	if err != nil {
-		return nil
+		return err
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.limit, prometheus.GaugeValue, float64(value))
