@@ -106,6 +106,9 @@ node_bcache_congested{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_dirty_data_bytes Amount of dirty data for this backing device in the cache.
 # TYPE node_bcache_dirty_data_bytes gauge
 node_bcache_dirty_data_bytes{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+# HELP node_bcache_dirty_target_bytes Current dirty data target threshold for this backing device in bytes.
+# TYPE node_bcache_dirty_target_bytes gauge
+node_bcache_dirty_target_bytes{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 2.189426688e+10
 # HELP node_bcache_io_errors Number of errors that have occurred, decayed by io_error_halflife.
 # TYPE node_bcache_io_errors gauge
 node_bcache_io_errors{cache_device="cache0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
@@ -124,6 +127,18 @@ node_bcache_root_usage_percent{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_tree_depth Depth of the btree.
 # TYPE node_bcache_tree_depth gauge
 node_bcache_tree_depth{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+# HELP node_bcache_writeback_change Last writeback rate change step for this backing device.
+# TYPE node_bcache_writeback_change gauge
+node_bcache_writeback_change{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 329204
+# HELP node_bcache_writeback_rate Current writeback rate for this backing device in bytes.
+# TYPE node_bcache_writeback_rate gauge
+node_bcache_writeback_rate{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 1.150976e+06
+# HELP node_bcache_writeback_rate_integral_term Current result of integral controller, part of writeback rate
+# TYPE node_bcache_writeback_rate_integral_term gauge
+node_bcache_writeback_rate_integral_term{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 808960
+# HELP node_bcache_writeback_rate_proportinal_term Current result of proportional controller, part of writeback rate
+# TYPE node_bcache_writeback_rate_proportinal_term gauge
+node_bcache_writeback_rate_proportinal_term{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 437748
 # HELP node_bcache_written_bytes_total Sum of all data that has been written to the cache.
 # TYPE node_bcache_written_bytes_total counter
 node_bcache_written_bytes_total{cache_device="cache0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
