@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	"strconv"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -42,6 +41,8 @@ type netDevCollector struct {
 	metricDescs          map[string]*prometheus.Desc
 	logger               log.Logger
 }
+
+type netDevStats map[string]map[string]uint64
 
 func init() {
 	registerCollector("netdev", defaultEnabled, NewNetDevCollector)
@@ -109,11 +110,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 				)
 				c.metricDescs[key] = desc
 			}
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return fmt.Errorf("invalid value %s in netstats: %w", value, err)
-			}
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, v, dev)
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
 		}
 	}
 	return nil
