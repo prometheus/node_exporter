@@ -259,7 +259,7 @@
             },
             annotations: {
               summary: 'RAID Array is degraded',
-              description: 'RAID array '{{ $labels.device }}' on {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.',
+              description: 'RAID array \'{{ $labels.device }}\' on {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.',
             },
           },
           {
@@ -272,7 +272,7 @@
             },
             annotations: {
               summary: 'Failed device in RAID array',
-              description: 'At least one device in RAID array on {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.',
+              description: 'At least one device in RAID array on {{ $labels.instance }} failed. Array \'{{ $labels.device }}\' needs attention and possibly a disk swap.',
             },
           },
         ],
