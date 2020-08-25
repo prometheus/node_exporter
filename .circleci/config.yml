@@ -31,6 +31,26 @@ jobs:
     - run: sudo pip install codespell
     - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem,./collector/fixtures" -L uint,packages\',uptodate
 
+  test_mixins:
+    executor: golang
+    steps:
+    - checkout
+    - run:
+        command: go install -mod=readonly github.com/google/go-jsonnet/cmd/jsonnet github.com/google/go-jsonnet/cmd/jsonnetfmt github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb github.com/prometheus/prometheus/cmd/promtool
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: make clean
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: jb install
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: make
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: git diff --exit-code
+        working_directory: ~/project/docs/node-mixin
+
   build:
     machine:
       image: ubuntu-1604:201903-01
@@ -82,6 +102,10 @@ workflows:
           tags:
             only: /.*/
     - codespell:
+        filters:
+          tags:
+            only: /.*/
+    - test_mixins:
         filters:
           tags:
             only: /.*/
