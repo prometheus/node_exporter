@@ -2,8 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
 [![Buildkite status](https://badge.buildkite.com/94a0c1fb00b1f46883219c256efe9ce01d63b6505f3a942f9b.svg)](https://buildkite.com/prometheus/node-exporter)
-[![Docker Repository on Quay](https://quay.io/repository/prometheus/node-exporter/status)][quay]
-[![Docker Pulls](https://img.shields.io/docker/pulls/prom/node-exporter.svg?maxAge=604800)][hub]
+[![Container Repository](https://quay.io/repository/prometheus/node-exporter/status)][quay]
 [![Go Report Card](https://goreportcard.com/badge/github.com/prometheus/node_exporter)][goreportcard]
 
 Prometheus exporter for hardware and OS metrics exposed by \*NIX kernels, written
@@ -224,7 +223,6 @@ On some systems, the `timex` collector requires an additional Docker flag,
 There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
-[hub]: https://hub.docker.com/r/prom/node-exporter/
-[circleci]: https://circleci.com/gh/prometheus/node_exporter
 [quay]: https://quay.io/repository/prometheus/node-exporter
+[circleci]: https://circleci.com/gh/prometheus/node_exporter
 [goreportcard]: https://goreportcard.com/report/github.com/prometheus/node_exporter
