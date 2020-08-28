@@ -251,7 +251,7 @@
           {
             alert: 'NodeRAIDDegraded',
             expr: |||
-              'node_md_disks_required - ignoring (state) (node_md_disks{state="active"}) > 0'
+              node_md_disks_required - ignoring (state) (node_md_disks{state="active"}) > 0
             ||| % $._config,
             'for': '15m',
             labels: {
