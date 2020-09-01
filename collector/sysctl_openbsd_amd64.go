@@ -20,11 +20,15 @@ import (
 )
 
 func int8ToString(a []int8) string {
-	b := make([]byte, len(a))
+	buf := make([]byte, len(a))
 	for i, v := range a {
-		b[i] = byte(v)
+		if byte(v) == 0 {
+			buf = buf[:i]
+			break
+		}
+		buf[i] = byte(v)
 	}
-	return string(b)
+	return string(buf)
 }
 
 // unix._C_int
