@@ -26,7 +26,6 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		return nil, err
 	}
 	uvmexp := *(*unix.Uvmexp)(unsafe.Pointer(&uvmexpb[0]))
-
 	ps := float64(uvmexp.Pagesize)
 
 	// see uvm(9)

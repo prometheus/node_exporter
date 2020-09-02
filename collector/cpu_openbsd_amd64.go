@@ -33,13 +33,13 @@ type clockinfo struct {
 }
 
 const (
-	CP_USER   = 0
-	CP_NICE   = 1
-	CP_SYS    = 2
-	CP_SPIN   = 3
-	CP_INTR   = 4
-	CP_IDLE   = 5
-	CPUSTATES = 6
+	CP_USER = iota
+	CP_NICE
+	CP_SYS
+	CP_SPIN
+	CP_INTR
+	CP_IDLE
+	CPUSTATES
 )
 
 type cpuCollector struct {

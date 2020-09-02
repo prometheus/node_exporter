@@ -67,9 +67,7 @@ func intr(idx _C_int) (itr interrupt, err error) {
 	return
 }
 
-var (
-	interruptLabelNames = []string{"cpu", "type", "devices"}
-)
+var interruptLabelNames = []string{"cpu", "type", "devices"}
 
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	interrupts, err := getInterrupts()
@@ -97,7 +95,6 @@ type interrupt struct {
 
 func getInterrupts() (map[string]interrupt, error) {
 	var interrupts = map[string]interrupt{}
-
 	n := nintr()
 
 	for i := _C_int(0); i < n; i++ {
@@ -105,7 +102,6 @@ func getInterrupts() (map[string]interrupt, error) {
 		if err != nil {
 			return nil, err
 		}
-
 		interrupts[itr.device] = itr
 	}
 

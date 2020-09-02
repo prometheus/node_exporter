@@ -63,17 +63,17 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 			continue
 		}
 
-		devStats := map[string]string{}
-		devStats["receive_packets"] = strconv.Itoa(int(data.Ipackets))
-		devStats["transmit_packets"] = strconv.Itoa(int(data.Opackets))
-		devStats["receive_errs"] = strconv.Itoa(int(data.Ierrors))
-		devStats["transmit_errs"] = strconv.Itoa(int(data.Oerrors))
-		devStats["receive_bytes"] = strconv.Itoa(int(data.Ibytes))
-		devStats["transmit_bytes"] = strconv.Itoa(int(data.Obytes))
-		devStats["receive_multicast"] = strconv.Itoa(int(data.Imcasts))
-		devStats["transmit_multicast"] = strconv.Itoa(int(data.Omcasts))
-		devStats["receive_drop"] = strconv.Itoa(int(data.Iqdrops))
-		netDev[dev] = devStats
+		netDev[dev] = map[string]string{
+			"receive_packets":    strconv.Itoa(int(data.Ipackets)),
+			"transmit_packets":   strconv.Itoa(int(data.Opackets)),
+			"receive_errs":       strconv.Itoa(int(data.Ierrors)),
+			"transmit_errs":      strconv.Itoa(int(data.Oerrors)),
+			"receive_bytes":      strconv.Itoa(int(data.Ibytes)),
+			"transmit_bytes":     strconv.Itoa(int(data.Obytes)),
+			"receive_multicast":  strconv.Itoa(int(data.Imcasts)),
+			"transmit_multicast": strconv.Itoa(int(data.Omcasts)),
+			"receive_drop":       strconv.Itoa(int(data.Iqdrops)),
+		}
 	}
 	return netDev, nil
 }
