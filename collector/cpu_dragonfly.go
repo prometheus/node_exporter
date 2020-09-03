@@ -93,7 +93,7 @@ func NewStatCollector(logger log.Logger) (Collector, error) {
 }
 
 func getDragonFlyCPUTimes() ([]float64, error) {
-	// We want time spent per-cpu per CPUSTATE.
+	// We want time spent per-CPU per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// States: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
 	//

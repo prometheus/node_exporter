@@ -82,17 +82,17 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 		),
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
-			"Seconds the cpus spent in guests (VMs) for each mode.",
+			"Seconds the CPUs spent in guests (VMs) for each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
-			"Number of times this cpu core has been throttled.",
+			"Number of times this CPU core has been throttled.",
 			[]string{"package", "core"}, nil,
 		),
 		cpuPackageThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
-			"Number of times this cpu package has been throttled.",
+			"Number of times this CPU package has been throttled.",
 			[]string{"package"}, nil,
 		),
 		logger: logger,
@@ -224,7 +224,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 		// metric node_cpu_core_throttles_total
 		//
 		// We process this metric before the package throttles as there
-		// are cpu+kernel combinations that only present core throttles
+		// are CPU+kernel combinations that only present core throttles
 		// but no package throttles.
 		// Seen e.g. on an Intel Xeon E5472 system with RHEL 6.9 kernel.
 		if _, present := packageCoreThrottles[physicalPackageID]; !present {
@@ -269,7 +269,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 	return nil
 }
 
-// updateStat reads /proc/stat through procfs and exports cpu related metrics.
+// updateStat reads /proc/stat through procfs and exports CPU-related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Stat()
 	if err != nil {
