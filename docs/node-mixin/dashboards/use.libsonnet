@@ -7,14 +7,15 @@ local g = import 'grafana-builder/grafana.libsonnet';
 
       g.dashboard('USE Method / Cluster')
       .addRow(
-        g.row('About')
+        g.row('')
         .addPanel(
-          g.textPanel('', |||
+          g.textPanel('About', |||
             This dashboard is inspired by Brendan Gregg's [USE Method](http://www.brendangregg.com/usemethod.html) - 
             showing **U**tilisation, **S**aturation and **E**rrors for the various resources for each node in your cluster.
           |||)
         ) + {
           height: "100px",
+          showTitle: false,
         },
       )
       .addRow(
@@ -164,15 +165,47 @@ local g = import 'grafana-builder/grafana.libsonnet';
       g.dashboard('USE Method / Node')
       .addTemplate('instance', 'up{%(nodeExporterSelector)s}' % $._config, 'instance')
       .addRow(
-        g.row('About')
+        g.row('')
         .addPanel(
-          g.textPanel('', |||
+          g.textPanel('About', |||
             This dashboard is inspired by Brendan Gregg's [USE Method](http://www.brendangregg.com/usemethod.html) - 
             showing **U**tilisation, **S**aturation and **E**rrors for the various resources for a specific node.
           |||)
         ) + {
           height: "100px",
+          showTitle: false,
         },
+      )
+      .addRow(
+        (g.row('Highlights') +
+        {
+          height: '100px',
+          showTitle: false,
+        })
+        .addPanel(
+          g.panel('CPU Cores') +
+          g.statPanel('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"})' % $._config, format='short')
+        )
+        .addPanel(
+          g.panel('Total Memory') +
+          g.statPanel('node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, format='decbytes')
+        )
+        .addPanel(
+          g.panel('Disks') +
+          g.statPanel('count(node_disk_io_now{%(nodeExporterSelector)s, instance="$instance"})' % $._config, format='short')
+        )
+        .addPanel(
+          g.panel('Disks Space') +
+          g.statPanel('sum(node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance"})' % $._config, format='decbytes')
+        )
+        .addPanel(
+          g.panel('Network Interfaces') +
+          g.statPanel('count(node_network_device_id{%(nodeExporterSelector)s, instance="$instance", device!~"(veth.+)|(docker[0-9]+)|(cbr[0-9]+)|lo"})' % $._config, format='short')
+        )
+        .addPanel(
+          g.panel('Uptime') +
+          g.statPanel('time() - node_boot_time_seconds{%(nodeExporterSelector)s, instance="$instance"}' % $._config, format='dtdhms')
+        )
       )
       .addRow(
         g.row('CPU')
