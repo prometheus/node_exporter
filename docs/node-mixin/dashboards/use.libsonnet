@@ -7,6 +7,17 @@ local g = import 'grafana-builder/grafana.libsonnet';
 
       g.dashboard('USE Method / Cluster')
       .addRow(
+        g.row('About')
+        .addPanel(
+          g.textPanel('', |||
+            This dashboard is inspired by Brendan Gregg's [USE Method](http://www.brendangregg.com/usemethod.html) - 
+            showing **U**tilisation, **S**aturation and **E**rrors for the various resources for each node in your cluster.
+          |||)
+        ) + {
+          height: "100px",
+        },
+      )
+      .addRow(
         g.row('CPU')
         .addPanel(
           g.panel('CPU Utilisation') +
@@ -152,6 +163,17 @@ local g = import 'grafana-builder/grafana.libsonnet';
     'node-rsrc-use.json':
       g.dashboard('USE Method / Node')
       .addTemplate('instance', 'up{%(nodeExporterSelector)s}' % $._config, 'instance')
+      .addRow(
+        g.row('About')
+        .addPanel(
+          g.textPanel('', |||
+            This dashboard is inspired by Brendan Gregg's [USE Method](http://www.brendangregg.com/usemethod.html) - 
+            showing **U**tilisation, **S**aturation and **E**rrors for the various resources for a specific node.
+          |||)
+        ) + {
+          height: "100px",
+        },
+      )
       .addRow(
         g.row('CPU')
         .addPanel(
