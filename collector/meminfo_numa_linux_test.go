@@ -105,3 +105,24 @@ func TestMemInfoNumaStat(t *testing.T) {
 		t.Errorf("want numa stat other_node %f, got %f", want, got)
 	}
 }
+func TestParseVMStatNuma(t *testing.T) {
+	file, err := os.Open("fixtures/sys/devices/system/node/node0/vmstat")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	vmstat, err := parseVMStatNuma(file, "0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want, got := 1.0, vmstat[0].value; want != got {
+		t.Errorf("want vmstat stat nr_free_pages value %f, got %f", want, got)
+	}
+	if want, got := "vmstat_nr_free_pages", vmstat[0].metricName; want != got {
+		t.Errorf("want vmstat stat nr_free_pages metricName %s, got %s", want, got)
+	}
+
+	if want, got := 5.0, vmstat[4].value; want != got {
+		t.Errorf("want numa stat nr_zone_active_file %f, got %f", want, got)
+	}
+}

@@ -30,7 +30,8 @@ import (
 )
 
 const (
-	memInfoNumaSubsystem = "memory_numa"
+	memInfoNumaSubsystem     = "memory_numa"
+	expectedNodeNumberLength = 2
 )
 
 var meminfoNodeRE = regexp.MustCompile(`.*devices/system/node/node([0-9]*)`)
@@ -106,8 +107,14 @@ func getMemInfoNuma() ([]meminfoMetric, error) {
 		}
 		defer numastatFile.Close()
 
+		vmstatFile, err := os.Open(filepath.Join(node, "vmstat"))
+		if err != nil {
+			return nil, err
+		}
+		defer vmstatFile.Close()
+
 		nodeNumber := meminfoNodeRE.FindStringSubmatch(node)
-		if nodeNumber == nil {
+		if nodeNumber == nil || len(nodeNumber) != expectedNodeNumberLength {
 			return nil, fmt.Errorf("device node string didn't match regexp: %s", node)
 		}
 
@@ -116,6 +123,12 @@ func getMemInfoNuma() ([]meminfoMetric, error) {
 			return nil, err
 		}
 		metrics = append(metrics, numaStat...)
+
+		vmStat, err := parseVMStatNuma(vmstatFile, nodeNumber[1])
+		if err != nil {
+			return nil, err
+		}
+		metrics = append(metrics, vmStat...)
 	}
 
 	return metrics, nil
@@ -180,4 +193,30 @@ func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, erro
 		numaStat = append(numaStat, meminfoMetric{parts[0] + "_total", prometheus.CounterValue, nodeNumber, fv})
 	}
 	return numaStat, scanner.Err()
+}
+
+func parseVMStatNuma(r io.Reader, nodeNumber string) ([]meminfoMetric, error) {
+	var (
+		vmstat  []meminfoMetric
+		scanner = bufio.NewScanner(r)
+	)
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" {
+			continue
+		}
+		parts := strings.Fields(line)
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("line scan did not return 2 fields: %s", line)
+		}
+
+		fv, err := strconv.ParseFloat(parts[1], 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value in vmstat: %w", err)
+		}
+
+		vmstat = append(vmstat, meminfoMetric{"vmstat_" + parts[0], prometheus.GaugeValue, nodeNumber, fv})
+	}
+	return vmstat, scanner.Err()
 }

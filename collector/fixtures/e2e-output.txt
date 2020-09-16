@@ -1670,6 +1670,36 @@ node_memory_numa_numa_miss_total{node="2"} 9.858626709e+09
 node_memory_numa_other_node_total{node="0"} 1.8179487e+07
 node_memory_numa_other_node_total{node="1"} 5.986052692e+10
 node_memory_numa_other_node_total{node="2"} 9.86052692e+09
+# HELP node_memory_numa_vmstat_nr_free_pages Memory information field vmstat_nr_free_pages.
+# TYPE node_memory_numa_vmstat_nr_free_pages gauge
+node_memory_numa_vmstat_nr_free_pages{node="0"} 1
+node_memory_numa_vmstat_nr_free_pages{node="1"} 1
+node_memory_numa_vmstat_nr_free_pages{node="2"} 1
+# HELP node_memory_numa_vmstat_nr_zone_active_anon Memory information field vmstat_nr_zone_active_anon.
+# TYPE node_memory_numa_vmstat_nr_zone_active_anon gauge
+node_memory_numa_vmstat_nr_zone_active_anon{node="0"} 3
+node_memory_numa_vmstat_nr_zone_active_anon{node="1"} 3
+node_memory_numa_vmstat_nr_zone_active_anon{node="2"} 3
+# HELP node_memory_numa_vmstat_nr_zone_active_file Memory information field vmstat_nr_zone_active_file.
+# TYPE node_memory_numa_vmstat_nr_zone_active_file gauge
+node_memory_numa_vmstat_nr_zone_active_file{node="0"} 5
+node_memory_numa_vmstat_nr_zone_active_file{node="1"} 5
+node_memory_numa_vmstat_nr_zone_active_file{node="2"} 5
+# HELP node_memory_numa_vmstat_nr_zone_inactive_anon Memory information field vmstat_nr_zone_inactive_anon.
+# TYPE node_memory_numa_vmstat_nr_zone_inactive_anon gauge
+node_memory_numa_vmstat_nr_zone_inactive_anon{node="0"} 2
+node_memory_numa_vmstat_nr_zone_inactive_anon{node="1"} 2
+node_memory_numa_vmstat_nr_zone_inactive_anon{node="2"} 2
+# HELP node_memory_numa_vmstat_nr_zone_inactive_file Memory information field vmstat_nr_zone_inactive_file.
+# TYPE node_memory_numa_vmstat_nr_zone_inactive_file gauge
+node_memory_numa_vmstat_nr_zone_inactive_file{node="0"} 4
+node_memory_numa_vmstat_nr_zone_inactive_file{node="1"} 4
+node_memory_numa_vmstat_nr_zone_inactive_file{node="2"} 4
+# HELP node_memory_numa_vmstat_nr_zone_unevictable Memory information field vmstat_nr_zone_unevictable.
+# TYPE node_memory_numa_vmstat_nr_zone_unevictable gauge
+node_memory_numa_vmstat_nr_zone_unevictable{node="0"} 6
+node_memory_numa_vmstat_nr_zone_unevictable{node="1"} 6
+node_memory_numa_vmstat_nr_zone_unevictable{node="2"} 6
 # HELP node_mountstats_nfs_age_seconds_total The age of the NFS mount in seconds.
 # TYPE node_mountstats_nfs_age_seconds_total counter
 node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 13968
