@@ -14,7 +14,7 @@ local g = import 'grafana-builder/grafana.libsonnet';
             showing **U**tilisation, **S**aturation and **E**rrors for the various resources for each node in your cluster.
           |||)
         ) + {
-          height: "100px",
+          height: '100px',
           showTitle: false,
         },
       )
@@ -172,16 +172,16 @@ local g = import 'grafana-builder/grafana.libsonnet';
             showing **U**tilisation, **S**aturation and **E**rrors for the various resources for a specific node.
           |||)
         ) + {
-          height: "100px",
+          height: '100px',
           showTitle: false,
         },
       )
       .addRow(
         (g.row('Highlights') +
-        {
-          height: '100px',
-          showTitle: false,
-        })
+         {
+           height: '100px',
+           showTitle: false,
+         })
         .addPanel(
           g.panel('CPU Cores') +
           g.statPanel('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"})' % $._config, format='short')
