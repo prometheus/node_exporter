@@ -49,7 +49,6 @@
 
     // Available disk space (%) thresholds on which to trigger the
     // 'NodeFilesystemAlmostOutOfSpace' alerts.
-    // 2 thresholds are available : high and low
     fsSpaceAvailableCriticalThreshold: 5,
     fsSpaceAvailableWarningThreshold: 3,
 
