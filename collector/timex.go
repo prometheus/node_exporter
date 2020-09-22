@@ -35,6 +35,10 @@ const (
 	// 1 second in
 	nanoSeconds  = 1000000000
 	microSeconds = 1000000
+
+	// Maximum value of timex.Maxerror, which triggers
+	// the TIME_ERROR status
+	maxMaxerror = 16000000
 )
 
 type timexCollector struct {
@@ -161,12 +165,12 @@ func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	var divisor float64
 	var timex = new(unix.Timex)
 
-	status, err := unix.Adjtimex(timex)
+	_, err := unix.Adjtimex(timex)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve adjtimex stats: %w", err)
 	}
 
-	if status == timeError {
+	if timex.Maxerror >= maxMaxerror {
 		syncStatus = 0
 	} else {
 		syncStatus = 1
