@@ -238,6 +238,8 @@
             alert: 'NodeClockNotSynchronising',
             expr: |||
               min_over_time(node_timex_sync_status[5m]) == 0
+              and
+              node_timex_maxerror_seconds >= 16
             ||| % $._config,
             'for': '10m',
             labels: {
