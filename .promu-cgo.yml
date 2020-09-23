@@ -1,7 +1,7 @@
 go:
     # Whenever the Go version is updated here, .circle/config.yml and
     # .promu.yml should also be updated.
-    version: 1.14
+    version: 1.15
     cgo: true
 repository:
     path: github.com/prometheus/node_exporter
@@ -22,6 +22,5 @@ tarball:
 crossbuild:
     platforms:
         - darwin/amd64
-        - darwin/386
         - netbsd/amd64
         - netbsd/386
