@@ -123,10 +123,10 @@ func getNetClassLabels(dev string, fs sysfs.FS) ([]string, []string, error) {
 		return nil, nil, fmt.Errorf("error obtaining net class info: %w", err)
 	}
 
+	labels := []string{"device", "ifalias", "operstate"}
 	if info, ok := netClass[dev]; ok {
-		labels := []string{"device", "ifalias", "operstate"}
 		labelValues := []string{info.Name, info.IfAlias, info.OperState}
 		return labels, labelValues, nil
 	}
-	return []string{"device"}, []string{dev}, nil
+	return labels, []string{dev, "", ""}, nil
 }
