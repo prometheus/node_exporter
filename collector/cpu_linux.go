@@ -314,7 +314,7 @@ func (c *cpuCollector) updateCPUStats(newStats []procfs.CPUStat) {
 	for i, n := range newStats {
 		// If idle jumps backwards, assume we had a hotplug event and reset the stats for this CPU.
 		if n.Idle < c.cpuStats[i].Idle {
-			level.Warn(c.logger).Log("msg", "CPU Idle counter jumped backwards, possible hotplug event, resetting CPU stats", "cpu", i, "old_value", c.cpuStats[i].Idle, "new_value", n.Idle)
+			level.Debug(c.logger).Log("msg", "CPU Idle counter jumped backwards, possible hotplug event, resetting CPU stats", "cpu", i, "old_value", c.cpuStats[i].Idle, "new_value", n.Idle)
 			c.cpuStats[i] = procfs.CPUStat{}
 		}
 		c.cpuStats[i].Idle = n.Idle
@@ -322,55 +322,55 @@ func (c *cpuCollector) updateCPUStats(newStats []procfs.CPUStat) {
 		if n.User >= c.cpuStats[i].User {
 			c.cpuStats[i].User = n.User
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU User counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].User, "new_value", n.User)
+			level.Debug(c.logger).Log("msg", "CPU User counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].User, "new_value", n.User)
 		}
 
 		if n.Nice >= c.cpuStats[i].Nice {
 			c.cpuStats[i].Nice = n.Nice
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU Nice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Nice, "new_value", n.Nice)
+			level.Debug(c.logger).Log("msg", "CPU Nice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Nice, "new_value", n.Nice)
 		}
 
 		if n.System >= c.cpuStats[i].System {
 			c.cpuStats[i].System = n.System
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU System counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].System, "new_value", n.System)
+			level.Debug(c.logger).Log("msg", "CPU System counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].System, "new_value", n.System)
 		}
 
 		if n.Iowait >= c.cpuStats[i].Iowait {
 			c.cpuStats[i].Iowait = n.Iowait
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU Iowait counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Iowait, "new_value", n.Iowait)
+			level.Debug(c.logger).Log("msg", "CPU Iowait counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Iowait, "new_value", n.Iowait)
 		}
 
 		if n.IRQ >= c.cpuStats[i].IRQ {
 			c.cpuStats[i].IRQ = n.IRQ
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU IRQ counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].IRQ, "new_value", n.IRQ)
+			level.Debug(c.logger).Log("msg", "CPU IRQ counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].IRQ, "new_value", n.IRQ)
 		}
 
 		if n.SoftIRQ >= c.cpuStats[i].SoftIRQ {
 			c.cpuStats[i].SoftIRQ = n.SoftIRQ
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU SoftIRQ counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].SoftIRQ, "new_value", n.SoftIRQ)
+			level.Debug(c.logger).Log("msg", "CPU SoftIRQ counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].SoftIRQ, "new_value", n.SoftIRQ)
 		}
 
 		if n.Steal >= c.cpuStats[i].Steal {
 			c.cpuStats[i].Steal = n.Steal
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU Steal counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Steal, "new_value", n.Steal)
+			level.Debug(c.logger).Log("msg", "CPU Steal counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Steal, "new_value", n.Steal)
 		}
 
 		if n.Guest >= c.cpuStats[i].Guest {
 			c.cpuStats[i].Guest = n.Guest
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU Guest counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Guest, "new_value", n.Guest)
+			level.Debug(c.logger).Log("msg", "CPU Guest counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Guest, "new_value", n.Guest)
 		}
 
 		if n.GuestNice >= c.cpuStats[i].GuestNice {
 			c.cpuStats[i].GuestNice = n.GuestNice
 		} else {
-			level.Warn(c.logger).Log("msg", "CPU GuestNice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].GuestNice, "new_value", n.GuestNice)
+			level.Debug(c.logger).Log("msg", "CPU GuestNice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].GuestNice, "new_value", n.GuestNice)
 		}
 	}
 }
