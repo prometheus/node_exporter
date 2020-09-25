@@ -42,7 +42,13 @@ type netDevCollector struct {
 	logger               log.Logger
 }
 
-type netDevStats map[string]map[string]uint64
+type netDevMetrics struct {
+	metrics     map[string]uint64
+	labels      []string
+	labelValues []string
+}
+
+type netDevStats map[string]netDevMetrics
 
 func init() {
 	registerCollector("netdev", defaultEnabled, NewNetDevCollector)
@@ -98,19 +104,20 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
-	for dev, devStats := range netDev {
-		for key, value := range devStats {
+	for _, devStats := range netDev {
+		for key, value := range devStats.metrics {
 			desc, ok := c.metricDescs[key]
 			if !ok {
 				desc = prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
 					fmt.Sprintf("Network device statistic %s.", key),
-					[]string{"device"},
+					devStats.labels,
 					nil,
 				)
 				c.metricDescs[key] = desc
 			}
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), devStats.labelValues...)
+
 		}
 	}
 	return nil

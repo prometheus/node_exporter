@@ -32,7 +32,7 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 
 	ifs, err := net.Interfaces()
 	if err != nil {
-		return nil, fmt.Errorf("net.Interfaces() failed: %w", err)
+		return netDev, fmt.Errorf("net.Interfaces() failed: %w", err)
 	}
 
 	for _, iface := range ifs {
@@ -51,15 +51,19 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 			continue
 		}
 
-		netDev[iface.Name] = map[string]uint64{
-			"receive_packets":    ifaceData.Data.Ipackets,
-			"transmit_packets":   ifaceData.Data.Opackets,
-			"receive_errs":       ifaceData.Data.Ierrors,
-			"transmit_errs":      ifaceData.Data.Oerrors,
-			"receive_bytes":      ifaceData.Data.Ibytes,
-			"transmit_bytes":     ifaceData.Data.Obytes,
-			"receive_multicast":  ifaceData.Data.Imcasts,
-			"transmit_multicast": ifaceData.Data.Omcasts,
+		netDev[iface.Name] = netDevMetrics{
+			metrics: map[string]uint64{
+				"receive_packets":    ifaceData.Data.Ipackets,
+				"transmit_packets":   ifaceData.Data.Opackets,
+				"receive_errs":       ifaceData.Data.Ierrors,
+				"transmit_errs":      ifaceData.Data.Oerrors,
+				"receive_bytes":      ifaceData.Data.Ibytes,
+				"transmit_bytes":     ifaceData.Data.Obytes,
+				"receive_multicast":  ifaceData.Data.Imcasts,
+				"transmit_multicast": ifaceData.Data.Omcasts,
+			},
+			labels:      []string{"device"},
+			labelValues: []string{iface.Name},
 		}
 	}
 

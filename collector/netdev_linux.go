@@ -26,6 +26,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 var (
@@ -58,6 +59,10 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp,
 	headerLength := len(receiveHeader) + len(transmitHeader)
 
 	netDev := netDevStats{}
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return netDev, fmt.Errorf("failed to open sysfs: %w", err)
+	}
 	for scanner.Scan() {
 		line := strings.TrimLeft(scanner.Text(), " ")
 		parts := procNetDevInterfaceRE.FindStringSubmatch(line)
@@ -99,7 +104,30 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp,
 			addStats("transmit_"+transmitHeader[i], values[i+len(receiveHeader)])
 		}
 
-		netDev[dev] = devStats
+		labels, labelValues, err := getNetClassLabels(dev, fs)
+		if err != nil {
+			return netDev, err
+		}
+		netDev[dev] = netDevMetrics{
+			metrics:     devStats,
+			labels:      labels,
+			labelValues: labelValues,
+		}
 	}
 	return netDev, scanner.Err()
+}
+
+func getNetClassLabels(dev string, fs sysfs.FS) ([]string, []string, error) {
+	netClass, err := fs.NetClass()
+	if err != nil {
+		return nil, nil, fmt.Errorf("error obtaining net class info: %w", err)
+	}
+
+	if info, ok := netClass[dev]; ok {
+		labels := []string{"device", "ifalias", "operstate"}
+		labelValues := []string{info.Name, info.IfAlias, info.OperState}
+		return labels, labelValues, nil
+	} else {
+		return []string{"device"}, []string{dev}, nil
+	}
 }
