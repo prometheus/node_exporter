@@ -123,7 +123,7 @@ systemd | Exposes service and system status from [systemd](http://www.freedeskto
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
-
+zoneinfo | Exposes zone statistics from `proc/zoneinfo`. |Linux
 ### Textfile Collector
 
 The textfile collector is similar to the [Pushgateway](https://github.com/prometheus/pushgateway),

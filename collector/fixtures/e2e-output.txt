@@ -2687,6 +2687,7 @@ node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
+node_scrape_collector_success{collector="zoneinfo"} 1
 # HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
@@ -3799,6 +3800,324 @@ node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
 # TYPE node_zfs_zpool_wupdate untyped
 node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
 node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
+# HELP node_zoneinfo_node_unreclaimable Zone information field node_unreclaimable.
+# TYPE node_zoneinfo_node_unreclaimable untyped
+node_zoneinfo_node_unreclaimable{node="0",zone="DMA"} 0
+node_zoneinfo_node_unreclaimable{node="0",zone="DMA32"} 0
+node_zoneinfo_node_unreclaimable{node="0",zone="Device"} 0
+node_zoneinfo_node_unreclaimable{node="0",zone="Movable"} 0
+node_zoneinfo_node_unreclaimable{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_nr_active_anon Zone information field nr_active_anon.
+# TYPE node_zoneinfo_nr_active_anon untyped
+node_zoneinfo_nr_active_anon{node="0",zone="DMA"} 1.175853e+06
+# HELP node_zoneinfo_nr_active_file Zone information field nr_active_file.
+# TYPE node_zoneinfo_nr_active_file untyped
+node_zoneinfo_nr_active_file{node="0",zone="DMA"} 688810
+# HELP node_zoneinfo_nr_anon_pages Zone information field nr_anon_pages.
+# TYPE node_zoneinfo_nr_anon_pages untyped
+node_zoneinfo_nr_anon_pages{node="0",zone="DMA"} 1.156608e+06
+# HELP node_zoneinfo_nr_anon_transparent_hugepages Zone information field nr_anon_transparent_hugepages.
+# TYPE node_zoneinfo_nr_anon_transparent_hugepages untyped
+node_zoneinfo_nr_anon_transparent_hugepages{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_bounce Zone information field nr_bounce.
+# TYPE node_zoneinfo_nr_bounce untyped
+node_zoneinfo_nr_bounce{node="0",zone="DMA"} 0
+node_zoneinfo_nr_bounce{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_bounce{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_nr_dirtied Zone information field nr_dirtied.
+# TYPE node_zoneinfo_nr_dirtied untyped
+node_zoneinfo_nr_dirtied{node="0",zone="DMA"} 1.189097e+06
+# HELP node_zoneinfo_nr_dirty Zone information field nr_dirty.
+# TYPE node_zoneinfo_nr_dirty untyped
+node_zoneinfo_nr_dirty{node="0",zone="DMA"} 103
+# HELP node_zoneinfo_nr_file_hugepages Zone information field nr_file_hugepages.
+# TYPE node_zoneinfo_nr_file_hugepages untyped
+node_zoneinfo_nr_file_hugepages{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_file_pages Zone information field nr_file_pages.
+# TYPE node_zoneinfo_nr_file_pages untyped
+node_zoneinfo_nr_file_pages{node="0",zone="DMA"} 1.740118e+06
+# HELP node_zoneinfo_nr_file_pmdmapped Zone information field nr_file_pmdmapped.
+# TYPE node_zoneinfo_nr_file_pmdmapped untyped
+node_zoneinfo_nr_file_pmdmapped{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_foll_pin_acquired Zone information field nr_foll_pin_acquired.
+# TYPE node_zoneinfo_nr_foll_pin_acquired untyped
+node_zoneinfo_nr_foll_pin_acquired{node="0",zone="DMA"} 3
+# HELP node_zoneinfo_nr_foll_pin_released Zone information field nr_foll_pin_released.
+# TYPE node_zoneinfo_nr_foll_pin_released untyped
+node_zoneinfo_nr_foll_pin_released{node="0",zone="DMA"} 3
+# HELP node_zoneinfo_nr_free_cma Zone information field nr_free_cma.
+# TYPE node_zoneinfo_nr_free_cma untyped
+node_zoneinfo_nr_free_cma{node="0",zone="DMA"} 0
+node_zoneinfo_nr_free_cma{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_free_cma{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_nr_free_pages Zone information field nr_free_pages.
+# TYPE node_zoneinfo_nr_free_pages untyped
+node_zoneinfo_nr_free_pages{node="0",zone="DMA"} 2949
+node_zoneinfo_nr_free_pages{node="0",zone="DMA32"} 528427
+node_zoneinfo_nr_free_pages{node="0",zone="Normal"} 4.539739e+06
+# HELP node_zoneinfo_nr_inactive_anon Zone information field nr_inactive_anon.
+# TYPE node_zoneinfo_nr_inactive_anon untyped
+node_zoneinfo_nr_inactive_anon{node="0",zone="DMA"} 95612
+# HELP node_zoneinfo_nr_inactive_file Zone information field nr_inactive_file.
+# TYPE node_zoneinfo_nr_inactive_file untyped
+node_zoneinfo_nr_inactive_file{node="0",zone="DMA"} 723339
+# HELP node_zoneinfo_nr_isolated_anon Zone information field nr_isolated_anon.
+# TYPE node_zoneinfo_nr_isolated_anon untyped
+node_zoneinfo_nr_isolated_anon{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_isolated_file Zone information field nr_isolated_file.
+# TYPE node_zoneinfo_nr_isolated_file untyped
+node_zoneinfo_nr_isolated_file{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_kernel_misc_reclaimable Zone information field nr_kernel_misc_reclaimable.
+# TYPE node_zoneinfo_nr_kernel_misc_reclaimable untyped
+node_zoneinfo_nr_kernel_misc_reclaimable{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_kernel_stack Zone information field nr_kernel_stack.
+# TYPE node_zoneinfo_nr_kernel_stack untyped
+node_zoneinfo_nr_kernel_stack{node="0",zone="DMA"} 0
+node_zoneinfo_nr_kernel_stack{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_kernel_stack{node="0",zone="Normal"} 18864
+# HELP node_zoneinfo_nr_mapped Zone information field nr_mapped.
+# TYPE node_zoneinfo_nr_mapped untyped
+node_zoneinfo_nr_mapped{node="0",zone="DMA"} 423143
+# HELP node_zoneinfo_nr_mlock Zone information field nr_mlock.
+# TYPE node_zoneinfo_nr_mlock untyped
+node_zoneinfo_nr_mlock{node="0",zone="DMA"} 0
+node_zoneinfo_nr_mlock{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_mlock{node="0",zone="Normal"} 12
+# HELP node_zoneinfo_nr_page_table_pages Zone information field nr_page_table_pages.
+# TYPE node_zoneinfo_nr_page_table_pages untyped
+node_zoneinfo_nr_page_table_pages{node="0",zone="DMA"} 0
+node_zoneinfo_nr_page_table_pages{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_page_table_pages{node="0",zone="Normal"} 13921
+# HELP node_zoneinfo_nr_shmem Zone information field nr_shmem.
+# TYPE node_zoneinfo_nr_shmem untyped
+node_zoneinfo_nr_shmem{node="0",zone="DMA"} 330517
+# HELP node_zoneinfo_nr_shmem_hugepages Zone information field nr_shmem_hugepages.
+# TYPE node_zoneinfo_nr_shmem_hugepages untyped
+node_zoneinfo_nr_shmem_hugepages{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_shmem_pmdmapped Zone information field nr_shmem_pmdmapped.
+# TYPE node_zoneinfo_nr_shmem_pmdmapped untyped
+node_zoneinfo_nr_shmem_pmdmapped{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_slab_reclaimable Zone information field nr_slab_reclaimable.
+# TYPE node_zoneinfo_nr_slab_reclaimable untyped
+node_zoneinfo_nr_slab_reclaimable{node="0",zone="DMA"} 121763
+# HELP node_zoneinfo_nr_slab_unreclaimable Zone information field nr_slab_unreclaimable.
+# TYPE node_zoneinfo_nr_slab_unreclaimable untyped
+node_zoneinfo_nr_slab_unreclaimable{node="0",zone="DMA"} 56182
+# HELP node_zoneinfo_nr_unevictable Zone information field nr_unevictable.
+# TYPE node_zoneinfo_nr_unevictable untyped
+node_zoneinfo_nr_unevictable{node="0",zone="DMA"} 213111
+# HELP node_zoneinfo_nr_vmscan_immediate_reclaim Zone information field nr_vmscan_immediate_reclaim.
+# TYPE node_zoneinfo_nr_vmscan_immediate_reclaim untyped
+node_zoneinfo_nr_vmscan_immediate_reclaim{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_vmscan_write Zone information field nr_vmscan_write.
+# TYPE node_zoneinfo_nr_vmscan_write untyped
+node_zoneinfo_nr_vmscan_write{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_writeback Zone information field nr_writeback.
+# TYPE node_zoneinfo_nr_writeback untyped
+node_zoneinfo_nr_writeback{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_writeback_temp Zone information field nr_writeback_temp.
+# TYPE node_zoneinfo_nr_writeback_temp untyped
+node_zoneinfo_nr_writeback_temp{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_nr_written Zone information field nr_written.
+# TYPE node_zoneinfo_nr_written untyped
+node_zoneinfo_nr_written{node="0",zone="DMA"} 1.181554e+06
+# HELP node_zoneinfo_nr_zone_active_anon Zone information field nr_zone_active_anon.
+# TYPE node_zoneinfo_nr_zone_active_anon untyped
+node_zoneinfo_nr_zone_active_anon{node="0",zone="DMA"} 0
+node_zoneinfo_nr_zone_active_anon{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_zone_active_anon{node="0",zone="Normal"} 1.175853e+06
+# HELP node_zoneinfo_nr_zone_active_file Zone information field nr_zone_active_file.
+# TYPE node_zoneinfo_nr_zone_active_file untyped
+node_zoneinfo_nr_zone_active_file{node="0",zone="DMA"} 0
+node_zoneinfo_nr_zone_active_file{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_zone_active_file{node="0",zone="Normal"} 688810
+# HELP node_zoneinfo_nr_zone_inactive_anon Zone information field nr_zone_inactive_anon.
+# TYPE node_zoneinfo_nr_zone_inactive_anon untyped
+node_zoneinfo_nr_zone_inactive_anon{node="0",zone="DMA"} 0
+node_zoneinfo_nr_zone_inactive_anon{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_zone_inactive_anon{node="0",zone="Normal"} 95612
+# HELP node_zoneinfo_nr_zone_inactive_file Zone information field nr_zone_inactive_file.
+# TYPE node_zoneinfo_nr_zone_inactive_file untyped
+node_zoneinfo_nr_zone_inactive_file{node="0",zone="DMA"} 0
+node_zoneinfo_nr_zone_inactive_file{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_zone_inactive_file{node="0",zone="Normal"} 723339
+# HELP node_zoneinfo_nr_zone_unevictable Zone information field nr_zone_unevictable.
+# TYPE node_zoneinfo_nr_zone_unevictable untyped
+node_zoneinfo_nr_zone_unevictable{node="0",zone="DMA"} 0
+node_zoneinfo_nr_zone_unevictable{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_zone_unevictable{node="0",zone="Normal"} 213111
+# HELP node_zoneinfo_nr_zone_write_pending Zone information field nr_zone_write_pending.
+# TYPE node_zoneinfo_nr_zone_write_pending untyped
+node_zoneinfo_nr_zone_write_pending{node="0",zone="DMA"} 0
+node_zoneinfo_nr_zone_write_pending{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_zone_write_pending{node="0",zone="Normal"} 103
+# HELP node_zoneinfo_nr_zspages Zone information field nr_zspages.
+# TYPE node_zoneinfo_nr_zspages untyped
+node_zoneinfo_nr_zspages{node="0",zone="DMA"} 0
+node_zoneinfo_nr_zspages{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_zspages{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_numa_foreign Zone information field numa_foreign.
+# TYPE node_zoneinfo_numa_foreign untyped
+node_zoneinfo_numa_foreign{node="0",zone="DMA"} 0
+node_zoneinfo_numa_foreign{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_foreign{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_numa_hit Zone information field numa_hit.
+# TYPE node_zoneinfo_numa_hit untyped
+node_zoneinfo_numa_hit{node="0",zone="DMA"} 1
+node_zoneinfo_numa_hit{node="0",zone="DMA32"} 13
+node_zoneinfo_numa_hit{node="0",zone="Normal"} 6.2836441e+07
+# HELP node_zoneinfo_numa_interleave Zone information field numa_interleave.
+# TYPE node_zoneinfo_numa_interleave untyped
+node_zoneinfo_numa_interleave{node="0",zone="DMA"} 1
+node_zoneinfo_numa_interleave{node="0",zone="DMA32"} 1
+node_zoneinfo_numa_interleave{node="0",zone="Normal"} 23174
+# HELP node_zoneinfo_numa_local Zone information field numa_local.
+# TYPE node_zoneinfo_numa_local untyped
+node_zoneinfo_numa_local{node="0",zone="DMA"} 1
+node_zoneinfo_numa_local{node="0",zone="DMA32"} 13
+node_zoneinfo_numa_local{node="0",zone="Normal"} 6.2836441e+07
+# HELP node_zoneinfo_numa_miss Zone information field numa_miss.
+# TYPE node_zoneinfo_numa_miss untyped
+node_zoneinfo_numa_miss{node="0",zone="DMA"} 0
+node_zoneinfo_numa_miss{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_miss{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_numa_other Zone information field numa_other.
+# TYPE node_zoneinfo_numa_other untyped
+node_zoneinfo_numa_other{node="0",zone="DMA"} 0
+node_zoneinfo_numa_other{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_other{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_page_free Zone information field page_free.
+# TYPE node_zoneinfo_page_free untyped
+node_zoneinfo_page_free{node="0",zone="DMA"} 2949
+node_zoneinfo_page_free{node="0",zone="DMA32"} 528427
+node_zoneinfo_page_free{node="0",zone="Device"} 0
+node_zoneinfo_page_free{node="0",zone="Movable"} 0
+node_zoneinfo_page_free{node="0",zone="Normal"} 4.539739e+06
+# HELP node_zoneinfo_page_high Zone information field page_high.
+# TYPE node_zoneinfo_page_high untyped
+node_zoneinfo_page_high{node="0",zone="DMA"} 14
+node_zoneinfo_page_high{node="0",zone="DMA32"} 2122
+node_zoneinfo_page_high{node="0",zone="Device"} 0
+node_zoneinfo_page_high{node="0",zone="Movable"} 0
+node_zoneinfo_page_high{node="0",zone="Normal"} 31113
+# HELP node_zoneinfo_page_low Zone information field page_low.
+# TYPE node_zoneinfo_page_low untyped
+node_zoneinfo_page_low{node="0",zone="DMA"} 11
+node_zoneinfo_page_low{node="0",zone="DMA32"} 1600
+node_zoneinfo_page_low{node="0",zone="Device"} 0
+node_zoneinfo_page_low{node="0",zone="Movable"} 0
+node_zoneinfo_page_low{node="0",zone="Normal"} 23461
+# HELP node_zoneinfo_page_managed Zone information field page_managed.
+# TYPE node_zoneinfo_page_managed untyped
+node_zoneinfo_page_managed{node="0",zone="DMA"} 3973
+node_zoneinfo_page_managed{node="0",zone="DMA32"} 530339
+node_zoneinfo_page_managed{node="0",zone="Device"} 0
+node_zoneinfo_page_managed{node="0",zone="Movable"} 0
+node_zoneinfo_page_managed{node="0",zone="Normal"} 7.654794e+06
+# HELP node_zoneinfo_page_min Zone information field page_min.
+# TYPE node_zoneinfo_page_min untyped
+node_zoneinfo_page_min{node="0",zone="DMA"} 8
+node_zoneinfo_page_min{node="0",zone="DMA32"} 1078
+node_zoneinfo_page_min{node="0",zone="Device"} 0
+node_zoneinfo_page_min{node="0",zone="Movable"} 0
+node_zoneinfo_page_min{node="0",zone="Normal"} 15809
+# HELP node_zoneinfo_page_present Zone information field page_present.
+# TYPE node_zoneinfo_page_present untyped
+node_zoneinfo_page_present{node="0",zone="DMA"} 3997
+node_zoneinfo_page_present{node="0",zone="DMA32"} 546847
+node_zoneinfo_page_present{node="0",zone="Device"} 0
+node_zoneinfo_page_present{node="0",zone="Movable"} 0
+node_zoneinfo_page_present{node="0",zone="Normal"} 7.806976e+06
+# HELP node_zoneinfo_page_protection_0 Zone information field page_protection_0.
+# TYPE node_zoneinfo_page_protection_0 untyped
+node_zoneinfo_page_protection_0{node="0",zone="DMA"} 0
+node_zoneinfo_page_protection_0{node="0",zone="DMA32"} 0
+node_zoneinfo_page_protection_0{node="0",zone="Device"} 0
+node_zoneinfo_page_protection_0{node="0",zone="Movable"} 0
+node_zoneinfo_page_protection_0{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_page_protection_1 Zone information field page_protection_1.
+# TYPE node_zoneinfo_page_protection_1 untyped
+node_zoneinfo_page_protection_1{node="0",zone="DMA"} 2039
+node_zoneinfo_page_protection_1{node="0",zone="DMA32"} 0
+node_zoneinfo_page_protection_1{node="0",zone="Device"} 0
+node_zoneinfo_page_protection_1{node="0",zone="Movable"} 0
+node_zoneinfo_page_protection_1{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_page_protection_2 Zone information field page_protection_2.
+# TYPE node_zoneinfo_page_protection_2 untyped
+node_zoneinfo_page_protection_2{node="0",zone="DMA"} 31932
+node_zoneinfo_page_protection_2{node="0",zone="DMA32"} 29893
+node_zoneinfo_page_protection_2{node="0",zone="Device"} 0
+node_zoneinfo_page_protection_2{node="0",zone="Movable"} 0
+node_zoneinfo_page_protection_2{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_page_protection_3 Zone information field page_protection_3.
+# TYPE node_zoneinfo_page_protection_3 untyped
+node_zoneinfo_page_protection_3{node="0",zone="DMA"} 31932
+node_zoneinfo_page_protection_3{node="0",zone="DMA32"} 29893
+node_zoneinfo_page_protection_3{node="0",zone="Device"} 0
+node_zoneinfo_page_protection_3{node="0",zone="Movable"} 0
+node_zoneinfo_page_protection_3{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_page_protection_4 Zone information field page_protection_4.
+# TYPE node_zoneinfo_page_protection_4 untyped
+node_zoneinfo_page_protection_4{node="0",zone="DMA"} 31932
+node_zoneinfo_page_protection_4{node="0",zone="DMA32"} 29893
+node_zoneinfo_page_protection_4{node="0",zone="Device"} 0
+node_zoneinfo_page_protection_4{node="0",zone="Movable"} 0
+node_zoneinfo_page_protection_4{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_page_spanned Zone information field page_spanned.
+# TYPE node_zoneinfo_page_spanned untyped
+node_zoneinfo_page_spanned{node="0",zone="DMA"} 4095
+node_zoneinfo_page_spanned{node="0",zone="DMA32"} 1.04448e+06
+node_zoneinfo_page_spanned{node="0",zone="Device"} 0
+node_zoneinfo_page_spanned{node="0",zone="Movable"} 0
+node_zoneinfo_page_spanned{node="0",zone="Normal"} 7.806976e+06
+# HELP node_zoneinfo_pageset Zone information field PageSet.
+# TYPE node_zoneinfo_pageset untyped
+node_zoneinfo_pageset{batch="1",cpu="0",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="1",cpu="1",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="1",cpu="2",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="1",cpu="3",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="1",cpu="4",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="1",cpu="5",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="1",cpu="6",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="1",cpu="7",high="0",node="0",vm_stat_threshold="8",zone="DMA"} 0
+node_zoneinfo_pageset{batch="63",cpu="0",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 357
+node_zoneinfo_pageset{batch="63",cpu="0",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 351
+node_zoneinfo_pageset{batch="63",cpu="1",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 0
+node_zoneinfo_pageset{batch="63",cpu="1",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 112
+node_zoneinfo_pageset{batch="63",cpu="2",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 338
+node_zoneinfo_pageset{batch="63",cpu="2",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 368
+node_zoneinfo_pageset{batch="63",cpu="3",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 0
+node_zoneinfo_pageset{batch="63",cpu="3",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 358
+node_zoneinfo_pageset{batch="63",cpu="4",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 62
+node_zoneinfo_pageset{batch="63",cpu="4",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 304
+node_zoneinfo_pageset{batch="63",cpu="5",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 63
+node_zoneinfo_pageset{batch="63",cpu="5",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 112
+node_zoneinfo_pageset{batch="63",cpu="6",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 0
+node_zoneinfo_pageset{batch="63",cpu="6",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 488
+node_zoneinfo_pageset{batch="63",cpu="7",high="378",node="0",vm_stat_threshold="48",zone="DMA32"} 63
+node_zoneinfo_pageset{batch="63",cpu="7",high="378",node="0",vm_stat_threshold="72",zone="Normal"} 342
+# HELP node_zoneinfo_start_pfn Zone information field start_pfn.
+# TYPE node_zoneinfo_start_pfn untyped
+node_zoneinfo_start_pfn{node="0",zone="DMA"} 1
+node_zoneinfo_start_pfn{node="0",zone="DMA32"} 4096
+node_zoneinfo_start_pfn{node="0",zone="Device"} 0
+node_zoneinfo_start_pfn{node="0",zone="Movable"} 0
+node_zoneinfo_start_pfn{node="0",zone="Normal"} 1.048576e+06
+# HELP node_zoneinfo_workingset_activate Zone information field workingset_activate.
+# TYPE node_zoneinfo_workingset_activate untyped
+node_zoneinfo_workingset_activate{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_workingset_nodereclaim Zone information field workingset_nodereclaim.
+# TYPE node_zoneinfo_workingset_nodereclaim untyped
+node_zoneinfo_workingset_nodereclaim{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_workingset_nodes Zone information field workingset_nodes.
+# TYPE node_zoneinfo_workingset_nodes untyped
+node_zoneinfo_workingset_nodes{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_workingset_refault Zone information field workingset_refault.
+# TYPE node_zoneinfo_workingset_refault untyped
+node_zoneinfo_workingset_refault{node="0",zone="DMA"} 0
+# HELP node_zoneinfo_workingset_restore Zone information field workingset_restore.
+# TYPE node_zoneinfo_workingset_restore untyped
+node_zoneinfo_workingset_restore{node="0",zone="DMA"} 0
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.

@@ -44,6 +44,7 @@ enabled_collectors=$(cat << COLLECTORS
   xfs
   zfs
   processes
+  zoneinfo
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
@@ -105,6 +106,7 @@ fi
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
+  --collector.zoneinfo.path="collector/fixtures/proc/zoneinfo" \
   --collector.netclass.ignored-devices="(bond0|dmz|int)" \
   --collector.bcache.priorityStats \
   --collector.cpu.info \
