@@ -159,7 +159,7 @@
           {
             alert: 'NodeNetworkReceiveErrs',
             expr: |||
-              increase(node_network_receive_errs_total[2m]) > 10
+              rate(node_network_receive_errs_total[2m]) / rate(node_network_receive_packets_total[2m]) > 0.01
             ||| % $._config,
             'for': '1h',
             labels: {
@@ -173,7 +173,7 @@
           {
             alert: 'NodeNetworkTransmitErrs',
             expr: |||
-              increase(node_network_transmit_errs_total[2m]) > 10
+              rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m]) > 0.01
             ||| % $._config,
             'for': '1h',
             labels: {
