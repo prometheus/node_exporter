@@ -222,7 +222,7 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 		{
 			name:  "inode_operation_duplicate_total",
 			desc:  "Number of times the OS tried to add a missing XFS inode to the inode cache, but found it had already been added by another process.",
-			value: float64(s.InodeOperation.Missed),
+			value: float64(s.InodeOperation.Duplicate),
 		},
 		{
 			name:  "inode_operation_reclaims_total",
