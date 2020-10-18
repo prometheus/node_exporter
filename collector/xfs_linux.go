@@ -210,7 +210,7 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 			value: float64(s.InodeOperation.Found),
 		},
 		{
-			name:  "inode_operation_recycle_total",
+			name:  "inode_operation_recycled_total",
 			desc:  "Number of times the OS found an XFS inode in the cache, but could not use it as it was being recycled.",
 			value: float64(s.InodeOperation.Recycle),
 		},
@@ -220,7 +220,7 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 			value: float64(s.InodeOperation.Missed),
 		},
 		{
-			name:  "inode_operation_duplicate_total",
+			name:  "inode_operation_duplicates_total",
 			desc:  "Number of times the OS tried to add a missing XFS inode to the inode cache, but found it had already been added by another process.",
 			value: float64(s.InodeOperation.Duplicate),
 		},
@@ -230,7 +230,7 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 			value: float64(s.InodeOperation.Reclaims),
 		},
 		{
-			name:  "inode_operation_attrchange_total",
+			name:  "inode_operation_attribute_changes_total",
 			desc:  "Number of times the OS explicitly changed the attributes of an XFS inode.",
 			value: float64(s.InodeOperation.AttributeChange),
 		},
