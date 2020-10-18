@@ -2949,7 +2949,7 @@ node_xfs_inode_operation_attempts_total{device="sda1"} 5
 node_xfs_inode_operation_attrchange_total{device="sda1"} 1
 # HELP node_xfs_inode_operation_duplicate_total Number of times the OS tried to add a missing XFS inode to the inode cache, but found it had already been added by another process.
 # TYPE node_xfs_inode_operation_duplicate_total counter
-node_xfs_inode_operation_duplicate_total{device="sda1"} 4
+node_xfs_inode_operation_duplicate_total{device="sda1"} 0
 # HELP node_xfs_inode_operation_found_total Number of times the OS looked for and found an XFS inode in the inode cache.
 # TYPE node_xfs_inode_operation_found_total counter
 node_xfs_inode_operation_found_total{device="sda1"} 1
