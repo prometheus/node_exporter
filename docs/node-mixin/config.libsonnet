@@ -52,6 +52,13 @@
     fsSpaceAvailableCriticalThreshold: 5,
     fsSpaceAvailableWarningThreshold: 3,
 
-    grafana_prefix: '',
+
+    grafanaK8s: {
+      legendPrefix: '',
+      dashboardNamePrefix: '',
+      dashboardTags: ['node-exporter-mixin'],
+      // The default refresh time for all dashboards, default to 60s
+      refresh: '60s',
+    },
   },
 }

@@ -3,9 +3,11 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
 {
   grafanaDashboards+:: {
     'node-cluster-rsrc-use.json':
-      local legendLink = '%s/dashboard/file/node-rsrc-use.json' % $._config.grafana_prefix;
+      local legendLink = '%s/dashboard/file/node-rsrc-use.json' % $._config.grafanaK8s.legendPrefix;
 
-      g.dashboard('USE Method / Cluster')
+      g.dashboard(
+        '%(dashboardNamePrefix)sUSE Method / Cluster' % $._config.grafanaK8s
+      )
       .addRow(
         g.row('CPU')
         .addPanel(
@@ -141,16 +143,21 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
               max without (fstype, mountpoint) (
                 node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
               )
-            ) 
+            )
             / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s})))
           ||| % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         ),
-      ),
+      ) + {
+        tags: $._config.grafanaK8s.dashboardTags,
+        refresh: $._config.grafanaK8s.refresh,
+      },
 
     'node-rsrc-use.json':
-      g.dashboard('USE Method / Node')
+      g.dashboard(
+        '%(dashboardNamePrefix)sUSE Method / Node' % $._config.grafanaK8s
+      )
       .addTemplate('instance', 'up{%(nodeExporterSelector)s}' % $._config, 'instance')
       .addRow(
         g.row('CPU')
@@ -270,6 +277,9 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
             legend+: { show: false },
           },
         ),
-      ),
+      ) + {
+        tags: $._config.grafanaK8s.dashboardTags,
+        refresh: $._config.grafanaK8s.refresh,
+      },
   },
 }

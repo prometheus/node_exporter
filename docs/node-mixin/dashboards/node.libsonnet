@@ -206,7 +206,10 @@ local gauge = promgrafonnet.gauge;
           interval='1m',
         ));
 
-      dashboard.new('Nodes', time_from='now-1h')
+      dashboard.new(
+        title='%(dashboardNamePrefix)sNodes' % $._config.grafanaK8s,
+        time_from='now-1h'
+      )
       .addTemplate(
         {
           current: {
@@ -250,6 +253,9 @@ local gauge = promgrafonnet.gauge;
         row.new()
         .addPanel(networkReceived)
         .addPanel(networkTransmitted)
-      ),
+      ) + {
+        tags: $._config.grafanaK8s.dashboardTags,
+        refresh: $._config.grafanaK8s.refresh,
+      },
   },
 }
