@@ -200,6 +200,41 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 			value: float64(s.DirectoryOperation.Getdents),
 		},
 		{
+			name:  "inode_operation_attempts_total",
+			desc:  "Number of times the OS looked for an XFS inode in the inode cache.",
+			value: float64(s.InodeOperation.Attempts),
+		},
+		{
+			name:  "inode_operation_found_total",
+			desc:  "Number of times the OS looked for and found an XFS inode in the inode cache.",
+			value: float64(s.InodeOperation.Found),
+		},
+		{
+			name:  "inode_operation_recycled_total",
+			desc:  "Number of times the OS found an XFS inode in the cache, but could not use it as it was being recycled.",
+			value: float64(s.InodeOperation.Recycle),
+		},
+		{
+			name:  "inode_operation_missed_total",
+			desc:  "Number of times the OS looked for an XFS inode in the cache, but did not find it.",
+			value: float64(s.InodeOperation.Missed),
+		},
+		{
+			name:  "inode_operation_duplicates_total",
+			desc:  "Number of times the OS tried to add a missing XFS inode to the inode cache, but found it had already been added by another process.",
+			value: float64(s.InodeOperation.Duplicate),
+		},
+		{
+			name:  "inode_operation_reclaims_total",
+			desc:  "Number of times the OS reclaimed an XFS inode from the inode cache to free memory for another purpose.",
+			value: float64(s.InodeOperation.Reclaims),
+		},
+		{
+			name:  "inode_operation_attribute_changes_total",
+			desc:  "Number of times the OS explicitly changed the attributes of an XFS inode.",
+			value: float64(s.InodeOperation.AttributeChange),
+		},
+		{
 			name:  "read_calls_total",
 			desc:  "Number of read(2) system calls made to files in a filesystem.",
 			value: float64(s.ReadWrite.Read),

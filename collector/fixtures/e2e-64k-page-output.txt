@@ -2806,6 +2806,28 @@ node_xfs_extent_allocation_extents_allocated_total{device="sda1"} 1
 # HELP node_xfs_extent_allocation_extents_freed_total Number of extents freed for a filesystem.
 # TYPE node_xfs_extent_allocation_extents_freed_total counter
 node_xfs_extent_allocation_extents_freed_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_attempts_total Number of times the OS looked for an XFS inode in the inode cache.
+# TYPE node_xfs_inode_operation_attempts_total counter
+node_xfs_inode_operation_attempts_total{device="sda1"} 5
+# HELP node_xfs_inode_operation_attribute_changes_total Number of times the OS explicitly changed the attributes of an XFS inode.
+# TYPE node_xfs_inode_operation_attribute_changes_total counter
+node_xfs_inode_operation_attribute_changes_total{device="sda1"} 1
+# HELP node_xfs_inode_operation_duplicates_total Number of times the OS tried to add a missing XFS inode to the inode cache, but found it had already been added by another process.
+# TYPE node_xfs_inode_operation_duplicates_total counter
+node_xfs_inode_operation_duplicates_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_found_total Number of times the OS looked for and found an XFS inode in the inode cache.
+# TYPE node_xfs_inode_operation_found_total counter
+node_xfs_inode_operation_found_total{device="sda1"} 1
+# HELP node_xfs_inode_operation_missed_total Number of times the OS looked for an XFS inode in the cache, but did not find it.
+# TYPE node_xfs_inode_operation_missed_total counter
+node_xfs_inode_operation_missed_total{device="sda1"} 4
+# HELP node_xfs_inode_operation_reclaims_total Number of times the OS reclaimed an XFS inode from the inode cache to free memory for another purpose.
+# TYPE node_xfs_inode_operation_reclaims_total counter
+node_xfs_inode_operation_reclaims_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_recycled_total Number of times the OS found an XFS inode in the cache, but could not use it as it was being recycled.
+# TYPE node_xfs_inode_operation_recycled_total counter
+node_xfs_inode_operation_recycled_total{device="sda1"} 0
+# HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
 # HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
 # TYPE node_xfs_read_calls_total counter
 node_xfs_read_calls_total{device="sda1"} 28
