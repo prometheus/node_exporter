@@ -3,10 +3,10 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
 {
   grafanaDashboards+:: {
     'node-cluster-rsrc-use.json':
-      local legendLink = '%s/dashboard/file/node-rsrc-use.json' % $._config.grafanaK8s.legendPrefix;
+      local legendLink = '%s/dashboard/file/node-rsrc-use.json' % $._config.grafana.legendPrefix;
 
       g.dashboard(
-        '%(dashboardNamePrefix)sUSE Method / Cluster' % $._config.grafanaK8s
+        '%(dashboardNamePrefix)sUSE Method / Cluster' % $._config.grafana
       )
       .addRow(
         g.row('CPU')
@@ -150,13 +150,13 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
         ),
       ) + {
-        tags: $._config.grafanaK8s.dashboardTags,
-        refresh: $._config.grafanaK8s.refresh,
+        tags: $._config.grafana.dashboardTags,
+        refresh: $._config.grafana.refresh,
       },
 
     'node-rsrc-use.json':
       g.dashboard(
-        '%(dashboardNamePrefix)sUSE Method / Node' % $._config.grafanaK8s
+        '%(dashboardNamePrefix)sUSE Method / Node' % $._config.grafana
       )
       .addTemplate('instance', 'up{%(nodeExporterSelector)s}' % $._config, 'instance')
       .addRow(
@@ -278,8 +278,8 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           },
         ),
       ) + {
-        tags: $._config.grafanaK8s.dashboardTags,
-        refresh: $._config.grafanaK8s.refresh,
+        tags: $._config.grafana.dashboardTags,
+        refresh: $._config.grafana.refresh,
       },
   },
 }

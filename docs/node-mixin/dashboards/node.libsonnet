@@ -207,7 +207,7 @@ local gauge = promgrafonnet.gauge;
         ));
 
       dashboard.new(
-        title='%(dashboardNamePrefix)sNodes' % $._config.grafanaK8s,
+        title='%(dashboardNamePrefix)sNodes' % $._config.grafana,
         time_from='now-1h'
       )
       .addTemplate(
@@ -254,8 +254,8 @@ local gauge = promgrafonnet.gauge;
         .addPanel(networkReceived)
         .addPanel(networkTransmitted)
       ) + {
-        tags: $._config.grafanaK8s.dashboardTags,
-        refresh: $._config.grafanaK8s.refresh,
+        tags: $._config.grafana.dashboardTags,
+        refresh: $._config.grafana.refresh,
       },
   },
 }

@@ -53,7 +53,7 @@
     fsSpaceAvailableWarningThreshold: 3,
 
 
-    grafanaK8s: {
+    grafana: {
       legendPrefix: '',
       dashboardNamePrefix: '',
       dashboardTags: ['node-exporter-mixin'],
