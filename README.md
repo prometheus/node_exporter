@@ -68,8 +68,22 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 
 ### Disabled by default
 
-The perf collector may not work by default on all Linux systems due to kernel
-configuration and security settings. To allow access, set the following sysctl
+`node_exporter` also implements a number of collectors that are disabled by default.  Reasons for this vary by
+collector, and may include:
+* High cardinality
+* Prolonged runtime that exceeds Prometheus` `scrape_interval` or `scrape_timeout`
+* Significant resource demands on the host
+
+You can enable additional collectors as desired by adding them to your init system's service description for `node_exporter`
+but caution is advised.  Enable at most one at a time, testing first on a non-production system, then by hand on a single
+production node.  You can check for functionality, cardinality, and execution time with
+
+```bash
+/usr/bin/time curl localhost:9100/metrics
+```
+
+The `perf` collector may not work out of the box on some Linux systems due to kernel
+configuration and security settings. To allow access, set the following `sysctl`
 parameter:
 
 ```
@@ -85,7 +99,7 @@ Depending on the configured value different metrics will be available, for most
 cases `0` will provide the most complete set. For more information see [`man 2
 perf_event_open`](http://man7.org/linux/man-pages/man2/perf_event_open.2.html).
 
-By default, the perf collector will only collect metrics of the CPUs that
+By default, the `perf` collector will only collect metrics of the CPUs that
 `node_exporter` is running on (ie
 [`runtime.NumCPU`](https://golang.org/pkg/runtime/#NumCPU). If this is
 insufficient (e.g. if you run `node_exporter` with its CPU affinity set to
@@ -96,7 +110,7 @@ configuration is zero indexed and can also take a stride value; e.g.
 `--collector.perf --collector.perf.cpus=1-10:5` would collect on CPUs
 1, 5, and 10.
 
-The perf collector is also able to collect
+The `perf` collector is also able to collect
 [tracepoint](https://www.kernel.org/doc/html/latest/core-api/tracepoint.html)
 counts when using the `--collector.perf.tracepoint` flag. Tracepoints can be
 found using [`perf list`](http://man7.org/linux/man-pages/man1/perf.1.html) or
@@ -126,13 +140,13 @@ perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel conf
 
 ### Textfile Collector
 
-The textfile collector is similar to the [Pushgateway](https://github.com/prometheus/pushgateway),
+The `textfile` collector is similar to the [Pushgateway](https://github.com/prometheus/pushgateway),
 in that it allows exporting of statistics from batch jobs. It can also be used
 to export static metrics, such as what role a machine has. The Pushgateway
-should be used for service-level metrics. The textfile module is for metrics
+should be used for service-level metrics. The `textfile` module is for metrics
 that are tied to a machine.
 
-To use it, set the `--collector.textfile.directory` flag on the Node exporter. The
+To use it, set the `--collector.textfile.directory` flag on the `node_exporter` commandline. The
 collector will parse all files in that directory matching the glob `*.prom`
 using the [text
 format](http://prometheus.io/docs/instrumenting/exposition_formats/). **Note:** Timestamps are not supported.
