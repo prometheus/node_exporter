@@ -36,3 +36,6 @@ dependencies-stamp
 collector/fixtures/sys/
 
 /vendor
+
+# vim
+*.swp

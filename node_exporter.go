@@ -16,7 +16,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-	_ "net/http/pprof"
+	"net/http/pprof"
 	"os"
 	"sort"
 
@@ -136,6 +136,22 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
+func registerPprof(mux *http.ServeMux, enabled bool) {
+	if !enabled {
+		return
+	}
+
+	mux.HandleFunc("/debug/pprof", pprof.Index)
+	mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+
+	mux.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+	mux.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+	mux.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+	mux.Handle("/debug/pprof/block", pprof.Handler("block"))
+}
+
 func main() {
 	var (
 		listenAddress = kingpin.Flag(
@@ -162,6 +178,10 @@ func main() {
 			"web.config",
 			"[EXPERIMENTAL] Path to config yaml file that can enable TLS or authentication.",
 		).Default("").String()
+		pprofEnabled = kingpin.Flag(
+			"pprof.enabled",
+			"Enables pprof for debug usage",
+		).Default("true").Bool()
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -177,8 +197,10 @@ func main() {
 	level.Info(logger).Log("msg", "Starting node_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
 
-	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	registerPprof(mux, *pprofEnabled)
+	mux.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
 			<head><title>Node Exporter</title></head>
 			<body>
@@ -189,7 +211,10 @@ func main() {
 	})
 
 	level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
-	server := &http.Server{Addr: *listenAddress}
+	server := &http.Server{
+		Addr:    *listenAddress,
+		Handler: mux,
+	}
 	if err := https.Listen(server, *configFile, logger); err != nil {
 		level.Error(logger).Log("err", err)
 		os.Exit(1)
