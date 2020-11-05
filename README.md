@@ -74,13 +74,16 @@ collector, and may include:
 * Prolonged runtime that exceeds Prometheus` `scrape_interval` or `scrape_timeout`
 * Significant resource demands on the host
 
-You can enable additional collectors as desired by adding them to your init system's service description for `node_exporter`
-but caution is advised.  Enable at most one at a time, testing first on a non-production system, then by hand on a single
-production node.  You can check for functionality, cardinality, and execution time with
-
-```bash
-/usr/bin/time curl localhost:9100/metrics
-```
+You can enable additional collectors as desired by adding them to your
+init system's or service supervisor's startup configuration for
+`node_exporter` but caution is advised.  Enable at most one at a time,
+testing first on a non-production system, then by hand on a single
+production node.  When enabling additional collectors, you should
+carefully monitor the change by observing the `
+scrape_duration_seconds` metric to ensure that collection completes
+and does not time out.  In addition, monitor the
+`scrape_samples_post_metric_relabeling` metric to see the changes in
+cardinality.
 
 The `perf` collector may not work out of the box on some Linux systems due to kernel
 configuration and security settings. To allow access, set the following `sysctl`
@@ -217,6 +220,7 @@ The `node_exporter` is designed to monitor the host system. It's not recommended
 to deploy it as a Docker container because it requires access to the host system.
 Be aware that any non-root mount points you want to monitor will need to be bind-mounted
 into the container.
+
 If you start container for host monitoring, specify `path.rootfs` argument.
 This argument must match path in bind-mount of host root. The node\_exporter will use
 `path.rootfs` as prefix to access host filesystem.
