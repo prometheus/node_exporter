@@ -51,12 +51,16 @@ func (u *userAuthRoundtrip) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(c.Users) == 0 {
+		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+                w.Header().Add("X-Frame-Options", "SameOrigin")
 		u.handler.ServeHTTP(w, r)
 		return
 	}
 
 	user, pass, ok := r.BasicAuth()
 	if !ok {
+		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+                w.Header().Add("X-Frame-Options", "SameOrigin")
 		w.Header().Set("WWW-Authenticate", "Basic")
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
@@ -64,6 +68,8 @@ func (u *userAuthRoundtrip) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if hashedPassword, ok := c.Users[user]; ok {
 		if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(pass)); err == nil {
+			w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+                        w.Header().Add("X-Frame-Options", "SameOrigin")
 			u.handler.ServeHTTP(w, r)
 			return
 		}
