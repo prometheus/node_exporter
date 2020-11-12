@@ -18,15 +18,14 @@ package collector
 import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"strconv"
 
 	"golang.org/x/sys/unix"
 	"regexp"
 	"unsafe"
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
-	netDev := map[string]map[string]string{}
+func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (netDevStats, error) {
+	netDev := netDevStats{}
 
 	mib := [6]_C_int{unix.CTL_NET, unix.AF_ROUTE, 0, 0, unix.NET_RT_IFLIST, 0}
 	buf, err := sysctl(mib[:])
@@ -63,16 +62,16 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 			continue
 		}
 
-		netDev[dev] = map[string]string{
-			"receive_packets":    strconv.Itoa(int(data.Ipackets)),
-			"transmit_packets":   strconv.Itoa(int(data.Opackets)),
-			"receive_errs":       strconv.Itoa(int(data.Ierrors)),
-			"transmit_errs":      strconv.Itoa(int(data.Oerrors)),
-			"receive_bytes":      strconv.Itoa(int(data.Ibytes)),
-			"transmit_bytes":     strconv.Itoa(int(data.Obytes)),
-			"receive_multicast":  strconv.Itoa(int(data.Imcasts)),
-			"transmit_multicast": strconv.Itoa(int(data.Omcasts)),
-			"receive_drop":       strconv.Itoa(int(data.Iqdrops)),
+		netDev[dev] = map[string]uint64{
+			"receive_packets":    data.Ipackets,
+			"transmit_packets":   data.Opackets,
+			"receive_errs":       data.Ierrors,
+			"transmit_errs":      data.Oerrors,
+			"receive_bytes":      data.Ibytes,
+			"transmit_bytes":     data.Obytes,
+			"receive_multicast":  data.Imcasts,
+			"transmit_multicast": data.Omcasts,
+			"receive_drop":       data.Iqdrops,
 		}
 	}
 	return netDev, nil
