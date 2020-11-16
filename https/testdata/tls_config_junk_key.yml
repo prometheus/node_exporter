@@ -1,2 +1,0 @@
-tls_server_config :
-  cert_filse: "testdata/server.crt"

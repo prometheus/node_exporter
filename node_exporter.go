@@ -28,8 +28,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
+	"github.com/prometheus/exporter-toolkit/https"
 	"github.com/prometheus/node_exporter/collector"
-	"github.com/prometheus/node_exporter/https"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -158,14 +158,11 @@ func main() {
 			"collector.disable-defaults",
 			"Set all collectors to disabled by default.",
 		).Default("false").Bool()
-		configFile = kingpin.Flag(
-			"web.config",
-			"[EXPERIMENTAL] Path to config yaml file that can enable TLS or authentication.",
-		).Default("").String()
 	)
 
 	promlogConfig := &promlog.Config{}
 	flag.AddFlags(kingpin.CommandLine, promlogConfig)
+	https.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print("node_exporter"))
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
@@ -190,7 +187,7 @@ func main() {
 
 	level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
 	server := &http.Server{Addr: *listenAddress}
-	if err := https.Listen(server, *configFile, logger); err != nil {
+	if err := https.Listen(server, "", logger); err != nil {
 		level.Error(logger).Log("err", err)
 		os.Exit(1)
 	}
