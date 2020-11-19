@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nonetdev
-// +build linux freebsd openbsd dragonfly darwin
+// +build linux freebsd openbsd dragonfly darwin windows
 
 package collector
 
@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -30,7 +31,7 @@ import (
 var (
 	netdevDeviceInclude    = kingpin.Flag("collector.netdev.device-include", "Regexp of net devices to include (mutually exclusive to device-exclude).").String()
 	oldNetdevDeviceInclude = kingpin.Flag("collector.netdev.device-whitelist", "DEPRECATED: Use collector.netdev.device-include").Hidden().String()
-	netdevDeviceExclude    = kingpin.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").String()
+	netdevDeviceExclude    = kingpin.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").Default("^(Teredo|Reusable|isatap.|Loopback)").String()
 	oldNetdevDeviceExclude = kingpin.Flag("collector.netdev.device-blacklist", "DEPRECATED: Use collector.netdev.device-exclude").Hidden().String()
 )
 
@@ -110,7 +111,11 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 				)
 				c.metricDescs[key] = desc
 			}
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
+			v, err := strconv.ParseFloat(value, 64)
+			if err != nil {
+				return fmt.Errorf("invalid value %s in netstats: %s", value, err)
+			}
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, v, dev)
 		}
 	}
 	return nil
