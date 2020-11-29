@@ -71,7 +71,7 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 `node_exporter` also implements a number of collectors that are disabled by default.  Reasons for this vary by
 collector, and may include:
 * High cardinality
-* Prolonged runtime that exceeds Prometheus` `scrape_interval` or `scrape_timeout`
+* Prolonged runtime that exceeds `Prometheus` `scrape_interval` or `scrape_timeout`
 * Significant resource demands on the host
 
 You can enable additional collectors as desired by adding them to your
