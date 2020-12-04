@@ -17,12 +17,13 @@ package collector
 
 import (
 	"fmt"
+	"golang.org/x/sys/unix"
 	"net"
 	"strconv"
 
 	"github.com/go-kit/kit/log"
+	"github.com/jsimonetti/rtnetlink"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/vishvananda/netlink"
 )
 
 type networkRouteCollector struct {
@@ -58,46 +59,68 @@ func NewNetworkRouteCollector(logger log.Logger) (Collector, error) {
 func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 	deviceRoutes := make(map[string]int)
 
-	routes, err := netlink.RouteList(nil, netlink.FAMILY_V4)
+	conn, err := rtnetlink.Dial(nil)
 	if err != nil {
-		return fmt.Errorf("couldn't get route list: %w", err)
+		return fmt.Errorf("couldn't connect rtnetlink: %w", err)
+	}
+	defer conn.Close()
+
+	links, err := conn.Link.List()
+	if err != nil {
+		return fmt.Errorf("couldn't get links: %w", err)
+	}
+
+	routes, err := conn.Route.List()
+	if err != nil {
+		return fmt.Errorf("couldn't get routes: %w", err)
 	}
 
 	for _, route := range routes {
-		if len(route.MultiPath) != 0 { // route has multipath
-			for _, nexthop := range route.MultiPath {
-				link, err := netlink.LinkByIndex(nexthop.LinkIndex)
-				if err != nil {
-					return fmt.Errorf("couldn't get link by index: %w", err)
+		if route.Type != unix.RTA_DST {
+			continue
+		}
+		if len(route.Attributes.Multipath) != 0 {
+			for _, nextHop := range route.Attributes.Multipath {
+				ifName := ""
+				for _, link := range links {
+					if link.Index == nextHop.Hop.IfIndex {
+						ifName = link.Attributes.Name
+						break
+					}
 				}
+
 				labels := []string{
-					link.Attrs().Name,                            // if
-					networkRouteIPToString(route.Src),            // src
-					networkRouteIPNetToString(route.Dst),         // dest
-					networkRouteIPToString(nexthop.Gw),           // gw
-					strconv.Itoa(route.Priority),                 // priority(metrics)
-					networkRouteProtocolToString(route.Protocol), // proto
-					strconv.Itoa(nexthop.Hops + 1),               // weight
+					ifName, // if
+					networkRouteIPToString(route.Attributes.Src),                            // src
+					networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
+					networkRouteIPToString(nextHop.Gateway),                                 // gw
+					strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
+					networkRouteProtocolToString(route.Protocol),                            // proto
+					strconv.Itoa(int(nextHop.Hop.Hops) + 1),                                 // weight
 				}
 				ch <- prometheus.MustNewConstMetric(n.routeDesc, prometheus.GaugeValue, 1, labels...)
-				deviceRoutes[link.Attrs().Name]++
+				deviceRoutes[ifName]++
 			}
 		} else {
-			link, err := netlink.LinkByIndex(route.LinkIndex)
-			if err != nil {
-				return fmt.Errorf("couldn't get link by index: %w", err)
+			ifName := ""
+			for _, link := range links {
+				if link.Index == route.Attributes.OutIface {
+					ifName = link.Attributes.Name
+					break
+				}
 			}
+
 			labels := []string{
-				link.Attrs().Name,                            // if
-				networkRouteIPToString(route.Src),            // src
-				networkRouteIPNetToString(route.Dst),         // dest
-				networkRouteIPToString(route.Gw),             // gw
-				strconv.Itoa(route.Priority),                 // priority(metrics)
-				networkRouteProtocolToString(route.Protocol), // proto
+				ifName, // if
+				networkRouteIPToString(route.Attributes.Src),                            // src
+				networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
+				networkRouteIPToString(route.Attributes.Gateway),                        // gw
+				strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
+				networkRouteProtocolToString(route.Protocol),                            // proto
 				"", // weight
 			}
 			ch <- prometheus.MustNewConstMetric(n.routeDesc, prometheus.GaugeValue, 1, labels...)
-			deviceRoutes[link.Attrs().Name]++
+			deviceRoutes[ifName]++
 		}
 	}
 
@@ -108,11 +131,19 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func networkRouteIPNetToString(ip *net.IPNet) string {
-	if ip == nil {
+func networkRouteIPWithPrefixToString(ip net.IP, len uint8) string {
+	if len == 0 {
 		return "default"
 	}
-	return ip.String()
+	iplen := net.IPv4len
+	if ip.To4() == nil {
+		iplen = net.IPv6len
+	}
+	network := &net.IPNet{
+		IP:   ip,
+		Mask: net.CIDRMask(int(len), iplen*8),
+	}
+	return network.String()
 }
 
 func networkRouteIPToString(ip net.IP) string {
@@ -122,7 +153,7 @@ func networkRouteIPToString(ip net.IP) string {
 	return ip.String()
 }
 
-func networkRouteProtocolToString(protocol int) string {
+func networkRouteProtocolToString(protocol uint8) string {
 	// from linux kernel 'include/uapi/linux/rtnetlink.h'
 	switch protocol {
 	case 0:
