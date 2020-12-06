@@ -181,7 +181,7 @@ func main() {
 		pprofEnabled = kingpin.Flag(
 			"pprof.enabled",
 			"Enables pprof for debug usage",
-		).Default("false").Bool()
+		).Default("true").Bool()
 	)
 
 	promlogConfig := &promlog.Config{}
