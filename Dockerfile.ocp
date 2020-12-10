@@ -14,7 +14,7 @@ LABEL io.k8s.display-name="OpenShift Prometheus Node Exporter" \
 COPY --from=builder /go/src/github.com/prometheus/node_exporter/node_exporter /bin/node_exporter
 
 RUN yum install -y virt-what && yum clean all && rm -rf /var/cache/*
-COPY text_collectors/virt.sh /node_exporter/collectors/init/
+COPY text_collectors/virt.sh text_collectors/boots.sh /node_exporter/collectors/init/
 
 EXPOSE      9100
 USER        nobody
