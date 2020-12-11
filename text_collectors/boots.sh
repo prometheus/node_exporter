@@ -13,9 +13,8 @@
 
 set -euo pipefail
 
-v="${TMPDIR:-/tmp}/boots.working"
-rm -f "${v}" || true
-touch "${v}"
+v=$(mktemp --suffix=.boots.working)
+chmod uga+r "${v}"
 
 reboots=$( last reboot --time-format=iso -R | grep -cE '^reboot' )
 if [[ "${reboots}" -gt 0 ]]; then
