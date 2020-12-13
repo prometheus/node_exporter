@@ -14,6 +14,64 @@ To expose NVIDIA GPU metrics, [prometheus-dcgm
 ](https://github.com/NVIDIA/gpu-monitoring-tools#dcgm-exporter)
 can be used.
 
+## Installation and Usage
+
+If you are new to Prometheus and `node_exporter` there is a [simple step-by-step guide](https://prometheus.io/docs/guides/node-exporter/).
+
+### Ansible
+
+For automated installs with [Ansible](https://www.ansible.com/), there is the [Cloud Alchemy role](https://github.com/cloudalchemy/ansible-node-exporter).
+
+### RHEL/CentOS/Fedora
+
+There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
+
+### Docker
+
+The `node_exporter` is designed to monitor the host system. It's not recommended
+to deploy it as a Docker container because it requires access to the host system.
+
+For situations where Docker deployment is needed, some extra flags must be used to allow
+the `node_exporter` access to the host namespaces.
+
+Be aware that any non-root mount points you want to monitor will need to be bind-mounted
+into the container.
+
+If you start container for host monitoring, specify `path.rootfs` argument.
+This argument must match path in bind-mount of host root. The node\_exporter will use
+`path.rootfs` as prefix to access host filesystem.
+
+```bash
+docker run -d \
+  --net="host" \
+  --pid="host" \
+  -v "/:/host:ro,rslave" \
+  quay.io/prometheus/node-exporter:latest \
+  --path.rootfs=/host
+```
+
+For Docker compose, similar flag changes are needed.
+
+```yaml
+---
+version: '3.8'
+
+services:
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+```
+
+On some systems, the `timex` collector requires an additional Docker flag,
+`--cap-add=SYS_TIME`, in order to access the required syscalls.
+
 ## Collectors
 
 There is varying support for collectors on each operating system. The tables
@@ -181,7 +239,7 @@ For advanced use the `node_exporter` can be passed an optional list of collector
 
 This can be useful for having different Prometheus servers collect specific metrics from nodes.
 
-## Building and running
+## Development building and running
 
 Prerequisites:
 
@@ -190,8 +248,8 @@ Prerequisites:
 
 Building:
 
-    go get github.com/prometheus/node_exporter
-    cd ${GOPATH-$HOME/go}/src/github.com/prometheus/node_exporter
+    git clone https://github.com/prometheus/node_exporter.git
+    cd node_exporter
     make
     ./node_exporter <flags>
 
@@ -214,32 +272,6 @@ The exporter supports TLS via a new web configuration file.
 ```
 
 See the [https package](https/README.md) for more details.
-
-## Using Docker
-The `node_exporter` is designed to monitor the host system. It's not recommended
-to deploy it as a Docker container because it requires access to the host system.
-Be aware that any non-root mount points you want to monitor will need to be bind-mounted
-into the container.
-
-If you start container for host monitoring, specify `path.rootfs` argument.
-This argument must match path in bind-mount of host root. The node\_exporter will use
-`path.rootfs` as prefix to access host filesystem.
-
-```bash
-docker run -d \
-  --net="host" \
-  --pid="host" \
-  -v "/:/host:ro,rslave" \
-  quay.io/prometheus/node-exporter \
-  --path.rootfs=/host
-```
-
-On some systems, the `timex` collector requires an additional Docker flag,
-`--cap-add=SYS_TIME`, in order to access the required syscalls.
-
-## Using a third-party repository for RHEL/CentOS/Fedora
-
-There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
