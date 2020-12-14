@@ -1,4 +1,4 @@
-// Copyright 2018 The Prometheus Authors
+// Copyright 2020 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,7 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build freebsd dragonfly openbsd,!amd64 netbsd darwin
 // +build !noboottime
 
 package collector
@@ -19,11 +18,13 @@ package collector
 import (
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
+	"unsafe"
 )
 
 type bootTimeCollector struct {
-	boottime bsdSysctl
-	logger   log.Logger
+	name, description string
+	logger            log.Logger
 }
 
 func init() {
@@ -33,27 +34,26 @@ func init() {
 // newBootTimeCollector returns a new Collector exposing system boot time on BSD systems.
 func newBootTimeCollector(logger log.Logger) (Collector, error) {
 	return &bootTimeCollector{
-		boottime: bsdSysctl{
-			name:        "boot_time_seconds",
-			description: "Unix time of last boot, including microseconds.",
-			mib:         "kern.boottime",
-			dataType:    bsdSysctlTypeStructTimeval,
-		},
-		logger: logger,
+		name:        "boot_time_seconds",
+		description: "Unix time of last boot, including microseconds.",
+		logger:      logger,
 	}, nil
 }
 
 // Update pushes boot time onto ch
 func (c *bootTimeCollector) Update(ch chan<- prometheus.Metric) error {
-	v, err := c.boottime.Value()
+	raw, err := unix.SysctlRaw("kern.boottime")
 	if err != nil {
 		return err
 	}
 
+	tv := *(*unix.Timeval)(unsafe.Pointer(&raw[0]))
+	v := (float64(tv.Sec) + (float64(tv.Usec) / float64(1000*1000)))
+
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", c.boottime.name),
-			c.boottime.description,
+			prometheus.BuildFQName(namespace, "", c.name),
+			c.description,
 			nil, nil,
 		), prometheus.GaugeValue, v)
 

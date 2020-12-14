@@ -45,7 +45,16 @@ else
 			PROMU_CONF ?= .promu-cgo.yml
 		endif
 	else
-		PROMU_CONF ?= .promu-cgo.yml
+		# Do not use CGO for openbsd/amd64 builds
+		ifeq ($(GOOS), openbsd)
+			ifeq ($(GOARCH), amd64)
+				PROMU_CONF ?= .promu.yml
+			else
+				PROMU_CONF ?= .promu-cgo.yml
+			endif
+		else
+			PROMU_CONF ?= .promu-cgo.yml
+		endif
 	endif
 endif
 
