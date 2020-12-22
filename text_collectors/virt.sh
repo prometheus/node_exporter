@@ -13,9 +13,9 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-v="${TMPDIR:-/tmp}/virt.working"
-rm -f "${v}" || true
-touch "${v}"
+v=$(mktemp --suffix=.virt.working)
+chmod uga+r "${v}"
+
 if [ -x /usr/sbin/virt-what ]
 then
   platforms=$(echo $( virt-what ) | tr '\n' ' ')
