@@ -2687,6 +2687,7 @@ node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
+node_scrape_collector_success{collector="zoneinfo"} 1
 # HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
@@ -3799,6 +3800,177 @@ node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
 # TYPE node_zfs_zpool_wupdate untyped
 node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
 node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
+# HELP node_zoneinfo_high Zoneinfo information field high.
+# TYPE node_zoneinfo_high gauge
+node_zoneinfo_high{node="0",zone=""} 14
+node_zoneinfo_high{node="0",zone="DMA32"} 2122
+node_zoneinfo_high{node="0",zone="Device"} 0
+node_zoneinfo_high{node="0",zone="Movable"} 0
+node_zoneinfo_high{node="0",zone="Normal"} 31113
+# HELP node_zoneinfo_low Zoneinfo information field low.
+# TYPE node_zoneinfo_low gauge
+node_zoneinfo_low{node="0",zone=""} 11
+node_zoneinfo_low{node="0",zone="DMA32"} 1600
+node_zoneinfo_low{node="0",zone="Device"} 0
+node_zoneinfo_low{node="0",zone="Movable"} 0
+node_zoneinfo_low{node="0",zone="Normal"} 23461
+# HELP node_zoneinfo_managed Zoneinfo information field managed.
+# TYPE node_zoneinfo_managed gauge
+node_zoneinfo_managed{node="0",zone=""} 3973
+node_zoneinfo_managed{node="0",zone="DMA32"} 530339
+node_zoneinfo_managed{node="0",zone="Device"} 0
+node_zoneinfo_managed{node="0",zone="Movable"} 0
+node_zoneinfo_managed{node="0",zone="Normal"} 7.654794e+06
+# HELP node_zoneinfo_min Zoneinfo information field min.
+# TYPE node_zoneinfo_min gauge
+node_zoneinfo_min{node="0",zone=""} 8
+node_zoneinfo_min{node="0",zone="DMA32"} 1078
+node_zoneinfo_min{node="0",zone="Device"} 0
+node_zoneinfo_min{node="0",zone="Movable"} 0
+node_zoneinfo_min{node="0",zone="Normal"} 15809
+# HELP node_zoneinfo_nr_active_anon Zoneinfo information field nr_active_anon.
+# TYPE node_zoneinfo_nr_active_anon gauge
+node_zoneinfo_nr_active_anon{node="0",zone=""} 1.175853e+06
+# HELP node_zoneinfo_nr_active_file Zoneinfo information field nr_active_file.
+# TYPE node_zoneinfo_nr_active_file gauge
+node_zoneinfo_nr_active_file{node="0",zone=""} 688810
+# HELP node_zoneinfo_nr_anon_pages Zoneinfo information field nr_anon_pages.
+# TYPE node_zoneinfo_nr_anon_pages gauge
+node_zoneinfo_nr_anon_pages{node="0",zone=""} 1.156608e+06
+# HELP node_zoneinfo_nr_anon_transparent_hugepages Zoneinfo information field nr_anon_transparent_hugepages.
+# TYPE node_zoneinfo_nr_anon_transparent_hugepages gauge
+node_zoneinfo_nr_anon_transparent_hugepages{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_dirtied Zoneinfo information field nr_dirtied.
+# TYPE node_zoneinfo_nr_dirtied gauge
+node_zoneinfo_nr_dirtied{node="0",zone=""} 1.189097e+06
+# HELP node_zoneinfo_nr_dirty Zoneinfo information field nr_dirty.
+# TYPE node_zoneinfo_nr_dirty gauge
+node_zoneinfo_nr_dirty{node="0",zone=""} 103
+# HELP node_zoneinfo_nr_file_pages Zoneinfo information field nr_file_pages.
+# TYPE node_zoneinfo_nr_file_pages gauge
+node_zoneinfo_nr_file_pages{node="0",zone=""} 1.740118e+06
+# HELP node_zoneinfo_nr_free_pages Zoneinfo information field nr_free_pages.
+# TYPE node_zoneinfo_nr_free_pages gauge
+node_zoneinfo_nr_free_pages{node="0",zone=""} 2949
+node_zoneinfo_nr_free_pages{node="0",zone="DMA32"} 528427
+node_zoneinfo_nr_free_pages{node="0",zone="Normal"} 4.539739e+06
+# HELP node_zoneinfo_nr_inactive_anon Zoneinfo information field nr_inactive_anon.
+# TYPE node_zoneinfo_nr_inactive_anon gauge
+node_zoneinfo_nr_inactive_anon{node="0",zone=""} 95612
+# HELP node_zoneinfo_nr_inactive_file Zoneinfo information field nr_inactive_file.
+# TYPE node_zoneinfo_nr_inactive_file gauge
+node_zoneinfo_nr_inactive_file{node="0",zone=""} 723339
+# HELP node_zoneinfo_nr_isolated_anon Zoneinfo information field nr_isolated_anon.
+# TYPE node_zoneinfo_nr_isolated_anon gauge
+node_zoneinfo_nr_isolated_anon{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_isolated_file Zoneinfo information field nr_isolated_file.
+# TYPE node_zoneinfo_nr_isolated_file gauge
+node_zoneinfo_nr_isolated_file{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_kernel_stack Zoneinfo information field nr_kernel_stack.
+# TYPE node_zoneinfo_nr_kernel_stack gauge
+node_zoneinfo_nr_kernel_stack{node="0",zone=""} 0
+node_zoneinfo_nr_kernel_stack{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_kernel_stack{node="0",zone="Normal"} 18864
+# HELP node_zoneinfo_nr_mapped Zoneinfo information field nr_mapped.
+# TYPE node_zoneinfo_nr_mapped gauge
+node_zoneinfo_nr_mapped{node="0",zone=""} 423143
+# HELP node_zoneinfo_nr_shmem Zoneinfo information field nr_shmem.
+# TYPE node_zoneinfo_nr_shmem gauge
+node_zoneinfo_nr_shmem{node="0",zone=""} 330517
+# HELP node_zoneinfo_nr_slab_reclaimable Zoneinfo information field nr_slab_reclaimable.
+# TYPE node_zoneinfo_nr_slab_reclaimable gauge
+node_zoneinfo_nr_slab_reclaimable{node="0",zone=""} 121763
+# HELP node_zoneinfo_nr_slab_unreclaimable Zoneinfo information field nr_slab_unreclaimable.
+# TYPE node_zoneinfo_nr_slab_unreclaimable gauge
+node_zoneinfo_nr_slab_unreclaimable{node="0",zone=""} 56182
+# HELP node_zoneinfo_nr_unevictable Zoneinfo information field nr_unevictable.
+# TYPE node_zoneinfo_nr_unevictable gauge
+node_zoneinfo_nr_unevictable{node="0",zone=""} 213111
+# HELP node_zoneinfo_nr_writeback Zoneinfo information field nr_writeback.
+# TYPE node_zoneinfo_nr_writeback gauge
+node_zoneinfo_nr_writeback{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_written Zoneinfo information field nr_written.
+# TYPE node_zoneinfo_nr_written gauge
+node_zoneinfo_nr_written{node="0",zone=""} 1.181554e+06
+# HELP node_zoneinfo_numa_foreign Zoneinfo information field numa_foreign.
+# TYPE node_zoneinfo_numa_foreign gauge
+node_zoneinfo_numa_foreign{node="0",zone=""} 0
+node_zoneinfo_numa_foreign{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_foreign{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_numa_hit Zoneinfo information field numa_hit.
+# TYPE node_zoneinfo_numa_hit gauge
+node_zoneinfo_numa_hit{node="0",zone=""} 1
+node_zoneinfo_numa_hit{node="0",zone="DMA32"} 13
+node_zoneinfo_numa_hit{node="0",zone="Normal"} 6.2836441e+07
+# HELP node_zoneinfo_numa_interleave Zoneinfo information field numa_interleave.
+# TYPE node_zoneinfo_numa_interleave gauge
+node_zoneinfo_numa_interleave{node="0",zone=""} 1
+node_zoneinfo_numa_interleave{node="0",zone="DMA32"} 1
+node_zoneinfo_numa_interleave{node="0",zone="Normal"} 23174
+# HELP node_zoneinfo_numa_local Zoneinfo information field numa_local.
+# TYPE node_zoneinfo_numa_local gauge
+node_zoneinfo_numa_local{node="0",zone=""} 1
+node_zoneinfo_numa_local{node="0",zone="DMA32"} 13
+node_zoneinfo_numa_local{node="0",zone="Normal"} 6.2836441e+07
+# HELP node_zoneinfo_numa_miss Zoneinfo information field numa_miss.
+# TYPE node_zoneinfo_numa_miss gauge
+node_zoneinfo_numa_miss{node="0",zone=""} 0
+node_zoneinfo_numa_miss{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_miss{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_numa_other Zoneinfo information field numa_other.
+# TYPE node_zoneinfo_numa_other gauge
+node_zoneinfo_numa_other{node="0",zone=""} 0
+node_zoneinfo_numa_other{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_other{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_present Zoneinfo information field present.
+# TYPE node_zoneinfo_present gauge
+node_zoneinfo_present{node="0",zone=""} 3997
+node_zoneinfo_present{node="0",zone="DMA32"} 546847
+node_zoneinfo_present{node="0",zone="Device"} 0
+node_zoneinfo_present{node="0",zone="Movable"} 0
+node_zoneinfo_present{node="0",zone="Normal"} 7.806976e+06
+# HELP node_zoneinfo_protection_0 Zoneinfo information field protection_0.
+# TYPE node_zoneinfo_protection_0 gauge
+node_zoneinfo_protection_0{node="0",zone=""} 0
+node_zoneinfo_protection_0{node="0",zone="DMA32"} 0
+node_zoneinfo_protection_0{node="0",zone="Device"} 0
+node_zoneinfo_protection_0{node="0",zone="Movable"} 0
+node_zoneinfo_protection_0{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_1 Zoneinfo information field protection_1.
+# TYPE node_zoneinfo_protection_1 gauge
+node_zoneinfo_protection_1{node="0",zone=""} 2039
+node_zoneinfo_protection_1{node="0",zone="DMA32"} 0
+node_zoneinfo_protection_1{node="0",zone="Device"} 0
+node_zoneinfo_protection_1{node="0",zone="Movable"} 0
+node_zoneinfo_protection_1{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_2 Zoneinfo information field protection_2.
+# TYPE node_zoneinfo_protection_2 gauge
+node_zoneinfo_protection_2{node="0",zone=""} 31932
+node_zoneinfo_protection_2{node="0",zone="DMA32"} 29893
+node_zoneinfo_protection_2{node="0",zone="Device"} 0
+node_zoneinfo_protection_2{node="0",zone="Movable"} 0
+node_zoneinfo_protection_2{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_3 Zoneinfo information field protection_3.
+# TYPE node_zoneinfo_protection_3 gauge
+node_zoneinfo_protection_3{node="0",zone=""} 31932
+node_zoneinfo_protection_3{node="0",zone="DMA32"} 29893
+node_zoneinfo_protection_3{node="0",zone="Device"} 0
+node_zoneinfo_protection_3{node="0",zone="Movable"} 0
+node_zoneinfo_protection_3{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_4 Zoneinfo information field protection_4.
+# TYPE node_zoneinfo_protection_4 gauge
+node_zoneinfo_protection_4{node="0",zone=""} 31932
+node_zoneinfo_protection_4{node="0",zone="DMA32"} 29893
+node_zoneinfo_protection_4{node="0",zone="Device"} 0
+node_zoneinfo_protection_4{node="0",zone="Movable"} 0
+node_zoneinfo_protection_4{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_spanned Zoneinfo information field spanned.
+# TYPE node_zoneinfo_spanned gauge
+node_zoneinfo_spanned{node="0",zone=""} 4095
+node_zoneinfo_spanned{node="0",zone="DMA32"} 1.04448e+06
+node_zoneinfo_spanned{node="0",zone="Device"} 0
+node_zoneinfo_spanned{node="0",zone="Movable"} 0
+node_zoneinfo_spanned{node="0",zone="Normal"} 7.806976e+06
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.
