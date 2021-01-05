@@ -2620,6 +2620,42 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_protocols_tcp_maxhdr Max header size for tcp
+# TYPE node_protocols_tcp_maxhdr gauge
+node_protocols_tcp_maxhdr 320
+# HELP node_protocols_tcp_memory Total number of 4KB pages allocated by tcp
+# TYPE node_protocols_tcp_memory gauge
+node_protocols_tcp_memory 1.225378e+06
+# HELP node_protocols_tcp_pressure Indicates whether tcp is experiencing memory pressure; 1 = true, 0 = false, -1 = not implemented
+# TYPE node_protocols_tcp_pressure gauge
+node_protocols_tcp_pressure 1
+# HELP node_protocols_tcp_size The size, in bytes, of tcp
+# TYPE node_protocols_tcp_size gauge
+node_protocols_tcp_size 1984
+# HELP node_protocols_tcp_slab Bool indicating whether tcp is allocated from SLAB
+# TYPE node_protocols_tcp_slab gauge
+node_protocols_tcp_slab 1
+# HELP node_protocols_tcp_sockets Number of sockets in use by tcp
+# TYPE node_protocols_tcp_sockets gauge
+node_protocols_tcp_sockets 93064
+# HELP node_protocols_tcpv6_maxhdr Max header size for tcpv6
+# TYPE node_protocols_tcpv6_maxhdr gauge
+node_protocols_tcpv6_maxhdr 320
+# HELP node_protocols_tcpv6_memory Total number of 4KB pages allocated by tcpv6
+# TYPE node_protocols_tcpv6_memory gauge
+node_protocols_tcpv6_memory 1.225378e+06
+# HELP node_protocols_tcpv6_pressure Indicates whether tcpv6 is experiencing memory pressure; 1 = true, 0 = false, -1 = not implemented
+# TYPE node_protocols_tcpv6_pressure gauge
+node_protocols_tcpv6_pressure 0
+# HELP node_protocols_tcpv6_size The size, in bytes, of tcpv6
+# TYPE node_protocols_tcpv6_size gauge
+node_protocols_tcpv6_size 2144
+# HELP node_protocols_tcpv6_slab Bool indicating whether tcpv6 is allocated from SLAB
+# TYPE node_protocols_tcpv6_slab gauge
+node_protocols_tcpv6_slab 1
+# HELP node_protocols_tcpv6_sockets Number of sockets in use by tcpv6
+# TYPE node_protocols_tcpv6_sockets gauge
+node_protocols_tcpv6_sockets 1937
 # HELP node_qdisc_backlog Number of bytes currently in queue to be sent.
 # TYPE node_qdisc_backlog gauge
 node_qdisc_backlog{device="eth0",kind="pfifo_fast"} 0
@@ -2701,6 +2737,7 @@ node_scrape_collector_success{collector="nfsd"} 1
 node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
+node_scrape_collector_success{collector="protocols"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="rapl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
