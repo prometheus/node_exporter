@@ -60,15 +60,15 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 
 	ps := float64(pageSize)
 	return map[string]float64{
-		"active_bytes":            ps * float64(vmstat.active_count),
+		"Active_bytes":            ps * float64(vmstat.active_count),
 		"compressed_bytes":        ps * float64(vmstat.compressor_page_count),
-		"inactive_bytes":          ps * float64(vmstat.inactive_count),
+		"Inactive_bytes":          ps * float64(vmstat.inactive_count),
 		"wired_bytes":             ps * float64(vmstat.wire_count),
-		"free_bytes":              ps * float64(vmstat.free_count),
+		"MemFree_bytes":              ps * float64(vmstat.free_count),
 		"swapped_in_bytes_total":  ps * float64(vmstat.pageins),
 		"swapped_out_bytes_total": ps * float64(vmstat.pageouts),
-		"total_bytes":             float64(total),
-		"swap_used_bytes":         float64(swap.xsu_used),
-		"swap_total_bytes":        float64(swap.xsu_total),
+		"MemTotal_bytes":             float64(total),
+		"SwapUsed_bytes":         float64(swap.xsu_used),
+		"SwapTotal_bytes":        float64(swap.xsu_total),
 	}, nil
 }
