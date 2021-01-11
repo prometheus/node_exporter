@@ -58,11 +58,6 @@ func (c *protocolsCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get protocols: %w", err)
 	}
 
-	type protoPair struct {
-		name string
-		v    *float64
-	}
-
 	// In the interest of reudcing cardinality we are only interested in the
 	// first 8 fields as subsequent fields are not numerical or likely to change
 	// over time.
