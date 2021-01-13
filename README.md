@@ -111,6 +111,7 @@ nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same i
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
 powersupplyclass | Exposes Power Supply statistics from `/sys/class/power_supply` | Linux
 pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://www.kernel.org/doc/html/latest/accounting/psi.html))
+protocols | Exposes protocol statistics from `/proc/net/protocols`. | Linux
 rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
 schedstat | Exposes task scheduler statistics from `/proc/schedstat`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
