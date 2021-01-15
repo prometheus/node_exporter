@@ -190,7 +190,7 @@ func main() {
 
 	level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
 	server := &http.Server{Addr: *listenAddress}
-	if err := web.Listen(server, *configFile, logger); err != nil {
+	if err := web.ListenAndServe(server, *configFile, logger); err != nil {
 		level.Error(logger).Log("err", err)
 		os.Exit(1)
 	}
