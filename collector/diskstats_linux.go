@@ -17,9 +17,11 @@ package collector
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -226,15 +228,55 @@ func parseDiskStats(r io.Reader) (map[string][]string, error) {
 		diskStats = map[string][]string{}
 		scanner   = bufio.NewScanner(r)
 	)
-
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
 		if len(parts) < 4 { // we strip major, minor and dev
 			return nil, fmt.Errorf("invalid line in %s: %s", procFilePath(diskstatsFilename), scanner.Text())
 		}
 		dev := parts[2]
-		diskStats[dev] = parts[3:]
+		sn := getDiskSn("/dev/" + dev)
+		if sn != "unknown." {
+			diskStats[sn] = parts[3:]
+		} else {
+			diskStats[dev] = parts[3:]
+		}
 	}
 
 	return diskStats, scanner.Err()
+}
+
+func ParseUdev(r io.Reader) (map[string]string, error) {
+	var diskStats = map[string]string{}
+	var scanner = bufio.NewScanner(r)
+	for scanner.Scan() {
+		parts := strings.Fields(scanner.Text())
+		if len(parts) != 2 {
+			continue
+		}
+		kv := strings.Split(parts[1], "=")
+		if len(kv) != 2 {
+			continue
+		}
+		diskStats[kv[0]] = kv[1]
+	}
+	return diskStats, scanner.Err()
+}
+
+func getDiskSn(blkdev string) string {
+	cmd := exec.Command("/usr/sbin/udevadm", "info", "--query=all", "--name="+blkdev)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		return "unknown."
+	}
+	udev, _ := ParseUdev(&out)
+	sn, snfound := udev["ID_SCSI_SERIAL"]
+	if !snfound {
+		sn = "unknown."
+	}
+	if len(sn) < 8 {
+		sn = "unknown."
+	}
+	return sn[0:8]
 }
