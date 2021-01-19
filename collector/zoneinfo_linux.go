@@ -49,7 +49,7 @@ func NewZoneinfoCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 	return &zoneinfoCollector{
-		metricDescs: map[string]*prometheus.Desc{},
+		metricDescs: createMetricDescriptions(),
 		logger:      logger,
 		fs:          fs,
 	}, nil
@@ -70,15 +70,7 @@ func (c *zoneinfoCollector) Update(ch chan<- prometheus.Metric) error {
 			if value.Kind() != reflect.Int64 {
 				continue
 			}
-			metricName := toSnakeCase(typeOfMetricStruct.Field(i).Name)
-			desc, ok := c.metricDescs[metricName]
-			if !ok {
-				desc = prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, zoneinfoSubsystem, metricName),
-					fmt.Sprintf("Zoneinfo information field %s.", metricName),
-					[]string{"node", "zone"}, nil)
-				c.metricDescs[metricName] = desc
-			}
+			desc := c.metricDescs[typeOfMetricStruct.Field(i).Name]
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue,
 				float64(reflect.Indirect(metricStruct.Field(i)).Int()),
 				node, zone)
@@ -89,7 +81,7 @@ func (c *zoneinfoCollector) Update(ch chan<- prometheus.Metric) error {
 			if !ok {
 				desc = prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, zoneinfoSubsystem, metricName),
-					fmt.Sprintf("Zoneinfo information field %s.", metricName),
+					fmt.Sprintf("Protection array %d. field", i),
 					[]string{"node", "zone"}, nil)
 				c.metricDescs[metricName] = desc
 			}
@@ -99,6 +91,147 @@ func (c *zoneinfoCollector) Update(ch chan<- prometheus.Metric) error {
 
 	}
 	return nil
+}
+func  createMetricDescriptions() map[string]*prometheus.Desc  {
+	return map[string]*prometheus.Desc{
+		"NrFreePages" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_free_pages" ),
+			"Total number of free pages in the zone",
+			[]string{"node", "zone"}, nil),
+		"Min" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "min" ),
+			"Zone watermark pages_min",
+			[]string{"node", "zone"}, nil),
+		"Low" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "low" ),
+			"Zone watermark pages_low",
+			[]string{"node", "zone"}, nil),
+		"High" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "high" ),
+			"Zone watermark pages_high",
+			[]string{"node", "zone"}, nil),
+		"Scanned" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "scanned" ),
+			"Pages scanned since last reclaim",
+			[]string{"node", "zone"}, nil),
+		"Spanned" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "spanned" ),
+			"Total pages spanned by the zone, including holes",
+			[]string{"node", "zone"}, nil),
+		"Present" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "present" ),
+			"Physical pages existing within the zone",
+			[]string{"node", "zone"}, nil),
+		"Managed" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "managed" ),
+			"Present pages managed by the buddy system",
+			[]string{"node", "zone"}, nil),
+		"NrActiveAnon" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_active_anon" ),
+			"Number of anonymous pages recently more used",
+			[]string{"node", "zone"}, nil),
+		"NrInactiveAnon" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_inactive_anon" ),
+			"Number of anonymous pages recently less used",
+			[]string{"node", "zone"}, nil),
+		"NrIsolatedAnon" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_isolated_anon" ),
+			"Temporary isolated pages from anon lru",
+			[]string{"node", "zone"}, nil),
+		"NrAnonPages" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_anon_pages" ),
+			"Number of anonymous pages currently used by the system",
+			[]string{"node", "zone"}, nil),
+		"NrAnonTransparentHugepages" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_anon_transparent_hugepages" ),
+			"Number of anonymous transparent huge pages currently used by the system",
+			[]string{"node", "zone"}, nil),
+		"NrActiveFile" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_active_anon" ),
+			"Number of active pages with file-backing ",
+			[]string{"node", "zone"}, nil),
+		"NrInactiveFile" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_inactive_anon" ),
+			"Number of inactive pages with file-backing ",
+			[]string{"node", "zone"}, nil),
+		"NrIsolatedFile" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_isolated_file" ),
+			"Temporary isolated pages from file lru",
+			[]string{"node", "zone"}, nil),
+		"NrFilePages" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_file_pages" ),
+			"Number of file pages",
+			[]string{"node", "zone"}, nil),
+		"NrSlabReclaimable" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_slab_reclaimable" ),
+			"Number of reclaimable slab pages",
+			[]string{"node", "zone"}, nil),
+		"NrSlabUnreclaimable" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_slab_unreclaimable" ),
+			"Number of unreclaimable slab pages",
+			[]string{"node", "zone"}, nil),
+		"NrMlockStack" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_mlock_stack" ),
+			"mlock()ed pages found and moved off LRU",
+			[]string{"node", "zone"}, nil),
+		"NrKernelStack" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_kernel_stack" ),
+			"Amount of memory allocated to kernel stacks",
+			[]string{"node", "zone"}, nil),
+		"NrMapped" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_mapped" ),
+			"Mapped paged",
+			[]string{"node", "zone"}, nil),
+		"NrDirty" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_dirty" ),
+			"Number of dirty pages",
+			[]string{"node", "zone"}, nil),
+		"NrWriteback" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_writeback" ),
+			"Number of writeback pages",
+			[]string{"node", "zone"}, nil),
+		"NrUnevictable" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_unevictable" ),
+			"Number of unevictable pages",
+			[]string{"node", "zone"}, nil),
+		"NrShmem" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_shmem" ),
+			"Shmem pages (included tmpfs/GEM pages)",
+			[]string{"node", "zone"}, nil),
+		"NrDirtied" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_dirtied" ),
+			"Page dirtyings since bootup",
+			[]string{"node", "zone"}, nil),
+		"NrWritten" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "nr_written" ),
+			"Page writings since bootu",
+			[]string{"node", "zone"}, nil),
+		"NumaHit" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "numa_hit" ),
+			"Allocated in intended node",
+			[]string{"node", "zone"}, nil),
+		"NumaMiss" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "numa_hit" ),
+			"Allocated in non intended node",
+			[]string{"node", "zone"}, nil),
+		"NumaForeign" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "numa_foreign" ),
+			"Was intended here, hit elsewhere",
+			[]string{"node", "zone"}, nil),
+		"NumaInterleave" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "numa_interleave" ),
+			"Interleaver preferred this zone",
+			[]string{"node", "zone"}, nil),
+		"NumaLocal" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "numa_local" ),
+			"Allocation from local node",
+			[]string{"node", "zone"}, nil),
+		"NumaOther" : prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, zoneinfoSubsystem, "numa_other" ),
+			"Allocation from other node",
+			[]string{"node", "zone"}, nil),
+
+	}
 }
 
 func toSnakeCase(str string) string {
