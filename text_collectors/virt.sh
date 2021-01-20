@@ -54,7 +54,8 @@ then
       "$( dmidecode -s bios-vendor )" "$( dmidecode -s bios-version )" \
       "$( dmidecode -s system-manufacturer )" "$( dmidecode -s system-product-name )" "$( dmidecode -s system-version )" \
       "$( dmidecode -s baseboard-manufacturer )" "$( dmidecode -s baseboard-product-name )" )"
-    echo "${line//\\ / }" >>"${v}"
+    # Remove all escape characters as they are incorrect (as per https://github.com/prometheus/common/blob/master/expfmt/text_parse.go#L566-L571)
+    echo "${line//\\/ }" >>"${v}"
   fi
 fi
 mv "${v}" virt.prom
