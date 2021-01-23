@@ -6,6 +6,7 @@
 * [ENHANCEMENT] Include TCP OutRsts in netstat metrics
 * [ENHANCEMENT] Added XFS inode operations to XFS metrics
 * [ENHANCEMENT] Remove CGO dependencies for OpenBSD amd64
+* [BUGFIX] Handle EPERM for syscall in timex collector
 * [BUGFIX]
 
 ## 1.0.1 / 2020-06-15
