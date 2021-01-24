@@ -73,7 +73,7 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 	subsystem := "filesystem"
 	level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.ignored-mount-points", "flag", *ignoredMountPoints)
 	mountPointPattern := regexp.MustCompile(*ignoredMountPoints)
-	level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.ignored-fs-types", "flag", *ignoredMountPoints)
+	level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.ignored-fs-types", "flag", *ignoredFSTypes)
 	filesystemsTypesPattern := regexp.MustCompile(*ignoredFSTypes)
 
 	sizeDesc := prometheus.NewDesc(
