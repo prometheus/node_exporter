@@ -67,6 +67,14 @@ func NewZFSCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
+
+	if _, err := c.openProcFile(c.linuxProcpathBase); err != nil {
+		if err == errZFSNotAvailable {
+			level.Debug(c.logger).Log("err", err)
+			return ErrNoData
+		}
+	}
+
 	for subsystem := range c.linuxPathMap {
 		if err := c.updateZfsStats(subsystem, ch); err != nil {
 			if err == errZFSNotAvailable {
