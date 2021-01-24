@@ -231,7 +231,7 @@
             },
             annotations: {
               summary: 'Clock skew detected.',
-              message: 'Clock on {{ $labels.instance }} is out of sync by more than 300s. Ensure NTP is configured correctly on this host.',
+              description: 'Clock on {{ $labels.instance }} is out of sync by more than 300s. Ensure NTP is configured correctly on this host.',
             },
           },
           {
@@ -247,7 +247,7 @@
             },
             annotations: {
               summary: 'Clock not synchronising.',
-              message: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
+              description: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
             },
           },
           {
