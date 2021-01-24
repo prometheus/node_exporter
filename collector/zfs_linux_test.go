@@ -494,3 +494,52 @@ func TestVdevMirrorstatsParsing(t *testing.T) {
 		t.Fatal("VdevMirrorStats parsing handler was not called for some expected sysctls")
 	}
 }
+
+func TestPoolStateParsing(t *testing.T) {
+	zpoolPaths, err := filepath.Glob("fixtures/proc/spl/kstat/zfs/*/state")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	c := zfsCollector{}
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handlerCalled := false
+	for _, zpoolPath := range zpoolPaths {
+		file, err := os.Open(zpoolPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = c.parsePoolStateFile(file, zpoolPath, func(poolName string, stateName string, isActive uint64) {
+			handlerCalled = true
+
+			if poolName == "pool1" {
+				if isActive != uint64(1) && stateName == "online" {
+					t.Fatalf("Incorrect parsed value for online state")
+				}
+				if isActive != uint64(0) && stateName != "online" {
+					t.Fatalf("Incorrect parsed value for online state")
+				}
+			}
+			if poolName == "poolz1" {
+				if isActive != uint64(1) && stateName == "degraded" {
+					t.Fatalf("Incorrect parsed value for degraded state")
+				}
+				if isActive != uint64(0) && stateName != "degraded" {
+					t.Fatalf("Incorrect parsed value for degraded state")
+				}
+			}
+		})
+		file.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	if !handlerCalled {
+		t.Fatal("Zpool parsing handler was not called for some expected sysctls")
+	}
+
+}

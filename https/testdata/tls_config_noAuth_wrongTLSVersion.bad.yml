@@ -1,6 +1,0 @@
-tls_server_config :
-  cert_file : "testdata/server.crt"
-  key_file : "testdata/server.key"
-  client_auth_type : "VerifyClientCertIfGiven"
-  client_ca_file : "testdata/tls-ca-chain.pem"
-  min_version: TLS111

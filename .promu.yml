@@ -7,7 +7,7 @@ repository:
 build:
     binaries:
         - name: node_exporter
-    flags: -a -tags 'netgo static_build'
+    flags: -a -tags 'netgo osusergo static_build'
     ldflags: |
         -X github.com/prometheus/common/version.Version={{.Version}}
         -X github.com/prometheus/common/version.Revision={{.Revision}}
@@ -31,3 +31,4 @@ crossbuild:
         - linux/ppc64
         - linux/ppc64le
         - linux/s390x
+        - openbsd/amd64

@@ -1,4 +1,4 @@
-// Copyright 2019 The Prometheus Authors
+// Copyright 2020 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,7 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build openbsd,!amd64
 // +build !nodiskstats
 
 package collector
@@ -24,11 +23,22 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-/*
-#include <sys/types.h>
-#include <sys/disk.h>
-*/
-import "C"
+const (
+	DS_DISKNAMELEN = 16
+)
+
+type DiskStats struct {
+	Name       [DS_DISKNAMELEN]int8
+	Busy       int32
+	Rxfer      uint64
+	Wxfer      uint64
+	Seek       uint64
+	Rbytes     uint64
+	Wbytes     uint64
+	Attachtime unix.Timeval
+	Timestamp  unix.Timeval
+	Time       unix.Timeval
+}
 
 type diskstatsCollector struct {
 	rxfer  typedDesc
@@ -61,17 +71,18 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		return err
 	}
 
-	ndisks := len(diskstatsb) / C.sizeof_struct_diskstats
-	diskstats := *(*[]C.struct_diskstats)(unsafe.Pointer(&diskstatsb))
+	ndisks := len(diskstatsb) / int(unsafe.Sizeof(DiskStats{}))
+	diskstats := *(*[]DiskStats)(unsafe.Pointer(&diskstatsb))
 
 	for i := 0; i < ndisks; i++ {
-		diskname := C.GoString(&diskstats[i].ds_name[0])
+		dn := *(*[DS_DISKNAMELEN]int8)(unsafe.Pointer(&diskstats[i].Name[0]))
+		diskname := int8ToString(dn[:])
 
-		ch <- c.rxfer.mustNewConstMetric(float64(diskstats[i].ds_rxfer), diskname)
-		ch <- c.rbytes.mustNewConstMetric(float64(diskstats[i].ds_rbytes), diskname)
-		ch <- c.wxfer.mustNewConstMetric(float64(diskstats[i].ds_wxfer), diskname)
-		ch <- c.wbytes.mustNewConstMetric(float64(diskstats[i].ds_wbytes), diskname)
-		time := float64(diskstats[i].ds_time.tv_sec) + float64(diskstats[i].ds_time.tv_usec)/1000000
+		ch <- c.rxfer.mustNewConstMetric(float64(diskstats[i].Rxfer), diskname)
+		ch <- c.rbytes.mustNewConstMetric(float64(diskstats[i].Rbytes), diskname)
+		ch <- c.wxfer.mustNewConstMetric(float64(diskstats[i].Wxfer), diskname)
+		ch <- c.wbytes.mustNewConstMetric(float64(diskstats[i].Wbytes), diskname)
+		time := float64(diskstats[i].Time.Sec) + float64(diskstats[i].Time.Usec)/1000000
 		ch <- c.time.mustNewConstMetric(time, diskname)
 	}
 	return nil
