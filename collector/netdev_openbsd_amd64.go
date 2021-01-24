@@ -20,11 +20,10 @@ import (
 	"github.com/go-kit/kit/log/level"
 
 	"golang.org/x/sys/unix"
-	"regexp"
 	"unsafe"
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	mib := [6]_C_int{unix.CTL_NET, unix.AF_ROUTE, 0, 0, unix.NET_RT_IFLIST, 0}
@@ -53,11 +52,7 @@ func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Log
 		}
 		data := ifm.Data
 		dev := int8ToString(dl.Data[:dl.Nlen])
-		if ignore != nil && ignore.MatchString(dev) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
-			continue
-		}
-		if accept != nil && !accept.MatchString(dev) {
+		if filter.ignored(dev) {
 			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
 			continue
 		}
