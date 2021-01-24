@@ -267,7 +267,7 @@
           {
             alert: 'NodeRAIDDiskFailure',
             expr: |||
-              node_md_disks{state="fail"} > 0
+              node_md_disks{state="failed"} > 0
             ||| % $._config,
             labels: {
               severity: 'warning',
