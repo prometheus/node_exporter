@@ -136,9 +136,9 @@ node_bcache_writeback_rate{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-
 # HELP node_bcache_writeback_rate_integral_term Current result of integral controller, part of writeback rate
 # TYPE node_bcache_writeback_rate_integral_term gauge
 node_bcache_writeback_rate_integral_term{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 808960
-# HELP node_bcache_writeback_rate_proportinal_term Current result of proportional controller, part of writeback rate
-# TYPE node_bcache_writeback_rate_proportinal_term gauge
-node_bcache_writeback_rate_proportinal_term{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 437748
+# HELP node_bcache_writeback_rate_proportional_term Current result of proportional controller, part of writeback rate
+# TYPE node_bcache_writeback_rate_proportional_term gauge
+node_bcache_writeback_rate_proportional_term{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 437748
 # HELP node_bcache_written_bytes_total Sum of all data that has been written to the cache.
 # TYPE node_bcache_written_bytes_total counter
 node_bcache_written_bytes_total{cache_device="cache0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
