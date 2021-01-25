@@ -19,6 +19,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
+	"syscall"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -111,7 +113,7 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 	for _, pid := range p {
 		stat, err := pid.Stat()
 		// PIDs can vanish between getting the list and getting stats.
-		if errors.Is(err, os.ErrNotExist) {
+		if errors.Is(err, os.ErrNotExist) || errorContains(err, syscall.ESRCH) {
 			level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
 			continue
 		}
@@ -124,4 +126,8 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 		thread += stat.NumThreads
 	}
 	return pids, procStates, thread, nil
+}
+
+func errorContains(err, target error) bool {
+	return err != nil && target != nil && strings.Contains(err.Error(), target.Error())
 }
