@@ -112,12 +112,12 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 	procStates := make(map[string]int32)
 	for _, pid := range p {
 		stat, err := pid.Stat()
-		// PIDs can vanish between getting the list and getting stats.
-		if errors.Is(err, os.ErrNotExist) || errorContains(err, syscall.ESRCH) {
-			level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
-			continue
-		}
 		if err != nil {
+			// PIDs can vanish between getting the list and getting stats.
+			if errors.Is(err, os.ErrNotExist) || strings.Contains(err.Error(), syscall.ESRCH.Error()) {
+				level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
+				continue
+			}
 			level.Debug(c.logger).Log("msg", "error reading stat for pid", "pid", pid, "err", err)
 			return 0, nil, 0, err
 		}
@@ -126,8 +126,4 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 		thread += stat.NumThreads
 	}
 	return pids, procStates, thread, nil
-}
-
-func errorContains(err, target error) bool {
-	return err != nil && target != nil && strings.Contains(err.Error(), target.Error())
 }
