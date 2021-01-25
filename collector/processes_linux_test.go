@@ -16,9 +16,11 @@
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
+	"errors"
+	"syscall"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/procfs"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -50,5 +52,30 @@ func TestReadProcessStatus(t *testing.T) {
 	}
 	if uint64(pids) > maxPid || pids == 0 {
 		t.Fatalf("Total running pids cannot be greater than %d or equals to 0", maxPid)
+	}
+}
+
+func Test_errorContains(t *testing.T) {
+	testCases := []struct {
+		err      error
+		target   error
+		expected bool
+	}{
+		{err: nil, target: nil, expected: false},
+		{err: errors.New("e"), target: nil, expected: false},
+		{err: nil, target: errors.New("e"), expected: false},
+		{err: errors.New("abc"), target: errors.New("def"), expected: false},
+		{err: errors.New("abc"), target: errors.New("bc"), expected: true},
+		{err: errors.New("read /proc/2054/stat: no such process"), target: syscall.ESRCH, expected: true},
+	}
+	for _, tc := range testCases {
+		actual := errorContains(tc.err, tc.target)
+		if actual != tc.expected {
+			negation := " not"
+			if tc.expected {
+				negation = ""
+			}
+			t.Fatalf("Expected \"%v\"%s to contain \"%v\", got %v", tc.err, negation, tc.target, actual)
+		}
 	}
 }
