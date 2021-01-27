@@ -31,7 +31,7 @@ import (
 )
 
 var (
-	supervisordURL = kingpin.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").String()
+	supervisordURL = kingpin.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").Envar("SUPERVISORD_URL").String()
 	xrpc           *xmlrpc.Client
 )
 
