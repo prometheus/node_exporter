@@ -641,8 +641,8 @@ node_fibrechannel_info{dev_loss_tmo="30",fabric_name="0",host="host0",port_id="0
 # HELP node_fibrechannel_invalid_crc_total Invalid Cyclic Redundancy Check count
 # TYPE node_fibrechannel_invalid_crc_total counter
 node_fibrechannel_invalid_crc_total{host="host0"} 2
-# HELP node_fibrechannel_invalid_tx_word_total Number of invalid words transmitted by host port
-# TYPE node_fibrechannel_invalid_tx_word_total counter
+# HELP node_fibrechannel_invalid_tx_words_total Number of invalid words transmitted by host port
+# TYPE node_fibrechannel_invalid_tx_words_total counter
 node_fibrechannel_invalid_tx_word_total{host="host0"} 8
 # HELP node_fibrechannel_link_failure_total Number of times the host port link has failed
 # TYPE node_fibrechannel_link_failure_total counter

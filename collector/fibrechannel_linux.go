@@ -57,7 +57,7 @@ func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
 		"loss_of_sync_total":             "Number of failures on either bit or transmission word boundaries",
 		"rx_frames_total":                "Number of frames received",
 		"error_frames_total":             "Number of errors in frames",
-		"invalid_tx_word_total":          "Number of invalid words transmitted by host port",
+		"invalid_tx_words_total":         "Number of invalid words transmitted by host port",
 		"seconds_since_last_reset_total": "Number of seconds since last host port reset",
 		"tx_words_total":                 "Number of words transmitted by host port",
 		"invalid_crc_total":              "Invalid Cyclic Redundancy Check count",
@@ -137,7 +137,7 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		c.pushCounter(ch, "tx_frames_total", host.Counters.TXFrames, host.Name)
 		c.pushCounter(ch, "tx_words_total", host.Counters.TXWords, host.Name)
 		c.pushCounter(ch, "seconds_since_last_reset_total", host.Counters.SecondsSinceLastReset, host.Name)
-		c.pushCounter(ch, "invalid_tx_word_total", host.Counters.InvalidTXWordCount, host.Name)
+		c.pushCounter(ch, "invalid_tx_words_total", host.Counters.InvalidTXWordCount, host.Name)
 		c.pushCounter(ch, "link_failure_total", host.Counters.LinkFailureCount, host.Name)
 		c.pushCounter(ch, "loss_of_sync_total", host.Counters.LossOfSyncCount, host.Name)
 		c.pushCounter(ch, "loss_of_signal_total", host.Counters.LossOfSignalCount, host.Name)
