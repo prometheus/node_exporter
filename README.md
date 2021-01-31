@@ -45,6 +45,7 @@ This argument must match path in bind-mount of host root. The node\_exporter wil
 docker run -d \
   --net="host" \
   --pid="host" \
+  -p 9100:9100 \
   -v "/:/host:ro,rslave" \
   quay.io/prometheus/node-exporter:latest \
   --path.rootfs=/host
@@ -67,6 +68,8 @@ services:
     restart: unless-stopped
     volumes:
       - '/:/host:ro,rslave'
+    ports:
+    - 9100:9100
 ```
 
 On some systems, the `timex` collector requires an additional Docker flag,
