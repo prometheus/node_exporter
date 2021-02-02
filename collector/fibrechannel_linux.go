@@ -87,7 +87,7 @@ func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
 		i.metricDescs[metricName] = prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, i.subsystem, metricName),
 			description,
-			[]string{"host"},
+			[]string{"fc_host"},
 			nil,
 		)
 	}
