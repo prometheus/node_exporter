@@ -251,7 +251,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabelValue: bdev.Name,
 			},
 			{
-				name:            "writeback_rate_proportinal_term",
+				name:            "writeback_rate_proportional_term",
 				desc:            "Current result of proportional controller, part of writeback rate",
 				value:           float64(bdev.WritebackRateDebug.Proportional),
 				metricType:      prometheus.GaugeValue,
