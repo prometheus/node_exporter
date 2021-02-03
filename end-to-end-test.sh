@@ -14,6 +14,7 @@ enabled_collectors=$(cat << COLLECTORS
   drbd
   edac
   entropy
+  fibrechannel
   filefd
   hwmon
   infiniband

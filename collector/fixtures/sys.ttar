@@ -38,6 +38,140 @@ SymlinkTo: ../../../devices/system/node/node1
 Directory: sys/class
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/fc_host
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/fc_host/host0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/dev_loss_tmo
+Lines: 1
+30
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/fabric_name
+Lines: 1
+0x0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/node_name
+Lines: 1
+0x2000e0071bce95f2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/port_id
+Lines: 1
+0x000002
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/port_name
+Lines: 1
+0x1000e0071bce95f2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/port_state
+Lines: 1
+Online
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/port_type
+Lines: 1
+Point-To-Point (direct nport connection)
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/speed
+Lines: 1
+16 Gbit
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/fc_host/host0/statistics
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/dumped_frames
+Lines: 1
+0xffffffffffffffff
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/error_frames
+Lines: 1
+0x0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/fcp_packet_aborts
+Lines: 1
+0x13
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/invalid_crc_count
+Lines: 1
+0x2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/invalid_tx_word_count
+Lines: 1
+0x8
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/link_failure_count
+Lines: 1
+0x9
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/loss_of_signal_count
+Lines: 1
+0x11
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/loss_of_sync_count
+Lines: 1
+0x10
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/nos_count
+Lines: 1
+0x12
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/rx_frames
+Lines: 1
+0x3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/rx_words
+Lines: 1
+0x4
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/seconds_since_last_reset
+Lines: 1
+0x7
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/tx_frames
+Lines: 1
+0x5
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/statistics/tx_words
+Lines: 1
+0x6
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/supported_classes
+Lines: 1
+Class 3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/supported_speeds
+Lines: 1
+4 Gbit, 8 Gbit, 16 Gbit
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host0/symbolic_name
+Lines: 1
+Emulex SN1100E2P FV12.4.270.3 DV12.4.0.0. HN:gotest. OS:Linux
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/hwmon
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
