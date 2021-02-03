@@ -6,6 +6,7 @@
 * [ENHANCEMENT] Include TCP OutRsts in netstat metrics
 * [ENHANCEMENT] Added XFS inode operations to XFS metrics
 * [ENHANCEMENT] Remove CGO dependencies for OpenBSD amd64
+* [ENHANCEMENT] Added an ability to pass collector.supervisord.url via SUPERVISORD_URL environment variable
 * [BUGFIX] Handle EPERM for syscall in timex collector
 * [BUGFIX]
 
