@@ -120,7 +120,7 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		infoDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
 			"Non-numeric data from /sys/class/fc_host/<host>, value is always 1.",
-			[]string{"host", "speed", "port_state", "port_type", "port_id", "port_name", "fabric_name", "symbolic_name", "supported_classes", "supported_speeds", "dev_loss_tmo"},
+			[]string{"fc_host", "speed", "port_state", "port_type", "port_id", "port_name", "fabric_name", "symbolic_name", "supported_classes", "supported_speeds", "dev_loss_tmo"},
 			nil,
 		)
 		infoValue := 1.0
