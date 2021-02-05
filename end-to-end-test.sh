@@ -45,6 +45,7 @@ enabled_collectors=$(cat << COLLECTORS
   xfs
   zfs
   processes
+  zoneinfo
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
