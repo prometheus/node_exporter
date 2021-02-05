@@ -60,6 +60,10 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 			level.Debug(c.logger).Log("msg", "Platform doesn't have powercap files present", "err", err)
 			return ErrNoData
 		}
+		if errors.Is(err, os.ErrPermission) {
+			level.Debug(c.logger).Log("msg", "Can't access powercap files", "err", err)
+			return ErrNoData
+		}
 		return fmt.Errorf("failed to retrieve rapl stats: %w", err)
 	}
 
