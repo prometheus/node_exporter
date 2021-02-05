@@ -27,9 +27,9 @@ import (
 )
 
 type networkRouteCollector struct {
-	routeDesc       *prometheus.Desc
-	routesTotalDesc *prometheus.Desc
-	logger          log.Logger
+	routeInfoDesc *prometheus.Desc
+	routesDesc    *prometheus.Desc
+	logger        log.Logger
 }
 
 func init() {
@@ -40,19 +40,19 @@ func init() {
 func NewNetworkRouteCollector(logger log.Logger) (Collector, error) {
 	const subsystem = "network"
 
-	routeDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystem, "route"),
-		"network routing table", []string{"if", "src", "dest", "gw", "priority", "proto", "weight"}, nil,
+	routeInfoDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "route_info"),
+		"network routing table information", []string{"device", "src", "dest", "gw", "priority", "proto", "weight"}, nil,
 	)
-	routeTotalDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystem, "routes_total"),
-		"network total routes", []string{"if"}, nil,
+	routesDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "routes"),
+		"network routes by interface", []string{"device"}, nil,
 	)
 
 	return &networkRouteCollector{
-		routeDesc:       routeDesc,
-		routesTotalDesc: routeTotalDesc,
-		logger:          logger,
+		routeInfoDesc: routeInfoDesc,
+		routesDesc:    routesDesc,
+		logger:        logger,
 	}, nil
 }
 
@@ -98,7 +98,7 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 					networkRouteProtocolToString(route.Protocol),                            // proto
 					strconv.Itoa(int(nextHop.Hop.Hops) + 1),                                 // weight
 				}
-				ch <- prometheus.MustNewConstMetric(n.routeDesc, prometheus.GaugeValue, 1, labels...)
+				ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
 				deviceRoutes[ifName]++
 			}
 		} else {
@@ -119,13 +119,13 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 				networkRouteProtocolToString(route.Protocol),                            // proto
 				"", // weight
 			}
-			ch <- prometheus.MustNewConstMetric(n.routeDesc, prometheus.GaugeValue, 1, labels...)
+			ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
 			deviceRoutes[ifName]++
 		}
 	}
 
 	for dev, total := range deviceRoutes {
-		ch <- prometheus.MustNewConstMetric(n.routesTotalDesc, prometheus.GaugeValue, float64(total), dev)
+		ch <- prometheus.MustNewConstMetric(n.routesDesc, prometheus.GaugeValue, float64(total), dev)
 	}
 
 	return nil
