@@ -2,7 +2,7 @@
 version: 2.1
 
 orbs:
-  prometheus: prometheus/prometheus@0.4.0
+  prometheus: prometheus/prometheus@0.8.0
 
 executors:
   # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
@@ -53,10 +53,10 @@ jobs:
 
   build:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202101-01
 
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.14-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.15-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
