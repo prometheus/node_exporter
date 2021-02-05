@@ -110,6 +110,7 @@ fi
   --collector.netclass.ignored-devices="(bond0|dmz|int)" \
   --collector.bcache.priorityStats \
   --collector.cpu.info \
+   --collector.vmstat_numa \
   --collector.cpu.info.flags-include="^(aes|avx.?|constant_tsc)$" \
   --collector.cpu.info.bugs-include="^(cpu_meltdown|spectre_.*|mds)$" \
   --web.listen-address "127.0.0.1:${port}" \

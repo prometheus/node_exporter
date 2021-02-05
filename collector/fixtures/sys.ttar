@@ -2934,6 +2934,16 @@ Mode: 755
 Directory: sys/devices/system/node/node0
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/node/node0/vmstat
+Lines: 6
+nr_free_pages 1
+nr_zone_inactive_anon 2
+nr_zone_active_anon 3
+nr_zone_inactive_file 4
+nr_zone_active_file 5
+nr_zone_unevictable 6
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/node/node0/cpu0
 SymlinkTo: ../../cpu/cpu0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2990,6 +3000,16 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/node/node1
 Mode: 755
+Path: sys/devices/system/node/node1/vmstat
+Lines: 6
+nr_free_pages 1
+nr_zone_inactive_anon 2
+nr_zone_active_anon 3
+nr_zone_inactive_file 4
+nr_zone_active_file 5
+nr_zone_unevictable 6
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/node/node1/cpu2
 SymlinkTo: ../../cpu/cpu2
@@ -3048,9 +3068,18 @@ Mode: 644
 Directory: sys/devices/system/node/node2
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/node/node2/vmstat
+Lines: 6
+nr_free_pages 1
+nr_zone_inactive_anon 2
+nr_zone_active_anon 3
+nr_zone_inactive_file 4
+nr_zone_active_file 5
+nr_zone_unevictable 6
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/node/node2/cpulist
 Lines: 1
-
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/node/node2/meminfo
