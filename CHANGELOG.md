@@ -1,14 +1,43 @@
 ## master / unreleased
 
-* [CHANGE] Improve filter flag names.
 * [CHANGE]
 * [FEATURE]
-* [ENHANCEMENT] Include TCP OutRsts in netstat metrics
-* [ENHANCEMENT] Added XFS inode operations to XFS metrics
-* [ENHANCEMENT] Remove CGO dependencies for OpenBSD amd64
-* [ENHANCEMENT] Added an ability to pass collector.supervisord.url via SUPERVISORD_URL environment variable
-* [BUGFIX] Handle EPERM for syscall in timex collector
+* [ENHANCEMENT]
 * [BUGFIX]
+
+## 1.1.0 / 2021-02-05
+
+NOTE: We have improved some of the flag naming conventions (PR #1743). The old names are
+      deprecated and will be removed in 2.0. They will continue to work for backwards
+      compatibility.
+
+* [CHANGE] Improve filter flag names #1743
+* [CHANGE] Add btrfs and powersupplyclass to list of exporters enabled by default #1897
+* [FEATURE] Add fibre channel collector #1786
+* [FEATURE] Expose cpu bugs and flags as info metrics. #1788
+* [FEATURE] Add network_route collector #1811
+* [FEATURE] Add zoneinfo collector #1922
+* [ENHANCEMENT] Add more InfiniBand counters #1694
+* [ENHANCEMENT] Add flag to aggr ipvs metrics to avoid high cardinality metrics #1709
+* [ENHANCEMENT] Adding backlog/current queue length to qdisc collector #1732
+* [ENHANCEMENT] Include TCP OutRsts in netstat metrics #1733
+* [ENHANCEMENT] Add pool size to entropy collector #1753
+* [ENHANCEMENT] Remove CGO dependencies for OpenBSD amd64 #1774
+* [ENHANCEMENT] bcache: add writeback_rate_debug stats #1658
+* [ENHANCEMENT] Add check state for mdadm arrays via node_md_state metric #1810
+* [ENHANCEMENT] Expose XFS inode statistics #1870
+* [ENHANCEMENT] Expose zfs zpool state #1878
+* [ENHANCEMENT] Added an ability to pass collector.supervisord.url via SUPERVISORD_URL environment variable #1947
+* [BUGFIX] filesystem_freebsd: Fix label values #1728
+* [BUGFIX] Fix various procfs parsing errors #1735
+* [BUGFIX] Handle no data from powersupplyclass #1747
+* [BUGFIX] udp_queues_linux.go: change upd to udp in two error strings #1769
+* [BUGFIX] Fix node_scrape_collector_success behaviour #1816
+* [BUGFIX] Fix NodeRAIDDegraded to not use a string rule expressions #1827
+* [BUGFIX] Fix node_md_disks state label from fail to failed #1862
+* [BUGFIX] Handle EPERM for syscall in timex collector #1938
+* [BUGFIX] bcache: fix typo in a metric name #1943
+* [BUGFIX] Fix XFS read/write stats (https://github.com/prometheus/procfs/pull/343)
 
 ## 1.0.1 / 2020-06-15
 
