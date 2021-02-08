@@ -299,6 +299,9 @@ func (c *zfsCollector) updateZfsFetchStats(ch chan<- prometheus.Metric) error {
 	defer tok.Close()
 
 	ksZFSInfo, err := tok.Lookup("zfs", 0, "zfetchstats")
+	if err != nil {
+		return err
+	}
 
 	for k, v := range map[string]*prometheus.Desc{
 		"hits":   c.zfetchstatsHits,
