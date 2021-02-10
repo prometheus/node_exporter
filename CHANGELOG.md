@@ -5,6 +5,8 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [CHANGE] Default GOMAXPROCS to 1
+
 ## 1.1.0 / 2021-02-05
 
 NOTE: We have improved some of the flag naming conventions (PR #1743). The old names are
