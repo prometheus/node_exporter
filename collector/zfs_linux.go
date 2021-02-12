@@ -122,7 +122,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	}
 
 	if zpoolStatePaths == nil {
-		level.Warn(c.logger).Log("msg", "Not found pool state files")
+		level.Debug(c.logger).Log("msg", "Not found pool state files")
 	}
 
 	for _, zpoolPath := range zpoolStatePaths {
