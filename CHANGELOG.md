@@ -5,6 +5,11 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.1.1 / 2021-02-12
+
+* [BUGFIX] Fix ineffassign issue #1957
+* [BUGFIX] Fix some noisy log lines #1962
+
 ## 1.1.0 / 2021-02-05
 
 NOTE: We have improved some of the flag naming conventions (PR #1743). The old names are
