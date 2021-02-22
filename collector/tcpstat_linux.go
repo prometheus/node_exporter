@@ -16,9 +16,9 @@
 package collector
 
 import (
+	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -116,12 +116,9 @@ func getTCPStats(statsFile string) (map[tcpConnectionState]float64, error) {
 
 func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
 	tcpStats := map[tcpConnectionState]float64{}
-	contents, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, line := range strings.Split(string(contents), "\n")[1:] {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		line := scanner.Text()[1:]
 		parts := strings.Fields(line)
 		if len(parts) == 0 {
 			continue
