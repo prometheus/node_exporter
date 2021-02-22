@@ -60,13 +60,6 @@ func Test_parseTCPStatsError(t *testing.T) {
 
 func TestTCPStat(t *testing.T) {
 
-	noFile, _ := os.Open("follow the white rabbit")
-	defer noFile.Close()
-
-	if _, err := parseTCPStats(noFile); err == nil {
-		t.Fatal("expected an error, but none occurred")
-	}
-
 	file, err := os.Open("fixtures/proc/net/tcpstat")
 	if err != nil {
 		t.Fatal(err)
