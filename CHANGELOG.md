@@ -5,6 +5,8 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [BUGFIX] Handle errors from disabled PSI subsystem #1983
+
 ## 1.1.1 / 2021-02-12
 
 * [BUGFIX] Fix ineffassign issue #1957
