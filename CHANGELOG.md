@@ -6,6 +6,7 @@
 * [BUGFIX]
 
 * [BUGFIX] Handle errors from disabled PSI subsystem #1983
+* [BUGFIX] Sanitize strings from /sys/class/power_supply #1984
 
 ## 1.1.1 / 2021-02-12
 
