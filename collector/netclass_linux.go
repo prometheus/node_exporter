@@ -17,10 +17,13 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"regexp"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -61,6 +64,10 @@ func NewNetClassCollector(logger log.Logger) (Collector, error) {
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 	netClass, err := c.getNetClassInfo()
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
+			level.Debug(c.logger).Log("msg", "Could not read netclass file", "err", err)
+			return ErrNoData
+		}
 		return fmt.Errorf("could not get net class info: %w", err)
 	}
 	for _, ifaceInfo := range netClass {
@@ -173,9 +180,8 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 
 func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
 	netClass, err := c.fs.NetClass()
-
 	if err != nil {
-		return netClass, fmt.Errorf("error obtaining net class info: %w", err)
+		return netClass, err
 	}
 
 	for device := range netClass {
