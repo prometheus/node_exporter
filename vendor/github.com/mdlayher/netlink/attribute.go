@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/josharian/native"
 	"github.com/mdlayher/netlink/nlenc"
 )
 
@@ -166,7 +167,7 @@ type AttributeDecoder struct {
 func NewAttributeDecoder(b []byte) (*AttributeDecoder, error) {
 	ad := &AttributeDecoder{
 		// By default, use native byte order.
-		ByteOrder: nlenc.NativeEndian(),
+		ByteOrder: native.Endian,
 
 		b: b,
 	}
@@ -439,7 +440,7 @@ type AttributeEncoder struct {
 // NewAttributeEncoder creates an AttributeEncoder that encodes Attributes.
 func NewAttributeEncoder() *AttributeEncoder {
 	return &AttributeEncoder{
-		ByteOrder: nlenc.NativeEndian(),
+		ByteOrder: native.Endian,
 	}
 }
 

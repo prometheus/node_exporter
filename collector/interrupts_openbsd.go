@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build openbsd,!amd64
 // +build !nointerrupts
 
 package collector
@@ -101,7 +102,7 @@ var (
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	interrupts, err := getInterrupts()
 	if err != nil {
-		return fmt.Errorf("couldn't get interrupts: %s", err)
+		return fmt.Errorf("couldn't get interrupts: %w", err)
 	}
 	for dev, interrupt := range interrupts {
 		for cpuNo, value := range interrupt.values {

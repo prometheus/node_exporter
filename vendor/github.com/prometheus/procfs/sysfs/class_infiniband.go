@@ -126,7 +126,7 @@ func (fs FS) parseInfiniBandDevice(name string) (*InfiniBandDevice, error) {
 		name := filepath.Join(path, f)
 		value, err := util.SysReadFile(name)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
+			return nil, fmt.Errorf("failed to read file %q: %w", name, err)
 		}
 
 		switch f {
@@ -142,7 +142,7 @@ func (fs FS) parseInfiniBandDevice(name string) (*InfiniBandDevice, error) {
 	portsPath := filepath.Join(path, "ports")
 	ports, err := ioutil.ReadDir(portsPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list InfiniBand ports at %q: %v", portsPath, err)
+		return nil, fmt.Errorf("failed to list InfiniBand ports at %q: %w", portsPath, err)
 	}
 
 	device.Ports = make(map[uint]InfiniBandPort, len(ports))
@@ -204,7 +204,7 @@ func (fs FS) parseInfiniBandPort(name string, port string) (*InfiniBandPort, err
 	}
 	id, name, err := parseState(string(content))
 	if err != nil {
-		return nil, fmt.Errorf("could not parse state file in %s: %s", portPath, err)
+		return nil, fmt.Errorf("could not parse state file in %q: %w", portPath, err)
 	}
 	ibp.State = name
 	ibp.StateID = id
@@ -215,7 +215,7 @@ func (fs FS) parseInfiniBandPort(name string, port string) (*InfiniBandPort, err
 	}
 	id, name, err = parseState(string(content))
 	if err != nil {
-		return nil, fmt.Errorf("could not parse phys_state file in %s: %s", portPath, err)
+		return nil, fmt.Errorf("could not parse phys_state file in %q: %w", portPath, err)
 	}
 	ibp.PhysState = name
 	ibp.PhysStateID = id
@@ -226,7 +226,7 @@ func (fs FS) parseInfiniBandPort(name string, port string) (*InfiniBandPort, err
 	}
 	ibp.Rate, err = parseRate(string(content))
 	if err != nil {
-		return nil, fmt.Errorf("could not parse rate file in %s: %s", portPath, err)
+		return nil, fmt.Errorf("could not parse rate file in %q: %w", portPath, err)
 	}
 
 	counters, err := parseInfiniBandCounters(portPath)
@@ -258,7 +258,7 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			if os.IsNotExist(err) || os.IsPermission(err) || err.Error() == "operation not supported" || err.Error() == "invalid argument" {
 				continue
 			}
-			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
+			return nil, fmt.Errorf("failed to read file %q: %w", name, err)
 		}
 
 		// According to Mellanox, the metrics port_rcv_data, port_xmit_data,
@@ -349,7 +349,7 @@ func parseInfiniBandCounters(portPath string) (*InfiniBandCounters, error) {
 			if os.IsNotExist(err) || os.IsPermission(err) || err.Error() == "operation not supported" || err.Error() == "invalid argument" {
 				continue
 			}
-			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
+			return nil, fmt.Errorf("failed to read file %q: %w", name, err)
 		}
 
 		vp := util.NewValueParser(value)

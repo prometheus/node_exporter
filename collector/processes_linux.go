@@ -16,8 +16,11 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
+	"syscall"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -75,13 +78,13 @@ func NewProcessStatCollector(logger log.Logger) (Collector, error) {
 func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 	pids, states, threads, err := c.getAllocatedThreads()
 	if err != nil {
-		return fmt.Errorf("unable to retrieve number of allocated threads: %q", err)
+		return fmt.Errorf("unable to retrieve number of allocated threads: %w", err)
 	}
 
 	ch <- prometheus.MustNewConstMetric(c.threadAlloc, prometheus.GaugeValue, float64(threads))
 	maxThreads, err := readUintFromFile(procFilePath("sys/kernel/threads-max"))
 	if err != nil {
-		return fmt.Errorf("unable to retrieve limit number of threads: %q", err)
+		return fmt.Errorf("unable to retrieve limit number of threads: %w", err)
 	}
 	ch <- prometheus.MustNewConstMetric(c.threadLimit, prometheus.GaugeValue, float64(maxThreads))
 
@@ -91,7 +94,7 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 
 	pidM, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
 	if err != nil {
-		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %q", err)
+		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %w", err)
 	}
 	ch <- prometheus.MustNewConstMetric(c.pidUsed, prometheus.GaugeValue, float64(pids))
 	ch <- prometheus.MustNewConstMetric(c.pidMax, prometheus.GaugeValue, float64(pidM))
@@ -109,12 +112,12 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 	procStates := make(map[string]int32)
 	for _, pid := range p {
 		stat, err := pid.Stat()
-		// PIDs can vanish between getting the list and getting stats.
-		if os.IsNotExist(err) {
-			level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
-			continue
-		}
 		if err != nil {
+			// PIDs can vanish between getting the list and getting stats.
+			if errors.Is(err, os.ErrNotExist) || strings.Contains(err.Error(), syscall.ESRCH.Error()) {
+				level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
+				continue
+			}
 			level.Debug(c.logger).Log("msg", "error reading stat for pid", "pid", pid, "err", err)
 			return 0, nil, 0, err
 		}

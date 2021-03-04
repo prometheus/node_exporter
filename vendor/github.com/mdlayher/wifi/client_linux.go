@@ -89,6 +89,39 @@ func (c *client) Interfaces() ([]*Interface, error) {
 	return parseInterfaces(msgs)
 }
 
+// Connect starts connecting the interface to the specified ssid.
+func (c *client) Connect(ifi *Interface, ssid string) error {
+	// Ask nl80211 to connect to the specified SSID.
+	b, err := netlink.MarshalAttributes(
+		[]netlink.Attribute{
+			{
+				Type: nl80211.AttrIfindex,
+				Data: nlenc.Uint32Bytes(uint32(ifi.Index)),
+			},
+
+			{
+				Type: nl80211.AttrSsid,
+				Data: []byte(ssid),
+			},
+		})
+	if err != nil {
+		return err
+	}
+	req := genetlink.Message{
+		Header: genetlink.Header{
+			Command: nl80211.CmdConnect,
+			Version: c.familyVersion,
+		},
+		Data: b,
+	}
+
+	flags := netlink.Request | netlink.Acknowledge
+	if _, err := c.c.Execute(req, c.familyID, flags); err != nil {
+		return err
+	}
+	return nil
+}
+
 // BSS requests that nl80211 return the BSS for the specified Interface.
 func (c *client) BSS(ifi *Interface) (*BSS, error) {
 	b, err := netlink.MarshalAttributes(ifi.idAttrs())

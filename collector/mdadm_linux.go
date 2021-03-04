@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -63,6 +64,12 @@ var (
 		[]string{"device"},
 		prometheus.Labels{"state": "resync"},
 	)
+	checkDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "check"},
+	)
 
 	disksDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "disks"),
@@ -94,21 +101,21 @@ var (
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, errFs := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*procPath)
 
-	if errFs != nil {
-		return fmt.Errorf("failed to open procfs: %w", errFs)
+	if err != nil {
+		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	mdStats, err := fs.MDStat()
 
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "Not collecting mdstat, file does not exist", "file", *procPath)
 			return ErrNoData
 		}
 
-		return fmt.Errorf("error parsing mdstatus: %s", err)
+		return fmt.Errorf("error parsing mdstatus: %w", err)
 	}
 
 	for _, mdStat := range mdStats {
@@ -170,6 +177,13 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			resyncDesc,
 			prometheus.GaugeValue,
 			stateVals["resyncing"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			checkDesc,
+			prometheus.GaugeValue,
+			stateVals["checking"],
 			mdStat.Name,
 		)
 

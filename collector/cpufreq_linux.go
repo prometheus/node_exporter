@@ -64,17 +64,17 @@ func NewCPUFreqCollector(logger log.Logger) (Collector, error) {
 		),
 		scalingFreq: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_hertz"),
-			"Current scaled cpu thread frequency in hertz.",
+			"Current scaled CPU thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		scalingFreqMin: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_min_hertz"),
-			"Minimum scaled cpu thread frequency in hertz.",
+			"Minimum scaled CPU thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		scalingFreqMax: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_max_hertz"),
-			"Maximum scaled cpu thread frequency in hertz.",
+			"Maximum scaled CPU thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		logger: logger,

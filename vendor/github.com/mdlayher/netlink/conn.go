@@ -97,8 +97,7 @@ func (c *Conn) debug(fn func(d *debugger)) {
 	fn(c.d)
 }
 
-// Close closes the connection. Close will unblock any concurrent calls to
-// Receive which are waiting on a response from the kernel.
+// Close closes the connection and unblocks any pending read operations.
 func (c *Conn) Close() error {
 	// Close does not acquire a lock because it must be able to interrupt any
 	// blocked system calls, such as when Receive is waiting on a multicast
@@ -511,7 +510,7 @@ func (c *Conn) SyscallConn() (syscall.RawConn, error) {
 		return nil, notSupported("syscall-conn")
 	}
 
-	return newRawConn(fc.File())
+	return fc.File().SyscallConn()
 }
 
 // fixMsg updates the fields of m using the logic specified in Send.
@@ -584,21 +583,6 @@ type Config struct {
 	// to 0.
 	NetNS int
 
-	// DisableNSLockThread disables package netlink's default goroutine thread
-	// locking behavior.
-	//
-	// By default, the library will lock the processing goroutine to its
-	// corresponding OS thread in order to enable communication over netlink to
-	// a different network namespace.
-	//
-	// If the caller already knows that the netlink socket is in the same
-	// namespace as the calling thread, this can introduce a performance
-	// impact. This option disables the OS thread locking behavior if
-	// performance considerations are of interest.
-	//
-	// If disabled, it is the responsibility of the caller to make sure that all
-	// threads are running in the correct namespace.
-	//
-	// When DisableNSLockThread is set, the caller cannot set the NetNS value.
+	// DisableNSLockThread is deprecated and has no effect.
 	DisableNSLockThread bool
 }

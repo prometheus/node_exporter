@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -41,7 +42,7 @@ func init() {
 func NewUDPqueuesCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %v", err)
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 	return &udpQueuesCollector{
 		fs: fs,
@@ -61,10 +62,10 @@ func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.TxQueueLength), "tx", "v4")
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.RxQueueLength), "rx", "v4")
 	} else {
-		if os.IsNotExist(errIPv4) {
+		if errors.Is(errIPv4, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "not collecting ipv4 based metrics")
 		} else {
-			return fmt.Errorf("couldn't get upd queued bytes: %s", errIPv4)
+			return fmt.Errorf("couldn't get udp queued bytes: %w", errIPv4)
 		}
 	}
 
@@ -73,14 +74,14 @@ func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.TxQueueLength), "tx", "v6")
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.RxQueueLength), "rx", "v6")
 	} else {
-		if os.IsNotExist(errIPv6) {
+		if errors.Is(errIPv6, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "not collecting ipv6 based metrics")
 		} else {
-			return fmt.Errorf("couldn't get upd6 queued bytes: %s", errIPv6)
+			return fmt.Errorf("couldn't get udp6 queued bytes: %w", errIPv6)
 		}
 	}
 
-	if os.IsNotExist(errIPv4) && os.IsNotExist(errIPv6) {
+	if errors.Is(errIPv4, os.ErrNotExist) && errors.Is(errIPv6, os.ErrNotExist) {
 		return ErrNoData
 	}
 	return nil

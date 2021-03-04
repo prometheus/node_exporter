@@ -106,6 +106,9 @@ node_bcache_congested{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_dirty_data_bytes Amount of dirty data for this backing device in the cache.
 # TYPE node_bcache_dirty_data_bytes gauge
 node_bcache_dirty_data_bytes{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+# HELP node_bcache_dirty_target_bytes Current dirty data target threshold for this backing device in bytes.
+# TYPE node_bcache_dirty_target_bytes gauge
+node_bcache_dirty_target_bytes{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 2.189426688e+10
 # HELP node_bcache_io_errors Number of errors that have occurred, decayed by io_error_halflife.
 # TYPE node_bcache_io_errors gauge
 node_bcache_io_errors{cache_device="cache0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
@@ -124,6 +127,18 @@ node_bcache_root_usage_percent{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_tree_depth Depth of the btree.
 # TYPE node_bcache_tree_depth gauge
 node_bcache_tree_depth{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+# HELP node_bcache_writeback_change Last writeback rate change step for this backing device.
+# TYPE node_bcache_writeback_change gauge
+node_bcache_writeback_change{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 329204
+# HELP node_bcache_writeback_rate Current writeback rate for this backing device in bytes.
+# TYPE node_bcache_writeback_rate gauge
+node_bcache_writeback_rate{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 1.150976e+06
+# HELP node_bcache_writeback_rate_integral_term Current result of integral controller, part of writeback rate
+# TYPE node_bcache_writeback_rate_integral_term gauge
+node_bcache_writeback_rate_integral_term{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 808960
+# HELP node_bcache_writeback_rate_proportional_term Current result of proportional controller, part of writeback rate
+# TYPE node_bcache_writeback_rate_proportional_term gauge
+node_bcache_writeback_rate_proportional_term{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 437748
 # HELP node_bcache_written_bytes_total Sum of all data that has been written to the cache.
 # TYPE node_bcache_written_bytes_total counter
 node_bcache_written_bytes_total{cache_device="cache0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
@@ -232,13 +247,25 @@ node_cooling_device_cur_state{name="0",type="Processor"} 0
 # HELP node_cooling_device_max_state Maximum throttle state of the cooling device
 # TYPE node_cooling_device_max_state gauge
 node_cooling_device_max_state{name="0",type="Processor"} 3
-# HELP node_cpu_core_throttles_total Number of times this cpu core has been throttled.
+# HELP node_cpu_bug_info The `bugs` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_bug_info gauge
+node_cpu_bug_info{bug="cpu_meltdown"} 1
+node_cpu_bug_info{bug="mds"} 1
+node_cpu_bug_info{bug="spectre_v1"} 1
+node_cpu_bug_info{bug="spectre_v2"} 1
+# HELP node_cpu_core_throttles_total Number of times this CPU core has been throttled.
 # TYPE node_cpu_core_throttles_total counter
 node_cpu_core_throttles_total{core="0",package="0"} 5
 node_cpu_core_throttles_total{core="0",package="1"} 0
 node_cpu_core_throttles_total{core="1",package="0"} 0
 node_cpu_core_throttles_total{core="1",package="1"} 9
-# HELP node_cpu_guest_seconds_total Seconds the cpus spent in guests (VMs) for each mode.
+# HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_flag_info gauge
+node_cpu_flag_info{flag="aes"} 1
+node_cpu_flag_info{flag="avx"} 1
+node_cpu_flag_info{flag="avx2"} 1
+node_cpu_flag_info{flag="constant_tsc"} 1
+# HELP node_cpu_guest_seconds_total Seconds the CPUs spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
 node_cpu_guest_seconds_total{cpu="0",mode="user"} 0.02
@@ -266,29 +293,29 @@ node_cpu_info{cachesize="8192 KB",core="2",cpu="2",family="6",microcode="0xb4",m
 node_cpu_info{cachesize="8192 KB",core="2",cpu="6",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="3",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="7",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
-# HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
+# HELP node_cpu_package_throttles_total Number of times this CPU package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30
 node_cpu_package_throttles_total{package="1"} 6
-# HELP node_cpu_scaling_frequency_hertz Current scaled cpu thread frequency in hertz.
+# HELP node_cpu_scaling_frequency_hertz Current scaled CPU thread frequency in hertz.
 # TYPE node_cpu_scaling_frequency_hertz gauge
 node_cpu_scaling_frequency_hertz{cpu="0"} 1.699981e+09
 node_cpu_scaling_frequency_hertz{cpu="1"} 1.699981e+09
 node_cpu_scaling_frequency_hertz{cpu="2"} 8e+06
 node_cpu_scaling_frequency_hertz{cpu="3"} 8e+06
-# HELP node_cpu_scaling_frequency_max_hertz Maximum scaled cpu thread frequency in hertz.
+# HELP node_cpu_scaling_frequency_max_hertz Maximum scaled CPU thread frequency in hertz.
 # TYPE node_cpu_scaling_frequency_max_hertz gauge
 node_cpu_scaling_frequency_max_hertz{cpu="0"} 3.7e+09
 node_cpu_scaling_frequency_max_hertz{cpu="1"} 3.7e+09
 node_cpu_scaling_frequency_max_hertz{cpu="2"} 4.2e+09
 node_cpu_scaling_frequency_max_hertz{cpu="3"} 4.2e+09
-# HELP node_cpu_scaling_frequency_min_hertz Minimum scaled cpu thread frequency in hertz.
+# HELP node_cpu_scaling_frequency_min_hertz Minimum scaled CPU thread frequency in hertz.
 # TYPE node_cpu_scaling_frequency_min_hertz gauge
 node_cpu_scaling_frequency_min_hertz{cpu="0"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="1"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="2"} 1e+06
 node_cpu_scaling_frequency_min_hertz{cpu="3"} 1e+06
-# HELP node_cpu_seconds_total Seconds the cpus spent in each mode.
+# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
 # TYPE node_cpu_seconds_total counter
 node_cpu_seconds_total{cpu="0",mode="idle"} 10870.69
 node_cpu_seconds_total{cpu="0",mode="iowait"} 2.2
@@ -627,8 +654,53 @@ node_edac_uncorrectable_errors_total{controller="0"} 5
 # HELP node_entropy_available_bits Bits of available entropy.
 # TYPE node_entropy_available_bits gauge
 node_entropy_available_bits 1337
+# HELP node_entropy_pool_size_bits Bits of entropy pool.
+# TYPE node_entropy_pool_size_bits gauge
+node_entropy_pool_size_bits 4096
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built.
 # TYPE node_exporter_build_info gauge
+# HELP node_fibrechannel_error_frames_total Number of errors in frames
+# TYPE node_fibrechannel_error_frames_total counter
+node_fibrechannel_error_frames_total{fc_host="host0"} 0
+# HELP node_fibrechannel_fcp_packet_aborts_total Number of aborted packets
+# TYPE node_fibrechannel_fcp_packet_aborts_total counter
+node_fibrechannel_fcp_packet_aborts_total{fc_host="host0"} 19
+# HELP node_fibrechannel_info Non-numeric data from /sys/class/fc_host/<host>, value is always 1.
+# TYPE node_fibrechannel_info gauge
+node_fibrechannel_info{dev_loss_tmo="30",fabric_name="0",fc_host="host0",port_id="000002",port_name="1000e0071bce95f2",port_state="Online",port_type="Point-To-Point (direct nport connection)",speed="16 Gbit",supported_classes="Class 3",supported_speeds="4 Gbit, 8 Gbit, 16 Gbit",symbolic_name="Emulex SN1100E2P FV12.4.270.3 DV12.4.0.0. HN:gotest. OS:Linux"} 1
+# HELP node_fibrechannel_invalid_crc_total Invalid Cyclic Redundancy Check count
+# TYPE node_fibrechannel_invalid_crc_total counter
+node_fibrechannel_invalid_crc_total{fc_host="host0"} 2
+# HELP node_fibrechannel_invalid_tx_words_total Number of invalid words transmitted by host port
+# TYPE node_fibrechannel_invalid_tx_words_total counter
+node_fibrechannel_invalid_tx_words_total{fc_host="host0"} 8
+# HELP node_fibrechannel_link_failure_total Number of times the host port link has failed
+# TYPE node_fibrechannel_link_failure_total counter
+node_fibrechannel_link_failure_total{fc_host="host0"} 9
+# HELP node_fibrechannel_loss_of_signal_total Number of times signal has been lost
+# TYPE node_fibrechannel_loss_of_signal_total counter
+node_fibrechannel_loss_of_signal_total{fc_host="host0"} 17
+# HELP node_fibrechannel_loss_of_sync_total Number of failures on either bit or transmission word boundaries
+# TYPE node_fibrechannel_loss_of_sync_total counter
+node_fibrechannel_loss_of_sync_total{fc_host="host0"} 16
+# HELP node_fibrechannel_nos_total Number Not_Operational Primitive Sequence received by host port
+# TYPE node_fibrechannel_nos_total counter
+node_fibrechannel_nos_total{fc_host="host0"} 18
+# HELP node_fibrechannel_rx_frames_total Number of frames received
+# TYPE node_fibrechannel_rx_frames_total counter
+node_fibrechannel_rx_frames_total{fc_host="host0"} 3
+# HELP node_fibrechannel_rx_words_total Number of words received by host port
+# TYPE node_fibrechannel_rx_words_total counter
+node_fibrechannel_rx_words_total{fc_host="host0"} 4
+# HELP node_fibrechannel_seconds_since_last_reset_total Number of seconds since last host port reset
+# TYPE node_fibrechannel_seconds_since_last_reset_total counter
+node_fibrechannel_seconds_since_last_reset_total{fc_host="host0"} 7
+# HELP node_fibrechannel_tx_frames_total Number of frames transmitted by host port
+# TYPE node_fibrechannel_tx_frames_total counter
+node_fibrechannel_tx_frames_total{fc_host="host0"} 5
+# HELP node_fibrechannel_tx_words_total Number of words transmitted by host port
+# TYPE node_fibrechannel_tx_words_total counter
+node_fibrechannel_tx_words_total{fc_host="host0"} 6
 # HELP node_filefd_allocated File descriptor statistics: allocated.
 # TYPE node_filefd_allocated gauge
 node_filefd_allocated 1024
@@ -1183,6 +1255,7 @@ node_md_blocks{device="md12"} 3.886394368e+09
 node_md_blocks{device="md120"} 2.095104e+06
 node_md_blocks{device="md126"} 1.855870976e+09
 node_md_blocks{device="md127"} 3.12319552e+08
+node_md_blocks{device="md201"} 1.993728e+06
 node_md_blocks{device="md219"} 7932
 node_md_blocks{device="md3"} 5.853468288e+09
 node_md_blocks{device="md4"} 4.883648e+06
@@ -1201,6 +1274,7 @@ node_md_blocks_synced{device="md12"} 3.886394368e+09
 node_md_blocks_synced{device="md120"} 2.095104e+06
 node_md_blocks_synced{device="md126"} 1.855870976e+09
 node_md_blocks_synced{device="md127"} 3.12319552e+08
+node_md_blocks_synced{device="md201"} 114176
 node_md_blocks_synced{device="md219"} 7932
 node_md_blocks_synced{device="md3"} 5.853468288e+09
 node_md_blocks_synced{device="md4"} 4.883648e+06
@@ -1237,6 +1311,9 @@ node_md_disks{device="md126",state="spare"} 0
 node_md_disks{device="md127",state="active"} 2
 node_md_disks{device="md127",state="failed"} 0
 node_md_disks{device="md127",state="spare"} 0
+node_md_disks{device="md201",state="active"} 2
+node_md_disks{device="md201",state="failed"} 0
+node_md_disks{device="md201",state="spare"} 0
 node_md_disks{device="md219",state="active"} 0
 node_md_disks{device="md219",state="failed"} 0
 node_md_disks{device="md219",state="spare"} 3
@@ -1269,6 +1346,7 @@ node_md_disks_required{device="md12"} 2
 node_md_disks_required{device="md120"} 2
 node_md_disks_required{device="md126"} 2
 node_md_disks_required{device="md127"} 2
+node_md_disks_required{device="md201"} 2
 node_md_disks_required{device="md219"} 0
 node_md_disks_required{device="md3"} 8
 node_md_disks_required{device="md4"} 0
@@ -1279,66 +1357,87 @@ node_md_disks_required{device="md9"} 4
 # HELP node_md_state Indicates the state of md-device.
 # TYPE node_md_state gauge
 node_md_state{device="md0",state="active"} 1
+node_md_state{device="md0",state="check"} 0
 node_md_state{device="md0",state="inactive"} 0
 node_md_state{device="md0",state="recovering"} 0
 node_md_state{device="md0",state="resync"} 0
 node_md_state{device="md00",state="active"} 1
+node_md_state{device="md00",state="check"} 0
 node_md_state{device="md00",state="inactive"} 0
 node_md_state{device="md00",state="recovering"} 0
 node_md_state{device="md00",state="resync"} 0
 node_md_state{device="md10",state="active"} 1
+node_md_state{device="md10",state="check"} 0
 node_md_state{device="md10",state="inactive"} 0
 node_md_state{device="md10",state="recovering"} 0
 node_md_state{device="md10",state="resync"} 0
 node_md_state{device="md101",state="active"} 1
+node_md_state{device="md101",state="check"} 0
 node_md_state{device="md101",state="inactive"} 0
 node_md_state{device="md101",state="recovering"} 0
 node_md_state{device="md101",state="resync"} 0
 node_md_state{device="md11",state="active"} 0
+node_md_state{device="md11",state="check"} 0
 node_md_state{device="md11",state="inactive"} 0
 node_md_state{device="md11",state="recovering"} 0
 node_md_state{device="md11",state="resync"} 1
 node_md_state{device="md12",state="active"} 1
+node_md_state{device="md12",state="check"} 0
 node_md_state{device="md12",state="inactive"} 0
 node_md_state{device="md12",state="recovering"} 0
 node_md_state{device="md12",state="resync"} 0
 node_md_state{device="md120",state="active"} 1
+node_md_state{device="md120",state="check"} 0
 node_md_state{device="md120",state="inactive"} 0
 node_md_state{device="md120",state="recovering"} 0
 node_md_state{device="md120",state="resync"} 0
 node_md_state{device="md126",state="active"} 1
+node_md_state{device="md126",state="check"} 0
 node_md_state{device="md126",state="inactive"} 0
 node_md_state{device="md126",state="recovering"} 0
 node_md_state{device="md126",state="resync"} 0
 node_md_state{device="md127",state="active"} 1
+node_md_state{device="md127",state="check"} 0
 node_md_state{device="md127",state="inactive"} 0
 node_md_state{device="md127",state="recovering"} 0
 node_md_state{device="md127",state="resync"} 0
+node_md_state{device="md201",state="active"} 0
+node_md_state{device="md201",state="check"} 1
+node_md_state{device="md201",state="inactive"} 0
+node_md_state{device="md201",state="recovering"} 0
+node_md_state{device="md201",state="resync"} 0
 node_md_state{device="md219",state="active"} 0
+node_md_state{device="md219",state="check"} 0
 node_md_state{device="md219",state="inactive"} 1
 node_md_state{device="md219",state="recovering"} 0
 node_md_state{device="md219",state="resync"} 0
 node_md_state{device="md3",state="active"} 1
+node_md_state{device="md3",state="check"} 0
 node_md_state{device="md3",state="inactive"} 0
 node_md_state{device="md3",state="recovering"} 0
 node_md_state{device="md3",state="resync"} 0
 node_md_state{device="md4",state="active"} 0
+node_md_state{device="md4",state="check"} 0
 node_md_state{device="md4",state="inactive"} 1
 node_md_state{device="md4",state="recovering"} 0
 node_md_state{device="md4",state="resync"} 0
 node_md_state{device="md6",state="active"} 0
+node_md_state{device="md6",state="check"} 0
 node_md_state{device="md6",state="inactive"} 0
 node_md_state{device="md6",state="recovering"} 1
 node_md_state{device="md6",state="resync"} 0
 node_md_state{device="md7",state="active"} 1
+node_md_state{device="md7",state="check"} 0
 node_md_state{device="md7",state="inactive"} 0
 node_md_state{device="md7",state="recovering"} 0
 node_md_state{device="md7",state="resync"} 0
 node_md_state{device="md8",state="active"} 0
+node_md_state{device="md8",state="check"} 0
 node_md_state{device="md8",state="inactive"} 0
 node_md_state{device="md8",state="recovering"} 0
 node_md_state{device="md8",state="resync"} 1
 node_md_state{device="md9",state="active"} 0
+node_md_state{device="md9",state="check"} 0
 node_md_state{device="md9",state="inactive"} 0
 node_md_state{device="md9",state="recovering"} 0
 node_md_state{device="md9",state="resync"} 1
@@ -1955,6 +2054,9 @@ node_netstat_Tcp_InErrs 5
 # HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
 # TYPE node_netstat_Tcp_InSegs untyped
 node_netstat_Tcp_InSegs 5.7252008e+07
+# HELP node_netstat_Tcp_OutRsts Statistic TcpOutRsts.
+# TYPE node_netstat_Tcp_OutRsts untyped
+node_netstat_Tcp_OutRsts 1003
 # HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
 # TYPE node_netstat_Tcp_OutSegs untyped
 node_netstat_Tcp_OutSegs 5.4915039e+07
@@ -2563,10 +2665,18 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_qdisc_backlog Number of bytes currently in queue to be sent.
+# TYPE node_qdisc_backlog gauge
+node_qdisc_backlog{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_backlog{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_bytes_total Number of bytes sent.
 # TYPE node_qdisc_bytes_total counter
 node_qdisc_bytes_total{device="eth0",kind="pfifo_fast"} 83
 node_qdisc_bytes_total{device="wlan0",kind="fq"} 42
+# HELP node_qdisc_current_queue_length Number of packets currently in queue to be sent.
+# TYPE node_qdisc_current_queue_length gauge
+node_qdisc_current_queue_length{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_current_queue_length{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_drops_total Number of packets dropped.
 # TYPE node_qdisc_drops_total counter
 node_qdisc_drops_total{device="eth0",kind="pfifo_fast"} 0
@@ -2617,6 +2727,7 @@ node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1
 node_scrape_collector_success{collector="entropy"} 1
+node_scrape_collector_success{collector="fibrechannel"} 1
 node_scrape_collector_success{collector="filefd"} 1
 node_scrape_collector_success{collector="hwmon"} 1
 node_scrape_collector_success{collector="infiniband"} 1
@@ -2649,6 +2760,7 @@ node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
+node_scrape_collector_success{collector="zoneinfo"} 1
 # HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
@@ -2876,9 +2988,30 @@ node_xfs_extent_allocation_extents_allocated_total{device="sda1"} 1
 # HELP node_xfs_extent_allocation_extents_freed_total Number of extents freed for a filesystem.
 # TYPE node_xfs_extent_allocation_extents_freed_total counter
 node_xfs_extent_allocation_extents_freed_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_attempts_total Number of times the OS looked for an XFS inode in the inode cache.
+# TYPE node_xfs_inode_operation_attempts_total counter
+node_xfs_inode_operation_attempts_total{device="sda1"} 5
+# HELP node_xfs_inode_operation_attribute_changes_total Number of times the OS explicitly changed the attributes of an XFS inode.
+# TYPE node_xfs_inode_operation_attribute_changes_total counter
+node_xfs_inode_operation_attribute_changes_total{device="sda1"} 1
+# HELP node_xfs_inode_operation_duplicates_total Number of times the OS tried to add a missing XFS inode to the inode cache, but found it had already been added by another process.
+# TYPE node_xfs_inode_operation_duplicates_total counter
+node_xfs_inode_operation_duplicates_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_found_total Number of times the OS looked for and found an XFS inode in the inode cache.
+# TYPE node_xfs_inode_operation_found_total counter
+node_xfs_inode_operation_found_total{device="sda1"} 1
+# HELP node_xfs_inode_operation_missed_total Number of times the OS looked for an XFS inode in the cache, but did not find it.
+# TYPE node_xfs_inode_operation_missed_total counter
+node_xfs_inode_operation_missed_total{device="sda1"} 4
+# HELP node_xfs_inode_operation_reclaims_total Number of times the OS reclaimed an XFS inode from the inode cache to free memory for another purpose.
+# TYPE node_xfs_inode_operation_reclaims_total counter
+node_xfs_inode_operation_reclaims_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_recycled_total Number of times the OS found an XFS inode in the cache, but could not use it as it was being recycled.
+# TYPE node_xfs_inode_operation_recycled_total counter
+node_xfs_inode_operation_recycled_total{device="sda1"} 0
 # HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
 # TYPE node_xfs_read_calls_total counter
-node_xfs_read_calls_total{device="sda1"} 28
+node_xfs_read_calls_total{device="sda1"} 0
 # HELP node_xfs_vnode_active_total Number of vnodes not on free lists for a filesystem.
 # TYPE node_xfs_vnode_active_total counter
 node_xfs_vnode_active_total{device="sda1"} 4
@@ -2902,7 +3035,7 @@ node_xfs_vnode_release_total{device="sda1"} 1
 node_xfs_vnode_remove_total{device="sda1"} 1
 # HELP node_xfs_write_calls_total Number of write(2) system calls made to files in a filesystem.
 # TYPE node_xfs_write_calls_total counter
-node_xfs_write_calls_total{device="sda1"} 0
+node_xfs_write_calls_total{device="sda1"} 28
 # HELP node_zfs_abd_linear_cnt kstat.zfs.misc.abdstats.linear_cnt
 # TYPE node_zfs_abd_linear_cnt untyped
 node_zfs_abd_linear_cnt 62
@@ -3741,6 +3874,20 @@ node_zfs_zpool_rtime{zpool="poolz1"} 9.82909164e+09
 # TYPE node_zfs_zpool_rupdate untyped
 node_zfs_zpool_rupdate{zpool="pool1"} 7.921048984922e+13
 node_zfs_zpool_rupdate{zpool="poolz1"} 1.10734831944501e+14
+# HELP node_zfs_zpool_state kstat.zfs.misc.state
+# TYPE node_zfs_zpool_state gauge
+node_zfs_zpool_state{state="degraded",zpool="pool1"} 0
+node_zfs_zpool_state{state="degraded",zpool="poolz1"} 1
+node_zfs_zpool_state{state="faulted",zpool="pool1"} 0
+node_zfs_zpool_state{state="faulted",zpool="poolz1"} 0
+node_zfs_zpool_state{state="offline",zpool="pool1"} 0
+node_zfs_zpool_state{state="offline",zpool="poolz1"} 0
+node_zfs_zpool_state{state="online",zpool="pool1"} 1
+node_zfs_zpool_state{state="online",zpool="poolz1"} 0
+node_zfs_zpool_state{state="removed",zpool="pool1"} 0
+node_zfs_zpool_state{state="removed",zpool="poolz1"} 0
+node_zfs_zpool_state{state="unavail",zpool="pool1"} 0
+node_zfs_zpool_state{state="unavail",zpool="poolz1"} 0
 # HELP node_zfs_zpool_wcnt kstat.zfs.misc.io.wcnt
 # TYPE node_zfs_zpool_wcnt untyped
 node_zfs_zpool_wcnt{zpool="pool1"} 0
@@ -3761,6 +3908,177 @@ node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
 # TYPE node_zfs_zpool_wupdate untyped
 node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
 node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
+# HELP node_zoneinfo_high_pages Zone watermark pages_high
+# TYPE node_zoneinfo_high_pages gauge
+node_zoneinfo_high_pages{node="0",zone=""} 14
+node_zoneinfo_high_pages{node="0",zone="DMA32"} 2122
+node_zoneinfo_high_pages{node="0",zone="Device"} 0
+node_zoneinfo_high_pages{node="0",zone="Movable"} 0
+node_zoneinfo_high_pages{node="0",zone="Normal"} 31113
+# HELP node_zoneinfo_low_pages Zone watermark pages_low
+# TYPE node_zoneinfo_low_pages gauge
+node_zoneinfo_low_pages{node="0",zone=""} 11
+node_zoneinfo_low_pages{node="0",zone="DMA32"} 1600
+node_zoneinfo_low_pages{node="0",zone="Device"} 0
+node_zoneinfo_low_pages{node="0",zone="Movable"} 0
+node_zoneinfo_low_pages{node="0",zone="Normal"} 23461
+# HELP node_zoneinfo_managed_pages Present pages managed by the buddy system
+# TYPE node_zoneinfo_managed_pages gauge
+node_zoneinfo_managed_pages{node="0",zone=""} 3973
+node_zoneinfo_managed_pages{node="0",zone="DMA32"} 530339
+node_zoneinfo_managed_pages{node="0",zone="Device"} 0
+node_zoneinfo_managed_pages{node="0",zone="Movable"} 0
+node_zoneinfo_managed_pages{node="0",zone="Normal"} 7.654794e+06
+# HELP node_zoneinfo_min_pages Zone watermark pages_min
+# TYPE node_zoneinfo_min_pages gauge
+node_zoneinfo_min_pages{node="0",zone=""} 8
+node_zoneinfo_min_pages{node="0",zone="DMA32"} 1078
+node_zoneinfo_min_pages{node="0",zone="Device"} 0
+node_zoneinfo_min_pages{node="0",zone="Movable"} 0
+node_zoneinfo_min_pages{node="0",zone="Normal"} 15809
+# HELP node_zoneinfo_nr_active_anon_pages Number of anonymous pages recently more used
+# TYPE node_zoneinfo_nr_active_anon_pages gauge
+node_zoneinfo_nr_active_anon_pages{node="0",zone=""} 1.175853e+06
+# HELP node_zoneinfo_nr_active_file_pages Number of active pages with file-backing
+# TYPE node_zoneinfo_nr_active_file_pages gauge
+node_zoneinfo_nr_active_file_pages{node="0",zone=""} 688810
+# HELP node_zoneinfo_nr_anon_pages Number of anonymous pages currently used by the system
+# TYPE node_zoneinfo_nr_anon_pages gauge
+node_zoneinfo_nr_anon_pages{node="0",zone=""} 1.156608e+06
+# HELP node_zoneinfo_nr_anon_transparent_hugepages Number of anonymous transparent huge pages currently used by the system
+# TYPE node_zoneinfo_nr_anon_transparent_hugepages gauge
+node_zoneinfo_nr_anon_transparent_hugepages{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_dirtied_total Page dirtyings since bootup
+# TYPE node_zoneinfo_nr_dirtied_total counter
+node_zoneinfo_nr_dirtied_total{node="0",zone=""} 1.189097e+06
+# HELP node_zoneinfo_nr_dirty_pages Number of dirty pages
+# TYPE node_zoneinfo_nr_dirty_pages gauge
+node_zoneinfo_nr_dirty_pages{node="0",zone=""} 103
+# HELP node_zoneinfo_nr_file_pages Number of file pages
+# TYPE node_zoneinfo_nr_file_pages gauge
+node_zoneinfo_nr_file_pages{node="0",zone=""} 1.740118e+06
+# HELP node_zoneinfo_nr_free_pages Total number of free pages in the zone
+# TYPE node_zoneinfo_nr_free_pages gauge
+node_zoneinfo_nr_free_pages{node="0",zone=""} 2949
+node_zoneinfo_nr_free_pages{node="0",zone="DMA32"} 528427
+node_zoneinfo_nr_free_pages{node="0",zone="Normal"} 4.539739e+06
+# HELP node_zoneinfo_nr_inactive_anon_pages Number of anonymous pages recently less used
+# TYPE node_zoneinfo_nr_inactive_anon_pages gauge
+node_zoneinfo_nr_inactive_anon_pages{node="0",zone=""} 95612
+# HELP node_zoneinfo_nr_inactive_file_pages Number of inactive pages with file-backing
+# TYPE node_zoneinfo_nr_inactive_file_pages gauge
+node_zoneinfo_nr_inactive_file_pages{node="0",zone=""} 723339
+# HELP node_zoneinfo_nr_isolated_anon_pages Temporary isolated pages from anon lru
+# TYPE node_zoneinfo_nr_isolated_anon_pages gauge
+node_zoneinfo_nr_isolated_anon_pages{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_isolated_file_pages Temporary isolated pages from file lru
+# TYPE node_zoneinfo_nr_isolated_file_pages gauge
+node_zoneinfo_nr_isolated_file_pages{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_kernel_stacks Number of kernel stacks
+# TYPE node_zoneinfo_nr_kernel_stacks gauge
+node_zoneinfo_nr_kernel_stacks{node="0",zone=""} 0
+node_zoneinfo_nr_kernel_stacks{node="0",zone="DMA32"} 0
+node_zoneinfo_nr_kernel_stacks{node="0",zone="Normal"} 18864
+# HELP node_zoneinfo_nr_mapped_pages Number of mapped pages
+# TYPE node_zoneinfo_nr_mapped_pages gauge
+node_zoneinfo_nr_mapped_pages{node="0",zone=""} 423143
+# HELP node_zoneinfo_nr_shmem_pages Number of shmem pages (included tmpfs/GEM pages)
+# TYPE node_zoneinfo_nr_shmem_pages gauge
+node_zoneinfo_nr_shmem_pages{node="0",zone=""} 330517
+# HELP node_zoneinfo_nr_slab_reclaimable_pages Number of reclaimable slab pages
+# TYPE node_zoneinfo_nr_slab_reclaimable_pages gauge
+node_zoneinfo_nr_slab_reclaimable_pages{node="0",zone=""} 121763
+# HELP node_zoneinfo_nr_slab_unreclaimable_pages Number of unreclaimable slab pages
+# TYPE node_zoneinfo_nr_slab_unreclaimable_pages gauge
+node_zoneinfo_nr_slab_unreclaimable_pages{node="0",zone=""} 56182
+# HELP node_zoneinfo_nr_unevictable_pages Number of unevictable pages
+# TYPE node_zoneinfo_nr_unevictable_pages gauge
+node_zoneinfo_nr_unevictable_pages{node="0",zone=""} 213111
+# HELP node_zoneinfo_nr_writeback_pages Number of writeback pages
+# TYPE node_zoneinfo_nr_writeback_pages gauge
+node_zoneinfo_nr_writeback_pages{node="0",zone=""} 0
+# HELP node_zoneinfo_nr_written_total Page writings since bootup
+# TYPE node_zoneinfo_nr_written_total counter
+node_zoneinfo_nr_written_total{node="0",zone=""} 1.181554e+06
+# HELP node_zoneinfo_numa_foreign_total Was intended here, hit elsewhere
+# TYPE node_zoneinfo_numa_foreign_total counter
+node_zoneinfo_numa_foreign_total{node="0",zone=""} 0
+node_zoneinfo_numa_foreign_total{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_foreign_total{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_numa_hit_total Allocated in intended node
+# TYPE node_zoneinfo_numa_hit_total counter
+node_zoneinfo_numa_hit_total{node="0",zone=""} 1
+node_zoneinfo_numa_hit_total{node="0",zone="DMA32"} 13
+node_zoneinfo_numa_hit_total{node="0",zone="Normal"} 6.2836441e+07
+# HELP node_zoneinfo_numa_interleave_total Interleaver preferred this zone
+# TYPE node_zoneinfo_numa_interleave_total counter
+node_zoneinfo_numa_interleave_total{node="0",zone=""} 1
+node_zoneinfo_numa_interleave_total{node="0",zone="DMA32"} 1
+node_zoneinfo_numa_interleave_total{node="0",zone="Normal"} 23174
+# HELP node_zoneinfo_numa_local_total Allocation from local node
+# TYPE node_zoneinfo_numa_local_total counter
+node_zoneinfo_numa_local_total{node="0",zone=""} 1
+node_zoneinfo_numa_local_total{node="0",zone="DMA32"} 13
+node_zoneinfo_numa_local_total{node="0",zone="Normal"} 6.2836441e+07
+# HELP node_zoneinfo_numa_miss_total Allocated in non intended node
+# TYPE node_zoneinfo_numa_miss_total counter
+node_zoneinfo_numa_miss_total{node="0",zone=""} 0
+node_zoneinfo_numa_miss_total{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_miss_total{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_numa_other_total Allocation from other node
+# TYPE node_zoneinfo_numa_other_total counter
+node_zoneinfo_numa_other_total{node="0",zone=""} 0
+node_zoneinfo_numa_other_total{node="0",zone="DMA32"} 0
+node_zoneinfo_numa_other_total{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_present_pages Physical pages existing within the zone
+# TYPE node_zoneinfo_present_pages gauge
+node_zoneinfo_present_pages{node="0",zone=""} 3997
+node_zoneinfo_present_pages{node="0",zone="DMA32"} 546847
+node_zoneinfo_present_pages{node="0",zone="Device"} 0
+node_zoneinfo_present_pages{node="0",zone="Movable"} 0
+node_zoneinfo_present_pages{node="0",zone="Normal"} 7.806976e+06
+# HELP node_zoneinfo_protection_0 Protection array 0. field
+# TYPE node_zoneinfo_protection_0 gauge
+node_zoneinfo_protection_0{node="0",zone=""} 0
+node_zoneinfo_protection_0{node="0",zone="DMA32"} 0
+node_zoneinfo_protection_0{node="0",zone="Device"} 0
+node_zoneinfo_protection_0{node="0",zone="Movable"} 0
+node_zoneinfo_protection_0{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_1 Protection array 1. field
+# TYPE node_zoneinfo_protection_1 gauge
+node_zoneinfo_protection_1{node="0",zone=""} 2039
+node_zoneinfo_protection_1{node="0",zone="DMA32"} 0
+node_zoneinfo_protection_1{node="0",zone="Device"} 0
+node_zoneinfo_protection_1{node="0",zone="Movable"} 0
+node_zoneinfo_protection_1{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_2 Protection array 2. field
+# TYPE node_zoneinfo_protection_2 gauge
+node_zoneinfo_protection_2{node="0",zone=""} 31932
+node_zoneinfo_protection_2{node="0",zone="DMA32"} 29893
+node_zoneinfo_protection_2{node="0",zone="Device"} 0
+node_zoneinfo_protection_2{node="0",zone="Movable"} 0
+node_zoneinfo_protection_2{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_3 Protection array 3. field
+# TYPE node_zoneinfo_protection_3 gauge
+node_zoneinfo_protection_3{node="0",zone=""} 31932
+node_zoneinfo_protection_3{node="0",zone="DMA32"} 29893
+node_zoneinfo_protection_3{node="0",zone="Device"} 0
+node_zoneinfo_protection_3{node="0",zone="Movable"} 0
+node_zoneinfo_protection_3{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_protection_4 Protection array 4. field
+# TYPE node_zoneinfo_protection_4 gauge
+node_zoneinfo_protection_4{node="0",zone=""} 31932
+node_zoneinfo_protection_4{node="0",zone="DMA32"} 29893
+node_zoneinfo_protection_4{node="0",zone="Device"} 0
+node_zoneinfo_protection_4{node="0",zone="Movable"} 0
+node_zoneinfo_protection_4{node="0",zone="Normal"} 0
+# HELP node_zoneinfo_spanned_pages Total pages spanned by the zone, including holes
+# TYPE node_zoneinfo_spanned_pages gauge
+node_zoneinfo_spanned_pages{node="0",zone=""} 4095
+node_zoneinfo_spanned_pages{node="0",zone="DMA32"} 1.04448e+06
+node_zoneinfo_spanned_pages{node="0",zone="Device"} 0
+node_zoneinfo_spanned_pages{node="0",zone="Movable"} 0
+node_zoneinfo_spanned_pages{node="0",zone="Normal"} 7.806976e+06
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.

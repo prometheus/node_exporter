@@ -16,9 +16,9 @@
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/prometheus/procfs"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )

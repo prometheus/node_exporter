@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build freebsd dragonfly openbsd netbsd darwin
+// +build freebsd dragonfly openbsd,!amd64 netbsd darwin
 // +build !noboottime
 
 package collector

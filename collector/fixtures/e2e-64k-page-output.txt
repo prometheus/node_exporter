@@ -184,13 +184,25 @@ node_cooling_device_cur_state{name="0",type="Processor"} 0
 # HELP node_cooling_device_max_state Maximum throttle state of the cooling device
 # TYPE node_cooling_device_max_state gauge
 node_cooling_device_max_state{name="0",type="Processor"} 3
-# HELP node_cpu_core_throttles_total Number of times this cpu core has been throttled.
+# HELP node_cpu_bug_info The `bugs` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_bug_info gauge
+node_cpu_bug_info{bug="cpu_meltdown"} 1
+node_cpu_bug_info{bug="mds"} 1
+node_cpu_bug_info{bug="spectre_v1"} 1
+node_cpu_bug_info{bug="spectre_v2"} 1
+# HELP node_cpu_core_throttles_total Number of times this CPU core has been throttled.
 # TYPE node_cpu_core_throttles_total counter
 node_cpu_core_throttles_total{core="0",package="0"} 5
 node_cpu_core_throttles_total{core="0",package="1"} 0
 node_cpu_core_throttles_total{core="1",package="0"} 0
 node_cpu_core_throttles_total{core="1",package="1"} 9
-# HELP node_cpu_guest_seconds_total Seconds the cpus spent in guests (VMs) for each mode.
+# HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo.
+# TYPE node_cpu_flag_info gauge
+node_cpu_flag_info{flag="aes"} 1
+node_cpu_flag_info{flag="avx"} 1
+node_cpu_flag_info{flag="avx2"} 1
+node_cpu_flag_info{flag="constant_tsc"} 1
+# HELP node_cpu_guest_seconds_total Seconds the CPUs spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
 node_cpu_guest_seconds_total{cpu="0",mode="user"} 0.02
@@ -218,29 +230,29 @@ node_cpu_info{cachesize="8192 KB",core="2",cpu="2",family="6",microcode="0xb4",m
 node_cpu_info{cachesize="8192 KB",core="2",cpu="6",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="3",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="7",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
-# HELP node_cpu_package_throttles_total Number of times this cpu package has been throttled.
+# HELP node_cpu_package_throttles_total Number of times this CPU package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30
 node_cpu_package_throttles_total{package="1"} 6
-# HELP node_cpu_scaling_frequency_hertz Current scaled cpu thread frequency in hertz.
+# HELP node_cpu_scaling_frequency_hertz Current scaled CPU thread frequency in hertz.
 # TYPE node_cpu_scaling_frequency_hertz gauge
 node_cpu_scaling_frequency_hertz{cpu="0"} 1.699981e+09
 node_cpu_scaling_frequency_hertz{cpu="1"} 1.699981e+09
 node_cpu_scaling_frequency_hertz{cpu="2"} 8e+06
 node_cpu_scaling_frequency_hertz{cpu="3"} 8e+06
-# HELP node_cpu_scaling_frequency_max_hertz Maximum scaled cpu thread frequency in hertz.
+# HELP node_cpu_scaling_frequency_max_hertz Maximum scaled CPU thread frequency in hertz.
 # TYPE node_cpu_scaling_frequency_max_hertz gauge
 node_cpu_scaling_frequency_max_hertz{cpu="0"} 3.7e+09
 node_cpu_scaling_frequency_max_hertz{cpu="1"} 3.7e+09
 node_cpu_scaling_frequency_max_hertz{cpu="2"} 4.2e+09
 node_cpu_scaling_frequency_max_hertz{cpu="3"} 4.2e+09
-# HELP node_cpu_scaling_frequency_min_hertz Minimum scaled cpu thread frequency in hertz.
+# HELP node_cpu_scaling_frequency_min_hertz Minimum scaled CPU thread frequency in hertz.
 # TYPE node_cpu_scaling_frequency_min_hertz gauge
 node_cpu_scaling_frequency_min_hertz{cpu="0"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="1"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="2"} 1e+06
 node_cpu_scaling_frequency_min_hertz{cpu="3"} 1e+06
-# HELP node_cpu_seconds_total Seconds the cpus spent in each mode.
+# HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
 # TYPE node_cpu_seconds_total counter
 node_cpu_seconds_total{cpu="0",mode="idle"} 10870.69
 node_cpu_seconds_total{cpu="0",mode="iowait"} 2.2
@@ -1886,6 +1898,9 @@ node_netstat_Tcp_InErrs 5
 # HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
 # TYPE node_netstat_Tcp_InSegs untyped
 node_netstat_Tcp_InSegs 5.7252008e+07
+# HELP node_netstat_Tcp_OutRsts Statistic TcpOutRsts.
+# TYPE node_netstat_Tcp_OutRsts untyped
+node_netstat_Tcp_OutRsts 1003
 # HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
 # TYPE node_netstat_Tcp_OutSegs untyped
 node_netstat_Tcp_OutSegs 5.4915039e+07
@@ -2494,10 +2509,18 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_qdisc_backlog Number of bytes currently in queue to be sent.
+# TYPE node_qdisc_backlog gauge
+node_qdisc_backlog{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_backlog{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_bytes_total Number of bytes sent.
 # TYPE node_qdisc_bytes_total counter
 node_qdisc_bytes_total{device="eth0",kind="pfifo_fast"} 83
 node_qdisc_bytes_total{device="wlan0",kind="fq"} 42
+# HELP node_qdisc_current_queue_length Number of packets currently in queue to be sent.
+# TYPE node_qdisc_current_queue_length gauge
+node_qdisc_current_queue_length{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_current_queue_length{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_drops_total Number of packets dropped.
 # TYPE node_qdisc_drops_total counter
 node_qdisc_drops_total{device="eth0",kind="pfifo_fast"} 0
@@ -2783,6 +2806,28 @@ node_xfs_extent_allocation_extents_allocated_total{device="sda1"} 1
 # HELP node_xfs_extent_allocation_extents_freed_total Number of extents freed for a filesystem.
 # TYPE node_xfs_extent_allocation_extents_freed_total counter
 node_xfs_extent_allocation_extents_freed_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_attempts_total Number of times the OS looked for an XFS inode in the inode cache.
+# TYPE node_xfs_inode_operation_attempts_total counter
+node_xfs_inode_operation_attempts_total{device="sda1"} 5
+# HELP node_xfs_inode_operation_attribute_changes_total Number of times the OS explicitly changed the attributes of an XFS inode.
+# TYPE node_xfs_inode_operation_attribute_changes_total counter
+node_xfs_inode_operation_attribute_changes_total{device="sda1"} 1
+# HELP node_xfs_inode_operation_duplicates_total Number of times the OS tried to add a missing XFS inode to the inode cache, but found it had already been added by another process.
+# TYPE node_xfs_inode_operation_duplicates_total counter
+node_xfs_inode_operation_duplicates_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_found_total Number of times the OS looked for and found an XFS inode in the inode cache.
+# TYPE node_xfs_inode_operation_found_total counter
+node_xfs_inode_operation_found_total{device="sda1"} 1
+# HELP node_xfs_inode_operation_missed_total Number of times the OS looked for an XFS inode in the cache, but did not find it.
+# TYPE node_xfs_inode_operation_missed_total counter
+node_xfs_inode_operation_missed_total{device="sda1"} 4
+# HELP node_xfs_inode_operation_reclaims_total Number of times the OS reclaimed an XFS inode from the inode cache to free memory for another purpose.
+# TYPE node_xfs_inode_operation_reclaims_total counter
+node_xfs_inode_operation_reclaims_total{device="sda1"} 0
+# HELP node_xfs_inode_operation_recycled_total Number of times the OS found an XFS inode in the cache, but could not use it as it was being recycled.
+# TYPE node_xfs_inode_operation_recycled_total counter
+node_xfs_inode_operation_recycled_total{device="sda1"} 0
+# HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
 # HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
 # TYPE node_xfs_read_calls_total counter
 node_xfs_read_calls_total{device="sda1"} 28

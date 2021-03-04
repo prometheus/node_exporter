@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -78,6 +79,10 @@ func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 		"state_id":                                   "State of the InfiniBand port (0: no change, 1: down, 2: init, 3: armed, 4: active, 5: act defer)",
 		"unicast_packets_received_total":             "Number of unicast packets received (including errors)",
 		"unicast_packets_transmitted_total":          "Number of unicast packets transmitted (including errors)",
+		"port_receive_remote_physical_errors_total":  "Number of packets marked with the EBP (End of Bad Packet) delimiter received on the port.",
+		"port_receive_switch_relay_errors_total":     "Number of packets that could not be forwarded by the switch.",
+		"symbol_error_total":                         "Number of minor link errors detected on one or more physical lanes.",
+		"vl15_dropped_total":                         "Number of incoming VL15 packets dropped due to resource limitations.",
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)
@@ -108,11 +113,11 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.InfiniBandClass()
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "infiniband statistics not found, skipping")
 			return ErrNoData
 		}
-		return fmt.Errorf("error obtaining InfiniBand class info: %s", err)
+		return fmt.Errorf("error obtaining InfiniBand class info: %w", err)
 	}
 
 	for _, device := range devices {
@@ -156,6 +161,10 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			c.pushCounter(ch, "port_transmit_wait_total", port.Counters.PortXmitWait, port.Name, portStr)
 			c.pushCounter(ch, "unicast_packets_received_total", port.Counters.UnicastRcvPackets, port.Name, portStr)
 			c.pushCounter(ch, "unicast_packets_transmitted_total", port.Counters.UnicastXmitPackets, port.Name, portStr)
+			c.pushCounter(ch, "port_receive_remote_physical_errors_total", port.Counters.PortRcvRemotePhysicalErrors, port.Name, portStr)
+			c.pushCounter(ch, "port_receive_switch_relay_errors_total", port.Counters.PortRcvSwitchRelayErrors, port.Name, portStr)
+			c.pushCounter(ch, "symbol_error_total", port.Counters.SymbolError, port.Name, portStr)
+			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr)
 		}
 	}
 

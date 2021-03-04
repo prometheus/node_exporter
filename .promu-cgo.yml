@@ -1,14 +1,14 @@
 go:
     # Whenever the Go version is updated here, .circle/config.yml and
     # .promu.yml should also be updated.
-    version: 1.14
+    version: 1.15
     cgo: true
 repository:
     path: github.com/prometheus/node_exporter
 build:
     binaries:
         - name: node_exporter
-    flags: -mod=vendor -a -tags 'netgo static_build'
+    flags: -a -tags 'netgo osusergo static_build'
     ldflags: |
         -X github.com/prometheus/common/version.Version={{.Version}}
         -X github.com/prometheus/common/version.Revision={{.Revision}}
@@ -22,6 +22,5 @@ tarball:
 crossbuild:
     platforms:
         - darwin/amd64
-        - darwin/386
         - netbsd/amd64
         - netbsd/386

@@ -2,14 +2,14 @@
 version: 2.1
 
 orbs:
-  prometheus: prometheus/prometheus@0.4.0
+  prometheus: prometheus/prometheus@0.8.0
 
 executors:
   # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
   # should also be updated.
   golang:
     docker:
-    - image: circleci/golang:1.14
+    - image: circleci/golang:1.15
 
 jobs:
   test:
@@ -17,6 +17,7 @@ jobs:
 
     steps:
     - prometheus/setup_environment
+    - run: go mod download
     - run: make
     - prometheus/store_artifact:
         file: node_exporter
@@ -30,12 +31,32 @@ jobs:
     - run: sudo pip install codespell
     - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem,./collector/fixtures" -L uint,packages\',uptodate
 
+  test_mixins:
+    executor: golang
+    steps:
+    - checkout
+    - run:
+        command: go install -mod=readonly github.com/google/go-jsonnet/cmd/jsonnet github.com/google/go-jsonnet/cmd/jsonnetfmt github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb github.com/prometheus/prometheus/cmd/promtool
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: make clean
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: jb install
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: make
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: git diff --exit-code
+        working_directory: ~/project/docs/node-mixin
+
   build:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202101-01
 
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.14-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.15-base
       REPO_PATH: github.com/prometheus/node_exporter
 
     steps:
@@ -81,6 +102,10 @@ workflows:
           tags:
             only: /.*/
     - codespell:
+        filters:
+          tags:
+            only: /.*/
+    - test_mixins:
         filters:
           tags:
             only: /.*/

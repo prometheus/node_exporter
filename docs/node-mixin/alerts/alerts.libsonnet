@@ -48,7 +48,7 @@
             alert: 'NodeFilesystemAlmostOutOfSpace',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 5
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceAvailableCriticalThreshold)d
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
@@ -58,7 +58,7 @@
               severity: 'warning',
             },
             annotations: {
-              summary: 'Filesystem has less than 5% space left.',
+              summary: 'Filesystem has less than %(fsSpaceAvailableCriticalThreshold)d%% space left.' % $._config,
               description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
@@ -66,7 +66,7 @@
             alert: 'NodeFilesystemAlmostOutOfSpace',
             expr: |||
               (
-                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < 3
+                node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s} * 100 < %(fsSpaceAvailableWarningThreshold)d
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
@@ -76,7 +76,7 @@
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
-              summary: 'Filesystem has less than 3% space left.',
+              summary: 'Filesystem has less than %(fsSpaceAvailableWarningThreshold)d%% space left.' % $._config,
               description: 'Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
@@ -159,7 +159,7 @@
           {
             alert: 'NodeNetworkReceiveErrs',
             expr: |||
-              increase(node_network_receive_errs_total[2m]) > 10
+              rate(node_network_receive_errs_total[2m]) / rate(node_network_receive_packets_total[2m]) > 0.01
             ||| % $._config,
             'for': '1h',
             labels: {
@@ -173,7 +173,7 @@
           {
             alert: 'NodeNetworkTransmitErrs',
             expr: |||
-              increase(node_network_transmit_errs_total[2m]) > 10
+              rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m]) > 0.01
             ||| % $._config,
             'for': '1h',
             labels: {
@@ -231,13 +231,15 @@
             },
             annotations: {
               summary: 'Clock skew detected.',
-              message: 'Clock on {{ $labels.instance }} is out of sync by more than 300s. Ensure NTP is configured correctly on this host.',
+              description: 'Clock on {{ $labels.instance }} is out of sync by more than 300s. Ensure NTP is configured correctly on this host.',
             },
           },
           {
             alert: 'NodeClockNotSynchronising',
             expr: |||
               min_over_time(node_timex_sync_status[5m]) == 0
+              and
+              node_timex_maxerror_seconds >= 16
             ||| % $._config,
             'for': '10m',
             labels: {
@@ -245,7 +247,34 @@
             },
             annotations: {
               summary: 'Clock not synchronising.',
-              message: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
+              description: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
+            },
+          },
+          {
+            alert: 'NodeRAIDDegraded',
+            expr: |||
+              node_md_disks_required - ignoring (state) (node_md_disks{state="active"}) > 0
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'critical',
+            },
+            annotations: {
+              summary: 'RAID Array is degraded',
+              description: "RAID array '{{ $labels.device }}' on {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.",
+            },
+          },
+          {
+            alert: 'NodeRAIDDiskFailure',
+            expr: |||
+              node_md_disks{state="failed"} > 0
+            ||| % $._config,
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Failed device in RAID array',
+              description: "At least one device in RAID array on {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.",
             },
           },
         ],

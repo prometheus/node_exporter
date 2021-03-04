@@ -47,6 +47,11 @@
     fsSpaceFillingUpWarningThreshold: 40,
     fsSpaceFillingUpCriticalThreshold: 20,
 
+    // Available disk space (%) thresholds on which to trigger the
+    // 'NodeFilesystemAlmostOutOfSpace' alerts.
+    fsSpaceAvailableCriticalThreshold: 5,
+    fsSpaceAvailableWarningThreshold: 3,
+
     grafana_prefix: '',
   },
 }

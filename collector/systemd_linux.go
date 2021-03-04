@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"regexp"
@@ -39,8 +40,10 @@ const (
 )
 
 var (
-	unitWhitelist          = kingpin.Flag("collector.systemd.unit-whitelist", "Regexp of systemd units to whitelist. Units must both match whitelist and not match blacklist to be included.").Default(".+").String()
-	unitBlacklist          = kingpin.Flag("collector.systemd.unit-blacklist", "Regexp of systemd units to blacklist. Units must both match whitelist and not match blacklist to be included.").Default(".+\\.(automount|device|mount|scope|slice)").String()
+	unitInclude            = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").String()
+	oldUnitInclude         = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
+	unitExclude            = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").String()
+	oldUnitExclude         = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
 	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
 	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
 	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
@@ -61,8 +64,8 @@ type systemdCollector struct {
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
 	systemdVersion                int
-	unitWhitelistPattern          *regexp.Regexp
-	unitBlacklistPattern          *regexp.Regexp
+	unitIncludePattern            *regexp.Regexp
+	unitExcludePattern            *regexp.Regexp
 	logger                        log.Logger
 }
 
@@ -118,8 +121,27 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 	systemdVersionDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "version"),
 		"Detected systemd version", []string{}, nil)
-	unitWhitelistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitWhitelist))
-	unitBlacklistPattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitBlacklist))
+
+	if *oldUnitExclude != "" {
+		if *unitExclude == "" {
+			level.Warn(logger).Log("msg", "--collector.systemd.unit-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-exclude")
+			*unitExclude = *oldUnitExclude
+		} else {
+			return nil, errors.New("--collector.systemd.unit-blacklist and --collector.systemd.unit-exclude are mutually exclusive")
+		}
+	}
+	if *oldUnitInclude != "" {
+		if *unitInclude == "" {
+			level.Warn(logger).Log("msg", "--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
+			*unitInclude = *oldUnitInclude
+		} else {
+			return nil, errors.New("--collector.systemd.unit-whitelist and --collector.systemd.unit-include are mutually exclusive")
+		}
+	}
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-include", "flag", *unitInclude)
+	unitIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitInclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *unitExclude)
+	unitExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitExclude))
 
 	systemdVersion := getSystemdVersion(logger)
 	if systemdVersion < minSystemdVersionSystemState {
@@ -141,8 +163,8 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
 		systemdVersionDesc:            systemdVersionDesc,
 		systemdVersion:                systemdVersion,
-		unitWhitelistPattern:          unitWhitelistPattern,
-		unitBlacklistPattern:          unitBlacklistPattern,
+		unitIncludePattern:            unitIncludePattern,
+		unitExcludePattern:            unitExcludePattern,
 		logger:                        logger,
 	}, nil
 }
@@ -153,13 +175,13 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	begin := time.Now()
 	conn, err := newSystemdDbusConn()
 	if err != nil {
-		return fmt.Errorf("couldn't get dbus connection: %s", err)
+		return fmt.Errorf("couldn't get dbus connection: %w", err)
 	}
 	defer conn.Close()
 
 	allUnits, err := c.getAllUnits(conn)
 	if err != nil {
-		return fmt.Errorf("couldn't get units: %s", err)
+		return fmt.Errorf("couldn't get units: %w", err)
 	}
 	level.Debug(c.logger).Log("msg", "getAllUnits took", "duration_seconds", time.Since(begin).Seconds())
 
@@ -169,7 +191,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	level.Debug(c.logger).Log("msg", "collectSummaryMetrics took", "duration_seconds", time.Since(begin).Seconds())
 
 	begin = time.Now()
-	units := filterUnits(allUnits, c.unitWhitelistPattern, c.unitBlacklistPattern, c.logger)
+	units := filterUnits(allUnits, c.unitIncludePattern, c.unitExcludePattern, c.logger)
 	level.Debug(c.logger).Log("msg", "filterUnits took", "duration_seconds", time.Since(begin).Seconds())
 
 	var wg sync.WaitGroup
@@ -391,7 +413,7 @@ func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, su
 func (c *systemdCollector) collectSystemState(conn *dbus.Conn, ch chan<- prometheus.Metric) error {
 	systemState, err := conn.GetManagerProperty("SystemState")
 	if err != nil {
-		return fmt.Errorf("couldn't get system state: %s", err)
+		return fmt.Errorf("couldn't get system state: %w", err)
 	}
 	isSystemRunning := 0.0
 	if systemState == `"running"` {
@@ -443,10 +465,10 @@ func summarizeUnits(units []unit) map[string]float64 {
 	return summarized
 }
 
-func filterUnits(units []unit, whitelistPattern, blacklistPattern *regexp.Regexp, logger log.Logger) []unit {
+func filterUnits(units []unit, includePattern, excludePattern *regexp.Regexp, logger log.Logger) []unit {
 	filtered := make([]unit, 0, len(units))
 	for _, unit := range units {
-		if whitelistPattern.MatchString(unit.Name) && !blacklistPattern.MatchString(unit.Name) && unit.LoadState == "loaded" {
+		if includePattern.MatchString(unit.Name) && !excludePattern.MatchString(unit.Name) && unit.LoadState == "loaded" {
 			level.Debug(logger).Log("msg", "Adding unit", "unit", unit.Name)
 			filtered = append(filtered, unit)
 		} else {

@@ -72,7 +72,7 @@ func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.NetSoftnetStat()
 	if err != nil {
-		return fmt.Errorf("could not get softnet statistics: %s", err)
+		return fmt.Errorf("could not get softnet statistics: %w", err)
 	}
 
 	for cpuNumber, cpuStats := range stats {

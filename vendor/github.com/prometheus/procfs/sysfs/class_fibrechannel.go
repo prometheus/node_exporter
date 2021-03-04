@@ -92,7 +92,7 @@ func (fs FS) parseFibreChannelHost(name string) (*FibreChannelHost, error) {
 		name := filepath.Join(path, f)
 		value, err := util.SysReadFile(name)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
+			return nil, fmt.Errorf("failed to read file %q: %w", name, err)
 		}
 
 		switch f {
@@ -164,7 +164,7 @@ func parseFibreChannelStatistics(hostPath string) (*FibreChannelCounters, error)
 			if os.IsNotExist(err) || err.Error() == "operation not supported" || err.Error() == "invalid argument" {
 				continue
 			}
-			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
+			return nil, fmt.Errorf("failed to read file %q: %w", name, err)
 		}
 
 		vp := util.NewValueParser(value)

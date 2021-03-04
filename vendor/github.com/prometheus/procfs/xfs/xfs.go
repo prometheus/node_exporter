@@ -124,8 +124,8 @@ type LogOperationStats struct {
 // ReadWriteStats contains statistics regarding the number of read and write
 // system calls for XFS filesystems.
 type ReadWriteStats struct {
-	Read  uint32
 	Write uint32
+	Read  uint32
 }
 
 // AttributeOperationStats contains statistics regarding manipulation of
