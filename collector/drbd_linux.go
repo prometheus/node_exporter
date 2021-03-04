@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -188,7 +189,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	statsFile := procFilePath("drbd")
 	file, err := os.Open(statsFile)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "stats file does not exist, skipping", "file", statsFile, "err", err)
 			return ErrNoData
 		}

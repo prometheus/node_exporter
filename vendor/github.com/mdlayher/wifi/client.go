@@ -35,6 +35,11 @@ func (c *Client) Close() error {
 	return c.c.Close()
 }
 
+// Connect starts connecting the interface to the specified ssid.
+func (c *Client) Connect(ifi *Interface, ssid string) error {
+	return c.c.Connect(ifi, ssid)
+}
+
 // Interfaces returns a list of the system's WiFi network interfaces.
 func (c *Client) Interfaces() ([]*Interface, error) {
 	return c.c.Interfaces()
@@ -56,4 +61,5 @@ type osClient interface {
 	Interfaces() ([]*Interface, error)
 	BSS(ifi *Interface) (*BSS, error)
 	StationInfo(ifi *Interface) ([]*StationInfo, error)
+	Connect(ifi *Interface, ssid string) error
 }

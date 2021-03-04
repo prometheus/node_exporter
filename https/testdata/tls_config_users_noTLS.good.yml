@@ -1,5 +1,0 @@
-basic_auth_users:
-  alice: $2y$12$1DpfPeqF9HzHJt.EWswy1exHluGfbhnn3yXhR7Xes6m3WJqFg0Wby
-  bob: $2y$18$4VeFDzXIoPHKnKTU3O3GH.N.vZu06CVqczYZ8WvfzrddFU6tGqjR.
-  carol: $2y$10$qRTBuFoULoYNA7AQ/F3ck.trZBPyjV64.oA4ZsSBCIWvXuvQlQTuu
-  dave: $2y$10$2UXri9cIDdgeKjBo4Rlpx.U3ZLDV8X1IxKmsfOvhcM5oXQt/mLmXq

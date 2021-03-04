@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	//lint:ignore SA1019 Need to keep deprecated package for compatibility.
 	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/common/model"
 
@@ -88,7 +89,7 @@ type Opts struct {
 	// better covered by target labels set by the scraping Prometheus
 	// server, or by one specific metric (e.g. a build_info or a
 	// machine_role metric). See also
-	// https://prometheus.io/docs/instrumenting/writing_exporters/#target-labels,-not-static-scraped-labels
+	// https://prometheus.io/docs/instrumenting/writing_exporters/#target-labels-not-static-scraped-labels
 	ConstLabels Labels
 }
 

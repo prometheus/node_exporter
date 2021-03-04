@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -139,7 +140,7 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 
 func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
 	file, err := os.Open(procFilePath("1/mounts"))
-	if os.IsNotExist(err) {
+	if errors.Is(err, os.ErrNotExist) {
 		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
 		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
 		file, err = os.Open(procFilePath("mounts"))

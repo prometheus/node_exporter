@@ -1,10 +1,10 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
+local grafana = import 'github.com/grafana/grafonnet-lib/grafonnet/grafana.libsonnet';
 local dashboard = grafana.dashboard;
 local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
-local promgrafonnet = import 'promgrafonnet/promgrafonnet.libsonnet';
+local promgrafonnet = import 'github.com/kubernetes-monitoring/kubernetes-mixin/lib/promgrafonnet/promgrafonnet.libsonnet';
 local gauge = promgrafonnet.gauge;
 
 {
@@ -75,14 +75,15 @@ local gauge = promgrafonnet.gauge;
 
       // TODO: It would be nicer to have a gauge that gets a 0-1 range and displays it as a percentage 0%-100%.
       // This needs to be added upstream in the promgrafonnet library and then changed here.
+      // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
       local memoryGauge = gauge.new(
         'Memory Usage',
         |||
           100 -
           (
-            node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"}
+            avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"})
           /
-            node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
+            avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"})
           * 100
           )
         ||| % $._config,

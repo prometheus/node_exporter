@@ -4,17 +4,34 @@ package perf
 
 import (
 	"encoding/binary"
+	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"os"
 	"runtime"
+	"strconv"
+	"strings"
 	"syscall"
+	"testing"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
 
+// BenchOpt is a benchmark option.
+type BenchOpt uint8
+
 var (
 	// EventAttrSize is the size of a PerfEventAttr
 	EventAttrSize = uint32(unsafe.Sizeof(unix.PerfEventAttr{}))
+)
+
+const (
+	// BenchLock is used to lock a benchmark to a goroutine.
+	BenchLock BenchOpt = 1 << iota
+	// BenchStrict is used to fail a benchmark if one or more events can be
+	// profiled.
+	BenchStrict
 )
 
 // LockThread locks an goroutine to an OS thread and then sets the affinity of
@@ -24,6 +41,280 @@ func LockThread(core int) (func(), error) {
 	cpuSet := unix.CPUSet{}
 	cpuSet.Set(core)
 	return runtime.UnlockOSThread, unix.SchedSetaffinity(0, &cpuSet)
+}
+
+// failBenchmark is a helper function for RunBenchmarks: if an error occurs
+// while setting up performance counters, evaluate strict.  If strict mode is
+// on, mark the benchmark as skipped and log err.  If it is off, silently
+// ignore the failure.
+func failBenchmark(options BenchOpt, b *testing.B, msg ...interface{}) {
+	b.Helper()
+	if options&BenchStrict > 0 {
+		b.Skip(msg...)
+	}
+}
+func setupBenchmarkProfiler(fd int) error {
+	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_RESET, unix.PERF_IOC_FLAG_GROUP); err != nil {
+		return err
+	}
+	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_ENABLE, unix.PERF_IOC_FLAG_GROUP); err != nil {
+		return err
+	}
+	return nil
+}
+
+func readBenchmarkProfiler(fd int) (uint64, error) {
+	if err := unix.IoctlSetInt(fd, unix.PERF_EVENT_IOC_DISABLE, unix.PERF_IOC_FLAG_GROUP); err != nil {
+		return 0, err
+	}
+	buf := make([]byte, 24)
+	if _, err := syscall.Read(fd, buf); err != nil {
+		return 0, err
+	}
+	return binary.LittleEndian.Uint64(buf[0:8]), nil
+}
+
+// BenchmarkTracepoints runs benchmark and counts the
+func BenchmarkTracepoints(
+	b *testing.B,
+	f func(b *testing.B),
+	options BenchOpt,
+	tracepoints ...string,
+) {
+	pidOrTid := os.Getpid()
+	if options&BenchLock > 0 {
+		cb, err := LockThread(rand.Intn(runtime.NumCPU()))
+		if err != nil {
+			b.Fatal(err)
+		}
+		defer cb()
+		pidOrTid = unix.Gettid()
+	}
+
+	var (
+		attrMap  = map[string]int{}
+		tidToPid = map[int]int{}
+		childFds = map[int][]int{}
+	)
+
+	setupCb, err := LockThread(rand.Intn(runtime.NumCPU()))
+	if err != nil {
+		failBenchmark(options, b, err)
+	}
+	for _, tracepoint := range tracepoints {
+		split := strings.Split(tracepoint, ":")
+		if len(split) != 2 {
+			b.Fatalf("Expected <subsystem>:<tracepoint>, got: %q", tracepoint)
+		}
+		eventAttr, err := TracepointEventAttr(split[0], split[1])
+		if err != nil {
+			failBenchmark(options, b, err)
+			continue
+		}
+
+		eventAttr.Bits |= unix.PerfBitDisabled | unix.PerfBitPinned | unix.PerfBitInherit | unix.PerfBitInheritStat | unix.PerfBitEnableOnExec
+
+		fd, err := unix.PerfEventOpen(
+			eventAttr,
+			pidOrTid,
+			-1,
+			-1,
+			0,
+		)
+		if err != nil {
+			failBenchmark(options, b, err)
+			continue
+		}
+		attrMap[tracepoint] = fd
+		if options&BenchLock > 0 {
+			continue
+		}
+		childFds[fd] = []int{}
+
+		// Setup a profiler for all the threads in the current
+		// process with the inherit bit set. If the runtime
+		// spins up new threads they should get profiled.
+		tids, err := getTids(pidOrTid)
+		if err != nil {
+			b.Fatal(err)
+		}
+		for _, tid := range tids {
+			tfd, err := unix.PerfEventOpen(
+				eventAttr,
+				tid,
+				-1,
+				-1,
+				0,
+			)
+			if err != nil {
+				failBenchmark(options, b, err)
+				continue
+			}
+			childFds[fd] = append(childFds[fd], tfd)
+			tidToPid[tfd] = fd
+		}
+	}
+	setupCb()
+
+	b.ReportAllocs()
+	b.StartTimer()
+	f(b)
+	b.StopTimer()
+	for key, fd := range attrMap {
+		if err := setupBenchmarkProfiler(fd); err != nil {
+			failBenchmark(options, b, err)
+			continue
+		}
+		if options&BenchLock == 0 {
+			for _, child := range childFds[fd] {
+				if err := setupBenchmarkProfiler(child); err != nil {
+					failBenchmark(options, b, err)
+					continue
+				}
+			}
+		}
+		f(b)
+		count, err := readBenchmarkProfiler(fd)
+		if err != nil {
+			failBenchmark(options, b, err)
+			continue
+		}
+		if options&BenchLock == 0 {
+			for _, child := range childFds[fd] {
+				childCount, err := readBenchmarkProfiler(child)
+				if err != nil {
+					failBenchmark(options, b, err)
+					continue
+				}
+				count += childCount
+			}
+		}
+		b.ReportMetric(float64(count)/float64(b.N), key+"/op")
+	}
+
+	for _, fd := range attrMap {
+		_ = unix.Close(fd)
+		for _, childFd := range childFds[fd] {
+			_ = unix.Close(childFd)
+		}
+	}
+}
+
+// RunBenchmarks runs a series of benchmarks for a set of PerfEventAttrs.
+func RunBenchmarks(
+	b *testing.B,
+	f func(b *testing.B),
+	options BenchOpt,
+	eventAttrs ...unix.PerfEventAttr,
+) {
+	pidOrTid := os.Getpid()
+	if options&BenchLock > 0 {
+		cb, err := LockThread(rand.Intn(runtime.NumCPU()))
+		if err != nil {
+			b.Fatal(err)
+		}
+		defer cb()
+		pidOrTid = unix.Gettid()
+	}
+
+	var (
+		attrMap  = map[string]int{}
+		tidToPid = map[int]int{}
+		childFds = map[int][]int{}
+	)
+
+	setupCb, err := LockThread(rand.Intn(runtime.NumCPU()))
+	if err != nil {
+		failBenchmark(options, b, err)
+	}
+	for _, eventAttr := range eventAttrs {
+		eventAttr.Bits |= unix.PerfBitDisabled | unix.PerfBitPinned | unix.PerfBitInherit | unix.PerfBitInheritStat | unix.PerfBitEnableOnExec
+
+		fd, err := unix.PerfEventOpen(
+			&eventAttr,
+			pidOrTid,
+			-1,
+			-1,
+			0,
+		)
+		if err != nil {
+			b.Fatal(err)
+		}
+		key := EventAttrString(&eventAttr)
+		attrMap[key] = fd
+
+		if options&BenchLock > 0 {
+			continue
+		}
+		childFds[fd] = []int{}
+
+		// Setup a profiler for all the threads in the current
+		// process with the inherit bit set. If the runtime
+		// spins up new threads they should get profiled.
+		tids, err := getTids(pidOrTid)
+		if err != nil {
+			b.Fatal(err)
+		}
+		for _, tid := range tids {
+			tfd, err := unix.PerfEventOpen(
+				&eventAttr,
+				tid,
+				-1,
+				-1,
+				0,
+			)
+			if err != nil {
+				failBenchmark(options, b, err)
+				continue
+			}
+			childFds[fd] = append(childFds[fd], tfd)
+			tidToPid[tfd] = fd
+		}
+	}
+	setupCb()
+
+	b.ReportAllocs()
+	b.StartTimer()
+	f(b)
+	b.StopTimer()
+	for key, fd := range attrMap {
+		if err := setupBenchmarkProfiler(fd); err != nil {
+			failBenchmark(options, b, err)
+			continue
+		}
+		if options&BenchLock == 0 {
+			for _, child := range childFds[fd] {
+				if err := setupBenchmarkProfiler(child); err != nil {
+					failBenchmark(options, b, err)
+					continue
+				}
+			}
+		}
+		f(b)
+		count, err := readBenchmarkProfiler(fd)
+		if err != nil {
+			failBenchmark(options, b, err)
+			continue
+		}
+		if options&BenchLock == 0 {
+			for _, child := range childFds[fd] {
+				childCount, err := readBenchmarkProfiler(child)
+				if err != nil {
+					failBenchmark(options, b, err)
+					continue
+				}
+				count += childCount
+			}
+		}
+		b.ReportMetric(float64(count)/float64(b.N), key+"/op")
+	}
+
+	for _, fd := range attrMap {
+		_ = unix.Close(fd)
+		for _, childFd := range childFds[fd] {
+			_ = unix.Close(childFd)
+		}
+	}
 }
 
 // profileFn is a helper function to profile a function, it will randomly choose a core to run on.
@@ -64,6 +355,108 @@ func profileFn(eventAttr *unix.PerfEventAttr, f func() error) (*ProfileValue, er
 		TimeEnabled: binary.LittleEndian.Uint64(buf[8:16]),
 		TimeRunning: binary.LittleEndian.Uint64(buf[16:24]),
 	}, unix.Close(fd)
+}
+
+// EventAttrString returns a short string representation of a unix.PerfEventAttr.
+func EventAttrString(eventAttr *unix.PerfEventAttr) string {
+	var b strings.Builder
+	switch eventAttr.Type {
+	case unix.PERF_TYPE_HARDWARE:
+		b.WriteString("hw_")
+		switch eventAttr.Config {
+		case unix.PERF_COUNT_HW_INSTRUCTIONS:
+			b.WriteString("instr")
+		case unix.PERF_COUNT_HW_CPU_CYCLES:
+			b.WriteString("cycles")
+		case unix.PERF_COUNT_HW_CACHE_REFERENCES:
+			b.WriteString("cache_ref")
+		case unix.PERF_COUNT_HW_CACHE_MISSES:
+			b.WriteString("cache_miss")
+		case unix.PERF_COUNT_HW_BUS_CYCLES:
+			b.WriteString("bus_cycles")
+		case unix.PERF_COUNT_HW_STALLED_CYCLES_FRONTEND:
+			b.WriteString("stalled_cycles_front")
+		case unix.PERF_COUNT_HW_STALLED_CYCLES_BACKEND:
+			b.WriteString("stalled_cycles_back")
+		case unix.PERF_COUNT_HW_REF_CPU_CYCLES:
+			b.WriteString("ref_cycles")
+		default:
+			b.WriteString("unknown")
+		}
+	case unix.PERF_TYPE_SOFTWARE:
+		b.WriteString("sw_")
+		switch eventAttr.Config {
+		case unix.PERF_COUNT_SW_CPU_CLOCK:
+			b.WriteString("cpu_clock")
+		case unix.PERF_COUNT_SW_TASK_CLOCK:
+			b.WriteString("task_clock")
+		case unix.PERF_COUNT_SW_PAGE_FAULTS:
+			b.WriteString("page_faults")
+		case unix.PERF_COUNT_SW_CONTEXT_SWITCHES:
+			b.WriteString("ctx_switches")
+		case unix.PERF_COUNT_SW_CPU_MIGRATIONS:
+			b.WriteString("migrations")
+		case unix.PERF_COUNT_SW_PAGE_FAULTS_MIN:
+			b.WriteString("minor_faults")
+		case unix.PERF_COUNT_SW_PAGE_FAULTS_MAJ:
+			b.WriteString("major_faults")
+		case unix.PERF_COUNT_SW_ALIGNMENT_FAULTS:
+			b.WriteString("align_faults")
+		case unix.PERF_COUNT_SW_EMULATION_FAULTS:
+			b.WriteString("emul_faults")
+		default:
+			b.WriteString("unknown")
+		}
+	case unix.PERF_TYPE_BREAKPOINT:
+		b.WriteString("breakpoint")
+	case unix.PERF_TYPE_TRACEPOINT:
+		b.WriteString("tracepoint")
+	case unix.PERF_TYPE_HW_CACHE:
+		b.WriteString("cache_")
+		switch eventAttr.Config {
+		case (unix.PERF_COUNT_HW_CACHE_L1D) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("l1d_read")
+		case (unix.PERF_COUNT_HW_CACHE_L1D) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_MISS << 16):
+			b.WriteString("l1d_miss")
+		case (unix.PERF_COUNT_HW_CACHE_L1D) | (unix.PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("l1d_write")
+		case (unix.PERF_COUNT_HW_CACHE_L1I) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("l1i_read")
+		case (unix.PERF_COUNT_HW_CACHE_L1I) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_MISS << 16):
+			b.WriteString("l1i_miss")
+		case (unix.PERF_COUNT_HW_CACHE_LL) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("ll_read")
+		case (unix.PERF_COUNT_HW_CACHE_LL) | (unix.PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("ll_write")
+		case (unix.PERF_COUNT_HW_CACHE_LL) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_MISS << 16):
+			b.WriteString("ll_read_miss")
+		case (unix.PERF_COUNT_HW_CACHE_DTLB) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("dtlb_read")
+		case (unix.PERF_COUNT_HW_CACHE_DTLB) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_MISS << 16):
+			b.WriteString("dtlb_miss")
+		case (unix.PERF_COUNT_HW_CACHE_DTLB) | (unix.PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("dtlb_write")
+		case (unix.PERF_COUNT_HW_CACHE_ITLB) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("itlb_read")
+		case (unix.PERF_COUNT_HW_CACHE_ITLB) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_MISS << 16):
+			b.WriteString("itlb_miss")
+		case (unix.PERF_COUNT_HW_CACHE_BPU) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("bpu_read")
+		case (unix.PERF_COUNT_HW_CACHE_BPU) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_MISS << 16):
+			b.WriteString("bpu_miss")
+		case (unix.PERF_COUNT_HW_CACHE_NODE) | (unix.PERF_COUNT_HW_CACHE_OP_READ << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("node_read")
+		case (unix.PERF_COUNT_HW_CACHE_NODE) | (unix.PERF_COUNT_HW_CACHE_OP_WRITE << 8) | (unix.PERF_COUNT_HW_CACHE_RESULT_ACCESS << 16):
+			b.WriteString("node_write")
+		default:
+			b.WriteString("unknown")
+		}
+	case unix.PERF_TYPE_RAW:
+		b.WriteString("raw")
+	default:
+		b.WriteString("unknown")
+	}
+	return b.String()
 }
 
 // CPUInstructions is used to profile a function and return the number of CPU instructions.
@@ -691,4 +1084,22 @@ func NodeCacheEventAttr(op, result int) unix.PerfEventAttr {
 		Bits:        unix.PerfBitExcludeKernel | unix.PerfBitExcludeHv,
 		Read_format: unix.PERF_FORMAT_TOTAL_TIME_RUNNING | unix.PERF_FORMAT_TOTAL_TIME_ENABLED,
 	}
+}
+
+// returns the set of all thread ids for the a process.
+func getTids(pid int) ([]int, error) {
+	fileInfo, err := ioutil.ReadDir(fmt.Sprintf("/proc/%d/task", pid))
+	if err != nil {
+		return nil, err
+	}
+	tids := []int{}
+
+	for _, file := range fileInfo {
+		tid, err := strconv.Atoi(file.Name())
+		if err != nil {
+			return nil, err
+		}
+		tids = append(tids, tid)
+	}
+	return tids, nil
 }

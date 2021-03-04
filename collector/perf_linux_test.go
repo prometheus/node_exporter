@@ -67,29 +67,29 @@ func TestPerfCollectorStride(t *testing.T) {
 	tests := []struct {
 		name   string
 		flag   string
-		exCpus []int
+		exCPUs []int
 	}{
 		{
-			name:   "valid single cpu",
+			name:   "valid single CPU",
 			flag:   "1",
-			exCpus: []int{1},
+			exCPUs: []int{1},
 		},
 		{
-			name:   "valid range cpus",
+			name:   "valid range CPUs",
 			flag:   "1-5",
-			exCpus: []int{1, 2, 3, 4, 5},
+			exCPUs: []int{1, 2, 3, 4, 5},
 		},
 		{
 			name:   "valid stride",
 			flag:   "1-8:2",
-			exCpus: []int{1, 3, 5, 7},
+			exCPUs: []int{1, 3, 5, 7},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			ncpu := runtime.NumCPU()
-			for _, cpu := range test.exCpus {
+			for _, cpu := range test.exCPUs {
 				if cpu > ncpu {
 					t.Skipf("Skipping test because runtime.NumCPU < %d", cpu)
 				}
@@ -101,7 +101,7 @@ func TestPerfCollectorStride(t *testing.T) {
 			}
 
 			c := collector.(*perfCollector)
-			for _, cpu := range test.exCpus {
+			for _, cpu := range test.exCPUs {
 				if _, ok := c.perfHwProfilers[cpu]; !ok {
 					t.Fatalf("Expected CPU %v in hardware profilers", cpu)
 				}
@@ -124,12 +124,12 @@ func TestPerfCPUFlagToCPUs(t *testing.T) {
 		errStr string
 	}{
 		{
-			name:   "valid single cpu",
+			name:   "valid single CPU",
 			flag:   "1",
 			exCpus: []int{1},
 		},
 		{
-			name:   "valid range cpus",
+			name:   "valid range CPUs",
 			flag:   "1-5",
 			exCpus: []int{1, 2, 3, 4, 5},
 		},
@@ -171,7 +171,7 @@ func TestPerfCPUFlagToCPUs(t *testing.T) {
 			}
 			if len(cpus) != len(test.exCpus) {
 				t.Fatalf(
-					"expected cpus %v, got %v",
+					"expected CPUs %v, got %v",
 					test.exCpus,
 					cpus,
 				)
@@ -179,7 +179,7 @@ func TestPerfCPUFlagToCPUs(t *testing.T) {
 			for i := range cpus {
 				if test.exCpus[i] != cpus[i] {
 					t.Fatalf(
-						"expected cpus %v, got %v",
+						"expected CPUs %v, got %v",
 						test.exCpus[i],
 						cpus[i],
 					)

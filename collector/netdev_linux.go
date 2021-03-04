@@ -21,6 +21,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/go-kit/kit/log"
@@ -32,17 +33,17 @@ var (
 	procNetDevFieldSep    = regexp.MustCompile(` +`)
 )
 
-func getNetDevStats(ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
+func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
 	file, err := os.Open(procFilePath("net/dev"))
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return parseNetDevStats(file, ignore, accept, logger)
+	return parseNetDevStats(file, filter, logger)
 }
 
-func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp, logger log.Logger) (map[string]map[string]string, error) {
+func parseNetDevStats(r io.Reader, filter *netDevFilter, logger log.Logger) (netDevStats, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Scan() // skip first header
 	scanner.Scan()
@@ -56,7 +57,7 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp,
 	transmitHeader := strings.Fields(parts[2])
 	headerLength := len(receiveHeader) + len(transmitHeader)
 
-	netDev := map[string]map[string]string{}
+	netDev := netDevStats{}
 	for scanner.Scan() {
 		line := strings.TrimLeft(scanner.Text(), " ")
 		parts := procNetDevInterfaceRE.FindStringSubmatch(line)
@@ -65,11 +66,7 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp,
 		}
 
 		dev := parts[1]
-		if ignore != nil && ignore.MatchString(dev) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
-			continue
-		}
-		if accept != nil && !accept.MatchString(dev) {
+		if filter.ignored(dev) {
 			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
 			continue
 		}
@@ -79,14 +76,26 @@ func parseNetDevStats(r io.Reader, ignore *regexp.Regexp, accept *regexp.Regexp,
 			return nil, fmt.Errorf("couldn't get values, invalid line in net/dev: %q", parts[2])
 		}
 
-		netDev[dev] = map[string]string{}
+		devStats := map[string]uint64{}
+		addStats := func(key, value string) {
+			v, err := strconv.ParseUint(value, 0, 64)
+			if err != nil {
+				level.Debug(logger).Log("msg", "invalid value in netstats", "key", key, "value", value, "err", err)
+				return
+			}
+
+			devStats[key] = v
+		}
+
 		for i := 0; i < len(receiveHeader); i++ {
-			netDev[dev]["receive_"+receiveHeader[i]] = values[i]
+			addStats("receive_"+receiveHeader[i], values[i])
 		}
 
 		for i := 0; i < len(transmitHeader); i++ {
-			netDev[dev]["transmit_"+transmitHeader[i]] = values[i+len(receiveHeader)]
+			addStats("transmit_"+transmitHeader[i], values[i+len(receiveHeader)])
 		}
+
+		netDev[dev] = devStats
 	}
 	return netDev, scanner.Err()
 }

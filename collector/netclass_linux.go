@@ -61,7 +61,7 @@ func NewNetClassCollector(logger log.Logger) (Collector, error) {
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 	netClass, err := c.getNetClassInfo()
 	if err != nil {
-		return fmt.Errorf("could not get net class info: %s", err)
+		return fmt.Errorf("could not get net class info: %w", err)
 	}
 	for _, ifaceInfo := range netClass {
 		upDesc := prometheus.NewDesc(
@@ -175,7 +175,7 @@ func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
 	netClass, err := c.fs.NetClass()
 
 	if err != nil {
-		return netClass, fmt.Errorf("error obtaining net class info: %s", err)
+		return netClass, fmt.Errorf("error obtaining net class info: %w", err)
 	}
 
 	for device := range netClass {

@@ -37,7 +37,7 @@ func init() {
 func NewBtrfsCollector(logger log.Logger) (Collector, error) {
 	fs, err := btrfs.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &btrfsCollector{
@@ -51,7 +51,7 @@ func NewBtrfsCollector(logger log.Logger) (Collector, error) {
 func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Stats()
 	if err != nil {
-		return fmt.Errorf("failed to retrieve Btrfs stats: %v", err)
+		return fmt.Errorf("failed to retrieve Btrfs stats: %w", err)
 	}
 
 	for _, s := range stats {

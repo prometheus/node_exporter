@@ -16,15 +16,20 @@
 package collector
 
 import (
+	"errors"
+	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
 
 type raplCollector struct {
-	fs sysfs.FS
+	fs     sysfs.FS
+	logger log.Logger
 }
 
 func init() {
@@ -40,7 +45,8 @@ func NewRaplCollector(logger log.Logger) (Collector, error) {
 	}
 
 	collector := raplCollector{
-		fs: fs,
+		fs:     fs,
+		logger: logger,
 	}
 	return &collector, nil
 }
@@ -50,7 +56,15 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 	// nil zones are fine when platform doesn't have powercap files present.
 	zones, err := sysfs.GetRaplZones(c.fs)
 	if err != nil {
-		return nil
+		if errors.Is(err, os.ErrNotExist) {
+			level.Debug(c.logger).Log("msg", "Platform doesn't have powercap files present", "err", err)
+			return ErrNoData
+		}
+		if errors.Is(err, os.ErrPermission) {
+			level.Debug(c.logger).Log("msg", "Can't access powercap files", "err", err)
+			return ErrNoData
+		}
+		return fmt.Errorf("failed to retrieve rapl stats: %w", err)
 	}
 
 	for _, rz := range zones {

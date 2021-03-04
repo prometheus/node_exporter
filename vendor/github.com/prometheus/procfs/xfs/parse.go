@@ -286,8 +286,8 @@ func readWriteStats(us []uint32) (ReadWriteStats, error) {
 	}
 
 	return ReadWriteStats{
-		Read:  us[0],
-		Write: us[1],
+		Write: us[0],
+		Read:  us[1],
 	}, nil
 }
 

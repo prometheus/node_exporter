@@ -16,7 +16,9 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -88,8 +90,11 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		level.Debug(c.logger).Log("msg", "collecting statistics for resource", "resource", res)
 		vals, err := c.fs.PSIStatsForResource(res)
 		if err != nil {
-			level.Debug(c.logger).Log("msg", "pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
-			return nil
+			if errors.Is(err, os.ErrNotExist) {
+				level.Debug(c.logger).Log("msg", "pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
+				return ErrNoData
+			}
+			return fmt.Errorf("failed to retrieve pressure stats: %w", err)
 		}
 		switch res {
 		case "cpu":

@@ -69,7 +69,7 @@ func (fs FS) NetClassDevices() ([]string, error) {
 
 	devices, err := ioutil.ReadDir(path)
 	if err != nil {
-		return res, fmt.Errorf("cannot access %s dir %s", path, err)
+		return res, fmt.Errorf("cannot access dir %q: %w", path, err)
 	}
 
 	for _, deviceDir := range devices {
@@ -122,7 +122,7 @@ func (nc NetClass) parseNetClassIface(devicePath string) (*NetClassIface, error)
 			if os.IsNotExist(err) || os.IsPermission(err) || err.Error() == "operation not supported" || err.Error() == "invalid argument" {
 				continue
 			}
-			return nil, fmt.Errorf("failed to read file %q: %v", name, err)
+			return nil, fmt.Errorf("failed to read file %q: %w", name, err)
 		}
 		vp := util.NewValueParser(value)
 		switch f.Name() {

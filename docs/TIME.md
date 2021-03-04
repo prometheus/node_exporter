@@ -2,15 +2,15 @@
 
 ## `ntp` collector
 
-This collector is intended for usage with local NTPD like [ntp.org](http://ntp.org/), [chrony](https://chrony.tuxfamily.org/comparison.html) or [OpenNTPD](http://www.openntpd.org/).
+This collector is intended for usage with local NTP daemons including [ntp.org](http://ntp.org/), [chrony](https://chrony.tuxfamily.org/comparison.html), and [OpenNTPD](http://www.openntpd.org/).
 
-Note, some chrony packages have `local stratum 10` configuration value making chrony a valid server when it is unsynchronised. This configuration makes one of `node_ntp_sanity` heuristics unreliable.
+Note, some chrony packages have `local stratum 10` configuration value making chrony a valid server when it is unsynchronised. This configuration makes one of the heuristics that derive `node_ntp_sanity` unreliable.
 
-Note, OpenNTPD does not listen for SNTP queries by default, you should add `listen on 127.0.0.1` configuration line to use this collector with OpenNTPD.
+Note, OpenNTPD does not listen for SNTP queries by default. Add `listen on 127.0.0.1` to the OpenNTPD configuration when using this collector with that package.
 
 ### `node_ntp_stratum`
 
-This metric shows [stratum](https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata) of local NTPD.
+This metric shows the [stratum](https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata) of the local NTP daemon.
 
 Stratum `16` means that clock are unsynchronised. See also aforementioned note about default local stratum in chrony.
 
