@@ -171,18 +171,18 @@ func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- 
 
 	// Export the mtimes of the successful files.
 	// Sorting is needed for predictable output comparison in tests.
-	filenames := make([]string, 0, len(mtimes))
-	for filename := range mtimes {
-		filenames = append(filenames, filename)
+	filepaths := make([]string, 0, len(mtimes))
+	for path := range mtimes {
+		filepaths = append(filepaths, path)
 	}
-	sort.Strings(filenames)
+	sort.Strings(filepaths)
 
-	for _, filename := range filenames {
-		mtime := float64(mtimes[filename].UnixNano() / 1e9)
+	for _, path := range filepaths {
+		mtime := float64(mtimes[path].UnixNano() / 1e9)
 		if c.mtime != nil {
 			mtime = *c.mtime
 		}
-		ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, filename)
+		ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, path)
 	}
 }
 
@@ -219,7 +219,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				continue
 			}
 
-			mtimes[f.Name()] = *mtime
+			mtimes[filepath.Join(path, f.Name())] = *mtime
 		}
 	}
 	c.exportMTimes(mtimes, ch)
