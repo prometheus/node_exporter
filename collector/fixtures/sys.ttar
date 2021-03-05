@@ -1298,7 +1298,7 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/power_supply/BAT0/model_name
 Lines: 1
-LNV-45N1
+LNV-45N1¿¿
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/power_supply/BAT0/power

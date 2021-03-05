@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
@@ -153,7 +154,7 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 		} {
 			if value != "" {
 				keys = append(keys, name)
-				values = append(values, value)
+				values = append(values, strings.ToValidUTF8(value, "�"))
 			}
 		}
 
