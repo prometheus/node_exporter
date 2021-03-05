@@ -5,6 +5,8 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.1.2 / 2021-03-05
+
 * [BUGFIX] Handle errors from disabled PSI subsystem #1983
 * [BUGFIX] Sanitize strings from /sys/class/power_supply #1984
 * [BUGFIX] Silence missing netclass errors #1986
