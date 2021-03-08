@@ -30,7 +30,7 @@ local gauge = promgrafonnet.gauge;
           ||| % $._config,
           legendFormat='{{cpu}}',
           intervalFactor=5,
-          interval='1m',
+          interval='5m',
         ));
 
       local systemLoad =
@@ -101,17 +101,17 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
           legendFormat='{{device}} read',
-          interval='1m',
+          interval='5m',
         ))
         .addTarget(prometheus.target(
           'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
           legendFormat='{{device}} written',
-          interval='1m',
+          interval='5m',
         ))
         .addTarget(prometheus.target(
           'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
           legendFormat='{{device}} io time',
-          interval='1m',
+          interval='5m',
         )) +
         {
           seriesOverrides: [
@@ -188,7 +188,7 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__interval])' % $._config,
           legendFormat='{{device}}',
-          interval='1m',
+          interval='5m',
         ));
 
       local networkTransmitted =
@@ -203,7 +203,7 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__interval])' % $._config,
           legendFormat='{{device}}',
-          interval='1m',
+          interval='5m',
         ));
 
       dashboard.new('Nodes', time_from='now-1h')
