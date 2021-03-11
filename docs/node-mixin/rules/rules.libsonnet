@@ -25,10 +25,12 @@
             ||| % $._config,
           },
           {
-            // This is CPU saturation: 1min avg run queue length / number of CPUs.
-            // Can go over 1.
-            // TODO: There are situation where a run queue >1/core is just normal and fine.
-            //       We need to clarify how to read this metric and if its usage is helpful at all.
+            // One minute load average per CPU.
+            // This metrics is taken from /proc/loadavg file.
+            // It represents the number of jobs in the run queue (processes that are running; state R),
+            // or waiting for disk I/O (state D) averaged over 1 minute.
+            // Values over 1 don't have to be outright considered problematic,
+            // for example there can be multiple processes trying to access the disk.
             record: 'instance:node_load1_per_cpu:ratio',
             expr: |||
               (
