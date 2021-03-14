@@ -128,21 +128,33 @@ This can be useful for having different Prometheus servers collect specific metr
 
 ## Building and running
 
-Prerequisites:
+### Prerequisites:
 
 * [Go compiler](https://golang.org/dl/)
 * RHEL/CentOS: `glibc-static` package.
 
-Building:
+### Building:
 
-    go get github.com/prometheus/node_exporter
+ 1. Get the code from the official repository:
+ 
+    ```bash
+    go get -u github.com/prometheus/node_exporter
+    ```
+ 2. Switch to the buld directory and run ``make``:
+ 
+    ```bash
     cd ${GOPATH-$HOME/go}/src/github.com/prometheus/node_exporter
     make
+    ```
+3. When the build process is over, you can run the exporter:
+   ```bash
     ./node_exporter <flags>
-
-To see all available configuration flags:
-
+   ``` 
+   To see all available configuration flags use ``-h``:
+   
+   ```bash
     ./node_exporter -h
+   ```
 
 ## Running tests
 
