@@ -131,7 +131,7 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		}
 	}
 	if *oldUnitInclude != "" {
-		if *unitInclude == "" {
+		if *unitInclude == ".+" { // .+ is the default value for collector.systemd.unit-include.
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
 			*unitInclude = *oldUnitInclude
 		} else {
