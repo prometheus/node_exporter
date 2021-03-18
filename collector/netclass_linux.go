@@ -31,6 +31,7 @@ import (
 
 var (
 	netclassIgnoredDevices = kingpin.Flag("collector.netclass.ignored-devices", "Regexp of net devices to ignore for netclass collector.").Default("^$").String()
+	netclassInvalidSpeed   = kingpin.Flag("collector.netclass.ignore-invalid-speed", "Ignore devices where the speed is invalid. This will be the default behavior in 2.x.").Bool()
 )
 
 type netClassCollector struct {
@@ -151,8 +152,11 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		if ifaceInfo.Speed != nil {
-			speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
-			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
+			// Some devices return -1 if the speed is unknown.
+			if *ifaceInfo.Speed >= 0 || !*netclassInvalidSpeed {
+				speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
+				pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
+			}
 		}
 
 		if ifaceInfo.TxQueueLen != nil {

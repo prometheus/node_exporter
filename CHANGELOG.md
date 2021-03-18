@@ -5,6 +5,10 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+Note: Ignoring invalid network speed will be the default in 2.x
+
+* [FEATURE] Add flag to ignore network speed if it is unknown #1989
+  
 ## 1.1.2 / 2021-03-05
 
 * [BUGFIX] Handle errors from disabled PSI subsystem #1983
