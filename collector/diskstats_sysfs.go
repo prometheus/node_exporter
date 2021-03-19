@@ -225,12 +225,6 @@ type sysfsDiskCollector struct {
 }
 
 func (m *metric) mustNewConstMetric() prometheus.Metric {
-	switch conv := m.Desc.Conv; conv {
-	case Ms:
-		m.Value = m.Value / 1000.0
-	case Sectors:
-		m.Value = m.Value * DefaultSectorSize
-	}
 	promMetric := prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, diskSubsystem, m.Desc.Name),
@@ -411,6 +405,13 @@ func (c *sysfsDiskCollector) getDeviceStats(d *dmDevice) ([]metric, error) {
 		if i > len(metricDescs) {
 			// Ignore any unknown stats
 			break
+		}
+
+		switch conv := metricDescs[i].Conv; conv {
+		case Ms:
+			v = v / 1000.0
+		case Sectors:
+			v = v * d.SectorSize
 		}
 
 		m = append(m, metric{
