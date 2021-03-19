@@ -8,6 +8,7 @@
 Note: Ignoring invalid network speed will be the default in 2.x
 
 * [FEATURE] Add flag to ignore network speed if it is unknown #1989
+* [BUGFIX] Fix panic when using systemd unit compatibility flags
   
 ## 1.1.2 / 2021-03-05
 
