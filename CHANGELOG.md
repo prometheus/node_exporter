@@ -1,6 +1,6 @@
 ## master / unreleased
 
-* [CHANGE]
+* [CHANGE] Rename flags `collector.filesystem.ignored-mount-points` and `collector.filesystem.ignored-fs-types` to match other collectors
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX]
