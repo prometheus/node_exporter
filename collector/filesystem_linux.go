@@ -32,8 +32,8 @@ import (
 )
 
 const (
-	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
-	defIgnoredFSTypes     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+	defMountPointsExcluded = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
+	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 )
 
 var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
@@ -50,11 +50,11 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	}
 	stats := []filesystemStats{}
 	for _, labels := range mps {
-		if c.ignoredMountPointsPattern.MatchString(labels.mountPoint) {
+		if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
 			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", labels.mountPoint)
 			continue
 		}
-		if c.ignoredFSTypesPattern.MatchString(labels.fsType) {
+		if c.excludedFSTypesPattern.MatchString(labels.fsType) {
 			level.Debug(c.logger).Log("msg", "Ignoring fs", "type", labels.fsType)
 			continue
 		}
