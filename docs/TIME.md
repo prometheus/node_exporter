@@ -77,3 +77,15 @@ OpenNTPD-5.9p1.
 
 On the other hand combination of `sync_status` and `offset` exported by `timex`
 module is the way to monitor if systemd-timesyncd does its job.
+
+## `chrony` collector
+
+This collector exports all stats from [Chrony](https://chrony.tuxfamily.org/) fully imitating `chronyc` command.
+
+Based on [facebookincubator/ntp library](https://github.com/facebookincubator/ntp)
+
+### `collector.chrony.socket-path` arg
+Sets path to chronyd socket. Equals `/var/run/chrony/chronyd.sock` by default
+
+### `collector.chrony.log-response-json` arg
+Sets chrony extended logging. Will log chronyd response in debug log (sets with `--log.level=debug` arg). Equals `false` by default. See [response sample](./collector/chrony.go#289)

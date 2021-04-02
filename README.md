@@ -206,6 +206,7 @@ systemd | Exposes service and system status from [systemd](http://www.freedeskto
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
+chrony | Exposes [Chrony](https://chrony.tuxfamily.org/) metrics. | Linux
 
 
 ### Textfile Collector
