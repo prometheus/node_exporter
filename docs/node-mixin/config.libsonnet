@@ -52,6 +52,7 @@
     fsSpaceAvailableCriticalThreshold: 5,
     fsSpaceAvailableWarningThreshold: 3,
 
-    grafana_prefix: '',
+    dashboardNamePrefix: 'Node Exporter / ',
+    dashboardTags: ['node-exporter-mixin'],
   },
 }

@@ -206,7 +206,14 @@ local gauge = promgrafonnet.gauge;
           interval='1m',
         ));
 
-      dashboard.new('Nodes', time_from='now-1h')
+      dashboard.new(
+        '%sNodes' % $._config.dashboardNamePrefix,
+        time_from='now-1h',
+        tags=($._config.dashboardTags),
+        timezone='utc',
+        refresh='30s',
+        graphTooltip='shared_crosshair'
+      )
       .addTemplate(
         {
           current: {
