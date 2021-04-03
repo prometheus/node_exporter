@@ -53,5 +53,7 @@
     fsSpaceAvailableWarningThreshold: 3,
 
     grafana_prefix: '',
+
+    rateInterval: '5m',
   },
 }
