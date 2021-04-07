@@ -12,7 +12,7 @@
 // limitations under the License.
 
 // +build !nonetdev
-// +build linux freebsd openbsd dragonfly darwin
+// +build linux freebsd openbsd dragonfly darwin netbsd
 
 package collector
 

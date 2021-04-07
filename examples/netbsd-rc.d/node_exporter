@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# PROVIDE: node_exporter
+# REQUIRE: NETWORK
+
+$_rc_subr_loaded . /etc/rc.subr
+
+name="node_exporter"
+rcvar="${name}"
+procname="/usr/pkg/bin/${name}"
+pidfile="/var/run/${name}.pid"
+
+start_cmd="node_exporter_start"
+
+node_exporter_start()
+{
+	$procname ${node_exporter_flags} >/dev/null 2>&1 &
+	echo $! > $pidfile
+}
+
+load_rc_config $name
+run_rc_command "$1"
