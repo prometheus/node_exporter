@@ -183,15 +183,21 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 }
 
 func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
-	netClass, err := c.fs.NetClass()
+	netClass := sysfs.NetClass{}
+	netDevices, err := c.fs.NetClassDevices()
 	if err != nil {
 		return netClass, err
 	}
 
-	for device := range netClass {
+	for _, device := range netDevices {
 		if c.ignoredDevicesPattern.MatchString(device) {
-			delete(netClass, device)
+			continue
 		}
+		interfaceClass, err := c.fs.NetClassByIface(device)
+		if err != nil {
+			return netClass, err
+		}
+		netClass[device] = *interfaceClass
 	}
 
 	return netClass, nil
