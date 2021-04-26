@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"syscall"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -92,6 +93,10 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				level.Debug(c.logger).Log("msg", "pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
+				return ErrNoData
+			}
+			if errors.Is(err, syscall.ENOTSUP) {
+				level.Debug(c.logger).Log("msg", "pressure information is disabled, add psi=1 kernel command line to enable it")
 				return ErrNoData
 			}
 			return fmt.Errorf("failed to retrieve pressure stats: %w", err)
