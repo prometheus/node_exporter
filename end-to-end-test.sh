@@ -14,6 +14,7 @@ enabled_collectors=$(cat << COLLECTORS
   drbd
   edac
   entropy
+  ethtool
   fibrechannel
   filefd
   hwmon
@@ -109,6 +110,7 @@ fi
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --collector.netclass.ignored-devices="(dmz|int)" \
   --collector.netclass.ignore-invalid-speed \
+  --collector.ethtool.fixtures="collector/fixtures/ethtool/" \
   --collector.bcache.priorityStats \
   --collector.cpu.info \
   --collector.cpu.info.flags-include="^(aes|avx.?|constant_tsc)$" \
