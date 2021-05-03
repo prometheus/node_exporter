@@ -64,6 +64,7 @@ func init() {
 	registerCollector("therm", defaultEnabled, NewThermCollector)
 }
 
+// NewThermCollector returns a new Collector exposing current CPU power levels.
 func NewThermCollector(logger log.Logger) (Collector, error) {
 	return &thermCollector{
 		cpuSchedulerLimit: typedDesc{
