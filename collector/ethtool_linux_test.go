@@ -14,12 +14,68 @@
 package collector
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"syscall"
 	"testing"
 
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
+
+type EthtoolFixture struct {
+	fixturePath string
+}
+
+func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
+	res := make(map[string]uint64)
+
+	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf))
+	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
+		// The fixture for this interface doesn't exist. That's OK because it replicates
+		// an interface that doesn't support ethtool.
+		return res, nil
+	}
+	if err != nil {
+		return res, err
+	}
+	defer fixtureFile.Close()
+
+	scanner := bufio.NewScanner(fixtureFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if strings.HasPrefix(line, "NIC statistics:") {
+			continue
+		}
+		line = strings.Trim(line, " ")
+		items := strings.Split(line, ": ")
+		val, err := strconv.ParseUint(items[1], 10, 64)
+		if err != nil {
+			return res, err
+		}
+		res[items[0]] = val
+	}
+
+	return res, err
+}
+
+func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
+	collector, err := makeEthtoolCollector(logger)
+	collector.stats = &EthtoolFixture{
+		fixturePath: "fixtures/ethtool/",
+	}
+	if err != nil {
+		return nil, err
+	}
+	return collector, nil
+}
 
 func TestEthtoolCollector(t *testing.T) {
 	testcases := []string{
@@ -37,7 +93,6 @@ func TestEthtoolCollector(t *testing.T) {
 	}
 
 	*sysPath = "fixtures/sys"
-	*ethtoolFixtures = "fixtures/ethtool/"
 
 	collector, err := NewEthtoolTestCollector(log.NewNopLogger())
 	if err != nil {
