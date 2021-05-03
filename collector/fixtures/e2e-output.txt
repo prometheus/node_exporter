@@ -657,45 +657,6 @@ node_entropy_available_bits 1337
 # HELP node_entropy_pool_size_bits Bits of entropy pool.
 # TYPE node_entropy_pool_size_bits gauge
 node_entropy_pool_size_bits 4096
-# HELP node_ethtool_align_errors Network interface align_errors
-# TYPE node_ethtool_align_errors untyped
-node_ethtool_align_errors{device="eth0"} 0
-# HELP node_ethtool_received_broadcast Network interface rx_broadcast
-# TYPE node_ethtool_received_broadcast untyped
-node_ethtool_received_broadcast{device="eth0"} 5792
-# HELP node_ethtool_received_errors_total Number of received frames with errors
-# TYPE node_ethtool_received_errors_total untyped
-node_ethtool_received_errors_total{device="eth0"} 0
-# HELP node_ethtool_received_missed Network interface rx_missed
-# TYPE node_ethtool_received_missed untyped
-node_ethtool_received_missed{device="eth0"} 401
-# HELP node_ethtool_received_multicast Network interface rx_multicast
-# TYPE node_ethtool_received_multicast untyped
-node_ethtool_received_multicast{device="eth0"} 23973
-# HELP node_ethtool_received_packets_total Network interface packets received
-# TYPE node_ethtool_received_packets_total untyped
-node_ethtool_received_packets_total{device="eth0"} 1.260062e+06
-# HELP node_ethtool_received_unicast Network interface rx_unicast
-# TYPE node_ethtool_received_unicast untyped
-node_ethtool_received_unicast{device="eth0"} 1.230297e+06
-# HELP node_ethtool_transmitted_aborted Network interface tx_aborted
-# TYPE node_ethtool_transmitted_aborted untyped
-node_ethtool_transmitted_aborted{device="eth0"} 0
-# HELP node_ethtool_transmitted_errors_total Number of sent frames with errors
-# TYPE node_ethtool_transmitted_errors_total untyped
-node_ethtool_transmitted_errors_total{device="eth0"} 0
-# HELP node_ethtool_transmitted_multi_collisions Network interface tx_multi_collisions
-# TYPE node_ethtool_transmitted_multi_collisions untyped
-node_ethtool_transmitted_multi_collisions{device="eth0"} 0
-# HELP node_ethtool_transmitted_packets_total Network interface packets sent
-# TYPE node_ethtool_transmitted_packets_total untyped
-node_ethtool_transmitted_packets_total{device="eth0"} 961500
-# HELP node_ethtool_transmitted_single_collisions Network interface tx_single_collisions
-# TYPE node_ethtool_transmitted_single_collisions untyped
-node_ethtool_transmitted_single_collisions{device="eth0"} 0
-# HELP node_ethtool_transmitted_underrun Network interface tx_underrun
-# TYPE node_ethtool_transmitted_underrun untyped
-node_ethtool_transmitted_underrun{device="eth0"} 0
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built.
 # TYPE node_exporter_build_info gauge
 # HELP node_fibrechannel_error_frames_total Number of errors in frames
@@ -2784,7 +2745,6 @@ node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1
 node_scrape_collector_success{collector="entropy"} 1
-node_scrape_collector_success{collector="ethtool"} 1
 node_scrape_collector_success{collector="fibrechannel"} 1
 node_scrape_collector_success{collector="filefd"} 1
 node_scrape_collector_success{collector="hwmon"} 1

@@ -20,29 +20,22 @@
 package collector
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
-	"strconv"
-	"strings"
-	"syscall"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"github.com/safchain/ethtool"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
 	receivedRegex    = regexp.MustCompile(`_rx_`)
 	transmittedRegex = regexp.MustCompile(`_tx_`)
-	ethtoolFixtures  = kingpin.Flag("collector.ethtool.fixtures", "test fixtures to use for ethtool collector end-to-end testing").Default("").String()
 )
 
 type EthtoolStats interface {
@@ -61,56 +54,6 @@ type ethtoolCollector struct {
 	entries map[string]*prometheus.Desc
 	logger  log.Logger
 	stats   EthtoolStats
-}
-
-type EthtoolFixture struct {
-	fixturePath string
-}
-
-func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
-	res := make(map[string]uint64)
-
-	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf))
-	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
-		// The fixture for this interface doesn't exist. That's OK because it replicates
-		// an interface that doesn't support ethtool.
-		return res, nil
-	}
-	if err != nil {
-		return res, err
-	}
-	defer fixtureFile.Close()
-
-	scanner := bufio.NewScanner(fixtureFile)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "#") {
-			continue
-		}
-		if strings.HasPrefix(line, "NIC statistics:") {
-			continue
-		}
-		line = strings.Trim(line, " ")
-		items := strings.Split(line, ": ")
-		val, err := strconv.ParseUint(items[1], 10, 64)
-		if err != nil {
-			return res, err
-		}
-		res[items[0]] = val
-	}
-
-	return res, err
-}
-
-func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
-	collector, err := makeEthtoolCollector(logger)
-	collector.stats = &EthtoolFixture{
-		fixturePath: *ethtoolFixtures,
-	}
-	if err != nil {
-		return nil, err
-	}
-	return collector, nil
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
@@ -173,11 +116,6 @@ func init() {
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
 func NewEthtoolCollector(logger log.Logger) (Collector, error) {
-	// Specifying --collector.ethtool.fixtures on the command line activates
-	// the test fixtures. This is for `end-to-end-test.sh`
-	if *ethtoolFixtures != "" {
-		return NewEthtoolTestCollector(logger)
-	}
 	return makeEthtoolCollector(logger)
 }
 
