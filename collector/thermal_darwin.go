@@ -69,7 +69,7 @@ func NewThermCollector(logger log.Logger) (Collector, error) {
 	return &thermCollector{
 		cpuSchedulerLimit: typedDesc{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, thermal, "cpu_scheduler_limit"),
+				prometheus.BuildFQName(namespace, thermal, "cpu_scheduler_limit_ratio"),
 				"Represents the percentage (0-100) of CPU time available. 100% at normal operation. The OS may limit this time for a percentage less than 100%.",
 				nil,
 				nil),
@@ -86,7 +86,7 @@ func NewThermCollector(logger log.Logger) (Collector, error) {
 		},
 		cpuSpeedLimit: typedDesc{
 			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, thermal, "cpu_speed_limit"),
+				prometheus.BuildFQName(namespace, thermal, "cpu_speed_limit_ratio"),
 				"Defines the speed & voltage limits placed on the CPU. Represented as a percentage (0-100) of maximum CPU speed.",
 				nil,
 				nil,
@@ -103,13 +103,13 @@ func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitSchedulerTimeKey))]; ok {
-		ch <- c.cpuSchedulerLimit.mustNewConstMetric(float64(value))
+		ch <- c.cpuSchedulerLimit.mustNewConstMetric(float64(value / 100.0))
 	}
 	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorCountKey))]; ok {
 		ch <- c.cpuAvailableCPU.mustNewConstMetric(float64(value))
 	}
 	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorSpeedKey))]; ok {
-		ch <- c.cpuSpeedLimit.mustNewConstMetric(float64(value))
+		ch <- c.cpuSpeedLimit.mustNewConstMetric(float64(value / 100.0))
 	}
 	return nil
 }
