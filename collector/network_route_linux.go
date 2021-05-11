@@ -36,7 +36,7 @@ func init() {
 	registerCollector("network_route", defaultDisabled, NewNetworkRouteCollector)
 }
 
-// NewSystemdCollector returns a new Collector exposing systemd statistics.
+// NewNetworkRouteCollector returns a new Collector exposing systemd statistics.
 func NewNetworkRouteCollector(logger log.Logger) (Collector, error) {
 	const subsystem = "network"
 
