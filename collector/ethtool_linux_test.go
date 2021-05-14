@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 )
 
 type EthtoolFixture struct {
@@ -36,9 +37,9 @@ func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
 
 	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf))
 	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
-		// The fixture for this interface doesn't exist. That's OK because it replicates
-		// an interface that doesn't support ethtool.
-		return res, nil
+		// The fixture for this interface doesn't exist. Translate that to unix.EOPNOTSUPP
+		// to replicate an interface that doesn't support ethtool stats
+		return res, unix.EOPNOTSUPP
 	}
 	if err != nil {
 		return res, err
@@ -59,6 +60,9 @@ func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
 		val, err := strconv.ParseUint(items[1], 10, 64)
 		if err != nil {
 			return res, err
+		}
+		if items[0] == "ERROR" {
+			return res, unix.Errno(val)
 		}
 		res[items[0]] = val
 	}
