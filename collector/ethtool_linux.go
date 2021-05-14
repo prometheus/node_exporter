@@ -25,12 +25,14 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"syscall"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"github.com/safchain/ethtool"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -138,8 +140,23 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		var err error
 
 		stats, err = c.stats.Stats(device)
+
+		// If Stats() returns EOPNOTSUPP it doesn't support ethtool stats. Log that only at Debug level.
+		// Otherwise log it at Error level.
 		if err != nil {
-			// Suppressing errors because it's hard to tell what interfaces support ethtool and which don't.
+			if errno, ok := err.(syscall.Errno); ok {
+				if err == unix.EOPNOTSUPP {
+					level.Debug(c.logger).Log("msg", "ethtool stats error", "err", err, "device", device, "errno", uint(errno))
+				} else if errno != 0 {
+					level.Error(c.logger).Log("msg", "ethtool stats error", "err", err, "device", device, "errno", uint(errno))
+				}
+			} else {
+				level.Error(c.logger).Log("msg", "ethtool stats error", "err", err, "device", device)
+			}
+		}
+
+		if stats == nil || len(stats) < 1 {
+			// No stats returned; device does not support ethtool stats.
 			continue
 		}
 
