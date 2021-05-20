@@ -1,7 +1,7 @@
 ## master / unreleased
 
 * [CHANGE]
-* [FEATURE]
+* [FEATURE] Add tapestats collector for Linux
 * [ENHANCEMENT]
 * [BUGFIX]
 
