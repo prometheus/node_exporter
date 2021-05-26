@@ -53,16 +53,20 @@ func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error
 
 		data := (*C.struct_if_data)(ifa.ifa_data)
 
-		netDev[dev] = map[string]uint64{
-			"receive_packets":    uint64(data.ifi_ipackets),
-			"transmit_packets":   uint64(data.ifi_opackets),
-			"receive_errs":       uint64(data.ifi_ierrors),
-			"transmit_errs":      uint64(data.ifi_oerrors),
-			"receive_bytes":      uint64(data.ifi_ibytes),
-			"transmit_bytes":     uint64(data.ifi_obytes),
-			"receive_multicast":  uint64(data.ifi_imcasts),
-			"transmit_multicast": uint64(data.ifi_omcasts),
-			"receive_drop":       uint64(data.ifi_iqdrops),
+		netDev[dev] = netDevMetrics{
+			metrics: map[string]uint64{
+				"receive_packets":    uint64(data.ifi_ipackets),
+				"transmit_packets":   uint64(data.ifi_opackets),
+				"receive_errs":       uint64(data.ifi_ierrors),
+				"transmit_errs":      uint64(data.ifi_oerrors),
+				"receive_bytes":      uint64(data.ifi_ibytes),
+				"transmit_bytes":     uint64(data.ifi_obytes),
+				"receive_multicast":  uint64(data.ifi_imcasts),
+				"transmit_multicast": uint64(data.ifi_omcasts),
+				"receive_drop":       uint64(data.ifi_iqdrops),
+			},
+			labels:      []string{"device"},
+			labelValues: []string{dev},
 		}
 	}
 
