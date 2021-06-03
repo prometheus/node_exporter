@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"

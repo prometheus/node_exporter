@@ -1,13 +1,16 @@
 ## master / unreleased
 
-* [CHANGE] Rename flags `collector.filesystem.ignored-mount-points` and `collector.filesystem.ignored-fs-types` to match other collectors
+* [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX]
 
-Note: Ignoring invalid network speed will be the default in 2.x
+NOTE: Ignoring invalid network speed will be the default in 2.x
+NOTE: Filesystem collector flags have been renamed. `--collector.filesystem.ignored-mount-points` is now `--collector.filesystem.mount-points-exclude` and `--collector.filesystem.ignored-fs-types` is now `--collector.filesystem.fs-types-exclude`. The old flags will be removed in 2.x.
 
+* [CHANGE] Rename filesystem collector flags to match other collectors #2012
 * [FEATURE] Add flag to ignore network speed if it is unknown #1989
+* [BUGFIX] Add ErrorLog plumbing to promhttp #1887
   
 ## 1.1.2 / 2021-03-05
 
