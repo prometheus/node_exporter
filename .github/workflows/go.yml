@@ -1,0 +1,62 @@
+name: Go
+
+on: 
+  push:
+    branches:
+      - master
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+  pull_request:
+
+jobs:
+  test:
+    name: Test
+    strategy:
+      matrix:
+        go-version:
+          - 1.15
+          - 1.16
+        include:
+          - go-version: tip
+            os: ubuntu-latest
+            postgresql-image: postgres:12
+            may-fail: true
+    runs-on: ubuntu-latest
+    # The environment this job references
+    environment:
+      name: CI
+    steps:
+    - name: Set up Go release
+      if: matrix.go-version != 'tip'
+      uses: percona-platform/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+    - name: Set up Go tip
+      if: matrix.go-version == 'tip'
+      env:
+        # to avoid error due to `go version` accepting -v flag with an argument since 1.15
+        GOFLAGS: ""
+      run: |
+        git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+        cd $HOME/gotip/src
+        ./make.bash
+        echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
+        echo "$HOME/gotip/bin" >> $GITHUB_PATH
+    - name: Checkout code
+      uses: percona-platform/checkout@v2
+    - name: Run checks
+      run: |
+        go build -modfile=tools/go.mod -o bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+        go build -modfile=tools/go.mod -o bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
+        bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
+        bin/golangci-lint run -c=.golangci.yml --out-format=line-number | env REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+    - name: Run Install
+      run: go install -v ./...
+    - name: Run debug commands on failure
+      if: ${{ failure() }}
+      run: |
+        env
+        go version
+        go env
+        pwd
+        git status

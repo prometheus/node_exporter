@@ -1,4 +1,4 @@
-module github.com/prometheus/node_exporter
+module github.com/percona/node_exporter
 
 require (
 	github.com/beevik/ntp v0.2.0
@@ -22,4 +22,4 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
-go 1.13
+go 1.16
