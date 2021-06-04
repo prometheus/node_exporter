@@ -120,19 +120,18 @@ func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, err
 	initiatedCollectorsMtx.Lock()
 	defer initiatedCollectorsMtx.Unlock()
 	for key, enabled := range collectorState {
-		if *enabled {
-			if collector, ok := initiatedCollectors[key]; ok {
-				collectors[key] = collector
-			} else {
-				collector, err := factories[key](log.With(logger, "collector", key))
-				if err != nil {
-					return nil, err
-				}
-				if len(f) == 0 || f[key] {
-					collectors[key] = collector
-					initiatedCollectors[key] = collector
-				}
+		if !*enabled || (len(f) > 0 && !f[key]) {
+			continue
+		}
+		if collector, ok := initiatedCollectors[key]; ok {
+			collectors[key] = collector
+		} else {
+			collector, err := factories[key](log.With(logger, "collector", key))
+			if err != nil {
+				return nil, err
 			}
+			collectors[key] = collector
+			initiatedCollectors[key] = collector
 		}
 	}
 	return &NodeCollector{Collectors: collectors, logger: logger}, nil
