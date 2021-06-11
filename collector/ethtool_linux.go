@@ -59,7 +59,7 @@ type ethtoolCollector struct {
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
-// This allows NewEthtoolTestCollector to override it's .stats interface
+// This allows NewEthtoolTestCollector to override its .stats interface
 // for testing.
 func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
