@@ -1,0 +1,4 @@
+build_root_image:
+  name: release
+  namespace: openshift
+  tag: golang-1.14
