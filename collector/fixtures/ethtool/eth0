@@ -1,0 +1,15 @@
+# ethtool -S eth0
+NIC statistics:
+     tx_packets: 961500
+     rx_packets: 1260062
+     tx_errors: 0
+     rx_errors: 0
+     rx_missed: 401
+     align_errors: 0
+     tx_single_collisions: 0
+     tx_multi_collisions: 0
+     rx_unicast: 1230297
+     rx_broadcast: 5792
+     rx_multicast: 23973
+     tx_aborted: 0
+     tx_underrun: 0
