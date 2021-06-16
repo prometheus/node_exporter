@@ -297,6 +297,19 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")
 	}
 
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.User, "total", "user")
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.Nice, "total", "nice")
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.System, "total", "system")
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.Idle, "total", "idle")
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.Iowait, "total", "iowait")
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.IRQ, "total", "irq")
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.SoftIRQ, "total", "softirq")
+	ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, stats.CPUTotal.Steal, "total", "steal")
+
+	// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
+	ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, stats.CPUTotal.Guest, "total", "user")
+	ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, stats.CPUTotal.GuestNice, "total", "nice")
+
 	return nil
 }
 

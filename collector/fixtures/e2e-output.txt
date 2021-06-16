@@ -283,6 +283,8 @@ node_cpu_guest_seconds_total{cpu="6",mode="nice"} 0.07
 node_cpu_guest_seconds_total{cpu="6",mode="user"} 0.08
 node_cpu_guest_seconds_total{cpu="7",mode="nice"} 0.08
 node_cpu_guest_seconds_total{cpu="7",mode="user"} 0.09
+node_cpu_guest_seconds_total{cpu="total",mode="nice"} 0.36
+node_cpu_guest_seconds_total{cpu="total",mode="user"} 0.44
 # HELP node_cpu_info CPU information from /proc/cpuinfo.
 # TYPE node_cpu_info gauge
 node_cpu_info{cachesize="8192 KB",core="0",cpu="0",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
@@ -381,6 +383,14 @@ node_cpu_seconds_total{cpu="7",mode="softirq"} 0.31
 node_cpu_seconds_total{cpu="7",mode="steal"} 0
 node_cpu_seconds_total{cpu="7",mode="system"} 101.64
 node_cpu_seconds_total{cpu="7",mode="user"} 290.98
+node_cpu_seconds_total{cpu="total",mode="idle"} 89790.04
+node_cpu_seconds_total{cpu="total",mode="iowait"} 35.52
+node_cpu_seconds_total{cpu="total",mode="irq"} 0.02
+node_cpu_seconds_total{cpu="total",mode="nice"} 6.12
+node_cpu_seconds_total{cpu="total",mode="softirq"} 39.44
+node_cpu_seconds_total{cpu="total",mode="steal"} 0
+node_cpu_seconds_total{cpu="total",mode="system"} 1119.22
+node_cpu_seconds_total{cpu="total",mode="user"} 3018.54
 # HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
