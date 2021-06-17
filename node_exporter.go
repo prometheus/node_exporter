@@ -165,6 +165,10 @@ func main() {
 			"web.config",
 			"[EXPERIMENTAL] Path to config yaml file that can enable TLS or authentication.",
 		).Default("").String()
+		annotationsConfigFile = kingpin.Flag(
+			"annotations.config",
+			"Annotations configuration file.",
+		).Default("").String()
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -182,6 +186,15 @@ func main() {
 	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
 	if user, err := user.Current(); err == nil && user.Uid == "0" {
 		level.Warn(logger).Log("msg", "Node Exporter is running as root user. This exporter is designed to run as unpriviledged user, root is not required.")
+	}
+
+	if annotationsConfigFile != nil {
+		annotator, err := NewAnnotator(*annotationsConfigFile)
+		if err != nil {
+			logger.Log("msg", "Unablt to get annotator")
+		} else {
+			collector.SetAnnotator(annotator)
+		}
 	}
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))

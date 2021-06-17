@@ -288,3 +288,25 @@ See the [exporter-toolkit https package](https://github.com/prometheus/exporter-
 [circleci]: https://circleci.com/gh/prometheus/node_exporter
 [quay]: https://quay.io/repository/prometheus/node-exporter
 [goreportcard]: https://goreportcard.com/report/github.com/prometheus/node_exporter
+
+## Annotations (Custom Labels)
+
+** EXPERIMENTAL **
+
+The exporter supports adding custom labels to network interface metrics.
+
+```console
+./node_exporter --annotations.config=annotations.yml
+```
+
+```yaml
+netdev:
+  - name: "eth0"
+    labels:
+      remote_dev: "router-1.pop01"
+      remote_if: "xe-0/0/0"
+      customer: "ACME"
+      drained: "false"
+      circuit_id: "xx12345"
+      status: "planned"
+```

@@ -50,11 +50,12 @@ const (
 )
 
 var (
-	factories              = make(map[string]func(logger log.Logger) (Collector, error))
-	initiatedCollectorsMtx = sync.Mutex{}
-	initiatedCollectors    = make(map[string]Collector)
-	collectorState         = make(map[string]*bool)
-	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	factories                        = make(map[string]func(logger log.Logger) (Collector, error))
+	initiatedCollectorsMtx           = sync.Mutex{}
+	initiatedCollectors              = make(map[string]Collector)
+	collectorState                   = make(map[string]*bool)
+	forcedCollectors                 = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	annotator              Annotator = &dummyAnnotator{}
 )
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(logger log.Logger) (Collector, error)) {
