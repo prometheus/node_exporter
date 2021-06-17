@@ -140,7 +140,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			metricFQName = transmittedRegex.ReplaceAllString(metricFQName, "_transmitted_")
 
 			entry := prometheus.NewDesc(
-				metricFQName,
+				metricFQName+"_total",
 				fmt.Sprintf("Network interface %s", metric),
 				labelKeys, nil,
 			)
