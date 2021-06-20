@@ -10,6 +10,7 @@ NOTE: Filesystem collector flags have been renamed. `--collector.filesystem.igno
 
 * [CHANGE] Rename filesystem collector flags to match other collectors #2012
 * [FEATURE] Add flag to ignore network speed if it is unknown #1989
+* [ENHANCEMENT] Add time zone offset metric #2060
 * [BUGFIX] Add ErrorLog plumbing to promhttp #1887
   
 ## 1.1.2 / 2021-03-05
