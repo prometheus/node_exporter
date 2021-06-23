@@ -24,8 +24,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -187,7 +187,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	diskStats, err := getDiskStats()
 	if err != nil {
-		return fmt.Errorf("couldn't get diskstats: %s", err)
+		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
 
 	for dev, stats := range diskStats {
@@ -203,7 +203,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			v, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				return fmt.Errorf("invalid value %s in diskstats: %s", value, err)
+				return fmt.Errorf("invalid value %s in diskstats: %w", value, err)
 			}
 			ch <- c.descs[i].mustNewConstMetric(v, dev)
 		}

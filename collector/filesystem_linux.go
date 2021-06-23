@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -24,15 +25,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
-	defIgnoredFSTypes     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+	defMountPointsExcluded = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
+	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 )
 
 var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
@@ -49,11 +50,11 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	}
 	stats := []filesystemStats{}
 	for _, labels := range mps {
-		if c.ignoredMountPointsPattern.MatchString(labels.mountPoint) {
+		if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
 			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", labels.mountPoint)
 			continue
 		}
-		if c.ignoredFSTypesPattern.MatchString(labels.fsType) {
+		if c.excludedFSTypesPattern.MatchString(labels.fsType) {
 			level.Debug(c.logger).Log("msg", "Ignoring fs", "type", labels.fsType)
 			continue
 		}
@@ -139,7 +140,7 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 
 func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
 	file, err := os.Open(procFilePath("1/mounts"))
-	if os.IsNotExist(err) {
+	if errors.Is(err, os.ErrNotExist) {
 		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
 		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
 		file, err = os.Open(procFilePath("mounts"))

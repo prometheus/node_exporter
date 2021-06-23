@@ -16,28 +16,16 @@
 package collector
 
 import (
-	"bytes"
-	"unsafe"
-
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
 const (
-	defIgnoredMountPoints = "^/(dev)($|/)"
-	defIgnoredFSTypes     = "^devfs$"
-	readOnly              = 0x1 // MNT_RDONLY
-	noWait                = 0x2 // MNT_NOWAIT
+	defMountPointsExcluded = "^/(dev)($|/)"
+	defFSTypesExcluded     = "^devfs$"
+	readOnly               = 0x1 // MNT_RDONLY
+	noWait                 = 0x2 // MNT_NOWAIT
 )
-
-func gostring(b []int8) string {
-	bb := *(*[]byte)(unsafe.Pointer(&b))
-	idx := bytes.IndexByte(bb, 0)
-	if idx < 0 {
-		return ""
-	}
-	return string(bb[:idx])
-}
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
@@ -52,15 +40,15 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	}
 	stats := []filesystemStats{}
 	for _, fs := range buf {
-		mountpoint := gostring(fs.Mntonname[:])
-		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
+		mountpoint := bytesToString(fs.Mntonname[:])
+		if c.excludedMountPointsPattern.MatchString(mountpoint) {
 			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
-		device := gostring(fs.Mntfromname[:])
-		fstype := gostring(fs.Fstypename[:])
-		if c.ignoredFSTypesPattern.MatchString(fstype) {
+		device := bytesToString(fs.Mntfromname[:])
+		fstype := bytesToString(fs.Fstypename[:])
+		if c.excludedFSTypesPattern.MatchString(fstype) {
 			level.Debug(c.logger).Log("msg", "Ignoring fs type", "type", fstype)
 			continue
 		}

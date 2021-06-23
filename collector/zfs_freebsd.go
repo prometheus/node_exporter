@@ -11,12 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nozfs
+
 package collector
 
 import (
 	"fmt"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -248,7 +250,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {
-			return fmt.Errorf("couldn't get sysctl: %s", err)
+			return fmt.Errorf("couldn't get sysctl: %w", err)
 		}
 
 		ch <- prometheus.MustNewConstMetric(

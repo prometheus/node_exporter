@@ -1,10 +1,10 @@
-local grafana = import 'grafonnet/grafana.libsonnet';
+local grafana = import 'github.com/grafana/grafonnet-lib/grafonnet/grafana.libsonnet';
 local dashboard = grafana.dashboard;
 local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
-local promgrafonnet = import 'promgrafonnet/promgrafonnet.libsonnet';
+local promgrafonnet = import 'github.com/kubernetes-monitoring/kubernetes-mixin/lib/promgrafonnet/promgrafonnet.libsonnet';
 local gauge = promgrafonnet.gauge;
 
 {
@@ -23,14 +23,13 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           |||
             (
-              (1 - rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[$__interval]))
+              (1 - rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[$__rate_interval]))
             / ignoring(cpu) group_left
               count without (cpu)( node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"})
             )
           ||| % $._config,
           legendFormat='{{cpu}}',
           intervalFactor=5,
-          interval='1m',
         ));
 
       local systemLoad =
@@ -75,14 +74,15 @@ local gauge = promgrafonnet.gauge;
 
       // TODO: It would be nicer to have a gauge that gets a 0-1 range and displays it as a percentage 0%-100%.
       // This needs to be added upstream in the promgrafonnet library and then changed here.
+      // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
       local memoryGauge = gauge.new(
         'Memory Usage',
         |||
           100 -
           (
-            node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"}
+            avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"})
           /
-            node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
+            avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"})
           * 100
           )
         ||| % $._config,
@@ -98,19 +98,16 @@ local gauge = promgrafonnet.gauge;
         )
         // TODO: Does it make sense to have those three in the same panel?
         .addTarget(prometheus.target(
-          'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
+          'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % $._config,
           legendFormat='{{device}} read',
-          interval='1m',
         ))
         .addTarget(prometheus.target(
-          'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
+          'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % $._config,
           legendFormat='{{device}} written',
-          interval='1m',
         ))
         .addTarget(prometheus.target(
-          'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
+          'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % $._config,
           legendFormat='{{device}} io time',
-          interval='1m',
         )) +
         {
           seriesOverrides: [
@@ -185,9 +182,8 @@ local gauge = promgrafonnet.gauge;
           fill=0,
         )
         .addTarget(prometheus.target(
-          'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__interval])' % $._config,
+          'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % $._config,
           legendFormat='{{device}}',
-          interval='1m',
         ));
 
       local networkTransmitted =
@@ -200,9 +196,8 @@ local gauge = promgrafonnet.gauge;
           fill=0,
         )
         .addTarget(prometheus.target(
-          'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__interval])' % $._config,
+          'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % $._config,
           legendFormat='{{device}}',
-          interval='1m',
         ));
 
       dashboard.new('Nodes', time_from='now-1h')

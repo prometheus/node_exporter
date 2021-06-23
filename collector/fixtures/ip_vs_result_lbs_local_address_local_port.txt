@@ -1,0 +1,33 @@
+# HELP node_ipvs_backend_connections_active The current active connections by local and remote address.
+# TYPE node_ipvs_backend_connections_active gauge
+node_ipvs_backend_connections_active{local_address="",local_port="0"} 385
+node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306"} 744
+node_ipvs_backend_connections_active{local_address="192.168.0.55",local_port="3306"} 0
+node_ipvs_backend_connections_active{local_address="192.168.0.57",local_port="3306"} 2997
+# HELP node_ipvs_backend_connections_inactive The current inactive connections by local and remote address.
+# TYPE node_ipvs_backend_connections_inactive gauge
+node_ipvs_backend_connections_inactive{local_address="",local_port="0"} 6
+node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_port="3306"} 5
+node_ipvs_backend_connections_inactive{local_address="192.168.0.55",local_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_port="3306"} 0
+# HELP node_ipvs_backend_weight The current backend weight by local and remote address.
+# TYPE node_ipvs_backend_weight gauge
+node_ipvs_backend_weight{local_address="",local_port="0"} 120
+node_ipvs_backend_weight{local_address="192.168.0.22",local_port="3306"} 300
+node_ipvs_backend_weight{local_address="192.168.0.55",local_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.57",local_port="3306"} 200
+# HELP node_ipvs_connections_total The total number of connections made.
+# TYPE node_ipvs_connections_total counter
+node_ipvs_connections_total 2.3765872e+07
+# HELP node_ipvs_incoming_bytes_total The total amount of incoming data.
+# TYPE node_ipvs_incoming_bytes_total counter
+node_ipvs_incoming_bytes_total 8.9991519156915e+13
+# HELP node_ipvs_incoming_packets_total The total number of incoming packets.
+# TYPE node_ipvs_incoming_packets_total counter
+node_ipvs_incoming_packets_total 3.811989221e+09
+# HELP node_ipvs_outgoing_bytes_total The total amount of outgoing data.
+# TYPE node_ipvs_outgoing_bytes_total counter
+node_ipvs_outgoing_bytes_total 0
+# HELP node_ipvs_outgoing_packets_total The total number of outgoing packets.
+# TYPE node_ipvs_outgoing_packets_total counter
+node_ipvs_outgoing_packets_total 0

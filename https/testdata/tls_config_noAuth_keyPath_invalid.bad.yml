@@ -1,3 +1,0 @@
-tlsConfig :
-  tlsCertPath : "testdata/server.cert"
-  tlsKeyPath : "somefile"

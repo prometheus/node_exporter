@@ -2,14 +2,14 @@
 version: 2.1
 
 orbs:
-  prometheus: prometheus/prometheus@0.1.0
+  prometheus: prometheus/prometheus@0.11.0
 
 executors:
-  # Whenever the Go version is updated here, .promu.yml should
-  # also be updated.
+  # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
+  # should also be updated.
   golang:
     docker:
-    - image: circleci/golang:1.13
+    - image: circleci/golang:1.16
 
 jobs:
   test:
@@ -17,6 +17,7 @@ jobs:
 
     steps:
     - prometheus/setup_environment
+    - run: go mod download
     - run: make
     - prometheus/store_artifact:
         file: node_exporter
@@ -28,22 +29,39 @@ jobs:
     steps:
     - checkout
     - run: sudo pip install codespell
-    - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem" -L uint,packages\',uptodate
+    - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem,./collector/fixtures" -L uint,packages\',uptodate
+
+  test_mixins:
+    executor: golang
+    steps:
+    - checkout
+    - run:
+        command: go install -mod=readonly github.com/google/go-jsonnet/cmd/jsonnet github.com/google/go-jsonnet/cmd/jsonnetfmt github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb github.com/prometheus/prometheus/cmd/promtool
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: make clean
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: jb install
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: make
+        working_directory: ~/project/docs/node-mixin
+    - run:
+        command: git diff --exit-code
+        working_directory: ~/project/docs/node-mixin
 
   build:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2004:202101-01
 
-    environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.13-base
-      REPO_PATH: github.com/prometheus/node_exporter
+    parallelism: 3
 
     steps:
-    - checkout
-    - run: docker run --privileged linuxkit/binfmt:v0.7
-    - run: make promu
-    - run: promu crossbuild
-    - run: promu --config .promu-cgo.yml crossbuild
+    - prometheus/setup_environment
+    - run: docker run --privileged linuxkit/binfmt:v0.8
+    - run: promu crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
+    - run: promu --config .promu-cgo.yml crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
     - persist_to_workspace:
         root: .
         paths:
@@ -51,6 +69,19 @@ jobs:
     - store_artifacts:
         path: .build
         destination: /build
+
+  test_docker:
+    machine:
+      image: ubuntu-2004:202101-01
+
+    environment:
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.16-base
+      REPO_PATH: github.com/prometheus/node_exporter
+
+    steps:
+    - prometheus/setup_environment
+    - attach_workspace:
+        at: .
     - run:
         command: |
           if [ -n "$CIRCLE_TAG" ]; then
@@ -81,6 +112,17 @@ workflows:
           tags:
             only: /.*/
     - codespell:
+        filters:
+          tags:
+            only: /.*/
+    - test_docker:
+        requires:
+        - test
+        - build
+        filters:
+          tags:
+            only: /.*/
+    - test_mixins:
         filters:
           tags:
             only: /.*/

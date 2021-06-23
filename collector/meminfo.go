@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -48,7 +48,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	var metricType prometheus.ValueType
 	memInfo, err := c.getMemInfo()
 	if err != nil {
-		return fmt.Errorf("couldn't get meminfo: %s", err)
+		return fmt.Errorf("couldn't get meminfo: %w", err)
 	}
 	level.Debug(c.logger).Log("msg", "Set node_mem", "memInfo", memInfo)
 	for k, v := range memInfo {

@@ -20,6 +20,10 @@ md8 : active raid1 sdb1[1] sda1[0] sdc[2](S) sde[3](S)
       195310144 blocks [2/2] [UU]
       [=>...................]  resync =  8.5% (16775552/195310144) finish=17.0min speed=259783K/sec
 
+md201 : active raid1 sda3[0] sdb3[1]
+      1993728 blocks super 1.2 [2/2] [UU]
+      [=>...................]  check =  5.7% (114176/1993728) finish=0.2min speed=114176K/sec
+
 md7 : active raid6 sdb1[0] sde1[3] sdd1[2] sdc1[1](F)
       7813735424 blocks super 1.2 level 6, 512k chunk, algorithm 2 [4/3] [U_UU]
       bitmap: 0/30 pages [0KB], 65536KB chunk

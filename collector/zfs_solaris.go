@@ -12,13 +12,14 @@
 // limitations under the License.
 
 // +build solaris
+// +build !nozfs
 
 package collector
 
 import (
 	"strings"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/siebenmann/go-kstat"
 )
@@ -298,6 +299,9 @@ func (c *zfsCollector) updateZfsFetchStats(ch chan<- prometheus.Metric) error {
 	defer tok.Close()
 
 	ksZFSInfo, err := tok.Lookup("zfs", 0, "zfetchstats")
+	if err != nil {
+		return err
+	}
 
 	for k, v := range map[string]*prometheus.Desc{
 		"hits":   c.zfetchstatsHits,

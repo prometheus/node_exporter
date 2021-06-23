@@ -15,20 +15,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/prometheus/common/promlog"
-	"github.com/prometheus/common/promlog/flag"
+	stdlog "log"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"os/user"
 	"sort"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/prometheus/common/promlog"
+	"github.com/prometheus/common/promlog/flag"
+
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
+	"github.com/prometheus/exporter-toolkit/web"
 	"github.com/prometheus/node_exporter/collector"
-	"github.com/prometheus/node_exporter/https"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -120,6 +123,7 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	handler := promhttp.HandlerFor(
 		prometheus.Gatherers{h.exporterMetricsRegistry, r},
 		promhttp.HandlerOpts{
+			ErrorLog:            stdlog.New(log.NewStdlibAdapter(level.Error(h.logger)), "", 0),
 			ErrorHandling:       promhttp.ContinueOnError,
 			MaxRequestsInFlight: h.maxRequests,
 			Registry:            h.exporterMetricsRegistry,
@@ -166,6 +170,7 @@ func main() {
 	promlogConfig := &promlog.Config{}
 	flag.AddFlags(kingpin.CommandLine, promlogConfig)
 	kingpin.Version(version.Print("node_exporter"))
+	kingpin.CommandLine.UsageWriter(os.Stdout)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 	logger := promlog.New(promlogConfig)
@@ -175,6 +180,9 @@ func main() {
 	}
 	level.Info(logger).Log("msg", "Starting node_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
+	if user, err := user.Current(); err == nil && user.Uid == "0" {
+		level.Warn(logger).Log("msg", "Node Exporter is running as root user. This exporter is designed to run as unpriviledged user, root is not required.")
+	}
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -189,7 +197,7 @@ func main() {
 
 	level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
 	server := &http.Server{Addr: *listenAddress}
-	if err := https.Listen(server, *configFile); err != nil {
+	if err := web.ListenAndServe(server, *configFile, logger); err != nil {
 		level.Error(logger).Log("err", err)
 		os.Exit(1)
 	}

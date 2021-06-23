@@ -11,15 +11,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !nonfs
+
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/nfs"
 )
@@ -95,7 +98,7 @@ func NewNfsCollector(logger log.Logger) (Collector, error) {
 func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.ClientRPCStats()
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "Not collecting NFS metrics", "err", err)
 			return ErrNoData
 		}

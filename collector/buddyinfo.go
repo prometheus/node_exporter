@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -59,7 +59,7 @@ func NewBuddyinfoCollector(logger log.Logger) (Collector, error) {
 func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
 	buddyInfo, err := c.fs.BuddyInfo()
 	if err != nil {
-		return fmt.Errorf("couldn't get buddyinfo: %s", err)
+		return fmt.Errorf("couldn't get buddyinfo: %w", err)
 	}
 
 	level.Debug(c.logger).Log("msg", "Set node_buddy", "buddyInfo", buddyInfo)

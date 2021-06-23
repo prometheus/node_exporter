@@ -1,5 +1,6 @@
-run:
-  modules-download-mode: vendor
+linters:
+  enable:
+  - golint
 
 issues:
   exclude-rules:

@@ -11,12 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !nofilesystem
-
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"strings"
 	"testing"
 

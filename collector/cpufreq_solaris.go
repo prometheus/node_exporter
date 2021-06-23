@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	kstat "github.com/siebenmann/go-kstat"
 )
@@ -42,12 +42,12 @@ func NewCpuFreqCollector(logger log.Logger) (Collector, error) {
 	return &cpuFreqCollector{
 		cpuFreq: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
-			"Current cpu thread frequency in hertz.",
+			"Current CPU thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		cpuFreqMax: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
-			"Maximum cpu thread frequency in hertz.",
+			"Maximum CPU thread frequency in hertz.",
 			[]string{"cpu"}, nil,
 		),
 		logger: logger,

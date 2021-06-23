@@ -17,10 +17,13 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"regexp"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -28,6 +31,7 @@ import (
 
 var (
 	netclassIgnoredDevices = kingpin.Flag("collector.netclass.ignored-devices", "Regexp of net devices to ignore for netclass collector.").Default("^$").String()
+	netclassInvalidSpeed   = kingpin.Flag("collector.netclass.ignore-invalid-speed", "Ignore devices where the speed is invalid. This will be the default behavior in 2.x.").Bool()
 )
 
 type netClassCollector struct {
@@ -61,7 +65,11 @@ func NewNetClassCollector(logger log.Logger) (Collector, error) {
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 	netClass, err := c.getNetClassInfo()
 	if err != nil {
-		return fmt.Errorf("could not get net class info: %s", err)
+		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
+			level.Debug(c.logger).Log("msg", "Could not read netclass file", "err", err)
+			return ErrNoData
+		}
+		return fmt.Errorf("could not get net class info: %w", err)
 	}
 	for _, ifaceInfo := range netClass {
 		upDesc := prometheus.NewDesc(
@@ -144,8 +152,11 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		if ifaceInfo.Speed != nil {
-			speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
-			pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
+			// Some devices return -1 if the speed is unknown.
+			if *ifaceInfo.Speed >= 0 || !*netclassInvalidSpeed {
+				speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
+				pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
+			}
 		}
 
 		if ifaceInfo.TxQueueLen != nil {
@@ -173,9 +184,8 @@ func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, valu
 
 func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
 	netClass, err := c.fs.NetClass()
-
 	if err != nil {
-		return netClass, fmt.Errorf("error obtaining net class info: %s", err)
+		return netClass, err
 	}
 
 	for device := range netClass {
