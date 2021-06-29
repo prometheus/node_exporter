@@ -1,9 +1,9 @@
 repository:
-    path: github.com/prometheus/node_exporter
+    path: github.com/percona/node_exporter
 build:
     binaries:
         - name: node_exporter
-    flags: -mod=vendor -a -tags 'netgo static_build'
+    flags: -mod=mod -a -tags 'netgo static_build'
     ldflags: |
         -X github.com/prometheus/common/version.Version={{.Version}}
         -X github.com/prometheus/common/version.Revision={{.Revision}}
