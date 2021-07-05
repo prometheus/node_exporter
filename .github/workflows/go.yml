@@ -14,12 +14,10 @@ jobs:
     strategy:
       matrix:
         go-version:
-          - 1.15
           - 1.16
         include:
           - go-version: tip
             os: ubuntu-latest
-            postgresql-image: postgres:12
             may-fail: true
     runs-on: ubuntu-latest
     # The environment this job references
