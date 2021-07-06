@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/siebenmann/go-kstat"
+	"github.com/illumos/go-kstat"
 )
 
 // #include <sys/param.h>
