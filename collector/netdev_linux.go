@@ -51,24 +51,37 @@ func netlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logger lo
 		}
 
 		// https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_link.h#L42-L246
-		// https://github.com/torvalds/linux/blob/master/net/core/net-procfs.c#L75-L97
 		metrics[name] = map[string]uint64{
-			"receive_packets":     stats.RXPackets,
-			"transmit_packets":    stats.TXPackets,
-			"receive_bytes":       stats.RXBytes,
-			"transmit_bytes":      stats.TXBytes,
-			"receive_errs":        stats.RXErrors,
-			"transmit_errs":       stats.TXErrors,
-			"receive_drop":        stats.RXDropped + stats.RXMissedErrors,
-			"transmit_drop":       stats.TXDropped,
-			"receive_multicast":   stats.Multicast,
-			"transmit_colls":      stats.Collisions,
-			"receive_frame":       stats.RXLengthErrors + stats.RXOverErrors + stats.RXCRCErrors + stats.RXFrameErrors,
-			"receive_fifo":        stats.RXFIFOErrors,
-			"transmit_carrier":    stats.TXAbortedErrors + stats.TXCarrierErrors + stats.TXHeartbeatErrors + stats.TXWindowErrors,
-			"transmit_fifo":       stats.TXFIFOErrors,
+			"receive_packets":  stats.RXPackets,
+			"transmit_packets": stats.TXPackets,
+			"receive_bytes":    stats.RXBytes,
+			"transmit_bytes":   stats.TXBytes,
+			"receive_errors":   stats.RXErrors,
+			"transmit_errors":  stats.TXErrors,
+			"receive_dropped":  stats.RXDropped,
+			"transmit_dropped": stats.TXDropped,
+			"multicast":        stats.Multicast,
+			"collisions":       stats.Collisions,
+
+			// detailed rx_errors
+			"receive_length_errors": stats.RXLengthErrors,
+			"receive_over_errors":   stats.RXOverErrors,
+			"receive_crc_errors":    stats.RXCRCErrors,
+			"receive_frame_errors":  stats.RXFrameErrors,
+			"receive_fifo_errors":   stats.RXFIFOErrors,
+			"receive_missed_errors": stats.RXMissedErrors,
+
+			// detailed tx_errors
+			"transmit_aborted_errors":   stats.TXAbortedErrors,
+			"transmit_carrier_errors":   stats.TXCarrierErrors,
+			"transmit_fifo_errors":      stats.TXFIFOErrors,
+			"transmit_heartbeat_errors": stats.TXHeartbeatErrors,
+			"transmit_window_errors":    stats.TXWindowErrors,
+
+			// for cslip etc
 			"receive_compressed":  stats.RXCompressed,
 			"transmit_compressed": stats.TXCompressed,
+			"receive_nohandler":   stats.RXNoHandler,
 		}
 	}
 

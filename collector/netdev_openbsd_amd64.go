@@ -58,16 +58,20 @@ func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error
 			continue
 		}
 
+		// https://cs.opensource.google/go/x/sys/+/master:unix/ztypes_openbsd_amd64.go;l=292-316
 		netDev[dev] = map[string]uint64{
 			"receive_packets":    data.Ipackets,
 			"transmit_packets":   data.Opackets,
-			"receive_errs":       data.Ierrors,
-			"transmit_errs":      data.Oerrors,
 			"receive_bytes":      data.Ibytes,
 			"transmit_bytes":     data.Obytes,
+			"receive_errors":     data.Ierrors,
+			"transmit_errors":    data.Oerrors,
+			"receive_dropped":    data.Iqdrops,
+			"transmit_dropped":   data.Oqdrops,
 			"receive_multicast":  data.Imcasts,
 			"transmit_multicast": data.Omcasts,
-			"receive_drop":       data.Iqdrops,
+			"collisions":         data.Collisions,
+			"noproto":            data.Noproto,
 		}
 	}
 	return netDev, nil
