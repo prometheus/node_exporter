@@ -127,6 +127,37 @@ var links = []rtnetlink.LinkMessage{
 			},
 		},
 	},
+	{
+		Attributes: &rtnetlink.LinkAttributes{
+			Name: "enp0s0f0",
+			Stats64: &rtnetlink.LinkStats64{
+				RXPackets:         226,
+				TXPackets:         803,
+				RXBytes:           231424,
+				TXBytes:           822272,
+				RXErrors:          14,
+				TXErrors:          2,
+				RXDropped:         10,
+				TXDropped:         17,
+				Multicast:         285,
+				Collisions:        30,
+				RXLengthErrors:    5,
+				RXOverErrors:      3,
+				RXCRCErrors:       1,
+				RXFrameErrors:     4,
+				RXFIFOErrors:      6,
+				RXMissedErrors:    21,
+				TXAbortedErrors:   22,
+				TXCarrierErrors:   7,
+				TXFIFOErrors:      24,
+				TXHeartbeatErrors: 9,
+				TXWindowErrors:    19,
+				RXCompressed:      23,
+				TXCompressed:      20,
+				RXNoHandler:       62,
+			},
+		},
+	},
 }
 
 func TestNetDevStatsIgnore(t *testing.T) {
@@ -146,7 +177,7 @@ func TestNetDevStatsIgnore(t *testing.T) {
 		t.Errorf("want netstat tun0 packets %v, got %v", want, got)
 	}
 
-	if want, got := 9, len(netStats); want != got {
+	if want, got := 10, len(netStats); want != got {
 		t.Errorf("want count of devices to be %d, got %d", want, got)
 	}
 
@@ -172,5 +203,76 @@ func TestNetDevStatsAccept(t *testing.T) {
 	}
 	if want, got := uint64(72), netStats["💩0"]["receive_multicast"]; want != got {
 		t.Error("want fixture interface 💩0 to exist, but it does not")
+	}
+}
+
+func TestNetDevLegacyMetricNames(t *testing.T) {
+	expected := []string{
+		"receive_packets",
+		"transmit_packets",
+		"receive_bytes",
+		"transmit_bytes",
+		"receive_errs",
+		"transmit_errs",
+		"receive_drop",
+		"transmit_drop",
+		"receive_multicast",
+		"transmit_colls",
+		"receive_frame",
+		"receive_fifo",
+		"transmit_carrier",
+		"transmit_fifo",
+		"receive_compressed",
+		"transmit_compressed",
+	}
+
+	filter := newDeviceFilter("", "")
+	netStats := netlinkStats(links, &filter, log.NewNopLogger())
+
+	for dev, devStats := range netStats {
+		for _, name := range expected {
+			if _, ok := devStats[name]; !ok {
+				t.Errorf("metric %s should be defined on interface %s", name, dev)
+			}
+		}
+	}
+}
+
+func TestNetDevLegacyMetricValues(t *testing.T) {
+	expected := map[string]uint64{
+		"receive_packets":     226,
+		"transmit_packets":    803,
+		"receive_bytes":       231424,
+		"transmit_bytes":      822272,
+		"receive_errs":        14,
+		"transmit_errs":       2,
+		"receive_drop":        10 + 21,
+		"transmit_drop":       17,
+		"receive_multicast":   285,
+		"transmit_colls":      30,
+		"receive_frame":       5 + 3 + 1 + 4,
+		"receive_fifo":        6,
+		"transmit_carrier":    22 + 7 + 9 + 19,
+		"transmit_fifo":       24,
+		"receive_compressed":  23,
+		"transmit_compressed": 20,
+	}
+
+	filter := newDeviceFilter("", "^enp0s0f0$")
+	netStats := netlinkStats(links, &filter, log.NewNopLogger())
+	metrics, ok := netStats["enp0s0f0"]
+	if !ok {
+		t.Error("expected stats for interface enp0s0f0")
+	}
+
+	for name, want := range expected {
+		got, ok := metrics[name]
+		if !ok {
+			t.Errorf("metric %s should be defined on interface enp0s0f0", name)
+			continue
+		}
+		if want != got {
+			t.Errorf("want %s %d, got %d", name, want, got)
+		}
 	}
 }
