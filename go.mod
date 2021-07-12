@@ -8,7 +8,7 @@ require (
 	github.com/godbus/dbus v0.0.0-20190402143921-271e53dc4968
 	github.com/hodgesds/perf-utils v0.2.5
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
-	github.com/jsimonetti/rtnetlink v0.0.0-20210614053835-9c52e516c709
+	github.com/jsimonetti/rtnetlink v0.0.0-20210713125558-2bfdf1dbdbd6
 	github.com/lufia/iostat v1.1.0
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/wifi v0.0.0-20200527114002-84f0b9457fdd

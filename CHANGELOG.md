@@ -1,17 +1,31 @@
 ## master / unreleased
 
 * [CHANGE]
-* [FEATURE] Add tapestats collector for Linux
+* [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX]
+
+## 1.2.0 / 2021-07-15
 
 NOTE: Ignoring invalid network speed will be the default in 2.x
 NOTE: Filesystem collector flags have been renamed. `--collector.filesystem.ignored-mount-points` is now `--collector.filesystem.mount-points-exclude` and `--collector.filesystem.ignored-fs-types` is now `--collector.filesystem.fs-types-exclude`. The old flags will be removed in 2.x.
 
 * [CHANGE] Rename filesystem collector flags to match other collectors #2012
+* [CHANGE] Make node_exporter print usage to STDOUT #2039
+* [FEATURE] Add conntrack statistics metrics #1155
+* [FEATURE] Add ethtool stats collector #1832
 * [FEATURE] Add flag to ignore network speed if it is unknown #1989
+* [FEATURE] Add tapestats collector for Linux #2044
+* [FEATURE] Add nvme collector #2062
+* [ENHANCEMENT] Add ErrorLog plumbing to promhttp #1887
+* [ENHANCEMENT] Add more Infiniband counters #2019
+* [ENHANCEMENT] netclass: retrieve interface names and filter before parsing #2033
 * [ENHANCEMENT] Add time zone offset metric #2060
-* [BUGFIX] Add ErrorLog plumbing to promhttp #1887
+* [BUGFIX] Handle errors from disabled PSI subsystem #1983
+* [BUGFIX] Fix panic when using backwards compatible flags #2000
+* [BUGFIX] Fix wrong value for OpenBSD memory buffer cache #2015
+* [BUGFIX] Only initiate collectors once #2048
+* [BUGFIX] Handle small backwards jumps in CPU idle #2067
   
 ## 1.1.2 / 2021-03-05
 
