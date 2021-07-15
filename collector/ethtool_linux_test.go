@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/safchain/ethtool"
 	"golang.org/x/sys/unix"
 )
 
@@ -32,10 +33,49 @@ type EthtoolFixture struct {
 	fixturePath string
 }
 
+func (e *EthtoolFixture) DriverInfo(intf string) (ethtool.DrvInfo, error) {
+	res := ethtool.DrvInfo{}
+
+	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf, "driver"))
+	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
+		// The fixture for this interface doesn't exist. Translate that to unix.EOPNOTSUPP
+		// to replicate an interface that doesn't support ethtool driver info
+		return res, unix.EOPNOTSUPP
+	}
+	if err != nil {
+		return res, err
+	}
+	defer fixtureFile.Close()
+
+	scanner := bufio.NewScanner(fixtureFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		line = strings.Trim(line, " ")
+		items := strings.Split(line, ": ")
+		switch items[0] {
+		case "driver":
+			res.Driver = items[1]
+		case "version":
+			res.Version = items[1]
+		case "firmware-version":
+			res.FwVersion = items[1]
+		case "bus-info":
+			res.BusInfo = items[1]
+		case "expansion-rom-version":
+			res.EromVersion = items[1]
+		}
+	}
+
+	return res, err
+}
+
 func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
 	res := make(map[string]uint64)
 
-	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf))
+	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf, "statistics"))
 	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
 		// The fixture for this interface doesn't exist. Translate that to unix.EOPNOTSUPP
 		// to replicate an interface that doesn't support ethtool stats
@@ -72,7 +112,7 @@ func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
 
 func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(logger)
-	collector.stats = &EthtoolFixture{
+	collector.ethtool = &EthtoolFixture{
 		fixturePath: "fixtures/ethtool/",
 	}
 	if err != nil {
@@ -83,6 +123,9 @@ func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
 
 func TestEthtoolCollector(t *testing.T) {
 	testcases := []string{
+		prometheus.NewDesc("node_ethtool_info",
+			"A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.",
+			[]string{"bus_info", "device", "driver", "expansion_rom_version", "firmware_version", "version"}, nil).String(),
 		prometheus.NewDesc("node_ethtool_align_errors", "Network interface align_errors", []string{"device"}, nil).String(),
 		prometheus.NewDesc("node_ethtool_received_broadcast", "Network interface rx_broadcast", []string{"device"}, nil).String(),
 		prometheus.NewDesc("node_ethtool_received_errors_total", "Number of received frames with errors", []string{"device"}, nil).String(),

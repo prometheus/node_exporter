@@ -40,26 +40,33 @@ var (
 	transmittedRegex = regexp.MustCompile(`_tx_`)
 )
 
-type EthtoolStats interface {
+type Ethtool interface {
+	DriverInfo(string) (ethtool.DrvInfo, error)
 	Stats(string) (map[string]uint64, error)
 }
 
-type ethtoolStats struct {
+type ethtoolLibrary struct {
+	ethtool *ethtool.Ethtool
 }
 
-func (e *ethtoolStats) Stats(intf string) (map[string]uint64, error) {
-	return ethtool.Stats(intf)
+func (e *ethtoolLibrary) DriverInfo(intf string) (ethtool.DrvInfo, error) {
+	return e.ethtool.DriverInfo(intf)
+}
+
+func (e *ethtoolLibrary) Stats(intf string) (map[string]uint64, error) {
+	return e.ethtool.Stats(intf)
 }
 
 type ethtoolCollector struct {
-	fs      sysfs.FS
-	entries map[string]*prometheus.Desc
-	logger  log.Logger
-	stats   EthtoolStats
+	fs       sysfs.FS
+	entries  map[string]*prometheus.Desc
+	ethtool  Ethtool
+	infoDesc *prometheus.Desc
+	logger   log.Logger
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
-// This allows NewEthtoolTestCollector to override its .stats interface
+// This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.
 func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
@@ -67,10 +74,14 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
+	e, err := ethtool.NewEthtool()
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize ethtool library: %w", err)
+	}
+
 	// Pre-populate some common ethtool metrics.
 	return &ethtoolCollector{
-		fs:    fs,
-		stats: &ethtoolStats{},
+		fs: fs,
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
 				"node_ethtool_received_bytes_total",
@@ -108,6 +119,12 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 				[]string{"device"}, nil,
 			),
 		},
+		ethtool: &ethtoolLibrary{e},
+		infoDesc: prometheus.NewDesc(
+			"node_ethtool_info",
+			"A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.",
+			[]string{"bus_info", "device", "driver", "expansion_rom_version", "firmware_version", "version"}, nil,
+		),
 		logger: logger,
 	}, nil
 }
@@ -139,7 +156,24 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		var stats map[string]uint64
 		var err error
 
-		stats, err = c.stats.Stats(device)
+		drvInfo, err := c.ethtool.DriverInfo(device)
+
+		if err == nil {
+			ch <- prometheus.MustNewConstMetric(c.infoDesc, prometheus.GaugeValue, 1.0,
+				drvInfo.BusInfo, device, drvInfo.Driver, drvInfo.EromVersion, drvInfo.FwVersion, drvInfo.Version)
+		} else {
+			if errno, ok := err.(syscall.Errno); ok {
+				if err == unix.EOPNOTSUPP {
+					level.Debug(c.logger).Log("msg", "ethtool driver info error", "err", err, "device", device, "errno", uint(errno))
+				} else if errno != 0 {
+					level.Error(c.logger).Log("msg", "ethtool driver info error", "err", err, "device", device, "errno", uint(errno))
+				}
+			} else {
+				level.Error(c.logger).Log("msg", "ethtool driver info error", "err", err, "device", device)
+			}
+		}
+
+		stats, err = c.ethtool.Stats(device)
 
 		// If Stats() returns EOPNOTSUPP it doesn't support ethtool stats. Log that only at Debug level.
 		// Otherwise log it at Error level.
