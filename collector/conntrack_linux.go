@@ -129,7 +129,7 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 
 	conntrackStats, err := getConntrackStatistics()
 	if err != nil {
-		return err
+		return c.handleErr(err)
 	}
 
 	ch <- prometheus.MustNewConstMetric(
