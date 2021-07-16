@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build linux
+
 // Package sysfs provides functions to retrieve system and kernel metrics
 // from the pseudo-filesystem sys.
 package sysfs

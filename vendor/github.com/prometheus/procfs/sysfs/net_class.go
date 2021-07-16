@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !windows
+// +build linux
 
 package sysfs
 
@@ -82,6 +82,19 @@ func (fs FS) NetClassDevices() ([]string, error) {
 	return res, nil
 }
 
+// NetClassByIface returns info for a single net interfaces (iface)
+func (fs FS) NetClassByIface(devicePath string) (*NetClassIface, error) {
+	path := fs.sys.Path(netclassPath)
+
+	interfaceClass, err := parseNetClassIface(filepath.Join(path, devicePath))
+	if err != nil {
+		return nil, err
+	}
+	interfaceClass.Name = devicePath
+
+	return interfaceClass, nil
+}
+
 // NetClass returns info for all net interfaces (iface) read from /sys/class/net/<iface>.
 func (fs FS) NetClass() (NetClass, error) {
 	devices, err := fs.NetClassDevices()
@@ -91,20 +104,21 @@ func (fs FS) NetClass() (NetClass, error) {
 
 	path := fs.sys.Path(netclassPath)
 	netClass := NetClass{}
-	for _, deviceDir := range devices {
-		interfaceClass, err := netClass.parseNetClassIface(filepath.Join(path, deviceDir))
+	for _, devicePath := range devices {
+		interfaceClass, err := parseNetClassIface(filepath.Join(path, devicePath))
 		if err != nil {
 			return nil, err
 		}
-		interfaceClass.Name = deviceDir
-		netClass[deviceDir] = *interfaceClass
+		interfaceClass.Name = devicePath
+		netClass[devicePath] = *interfaceClass
 	}
+
 	return netClass, nil
 }
 
 // parseNetClassIface scans predefined files in /sys/class/net/<iface>
 // directory and gets their contents.
-func (nc NetClass) parseNetClassIface(devicePath string) (*NetClassIface, error) {
+func parseNetClassIface(devicePath string) (*NetClassIface, error) {
 	interfaceClass := NetClassIface{}
 
 	files, err := ioutil.ReadDir(devicePath)
@@ -180,6 +194,6 @@ func (nc NetClass) parseNetClassIface(devicePath string) (*NetClassIface, error)
 			interfaceClass.Type = vp.PInt64()
 		}
 	}
-	return &interfaceClass, nil
 
+	return &interfaceClass, nil
 }
