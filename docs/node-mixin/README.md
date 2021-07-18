@@ -11,9 +11,9 @@ for Grafana.
 To use them, you need to have `jsonnet` (v0.16+) and `jb` installed. If you
 have a working Go development environment, it's easiest to run the following:
 ```bash
-$ go get github.com/google/go-jsonnet/cmd/jsonnet
-$ go get github.com/google/go-jsonnet/cmd/jsonnetfmt
-$ go get github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb
+$ go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+$ go install github.com/google/go-jsonnet/cmd/jsonnetfmt@latest
+$ go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
 ```
 
 Next, install the dependencies by running the following command in this
