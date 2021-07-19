@@ -1,5 +1,5 @@
 groups:
-- name: node_exporter-17-supervisord
-  rules:
-  - record: node_supervisord_start_time_seconds
-    expr: node_supervisord_uptime + time()
+  - name: node_exporter-17-supervisord
+    rules:
+      - record: node_supervisord_start_time_seconds
+        expr: node_supervisord_uptime + time()

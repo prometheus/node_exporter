@@ -1,0 +1,17 @@
+---
+extends: default
+
+rules:
+  braces:
+    max-spaces-inside: 1
+    level: error
+  brackets:
+    max-spaces-inside: 1
+    level: error
+  commas: disable
+  comments: disable
+  comments-indentation: disable
+  document-start: disable
+  indentation:
+    spaces: consistent
+  line-length: disable
