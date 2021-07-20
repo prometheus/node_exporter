@@ -22,18 +22,6 @@ local datasourceTemplate = {
   type: 'datasource',
 };
 
-local clusterTemplate =
-  template.new(
-    name='cluster',
-    datasource='$datasource',
-    query='label_values(node_time_seconds, %s)' % c._config.clusterLabel,
-    current='',
-    hide=if c._config.showMultiCluster then '' else '2',
-    refresh=2,
-    includeAll=false,
-    sort=1
-  );
-
 local CPUUtilisation =
   graphPanel.new(
     'CPU Utilisation',
@@ -142,6 +130,17 @@ local diskSpaceUtilisation =
   ) { tooltip+: { sort: 2 } };
 
 {
+  _clusterTemplate:: template.new(
+    name='cluster',
+    datasource='$datasource',
+    query='label_values(node_time_seconds, %s)' % $._config.clusterLabel,
+    current='',
+    hide=if $._config.showMultiCluster then '' else '2',
+    refresh=2,
+    includeAll=false,
+    sort=1
+  ),
+
   grafanaDashboards+:: {
                          'node-rsrc-use.json':
 
@@ -154,7 +153,7 @@ local diskSpaceUtilisation =
                              graphTooltip='shared_crosshair'
                            )
                            .addTemplate(datasourceTemplate)
-                           .addTemplate(clusterTemplate)
+                           .addTemplate($._clusterTemplate)
                            .addTemplate(
                              template.new(
                                'instance',
@@ -219,7 +218,7 @@ local diskSpaceUtilisation =
                              graphTooltip='shared_crosshair'
                            )
                            .addTemplate(datasourceTemplate)
-                           .addTemplate(clusterTemplate)
+                           .addTemplate($._clusterTemplate)
                            .addRow(
                              row.new('CPU')
                              .addPanel(
