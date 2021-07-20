@@ -1,4 +1,6 @@
 {
+  grafanaPlugins: ['grafana-polystat-panel'],
+
   _config+:: {
     // Selectors are inserted between {} in Prometheus queries.
 
