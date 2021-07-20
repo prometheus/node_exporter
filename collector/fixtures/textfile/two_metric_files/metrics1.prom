@@ -1,2 +1,4 @@
 testmetric1_1{foo="bar"} 10
 testmetric1_2{foo="baz"} 20
+# HELP testmetric_samename common metric name
+testmetric_samename{foo="1"} 100
