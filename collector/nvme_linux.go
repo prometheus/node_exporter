@@ -17,9 +17,8 @@
 package collector
 
 import (
-	"errors"
 	"fmt"
-	"os"
+	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -52,7 +51,8 @@ func NewNVMeCollector(logger log.Logger) (Collector, error) {
 func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.NVMeClass()
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
+		if strings.Contains(err.Error(),
+			"/sys/class/nvme: no such file or directory") {
 			level.Debug(c.logger).Log("msg", "nvme statistics not found, skipping")
 			return ErrNoData
 		}
