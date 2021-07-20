@@ -3,6 +3,7 @@
 set -euf -o pipefail
 
 enabled_collectors=$(cat << COLLECTORS
+  aio
   arp
   bcache
   btrfs
