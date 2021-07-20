@@ -1,275 +1,467 @@
-local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libsonnet';
+local grafana = import 'github.com/grafana/grafonnet-lib/grafonnet/grafana.libsonnet';
+local dashboard = grafana.dashboard;
+local row = grafana.row;
+local prometheus = grafana.prometheus;
+local template = grafana.template;
+local graphPanel = grafana.graphPanel;
+
+local c = import '../config.libsonnet';
+
+local datasourceTemplate = {
+  current: {
+    text: 'Prometheus',
+    value: 'Prometheus',
+  },
+  hide: 0,
+  label: null,
+  name: 'datasource',
+  options: [],
+  query: 'prometheus',
+  refresh: 1,
+  regex: '',
+  type: 'datasource',
+};
+
+local clusterTemplate =
+  template.new(
+    name='cluster',
+    datasource='$datasource',
+    query='label_values(node_time_seconds, %s)' % c._config.clusterLabel,
+    current='',
+    hide=if c._config.showMultiCluster then '' else '2',
+    refresh=2,
+    includeAll=false,
+    sort=1
+  );
+
+local CPUUtilisation =
+  graphPanel.new(
+    'CPU Utilisation',
+    datasource='$datasource',
+    span=6,
+    format='percentunit',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  ) { tooltip+: { sort: 2 } };
+
+local CPUSaturation =
+  // TODO: Is this a useful panel? At least there should be some explanation how load
+  // average relates to the "CPU saturation" in the title.
+  graphPanel.new(
+    'CPU Saturation (Load1 per CPU)',
+    datasource='$datasource',
+    span=6,
+    format='percentunit',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  ) { tooltip+: { sort: 2 } };
+
+local memoryUtilisation =
+  graphPanel.new(
+    'Memory Utilisation',
+    datasource='$datasource',
+    span=6,
+    format='percentunit',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  ) { tooltip+: { sort: 2 } };
+
+local memorySaturation =
+  graphPanel.new(
+    'Memory Saturation (Major Page Faults)',
+    datasource='$datasource',
+    span=6,
+    format='rds',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  ) { tooltip+: { sort: 2 } };
+
+local networkUtilisation =
+  graphPanel.new(
+    'Network Utilisation (Bytes Receive/Transmit)',
+    datasource='$datasource',
+    span=6,
+    format='Bps',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  )
+  .addSeriesOverride({ alias: '/Receive/', stack: 'A' })
+  .addSeriesOverride({ alias: '/Transmit/', stack: 'B', transform: 'negative-Y' })
+  { tooltip+: { sort: 2 } };
+
+local networkSaturation =
+  graphPanel.new(
+    'Network Saturation (Drops Receive/Transmit)',
+    datasource='$datasource',
+    span=6,
+    format='Bps',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  )
+  .addSeriesOverride({ alias: '/ Receive/', stack: 'A' })
+  .addSeriesOverride({ alias: '/ Transmit/', stack: 'B', transform: 'negative-Y' })
+  { tooltip+: { sort: 2 } };
+
+local diskIOUtilisation =
+  graphPanel.new(
+    'Disk IO Utilisation',
+    datasource='$datasource',
+    span=6,
+    format='percentunit',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  ) { tooltip+: { sort: 2 } };
+
+local diskIOSaturation =
+  graphPanel.new(
+    'Disk IO Saturation',
+    datasource='$datasource',
+    span=6,
+    format='percentunit',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  ) { tooltip+: { sort: 2 } };
+
+local diskSpaceUtilisation =
+  graphPanel.new(
+    'Disk Space Utilisation',
+    datasource='$datasource',
+    span=12,
+    format='percentunit',
+    stack=true,
+    fill=10,
+    legend_show=false,
+  ) { tooltip+: { sort: 2 } };
 
 {
   grafanaDashboards+:: {
-    'node-cluster-rsrc-use.json':
-      local legendLink = '%s/dashboard/file/node-rsrc-use.json' % $._config.grafana_prefix;
+                         'node-rsrc-use.json':
 
-      g.dashboard('USE Method / Cluster')
-      .addRow(
-        g.row('CPU')
-        .addPanel(
-          g.panel('CPU Utilisation') +
-          g.queryPanel(|||
-            (
-              instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s}
-            *
-              instance:node_num_cpu:sum{%(nodeExporterSelector)s}
-            )
-            / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}}', legendLink) +
-          g.stack +
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
-        )
-        .addPanel(
-          // TODO: Is this a useful panel? At least there should be some explanation how load
-          // average relates to the "CPU saturation" in the title.
-          g.panel('CPU Saturation (load1 per CPU)') +
-          g.queryPanel(|||
-            instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}
-            / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}}', legendLink) +
-          g.stack +
-          // TODO: Does `max: 1` make sense? The stack can go over 1 in high-load scenarios.
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
-        )
-      )
-      .addRow(
-        g.row('Memory')
-        .addPanel(
-          g.panel('Memory Utilisation') +
-          g.queryPanel(|||
-            instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}
-            / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}}', legendLink) +
-          g.stack +
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
-        )
-        .addPanel(
-          g.panel('Memory Saturation (Major Page Faults)') +
-          g.queryPanel('instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
-          g.stack +
-          { yaxes: g.yaxes('rps') },
-        )
-      )
-      .addRow(
-        g.row('Network')
-        .addPanel(
-          g.panel('Net Utilisation (Bytes Receive/Transmit)') +
-          g.queryPanel(
-            [
-              'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
-              'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
-            ],
-            ['{{instance}} Receive', '{{instance}} Transmit'],
-            legendLink,
-          ) +
-          g.stack +
-          {
-            yaxes: g.yaxes({ format: 'Bps', min: null }),
-            seriesOverrides: [
-              {
-                alias: '/ Receive/',
-                stack: 'A',
-              },
-              {
-                alias: '/ Transmit/',
-                stack: 'B',
-                transform: 'negative-Y',
-              },
-            ],
-          },
-        )
-        .addPanel(
-          g.panel('Net Saturation (Drops Receive/Transmit)') +
-          g.queryPanel(
-            [
-              'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
-              'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
-            ],
-            ['{{instance}} Receive', '{{instance}} Transmit'],
-            legendLink,
-          ) +
-          g.stack +
-          {
-            yaxes: g.yaxes({ format: 'rps', min: null }),
-            seriesOverrides: [
-              {
-                alias: '/ Receive/',
-                stack: 'A',
-              },
-              {
-                alias: '/ Transmit/',
-                stack: 'B',
-                transform: 'negative-Y',
-              },
-            ],
-          },
-        )
-      )
-      .addRow(
-        g.row('Disk IO')
-        .addPanel(
-          g.panel('Disk IO Utilisation') +
-          // Full utilisation would be all disks on each node spending an average of
-          // 1 second per second doing I/O, normalize by metric cardinality for stacked charts.
-          // TODO: Does the partition by device make sense? Using the most utilized device per
-          // instance might make more sense.
-          g.queryPanel(|||
-            instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
-            / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}} {{device}}', legendLink) +
-          g.stack +
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
-        )
-        .addPanel(
-          g.panel('Disk IO Saturation') +
-          g.queryPanel(|||
-            instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
-            / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
-          ||| % $._config, '{{instance}} {{device}}', legendLink) +
-          g.stack +
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
-        )
-      )
-      .addRow(
-        g.row('Disk Space')
-        .addPanel(
-          g.panel('Disk Space Utilisation') +
-          g.queryPanel(|||
-            sum without (device) (
-              max without (fstype, mountpoint) (
-                node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
-              )
-            ) 
-            / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s})))
-          ||| % $._config, '{{instance}}', legendLink) +
-          g.stack +
-          { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
-        ),
-      ),
+                           dashboard.new(
+                             '%sUSE Method / Node' % $._config.dashboardNamePrefix,
+                             time_from='now-1h',
+                             tags=($._config.dashboardTags),
+                             timezone='utc',
+                             refresh='30s',
+                             graphTooltip='shared_crosshair'
+                           )
+                           .addTemplate(datasourceTemplate)
+                           .addTemplate(clusterTemplate)
+                           .addTemplate(
+                             template.new(
+                               'instance',
+                               '$datasource',
+                               'label_values(node_exporter_build_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}, instance)' % $._config,
+                               refresh='time',
+                               sort=1
+                             )
+                           )
+                           .addRow(
+                             row.new('CPU')
+                             .addPanel(CPUUtilisation.addTarget(prometheus.target('instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Utilisation')))
+                             .addPanel(CPUSaturation.addTarget(prometheus.target('instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Saturation')))
+                           )
+                           .addRow(
+                             row.new('Memory')
+                             .addPanel(memoryUtilisation.addTarget(prometheus.target('instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Utilisation')))
+                             .addPanel(memorySaturation.addTarget(prometheus.target('instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Major page Faults')))
+                           )
+                           .addRow(
+                             row.new('Network')
+                             .addPanel(
+                               networkUtilisation
+                               .addTarget(prometheus.target('instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Receive'))
+                               .addTarget(prometheus.target('instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Transmit'))
+                             )
+                             .addPanel(
+                               networkSaturation
+                               .addTarget(prometheus.target('instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Receive'))
+                               .addTarget(prometheus.target('instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='Transmit'))
+                             )
+                           )
+                           .addRow(
+                             row.new('Disk IO')
+                             .addPanel(diskIOUtilisation.addTarget(prometheus.target('instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='{{device}}')))
+                             .addPanel(diskIOSaturation.addTarget(prometheus.target('instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='{{device}}')))
+                           )
+                           .addRow(
+                             row.new('Disk Space')
+                             .addPanel(
+                               diskSpaceUtilisation.addTarget(prometheus.target(
+                                 |||
+                                   sort_desc(1 -
+                                     (
+                                      max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
+                                      /
+                                      max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
+                                     ) != 0
+                                   )
+                                 ||| % $._config, legendFormat='{{device}}'
+                               ))
+                             )
+                           ),
 
-    'node-rsrc-use.json':
-      g.dashboard('USE Method / Node')
-      .addTemplate('instance', 'up{%(nodeExporterSelector)s}' % $._config, 'instance')
-      .addRow(
-        g.row('CPU')
-        .addPanel(
-          g.panel('CPU Utilisation') +
-          g.queryPanel('instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation') +
-          {
-            yaxes: g.yaxes('percentunit'),
-            legend+: { show: false },
-          },
-        )
-        .addPanel(
-          // TODO: Is this a useful panel? At least there should be some explanation how load
-          // average relates to the "CPU saturation" in the title.
-          g.panel('CPU Saturation (Load1 per CPU)') +
-          g.queryPanel('instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Saturation') +
-          {
-            yaxes: g.yaxes('percentunit'),
-            legend+: { show: false },
-          },
-        )
-      )
-      .addRow(
-        g.row('Memory')
-        .addPanel(
-          g.panel('Memory Utilisation') +
-          g.queryPanel('instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Memory') +
-          { yaxes: g.yaxes('percentunit') },
-        )
-        .addPanel(
-          g.panel('Memory Saturation (Major Page Faults)') +
-          g.queryPanel('instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Major page faults') +
-          {
-            yaxes: g.yaxes('short'),
-            legend+: { show: false },
-          },
-        )
-      )
-      .addRow(
-        g.row('Net')
-        .addPanel(
-          g.panel('Net Utilisation (Bytes Receive/Transmit)') +
-          g.queryPanel(
-            [
-              'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-            ],
-            ['Receive', 'Transmit'],
-          ) +
-          {
-            yaxes: g.yaxes({ format: 'Bps', min: null }),
-            seriesOverrides: [
-              {
-                alias: '/Receive/',
-                stack: 'A',
-              },
-              {
-                alias: '/Transmit/',
-                stack: 'B',
-                transform: 'negative-Y',
-              },
-            ],
-          },
-        )
-        .addPanel(
-          g.panel('Net Saturation (Drops Receive/Transmit)') +
-          g.queryPanel(
-            [
-              'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-            ],
-            ['Receive drops', 'Transmit drops'],
-          ) +
-          {
-            yaxes: g.yaxes({ format: 'rps', min: null }),
-            seriesOverrides: [
-              {
-                alias: '/Receive/',
-                stack: 'A',
-              },
-              {
-                alias: '/Transmit/',
-                stack: 'B',
-                transform: 'negative-Y',
-              },
-            ],
-          },
-        )
-      )
-      .addRow(
-        g.row('Disk IO')
-        .addPanel(
-          g.panel('Disk IO Utilisation') +
-          g.queryPanel('instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
-          { yaxes: g.yaxes('percentunit') },
-        )
-        .addPanel(
-          g.panel('Disk IO Saturation') +
-          g.queryPanel('instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
-          { yaxes: g.yaxes('percentunit') },
-        )
-      )
-      .addRow(
-        g.row('Disk Space')
-        .addPanel(
-          g.panel('Disk Space Utilisation') +
-          g.queryPanel(|||
-            1 -
-            (
-              max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"})
-            /
-              max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, instance="$instance"})
-            )
-          ||| % $._config, '{{device}}') +
-          {
-            yaxes: g.yaxes('percentunit'),
-            legend+: { show: false },
-          },
-        ),
-      ),
-  },
+                         'node-cluster-rsrc-use.json':
+                           dashboard.new(
+                             '%sUSE Method / Cluster' % $._config.dashboardNamePrefix,
+                             time_from='now-1h',
+                             tags=($._config.dashboardTags),
+                             timezone='utc',
+                             refresh='30s',
+                             graphTooltip='shared_crosshair'
+                           )
+                           .addTemplate(datasourceTemplate)
+                           .addTemplate(clusterTemplate)
+                           .addRow(
+                             row.new('CPU')
+                             .addPanel(
+                               CPUUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   ((
+                                     instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                     *
+                                     instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                   ) != 0 )
+                                   / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                 ||| % $._config, legendFormat='{{ instance }}'
+                               ))
+                             )
+                             .addPanel(
+                               CPUSaturation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   (
+                                     instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                     / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                   )  != 0
+                                 ||| % $._config, legendFormat='{{instance}}'
+                               ))
+                             )
+                           )
+                           .addRow(
+                             row.new('Memory')
+                             .addPanel(
+                               memoryUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   (
+                                     instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                     / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                   ) != 0
+                                 ||| % $._config, legendFormat='{{instance}}',
+                               ))
+                             )
+                             .addPanel(memorySaturation.addTarget(prometheus.target('instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config, legendFormat='{{instance}}')))
+                           )
+                           .addRow(
+                             row.new('Network')
+                             .addPanel(
+                               networkUtilisation
+                               .addTarget(prometheus.target('instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='{{instance}} Receive'))
+                               .addTarget(prometheus.target('instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='{{instance}} Transmit'))
+                             )
+                             .addPanel(
+                               networkSaturation
+                               .addTarget(prometheus.target('instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='{{instance}} Receive'))
+                               .addTarget(prometheus.target('instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config, legendFormat='{{instance}} Transmit'))
+                             )
+                           )
+                           .addRow(
+                             row.new('Disk IO')
+                             .addPanel(
+                               diskIOUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   (
+                                     instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                     / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                   ) != 0
+                                 ||| % $._config, legendFormat='{{instance}} {{device}}'
+                               ))
+                             )
+                             .addPanel(
+                               diskIOSaturation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   (
+                                     instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                     / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                   ) != 0
+                                 ||| % $._config, legendFormat='{{instance}} {{device}}'
+                               ))
+                             )
+                           )
+                           .addRow(
+                             row.new('Disk Space')
+                             .addPanel(
+                               diskSpaceUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum without (device) (
+                                     max without (fstype, mountpoint) ((
+                                       node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(clusterLabel)s="$cluster"}
+                                       -
+                                       node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(clusterLabel)s="$cluster"}
+                                     ) != 0)
+                                   )
+                                   / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(clusterLabel)s="$cluster"})))
+                                 ||| % $._config, legendFormat='{{instance}}'
+                               ))
+                             )
+                           ),
+                       } +
+                       if $._config.showMultiCluster then {
+                         'node-multicluster-rsrc-use.json':
+                           dashboard.new(
+                             '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,
+                             time_from='now-1h',
+                             tags=($._config.dashboardTags),
+                             timezone='utc',
+                             refresh='30s',
+                             graphTooltip='shared_crosshair'
+                           )
+                           .addTemplate(datasourceTemplate)
+                           .addRow(
+                             row.new('CPU')
+                             .addPanel(
+                               CPUUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum(
+                                     ((
+                                       instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       *
+                                       instance:node_num_cpu:sum{%(nodeExporterSelector)s}
+                                     ) != 0)
+                                     / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s}))
+                                   ) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}}' % $._config
+                               ))
+                             )
+                             .addPanel(
+                               CPUSaturation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                     instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}
+                                     / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}))
+                                   ) != 0) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}}' % $._config
+                               ))
+                             )
+                           )
+                           .addRow(
+                             row.new('Memory')
+                             .addPanel(
+                               memoryUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                       instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}
+                                       / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}))
+                                   ) != 0) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}}' % $._config
+                               ))
+                             )
+                             .addPanel(
+                               memorySaturation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                       instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                   ) != 0) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}}' % $._config
+                               ))
+                             )
+                           )
+                           .addRow(
+                             row.new('Network')
+                             .addPanel(
+                               networkUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                       instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                   ) != 0) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}} Receive' % $._config
+                               ))
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                       instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                   ) != 0) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}} Transmit' % $._config
+                               ))
+                             )
+                             .addPanel(
+                               networkSaturation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                       instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                   ) != 0) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}} Receive' % $._config
+                               ))
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                       instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                   ) != 0) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}} Transmit' % $._config
+                               ))
+                             )
+                           )
+                           .addRow(
+                             row.new('Disk IO')
+                             .addPanel(
+                               diskIOUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                       instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
+                                   ) != 0) by (%(clusterLabel)s, device)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}} {{device}}' % $._config
+                               ))
+                             )
+                             .addPanel(
+                               diskIOSaturation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum((
+                                     instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                     / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
+                                   ) != 0) by (%(clusterLabel)s, device)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}} {{device}}' % $._config
+                               ))
+                             )
+                           )
+                           .addRow(
+                             row.new('Disk Space')
+                             .addPanel(
+                               diskSpaceUtilisation
+                               .addTarget(prometheus.target(
+                                 |||
+                                   sum (
+                                     sum without (device) (
+                                       max without (fstype, mountpoint, instance, pod) ((
+                                         node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s}
+                                       ) != 0)
+                                     )
+                                     / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s})))
+                                   ) by (%(clusterLabel)s)
+                                 ||| % $._config, legendFormat='{{%(clusterLabel)s}}' % $._config
+                               ))
+                             )
+                           ),
+                       } else {},
 }
