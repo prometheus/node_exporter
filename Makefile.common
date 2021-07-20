@@ -174,6 +174,15 @@ common-test: $(GOTEST_DIR)
 $(GOTEST_DIR):
 	@mkdir -p $@
 
+.PHONY: save-tests-results
+save-tests-results:
+ifneq ($(CIRCLE_JOB),)
+ifneq (,$(wildcard $(GOTEST_DIR)/unit-tests.xml))
+	@echo ">> saving tests"
+	mv $(GOTEST_DIR)/unit-tests.xml $(GOTEST_DIR)/unit-tests-$(shell date +%s).xml
+endif
+endif
+
 .PHONY: common-format
 common-format:
 	@echo ">> formatting code"
