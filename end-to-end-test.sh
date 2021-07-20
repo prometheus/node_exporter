@@ -39,7 +39,7 @@ enabled_collectors=$(cat << COLLECTORS
   thermal_zone
   textfile
   bonding
-  udp_queues 
+  udp_queues
   vmstat
   wifi
   xfs
@@ -60,7 +60,7 @@ cd "$(dirname $0)"
 port="$((10000 + (RANDOM % 10000)))"
 tmpdir=$(mktemp -d /tmp/node_exporter_e2e_test.XXXXXX)
 
-skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds)"
+skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds|node_network_(receive|transmit)_(bytes|packets)_total)"
 
 arch="$(uname -m)"
 
@@ -109,6 +109,7 @@ fi
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --collector.netclass.ignored-devices="(dmz|int)" \
   --collector.netclass.ignore-invalid-speed \
+  --collector.netdev.device-include="lo" \
   --collector.bcache.priorityStats \
   --collector.cpu.info \
   --collector.cpu.info.flags-include="^(aes|avx.?|constant_tsc)$" \
