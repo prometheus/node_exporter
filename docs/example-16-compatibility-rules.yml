@@ -1,201 +1,201 @@
 groups:
-- name: node_exporter-16-bcache
-  rules:
-  - record: node_bcache_cache_read_races
-    expr: node_bcache_cache_read_races_total
-- name: node_exporter-16-buddyinfo
-  rules:
-  - record: node_buddyinfo_blocks
-    expr: node_buddyinfo_count
-- name: node_exporter-16-stat
-  rules:
-  - record: node_boot_time_seconds
-    expr: node_boot_time
-  - record: node_time_seconds
-    expr: node_time
-  - record: node_context_switches_total
-    expr: node_context_switches
-  - record: node_forks_total
-    expr: node_forks
-  - record: node_intr_total
-    expr: node_intr
-- name: node_exporter-16-cpu
-  rules:
-  - record: node_cpu_seconds_total
-    expr: label_replace(node_cpu, "cpu", "$1", "cpu", "cpu(.+)")
-- name: node_exporter-16-diskstats
-  rules:
-  - record: node_disk_read_bytes_total
-    expr: node_disk_bytes_read
-  - record: node_disk_written_bytes_total
-    expr: node_disk_bytes_written
-  - record: node_disk_io_time_seconds_total
-    expr: node_disk_io_time_ms / 1000
-  - record: node_disk_io_time_weighted_seconds_total
-    expr: node_disk_io_time_weighted
-  - record: node_disk_reads_completed_total
-    expr: node_disk_reads_completed
-  - record: node_disk_reads_merged_total
-    expr: node_disk_reads_merged
-  - record: node_disk_read_time_seconds_total
-    expr: node_disk_read_time_ms / 1000
-  - record: node_disk_writes_completed_total
-    expr: node_disk_writes_completed
-  - record: node_disk_writes_merged_total
-    expr: node_disk_writes_merged
-  - record: node_disk_write_time_seconds_total
-    expr: node_disk_write_time_ms / 1000
-- name: node_exporter-16-filesystem
-  rules:
-  - record: node_filesystem_free_bytes
-    expr: node_filesystem_free
-  - record: node_filesystem_avail_bytes
-    expr: node_filesystem_avail
-  - record: node_filesystem_size_bytes
-    expr: node_filesystem_size
-- name: node_exporter-16-infiniband
-  rules:
-  - record: node_infiniband_port_data_received_bytes_total
-    expr: node_infiniband_port_data_received_bytes
-  - record: node_infiniband_port_data_transmitted_bytes_total
-    expr: node_infiniband_port_data_transmitted_bytes
-- name: node_exporter-16-interrupts
-  rules:
-  - record: node_interrupts_total
-    expr: node_interrupts
-- name: node_exporter-16-memory
-  rules:
-  - record: node_memory_Active_bytes
-    expr: node_memory_Active
-  - record: node_memory_Active_anon_bytes
-    expr: node_memory_Active_anon
-  - record: node_memory_Active_file_bytes
-    expr: node_memory_Active_file
-  - record: node_memory_AnonHugePages_bytes
-    expr: node_memory_AnonHugePages
-  - record: node_memory_AnonPages_bytes
-    expr: node_memory_AnonPages
-  - record: node_memory_Bounce_bytes
-    expr: node_memory_Bounce
-  - record: node_memory_Buffers_bytes
-    expr: node_memory_Buffers
-  - record: node_memory_Cached_bytes
-    expr: node_memory_Cached
-  - record: node_memory_CommitLimit_bytes
-    expr: node_memory_CommitLimit
-  - record: node_memory_Committed_AS_bytes
-    expr: node_memory_Committed_AS
-  - record: node_memory_DirectMap2M_bytes
-    expr: node_memory_DirectMap2M
-  - record: node_memory_DirectMap4k_bytes
-    expr: node_memory_DirectMap4k
-  - record: node_memory_Dirty_bytes
-    expr: node_memory_Dirty
-  - record: node_memory_HardwareCorrupted_bytes
-    expr: node_memory_HardwareCorrupted
-  - record: node_memory_Hugepagesize_bytes
-    expr: node_memory_Hugepagesize
-  - record: node_memory_Inactive_bytes
-    expr: node_memory_Inactive
-  - record: node_memory_Inactive_anon_bytes
-    expr: node_memory_Inactive_anon
-  - record: node_memory_Inactive_file_bytes
-    expr: node_memory_Inactive_file
-  - record: node_memory_KernelStack_bytes
-    expr: node_memory_KernelStack
-  - record: node_memory_Mapped_bytes
-    expr: node_memory_Mapped
-  - record: node_memory_MemAvailable_bytes
-    expr: node_memory_MemAvailable
-  - record: node_memory_MemFree_bytes
-    expr: node_memory_MemFree
-  - record: node_memory_MemTotal_bytes
-    expr: node_memory_MemTotal
-  - record: node_memory_Mlocked_bytes
-    expr: node_memory_Mlocked
-  - record: node_memory_NFS_Unstable_bytes
-    expr: node_memory_NFS_Unstable
-  - record: node_memory_PageTables_bytes
-    expr: node_memory_PageTables
-  - record: node_memory_Shmem_bytes
-    expr: node_memory_Shmem
-  - record: node_memory_ShmemHugePages_bytes
-    expr: node_memory_ShmemHugePages
-  - record: node_memory_ShmemPmdMapped_bytes
-    expr: node_memory_ShmemPmdMapped
-  - record: node_memory_Slab_bytes
-    expr: node_memory_Slab
-  - record: node_memory_SReclaimable_bytes
-    expr: node_memory_SReclaimable
-  - record: node_memory_SUnreclaim_bytes
-    expr: node_memory_SUnreclaim
-  - record: node_memory_SwapCached_bytes
-    expr: node_memory_SwapCached
-  - record: node_memory_SwapFree_bytes
-    expr: node_memory_SwapFree
-  - record: node_memory_SwapTotal_bytes
-    expr: node_memory_SwapTotal
-  - record: node_memory_Unevictable_bytes
-    expr: node_memory_Unevictable
-  - record: node_memory_VmallocChunk_bytes
-    expr: node_memory_VmallocChunk
-  - record: node_memory_VmallocTotal_bytes
-    expr: node_memory_VmallocTotal
-  - record: node_memory_VmallocUsed_bytes
-    expr: node_memory_VmallocUsed
-  - record: node_memory_Writeback_bytes
-    expr: node_memory_Writeback
-  - record: node_memory_WritebackTmp_bytes
-    expr: node_memory_WritebackTmp
-- name: node_exporter-16-network
-  rules:
-  - record: node_network_receive_bytes_total
-    expr: node_network_receive_bytes
-  - record: node_network_receive_compressed_total
-    expr: node_network_receive_compressed
-  - record: node_network_receive_drop_total
-    expr: node_network_receive_drop
-  - record: node_network_receive_errs_total
-    expr: node_network_receive_errs
-  - record: node_network_receive_fifo_total
-    expr: node_network_receive_fifo
-  - record: node_network_receive_frame_total
-    expr: node_network_receive_frame
-  - record: node_network_receive_multicast_total
-    expr: node_network_receive_multicast
-  - record: node_network_receive_packets_total
-    expr: node_network_receive_packets
-  - record: node_network_transmit_bytes_total
-    expr: node_network_transmit_bytes
-  - record: node_network_transmit_compressed_total
-    expr: node_network_transmit_compressed
-  - record: node_network_transmit_drop_total
-    expr: node_network_transmit_drop
-  - record: node_network_transmit_errs_total
-    expr: node_network_transmit_errs
-  - record: node_network_transmit_fifo_total
-    expr: node_network_transmit_fifo
-  - record: node_network_transmit_frame_total
-    expr: node_network_transmit_frame
-  - record: node_network_transmit_multicast_total
-    expr: node_network_transmit_multicast
-  - record: node_network_transmit_packets_total
-    expr: node_network_transmit_packets
-- name: node_exporter-16-nfs
-  rules:
-  - record: node_nfs_connections_total
-    expr: node_nfs_net_connections
-  - record: node_nfs_packets_total
-    expr: node_nfs_net_reads
-  - record: node_nfs_requests_total
-    expr: label_replace(label_replace(node_nfs_procedures, "proto", "$1", "version", "(.+)"), "method", "$1", "procedure", "(.+)")
-  - record: node_nfs_rpc_authentication_refreshes_total
-    expr: node_nfs_rpc_authentication_refreshes
-  - record: node_nfs_rpcs_total
-    expr: node_nfs_rpc_operations
-  - record: node_nfs_rpc_retransmissions_total
-    expr: node_nfs_rpc_retransmissions
-- name: node_exporter-16-textfile
-  rules:
-  - record: node_textfile_mtime_seconds
-    expr: node_textfile_mtime
+  - name: node_exporter-16-bcache
+    rules:
+      - record: node_bcache_cache_read_races
+        expr: node_bcache_cache_read_races_total
+  - name: node_exporter-16-buddyinfo
+    rules:
+      - record: node_buddyinfo_blocks
+        expr: node_buddyinfo_count
+  - name: node_exporter-16-stat
+    rules:
+      - record: node_boot_time_seconds
+        expr: node_boot_time
+      - record: node_time_seconds
+        expr: node_time
+      - record: node_context_switches_total
+        expr: node_context_switches
+      - record: node_forks_total
+        expr: node_forks
+      - record: node_intr_total
+        expr: node_intr
+  - name: node_exporter-16-cpu
+    rules:
+      - record: node_cpu_seconds_total
+        expr: label_replace(node_cpu, "cpu", "$1", "cpu", "cpu(.+)")
+  - name: node_exporter-16-diskstats
+    rules:
+      - record: node_disk_read_bytes_total
+        expr: node_disk_bytes_read
+      - record: node_disk_written_bytes_total
+        expr: node_disk_bytes_written
+      - record: node_disk_io_time_seconds_total
+        expr: node_disk_io_time_ms / 1000
+      - record: node_disk_io_time_weighted_seconds_total
+        expr: node_disk_io_time_weighted
+      - record: node_disk_reads_completed_total
+        expr: node_disk_reads_completed
+      - record: node_disk_reads_merged_total
+        expr: node_disk_reads_merged
+      - record: node_disk_read_time_seconds_total
+        expr: node_disk_read_time_ms / 1000
+      - record: node_disk_writes_completed_total
+        expr: node_disk_writes_completed
+      - record: node_disk_writes_merged_total
+        expr: node_disk_writes_merged
+      - record: node_disk_write_time_seconds_total
+        expr: node_disk_write_time_ms / 1000
+  - name: node_exporter-16-filesystem
+    rules:
+      - record: node_filesystem_free_bytes
+        expr: node_filesystem_free
+      - record: node_filesystem_avail_bytes
+        expr: node_filesystem_avail
+      - record: node_filesystem_size_bytes
+        expr: node_filesystem_size
+  - name: node_exporter-16-infiniband
+    rules:
+      - record: node_infiniband_port_data_received_bytes_total
+        expr: node_infiniband_port_data_received_bytes
+      - record: node_infiniband_port_data_transmitted_bytes_total
+        expr: node_infiniband_port_data_transmitted_bytes
+  - name: node_exporter-16-interrupts
+    rules:
+      - record: node_interrupts_total
+        expr: node_interrupts
+  - name: node_exporter-16-memory
+    rules:
+      - record: node_memory_Active_bytes
+        expr: node_memory_Active
+      - record: node_memory_Active_anon_bytes
+        expr: node_memory_Active_anon
+      - record: node_memory_Active_file_bytes
+        expr: node_memory_Active_file
+      - record: node_memory_AnonHugePages_bytes
+        expr: node_memory_AnonHugePages
+      - record: node_memory_AnonPages_bytes
+        expr: node_memory_AnonPages
+      - record: node_memory_Bounce_bytes
+        expr: node_memory_Bounce
+      - record: node_memory_Buffers_bytes
+        expr: node_memory_Buffers
+      - record: node_memory_Cached_bytes
+        expr: node_memory_Cached
+      - record: node_memory_CommitLimit_bytes
+        expr: node_memory_CommitLimit
+      - record: node_memory_Committed_AS_bytes
+        expr: node_memory_Committed_AS
+      - record: node_memory_DirectMap2M_bytes
+        expr: node_memory_DirectMap2M
+      - record: node_memory_DirectMap4k_bytes
+        expr: node_memory_DirectMap4k
+      - record: node_memory_Dirty_bytes
+        expr: node_memory_Dirty
+      - record: node_memory_HardwareCorrupted_bytes
+        expr: node_memory_HardwareCorrupted
+      - record: node_memory_Hugepagesize_bytes
+        expr: node_memory_Hugepagesize
+      - record: node_memory_Inactive_bytes
+        expr: node_memory_Inactive
+      - record: node_memory_Inactive_anon_bytes
+        expr: node_memory_Inactive_anon
+      - record: node_memory_Inactive_file_bytes
+        expr: node_memory_Inactive_file
+      - record: node_memory_KernelStack_bytes
+        expr: node_memory_KernelStack
+      - record: node_memory_Mapped_bytes
+        expr: node_memory_Mapped
+      - record: node_memory_MemAvailable_bytes
+        expr: node_memory_MemAvailable
+      - record: node_memory_MemFree_bytes
+        expr: node_memory_MemFree
+      - record: node_memory_MemTotal_bytes
+        expr: node_memory_MemTotal
+      - record: node_memory_Mlocked_bytes
+        expr: node_memory_Mlocked
+      - record: node_memory_NFS_Unstable_bytes
+        expr: node_memory_NFS_Unstable
+      - record: node_memory_PageTables_bytes
+        expr: node_memory_PageTables
+      - record: node_memory_Shmem_bytes
+        expr: node_memory_Shmem
+      - record: node_memory_ShmemHugePages_bytes
+        expr: node_memory_ShmemHugePages
+      - record: node_memory_ShmemPmdMapped_bytes
+        expr: node_memory_ShmemPmdMapped
+      - record: node_memory_Slab_bytes
+        expr: node_memory_Slab
+      - record: node_memory_SReclaimable_bytes
+        expr: node_memory_SReclaimable
+      - record: node_memory_SUnreclaim_bytes
+        expr: node_memory_SUnreclaim
+      - record: node_memory_SwapCached_bytes
+        expr: node_memory_SwapCached
+      - record: node_memory_SwapFree_bytes
+        expr: node_memory_SwapFree
+      - record: node_memory_SwapTotal_bytes
+        expr: node_memory_SwapTotal
+      - record: node_memory_Unevictable_bytes
+        expr: node_memory_Unevictable
+      - record: node_memory_VmallocChunk_bytes
+        expr: node_memory_VmallocChunk
+      - record: node_memory_VmallocTotal_bytes
+        expr: node_memory_VmallocTotal
+      - record: node_memory_VmallocUsed_bytes
+        expr: node_memory_VmallocUsed
+      - record: node_memory_Writeback_bytes
+        expr: node_memory_Writeback
+      - record: node_memory_WritebackTmp_bytes
+        expr: node_memory_WritebackTmp
+  - name: node_exporter-16-network
+    rules:
+      - record: node_network_receive_bytes_total
+        expr: node_network_receive_bytes
+      - record: node_network_receive_compressed_total
+        expr: node_network_receive_compressed
+      - record: node_network_receive_drop_total
+        expr: node_network_receive_drop
+      - record: node_network_receive_errs_total
+        expr: node_network_receive_errs
+      - record: node_network_receive_fifo_total
+        expr: node_network_receive_fifo
+      - record: node_network_receive_frame_total
+        expr: node_network_receive_frame
+      - record: node_network_receive_multicast_total
+        expr: node_network_receive_multicast
+      - record: node_network_receive_packets_total
+        expr: node_network_receive_packets
+      - record: node_network_transmit_bytes_total
+        expr: node_network_transmit_bytes
+      - record: node_network_transmit_compressed_total
+        expr: node_network_transmit_compressed
+      - record: node_network_transmit_drop_total
+        expr: node_network_transmit_drop
+      - record: node_network_transmit_errs_total
+        expr: node_network_transmit_errs
+      - record: node_network_transmit_fifo_total
+        expr: node_network_transmit_fifo
+      - record: node_network_transmit_frame_total
+        expr: node_network_transmit_frame
+      - record: node_network_transmit_multicast_total
+        expr: node_network_transmit_multicast
+      - record: node_network_transmit_packets_total
+        expr: node_network_transmit_packets
+  - name: node_exporter-16-nfs
+    rules:
+      - record: node_nfs_connections_total
+        expr: node_nfs_net_connections
+      - record: node_nfs_packets_total
+        expr: node_nfs_net_reads
+      - record: node_nfs_requests_total
+        expr: label_replace(label_replace(node_nfs_procedures, "proto", "$1", "version", "(.+)"), "method", "$1", "procedure", "(.+)")
+      - record: node_nfs_rpc_authentication_refreshes_total
+        expr: node_nfs_rpc_authentication_refreshes
+      - record: node_nfs_rpcs_total
+        expr: node_nfs_rpc_operations
+      - record: node_nfs_rpc_retransmissions_total
+        expr: node_nfs_rpc_retransmissions
+  - name: node_exporter-16-textfile
+    rules:
+      - record: node_textfile_mtime_seconds
+        expr: node_textfile_mtime
