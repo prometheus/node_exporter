@@ -26,7 +26,7 @@ events_total{foo="bar"} 10
 events_total{foo="baz"} 20
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
 # TYPE node_textfile_mtime_seconds gauge
-node_textfile_mtime_seconds{file="metrics.prom"} 1
+node_textfile_mtime_seconds{file="fixtures/textfile/different_metric_types/metrics.prom"} 1
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0

@@ -22,7 +22,7 @@ event_duration_seconds_total_sum{baz="result_sort"} 3.4123187829998307
 event_duration_seconds_total_count{baz="result_sort"} 1.427647e+06
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
 # TYPE node_textfile_mtime_seconds gauge
-node_textfile_mtime_seconds{file="metrics.prom"} 1
+node_textfile_mtime_seconds{file="fixtures/textfile/summary/metrics.prom"} 1
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
 # TYPE node_textfile_scrape_error gauge
 node_textfile_scrape_error 0
