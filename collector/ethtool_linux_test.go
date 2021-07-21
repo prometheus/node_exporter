@@ -81,6 +81,41 @@ func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
 	return collector, nil
 }
 
+func TestSanitizeMetricName(t *testing.T) {
+	testcases := map[string]string{
+		"":                             "",
+		"rx_errors":                    "rx_errors",
+		"Queue[0] AllocFails":          "Queue_0_AllocFails",
+		"Tx LPI entry count":           "Tx_LPI_entry_count",
+		"port.VF_admin_queue_requests": "port_VF_admin_queue_requests",
+		"[3]: tx_bytes":                "_3_tx_bytes",
+	}
+
+	for metricName, expected := range testcases {
+		got := SanitizeMetricName(metricName)
+		if expected != got {
+			t.Errorf("Expected '%s' but got '%s'", expected, got)
+		}
+	}
+}
+
+func TestBuildEthtoolFQName(t *testing.T) {
+	testcases := map[string]string{
+		"rx_errors":                    "node_ethtool_received_errors",
+		"Queue[0] AllocFails":          "node_ethtool_queue_0_allocfails",
+		"Tx LPI entry count":           "node_ethtool_transmitted_lpi_entry_count",
+		"port.VF_admin_queue_requests": "node_ethtool_port_vf_admin_queue_requests",
+		"[3]: tx_bytes":                "node_ethtool_3_transmitted_bytes",
+	}
+
+	for metric, expected := range testcases {
+		got := buildEthtoolFQName(metric)
+		if expected != got {
+			t.Errorf("Expected '%s' but got '%s'", expected, got)
+		}
+	}
+}
+
 func TestEthtoolCollector(t *testing.T) {
 	testcases := []string{
 		prometheus.NewDesc("node_ethtool_align_errors", "Network interface align_errors", []string{"device"}, nil).String(),

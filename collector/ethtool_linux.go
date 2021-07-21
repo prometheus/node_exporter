@@ -25,6 +25,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 	"syscall"
 
 	"github.com/go-kit/log"
@@ -36,8 +37,9 @@ import (
 )
 
 var (
-	receivedRegex    = regexp.MustCompile(`_rx_`)
-	transmittedRegex = regexp.MustCompile(`_tx_`)
+	metricNameRegex  = regexp.MustCompile(`_*[^0-9A-Za-z_]+_*`)
+	receivedRegex    = regexp.MustCompile(`(^|_)rx(_|$)`)
+	transmittedRegex = regexp.MustCompile(`(^|_)tx(_|$)`)
 )
 
 type EthtoolStats interface {
@@ -116,6 +118,28 @@ func init() {
 	registerCollector("ethtool", defaultDisabled, NewEthtoolCollector)
 }
 
+// Sanitize the given metric name by replacing invalid characters by underscores.
+//
+// OpenMetrics and the Prometheus exposition format require the metric name
+// to consist only of alphanumericals and "_", ":" and they must not start
+// with digits. Since colons in MetricFamily are reserved to signal that the
+// MetricFamily is the result of a calculation or aggregation of a general
+// purpose monitoring system, colons will be replaced as well.
+//
+// Note: The caller has to ensure that the metric name does not start with a
+// digit.
+func SanitizeMetricName(metricName string) string {
+	return metricNameRegex.ReplaceAllString(metricName, "_")
+}
+
+// Generate the fully-qualified metric name for the ethool metric.
+func buildEthtoolFQName(metric string) string {
+	metricName := strings.TrimLeft(strings.ToLower(SanitizeMetricName(metric)), "_")
+	metricName = receivedRegex.ReplaceAllString(metricName, "${1}received${2}")
+	metricName = transmittedRegex.ReplaceAllString(metricName, "${1}transmitted${2}")
+	return prometheus.BuildFQName(namespace, "ethtool", metricName)
+}
+
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
 func NewEthtoolCollector(logger log.Logger) (Collector, error) {
 	return makeEthtoolCollector(logger)
@@ -169,9 +193,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 
 		for _, metric := range keys {
 			val := stats[metric]
-			metricFQName := prometheus.BuildFQName(namespace, "ethtool", metric)
-			metricFQName = receivedRegex.ReplaceAllString(metricFQName, "_received_")
-			metricFQName = transmittedRegex.ReplaceAllString(metricFQName, "_transmitted_")
+			metricFQName := buildEthtoolFQName(metric)
 
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
 			entry, exists := c.entries[metric]
