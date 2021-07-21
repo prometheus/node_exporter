@@ -70,6 +70,10 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, rz := range zones {
 		newMicrojoules, err := rz.GetEnergyMicrojoules()
 		if err != nil {
+			if errors.Is(err, os.ErrPermission) {
+				level.Debug(c.logger).Log("msg", "Can't access energy_uj file", "zone", rz, "err", err)
+				return ErrNoData
+			}
 			return err
 		}
 		index := strconv.Itoa(rz.Index)
