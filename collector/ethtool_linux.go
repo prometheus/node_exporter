@@ -33,11 +33,13 @@ import (
 	"github.com/prometheus/procfs/sysfs"
 	"github.com/safchain/ethtool"
 	"golang.org/x/sys/unix"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	receivedRegex    = regexp.MustCompile(`_rx_`)
-	transmittedRegex = regexp.MustCompile(`_tx_`)
+	ethtoolIgnoredDevices = kingpin.Flag("collector.ethtool.ignored-devices", "Regexp of net devices to ignore for ethtool collector.").Default("^$").String()
+	receivedRegex         = regexp.MustCompile(`_rx_`)
+	transmittedRegex      = regexp.MustCompile(`_tx_`)
 )
 
 type EthtoolStats interface {
@@ -52,10 +54,11 @@ func (e *ethtoolStats) Stats(intf string) (map[string]uint64, error) {
 }
 
 type ethtoolCollector struct {
-	fs      sysfs.FS
-	entries map[string]*prometheus.Desc
-	logger  log.Logger
-	stats   EthtoolStats
+	fs                    sysfs.FS
+	entries               map[string]*prometheus.Desc
+	ignoredDevicesPattern *regexp.Regexp
+	logger                log.Logger
+	stats                 EthtoolStats
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
@@ -69,8 +72,10 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 
 	// Pre-populate some common ethtool metrics.
 	return &ethtoolCollector{
-		fs:    fs,
-		stats: &ethtoolStats{},
+		fs:                    fs,
+		ignoredDevicesPattern: regexp.MustCompile(*ethtoolIgnoredDevices),
+		logger:                logger,
+		stats:                 &ethtoolStats{},
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
 				"node_ethtool_received_bytes_total",
@@ -108,7 +113,6 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 				[]string{"device"}, nil,
 			),
 		},
-		logger: logger,
 	}, nil
 }
 
@@ -138,6 +142,10 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 	for device := range netClass {
 		var stats map[string]uint64
 		var err error
+
+		if c.ignoredDevicesPattern.MatchString(device) {
+			continue
+		}
 
 		stats, err = c.stats.Stats(device)
 

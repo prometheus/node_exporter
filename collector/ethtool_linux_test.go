@@ -96,6 +96,7 @@ func TestEthtoolCollector(t *testing.T) {
 		prometheus.NewDesc("node_ethtool_transmitted_packets_total", "Network interface packets sent", []string{"device"}, nil).String(),
 	}
 
+	*ethtoolIgnoredDevices = "^$"
 	*sysPath = "fixtures/sys"
 
 	collector, err := NewEthtoolTestCollector(log.NewNopLogger())
