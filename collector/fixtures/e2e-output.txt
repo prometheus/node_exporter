@@ -3988,171 +3988,171 @@ node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
 node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # HELP node_zoneinfo_high_pages Zone watermark pages_high
 # TYPE node_zoneinfo_high_pages gauge
-node_zoneinfo_high_pages{node="0",zone=""} 14
+node_zoneinfo_high_pages{node="0",zone="DMA"} 14
 node_zoneinfo_high_pages{node="0",zone="DMA32"} 2122
 node_zoneinfo_high_pages{node="0",zone="Device"} 0
 node_zoneinfo_high_pages{node="0",zone="Movable"} 0
 node_zoneinfo_high_pages{node="0",zone="Normal"} 31113
 # HELP node_zoneinfo_low_pages Zone watermark pages_low
 # TYPE node_zoneinfo_low_pages gauge
-node_zoneinfo_low_pages{node="0",zone=""} 11
+node_zoneinfo_low_pages{node="0",zone="DMA"} 11
 node_zoneinfo_low_pages{node="0",zone="DMA32"} 1600
 node_zoneinfo_low_pages{node="0",zone="Device"} 0
 node_zoneinfo_low_pages{node="0",zone="Movable"} 0
 node_zoneinfo_low_pages{node="0",zone="Normal"} 23461
 # HELP node_zoneinfo_managed_pages Present pages managed by the buddy system
 # TYPE node_zoneinfo_managed_pages gauge
-node_zoneinfo_managed_pages{node="0",zone=""} 3973
+node_zoneinfo_managed_pages{node="0",zone="DMA"} 3973
 node_zoneinfo_managed_pages{node="0",zone="DMA32"} 530339
 node_zoneinfo_managed_pages{node="0",zone="Device"} 0
 node_zoneinfo_managed_pages{node="0",zone="Movable"} 0
 node_zoneinfo_managed_pages{node="0",zone="Normal"} 7.654794e+06
 # HELP node_zoneinfo_min_pages Zone watermark pages_min
 # TYPE node_zoneinfo_min_pages gauge
-node_zoneinfo_min_pages{node="0",zone=""} 8
+node_zoneinfo_min_pages{node="0",zone="DMA"} 8
 node_zoneinfo_min_pages{node="0",zone="DMA32"} 1078
 node_zoneinfo_min_pages{node="0",zone="Device"} 0
 node_zoneinfo_min_pages{node="0",zone="Movable"} 0
 node_zoneinfo_min_pages{node="0",zone="Normal"} 15809
 # HELP node_zoneinfo_nr_active_anon_pages Number of anonymous pages recently more used
 # TYPE node_zoneinfo_nr_active_anon_pages gauge
-node_zoneinfo_nr_active_anon_pages{node="0",zone=""} 1.175853e+06
+node_zoneinfo_nr_active_anon_pages{node="0",zone="DMA"} 1.175853e+06
 # HELP node_zoneinfo_nr_active_file_pages Number of active pages with file-backing
 # TYPE node_zoneinfo_nr_active_file_pages gauge
-node_zoneinfo_nr_active_file_pages{node="0",zone=""} 688810
+node_zoneinfo_nr_active_file_pages{node="0",zone="DMA"} 688810
 # HELP node_zoneinfo_nr_anon_pages Number of anonymous pages currently used by the system
 # TYPE node_zoneinfo_nr_anon_pages gauge
-node_zoneinfo_nr_anon_pages{node="0",zone=""} 1.156608e+06
+node_zoneinfo_nr_anon_pages{node="0",zone="DMA"} 1.156608e+06
 # HELP node_zoneinfo_nr_anon_transparent_hugepages Number of anonymous transparent huge pages currently used by the system
 # TYPE node_zoneinfo_nr_anon_transparent_hugepages gauge
-node_zoneinfo_nr_anon_transparent_hugepages{node="0",zone=""} 0
+node_zoneinfo_nr_anon_transparent_hugepages{node="0",zone="DMA"} 0
 # HELP node_zoneinfo_nr_dirtied_total Page dirtyings since bootup
 # TYPE node_zoneinfo_nr_dirtied_total counter
-node_zoneinfo_nr_dirtied_total{node="0",zone=""} 1.189097e+06
+node_zoneinfo_nr_dirtied_total{node="0",zone="DMA"} 1.189097e+06
 # HELP node_zoneinfo_nr_dirty_pages Number of dirty pages
 # TYPE node_zoneinfo_nr_dirty_pages gauge
-node_zoneinfo_nr_dirty_pages{node="0",zone=""} 103
+node_zoneinfo_nr_dirty_pages{node="0",zone="DMA"} 103
 # HELP node_zoneinfo_nr_file_pages Number of file pages
 # TYPE node_zoneinfo_nr_file_pages gauge
-node_zoneinfo_nr_file_pages{node="0",zone=""} 1.740118e+06
+node_zoneinfo_nr_file_pages{node="0",zone="DMA"} 1.740118e+06
 # HELP node_zoneinfo_nr_free_pages Total number of free pages in the zone
 # TYPE node_zoneinfo_nr_free_pages gauge
-node_zoneinfo_nr_free_pages{node="0",zone=""} 2949
+node_zoneinfo_nr_free_pages{node="0",zone="DMA"} 2949
 node_zoneinfo_nr_free_pages{node="0",zone="DMA32"} 528427
 node_zoneinfo_nr_free_pages{node="0",zone="Normal"} 4.539739e+06
 # HELP node_zoneinfo_nr_inactive_anon_pages Number of anonymous pages recently less used
 # TYPE node_zoneinfo_nr_inactive_anon_pages gauge
-node_zoneinfo_nr_inactive_anon_pages{node="0",zone=""} 95612
+node_zoneinfo_nr_inactive_anon_pages{node="0",zone="DMA"} 95612
 # HELP node_zoneinfo_nr_inactive_file_pages Number of inactive pages with file-backing
 # TYPE node_zoneinfo_nr_inactive_file_pages gauge
-node_zoneinfo_nr_inactive_file_pages{node="0",zone=""} 723339
+node_zoneinfo_nr_inactive_file_pages{node="0",zone="DMA"} 723339
 # HELP node_zoneinfo_nr_isolated_anon_pages Temporary isolated pages from anon lru
 # TYPE node_zoneinfo_nr_isolated_anon_pages gauge
-node_zoneinfo_nr_isolated_anon_pages{node="0",zone=""} 0
+node_zoneinfo_nr_isolated_anon_pages{node="0",zone="DMA"} 0
 # HELP node_zoneinfo_nr_isolated_file_pages Temporary isolated pages from file lru
 # TYPE node_zoneinfo_nr_isolated_file_pages gauge
-node_zoneinfo_nr_isolated_file_pages{node="0",zone=""} 0
+node_zoneinfo_nr_isolated_file_pages{node="0",zone="DMA"} 0
 # HELP node_zoneinfo_nr_kernel_stacks Number of kernel stacks
 # TYPE node_zoneinfo_nr_kernel_stacks gauge
-node_zoneinfo_nr_kernel_stacks{node="0",zone=""} 0
+node_zoneinfo_nr_kernel_stacks{node="0",zone="DMA"} 0
 node_zoneinfo_nr_kernel_stacks{node="0",zone="DMA32"} 0
 node_zoneinfo_nr_kernel_stacks{node="0",zone="Normal"} 18864
 # HELP node_zoneinfo_nr_mapped_pages Number of mapped pages
 # TYPE node_zoneinfo_nr_mapped_pages gauge
-node_zoneinfo_nr_mapped_pages{node="0",zone=""} 423143
+node_zoneinfo_nr_mapped_pages{node="0",zone="DMA"} 423143
 # HELP node_zoneinfo_nr_shmem_pages Number of shmem pages (included tmpfs/GEM pages)
 # TYPE node_zoneinfo_nr_shmem_pages gauge
-node_zoneinfo_nr_shmem_pages{node="0",zone=""} 330517
+node_zoneinfo_nr_shmem_pages{node="0",zone="DMA"} 330517
 # HELP node_zoneinfo_nr_slab_reclaimable_pages Number of reclaimable slab pages
 # TYPE node_zoneinfo_nr_slab_reclaimable_pages gauge
-node_zoneinfo_nr_slab_reclaimable_pages{node="0",zone=""} 121763
+node_zoneinfo_nr_slab_reclaimable_pages{node="0",zone="DMA"} 121763
 # HELP node_zoneinfo_nr_slab_unreclaimable_pages Number of unreclaimable slab pages
 # TYPE node_zoneinfo_nr_slab_unreclaimable_pages gauge
-node_zoneinfo_nr_slab_unreclaimable_pages{node="0",zone=""} 56182
+node_zoneinfo_nr_slab_unreclaimable_pages{node="0",zone="DMA"} 56182
 # HELP node_zoneinfo_nr_unevictable_pages Number of unevictable pages
 # TYPE node_zoneinfo_nr_unevictable_pages gauge
-node_zoneinfo_nr_unevictable_pages{node="0",zone=""} 213111
+node_zoneinfo_nr_unevictable_pages{node="0",zone="DMA"} 213111
 # HELP node_zoneinfo_nr_writeback_pages Number of writeback pages
 # TYPE node_zoneinfo_nr_writeback_pages gauge
-node_zoneinfo_nr_writeback_pages{node="0",zone=""} 0
+node_zoneinfo_nr_writeback_pages{node="0",zone="DMA"} 0
 # HELP node_zoneinfo_nr_written_total Page writings since bootup
 # TYPE node_zoneinfo_nr_written_total counter
-node_zoneinfo_nr_written_total{node="0",zone=""} 1.181554e+06
+node_zoneinfo_nr_written_total{node="0",zone="DMA"} 1.181554e+06
 # HELP node_zoneinfo_numa_foreign_total Was intended here, hit elsewhere
 # TYPE node_zoneinfo_numa_foreign_total counter
-node_zoneinfo_numa_foreign_total{node="0",zone=""} 0
+node_zoneinfo_numa_foreign_total{node="0",zone="DMA"} 0
 node_zoneinfo_numa_foreign_total{node="0",zone="DMA32"} 0
 node_zoneinfo_numa_foreign_total{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_numa_hit_total Allocated in intended node
 # TYPE node_zoneinfo_numa_hit_total counter
-node_zoneinfo_numa_hit_total{node="0",zone=""} 1
+node_zoneinfo_numa_hit_total{node="0",zone="DMA"} 1
 node_zoneinfo_numa_hit_total{node="0",zone="DMA32"} 13
 node_zoneinfo_numa_hit_total{node="0",zone="Normal"} 6.2836441e+07
 # HELP node_zoneinfo_numa_interleave_total Interleaver preferred this zone
 # TYPE node_zoneinfo_numa_interleave_total counter
-node_zoneinfo_numa_interleave_total{node="0",zone=""} 1
+node_zoneinfo_numa_interleave_total{node="0",zone="DMA"} 1
 node_zoneinfo_numa_interleave_total{node="0",zone="DMA32"} 1
 node_zoneinfo_numa_interleave_total{node="0",zone="Normal"} 23174
 # HELP node_zoneinfo_numa_local_total Allocation from local node
 # TYPE node_zoneinfo_numa_local_total counter
-node_zoneinfo_numa_local_total{node="0",zone=""} 1
+node_zoneinfo_numa_local_total{node="0",zone="DMA"} 1
 node_zoneinfo_numa_local_total{node="0",zone="DMA32"} 13
 node_zoneinfo_numa_local_total{node="0",zone="Normal"} 6.2836441e+07
 # HELP node_zoneinfo_numa_miss_total Allocated in non intended node
 # TYPE node_zoneinfo_numa_miss_total counter
-node_zoneinfo_numa_miss_total{node="0",zone=""} 0
+node_zoneinfo_numa_miss_total{node="0",zone="DMA"} 0
 node_zoneinfo_numa_miss_total{node="0",zone="DMA32"} 0
 node_zoneinfo_numa_miss_total{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_numa_other_total Allocation from other node
 # TYPE node_zoneinfo_numa_other_total counter
-node_zoneinfo_numa_other_total{node="0",zone=""} 0
+node_zoneinfo_numa_other_total{node="0",zone="DMA"} 0
 node_zoneinfo_numa_other_total{node="0",zone="DMA32"} 0
 node_zoneinfo_numa_other_total{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_present_pages Physical pages existing within the zone
 # TYPE node_zoneinfo_present_pages gauge
-node_zoneinfo_present_pages{node="0",zone=""} 3997
+node_zoneinfo_present_pages{node="0",zone="DMA"} 3997
 node_zoneinfo_present_pages{node="0",zone="DMA32"} 546847
 node_zoneinfo_present_pages{node="0",zone="Device"} 0
 node_zoneinfo_present_pages{node="0",zone="Movable"} 0
 node_zoneinfo_present_pages{node="0",zone="Normal"} 7.806976e+06
 # HELP node_zoneinfo_protection_0 Protection array 0. field
 # TYPE node_zoneinfo_protection_0 gauge
-node_zoneinfo_protection_0{node="0",zone=""} 0
+node_zoneinfo_protection_0{node="0",zone="DMA"} 0
 node_zoneinfo_protection_0{node="0",zone="DMA32"} 0
 node_zoneinfo_protection_0{node="0",zone="Device"} 0
 node_zoneinfo_protection_0{node="0",zone="Movable"} 0
 node_zoneinfo_protection_0{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_protection_1 Protection array 1. field
 # TYPE node_zoneinfo_protection_1 gauge
-node_zoneinfo_protection_1{node="0",zone=""} 2039
+node_zoneinfo_protection_1{node="0",zone="DMA"} 2039
 node_zoneinfo_protection_1{node="0",zone="DMA32"} 0
 node_zoneinfo_protection_1{node="0",zone="Device"} 0
 node_zoneinfo_protection_1{node="0",zone="Movable"} 0
 node_zoneinfo_protection_1{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_protection_2 Protection array 2. field
 # TYPE node_zoneinfo_protection_2 gauge
-node_zoneinfo_protection_2{node="0",zone=""} 31932
+node_zoneinfo_protection_2{node="0",zone="DMA"} 31932
 node_zoneinfo_protection_2{node="0",zone="DMA32"} 29893
 node_zoneinfo_protection_2{node="0",zone="Device"} 0
 node_zoneinfo_protection_2{node="0",zone="Movable"} 0
 node_zoneinfo_protection_2{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_protection_3 Protection array 3. field
 # TYPE node_zoneinfo_protection_3 gauge
-node_zoneinfo_protection_3{node="0",zone=""} 31932
+node_zoneinfo_protection_3{node="0",zone="DMA"} 31932
 node_zoneinfo_protection_3{node="0",zone="DMA32"} 29893
 node_zoneinfo_protection_3{node="0",zone="Device"} 0
 node_zoneinfo_protection_3{node="0",zone="Movable"} 0
 node_zoneinfo_protection_3{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_protection_4 Protection array 4. field
 # TYPE node_zoneinfo_protection_4 gauge
-node_zoneinfo_protection_4{node="0",zone=""} 31932
+node_zoneinfo_protection_4{node="0",zone="DMA"} 31932
 node_zoneinfo_protection_4{node="0",zone="DMA32"} 29893
 node_zoneinfo_protection_4{node="0",zone="Device"} 0
 node_zoneinfo_protection_4{node="0",zone="Movable"} 0
 node_zoneinfo_protection_4{node="0",zone="Normal"} 0
 # HELP node_zoneinfo_spanned_pages Total pages spanned by the zone, including holes
 # TYPE node_zoneinfo_spanned_pages gauge
-node_zoneinfo_spanned_pages{node="0",zone=""} 4095
+node_zoneinfo_spanned_pages{node="0",zone="DMA"} 4095
 node_zoneinfo_spanned_pages{node="0",zone="DMA32"} 1.04448e+06
 node_zoneinfo_spanned_pages{node="0",zone="Device"} 0
 node_zoneinfo_spanned_pages{node="0",zone="Movable"} 0
