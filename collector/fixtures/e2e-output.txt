@@ -2640,6 +2640,12 @@ node_nfsd_server_threads 8
 # HELP node_nvme_info Non-numeric data from /sys/class/nvme/<device>, value is always 1.
 # TYPE node_nvme_info gauge
 node_nvme_info{device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live"} 1
+# HELP node_os_info A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, name, pretty_name, variant, variant_id, version, version_codename, version_id.
+# TYPE node_os_info gauge
+node_os_info{build_id="",id="ubuntu",id_like="debian",image_id="",image_version="",name="Ubuntu",pretty_name="Ubuntu 20.04.2 LTS",variant="",variant_id="",version="20.04.2 LTS (Focal Fossa)",version_codename="focal",version_id="20.04"} 1
+# HELP node_os_version Metric containing the major.minor part of the OS version.
+# TYPE node_os_version gauge
+node_os_version 20.04
 # HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_capacity gauge
 node_power_supply_capacity{power_supply="BAT0"} 81
@@ -2791,6 +2797,7 @@ node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
 node_scrape_collector_success{collector="nvme"} 1
+node_scrape_collector_success{collector="os"} 1
 node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1

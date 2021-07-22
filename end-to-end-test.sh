@@ -104,6 +104,7 @@ fi
   --path.sysfs="collector/fixtures/sys" \
   $(for c in ${enabled_collectors}; do echo --collector.${c}  ; done) \
   $(for c in ${disabled_collectors}; do echo --no-collector.${c}  ; done) \
+  --collector.os.prefix="collector/fixtures" \
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
