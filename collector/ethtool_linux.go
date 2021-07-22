@@ -73,37 +73,37 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 		stats: &ethtoolStats{},
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
-				"node_ethtool_received_bytes_total",
+				prometheus.BuildFQName(namespace, "ethtool", "received_bytes_total"),
 				"Network interface bytes received",
 				[]string{"device"}, nil,
 			),
 			"rx_dropped": prometheus.NewDesc(
-				"node_ethtool_received_dropped_total",
+				prometheus.BuildFQName(namespace, "ethtool", "received_dropped_total"),
 				"Number of received frames dropped",
 				[]string{"device"}, nil,
 			),
 			"rx_errors": prometheus.NewDesc(
-				"node_ethtool_received_errors_total",
+				prometheus.BuildFQName(namespace, "ethtool", "received_errors_total"),
 				"Number of received frames with errors",
 				[]string{"device"}, nil,
 			),
 			"rx_packets": prometheus.NewDesc(
-				"node_ethtool_received_packets_total",
+				prometheus.BuildFQName(namespace, "ethtool", "received_packets_total"),
 				"Network interface packets received",
 				[]string{"device"}, nil,
 			),
 			"tx_bytes": prometheus.NewDesc(
-				"node_ethtool_transmitted_bytes_total",
+				prometheus.BuildFQName(namespace, "ethtool", "transmitted_bytes_total"),
 				"Network interface bytes sent",
 				[]string{"device"}, nil,
 			),
 			"tx_errors": prometheus.NewDesc(
-				"node_ethtool_transmitted_errors_total",
+				prometheus.BuildFQName(namespace, "ethtool", "transmitted_errors_total"),
 				"Number of sent frames with errors",
 				[]string{"device"}, nil,
 			),
 			"tx_packets": prometheus.NewDesc(
-				"node_ethtool_transmitted_packets_total",
+				prometheus.BuildFQName(namespace, "ethtool", "transmitted_packets_total"),
 				"Network interface packets sent",
 				[]string{"device"}, nil,
 			),
