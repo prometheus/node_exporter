@@ -5,6 +5,12 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.2.1 / 2021-07-23
+
+* [BUGFIX] Fix zoneinfo parsing prometheus/procfs#386
+* [BUGFIX] Fix nvme collector log noise #2091
+* [BUGFIX] Fix rapl collector log noise #2092
+
 ## 1.2.0 / 2021-07-15
 
 NOTE: Ignoring invalid network speed will be the default in 2.x
