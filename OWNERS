@@ -1,7 +1,6 @@
 component: "Monitoring"
 
 reviewers:
-- paulfantom
 - simonpasquier
 - dgrisonnet
 - slashpai
@@ -15,7 +14,6 @@ reviewers:
 - jan--f
 
 approvers:
-- paulfantom
 - simonpasquier
 - dgrisonnet
 - slashpai
@@ -34,3 +32,4 @@ emeritus_approvers:
 - pgier
 - LiliC
 - s-urbaniak
+- paulfantom
