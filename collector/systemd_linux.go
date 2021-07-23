@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/dbus"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -40,9 +40,17 @@ const (
 )
 
 var (
-	unitInclude            = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").String()
-	oldUnitInclude         = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
-	unitExclude            = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").String()
+	unitIncludeSet bool
+	unitInclude    = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
+		unitIncludeSet = true
+		return nil
+	}).String()
+	oldUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
+	unitExcludeSet bool
+	unitExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
+		unitExcludeSet = true
+		return nil
+	}).String()
 	oldUnitExclude         = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
 	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
 	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
@@ -123,7 +131,7 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		"Detected systemd version", []string{}, nil)
 
 	if *oldUnitExclude != "" {
-		if *unitExclude == "" {
+		if !unitExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-exclude")
 			*unitExclude = *oldUnitExclude
 		} else {
@@ -131,7 +139,7 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		}
 	}
 	if *oldUnitInclude != "" {
-		if *unitInclude == "" {
+		if !unitIncludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
 			*unitInclude = *oldUnitInclude
 		} else {

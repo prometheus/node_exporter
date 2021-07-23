@@ -22,8 +22,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -60,8 +60,10 @@ func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 		"legacy_unicast_packets_transmitted_total":   "Number of unicast packets transmitted",
 		"legacy_data_transmitted_bytes_total":        "Number of data octets transmitted on all links",
 		"legacy_packets_transmitted_total":           "Number of data packets received on all links",
+		"excessive_buffer_overrun_errors_total":      "Number of times that OverrunErrors consecutive flow control update periods occurred, each having at least one overrun error.",
 		"link_downed_total":                          "Number of times the link failed to recover from an error state and went down",
 		"link_error_recovery_total":                  "Number of times the link successfully recovered from an error state",
+		"local_link_integrity_errors_total":          "Number of times that the count of local physical errors exceeded the threshold specified by LocalPhyErrors.",
 		"multicast_packets_received_total":           "Number of multicast packets received (including errors)",
 		"multicast_packets_transmitted_total":        "Number of multicast packets transmitted (including errors)",
 		"physical_state_id":                          "Physical state of the InfiniBand port (0: no change, 1: sleep, 2: polling, 3: disable, 4: shift, 5: link up, 6: link error recover, 7: phytest)",
@@ -145,8 +147,10 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			c.pushCounter(ch, "legacy_unicast_packets_transmitted_total", port.Counters.LegacyPortUnicastXmitPackets, port.Name, portStr)
 			c.pushCounter(ch, "legacy_data_transmitted_bytes_total", port.Counters.LegacyPortXmitData64, port.Name, portStr)
 			c.pushCounter(ch, "legacy_packets_transmitted_total", port.Counters.LegacyPortXmitPackets64, port.Name, portStr)
+			c.pushCounter(ch, "excessive_buffer_overrun_errors_total", port.Counters.ExcessiveBufferOverrunErrors, port.Name, portStr)
 			c.pushCounter(ch, "link_downed_total", port.Counters.LinkDowned, port.Name, portStr)
 			c.pushCounter(ch, "link_error_recovery_total", port.Counters.LinkErrorRecovery, port.Name, portStr)
+			c.pushCounter(ch, "local_link_integrity_errors_total", port.Counters.LocalLinkIntegrityErrors, port.Name, portStr)
 			c.pushCounter(ch, "multicast_packets_received_total", port.Counters.MulticastRcvPackets, port.Name, portStr)
 			c.pushCounter(ch, "multicast_packets_transmitted_total", port.Counters.MulticastXmitPackets, port.Name, portStr)
 			c.pushCounter(ch, "port_constraint_errors_received_total", port.Counters.PortRcvConstraintErrors, port.Name, portStr)

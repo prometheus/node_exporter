@@ -11,19 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build openbsd darwin,amd64 dragonfly
+// +build openbsd
 // +build !nofilesystem
 
 package collector
 
 import (
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
 const (
-	defIgnoredMountPoints = "^/(dev)($|/)"
-	defIgnoredFSTypes     = "^devfs$"
+	defMountPointsExcluded = "^/(dev)($|/)"
+	defFSTypesExcluded     = "^devfs$"
 )
 
 // Expose filesystem fullness.
@@ -42,14 +42,14 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	stats = []filesystemStats{}
 	for _, v := range mnt {
 		mountpoint := int8ToString(v.F_mntonname[:])
-		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
+		if c.excludedMountPointsPattern.MatchString(mountpoint) {
 			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
 		device := int8ToString(v.F_mntfromname[:])
 		fstype := int8ToString(v.F_fstypename[:])
-		if c.ignoredFSTypesPattern.MatchString(fstype) {
+		if c.excludedFSTypesPattern.MatchString(fstype) {
 			level.Debug(c.logger).Log("msg", "Ignoring fs type", "type", fstype)
 			continue
 		}

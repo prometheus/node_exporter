@@ -22,8 +22,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -46,10 +46,14 @@ type cpuCollector struct {
 	cpuBugsIncludeRegexp  *regexp.Regexp
 }
 
+// Idle jump back limit in seconds.
+const jumpBackSeconds = 3.0
+
 var (
-	enableCPUInfo = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
-	flagsInclude  = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
-	bugsInclude   = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
+	enableCPUInfo        = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
+	flagsInclude         = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
+	bugsInclude          = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
+	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
 )
 
 func init() {
@@ -302,6 +306,7 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 
 // updateCPUStats updates the internal cache of CPU stats.
 func (c *cpuCollector) updateCPUStats(newStats []procfs.CPUStat) {
+
 	// Acquire a lock to update the stats.
 	c.cpuStatsMutex.Lock()
 	defer c.cpuStatsMutex.Unlock()
@@ -312,12 +317,17 @@ func (c *cpuCollector) updateCPUStats(newStats []procfs.CPUStat) {
 	}
 
 	for i, n := range newStats {
-		// If idle jumps backwards, assume we had a hotplug event and reset the stats for this CPU.
-		if n.Idle < c.cpuStats[i].Idle {
-			level.Debug(c.logger).Log("msg", "CPU Idle counter jumped backwards, possible hotplug event, resetting CPU stats", "cpu", i, "old_value", c.cpuStats[i].Idle, "new_value", n.Idle)
+		// If idle jumps backwards by more than X seconds, assume we had a hotplug event and reset the stats for this CPU.
+		if (c.cpuStats[i].Idle - n.Idle) >= jumpBackSeconds {
+			level.Debug(c.logger).Log("msg", jumpBackDebugMessage, "cpu", i, "old_value", c.cpuStats[i].Idle, "new_value", n.Idle)
 			c.cpuStats[i] = procfs.CPUStat{}
 		}
-		c.cpuStats[i].Idle = n.Idle
+
+		if n.Idle >= c.cpuStats[i].Idle {
+			c.cpuStats[i].Idle = n.Idle
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU Idle counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Idle, "new_value", n.Idle)
+		}
 
 		if n.User >= c.cpuStats[i].User {
 			c.cpuStats[i].User = n.User

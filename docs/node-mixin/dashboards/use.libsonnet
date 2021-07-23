@@ -12,7 +12,7 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           g.panel('CPU Utilisation') +
           g.queryPanel(|||
             (
-              instance:node_cpu_utilisation:rate1m{%(nodeExporterSelector)s}
+              instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s}
             *
               instance:node_num_cpu:sum{%(nodeExporterSelector)s}
             )
@@ -47,7 +47,7 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
         )
         .addPanel(
           g.panel('Memory Saturation (Major Page Faults)') +
-          g.queryPanel('instance:node_vmstat_pgmajfault:rate1m{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
+          g.queryPanel('instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config, '{{instance}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes('rps') },
         )
@@ -58,8 +58,8 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           g.panel('Net Utilisation (Bytes Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
-              'instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
             ],
             ['{{instance}} Receive', '{{instance}} Transmit'],
             legendLink,
@@ -84,8 +84,8 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           g.panel('Net Saturation (Drops Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
-              'instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
+              'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}' % $._config,
             ],
             ['{{instance}} Receive', '{{instance}} Transmit'],
             legendLink,
@@ -116,8 +116,8 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           // TODO: Does the partition by device make sense? Using the most utilized device per
           // instance might make more sense.
           g.queryPanel(|||
-            instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}
-            / scalar(count(instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s}))
+            instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
+            / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}} {{device}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -125,8 +125,8 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
         .addPanel(
           g.panel('Disk IO Saturation') +
           g.queryPanel(|||
-            instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s}
-            / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s}))
+            instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
+            / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
           ||| % $._config, '{{instance}} {{device}}', legendLink) +
           g.stack +
           { yaxes: g.yaxes({ format: 'percentunit', max: 1 }) },
@@ -156,7 +156,7 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
         g.row('CPU')
         .addPanel(
           g.panel('CPU Utilisation') +
-          g.queryPanel('instance:node_cpu_utilisation:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation') +
+          g.queryPanel('instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Utilisation') +
           {
             yaxes: g.yaxes('percentunit'),
             legend+: { show: false },
@@ -182,7 +182,7 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
         )
         .addPanel(
           g.panel('Memory Saturation (Major Page Faults)') +
-          g.queryPanel('instance:node_vmstat_pgmajfault:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Major page faults') +
+          g.queryPanel('instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, 'Major page faults') +
           {
             yaxes: g.yaxes('short'),
             legend+: { show: false },
@@ -195,8 +195,8 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           g.panel('Net Utilisation (Bytes Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              'instance:node_network_transmit_bytes_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
             ],
             ['Receive', 'Transmit'],
           ) +
@@ -219,8 +219,8 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
           g.panel('Net Saturation (Drops Receive/Transmit)') +
           g.queryPanel(
             [
-              'instance:node_network_receive_drop_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
-              'instance:node_network_transmit_drop_excluding_lo:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
+              'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config,
             ],
             ['Receive drops', 'Transmit drops'],
           ) +
@@ -244,12 +244,12 @@ local g = import 'github.com/grafana/jsonnet-libs/grafana-builder/grafana.libson
         g.row('Disk IO')
         .addPanel(
           g.panel('Disk IO Utilisation') +
-          g.queryPanel('instance_device:node_disk_io_time_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
+          g.queryPanel('instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
           { yaxes: g.yaxes('percentunit') },
         )
         .addPanel(
           g.panel('Disk IO Saturation') +
-          g.queryPanel('instance_device:node_disk_io_time_weighted_seconds:rate1m{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
+          g.queryPanel('instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance"}' % $._config, '{{device}}') +
           { yaxes: g.yaxes('percentunit') },
         )
       )

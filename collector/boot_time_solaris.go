@@ -17,9 +17,9 @@
 package collector
 
 import (
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
+	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/siebenmann/go-kstat"
 )
 
 type bootTimeCollector struct {

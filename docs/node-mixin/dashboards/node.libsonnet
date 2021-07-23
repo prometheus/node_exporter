@@ -23,14 +23,13 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           |||
             (
-              (1 - rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[$__interval]))
+              (1 - rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"}[$__rate_interval]))
             / ignoring(cpu) group_left
               count without (cpu)( node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"})
             )
           ||| % $._config,
           legendFormat='{{cpu}}',
           intervalFactor=5,
-          interval='1m',
         ));
 
       local systemLoad =
@@ -99,19 +98,16 @@ local gauge = promgrafonnet.gauge;
         )
         // TODO: Does it make sense to have those three in the same panel?
         .addTarget(prometheus.target(
-          'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
+          'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % $._config,
           legendFormat='{{device}} read',
-          interval='1m',
         ))
         .addTarget(prometheus.target(
-          'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
+          'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % $._config,
           legendFormat='{{device}} written',
-          interval='1m',
         ))
         .addTarget(prometheus.target(
-          'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__interval])' % $._config,
+          'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % $._config,
           legendFormat='{{device}} io time',
-          interval='1m',
         )) +
         {
           seriesOverrides: [
@@ -186,9 +182,8 @@ local gauge = promgrafonnet.gauge;
           fill=0,
         )
         .addTarget(prometheus.target(
-          'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__interval])' % $._config,
+          'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % $._config,
           legendFormat='{{device}}',
-          interval='1m',
         ));
 
       local networkTransmitted =
@@ -201,9 +196,8 @@ local gauge = promgrafonnet.gauge;
           fill=0,
         )
         .addTarget(prometheus.target(
-          'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__interval])' % $._config,
+          'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % $._config,
           legendFormat='{{device}}',
-          interval='1m',
         ));
 
       dashboard.new('Nodes', time_from='now-1h')

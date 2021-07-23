@@ -20,8 +20,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -50,9 +50,11 @@ const (
 )
 
 var (
-	factories        = make(map[string]func(logger log.Logger) (Collector, error))
-	collectorState   = make(map[string]*bool)
-	forcedCollectors = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	factories              = make(map[string]func(logger log.Logger) (Collector, error))
+	initiatedCollectorsMtx = sync.Mutex{}
+	initiatedCollectors    = make(map[string]Collector)
+	collectorState         = make(map[string]*bool)
+	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(logger log.Logger) (Collector, error)) {
@@ -115,15 +117,21 @@ func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, err
 		f[filter] = true
 	}
 	collectors := make(map[string]Collector)
+	initiatedCollectorsMtx.Lock()
+	defer initiatedCollectorsMtx.Unlock()
 	for key, enabled := range collectorState {
-		if *enabled {
+		if !*enabled || (len(f) > 0 && !f[key]) {
+			continue
+		}
+		if collector, ok := initiatedCollectors[key]; ok {
+			collectors[key] = collector
+		} else {
 			collector, err := factories[key](log.With(logger, "collector", key))
 			if err != nil {
 				return nil, err
 			}
-			if len(f) == 0 || f[key] {
-				collectors[key] = collector
-			}
+			collectors[key] = collector
+			initiatedCollectors[key] = collector
 		}
 	}
 	return &NodeCollector{Collectors: collectors, logger: logger}, nil

@@ -17,10 +17,10 @@
           },
           {
             // CPU utilisation is % CPU is not idle.
-            record: 'instance:node_cpu_utilisation:rate1m',
+            record: 'instance:node_cpu_utilisation:rate%(rateInterval)s' % $._config,
             expr: |||
               1 - avg without (cpu, mode) (
-                rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}[1m])
+                rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}[%(rateInterval)s])
               )
             ||| % $._config,
           },
@@ -50,55 +50,55 @@
             ||| % $._config,
           },
           {
-            record: 'instance:node_vmstat_pgmajfault:rate1m',
+            record: 'instance:node_vmstat_pgmajfault:rate%(rateInterval)s' % $._config,
             expr: |||
-              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[1m])
+              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[%(rateInterval)s])
             ||| % $._config,
           },
           {
             // Disk utilisation (seconds spent, 1 second rate).
-            record: 'instance_device:node_disk_io_time_seconds:rate1m',
+            record: 'instance_device:node_disk_io_time_seconds:rate%(rateInterval)s' % $._config,
             expr: |||
-              rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
+              rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[%(rateInterval)s])
             ||| % $._config,
           },
           {
             // Disk saturation (weighted seconds spent, 1 second rate).
-            record: 'instance_device:node_disk_io_time_weighted_seconds:rate1m',
+            record: 'instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s' % $._config,
             expr: |||
-              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[1m])
+              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[%(rateInterval)s])
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_receive_bytes_excluding_lo:rate1m',
+            record: 'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s' % $._config,
             expr: |||
               sum without (device) (
-                rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, device!="lo"}[%(rateInterval)s])
               )
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_bytes_excluding_lo:rate1m',
+            record: 'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s' % $._config,
             expr: |||
               sum without (device) (
-                rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, device!="lo"}[%(rateInterval)s])
               )
             ||| % $._config,
           },
           // TODO: Find out if those drops ever happen on modern switched networks.
           {
-            record: 'instance:node_network_receive_drop_excluding_lo:rate1m',
+            record: 'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s' % $._config,
             expr: |||
               sum without (device) (
-                rate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_receive_drop_total{%(nodeExporterSelector)s, device!="lo"}[%(rateInterval)s])
               )
             ||| % $._config,
           },
           {
-            record: 'instance:node_network_transmit_drop_excluding_lo:rate1m',
+            record: 'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s' % $._config,
             expr: |||
               sum without (device) (
-                rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[1m])
+                rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, device!="lo"}[%(rateInterval)s])
               )
             ||| % $._config,
           },

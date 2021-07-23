@@ -2110,51 +2110,67 @@ node_netstat_Udp_RcvbufErrors 9
 node_netstat_Udp_SndbufErrors 8
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
+node_network_address_assign_type{device="bond0"} 3
 node_network_address_assign_type{device="eth0"} 3
 # HELP node_network_carrier carrier value of /sys/class/net/<iface>.
 # TYPE node_network_carrier gauge
+node_network_carrier{device="bond0"} 1
 node_network_carrier{device="eth0"} 1
 # HELP node_network_carrier_changes_total carrier_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_changes_total counter
+node_network_carrier_changes_total{device="bond0"} 2
 node_network_carrier_changes_total{device="eth0"} 2
 # HELP node_network_carrier_down_changes_total carrier_down_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_down_changes_total counter
+node_network_carrier_down_changes_total{device="bond0"} 1
 node_network_carrier_down_changes_total{device="eth0"} 1
 # HELP node_network_carrier_up_changes_total carrier_up_changes_total value of /sys/class/net/<iface>.
 # TYPE node_network_carrier_up_changes_total counter
+node_network_carrier_up_changes_total{device="bond0"} 1
 node_network_carrier_up_changes_total{device="eth0"} 1
 # HELP node_network_device_id device_id value of /sys/class/net/<iface>.
 # TYPE node_network_device_id gauge
+node_network_device_id{device="bond0"} 32
 node_network_device_id{device="eth0"} 32
 # HELP node_network_dormant dormant value of /sys/class/net/<iface>.
 # TYPE node_network_dormant gauge
+node_network_dormant{device="bond0"} 1
 node_network_dormant{device="eth0"} 1
 # HELP node_network_flags flags value of /sys/class/net/<iface>.
 # TYPE node_network_flags gauge
+node_network_flags{device="bond0"} 4867
 node_network_flags{device="eth0"} 4867
 # HELP node_network_iface_id iface_id value of /sys/class/net/<iface>.
 # TYPE node_network_iface_id gauge
+node_network_iface_id{device="bond0"} 2
 node_network_iface_id{device="eth0"} 2
 # HELP node_network_iface_link iface_link value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link gauge
+node_network_iface_link{device="bond0"} 2
 node_network_iface_link{device="eth0"} 2
 # HELP node_network_iface_link_mode iface_link_mode value of /sys/class/net/<iface>.
 # TYPE node_network_iface_link_mode gauge
+node_network_iface_link_mode{device="bond0"} 1
 node_network_iface_link_mode{device="eth0"} 1
 # HELP node_network_info Non-numeric data from /sys/class/net/<iface>, value is always 1.
 # TYPE node_network_info gauge
+node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="bond0",duplex="full",ifalias="",operstate="up"} 1
 node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up"} 1
 # HELP node_network_mtu_bytes mtu_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_mtu_bytes gauge
+node_network_mtu_bytes{device="bond0"} 1500
 node_network_mtu_bytes{device="eth0"} 1500
 # HELP node_network_name_assign_type name_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_name_assign_type gauge
+node_network_name_assign_type{device="bond0"} 2
 node_network_name_assign_type{device="eth0"} 2
 # HELP node_network_net_dev_group net_dev_group value of /sys/class/net/<iface>.
 # TYPE node_network_net_dev_group gauge
+node_network_net_dev_group{device="bond0"} 0
 node_network_net_dev_group{device="eth0"} 0
 # HELP node_network_protocol_type protocol_type value of /sys/class/net/<iface>.
 # TYPE node_network_protocol_type gauge
+node_network_protocol_type{device="bond0"} 1
 node_network_protocol_type{device="eth0"} 1
 # HELP node_network_receive_bytes_total Network device statistic receive_bytes.
 # TYPE node_network_receive_bytes_total counter
@@ -2353,9 +2369,11 @@ node_network_transmit_packets_total{device="wlan0"} 1.17262e+07
 node_network_transmit_packets_total{device="💩0"} 304261
 # HELP node_network_transmit_queue_length transmit_queue_length value of /sys/class/net/<iface>.
 # TYPE node_network_transmit_queue_length gauge
+node_network_transmit_queue_length{device="bond0"} 1000
 node_network_transmit_queue_length{device="eth0"} 1000
 # HELP node_network_up Value is 1 if operstate is 'up', 0 otherwise.
 # TYPE node_network_up gauge
+node_network_up{device="bond0"} 1
 node_network_up{device="eth0"} 1
 # HELP node_nf_conntrack_entries Number of currently allocated flow entries for connection tracking.
 # TYPE node_nf_conntrack_entries gauge
@@ -2363,6 +2381,30 @@ node_nf_conntrack_entries 123
 # HELP node_nf_conntrack_entries_limit Maximum size of connection tracking table.
 # TYPE node_nf_conntrack_entries_limit gauge
 node_nf_conntrack_entries_limit 65536
+# HELP node_nf_conntrack_stat_drop Number of packets dropped due to conntrack failure.
+# TYPE node_nf_conntrack_stat_drop gauge
+node_nf_conntrack_stat_drop 0
+# HELP node_nf_conntrack_stat_early_drop Number of dropped conntrack entries to make room for new ones, if maximum table size was reached.
+# TYPE node_nf_conntrack_stat_early_drop gauge
+node_nf_conntrack_stat_early_drop 0
+# HELP node_nf_conntrack_stat_found Number of searched entries which were successful.
+# TYPE node_nf_conntrack_stat_found gauge
+node_nf_conntrack_stat_found 0
+# HELP node_nf_conntrack_stat_ignore Number of packets seen which are already connected to a conntrack entry.
+# TYPE node_nf_conntrack_stat_ignore gauge
+node_nf_conntrack_stat_ignore 89738
+# HELP node_nf_conntrack_stat_insert Number of entries inserted into the list.
+# TYPE node_nf_conntrack_stat_insert gauge
+node_nf_conntrack_stat_insert 0
+# HELP node_nf_conntrack_stat_insert_failed Number of entries for which list insertion was attempted but failed.
+# TYPE node_nf_conntrack_stat_insert_failed gauge
+node_nf_conntrack_stat_insert_failed 0
+# HELP node_nf_conntrack_stat_invalid Number of packets seen which can not be tracked.
+# TYPE node_nf_conntrack_stat_invalid gauge
+node_nf_conntrack_stat_invalid 53
+# HELP node_nf_conntrack_stat_search_restart Number of conntrack table lookups which had to be restarted due to hashtable resizes.
+# TYPE node_nf_conntrack_stat_search_restart gauge
+node_nf_conntrack_stat_search_restart 7
 # HELP node_nfs_connections_total Total number of NFSd TCP connections.
 # TYPE node_nfs_connections_total counter
 node_nfs_connections_total 45
@@ -2595,6 +2637,9 @@ node_nfsd_server_rpcs_total 18628
 # HELP node_nfsd_server_threads Total number of NFSd kernel threads that are running.
 # TYPE node_nfsd_server_threads gauge
 node_nfsd_server_threads 8
+# HELP node_nvme_info Non-numeric data from /sys/class/nvme/<device>, value is always 1.
+# TYPE node_nvme_info gauge
+node_nvme_info{device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live"} 1
 # HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_capacity gauge
 node_power_supply_capacity{power_supply="BAT0"} 81
@@ -2652,13 +2697,14 @@ node_processes_max_processes 123
 node_processes_max_threads 7801
 # HELP node_processes_pids Number of PIDs
 # TYPE node_processes_pids gauge
-node_processes_pids 1
+node_processes_pids 3
 # HELP node_processes_state Number of processes in each state.
 # TYPE node_processes_state gauge
-node_processes_state{state="S"} 1
+node_processes_state{state="I"} 1
+node_processes_state{state="S"} 2
 # HELP node_processes_threads Allocated threads in system
 # TYPE node_processes_threads gauge
-node_processes_threads 1
+node_processes_threads 3
 # HELP node_procs_blocked Number of processes blocked waiting for I/O to complete.
 # TYPE node_procs_blocked gauge
 node_procs_blocked 0
@@ -2744,6 +2790,7 @@ node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
+node_scrape_collector_success{collector="nvme"} 1
 node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
@@ -2753,6 +2800,7 @@ node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
+node_scrape_collector_success{collector="tapestats"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
 node_scrape_collector_success{collector="udp_queues"} 1
@@ -2839,6 +2887,36 @@ node_softnet_times_squeezed_total{cpu="0"} 1
 node_softnet_times_squeezed_total{cpu="1"} 10
 node_softnet_times_squeezed_total{cpu="2"} 85
 node_softnet_times_squeezed_total{cpu="3"} 50
+# HELP node_tape_io_now The number of I/Os currently outstanding to this device.
+# TYPE node_tape_io_now gauge
+node_tape_io_now{device="st0"} 1
+# HELP node_tape_io_others_total The number of I/Os issued to the tape drive other than read or write commands. The time taken to complete these commands uses the following calculation io_time_seconds_total-read_time_seconds_total-write_time_seconds_total
+# TYPE node_tape_io_others_total counter
+node_tape_io_others_total{device="st0"} 1409
+# HELP node_tape_io_time_seconds_total The amount of time spent waiting for all I/O to complete (including read and write). This includes tape movement commands such as seeking between file or set marks and implicit tape movement such as when rewind on close tape devices are used.
+# TYPE node_tape_io_time_seconds_total counter
+node_tape_io_time_seconds_total{device="st0"} 9247.01108772
+# HELP node_tape_read_bytes_total The number of bytes read from the tape drive.
+# TYPE node_tape_read_bytes_total counter
+node_tape_read_bytes_total{device="st0"} 9.79383912e+08
+# HELP node_tape_read_time_seconds_total The amount of time spent waiting for read requests to complete.
+# TYPE node_tape_read_time_seconds_total counter
+node_tape_read_time_seconds_total{device="st0"} 33.788355744
+# HELP node_tape_reads_completed_total The number of read requests issued to the tape drive.
+# TYPE node_tape_reads_completed_total counter
+node_tape_reads_completed_total{device="st0"} 3741
+# HELP node_tape_residual_total The number of times during a read or write we found the residual amount to be non-zero. This should mean that a program is issuing a read larger thean the block size on tape. For write not all data made it to tape.
+# TYPE node_tape_residual_total counter
+node_tape_residual_total{device="st0"} 19
+# HELP node_tape_write_time_seconds_total The amount of time spent waiting for write requests to complete.
+# TYPE node_tape_write_time_seconds_total counter
+node_tape_write_time_seconds_total{device="st0"} 5233.597394395
+# HELP node_tape_writes_completed_total The number of write requests issued to the tape drive.
+# TYPE node_tape_writes_completed_total counter
+node_tape_writes_completed_total{device="st0"} 5.3772916e+07
+# HELP node_tape_written_bytes_total The number of bytes written to the tape drive.
+# TYPE node_tape_written_bytes_total counter
+node_tape_written_bytes_total{device="st0"} 1.496246784e+12
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
 # TYPE node_textfile_mtime_seconds gauge
 # HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise

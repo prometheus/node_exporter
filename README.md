@@ -81,6 +81,7 @@ below list all existing collectors and the supported systems.
 
 Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
+To enable only some specific collector(s), use `--collector.disable-defaults --collector.<name> ...`.
 
 ### Enabled by default
 
@@ -112,6 +113,7 @@ netdev | Exposes network interface statistics such as bytes transferred. | Darwi
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
+nvme | Exposes NVMe info from `/sys/class/nvme/` | Linux
 powersupplyclass | Exposes Power Supply statistics from `/sys/class/power_supply` | Linux
 pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://www.kernel.org/doc/html/latest/accounting/psi.html))
 rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
@@ -119,6 +121,7 @@ schedstat | Exposes task scheduler statistics from `/proc/schedstat`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
 softnet | Exposes statistics from `/proc/net/softnet_stat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
+tapestats | Exposes statistics from `/sys/class/scsi_tape`. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/class/thermal`. | Linux
 time | Exposes the current system time. | _any_
@@ -134,7 +137,7 @@ zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http
 `node_exporter` also implements a number of collectors that are disabled by default.  Reasons for this vary by
 collector, and may include:
 * High cardinality
-* Prolonged runtime that exceeds Prometheus` `scrape_interval` or `scrape_timeout`
+* Prolonged runtime that exceeds the Prometheus `scrape_interval` or `scrape_timeout`
 * Significant resource demands on the host
 
 You can enable additional collectors as desired by adding them to your
@@ -189,6 +192,7 @@ Name     | Description | OS
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
+ethtool | Exposes network interface and network driver statistics equivalent to `ethtool -S`. | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux

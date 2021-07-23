@@ -100,7 +100,7 @@ skip-test-32bit:
 
 %/.unpacked: %.ttar
 	@echo ">> extracting fixtures"
-	if [ -d $(dir $@) ] ; then rm -r $(dir $@) ; fi
+	if [ -d $(dir $@) ] ; then rm -rf $(dir $@) ; fi
 	./ttar -C $(dir $*) -x -f $*.ttar
 	touch $@
 
