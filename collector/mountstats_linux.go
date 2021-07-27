@@ -103,6 +103,7 @@ type nfsDeviceIdentifier struct {
 	Device       string
 	Protocol     string
 	MountAddress string
+	MountPoint   string
 }
 
 func init() {
@@ -127,8 +128,8 @@ func NewMountStatsCollector(logger log.Logger) (Collector, error) {
 	)
 
 	var (
-		labels   = []string{"export", "protocol", "mountaddr"}
-		opLabels = []string{"export", "protocol", "mountaddr", "operation"}
+		labels   = []string{"export", "protocol", "mountaddr", "mountpoint"}
+		opLabels = []string{"export", "protocol", "mountaddr", "mountpoint", "operation"}
 	)
 
 	return &mountStatsCollector{
@@ -537,7 +538,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			mountAddress = miStats.SuperOptions["addr"]
 		}
 
-		deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport.Protocol, mountAddress}
+		deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport.Protocol, mountAddress, m.Mount}
 		i := deviceList[deviceIdentifier]
 		if i {
 			level.Debug(c.logger).Log("msg", "Skipping duplicate device entry", "device", deviceIdentifier)
@@ -545,14 +546,14 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		deviceList[deviceIdentifier] = true
-		c.updateNFSStats(ch, stats, m.Device, stats.Transport.Protocol, mountAddress)
+		c.updateNFSStats(ch, stats, m.Device, stats.Transport.Protocol, mountAddress, m.Mount)
 	}
 
 	return nil
 }
 
-func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *procfs.MountStatsNFS, export, protocol, mountAddress string) {
-	labelValues := []string{export, protocol, mountAddress}
+func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *procfs.MountStatsNFS, export, protocol, mountAddress string, mountPoint string) {
+	labelValues := []string{export, protocol, mountAddress, mountPoint}
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSAgeSecondsTotal,
 		prometheus.CounterValue,
@@ -687,7 +688,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 	)
 
 	for _, op := range s.Operations {
-		opLabelValues := []string{export, protocol, mountAddress, op.Operation}
+		opLabelValues := []string{export, protocol, mountAddress, mountPoint, op.Operation}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsRequestsTotal,

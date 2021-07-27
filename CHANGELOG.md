@@ -3,6 +3,7 @@
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
+* [ENHANCEMENT] Add `mountpoint` label to mountstats metrics
 * [BUGFIX]
 
 ## 1.2.1 / 2021-07-23
