@@ -53,7 +53,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
-            'for': '1h',
+            'for': '30m',
             labels: {
               severity: 'warning',
             },
@@ -71,7 +71,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s} == 0
               )
             ||| % $._config,
-            'for': '1h',
+            'for': '30m',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
