@@ -92,7 +92,7 @@ func DisableDefaultCollectors() {
 	}
 }
 
-func EnableNetworkLabelsFromDescr() {
+func EnableNetworkLabelsFromIfAlias() {
 	labelsFromIfAlias = true
 }
 

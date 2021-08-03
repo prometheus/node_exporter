@@ -185,7 +185,7 @@ func main() {
 	}
 
 	if *enableNetworkLabelsFromIfAlias {
-		collector.EnableNetworkLabelsFromDescr()
+		collector.EnableNetworkLabelsFromIfAlias()
 	}
 
 	level.Info(logger).Log("msg", "Starting node_exporter", "version", version.Info())
