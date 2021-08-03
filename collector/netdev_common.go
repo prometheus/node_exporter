@@ -19,6 +19,8 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"net"
+	"strconv"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -31,6 +33,7 @@ var (
 	oldNetdevDeviceInclude = kingpin.Flag("collector.netdev.device-whitelist", "DEPRECATED: Use collector.netdev.device-include").Hidden().String()
 	netdevDeviceExclude    = kingpin.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").String()
 	oldNetdevDeviceExclude = kingpin.Flag("collector.netdev.device-blacklist", "DEPRECATED: Use collector.netdev.device-exclude").Hidden().String()
+	netdevAddressInfo      = kingpin.Flag("collector.netdev.address-info", "Collect address-info for every device").Bool()
 )
 
 type netDevCollector struct {
@@ -106,5 +109,68 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
 		}
 	}
+	if *netdevAddressInfo {
+		interfaces, err := net.Interfaces()
+		if err != nil {
+			return fmt.Errorf("could not get network interfaces: %w", err)
+		}
+
+		desc := prometheus.NewDesc(prometheus.BuildFQName(namespace, "network_address",
+			"entries"), "node network address by device",
+			[]string{"device", "addr", "netmask", "scope"}, nil)
+
+		for _, addr := range getAddrsInfo(interfaces) {
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 1,
+				addr.device, addr.addr, addr.netmask, addr.scope)
+		}
+	}
 	return nil
+}
+
+type addrInfo struct {
+	device  string
+	addr    string
+	scope   string
+	netmask string
+}
+
+func scope(ip net.IP) string {
+	if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+		return "link-local"
+	}
+
+	if ip.IsInterfaceLocalMulticast() {
+		return "interface-local"
+	}
+
+	if ip.IsGlobalUnicast() {
+		return "global"
+	}
+
+	return ""
+}
+
+// getAddrsInfo returns interface name, address, scope and netmask for all interfaces.
+func getAddrsInfo(interfaces []net.Interface) []addrInfo {
+	var res []addrInfo
+
+	for _, ifs := range interfaces {
+		addrs, _ := ifs.Addrs()
+		for _, addr := range addrs {
+			ip, ipNet, err := net.ParseCIDR(addr.String())
+			if err != nil {
+				continue
+			}
+			size, _ := ipNet.Mask.Size()
+
+			res = append(res, addrInfo{
+				device:  ifs.Name,
+				addr:    ip.String(),
+				scope:   scope(ip),
+				netmask: strconv.Itoa(size),
+			})
+		}
+	}
+
+	return res
 }
