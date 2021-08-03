@@ -93,17 +93,15 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	for dev, devStats := range netDev {
 		for key, value := range devStats {
-			desc, ok := c.metricDescs[key]
-			if !ok {
-				desc = prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
-					fmt.Sprintf("Network device statistic %s.", key),
-					[]string{"device"},
-					nil,
-				)
-				c.metricDescs[key] = desc
-			}
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
+			labels := getLabelsFromIfAlias(dev)
+			desc := prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
+				fmt.Sprintf("Network device statistic %s.", key),
+				append([]string{"device"}, labels.keys()...),
+				nil,
+			)
+
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), append([]string{dev}, labels.values()...)...)
 		}
 	}
 	return nil

@@ -55,6 +55,7 @@ var (
 	initiatedCollectors    = make(map[string]Collector)
 	collectorState         = make(map[string]*bool)
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	labelsFromIfAlias      bool
 )
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(logger log.Logger) (Collector, error)) {
@@ -89,6 +90,10 @@ func DisableDefaultCollectors() {
 			*collectorState[c] = false
 		}
 	}
+}
+
+func EnableNetworkLabelsFromDescr() {
+	labelsFromIfAlias = true
 }
 
 // collectorFlagAction generates a new action function for the given collector

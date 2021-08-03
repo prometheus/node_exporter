@@ -52,10 +52,9 @@ func (e *ethtoolStats) Stats(intf string) (map[string]uint64, error) {
 }
 
 type ethtoolCollector struct {
-	fs      sysfs.FS
-	entries map[string]*prometheus.Desc
-	logger  log.Logger
-	stats   EthtoolStats
+	fs     sysfs.FS
+	logger log.Logger
+	stats  EthtoolStats
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
@@ -69,45 +68,8 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 
 	// Pre-populate some common ethtool metrics.
 	return &ethtoolCollector{
-		fs:    fs,
-		stats: &ethtoolStats{},
-		entries: map[string]*prometheus.Desc{
-			"rx_bytes": prometheus.NewDesc(
-				"node_ethtool_received_bytes_total",
-				"Network interface bytes received",
-				[]string{"device"}, nil,
-			),
-			"rx_dropped": prometheus.NewDesc(
-				"node_ethtool_received_dropped_total",
-				"Number of received frames dropped",
-				[]string{"device"}, nil,
-			),
-			"rx_errors": prometheus.NewDesc(
-				"node_ethtool_received_errors_total",
-				"Number of received frames with errors",
-				[]string{"device"}, nil,
-			),
-			"rx_packets": prometheus.NewDesc(
-				"node_ethtool_received_packets_total",
-				"Network interface packets received",
-				[]string{"device"}, nil,
-			),
-			"tx_bytes": prometheus.NewDesc(
-				"node_ethtool_transmitted_bytes_total",
-				"Network interface bytes sent",
-				[]string{"device"}, nil,
-			),
-			"tx_errors": prometheus.NewDesc(
-				"node_ethtool_transmitted_errors_total",
-				"Number of sent frames with errors",
-				[]string{"device"}, nil,
-			),
-			"tx_packets": prometheus.NewDesc(
-				"node_ethtool_transmitted_packets_total",
-				"Network interface packets sent",
-				[]string{"device"}, nil,
-			),
-		},
+		fs:     fs,
+		stats:  &ethtoolStats{},
 		logger: logger,
 	}, nil
 }
@@ -141,6 +103,10 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 
 		stats, err = c.stats.Stats(device)
 
+		labels := getLabelsFromIfAlias(device)
+		labelKeys := append([]string{"device"}, labels.keys()...)
+		labelValues := append([]string{device}, labels.values()...)
+
 		// If Stats() returns EOPNOTSUPP it doesn't support ethtool stats. Log that only at Debug level.
 		// Otherwise log it at Error level.
 		if err != nil {
@@ -173,18 +139,13 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			metricFQName = receivedRegex.ReplaceAllString(metricFQName, "_received_")
 			metricFQName = transmittedRegex.ReplaceAllString(metricFQName, "_transmitted_")
 
-			// Check to see if this metric exists; if not then create it and store it in c.entries.
-			entry, exists := c.entries[metric]
-			if !exists {
-				entry = prometheus.NewDesc(
-					metricFQName,
-					fmt.Sprintf("Network interface %s", metric),
-					[]string{"device"}, nil,
-				)
-				c.entries[metric] = entry
-			}
+			entry := prometheus.NewDesc(
+				metricFQName+"_total",
+				fmt.Sprintf("Network interface %s", metric),
+				labelKeys, nil,
+			)
 			ch <- prometheus.MustNewConstMetric(
-				entry, prometheus.UntypedValue, float64(val), device)
+				entry, prometheus.UntypedValue, float64(val), labelValues...)
 		}
 	}
 

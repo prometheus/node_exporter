@@ -166,6 +166,10 @@ func main() {
 			"web.config",
 			"[EXPERIMENTAL] Path to config yaml file that can enable TLS or authentication.",
 		).Default("").String()
+		enableNetworkLabelsFromIfAlias = kingpin.Flag(
+			"net.labels-from-ifAlias",
+			"[EXPERIMENTAL] Enable network labels from ifAlias (Linux only)",
+		).Bool()
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -179,6 +183,11 @@ func main() {
 	if *disableDefaultCollectors {
 		collector.DisableDefaultCollectors()
 	}
+
+	if *enableNetworkLabelsFromIfAlias {
+		collector.EnableNetworkLabelsFromDescr()
+	}
+
 	level.Info(logger).Log("msg", "Starting node_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
 	if user, err := user.Current(); err == nil && user.Uid == "0" {

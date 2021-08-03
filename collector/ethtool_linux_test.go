@@ -83,17 +83,17 @@ func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
 
 func TestEthtoolCollector(t *testing.T) {
 	testcases := []string{
-		prometheus.NewDesc("node_ethtool_align_errors", "Network interface align_errors", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_received_broadcast", "Network interface rx_broadcast", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_received_errors_total", "Number of received frames with errors", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_received_missed", "Network interface rx_missed", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_received_multicast", "Network interface rx_multicast", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_received_packets_total", "Network interface packets received", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_received_unicast", "Network interface rx_unicast", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_transmitted_aborted", "Network interface tx_aborted", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_transmitted_errors_total", "Number of sent frames with errors", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_transmitted_multi_collisions", "Network interface tx_multi_collisions", []string{"device"}, nil).String(),
-		prometheus.NewDesc("node_ethtool_transmitted_packets_total", "Network interface packets sent", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_align_errors_total", "Network interface align_errors", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_received_broadcast_total", "Network interface rx_broadcast", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_received_errors_total", "Network interface rx_errors", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_received_missed_total", "Network interface rx_missed", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_received_multicast_total", "Network interface rx_multicast", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_received_packets_total", "Network interface rx_packets", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_received_unicast_total", "Network interface rx_unicast", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_transmitted_aborted_total", "Network interface tx_aborted", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_transmitted_errors_total", "Network interface tx_errors", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_transmitted_multi_collisions_total", "Network interface tx_multi_collisions", []string{"device"}, nil).String(),
+		prometheus.NewDesc("node_ethtool_transmitted_packets_total", "Network interface tx_packets", []string{"device"}, nil).String(),
 	}
 
 	*sysPath = "fixtures/sys"
