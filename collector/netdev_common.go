@@ -19,6 +19,8 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -92,19 +94,31 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
 	for dev, devStats := range netDev {
+		ifAlias := getIfAlias(dev)
+
 		for key, value := range devStats {
 			desc, ok := c.metricDescs[key]
 			if !ok {
 				desc = prometheus.NewDesc(
 					prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
 					fmt.Sprintf("Network device statistic %s.", key),
-					[]string{"device"},
+					[]string{"device", "ifalias"},
 					nil,
 				)
 				c.metricDescs[key] = desc
 			}
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
+
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev, ifAlias)
 		}
 	}
 	return nil
+}
+
+func getIfAlias(dev string) string {
+	iaBytes, err := ioutil.ReadFile("/sys/class/net/" + dev + "/ifalias")
+	if err != nil {
+		return ""
+	}
+
+	return strings.TrimSpace(string(iaBytes))
 }
