@@ -5,6 +5,10 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.2.2 / 2021-08-06
+
+* [BUGFIX] Fix processes collector long int parsing #2112
+
 ## 1.2.1 / 2021-07-23
 
 * [BUGFIX] Fix zoneinfo parsing prometheus/procfs#386
