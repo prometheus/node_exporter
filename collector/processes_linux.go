@@ -105,7 +105,7 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, error) {
 	p, err := c.fs.AllProcs()
 	if err != nil {
-		return 0, nil, 0, err
+		return 0, nil, 0, fmt.Errorf("unable to list all processes: %w", err)
 	}
 	pids := 0
 	thread := 0
@@ -118,8 +118,8 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, er
 				level.Debug(c.logger).Log("msg", "file not found when retrieving stats for pid", "pid", pid, "err", err)
 				continue
 			}
-			level.Debug(c.logger).Log("msg", "error reading stat for pid", "pid", pid, "err", err)
-			return 0, nil, 0, err
+			level.Debug(c.logger).Log("msg", "error reading stat for pid", "pid", pid.PID, "err", err)
+			return 0, nil, 0, fmt.Errorf("error reading stat for pid %d: %w", pid.PID, err)
 		}
 		pids++
 		procStates[stat.State]++
