@@ -1,6 +1,6 @@
 # Percona Node exporter
 
-[![Build Status](https://travis-ci.com/percona/node_exporter.svg)](https://travis-ci.com/percona/node_exporter)
+[![Discord](https://img.shields.io/discord/808660945513611334?style=flat)](http://per.co.na/discord)
 
 This fork adds HTTP Basic authentication and TLS support using [Percona's shared code for exporters](https://github.com/percona/exporter_shared).
 
