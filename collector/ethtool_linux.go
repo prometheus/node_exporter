@@ -37,9 +37,10 @@ import (
 )
 
 var (
-	ethtoolIgnoredDevices = kingpin.Flag("collector.ethtool.ignored-devices", "Regexp of net devices to ignore for ethtool collector.").Default("^$").String()
-	receivedRegex         = regexp.MustCompile(`_rx_`)
-	transmittedRegex      = regexp.MustCompile(`_tx_`)
+	ethtoolIgnoredDevices  = kingpin.Flag("collector.ethtool.ignored-devices", "Regexp of net devices to ignore for ethtool collector.").Default("^$").String()
+	ethtoolIncludedMetrics = kingpin.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(".*").String()
+	receivedRegex          = regexp.MustCompile(`_rx_`)
+	transmittedRegex       = regexp.MustCompile(`_tx_`)
 )
 
 type EthtoolStats interface {
@@ -57,6 +58,7 @@ type ethtoolCollector struct {
 	fs                    sysfs.FS
 	entries               map[string]*prometheus.Desc
 	ignoredDevicesPattern *regexp.Regexp
+	metricsPattern        *regexp.Regexp
 	logger                log.Logger
 	stats                 EthtoolStats
 }
@@ -74,6 +76,7 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 	return &ethtoolCollector{
 		fs:                    fs,
 		ignoredDevicesPattern: regexp.MustCompile(*ethtoolIgnoredDevices),
+		metricsPattern:        regexp.MustCompile(*ethtoolIncludedMetrics),
 		logger:                logger,
 		stats:                 &ethtoolStats{},
 		entries: map[string]*prometheus.Desc{
@@ -176,6 +179,9 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		sort.Strings(keys)
 
 		for _, metric := range keys {
+			if !c.metricsPattern.MatchString(metric) {
+				continue
+			}
 			val := stats[metric]
 			metricFQName := prometheus.BuildFQName(namespace, "ethtool", metric)
 			metricFQName = receivedRegex.ReplaceAllString(metricFQName, "_received_")
