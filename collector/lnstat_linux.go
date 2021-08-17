@@ -59,7 +59,7 @@ func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
 				ch <- prometheus.MustNewConstMetric(
 					prometheus.NewDesc(
 						prometheus.BuildFQName(namespace, subsystem, header),
-						fmt.Sprintf("linux network cache stats"),
+						"linux network cache stats",
 						labelNames, nil,
 					),
 					prometheus.CounterValue, float64(value), labelValues...,
