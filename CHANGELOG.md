@@ -5,6 +5,8 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [ENHANCEMENT] Add flag to disable guest CPU metrics #2123
+
 ## 1.2.2 / 2021-08-06
 
 * [BUGFIX] Fix processes collector long int parsing #2112
