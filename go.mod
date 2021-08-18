@@ -17,7 +17,7 @@ require (
 	github.com/prometheus/common v0.29.0
 	github.com/prometheus/exporter-toolkit v0.6.0
 	github.com/prometheus/procfs v0.7.2
-	github.com/safchain/ethtool v0.0.0-20201023143004-874930cb3ce0
+	github.com/safchain/ethtool v0.0.0-20210803160452-9aa261dae9b1
 	github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 // indirect
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
