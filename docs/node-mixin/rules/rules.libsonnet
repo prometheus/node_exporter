@@ -16,7 +16,7 @@
             ||| % $._config,
           },
           {
-            // CPU utilisation is % CPU is not idle.
+            // CPU utilisation is % CPU is not idle. This represents CPU saturation.
             record: 'instance:node_cpu_utilisation:rate%(rateInterval)s' % $._config,
             expr: |||
               1 - avg without (cpu, mode) (
@@ -25,17 +25,14 @@
             ||| % $._config,
           },
           {
-            // This is CPU saturation: 1min avg run queue length / number of CPUs.
-            // Can go over 1.
-            // TODO: There are situation where a run queue >1/core is just normal and fine.
-            //       We need to clarify how to read this metric and if its usage is helpful at all.
-            record: 'instance:node_load1_per_cpu:ratio',
+            // CPU pressure represents over-saturation. This is the amount of CPU seconds
+            // requested, but the kernel was not able to schedule.
+            // NOTE: This is only availalbe on Linux >= 4.19 and `CONFIG_PSI` is enabled.
+            // See also:
+            // - https://www.kernel.org/doc/html/latest/accounting/psi.html
+            // - https://facebookmicrosites.github.io/psi/docs/overview
             expr: |||
-              (
-                node_load1{%(nodeExporterSelector)s}
-              /
-                instance:node_num_cpu:sum{%(nodeExporterSelector)s}
-              )
+              rate(node_pressure_cpu_waiting_seconds_total{%(nodeExporterSelector)s}[%(rateInterval)s])
             ||| % $._config,
           },
           {
