@@ -100,6 +100,7 @@ then
 fi
 
 ./node_exporter \
+  --path.rootfs="collector/fixtures" \
   --path.procfs="collector/fixtures/proc" \
   --path.sysfs="collector/fixtures/sys" \
   $(for c in ${enabled_collectors}; do echo --collector.${c}  ; done) \
