@@ -14,11 +14,11 @@
             ||| % $._config,
           },
           {
-            // CPU utilisation is % CPU is not idle.
+            // CPU utilisation is % CPU without {idle,iowait,steal}.
             record: 'instance:node_cpu_utilisation:rate%(rateInterval)s' % $._config,
             expr: |||
-              1 - avg without (cpu, mode) (
-                rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}[%(rateInterval)s])
+              1 - avg without (cpu) (
+                sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal"}[%(rateInterval)s]))
               )
             ||| % $._config,
           },
