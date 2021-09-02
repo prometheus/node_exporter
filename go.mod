@@ -10,7 +10,7 @@ require (
 	github.com/hodgesds/perf-utils v0.2.5
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
 	github.com/jsimonetti/rtnetlink v0.0.0-20210713125558-2bfdf1dbdbd6
-	github.com/lufia/iostat v1.1.0
+	github.com/lufia/iostat v1.1.1
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/wifi v0.0.0-20200527114002-84f0b9457fdd
 	github.com/prometheus/client_golang v1.11.0
