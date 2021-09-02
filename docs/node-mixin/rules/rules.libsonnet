@@ -9,9 +9,7 @@
             record: 'instance:node_num_cpu:sum',
             expr: |||
               count without (cpu) (
-                count without (mode) (
-                  node_cpu_seconds_total{%(nodeExporterSelector)s}
-                )
+                node_cpu_seconds_total{%(nodeExporterSelector)s,mode="idle"}
               )
             ||| % $._config,
           },
