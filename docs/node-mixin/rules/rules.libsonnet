@@ -8,7 +8,7 @@
             // This rule gives the number of CPUs per node.
             record: 'instance:node_num_cpu:sum',
             expr: |||
-              count without (cpu) (
+              count without (cpu, mode) (
                 node_cpu_seconds_total{%(nodeExporterSelector)s,mode="idle"}
               )
             ||| % $._config,
