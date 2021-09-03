@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nonetdev && (linux || freebsd || openbsd || dragonfly || darwin)
 // +build !nonetdev
 // +build linux freebsd openbsd dragonfly darwin
 
@@ -117,7 +118,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 
 		desc := prometheus.NewDesc(prometheus.BuildFQName(namespace, "network_address",
 			"entries"), "node network address by device",
-			[]string{"device", "addr", "netmask", "scope"}, nil)
+			[]string{"device", "address", "netmask", "scope"}, nil)
 
 		for _, addr := range getAddrsInfo(interfaces) {
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 1,
