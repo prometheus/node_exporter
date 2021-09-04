@@ -117,7 +117,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		desc := prometheus.NewDesc(prometheus.BuildFQName(namespace, "network_address",
-			"entries"), "node network address by device",
+			"info"), "node network address by device",
 			[]string{"device", "address", "netmask", "scope"}, nil)
 
 		for _, addr := range getAddrsInfo(interfaces) {
