@@ -284,21 +284,39 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 	for _, cpu := range cpus {
 		// Use -1 to profile all processes on the CPU, see:
 		// man perf_event_open
-		hwProf := perf.NewHardwareProfiler(-1, cpu)
+		hwProf, err := perf.NewHardwareProfiler(-1, cpu)
+		if err != nil {
+			level.Error(logger).Log(
+			"msg",
+			"Failed to create all hardware profilers, some profilers may still work",
+			"err", err)
+		}
 		if err := hwProf.Start(); err != nil {
 			return nil, err
 		}
 		collector.perfHwProfilers[cpu] = &hwProf
 		collector.hwProfilerCPUMap[&hwProf] = cpu
 
-		swProf := perf.NewSoftwareProfiler(-1, cpu)
+		swProf, err := perf.NewSoftwareProfiler(-1, cpu)
+		if err != nil {
+			level.Error(logger).Log(
+			"msg",
+			"Failed to create all software profilers, some profilers may still work",
+			"err", err)
+		}
 		if err := swProf.Start(); err != nil {
 			return nil, err
 		}
 		collector.perfSwProfilers[cpu] = &swProf
 		collector.swProfilerCPUMap[&swProf] = cpu
 
-		cacheProf := perf.NewCacheProfiler(-1, cpu)
+		cacheProf, err := perf.NewCacheProfiler(-1, cpu)
+		if err != nil {
+			level.Error(logger).Log(
+			"msg",
+			"Failed to create all cache profilers, some profilers may still work",
+			"err", err)
+		}
 		if err := cacheProf.Start(); err != nil {
 			return nil, err
 		}
