@@ -139,4 +139,4 @@ promtool: $(PROMTOOL)
 
 $(PROMTOOL):
 	mkdir -p $(FIRST_GOPATH)/bin
-	curl -fsS -L $(PROMTOOL_URL) | tar -xvzf - -C $(FIRST_GOPATH)/bin --no-anchored --strip 1 promtool
+	curl -fsS -L $(PROMTOOL_URL) | tar -xvzf - -C $(FIRST_GOPATH)/bin --strip 1 "prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM)/promtool"
