@@ -1,6 +1,15 @@
 linters:
   enable:
   - golint
+  disable:
+    # Disable soon to deprecated[1] linters that lead to false
+    # positives when build tags disable certain files[2]
+    # 1: https://github.com/golangci/golangci-lint/issues/1841
+    # 2: https://github.com/prometheus/node_exporter/issues/1545
+  - deadcode
+  - unused
+  - structcheck
+  - varcheck
 
 issues:
   exclude-rules:
