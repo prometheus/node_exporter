@@ -42,6 +42,7 @@ func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) pr
 type diskstatsCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
 	fs                    blockdevice.FS
+	infoDesc              typedFactorDesc
 	descs                 []typedFactorDesc
 	logger                log.Logger
 }
@@ -62,14 +63,14 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	return &diskstatsCollector{
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
 		fs:                    fs,
+		infoDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
+				"Info of /sys/block/<block_device>.",
+				[]string{"device", "major", "minor"},
+				nil,
+			), valueType: prometheus.GaugeValue,
+		},
 		descs: []typedFactorDesc{
-			{
-				desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
-					"Info of /sys/block/<block_device>.",
-					[]string{"device", "major", "minor"},
-					nil,
-				), valueType: prometheus.GaugeValue,
-			},
 			{
 				desc: readsCompletedDesc, valueType: prometheus.CounterValue,
 			},
@@ -185,8 +186,10 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, stats := range diskStats {
 		dev := stats.DeviceName
 		if c.ignoredDevicesPattern.MatchString(dev) {
-			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev)
+			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev, "pattern", c.ignoredDevicesPattern)
 			continue
+		} else {
+			level.Debug(c.logger).Log("msg", "Accepting device", "device", dev, "pattern", c.ignoredDevicesPattern)
 		}
 		blockQueue, err := c.fs.SysBlockDeviceQueueStats(dev)
 		diskSectorSize := 512.0
@@ -197,26 +200,39 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			diskSectorSize = float64(blockQueue.LogicalBlockSize)
 		}
 
-		scaleMilliseconds := 0.001
+		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
 
-		ch <- c.descs[0].mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
-		ch <- c.descs[1].mustNewConstMetric(float64(stats.ReadIOs), dev)
-		ch <- c.descs[2].mustNewConstMetric(float64(stats.ReadMerges), dev)
-		ch <- c.descs[3].mustNewConstMetric(float64(stats.ReadSectors)*diskSectorSize, dev)
-		ch <- c.descs[4].mustNewConstMetric(float64(stats.ReadTicks)*scaleMilliseconds, dev)
-		ch <- c.descs[5].mustNewConstMetric(float64(stats.WriteIOs), dev)
-		ch <- c.descs[6].mustNewConstMetric(float64(stats.WriteMerges), dev)
-		ch <- c.descs[7].mustNewConstMetric(float64(stats.WriteSectors)*diskSectorSize, dev)
-		ch <- c.descs[8].mustNewConstMetric(float64(stats.WriteTicks)*scaleMilliseconds, dev)
-		ch <- c.descs[9].mustNewConstMetric(float64(stats.IOsInProgress), dev)
-		ch <- c.descs[10].mustNewConstMetric(float64(stats.IOsTotalTicks), dev)
-		ch <- c.descs[11].mustNewConstMetric(float64(stats.WeightedIOTicks), dev)
-		ch <- c.descs[12].mustNewConstMetric(float64(stats.DiscardIOs), dev)
-		ch <- c.descs[13].mustNewConstMetric(float64(stats.DiscardMerges), dev)
-		ch <- c.descs[14].mustNewConstMetric(float64(stats.DiscardSectors)*diskSectorSize, dev)
-		ch <- c.descs[15].mustNewConstMetric(float64(stats.DiscardTicks)*scaleMilliseconds, dev)
-		ch <- c.descs[16].mustNewConstMetric(float64(stats.FlushRequestsCompleted), dev)
-		ch <- c.descs[17].mustNewConstMetric(float64(stats.TimeSpentFlushing)*scaleMilliseconds, dev)
+		scaleMilliseconds := 0.001
+		statCount := stats.IoStatsCount - 3 // Total diskstas record count, less MajorNumber, MinorNumber and DeviceName
+
+		for i, val := range []float64{
+			float64(stats.ReadIOs),
+			float64(stats.ReadMerges),
+			float64(stats.ReadSectors) * diskSectorSize,
+			float64(stats.ReadTicks) * scaleMilliseconds,
+			float64(stats.WriteIOs),
+			float64(stats.WriteMerges),
+			float64(stats.WriteSectors) * diskSectorSize,
+			float64(stats.WriteTicks) * scaleMilliseconds,
+			float64(stats.IOsInProgress),
+			float64(stats.IOsTotalTicks) * scaleMilliseconds,
+			float64(stats.WeightedIOTicks) * scaleMilliseconds,
+
+			float64(stats.DiscardIOs),
+			float64(stats.DiscardMerges),
+			float64(stats.DiscardSectors),
+			float64(stats.DiscardTicks) * scaleMilliseconds,
+
+			float64(stats.FlushRequestsCompleted),
+			float64(stats.TimeSpentFlushing) * scaleMilliseconds,
+		} {
+
+			if i < statCount {
+				ch <- c.descs[i].mustNewConstMetric(val, dev)
+			} else {
+				break
+			}
+		}
 	}
 	return nil
 }
