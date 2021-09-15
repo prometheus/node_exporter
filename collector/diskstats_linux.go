@@ -16,23 +16,14 @@
 package collector
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
 	"regexp"
-	"strconv"
-	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs/blockdevice"
 	"gopkg.in/alecthomas/kingpin.v2"
-)
-
-const (
-	diskSectorSize    = 512
-	diskstatsFilename = "diskstats"
 )
 
 var (
@@ -42,18 +33,15 @@ var (
 type typedFactorDesc struct {
 	desc      *prometheus.Desc
 	valueType prometheus.ValueType
-	factor    float64
 }
 
 func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
-	if d.factor != 0 {
-		value *= d.factor
-	}
 	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
 }
 
 type diskstatsCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
+	fs                    blockdevice.FS
 	descs                 []typedFactorDesc
 	logger                log.Logger
 }
@@ -66,10 +54,22 @@ func init() {
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
+	fs, err := blockdevice.NewFS(*procPath, *sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
 
 	return &diskstatsCollector{
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
+		fs:                    fs,
 		descs: []typedFactorDesc{
+			{
+				desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
+					"Info of /sys/block/<block_device>.",
+					[]string{"device", "major", "minor"},
+					nil,
+				), valueType: prometheus.GaugeValue,
+			},
 			{
 				desc: readsCompletedDesc, valueType: prometheus.CounterValue,
 			},
@@ -83,11 +83,9 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 			},
 			{
 				desc: readBytesDesc, valueType: prometheus.CounterValue,
-				factor: diskSectorSize,
 			},
 			{
 				desc: readTimeSecondsDesc, valueType: prometheus.CounterValue,
-				factor: .001,
 			},
 			{
 				desc: writesCompletedDesc, valueType: prometheus.CounterValue,
@@ -102,11 +100,9 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 			},
 			{
 				desc: writtenBytesDesc, valueType: prometheus.CounterValue,
-				factor: diskSectorSize,
 			},
 			{
 				desc: writeTimeSecondsDesc, valueType: prometheus.CounterValue,
-				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -118,7 +114,6 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 			},
 			{
 				desc: ioTimeSecondsDesc, valueType: prometheus.CounterValue,
-				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -127,7 +122,6 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
-				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -160,7 +154,6 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
-				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -177,7 +170,6 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
-				factor: .001,
 			},
 		},
 		logger: logger,
@@ -185,56 +177,46 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
-	diskStats, err := getDiskStats()
+	diskStats, err := c.fs.ProcDiskstats()
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
 
-	for dev, stats := range diskStats {
+	for _, stats := range diskStats {
+		dev := stats.DeviceName
 		if c.ignoredDevicesPattern.MatchString(dev) {
 			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev)
 			continue
 		}
-
-		for i, value := range stats {
-			// ignore unrecognized additional stats
-			if i >= len(c.descs) {
-				break
-			}
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return fmt.Errorf("invalid value %s in diskstats: %w", value, err)
-			}
-			ch <- c.descs[i].mustNewConstMetric(v, dev)
+		blockQueue, err := c.fs.SysBlockDeviceQueueStats(dev)
+		diskSectorSize := 512.0
+		if err != nil {
+			level.Debug(c.logger).Log("msg", "Error getting queue stats", "device", dev, "err", err)
+			diskSectorSize = 512.0
+		} else {
+			diskSectorSize = float64(blockQueue.LogicalBlockSize)
 		}
+
+		scaleMilliseconds := 0.001
+
+		ch <- c.descs[0].mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
+		ch <- c.descs[1].mustNewConstMetric(float64(stats.ReadIOs), dev)
+		ch <- c.descs[2].mustNewConstMetric(float64(stats.ReadMerges), dev)
+		ch <- c.descs[3].mustNewConstMetric(float64(stats.ReadSectors)*diskSectorSize, dev)
+		ch <- c.descs[4].mustNewConstMetric(float64(stats.ReadTicks)*scaleMilliseconds, dev)
+		ch <- c.descs[5].mustNewConstMetric(float64(stats.WriteIOs), dev)
+		ch <- c.descs[6].mustNewConstMetric(float64(stats.WriteMerges), dev)
+		ch <- c.descs[7].mustNewConstMetric(float64(stats.WriteSectors)*diskSectorSize, dev)
+		ch <- c.descs[8].mustNewConstMetric(float64(stats.WriteTicks)*scaleMilliseconds, dev)
+		ch <- c.descs[9].mustNewConstMetric(float64(stats.IOsInProgress), dev)
+		ch <- c.descs[10].mustNewConstMetric(float64(stats.IOsTotalTicks), dev)
+		ch <- c.descs[11].mustNewConstMetric(float64(stats.WeightedIOTicks), dev)
+		ch <- c.descs[12].mustNewConstMetric(float64(stats.DiscardIOs), dev)
+		ch <- c.descs[13].mustNewConstMetric(float64(stats.DiscardMerges), dev)
+		ch <- c.descs[14].mustNewConstMetric(float64(stats.DiscardSectors)*diskSectorSize, dev)
+		ch <- c.descs[15].mustNewConstMetric(float64(stats.DiscardTicks)*scaleMilliseconds, dev)
+		ch <- c.descs[16].mustNewConstMetric(float64(stats.FlushRequestsCompleted), dev)
+		ch <- c.descs[17].mustNewConstMetric(float64(stats.TimeSpentFlushing)*scaleMilliseconds, dev)
 	}
 	return nil
-}
-
-func getDiskStats() (map[string][]string, error) {
-	file, err := os.Open(procFilePath(diskstatsFilename))
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseDiskStats(file)
-}
-
-func parseDiskStats(r io.Reader) (map[string][]string, error) {
-	var (
-		diskStats = map[string][]string{}
-		scanner   = bufio.NewScanner(r)
-	)
-
-	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
-		if len(parts) < 4 { // we strip major, minor and dev
-			return nil, fmt.Errorf("invalid line in %s: %s", procFilePath(diskstatsFilename), scanner.Text())
-		}
-		dev := parts[2]
-		diskStats[dev] = parts[3:]
-	}
-
-	return diskStats, scanner.Err()
 }
