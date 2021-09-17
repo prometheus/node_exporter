@@ -21,8 +21,7 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
-	dto "github.com/prometheus/client_model/go"
-	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
 type testDiskStatsCollector struct {
@@ -51,36 +50,29 @@ func TestDiskStats(t *testing.T) {
 	*sysPath = "fixtures/sys"
 	*procPath = "fixtures/proc"
 	*ignoredDevices = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
-	testcases := map[string]string{
-		"node_disk_discard_time_seconds_total": `# HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
+	testcase := `# HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
 node_disk_discard_time_seconds_total{device="sdc"} 11.13
-`,
-		"node_disk_discarded_sectors_total": `# HELP node_disk_discarded_sectors_total The total number of sectors discarded successfully.
+# HELP node_disk_discarded_sectors_total The total number of sectors discarded successfully.
 # TYPE node_disk_discarded_sectors_total counter
 node_disk_discarded_sectors_total{device="sdb"} 1.925173784e+09
 node_disk_discarded_sectors_total{device="sdc"} 1.25173784e+08
-`,
-		"node_disk_discards_completed_total": `# HELP node_disk_discards_completed_total The total number of discards completed successfully.
+# HELP node_disk_discards_completed_total The total number of discards completed successfully.
 # TYPE node_disk_discards_completed_total counter
 node_disk_discards_completed_total{device="sdb"} 68851
 node_disk_discards_completed_total{device="sdc"} 18851
-`,
-		"node_disk_discards_merged_total": `# HELP node_disk_discards_merged_total The total number of discards merged.
+# HELP node_disk_discards_merged_total The total number of discards merged.
 # TYPE node_disk_discards_merged_total counter
 node_disk_discards_merged_total{device="sdb"} 0
 node_disk_discards_merged_total{device="sdc"} 0
-`,
-		"node_disk_flush_requests_time_seconds_total": `# HELP node_disk_flush_requests_time_seconds_total This is the total number of seconds spent by all flush requests.
+# HELP node_disk_flush_requests_time_seconds_total This is the total number of seconds spent by all flush requests.
 # TYPE node_disk_flush_requests_time_seconds_total counter
 node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
-`,
-		"node_disk_flush_requests_total": `# HELP node_disk_flush_requests_total The total number of flush requests completed successfully
+# HELP node_disk_flush_requests_total The total number of flush requests completed successfully
 # TYPE node_disk_flush_requests_total counter
 node_disk_flush_requests_total{device="sdc"} 1555
-`,
-		"node_disk_info": `# HELP node_disk_info Info of /sys/block/<block_device>.
+# HELP node_disk_info Info of /sys/block/<block_device>.
 # TYPE node_disk_info gauge
 node_disk_info{device="dm-0",major="252",minor="0"} 1
 node_disk_info{device="dm-1",major="252",minor="1"} 1
@@ -97,8 +89,7 @@ node_disk_info{device="sdb",major="8",minor="0"} 1
 node_disk_info{device="sdc",major="8",minor="0"} 1
 node_disk_info{device="sr0",major="11",minor="0"} 1
 node_disk_info{device="vda",major="254",minor="0"} 1
-`,
-		"node_disk_io_now": `# HELP node_disk_io_now The number of I/Os currently in progress.
+# HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
 node_disk_io_now{device="dm-1"} 0
@@ -115,8 +106,7 @@ node_disk_io_now{device="sdb"} 0
 node_disk_io_now{device="sdc"} 0
 node_disk_io_now{device="sr0"} 0
 node_disk_io_now{device="vda"} 0
-`,
-		"node_disk_io_time_seconds_total": `# HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
+# HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
 # TYPE node_disk_io_time_seconds_total counter
 node_disk_io_time_seconds_total{device="dm-0"} 11325.968
 node_disk_io_time_seconds_total{device="dm-1"} 0.076
@@ -133,8 +123,7 @@ node_disk_io_time_seconds_total{device="sdb"} 60.730000000000004
 node_disk_io_time_seconds_total{device="sdc"} 10.73
 node_disk_io_time_seconds_total{device="sr0"} 0
 node_disk_io_time_seconds_total{device="vda"} 41614.592000000004
-`,
-		"node_disk_io_time_weighted_seconds_total": `# HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os.
+# HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os.
 # TYPE node_disk_io_time_weighted_seconds_total counter
 node_disk_io_time_weighted_seconds_total{device="dm-0"} 1.206301256e+06
 node_disk_io_time_weighted_seconds_total{device="dm-1"} 0.084
@@ -151,8 +140,7 @@ node_disk_io_time_weighted_seconds_total{device="sdb"} 67.07000000000001
 node_disk_io_time_weighted_seconds_total{device="sdc"} 17.07
 node_disk_io_time_weighted_seconds_total{device="sr0"} 0
 node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
-`,
-		"node_disk_read_bytes_total": `# HELP node_disk_read_bytes_total The total number of bytes read successfully.
+# HELP node_disk_read_bytes_total The total number of bytes read successfully.
 # TYPE node_disk_read_bytes_total counter
 node_disk_read_bytes_total{device="dm-0"} 5.13708655616e+11
 node_disk_read_bytes_total{device="dm-1"} 1.589248e+06
@@ -169,8 +157,7 @@ node_disk_read_bytes_total{device="sdb"} 4.944782848e+09
 node_disk_read_bytes_total{device="sdc"} 8.48782848e+08
 node_disk_read_bytes_total{device="sr0"} 0
 node_disk_read_bytes_total{device="vda"} 1.6727491584e+10
-`,
-		"node_disk_read_time_seconds_total": `# HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads.
+# HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads.
 # TYPE node_disk_read_time_seconds_total counter
 node_disk_read_time_seconds_total{device="dm-0"} 46229.572
 node_disk_read_time_seconds_total{device="dm-1"} 0.084
@@ -187,8 +174,7 @@ node_disk_read_time_seconds_total{device="sdb"} 0.084
 node_disk_read_time_seconds_total{device="sdc"} 0.014
 node_disk_read_time_seconds_total{device="sr0"} 0
 node_disk_read_time_seconds_total{device="vda"} 8655.768
-`,
-		"node_disk_reads_completed_total": `# HELP node_disk_reads_completed_total The total number of reads completed successfully.
+# HELP node_disk_reads_completed_total The total number of reads completed successfully.
 # TYPE node_disk_reads_completed_total counter
 node_disk_reads_completed_total{device="dm-0"} 5.9910002e+07
 node_disk_reads_completed_total{device="dm-1"} 388
@@ -205,8 +191,7 @@ node_disk_reads_completed_total{device="sdb"} 326552
 node_disk_reads_completed_total{device="sdc"} 126552
 node_disk_reads_completed_total{device="sr0"} 0
 node_disk_reads_completed_total{device="vda"} 1.775784e+06
-`,
-		"node_disk_reads_merged_total": `# HELP node_disk_reads_merged_total The total number of reads merged.
+# HELP node_disk_reads_merged_total The total number of reads merged.
 # TYPE node_disk_reads_merged_total counter
 node_disk_reads_merged_total{device="dm-0"} 0
 node_disk_reads_merged_total{device="dm-1"} 0
@@ -223,8 +208,7 @@ node_disk_reads_merged_total{device="sdb"} 841
 node_disk_reads_merged_total{device="sdc"} 141
 node_disk_reads_merged_total{device="sr0"} 0
 node_disk_reads_merged_total{device="vda"} 15386
-`,
-		"node_disk_write_time_seconds_total": `# HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
+# HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
 # TYPE node_disk_write_time_seconds_total counter
 node_disk_write_time_seconds_total{device="dm-0"} 1.1585578e+06
 node_disk_write_time_seconds_total{device="dm-1"} 0
@@ -241,8 +225,7 @@ node_disk_write_time_seconds_total{device="sdb"} 5.007
 node_disk_write_time_seconds_total{device="sdc"} 1.0070000000000001
 node_disk_write_time_seconds_total{device="sr0"} 0
 node_disk_write_time_seconds_total{device="vda"} 2.069221364e+06
-`,
-		"node_disk_writes_completed_total": `# HELP node_disk_writes_completed_total The total number of writes completed successfully.
+# HELP node_disk_writes_completed_total The total number of writes completed successfully.
 # TYPE node_disk_writes_completed_total counter
 node_disk_writes_completed_total{device="dm-0"} 3.9231014e+07
 node_disk_writes_completed_total{device="dm-1"} 74
@@ -259,8 +242,7 @@ node_disk_writes_completed_total{device="sdb"} 41822
 node_disk_writes_completed_total{device="sdc"} 11822
 node_disk_writes_completed_total{device="sr0"} 0
 node_disk_writes_completed_total{device="vda"} 6.038856e+06
-`,
-		"node_disk_writes_merged_total": `# HELP node_disk_writes_merged_total The number of writes merged.
+# HELP node_disk_writes_merged_total The number of writes merged.
 # TYPE node_disk_writes_merged_total counter
 node_disk_writes_merged_total{device="dm-0"} 0
 node_disk_writes_merged_total{device="dm-1"} 0
@@ -277,8 +259,7 @@ node_disk_writes_merged_total{device="sdb"} 2895
 node_disk_writes_merged_total{device="sdc"} 1895
 node_disk_writes_merged_total{device="sr0"} 0
 node_disk_writes_merged_total{device="vda"} 2.0711856e+07
-`,
-		"node_disk_written_bytes_total": `# HELP node_disk_written_bytes_total The total number of bytes written successfully.
+# HELP node_disk_written_bytes_total The total number of bytes written successfully.
 # TYPE node_disk_written_bytes_total counter
 node_disk_written_bytes_total{device="dm-0"} 2.5891680256e+11
 node_disk_written_bytes_total{device="dm-1"} 303104
@@ -295,8 +276,7 @@ node_disk_written_bytes_total{device="sdb"} 1.01012736e+09
 node_disk_written_bytes_total{device="sdc"} 8.852736e+07
 node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
-`,
-	}
+`
 
 	logger := log.NewLogfmtLogger(os.Stderr)
 	collector, err := NewDiskstatsCollector(logger)
@@ -319,28 +299,8 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 		close(sink)
 	}()
 
-	var metrics []*dto.MetricFamily
-	var stringBuilder strings.Builder
-	formatter := expfmt.NewEncoder(&stringBuilder, expfmt.FmtText)
-
-	metrics, err = reg.Gather()
+	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
-		t.Fatal("Gather should not fail: ", err)
-	}
-
-	if len(metrics) != len(testcases) {
-		t.Error("Expected %n results, got %n", len(testcases), len(metrics))
-	}
-
-	for _, mf := range metrics {
-		stringBuilder.Reset()
-		err = formatter.Encode(mf)
-		if err != nil {
-			t.Fatal(err)
-		}
-		got := stringBuilder.String()
-		if got != testcases[mf.GetName()] {
-			t.Errorf("Expected: \n%s\nGot: \n%s", testcases[mf.GetName()], got)
-		}
+		t.Fatal(err)
 	}
 }
