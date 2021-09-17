@@ -26,6 +26,10 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+const (
+	secondsPerTick = 1.0 / 1000.0
+)
+
 var (
 	ignoredDevices = kingpin.Flag("collector.diskstats.ignored-devices", "Regexp of devices to ignore for diskstats.").Default("^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$").String()
 )
@@ -189,8 +193,9 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev, "pattern", c.ignoredDevicesPattern)
 			continue
 		}
-		blockQueue, err := c.fs.SysBlockDeviceQueueStats(dev)
+
 		diskSectorSize := 512.0
+		blockQueue, err := c.fs.SysBlockDeviceQueueStats(dev)
 		if err != nil {
 			level.Debug(c.logger).Log("msg", "Error getting queue stats", "device", dev, "err", err)
 		} else {
@@ -199,36 +204,31 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
 
-		scaleMilliseconds := 0.001
-		statCount := stats.IoStatsCount - 3 // Total diskstas record count, less MajorNumber, MinorNumber and DeviceName
+		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
 
 		for i, val := range []float64{
 			float64(stats.ReadIOs),
 			float64(stats.ReadMerges),
 			float64(stats.ReadSectors) * diskSectorSize,
-			float64(stats.ReadTicks) * scaleMilliseconds,
+			float64(stats.ReadTicks) * secondsPerTick,
 			float64(stats.WriteIOs),
 			float64(stats.WriteMerges),
 			float64(stats.WriteSectors) * diskSectorSize,
-			float64(stats.WriteTicks) * scaleMilliseconds,
+			float64(stats.WriteTicks) * secondsPerTick,
 			float64(stats.IOsInProgress),
-			float64(stats.IOsTotalTicks) * scaleMilliseconds,
-			float64(stats.WeightedIOTicks) * scaleMilliseconds,
-
+			float64(stats.IOsTotalTicks) * secondsPerTick,
+			float64(stats.WeightedIOTicks) * secondsPerTick,
 			float64(stats.DiscardIOs),
 			float64(stats.DiscardMerges),
 			float64(stats.DiscardSectors),
-			float64(stats.DiscardTicks) * scaleMilliseconds,
-
+			float64(stats.DiscardTicks) * secondsPerTick,
 			float64(stats.FlushRequestsCompleted),
-			float64(stats.TimeSpentFlushing) * scaleMilliseconds,
+			float64(stats.TimeSpentFlushing) * secondsPerTick,
 		} {
-
-			if i < statCount {
-				ch <- c.descs[i].mustNewConstMetric(val, dev)
-			} else {
+			if i >= statCount {
 				break
 			}
+			ch <- c.descs[i].mustNewConstMetric(val, dev)
 		}
 	}
 	return nil
