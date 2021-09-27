@@ -2747,10 +2747,10 @@ node_qdisc_requeues_total{device="eth0",kind="pfifo_fast"} 2
 node_qdisc_requeues_total{device="wlan0",kind="fq"} 1
 # HELP node_rapl_core_joules_total Current RAPL core value in joules
 # TYPE node_rapl_core_joules_total counter
-node_rapl_core_joules_total{index="0"} 118821.284256
+node_rapl_core_joules_total{index="0",path="collector/fixtures/sys/class/powercap/intel-rapl:0:0"} 118821.284256
 # HELP node_rapl_package_joules_total Current RAPL package value in joules
 # TYPE node_rapl_package_joules_total counter
-node_rapl_package_joules_total{index="0"} 240422.366267
+node_rapl_package_joules_total{index="0",path="collector/fixtures/sys/class/powercap/intel-rapl:0"} 240422.366267
 # HELP node_schedstat_running_seconds_total Number of seconds CPU spent running a process.
 # TYPE node_schedstat_running_seconds_total counter
 node_schedstat_running_seconds_total{cpu="0"} 2.045936778163039e+06

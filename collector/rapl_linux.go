@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !norapl
 // +build !norapl
 
 package collector
@@ -81,7 +82,7 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 		descriptor := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "rapl", rz.Name+"_joules_total"),
 			"Current RAPL "+rz.Name+" value in joules",
-			[]string{"index"}, nil,
+			[]string{"index", "path"}, nil,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
@@ -89,6 +90,7 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.CounterValue,
 			float64(newMicrojoules)/1000000.0,
 			index,
+			rz.Path,
 		)
 	}
 	return nil
