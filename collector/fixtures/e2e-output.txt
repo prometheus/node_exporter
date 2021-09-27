@@ -247,7 +247,7 @@ node_cooling_device_cur_state{name="0",type="Processor"} 0
 # HELP node_cooling_device_max_state Maximum throttle state of the cooling device
 # TYPE node_cooling_device_max_state gauge
 node_cooling_device_max_state{name="0",type="Processor"} 3
-# HELP node_cpu_bug_info The `bugs` field of CPU information from /proc/cpuinfo.
+# HELP node_cpu_bug_info The `bugs` field of CPU information from /proc/cpuinfo taken from the first core.
 # TYPE node_cpu_bug_info gauge
 node_cpu_bug_info{bug="cpu_meltdown"} 1
 node_cpu_bug_info{bug="mds"} 1
@@ -259,7 +259,7 @@ node_cpu_core_throttles_total{core="0",package="0"} 5
 node_cpu_core_throttles_total{core="0",package="1"} 0
 node_cpu_core_throttles_total{core="1",package="0"} 0
 node_cpu_core_throttles_total{core="1",package="1"} 9
-# HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo.
+# HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo taken from the first core.
 # TYPE node_cpu_flag_info gauge
 node_cpu_flag_info{flag="aes"} 1
 node_cpu_flag_info{flag="avx"} 1
