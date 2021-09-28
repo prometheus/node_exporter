@@ -403,6 +403,23 @@ node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
 # HELP node_disk_flush_requests_total The total number of flush requests completed successfully
 # TYPE node_disk_flush_requests_total counter
 node_disk_flush_requests_total{device="sdc"} 1555
+# HELP node_disk_info Info of /sys/block/<block_device>.
+# TYPE node_disk_info gauge
+node_disk_info{device="dm-0",major="252",minor="0"} 1
+node_disk_info{device="dm-1",major="252",minor="1"} 1
+node_disk_info{device="dm-2",major="252",minor="2"} 1
+node_disk_info{device="dm-3",major="252",minor="3"} 1
+node_disk_info{device="dm-4",major="252",minor="4"} 1
+node_disk_info{device="dm-5",major="252",minor="5"} 1
+node_disk_info{device="mmcblk0",major="179",minor="0"} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1"} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2"} 1
+node_disk_info{device="nvme0n1",major="259",minor="0"} 1
+node_disk_info{device="sda",major="8",minor="0"} 1
+node_disk_info{device="sdb",major="8",minor="0"} 1
+node_disk_info{device="sdc",major="8",minor="0"} 1
+node_disk_info{device="sr0",major="11",minor="0"} 1
+node_disk_info{device="vda",major="254",minor="0"} 1
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
