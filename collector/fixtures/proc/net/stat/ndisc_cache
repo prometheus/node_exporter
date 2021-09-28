@@ -1,0 +1,3 @@
+entries  allocs destroys hash_grows  lookups hits  res_failed  rcv_probes_mcast rcv_probes_ucast  periodic_gc_runs forced_gc_runs unresolved_discards table_fulls
+00000024  000000f0 000000f1 000000f2  000000f3 000000f4  000000f5  000000f6 000000f7  000000f8 000000f9 000000fa 000000fb
+00000024  000000fc 000000fd 000000fe  000000ff 00000100  00000101  00000102 00000103  00000104 00000105 00000106 00000107

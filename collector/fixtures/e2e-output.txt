@@ -1252,6 +1252,184 @@ node_ksmd_run 1
 # HELP node_ksmd_sleep_seconds ksmd 'sleep_millisecs' file.
 # TYPE node_ksmd_sleep_seconds gauge
 node_ksmd_sleep_seconds 0.02
+# HELP node_lnstat_allocs_total linux network cache stats
+# TYPE node_lnstat_allocs_total counter
+node_lnstat_allocs_total{cpu="0",subsystem="arp_cache"} 1
+node_lnstat_allocs_total{cpu="0",subsystem="ndisc_cache"} 240
+node_lnstat_allocs_total{cpu="1",subsystem="arp_cache"} 13
+node_lnstat_allocs_total{cpu="1",subsystem="ndisc_cache"} 252
+# HELP node_lnstat_delete_list_total linux network cache stats
+# TYPE node_lnstat_delete_list_total counter
+node_lnstat_delete_list_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_delete_list_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_delete_list_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_delete_list_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_delete_total linux network cache stats
+# TYPE node_lnstat_delete_total counter
+node_lnstat_delete_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_delete_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_delete_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_delete_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_destroys_total linux network cache stats
+# TYPE node_lnstat_destroys_total counter
+node_lnstat_destroys_total{cpu="0",subsystem="arp_cache"} 2
+node_lnstat_destroys_total{cpu="0",subsystem="ndisc_cache"} 241
+node_lnstat_destroys_total{cpu="1",subsystem="arp_cache"} 14
+node_lnstat_destroys_total{cpu="1",subsystem="ndisc_cache"} 253
+# HELP node_lnstat_drop_total linux network cache stats
+# TYPE node_lnstat_drop_total counter
+node_lnstat_drop_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_drop_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_drop_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_drop_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_early_drop_total linux network cache stats
+# TYPE node_lnstat_early_drop_total counter
+node_lnstat_early_drop_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_early_drop_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_early_drop_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_early_drop_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_entries_total linux network cache stats
+# TYPE node_lnstat_entries_total counter
+node_lnstat_entries_total{cpu="0",subsystem="arp_cache"} 20
+node_lnstat_entries_total{cpu="0",subsystem="ndisc_cache"} 36
+node_lnstat_entries_total{cpu="0",subsystem="nf_conntrack"} 33
+node_lnstat_entries_total{cpu="1",subsystem="arp_cache"} 20
+node_lnstat_entries_total{cpu="1",subsystem="ndisc_cache"} 36
+node_lnstat_entries_total{cpu="1",subsystem="nf_conntrack"} 33
+node_lnstat_entries_total{cpu="2",subsystem="nf_conntrack"} 33
+node_lnstat_entries_total{cpu="3",subsystem="nf_conntrack"} 33
+# HELP node_lnstat_expect_create_total linux network cache stats
+# TYPE node_lnstat_expect_create_total counter
+node_lnstat_expect_create_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_expect_create_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_expect_create_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_expect_create_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_expect_delete_total linux network cache stats
+# TYPE node_lnstat_expect_delete_total counter
+node_lnstat_expect_delete_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_expect_delete_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_expect_delete_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_expect_delete_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_expect_new_total linux network cache stats
+# TYPE node_lnstat_expect_new_total counter
+node_lnstat_expect_new_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_expect_new_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_expect_new_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_expect_new_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_forced_gc_runs_total linux network cache stats
+# TYPE node_lnstat_forced_gc_runs_total counter
+node_lnstat_forced_gc_runs_total{cpu="0",subsystem="arp_cache"} 10
+node_lnstat_forced_gc_runs_total{cpu="0",subsystem="ndisc_cache"} 249
+node_lnstat_forced_gc_runs_total{cpu="1",subsystem="arp_cache"} 22
+node_lnstat_forced_gc_runs_total{cpu="1",subsystem="ndisc_cache"} 261
+# HELP node_lnstat_found_total linux network cache stats
+# TYPE node_lnstat_found_total counter
+node_lnstat_found_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_found_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_found_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_found_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_hash_grows_total linux network cache stats
+# TYPE node_lnstat_hash_grows_total counter
+node_lnstat_hash_grows_total{cpu="0",subsystem="arp_cache"} 3
+node_lnstat_hash_grows_total{cpu="0",subsystem="ndisc_cache"} 242
+node_lnstat_hash_grows_total{cpu="1",subsystem="arp_cache"} 15
+node_lnstat_hash_grows_total{cpu="1",subsystem="ndisc_cache"} 254
+# HELP node_lnstat_hits_total linux network cache stats
+# TYPE node_lnstat_hits_total counter
+node_lnstat_hits_total{cpu="0",subsystem="arp_cache"} 5
+node_lnstat_hits_total{cpu="0",subsystem="ndisc_cache"} 244
+node_lnstat_hits_total{cpu="1",subsystem="arp_cache"} 17
+node_lnstat_hits_total{cpu="1",subsystem="ndisc_cache"} 256
+# HELP node_lnstat_icmp_error_total linux network cache stats
+# TYPE node_lnstat_icmp_error_total counter
+node_lnstat_icmp_error_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_icmp_error_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_icmp_error_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_icmp_error_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_ignore_total linux network cache stats
+# TYPE node_lnstat_ignore_total counter
+node_lnstat_ignore_total{cpu="0",subsystem="nf_conntrack"} 22666
+node_lnstat_ignore_total{cpu="1",subsystem="nf_conntrack"} 22180
+node_lnstat_ignore_total{cpu="2",subsystem="nf_conntrack"} 22740
+node_lnstat_ignore_total{cpu="3",subsystem="nf_conntrack"} 22152
+# HELP node_lnstat_insert_failed_total linux network cache stats
+# TYPE node_lnstat_insert_failed_total counter
+node_lnstat_insert_failed_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_insert_failed_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_insert_failed_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_insert_failed_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_insert_total linux network cache stats
+# TYPE node_lnstat_insert_total counter
+node_lnstat_insert_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_insert_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_insert_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_insert_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_invalid_total linux network cache stats
+# TYPE node_lnstat_invalid_total counter
+node_lnstat_invalid_total{cpu="0",subsystem="nf_conntrack"} 3
+node_lnstat_invalid_total{cpu="1",subsystem="nf_conntrack"} 2
+node_lnstat_invalid_total{cpu="2",subsystem="nf_conntrack"} 1
+node_lnstat_invalid_total{cpu="3",subsystem="nf_conntrack"} 47
+# HELP node_lnstat_lookups_total linux network cache stats
+# TYPE node_lnstat_lookups_total counter
+node_lnstat_lookups_total{cpu="0",subsystem="arp_cache"} 4
+node_lnstat_lookups_total{cpu="0",subsystem="ndisc_cache"} 243
+node_lnstat_lookups_total{cpu="1",subsystem="arp_cache"} 16
+node_lnstat_lookups_total{cpu="1",subsystem="ndisc_cache"} 255
+# HELP node_lnstat_new_total linux network cache stats
+# TYPE node_lnstat_new_total counter
+node_lnstat_new_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_new_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_new_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_new_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_periodic_gc_runs_total linux network cache stats
+# TYPE node_lnstat_periodic_gc_runs_total counter
+node_lnstat_periodic_gc_runs_total{cpu="0",subsystem="arp_cache"} 9
+node_lnstat_periodic_gc_runs_total{cpu="0",subsystem="ndisc_cache"} 248
+node_lnstat_periodic_gc_runs_total{cpu="1",subsystem="arp_cache"} 21
+node_lnstat_periodic_gc_runs_total{cpu="1",subsystem="ndisc_cache"} 260
+# HELP node_lnstat_rcv_probes_mcast_total linux network cache stats
+# TYPE node_lnstat_rcv_probes_mcast_total counter
+node_lnstat_rcv_probes_mcast_total{cpu="0",subsystem="arp_cache"} 7
+node_lnstat_rcv_probes_mcast_total{cpu="0",subsystem="ndisc_cache"} 246
+node_lnstat_rcv_probes_mcast_total{cpu="1",subsystem="arp_cache"} 19
+node_lnstat_rcv_probes_mcast_total{cpu="1",subsystem="ndisc_cache"} 258
+# HELP node_lnstat_rcv_probes_ucast_total linux network cache stats
+# TYPE node_lnstat_rcv_probes_ucast_total counter
+node_lnstat_rcv_probes_ucast_total{cpu="0",subsystem="arp_cache"} 8
+node_lnstat_rcv_probes_ucast_total{cpu="0",subsystem="ndisc_cache"} 247
+node_lnstat_rcv_probes_ucast_total{cpu="1",subsystem="arp_cache"} 20
+node_lnstat_rcv_probes_ucast_total{cpu="1",subsystem="ndisc_cache"} 259
+# HELP node_lnstat_res_failed_total linux network cache stats
+# TYPE node_lnstat_res_failed_total counter
+node_lnstat_res_failed_total{cpu="0",subsystem="arp_cache"} 6
+node_lnstat_res_failed_total{cpu="0",subsystem="ndisc_cache"} 245
+node_lnstat_res_failed_total{cpu="1",subsystem="arp_cache"} 18
+node_lnstat_res_failed_total{cpu="1",subsystem="ndisc_cache"} 257
+# HELP node_lnstat_search_restart_total linux network cache stats
+# TYPE node_lnstat_search_restart_total counter
+node_lnstat_search_restart_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_search_restart_total{cpu="1",subsystem="nf_conntrack"} 2
+node_lnstat_search_restart_total{cpu="2",subsystem="nf_conntrack"} 1
+node_lnstat_search_restart_total{cpu="3",subsystem="nf_conntrack"} 4
+# HELP node_lnstat_searched_total linux network cache stats
+# TYPE node_lnstat_searched_total counter
+node_lnstat_searched_total{cpu="0",subsystem="nf_conntrack"} 0
+node_lnstat_searched_total{cpu="1",subsystem="nf_conntrack"} 0
+node_lnstat_searched_total{cpu="2",subsystem="nf_conntrack"} 0
+node_lnstat_searched_total{cpu="3",subsystem="nf_conntrack"} 0
+# HELP node_lnstat_table_fulls_total linux network cache stats
+# TYPE node_lnstat_table_fulls_total counter
+node_lnstat_table_fulls_total{cpu="0",subsystem="arp_cache"} 12
+node_lnstat_table_fulls_total{cpu="0",subsystem="ndisc_cache"} 251
+node_lnstat_table_fulls_total{cpu="1",subsystem="arp_cache"} 24
+node_lnstat_table_fulls_total{cpu="1",subsystem="ndisc_cache"} 263
+# HELP node_lnstat_unresolved_discards_total linux network cache stats
+# TYPE node_lnstat_unresolved_discards_total counter
+node_lnstat_unresolved_discards_total{cpu="0",subsystem="arp_cache"} 11
+node_lnstat_unresolved_discards_total{cpu="0",subsystem="ndisc_cache"} 250
+node_lnstat_unresolved_discards_total{cpu="1",subsystem="arp_cache"} 23
+node_lnstat_unresolved_discards_total{cpu="1",subsystem="ndisc_cache"} 262
 # HELP node_load1 1m load average.
 # TYPE node_load1 gauge
 node_load1 0.21
@@ -2803,6 +2981,7 @@ node_scrape_collector_success{collector="infiniband"} 1
 node_scrape_collector_success{collector="interrupts"} 1
 node_scrape_collector_success{collector="ipvs"} 1
 node_scrape_collector_success{collector="ksmd"} 1
+node_scrape_collector_success{collector="lnstat"} 1
 node_scrape_collector_success{collector="loadavg"} 1
 node_scrape_collector_success{collector="mdadm"} 1
 node_scrape_collector_success{collector="meminfo"} 1
