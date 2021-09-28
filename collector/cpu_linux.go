@@ -77,12 +77,12 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 		),
 		cpuFlagsInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "flag_info"),
-			"The `flags` field of CPU information from /proc/cpuinfo.",
+			"The `flags` field of CPU information from /proc/cpuinfo taken from the first core.",
 			[]string{"flag"}, nil,
 		),
 		cpuBugsInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "bug_info"),
-			"The `bugs` field of CPU information from /proc/cpuinfo.",
+			"The `bugs` field of CPU information from /proc/cpuinfo taken from the first core.",
 			[]string{"bug"}, nil,
 		),
 		cpuGuest: prometheus.NewDesc(
@@ -167,7 +167,10 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.Microcode,
 			cpu.Stepping,
 			cpu.CacheSize)
+	}
 
+	if len(info) != 0 {
+		cpu := info[0]
 		if err := updateFieldInfo(cpu.Flags, c.cpuFlagsIncludeRegexp, c.cpuFlagsInfo, ch); err != nil {
 			return err
 		}
@@ -175,6 +178,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
