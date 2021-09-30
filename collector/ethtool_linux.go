@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noethtool
 // +build !noethtool
 
 // The hard work of collecting data from the kernel via the ethtool interfaces is done by

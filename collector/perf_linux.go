@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noperf
 // +build !noperf
 
 package collector
@@ -284,21 +285,30 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 	for _, cpu := range cpus {
 		// Use -1 to profile all processes on the CPU, see:
 		// man perf_event_open
-		hwProf := perf.NewHardwareProfiler(-1, cpu)
+		hwProf, err := perf.NewHardwareProfiler(-1, cpu)
+		if err != nil {
+			return nil, err
+		}
 		if err := hwProf.Start(); err != nil {
 			return nil, err
 		}
 		collector.perfHwProfilers[cpu] = &hwProf
 		collector.hwProfilerCPUMap[&hwProf] = cpu
 
-		swProf := perf.NewSoftwareProfiler(-1, cpu)
+		swProf, err := perf.NewSoftwareProfiler(-1, cpu)
+		if err != nil {
+			return nil, err
+		}
 		if err := swProf.Start(); err != nil {
 			return nil, err
 		}
 		collector.perfSwProfilers[cpu] = &swProf
 		collector.swProfilerCPUMap[&swProf] = cpu
 
-		cacheProf := perf.NewCacheProfiler(-1, cpu)
+		cacheProf, err := perf.NewCacheProfiler(-1, cpu)
+		if err != nil {
+			return nil, err
+		}
 		if err := cacheProf.Start(); err != nil {
 			return nil, err
 		}
