@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noconntrack
 // +build !noconntrack
 
 package collector
