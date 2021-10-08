@@ -34,7 +34,7 @@ func TestReadProcessStatus(t *testing.T) {
 		t.Errorf("failed to open procfs: %v", err)
 	}
 	c := processCollector{fs: fs, logger: log.NewNopLogger()}
-	pids, states, threads, err := c.getAllocatedThreads()
+	pids, states, threads, _, err := c.getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
 	}
