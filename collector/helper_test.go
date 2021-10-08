@@ -61,3 +61,21 @@ func TestBytesToString(t *testing.T) {
 		}
 	}
 }
+
+func TestSanitizeMetricName(t *testing.T) {
+	testcases := map[string]string{
+		"":                             "",
+		"rx_errors":                    "rx_errors",
+		"Queue[0] AllocFails":          "Queue_0_AllocFails",
+		"Tx LPI entry count":           "Tx_LPI_entry_count",
+		"port.VF_admin_queue_requests": "port_VF_admin_queue_requests",
+		"[3]: tx_bytes":                "_3_tx_bytes",
+	}
+
+	for metricName, expected := range testcases {
+		got := SanitizeMetricName(metricName)
+		if expected != got {
+			t.Errorf("Expected '%s' but got '%s'", expected, got)
+		}
+	}
+}
