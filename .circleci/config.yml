@@ -35,21 +35,14 @@ jobs:
     executor: golang
     steps:
       - checkout
-      - run:
-          command: go install -mod=readonly github.com/google/go-jsonnet/cmd/jsonnet github.com/google/go-jsonnet/cmd/jsonnetfmt github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb github.com/prometheus/prometheus/cmd/promtool
-          working_directory: ~/project/docs/node-mixin
-      - run:
-          command: make clean
-          working_directory: ~/project/docs/node-mixin
-      - run:
-          command: jb install
-          working_directory: ~/project/docs/node-mixin
-      - run:
-          command: make
-          working_directory: ~/project/docs/node-mixin
-      - run:
-          command: git diff --exit-code
-          working_directory: ~/project/docs/node-mixin
+      - run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
+      - run: go install github.com/google/go-jsonnet/cmd/jsonnetfmt@latest
+      - run: go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
+      - run: make promtool
+      - run: make -C docs/node-mixin clean
+      - run: make -C docs/node-mixin jb_install
+      - run: make -C docs/node-mixin
+      - run: git diff --exit-code
 
   build:
     machine:
