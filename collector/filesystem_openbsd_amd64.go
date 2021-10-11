@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build openbsd
-// +build !nofilesystem
+//go:build openbsd && !nofilesystem
+// +build openbsd,!nofilesystem
 
 package collector
 

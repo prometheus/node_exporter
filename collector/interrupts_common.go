@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build (linux || openbsd) && !nointerrupts
 // +build linux openbsd
 // +build !nointerrupts
 

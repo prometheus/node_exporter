@@ -14,6 +14,7 @@
 // Based on gopsutil/cpu/cpu_darwin_cgo.go @ ae251eb which is licensed under
 // BSD. See https://github.com/shirou/gopsutil/blob/master/LICENSE for details.
 
+//go:build !nocpu
 // +build !nocpu
 
 package collector

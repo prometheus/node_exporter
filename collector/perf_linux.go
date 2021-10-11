@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noperf
 // +build !noperf
 
 package collector
@@ -290,6 +291,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			"msg",
 			"Failed to create all hardware profilers, some profilers may still work",
 			"err", err)
+			return nil, err
 		}
 		if err := hwProf.Start(); err != nil {
 			return nil, err
@@ -303,6 +305,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			"msg",
 			"Failed to create all software profilers, some profilers may still work",
 			"err", err)
+			return nil, err
 		}
 		if err := swProf.Start(); err != nil {
 			return nil, err
@@ -316,6 +319,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			"msg",
 			"Failed to create all cache profilers, some profilers may still work",
 			"err", err)
+			return nil, err
 		}
 		if err := cacheProf.Start(); err != nil {
 			return nil, err

@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build openbsd,!amd64
-// +build !nocpu
+//go:build openbsd && !amd64 && !nocpu
+// +build openbsd,!amd64,!nocpu
 
 package collector
 

@@ -1,18 +1,18 @@
 groups:
-- name: example-node-exporter-rules
-  rules:
-  # The count of CPUs per node, useful for getting CPU time as a percent of total.
-  - record: instance:node_cpus:count
-    expr: count(node_cpu_seconds_total{mode="idle"}) without (cpu,mode)
+  - name: example-node-exporter-rules
+    rules:
+      # The count of CPUs per node, useful for getting CPU time as a percent of total.
+      - record: instance:node_cpus:count
+        expr: count(node_cpu_seconds_total{mode="idle"}) without (cpu,mode)
 
-  # CPU in use by CPU.
-  - record: instance_cpu:node_cpu_seconds_not_idle:rate5m
-    expr: sum(rate(node_cpu_seconds_total{mode!="idle"}[5m])) without (mode)
+      # CPU in use by CPU.
+      - record: instance_cpu:node_cpu_seconds_not_idle:rate5m
+        expr: sum(rate(node_cpu_seconds_total{mode!="idle"}[5m])) without (mode)
 
-  # CPU in use by mode.
-  - record: instance_mode:node_cpu_seconds:rate5m
-    expr: sum(rate(node_cpu_seconds_total[5m])) without (cpu)
+      # CPU in use by mode.
+      - record: instance_mode:node_cpu_seconds:rate5m
+        expr: sum(rate(node_cpu_seconds_total[5m])) without (cpu)
 
-  # CPU in use ratio.
-  - record: instance:node_cpu_utilization:ratio
-    expr: sum(instance_mode:node_cpu_seconds:rate5m{mode!="idle"}) without (mode) / instance:node_cpus:count
+      # CPU in use ratio.
+      - record: instance:node_cpu_utilization:ratio
+        expr: sum(instance_mode:node_cpu_seconds:rate5m{mode!="idle"}) without (mode) / instance:node_cpus:count
