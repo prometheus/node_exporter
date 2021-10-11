@@ -39,11 +39,11 @@ import (
 )
 
 var (
-	ethtoolIgnoredDevices  = kingpin.Flag("collector.ethtool.ignored-devices", "Regexp of net devices to ignore for ethtool collector.").Default("^$").String()
+	ethtoolDeviceInclude   = kingpin.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
+	ethtoolDeviceExclude   = kingpin.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
 	ethtoolIncludedMetrics = kingpin.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(".*").String()
-	metricNameRegex        = regexp.MustCompile(`_*[^0-9A-Za-z_]+_*`)
-	receivedRegex          = regexp.MustCompile(`(^|_)rx(_|$)`)
-	transmittedRegex       = regexp.MustCompile(`(^|_)tx(_|$)`)
+	ethtoolReceivedRegex   = regexp.MustCompile(`(^|_)rx(_|$)`)
+	ethtoolTransmitRegex   = regexp.MustCompile(`(^|_)tx(_|$)`)
 )
 
 type Ethtool interface {
@@ -64,13 +64,13 @@ func (e *ethtoolLibrary) Stats(intf string) (map[string]uint64, error) {
 }
 
 type ethtoolCollector struct {
-	fs                    sysfs.FS
-	entries               map[string]*prometheus.Desc
-	ethtool               Ethtool
-	ignoredDevicesPattern *regexp.Regexp
-	infoDesc              *prometheus.Desc
-	metricsPattern        *regexp.Regexp
-	logger                log.Logger
+	fs             sysfs.FS
+	entries        map[string]*prometheus.Desc
+	ethtool        Ethtool
+	deviceFilter   netDevFilter
+	infoDesc       *prometheus.Desc
+	metricsPattern *regexp.Regexp
+	logger         log.Logger
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
@@ -89,11 +89,11 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 
 	// Pre-populate some common ethtool metrics.
 	return &ethtoolCollector{
-		fs:                    fs,
-		ethtool:               &ethtoolLibrary{e},
-		ignoredDevicesPattern: regexp.MustCompile(*ethtoolIgnoredDevices),
-		metricsPattern:        regexp.MustCompile(*ethtoolIncludedMetrics),
-		logger:                logger,
+		fs:             fs,
+		ethtool:        &ethtoolLibrary{e},
+		deviceFilter:   newNetDevFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
+		metricsPattern: regexp.MustCompile(*ethtoolIncludedMetrics),
+		logger:         logger,
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "received_bytes_total"),
@@ -143,26 +143,11 @@ func init() {
 	registerCollector("ethtool", defaultDisabled, NewEthtoolCollector)
 }
 
-// Sanitize the given metric name by replacing invalid characters by underscores.
-//
-// OpenMetrics and the Prometheus exposition format require the metric name
-// to consist only of alphanumericals and "_", ":" and they must not start
-// with digits. Since colons in MetricFamily are reserved to signal that the
-// MetricFamily is the result of a calculation or aggregation of a general
-// purpose monitoring system, colons will be replaced as well.
-//
-// Note: If not subsequently prepending a namespace and/or subsystem (e.g.,
-// with prometheus.BuildFQName), the caller must ensure that the supplied
-// metricName does not begin with a digit.
-func SanitizeMetricName(metricName string) string {
-	return metricNameRegex.ReplaceAllString(metricName, "_")
-}
-
 // Generate the fully-qualified metric name for the ethool metric.
 func buildEthtoolFQName(metric string) string {
 	metricName := strings.TrimLeft(strings.ToLower(SanitizeMetricName(metric)), "_")
-	metricName = receivedRegex.ReplaceAllString(metricName, "${1}received${2}")
-	metricName = transmittedRegex.ReplaceAllString(metricName, "${1}transmitted${2}")
+	metricName = ethtoolReceivedRegex.ReplaceAllString(metricName, "${1}received${2}")
+	metricName = ethtoolTransmitRegex.ReplaceAllString(metricName, "${1}transmitted${2}")
 	return prometheus.BuildFQName(namespace, "ethtool", metricName)
 }
 
@@ -189,7 +174,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		var stats map[string]uint64
 		var err error
 
-		if c.ignoredDevicesPattern.MatchString(device) {
+		if c.deviceFilter.ignored(device) {
 			continue
 		}
 
