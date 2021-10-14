@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build (darwin || freebsd || openbsd || linux) && !nouname
+//go:build (darwin || freebsd || openbsd || linux) && !noos
 // +build darwin freebsd openbsd linux
-// +build !nouname
+// +build !noos
 
 package collector
 
@@ -49,7 +49,7 @@ type uname struct {
 }
 
 func init() {
-	registerCollector("uname", defaultEnabled, newUnameCollector)
+	registerCollectorAlias("uname", defaultEnabled, "os")
 }
 
 // NewUnameCollector returns new unameCollector.

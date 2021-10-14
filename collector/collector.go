@@ -75,6 +75,22 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func(log
 	factories[collector] = factory
 }
 
+func registerCollectorAlias(collector string, isDefaultEnabled bool, alias string) {
+	var helpDefaultState string
+	if isDefaultEnabled {
+		helpDefaultState = "enabled"
+	} else {
+		helpDefaultState = "disabled"
+	}
+
+	flagName := fmt.Sprintf("collector.%s", collector)
+	flagHelp := fmt.Sprintf("Enable the %s collector (default: %s) (alias for %s).", alias, helpDefaultState, collector)
+	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
+
+	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Action(collectorFlagAction(alias)).Bool()
+	collectorState[collector] = flag
+}
+
 // NodeCollector implements the prometheus.Collector interface.
 type NodeCollector struct {
 	Collectors map[string]Collector

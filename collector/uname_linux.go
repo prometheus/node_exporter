@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nouname
-// +build !nouname
+//go:build !noos
+// +build !noos
 
 package collector
 

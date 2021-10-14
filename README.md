@@ -116,7 +116,7 @@ netstat | Exposes network statistics from `/proc/net/netstat`. This is the same 
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
 nvme | Exposes NVMe info from `/sys/class/nvme/` | Linux
-os | Expose OS release info from `/etc/os-release` or `/usr/lib/os-release` | _any_
+os | Expose OS release info from `uname` syscall and `/etc/os-release` or `/usr/lib/os-release` | _any_
 powersupplyclass | Exposes Power Supply statistics from `/sys/class/power_supply` | Linux
 pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://www.kernel.org/doc/html/latest/accounting/psi.html))
 rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
@@ -131,7 +131,7 @@ thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/clas
 time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
 udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
-uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
+uname | Deprecated, now part of the "os" collector | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/), Solaris

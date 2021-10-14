@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build (darwin || freebsd || openbsd) && !nouname
+//go:build (darwin || freebsd || openbsd) && !noos
 // +build darwin freebsd openbsd
-// +build !nouname
+// +build !noos
 
 package collector
 
