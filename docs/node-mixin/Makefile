@@ -24,5 +24,9 @@ lint: node_alerts.yaml node_rules.yaml
 
 	promtool check rules node_alerts.yaml node_rules.yaml
 
+.PHONY: jb_install
+jb_install:
+	jb install
+
 clean:
 	rm -rf dashboards_out node_alerts.yaml node_rules.yaml
