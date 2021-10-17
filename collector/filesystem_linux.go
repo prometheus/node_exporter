@@ -50,6 +50,28 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		return nil, err
 	}
 	stats := []filesystemStats{}
+	mountCheckTimer := time.NewTimer(*mountTimeout)
+	defer mountCheckTimer.Stop()
+	// stuckMountWatcher listens on the given success channel and if the channel closes
+	// then the watcher does nothing. If instead the timeout is reached, the
+	// mount point that is being watched is marked as stuck.
+	stuckMountWatcher := func(mountPoint string, success chan struct{}, logger log.Logger) {
+		select {
+		case <-success:
+			// Success
+		case <-mountCheckTimer.C:
+			// Timed out, mark mount as stuck
+			stuckMountsMtx.Lock()
+			select {
+			case <-success:
+				// Success came in just after the timeout was reached, don't label the mount as stuck
+			default:
+				level.Debug(logger).Log("msg", "Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
+				stuckMounts[mountPoint] = struct{}{}
+			}
+			stuckMountsMtx.Unlock()
+		}
+	}
 	for _, labels := range mps {
 		if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
 			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", labels.mountPoint)
@@ -116,27 +138,6 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		})
 	}
 	return stats, nil
-}
-
-// stuckMountWatcher listens on the given success channel and if the channel closes
-// then the watcher does nothing. If instead the timeout is reached, the
-// mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
-	select {
-	case <-success:
-		// Success
-	case <-time.After(*mountTimeout):
-		// Timed out, mark mount as stuck
-		stuckMountsMtx.Lock()
-		select {
-		case <-success:
-			// Success came in just after the timeout was reached, don't label the mount as stuck
-		default:
-			level.Debug(logger).Log("msg", "Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
-			stuckMounts[mountPoint] = struct{}{}
-		}
-		stuckMountsMtx.Unlock()
-	}
 }
 
 func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
