@@ -136,26 +136,21 @@ func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
 func readModes(modes string) uint32 {
 	var out uint32
 	for _, mode := range strings.Split(modes, " ") {
-		if mode == "10baseT/Half" {
-			out |= (1 << 0)
-		}
-		if mode == "10baseT/Full" {
-			out |= (1 << 1)
-		}
-		if mode == "100baseT/Half" {
-			out |= (1 << 2)
-		}
-		if mode == "100baseT/Full" {
-			out |= (1 << 3)
-		}
-		if mode == "1000baseT/Half" {
-			out |= (1 << 4)
-		}
-		if mode == "1000baseT/Full" {
-			out |= (1 << 5)
-		}
-		if mode == "10000baseT/Full" {
-			out |= (1 << 12)
+		switch mode {
+		case "10baseT/Half":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_10baseT_Half_BIT)
+		case "10baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_10baseT_Full_BIT)
+		case "100baseT/Half":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_100baseT_Half_BIT)
+		case "100baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_100baseT_Full_BIT)
+		case "1000baseT/Half":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_1000baseT_Half_BIT)
+		case "1000baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_1000baseT_Full_BIT)
+		case "10000baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_10000baseT_Full_BIT)
 		}
 	}
 	return out
@@ -166,10 +161,10 @@ func readPortTypes(portTypes string) uint32 {
 	for _, ptype := range strings.Split(portTypes, " ") {
 		ptype = strings.Trim(ptype, " \t")
 		if ptype == "TP" {
-			out |= (1 << 7)
+			out |= (1 << unix.ETHTOOL_LINK_MODE_TP_BIT)
 		}
 		if ptype == "MII" {
-			out |= (1 << 9)
+			out |= (1 << unix.ETHTOOL_LINK_MODE_MII_BIT)
 		}
 	}
 	return out
@@ -214,16 +209,16 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 		items := strings.Split(line, ": ")
 		if items[0] == "Supported pause frame use" {
 			if items[1] == "Symmetric" {
-				res.Supported |= (1 << 13)
+				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
 			} else if items[1] == "Receive-only" {
-				res.Supported |= (1 << 14)
+				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
 			}
 		}
 		if items[0] == "Advertised pause frame use" {
 			if items[1] == "Symmetric" {
-				res.Advertising |= (1 << 13)
+				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
 			} else if items[1] == "Receive-only" {
-				res.Advertising |= (1 << 14)
+				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
 			}
 		}
 		if items[0] == "Supported ports" {
@@ -239,12 +234,12 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 		}
 		if items[0] == "Supports auto-negotiation" {
 			if items[1] == "Yes" {
-				res.Supported |= (1 << 6)
+				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Autoneg_BIT)
 			}
 		}
 		if items[0] == "Advertised auto-negotiation" {
 			if items[1] == "Yes" {
-				res.Advertising |= (1 << 6)
+				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Autoneg_BIT)
 			}
 		}
 		if items[0] == "Auto-negotiation" {
