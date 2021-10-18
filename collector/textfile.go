@@ -172,18 +172,18 @@ func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- 
 
 	// Export the mtimes of the successful files.
 	// Sorting is needed for predictable output comparison in tests.
-	filenames := make([]string, 0, len(mtimes))
-	for filename := range mtimes {
-		filenames = append(filenames, filename)
+	filepaths := make([]string, 0, len(mtimes))
+	for path := range mtimes {
+		filepaths = append(filepaths, path)
 	}
-	sort.Strings(filenames)
+	sort.Strings(filepaths)
 
-	for _, filename := range filenames {
-		mtime := float64(mtimes[filename].UnixNano() / 1e9)
+	for _, path := range filepaths {
+		mtime := float64(mtimes[path].UnixNano() / 1e9)
 		if c.mtime != nil {
 			mtime = *c.mtime
 		}
-		ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, filename)
+		ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, path)
 	}
 }
 
@@ -192,28 +192,37 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	// Iterate over files and accumulate their metrics, but also track any
 	// parsing errors so an error metric can be reported.
 	var errored bool
-	files, err := ioutil.ReadDir(c.path)
-	if err != nil && c.path != "" {
-		errored = true
-		level.Error(c.logger).Log("msg", "failed to read textfile collector directory", "path", c.path, "err", err)
+
+	paths, err := filepath.Glob(c.path)
+	if err != nil || len(paths) == 0 {
+		// not glob or not accessible path either way assume single
+		// directory and let ioutil.ReadDir handle it
+		paths = []string{c.path}
 	}
 
-	mtimes := make(map[string]time.Time, len(files))
-	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".prom") {
-			continue
-		}
-
-		mtime, err := c.processFile(f.Name(), ch)
-		if err != nil {
+	mtimes := make(map[string]time.Time)
+	for _, path := range paths {
+		files, err := ioutil.ReadDir(path)
+		if err != nil && path != "" {
 			errored = true
-			level.Error(c.logger).Log("msg", "failed to collect textfile data", "file", f.Name(), "err", err)
-			continue
+			level.Error(c.logger).Log("msg", "failed to read textfile collector directory", "path", path, "err", err)
 		}
 
-		mtimes[f.Name()] = *mtime
-	}
+		for _, f := range files {
+			if !strings.HasSuffix(f.Name(), ".prom") {
+				continue
+			}
 
+			mtime, err := c.processFile(path, f.Name(), ch)
+			if err != nil {
+				errored = true
+				level.Error(c.logger).Log("msg", "failed to collect textfile data", "file", f.Name(), "err", err)
+				continue
+			}
+
+			mtimes[filepath.Join(path, f.Name())] = *mtime
+		}
+	}
 	c.exportMTimes(mtimes, ch)
 
 	// Export if there were errors.
@@ -235,8 +244,8 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 // processFile processes a single file, returning its modification time on success.
-func (c *textFileCollector) processFile(name string, ch chan<- prometheus.Metric) (*time.Time, error) {
-	path := filepath.Join(c.path, name)
+func (c *textFileCollector) processFile(dir, name string, ch chan<- prometheus.Metric) (*time.Time, error) {
+	path := filepath.Join(dir, name)
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open textfile data file %q: %w", path, err)
