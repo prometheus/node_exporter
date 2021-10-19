@@ -24,3 +24,4 @@ netlink error: Operation not permitted
         Current message level: 0x00000007 (7)
                                drv probe link
 	Link detected: yes
+
