@@ -38,12 +38,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const (
-	// These are in _bytes_ to match bytes-per-second speeds from netclass.
-	Mbps = 1000000.0 / 8.0
-	Gbps = 1000.0 * Mbps
-)
-
 var (
 	ethtoolDeviceInclude   = kingpin.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
 	ethtoolDeviceExclude   = kingpin.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
@@ -268,75 +262,46 @@ func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device st
 // https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/ethtool.h
 func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix string, device string, linkModes uint32) {
 	linkMode := fmt.Sprintf("%s_speed", prefix)
+	const (
+		full = "full"
+		half = "half"
+		// This is in _bytes_ to match bytes-per-second speeds from netclass.
+		Mbps = 1000000.0 / 8.0
+	)
 
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_10baseT_Half_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 10*Mbps, device, "half", "10baseT")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_10baseT_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 10*Mbps, device, "full", "10baseT")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_100baseT_Half_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 100*Mbps, device, "half", "100baseT")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_100baseT_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 100*Mbps, device, "full", "100baseT")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_1000baseT_Half_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 1000*Mbps, device, "half", "1000baseT")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_1000baseT_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 1000*Mbps, device, "full", "1000baseT")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_10000baseT_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 10*Gbps, device, "full", "10000baseT")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_2500baseX_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 2.5*Gbps, device, "full", "2500baseX")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_1000baseKX_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 1*Gbps, device, "full", "1000baseKX")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_10000baseKX4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 10*Gbps, device, "full", "10000baseKX4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_10000baseKR_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 10*Gbps, device, "full", "10000baseKR")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_10000baseR_FEC_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 10*Gbps, device, "full", "10000baseR_FEC")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 20*Gbps, device, "full", "20000baseMLD2")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 20*Gbps, device, "full", "20000baseKR2")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_40000baseKR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 40*Gbps, device, "full", "40000baseKR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_40000baseCR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 40*Gbps, device, "full", "40000baseCR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_40000baseSR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 40*Gbps, device, "full", "40000baseSR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_40000baseLR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 40*Gbps, device, "full", "40000baseLR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_56000baseKR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 56*Gbps, device, "full", "56000baseKR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_56000baseCR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 56*Gbps, device, "full", "56000baseCR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_56000baseSR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 56*Gbps, device, "full", "56000baseSR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_56000baseLR4_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 56*Gbps, device, "full", "56000baseLR4")
-	}
-	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_25000baseCR_Full_BIT) != 0 {
-		ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue, 25*Gbps, device, "full", "25000baseCR")
+	for bit, labels := range map[int]struct {
+		speed  int
+		duplex string
+		phy    string
+	}{
+		unix.ETHTOOL_LINK_MODE_10baseT_Half_BIT:       {10, half, "T"},
+		unix.ETHTOOL_LINK_MODE_10baseT_Full_BIT:       {10, full, "T"},
+		unix.ETHTOOL_LINK_MODE_100baseT_Half_BIT:      {100, half, "T"},
+		unix.ETHTOOL_LINK_MODE_100baseT_Full_BIT:      {100, full, "T"},
+		unix.ETHTOOL_LINK_MODE_1000baseT_Half_BIT:     {1000, half, "T"},
+		unix.ETHTOOL_LINK_MODE_1000baseT_Full_BIT:     {1000, full, "T"},
+		unix.ETHTOOL_LINK_MODE_10000baseT_Full_BIT:    {10000, full, "T"},
+		unix.ETHTOOL_LINK_MODE_2500baseT_Full_BIT:     {2500, full, "T"},
+		unix.ETHTOOL_LINK_MODE_1000baseKX_Full_BIT:    {1000, full, "KX"},
+		unix.ETHTOOL_LINK_MODE_10000baseKX4_Full_BIT:  {10000, full, "KX4"},
+		unix.ETHTOOL_LINK_MODE_10000baseKR_Full_BIT:   {10000, full, "KR"},
+		unix.ETHTOOL_LINK_MODE_10000baseR_FEC_BIT:     {10000, full, "R_FEC"},
+		unix.ETHTOOL_LINK_MODE_20000baseMLD2_Full_BIT: {20000, full, "MLD2"},
+		unix.ETHTOOL_LINK_MODE_20000baseKR2_Full_BIT:  {20000, full, "KR2"},
+		unix.ETHTOOL_LINK_MODE_40000baseKR4_Full_BIT:  {40000, full, "KR4"},
+		unix.ETHTOOL_LINK_MODE_40000baseCR4_Full_BIT:  {40000, full, "CR4"},
+		unix.ETHTOOL_LINK_MODE_40000baseSR4_Full_BIT:  {40000, full, "SR4"},
+		unix.ETHTOOL_LINK_MODE_40000baseLR4_Full_BIT:  {40000, full, "LR4"},
+		unix.ETHTOOL_LINK_MODE_56000baseKR4_Full_BIT:  {56000, full, "KR4"},
+		unix.ETHTOOL_LINK_MODE_56000baseCR4_Full_BIT:  {56000, full, "CR4"},
+		unix.ETHTOOL_LINK_MODE_56000baseSR4_Full_BIT:  {56000, full, "SR4"},
+		unix.ETHTOOL_LINK_MODE_56000baseLR4_Full_BIT:  {56000, full, "LR4"},
+		unix.ETHTOOL_LINK_MODE_25000baseCR_Full_BIT:   {25000, full, "CR"},
+	} {
+		if linkModes&(1<<bit) != 0 {
+			ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue,
+				float64(labels.speed)*Mbps, device, labels.duplex, fmt.Sprintf("%dbase%s", labels.speed, labels.phy))
+		}
 	}
 }
 
