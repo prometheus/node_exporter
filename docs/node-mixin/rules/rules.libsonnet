@@ -41,16 +41,18 @@
             record: 'instance:node_memory_utilisation:ratio',
             expr: |||
               1 - (
-                node_memory_MemAvailable_bytes{%(nodeExporterSelector)s}
-                or
                 (
-                  node_memory_Buffers_bytes{%(nodeExporterSelector)s}
-                  +
-                  node_memory_Cached_bytes{%(nodeExporterSelector)s}
-                  +
-                  node_memory_MemFree_bytes{%(nodeExporterSelector)s}
-                  +
-                  node_memory_Slab_bytes{%(nodeExporterSelector)s}
+                  node_memory_MemAvailable_bytes{%(nodeExporterSelector)s}
+                  or
+                  (
+                    node_memory_Buffers_bytes{%(nodeExporterSelector)s}
+                    +
+                    node_memory_Cached_bytes{%(nodeExporterSelector)s}
+                    +
+                    node_memory_MemFree_bytes{%(nodeExporterSelector)s}
+                    +
+                    node_memory_Slab_bytes{%(nodeExporterSelector)s}
+                  )
                 )
               /
                 node_memory_MemTotal_bytes{%(nodeExporterSelector)s}
