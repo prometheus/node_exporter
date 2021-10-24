@@ -122,10 +122,12 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
 func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
+	mountCheckTimer := time.NewTimer(*mountTimeout)
+	defer mountCheckTimer.Stop()
 	select {
 	case <-success:
 		// Success
-	case <-time.After(*mountTimeout):
+	case <-mountCheckTimer.C:
 		// Timed out, mark mount as stuck
 		stuckMountsMtx.Lock()
 		select {
