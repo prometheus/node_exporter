@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !notherm
 // +build !notherm
 
 package collector
@@ -46,7 +47,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"unsafe"
 )
