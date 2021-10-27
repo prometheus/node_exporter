@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	defMountPointsExcluded = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
+	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+)($|/)"
 	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 )
 
