@@ -6,6 +6,7 @@
 * [BUGFIX]
 
 * [ENHANCEMENT] Add flag to disable guest CPU metrics #2123
+* [ENHANCEMENT] Add DMI collector #303
 * [BUGFIX] Fix possible panic on macOS #2133
 
 ## 1.2.2 / 2021-08-06
