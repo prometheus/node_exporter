@@ -1,6 +1,6 @@
 linters:
   enable:
-    - golint
+    - revive
   disable:
     # Disable soon to deprecated[1] linters that lead to false
     # positives when build tags disable certain files[2]
