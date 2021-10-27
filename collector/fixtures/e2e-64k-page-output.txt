@@ -506,6 +506,9 @@ node_disk_written_bytes_total{device="sda"} 2.58916880384e+11
 node_disk_written_bytes_total{device="sdb"} 1.01012736e+09
 node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
+# HELP node_dmi_info A metric with a constant '1' value labeled by bios_date, bios_release, bios_vendor, bios_version, board_asset_tag, board_name, board_serial, board_vendor, board_version, chassis_asset_tag, chassis_serial, chassis_vendor, chassis_version, product_family, product_name, product_serial, product_sku, product_uuid, product_version, system_vendor if provided by DMI.
+# TYPE node_dmi_info gauge
+node_dmi_info{bios_date="04/12/2021",bios_release="2.2",bios_vendor="Dell Inc.",bios_version="2.2.4",board_name="07PXPY",board_serial=".7N62AI2.GRTCL6944100GP.",board_vendor="Dell Inc.",board_version="A01",chassis_asset_tag="",chassis_serial="7N62AI2",chassis_vendor="Dell Inc.",chassis_version="",product_family="PowerEdge",product_name="PowerEdge R6515",product_serial="7N62AI2",product_sku="SKU=NotProvided;ModelName=PowerEdge R6515",product_uuid="83340ca8-cb49-4474-8c29-d2088ca84dd9",product_version="",system_vendor="Dell Inc."} 1
 # HELP node_drbd_activitylog_writes_total Number of updates of the activity log area of the meta data.
 # TYPE node_drbd_activitylog_writes_total counter
 node_drbd_activitylog_writes_total{device="drbd1"} 1100
@@ -2576,6 +2579,7 @@ node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
 node_scrape_collector_success{collector="cpufreq"} 1
 node_scrape_collector_success{collector="diskstats"} 1
+node_scrape_collector_success{collector="dmi"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1
 node_scrape_collector_success{collector="entropy"} 1

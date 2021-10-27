@@ -38,6 +38,122 @@ SymlinkTo: ../../../devices/system/node/node1
 Directory: sys/class
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/dmi
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/dmi/id
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/bios_date
+Lines: 1
+04/12/2021
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/bios_release
+Lines: 1
+2.2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/bios_vendor
+Lines: 1
+Dell Inc.
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/bios_version
+Lines: 1
+2.2.4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/board_name
+Lines: 1
+07PXPY
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/board_serial
+Lines: 1
+.7N62AI2.GRTCL6944100GP.
+Mode: 400
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/board_vendor
+Lines: 1
+Dell Inc.
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/board_version
+Lines: 1
+A01
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/chassis_asset_tag
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/chassis_serial
+Lines: 1
+7N62AI2
+Mode: 400
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/chassis_type
+Lines: 1
+23
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/chassis_vendor
+Lines: 1
+Dell Inc.
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/chassis_version
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/modalias
+Lines: 1
+dmi:bvnDellInc.:bvr2.2.4:bd04/12/2021:br2.2:svnDellInc.:pnPowerEdgeR6515:pvr:rvnDellInc.:rn07PXPY:rvrA01:cvnDellInc.:ct23:cvr:
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/product_family
+Lines: 1
+PowerEdge
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/product_name
+Lines: 1
+PowerEdge R6515
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/product_serial
+Lines: 1
+7N62AI2
+Mode: 400
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/product_sku
+Lines: 1
+SKU=NotProvided;ModelName=PowerEdge R6515
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/product_uuid
+Lines: 1
+83340ca8-cb49-4474-8c29-d2088ca84dd9
+Mode: 400
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/product_version
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/sys_vendor
+Lines: 1
+Dell Inc.
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/dmi/id/uevent
+Lines: 1
+MODALIAS=dmi:bvnDellInc.:bvr2.2.4:bd04/12/2021:br2.2:svnDellInc.:pnPowerEdgeR6515:pvr:rvnDellInc.:rn07PXPY:rvrA01:cvnDellInc.:ct23:cvr:
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/fc_host
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
