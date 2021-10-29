@@ -70,6 +70,7 @@ func TestSanitizeMetricName(t *testing.T) {
 		"Tx LPI entry count":           "Tx_LPI_entry_count",
 		"port.VF_admin_queue_requests": "port_VF_admin_queue_requests",
 		"[3]: tx_bytes":                "_3_tx_bytes",
+		"     err":                     "_err",
 	}
 
 	for metricName, expected := range testcases {
