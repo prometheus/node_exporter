@@ -13,3 +13,5 @@ NIC statistics:
      rx_multicast: 23973
      tx_aborted: 0
      tx_underrun: 0
+     duplicate metric: 1
+     duplicate_metric: 2
