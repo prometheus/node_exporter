@@ -270,6 +270,7 @@ func TestBuildEthtoolFQName(t *testing.T) {
 		"Tx LPI entry count":           "node_ethtool_transmitted_lpi_entry_count",
 		"port.VF_admin_queue_requests": "node_ethtool_port_vf_admin_queue_requests",
 		"[3]: tx_bytes":                "node_ethtool_3_transmitted_bytes",
+		"     err":                     "node_ethtool_err",
 	}
 
 	for metric, expected := range testcases {
