@@ -104,7 +104,7 @@ func TestBtrfs(t *testing.T) {
 	}
 
 	for i, s := range stats {
-		metrics := collector.getMetrics(s)
+		metrics := collector.getMetrics(s, nil)
 		if len(metrics) != len(expectedBtrfsMetrics[i]) {
 			t.Fatalf("Unexpected number of Btrfs metrics: expected %v, got %v", len(expectedBtrfsMetrics[i]), len(metrics))
 		}
