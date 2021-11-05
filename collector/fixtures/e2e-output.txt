@@ -238,6 +238,14 @@ node_buddyinfo_blocks{node="0",size="8",zone="Normal"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="DMA"} 1
 node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
+# HELP node_clocksource_available_info Available clocksources read from '/sys/devices/system/clocksource'
+# TYPE node_clocksource_available_info gauge
+node_clocksource_available_info{clocksource="acpi_pm",device="0"} 1
+node_clocksource_available_info{clocksource="hpet",device="0"} 1
+node_clocksource_available_info{clocksource="tsc",device="0"} 1
+# HELP node_clocksource_current_info Current clocksource read from '/sys/devices/system/clocksource'
+# TYPE node_clocksource_current_info gauge
+node_clocksource_current_info{clocksource="tsc",device="0"} 1
 # HELP node_context_switches_total Total number of context switches.
 # TYPE node_context_switches_total counter
 node_context_switches_total 3.8014093e+07
@@ -2970,6 +2978,7 @@ node_scrape_collector_success{collector="bcache"} 1
 node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="btrfs"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
+node_scrape_collector_success{collector="clocksource"} 1
 node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
 node_scrape_collector_success{collector="cpufreq"} 1

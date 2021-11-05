@@ -3213,6 +3213,22 @@ Mode: 644
 Directory: sys/devices/system
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/clocksource
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/clocksource/clocksource0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/clocksource/clocksource0/available_clocksource
+Lines: 1
+tsc hpet acpi_pm
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/clocksource/clocksource0/current_clocksource
+Lines: 1
+tsc
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/cpu
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -4700,9 +4716,5 @@ Mode: 644
 Path: sys/kernel/mm/ksm/sleep_millisecs
 Lines: 1
 20
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/.unpacked
-Lines: 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
