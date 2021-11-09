@@ -1,36 +1,29 @@
 ---
 version: 2.1
-
 orbs:
-  prometheus: prometheus/prometheus@0.11.0
-
+  prometheus: prometheus/prometheus@0.14.0
 executors:
   # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
   # should also be updated.
   golang:
     docker:
       - image: circleci/golang:1.17
-
 jobs:
   test:
     executor: golang
-
     steps:
       - prometheus/setup_environment
       - run: go mod download
       - run: make
       - prometheus/store_artifact:
           file: node_exporter
-
   codespell:
     docker:
       - image: circleci/python
-
     steps:
       - checkout
       - run: sudo pip install codespell
       - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem,./collector/fixtures" -L uint,packages\',uptodate
-
   test_mixins:
     executor: golang
     steps:
@@ -43,13 +36,10 @@ jobs:
       - run: make -C docs/node-mixin jb_install
       - run: make -C docs/node-mixin
       - run: git diff --exit-code
-
   build:
     machine:
       image: ubuntu-2004:202101-01
-
     parallelism: 3
-
     steps:
       - prometheus/setup_environment
       - run: docker run --privileged linuxkit/binfmt:v0.8
@@ -62,15 +52,12 @@ jobs:
       - store_artifacts:
           path: .build
           destination: /build
-
   test_docker:
     machine:
       image: ubuntu-2004:202101-01
-
     environment:
       DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.16-base
       REPO_PATH: github.com/prometheus/node_exporter
-
     steps:
       - prometheus/setup_environment
       - attach_workspace:
@@ -91,7 +78,6 @@ jobs:
             else
               make test-docker
             fi
-
 workflows:
   version: 2
   node_exporter:
