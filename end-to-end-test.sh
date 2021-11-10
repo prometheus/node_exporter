@@ -51,7 +51,6 @@ COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
   filesystem
-  time
   timex
   uname
 COLLECTORS
@@ -61,7 +60,7 @@ cd "$(dirname $0)"
 port="$((10000 + (RANDOM % 10000)))"
 tmpdir=$(mktemp -d /tmp/node_exporter_e2e_test.XXXXXX)
 
-skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds)"
+skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds|node_time_(zone|seconds))"
 
 arch="$(uname -m)"
 

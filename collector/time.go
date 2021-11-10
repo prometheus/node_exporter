@@ -22,12 +22,14 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 type timeCollector struct {
 	nowDesc  *prometheus.Desc
 	zoneDesc *prometheus.Desc
 	logger   log.Logger
+	sysfs    *sysfs.FS
 }
 
 func init() {
@@ -62,5 +64,5 @@ func (c *timeCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- prometheus.MustNewConstMetric(c.nowDesc, prometheus.GaugeValue, nowSec)
 	level.Debug(c.logger).Log("msg", "Zone offset", "offset", zoneOffset, "time_zone", zone)
 	ch <- prometheus.MustNewConstMetric(c.zoneDesc, prometheus.GaugeValue, float64(zoneOffset), zone)
-	return nil
+	return c.update(ch)
 }
