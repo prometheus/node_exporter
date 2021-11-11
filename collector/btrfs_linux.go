@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 	"syscall"
 	"unsafe"
 
@@ -80,45 +81,12 @@ type ioctlFsDeviceStats struct {
 	bytesUsed  uint64
 	totalBytes uint64
 
-	writeErrors      uint64
-	readErrors       uint64
-	flushErrors      uint64
-	corruptionErrors uint64
-	generationErrors uint64
+	errorStats map[string]uint64
 }
 
 type ioctlFsStats struct {
-	uuid       string
-	mountPoint string
-	devices    []ioctlFsDeviceStats
-}
-
-func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
-	// Instead of introducing more ioctl calls to scan for all btrfs
-	// filesytems re-use our mount point utils to find known mounts
-	mountsList, err := mountPointDetails(c.logger)
-	if err != nil {
-		return nil, err
-	}
-
-	btrfsMounts := []string{}
-	for _, mount := range mountsList {
-		if mount.fsType == "btrfs" {
-			btrfsMounts = append(btrfsMounts, mount.mountPoint)
-		}
-	}
-
-	var statsMap = make(map[string]*ioctlFsStats, len(btrfsMounts))
-
-	for _, mountPoint := range btrfsMounts {
-		ioctlStats, err := c.getIoctlFsStats(mountPoint)
-		if err != nil {
-			return nil, err
-		}
-		statsMap[ioctlStats.uuid] = ioctlStats
-	}
-
-	return statsMap, nil
+	uuid    string
+	devices []ioctlFsDeviceStats
 }
 
 // Magic constants for ioctl
@@ -127,23 +95,6 @@ const (
 	_BTRFS_IOC_FS_INFO       = 0x8400941F
 	_BTRFS_IOC_DEV_INFO      = 0xD000941E
 	_BTRFS_IOC_GET_DEV_STATS = 0x00c4089434
-)
-
-// Known/supported device stats fields
-//nolint:revive
-const (
-	// direct indicators of I/O failures:
-
-	_BTRFS_DEV_STAT_WRITE_ERRS = iota
-	_BTRFS_DEV_STAT_READ_ERRS
-	_BTRFS_DEV_STAT_FLUSH_ERRS
-
-	// indirect indicators of I/O failures:
-
-	_BTRFS_DEV_STAT_CORRUPTION_ERRS // checksum error, bytenr error or contents is illegal
-	_BTRFS_DEV_STAT_GENERATION_ERRS // an indication that blocks have not been written
-
-	_BTRFS_DEV_STAT_VALUES_MAX // counter to indicate the number of known stats we support
 )
 
 type _UuidBytes [16]byte
@@ -162,6 +113,101 @@ type btrfs_ioctl_fs_info_args struct {
 	sectorSize     uint32          // out
 	cloneAlignment uint32          // out
 	_              [122*8 + 4]byte // pad to 1k
+}
+
+func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
+	// Instead of introducing more ioctl calls to scan for all btrfs
+	// filesytems re-use our mount point utils to find known mounts
+	mountsList, err := mountPointDetails(c.logger)
+	if err != nil {
+		return nil, err
+	}
+
+	// track devices we have successfully scanned, by device path
+	devicesDone := make(map[string]struct{})
+	// filesystems scann results by UUID
+	fsStats := make(map[string]*ioctlFsStats)
+
+	for _, mount := range mountsList {
+		if mount.fsType != "btrfs" {
+			continue
+		}
+
+		if _, found := devicesDone[mount.device]; found {
+			// We already found this filesystem by another mount point
+			continue
+		}
+
+		fd, err := os.Open(mount.mountPoint)
+		if err != nil {
+			// failed to open this mount point, maybe we didn't have permission
+			// maybe we'll find another mount point for this FS later
+			continue
+		}
+
+		var fsInfo = btrfs_ioctl_fs_info_args{}
+		_, _, errno := syscall.Syscall(
+			syscall.SYS_IOCTL,
+			fd.Fd(),
+			uintptr(_BTRFS_IOC_FS_INFO),
+			uintptr(unsafe.Pointer(&fsInfo)))
+		if errno != 0 {
+			// Failed to get the FS info for some reason,
+			// perhaps it'll work with a different mount point
+			continue
+		}
+
+		fsID := fsInfo.fsID.String()
+		if _, found := fsStats[fsID]; found {
+			// We already found this filesystem by another mount point
+			continue
+		}
+
+		deviceStats, err := c.getIoctlDeviceStats(fd, &fsInfo)
+		if err != nil {
+			return nil, err
+		}
+
+		devicesDone[mount.device] = struct{}{}
+		fsStats[fsID] = &ioctlFsStats{
+			uuid:    fsID,
+			devices: deviceStats,
+		}
+	}
+
+	return fsStats, nil
+}
+
+// Known/supported device stats fields
+//nolint:revive
+const (
+	// direct indicators of I/O failures:
+
+	_BTRFS_DEV_STAT_WRITE_ERRS = iota
+	_BTRFS_DEV_STAT_READ_ERRS
+	_BTRFS_DEV_STAT_FLUSH_ERRS
+
+	// indirect indicators of I/O failures:
+
+	_BTRFS_DEV_STAT_CORRUPTION_ERRS // checksum error, bytenr error or contents is illegal
+	_BTRFS_DEV_STAT_GENERATION_ERRS // an indication that blocks have not been written
+
+	_BTRFS_DEV_STAT_VALUES_MAX // counter to indicate the number of known stats we support
+)
+
+var errorStatFields = []int{
+	_BTRFS_DEV_STAT_WRITE_ERRS,
+	_BTRFS_DEV_STAT_READ_ERRS,
+	_BTRFS_DEV_STAT_FLUSH_ERRS,
+	_BTRFS_DEV_STAT_CORRUPTION_ERRS,
+	_BTRFS_DEV_STAT_GENERATION_ERRS,
+}
+var errorStatNames = []string{
+	"write",
+	"read",
+	"flush",
+	"corruption",
+	"generation",
 }
 
 //name matches linux struct
@@ -185,22 +231,7 @@ type btrfs_ioctl_get_dev_stats struct {
 	_         [128 - 2 - _BTRFS_DEV_STAT_VALUES_MAX]uint64 // pad to 1k
 }
 
-func (c *btrfsCollector) getIoctlFsStats(mountPoint string) (*ioctlFsStats, error) {
-	fd, err := os.Open(mountPoint)
-	if err != nil {
-		return nil, err
-	}
-
-	var fsInfo = btrfs_ioctl_fs_info_args{}
-	_, _, errno := syscall.Syscall(
-		syscall.SYS_IOCTL,
-		fd.Fd(),
-		_BTRFS_IOC_FS_INFO,
-		uintptr(unsafe.Pointer(&fsInfo)))
-	if errno != 0 {
-		return nil, err
-	}
-
+func (c *btrfsCollector) getIoctlDeviceStats(fd *os.File, fsInfo *btrfs_ioctl_fs_info_args) ([]ioctlFsDeviceStats, error) {
 	devices := make([]ioctlFsDeviceStats, 0, fsInfo.numDevices)
 
 	var deviceInfo btrfs_ioctl_dev_info_args
@@ -239,17 +270,19 @@ func (c *btrfsCollector) getIoctlFsStats(mountPoint string) (*ioctlFsStats, erro
 			return nil, errno
 		}
 
+		errorStats := make(map[string]uint64, deviceStats.itemCount)
+		for i, fieldIndex := range errorStatFields {
+			if int(deviceStats.itemCount) >= fieldIndex {
+				errorStats[errorStatNames[i]] = deviceStats.values[fieldIndex]
+			}
+		}
+
 		devices = append(devices, ioctlFsDeviceStats{
 			path:       string(bytes.Trim(deviceInfo.path[:], "\x00")),
 			uuid:       deviceInfo.uuid.String(),
 			bytesUsed:  deviceInfo.bytesUsed,
 			totalBytes: deviceInfo.totalBytes,
-
-			writeErrors:      deviceStats.values[_BTRFS_DEV_STAT_WRITE_ERRS],
-			readErrors:       deviceStats.values[_BTRFS_DEV_STAT_READ_ERRS],
-			flushErrors:      deviceStats.values[_BTRFS_DEV_STAT_FLUSH_ERRS],
-			corruptionErrors: deviceStats.values[_BTRFS_DEV_STAT_CORRUPTION_ERRS],
-			generationErrors: deviceStats.values[_BTRFS_DEV_STAT_GENERATION_ERRS],
+			errorStats: errorStats,
 		})
 
 		if uint64(len(devices)) == fsInfo.numDevices {
@@ -257,16 +290,13 @@ func (c *btrfsCollector) getIoctlFsStats(mountPoint string) (*ioctlFsStats, erro
 		}
 	}
 
-	return &ioctlFsStats{
-		mountPoint: mountPoint,
-		uuid:       fsInfo.fsID.String(),
-		devices:    devices,
-	}, nil
+	return devices, nil
 }
 
 // btrfsMetric represents a single Btrfs metric that is converted into a Prometheus Metric.
 type btrfsMetric struct {
 	name            string
+	metricType      prometheus.ValueType
 	desc            string
 	value           float64
 	extraLabel      []string
@@ -279,10 +309,6 @@ func (c *btrfsCollector) updateBtrfsStats(ch chan<- prometheus.Metric, s *btrfs.
 
 	// Basic information about the filesystem.
 	devLabels := []string{"uuid"}
-
-	if iocStats != nil {
-		devLabels = append(devLabels, "mountpoint")
-	}
 
 	// Retrieve the metrics.
 	metrics := c.getMetrics(s, iocStats)
@@ -299,16 +325,13 @@ func (c *btrfsCollector) updateBtrfsStats(ch chan<- prometheus.Metric, s *btrfs.
 		)
 
 		labelValues := []string{s.UUID}
-		if iocStats != nil {
-			labelValues = append(labelValues, iocStats.mountPoint)
-		}
 		if len(m.extraLabelValue) > 0 {
 			labelValues = append(labelValues, m.extraLabelValue...)
 		}
 
 		ch <- prometheus.MustNewConstMetric(
 			desc,
-			prometheus.GaugeValue,
+			m.metricType,
 			m.value,
 			labelValues...,
 		)
@@ -322,13 +345,15 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 			name:            "info",
 			desc:            "Filesystem information",
 			value:           1,
+			metricType:      prometheus.GaugeValue,
 			extraLabel:      []string{"label"},
 			extraLabelValue: []string{s.Label},
 		},
 		{
-			name:  "global_rsv_size_bytes",
-			desc:  "Size of global reserve.",
-			value: float64(s.Allocation.GlobalRsvSize),
+			name:       "global_rsv_size_bytes",
+			desc:       "Size of global reserve.",
+			metricType: prometheus.GaugeValue,
+			value:      float64(s.Allocation.GlobalRsvSize),
 		},
 	}
 
@@ -338,6 +363,7 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 			metrics = append(metrics, btrfsMetric{
 				name:            "device_size_bytes",
 				desc:            "Size of a device that is part of the filesystem.",
+				metricType:      prometheus.GaugeValue,
 				value:           float64(dev.Size),
 				extraLabel:      []string{"device"},
 				extraLabelValue: []string{n},
@@ -345,60 +371,48 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 		}
 	} else {
 		for _, dev := range iocStats.devices {
+			// trim the /dev/ prefix from the device name so the value should match
+			// the value used in the fallback branch above
+			device := strings.TrimPrefix(dev.path, "/dev/")
+
 			extraLabels := []string{"device", "device_uuid"}
-			extraLabelValues := []string{dev.path, dev.uuid}
+			extraLabelValues := []string{device, dev.uuid}
+
 			metrics = append(metrics,
 				btrfsMetric{
 					name:            "device_size_bytes",
 					desc:            "Size of a device that is part of the filesystem.",
+					metricType:      prometheus.GaugeValue,
 					value:           float64(dev.totalBytes),
 					extraLabel:      extraLabels,
 					extraLabelValue: extraLabelValues,
 				},
+				// A bytes available metric is probably more useful than a
+				// bytes used metric, because large numbers of bytes will
+				// suffer from floating point representation issues
+				// and we probably care more about the number when it's low anyway
 				btrfsMetric{
-					name:            "device_used_bytes",
-					desc:            "Bytes used on a device that is part of the filesystem.",
-					value:           float64(dev.bytesUsed),
+					name:            "device_unused_bytes",
+					desc:            "Unused bytes unused on a device that is part of the filesystem.",
+					metricType:      prometheus.GaugeValue,
+					value:           float64(dev.totalBytes - dev.bytesUsed),
 					extraLabel:      extraLabels,
 					extraLabelValue: extraLabelValues,
-				},
-				// TODO should the below metrics be a single metric with a varying 'error_type' label?
-				btrfsMetric{
-					name:            "device_write_errors",
-					desc:            "TODO",
-					value:           float64(dev.writeErrors),
-					extraLabel:      extraLabels,
-					extraLabelValue: extraLabelValues,
-				},
-				btrfsMetric{
-					name:            "device_read_errors",
-					desc:            "TODO",
-					value:           float64(dev.readErrors),
-					extraLabel:      extraLabels,
-					extraLabelValue: extraLabelValues,
-				},
-				btrfsMetric{
-					name:            "device_flush_errors",
-					desc:            "TODO",
-					value:           float64(dev.flushErrors),
-					extraLabel:      extraLabels,
-					extraLabelValue: extraLabelValues,
-				},
-				btrfsMetric{
-					name:            "device_corruption_errors",
-					desc:            "TODO",
-					value:           float64(dev.corruptionErrors),
-					extraLabel:      extraLabels,
-					extraLabelValue: extraLabelValues,
-				},
-				btrfsMetric{
-					name:            "device_generation_errors",
-					desc:            "TODO",
-					value:           float64(dev.generationErrors),
-					extraLabel:      extraLabels,
-					extraLabelValue: extraLabelValues,
-				},
-			)
+				})
+
+			errorLabels := append([]string{"type"}, extraLabels...)
+			for errorName, count := range dev.errorStats {
+				errorLabelValues := append([]string{errorName}, extraLabelValues...)
+				metrics = append(metrics,
+					btrfsMetric{
+						name:            "device_errors_total",
+						desc:            "Errors reported for the device",
+						metricType:      prometheus.CounterValue,
+						value:           float64(count),
+						extraLabel:      errorLabels,
+						extraLabelValue: errorLabelValues,
+					})
+			}
 		}
 	}
 
@@ -416,6 +430,7 @@ func (c *btrfsCollector) getAllocationStats(a string, s *btrfs.AllocationStats) 
 		{
 			name:            "reserved_bytes",
 			desc:            "Amount of space reserved for a data type",
+			metricType:      prometheus.GaugeValue,
 			value:           float64(s.ReservedBytes),
 			extraLabel:      []string{"block_group_type"},
 			extraLabelValue: []string{a},
@@ -436,6 +451,7 @@ func (c *btrfsCollector) getLayoutStats(a, l string, s *btrfs.LayoutUsage) []btr
 		{
 			name:            "used_bytes",
 			desc:            "Amount of used space by a layout/data type",
+			metricType:      prometheus.GaugeValue,
 			value:           float64(s.UsedBytes),
 			extraLabel:      []string{"block_group_type", "mode"},
 			extraLabelValue: []string{a, l},
@@ -443,6 +459,7 @@ func (c *btrfsCollector) getLayoutStats(a, l string, s *btrfs.LayoutUsage) []btr
 		{
 			name:            "size_bytes",
 			desc:            "Amount of space allocated for a layout/data type",
+			metricType:      prometheus.GaugeValue,
 			value:           float64(s.TotalBytes),
 			extraLabel:      []string{"block_group_type", "mode"},
 			extraLabelValue: []string{a, l},
@@ -450,6 +467,7 @@ func (c *btrfsCollector) getLayoutStats(a, l string, s *btrfs.LayoutUsage) []btr
 		{
 			name:            "allocation_ratio",
 			desc:            "Data allocation ratio for a layout/data type",
+			metricType:      prometheus.GaugeValue,
 			value:           s.Ratio,
 			extraLabel:      []string{"block_group_type", "mode"},
 			extraLabelValue: []string{a, l},
