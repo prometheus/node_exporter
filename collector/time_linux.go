@@ -43,29 +43,9 @@ func (c *timeCollector) update(ch chan<- prometheus.Metric) error {
 	for i, clocksource := range clocksources {
 		is := strconv.Itoa(i)
 		for _, cs := range clocksource.Available {
-			ch <- prometheus.MustNewConstMetric(
-				prometheus.NewDesc(
-					namespace+"_time_clocksource_available_info",
-					"Available clocksources read from '/sys/devices/system/clocksource'",
-					[]string{"device", "clocksource"},
-					nil),
-				prometheus.GaugeValue,
-				1.0,
-				is,
-				cs,
-			)
+			ch <- c.clocksourcesAvailable.mustNewConstMetric(1.0, is, cs)
 		}
-		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
-				namespace+"_time_clocksource_current_info",
-				"Current clocksource read from '/sys/devices/system/clocksource'",
-				[]string{"device", "clocksource"},
-				nil),
-			prometheus.GaugeValue,
-			1.0,
-			is,
-			clocksource.Current,
-		)
+		ch <- c.clocksourceCurrent.mustNewConstMetric(1.0, is, clocksource.Current)
 	}
 	return nil
 }

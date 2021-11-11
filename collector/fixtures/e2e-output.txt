@@ -3133,12 +3133,12 @@ node_textfile_scrape_error 0
 # HELP node_thermal_zone_temp Zone temperature in Celsius
 # TYPE node_thermal_zone_temp gauge
 node_thermal_zone_temp{type="cpu-thermal",zone="0"} 12.376
-# HELP node_time_clocksource_available_info Available clocksources read from '/sys/devices/system/clocksource'
+# HELP node_time_clocksource_available_info Available clocksources read from '/sys/devices/system/clocksource'.
 # TYPE node_time_clocksource_available_info gauge
 node_time_clocksource_available_info{clocksource="acpi_pm",device="0"} 1
 node_time_clocksource_available_info{clocksource="hpet",device="0"} 1
 node_time_clocksource_available_info{clocksource="tsc",device="0"} 1
-# HELP node_time_clocksource_current_info Current clocksource read from '/sys/devices/system/clocksource'
+# HELP node_time_clocksource_current_info Current clocksource read from '/sys/devices/system/clocksource'.
 # TYPE node_time_clocksource_current_info gauge
 node_time_clocksource_current_info{clocksource="tsc",device="0"} 1
 # HELP node_time_seconds System time in seconds since epoch (1970).
