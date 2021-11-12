@@ -26,15 +26,12 @@ import (
 )
 
 func (c *timeCollector) update(ch chan<- prometheus.Metric) error {
-	if c.sysfs == nil {
-		fs, err := sysfs.NewFS(*sysPath)
-		if err != nil {
-			return fmt.Errorf("failed to open procfs: %w", err)
-		}
-		c.sysfs = &fs
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	clocksources, err := c.sysfs.ClockSources()
+	clocksources, err := fs.ClockSources()
 	if err != nil {
 		return fmt.Errorf("couldn't get clocksources: %w", err)
 	}

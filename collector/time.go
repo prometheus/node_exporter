@@ -22,7 +22,6 @@ import (
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/procfs/sysfs"
 )
 
 type timeCollector struct {
@@ -31,7 +30,6 @@ type timeCollector struct {
 	clocksourcesAvailable typedDesc
 	clocksourceCurrent    typedDesc
 	logger                log.Logger
-	sysfs                 *sysfs.FS
 }
 
 func init() {
