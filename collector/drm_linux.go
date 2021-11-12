@@ -99,11 +99,7 @@ func NewDrmCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *drmCollector) Update(ch chan<- prometheus.Metric) error {
-	if err := c.updateAMDCards(ch); err != nil {
-		return err
-	}
-
-	return nil
+	return c.updateAMDCards(ch)
 }
 
 func (c *drmCollector) updateAMDCards(ch chan<- prometheus.Metric) error {
