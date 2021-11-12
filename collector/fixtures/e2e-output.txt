@@ -3010,6 +3010,7 @@ node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="tapestats"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
+node_scrape_collector_success{collector="time"} 1
 node_scrape_collector_success{collector="udp_queues"} 1
 node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="wifi"} 1
@@ -3132,6 +3133,18 @@ node_textfile_scrape_error 0
 # HELP node_thermal_zone_temp Zone temperature in Celsius
 # TYPE node_thermal_zone_temp gauge
 node_thermal_zone_temp{type="cpu-thermal",zone="0"} 12.376
+# HELP node_time_clocksource_available_info Available clocksources read from '/sys/devices/system/clocksource'.
+# TYPE node_time_clocksource_available_info gauge
+node_time_clocksource_available_info{clocksource="acpi_pm",device="0"} 1
+node_time_clocksource_available_info{clocksource="hpet",device="0"} 1
+node_time_clocksource_available_info{clocksource="tsc",device="0"} 1
+# HELP node_time_clocksource_current_info Current clocksource read from '/sys/devices/system/clocksource'.
+# TYPE node_time_clocksource_current_info gauge
+node_time_clocksource_current_info{clocksource="tsc",device="0"} 1
+# HELP node_time_seconds System time in seconds since epoch (1970).
+# TYPE node_time_seconds gauge
+# HELP node_time_zone_offset_seconds System time zone offset in seconds.
+# TYPE node_time_zone_offset_seconds gauge
 # HELP node_udp_queues Number of allocated memory in the kernel for UDP datagrams in bytes.
 # TYPE node_udp_queues gauge
 node_udp_queues{ip="v4",queue="rx"} 0

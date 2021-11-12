@@ -25,9 +25,11 @@ import (
 )
 
 type timeCollector struct {
-	nowDesc  *prometheus.Desc
-	zoneDesc *prometheus.Desc
-	logger   log.Logger
+	now                   typedDesc
+	zone                  typedDesc
+	clocksourcesAvailable typedDesc
+	clocksourceCurrent    typedDesc
+	logger                log.Logger
 }
 
 func init() {
@@ -39,16 +41,26 @@ func init() {
 func NewTimeCollector(logger log.Logger) (Collector, error) {
 	const subsystem = "time"
 	return &timeCollector{
-		nowDesc: prometheus.NewDesc(
+		now: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "seconds"),
 			"System time in seconds since epoch (1970).",
 			nil, nil,
-		),
-		zoneDesc: prometheus.NewDesc(
+		), prometheus.GaugeValue},
+		zone: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "zone_offset_seconds"),
 			"System time zone offset in seconds.",
 			[]string{"time_zone"}, nil,
-		),
+		), prometheus.GaugeValue},
+		clocksourcesAvailable: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "clocksource_available_info"),
+			"Available clocksources read from '/sys/devices/system/clocksource'.",
+			[]string{"device", "clocksource"}, nil,
+		), prometheus.GaugeValue},
+		clocksourceCurrent: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "clocksource_current_info"),
+			"Current clocksource read from '/sys/devices/system/clocksource'.",
+			[]string{"device", "clocksource"}, nil,
+		), prometheus.GaugeValue},
 		logger: logger,
 	}, nil
 }
@@ -59,8 +71,8 @@ func (c *timeCollector) Update(ch chan<- prometheus.Metric) error {
 	zone, zoneOffset := now.Zone()
 
 	level.Debug(c.logger).Log("msg", "Return time", "now", nowSec)
-	ch <- prometheus.MustNewConstMetric(c.nowDesc, prometheus.GaugeValue, nowSec)
+	ch <- c.now.mustNewConstMetric(nowSec)
 	level.Debug(c.logger).Log("msg", "Zone offset", "offset", zoneOffset, "time_zone", zone)
-	ch <- prometheus.MustNewConstMetric(c.zoneDesc, prometheus.GaugeValue, float64(zoneOffset), zone)
-	return nil
+	ch <- c.zone.mustNewConstMetric(float64(zoneOffset), zone)
+	return c.update(ch)
 }
