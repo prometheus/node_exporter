@@ -36,7 +36,6 @@ const (
 	// Default to uint32.
 	bsdSysctlTypeUint32 bsdSysctlType = iota
 	bsdSysctlTypeUint64
-	bsdSysctlTypeStructTimeval
 	bsdSysctlTypeCLong
 )
 
@@ -75,8 +74,6 @@ func (b bsdSysctl) Value() (float64, error) {
 	case bsdSysctlTypeUint64:
 		tmp64, err = unix.SysctlUint64(b.mib)
 		tmpf64 = float64(tmp64)
-	case bsdSysctlTypeStructTimeval:
-		tmpf64, err = b.getStructTimeval()
 	case bsdSysctlTypeCLong:
 		tmpf64, err = b.getCLong()
 	}
@@ -90,28 +87,6 @@ func (b bsdSysctl) Value() (float64, error) {
 	}
 
 	return tmpf64, nil
-}
-
-func (b bsdSysctl) getStructTimeval() (float64, error) {
-	raw, err := unix.SysctlRaw(b.mib)
-	if err != nil {
-		return 0, err
-	}
-
-	if len(raw) != int(unsafe.Sizeof(unix.Timeval{})) {
-		// Shouldn't get here.
-		return 0, fmt.Errorf(
-			"length of bytes received from sysctl (%d) does not match expected bytes (%d)",
-			len(raw),
-			unsafe.Sizeof(unix.Timeval{}),
-		)
-	}
-
-	tv := *(*unix.Timeval)(unsafe.Pointer(&raw[0]))
-
-	// This conversion maintains the usec precision.  Using the time
-	// package did not.
-	return (float64(tv.Sec) + (float64(tv.Usec) / float64(1000*1000))), nil
 }
 
 func (b bsdSysctl) getCLong() (float64, error) {

@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build (freebsd || dragonfly || (openbsd && !amd64) || netbsd || darwin) && !noboottime
-// +build freebsd dragonfly openbsd,!amd64 netbsd darwin
+//go:build (freebsd || dragonfly || openbsd || netbsd || darwin) && !noboottime
+// +build freebsd dragonfly openbsd netbsd darwin
 // +build !noboottime
 
 package collector
@@ -20,11 +20,11 @@ package collector
 import (
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 )
 
 type bootTimeCollector struct {
-	boottime bsdSysctl
-	logger   log.Logger
+	logger log.Logger
 }
 
 func init() {
@@ -34,27 +34,25 @@ func init() {
 // newBootTimeCollector returns a new Collector exposing system boot time on BSD systems.
 func newBootTimeCollector(logger log.Logger) (Collector, error) {
 	return &bootTimeCollector{
-		boottime: bsdSysctl{
-			name:        "boot_time_seconds",
-			description: "Unix time of last boot, including microseconds.",
-			mib:         "kern.boottime",
-			dataType:    bsdSysctlTypeStructTimeval,
-		},
 		logger: logger,
 	}, nil
 }
 
 // Update pushes boot time onto ch
 func (c *bootTimeCollector) Update(ch chan<- prometheus.Metric) error {
-	v, err := c.boottime.Value()
+	tv, err := unix.SysctlTimeval("kern.boottime")
 	if err != nil {
 		return err
 	}
 
+	// This conversion maintains the usec precision.  Using the time
+	// package did not.
+	v := float64(tv.Sec) + (float64(tv.Usec) / float64(1000*1000))
+
 	ch <- prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", c.boottime.name),
-			c.boottime.description,
+			prometheus.BuildFQName(namespace, "", "boot_time_seconds"),
+			"Unix time of last boot, including microseconds.",
 			nil, nil,
 		), prometheus.GaugeValue, v)
 
