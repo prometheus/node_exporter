@@ -11,7 +11,7 @@ in Go with pluggable metric collectors.
 
 The [Windows exporter](https://github.com/prometheus-community/windows_exporter) is recommended for Windows users.
 To expose NVIDIA GPU metrics, [prometheus-dcgm
-](https://github.com/NVIDIA/gpu-monitoring-tools#dcgm-exporter)
+](https://github.com/NVIDIA/dcgm-exporter)
 can be used.
 
 ## Installation and Usage
