@@ -245,8 +245,8 @@ github.com/prometheus/procfs v0.6.0/go.mod h1:cz+aTbrPOrUb4q7XlbU9ygM+/jj0fzG6c1
 github.com/prometheus/procfs v0.7.4-0.20211011103944-1a7a2bd3279f h1:ncXqc93eJV1Ncr3f6GA3MrIDNkNHvcPonRC2QgZaVkQ=
 github.com/prometheus/procfs v0.7.4-0.20211011103944-1a7a2bd3279f/go.mod h1:cz+aTbrPOrUb4q7XlbU9ygM+/jj0fzG6c1xBZuNvfVA=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-github.com/safchain/ethtool v0.0.0-20211027131506-00502cff1260 h1:okHnQYsz4hBxXvOi1x4dhnHgcL8JMCyyBPrsIfJBE58=
-github.com/safchain/ethtool v0.0.0-20211027131506-00502cff1260/go.mod h1:WkKB1DnNtvsMlDmQ50sgwowDJV/hGbJSOvJoEXs1AJQ=
+github.com/safchain/ethtool v0.1.0 h1:SsRnt87qssm3RltLJze6kM+4fs32twq6mZEcBxbDMVg=
+github.com/safchain/ethtool v0.1.0/go.mod h1:WkKB1DnNtvsMlDmQ50sgwowDJV/hGbJSOvJoEXs1AJQ=
 github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 h1:GfSdC6wKfTGcgCS7BtzF5694Amne1pGCSTY252WhlEY=
 github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973/go.mod h1:G81aIFAMS9ECrwBYR9YxhlPjWgrItd+Kje78O6+uqm8=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
