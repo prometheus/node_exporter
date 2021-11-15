@@ -385,19 +385,39 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
+		// Sanitizing the metric names can lead to duplicate metric names. Therefore check for clashes beforehand.
+		metricFQNames := make(map[string]string)
+		for metric := range stats {
+			if !c.metricsPattern.MatchString(metric) {
+				continue
+			}
+			metricFQName := buildEthtoolFQName(metric)
+			existingMetric, exists := metricFQNames[metricFQName]
+			if exists {
+				level.Debug(c.logger).Log("msg", "dropping duplicate metric name", "device", device,
+					"metricFQName", metricFQName, "metric1", existingMetric, "metric2", metric)
+				// Keep the metric as "deleted" in the dict in case there are 3 duplicates.
+				metricFQNames[metricFQName] = ""
+			} else {
+				metricFQNames[metricFQName] = metric
+			}
+		}
+
 		// Sort metric names so that the test fixtures will match up
-		keys := make([]string, 0, len(stats))
-		for k := range stats {
+		keys := make([]string, 0, len(metricFQNames))
+		for k := range metricFQNames {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
 
-		for _, metric := range keys {
-			if !c.metricsPattern.MatchString(metric) {
+		for _, metricFQName := range keys {
+			metric := metricFQNames[metricFQName]
+			if metric == "" {
+				// Skip the "deleted" duplicate metrics
 				continue
 			}
+
 			val := stats[metric]
-			metricFQName := buildEthtoolFQName(metric)
 
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
 			entry, exists := c.entries[metric]
