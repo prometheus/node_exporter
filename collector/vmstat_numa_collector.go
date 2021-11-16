@@ -29,10 +29,15 @@ import (
 
 const vmStatNumaSubsystem = "vmstat_numa"
 
+type aggregatedMetricPair struct {
+	baseMetric, label string
+}
+
 type vmstatNumaCollector struct {
-	metricDescs map[string]*prometheus.Desc
-	logger      log.Logger
-	fs          sysfs.FS
+	metricDescs         map[string]*prometheus.Desc
+	aggregatedMetricMap map[string]aggregatedMetricPair
+	logger              log.Logger
+	fs                  sysfs.FS
 }
 
 func init() {
@@ -47,14 +52,14 @@ func NewVmstatNumaCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 	return &vmstatNumaCollector{
-		metricDescs: createMetricDescriptions(),
-		logger:      logger,
-		fs:          fs,
+		metricDescs:         createMetricDescriptions(),
+		aggregatedMetricMap: createAggregatedMetricMap(),
+		logger:              logger,
+		fs:                  fs,
 	}, nil
 }
 
 func (c *vmstatNumaCollector) Update(ch chan<- prometheus.Metric) error {
-
 	metrics, err := c.fs.VMStatNUMA()
 	if err != nil {
 		return fmt.Errorf("couldn't get NUMA vmstat: %w", err)
@@ -63,68 +68,73 @@ func (c *vmstatNumaCollector) Update(ch chan<- prometheus.Metric) error {
 		metricStruct := reflect.ValueOf(v)
 		typeOfMetricStruct := metricStruct.Type()
 		for i := 0; i < metricStruct.NumField(); i++ {
-			desc := c.metricDescs[typeOfMetricStruct.Field(i).Name]
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(metricStruct.Field(i).Uint()),
-				strconv.Itoa(k))
+			if aggregatedMetric, ok := c.aggregatedMetricMap[typeOfMetricStruct.Field(i).Name]; ok {
+				desc := c.metricDescs[aggregatedMetric.baseMetric]
+				ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(metricStruct.Field(i).Uint()),
+					strconv.Itoa(k), aggregatedMetric.label)
+			} else {
+				desc := c.metricDescs[typeOfMetricStruct.Field(i).Name]
+				ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(metricStruct.Field(i).Uint()),
+					strconv.Itoa(k))
+
+			}
 		}
 
 	}
 	return nil
 }
 
+func createAggregatedMetricMap() map[string]aggregatedMetricPair {
+	return map[string]aggregatedMetricPair{
+		"NrFreePages":                aggregatedMetricPair{"NrPages", "free"},
+		"NrZoneInactiveAnon":         aggregatedMetricPair{"NrPages", "zone_inactive_anon"},
+		"NrZoneActiveAnon":           aggregatedMetricPair{"NrPages", "zone_active_anon"},
+		"NrZoneInactiveFile":         aggregatedMetricPair{"NrPages", "zone_inactive_file"},
+		"NrZoneActiveFile":           aggregatedMetricPair{"NrPages", "zone_active_file"},
+		"NrZoneUnevictable":          aggregatedMetricPair{"NrPages", "zone_unevictable"},
+		"NrZoneWritePending":         aggregatedMetricPair{"NrPages", "zone_write_pending"},
+		"NrMlock":                    aggregatedMetricPair{"NrPages", "mlock"},
+		"NrPageTablePages":           aggregatedMetricPair{"NrPages", "page_table_pages"},
+		"NrBounce":                   aggregatedMetricPair{"NrPages", "bounce"},
+		"NrZspages":                  aggregatedMetricPair{"NrPages", "zspages"},
+		"NrFreeCma":                  aggregatedMetricPair{"NrPages", "free_cma"},
+		"NrInactiveAnon":             aggregatedMetricPair{"NrPages", "inactive_anon"},
+		"NrActiveAnon":               aggregatedMetricPair{"NrPages", "active_anon"},
+		"NrInactiveFile":             aggregatedMetricPair{"NrPages", "inactive_file"},
+		"NrActiveFile":               aggregatedMetricPair{"NrPages", "active_file"},
+		"NrUnevictable":              aggregatedMetricPair{"NrPages", "unevictable"},
+		"NrSlabReclaimable":          aggregatedMetricPair{"NrPages", "slab_reclaimable"},
+		"NrSlabUnreclaimable":        aggregatedMetricPair{"NrPages", "slab_unreclaimable"},
+		"NrIsolatedAnon":             aggregatedMetricPair{"NrPages", "isolated_anon"},
+		"NrIsolatedFile":             aggregatedMetricPair{"NrPages", "isolated_file"},
+		"NrAnonPages":                aggregatedMetricPair{"NrPages", "anon_pages"},
+		"NrMapped":                   aggregatedMetricPair{"NrPages", "mapped"},
+		"NrFilePages":                aggregatedMetricPair{"NrPages", "file_pages"},
+		"NrDirty":                    aggregatedMetricPair{"NrPages", "dirty"},
+		"NrWriteback":                aggregatedMetricPair{"NrPages", "writeback"},
+		"NrWritebackTemp":            aggregatedMetricPair{"NrPages", "writeback_temp"},
+		"NrShmem":                    aggregatedMetricPair{"NrPages", "shmem"},
+		"NrShmemHugepages":           aggregatedMetricPair{"NrPages", "shmem_hugepages"},
+		"NrShmemPmdmapped":           aggregatedMetricPair{"NrPages", "shmem_pmdmapped"},
+		"NrFilePmdmapped":            aggregatedMetricPair{"NrPages", "file_pmdmapped"},
+		"NrFileHugepages":            aggregatedMetricPair{"NrPages", "file_hugepages"},
+		"NrAnonTransparentHugepages": aggregatedMetricPair{"NrPages", "anon_transparent_hugepages"},
+		"NrKernelMiscReclaimable":    aggregatedMetricPair{"NrPages", "kernel_misc_reclaimable"},
+		"NrFollPinAcquired":          aggregatedMetricPair{"NrPages", "foll_pin_acquired"},
+		"NrFollPinReleased":          aggregatedMetricPair{"NrPages", "foll_pin_released"},
+	}
+
+}
+
 func createMetricDescriptions() map[string]*prometheus.Desc {
 	return map[string]*prometheus.Desc{
-		"NrFreePages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_free_pages"),
-			"Number of free pages",
-			[]string{"node"}, nil),
-		"NrZoneInactiveAnon": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_zone_inactive_anon"),
-			"Number of anonymous pages recently less used in NUMA node",
-			[]string{"node"}, nil),
-		"NrZoneActiveAnon": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_zone_active_anon"),
-			"Number of anonymous pages recently more used in NUMA node",
-			[]string{"node"}, nil),
-		"NrZoneInactiveFile": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_zone_inactive_file"),
-			"Number of inactive pages with file-backing in NUMA node",
-			[]string{"node"}, nil),
-		"NrZoneActiveFile": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_zone_active_file"),
-			"Number of active pages with file-backing in NUMA node",
-			[]string{"node"}, nil),
-		"NrZoneUnevictable": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_zone_unevictable"),
-			"Number of unevictable pages in NUMA node",
-			[]string{"node"}, nil),
-		"NrZoneWritePending": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_zone_write_pending"),
-			"Count of dirty, writeback and unstable pages in NUMA node",
-			[]string{"node"}, nil),
-		"NrMlock": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_mlock"),
-			"mlock()ed pages found and moved off LRU",
-			[]string{"node"}, nil),
-		"NrPageTablePages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_page_table_pages"),
-			"Number of pages allocated to page tables",
-			[]string{"node"}, nil),
+		"NrPages": prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_pages"),
+			"Number of pages",
+			[]string{"node", "type"}, nil),
 		"NrKernelStack": prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_kernel_stack"),
 			"Amount of memory allocated to kernel stacks",
-			[]string{"node"}, nil),
-		"NrBounce": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_bounce"),
-			"Number of bounce pages",
-			[]string{"node"}, nil),
-		"NrZspages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_zspages"),
-			"Number of pages allocated in zsmalloc",
-			[]string{"node"}, nil),
-		"NrFreeCma": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_free_cma"),
-			"Number of free cma pages",
 			[]string{"node"}, nil),
 		"NumaHit": prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "numa_hit"),
@@ -150,42 +160,6 @@ func createMetricDescriptions() map[string]*prometheus.Desc {
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "numa_other"),
 			"Allocation from other node",
 			[]string{"node"}, nil),
-		"NrInactiveAnon": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_inactive_anon"),
-			"Number of anonymous pages recently less used",
-			[]string{"node"}, nil),
-		"NrActiveAnon": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_active_anon"),
-			"Number of anonymous pages recently more used",
-			[]string{"node"}, nil),
-		"NrInactiveFile": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_inactive_file"),
-			"Number of inactive pages with file-backing",
-			[]string{"node"}, nil),
-		"NrActiveFile": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_active_file"),
-			"Number of active pages with file-backing",
-			[]string{"node"}, nil),
-		"NrUnevictable": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_unevictable"),
-			"Number of unevictable pages",
-			[]string{"node"}, nil),
-		"NrSlabReclaimable": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_slab_reclaimable"),
-			"Number of reclaimable slab pages",
-			[]string{"node"}, nil),
-		"NrSlabUnreclaimable": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_slab_unreclaimable"),
-			"Number of unreclaimable slab pages",
-			[]string{"node"}, nil),
-		"NrIsolatedAnon": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_isolated_anon"),
-			"Temporary isolated pages from anon lru",
-			[]string{"node"}, nil),
-		"NrIsolatedFile": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_isolated_file"),
-			"Temporary isolated pages from file lru",
-			[]string{"node"}, nil),
 		"WorkingsetNodes": prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "workingset_nodes"),
 			"Number of nodes in working set",
@@ -206,54 +180,6 @@ func createMetricDescriptions() map[string]*prometheus.Desc {
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "workingset_nodereclaim"),
 			"Number of times a shadow node has been reclaimed",
 			[]string{"node"}, nil),
-		"NrAnonPages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_anon_pages"),
-			"Number of anonymous pages currently used by the system",
-			[]string{"node"}, nil),
-		"NrMapped": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_mapped"),
-			"Number of mapped pages",
-			[]string{"node"}, nil),
-		"NrFilePages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_file_pages"),
-			"Number of file pages",
-			[]string{"node"}, nil),
-		"NrDirty": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_dirty"),
-			"Number of dirty pages",
-			[]string{"node"}, nil),
-		"NrWriteback": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_writeback"),
-			"Number of writeback pages",
-			[]string{"node"}, nil),
-		"NrWritebackTemp": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_writeback_temp"),
-			"Number of writeback pages using temporary buffers",
-			[]string{"node"}, nil),
-		"NrShmem": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_shmem"),
-			"Number of shmem pages (included tmpfs/GEM pages)",
-			[]string{"node"}, nil),
-		"NrShmemHugepages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_shmem_hugepages"),
-			"Number of shmem hugepages",
-			[]string{"node"}, nil),
-		"NrShmemPmdmapped": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_shmem_pmdmapped"),
-			"Number of pmdmapped shmem pages",
-			[]string{"node"}, nil),
-		"NrFilePmdmapped": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_file_pmdmapped"),
-			"Number of pmdmapped pages with file-backing",
-			[]string{"node"}, nil),
-		"NrFileHugepages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_file_hugepages"),
-			"Number of hugepages with file-backing",
-			[]string{"node"}, nil),
-		"NrAnonTransparentHugepages": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_anon_transparent_hugepages"),
-			"Number of anonymous transparent huge pages currently used by the system",
-			[]string{"node"}, nil),
 		"NrVmscanWrite": prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_vmscan_write"),
 			"Number of writebacks of dirty pages during scan of LRU",
@@ -269,10 +195,6 @@ func createMetricDescriptions() map[string]*prometheus.Desc {
 		"NrWritten": prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_written"),
 			"Page writings since bootup",
-			[]string{"node"}, nil),
-		"NrKernelMiscReclaimable": prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_kernel_misc_reclaimable"),
-			"Number of reclaimable non-slab kernel pages",
 			[]string{"node"}, nil),
 		"NrFollPinAcquired": prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, vmStatNumaSubsystem, "nr_foll_pin_acquired"),

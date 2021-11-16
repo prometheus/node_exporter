@@ -3150,151 +3150,126 @@ node_time_clocksource_current_info{clocksource="tsc",device="0"} 1
 # TYPE node_udp_queues gauge
 node_udp_queues{ip="v4",queue="rx"} 0
 node_udp_queues{ip="v4",queue="tx"} 21
-# HELP node_vmstat_numa_nr_active_anon Number of anonymous pages recently more used
-# TYPE node_vmstat_numa_nr_active_anon gauge
-node_vmstat_numa_nr_active_anon{node="0"} 0
-node_vmstat_numa_nr_active_anon{node="1"} 0
-node_vmstat_numa_nr_active_anon{node="2"} 0
-# HELP node_vmstat_numa_nr_active_file Number of active pages with file-backing
-# TYPE node_vmstat_numa_nr_active_file gauge
-node_vmstat_numa_nr_active_file{node="0"} 0
-node_vmstat_numa_nr_active_file{node="1"} 0
-node_vmstat_numa_nr_active_file{node="2"} 0
-# HELP node_vmstat_numa_nr_anon_pages Number of anonymous pages currently used by the system
-# TYPE node_vmstat_numa_nr_anon_pages gauge
-node_vmstat_numa_nr_anon_pages{node="0"} 0
-node_vmstat_numa_nr_anon_pages{node="1"} 0
-node_vmstat_numa_nr_anon_pages{node="2"} 0
-# HELP node_vmstat_numa_nr_anon_transparent_hugepages Number of anonymous transparent huge pages currently used by the system
-# TYPE node_vmstat_numa_nr_anon_transparent_hugepages gauge
-node_vmstat_numa_nr_anon_transparent_hugepages{node="0"} 0
-node_vmstat_numa_nr_anon_transparent_hugepages{node="1"} 0
-node_vmstat_numa_nr_anon_transparent_hugepages{node="2"} 0
-# HELP node_vmstat_numa_nr_bounce Number of bounce pages
-# TYPE node_vmstat_numa_nr_bounce gauge
-node_vmstat_numa_nr_bounce{node="0"} 0
-node_vmstat_numa_nr_bounce{node="1"} 0
-node_vmstat_numa_nr_bounce{node="2"} 0
 # HELP node_vmstat_numa_nr_dirtied Page dirtyings since bootup
 # TYPE node_vmstat_numa_nr_dirtied gauge
 node_vmstat_numa_nr_dirtied{node="0"} 0
 node_vmstat_numa_nr_dirtied{node="1"} 0
 node_vmstat_numa_nr_dirtied{node="2"} 0
-# HELP node_vmstat_numa_nr_dirty Number of dirty pages
-# TYPE node_vmstat_numa_nr_dirty gauge
-node_vmstat_numa_nr_dirty{node="0"} 0
-node_vmstat_numa_nr_dirty{node="1"} 0
-node_vmstat_numa_nr_dirty{node="2"} 0
-# HELP node_vmstat_numa_nr_file_hugepages Number of hugepages with file-backing
-# TYPE node_vmstat_numa_nr_file_hugepages gauge
-node_vmstat_numa_nr_file_hugepages{node="0"} 0
-node_vmstat_numa_nr_file_hugepages{node="1"} 0
-node_vmstat_numa_nr_file_hugepages{node="2"} 0
-# HELP node_vmstat_numa_nr_file_pages Number of file pages
-# TYPE node_vmstat_numa_nr_file_pages gauge
-node_vmstat_numa_nr_file_pages{node="0"} 0
-node_vmstat_numa_nr_file_pages{node="1"} 0
-node_vmstat_numa_nr_file_pages{node="2"} 0
-# HELP node_vmstat_numa_nr_file_pmdmapped Number of pmdmapped pages with file-backing
-# TYPE node_vmstat_numa_nr_file_pmdmapped gauge
-node_vmstat_numa_nr_file_pmdmapped{node="0"} 0
-node_vmstat_numa_nr_file_pmdmapped{node="1"} 0
-node_vmstat_numa_nr_file_pmdmapped{node="2"} 0
-# HELP node_vmstat_numa_nr_foll_pin_acquired Number of pages allocated via: pin_user_page(), gup flag: FOLL_PIN
-# TYPE node_vmstat_numa_nr_foll_pin_acquired gauge
-node_vmstat_numa_nr_foll_pin_acquired{node="0"} 0
-node_vmstat_numa_nr_foll_pin_acquired{node="1"} 0
-node_vmstat_numa_nr_foll_pin_acquired{node="2"} 0
-# HELP node_vmstat_numa_nr_foll_pin_released Number of pages returned via unpin_user_page()
-# TYPE node_vmstat_numa_nr_foll_pin_released gauge
-node_vmstat_numa_nr_foll_pin_released{node="0"} 0
-node_vmstat_numa_nr_foll_pin_released{node="1"} 0
-node_vmstat_numa_nr_foll_pin_released{node="2"} 0
-# HELP node_vmstat_numa_nr_free_cma Number of free cma pages
-# TYPE node_vmstat_numa_nr_free_cma gauge
-node_vmstat_numa_nr_free_cma{node="0"} 0
-node_vmstat_numa_nr_free_cma{node="1"} 0
-node_vmstat_numa_nr_free_cma{node="2"} 0
-# HELP node_vmstat_numa_nr_free_pages Number of free pages
-# TYPE node_vmstat_numa_nr_free_pages gauge
-node_vmstat_numa_nr_free_pages{node="0"} 1
-node_vmstat_numa_nr_free_pages{node="1"} 1
-node_vmstat_numa_nr_free_pages{node="2"} 1
-# HELP node_vmstat_numa_nr_inactive_anon Number of anonymous pages recently less used
-# TYPE node_vmstat_numa_nr_inactive_anon gauge
-node_vmstat_numa_nr_inactive_anon{node="0"} 0
-node_vmstat_numa_nr_inactive_anon{node="1"} 0
-node_vmstat_numa_nr_inactive_anon{node="2"} 0
-# HELP node_vmstat_numa_nr_inactive_file Number of inactive pages with file-backing
-# TYPE node_vmstat_numa_nr_inactive_file gauge
-node_vmstat_numa_nr_inactive_file{node="0"} 0
-node_vmstat_numa_nr_inactive_file{node="1"} 0
-node_vmstat_numa_nr_inactive_file{node="2"} 0
-# HELP node_vmstat_numa_nr_isolated_anon Temporary isolated pages from anon lru
-# TYPE node_vmstat_numa_nr_isolated_anon gauge
-node_vmstat_numa_nr_isolated_anon{node="0"} 0
-node_vmstat_numa_nr_isolated_anon{node="1"} 0
-node_vmstat_numa_nr_isolated_anon{node="2"} 0
-# HELP node_vmstat_numa_nr_isolated_file Temporary isolated pages from file lru
-# TYPE node_vmstat_numa_nr_isolated_file gauge
-node_vmstat_numa_nr_isolated_file{node="0"} 0
-node_vmstat_numa_nr_isolated_file{node="1"} 0
-node_vmstat_numa_nr_isolated_file{node="2"} 0
-# HELP node_vmstat_numa_nr_kernel_misc_reclaimable Number of reclaimable non-slab kernel pages
-# TYPE node_vmstat_numa_nr_kernel_misc_reclaimable gauge
-node_vmstat_numa_nr_kernel_misc_reclaimable{node="0"} 0
-node_vmstat_numa_nr_kernel_misc_reclaimable{node="1"} 0
-node_vmstat_numa_nr_kernel_misc_reclaimable{node="2"} 0
 # HELP node_vmstat_numa_nr_kernel_stack Amount of memory allocated to kernel stacks
 # TYPE node_vmstat_numa_nr_kernel_stack gauge
 node_vmstat_numa_nr_kernel_stack{node="0"} 0
 node_vmstat_numa_nr_kernel_stack{node="1"} 0
 node_vmstat_numa_nr_kernel_stack{node="2"} 0
-# HELP node_vmstat_numa_nr_mapped Number of mapped pages
-# TYPE node_vmstat_numa_nr_mapped gauge
-node_vmstat_numa_nr_mapped{node="0"} 0
-node_vmstat_numa_nr_mapped{node="1"} 0
-node_vmstat_numa_nr_mapped{node="2"} 0
-# HELP node_vmstat_numa_nr_mlock mlock()ed pages found and moved off LRU
-# TYPE node_vmstat_numa_nr_mlock gauge
-node_vmstat_numa_nr_mlock{node="0"} 0
-node_vmstat_numa_nr_mlock{node="1"} 0
-node_vmstat_numa_nr_mlock{node="2"} 0
-# HELP node_vmstat_numa_nr_page_table_pages Number of pages allocated to page tables
-# TYPE node_vmstat_numa_nr_page_table_pages gauge
-node_vmstat_numa_nr_page_table_pages{node="0"} 0
-node_vmstat_numa_nr_page_table_pages{node="1"} 0
-node_vmstat_numa_nr_page_table_pages{node="2"} 0
-# HELP node_vmstat_numa_nr_shmem Number of shmem pages (included tmpfs/GEM pages)
-# TYPE node_vmstat_numa_nr_shmem gauge
-node_vmstat_numa_nr_shmem{node="0"} 0
-node_vmstat_numa_nr_shmem{node="1"} 0
-node_vmstat_numa_nr_shmem{node="2"} 0
-# HELP node_vmstat_numa_nr_shmem_hugepages Number of shmem hugepages
-# TYPE node_vmstat_numa_nr_shmem_hugepages gauge
-node_vmstat_numa_nr_shmem_hugepages{node="0"} 0
-node_vmstat_numa_nr_shmem_hugepages{node="1"} 0
-node_vmstat_numa_nr_shmem_hugepages{node="2"} 0
-# HELP node_vmstat_numa_nr_shmem_pmdmapped Number of pmdmapped shmem pages
-# TYPE node_vmstat_numa_nr_shmem_pmdmapped gauge
-node_vmstat_numa_nr_shmem_pmdmapped{node="0"} 0
-node_vmstat_numa_nr_shmem_pmdmapped{node="1"} 0
-node_vmstat_numa_nr_shmem_pmdmapped{node="2"} 0
-# HELP node_vmstat_numa_nr_slab_reclaimable Number of reclaimable slab pages
-# TYPE node_vmstat_numa_nr_slab_reclaimable gauge
-node_vmstat_numa_nr_slab_reclaimable{node="0"} 0
-node_vmstat_numa_nr_slab_reclaimable{node="1"} 0
-node_vmstat_numa_nr_slab_reclaimable{node="2"} 0
-# HELP node_vmstat_numa_nr_slab_unreclaimable Number of unreclaimable slab pages
-# TYPE node_vmstat_numa_nr_slab_unreclaimable gauge
-node_vmstat_numa_nr_slab_unreclaimable{node="0"} 0
-node_vmstat_numa_nr_slab_unreclaimable{node="1"} 0
-node_vmstat_numa_nr_slab_unreclaimable{node="2"} 0
-# HELP node_vmstat_numa_nr_unevictable Number of unevictable pages
-# TYPE node_vmstat_numa_nr_unevictable gauge
-node_vmstat_numa_nr_unevictable{node="0"} 0
-node_vmstat_numa_nr_unevictable{node="1"} 0
-node_vmstat_numa_nr_unevictable{node="2"} 0
+# HELP node_vmstat_numa_nr_pages Number of pages
+# TYPE node_vmstat_numa_nr_pages gauge
+node_vmstat_numa_nr_pages{node="0",type="active_anon"} 0
+node_vmstat_numa_nr_pages{node="0",type="active_file"} 0
+node_vmstat_numa_nr_pages{node="0",type="anon_pages"} 0
+node_vmstat_numa_nr_pages{node="0",type="anon_transparent_hugepages"} 0
+node_vmstat_numa_nr_pages{node="0",type="bounce"} 0
+node_vmstat_numa_nr_pages{node="0",type="dirty"} 0
+node_vmstat_numa_nr_pages{node="0",type="file_hugepages"} 0
+node_vmstat_numa_nr_pages{node="0",type="file_pages"} 0
+node_vmstat_numa_nr_pages{node="0",type="file_pmdmapped"} 0
+node_vmstat_numa_nr_pages{node="0",type="foll_pin_acquired"} 0
+node_vmstat_numa_nr_pages{node="0",type="foll_pin_released"} 0
+node_vmstat_numa_nr_pages{node="0",type="free"} 1
+node_vmstat_numa_nr_pages{node="0",type="free_cma"} 0
+node_vmstat_numa_nr_pages{node="0",type="inactive_anon"} 0
+node_vmstat_numa_nr_pages{node="0",type="inactive_file"} 0
+node_vmstat_numa_nr_pages{node="0",type="isolated_anon"} 0
+node_vmstat_numa_nr_pages{node="0",type="isolated_file"} 0
+node_vmstat_numa_nr_pages{node="0",type="kernel_misc_reclaimable"} 0
+node_vmstat_numa_nr_pages{node="0",type="mapped"} 0
+node_vmstat_numa_nr_pages{node="0",type="mlock"} 0
+node_vmstat_numa_nr_pages{node="0",type="page_table_pages"} 0
+node_vmstat_numa_nr_pages{node="0",type="shmem"} 0
+node_vmstat_numa_nr_pages{node="0",type="shmem_hugepages"} 0
+node_vmstat_numa_nr_pages{node="0",type="shmem_pmdmapped"} 0
+node_vmstat_numa_nr_pages{node="0",type="slab_reclaimable"} 0
+node_vmstat_numa_nr_pages{node="0",type="slab_unreclaimable"} 0
+node_vmstat_numa_nr_pages{node="0",type="unevictable"} 0
+node_vmstat_numa_nr_pages{node="0",type="writeback"} 0
+node_vmstat_numa_nr_pages{node="0",type="writeback_temp"} 0
+node_vmstat_numa_nr_pages{node="0",type="zone_active_anon"} 3
+node_vmstat_numa_nr_pages{node="0",type="zone_active_file"} 5
+node_vmstat_numa_nr_pages{node="0",type="zone_inactive_anon"} 2
+node_vmstat_numa_nr_pages{node="0",type="zone_inactive_file"} 0
+node_vmstat_numa_nr_pages{node="0",type="zone_unevictable"} 6
+node_vmstat_numa_nr_pages{node="0",type="zone_write_pending"} 0
+node_vmstat_numa_nr_pages{node="0",type="zspages"} 0
+node_vmstat_numa_nr_pages{node="1",type="active_anon"} 0
+node_vmstat_numa_nr_pages{node="1",type="active_file"} 0
+node_vmstat_numa_nr_pages{node="1",type="anon_pages"} 0
+node_vmstat_numa_nr_pages{node="1",type="anon_transparent_hugepages"} 0
+node_vmstat_numa_nr_pages{node="1",type="bounce"} 0
+node_vmstat_numa_nr_pages{node="1",type="dirty"} 0
+node_vmstat_numa_nr_pages{node="1",type="file_hugepages"} 0
+node_vmstat_numa_nr_pages{node="1",type="file_pages"} 0
+node_vmstat_numa_nr_pages{node="1",type="file_pmdmapped"} 0
+node_vmstat_numa_nr_pages{node="1",type="foll_pin_acquired"} 0
+node_vmstat_numa_nr_pages{node="1",type="foll_pin_released"} 0
+node_vmstat_numa_nr_pages{node="1",type="free"} 1
+node_vmstat_numa_nr_pages{node="1",type="free_cma"} 0
+node_vmstat_numa_nr_pages{node="1",type="inactive_anon"} 0
+node_vmstat_numa_nr_pages{node="1",type="inactive_file"} 0
+node_vmstat_numa_nr_pages{node="1",type="isolated_anon"} 0
+node_vmstat_numa_nr_pages{node="1",type="isolated_file"} 0
+node_vmstat_numa_nr_pages{node="1",type="kernel_misc_reclaimable"} 0
+node_vmstat_numa_nr_pages{node="1",type="mapped"} 0
+node_vmstat_numa_nr_pages{node="1",type="mlock"} 0
+node_vmstat_numa_nr_pages{node="1",type="page_table_pages"} 0
+node_vmstat_numa_nr_pages{node="1",type="shmem"} 0
+node_vmstat_numa_nr_pages{node="1",type="shmem_hugepages"} 0
+node_vmstat_numa_nr_pages{node="1",type="shmem_pmdmapped"} 0
+node_vmstat_numa_nr_pages{node="1",type="slab_reclaimable"} 0
+node_vmstat_numa_nr_pages{node="1",type="slab_unreclaimable"} 0
+node_vmstat_numa_nr_pages{node="1",type="unevictable"} 0
+node_vmstat_numa_nr_pages{node="1",type="writeback"} 0
+node_vmstat_numa_nr_pages{node="1",type="writeback_temp"} 0
+node_vmstat_numa_nr_pages{node="1",type="zone_active_anon"} 3
+node_vmstat_numa_nr_pages{node="1",type="zone_active_file"} 5
+node_vmstat_numa_nr_pages{node="1",type="zone_inactive_anon"} 2
+node_vmstat_numa_nr_pages{node="1",type="zone_inactive_file"} 0
+node_vmstat_numa_nr_pages{node="1",type="zone_unevictable"} 6
+node_vmstat_numa_nr_pages{node="1",type="zone_write_pending"} 0
+node_vmstat_numa_nr_pages{node="1",type="zspages"} 0
+node_vmstat_numa_nr_pages{node="2",type="active_anon"} 0
+node_vmstat_numa_nr_pages{node="2",type="active_file"} 0
+node_vmstat_numa_nr_pages{node="2",type="anon_pages"} 0
+node_vmstat_numa_nr_pages{node="2",type="anon_transparent_hugepages"} 0
+node_vmstat_numa_nr_pages{node="2",type="bounce"} 0
+node_vmstat_numa_nr_pages{node="2",type="dirty"} 0
+node_vmstat_numa_nr_pages{node="2",type="file_hugepages"} 0
+node_vmstat_numa_nr_pages{node="2",type="file_pages"} 0
+node_vmstat_numa_nr_pages{node="2",type="file_pmdmapped"} 0
+node_vmstat_numa_nr_pages{node="2",type="foll_pin_acquired"} 0
+node_vmstat_numa_nr_pages{node="2",type="foll_pin_released"} 0
+node_vmstat_numa_nr_pages{node="2",type="free"} 1
+node_vmstat_numa_nr_pages{node="2",type="free_cma"} 0
+node_vmstat_numa_nr_pages{node="2",type="inactive_anon"} 0
+node_vmstat_numa_nr_pages{node="2",type="inactive_file"} 0
+node_vmstat_numa_nr_pages{node="2",type="isolated_anon"} 0
+node_vmstat_numa_nr_pages{node="2",type="isolated_file"} 0
+node_vmstat_numa_nr_pages{node="2",type="kernel_misc_reclaimable"} 0
+node_vmstat_numa_nr_pages{node="2",type="mapped"} 0
+node_vmstat_numa_nr_pages{node="2",type="mlock"} 0
+node_vmstat_numa_nr_pages{node="2",type="page_table_pages"} 0
+node_vmstat_numa_nr_pages{node="2",type="shmem"} 0
+node_vmstat_numa_nr_pages{node="2",type="shmem_hugepages"} 0
+node_vmstat_numa_nr_pages{node="2",type="shmem_pmdmapped"} 0
+node_vmstat_numa_nr_pages{node="2",type="slab_reclaimable"} 0
+node_vmstat_numa_nr_pages{node="2",type="slab_unreclaimable"} 0
+node_vmstat_numa_nr_pages{node="2",type="unevictable"} 0
+node_vmstat_numa_nr_pages{node="2",type="writeback"} 0
+node_vmstat_numa_nr_pages{node="2",type="writeback_temp"} 0
+node_vmstat_numa_nr_pages{node="2",type="zone_active_anon"} 3
+node_vmstat_numa_nr_pages{node="2",type="zone_active_file"} 5
+node_vmstat_numa_nr_pages{node="2",type="zone_inactive_anon"} 2
+node_vmstat_numa_nr_pages{node="2",type="zone_inactive_file"} 0
+node_vmstat_numa_nr_pages{node="2",type="zone_unevictable"} 6
+node_vmstat_numa_nr_pages{node="2",type="zone_write_pending"} 0
+node_vmstat_numa_nr_pages{node="2",type="zspages"} 0
 # HELP node_vmstat_numa_nr_vmscan_immediate_reclaim Prioritise for reclaim when writeback ends
 # TYPE node_vmstat_numa_nr_vmscan_immediate_reclaim gauge
 node_vmstat_numa_nr_vmscan_immediate_reclaim{node="0"} 0
@@ -3305,56 +3280,11 @@ node_vmstat_numa_nr_vmscan_immediate_reclaim{node="2"} 0
 node_vmstat_numa_nr_vmscan_write{node="0"} 0
 node_vmstat_numa_nr_vmscan_write{node="1"} 0
 node_vmstat_numa_nr_vmscan_write{node="2"} 0
-# HELP node_vmstat_numa_nr_writeback Number of writeback pages
-# TYPE node_vmstat_numa_nr_writeback gauge
-node_vmstat_numa_nr_writeback{node="0"} 0
-node_vmstat_numa_nr_writeback{node="1"} 0
-node_vmstat_numa_nr_writeback{node="2"} 0
-# HELP node_vmstat_numa_nr_writeback_temp Number of writeback pages using temporary buffers
-# TYPE node_vmstat_numa_nr_writeback_temp gauge
-node_vmstat_numa_nr_writeback_temp{node="0"} 0
-node_vmstat_numa_nr_writeback_temp{node="1"} 0
-node_vmstat_numa_nr_writeback_temp{node="2"} 0
 # HELP node_vmstat_numa_nr_written Page writings since bootup
 # TYPE node_vmstat_numa_nr_written gauge
 node_vmstat_numa_nr_written{node="0"} 0
 node_vmstat_numa_nr_written{node="1"} 0
 node_vmstat_numa_nr_written{node="2"} 0
-# HELP node_vmstat_numa_nr_zone_active_anon Number of anonymous pages recently more used in NUMA node
-# TYPE node_vmstat_numa_nr_zone_active_anon gauge
-node_vmstat_numa_nr_zone_active_anon{node="0"} 3
-node_vmstat_numa_nr_zone_active_anon{node="1"} 3
-node_vmstat_numa_nr_zone_active_anon{node="2"} 3
-# HELP node_vmstat_numa_nr_zone_active_file Number of active pages with file-backing in NUMA node
-# TYPE node_vmstat_numa_nr_zone_active_file gauge
-node_vmstat_numa_nr_zone_active_file{node="0"} 5
-node_vmstat_numa_nr_zone_active_file{node="1"} 5
-node_vmstat_numa_nr_zone_active_file{node="2"} 5
-# HELP node_vmstat_numa_nr_zone_inactive_anon Number of anonymous pages recently less used in NUMA node
-# TYPE node_vmstat_numa_nr_zone_inactive_anon gauge
-node_vmstat_numa_nr_zone_inactive_anon{node="0"} 2
-node_vmstat_numa_nr_zone_inactive_anon{node="1"} 2
-node_vmstat_numa_nr_zone_inactive_anon{node="2"} 2
-# HELP node_vmstat_numa_nr_zone_inactive_file Number of inactive pages with file-backing in NUMA node
-# TYPE node_vmstat_numa_nr_zone_inactive_file gauge
-node_vmstat_numa_nr_zone_inactive_file{node="0"} 0
-node_vmstat_numa_nr_zone_inactive_file{node="1"} 0
-node_vmstat_numa_nr_zone_inactive_file{node="2"} 0
-# HELP node_vmstat_numa_nr_zone_unevictable Number of unevictable pages in NUMA node
-# TYPE node_vmstat_numa_nr_zone_unevictable gauge
-node_vmstat_numa_nr_zone_unevictable{node="0"} 6
-node_vmstat_numa_nr_zone_unevictable{node="1"} 6
-node_vmstat_numa_nr_zone_unevictable{node="2"} 6
-# HELP node_vmstat_numa_nr_zone_write_pending Count of dirty, writeback and unstable pages in NUMA node
-# TYPE node_vmstat_numa_nr_zone_write_pending gauge
-node_vmstat_numa_nr_zone_write_pending{node="0"} 0
-node_vmstat_numa_nr_zone_write_pending{node="1"} 0
-node_vmstat_numa_nr_zone_write_pending{node="2"} 0
-# HELP node_vmstat_numa_nr_zspages Number of pages allocated in zsmalloc
-# TYPE node_vmstat_numa_nr_zspages gauge
-node_vmstat_numa_nr_zspages{node="0"} 0
-node_vmstat_numa_nr_zspages{node="1"} 0
-node_vmstat_numa_nr_zspages{node="2"} 0
 # HELP node_vmstat_numa_numa_foreign Was intended here, hit elsewhere
 # TYPE node_vmstat_numa_numa_foreign gauge
 node_vmstat_numa_numa_foreign{node="0"} 0
