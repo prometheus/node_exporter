@@ -30,7 +30,7 @@ type lnstatCollector struct {
 }
 
 func init() {
-	registerCollector("lnstat", defaultEnabled, NewLnstatCollector)
+	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
 func NewLnstatCollector(logger log.Logger) (Collector, error) {

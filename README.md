@@ -106,7 +106,6 @@ filesystem | Exposes filesystem statistics, such as disk space used. | Darwin, D
 hwmon | Expose hardware monitoring and sensor data from `/sys/class/hwmon/`. | Linux
 infiniband | Exposes network statistics specific to InfiniBand and Intel OmniPath configurations. | Linux
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
-lnstat | Exposes stats from `/proc/net/stat/`. | Linux
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
 meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
@@ -199,6 +198,7 @@ drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) |
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
+lnstat | Exposes stats from `/proc/net/stat/`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
