@@ -5,10 +5,35 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
-  [CHANGE] Add TCPTimeouts to netstat default filter #2189
+## 1.3.0 / 2021-10-20
+
+NOTE: In order to support globs in the textfile collector path, filenames exposed by
+      `node_textfile_mtime_seconds` now contain the full path name.
+
+* [CHANGE] Add path label to rapl collector #2146
+* [CHANGE] Exclude filesystems under /run/credentials #2157
+* [CHANGE] Add TCPTimeouts to netstat default filter #2189
+* [FEATURE] Add lnstat collector for metrics from /proc/net/stat/ #1771
+* [FEATURE] Add darwin powersupply collector #1777
+* [FEATURE] Add support for monitoring GPUs on Linux #1998
+* [FEATURE] Add Darwin thermal collector #2032
+* [FEATURE] Add os release collector #2094
+* [FEATURE] Add netdev.address-info collector #2105
+* [FEATURE] Add clocksource metrics to time collector #2197
+* [ENHANCEMENT] Support glob textfile collector directories #1985
+* [ENHANCEMENT] ethtool: Expose node_ethtool_info metric #2080
+* [ENHANCEMENT] Use include/exclude flags for ethtool filtering #2165
 * [ENHANCEMENT] Add flag to disable guest CPU metrics #2123
-* [ENHANCEMENT] Add DMI collector #303
+* [ENHANCEMENT] Add DMI collector #2131
+* [ENHANCEMENT] Add threads metrics to processes collector #2164
+* [ENHANCMMENT] Reduce timer GC delays in the Linux filesystem collector #2169
+* [ENHANCMMENT] Add TCPTimeouts to netstat default filter #2189
+* [ENHANCMMENT] Use SysctlTimeval for boottime collector on BSD #2208
+* [BUGFIX] ethtool: Sanitize metric names #2093
+* [BUGFIX] Fix ethtool collector for multiple interfaces #2126
 * [BUGFIX] Fix possible panic on macOS #2133
+* [BUGFIX] Collect flag_info and bug_info only for one core #2156
+* [BUGFIX] Prevent duplicate ethtool metric names #2187
 
 ## 1.2.2 / 2021-08-06
 
