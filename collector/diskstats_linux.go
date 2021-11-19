@@ -18,7 +18,10 @@ package collector
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -48,6 +51,7 @@ type diskstatsCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
 	fs                    blockdevice.FS
 	infoDesc              typedFactorDesc
+	underlyingDesc        typedFactorDesc
 	descs                 []typedFactorDesc
 	logger                log.Logger
 }
@@ -71,7 +75,14 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 		infoDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
 				"Info of /sys/block/<block_device>.",
-				[]string{"device", "major", "minor"},
+				[]string{"device", "major", "minor", "name", "dm_uuid", "uuid", "path"},
+				nil,
+			), valueType: prometheus.GaugeValue,
+		},
+		underlyingDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "underlying_info"),
+				"Underlying devicemapper device.",
+				[]string{"device", "under"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
@@ -182,17 +193,60 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	}, nil
 }
 
+func (c *diskstatsCollector) readDevLinks(path string) map[string]string {
+	mapping := make(map[string]string)
+
+	byPathDir, err := os.Open(path)
+	if err != nil {
+		level.Debug(c.logger).Log("msg", "Error opening directory", "path", path, "err", err)
+	} else {
+		defer byPathDir.Close()
+
+		byPathNames, err := byPathDir.Readdirnames(-1)
+		if err != nil {
+			level.Debug(c.logger).Log("msg", "Error reading directory", "path", path, "err", err)
+		} else {
+			for _, byPathName := range byPathNames {
+				path := filepath.Join(path, byPathName)
+				dest, err := filepath.EvalSymlinks(path)
+				if err != nil {
+					level.Debug(c.logger).Log("msg", "Error reading symlink", "path", path, "err", err)
+				} else {
+					mapping[strings.Replace(dest, "/dev/", "", 1)] = byPathName
+				}
+			}
+		}
+	}
+	return mapping
+}
+
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	diskStats, err := c.fs.ProcDiskstats()
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
 
+	var diskByPath map[string]string = c.readDevLinks("/dev/disk/by-path")
+	var diskByUUID map[string]string = c.readDevLinks("/dev/disk/by-uuid")
+
 	for _, stats := range diskStats {
 		dev := stats.DeviceName
 		if c.ignoredDevicesPattern.MatchString(dev) {
 			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev, "pattern", c.ignoredDevicesPattern)
 			continue
+		}
+
+		dmSlave, err := c.fs.SysBlockDeviceUnderlyingDevices(dev)
+		if err != nil {
+			level.Debug(c.logger).Log("msg", "Error getting devicemapper slave devices", "device", dev, "err", err)
+		}
+		for _, subdev := range dmSlave.DeviceNames {
+			ch <- c.underlyingDesc.mustNewConstMetric(1.0, dev, subdev)
+		}
+
+		dmInfo, err := c.fs.SysBlockDeviceMapperInfo(dev)
+		if err != nil {
+			level.Debug(c.logger).Log("msg", "Error getting devicemapper info", "device", dev, "err", err)
 		}
 
 		diskSectorSize := 512.0
@@ -203,7 +257,8 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			diskSectorSize = float64(blockQueue.LogicalBlockSize)
 		}
 
-		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
+		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber),
+			dmInfo.Name, dmInfo.UUID, diskByUUID[dev], diskByPath[dev])
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
 
