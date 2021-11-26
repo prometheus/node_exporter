@@ -47,9 +47,10 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"unsafe"
+
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
-	"unsafe"
 )
 
 type thermCollector struct {
@@ -118,7 +119,9 @@ func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
 func fetchCPUPowerStatus() (map[string]int, error) {
 	cfDictRef, _ := C.FetchThermal()
 	defer func() {
-		C.CFRelease(C.CFTypeRef(cfDictRef.ref))
+		if cfDictRef.ref != 0x0 {
+			C.CFRelease(C.CFTypeRef(cfDictRef.ref))
+		}
 	}()
 
 	if C.kIOReturnNotFound == cfDictRef.ret {

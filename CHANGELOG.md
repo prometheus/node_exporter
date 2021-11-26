@@ -5,6 +5,8 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [BUGFIX] Handle nil CPU thermal power status on M1 #2218
+
 ## 1.3.0 / 2021-10-20
 
 NOTE: In order to support globs in the textfile collector path, filenames exposed by
