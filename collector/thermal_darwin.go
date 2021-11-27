@@ -118,7 +118,9 @@ func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
 func fetchCPUPowerStatus() (map[string]int, error) {
 	cfDictRef, _ := C.FetchThermal()
 	defer func() {
-		C.CFRelease(C.CFTypeRef(cfDictRef.ref))
+		if C.kIOReturnSuccess == cfDictRef.ret {
+			C.CFRelease(C.CFTypeRef(cfDictRef.ref))
+		}
 	}()
 
 	if C.kIOReturnNotFound == cfDictRef.ret {
