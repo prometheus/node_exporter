@@ -54,6 +54,11 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 			continue
 		}
 
+		if (fs.Flags & unix.MNT_IGNORE) != 0 {
+			level.Debug(c.logger).Log("msg", "Ignoring mount flagged as ignore", "mountpoint", mountpoint)
+			continue
+		}
+
 		var ro float64
 		if (fs.Flags & readOnly) != 0 {
 			ro = 1
