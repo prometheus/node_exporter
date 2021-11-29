@@ -11,6 +11,7 @@ enabled_collectors=$(cat << COLLECTORS
   cpu
   cpufreq
   diskstats
+  dmi
   drbd
   edac
   entropy
