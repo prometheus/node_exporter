@@ -24,18 +24,16 @@ import (
 const (
 	defMountPointsExcluded = "^/(dev)($|/)"
 	defFSTypesExcluded     = "^devfs$"
-	readOnly               = 0x1 // MNT_RDONLY
-	noWait                 = 0x2 // MNT_NOWAIT
 )
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	n, err := unix.Getfsstat(nil, noWait)
+	n, err := unix.Getfsstat(nil, unix.MNT_NOWAIT)
 	if err != nil {
 		return nil, err
 	}
 	buf := make([]unix.Statfs_t, n)
-	_, err = unix.Getfsstat(buf, noWait)
+	_, err = unix.Getfsstat(buf, unix.MNT_NOWAIT)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +52,13 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 			continue
 		}
 
+		if (fs.Flags & unix.MNT_IGNORE) != 0 {
+			level.Debug(c.logger).Log("msg", "Ignoring mount flagged as ignore", "mountpoint", mountpoint)
+			continue
+		}
+
 		var ro float64
-		if (fs.Flags & readOnly) != 0 {
+		if (fs.Flags & unix.MNT_RDONLY) != 0 {
 			ro = 1
 		}
 
