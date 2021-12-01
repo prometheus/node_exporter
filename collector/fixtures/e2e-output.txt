@@ -3080,6 +3080,18 @@ node_sockstat_UDP_mem_bytes 0
 # HELP node_sockstat_sockets_used Number of IPv4 sockets in use.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
+# HELP node_softirqs_total Number of softirq calls.
+# TYPE node_softirqs_total counter
+node_softirqs_total{vector="block"} 186066
+node_softirqs_total{vector="block_iopoll"} 0
+node_softirqs_total{vector="hi"} 250191
+node_softirqs_total{vector="hrtimer"} 12499
+node_softirqs_total{vector="net_rx"} 211099
+node_softirqs_total{vector="net_tx"} 1647
+node_softirqs_total{vector="rcu"} 508444
+node_softirqs_total{vector="sched"} 622196
+node_softirqs_total{vector="tasklet"} 1.783454e+06
+node_softirqs_total{vector="timer"} 1.481983e+06
 # HELP node_softnet_dropped_total Number of dropped packets
 # TYPE node_softnet_dropped_total counter
 node_softnet_dropped_total{cpu="0"} 0

@@ -114,6 +114,7 @@ fi
   --collector.cpu.info \
   --collector.cpu.info.flags-include="^(aes|avx.?|constant_tsc)$" \
   --collector.cpu.info.bugs-include="^(cpu_meltdown|spectre_.*|mds)$" \
+  --collector.stat.softirq \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
