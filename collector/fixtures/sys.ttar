@@ -141,7 +141,7 @@ Mode: 400
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/dmi/id/product_version
 Lines: 1
-
+À[‡
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/dmi/id/sys_vendor

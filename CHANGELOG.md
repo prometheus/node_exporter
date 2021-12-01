@@ -5,7 +5,9 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [ENHANCEMENT] Add node_softirqs_total metric #2221
 * [BUGFIX] Handle nil CPU thermal power status on M1 #2218
+* [BUGFIX] Sanitize UTF-8 in dmi collector #2229
 
 ## 1.3.0 / 2021-10-20
 

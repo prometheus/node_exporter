@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -78,7 +79,7 @@ func NewDMICollector(logger log.Logger) (Collector, error) {
 	} {
 		if value != nil {
 			labels = append(labels, label)
-			values = append(values, *value)
+			values = append(values, strings.ToValidUTF8(*value, "�"))
 		}
 	}
 
