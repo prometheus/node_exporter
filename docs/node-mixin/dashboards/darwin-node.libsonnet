@@ -101,27 +101,27 @@ local gauge = promgrafonnet.gauge;
       local memoryGauge = gauge.new(
         'Memory Usage',
         |||
-            (
-                (
-                    (
-                        avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                        -
-                        (
-                            avg(node_memory_free_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                            +
-                            avg(node_memory_inactive_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                         )
-                     )
-                     +
-                     avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                     +
-                     avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                )
-                /
-                avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"})
-            )
-            *
-            100
+          (
+              (
+                  (
+                      avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                      -
+                      (
+                          avg(node_memory_free_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                          +
+                          avg(node_memory_inactive_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                       )
+                   )
+                   +
+                   avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                   +
+                   avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"})
+              )
+              /
+              avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"})
+          )
+          *
+          100
         ||| % $._config,
       ).withLowerBeingBetter();
 
