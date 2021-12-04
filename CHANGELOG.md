@@ -6,7 +6,11 @@
 * [BUGFIX]
 
 * [ENHANCEMENT] Add node_softirqs_total metric #2221
+
+## 1.3.1 / 2021-12-01
+
 * [BUGFIX] Handle nil CPU thermal power status on M1 #2218
+* [BUGFIX] bsd: Ignore filesystems flagged as MNT_IGNORE. #2227
 * [BUGFIX] Sanitize UTF-8 in dmi collector #2229
 
 ## 1.3.0 / 2021-10-20
