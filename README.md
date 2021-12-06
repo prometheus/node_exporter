@@ -133,7 +133,7 @@ udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/
 uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
-zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | [Linux](http://zfsonlinux.org/), Solaris
+zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | FreeBSD, [Linux](http://zfsonlinux.org/), Solaris
 
 ### Disabled by default
 
