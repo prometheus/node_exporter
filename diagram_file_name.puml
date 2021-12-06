@@ -1,0 +1,18 @@
+@startuml
+namespace main {
+    class handler << (S,Aquamarine) >> {
+        - unfilteredHandler http.Handler
+        - exporterMetricsRegistry *prometheus.Registry
+        - includeExporterMetrics bool
+        - maxRequests int
+        - logger log.Logger
+
+        - innerHandler(filters ...string) (http.Handler, error)
+
+        + ServeHTTP(w http.ResponseWriter, r *http.Request) 
+
+    }
+}
+
+
+@enduml
