@@ -2843,7 +2843,6 @@ node_xfs_inode_operation_reclaims_total{device="sda1"} 0
 # TYPE node_xfs_inode_operation_recycled_total counter
 node_xfs_inode_operation_recycled_total{device="sda1"} 0
 # HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
-# HELP node_xfs_read_calls_total Number of read(2) system calls made to files in a filesystem.
 # TYPE node_xfs_read_calls_total counter
 node_xfs_read_calls_total{device="sda1"} 28
 # HELP node_xfs_vnode_active_total Number of vnodes not on free lists for a filesystem.
