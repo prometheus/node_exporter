@@ -1,7 +1,7 @@
 ---
 version: 2.1
 orbs:
-  prometheus: prometheus/prometheus@0.14.0
+  prometheus: prometheus/prometheus@0.15.0
 executors:
   # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
   # should also be updated.
