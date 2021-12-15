@@ -104,3 +104,31 @@ func TestCPU(t *testing.T) {
 		t.Fatalf("should have %v CPU Stat: got %v", resetIdle, got)
 	}
 }
+func TestIsolatedParsingCPU(t *testing.T) {
+	var testParams = []struct {
+		in  []byte
+		res []uint16
+		err error
+	}{
+		{[]byte(""), []uint16{}, nil},
+		{[]byte("1\n"), []uint16{1}, nil},
+		{[]byte("1"), []uint16{1}, nil},
+		{[]byte("1,2"), []uint16{1, 2}, nil},
+		{[]byte("1-2"), []uint16{1, 2}, nil},
+		{[]byte("1-3"), []uint16{1, 2, 3}, nil},
+		{[]byte("1,2-4"), []uint16{1, 2, 3, 4}, nil},
+		{[]byte("1,3-4"), []uint16{1, 3, 4}, nil},
+		{[]byte("1,3-4,7,20-21"), []uint16{1, 3, 4, 7, 20, 21}, nil},
+	}
+	for _, params := range testParams {
+		t.Run("blabla", func(t *testing.T) {
+			res, err := parseIsolCpus(params.in)
+			if !reflect.DeepEqual(res, params.res) {
+				t.Fatalf("should have %v result: got %v", params.res, res)
+			}
+			if err != params.err {
+				t.Fatalf("should have %v error: got %v", params.err, err)
+			}
+		})
+	}
+}
