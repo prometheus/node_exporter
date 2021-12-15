@@ -18,17 +18,16 @@ package collector
 
 import (
 	"fmt"
-	"io/ioutil"
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -41,6 +40,7 @@ type cpuCollector struct {
 	cpuGuest           *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
 	cpuPackageThrottle *prometheus.Desc
+	cpuIsolated        *prometheus.Desc
 	logger             log.Logger
 	cpuStats           []procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
@@ -65,50 +65,6 @@ func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }
 
-func parseIsolCpus(data []byte) ([]uint16, error) {
-	isolcpus_str := strings.TrimRight(string(data), "\n")
-
-	var isolcpus_int = []uint16{}
-
-	for _, cpu := range strings.Split(isolcpus_str, ",") {
-		if cpu == "" {
-			continue
-		}
-		if strings.Contains(cpu, "-") {
-			ranges := strings.Split(cpu, "-")
-			startRange, err := strconv.Atoi(ranges[0])
-			if err != nil {
-				return nil, err
-			}
-			endRange, err := strconv.Atoi(ranges[1])
-			if err != nil {
-				return nil, err
-			}
-
-			for i := startRange; i <= endRange; i++ {
-				isolcpus_int = append(isolcpus_int, uint16(i))
-			}
-			continue
-		}
-
-		_cpu, err := strconv.Atoi(cpu)
-		if err != nil {
-			return nil, err
-		}
-		isolcpus_int = append(isolcpus_int, uint16(_cpu))
-	}
-	return isolcpus_int, nil
-}
-
-func readIsolCpus() ([]uint16, error) {
-	isolcpus, err := ioutil.ReadFile(sysFilePath("devices/system/cpu/isolated"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to read isolcpus from sysfs: %w", err)
-	}
-
-	return parseIsolCpus(isolcpus)
-}
-
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
@@ -116,18 +72,19 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	isolcpus, err := readIsolCpus()
+	sysfs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %w", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
+
+	isolcpus, err := sysfs.IsolatedCPUs()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read isolcpus from sysfs: %w", err)
 	}
 
 	c := &cpuCollector{
-		fs: fs,
-		cpu: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "seconds_total"),
-			"Seconds the CPUs spent in each mode.",
-			[]string{"cpu", "mode", "isolated"}, nil,
-		),
+		fs:  fs,
+		cpu: nodeCPUSecondsDesc,
 		cpuInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
 			"CPU information from /proc/cpuinfo.",
@@ -146,7 +103,7 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
 			"Seconds the CPUs spent in guests (VMs) for each mode.",
-			[]string{"cpu", "mode", "isolated"}, nil,
+			[]string{"cpu", "mode"}, nil,
 		),
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
@@ -157,6 +114,11 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
 			"Number of times this CPU package has been throttled.",
 			[]string{"package"}, nil,
+		),
+		cpuIsolated: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "isolated"),
+			"Whether each core is isolated, information from /sys/devices/system/cpu/isolated.",
+			[]string{"cpu"}, nil,
 		),
 		logger:       logger,
 		isolatedCpus: isolcpus,
@@ -198,6 +160,9 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 	}
 	if err := c.updateStat(ch); err != nil {
+		return err
+	}
+	if err := c.updateIsolated(ch); err != nil {
 		return err
 	}
 	return c.updateThermalThrottle(ch)
@@ -344,6 +309,30 @@ func contains(s []uint16, e uint16) bool {
 }
 
 // updateStat reads /proc/stat through procfs and exports CPU-related metrics.
+func (c *cpuCollector) updateIsolated(ch chan<- prometheus.Metric) error {
+	stats, err := c.fs.Stat()
+	if err != nil {
+		return err
+	}
+
+	c.updateCPUStats(stats.CPU)
+
+	// Acquire a lock to read the stats.
+	c.cpuStatsMutex.Lock()
+	defer c.cpuStatsMutex.Unlock()
+	for cpuID, _ := range c.cpuStats {
+		cpuNum := strconv.Itoa(cpuID)
+		isIsolated := 0.0
+		if contains(c.isolatedCpus, uint16(cpuID)) {
+			isIsolated = 1.0
+		}
+		ch <- prometheus.MustNewConstMetric(c.cpuIsolated, prometheus.GaugeValue, isIsolated, cpuNum)
+	}
+
+	return nil
+}
+
+// updateStat reads /proc/stat through procfs and exports CPU-related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Stat()
 	if err != nil {
@@ -357,23 +346,19 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	defer c.cpuStatsMutex.Unlock()
 	for cpuID, cpuStat := range c.cpuStats {
 		cpuNum := strconv.Itoa(cpuID)
-		isIsolated := "0"
-		if contains(c.isolatedCpus, uint16(cpuID)) {
-			isIsolated = "1"
-		}
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.User, cpuNum, "user", isIsolated)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Nice, cpuNum, "nice", isIsolated)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.System, cpuNum, "system", isIsolated)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Idle, cpuNum, "idle", isIsolated)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Iowait, cpuNum, "iowait", isIsolated)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.IRQ, cpuNum, "irq", isIsolated)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuNum, "softirq", isIsolated)
-		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuNum, "steal", isIsolated)
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.User, cpuNum, "user")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Nice, cpuNum, "nice")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.System, cpuNum, "system")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Idle, cpuNum, "idle")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Iowait, cpuNum, "iowait")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.IRQ, cpuNum, "irq")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuNum, "softirq")
+		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuNum, "steal")
 
 		if *enableCPUGuest {
 			// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
-			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user", isIsolated)
-			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice", isIsolated)
+			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")
+			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")
 		}
 	}
 
