@@ -11,18 +11,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !notcpstat
 // +build !notcpstat
 
 package collector
 
 import (
-	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -51,10 +53,15 @@ const (
 	tcpListen
 	// TCP_CLOSING
 	tcpClosing
+	// TCP_RX_BUFFER
+	tcpRxQueuedBytes
+	// TCP_TX_BUFFER
+	tcpTxQueuedBytes
 )
 
 type tcpStatCollector struct {
-	desc typedDesc
+	desc   typedDesc
+	logger log.Logger
 }
 
 func init() {
@@ -62,20 +69,21 @@ func init() {
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
-func NewTCPStatCollector() (Collector, error) {
+func NewTCPStatCollector(logger log.Logger) (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
 			[]string{"state"}, nil,
 		), prometheus.GaugeValue},
+		logger: logger,
 	}, nil
 }
 
 func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	tcpStats, err := getTCPStats(procFilePath("net/tcp"))
 	if err != nil {
-		return fmt.Errorf("couldn't get tcpstats: %s", err)
+		return fmt.Errorf("couldn't get tcpstats: %w", err)
 	}
 
 	// if enabled ipv6 system
@@ -83,7 +91,7 @@ func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	if _, hasIPv6 := os.Stat(tcp6File); hasIPv6 == nil {
 		tcp6Stats, err := getTCPStats(tcp6File)
 		if err != nil {
-			return fmt.Errorf("couldn't get tcp6stats: %s", err)
+			return fmt.Errorf("couldn't get tcp6stats: %w", err)
 		}
 
 		for st, value := range tcp6Stats {
@@ -108,28 +116,48 @@ func getTCPStats(statsFile string) (map[tcpConnectionState]float64, error) {
 }
 
 func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
-	var (
-		tcpStats = map[tcpConnectionState]float64{}
-		scanner  = bufio.NewScanner(r)
-	)
+	tcpStats := map[tcpConnectionState]float64{}
+	contents, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 
-	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
+	for _, line := range strings.Split(string(contents), "\n")[1:] {
+		parts := strings.Fields(line)
 		if len(parts) == 0 {
 			continue
 		}
-		if strings.HasPrefix(parts[0], "sl") {
-			continue
+		if len(parts) < 5 {
+			return nil, fmt.Errorf("invalid TCP stats line: %q", line)
 		}
+
+		qu := strings.Split(parts[4], ":")
+		if len(qu) < 2 {
+			return nil, fmt.Errorf("cannot parse tx_queues and rx_queues: %q", line)
+		}
+
+		tx, err := strconv.ParseUint(qu[0], 16, 64)
+		if err != nil {
+			return nil, err
+		}
+		tcpStats[tcpConnectionState(tcpTxQueuedBytes)] += float64(tx)
+
+		rx, err := strconv.ParseUint(qu[1], 16, 64)
+		if err != nil {
+			return nil, err
+		}
+		tcpStats[tcpConnectionState(tcpRxQueuedBytes)] += float64(rx)
+
 		st, err := strconv.ParseInt(parts[3], 16, 8)
 		if err != nil {
 			return nil, err
 		}
 
 		tcpStats[tcpConnectionState(st)]++
+
 	}
 
-	return tcpStats, scanner.Err()
+	return tcpStats, nil
 }
 
 func (st tcpConnectionState) String() string {
@@ -156,6 +184,10 @@ func (st tcpConnectionState) String() string {
 		return "listen"
 	case tcpClosing:
 		return "closing"
+	case tcpRxQueuedBytes:
+		return "rx_queued_bytes"
+	case tcpTxQueuedBytes:
+		return "tx_queued_bytes"
 	default:
 		return "unknown"
 	}

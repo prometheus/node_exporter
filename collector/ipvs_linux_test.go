@@ -21,6 +21,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-kit/log"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gopkg.in/alecthomas/kingpin.v2"

@@ -34,3 +34,6 @@ dependencies-stamp
 
 # Test files extracted from ttar
 collector/fixtures/sys/
+
+# Visual studio
+/.vs

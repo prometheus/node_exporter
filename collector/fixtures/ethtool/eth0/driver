@@ -1,0 +1,11 @@
+# ethtool -i eth0
+driver: e1000e
+version: 5.11.0-22-generic
+firmware-version: 0.5-4
+expansion-rom-version: 
+bus-info: 0000:00:1f.6
+supports-statistics: yes
+supports-test: yes
+supports-eeprom-access: yes
+supports-register-dump: yes
+supports-priv-flags: yes

@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nonetdev && (freebsd || dragonfly)
 // +build !nonetdev
 // +build freebsd dragonfly
 
@@ -18,10 +19,9 @@ package collector
 
 import (
 	"errors"
-	"regexp"
-	"strconv"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 )
 
 /*
@@ -34,8 +34,8 @@ import (
 */
 import "C"
 
-func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error) {
-	netDev := map[string]map[string]string{}
+func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
+	netDev := netDevStats{}
 
 	var ifap, ifa *C.struct_ifaddrs
 	if C.getifaddrs(&ifap) == -1 {
@@ -44,33 +44,31 @@ func getNetDevStats(ignore *regexp.Regexp) (map[string]map[string]string, error)
 	defer C.freeifaddrs(ifap)
 
 	for ifa = ifap; ifa != nil; ifa = ifa.ifa_next {
-		if ifa.ifa_addr.sa_family == C.AF_LINK {
-			dev := C.GoString(ifa.ifa_name)
-			if ignore.MatchString(dev) {
-				log.Debugf("Ignoring device: %s", dev)
-				continue
-			}
+		if ifa.ifa_addr.sa_family != C.AF_LINK {
+			continue
+		}
 
-			devStats := map[string]string{}
-			data := (*C.struct_if_data)(ifa.ifa_data)
+		dev := C.GoString(ifa.ifa_name)
+		if filter.ignored(dev) {
+			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
+			continue
+		}
 
-			devStats["receive_packets"] = convertFreeBSDCPUTime(uint64(data.ifi_ipackets))
-			devStats["transmit_packets"] = convertFreeBSDCPUTime(uint64(data.ifi_opackets))
-			devStats["receive_errs"] = convertFreeBSDCPUTime(uint64(data.ifi_ierrors))
-			devStats["transmit_errs"] = convertFreeBSDCPUTime(uint64(data.ifi_oerrors))
-			devStats["receive_bytes"] = convertFreeBSDCPUTime(uint64(data.ifi_ibytes))
-			devStats["transmit_bytes"] = convertFreeBSDCPUTime(uint64(data.ifi_obytes))
-			devStats["receive_multicast"] = convertFreeBSDCPUTime(uint64(data.ifi_imcasts))
-			devStats["transmit_multicast"] = convertFreeBSDCPUTime(uint64(data.ifi_omcasts))
-			devStats["receive_drop"] = convertFreeBSDCPUTime(uint64(data.ifi_iqdrops))
-			devStats["transmit_drop"] = convertFreeBSDCPUTime(uint64(data.ifi_oqdrops))
-			netDev[dev] = devStats
+		data := (*C.struct_if_data)(ifa.ifa_data)
+
+		netDev[dev] = map[string]uint64{
+			"receive_packets":    uint64(data.ifi_ipackets),
+			"transmit_packets":   uint64(data.ifi_opackets),
+			"receive_errs":       uint64(data.ifi_ierrors),
+			"transmit_errs":      uint64(data.ifi_oerrors),
+			"receive_bytes":      uint64(data.ifi_ibytes),
+			"transmit_bytes":     uint64(data.ifi_obytes),
+			"receive_multicast":  uint64(data.ifi_imcasts),
+			"transmit_multicast": uint64(data.ifi_omcasts),
+			"receive_drop":       uint64(data.ifi_iqdrops),
+			"transmit_drop":      uint64(data.ifi_oqdrops),
 		}
 	}
 
 	return netDev, nil
-}
-
-func convertFreeBSDCPUTime(counter uint64) string {
-	return strconv.FormatUint(counter, 10)
 }

@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noedac
 // +build !noedac
 
 package collector
@@ -21,6 +22,7 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

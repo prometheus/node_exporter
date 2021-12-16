@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nocpu
 // +build !nocpu
 
 package collector
@@ -26,7 +27,7 @@ const (
 var (
 	nodeCPUSecondsDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "seconds_total"),
-		"Seconds the cpus spent in each mode.",
+		"Seconds the CPUs spent in each mode.",
 		[]string{"cpu", "mode"}, nil,
 	)
 )

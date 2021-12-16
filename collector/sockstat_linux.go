@@ -11,19 +11,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nosockstat
 // +build !nosockstat
 
 package collector
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
 const (
@@ -33,21 +36,23 @@ const (
 // Used for calculating the total memory bytes on TCP and UDP.
 var pageSize = os.Getpagesize()
 
-type sockStatCollector struct{}
+type sockStatCollector struct {
+	logger log.Logger
+}
 
 func init() {
 	registerCollector(sockStatSubsystem, defaultEnabled, NewSockStatCollector)
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector() (Collector, error) {
-	return &sockStatCollector{}, nil
+func NewSockStatCollector(logger log.Logger) (Collector, error) {
+	return &sockStatCollector{logger}, nil
 }
 
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
-	sockStats, err := getSockStats(procFilePath("net/sockstat"))
+	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
-		return fmt.Errorf("couldn't get sockstats: %s", err)
+		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 	for protocol, protocolStats := range sockStats {
 		for name, value := range protocolStats {

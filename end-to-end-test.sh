@@ -9,15 +9,18 @@ enabled_collectors=$(cat << COLLECTORS
   conntrack
   cpu
   diskstats
+  dmi
   drbd
   edac
   entropy
+  fibrechannel
   filefd
   hwmon
   infiniband
   interrupts
   ipvs
   ksmd
+  lnstat
   loadavg
   mdadm
   meminfo
@@ -37,11 +40,11 @@ enabled_collectors=$(cat << COLLECTORS
   xfs
   zfs
   processes
+  zoneinfo
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
   filesystem
-  time
   timex
   uname
 COLLECTORS
@@ -51,7 +54,7 @@ cd "$(dirname $0)"
 port="$((10000 + (RANDOM % 10000)))"
 tmpdir=$(mktemp -d /tmp/node_exporter_e2e_test.XXXXXX)
 
-skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds)"
+skip_re="^(go_|node_exporter_build_info|node_scrape_collector_duration_seconds|process_|node_textfile_mtime_seconds|node_time_(zone|seconds))"
 
 arch="$(uname -m)"
 
@@ -91,6 +94,7 @@ then
 fi
 
 ./node_exporter \
+  --path.rootfs="collector/fixtures" \
   --path.procfs="collector/fixtures/proc" \
   --path.sysfs="collector/fixtures/sys" \
   $(for c in ${enabled_collectors}; do echo --collector.${c}  ; done) \
@@ -98,7 +102,13 @@ fi
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
-  --collector.netclass.ignored-devices="(bond0|dmz|int)" \
+  --collector.netclass.ignored-devices="(dmz|int)" \
+  --collector.netclass.ignore-invalid-speed \
+  --collector.bcache.priorityStats \
+  --collector.cpu.info \
+  --collector.cpu.info.flags-include="^(aes|avx.?|constant_tsc)$" \
+  --collector.cpu.info.bugs-include="^(cpu_meltdown|spectre_.*|mds)$" \
+  --collector.stat.softirq \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 

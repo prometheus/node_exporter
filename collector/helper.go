@@ -15,6 +15,7 @@ package collector
 
 import (
 	"io/ioutil"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -29,4 +30,34 @@ func readUintFromFile(path string) (uint64, error) {
 		return 0, err
 	}
 	return value, nil
+}
+
+// Take a []byte{} and return a string based on null termination.
+// This is useful for situations where the OS has returned a null terminated
+// string to use.
+// If this function happens to receive a byteArray that contains no nulls, we
+// simply convert the array to a string with no bounding.
+func bytesToString(byteArray []byte) string {
+	n := bytes.IndexByte(byteArray, 0)
+	if n < 0 {
+		return string(byteArray)
+	}
+	return string(byteArray[:n])
+}
+
+var metricNameRegex = regexp.MustCompile(`_*[^0-9A-Za-z_]+_*`)
+
+// Sanitize the given metric name by replacing invalid characters by underscores.
+//
+// OpenMetrics and the Prometheus exposition format require the metric name
+// to consist only of alphanumericals and "_", ":" and they must not start
+// with digits. Since colons in MetricFamily are reserved to signal that the
+// MetricFamily is the result of a calculation or aggregation of a general
+// purpose monitoring system, colons will be replaced as well.
+//
+// Note: If not subsequently prepending a namespace and/or subsystem (e.g.,
+// with prometheus.BuildFQName), the caller must ensure that the supplied
+// metricName does not begin with a digit.
+func SanitizeMetricName(metricName string) string {
+	return metricNameRegex.ReplaceAllString(metricName, "_")
 }

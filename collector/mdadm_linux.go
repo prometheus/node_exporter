@@ -11,40 +11,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nomdadm
 // +build !nomdadm
 
 package collector
 
 import (
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"regexp"
-	"strconv"
-	"strings"
 
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	"github.com/prometheus/procfs"
 )
 
-var (
-	statuslineRE             = regexp.MustCompile(`(\d+) blocks .*\[(\d+)/(\d+)\] \[[U_]+\]`)
-	raid0lineRE              = regexp.MustCompile(`(\d+) blocks .*\d+k (chunks|rounding)`)
-	buildlineRE              = regexp.MustCompile(`\((\d+)/\d+\)`)
-	unknownPersonalityLineRE = regexp.MustCompile(`(\d+) blocks (.*)`)
-	raidPersonalityRE        = regexp.MustCompile(`^(linear|raid[0-9]+)$`)
-)
-
-type mdStatus struct {
-	name         string
-	active       bool
-	disksActive  int64
-	disksTotal   int64
-	blocksTotal  int64
-	blocksSynced int64
+type mdadmCollector struct {
+	logger log.Logger
 }
-
-type mdadmCollector struct{}
 
 func init() {
 	registerCollector("mdadm", defaultEnabled, NewMdadmCollector)
@@ -219,27 +204,51 @@ func parseMdstat(mdStatusFilePath string) ([]mdStatus, error) {
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
-func NewMdadmCollector() (Collector, error) {
-	return &mdadmCollector{}, nil
+func NewMdadmCollector(logger log.Logger) (Collector, error) {
+	return &mdadmCollector{logger}, nil
 }
 
 var (
-	isActiveDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "md", "is_active"),
-		"Indicator whether the md-device is active or not.",
+	activeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
 		[]string{"device"},
-		nil,
+		prometheus.Labels{"state": "active"},
+	)
+	inActiveDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "inactive"},
+	)
+	recoveringDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "recovering"},
+	)
+	resyncDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "resync"},
+	)
+	checkDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "check"},
 	)
 
-	disksActiveDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "md", "disks_active"),
-		"Number of active disks of device.",
-		[]string{"device"},
+	disksDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "disks"),
+		"Number of active/failed/spare disks of device.",
+		[]string{"device", "state"},
 		nil,
 	)
 
 	disksTotalDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "md", "disks"),
+		prometheus.BuildFQName(namespace, "md", "disks_required"),
 		"Total number of disks of device.",
 		[]string{"device"},
 		nil,
@@ -261,52 +270,103 @@ var (
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
-	statusfile := procFilePath("mdstat")
-	mdstate, err := parseMdstat(statusfile)
+	fs, err := procfs.NewFS(*procPath)
+
 	if err != nil {
-		if os.IsNotExist(err) {
-			log.Debugf("Not collecting mdstat, file does not exist: %s", statusfile)
-			return nil
-		}
-		return fmt.Errorf("error parsing mdstatus: %s", err)
+		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	for _, mds := range mdstate {
-		log.Debugf("collecting metrics for device %s", mds.name)
+	mdStats, err := fs.MDStat()
 
-		var active float64
-		if mds.active {
-			active = 1
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			level.Debug(c.logger).Log("msg", "Not collecting mdstat, file does not exist", "file", *procPath)
+			return ErrNoData
 		}
-		ch <- prometheus.MustNewConstMetric(
-			isActiveDesc,
-			prometheus.GaugeValue,
-			active,
-			mds.name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			disksActiveDesc,
-			prometheus.GaugeValue,
-			float64(mds.disksActive),
-			mds.name,
-		)
+
+		return fmt.Errorf("error parsing mdstatus: %w", err)
+	}
+
+	for _, mdStat := range mdStats {
+		level.Debug(c.logger).Log("msg", "collecting metrics for device", "device", mdStat.Name)
+
+		stateVals := make(map[string]float64)
+		stateVals[mdStat.ActivityState] = 1
+
 		ch <- prometheus.MustNewConstMetric(
 			disksTotalDesc,
 			prometheus.GaugeValue,
-			float64(mds.disksTotal),
-			mds.name,
+			float64(mdStat.DisksTotal),
+			mdStat.Name,
 		)
+
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.DisksActive),
+			mdStat.Name,
+			"active",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.DisksFailed),
+			mdStat.Name,
+			"failed",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.DisksSpare),
+			mdStat.Name,
+			"spare",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			activeDesc,
+			prometheus.GaugeValue,
+			stateVals["active"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			inActiveDesc,
+			prometheus.GaugeValue,
+			stateVals["inactive"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			recoveringDesc,
+			prometheus.GaugeValue,
+			stateVals["recovering"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			resyncDesc,
+			prometheus.GaugeValue,
+			stateVals["resyncing"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			checkDesc,
+			prometheus.GaugeValue,
+			stateVals["checking"],
+			mdStat.Name,
+		)
+
 		ch <- prometheus.MustNewConstMetric(
 			blocksTotalDesc,
 			prometheus.GaugeValue,
-			float64(mds.blocksTotal),
-			mds.name,
+			float64(mdStat.BlocksTotal),
+			mdStat.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			blocksSyncedDesc,
 			prometheus.GaugeValue,
-			float64(mds.blocksSynced),
-			mds.name,
+			float64(mdStat.BlocksSynced),
+			mdStat.Name,
 		)
 	}
 

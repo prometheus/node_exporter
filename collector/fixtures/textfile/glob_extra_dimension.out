@@ -1,0 +1,49 @@
+# HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
+# TYPE node_textfile_mtime_seconds gauge
+node_textfile_mtime_seconds{file="fixtures/textfile/histogram_extra_dimension/metrics.prom"} 1
+node_textfile_mtime_seconds{file="fixtures/textfile/summary_extra_dimension/metrics.prom"} 1
+# HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
+# TYPE node_textfile_scrape_error gauge
+node_textfile_scrape_error 0
+# HELP prometheus_rule_evaluation_duration_seconds The duration for a rule to execute.
+# TYPE prometheus_rule_evaluation_duration_seconds summary
+prometheus_rule_evaluation_duration_seconds{handler="",rule_type="alerting",quantile="0.9"} 0.001765451
+prometheus_rule_evaluation_duration_seconds{handler="",rule_type="alerting",quantile="0.99"} 0.018672076
+prometheus_rule_evaluation_duration_seconds_sum{handler="",rule_type="alerting"} 214.85081044700146
+prometheus_rule_evaluation_duration_seconds_count{handler="",rule_type="alerting"} 185209
+prometheus_rule_evaluation_duration_seconds{handler="",rule_type="recording",quantile="0.5"} 4.3132e-05
+prometheus_rule_evaluation_duration_seconds{handler="",rule_type="recording",quantile="0.9"} 8.9295e-05
+prometheus_rule_evaluation_duration_seconds{handler="",rule_type="recording",quantile="0.99"} 0.000193657
+prometheus_rule_evaluation_duration_seconds_sum{handler="",rule_type="recording"} 185091.01317759082
+prometheus_rule_evaluation_duration_seconds_count{handler="",rule_type="recording"} 1.0020195e+08
+prometheus_rule_evaluation_duration_seconds{handler="foo",rule_type="alerting",quantile="0.5"} 0.000571464
+prometheus_rule_evaluation_duration_seconds_sum{handler="foo",rule_type="alerting"} 0
+prometheus_rule_evaluation_duration_seconds_count{handler="foo",rule_type="alerting"} 0
+# HELP prometheus_tsdb_compaction_chunk_range Final time range of chunks on their first compaction
+# TYPE prometheus_tsdb_compaction_chunk_range histogram
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="100"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="1600"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="6400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="25600"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="102400"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="409600"} 1.412839e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="1.6384e+06"} 1.69185e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="6.5536e+06"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="2.62144e+07"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="bar",le="+Inf"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_sum{foo="bar"} 6.71393432189e+11
+prometheus_tsdb_compaction_chunk_range_count{foo="bar"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="100"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="1600"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="6400"} 0
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="25600"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="102400"} 7
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="409600"} 1.412839e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="1.6384e+06"} 1.69185e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="6.5536e+06"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="2.62144e+07"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_bucket{foo="baz",le="+Inf"} 1.691853e+06
+prometheus_tsdb_compaction_chunk_range_sum{foo="baz"} 6.71393432189e+11
+prometheus_tsdb_compaction_chunk_range_count{foo="baz"} 1.691853e+06

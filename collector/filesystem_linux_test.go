@@ -16,6 +16,8 @@
 package collector
 
 import (
+	"github.com/go-kit/log"
+	"strings"
 	"testing"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"

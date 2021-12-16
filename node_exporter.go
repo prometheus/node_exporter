@@ -15,17 +15,27 @@ package main
 
 import (
 	"fmt"
+	stdlog "log"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
+	"os/user"
 	"sort"
 
+	"github.com/prometheus/common/promlog"
+	"github.com/prometheus/common/promlog/flag"
+
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/percona/exporter_shared"
 	"github.com/percona/node_exporter/collector"
 	"github.com/prometheus/client_golang/prometheus"
+	promcollectors "github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/version"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/prometheus/exporter-toolkit/web"
+	"github.com/prometheus/node_exporter/collector"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -48,8 +58,8 @@ func newHandler(includeExporterMetrics bool, maxRequests int) *handler {
 	}
 	if h.includeExporterMetrics {
 		h.exporterMetricsRegistry.MustRegister(
-			prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}),
-			prometheus.NewGoCollector(),
+			promcollectors.NewProcessCollector(promcollectors.ProcessCollectorOpts{}),
+			promcollectors.NewGoCollector(),
 		)
 	}
 	if innerHandler, err := h.innerHandler(); err != nil {
@@ -114,7 +124,7 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	handler := promhttp.HandlerFor(
 		prometheus.Gatherers{h.exporterMetricsRegistry, r},
 		promhttp.HandlerOpts{
-			ErrorLog:            log.NewErrorLogger(),
+			ErrorLog:            stdlog.New(log.NewStdlibAdapter(level.Error(h.logger)), "", 0),
 			ErrorHandling:       promhttp.ContinueOnError,
 			MaxRequestsInFlight: h.maxRequests,
 		},
@@ -151,14 +161,21 @@ func main() {
 
 	log.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print("node_exporter"))
+	kingpin.CommandLine.UsageWriter(os.Stdout)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 
 	// Use our shared code to run server and exit on error. Upstream's code below will not be executed.
 	exporter_shared.RunServer("Node", *listenAddress, *metricsPath, newHandler(!*disableExporterMetrics, *maxRequests))
 
-	log.Infoln("Starting node_exporter", version.Info())
-	log.Infoln("Build context", version.BuildContext())
+	if *disableDefaultCollectors {
+		collector.DisableDefaultCollectors()
+	}
+	level.Info(logger).Log("msg", "Starting node_exporter", "version", version.Info())
+	level.Info(logger).Log("msg", "Build context", "build_context", version.BuildContext())
+	if user, err := user.Current(); err == nil && user.Uid == "0" {
+		level.Warn(logger).Log("msg", "Node Exporter is running as root user. This exporter is designed to run as unpriviledged user, root is not required.")
+	}
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -171,8 +188,10 @@ func main() {
 			</html>`))
 	})
 
-	log.Infoln("Listening on", *listenAddress)
-	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
-		log.Fatal(err)
+	level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
+	server := &http.Server{Addr: *listenAddress}
+	if err := web.ListenAndServe(server, *configFile, logger); err != nil {
+		level.Error(logger).Log("err", err)
+		os.Exit(1)
 	}
 }

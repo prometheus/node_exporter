@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nostat
 // +build !nostat
 
 package collector
@@ -18,27 +19,38 @@ package collector
 import (
 	"fmt"
 
-	"github.com/prometheus/procfs"
-
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type statCollector struct {
+	fs           procfs.FS
 	intr         *prometheus.Desc
 	ctxt         *prometheus.Desc
 	forks        *prometheus.Desc
 	btime        *prometheus.Desc
 	procsRunning *prometheus.Desc
 	procsBlocked *prometheus.Desc
+	softIRQ      *prometheus.Desc
+	logger       log.Logger
 }
+
+var statSoftirqFlag = kingpin.Flag("collector.stat.softirq", "Export softirq calls per vector").Default("false").Bool()
 
 func init() {
 	registerCollector("stat", defaultEnabled, NewStatCollector)
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector() (Collector, error) {
+func NewStatCollector(logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
 	return &statCollector{
+		fs: fs,
 		intr: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "intr_total"),
 			"Total number of interrupts serviced.",
@@ -69,16 +81,18 @@ func NewStatCollector() (Collector, error) {
 			"Number of processes blocked waiting for I/O to complete.",
 			nil, nil,
 		),
+		softIRQ: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "", "softirqs_total"),
+			"Number of softirq calls.",
+			[]string{"vector"}, nil,
+		),
+		logger: logger,
 	}, nil
 }
 
 // Update implements Collector and exposes kernel and system statistics.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
-	}
-	stats, err := fs.NewStat()
+	stats, err := c.fs.Stat()
 	if err != nil {
 		return err
 	}
@@ -91,6 +105,28 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 
 	ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, float64(stats.ProcessesRunning))
 	ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, float64(stats.ProcessesBlocked))
+
+	if *statSoftirqFlag {
+		si := stats.SoftIRQ
+
+		for _, vec := range []struct {
+			name  string
+			value uint64
+		}{
+			{name: "hi", value: si.Hi},
+			{name: "timer", value: si.Timer},
+			{name: "net_tx", value: si.NetTx},
+			{name: "net_rx", value: si.NetRx},
+			{name: "block", value: si.Block},
+			{name: "block_iopoll", value: si.BlockIoPoll},
+			{name: "tasklet", value: si.Tasklet},
+			{name: "sched", value: si.Sched},
+			{name: "hrtimer", value: si.Hrtimer},
+			{name: "rcu", value: si.Rcu},
+		} {
+			ch <- prometheus.MustNewConstMetric(c.softIRQ, prometheus.CounterValue, float64(vec.value), vec.name)
+		}
+	}
 
 	return nil
 }

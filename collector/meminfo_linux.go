@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nomeminfo
 // +build !nomeminfo
 
 package collector
@@ -23,6 +24,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+)
+
+var (
+	reParens = regexp.MustCompile(`\((.*)\)`)
 )
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
@@ -39,19 +44,22 @@ func parseMemInfo(r io.Reader) (map[string]float64, error) {
 	var (
 		memInfo = map[string]float64{}
 		scanner = bufio.NewScanner(r)
-		re      = regexp.MustCompile(`\((.*)\)`)
 	)
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		parts := strings.Fields(line)
+		// Workaround for empty lines occasionally occur in CentOS 6.2 kernel 3.10.90.
+		if len(parts) == 0 {
+			continue
+		}
 		fv, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid value in meminfo: %s", err)
+			return nil, fmt.Errorf("invalid value in meminfo: %w", err)
 		}
 		key := parts[0][:len(parts[0])-1] // remove trailing : from key
 		// Active(anon) -> Active_anon
-		key = re.ReplaceAllString(key, "_${1}")
+		key = reParens.ReplaceAllString(key, "_${1}")
 		switch len(parts) {
 		case 2: // no unit
 		case 3: // has unit, we presume kB

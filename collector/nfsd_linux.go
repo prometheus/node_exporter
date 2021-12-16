@@ -11,23 +11,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nonfsd
+// +build !nonfsd
+
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
-	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/nfs"
 )
 
 // A nfsdCollector is a Collector which gathers metrics from /proc/net/rpc/nfsd.
 // See: https://www.svennd.be/nfsd-stats-explained-procnetrpcnfsd/
 type nfsdCollector struct {
-	fs           procfs.FS
+	fs           nfs.FS
 	requestsDesc *prometheus.Desc
+	logger       log.Logger
 }
 
 func init() {
@@ -39,10 +44,10 @@ const (
 )
 
 // NewNFSdCollector returns a new Collector exposing /proc/net/rpc/nfsd statistics.
-func NewNFSdCollector() (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewNFSdCollector(logger log.Logger) (Collector, error) {
+	fs, err := nfs.NewFS(*procPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open procfs: %v", err)
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	return &nfsdCollector{
@@ -52,18 +57,19 @@ func NewNFSdCollector() (Collector, error) {
 			"Total number NFSd Requests by method and protocol.",
 			[]string{"proto", "method"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 
 // Update implements Collector.
 func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.NFSdServerRPCStats()
+	stats, err := c.fs.ServerRPCStats()
 	if err != nil {
-		if os.IsNotExist(err) {
-			log.Debugf("Not collecting NFSd metrics: %s", err)
-			return nil
+		if errors.Is(err, os.ErrNotExist) {
+			level.Debug(c.logger).Log("msg", "Not collecting NFSd metrics", "err", err)
+			return ErrNoData
 		}
-		return fmt.Errorf("failed to retrieve nfsd stats: %v", err)
+		return fmt.Errorf("failed to retrieve nfsd stats: %w", err)
 	}
 
 	c.updateNFSdReplyCacheStats(ch, &stats.ReplyCache)

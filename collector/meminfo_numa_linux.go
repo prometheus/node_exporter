@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nomeminfo_numa
 // +build !nomeminfo_numa
 
 package collector
@@ -20,12 +21,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -44,6 +45,7 @@ type meminfoMetric struct {
 
 type meminfoNumaCollector struct {
 	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
 }
 
 func init() {
@@ -51,16 +53,17 @@ func init() {
 }
 
 // NewMeminfoNumaCollector returns a new Collector exposing memory stats.
-func NewMeminfoNumaCollector() (Collector, error) {
+func NewMeminfoNumaCollector(logger log.Logger) (Collector, error) {
 	return &meminfoNumaCollector{
 		metricDescs: map[string]*prometheus.Desc{},
+		logger:      logger,
 	}, nil
 }
 
 func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
 	metrics, err := getMemInfoNuma()
 	if err != nil {
-		return fmt.Errorf("couldn't get NUMA meminfo: %s", err)
+		return fmt.Errorf("couldn't get NUMA meminfo: %w", err)
 	}
 	for _, v := range metrics {
 		desc, ok := c.metricDescs[v.metricName]
@@ -86,7 +89,7 @@ func getMemInfoNuma() ([]meminfoMetric, error) {
 		return nil, err
 	}
 	for _, node := range nodes {
-		meminfoFile, err := os.Open(path.Join(node, "meminfo"))
+		meminfoFile, err := os.Open(filepath.Join(node, "meminfo"))
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +101,7 @@ func getMemInfoNuma() ([]meminfoMetric, error) {
 		}
 		metrics = append(metrics, numaInfo...)
 
-		numastatFile, err := os.Open(path.Join(node, "numastat"))
+		numastatFile, err := os.Open(filepath.Join(node, "numastat"))
 		if err != nil {
 			return nil, err
 		}
@@ -135,7 +138,7 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 
 		fv, err := strconv.ParseFloat(parts[3], 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid value in meminfo: %s", err)
+			return nil, fmt.Errorf("invalid value in meminfo: %w", err)
 		}
 		switch l := len(parts); {
 		case l == 4: // no unit
@@ -172,7 +175,7 @@ func parseMemInfoNumaStat(r io.Reader, nodeNumber string) ([]meminfoMetric, erro
 
 		fv, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid value in numastat: %s", err)
+			return nil, fmt.Errorf("invalid value in numastat: %w", err)
 		}
 
 		numaStat = append(numaStat, meminfoMetric{parts[0] + "_total", prometheus.CounterValue, nodeNumber, fv})

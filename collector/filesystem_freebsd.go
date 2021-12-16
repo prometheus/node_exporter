@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nofilesystem
 // +build !nofilesystem
 
 package collector
@@ -19,15 +20,13 @@ import (
 	"bytes"
 	"unsafe"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
 const (
-	defIgnoredMountPoints = "^/(dev)($|/)"
-	defIgnoredFSTypes     = "^devfs$"
-	readOnly              = 0x1 // MNT_RDONLY
-	noWait                = 0x2 // MNT_NOWAIT
+	defMountPointsExcluded = "^/(dev)($|/)"
+	defFSTypesExcluded     = "^devfs$"
 )
 
 func gostring(b []int8) string {
@@ -41,32 +40,37 @@ func gostring(b []int8) string {
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	n, err := unix.Getfsstat(nil, noWait)
+	n, err := unix.Getfsstat(nil, unix.MNT_NOWAIT)
 	if err != nil {
 		return nil, err
 	}
 	buf := make([]unix.Statfs_t, n)
-	_, err = unix.Getfsstat(buf, noWait)
+	_, err = unix.Getfsstat(buf, unix.MNT_NOWAIT)
 	if err != nil {
 		return nil, err
 	}
 	stats := []filesystemStats{}
 	for _, fs := range buf {
-		mountpoint := gostring(fs.Mntonname[:])
-		if c.ignoredMountPointsPattern.MatchString(mountpoint) {
-			log.Debugf("Ignoring mount point: %s", mountpoint)
+		mountpoint := bytesToString(fs.Mntonname[:])
+		if c.excludedMountPointsPattern.MatchString(mountpoint) {
+			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
-		device := gostring(fs.Mntfromname[:])
-		fstype := gostring(fs.Fstypename[:])
-		if c.ignoredFSTypesPattern.MatchString(fstype) {
-			log.Debugf("Ignoring fs type: %s", fstype)
+		device := bytesToString(fs.Mntfromname[:])
+		fstype := bytesToString(fs.Fstypename[:])
+		if c.excludedFSTypesPattern.MatchString(fstype) {
+			level.Debug(c.logger).Log("msg", "Ignoring fs type", "type", fstype)
+			continue
+		}
+
+		if (fs.Flags & unix.MNT_IGNORE) != 0 {
+			level.Debug(c.logger).Log("msg", "Ignoring mount flagged as ignore", "mountpoint", mountpoint)
 			continue
 		}
 
 		var ro float64
-		if (fs.Flags & readOnly) != 0 {
+		if (fs.Flags & unix.MNT_RDONLY) != 0 {
 			ro = 1
 		}
 

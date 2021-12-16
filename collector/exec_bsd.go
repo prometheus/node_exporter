@@ -11,12 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build (freebsd || dragonfly) && !noexec
 // +build freebsd dragonfly
 // +build !noexec
 
 package collector
 
 import (
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

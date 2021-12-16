@@ -1,6 +1,145 @@
 ## master / unreleased
 
+* [CHANGE]
+* [FEATURE]
+* [ENHANCEMENT]
+* [BUGFIX]
+
+* [ENHANCEMENT] Add node_softirqs_total metric #2221
+
+## 1.3.1 / 2021-12-01
+
+* [BUGFIX] Handle nil CPU thermal power status on M1 #2218
+* [BUGFIX] bsd: Ignore filesystems flagged as MNT_IGNORE. #2227
+* [BUGFIX] Sanitize UTF-8 in dmi collector #2229
+
+## 1.3.0 / 2021-10-20
+
+NOTE: In order to support globs in the textfile collector path, filenames exposed by
+      `node_textfile_mtime_seconds` now contain the full path name.
+
+* [CHANGE] Add path label to rapl collector #2146
+* [CHANGE] Exclude filesystems under /run/credentials #2157
+* [CHANGE] Add TCPTimeouts to netstat default filter #2189
+* [FEATURE] Add lnstat collector for metrics from /proc/net/stat/ #1771
+* [FEATURE] Add darwin powersupply collector #1777
+* [FEATURE] Add support for monitoring GPUs on Linux #1998
+* [FEATURE] Add Darwin thermal collector #2032
+* [FEATURE] Add os release collector #2094
+* [FEATURE] Add netdev.address-info collector #2105
+* [FEATURE] Add clocksource metrics to time collector #2197
+* [ENHANCEMENT] Support glob textfile collector directories #1985
+* [ENHANCEMENT] ethtool: Expose node_ethtool_info metric #2080
+* [ENHANCEMENT] Use include/exclude flags for ethtool filtering #2165
+* [ENHANCEMENT] Add flag to disable guest CPU metrics #2123
+* [ENHANCEMENT] Add DMI collector #2131
+* [ENHANCEMENT] Add threads metrics to processes collector #2164
+* [ENHANCMMENT] Reduce timer GC delays in the Linux filesystem collector #2169
+* [ENHANCMMENT] Add TCPTimeouts to netstat default filter #2189
+* [ENHANCMMENT] Use SysctlTimeval for boottime collector on BSD #2208
+* [BUGFIX] ethtool: Sanitize metric names #2093
+* [BUGFIX] Fix ethtool collector for multiple interfaces #2126
+* [BUGFIX] Fix possible panic on macOS #2133
+* [BUGFIX] Collect flag_info and bug_info only for one core #2156
+* [BUGFIX] Prevent duplicate ethtool metric names #2187
+
+## 1.2.2 / 2021-08-06
+
+* [BUGFIX] Fix processes collector long int parsing #2112
+
+## 1.2.1 / 2021-07-23
+
+* [BUGFIX] Fix zoneinfo parsing prometheus/procfs#386
+* [BUGFIX] Fix nvme collector log noise #2091
+* [BUGFIX] Fix rapl collector log noise #2092
+
+## 1.2.0 / 2021-07-15
+
+NOTE: Ignoring invalid network speed will be the default in 2.x
+NOTE: Filesystem collector flags have been renamed. `--collector.filesystem.ignored-mount-points` is now `--collector.filesystem.mount-points-exclude` and `--collector.filesystem.ignored-fs-types` is now `--collector.filesystem.fs-types-exclude`. The old flags will be removed in 2.x.
+
+* [CHANGE] Rename filesystem collector flags to match other collectors #2012
+* [CHANGE] Make node_exporter print usage to STDOUT #2039
+* [FEATURE] Add conntrack statistics metrics #1155
+* [FEATURE] Add ethtool stats collector #1832
+* [FEATURE] Add flag to ignore network speed if it is unknown #1989
+* [FEATURE] Add tapestats collector for Linux #2044
+* [FEATURE] Add nvme collector #2062
+* [ENHANCEMENT] Add ErrorLog plumbing to promhttp #1887
+* [ENHANCEMENT] Add more Infiniband counters #2019
+* [ENHANCEMENT] netclass: retrieve interface names and filter before parsing #2033
+* [ENHANCEMENT] Add time zone offset metric #2060
+* [BUGFIX] Handle errors from disabled PSI subsystem #1983
+* [BUGFIX] Fix panic when using backwards compatible flags #2000
+* [BUGFIX] Fix wrong value for OpenBSD memory buffer cache #2015
+* [BUGFIX] Only initiate collectors once #2048
+* [BUGFIX] Handle small backwards jumps in CPU idle #2067
+  
+## 1.1.2 / 2021-03-05
+
+* [BUGFIX] Handle errors from disabled PSI subsystem #1983
+* [BUGFIX] Sanitize strings from /sys/class/power_supply #1984
+* [BUGFIX] Silence missing netclass errors #1986
+
+## 1.1.1 / 2021-02-12
+
+* [BUGFIX] Fix ineffassign issue #1957
+* [BUGFIX] Fix some noisy log lines #1962
+
+## 1.1.0 / 2021-02-05
+
+NOTE: We have improved some of the flag naming conventions (PR #1743). The old names are
+      deprecated and will be removed in 2.0. They will continue to work for backwards
+      compatibility.
+
+* [CHANGE] Improve filter flag names #1743
+* [CHANGE] Add btrfs and powersupplyclass to list of exporters enabled by default #1897
+* [FEATURE] Add fibre channel collector #1786
+* [FEATURE] Expose cpu bugs and flags as info metrics. #1788
+* [FEATURE] Add network_route collector #1811
+* [FEATURE] Add zoneinfo collector #1922
+* [ENHANCEMENT] Add more InfiniBand counters #1694
+* [ENHANCEMENT] Add flag to aggr ipvs metrics to avoid high cardinality metrics #1709
+* [ENHANCEMENT] Adding backlog/current queue length to qdisc collector #1732
+* [ENHANCEMENT] Include TCP OutRsts in netstat metrics #1733
+* [ENHANCEMENT] Add pool size to entropy collector #1753
+* [ENHANCEMENT] Remove CGO dependencies for OpenBSD amd64 #1774
+* [ENHANCEMENT] bcache: add writeback_rate_debug stats #1658
+* [ENHANCEMENT] Add check state for mdadm arrays via node_md_state metric #1810
+* [ENHANCEMENT] Expose XFS inode statistics #1870
+* [ENHANCEMENT] Expose zfs zpool state #1878
+* [ENHANCEMENT] Added an ability to pass collector.supervisord.url via SUPERVISORD_URL environment variable #1947
+* [BUGFIX] filesystem_freebsd: Fix label values #1728
+* [BUGFIX] Fix various procfs parsing errors #1735
+* [BUGFIX] Handle no data from powersupplyclass #1747
+* [BUGFIX] udp_queues_linux.go: change upd to udp in two error strings #1769
+* [BUGFIX] Fix node_scrape_collector_success behaviour #1816
+* [BUGFIX] Fix NodeRAIDDegraded to not use a string rule expressions #1827
+* [BUGFIX] Fix node_md_disks state label from fail to failed #1862
+* [BUGFIX] Handle EPERM for syscall in timex collector #1938
+* [BUGFIX] bcache: fix typo in a metric name #1943
+* [BUGFIX] Fix XFS read/write stats (https://github.com/prometheus/procfs/pull/343)
+
+## 1.0.1 / 2020-06-15
+
+* [BUGFIX] filesystem_freebsd: Fix label values #1728
+* [BUGFIX] Update prometheus/procfs to fix log noise #1735
+* [BUGFIX] Fix build tags for collectors #1745
+* [BUGFIX] Handle no data from powersupplyclass #1747, #1749
+
+## 1.0.0 / 2020-05-25
+
 ### **Breaking changes**
+
+* The netdev collector CLI argument `--collector.netdev.ignored-devices` was renamed to `--collector.netdev.device-blacklist` in order to conform with the systemd collector. #1279
+* The label named `state` on `node_systemd_service_restart_total` metrics was changed to `name` to better describe the metric. #1393
+* Refactoring of the mdadm collector changes several metrics
+    - `node_md_disks_active` is removed
+    - `node_md_disks` now has a `state` label for "failed", "spare", "active" disks.
+    - `node_md_is_active` is replaced by `node_md_state` with a state set of "active", "inactive", "recovering", "resync".
+* Additional label `mountaddr` added to NFS device metrics to distinguish mounts from the same URL, but different IP addresses. #1417
+* Metrics node_cpu_scaling_frequency_min_hrts and node_cpu_scaling_frequency_max_hrts of the cpufreq collector were renamed to node_cpu_scaling_frequency_min_hertz and node_cpu_scaling_frequency_max_hertz. #1510
+* Collectors that are enabled, but are unable to find data to collect, now return 0 for `node_scrape_collector_success`.
 
 ### Changes
 

@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nocpu
 // +build !nocpu
 
 package collector
@@ -20,10 +21,12 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type cpuCollector struct {
@@ -36,17 +39,48 @@ type cpuCollector struct {
 	cpuPackageThrottle *prometheus.Desc
 }
 
+// Idle jump back limit in seconds.
+const jumpBackSeconds = 3.0
+
+var (
+	enableCPUGuest       = kingpin.Flag("collector.cpu.guest", "Enables metric node_cpu_guest_seconds_total").Default("true").Bool()
+	enableCPUInfo        = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
+	flagsInclude         = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
+	bugsInclude          = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
+	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
+)
+
 func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUCollector() (Collector, error) {
-	return &cpuCollector{
+func NewCPUCollector(logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
+	c := &cpuCollector{
+		fs:  fs,
 		cpu: nodeCPUSecondsDesc,
+		cpuInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
+			"CPU information from /proc/cpuinfo.",
+			[]string{"package", "core", "cpu", "vendor", "family", "model", "model_name", "microcode", "stepping", "cachesize"}, nil,
+		),
+		cpuFlagsInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "flag_info"),
+			"The `flags` field of CPU information from /proc/cpuinfo taken from the first core.",
+			[]string{"flag"}, nil,
+		),
+		cpuBugsInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "bug_info"),
+			"The `bugs` field of CPU information from /proc/cpuinfo taken from the first core.",
+			[]string{"bug"}, nil,
+		),
 		cpuGuest: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
-			"Seconds the cpus spent in guests (VMs) for each mode.",
+			"Seconds the CPUs spent in guests (VMs) for each mode.",
 			[]string{"cpu", "mode"}, nil,
 		),
 		cpuFreq: prometheus.NewDesc(
@@ -66,15 +100,21 @@ func NewCPUCollector() (Collector, error) {
 		),
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),
-			"Number of times this cpu core has been throttled.",
+			"Number of times this CPU core has been throttled.",
 			[]string{"package", "core"}, nil,
 		),
 		cpuPackageThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "package_throttles_total"),
-			"Number of times this cpu package has been throttled.",
+			"Number of times this CPU package has been throttled.",
 			[]string{"package"}, nil,
 		),
-	}, nil
+		logger: logger,
+	}
+	err = c.compileIncludeFlags(flagsInclude, bugsInclude)
+	if err != nil {
+		return nil, fmt.Errorf("fail to compile --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include, the values of them must be regular expressions: %w", err)
+	}
+	return c, nil
 }
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
@@ -85,10 +125,7 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateCPUfreq(ch); err != nil {
 		return err
 	}
-	if err := c.updateThermalThrottle(ch); err != nil {
-		return err
-	}
-	return nil
+	return c.updateThermalThrottle(ch)
 }
 
 // updateCPUfreq reads /sys/devices/system/cpu/cpu* and expose cpu frequency statistics.
@@ -97,32 +134,48 @@ func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("failed to open sysfs: %v", err)
 	}
-
-	cpuFreqs, err := fs.NewSystemCpufreq()
-	if err != nil {
-		return err
+	for _, cpu := range info {
+		ch <- prometheus.MustNewConstMetric(c.cpuInfo,
+			prometheus.GaugeValue,
+			1,
+			cpu.PhysicalID,
+			cpu.CoreID,
+			strconv.Itoa(int(cpu.Processor)),
+			cpu.VendorID,
+			cpu.CPUFamily,
+			cpu.Model,
+			cpu.ModelName,
+			cpu.Microcode,
+			cpu.Stepping,
+			cpu.CacheSize)
 	}
 
-	// sysfs cpufreq values are kHz, thus multiply by 1000 to export base units (hz).
-	// See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
-	for _, stats := range cpuFreqs {
-		ch <- prometheus.MustNewConstMetric(
-			c.cpuFreq,
+	if len(info) != 0 {
+		cpu := info[0]
+		if err := updateFieldInfo(cpu.Flags, c.cpuFlagsIncludeRegexp, c.cpuFlagsInfo, ch); err != nil {
+			return err
+		}
+		if err := updateFieldInfo(cpu.Bugs, c.cpuBugsIncludeRegexp, c.cpuBugsInfo, ch); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func updateFieldInfo(valueList []string, filter *regexp.Regexp, desc *prometheus.Desc, ch chan<- prometheus.Metric) error {
+	if filter == nil {
+		return nil
+	}
+
+	for _, val := range valueList {
+		if !filter.MatchString(val) {
+			continue
+		}
+		ch <- prometheus.MustNewConstMetric(desc,
 			prometheus.GaugeValue,
-			float64(stats.CurrentFrequency)*1000.0,
-			stats.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.cpuFreqMin,
-			prometheus.GaugeValue,
-			float64(stats.MinimumFrequency)*1000.0,
-			stats.Name,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.cpuFreqMax,
-			prometheus.GaugeValue,
-			float64(stats.MaximumFrequency)*1000.0,
-			stats.Name,
+			1,
+			val,
 		)
 	}
 	return nil
@@ -161,7 +214,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 		// metric node_cpu_core_throttles_total
 		//
 		// We process this metric before the package throttles as there
-		// are cpu+kernel combinations that only present core throttles
+		// are CPU+kernel combinations that only present core throttles
 		// but no package throttles.
 		// Seen e.g. on an Intel Xeon E5472 system with RHEL 6.9 kernel.
 		if _, present := packageCoreThrottles[physicalPackageID]; !present {
@@ -206,7 +259,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 	return nil
 }
 
-// updateStat reads /proc/stat through procfs and exports cpu related metrics.
+// updateStat reads /proc/stat through procfs and exports CPU-related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
@@ -228,10 +281,93 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuNum, "softirq")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuNum, "steal")
 
-		// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
-		ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")
-		ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")
+		if *enableCPUGuest {
+			// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
+			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")
+			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")
+		}
 	}
 
 	return nil
+}
+
+// updateCPUStats updates the internal cache of CPU stats.
+func (c *cpuCollector) updateCPUStats(newStats []procfs.CPUStat) {
+
+	// Acquire a lock to update the stats.
+	c.cpuStatsMutex.Lock()
+	defer c.cpuStatsMutex.Unlock()
+
+	// Reset the cache if the list of CPUs has changed.
+	if len(c.cpuStats) != len(newStats) {
+		c.cpuStats = make([]procfs.CPUStat, len(newStats))
+	}
+
+	for i, n := range newStats {
+		// If idle jumps backwards by more than X seconds, assume we had a hotplug event and reset the stats for this CPU.
+		if (c.cpuStats[i].Idle - n.Idle) >= jumpBackSeconds {
+			level.Debug(c.logger).Log("msg", jumpBackDebugMessage, "cpu", i, "old_value", c.cpuStats[i].Idle, "new_value", n.Idle)
+			c.cpuStats[i] = procfs.CPUStat{}
+		}
+
+		if n.Idle >= c.cpuStats[i].Idle {
+			c.cpuStats[i].Idle = n.Idle
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU Idle counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Idle, "new_value", n.Idle)
+		}
+
+		if n.User >= c.cpuStats[i].User {
+			c.cpuStats[i].User = n.User
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU User counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].User, "new_value", n.User)
+		}
+
+		if n.Nice >= c.cpuStats[i].Nice {
+			c.cpuStats[i].Nice = n.Nice
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU Nice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Nice, "new_value", n.Nice)
+		}
+
+		if n.System >= c.cpuStats[i].System {
+			c.cpuStats[i].System = n.System
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU System counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].System, "new_value", n.System)
+		}
+
+		if n.Iowait >= c.cpuStats[i].Iowait {
+			c.cpuStats[i].Iowait = n.Iowait
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU Iowait counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Iowait, "new_value", n.Iowait)
+		}
+
+		if n.IRQ >= c.cpuStats[i].IRQ {
+			c.cpuStats[i].IRQ = n.IRQ
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU IRQ counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].IRQ, "new_value", n.IRQ)
+		}
+
+		if n.SoftIRQ >= c.cpuStats[i].SoftIRQ {
+			c.cpuStats[i].SoftIRQ = n.SoftIRQ
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU SoftIRQ counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].SoftIRQ, "new_value", n.SoftIRQ)
+		}
+
+		if n.Steal >= c.cpuStats[i].Steal {
+			c.cpuStats[i].Steal = n.Steal
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU Steal counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Steal, "new_value", n.Steal)
+		}
+
+		if n.Guest >= c.cpuStats[i].Guest {
+			c.cpuStats[i].Guest = n.Guest
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU Guest counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].Guest, "new_value", n.Guest)
+		}
+
+		if n.GuestNice >= c.cpuStats[i].GuestNice {
+			c.cpuStats[i].GuestNice = n.GuestNice
+		} else {
+			level.Debug(c.logger).Log("msg", "CPU GuestNice counter jumped backwards", "cpu", i, "old_value", c.cpuStats[i].GuestNice, "new_value", n.GuestNice)
+		}
+	}
 }

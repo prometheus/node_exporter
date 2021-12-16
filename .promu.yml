@@ -1,9 +1,13 @@
+go:
+    # Whenever the Go version is updated here, .circle/config.yml and
+    # .promu-cgo.yml should also be updated.
+    version: 1.17
 repository:
     path: github.com/percona/node_exporter
 build:
     binaries:
         - name: node_exporter
-    flags: -mod=mod -a -tags 'netgo static_build'
+    flags: -mod=mod -a -tags 'netgo osusergo static_build'
     ldflags: |
         -X github.com/prometheus/common/version.Version={{.Version}}
         -X github.com/prometheus/common/version.Revision={{.Revision}}
@@ -16,14 +20,5 @@ tarball:
         - NOTICE
 crossbuild:
     platforms:
-        - linux/amd64
-        - linux/386
-        - linux/arm
-        - linux/arm64
-        - linux/mips
-        - linux/mipsle
-        - linux/mips64
-        - linux/mips64le
-        - linux/ppc64
-        - linux/ppc64le
-        - linux/s390x
+        - linux
+        - openbsd/amd64

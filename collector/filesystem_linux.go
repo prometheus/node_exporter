@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nofilesystem
 // +build !nofilesystem
 
 package collector
@@ -23,14 +24,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/prometheus/common/log"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
+	"golang.org/x/sys/unix"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	defIgnoredMountPoints = "^/(dev|proc|sys|var/lib/docker/.+)($|/)"
-	defIgnoredFSTypes     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
-	readOnly              = 0x1 // ST_RDONLY
-	mountTimeout          = 30 * time.Second
+	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+)($|/)"
+	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 )
 
 var stuckMounts = make(map[string]struct{})
@@ -44,12 +46,12 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	}
 	stats := []filesystemStats{}
 	for _, labels := range mps {
-		if c.ignoredMountPointsPattern.MatchString(labels.mountPoint) {
-			log.Debugf("Ignoring mount point: %s", labels.mountPoint)
+		if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
+			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", labels.mountPoint)
 			continue
 		}
-		if c.ignoredFSTypesPattern.MatchString(labels.fsType) {
-			log.Debugf("Ignoring fs type: %s", labels.fsType)
+		if c.excludedFSTypesPattern.MatchString(labels.fsType) {
+			level.Debug(c.logger).Log("msg", "Ignoring fs", "type", labels.fsType)
 			continue
 		}
 		stuckMountsMtx.Lock()
@@ -114,11 +116,13 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}) {
+func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
+	mountCheckTimer := time.NewTimer(*mountTimeout)
+	defer mountCheckTimer.Stop()
 	select {
 	case <-success:
 		// Success
-	case <-time.After(mountTimeout):
+	case <-mountCheckTimer.C:
 		// Timed out, mark mount as stuck
 		stuckMountsMtx.Lock()
 		select {

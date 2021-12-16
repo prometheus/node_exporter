@@ -11,28 +11,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nodiskstats
 // +build !nodiskstats
 
 package collector
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
 	"regexp"
-	"strconv"
-	"strings"
 
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/common/log"
+	"github.com/prometheus/procfs/blockdevice"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	diskSubsystem     = "disk"
-	diskSectorSize    = 512
-	diskstatsFilename = "diskstats"
+	secondsPerTick = 1.0 / 1000.0
 )
 
 var (
@@ -42,18 +38,16 @@ var (
 type typedFactorDesc struct {
 	desc      *prometheus.Desc
 	valueType prometheus.ValueType
-	factor    float64
 }
 
 func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
-	if d.factor != 0 {
-		value *= d.factor
-	}
 	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
 }
 
 type diskstatsCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
+	fs                    blockdevice.FS
+	infoDesc              typedFactorDesc
 	descs                 []typedFactorDesc
 }
 
@@ -65,9 +59,21 @@ func init() {
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 func NewDiskstatsCollector() (Collector, error) {
 	var diskLabelNames = []string{"device"}
+	fs, err := blockdevice.NewFS(*procPath, *sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
 
 	return &diskstatsCollector{
 		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
+		fs:                    fs,
+		infoDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
+				"Info of /sys/block/<block_device>.",
+				[]string{"device", "major", "minor"},
+				nil,
+			), valueType: prometheus.GaugeValue,
+		},
 		descs: []typedFactorDesc{
 			{
 				desc: prometheus.NewDesc(
@@ -86,22 +92,10 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.CounterValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "read_bytes_total"),
-					"The total number of bytes read successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
-				factor: diskSectorSize,
+				desc: readBytesDesc, valueType: prometheus.CounterValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "read_time_seconds_total"),
-					"The total number of seconds spent by all reads.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
-				factor: .001,
+				desc: readTimeSecondsDesc, valueType: prometheus.CounterValue,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -120,22 +114,10 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.CounterValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "written_bytes_total"),
-					"The total number of bytes written successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
-				factor: diskSectorSize,
+				desc: writtenBytesDesc, valueType: prometheus.CounterValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "write_time_seconds_total"),
-					"This is the total number of seconds spent by all writes.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
-				factor: .001,
+				desc: writeTimeSecondsDesc, valueType: prometheus.CounterValue,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -146,13 +128,7 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "io_time_seconds_total"),
-					"Total seconds spent doing I/Os.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
-				factor: .001,
+				desc: ioTimeSecondsDesc, valueType: prometheus.CounterValue,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -161,7 +137,6 @@ func NewDiskstatsCollector() (Collector, error) {
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
-				factor: .001,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -194,63 +169,76 @@ func NewDiskstatsCollector() (Collector, error) {
 					diskLabelNames,
 					nil,
 				), valueType: prometheus.CounterValue,
-				factor: .001,
+			},
+			{
+				desc: prometheus.NewDesc(
+					prometheus.BuildFQName(namespace, diskSubsystem, "flush_requests_total"),
+					"The total number of flush requests completed successfully",
+					diskLabelNames,
+					nil,
+				), valueType: prometheus.CounterValue,
+			},
+			{
+				desc: prometheus.NewDesc(
+					prometheus.BuildFQName(namespace, diskSubsystem, "flush_requests_time_seconds_total"),
+					"This is the total number of seconds spent by all flush requests.",
+					diskLabelNames,
+					nil,
+				), valueType: prometheus.CounterValue,
 			},
 		},
 	}, nil
 }
 
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
-	diskStats, err := getDiskStats()
+	diskStats, err := c.fs.ProcDiskstats()
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %s", err)
 	}
 
-	for dev, stats := range diskStats {
+	for _, stats := range diskStats {
+		dev := stats.DeviceName
 		if c.ignoredDevicesPattern.MatchString(dev) {
-			log.Debugf("Ignoring device: %s", dev)
+			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev, "pattern", c.ignoredDevicesPattern)
 			continue
 		}
 
-		for i, value := range stats {
-			// ignore unrecognized additional stats
-			if i >= len(c.descs) {
+		diskSectorSize := 512.0
+		blockQueue, err := c.fs.SysBlockDeviceQueueStats(dev)
+		if err != nil {
+			level.Debug(c.logger).Log("msg", "Error getting queue stats", "device", dev, "err", err)
+		} else {
+			diskSectorSize = float64(blockQueue.LogicalBlockSize)
+		}
+
+		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
+
+		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
+
+		for i, val := range []float64{
+			float64(stats.ReadIOs),
+			float64(stats.ReadMerges),
+			float64(stats.ReadSectors) * diskSectorSize,
+			float64(stats.ReadTicks) * secondsPerTick,
+			float64(stats.WriteIOs),
+			float64(stats.WriteMerges),
+			float64(stats.WriteSectors) * diskSectorSize,
+			float64(stats.WriteTicks) * secondsPerTick,
+			float64(stats.IOsInProgress),
+			float64(stats.IOsTotalTicks) * secondsPerTick,
+			float64(stats.WeightedIOTicks) * secondsPerTick,
+			float64(stats.DiscardIOs),
+			float64(stats.DiscardMerges),
+			float64(stats.DiscardSectors),
+			float64(stats.DiscardTicks) * secondsPerTick,
+			float64(stats.FlushRequestsCompleted),
+			float64(stats.TimeSpentFlushing) * secondsPerTick,
+		} {
+			if i >= statCount {
 				break
 			}
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return fmt.Errorf("invalid value %s in diskstats: %s", value, err)
-			}
-			ch <- c.descs[i].mustNewConstMetric(v, dev)
+			ch <- c.descs[i].mustNewConstMetric(val, dev)
 		}
 	}
 	return nil
-}
-
-func getDiskStats() (map[string][]string, error) {
-	file, err := os.Open(procFilePath(diskstatsFilename))
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseDiskStats(file)
-}
-
-func parseDiskStats(r io.Reader) (map[string][]string, error) {
-	var (
-		diskStats = map[string][]string{}
-		scanner   = bufio.NewScanner(r)
-	)
-
-	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
-		if len(parts) < 4 { // we strip major, minor and dev
-			return nil, fmt.Errorf("invalid line in %s: %s", procFilePath(diskstatsFilename), scanner.Text())
-		}
-		dev := parts[2]
-		diskStats[dev] = parts[3:]
-	}
-
-	return diskStats, scanner.Err()
 }

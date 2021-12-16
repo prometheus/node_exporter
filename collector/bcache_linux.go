@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nobcache
 // +build !nobcache
 
 package collector
@@ -18,10 +19,14 @@ package collector
 import (
 	"fmt"
 
-	// https://godoc.org/github.com/prometheus/client_golang/prometheus
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
-	"github.com/prometheus/procfs/sysfs"
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
 )
 
 func init() {
@@ -30,28 +35,36 @@ func init() {
 
 // A bcacheCollector is a Collector which gathers metrics from Linux bcache.
 type bcacheCollector struct {
-	fs sysfs.FS
+	fs     bcache.FS
+	logger log.Logger
 }
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
-func NewBcacheCollector() (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewBcacheCollector(logger log.Logger) (Collector, error) {
+	fs, err := bcache.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %v", err)
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &bcacheCollector{
-		fs: fs,
+		fs:     fs,
+		logger: logger,
 	}, nil
 }
 
 // Update reads and exposes bcache stats.
 // It implements the Collector interface.
 func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.BcacheStats()
+	var stats []*bcache.Stats
+	var err error
+	if *priorityStats {
+		stats, err = c.fs.Stats()
+	} else {
+		stats, err = c.fs.StatsWithoutPriority()
+	}
 	if err != nil {
-		return fmt.Errorf("failed to retrieve bcache stats: %v", err)
+		return fmt.Errorf("failed to retrieve bcache stats: %w", err)
 	}
 
 	for _, s := range stats {
@@ -222,6 +235,46 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabel:      []string{"backing_device"},
 				extraLabelValue: bdev.Name,
 			},
+			{
+				name:            "dirty_target_bytes",
+				desc:            "Current dirty data target threshold for this backing device in bytes.",
+				value:           float64(bdev.WritebackRateDebug.Target),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_rate",
+				desc:            "Current writeback rate for this backing device in bytes.",
+				value:           float64(bdev.WritebackRateDebug.Rate),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_rate_proportional_term",
+				desc:            "Current result of proportional controller, part of writeback rate",
+				value:           float64(bdev.WritebackRateDebug.Proportional),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_rate_integral_term",
+				desc:            "Current result of integral controller, part of writeback rate",
+				value:           float64(bdev.WritebackRateDebug.Integral),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
+			{
+				name:            "writeback_change",
+				desc:            "Last writeback rate change step for this backing device.",
+				value:           float64(bdev.WritebackRateDebug.Change),
+				metricType:      prometheus.GaugeValue,
+				extraLabel:      []string{"backing_device"},
+				extraLabelValue: bdev.Name,
+			},
 		}
 		allMetrics = append(allMetrics, metrics...)
 
@@ -258,23 +311,28 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabel:      []string{"cache_device"},
 				extraLabelValue: cache.Name,
 			},
+		}
+		if *priorityStats {
 			// metrics in /sys/fs/bcache/<uuid>/<cache>/priority_stats
-			{
-				name:            "priority_stats_unused_percent",
-				desc:            "The percentage of the cache that doesn't contain any data.",
-				value:           float64(cache.Priority.UnusedPercent),
-				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"cache_device"},
-				extraLabelValue: cache.Name,
-			},
-			{
-				name:            "priority_stats_metadata_percent",
-				desc:            "Bcache's metadata overhead.",
-				value:           float64(cache.Priority.MetadataPercent),
-				metricType:      prometheus.GaugeValue,
-				extraLabel:      []string{"cache_device"},
-				extraLabelValue: cache.Name,
-			},
+			priorityStatsMetrics := []bcacheMetric{
+				{
+					name:            "priority_stats_unused_percent",
+					desc:            "The percentage of the cache that doesn't contain any data.",
+					value:           float64(cache.Priority.UnusedPercent),
+					metricType:      prometheus.GaugeValue,
+					extraLabel:      []string{"cache_device"},
+					extraLabelValue: cache.Name,
+				},
+				{
+					name:            "priority_stats_metadata_percent",
+					desc:            "Bcache's metadata overhead.",
+					value:           float64(cache.Priority.MetadataPercent),
+					metricType:      prometheus.GaugeValue,
+					extraLabel:      []string{"cache_device"},
+					extraLabelValue: cache.Name,
+				},
+			}
+			metrics = append(metrics, priorityStatsMetrics...)
 		}
 		allMetrics = append(allMetrics, metrics...)
 	}

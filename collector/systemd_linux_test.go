@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"github.com/go-kit/log"
 	"regexp"
 	"testing"
 

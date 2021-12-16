@@ -11,7 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !nocpu
+//go:build openbsd && !amd64 && !nocpu
+// +build openbsd,!amd64,!nocpu
 
 package collector
 
@@ -19,6 +20,7 @@ import (
 	"strconv"
 	"unsafe"
 
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
