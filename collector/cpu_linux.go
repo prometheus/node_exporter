@@ -299,34 +299,11 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 	return nil
 }
 
-func contains(s []uint16, e uint16) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
 // updateStat reads /proc/stat through procfs and exports CPU-related metrics.
 func (c *cpuCollector) updateIsolated(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.Stat()
-	if err != nil {
-		return err
-	}
-
-	c.updateCPUStats(stats.CPU)
-
-	// Acquire a lock to read the stats.
-	c.cpuStatsMutex.Lock()
-	defer c.cpuStatsMutex.Unlock()
-	for cpuID, _ := range c.cpuStats {
-		cpuNum := strconv.Itoa(cpuID)
-		isIsolated := 0.0
-		if contains(c.isolatedCpus, uint16(cpuID)) {
-			isIsolated = 1.0
-		}
-		ch <- prometheus.MustNewConstMetric(c.cpuIsolated, prometheus.GaugeValue, isIsolated, cpuNum)
+	for _, cpu := range c.isolatedCpus {
+		cpuNum := strconv.Itoa(int(cpu))
+		ch <- prometheus.MustNewConstMetric(c.cpuIsolated, prometheus.GaugeValue, 1.0, cpuNum)
 	}
 
 	return nil
