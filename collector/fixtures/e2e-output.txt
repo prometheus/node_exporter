@@ -319,6 +319,16 @@ node_cpu_info{cachesize="8192 KB",core="2",cpu="2",family="6",microcode="0xb4",m
 node_cpu_info{cachesize="8192 KB",core="2",cpu="6",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="3",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="7",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+# HELP node_cpu_isolated Whether each core is isolated, information from /sys/devices/system/cpu/isolated.
+# TYPE node_cpu_isolated gauge
+node_cpu_isolated{cpu="0"} 0
+node_cpu_isolated{cpu="1"} 1
+node_cpu_isolated{cpu="2"} 0
+node_cpu_isolated{cpu="3"} 1
+node_cpu_isolated{cpu="4"} 1
+node_cpu_isolated{cpu="5"} 1
+node_cpu_isolated{cpu="6"} 0
+node_cpu_isolated{cpu="7"} 0
 # HELP node_cpu_package_throttles_total Number of times this CPU package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30
