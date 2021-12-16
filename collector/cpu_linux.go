@@ -79,7 +79,8 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 
 	isolcpus, err := sysfs.IsolatedCPUs()
 	if err != nil {
-		return nil, fmt.Errorf("failed to read isolcpus from sysfs: %w", err)
+		level.Warn(logger).Log("msg", "Unable to get isolated cpus, defaulting to []")
+		isolcpus = []uint16{}
 	}
 
 	c := &cpuCollector{
