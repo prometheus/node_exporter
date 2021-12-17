@@ -18,6 +18,7 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -79,8 +80,11 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 
 	isolcpus, err := sysfs.IsolatedCPUs()
 	if err != nil {
-		level.Warn(logger).Log("msg", "Unable to get isolated cpus, defaulting to []")
-		isolcpus = []uint16{}
+		if os.IsNotExist(err) {
+			level.Debug(logger).Log("msg", "Could not open isolated file", "error", err)
+		} else {
+			return nil, fmt.Errorf("Unable to get isolated cpus: %w", err)
+		}
 	}
 
 	c := &cpuCollector{
