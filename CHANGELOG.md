@@ -6,6 +6,7 @@
 * [BUGFIX]
 
 * [ENHANCEMENT] Add node_softirqs_total metric #2221
+* [ENHANCEMENT] Add device filter flags to arp collector #2254
 
 ## 1.3.1 / 2021-12-01
 

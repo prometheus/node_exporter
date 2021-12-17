@@ -25,11 +25,18 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
+)
+
+var (
+	arpDeviceInclude = kingpin.Flag("collector.arp.device-include", "Regexp of arp devices to include (mutually exclusive to device-exclude).").String()
+	arpDeviceExclude = kingpin.Flag("collector.arp.device-exclude", "Regexp of arp devices to exclude (mutually exclusive to device-include).").String()
 )
 
 type arpCollector struct {
-	entries *prometheus.Desc
-	logger  log.Logger
+	deviceFilter netDevFilter
+	entries      *prometheus.Desc
+	logger       log.Logger
 }
 
 func init() {
@@ -39,6 +46,7 @@ func init() {
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector(logger log.Logger) (Collector, error) {
 	return &arpCollector{
+		deviceFilter: newNetDevFilter(*arpDeviceExclude, *arpDeviceInclude),
 		entries: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "arp", "entries"),
 			"ARP entries by device",
@@ -98,6 +106,9 @@ func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for device, entryCount := range entries {
+		if c.deviceFilter.ignored(device) {
+			continue
+		}
 		ch <- prometheus.MustNewConstMetric(
 			c.entries, prometheus.GaugeValue, float64(entryCount), device)
 	}
