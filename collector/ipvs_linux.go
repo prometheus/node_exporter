@@ -79,13 +79,6 @@ func NewIPVSCollector(logger log.Logger) (Collector, error) {
 
 func newIPVSCollector(logger log.Logger) (*ipvsCollector, error) {
 	var (
-		ipvsBackendLabelNames = []string{
-			"local_address",
-			"local_port",
-			"remote_address",
-			"remote_port",
-			"proto",
-		}
 		c         ipvsCollector
 		err       error
 		subsystem = "ipvs"
@@ -129,17 +122,17 @@ func newIPVSCollector(logger log.Logger) (*ipvsCollector, error) {
 	c.backendConnectionsActive = typedDesc{prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "backend_connections_active"),
 		"The current active connections by local and remote address.",
-		ipvsBackendLabelNames, nil,
+		c.backendLabels, nil,
 	), prometheus.GaugeValue}
 	c.backendConnectionsInact = typedDesc{prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "backend_connections_inactive"),
 		"The current inactive connections by local and remote address.",
-		ipvsBackendLabelNames, nil,
+		c.backendLabels, nil,
 	), prometheus.GaugeValue}
 	c.backendWeight = typedDesc{prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "backend_weight"),
 		"The current backend weight by local and remote address.",
-		ipvsBackendLabelNames, nil,
+		c.backendLabels, nil,
 	), prometheus.GaugeValue}
 
 	return &c, nil
@@ -169,16 +162,42 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 	sums := map[string]ipvsBackendStatus{}
 	labelValues := map[string][]string{}
 	for _, backend := range backendStats {
-		labelValues := []string{
-			backend.LocalAddress.String(),
-			strconv.FormatUint(uint64(backend.LocalPort), 10),
-			backend.RemoteAddress.String(),
-			strconv.FormatUint(uint64(backend.RemotePort), 10),
-			backend.Proto,
+		localAddress := ""
+		if backend.LocalAddress.String() != "<nil>" {
+			localAddress = backend.LocalAddress.String()
 		}
-		ch <- c.backendConnectionsActive.mustNewConstMetric(float64(backend.ActiveConn), labelValues...)
-		ch <- c.backendConnectionsInact.mustNewConstMetric(float64(backend.InactConn), labelValues...)
-		ch <- c.backendWeight.mustNewConstMetric(float64(backend.Weight), labelValues...)
+		kv := make([]string, len(c.backendLabels))
+		for i, label := range c.backendLabels {
+			var labelValue string
+			switch label {
+			case ipvsLabelLocalAddress:
+				labelValue = localAddress
+			case ipvsLabelLocalPort:
+				labelValue = strconv.FormatUint(uint64(backend.LocalPort), 10)
+			case ipvsLabelRemoteAddress:
+				labelValue = backend.RemoteAddress.String()
+			case ipvsLabelRemotePort:
+				labelValue = strconv.FormatUint(uint64(backend.RemotePort), 10)
+			case ipvsLabelProto:
+				labelValue = backend.Proto
+			case ipvsLabelLocalMark:
+				labelValue = backend.LocalMark
+			}
+			kv[i] = labelValue
+		}
+		key := strings.Join(kv, "-")
+		status := sums[key]
+		status.ActiveConn += backend.ActiveConn
+		status.InactConn += backend.InactConn
+		status.Weight += backend.Weight
+		sums[key] = status
+		labelValues[key] = kv
+	}
+	for key, status := range sums {
+		kv := labelValues[key]
+		ch <- c.backendConnectionsActive.mustNewConstMetric(float64(status.ActiveConn), kv...)
+		ch <- c.backendConnectionsInact.mustNewConstMetric(float64(status.InactConn), kv...)
+		ch <- c.backendWeight.mustNewConstMetric(float64(status.Weight), kv...)
 	}
 	return nil
 }

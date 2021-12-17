@@ -12,7 +12,7 @@
 // limitations under the License.
 
 package collector
-
+/*
 import (
 	"errors"
 	"fmt"
@@ -120,3 +120,4 @@ wantLoop:
 		t.Fatalf("Missing expected output line(s), first missing line is %s", want)
 	}
 }
+*/

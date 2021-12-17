@@ -76,13 +76,35 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func(log
 }
 
 // NodeCollector implements the prometheus.Collector interface.
-type nodeCollector struct {
+type NodeCollector struct {
 	Collectors map[string]Collector
 	logger     log.Logger
 }
 
+// DisableDefaultCollectors sets the collector state to false for all collectors which
+// have not been explicitly enabled on the command line.
+func DisableDefaultCollectors() {
+	for c := range collectorState {
+		if _, ok := forcedCollectors[c]; !ok {
+			*collectorState[c] = false
+		}
+	}
+}
+
+// collectorFlagAction generates a new action function for the given collector
+// to track whether it has been explicitly enabled or disabled from the command line.
+// A new action function is needed for each collector flag because the ParseContext
+// does not contain information about which flag called the action.
+// See: https://github.com/alecthomas/kingpin/issues/294
+func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error {
+	return func(ctx *kingpin.ParseContext) error {
+		forcedCollectors[collector] = true
+		return nil
+	}
+}
+
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(logger log.Logger, filters ...string) (*nodeCollector, error) {
+func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
 		enabled, exist := collectorState[filter]
@@ -112,17 +134,17 @@ func NewNodeCollector(logger log.Logger, filters ...string) (*nodeCollector, err
 			initiatedCollectors[key] = collector
 		}
 	}
-	return &nodeCollector{Collectors: collectors, logger: logger}, nil
+	return &NodeCollector{Collectors: collectors, logger: logger}, nil
 }
 
 // Describe implements the prometheus.Collector interface.
-func (n nodeCollector) Describe(ch chan<- *prometheus.Desc) {
+func (n NodeCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- scrapeDurationDesc
 	ch <- scrapeSuccessDesc
 }
 
 // Collect implements the prometheus.Collector interface.
-func (n nodeCollector) Collect(ch chan<- prometheus.Metric) {
+func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(n.Collectors))
 	for name, c := range n.Collectors {

@@ -82,7 +82,7 @@ func NewTextFileCollectorMr(logger log.Logger) (Collector, error) {
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files
 // in the given textfile hr directory.
-func NewTextFileCollectorHr() (Collector, error) {
+func NewTextFileCollectorHr(logger log.Logger) (Collector, error) {
 	c := &textFileCollector{
 		path:   *textFileDirectoryHr,
 		logger: logger,

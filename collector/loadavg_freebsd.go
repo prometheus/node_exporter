@@ -16,7 +16,7 @@
 // +build !noloadavg
 
 package collector
-
+/*
 import (
 	"unsafe"
 
@@ -40,3 +40,4 @@ func getLoad() ([]float64, error) {
 		float64(load.load[2]) / scale,
 	}, nil
 }
+*/

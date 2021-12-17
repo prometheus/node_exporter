@@ -15,7 +15,7 @@
 // +build linux,!noinfiniband
 
 package collector
-
+/*
 import (
 	"errors"
 	"fmt"
@@ -265,4 +265,4 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	return nil
-}
+}*/

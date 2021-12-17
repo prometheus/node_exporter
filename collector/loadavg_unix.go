@@ -15,7 +15,7 @@
 // +build !noloadavg
 
 package collector
-
+/*
 import (
 	"errors"
 )
@@ -31,3 +31,4 @@ func getLoad() ([]float64, error) {
 	}
 	return []float64{float64(loadavg[0]), float64(loadavg[1]), float64(loadavg[2])}, nil
 }
+*/

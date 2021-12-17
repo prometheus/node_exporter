@@ -1,5 +1,5 @@
 package collector
-
+/*
 import (
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -37,4 +37,4 @@ func NewStandardProcessCollector() (Collector, error) {
 func (c *standardProcessCollector) Update(ch chan<- prometheus.Metric) error {
 	c.origin.Collect(ch)
 	return nil
-}
+}*/
