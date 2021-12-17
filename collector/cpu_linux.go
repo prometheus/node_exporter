@@ -304,14 +304,12 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 	return nil
 }
 
-// updateStat reads /proc/stat through procfs and exports CPU-related metrics.
-func (c *cpuCollector) updateIsolated(ch chan<- prometheus.Metric) error {
+// updateIsolated reads /sys/devices/system/cpu/isolated through sysfs and exports isolation level metrics.
+func (c *cpuCollector) updateIsolated(ch chan<- prometheus.Metric) {
 	for _, cpu := range c.isolatedCpus {
 		cpuNum := strconv.Itoa(int(cpu))
 		ch <- prometheus.MustNewConstMetric(c.cpuIsolated, prometheus.GaugeValue, 1.0, cpuNum)
 	}
-
-	return nil
 }
 
 // updateStat reads /proc/stat through procfs and exports CPU-related metrics.
