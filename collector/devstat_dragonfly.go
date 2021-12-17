@@ -98,6 +98,7 @@ type devstatCollector struct {
 	bytesDesc     *prometheus.Desc
 	transfersDesc *prometheus.Desc
 	blocksDesc    *prometheus.Desc
+	logger        log.Logger
 }
 
 func init() {
@@ -105,7 +106,7 @@ func init() {
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector() (Collector, error) {
+func NewDevstatCollector(logger log.Logger) (Collector, error) {
 	return &devstatCollector{
 		bytesDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "bytes_total"),
@@ -122,6 +123,7 @@ func NewDevstatCollector() (Collector, error) {
 			"The total number of bytes given in terms of the devices blocksize.",
 			[]string{"device"}, nil,
 		),
+		logger: logger,
 	}, nil
 }
 

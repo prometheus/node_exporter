@@ -20,7 +20,7 @@ import (
 	"github.com/go-kit/log"
 )
 
-func TestNetDevStats(t *testing.T) {
+func TestNetDevStatsIgnore(t *testing.T) {
 	file, err := os.Open("fixtures/proc/net/dev")
 	if err != nil {
 		t.Fatal(err)

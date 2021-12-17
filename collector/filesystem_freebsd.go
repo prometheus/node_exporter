@@ -17,9 +17,6 @@
 package collector
 
 import (
-	"bytes"
-	"unsafe"
-
 	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 )
@@ -28,15 +25,6 @@ const (
 	defMountPointsExcluded = "^/(dev)($|/)"
 	defFSTypesExcluded     = "^devfs$"
 )
-
-func gostring(b []int8) string {
-	bb := *(*[]byte)(unsafe.Pointer(&b))
-	idx := bytes.IndexByte(bb, 0)
-	if idx < 0 {
-		return ""
-	}
-	return string(bb[:idx])
-}
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
@@ -77,7 +65,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		stats = append(stats, filesystemStats{
 			labels: filesystemLabels{
 				device:     device,
-				mountPoint: mountpoint,
+				mountPoint: rootfsStripPrefix(mountpoint),
 				fsType:     fstype,
 			},
 			size:      float64(fs.Blocks) * float64(fs.Bsize),

@@ -130,6 +130,7 @@ pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (ke
 rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
 schedstat | Exposes task scheduler statistics from `/proc/schedstat`. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
+softnet | Exposes statistics from `/proc/net/softnet_stat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
 tapestats | Exposes statistics from `/sys/class/scsi_tape`. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
@@ -233,7 +234,7 @@ that are tied to a machine.
 To use it, set the `--collector.textfile.directory` flag on the `node_exporter` commandline. The
 collector will parse all files in that directory matching the glob `*.prom`
 using the [text
-format](http://prometheus.io/docs/instrumenting/exposition_formats/).
+format](http://prometheus.io/docs/instrumenting/exposition_formats/). **Note:** Timestamps are not supported.
 
 To atomically push completion time for a cron job:
 ```

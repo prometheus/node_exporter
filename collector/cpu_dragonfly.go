@@ -18,7 +18,7 @@ package collector
 
 import (
 	"errors"
-	"fmt"
+	"strconv"
 	"unsafe"
 
 	"github.com/go-kit/log"
@@ -86,7 +86,8 @@ import "C"
 const maxCPUTimesLen = C.MAXCPU * C.CPUSTATES
 
 type statCollector struct {
-	cpu *prometheus.Desc
+	cpu    *prometheus.Desc
+	logger log.Logger
 }
 
 func init() {
@@ -94,9 +95,10 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector() (Collector, error) {
+func NewStatCollector(logger log.Logger) (Collector, error) {
 	return &statCollector{
-		cpu: nodeCPUSecondsDesc,
+		cpu:    nodeCPUSecondsDesc,
+		logger: logger,
 	}, nil
 }
 
@@ -105,8 +107,7 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// States: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
 	//
-	// Each value is a counter incremented at frequency
-	//   kern.cputimer.freq
+	// Each value is in microseconds
 	//
 	// Look into sys/kern/kern_clock.c for details.
 
@@ -141,7 +142,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// Export order: user nice sys intr idle
 	cpuFields := []string{"user", "nice", "sys", "interrupt", "idle"}
 	for i, value := range cpuTimes {
-		cpux := fmt.Sprintf("%d", i/fieldsCount)
+		cpux := strconv.Itoa(i / fieldsCount)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, value, cpux, cpuFields[i%fieldsCount])
 	}
 

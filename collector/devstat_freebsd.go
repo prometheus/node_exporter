@@ -43,6 +43,7 @@ type devstatCollector struct {
 	duration  typedDesc
 	busyTime  typedDesc
 	blocks    typedDesc
+	logger    log.Logger
 }
 
 func init() {
@@ -50,7 +51,7 @@ func init() {
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector() (Collector, error) {
+func NewDevstatCollector(logger log.Logger) (Collector, error) {
 	return &devstatCollector{
 		devinfo: &C.struct_devinfo{},
 		bytes: typedDesc{prometheus.NewDesc(
@@ -78,6 +79,7 @@ func NewDevstatCollector() (Collector, error) {
 			"The total number of blocks transferred.",
 			[]string{"device"}, nil,
 		), prometheus.CounterValue},
+		logger: logger,
 	}, nil
 }
 

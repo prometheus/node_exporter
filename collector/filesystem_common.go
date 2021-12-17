@@ -69,6 +69,7 @@ type filesystemCollector struct {
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
+	logger                        log.Logger
 }
 
 type filesystemLabels struct {

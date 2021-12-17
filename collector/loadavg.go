@@ -27,6 +27,7 @@ import (
 
 type loadavgCollector struct {
 	metric []typedDesc
+	logger log.Logger
 }
 
 func init() {
@@ -34,23 +35,24 @@ func init() {
 }
 
 // NewLoadavgCollector returns a new Collector exposing load average stats.
-func NewLoadavgCollector() (Collector, error) {
+func NewLoadavgCollector(logger log.Logger) (Collector, error) {
 	return &loadavgCollector{
 		metric: []typedDesc{
 			{prometheus.NewDesc(namespace+"_load1", "1m load average.", nil, nil), prometheus.GaugeValue},
 			{prometheus.NewDesc(namespace+"_load5", "5m load average.", nil, nil), prometheus.GaugeValue},
 			{prometheus.NewDesc(namespace+"_load15", "15m load average.", nil, nil), prometheus.GaugeValue},
 		},
+		logger: logger,
 	}, nil
 }
 
 func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) error {
 	loads, err := getLoad()
 	if err != nil {
-		return fmt.Errorf("couldn't get load: %s", err)
+		return fmt.Errorf("couldn't get load: %w", err)
 	}
 	for i, load := range loads {
-		log.Debugf("return load %d: %f", i, load)
+		level.Debug(c.logger).Log("msg", "return load", "index", i, "load", load)
 		ch <- c.metric[i].mustNewConstMetric(load)
 	}
 	return err

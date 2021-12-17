@@ -19,24 +19,35 @@ package collector
 import (
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"strconv"
+	"sync"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
-	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type cpuCollector struct {
+	fs                 procfs.FS
 	cpu                *prometheus.Desc
+	cpuInfo            *prometheus.Desc
+	cpuFlagsInfo       *prometheus.Desc
+	cpuBugsInfo        *prometheus.Desc
 	cpuGuest           *prometheus.Desc
 	cpuFreq            *prometheus.Desc
 	cpuFreqMin         *prometheus.Desc
 	cpuFreqMax         *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
 	cpuPackageThrottle *prometheus.Desc
+	logger             log.Logger
+	cpuStats           []procfs.CPUStat
+	cpuStatsMutex      sync.Mutex
+
+	cpuFlagsIncludeRegexp *regexp.Regexp
+	cpuBugsIncludeRegexp  *regexp.Regexp
 }
 
 // Idle jump back limit in seconds.
@@ -117,22 +128,46 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 	return c, nil
 }
 
+func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *string) error {
+	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*enableCPUInfo {
+		*enableCPUInfo = true
+		level.Info(c.logger).Log("msg", "--collector.cpu.info has been set to `true` because you set the following flags, like --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include")
+	}
+
+	var err error
+	if *flagsIncludeFlag != "" {
+		c.cpuFlagsIncludeRegexp, err = regexp.Compile(*flagsIncludeFlag)
+		if err != nil {
+			return err
+		}
+	}
+	if *bugsIncludeFlag != "" {
+		c.cpuBugsIncludeRegexp, err = regexp.Compile(*bugsIncludeFlag)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
-	if err := c.updateStat(ch); err != nil {
-		return err
+	if *enableCPUInfo {
+		if err := c.updateInfo(ch); err != nil {
+			return err
+		}
 	}
-	if err := c.updateCPUfreq(ch); err != nil {
+	if err := c.updateStat(ch); err != nil {
 		return err
 	}
 	return c.updateThermalThrottle(ch)
 }
 
-// updateCPUfreq reads /sys/devices/system/cpu/cpu* and expose cpu frequency statistics.
-func (c *cpuCollector) updateCPUfreq(ch chan<- prometheus.Metric) error {
-	fs, err := sysfs.NewFS(*sysPath)
+// updateInfo reads /proc/cpuinfo
+func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
+	info, err := c.fs.CPUInfo()
 	if err != nil {
-		return fmt.Errorf("failed to open sysfs: %v", err)
+		return err
 	}
 	for _, cpu := range info {
 		ch <- prometheus.MustNewConstMetric(c.cpuInfo,
@@ -202,12 +237,12 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 
 		// topology/physical_package_id
 		if physicalPackageID, err = readUintFromFile(filepath.Join(cpu, "topology", "physical_package_id")); err != nil {
-			log.Debugf("CPU %v is missing physical_package_id", cpu)
+			level.Debug(c.logger).Log("msg", "CPU is missing physical_package_id", "cpu", cpu)
 			continue
 		}
 		// topology/core_id
 		if coreID, err = readUintFromFile(filepath.Join(cpu, "topology", "core_id")); err != nil {
-			log.Debugf("CPU %v is missing core_id", cpu)
+			level.Debug(c.logger).Log("msg", "CPU is missing core_id", "cpu", cpu)
 			continue
 		}
 
@@ -225,7 +260,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 			if coreThrottleCount, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle", "core_throttle_count")); err == nil {
 				packageCoreThrottles[physicalPackageID][coreID] = coreThrottleCount
 			} else {
-				log.Debugf("CPU %v is missing core_throttle_count", cpu)
+				level.Debug(c.logger).Log("msg", "CPU is missing core_throttle_count", "cpu", cpu)
 			}
 		}
 
@@ -235,7 +270,7 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 			if packageThrottleCount, err := readUintFromFile(filepath.Join(cpu, "thermal_throttle", "package_throttle_count")); err == nil {
 				packageThrottles[physicalPackageID] = packageThrottleCount
 			} else {
-				log.Debugf("CPU %v is missing package_throttle_count", cpu)
+				level.Debug(c.logger).Log("msg", "CPU is missing package_throttle_count", "cpu", cpu)
 			}
 		}
 	}
@@ -261,17 +296,18 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 
 // updateStat reads /proc/stat through procfs and exports CPU-related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %v", err)
-	}
-	stats, err := fs.NewStat()
+	stats, err := c.fs.Stat()
 	if err != nil {
 		return err
 	}
 
-	for cpuID, cpuStat := range stats.CPU {
-		cpuNum := fmt.Sprintf("%d", cpuID)
+	c.updateCPUStats(stats.CPU)
+
+	// Acquire a lock to read the stats.
+	c.cpuStatsMutex.Lock()
+	defer c.cpuStatsMutex.Unlock()
+	for cpuID, cpuStat := range c.cpuStats {
+		cpuNum := strconv.Itoa(cpuID)
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.User, cpuNum, "user")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Nice, cpuNum, "nice")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.System, cpuNum, "system")

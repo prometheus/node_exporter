@@ -12,3 +12,6 @@ TCP  C0A80039:0CEA wlc
 TCP  C0A80037:0CEA wlc  
   -> C0A8321A:0CEA      Tunnel  0      0          0         
   -> C0A83120:0CEA      Tunnel  100    0          0         
+FWM  10001000 wlc   
+  -> C0A8321A:0CEA      Tunnel  20     64         1         
+  -> C0A83120:0CEA      Tunnel  100    321        5         

@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"bytes"
 	"io/ioutil"
 	"regexp"
 	"strconv"

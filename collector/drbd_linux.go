@@ -18,6 +18,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -40,7 +41,9 @@ func newDRBDNumericalMetric(name string, desc string, valueType prometheus.Value
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "drbd", name),
 			desc,
-			[]string{"device"}, nil),
+			[]string{"device"},
+			nil,
+		),
 		valueType:  valueType,
 		multiplier: multiplier,
 	}
@@ -48,24 +51,27 @@ func newDRBDNumericalMetric(name string, desc string, valueType prometheus.Value
 
 // String pair metric provided by /proc/drbd.
 type drbdStringPairMetric struct {
-	desc      *prometheus.Desc
-	valueOkay string
+	desc    *prometheus.Desc
+	valueOK string
 }
 
-func (metric *drbdStringPairMetric) isOkay(value string) float64 {
-	if value == metric.valueOkay {
+func (m *drbdStringPairMetric) isOkay(v string) float64 {
+	if v == m.valueOK {
 		return 1
 	}
+
 	return 0
 }
 
-func newDRBDStringPairMetric(name string, desc string, valueOkay string) drbdStringPairMetric {
+func newDRBDStringPairMetric(name string, desc string, valueOK string) drbdStringPairMetric {
 	return drbdStringPairMetric{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "drbd", name),
 			desc,
-			[]string{"device", "node"}, nil),
-		valueOkay: valueOkay,
+			[]string{"device", "node"},
+			nil,
+		),
+		valueOK: valueOK,
 	}
 }
 
@@ -163,10 +169,11 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	statsFile := procFilePath("drbd")
 	file, err := os.Open(statsFile)
 	if err != nil {
-		if os.IsNotExist(err) {
-			log.Debugf("Not collecting DRBD statistics, as %s does not exist: %s", statsFile, err)
-			return nil
+		if errors.Is(err, os.ErrNotExist) {
+			level.Debug(c.logger).Log("msg", "stats file does not exist, skipping", "file", statsFile, "err", err)
+			return ErrNoData
 		}
+
 		return err
 	}
 	defer file.Close()
@@ -174,6 +181,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	scanner := bufio.NewScanner(file)
 	scanner.Split(bufio.ScanWords)
 	device := "unknown"
+
 	for scanner.Scan() {
 		field := scanner.Text()
 		if kv := strings.Split(field, ":"); len(kv) == 2 {
@@ -212,6 +220,9 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 		} else {
 			log.Debugf("Don't know how to process string %q", field)
 		}
+
+		level.Debug(c.logger).Log("msg", "unhandled key-value pair", "key", kv[0], "value", kv[1])
 	}
+
 	return scanner.Err()
 }

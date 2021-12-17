@@ -17,22 +17,55 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 type ipvsCollector struct {
 	Collector
 	fs                                                                          procfs.FS
+	backendLabels                                                               []string
 	backendConnectionsActive, backendConnectionsInact, backendWeight            typedDesc
 	connections, incomingPackets, outgoingPackets, incomingBytes, outgoingBytes typedDesc
+	logger                                                                      log.Logger
 }
+
+type ipvsBackendStatus struct {
+	ActiveConn uint64
+	InactConn  uint64
+	Weight     uint64
+}
+
+const (
+	ipvsLabelLocalAddress  = "local_address"
+	ipvsLabelLocalPort     = "local_port"
+	ipvsLabelRemoteAddress = "remote_address"
+	ipvsLabelRemotePort    = "remote_port"
+	ipvsLabelProto         = "proto"
+	ipvsLabelLocalMark     = "local_mark"
+)
+
+var (
+	fullIpvsBackendLabels = []string{
+		ipvsLabelLocalAddress,
+		ipvsLabelLocalPort,
+		ipvsLabelRemoteAddress,
+		ipvsLabelRemotePort,
+		ipvsLabelProto,
+		ipvsLabelLocalMark,
+	}
+	ipvsLabels = kingpin.Flag("collector.ipvs.backend-labels", "Comma separated list for IPVS backend stats labels.").Default(strings.Join(fullIpvsBackendLabels, ",")).String()
+)
 
 func init() {
 	registerCollector("ipvs", defaultEnabled, NewIPVSCollector)
@@ -40,11 +73,11 @@ func init() {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector() (Collector, error) {
-	return newIPVSCollector()
+func NewIPVSCollector(logger log.Logger) (Collector, error) {
+	return newIPVSCollector(logger)
 }
 
-func newIPVSCollector() (*ipvsCollector, error) {
+func newIPVSCollector(logger log.Logger) (*ipvsCollector, error) {
 	var (
 		ipvsBackendLabelNames = []string{
 			"local_address",
@@ -58,9 +91,14 @@ func newIPVSCollector() (*ipvsCollector, error) {
 		subsystem = "ipvs"
 	)
 
+	if c.backendLabels, err = c.parseIpvsLabels(*ipvsLabels); err != nil {
+		return nil, err
+	}
+
+	c.logger = logger
 	c.fs, err = procfs.NewFS(*procPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	c.connections = typedDesc{prometheus.NewDesc(
@@ -108,14 +146,14 @@ func newIPVSCollector() (*ipvsCollector, error) {
 }
 
 func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
-	ipvsStats, err := c.fs.NewIPVSStats()
+	ipvsStats, err := c.fs.IPVSStats()
 	if err != nil {
 		// Cannot access ipvs metrics, report no error.
-		if os.IsNotExist(err) {
-			log.Debug("ipvs collector metrics are not available for this system")
-			return nil
+		if errors.Is(err, os.ErrNotExist) {
+			level.Debug(c.logger).Log("msg", "ipvs collector metrics are not available for this system")
+			return ErrNoData
 		}
-		return fmt.Errorf("could not get IPVS stats: %s", err)
+		return fmt.Errorf("could not get IPVS stats: %w", err)
 	}
 	ch <- c.connections.mustNewConstMetric(float64(ipvsStats.Connections))
 	ch <- c.incomingPackets.mustNewConstMetric(float64(ipvsStats.IncomingPackets))
@@ -123,11 +161,13 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- c.incomingBytes.mustNewConstMetric(float64(ipvsStats.IncomingBytes))
 	ch <- c.outgoingBytes.mustNewConstMetric(float64(ipvsStats.OutgoingBytes))
 
-	backendStats, err := c.fs.NewIPVSBackendStatus()
+	backendStats, err := c.fs.IPVSBackendStatus()
 	if err != nil {
-		return fmt.Errorf("could not get backend status: %s", err)
+		return fmt.Errorf("could not get backend status: %w", err)
 	}
 
+	sums := map[string]ipvsBackendStatus{}
+	labelValues := map[string][]string{}
 	for _, backend := range backendStats {
 		labelValues := []string{
 			backend.LocalAddress.String(),
@@ -141,4 +181,33 @@ func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.backendWeight.mustNewConstMetric(float64(backend.Weight), labelValues...)
 	}
 	return nil
+}
+
+func (c *ipvsCollector) parseIpvsLabels(labelString string) ([]string, error) {
+	labels := strings.Split(labelString, ",")
+	labelSet := make(map[string]bool, len(labels))
+	results := make([]string, 0, len(labels))
+	for _, label := range labels {
+		if label != "" {
+			labelSet[label] = true
+		}
+	}
+
+	for _, label := range fullIpvsBackendLabels {
+		if labelSet[label] {
+			results = append(results, label)
+		}
+		delete(labelSet, label)
+	}
+
+	if len(labelSet) > 0 {
+		keys := make([]string, 0, len(labelSet))
+		for label := range labelSet {
+			keys = append(keys, label)
+		}
+		sort.Strings(keys)
+		return nil, fmt.Errorf("unknown IPVS backend labels: %q", strings.Join(keys, ", "))
+	}
+
+	return results, nil
 }

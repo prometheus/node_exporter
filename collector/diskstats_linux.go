@@ -49,6 +49,7 @@ type diskstatsCollector struct {
 	fs                    blockdevice.FS
 	infoDesc              typedFactorDesc
 	descs                 []typedFactorDesc
+	logger                log.Logger
 }
 
 func init() {
@@ -57,7 +58,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector() (Collector, error) {
+func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 	fs, err := blockdevice.NewFS(*procPath, *sysPath)
 	if err != nil {
@@ -187,13 +188,14 @@ func NewDiskstatsCollector() (Collector, error) {
 				), valueType: prometheus.CounterValue,
 			},
 		},
+		logger: logger,
 	}, nil
 }
 
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	diskStats, err := c.fs.ProcDiskstats()
 	if err != nil {
-		return fmt.Errorf("couldn't get diskstats: %s", err)
+		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
 
 	for _, stats := range diskStats {

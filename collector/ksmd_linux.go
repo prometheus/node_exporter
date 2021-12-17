@@ -18,7 +18,7 @@ package collector
 
 import (
 	"fmt"
-	"path"
+	"path/filepath"
 
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,6 +31,7 @@ var (
 
 type ksmdCollector struct {
 	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
 }
 
 func init() {
@@ -49,7 +50,7 @@ func getCanonicalMetricName(filename string) string {
 }
 
 // NewKsmdCollector returns a new Collector exposing kernel/system statistics.
-func NewKsmdCollector() (Collector, error) {
+func NewKsmdCollector(logger log.Logger) (Collector, error) {
 	subsystem := "ksmd"
 	descs := make(map[string]*prometheus.Desc)
 
@@ -58,13 +59,13 @@ func NewKsmdCollector() (Collector, error) {
 			prometheus.BuildFQName(namespace, subsystem, getCanonicalMetricName(n)),
 			fmt.Sprintf("ksmd '%s' file.", n), nil, nil)
 	}
-	return &ksmdCollector{descs}, nil
+	return &ksmdCollector{descs, logger}, nil
 }
 
 // Update implements Collector and exposes kernel and system statistics.
 func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
-		val, err := readUintFromFile(sysFilePath(path.Join("kernel/mm/ksm", n)))
+		val, err := readUintFromFile(sysFilePath(filepath.Join("kernel/mm/ksm", n)))
 		if err != nil {
 			return err
 		}

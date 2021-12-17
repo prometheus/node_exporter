@@ -21,9 +21,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
-	"errors"
-	"regexp"
-	"strconv"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"

@@ -51,8 +51,15 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector() (Collector, error) {
+func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	var i infinibandCollector
+	var err error
+
+	i.fs, err = sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
+	i.logger = logger
 
 	// Filenames of all InfiniBand counter metrics including a detailed description.
 	i.counters = map[string]infinibandMetric{
