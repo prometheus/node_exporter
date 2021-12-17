@@ -167,8 +167,8 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateStat(ch); err != nil {
 		return err
 	}
-	if err := c.updateIsolated(ch); err != nil {
-		return err
+	if c.isolatedCpus != nil {
+		c.updateIsolated(ch)
 	}
 	return c.updateThermalThrottle(ch)
 }
