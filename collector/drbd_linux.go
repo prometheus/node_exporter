@@ -155,14 +155,115 @@ var (
 		[]string{"device"}, nil)
 )
 
-type drbdCollector struct{}
+type drbdCollector struct {
+	numerical  map[string]drbdNumericalMetric
+	stringPair map[string]drbdStringPairMetric
+	connected  *prometheus.Desc
+	logger     log.Logger
+}
 
 func init() {
 	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
-func newDRBDCollector() (Collector, error) {
-	return &drbdCollector{}, nil
+func newDRBDCollector(logger log.Logger) (Collector, error) {
+	return &drbdCollector{
+		numerical: map[string]drbdNumericalMetric{
+			"ns": newDRBDNumericalMetric(
+				"network_sent_bytes_total",
+				"Total number of bytes sent via the network.",
+				prometheus.CounterValue,
+				1024,
+			),
+			"nr": newDRBDNumericalMetric(
+				"network_received_bytes_total",
+				"Total number of bytes received via the network.",
+				prometheus.CounterValue,
+				1,
+			),
+			"dw": newDRBDNumericalMetric(
+				"disk_written_bytes_total",
+				"Net data written on local hard disk; in bytes.",
+				prometheus.CounterValue,
+				1024,
+			),
+			"dr": newDRBDNumericalMetric(
+				"disk_read_bytes_total",
+				"Net data read from local hard disk; in bytes.",
+				prometheus.CounterValue,
+				1024,
+			),
+			"al": newDRBDNumericalMetric(
+				"activitylog_writes_total",
+				"Number of updates of the activity log area of the meta data.",
+				prometheus.CounterValue,
+				1,
+			),
+			"bm": newDRBDNumericalMetric(
+				"bitmap_writes_total",
+				"Number of updates of the bitmap area of the meta data.",
+				prometheus.CounterValue,
+				1,
+			),
+			"lo": newDRBDNumericalMetric(
+				"local_pending",
+				"Number of open requests to the local I/O sub-system.",
+				prometheus.GaugeValue,
+				1,
+			),
+			"pe": newDRBDNumericalMetric(
+				"remote_pending",
+				"Number of requests sent to the peer, but that have not yet been answered by the latter.",
+				prometheus.GaugeValue,
+				1,
+			),
+			"ua": newDRBDNumericalMetric(
+				"remote_unacknowledged",
+				"Number of requests received by the peer via the network connection, but that have not yet been answered.",
+				prometheus.GaugeValue,
+				1,
+			),
+			"ap": newDRBDNumericalMetric(
+				"application_pending",
+				"Number of block I/O requests forwarded to DRBD, but not yet answered by DRBD.",
+				prometheus.GaugeValue,
+				1,
+			),
+			"ep": newDRBDNumericalMetric(
+				"epochs",
+				"Number of Epochs currently on the fly.",
+				prometheus.GaugeValue,
+				1,
+			),
+			"oos": newDRBDNumericalMetric(
+				"out_of_sync_bytes",
+				"Amount of data known to be out of sync; in bytes.",
+				prometheus.GaugeValue,
+				1024,
+			),
+		},
+
+		stringPair: map[string]drbdStringPairMetric{
+			"ro": newDRBDStringPairMetric(
+				"node_role_is_primary",
+				"Whether the role of the node is in the primary state.",
+				"Primary",
+			),
+			"ds": newDRBDStringPairMetric(
+				"disk_state_is_up_to_date",
+				"Whether the disk of the node is up to date.",
+				"UpToDate",
+			),
+		},
+
+		connected: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "drbd", "connected"),
+			"Whether DRBD is connected to the peer.",
+			[]string{"device"},
+			nil,
+		),
+		logger: logger,
+	}, nil
 }
 
 func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
@@ -184,6 +285,7 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for scanner.Scan() {
 		field := scanner.Text()
+
 		if kv := strings.Split(field, ":"); len(kv) == 2 {
 			if id, err := strconv.ParseUint(kv[0], 10, 64); err == nil && kv[1] == "" {
 				device = fmt.Sprintf("drbd%d", id)
