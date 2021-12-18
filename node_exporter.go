@@ -34,7 +34,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/exporter-toolkit/web"
-	"github.com/prometheus/node_exporter/collector"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -176,10 +175,10 @@ func main() {
 	kingpin.CommandLine.UsageWriter(os.Stdout)
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
-	logger := promlog.New(promlogConfig)
 
 	// Use our shared code to run server and exit on error. Upstream's code below will not be executed.
 	exporter_shared.RunServer("Node", *listenAddress, *metricsPath, newHandler(!*disableExporterMetrics, *maxRequests))
+	logger := promlog.New(promlogConfig)
 
 	if *disableDefaultCollectors {
 		collector.DisableDefaultCollectors()

@@ -5,9 +5,11 @@ set -euf -o pipefail
 enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
+  btrfs
   buddyinfo
   conntrack
   cpu
+  cpufreq
   diskstats
   dmi
   drbd
@@ -30,11 +32,16 @@ enabled_collectors=$(cat << COLLECTORS
   netstat
   nfs
   nfsd
+  pressure
   qdisc
+  rapl
+  schedstat
   sockstat
   stat
+  thermal_zone
   textfile
   bonding
+  udp_queues 
   vmstat
   wifi
   xfs
@@ -102,6 +109,7 @@ fi
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
   --collector.wifi.fixtures="collector/fixtures/wifi" \
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
+  --collector.arp.device-exclude="nope" \
   --collector.netclass.ignored-devices="(dmz|int)" \
   --collector.netclass.ignore-invalid-speed \
   --collector.bcache.priorityStats \
