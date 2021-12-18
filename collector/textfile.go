@@ -60,7 +60,7 @@ func init() {
 	registerCollector("textfile.hr", defaultDisabled, NewTextFileCollectorHr)
 }
 
-// NewTextFileCollector returns a new Collector exposing metrics read from files
+// NewTextFileCollectorLr returns a new Collector exposing metrics read from files
 // in the given textfile lr directory.
 func NewTextFileCollectorLr(logger log.Logger) (Collector, error) {
 	c := &textFileCollector{
@@ -70,7 +70,7 @@ func NewTextFileCollectorLr(logger log.Logger) (Collector, error) {
 	return c, nil
 }
 
-// NewTextFileCollector returns a new Collector exposing metrics read from files
+// NewTextFileCollectorMr returns a new Collector exposing metrics read from files
 // in the given textfile mr directory.
 func NewTextFileCollectorMr(logger log.Logger) (Collector, error) {
 	c := &textFileCollector{
@@ -80,7 +80,7 @@ func NewTextFileCollectorMr(logger log.Logger) (Collector, error) {
 	return c, nil
 }
 
-// NewTextFileCollector returns a new Collector exposing metrics read from files
+// NewTextFileCollectorHr returns a new Collector exposing metrics read from files
 // in the given textfile hr directory.
 func NewTextFileCollectorHr(logger log.Logger) (Collector, error) {
 	c := &textFileCollector{

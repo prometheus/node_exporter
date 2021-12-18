@@ -1,4 +1,4 @@
-# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
@@ -155,6 +155,54 @@ node_bonding_slaves{master="int"} 2
 # HELP node_boot_time_seconds Node boot time, in unixtime.
 # TYPE node_boot_time_seconds gauge
 node_boot_time_seconds 1.418183276e+09
+# HELP node_btrfs_allocation_ratio Data allocation ratio for a layout/data type
+# TYPE node_btrfs_allocation_ratio gauge
+node_btrfs_allocation_ratio{block_group_type="data",mode="raid0",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+node_btrfs_allocation_ratio{block_group_type="data",mode="raid5",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.3333333333333333
+node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
+node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+node_btrfs_allocation_ratio{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
+node_btrfs_allocation_ratio{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+# HELP node_btrfs_device_size_bytes Size of a device that is part of the filesystem.
+# TYPE node_btrfs_device_size_bytes gauge
+node_btrfs_device_size_bytes{device="loop22",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop23",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop24",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop25",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop25",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
+node_btrfs_device_size_bytes{device="loop26",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.073741824e+10
+# HELP node_btrfs_global_rsv_size_bytes Size of global reserve.
+# TYPE node_btrfs_global_rsv_size_bytes gauge
+node_btrfs_global_rsv_size_bytes{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.6777216e+07
+node_btrfs_global_rsv_size_bytes{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.6777216e+07
+# HELP node_btrfs_info Filesystem information
+# TYPE node_btrfs_info gauge
+node_btrfs_info{label="",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1
+node_btrfs_info{label="fixture",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+# HELP node_btrfs_reserved_bytes Amount of space reserved for a data type
+# TYPE node_btrfs_reserved_bytes gauge
+node_btrfs_reserved_bytes{block_group_type="data",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
+node_btrfs_reserved_bytes{block_group_type="data",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+node_btrfs_reserved_bytes{block_group_type="metadata",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
+node_btrfs_reserved_bytes{block_group_type="metadata",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+node_btrfs_reserved_bytes{block_group_type="system",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
+node_btrfs_reserved_bytes{block_group_type="system",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_size_bytes Amount of space allocated for a layout/data type
+# TYPE node_btrfs_size_bytes gauge
+node_btrfs_size_bytes{block_group_type="data",mode="raid0",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2.147483648e+09
+node_btrfs_size_bytes{block_group_type="data",mode="raid5",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 6.44087808e+08
+node_btrfs_size_bytes{block_group_type="metadata",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1.073741824e+09
+node_btrfs_size_bytes{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 4.29391872e+08
+node_btrfs_size_bytes{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 8.388608e+06
+node_btrfs_size_bytes{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.6777216e+07
+# HELP node_btrfs_used_bytes Amount of used space by a layout/data type
+# TYPE node_btrfs_used_bytes gauge
+node_btrfs_used_bytes{block_group_type="data",mode="raid0",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 8.08189952e+08
+node_btrfs_used_bytes{block_group_type="data",mode="raid5",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+node_btrfs_used_bytes{block_group_type="metadata",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 933888
+node_btrfs_used_bytes{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 114688
+node_btrfs_used_bytes{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 16384
+node_btrfs_used_bytes{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 16384
 # HELP node_buddyinfo_blocks Count of free blocks according to size.
 # TYPE node_buddyinfo_blocks gauge
 node_buddyinfo_blocks{node="0",size="0",zone="DMA"} 1
@@ -211,24 +259,6 @@ node_cpu_core_throttles_total{core="0",package="0"} 5
 node_cpu_core_throttles_total{core="0",package="1"} 0
 node_cpu_core_throttles_total{core="1",package="0"} 0
 node_cpu_core_throttles_total{core="1",package="1"} 9
-# HELP node_cpu_frequency_hertz Current cpu thread frequency in hertz.
-# TYPE node_cpu_frequency_hertz gauge
-node_cpu_frequency_hertz{cpu="0"} 1.699981e+09
-node_cpu_frequency_hertz{cpu="1"} 1.699981e+09
-node_cpu_frequency_hertz{cpu="2"} 8e+06
-node_cpu_frequency_hertz{cpu="3"} 8e+06
-# HELP node_cpu_frequency_max_hertz Maximum cpu thread frequency in hertz.
-# TYPE node_cpu_frequency_max_hertz gauge
-node_cpu_frequency_max_hertz{cpu="0"} 3.7e+09
-node_cpu_frequency_max_hertz{cpu="1"} 3.7e+09
-node_cpu_frequency_max_hertz{cpu="2"} 4.2e+09
-node_cpu_frequency_max_hertz{cpu="3"} 4.2e+09
-# HELP node_cpu_frequency_min_hertz Minimum cpu thread frequency in hertz.
-# TYPE node_cpu_frequency_min_hertz gauge
-node_cpu_frequency_min_hertz{cpu="0"} 8e+08
-node_cpu_frequency_min_hertz{cpu="1"} 8e+08
-node_cpu_frequency_min_hertz{cpu="2"} 1e+06
-node_cpu_frequency_min_hertz{cpu="3"} 1e+06
 # HELP node_cpu_flag_info The `flags` field of CPU information from /proc/cpuinfo taken from the first core.
 # TYPE node_cpu_flag_info gauge
 node_cpu_flag_info{flag="aes"} 1
@@ -354,12 +384,15 @@ node_cpu_seconds_total{cpu="7",mode="user"} 290.98
 # HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
+node_disk_discard_time_seconds_total{device="sdc"} 11.13
 # HELP node_disk_discarded_sectors_total The total number of sectors discarded successfully.
 # TYPE node_disk_discarded_sectors_total counter
 node_disk_discarded_sectors_total{device="sdb"} 1.925173784e+09
+node_disk_discarded_sectors_total{device="sdc"} 1.25173784e+08
 # HELP node_disk_discards_completed_total The total number of discards completed successfully.
 # TYPE node_disk_discards_completed_total counter
 node_disk_discards_completed_total{device="sdb"} 68851
+node_disk_discards_completed_total{device="sdc"} 18851
 # HELP node_disk_discards_merged_total The total number of discards merged.
 # TYPE node_disk_discards_merged_total counter
 node_disk_discards_merged_total{device="sdb"} 0
@@ -401,6 +434,7 @@ node_disk_io_now{device="mmcblk0p2"} 0
 node_disk_io_now{device="nvme0n1"} 0
 node_disk_io_now{device="sda"} 0
 node_disk_io_now{device="sdb"} 0
+node_disk_io_now{device="sdc"} 0
 node_disk_io_now{device="sr0"} 0
 node_disk_io_now{device="vda"} 0
 # HELP node_disk_io_time_seconds_total Total seconds spent doing I/Os.
@@ -417,6 +451,7 @@ node_disk_io_time_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_io_time_seconds_total{device="nvme0n1"} 222.766
 node_disk_io_time_seconds_total{device="sda"} 9653.880000000001
 node_disk_io_time_seconds_total{device="sdb"} 60.730000000000004
+node_disk_io_time_seconds_total{device="sdc"} 10.73
 node_disk_io_time_seconds_total{device="sr0"} 0
 node_disk_io_time_seconds_total{device="vda"} 41614.592000000004
 # HELP node_disk_io_time_weighted_seconds_total The weighted # of seconds spent doing I/Os.
@@ -433,6 +468,7 @@ node_disk_io_time_weighted_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_io_time_weighted_seconds_total{device="nvme0n1"} 1032.546
 node_disk_io_time_weighted_seconds_total{device="sda"} 82621.804
 node_disk_io_time_weighted_seconds_total{device="sdb"} 67.07000000000001
+node_disk_io_time_weighted_seconds_total{device="sdc"} 17.07
 node_disk_io_time_weighted_seconds_total{device="sr0"} 0
 node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
 # HELP node_disk_read_bytes_total The total number of bytes read successfully.
@@ -449,6 +485,7 @@ node_disk_read_bytes_total{device="mmcblk0p2"} 389120
 node_disk_read_bytes_total{device="nvme0n1"} 2.377714176e+09
 node_disk_read_bytes_total{device="sda"} 5.13713216512e+11
 node_disk_read_bytes_total{device="sdb"} 4.944782848e+09
+node_disk_read_bytes_total{device="sdc"} 8.48782848e+08
 node_disk_read_bytes_total{device="sr0"} 0
 node_disk_read_bytes_total{device="vda"} 1.6727491584e+10
 # HELP node_disk_read_time_seconds_total The total number of seconds spent by all reads.
@@ -465,6 +502,7 @@ node_disk_read_time_seconds_total{device="mmcblk0p2"} 0.068
 node_disk_read_time_seconds_total{device="nvme0n1"} 21.650000000000002
 node_disk_read_time_seconds_total{device="sda"} 18492.372
 node_disk_read_time_seconds_total{device="sdb"} 0.084
+node_disk_read_time_seconds_total{device="sdc"} 0.014
 node_disk_read_time_seconds_total{device="sr0"} 0
 node_disk_read_time_seconds_total{device="vda"} 8655.768
 # HELP node_disk_reads_completed_total The total number of reads completed successfully.
@@ -481,6 +519,7 @@ node_disk_reads_completed_total{device="mmcblk0p2"} 95
 node_disk_reads_completed_total{device="nvme0n1"} 47114
 node_disk_reads_completed_total{device="sda"} 2.5354637e+07
 node_disk_reads_completed_total{device="sdb"} 326552
+node_disk_reads_completed_total{device="sdc"} 126552
 node_disk_reads_completed_total{device="sr0"} 0
 node_disk_reads_completed_total{device="vda"} 1.775784e+06
 # HELP node_disk_reads_merged_total The total number of reads merged.
@@ -497,6 +536,7 @@ node_disk_reads_merged_total{device="mmcblk0p2"} 0
 node_disk_reads_merged_total{device="nvme0n1"} 4
 node_disk_reads_merged_total{device="sda"} 3.4367663e+07
 node_disk_reads_merged_total{device="sdb"} 841
+node_disk_reads_merged_total{device="sdc"} 141
 node_disk_reads_merged_total{device="sr0"} 0
 node_disk_reads_merged_total{device="vda"} 15386
 # HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
@@ -513,6 +553,7 @@ node_disk_write_time_seconds_total{device="mmcblk0p2"} 0
 node_disk_write_time_seconds_total{device="nvme0n1"} 1011.053
 node_disk_write_time_seconds_total{device="sda"} 63877.96
 node_disk_write_time_seconds_total{device="sdb"} 5.007
+node_disk_write_time_seconds_total{device="sdc"} 1.0070000000000001
 node_disk_write_time_seconds_total{device="sr0"} 0
 node_disk_write_time_seconds_total{device="vda"} 2.069221364e+06
 # HELP node_disk_writes_completed_total The total number of writes completed successfully.
@@ -529,6 +570,7 @@ node_disk_writes_completed_total{device="mmcblk0p2"} 0
 node_disk_writes_completed_total{device="nvme0n1"} 1.07832e+06
 node_disk_writes_completed_total{device="sda"} 2.8444756e+07
 node_disk_writes_completed_total{device="sdb"} 41822
+node_disk_writes_completed_total{device="sdc"} 11822
 node_disk_writes_completed_total{device="sr0"} 0
 node_disk_writes_completed_total{device="vda"} 6.038856e+06
 # HELP node_disk_writes_merged_total The number of writes merged.
@@ -545,6 +587,7 @@ node_disk_writes_merged_total{device="mmcblk0p2"} 0
 node_disk_writes_merged_total{device="nvme0n1"} 43950
 node_disk_writes_merged_total{device="sda"} 1.1134226e+07
 node_disk_writes_merged_total{device="sdb"} 2895
+node_disk_writes_merged_total{device="sdc"} 1895
 node_disk_writes_merged_total{device="sr0"} 0
 node_disk_writes_merged_total{device="vda"} 2.0711856e+07
 # HELP node_disk_written_bytes_total The total number of bytes written successfully.
@@ -561,6 +604,7 @@ node_disk_written_bytes_total{device="mmcblk0p2"} 0
 node_disk_written_bytes_total{device="nvme0n1"} 2.0199236096e+10
 node_disk_written_bytes_total{device="sda"} 2.58916880384e+11
 node_disk_written_bytes_total{device="sdb"} 1.01012736e+09
+node_disk_written_bytes_total{device="sdc"} 8.852736e+07
 node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 # HELP node_dmi_info A metric with a constant '1' value labeled by bios_date, bios_release, bios_vendor, bios_version, board_asset_tag, board_name, board_serial, board_vendor, board_version, chassis_asset_tag, chassis_serial, chassis_vendor, chassis_version, product_family, product_name, product_serial, product_sku, product_uuid, product_version, system_vendor if provided by DMI.
@@ -909,6 +953,10 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp2"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp3"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
+# HELP node_infiniband_info Non-numeric data from /sys/class/infiniband/<device>, value is always 1.
+# TYPE node_infiniband_info gauge
+node_infiniband_info{board_id="I40IW Board ID",device="i40iw0",firmware_version="0.2",hca_type="I40IW"} 1
+node_infiniband_info{board_id="SM_1141000001000",device="mlx4_0",firmware_version="2.31.5050",hca_type="MT4099"} 1
 # HELP node_infiniband_legacy_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_legacy_data_received_bytes_total counter
 node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
@@ -943,12 +991,10 @@ node_infiniband_legacy_unicast_packets_transmitted_total{device="mlx4_0",port="1
 node_infiniband_legacy_unicast_packets_transmitted_total{device="mlx4_0",port="2"} 61239
 # HELP node_infiniband_link_downed_total Number of times the link failed to recover from an error state and went down
 # TYPE node_infiniband_link_downed_total counter
-node_infiniband_link_downed_total{device="i40iw0",port="1"} 0
 node_infiniband_link_downed_total{device="mlx4_0",port="1"} 0
 node_infiniband_link_downed_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_link_error_recovery_total Number of times the link successfully recovered from an error state
 # TYPE node_infiniband_link_error_recovery_total counter
-node_infiniband_link_error_recovery_total{device="i40iw0",port="1"} 0
 node_infiniband_link_error_recovery_total{device="mlx4_0",port="1"} 0
 node_infiniband_link_error_recovery_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_multicast_packets_received_total Number of multicast packets received (including errors)
@@ -959,16 +1005,53 @@ node_infiniband_multicast_packets_received_total{device="mlx4_0",port="2"} 0
 # TYPE node_infiniband_multicast_packets_transmitted_total counter
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="1"} 16
 node_infiniband_multicast_packets_transmitted_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_physical_state_id Physical state of the InfiniBand port (0: no change, 1: sleep, 2: polling, 3: disable, 4: shift, 5: link up, 6: link error recover, 7: phytest)
+# TYPE node_infiniband_physical_state_id gauge
+node_infiniband_physical_state_id{device="i40iw0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="1"} 5
+node_infiniband_physical_state_id{device="mlx4_0",port="2"} 5
+# HELP node_infiniband_port_constraint_errors_received_total Number of packets received on the switch physical port that are discarded
+# TYPE node_infiniband_port_constraint_errors_received_total counter
+node_infiniband_port_constraint_errors_received_total{device="mlx4_0",port="1"} 0
+# HELP node_infiniband_port_constraint_errors_transmitted_total Number of packets not transmitted from the switch physical port
+# TYPE node_infiniband_port_constraint_errors_transmitted_total counter
+node_infiniband_port_constraint_errors_transmitted_total{device="mlx4_0",port="1"} 0
 # HELP node_infiniband_port_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_port_data_received_bytes_total counter
-node_infiniband_port_data_received_bytes_total{device="i40iw0",port="1"} 0
 node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
 node_infiniband_port_data_received_bytes_total{device="mlx4_0",port="2"} 0
 # HELP node_infiniband_port_data_transmitted_bytes_total Number of data octets transmitted on all links
 # TYPE node_infiniband_port_data_transmitted_bytes_total counter
-node_infiniband_port_data_transmitted_bytes_total{device="i40iw0",port="1"} 0
 node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="1"} 1.493376e+07
 node_infiniband_port_data_transmitted_bytes_total{device="mlx4_0",port="2"} 0
+# HELP node_infiniband_port_discards_received_total Number of inbound packets discarded by the port because the port is down or congested
+# TYPE node_infiniband_port_discards_received_total counter
+node_infiniband_port_discards_received_total{device="mlx4_0",port="1"} 0
+# HELP node_infiniband_port_discards_transmitted_total Number of outbound packets discarded by the port because the port is down or congested
+# TYPE node_infiniband_port_discards_transmitted_total counter
+node_infiniband_port_discards_transmitted_total{device="mlx4_0",port="1"} 5
+# HELP node_infiniband_port_errors_received_total Number of packets containing an error that were received on this port
+# TYPE node_infiniband_port_errors_received_total counter
+node_infiniband_port_errors_received_total{device="mlx4_0",port="1"} 0
+# HELP node_infiniband_port_packets_received_total Number of packets received on all VLs by this port (including errors)
+# TYPE node_infiniband_port_packets_received_total counter
+node_infiniband_port_packets_received_total{device="mlx4_0",port="1"} 6.825908347e+09
+# HELP node_infiniband_port_packets_transmitted_total Number of packets transmitted on all VLs from this port (including errors)
+# TYPE node_infiniband_port_packets_transmitted_total counter
+node_infiniband_port_packets_transmitted_total{device="mlx4_0",port="1"} 6.235865e+06
+# HELP node_infiniband_port_transmit_wait_total Number of ticks during which the port had data to transmit but no data was sent during the entire tick
+# TYPE node_infiniband_port_transmit_wait_total counter
+node_infiniband_port_transmit_wait_total{device="mlx4_0",port="1"} 4.294967295e+09
+# HELP node_infiniband_rate_bytes_per_second Maximum signal transfer rate
+# TYPE node_infiniband_rate_bytes_per_second gauge
+node_infiniband_rate_bytes_per_second{device="i40iw0",port="1"} 1.25e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="1"} 5e+09
+node_infiniband_rate_bytes_per_second{device="mlx4_0",port="2"} 5e+09
+# HELP node_infiniband_state_id State of the InfiniBand port (0: no change, 1: down, 2: init, 3: armed, 4: active, 5: act defer)
+# TYPE node_infiniband_state_id gauge
+node_infiniband_state_id{device="i40iw0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="1"} 4
+node_infiniband_state_id{device="mlx4_0",port="2"} 4
 # HELP node_infiniband_unicast_packets_received_total Number of unicast packets received (including errors)
 # TYPE node_infiniband_unicast_packets_received_total counter
 node_infiniband_unicast_packets_received_total{device="mlx4_0",port="1"} 61148
@@ -1096,34 +1179,40 @@ node_interrupts_total{cpu="3",devices="xhci_hcd",info="IR-PCI-MSI-edge",type="42
 node_intr_total 8.885917e+06
 # HELP node_ipvs_backend_connections_active The current active connections by local and remote address.
 # TYPE node_ipvs_backend_connections_active gauge
-node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 248
-node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 248
-node_ipvs_backend_connections_active{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 248
-node_ipvs_backend_connections_active{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 0
-node_ipvs_backend_connections_active{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
-node_ipvs_backend_connections_active{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 1498
-node_ipvs_backend_connections_active{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 1499
-node_ipvs_backend_connections_active{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
+node_ipvs_backend_connections_active{local_address="",local_mark="10001000",local_port="0",proto="FWM",remote_address="192.168.49.32",remote_port="3306"} 321
+node_ipvs_backend_connections_active{local_address="",local_mark="10001000",local_port="0",proto="FWM",remote_address="192.168.50.26",remote_port="3306"} 64
+node_ipvs_backend_connections_active{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 248
+node_ipvs_backend_connections_active{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 248
+node_ipvs_backend_connections_active{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 248
+node_ipvs_backend_connections_active{local_address="192.168.0.55",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 0
+node_ipvs_backend_connections_active{local_address="192.168.0.55",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
+node_ipvs_backend_connections_active{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 1498
+node_ipvs_backend_connections_active{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 1499
+node_ipvs_backend_connections_active{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
 # HELP node_ipvs_backend_connections_inactive The current inactive connections by local and remote address.
 # TYPE node_ipvs_backend_connections_inactive gauge
-node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 2
-node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 1
-node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 2
-node_ipvs_backend_connections_inactive{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 0
-node_ipvs_backend_connections_inactive{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
-node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 0
-node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 0
-node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="",local_mark="10001000",local_port="0",proto="FWM",remote_address="192.168.49.32",remote_port="3306"} 5
+node_ipvs_backend_connections_inactive{local_address="",local_mark="10001000",local_port="0",proto="FWM",remote_address="192.168.50.26",remote_port="3306"} 1
+node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 2
+node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 1
+node_ipvs_backend_connections_inactive{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 2
+node_ipvs_backend_connections_inactive{local_address="192.168.0.55",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.55",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 0
+node_ipvs_backend_connections_inactive{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
 # HELP node_ipvs_backend_weight The current backend weight by local and remote address.
 # TYPE node_ipvs_backend_weight gauge
-node_ipvs_backend_weight{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 100
-node_ipvs_backend_weight{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 100
-node_ipvs_backend_weight{local_address="192.168.0.22",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 100
-node_ipvs_backend_weight{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 100
-node_ipvs_backend_weight{local_address="192.168.0.55",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
-node_ipvs_backend_weight{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 100
-node_ipvs_backend_weight{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 100
-node_ipvs_backend_weight{local_address="192.168.0.57",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
+node_ipvs_backend_weight{local_address="",local_mark="10001000",local_port="0",proto="FWM",remote_address="192.168.49.32",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="",local_mark="10001000",local_port="0",proto="FWM",remote_address="192.168.50.26",remote_port="3306"} 20
+node_ipvs_backend_weight{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.82.22",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.83.21",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.22",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.83.24",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.55",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.49.32",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.55",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.50.26",remote_port="3306"} 0
+node_ipvs_backend_weight{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.50.21",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.82.21",remote_port="3306"} 100
+node_ipvs_backend_weight{local_address="192.168.0.57",local_mark="",local_port="3306",proto="TCP",remote_address="192.168.84.22",remote_port="3306"} 0
 # HELP node_ipvs_connections_total The total number of connections made.
 # TYPE node_ipvs_connections_total counter
 node_ipvs_connections_total 2.3765872e+07
@@ -1358,6 +1447,7 @@ node_load5 0.37
 node_md_blocks{device="md0"} 248896
 node_md_blocks{device="md00"} 4.186624e+06
 node_md_blocks{device="md10"} 3.14159265e+08
+node_md_blocks{device="md101"} 322560
 node_md_blocks{device="md11"} 4.190208e+06
 node_md_blocks{device="md12"} 3.886394368e+09
 node_md_blocks{device="md120"} 2.095104e+06
@@ -1376,7 +1466,8 @@ node_md_blocks{device="md9"} 523968
 node_md_blocks_synced{device="md0"} 248896
 node_md_blocks_synced{device="md00"} 4.186624e+06
 node_md_blocks_synced{device="md10"} 3.14159265e+08
-node_md_blocks_synced{device="md11"} 4.190208e+06
+node_md_blocks_synced{device="md101"} 322560
+node_md_blocks_synced{device="md11"} 0
 node_md_blocks_synced{device="md12"} 3.886394368e+09
 node_md_blocks_synced{device="md120"} 2.095104e+06
 node_md_blocks_synced{device="md126"} 1.855870976e+09
@@ -1388,8 +1479,8 @@ node_md_blocks_synced{device="md4"} 4.883648e+06
 node_md_blocks_synced{device="md6"} 1.6775552e+07
 node_md_blocks_synced{device="md7"} 7.813735424e+09
 node_md_blocks_synced{device="md8"} 1.6775552e+07
-node_md_blocks_synced{device="md9"} 523968
-# HELP node_md_disks Total number of disks of device.
+node_md_blocks_synced{device="md9"} 0
+# HELP node_md_disks Number of active/failed/spare disks of device.
 # TYPE node_md_disks gauge
 node_md_disks{device="md0",state="active"} 2
 node_md_disks{device="md0",state="failed"} 0
@@ -1851,248 +1942,256 @@ node_memory_numa_other_node_total{node="1"} 5.986052692e+10
 node_memory_numa_other_node_total{node="2"} 9.86052692e+09
 # HELP node_mountstats_nfs_age_seconds_total The age of the NFS mount in seconds.
 # TYPE node_mountstats_nfs_age_seconds_total counter
-node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",protocol="tcp"} 13968
-node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",protocol="udp"} 13968
+node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 13968
+node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 13968
 # HELP node_mountstats_nfs_direct_read_bytes_total Number of bytes read using the read() syscall in O_DIRECT mode.
 # TYPE node_mountstats_nfs_direct_read_bytes_total counter
-node_mountstats_nfs_direct_read_bytes_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_direct_read_bytes_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_direct_read_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_direct_read_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_direct_write_bytes_total Number of bytes written using the write() syscall in O_DIRECT mode.
 # TYPE node_mountstats_nfs_direct_write_bytes_total counter
-node_mountstats_nfs_direct_write_bytes_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_direct_write_bytes_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_direct_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_direct_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_attribute_invalidate_total Number of times cached inode attributes are invalidated.
 # TYPE node_mountstats_nfs_event_attribute_invalidate_total counter
-node_mountstats_nfs_event_attribute_invalidate_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_attribute_invalidate_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_attribute_invalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_attribute_invalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_data_invalidate_total Number of times an inode cache is cleared.
 # TYPE node_mountstats_nfs_event_data_invalidate_total counter
-node_mountstats_nfs_event_data_invalidate_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_data_invalidate_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_data_invalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_data_invalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_dnode_revalidate_total Number of times cached dentry nodes are re-validated from the server.
 # TYPE node_mountstats_nfs_event_dnode_revalidate_total counter
-node_mountstats_nfs_event_dnode_revalidate_total{export="192.168.1.1:/srv/test",protocol="tcp"} 226
-node_mountstats_nfs_event_dnode_revalidate_total{export="192.168.1.1:/srv/test",protocol="udp"} 226
+node_mountstats_nfs_event_dnode_revalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 226
+node_mountstats_nfs_event_dnode_revalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 226
 # HELP node_mountstats_nfs_event_inode_revalidate_total Number of times cached inode attributes are re-validated from the server.
 # TYPE node_mountstats_nfs_event_inode_revalidate_total counter
-node_mountstats_nfs_event_inode_revalidate_total{export="192.168.1.1:/srv/test",protocol="tcp"} 52
-node_mountstats_nfs_event_inode_revalidate_total{export="192.168.1.1:/srv/test",protocol="udp"} 52
+node_mountstats_nfs_event_inode_revalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 52
+node_mountstats_nfs_event_inode_revalidate_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 52
 # HELP node_mountstats_nfs_event_jukebox_delay_total Number of times the NFS server indicated EJUKEBOX; retrieving data from offline storage.
 # TYPE node_mountstats_nfs_event_jukebox_delay_total counter
-node_mountstats_nfs_event_jukebox_delay_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_jukebox_delay_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_jukebox_delay_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_jukebox_delay_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_pnfs_read_total Number of NFS v4.1+ pNFS reads.
 # TYPE node_mountstats_nfs_event_pnfs_read_total counter
-node_mountstats_nfs_event_pnfs_read_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_pnfs_read_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_pnfs_read_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_pnfs_read_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_pnfs_write_total Number of NFS v4.1+ pNFS writes.
 # TYPE node_mountstats_nfs_event_pnfs_write_total counter
-node_mountstats_nfs_event_pnfs_write_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_pnfs_write_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_pnfs_write_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_pnfs_write_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_short_read_total Number of times the NFS server gave less data than expected while reading.
 # TYPE node_mountstats_nfs_event_short_read_total counter
-node_mountstats_nfs_event_short_read_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_short_read_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_short_read_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_short_read_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_short_write_total Number of times the NFS server wrote less data than expected while writing.
 # TYPE node_mountstats_nfs_event_short_write_total counter
-node_mountstats_nfs_event_short_write_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_short_write_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_short_write_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_short_write_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_silly_rename_total Number of times a file was removed while still open by another process.
 # TYPE node_mountstats_nfs_event_silly_rename_total counter
-node_mountstats_nfs_event_silly_rename_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_silly_rename_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_silly_rename_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_silly_rename_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_truncation_total Number of times files have been truncated.
 # TYPE node_mountstats_nfs_event_truncation_total counter
-node_mountstats_nfs_event_truncation_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_truncation_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_truncation_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_truncation_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_access_total Number of times permissions have been checked.
 # TYPE node_mountstats_nfs_event_vfs_access_total counter
-node_mountstats_nfs_event_vfs_access_total{export="192.168.1.1:/srv/test",protocol="tcp"} 398
-node_mountstats_nfs_event_vfs_access_total{export="192.168.1.1:/srv/test",protocol="udp"} 398
+node_mountstats_nfs_event_vfs_access_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 398
+node_mountstats_nfs_event_vfs_access_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 398
 # HELP node_mountstats_nfs_event_vfs_file_release_total Number of times files have been closed and released.
 # TYPE node_mountstats_nfs_event_vfs_file_release_total counter
-node_mountstats_nfs_event_vfs_file_release_total{export="192.168.1.1:/srv/test",protocol="tcp"} 77
-node_mountstats_nfs_event_vfs_file_release_total{export="192.168.1.1:/srv/test",protocol="udp"} 77
+node_mountstats_nfs_event_vfs_file_release_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 77
+node_mountstats_nfs_event_vfs_file_release_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 77
 # HELP node_mountstats_nfs_event_vfs_flush_total Number of pending writes that have been forcefully flushed to the server.
 # TYPE node_mountstats_nfs_event_vfs_flush_total counter
-node_mountstats_nfs_event_vfs_flush_total{export="192.168.1.1:/srv/test",protocol="tcp"} 77
-node_mountstats_nfs_event_vfs_flush_total{export="192.168.1.1:/srv/test",protocol="udp"} 77
+node_mountstats_nfs_event_vfs_flush_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 77
+node_mountstats_nfs_event_vfs_flush_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 77
 # HELP node_mountstats_nfs_event_vfs_fsync_total Number of times fsync() has been called on directories and files.
 # TYPE node_mountstats_nfs_event_vfs_fsync_total counter
-node_mountstats_nfs_event_vfs_fsync_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_vfs_fsync_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_vfs_fsync_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_vfs_fsync_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_getdents_total Number of times directory entries have been read with getdents().
 # TYPE node_mountstats_nfs_event_vfs_getdents_total counter
-node_mountstats_nfs_event_vfs_getdents_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_vfs_getdents_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_vfs_getdents_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_vfs_getdents_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_lock_total Number of times locking has been attempted on a file.
 # TYPE node_mountstats_nfs_event_vfs_lock_total counter
-node_mountstats_nfs_event_vfs_lock_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_vfs_lock_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_vfs_lock_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_vfs_lock_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_lookup_total Number of times a directory lookup has occurred.
 # TYPE node_mountstats_nfs_event_vfs_lookup_total counter
-node_mountstats_nfs_event_vfs_lookup_total{export="192.168.1.1:/srv/test",protocol="tcp"} 13
-node_mountstats_nfs_event_vfs_lookup_total{export="192.168.1.1:/srv/test",protocol="udp"} 13
+node_mountstats_nfs_event_vfs_lookup_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 13
+node_mountstats_nfs_event_vfs_lookup_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 13
 # HELP node_mountstats_nfs_event_vfs_open_total Number of times cached inode attributes are invalidated.
 # TYPE node_mountstats_nfs_event_vfs_open_total counter
-node_mountstats_nfs_event_vfs_open_total{export="192.168.1.1:/srv/test",protocol="tcp"} 1
-node_mountstats_nfs_event_vfs_open_total{export="192.168.1.1:/srv/test",protocol="udp"} 1
+node_mountstats_nfs_event_vfs_open_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 1
+node_mountstats_nfs_event_vfs_open_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 1
 # HELP node_mountstats_nfs_event_vfs_read_page_total Number of pages read directly via mmap()'d files.
 # TYPE node_mountstats_nfs_event_vfs_read_page_total counter
-node_mountstats_nfs_event_vfs_read_page_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_vfs_read_page_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_vfs_read_page_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_vfs_read_page_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_read_pages_total Number of times a group of pages have been read.
 # TYPE node_mountstats_nfs_event_vfs_read_pages_total counter
-node_mountstats_nfs_event_vfs_read_pages_total{export="192.168.1.1:/srv/test",protocol="tcp"} 331
-node_mountstats_nfs_event_vfs_read_pages_total{export="192.168.1.1:/srv/test",protocol="udp"} 331
+node_mountstats_nfs_event_vfs_read_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 331
+node_mountstats_nfs_event_vfs_read_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 331
 # HELP node_mountstats_nfs_event_vfs_setattr_total Number of times directory entries have been read with getdents().
 # TYPE node_mountstats_nfs_event_vfs_setattr_total counter
-node_mountstats_nfs_event_vfs_setattr_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_vfs_setattr_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_vfs_setattr_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_vfs_setattr_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_update_page_total Number of updates (and potential writes) to pages.
 # TYPE node_mountstats_nfs_event_vfs_update_page_total counter
-node_mountstats_nfs_event_vfs_update_page_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_vfs_update_page_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_vfs_update_page_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_vfs_update_page_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_write_page_total Number of pages written directly via mmap()'d files.
 # TYPE node_mountstats_nfs_event_vfs_write_page_total counter
-node_mountstats_nfs_event_vfs_write_page_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_vfs_write_page_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_vfs_write_page_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_vfs_write_page_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_event_vfs_write_pages_total Number of times a group of pages have been written.
 # TYPE node_mountstats_nfs_event_vfs_write_pages_total counter
-node_mountstats_nfs_event_vfs_write_pages_total{export="192.168.1.1:/srv/test",protocol="tcp"} 47
-node_mountstats_nfs_event_vfs_write_pages_total{export="192.168.1.1:/srv/test",protocol="udp"} 47
+node_mountstats_nfs_event_vfs_write_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 47
+node_mountstats_nfs_event_vfs_write_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 47
 # HELP node_mountstats_nfs_event_write_extension_total Number of times a file has been grown due to writes beyond its existing end.
 # TYPE node_mountstats_nfs_event_write_extension_total counter
-node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_major_timeouts_total Number of times a request has had a major timeout for a given operation.
 # TYPE node_mountstats_nfs_operations_major_timeouts_total counter
-node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 0
-node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 0
-node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_queue_time_seconds_total Duration all requests spent queued for transmission for a given operation before they were sent, in seconds.
 # TYPE node_mountstats_nfs_operations_queue_time_seconds_total counter
-node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 0.006
-node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 0.006
-node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 9.007044786793922e+12
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 0.006
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 0.006
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_queue_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_received_bytes_total Number of bytes received for a given operation, including RPC headers and payload.
 # TYPE node_mountstats_nfs_operations_received_bytes_total counter
-node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 1.210292152e+09
-node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 1.210292152e+09
-node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 3.62996810236e+11
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 1.210292152e+09
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 1.210292152e+09
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_received_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_request_time_seconds_total Duration all requests took from when a request was enqueued to when it was completely handled for a given operation, in seconds.
 # TYPE node_mountstats_nfs_operations_request_time_seconds_total counter
-node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 79.407
-node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 79.407
-node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 1.953587717e+06
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 79.407
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 79.407
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_request_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_requests_total Number of requests performed for a given operation.
 # TYPE node_mountstats_nfs_operations_requests_total counter
-node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 1298
-node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 1298
-node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 2.927395007e+09
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 1298
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 1298
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_requests_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_response_time_seconds_total Duration all requests took to get a reply back after a request for a given operation was transmitted, in seconds.
 # TYPE node_mountstats_nfs_operations_response_time_seconds_total counter
-node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 79.386
-node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 79.386
-node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 1.667369447e+06
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 79.386
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 79.386
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_response_time_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_sent_bytes_total Number of bytes sent for a given operation, including RPC headers and payload.
 # TYPE node_mountstats_nfs_operations_sent_bytes_total counter
-node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 207680
-node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 207680
-node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 5.26931094212e+11
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 207680
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 207680
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_sent_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_operations_transmissions_total Number of times an actual RPC request has been transmitted for a given operation.
 # TYPE node_mountstats_nfs_operations_transmissions_total counter
-node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="tcp"} 0
-node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="NULL",protocol="udp"} 0
-node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="READ",protocol="tcp"} 1298
-node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="READ",protocol="udp"} 1298
-node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="tcp"} 0
-node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",operation="WRITE",protocol="udp"} 0
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 2.927394995e+09
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="tcp"} 0
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="NULL",protocol="udp"} 0
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="tcp"} 1298
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="READ",protocol="udp"} 1298
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="tcp"} 0
+node_mountstats_nfs_operations_transmissions_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="WRITE",protocol="udp"} 0
 # HELP node_mountstats_nfs_read_bytes_total Number of bytes read using the read() syscall.
 # TYPE node_mountstats_nfs_read_bytes_total counter
-node_mountstats_nfs_read_bytes_total{export="192.168.1.1:/srv/test",protocol="tcp"} 1.20764023e+09
-node_mountstats_nfs_read_bytes_total{export="192.168.1.1:/srv/test",protocol="udp"} 1.20764023e+09
+node_mountstats_nfs_read_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 1.20764023e+09
+node_mountstats_nfs_read_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 1.20764023e+09
 # HELP node_mountstats_nfs_read_pages_total Number of pages read directly via mmap()'d files.
 # TYPE node_mountstats_nfs_read_pages_total counter
-node_mountstats_nfs_read_pages_total{export="192.168.1.1:/srv/test",protocol="tcp"} 295483
-node_mountstats_nfs_read_pages_total{export="192.168.1.1:/srv/test",protocol="udp"} 295483
+node_mountstats_nfs_read_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 295483
+node_mountstats_nfs_read_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 295483
 # HELP node_mountstats_nfs_total_read_bytes_total Number of bytes read from the NFS server, in total.
 # TYPE node_mountstats_nfs_total_read_bytes_total counter
-node_mountstats_nfs_total_read_bytes_total{export="192.168.1.1:/srv/test",protocol="tcp"} 1.210214218e+09
-node_mountstats_nfs_total_read_bytes_total{export="192.168.1.1:/srv/test",protocol="udp"} 1.210214218e+09
+node_mountstats_nfs_total_read_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 1.210214218e+09
+node_mountstats_nfs_total_read_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 1.210214218e+09
 # HELP node_mountstats_nfs_total_write_bytes_total Number of bytes written to the NFS server, in total.
 # TYPE node_mountstats_nfs_total_write_bytes_total counter
-node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_backlog_queue_total Total number of items added to the RPC backlog queue.
 # TYPE node_mountstats_nfs_transport_backlog_queue_total counter
-node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_bad_transaction_ids_total Number of times the NFS server sent a response with a transaction ID unknown to this client.
 # TYPE node_mountstats_nfs_transport_bad_transaction_ids_total counter
-node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_bind_total Number of times the client has had to establish a connection from scratch to the NFS server.
 # TYPE node_mountstats_nfs_transport_bind_total counter
-node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_connect_total Number of times the client has made a TCP connection to the NFS server.
 # TYPE node_mountstats_nfs_transport_connect_total counter
-node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",protocol="tcp"} 1
-node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 1
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_idle_time_seconds Duration since the NFS mount last saw any RPC traffic, in seconds.
 # TYPE node_mountstats_nfs_transport_idle_time_seconds gauge
-node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",protocol="tcp"} 11
-node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 11
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_maximum_rpc_slots Maximum number of simultaneously active RPC requests ever used.
 # TYPE node_mountstats_nfs_transport_maximum_rpc_slots gauge
-node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",protocol="tcp"} 24
-node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",protocol="udp"} 24
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 24
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 24
 # HELP node_mountstats_nfs_transport_pending_queue_total Total number of items added to the RPC transmission pending queue.
 # TYPE node_mountstats_nfs_transport_pending_queue_total counter
-node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",protocol="tcp"} 5726
-node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",protocol="udp"} 5726
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 5726
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 5726
 # HELP node_mountstats_nfs_transport_receives_total Number of RPC responses for this mount received from the NFS server.
 # TYPE node_mountstats_nfs_transport_receives_total counter
-node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",protocol="tcp"} 6428
-node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",protocol="udp"} 6428
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
 # HELP node_mountstats_nfs_transport_sending_queue_total Total number of items added to the RPC transmission sending queue.
 # TYPE node_mountstats_nfs_transport_sending_queue_total counter
-node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",protocol="tcp"} 26
-node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",protocol="udp"} 26
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 26
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 26
 # HELP node_mountstats_nfs_transport_sends_total Number of RPC requests for this mount sent to the NFS server.
 # TYPE node_mountstats_nfs_transport_sends_total counter
-node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",protocol="tcp"} 6428
-node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",protocol="udp"} 6428
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
 # HELP node_mountstats_nfs_write_bytes_total Number of bytes written using the write() syscall.
 # TYPE node_mountstats_nfs_write_bytes_total counter
-node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_write_pages_total Number of pages written directly via mmap()'d files.
 # TYPE node_mountstats_nfs_write_pages_total counter
-node_mountstats_nfs_write_pages_total{export="192.168.1.1:/srv/test",protocol="tcp"} 0
-node_mountstats_nfs_write_pages_total{export="192.168.1.1:/srv/test",protocol="udp"} 0
+node_mountstats_nfs_write_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_write_pages_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_netstat_Icmp6_InErrors Statistic Icmp6InErrors.
 # TYPE node_netstat_Icmp6_InErrors untyped
 node_netstat_Icmp6_InErrors 0
@@ -2153,6 +2252,15 @@ node_netstat_Tcp_CurrEstab 0
 # HELP node_netstat_Tcp_InErrs Statistic TcpInErrs.
 # TYPE node_netstat_Tcp_InErrs untyped
 node_netstat_Tcp_InErrs 5
+# HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
+# TYPE node_netstat_Tcp_InSegs untyped
+node_netstat_Tcp_InSegs 5.7252008e+07
+# HELP node_netstat_Tcp_OutRsts Statistic TcpOutRsts.
+# TYPE node_netstat_Tcp_OutRsts untyped
+node_netstat_Tcp_OutRsts 1003
+# HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
+# TYPE node_netstat_Tcp_OutSegs untyped
+node_netstat_Tcp_OutSegs 5.4915039e+07
 # HELP node_netstat_Tcp_PassiveOpens Statistic TcpPassiveOpens.
 # TYPE node_netstat_Tcp_PassiveOpens untyped
 node_netstat_Tcp_PassiveOpens 230
@@ -2171,6 +2279,12 @@ node_netstat_Udp6_NoPorts 0
 # HELP node_netstat_Udp6_OutDatagrams Statistic Udp6OutDatagrams.
 # TYPE node_netstat_Udp6_OutDatagrams untyped
 node_netstat_Udp6_OutDatagrams 0
+# HELP node_netstat_Udp6_RcvbufErrors Statistic Udp6RcvbufErrors.
+# TYPE node_netstat_Udp6_RcvbufErrors untyped
+node_netstat_Udp6_RcvbufErrors 9
+# HELP node_netstat_Udp6_SndbufErrors Statistic Udp6SndbufErrors.
+# TYPE node_netstat_Udp6_SndbufErrors untyped
+node_netstat_Udp6_SndbufErrors 8
 # HELP node_netstat_UdpLite6_InErrors Statistic UdpLite6InErrors.
 # TYPE node_netstat_UdpLite6_InErrors untyped
 node_netstat_UdpLite6_InErrors 0
@@ -2189,6 +2303,12 @@ node_netstat_Udp_NoPorts 120
 # HELP node_netstat_Udp_OutDatagrams Statistic UdpOutDatagrams.
 # TYPE node_netstat_Udp_OutDatagrams untyped
 node_netstat_Udp_OutDatagrams 53028
+# HELP node_netstat_Udp_RcvbufErrors Statistic UdpRcvbufErrors.
+# TYPE node_netstat_Udp_RcvbufErrors untyped
+node_netstat_Udp_RcvbufErrors 9
+# HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
+# TYPE node_netstat_Udp_SndbufErrors untyped
+node_netstat_Udp_SndbufErrors 8
 # HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
 # TYPE node_network_address_assign_type gauge
 node_network_address_assign_type{device="bond0"} 3
@@ -2351,7 +2471,7 @@ node_network_receive_packets_total{device="wlan0"} 1.3899359e+07
 node_network_receive_packets_total{device="💩0"} 105557
 # HELP node_network_speed_bytes speed_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_speed_bytes gauge
-node_network_speed_bytes{interface="eth0"} 1.25e+08
+node_network_speed_bytes{device="eth0"} 1.25e+08
 # HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
 # TYPE node_network_transmit_bytes_total counter
 node_network_transmit_bytes_total{device="docker0"} 2.681662018e+09
@@ -2798,10 +2918,18 @@ node_procs_blocked 0
 # HELP node_procs_running Number of processes in runnable state.
 # TYPE node_procs_running gauge
 node_procs_running 2
+# HELP node_qdisc_backlog Number of bytes currently in queue to be sent.
+# TYPE node_qdisc_backlog gauge
+node_qdisc_backlog{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_backlog{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_bytes_total Number of bytes sent.
 # TYPE node_qdisc_bytes_total counter
 node_qdisc_bytes_total{device="eth0",kind="pfifo_fast"} 83
 node_qdisc_bytes_total{device="wlan0",kind="fq"} 42
+# HELP node_qdisc_current_queue_length Number of packets currently in queue to be sent.
+# TYPE node_qdisc_current_queue_length gauge
+node_qdisc_current_queue_length{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_current_queue_length{device="wlan0",kind="fq"} 0
 # HELP node_qdisc_drops_total Number of packets dropped.
 # TYPE node_qdisc_drops_total counter
 node_qdisc_drops_total{device="eth0",kind="pfifo_fast"} 0
@@ -2843,9 +2971,11 @@ node_schedstat_waiting_seconds_total{cpu="1"} 364107.263788241
 node_scrape_collector_success{collector="arp"} 1
 node_scrape_collector_success{collector="bcache"} 1
 node_scrape_collector_success{collector="bonding"} 1
+node_scrape_collector_success{collector="btrfs"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
 node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
+node_scrape_collector_success{collector="cpufreq"} 1
 node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="dmi"} 1
 node_scrape_collector_success{collector="drbd"} 1
@@ -2875,7 +3005,10 @@ node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
+node_scrape_collector_success{collector="rapl"} 1
+node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="sockstat"} 1
+node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="tapestats"} 1
 node_scrape_collector_success{collector="textfile"} 1
@@ -2899,9 +3032,15 @@ node_sockstat_FRAG_inuse 0
 # HELP node_sockstat_FRAG_memory Number of FRAG sockets in state memory.
 # TYPE node_sockstat_FRAG_memory gauge
 node_sockstat_FRAG_memory 0
+# HELP node_sockstat_RAW6_inuse Number of RAW6 sockets in state inuse.
+# TYPE node_sockstat_RAW6_inuse gauge
+node_sockstat_RAW6_inuse 1
 # HELP node_sockstat_RAW_inuse Number of RAW sockets in state inuse.
 # TYPE node_sockstat_RAW_inuse gauge
 node_sockstat_RAW_inuse 0
+# HELP node_sockstat_TCP6_inuse Number of TCP6 sockets in state inuse.
+# TYPE node_sockstat_TCP6_inuse gauge
+node_sockstat_TCP6_inuse 17
 # HELP node_sockstat_TCP_alloc Number of TCP sockets in state alloc.
 # TYPE node_sockstat_TCP_alloc gauge
 node_sockstat_TCP_alloc 17
@@ -2920,6 +3059,12 @@ node_sockstat_TCP_orphan 0
 # HELP node_sockstat_TCP_tw Number of TCP sockets in state tw.
 # TYPE node_sockstat_TCP_tw gauge
 node_sockstat_TCP_tw 4
+# HELP node_sockstat_UDP6_inuse Number of UDP6 sockets in state inuse.
+# TYPE node_sockstat_UDP6_inuse gauge
+node_sockstat_UDP6_inuse 9
+# HELP node_sockstat_UDPLITE6_inuse Number of UDPLITE6 sockets in state inuse.
+# TYPE node_sockstat_UDPLITE6_inuse gauge
+node_sockstat_UDPLITE6_inuse 0
 # HELP node_sockstat_UDPLITE_inuse Number of UDPLITE sockets in state inuse.
 # TYPE node_sockstat_UDPLITE_inuse gauge
 node_sockstat_UDPLITE_inuse 0
@@ -2932,7 +3077,7 @@ node_sockstat_UDP_mem 0
 # HELP node_sockstat_UDP_mem_bytes Number of UDP sockets in state mem_bytes.
 # TYPE node_sockstat_UDP_mem_bytes gauge
 node_sockstat_UDP_mem_bytes 0
-# HELP node_sockstat_sockets_used Number of sockets sockets in state used.
+# HELP node_sockstat_sockets_used Number of IPv4 sockets in use.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
 # HELP node_softirqs_total Number of softirq calls.
@@ -3063,6 +3208,10 @@ node_wifi_station_info{bssid="00:11:22:33:44:55",device="wlan0",mode="client",ss
 # TYPE node_wifi_station_receive_bits_per_second gauge
 node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 2.56e+08
 node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.28e+08
+# HELP node_wifi_station_receive_bytes_total The total number of bytes received by a WiFi station.
+# TYPE node_wifi_station_receive_bytes_total counter
+node_wifi_station_receive_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_receive_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_signal_dbm The current WiFi signal strength, in decibel-milliwatts (dBm).
 # TYPE node_wifi_station_signal_dbm gauge
 node_wifi_station_signal_dbm{device="wlan0",mac_address="01:02:03:04:05:06"} -26
@@ -3071,6 +3220,10 @@ node_wifi_station_signal_dbm{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} -52
 # TYPE node_wifi_station_transmit_bits_per_second gauge
 node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="01:02:03:04:05:06"} 3.28e+08
 node_wifi_station_transmit_bits_per_second{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 1.64e+08
+# HELP node_wifi_station_transmit_bytes_total The total number of bytes transmitted by a WiFi station.
+# TYPE node_wifi_station_transmit_bytes_total counter
+node_wifi_station_transmit_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_transmit_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_transmit_failed_total The total number of times a station has failed to send a packet.
 # TYPE node_wifi_station_transmit_failed_total counter
 node_wifi_station_transmit_failed_total{device="wlan0",mac_address="01:02:03:04:05:06"} 4
@@ -3124,6 +3277,18 @@ node_xfs_block_mapping_unmaps_total{device="sda1"} 1
 # HELP node_xfs_block_mapping_writes_total Number of block map for write operations for a filesystem.
 # TYPE node_xfs_block_mapping_writes_total counter
 node_xfs_block_mapping_writes_total{device="sda1"} 29
+# HELP node_xfs_directory_operation_create_total Number of times a new directory entry was created for a filesystem.
+# TYPE node_xfs_directory_operation_create_total counter
+node_xfs_directory_operation_create_total{device="sda1"} 2
+# HELP node_xfs_directory_operation_getdents_total Number of times the directory getdents operation was performed for a filesystem.
+# TYPE node_xfs_directory_operation_getdents_total counter
+node_xfs_directory_operation_getdents_total{device="sda1"} 52
+# HELP node_xfs_directory_operation_lookup_total Number of file name directory lookups which miss the operating systems directory name lookup cache.
+# TYPE node_xfs_directory_operation_lookup_total counter
+node_xfs_directory_operation_lookup_total{device="sda1"} 3
+# HELP node_xfs_directory_operation_remove_total Number of times an existing directory entry was created for a filesystem.
+# TYPE node_xfs_directory_operation_remove_total counter
+node_xfs_directory_operation_remove_total{device="sda1"} 1
 # HELP node_xfs_extent_allocation_blocks_allocated_total Number of blocks allocated for a filesystem.
 # TYPE node_xfs_extent_allocation_blocks_allocated_total counter
 node_xfs_extent_allocation_blocks_allocated_total{device="sda1"} 872
@@ -3958,6 +4123,42 @@ node_zfs_zil_zil_itx_needcopy_bytes 1.8446744073709537e+19
 # HELP node_zfs_zil_zil_itx_needcopy_count kstat.zfs.misc.zil.zil_itx_needcopy_count
 # TYPE node_zfs_zil_zil_itx_needcopy_count untyped
 node_zfs_zil_zil_itx_needcopy_count 0
+# HELP node_zfs_zpool_dataset_nread kstat.zfs.misc.objset.nread
+# TYPE node_zfs_zpool_dataset_nread untyped
+node_zfs_zpool_dataset_nread{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nread{dataset="pool1/dataset1",zpool="pool1"} 28
+node_zfs_zpool_dataset_nread{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nread{dataset="poolz1/dataset1",zpool="poolz1"} 28
+# HELP node_zfs_zpool_dataset_nunlinked kstat.zfs.misc.objset.nunlinked
+# TYPE node_zfs_zpool_dataset_nunlinked untyped
+node_zfs_zpool_dataset_nunlinked{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nunlinked{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinked{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nunlinked{dataset="poolz1/dataset1",zpool="poolz1"} 14
+# HELP node_zfs_zpool_dataset_nunlinks kstat.zfs.misc.objset.nunlinks
+# TYPE node_zfs_zpool_dataset_nunlinks untyped
+node_zfs_zpool_dataset_nunlinks{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nunlinks{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinks{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nunlinks{dataset="poolz1/dataset1",zpool="poolz1"} 14
+# HELP node_zfs_zpool_dataset_nwritten kstat.zfs.misc.objset.nwritten
+# TYPE node_zfs_zpool_dataset_nwritten untyped
+node_zfs_zpool_dataset_nwritten{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_nwritten{dataset="pool1/dataset1",zpool="pool1"} 12302
+node_zfs_zpool_dataset_nwritten{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_nwritten{dataset="poolz1/dataset1",zpool="poolz1"} 32806
+# HELP node_zfs_zpool_dataset_reads kstat.zfs.misc.objset.reads
+# TYPE node_zfs_zpool_dataset_reads untyped
+node_zfs_zpool_dataset_reads{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_reads{dataset="pool1/dataset1",zpool="pool1"} 2
+node_zfs_zpool_dataset_reads{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_reads{dataset="poolz1/dataset1",zpool="poolz1"} 2
+# HELP node_zfs_zpool_dataset_writes kstat.zfs.misc.objset.writes
+# TYPE node_zfs_zpool_dataset_writes untyped
+node_zfs_zpool_dataset_writes{dataset="pool1",zpool="pool1"} 0
+node_zfs_zpool_dataset_writes{dataset="pool1/dataset1",zpool="pool1"} 4
+node_zfs_zpool_dataset_writes{dataset="poolz1",zpool="poolz1"} 0
+node_zfs_zpool_dataset_writes{dataset="poolz1/dataset1",zpool="poolz1"} 10
 # HELP node_zfs_zpool_nread kstat.zfs.misc.io.nread
 # TYPE node_zfs_zpool_nread untyped
 node_zfs_zpool_nread{zpool="pool1"} 1.88416e+06
@@ -4205,6 +4406,10 @@ node_zoneinfo_spanned_pages{node="0",zone="Normal"} 7.806976e+06
 # TYPE process_virtual_memory_bytes gauge
 # HELP process_virtual_memory_max_bytes Maximum amount of virtual memory available in bytes.
 # TYPE process_virtual_memory_max_bytes gauge
+# HELP promhttp_metric_handler_errors_total Total number of internal errors encountered by the promhttp metric handler.
+# TYPE promhttp_metric_handler_errors_total counter
+promhttp_metric_handler_errors_total{cause="encoding"} 0
+promhttp_metric_handler_errors_total{cause="gathering"} 0
 # HELP promhttp_metric_handler_requests_in_flight Current number of scrapes being served.
 # TYPE promhttp_metric_handler_requests_in_flight gauge
 promhttp_metric_handler_requests_in_flight 1

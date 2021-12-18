@@ -77,12 +77,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 		},
 		descs: []typedFactorDesc{
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
-					"The total number of reads completed successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: readsCompletedDesc, valueType: prometheus.CounterValue,
 			},
 			{
 				desc: prometheus.NewDesc(
@@ -99,12 +94,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				desc: readTimeSecondsDesc, valueType: prometheus.CounterValue,
 			},
 			{
-				desc: prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, diskSubsystem, "writes_completed_total"),
-					"The total number of writes completed successfully.",
-					diskLabelNames,
-					nil,
-				), valueType: prometheus.CounterValue,
+				desc: writesCompletedDesc, valueType: prometheus.CounterValue,
 			},
 			{
 				desc: prometheus.NewDesc(

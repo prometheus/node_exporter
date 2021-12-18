@@ -37,9 +37,6 @@ type cpuCollector struct {
 	cpuFlagsInfo       *prometheus.Desc
 	cpuBugsInfo        *prometheus.Desc
 	cpuGuest           *prometheus.Desc
-	cpuFreq            *prometheus.Desc
-	cpuFreqMin         *prometheus.Desc
-	cpuFreqMax         *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
 	cpuPackageThrottle *prometheus.Desc
 	logger             log.Logger
@@ -93,21 +90,6 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "guest_seconds_total"),
 			"Seconds the CPUs spent in guests (VMs) for each mode.",
 			[]string{"cpu", "mode"}, nil,
-		),
-		cpuFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
-			"Current cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		cpuFreqMin: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_min_hertz"),
-			"Minimum cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		cpuFreqMax: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
-			"Maximum cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
 		),
 		cpuCoreThrottle: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "core_throttles_total"),

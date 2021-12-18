@@ -1,4 +1,4 @@
-// Copyright 2017 The Prometheus Authors
+// Copyright 2017-2019 The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,35 +15,24 @@
 // +build linux,!noinfiniband
 
 package collector
-/*
+
 import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
+	"strconv"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-)
-
-const infinibandPath = "class/infiniband"
-
-var (
-	errInfinibandNoDevicesFound = errors.New("no InfiniBand devices detected")
-	errInfinibandNoPortsFound   = errors.New("no InfiniBand ports detected")
+	"github.com/prometheus/procfs/sysfs"
 )
 
 type infinibandCollector struct {
-	metricDescs    map[string]*prometheus.Desc
-	counters       map[string]infinibandMetric
-	legacyCounters map[string]infinibandMetric
-}
-
-type infinibandMetric struct {
-	File string
-	Help string
+	fs          sysfs.FS
+	metricDescs map[string]*prometheus.Desc
+	logger      log.Logger
+	subsystem   string
 }
 
 func init() {
@@ -60,18 +49,6 @@ func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 	i.logger = logger
-
-	// Filenames of all InfiniBand counter metrics including a detailed description.
-	i.counters = map[string]infinibandMetric{
-		"link_downed_total":                   {"link_downed", "Number of times the link failed to recover from an error state and went down"},
-		"link_error_recovery_total":           {"link_error_recovery", "Number of times the link successfully recovered from an error state"},
-		"multicast_packets_received_total":    {"multicast_rcv_packets", "Number of multicast packets received (including errors)"},
-		"multicast_packets_transmitted_total": {"multicast_xmit_packets", "Number of multicast packets transmitted (including errors)"},
-		"port_data_received_bytes_total":      {"port_rcv_data", "Number of data octets received on all links"},
-		"port_data_transmitted_bytes_total":   {"port_xmit_data", "Number of data octets transmitted on all links"},
-		"unicast_packets_received_total":      {"unicast_rcv_packets", "Number of unicast packets received (including errors)"},
-		"unicast_packets_transmitted_total":   {"unicast_xmit_packets", "Number of unicast packets transmitted (including errors)"},
-	}
 
 	// Detailed description for all metrics.
 	descriptions := map[string]string{
@@ -110,22 +87,13 @@ func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 		"vl15_dropped_total":                         "Number of incoming VL15 packets dropped due to resource limitations.",
 	}
 
-	subsystem := "infiniband"
 	i.metricDescs = make(map[string]*prometheus.Desc)
+	i.subsystem = "infiniband"
 
-	for metricName, infinibandMetric := range i.counters {
+	for metricName, description := range descriptions {
 		i.metricDescs[metricName] = prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, metricName),
-			infinibandMetric.Help,
-			[]string{"device", "port"},
-			nil,
-		)
-	}
-
-	for metricName, infinibandMetric := range i.legacyCounters {
-		i.metricDescs[metricName] = prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, metricName),
-			infinibandMetric.Help,
+			prometheus.BuildFQName(namespace, i.subsystem, metricName),
+			description,
 			[]string{"device", "port"},
 			nil,
 		)
@@ -134,74 +102,14 @@ func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	return &i, nil
 }
 
-// infinibandDevices retrieves a list of InfiniBand devices.
-func infinibandDevices(infinibandPath string) ([]string, error) {
-	devices, err := filepath.Glob(filepath.Join(infinibandPath, "/*"))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(devices) < 1 {
-		log.Debugf("Unable to detect InfiniBand devices")
-		err = errInfinibandNoDevicesFound
-		return nil, err
-	}
-
-	// Extract just the filenames which equate to the device names.
-	for i, device := range devices {
-		devices[i] = filepath.Base(device)
-	}
-
-	return devices, nil
+func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName string, port string, valueType prometheus.ValueType) {
+	ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, float64(value), deviceName, port)
 }
 
-// Retrieve a list of ports for the InfiniBand device.
-func infinibandPorts(infinibandPath, device string) ([]string, error) {
-	ports, err := filepath.Glob(filepath.Join(infinibandPath, device, "ports/*"))
-	if err != nil {
-		return nil, err
+func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName string, port string) {
+	if value != nil {
+		c.pushMetric(ch, name, *value, deviceName, port, prometheus.CounterValue)
 	}
-
-	if len(ports) < 1 {
-		log.Debugf("Unable to detect ports for %s", device)
-		err = errInfinibandNoPortsFound
-		return nil, err
-	}
-
-	// Extract just the filenames which equates to the port numbers.
-	for i, port := range ports {
-		ports[i] = filepath.Base(port)
-	}
-
-	return ports, nil
-}
-
-func readMetric(directory, metricFile string) (uint64, error) {
-	metric, err := readUintFromFile(filepath.Join(directory, metricFile))
-	if err != nil {
-		// Ugly workaround for handling #966, when counters are
-		// `N/A (not available)`.
-		// This was already patched and submitted, see
-		// https://www.spinics.net/lists/linux-rdma/msg68596.html
-		// Remove this as soon as the fix lands in the enterprise distros.
-		if strings.Contains(err.Error(), "N/A (no PMA)") {
-			log.Debugf("%q value is N/A", metricFile)
-			return 0, nil
-		}
-		log.Debugf("Error reading %q file", metricFile)
-		return 0, err
-	}
-
-	// According to Mellanox, the following metrics "are divided by 4 unconditionally"
-	// as they represent the amount of data being transmitted and received per lane.
-	// Mellanox cards have 4 lanes per port, so all values must be multiplied by 4
-	// to get the expected value.
-	switch metricFile {
-	case "port_rcv_data", "port_xmit_data", "port_rcv_data_64", "port_xmit_data_64":
-		metric *= 4
-	}
-
-	return metric, nil
 }
 
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
@@ -265,4 +173,4 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	return nil
-}*/
+}

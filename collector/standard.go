@@ -1,6 +1,7 @@
 package collector
-/*
+
 import (
+	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -11,10 +12,11 @@ func init() {
 
 type standardGoCollector struct {
 	origin prometheus.Collector
+	logger log.Logger
 }
 
 // NewStandardGoCollector creates standard go collector.
-func NewStandardGoCollector() (Collector, error) {
+func NewStandardGoCollector(logger log.Logger) (Collector, error) {
 	c := prometheus.NewGoCollector()
 	return &standardGoCollector{origin: c}, nil
 }
@@ -29,7 +31,7 @@ type standardProcessCollector struct {
 }
 
 // NewStandardProcessCollector creates standard process collector.
-func NewStandardProcessCollector() (Collector, error) {
+func NewStandardProcessCollector(logger log.Logger) (Collector, error) {
 	c := prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{})
 	return &standardProcessCollector{origin: c}, nil
 }
@@ -37,4 +39,4 @@ func NewStandardProcessCollector() (Collector, error) {
 func (c *standardProcessCollector) Update(ch chan<- prometheus.Metric) error {
 	c.origin.Collect(ch)
 	return nil
-}*/
+}

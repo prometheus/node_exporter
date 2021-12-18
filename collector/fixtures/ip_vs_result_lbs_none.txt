@@ -1,0 +1,24 @@
+# HELP node_ipvs_backend_connections_active The current active connections by local and remote address.
+# TYPE node_ipvs_backend_connections_active gauge
+node_ipvs_backend_connections_active 4126
+# HELP node_ipvs_backend_connections_inactive The current inactive connections by local and remote address.
+# TYPE node_ipvs_backend_connections_inactive gauge
+node_ipvs_backend_connections_inactive 11
+# HELP node_ipvs_backend_weight The current backend weight by local and remote address.
+# TYPE node_ipvs_backend_weight gauge
+node_ipvs_backend_weight 720
+# HELP node_ipvs_connections_total The total number of connections made.
+# TYPE node_ipvs_connections_total counter
+node_ipvs_connections_total 2.3765872e+07
+# HELP node_ipvs_incoming_bytes_total The total amount of incoming data.
+# TYPE node_ipvs_incoming_bytes_total counter
+node_ipvs_incoming_bytes_total 8.9991519156915e+13
+# HELP node_ipvs_incoming_packets_total The total number of incoming packets.
+# TYPE node_ipvs_incoming_packets_total counter
+node_ipvs_incoming_packets_total 3.811989221e+09
+# HELP node_ipvs_outgoing_bytes_total The total amount of outgoing data.
+# TYPE node_ipvs_outgoing_bytes_total counter
+node_ipvs_outgoing_bytes_total 0
+# HELP node_ipvs_outgoing_packets_total The total number of outgoing packets.
+# TYPE node_ipvs_outgoing_packets_total counter
+node_ipvs_outgoing_packets_total 0

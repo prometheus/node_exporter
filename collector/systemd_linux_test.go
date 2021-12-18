@@ -86,27 +86,6 @@ func getUnitListFixtures() [][]unit {
 
 	return [][]unit{fixture1, fixture2}
 }
-/*
-func TestSystemdCollectorDoesntCrash(t *testing.T) {
-	logger := log.NewNopLogger()
-	c, err := NewSystemdCollector(logger)
-	if err != nil {
-		t.Fatal(err)
-	}
-	sink := make(chan prometheus.Metric)
-	go func() {
-		for {
-			<-sink
-		}
-	}()
-
-	fixtures := getUnitListFixtures()
-	collector := (c).(*systemdCollector)
-	for _, units := range fixtures {
-		collector.collectUnitStatusMetrics(sink, units)
-		collector.collectSockets(sink, units)
-	}
-}*/
 
 func TestSystemdIgnoreFilter(t *testing.T) {
 	fixtures := getUnitListFixtures()

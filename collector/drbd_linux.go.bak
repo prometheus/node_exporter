@@ -36,7 +36,7 @@ type drbdNumericalMetric struct {
 	multiplier float64
 }
 
-func newDRBDNumericalMetric(name, desc string, valueType prometheus.ValueType, multiplier float64) drbdNumericalMetric {
+func newDRBDNumericalMetric(name string, desc string, valueType prometheus.ValueType, multiplier float64) drbdNumericalMetric {
 	return drbdNumericalMetric{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "drbd", name),
@@ -63,7 +63,7 @@ func (m *drbdStringPairMetric) isOkay(v string) float64 {
 	return 0
 }
 
-func newDRBDStringPairMetric(name, desc, valueOK string) drbdStringPairMetric {
+func newDRBDStringPairMetric(name string, desc string, valueOK string) drbdStringPairMetric {
 	return drbdStringPairMetric{
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "drbd", name),
@@ -218,38 +218,38 @@ func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		if m, ok := c.numerical[kv[0]]; ok {
+		if metric, ok := c.numerical[kv[0]]; ok {
 			// Numerical value.
-			v, err := strconv.ParseFloat(kv[1], 64)
+			value, err := strconv.ParseFloat(kv[1], 64)
 			if err != nil {
 				return err
 			}
 
 			ch <- prometheus.MustNewConstMetric(
-				m.desc,
-				m.valueType,
-				v*m.multiplier,
+				metric.desc,
+				metric.valueType,
+				value*metric.multiplier,
 				device,
 			)
 
 			continue
 		}
 
-		if m, ok := c.stringPair[kv[0]]; ok {
+		if metric, ok := c.stringPair[kv[0]]; ok {
 			// String pair value.
 			values := strings.Split(kv[1], "/")
 			ch <- prometheus.MustNewConstMetric(
-				m.desc,
+				metric.desc,
 				prometheus.GaugeValue,
-				m.isOkay(values[0]),
+				metric.isOkay(values[0]),
 				device,
 				"local",
 			)
 
 			ch <- prometheus.MustNewConstMetric(
-				m.desc,
+				metric.desc,
 				prometheus.GaugeValue,
-				m.isOkay(values[1]),
+				metric.isOkay(values[1]),
 				device,
 				"remote",
 			)
