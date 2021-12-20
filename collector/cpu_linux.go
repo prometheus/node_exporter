@@ -80,11 +80,10 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 
 	isolcpus, err := sysfs.IsolatedCPUs()
 	if err != nil {
-		if os.IsNotExist(err) {
-			level.Debug(logger).Log("msg", "Could not open isolated file", "error", err)
-		} else {
+		if !os.IsNotExist(err) {
 			return nil, fmt.Errorf("Unable to get isolated cpus: %w", err)
 		}
+		level.Debug(logger).Log("msg", "Could not open isolated file", "error", err)
 	}
 
 	c := &cpuCollector{
