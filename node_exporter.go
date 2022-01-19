@@ -33,6 +33,7 @@ import (
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/exporter-toolkit/web"
 	"github.com/prometheus/node_exporter/collector"
+	_ "github.com/prometheus/node_exporter/percona/perconacollector"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
