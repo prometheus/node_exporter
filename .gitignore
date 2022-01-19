@@ -38,8 +38,6 @@ collector/fixtures/sys/
 /vendor
 
 # upstream updating dev test
-percona/tests/upstream_update/metrics.percona.names-only.txt
-percona/tests/upstream_update/metrics.percona.no-comments.txt
-percona/tests/upstream_update/metrics.upstream.names-only.txt
-percona/tests/upstream_update/metrics.upstream.no-comments.txt
 percona/tests/upstream_update/metrics.upstream.txt
+percona/tests/upstream_update/metrics.percona.no-values.txt
+percona/tests/upstream_update/metrics.upstream.no-values.txt

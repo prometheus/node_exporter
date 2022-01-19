@@ -1,3 +1,9 @@
+# this test compares current exporter output to the etalon one
+# (master at the moment of the test introduction) to quickly
+# find out if there's any changes in metrics after upstream update
+# exporter is started using default percona flags (taken from pmm-managed)
+# TODO try to figure out testing of metrics type change
+
 trap "exit" INT TERM ERR
 trap "kill 0" EXIT
 
@@ -20,9 +26,6 @@ curl http://localhost:20001/metrics --output metrics.upstream.txt
 #sed '/^#/d' metrics.upstream.txt > metrics.upstream.no-comments.txt
 #sed '/^#/d' metrics.percona.txt > metrics.percona.no-comments.txt
 
-cat metrics.upstream.txt > metrics.upstream.no-comments.txt
-cat metrics.percona.txt > metrics.percona.no-comments.txt
-
 splitNames()
 {
     cat /dev/null > "$2"
@@ -39,7 +42,7 @@ splitNames()
     done < "$1"
 }
 
-splitNames metrics.upstream.no-comments.txt metrics.upstream.names-only.txt
-splitNames metrics.percona.no-comments.txt metrics.percona.names-only.txt
+splitNames metrics.upstream.txt metrics.upstream.no-values.txt
+splitNames metrics.percona.txt metrics.percona.no-values.txt
 
-git diff --exit-code --no-index -- metrics.percona.names-only.txt metrics.upstream.names-only.txt
+git diff --exit-code --no-index -- metrics.percona.no-values.txt metrics.upstream.no-values.txt
