@@ -35,6 +35,7 @@ const (
 
 var (
 	ntpServer          = kingpin.Flag("collector.ntp.server", "NTP server to use for ntp collector").Default("127.0.0.1").String()
+	ntpServerPort      = kingpin.Flag("collector.ntp.server-port", "UDP port number to connect to on NTP server").Default("123").Int()
 	ntpProtocolVersion = kingpin.Flag("collector.ntp.protocol-version", "NTP protocol version").Default("4").Int()
 	ntpServerIsLocal   = kingpin.Flag("collector.ntp.server-is-local", "Certify that collector.ntp.server address is not a public ntp server").Default("false").Bool()
 	ntpIPTTL           = kingpin.Flag("collector.ntp.ip-ttl", "IP TTL to use while sending NTP query").Default("1").Int()
@@ -124,6 +125,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 		Version: *ntpProtocolVersion,
 		TTL:     *ntpIPTTL,
 		Timeout: time.Second, // default `ntpdate` timeout
+		Port:    *ntpServerPort,
 	})
 	if err != nil {
 		return fmt.Errorf("couldn't get SNTP reply: %w", err)
