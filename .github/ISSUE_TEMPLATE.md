@@ -1,9 +1,7 @@
 <!--
 	Please note: GitHub issues should only be used for feature requests and
-	bug reports. For general usage/help/discussions, please refer to one of:
-
-	- #prometheus on freenode
-	- the Prometheus Users list: https://groups.google.com/forum/#!forum/prometheus-users
+	bug reports. For general discussions, please refer to one of the community channels
+	described in https://prometheus.io/community/.
 
 	Before filing a bug report, note that running node_exporter in Docker is
 	not recommended, for the reasons detailed in the README:
