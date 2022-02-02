@@ -9,8 +9,8 @@ local c = import '../config.libsonnet';
 
 local datasourceTemplate = {
   current: {
-    text: 'Prometheus',
-    value: 'Prometheus',
+    text: 'default',
+    value: 'default',
   },
   hide: 0,
   label: 'Data Source',
