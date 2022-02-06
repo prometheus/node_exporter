@@ -57,6 +57,8 @@ var (
 	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
 	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
 	enableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
+
+	systemdVersionRE = regexp.MustCompile(`[0-9]{3,}(\.[0-9]+)?`)
 )
 
 type systemdCollector struct {
@@ -152,12 +154,6 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *unitExclude)
 	unitExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitExclude))
 
-	systemdVersion := getSystemdVersion(logger)
-	if systemdVersion < minSystemdVersionSystemState {
-		level.Warn(logger).Log("msg", "Detected systemd version is lower than minimum", "current", systemdVersion, "minimum", minSystemdVersionSystemState)
-		level.Warn(logger).Log("msg", "Some systemd state and timer metrics will not be available")
-	}
-
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
 		unitStartTimeDesc:             unitStartTimeDesc,
@@ -171,7 +167,6 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
 		systemdVersionDesc:            systemdVersionDesc,
-		systemdVersion:                systemdVersion,
 		unitIncludePattern:            unitIncludePattern,
 		unitExcludePattern:            unitExcludePattern,
 		logger:                        logger,
@@ -187,6 +182,13 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get dbus connection: %w", err)
 	}
 	defer conn.Close()
+
+	systemdVersion := c.getSystemdVersion(conn)
+	if systemdVersion < minSystemdVersionSystemState {
+		level.Debug(c.logger).Log("msg", "Detected systemd version is lower than minimum, some systemd state and timer metrics will not be available", "current", systemdVersion, "minimum", minSystemdVersionSystemState)
+	}
+	ch <- prometheus.MustNewConstMetric(
+		c.systemdVersionDesc, prometheus.GaugeValue, systemdVersion)
 
 	allUnits, err := c.getAllUnits(conn)
 	if err != nil {
@@ -234,7 +236,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		}()
 	}
 
-	if c.systemdVersion >= minSystemdVersionSystemState {
+	if systemdVersion >= minSystemdVersionSystemState {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -252,14 +254,11 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		level.Debug(c.logger).Log("msg", "collectSockets took", "duration_seconds", time.Since(begin).Seconds())
 	}()
 
-	if c.systemdVersion >= minSystemdVersionSystemState {
+	if systemdVersion >= minSystemdVersionSystemState {
 		begin = time.Now()
 		err = c.collectSystemState(conn, ch)
 		level.Debug(c.logger).Log("msg", "collectSystemState took", "duration_seconds", time.Since(begin).Seconds())
 	}
-
-	ch <- prometheus.MustNewConstMetric(
-		c.systemdVersionDesc, prometheus.GaugeValue, float64(c.systemdVersion))
 
 	return err
 }
@@ -488,23 +487,17 @@ func filterUnits(units []unit, includePattern, excludePattern *regexp.Regexp, lo
 	return filtered
 }
 
-func getSystemdVersion(logger log.Logger) float64 {
-	conn, err := newSystemdDbusConn()
-	if err != nil {
-		level.Warn(logger).Log("msg", "Unable to get systemd dbus connection, defaulting systemd version to 0", "err", err)
-		return 0
-	}
-	defer conn.Close()
+func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) float64 {
 	version, err := conn.GetManagerProperty("Version")
 	if err != nil {
-		level.Warn(logger).Log("msg", "Unable to get systemd version property, defaulting to 0")
+		level.Debug(c.logger).Log("msg", "Unable to get systemd version property, defaulting to 0")
 		return 0
 	}
-	re := regexp.MustCompile(`[0-9][0-9][0-9](\.[0-9]+)?`)
-	version = re.FindString(version)
+	level.Debug(c.logger).Log("msg", "Got systemd version", "version", version)
+	version = systemdVersionRE.FindString(version)
 	v, err := strconv.ParseFloat(version, 64)
 	if err != nil {
-		level.Warn(logger).Log("msg", "Got invalid systemd version", "version", version)
+		level.Debug(c.logger).Log("msg", "Got invalid systemd version", "version", version)
 		return 0
 	}
 	return v
