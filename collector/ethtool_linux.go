@@ -235,9 +235,9 @@ func (c *ethtoolCollector) updatePortCapabilities(ch chan<- prometheus.Metric, p
 	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT) != 0 {
 		asymmetricPause = 1.0
 	}
-	ch <- prometheus.MustNewConstMetric(c.entries[fmt.Sprintf("%s_autonegotiate", prefix)], prometheus.GaugeValue, autonegotiate, device)
-	ch <- prometheus.MustNewConstMetric(c.entries[fmt.Sprintf("%s_pause", prefix)], prometheus.GaugeValue, pause, device)
-	ch <- prometheus.MustNewConstMetric(c.entries[fmt.Sprintf("%s_asymmetricpause", prefix)], prometheus.GaugeValue, asymmetricPause, device)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_autonegotiate", prefix)), prometheus.GaugeValue, autonegotiate, device)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_pause", prefix)), prometheus.GaugeValue, pause, device)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_asymmetricpause", prefix)), prometheus.GaugeValue, asymmetricPause, device)
 }
 
 // updatePortInfo generates port type metrics to indicate if the network devices supports Twisted Pair, optical fiber, etc.
@@ -253,7 +253,7 @@ func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device st
 		"Backplane": unix.ETHTOOL_LINK_MODE_Backplane_BIT,
 	} {
 		if linkModes&(1<<bit) != 0 {
-			ch <- prometheus.MustNewConstMetric(c.entries["supported_port"], prometheus.GaugeValue, 1.0, device, name)
+			ch <- prometheus.MustNewConstMetric(c.entry("supported_port"), prometheus.GaugeValue, 1.0, device, name)
 		}
 
 	}
@@ -301,7 +301,7 @@ func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix stri
 		unix.ETHTOOL_LINK_MODE_25000baseCR_Full_BIT:   {25000, full, "CR"},
 	} {
 		if linkModes&(1<<bit) != 0 {
-			ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue,
+			ch <- prometheus.MustNewConstMetric(c.entry(linkMode), prometheus.GaugeValue,
 				float64(labels.speed)*Mbps, device, labels.duplex, fmt.Sprintf("%dbase%s", labels.speed, labels.phy))
 		}
 	}
@@ -336,7 +336,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			c.updatePortCapabilities(ch, "supported", device, linkInfo.Supported)
 			c.updateSpeeds(ch, "advertised", device, linkInfo.Advertising)
 			c.updatePortCapabilities(ch, "advertised", device, linkInfo.Advertising)
-			ch <- prometheus.MustNewConstMetric(c.entries["autonegotiate"], prometheus.GaugeValue, float64(linkInfo.Autoneg), device)
+			ch <- prometheus.MustNewConstMetric(c.entry("autonegotiate"), prometheus.GaugeValue, float64(linkInfo.Autoneg), device)
 		} else {
 			if errno, ok := err.(syscall.Errno); ok {
 				if err == unix.EOPNOTSUPP {
