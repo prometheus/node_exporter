@@ -446,7 +446,7 @@ func (c *ethtoolCollector) entryWithCreate(key, metricFQName string) *prometheus
 	return c.entries[key]
 }
 
-func (c *ethtoolCollector) entry(key) *prometheus.Desc {
+func (c *ethtoolCollector) entry(key string) *prometheus.Desc {
 	c.entriesMutex.Lock()
 	defer c.entriesMutex.Unlock()
 	return c.entries[key]
