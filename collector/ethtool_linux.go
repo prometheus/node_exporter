@@ -422,7 +422,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			val := stats[metric]
 
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
-			entry := c.entries(metric)
+			entry := c.entry(metric, metricFQName)
 			ch <- prometheus.MustNewConstMetric(
 				entry, prometheus.UntypedValue, float64(val), device)
 		}
@@ -431,14 +431,14 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *ethtoolCollector) entries(key string) *prometheus.Desc {
+func (c *ethtoolCollector) entry(key, metricFQName string) *prometheus.Desc {
 	c.entriesMutex.Lock()
 	defer c.entriesMutex.Unlock()
 
 	if _, ok := c.entries[key]; !ok {
 		c.entries[key] = prometheus.NewDesc(
 			metricFQName,
-			fmt.Sprintf("Network interface %s", metric),
+			fmt.Sprintf("Network interface %s", key),
 			[]string{"device"}, nil,
 		)
 	}
