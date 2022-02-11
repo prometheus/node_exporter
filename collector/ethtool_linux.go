@@ -27,6 +27,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/go-kit/log"
@@ -73,6 +74,7 @@ func (e *ethtoolLibrary) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 type ethtoolCollector struct {
 	fs             sysfs.FS
 	entries        map[string]*prometheus.Desc
+	entriesMutex   sync.Mutex
 	ethtool        Ethtool
 	deviceFilter   netDevFilter
 	infoDesc       *prometheus.Desc
@@ -420,19 +422,26 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			val := stats[metric]
 
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
-			entry, exists := c.entries[metric]
-			if !exists {
-				entry = prometheus.NewDesc(
-					metricFQName,
-					fmt.Sprintf("Network interface %s", metric),
-					[]string{"device"}, nil,
-				)
-				c.entries[metric] = entry
-			}
+			entry := c.entries(metric)
 			ch <- prometheus.MustNewConstMetric(
 				entry, prometheus.UntypedValue, float64(val), device)
 		}
 	}
 
 	return nil
+}
+
+func (c *ethtoolCollector) entries(key string) *prometheus.Desc {
+	c.entriesMutex.Lock()
+	defer c.entriesMutex.Unlock()
+
+	if _, ok := c.entries[key]; !ok {
+		c.entries[key] = prometheus.NewDesc(
+			metricFQName,
+			fmt.Sprintf("Network interface %s", metric),
+			[]string{"device"}, nil,
+		)
+	}
+
+	return c.entries[key]
 }
