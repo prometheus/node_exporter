@@ -72,7 +72,7 @@ type systemdCollector struct {
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
-	systemdVersion                int
+	systemdVersion                float64
 	unitIncludePattern            *regexp.Regexp
 	unitExcludePattern            *regexp.Regexp
 	logger                        log.Logger
@@ -488,7 +488,7 @@ func filterUnits(units []unit, includePattern, excludePattern *regexp.Regexp, lo
 	return filtered
 }
 
-func getSystemdVersion(logger log.Logger) int {
+func getSystemdVersion(logger log.Logger) float64 {
 	conn, err := newSystemdDbusConn()
 	if err != nil {
 		level.Warn(logger).Log("msg", "Unable to get systemd dbus connection, defaulting systemd version to 0", "err", err)
@@ -500,9 +500,9 @@ func getSystemdVersion(logger log.Logger) int {
 		level.Warn(logger).Log("msg", "Unable to get systemd version property, defaulting to 0")
 		return 0
 	}
-	re := regexp.MustCompile(`[0-9][0-9][0-9]`)
+	re := regexp.MustCompile(`[0-9][0-9][0-9](\.[0-9]+)?`)
 	version = re.FindString(version)
-	v, err := strconv.Atoi(version)
+	v, err := strconv.ParseFloat(version, 64)
 	if err != nil {
 		level.Warn(logger).Log("msg", "Got invalid systemd version", "version", version)
 		return 0
