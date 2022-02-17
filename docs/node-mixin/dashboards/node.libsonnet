@@ -6,6 +6,8 @@ local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 local promgrafonnet = import 'github.com/kubernetes-monitoring/kubernetes-mixin/lib/promgrafonnet/promgrafonnet.libsonnet';
 local gauge = promgrafonnet.gauge;
+local loki = grafana.loki;
+local logPanel = grafana.logPanel;
 
 {
   grafanaDashboards+:: {
@@ -66,7 +68,8 @@ local gauge = promgrafonnet.gauge;
             -
               node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}
             )
-          ||| % $._config, legendFormat='memory used'
+          ||| % $._config,
+          legendFormat='memory used'
         ))
         .addTarget(prometheus.target('node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory buffers'))
         .addTarget(prometheus.target('node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory cached'))
@@ -200,6 +203,60 @@ local gauge = promgrafonnet.gauge;
           legendFormat='{{device}}',
         ));
 
+      local syslog = 
+        logPanel.new(
+          'syslog Errors',
+          datasource='$logs_datasource',
+        )
+        .addTarget(
+          loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %(nodeExporterSelector)s, instance=~"$instance"} |~".+(?i)error(?-i).+"' % $._config)
+        );
+
+      local authlog = 
+        logPanel.new(
+          'authlog',
+          datasource='$logs_datasource',
+        )
+        .addTarget(
+          loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+        );
+
+      local kernellog = 
+        logPanel.new(
+          'Kernel logs',
+          datasource='$logs_datasource',
+        )
+        .addTarget(
+          loki.target('{filename=~"/var/log/kern.log*", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+        );
+        
+      local journalsyslog = 
+        logPanel.new(
+          'Journal syslogs',
+          datasource='$logs_datasource',
+        )
+        .addTarget(
+          loki.target('{transport="syslog", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+        );
+        
+      local journalkernel = 
+        logPanel.new(
+          'Journal Kernel logs',
+          datasource='$logs_datasource',
+        )
+        .addTarget(
+          loki.target('{transport="kernel", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+        );
+        
+      local journalstdout = 
+        logPanel.new(
+          'Journal stdout Errors',
+          datasource='$logs_datasource',
+        )
+        .addTarget(
+          loki.target('{transport="stdout", %(nodeExporterSelector)s, instance=~"$instance", unit=~"$unit"} |~".+(?i)error(?-i).+"' % $._config)
+        );
+        
       dashboard.new(
         '%sNodes' % $._config.dashboardNamePrefix,
         time_from='now-1h',
@@ -207,7 +264,7 @@ local gauge = promgrafonnet.gauge;
         timezone='utc',
         refresh='30s',
         graphTooltip='shared_crosshair'
-      )
+      )      
       .addTemplate(
         {
           current: {
@@ -225,11 +282,46 @@ local gauge = promgrafonnet.gauge;
         },
       )
       .addTemplate(
+        {
+          current: {
+            text: 'Loki',
+            value: 'Loki',
+          },
+          hide: 0,
+          label: 'Loki Data Source',
+          name: 'logs_datasource',
+          options: [],
+          query: 'loki',
+          refresh: 1,
+          regex: '',
+          type: 'datasource',
+        },
+      )
+      .addTemplate(
+        template.new(
+          'job',
+          '$datasource',
+          'label_values(node_exporter_build_info, job)',
+          refresh='time',
+        )
+      )
+      .addTemplate(
         template.new(
           'instance',
           '$datasource',
-          'label_values(node_exporter_build_info{%(nodeExporterSelector)s}, instance)' % $._config,
+          'label_values(node_exporter_build_info{%(nodeExporterSelector)s}, instance)',
           refresh='time',
+        )
+      )
+      .addTemplate(
+        template.new(
+          'unit',
+          '$logs_datasource',
+          'label_values(unit)',
+          refresh='time',
+          includeAll=true,
+          multi=true,
+          allValues='.+',
         )
       )
       .addRow(
@@ -251,6 +343,22 @@ local gauge = promgrafonnet.gauge;
         row.new()
         .addPanel(networkReceived)
         .addPanel(networkTransmitted)
+      )
+      .addRow(
+        row.new(
+          'Direct Log Scrapes'
+        )
+        .addPanel(syslog)
+        .addPanel(authlog)
+        .addPanel(kernellog)
+      )
+      .addRow(
+        row.new(
+          'Journal Log Scrapes'
+        )
+        .addPanel(journalsyslog)
+        .addPanel(journalkernel)
+        .addPanel(journalstdout)
       ),
-  },
+  },  
 }
