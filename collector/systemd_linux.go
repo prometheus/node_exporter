@@ -131,7 +131,7 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		"Total number of refused socket connections", []string{"name"}, nil)
 	systemdVersionDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "version"),
-		"Detected systemd version", []string{}, nil)
+		"Detected systemd version", []string{"version"}, nil)
 
 	if *oldUnitExclude != "" {
 		if !unitExcludeSet {
@@ -183,12 +183,16 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	defer conn.Close()
 
-	systemdVersion := c.getSystemdVersion(conn)
+	systemdVersion, systemdVersionFull := c.getSystemdVersion(conn)
 	if systemdVersion < minSystemdVersionSystemState {
 		level.Debug(c.logger).Log("msg", "Detected systemd version is lower than minimum, some systemd state and timer metrics will not be available", "current", systemdVersion, "minimum", minSystemdVersionSystemState)
 	}
 	ch <- prometheus.MustNewConstMetric(
-		c.systemdVersionDesc, prometheus.GaugeValue, systemdVersion)
+		c.systemdVersionDesc,
+		prometheus.GaugeValue,
+		systemdVersion,
+		systemdVersionFull,
+	)
 
 	allUnits, err := c.getAllUnits(conn)
 	if err != nil {
@@ -487,18 +491,19 @@ func filterUnits(units []unit, includePattern, excludePattern *regexp.Regexp, lo
 	return filtered
 }
 
-func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) float64 {
+func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) (float64, string) {
 	version, err := conn.GetManagerProperty("Version")
 	if err != nil {
 		level.Debug(c.logger).Log("msg", "Unable to get systemd version property, defaulting to 0")
-		return 0
+		return 0, ""
 	}
+	version = strings.TrimPrefix(strings.TrimSuffix(version, `"`), `"`)
 	level.Debug(c.logger).Log("msg", "Got systemd version", "version", version)
-	version = systemdVersionRE.FindString(version)
-	v, err := strconv.ParseFloat(version, 64)
+	parsedVersion := systemdVersionRE.FindString(version)
+	v, err := strconv.ParseFloat(parsedVersion, 64)
 	if err != nil {
 		level.Debug(c.logger).Log("msg", "Got invalid systemd version", "version", version)
-		return 0
+		return 0, ""
 	}
-	return v
+	return v, version
 }
