@@ -264,7 +264,7 @@ local logPanel = grafana.logPanel;
         timezone='utc',
         refresh='30s',
         graphTooltip='shared_crosshair'
-      )      
+      )
       .addTemplate(
         {
           current: {
@@ -309,7 +309,7 @@ local logPanel = grafana.logPanel;
         template.new(
           'instance',
           '$datasource',
-          'label_values(node_exporter_build_info{%(nodeExporterSelector)s}, instance)',
+          'label_values(node_exporter_build_info{%(nodeExporterSelector)s}, instance)' % $._config,
           refresh='time',
         )
       )
@@ -360,5 +360,5 @@ local logPanel = grafana.logPanel;
         .addPanel(journalkernel)
         .addPanel(journalstdout)
       ),
-  },  
+  },
 }
