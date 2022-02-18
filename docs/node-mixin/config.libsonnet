@@ -59,5 +59,7 @@
 
     dashboardNamePrefix: 'Node Exporter / ',
     dashboardTags: ['node-exporter-mixin'],
+
+    enableLokiLogs: false,
   },
 }
