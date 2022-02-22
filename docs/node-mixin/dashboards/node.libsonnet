@@ -4,8 +4,8 @@ local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
-local promgrafonnet = import 'github.com/kubernetes-monitoring/kubernetes-mixin/lib/promgrafonnet/promgrafonnet.libsonnet';
-local gauge = promgrafonnet.gauge;
+local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
+local gaugePanel = grafana70.panel.gauge;
 local loki = grafana.loki;
 local logPanel = grafana.logPanel;
 
@@ -93,8 +93,12 @@ local prometheusDatasourceTemplate = {
   // TODO: It would be nicer to have a gauge that gets a 0-1 range and displays it as a percentage 0%-100%.
   // This needs to be added upstream in the promgrafonnet library and then changed here.
   // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
-  _memoryGaugePanel :: gauge.new(
-    'Memory Usage',
+  _memoryGaugePanel :: 
+    gaugePanel.new(
+      title = 'Memory Usage',
+      datasource='$prometheus_datasource',
+    )
+    .addTarget(prometheus.target(
     |||
       100 -
       (
@@ -104,7 +108,14 @@ local prometheusDatasourceTemplate = {
       * 100
       )
     ||| % $._config,
-  ).withLowerBeingBetter(),
+    ))
+    .addThresholdStep('rgba(50, 172, 45, 0.97)')
+    .addThresholdStep('rgba(237, 129, 40, 0.89)', 80)
+    .addThresholdStep('rgba(245, 54, 54, 0.9)', 90)      
+    .setFieldConfig(max=100,min=0,unit='percent')
+    + {
+        span: 3,
+    },
 
   _diskIOPanel ::
     graphPanel.new(
