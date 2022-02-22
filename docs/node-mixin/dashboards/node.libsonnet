@@ -90,8 +90,6 @@ local prometheusDatasourceTemplate = {
     .addTarget(prometheus.target('node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory cached'))
     .addTarget(prometheus.target('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory free')),
 
-  // TODO: It would be nicer to have a gauge that gets a 0-1 range and displays it as a percentage 0%-100%.
-  // This needs to be added upstream in the promgrafonnet library and then changed here.
   // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
   _memoryGaugePanel :: 
     gaugePanel.new(
