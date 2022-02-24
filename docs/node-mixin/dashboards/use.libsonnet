@@ -143,7 +143,7 @@ local diskSpaceUtilisation =
     sort=1
   ),
 
-  __node_rsrc_use_dashboard:: 
+  __node_rsrc_use_dashboard::
       dashboard.new(
         '%sUSE Method / Node' % $._config.dashboardNamePrefix,
         time_from='now-1h',
@@ -209,7 +209,7 @@ local diskSpaceUtilisation =
       ),
 
   grafanaDashboards+::
-      if !$._config.enableLokiLogs then {        
+      if !$._config.enableLokiLogs then {
         'node-rsrc-use.json':
           $.__node_rsrc_use_dashboard,
       }
@@ -277,7 +277,7 @@ local diskSpaceUtilisation =
             .addTarget(
               loki.target('{filename=~"/var/log/kern.log*", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}}' % $._config)
             );
-            
+
           local journalsyslog = 
             logPanel.new(
               'Journal syslogs',
@@ -286,7 +286,7 @@ local diskSpaceUtilisation =
             .addTarget(
               loki.target('{transport="syslog", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}}' % $._config)
             );
-            
+
           local journalkernel = 
             logPanel.new(
               'Journal Kernel logs',
@@ -295,7 +295,7 @@ local diskSpaceUtilisation =
             .addTarget(
               loki.target('{transport="kernel", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}}' % $._config)
             );
-            
+
           local journalstdout = 
             logPanel.new(
               'Journal stdout Errors',
@@ -305,7 +305,7 @@ local diskSpaceUtilisation =
               loki.target('{transport="stdout", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}, unit=~"$unit"} |~".+(?i)error(?-i).+"' % $._config)
             );
 
-          local lokiDirectLogRow = 
+          local lokiDirectLogRow =
             row.new(
               'Loki Direct Log Scrapes'
             )
