@@ -262,18 +262,19 @@ local prometheusDatasourceTemplate = {
     timezone='utc',
     refresh='30s',
     graphTooltip='shared_crosshair'
-  ),
+  )
+  .addTemplate(prometheusDatasourceTemplate) 
+  .addRow($._cpuRow)
+  .addRow($._memoryRow)
+  .addRow($._diskRow)
+  .addRow($._networkRow),
+  
    
   grafanaDashboards+:: 
     if !$._config.enableLokiLogs then {
       'nodes.json':
         $._NodeDashboard
-        .addTemplate(prometheusDatasourceTemplate)
         .addTemplate($._instanceTemplate)
-        .addRow($._cpuRow)
-        .addRow($._memoryRow)
-        .addRow($._diskRow)
-        .addRow($._networkRow), 
     }
     else {
       'nodes.json':
@@ -385,15 +386,10 @@ local prometheusDatasourceTemplate = {
           .addPanel(journalstdout);
 
         $._NodeDashboard
-        .addTemplate(prometheusDatasourceTemplate)
         .addTemplate(lokiDatasourceTemplate)
         .addTemplate(jobTemplate)      
         .addTemplate($._instanceTemplate)
         .addTemplate(unitTemplate)
-        .addRow($._cpuRow)
-        .addRow($._memoryRow)
-        .addRow($._diskRow)
-        .addRow($._networkRow)
         .addRow(lokiDirectLogRow)
         .addRow(lokiJournalLogRow),             
     }, 
