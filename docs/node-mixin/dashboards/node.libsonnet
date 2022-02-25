@@ -27,7 +27,7 @@ local prometheusDatasourceTemplate = {
 };
 
 {
-  _idleCPUPanel ::
+  _idleCPUPanel::
     graphPanel.new(
       'CPU Usage',
       datasource='$prometheus_datasource',
@@ -49,7 +49,7 @@ local prometheusDatasourceTemplate = {
       intervalFactor=5,
     )),
 
-  _systemLoadPanel ::
+  _systemLoadPanel::
     graphPanel.new(
       'Load Average',
       datasource='$prometheus_datasource',
@@ -63,7 +63,7 @@ local prometheusDatasourceTemplate = {
     .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='15m load average'))
     .addTarget(prometheus.target('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % $._config, legendFormat='logical cores')),
 
-  _memoryGraphPanel ::
+  _memoryGraphPanel::
     graphPanel.new(
       'Memory Usage',
       datasource='$prometheus_datasource',
@@ -91,31 +91,31 @@ local prometheusDatasourceTemplate = {
     .addTarget(prometheus.target('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory free')),
 
   // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
-  _memoryGaugePanel :: 
+  _memoryGaugePanel::
     gaugePanel.new(
-      title = 'Memory Usage',
+      title='Memory Usage',
       datasource='$prometheus_datasource',
     )
     .addTarget(prometheus.target(
-    |||
-      100 -
-      (
-        avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"})
-      /
-        avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"})
-      * 100
-      )
-    ||| % $._config,
+      |||
+        100 -
+        (
+          avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"})
+        /
+          avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"})
+        * 100
+        )
+      ||| % $._config,
     ))
     .addThresholdStep('rgba(50, 172, 45, 0.97)')
     .addThresholdStep('rgba(237, 129, 40, 0.89)', 80)
-    .addThresholdStep('rgba(245, 54, 54, 0.9)', 90)      
-    .setFieldConfig(max=100,min=0,unit='percent')
+    .addThresholdStep('rgba(245, 54, 54, 0.9)', 90)
+    .setFieldConfig(max=100, min=0, unit='percent')
     + {
-        span: 3,
+      span: 3,
     },
 
-  _diskIOPanel ::
+  _diskIOPanel:
     graphPanel.new(
       'Disk I/O',
       datasource='$prometheus_datasource',
@@ -153,8 +153,8 @@ local prometheusDatasourceTemplate = {
       ],
     },
 
-      // TODO: Somehow partition this by device while excluding read-only devices.
-  _diskSpaceUsagePanel ::
+  // TODO: Somehow partition this by device while excluding read-only devices.
+  _diskSpaceUsagePanel:
     graphPanel.new(
       'Disk Space Usage',
       datasource='$prometheus_datasource',
@@ -199,7 +199,7 @@ local prometheusDatasourceTemplate = {
       ],
     },
 
-  _networkReceivedPanel ::
+  _networkReceivedPanel::
     graphPanel.new(
       'Network Received',
       datasource='$prometheus_datasource',
@@ -213,7 +213,7 @@ local prometheusDatasourceTemplate = {
       legendFormat='{{device}}',
     )),
 
-  _networkTransmittedPanel ::
+  _networkTransmittedPanel::
     graphPanel.new(
       'Network Transmitted',
       datasource='$prometheus_datasource',
@@ -227,22 +227,22 @@ local prometheusDatasourceTemplate = {
       legendFormat='{{device}}',
     )),
 
-  _cpuRow ::
+  _cpuRow::
     row.new('CPU')
     .addPanel($._idleCPUPanel)
     .addPanel($._systemLoadPanel),
 
-  _memoryRow ::
+  _memoryRow::
     row.new('Memory')
     .addPanel($._memoryGraphPanel)
     .addPanel($._memoryGaugePanel),
 
-  _diskRow ::
+  _diskRow::
     row.new('Disk')
     .addPanel($._diskIOPanel)
     .addPanel($._diskSpaceUsagePanel),
 
-  _networkRow ::
+  _networkRow::
     row.new('Network')
     .addPanel($._networkReceivedPanel)
     .addPanel($._networkTransmittedPanel),
@@ -263,28 +263,28 @@ local prometheusDatasourceTemplate = {
     refresh='30s',
     graphTooltip='shared_crosshair'
   )
-  .addTemplate(prometheusDatasourceTemplate) 
-  .addRow($._cpuRow)
-  .addRow($._memoryRow)
-  .addRow($._diskRow)
-  .addRow($._networkRow),
-  
-   
-  grafanaDashboards+:: 
+                   .addTemplate(prometheusDatasourceTemplate)
+                   .addRow($._cpuRow)
+                   .addRow($._memoryRow)
+                   .addRow($._diskRow)
+                   .addRow($._networkRow),
+
+  grafanaDashboards+::
     if !$._config.enableLokiLogs then {
       'nodes.json':
+
         $._NodeDashboard
-        .addTemplate($._instanceTemplate)
+        .addTemplate($._instanceTemplate),
     }
     else {
       'nodes.json':
 
         local lokiDatasourceTemplate = {
-          current: 
-          {
-            text: 'Loki',
-            value: 'Loki',
-          },                    
+          current:
+            {
+              text: 'Loki',
+              value: 'Loki',
+            },
           name: 'loki_datasource',
           label: 'Loki Data Source',
           options: [],
@@ -292,39 +292,38 @@ local prometheusDatasourceTemplate = {
           hide: 0,
           refresh: 1,
           regex: '',
-          type: 'datasource',         
+          type: 'datasource',
         };
 
         local jobTemplate = template.new(
           'job',
           '$prometheus_datasource',
           'label_values(node_exporter_build_info, job)',
-          hide= 0,
           label='Job',
-          refresh='time',          
+          refresh='time',
         );
 
         local unitTemplate = template.new(
           'unit',
           '$loki_datasource',
           'label_values(unit)',
-          label= 'Systemd Unit',
+          label='Systemd Unit',
           refresh='time',
           includeAll=true,
           multi=true,
           allValues='.+',
         );
 
-        local syslog = 
-        logPanel.new(
-          'syslog Errors',
-          datasource='$loki_datasource',
-        )
-        .addTarget(
-          loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %(nodeExporterSelector)s, instance=~"$instance"} |~".+(?i)error(?-i).+"' % $._config)
-        );
+        local syslog =
+          logPanel.new(
+            'syslog Errors',
+            datasource='$loki_datasource',
+          )
+          .addTarget(
+            loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %(nodeExporterSelector)s, instance=~"$instance"} |~".+(?i)error(?-i).+"' % $._config)
+          );
 
-        local authlog = 
+        local authlog =
           logPanel.new(
             'authlog',
             datasource='$loki_datasource',
@@ -333,7 +332,7 @@ local prometheusDatasourceTemplate = {
             loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
           );
 
-        local kernellog = 
+        local kernellog =
           logPanel.new(
             'Kernel logs',
             datasource='$loki_datasource',
@@ -341,8 +340,8 @@ local prometheusDatasourceTemplate = {
           .addTarget(
             loki.target('{filename=~"/var/log/kern.log*", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
           );
-          
-        local journalsyslog = 
+
+        local journalsyslog =
           logPanel.new(
             'Journal syslogs',
             datasource='$loki_datasource',
@@ -350,8 +349,8 @@ local prometheusDatasourceTemplate = {
           .addTarget(
             loki.target('{transport="syslog", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
           );
-          
-        local journalkernel = 
+
+        local journalkernel =
           logPanel.new(
             'Journal Kernel logs',
             datasource='$loki_datasource',
@@ -359,8 +358,8 @@ local prometheusDatasourceTemplate = {
           .addTarget(
             loki.target('{transport="kernel", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
           );
-          
-        local journalstdout = 
+
+        local journalstdout =
           logPanel.new(
             'Journal stdout Errors',
             datasource='$loki_datasource',
@@ -369,7 +368,7 @@ local prometheusDatasourceTemplate = {
             loki.target('{transport="stdout", %(nodeExporterSelector)s, instance=~"$instance", unit=~"$unit"} |~".+(?i)error(?-i).+"' % $._config)
           );
 
-        local lokiDirectLogRow = 
+        local lokiDirectLogRow =
           row.new(
             'Loki Direct Log Scrapes'
           )
@@ -377,7 +376,7 @@ local prometheusDatasourceTemplate = {
           .addPanel(authlog)
           .addPanel(kernellog);
 
-        local lokiJournalLogRow = 
+        local lokiJournalLogRow =
           row.new(
             'Loki Journal Log Scrapes'
           )
@@ -387,10 +386,11 @@ local prometheusDatasourceTemplate = {
 
         $._NodeDashboard
         .addTemplate(lokiDatasourceTemplate)
-        .addTemplate(jobTemplate)      
+        .addTemplate(jobTemplate)
         .addTemplate($._instanceTemplate)
         .addTemplate(unitTemplate)
         .addRow(lokiDirectLogRow)
-        .addRow(lokiJournalLogRow),             
-    }, 
+        .addRow(lokiJournalLogRow),
+    },
 }
+
