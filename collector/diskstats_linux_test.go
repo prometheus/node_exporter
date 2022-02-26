@@ -74,21 +74,21 @@ node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
 node_disk_flush_requests_total{device="sdc"} 1555
 # HELP node_disk_info Info of /sys/block/<block_device>.
 # TYPE node_disk_info gauge
-node_disk_info{device="dm-0",major="252",minor="0"} 1
-node_disk_info{device="dm-1",major="252",minor="1"} 1
-node_disk_info{device="dm-2",major="252",minor="2"} 1
-node_disk_info{device="dm-3",major="252",minor="3"} 1
-node_disk_info{device="dm-4",major="252",minor="4"} 1
-node_disk_info{device="dm-5",major="252",minor="5"} 1
-node_disk_info{device="mmcblk0",major="179",minor="0"} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1"} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2"} 1
-node_disk_info{device="nvme0n1",major="259",minor="0"} 1
-node_disk_info{device="sda",major="8",minor="0"} 1
-node_disk_info{device="sdb",major="8",minor="0"} 1
-node_disk_info{device="sdc",major="8",minor="0"} 1
-node_disk_info{device="sr0",major="11",minor="0"} 1
-node_disk_info{device="vda",major="254",minor="0"} 1
+node_disk_info{device="dm-0",dm_uuid="",major="252",minor="0",name="",path="",uuid="53cac259-4cf9-416e-84e7-4eb55273c7cb"} 1
+node_disk_info{device="dm-1",dm_uuid="",major="252",minor="1",name="",path="",uuid="20bfb821-c6d7-4d98-bbdb-f6d9216afbda"} 1
+node_disk_info{device="dm-2",dm_uuid="",major="252",minor="2",name="",path="",uuid=""} 1
+node_disk_info{device="dm-3",dm_uuid="",major="252",minor="3",name="",path="",uuid=""} 1
+node_disk_info{device="dm-4",dm_uuid="",major="252",minor="4",name="",path="",uuid=""} 1
+node_disk_info{device="dm-5",dm_uuid="",major="252",minor="5",name="",path="",uuid=""} 1
+node_disk_info{device="mmcblk0",dm_uuid="",major="179",minor="0",name="",path="",uuid=""} 1
+node_disk_info{device="mmcblk0p1",dm_uuid="",major="179",minor="1",name="",path="",uuid=""} 1
+node_disk_info{device="mmcblk0p2",dm_uuid="",major="179",minor="2",name="",path="",uuid=""} 1
+node_disk_info{device="nvme0n1",dm_uuid="",major="259",minor="0",name="",path="pci-0000:3c:00.0-nvme-1",uuid=""} 1
+node_disk_info{device="sda",dm_uuid="",major="8",minor="0",name="",path="",uuid=""} 1
+node_disk_info{device="sdb",dm_uuid="",major="8",minor="0",name="",path="",uuid=""} 1
+node_disk_info{device="sdc",dm_uuid="",major="8",minor="0",name="",path="",uuid=""} 1
+node_disk_info{device="sr0",dm_uuid="",major="11",minor="0",name="",path="",uuid=""} 1
+node_disk_info{device="vda",dm_uuid="",major="254",minor="0",name="",path="",uuid=""} 1
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
