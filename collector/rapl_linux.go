@@ -77,24 +77,29 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			return err
 		}
+
 		index := strconv.Itoa(rz.Index)
-
-		// sanitizing rapl name for invalid metric name
-		rz.Name = SanitizeMetricName(rz.Name)
-
-		descriptor := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "rapl", rz.Name+"_joules_total"),
-			"Current RAPL "+rz.Name+" value in joules",
-			[]string{"index", "path"}, nil,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			descriptor,
-			prometheus.CounterValue,
-			float64(newMicrojoules)/1000000.0,
-			index,
-			rz.Path,
-		)
+		ch <- getRzMetric(rz.Name, rz.Path, index, newMicrojoules)
 	}
 	return nil
+}
+
+// getRzMetric sanitize the raplZoneName and returns new metrics
+func getRzMetric(raplZoneName, raplZonePath, index string, newMicrojoules uint64) prometheus.Metric {
+	// sanitizing rapl zone name for invalid metric name
+	raplZoneName = SanitizeMetricName(raplZoneName)
+
+	descriptor := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "rapl", raplZoneName+"_joules_total"),
+		"Current RAPL "+raplZoneName+" value in joules",
+		[]string{"index", "path"}, nil,
+	)
+
+	return prometheus.MustNewConstMetric(
+		descriptor,
+		prometheus.CounterValue,
+		float64(newMicrojoules)/1000000.0,
+		index,
+		raplZonePath,
+	)
 }
