@@ -79,6 +79,9 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		index := strconv.Itoa(rz.Index)
 
+		// sanitizing rapl name for invalid metric name
+		rz.Name = SanitizeMetricName(rz.Name)
+
 		descriptor := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "rapl", rz.Name+"_joules_total"),
 			"Current RAPL "+rz.Name+" value in joules",
