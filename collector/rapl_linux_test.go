@@ -36,7 +36,7 @@ func TestInvalidRaplName(t *testing.T) {
 		},
 	}
 
-	// these are irrelevent in this test so accepting default value
+	// these are irrelevant in this test so accepting default value
 	var raplZonePath, index string
 	var newMicrojoules uint64
 
