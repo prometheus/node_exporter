@@ -196,6 +196,7 @@ buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinf
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
+fips | Exposes FIPS status (0-disabled, 1-enabled) from `/proc/sys/crypto/fips_enabled`. | Linux 
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 lnstat | Exposes stats from `/proc/net/stat/`. | Linux
