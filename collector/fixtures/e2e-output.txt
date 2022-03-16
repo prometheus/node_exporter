@@ -238,20 +238,20 @@ node_buddyinfo_blocks{node="0",size="8",zone="Normal"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="DMA"} 1
 node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
-# HELP node_cgroups Current cgroup number of the subsystem.
-# TYPE node_cgroups counter
-node_cgroups{enabled="1",subsys_name="blkio"} 170
-node_cgroups{enabled="1",subsys_name="cpu"} 172
-node_cgroups{enabled="1",subsys_name="cpuacct"} 172
-node_cgroups{enabled="1",subsys_name="cpuset"} 47
-node_cgroups{enabled="1",subsys_name="devices"} 170
-node_cgroups{enabled="1",subsys_name="freezer"} 47
-node_cgroups{enabled="1",subsys_name="hugetlb"} 47
-node_cgroups{enabled="1",subsys_name="memory"} 234
-node_cgroups{enabled="1",subsys_name="net_cls"} 47
-node_cgroups{enabled="1",subsys_name="perf_event"} 47
-node_cgroups{enabled="1",subsys_name="pids"} 170
-node_cgroups{enabled="1",subsys_name="rdma"} 1
+# HELP node_cgroups_total Current cgroup number of the subsystem.
+# TYPE node_cgroups_total counter
+node_cgroups_total{enabled="1",subsys_name="blkio"} 170
+node_cgroups_total{enabled="1",subsys_name="cpu"} 172
+node_cgroups_total{enabled="1",subsys_name="cpuacct"} 172
+node_cgroups_total{enabled="1",subsys_name="cpuset"} 47
+node_cgroups_total{enabled="1",subsys_name="devices"} 170
+node_cgroups_total{enabled="1",subsys_name="freezer"} 47
+node_cgroups_total{enabled="1",subsys_name="hugetlb"} 47
+node_cgroups_total{enabled="1",subsys_name="memory"} 234
+node_cgroups_total{enabled="1",subsys_name="net_cls"} 47
+node_cgroups_total{enabled="1",subsys_name="perf_event"} 47
+node_cgroups_total{enabled="1",subsys_name="pids"} 170
+node_cgroups_total{enabled="1",subsys_name="rdma"} 1
 # HELP node_context_switches_total Total number of context switches.
 # TYPE node_context_switches_total counter
 node_context_switches_total 3.8014093e+07

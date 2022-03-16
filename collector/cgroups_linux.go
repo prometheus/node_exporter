@@ -44,7 +44,7 @@ func NewCgroupSummaryCollector(logger log.Logger) (Collector, error) {
 	return &cgroupSummaryCollector{
 		fs: fs,
 		cgroups: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "cgroups"),
+			prometheus.BuildFQName(namespace, "", "cgroups_total"),
 			"Current cgroup number of the subsystem.",
 			[]string{"subsys_name", "enabled"}, nil,
 		),
