@@ -12,6 +12,7 @@ require (
 	github.com/jsimonetti/rtnetlink v1.1.1
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
+	github.com/mdlayher/netlink v1.6.0
 	github.com/mdlayher/wifi v0.0.0-20220320220353-954ff73a19a5
 	github.com/prometheus/client_golang v1.12.1
 	github.com/prometheus/client_model v0.2.0
