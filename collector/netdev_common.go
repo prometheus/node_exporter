@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"sync"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -38,10 +39,11 @@ var (
 )
 
 type netDevCollector struct {
-	subsystem    string
-	deviceFilter netDevFilter
-	metricDescs  map[string]*prometheus.Desc
-	logger       log.Logger
+	subsystem        string
+	deviceFilter     netDevFilter
+	metricDescsMutex sync.Mutex
+	metricDescs      map[string]*prometheus.Desc
+	logger           log.Logger
 }
 
 type netDevStats map[string]map[string]uint64
@@ -90,6 +92,22 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 	}, nil
 }
 
+func (c *netDevCollector) metricDesc(key string) *prometheus.Desc {
+	c.metricDescsMutex.Lock()
+	defer c.metricDescsMutex.Unlock()
+
+	if _, ok := c.metricDescs[key]; !ok {
+		c.metricDescs[key] = prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
+			fmt.Sprintf("Network device statistic %s.", key),
+			[]string{"device"},
+			nil,
+		)
+	}
+
+	return c.metricDescs[key]
+}
+
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 	netDev, err := getNetDevStats(&c.deviceFilter, c.logger)
 	if err != nil {
@@ -97,16 +115,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	for dev, devStats := range netDev {
 		for key, value := range devStats {
-			desc, ok := c.metricDescs[key]
-			if !ok {
-				desc = prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
-					fmt.Sprintf("Network device statistic %s.", key),
-					[]string{"device"},
-					nil,
-				)
-				c.metricDescs[key] = desc
-			}
+			desc := c.metricDesc(key)
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
 		}
 	}
