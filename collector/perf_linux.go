@@ -161,8 +161,8 @@ func (c *perfTracepointCollector) update(ch chan<- prometheus.Metric) error {
 // updateCPU is used to update metrics per CPU profiler.
 func (c *perfTracepointCollector) updateCPU(cpu int, ch chan<- prometheus.Metric) error {
 	profiler := c.profilers[cpu]
-	p, err := profiler.Profile()
-	if err != nil {
+	p := &perf.GroupProfileValue{}
+	if err := profiler.Profile(p); err != nil {
 		level.Error(c.logger).Log("msg", "Failed to collect tracepoint profile", "err", err)
 		return err
 	}
@@ -286,8 +286,12 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 	for _, cpu := range cpus {
 		// Use -1 to profile all processes on the CPU, see:
 		// man perf_event_open
-		hwProf, err := perf.NewHardwareProfiler(-1, cpu)
-		if err != nil {
+		hwProf, err := perf.NewHardwareProfiler(
+			-1,
+			cpu,
+			perf.AllHardwareProfilers,
+		)
+		if err != nil && !hwProf.HasProfilers() {
 			return nil, err
 		}
 		if err := hwProf.Start(); err != nil {
@@ -296,8 +300,8 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 		collector.perfHwProfilers[cpu] = &hwProf
 		collector.hwProfilerCPUMap[&hwProf] = cpu
 
-		swProf, err := perf.NewSoftwareProfiler(-1, cpu)
-		if err != nil {
+		swProf, err := perf.NewSoftwareProfiler(-1, cpu, perf.AllSoftwareProfilers)
+		if err != nil && !swProf.HasProfilers() {
 			return nil, err
 		}
 		if err := swProf.Start(); err != nil {
@@ -306,8 +310,13 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 		collector.perfSwProfilers[cpu] = &swProf
 		collector.swProfilerCPUMap[&swProf] = cpu
 
-		cacheProf, err := perf.NewCacheProfiler(-1, cpu)
-		if err != nil {
+		cacheProfilers := perf.L1DataReadHitProfiler & perf.L1DataReadMissProfiler & perf.L1DataWriteHitProfiler & perf.L1InstrReadMissProfiler & perf.InstrTLBReadHitProfiler & perf.InstrTLBReadMissProfiler & perf.LLReadHitProfiler & perf.LLReadMissProfiler & perf.LLWriteHitProfiler & perf.LLWriteMissProfiler & perf.BPUReadHitProfiler & perf.BPUReadMissProfiler
+		cacheProf, err := perf.NewCacheProfiler(
+			-1,
+			cpu,
+			cacheProfilers,
+		)
+		if err != nil && !cacheProf.HasProfilers() {
 			return nil, err
 		}
 		if err := cacheProf.Start(); err != nil {
@@ -585,8 +594,8 @@ func (c *perfCollector) Update(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 	for _, profiler := range c.perfHwProfilers {
-		hwProfile, err := (*profiler).Profile()
-		if err != nil {
+		hwProfile := &perf.HardwareProfile{}
+		if err := (*profiler).Profile(hwProfile); err != nil {
 			return err
 		}
 		if hwProfile == nil {
@@ -657,8 +666,8 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 	for _, profiler := range c.perfSwProfilers {
-		swProfile, err := (*profiler).Profile()
-		if err != nil {
+		swProfile := &perf.SoftwareProfile{}
+		if err := (*profiler).Profile(swProfile); err != nil {
 			return err
 		}
 		if swProfile == nil {
@@ -713,8 +722,8 @@ func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 
 func (c *perfCollector) updateCacheStats(ch chan<- prometheus.Metric) error {
 	for _, profiler := range c.perfCacheProfilers {
-		cacheProfile, err := (*profiler).Profile()
-		if err != nil {
+		cacheProfile := &perf.CacheProfile{}
+		if err := (*profiler).Profile(cacheProfile); err != nil {
 			return err
 		}
 		if cacheProfile == nil {
