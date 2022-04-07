@@ -281,7 +281,7 @@
             alert: 'NodeFileDescriptorLimit',
             expr: |||
               (
-                node_filefd_allocated{job="node-exporter"} * 100 / node_filefd_maximum{job="node-exporter"} > 70
+                node_filefd_allocated{%(nodeExporterSelector)s} * 100 / node_filefd_maximum{%(nodeExporterSelector)s} > 70
               )
             ||| % $._config,
             'for': '15m',
@@ -297,7 +297,7 @@
             alert: 'NodeFileDescriptorLimit',
             expr: |||
               (
-                node_filefd_allocated{job="node-exporter"} * 100 / node_filefd_maximum{job="node-exporter"} > 90
+                node_filefd_allocated{%(nodeExporterSelector)s} * 100 / node_filefd_maximum{%(nodeExporterSelector)s} > 90
               )
             ||| % $._config,
             'for': '15m',
