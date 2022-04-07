@@ -234,14 +234,6 @@ local diskSpaceUtilisation =
             type: 'datasource',
           };
 
-          local jobTemplate = template.new(
-            'job',
-            '$prometheus_datasource',
-            'label_values(node_exporter_build_info, job)',            
-            label='Job',
-            refresh='time',
-          );
-
           local unitTemplate = template.new(
             'unit',
             '$loki_datasource',
@@ -325,7 +317,6 @@ local diskSpaceUtilisation =
 
           $._node_rsrc_use_dashboard
           .addTemplate(lokiDatasourceTemplate)
-          .addTemplate(jobTemplate)
           .addTemplate($._instanceTemplate)
           .addTemplate(unitTemplate)
           .addRow($._cpuRow)
@@ -627,4 +618,3 @@ local diskSpaceUtilisation =
       )
     ),
 }
-

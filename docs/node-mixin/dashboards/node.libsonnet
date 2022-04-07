@@ -295,14 +295,6 @@ local prometheusDatasourceTemplate = {
           type: 'datasource',
         };
 
-        local jobTemplate = template.new(
-          'job',
-          '$prometheus_datasource',
-          'label_values(node_exporter_build_info, job)',
-          label='Job',
-          refresh='time',
-        );
-
         local unitTemplate = template.new(
           'unit',
           '$loki_datasource',
@@ -386,11 +378,9 @@ local prometheusDatasourceTemplate = {
 
         $._NodeDashboard
         .addTemplate(lokiDatasourceTemplate)
-        .addTemplate(jobTemplate)
         .addTemplate($._instanceTemplate)
         .addTemplate(unitTemplate)
         .addRow(lokiDirectLogRow)
         .addRow(lokiJournalLogRow),
     },
 }
-
