@@ -65,13 +65,9 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           |||
             (
-                node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"}
+                node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"}
                 -
-                (
-                    node_memory_free_bytes{%(nodeExporterSelector)s, instance="$instance"}
-                    +
-                    node_memory_inactive_bytes{%(nodeExporterSelector)s, instance="$instance"}
-                )
+                node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance"}
                 +
                 node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"}
                 +
@@ -82,13 +78,9 @@ local gauge = promgrafonnet.gauge;
         .addTarget(prometheus.target(
           |||
             (
-                node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"}
+                node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"}
                 -
-                (
-                    node_memory_free_bytes{%(nodeExporterSelector)s, instance="$instance"}
-                    +
-                    node_memory_inactive_bytes{%(nodeExporterSelector)s, instance="$instance"}
-                )
+                node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance"}
             )
           ||| % $._config, legendFormat='App Memory'
         ))
@@ -103,19 +95,13 @@ local gauge = promgrafonnet.gauge;
         |||
           (
               (
-                  (
-                      avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                      -
-                      (
-                          avg(node_memory_free_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                          +
-                          avg(node_memory_inactive_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                       )
-                   )
-                   +
-                   avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"})
-                   +
-                   avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                avg(node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                -
+                avg(node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                +
+                avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                +
+                avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"})
               )
               /
               avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"})
