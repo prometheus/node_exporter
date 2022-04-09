@@ -50,7 +50,7 @@ func perfTracepointFlagToTracepoints(tracepointsFlag []string) ([]*perfTracepoin
 	for i, tracepoint := range tracepointsFlag {
 		split := strings.Split(tracepoint, ":")
 		if len(split) != 2 {
-			return nil, fmt.Errorf("Invalid tracepoint config %v", tracepoint)
+			return nil, fmt.Errorf("invalid tracepoint config %v", tracepoint)
 		}
 		tracepoints[i] = &perfTracepoint{
 			subsystem: split[0],
@@ -598,9 +598,6 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 		if err := (*profiler).Profile(hwProfile); err != nil {
 			return err
 		}
-		if hwProfile == nil {
-			continue
-		}
 
 		cpuid := strconv.Itoa(c.hwProfilerCPUMap[profiler])
 
@@ -670,9 +667,6 @@ func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 		if err := (*profiler).Profile(swProfile); err != nil {
 			return err
 		}
-		if swProfile == nil {
-			continue
-		}
 
 		cpuid := strconv.Itoa(c.swProfilerCPUMap[profiler])
 
@@ -725,9 +719,6 @@ func (c *perfCollector) updateCacheStats(ch chan<- prometheus.Metric) error {
 		cacheProfile := &perf.CacheProfile{}
 		if err := (*profiler).Profile(cacheProfile); err != nil {
 			return err
-		}
-		if cacheProfile == nil {
-			continue
 		}
 
 		cpuid := strconv.Itoa(c.cacheProfilerCPUMap[profiler])

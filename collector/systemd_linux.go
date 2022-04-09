@@ -74,7 +74,6 @@ type systemdCollector struct {
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
-	systemdVersion                float64
 	unitIncludePattern            *regexp.Regexp
 	unitExcludePattern            *regexp.Regexp
 	logger                        log.Logger
