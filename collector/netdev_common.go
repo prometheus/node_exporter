@@ -86,7 +86,7 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 
 	return &netDevCollector{
 		subsystem:    "network",
-		deviceFilter: newNetDevFilter(*netdevDeviceExclude, *netdevDeviceInclude),
+		deviceFilter: newdevFilter(*netdevDeviceExclude, *netdevDeviceInclude),
 		metricDescs:  map[string]*prometheus.Desc{},
 		logger:       logger,
 	}, nil
