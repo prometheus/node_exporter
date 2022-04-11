@@ -3078,61 +3078,61 @@ node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
 node_scrape_collector_success{collector="zoneinfo"} 1
-# HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
+# HELP node_sockstat_FRAG6_inuse Number of IPv6 fragments in use.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
-# HELP node_sockstat_FRAG6_memory Number of FRAG6 sockets in state memory.
+# HELP node_sockstat_FRAG6_memory Number of bytes allocated for IPv6 fragments.
 # TYPE node_sockstat_FRAG6_memory gauge
 node_sockstat_FRAG6_memory 0
-# HELP node_sockstat_FRAG_inuse Number of FRAG sockets in state inuse.
+# HELP node_sockstat_FRAG_inuse Number of IPv4 fragments in use.
 # TYPE node_sockstat_FRAG_inuse gauge
 node_sockstat_FRAG_inuse 0
-# HELP node_sockstat_FRAG_memory Number of FRAG sockets in state memory.
+# HELP node_sockstat_FRAG_memory Number of bytes allocated for IPv4 fragments.
 # TYPE node_sockstat_FRAG_memory gauge
 node_sockstat_FRAG_memory 0
-# HELP node_sockstat_RAW6_inuse Number of RAW6 sockets in state inuse.
+# HELP node_sockstat_RAW6_inuse Number of IPv6 RAW sockets in use.
 # TYPE node_sockstat_RAW6_inuse gauge
 node_sockstat_RAW6_inuse 1
-# HELP node_sockstat_RAW_inuse Number of RAW sockets in state inuse.
+# HELP node_sockstat_RAW_inuse Number of IPv4 RAW sockets in use.
 # TYPE node_sockstat_RAW_inuse gauge
 node_sockstat_RAW_inuse 0
-# HELP node_sockstat_TCP6_inuse Number of TCP6 sockets in state inuse.
+# HELP node_sockstat_TCP6_inuse Number of IPv6 TCP sockets in use.
 # TYPE node_sockstat_TCP6_inuse gauge
 node_sockstat_TCP6_inuse 17
-# HELP node_sockstat_TCP_alloc Number of TCP sockets in state alloc.
+# HELP node_sockstat_TCP_alloc Number of allocated TCP sockets.
 # TYPE node_sockstat_TCP_alloc gauge
 node_sockstat_TCP_alloc 17
-# HELP node_sockstat_TCP_inuse Number of TCP sockets in state inuse.
+# HELP node_sockstat_TCP_inuse Number of IPv4 TCP sockets in use.
 # TYPE node_sockstat_TCP_inuse gauge
 node_sockstat_TCP_inuse 4
-# HELP node_sockstat_TCP_mem Number of TCP sockets in state mem.
+# HELP node_sockstat_TCP_mem Number of pages allocated for TCP sockets.
 # TYPE node_sockstat_TCP_mem gauge
 node_sockstat_TCP_mem 1
-# HELP node_sockstat_TCP_mem_bytes Number of TCP sockets in state mem_bytes.
+# HELP node_sockstat_TCP_mem_bytes Number of bytes allocated for TCP sockets.
 # TYPE node_sockstat_TCP_mem_bytes gauge
 node_sockstat_TCP_mem_bytes 4096
-# HELP node_sockstat_TCP_orphan Number of TCP sockets in state orphan.
+# HELP node_sockstat_TCP_orphan Number of orphaned TCP sockets.
 # TYPE node_sockstat_TCP_orphan gauge
 node_sockstat_TCP_orphan 0
-# HELP node_sockstat_TCP_tw Number of TCP sockets in state tw.
+# HELP node_sockstat_TCP_tw Number of TCP sockets in state TIME_WAIT.
 # TYPE node_sockstat_TCP_tw gauge
 node_sockstat_TCP_tw 4
-# HELP node_sockstat_UDP6_inuse Number of UDP6 sockets in state inuse.
+# HELP node_sockstat_UDP6_inuse Number of IPv6 UDP sockets in use.
 # TYPE node_sockstat_UDP6_inuse gauge
 node_sockstat_UDP6_inuse 9
-# HELP node_sockstat_UDPLITE6_inuse Number of UDPLITE6 sockets in state inuse.
+# HELP node_sockstat_UDPLITE6_inuse Number of IPv6 UDPLITE sockets in use.
 # TYPE node_sockstat_UDPLITE6_inuse gauge
 node_sockstat_UDPLITE6_inuse 0
-# HELP node_sockstat_UDPLITE_inuse Number of UDPLITE sockets in state inuse.
+# HELP node_sockstat_UDPLITE_inuse Number of IPv4 UDPLITE sockets in use.
 # TYPE node_sockstat_UDPLITE_inuse gauge
 node_sockstat_UDPLITE_inuse 0
-# HELP node_sockstat_UDP_inuse Number of UDP sockets in state inuse.
+# HELP node_sockstat_UDP_inuse Number of IPv4 UDP sockets in use.
 # TYPE node_sockstat_UDP_inuse gauge
 node_sockstat_UDP_inuse 0
-# HELP node_sockstat_UDP_mem Number of UDP sockets in state mem.
+# HELP node_sockstat_UDP_mem Number of pages allocated for UDP sockets.
 # TYPE node_sockstat_UDP_mem gauge
 node_sockstat_UDP_mem 0
-# HELP node_sockstat_UDP_mem_bytes Number of UDP sockets in state mem_bytes.
+# HELP node_sockstat_UDP_mem_bytes Number of bytes allocated for UDP sockets.
 # TYPE node_sockstat_UDP_mem_bytes gauge
 node_sockstat_UDP_mem_bytes 0
 # HELP node_sockstat_sockets_used Number of IPv4 sockets in use.

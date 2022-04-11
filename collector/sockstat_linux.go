@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -36,6 +37,14 @@ var pageSize = os.Getpagesize()
 
 type sockStatCollector struct {
 	logger log.Logger
+}
+
+// A name and optional value for a sockstat metric.
+type ssPair struct {
+	name   string
+	desc   string
+	v      *int
+	shared bool // Whether /proc/net/sockstat value is sum of IPv4+IPv6 values
 }
 
 func init() {
@@ -86,7 +95,87 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, s := range stats {
+		err := c.validate(s.isIPv6, s.stat)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, s := range stats {
 		c.update(ch, s.isIPv6, s.stat)
+	}
+
+	return nil
+}
+
+func getSsPairs(p procfs.NetSockstatProtocol) []ssPair {
+	pairs := []ssPair{
+		{
+			name:   "inuse",
+			desc:   "Number of %s in use.",
+			shared: false,
+			v:      &p.InUse,
+		},
+		{
+			name:   "orphan",
+			desc:   "Number of orphaned %s.",
+			shared: true,
+			v:      p.Orphan,
+		},
+		{
+			name:   "tw",
+			desc:   "Number of %s in state TIME_WAIT.",
+			shared: true,
+			v:      p.TW,
+		},
+		{
+			name:   "alloc",
+			desc:   "Number of allocated %s.",
+			shared: true,
+			v:      p.Alloc,
+		},
+		{
+			name:   "mem",
+			desc:   "Number of pages allocated for %s.",
+			shared: true,
+			v:      p.Mem,
+		},
+		{
+			name:   "memory",
+			desc:   "Number of bytes allocated for %s.",
+			shared: false,
+			v:      p.Memory,
+		},
+	}
+
+	// Also export mem_bytes values for sockets which have a mem value
+	// stored in pages.
+	if p.Mem != nil {
+		v := *p.Mem * pageSize
+		pairs = append(pairs, ssPair{
+			name:   "mem_bytes",
+			desc:   "Number of bytes allocated for %s.",
+			shared: true,
+			v:      &v,
+		})
+	}
+
+	return pairs
+}
+
+func (c *sockStatCollector) validate(isIPv6 bool, s *procfs.NetSockstat) error {
+	for _, p := range s.Protocols {
+		if isIPv6 {
+			for _, pair := range getSsPairs(p) {
+				if pair.shared && pair.v != nil {
+					return fmt.Errorf("Unexpected %s %s in sockstat6", p.Protocol, pair.name)
+				}
+			}
+		} else {
+			if strings.HasSuffix(p.Protocol, "6") {
+				return fmt.Errorf("Unexpected %s in IPv4 sockstat", p.Protocol)
+			}
+		}
 	}
 
 	return nil
@@ -113,57 +202,27 @@ func (c *sockStatCollector) update(ch chan<- prometheus.Metric, isIPv6 bool, s *
 		)
 	}
 
-	// A name and optional value for a sockstat metric.
-	type ssPair struct {
-		name string
-		v    *int
-	}
-
 	// Previously these metric names were generated directly from the file output.
 	// In order to keep the same level of compatibility, we must map the fields
 	// to their correct names.
 	for _, p := range s.Protocols {
-		pairs := []ssPair{
-			{
-				name: "inuse",
-				v:    &p.InUse,
-			},
-			{
-				name: "orphan",
-				v:    p.Orphan,
-			},
-			{
-				name: "tw",
-				v:    p.TW,
-			},
-			{
-				name: "alloc",
-				v:    p.Alloc,
-			},
-			{
-				name: "mem",
-				v:    p.Mem,
-			},
-			{
-				name: "memory",
-				v:    p.Memory,
-			},
-		}
-
-		// Also export mem_bytes values for sockets which have a mem value
-		// stored in pages.
-		if p.Mem != nil {
-			v := *p.Mem * pageSize
-			pairs = append(pairs, ssPair{
-				name: "mem_bytes",
-				v:    &v,
-			})
-		}
-
-		for _, pair := range pairs {
+		for _, pair := range getSsPairs(p) {
 			if pair.v == nil {
 				// This value is not set for this protocol; nothing to do.
 				continue
+			}
+
+			var kind string
+			if p.Protocol == "FRAG" || p.Protocol == "FRAG6" {
+				kind = "fragments"
+			} else {
+				kind = strings.TrimSuffix(p.Protocol, "6") + " sockets"
+			}
+
+			if isIPv6 {
+				kind = "IPv6 " + kind
+			} else if !pair.shared {
+				kind = "IPv4 " + kind
 			}
 
 			ch <- prometheus.MustNewConstMetric(
@@ -173,7 +232,7 @@ func (c *sockStatCollector) update(ch chan<- prometheus.Metric, isIPv6 bool, s *
 						sockStatSubsystem,
 						fmt.Sprintf("%s_%s", p.Protocol, pair.name),
 					),
-					fmt.Sprintf("Number of %s sockets in state %s.", p.Protocol, pair.name),
+					fmt.Sprintf(pair.desc, kind),
 					nil,
 					nil,
 				),
