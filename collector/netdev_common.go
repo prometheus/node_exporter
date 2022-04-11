@@ -39,7 +39,7 @@ var (
 
 type netDevCollector struct {
 	subsystem    string
-	deviceFilter netDevFilter
+	deviceFilter devFilter
 	metricDescs  map[string]*prometheus.Desc
 	logger       log.Logger
 }
@@ -84,7 +84,7 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 
 	return &netDevCollector{
 		subsystem:    "network",
-		deviceFilter: newNetDevFilter(*netdevDeviceExclude, *netdevDeviceInclude),
+		deviceFilter: newdevFilter(*netdevDeviceExclude, *netdevDeviceInclude),
 		metricDescs:  map[string]*prometheus.Desc{},
 		logger:       logger,
 	}, nil

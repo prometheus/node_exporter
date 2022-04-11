@@ -17,9 +17,8 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
-	"regexp"
-
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,7 +31,9 @@ const (
 )
 
 var (
-	ignoredDevices = kingpin.Flag("collector.diskstats.ignored-devices", "Regexp of devices to ignore for diskstats.").Default("^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$").String()
+	diskstatsDeviceExclude    = kingpin.Flag("collector.diskstats.device-exclude", "Regexp of diskstats devices to exclude (mutually exclusive to device-include).").String()
+	oldDiskstatsDeviceExclude = kingpin.Flag("collector.diskstats.ignored-devices", "DEPRECATED: Use collector.diskstats.device-exclude").Default("^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$").Hidden().String()
+	diskstatsDeviceInclude    = kingpin.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
 )
 
 type typedFactorDesc struct {
@@ -45,11 +46,11 @@ func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) pr
 }
 
 type diskstatsCollector struct {
-	ignoredDevicesPattern *regexp.Regexp
-	fs                    blockdevice.FS
-	infoDesc              typedFactorDesc
-	descs                 []typedFactorDesc
-	logger                log.Logger
+	deviceFilter devFilter
+	fs           blockdevice.FS
+	infoDesc     typedFactorDesc
+	descs        []typedFactorDesc
+	logger       log.Logger
 }
 
 func init() {
@@ -64,10 +65,30 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
+	if *oldDiskstatsDeviceExclude != "" {
+		if *diskstatsDeviceExclude == "" {
+			level.Warn(logger).Log("msg", "--collector.netdev.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
+			*diskstatsDeviceExclude = *oldDiskstatsDeviceExclude
+		} else {
+			return nil, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
+		}
+	}
+
+	if *diskstatsDeviceExclude != "" && *diskstatsDeviceInclude != "" {
+		return nil, errors.New("device-exclude & device-include are mutually exclusive")
+	}
+
+	if *diskstatsDeviceExclude != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *diskstatsDeviceExclude)
+	}
+
+	if *diskstatsDeviceInclude != "" {
+		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *diskstatsDeviceInclude)
+	}
 
 	return &diskstatsCollector{
-		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
-		fs:                    fs,
+		deviceFilter: newdevFilter(*diskstatsDeviceExclude, *diskstatsDeviceInclude),
+		fs:           fs,
 		infoDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
 				"Info of /sys/block/<block_device>.",
@@ -190,11 +211,9 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for _, stats := range diskStats {
 		dev := stats.DeviceName
-		if c.ignoredDevicesPattern.MatchString(dev) {
-			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev, "pattern", c.ignoredDevicesPattern)
+		if c.deviceFilter.ignored(dev) {
 			continue
 		}
-
 		diskSectorSize := 512.0
 		blockQueue, err := c.fs.SysBlockDeviceQueueStats(dev)
 		if err != nil {
@@ -231,6 +250,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			ch <- c.descs[i].mustNewConstMetric(val, dev)
 		}
+
 	}
 	return nil
 }
