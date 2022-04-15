@@ -9,25 +9,22 @@ local gaugePanel = grafana70.panel.gauge;
 local loki = grafana.loki;
 local logPanel = grafana.logPanel;
 
-local c = import '../config.libsonnet';
-
-local prometheusDatasourceTemplate = {
-  current: {
-    text: 'default',
-    value: 'default',
-  },
-  hide: 0,
-  label: 'Data Source',
-  name: 'prometheus_datasource',
-  options: [],
-  query: 'prometheus',
-  refresh: 1,
-  regex: '',
-  type: 'datasource',
-};
-
 {
-  _idleCPUPanel::
+  local prometheusDatasourceTemplate = {
+    current: {
+      text: 'default',
+      value: 'default',
+    },
+    hide: 0,
+    label: 'Data Source',
+    name: 'prometheus_datasource',
+    options: [],
+    query: 'prometheus',
+    refresh: 1,
+    regex: '',
+    type: 'datasource',
+  },
+  local idleCPUPanel =
     graphPanel.new(
       'CPU Usage',
       datasource='$prometheus_datasource',
@@ -49,7 +46,7 @@ local prometheusDatasourceTemplate = {
       intervalFactor=5,
     )),
 
-  _systemLoadPanel::
+  local systemLoadPanel =
     graphPanel.new(
       'Load Average',
       datasource='$prometheus_datasource',
@@ -63,7 +60,7 @@ local prometheusDatasourceTemplate = {
     .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='15m load average'))
     .addTarget(prometheus.target('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % $._config, legendFormat='logical cores')),
 
-  _memoryGraphPanel::
+  local memoryGraphPanel =
     graphPanel.new(
       'Memory Usage',
       datasource='$prometheus_datasource',
@@ -91,7 +88,7 @@ local prometheusDatasourceTemplate = {
     .addTarget(prometheus.target('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}' % $._config, legendFormat='memory free')),
 
   // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
-  _memoryGaugePanel::
+  local memoryGaugePanel =
     gaugePanel.new(
       title='Memory Usage',
       datasource='$prometheus_datasource',
@@ -115,7 +112,7 @@ local prometheusDatasourceTemplate = {
       span: 3,
     },
 
-  _diskIOPanel:
+  local diskIOPanel =
     graphPanel.new(
       'Disk I/O',
       datasource='$prometheus_datasource',
@@ -154,7 +151,7 @@ local prometheusDatasourceTemplate = {
     },
 
   // TODO: Somehow partition this by device while excluding read-only devices.
-  _diskSpaceUsagePanel:
+  local diskSpaceUsagePanel =
     graphPanel.new(
       'Disk Space Usage',
       datasource='$prometheus_datasource',
@@ -199,7 +196,7 @@ local prometheusDatasourceTemplate = {
       ],
     },
 
-  _networkReceivedPanel::
+  local networkReceivedPanel =
     graphPanel.new(
       'Network Received',
       datasource='$prometheus_datasource',
@@ -213,7 +210,7 @@ local prometheusDatasourceTemplate = {
       legendFormat='{{device}}',
     )),
 
-  _networkTransmittedPanel::
+  local networkTransmittedPanel =
     graphPanel.new(
       'Network Transmitted',
       datasource='$prometheus_datasource',
@@ -227,27 +224,27 @@ local prometheusDatasourceTemplate = {
       legendFormat='{{device}}',
     )),
 
-  _cpuRow::
+  local cpuRow =
     row.new('CPU')
-    .addPanel($._idleCPUPanel)
-    .addPanel($._systemLoadPanel),
+    .addPanel(idleCPUPanel)
+    .addPanel(systemLoadPanel),
 
-  _memoryRow::
+  local memoryRow =
     row.new('Memory')
-    .addPanel($._memoryGraphPanel)
-    .addPanel($._memoryGaugePanel),
+    .addPanel(memoryGraphPanel)
+    .addPanel(memoryGaugePanel),
 
-  _diskRow::
+  local diskRow =
     row.new('Disk')
-    .addPanel($._diskIOPanel)
-    .addPanel($._diskSpaceUsagePanel),
+    .addPanel(diskIOPanel)
+    .addPanel(diskSpaceUsagePanel),
 
-  _networkRow::
+  local networkRow =
     row.new('Network')
-    .addPanel($._networkReceivedPanel)
-    .addPanel($._networkTransmittedPanel),
+    .addPanel(networkReceivedPanel)
+    .addPanel(networkTransmittedPanel),
 
-  _instanceTemplate:: template.new(
+  local instanceTemplate = template.new(
     'instance',
     '$prometheus_datasource',
     'label_values(node_exporter_build_info{%(nodeExporterSelector)s}, instance)' % $._config,
@@ -255,132 +252,131 @@ local prometheusDatasourceTemplate = {
     label='Instance',
   ),
 
-  _NodeDashboard:: dashboard.new(
-    '%sNodes' % $._config.dashboardNamePrefix,
-    time_from='now-1h',
-    tags=($._config.dashboardTags),
-    timezone='utc',
-    refresh='30s',
-    graphTooltip='shared_crosshair'
-  )
-                   .addTemplate(prometheusDatasourceTemplate)
-                   .addRow($._cpuRow)
-                   .addRow($._memoryRow)
-                   .addRow($._diskRow)
-                   .addRow($._networkRow),
+  local lokiDatasourceTemplate = {
+    current:
+      {
+        text: 'Loki',
+        value: 'Loki',
+      },
+    name: 'loki_datasource',
+    label: 'Loki Data Source',
+    options: [],
+    query: 'loki',
+    hide: 0,
+    refresh: 1,
+    regex: '',
+    type: 'datasource',
+  },
+
+  local unitTemplate = template.new(
+    'unit',
+    '$loki_datasource',
+    'label_values(unit)',
+    label='Systemd Unit',
+    refresh='time',
+    includeAll=true,
+    multi=true,
+    allValues='.+',
+  ),
+
+  local syslog =
+    logPanel.new(
+      'syslog Errors',
+      datasource='$loki_datasource',
+    )
+    .addTarget(
+      loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %(nodeExporterSelector)s, instance=~"$instance"} |~".+(?i)error(?-i).+"' % $._config)
+    ),
+
+  local authlog =
+    logPanel.new(
+      'authlog',
+      datasource='$loki_datasource',
+    )
+    .addTarget(
+      loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+    ),
+
+  local kernellog =
+    logPanel.new(
+      'Kernel logs',
+      datasource='$loki_datasource',
+    )
+    .addTarget(
+      loki.target('{filename=~"/var/log/kern.log*", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+    ),
+
+  local journalsyslog =
+    logPanel.new(
+      'Journal syslogs',
+      datasource='$loki_datasource',
+    )
+    .addTarget(
+      loki.target('{transport="syslog", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+    ),
+
+  local journalkernel =
+    logPanel.new(
+      'Journal Kernel logs',
+      datasource='$loki_datasource',
+    )
+    .addTarget(
+      loki.target('{transport="kernel", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
+    ),
+
+  local journalstdout =
+    logPanel.new(
+      'Journal stdout Errors',
+      datasource='$loki_datasource',
+    )
+    .addTarget(
+      loki.target('{transport="stdout", %(nodeExporterSelector)s, instance=~"$instance", unit=~"$unit"} |~".+(?i)error(?-i).+"' % $._config)
+    ),
+
+  local lokiDirectLogRow =
+    row.new(
+      'Loki Direct Log Scrapes'
+    )
+    .addPanel(syslog)
+    .addPanel(authlog)
+    .addPanel(kernellog),
+
+  local lokiJournalLogRow =
+    row.new(
+      'Loki Journal Log Scrapes'
+    )
+    .addPanel(journalsyslog)
+    .addPanel(journalkernel)
+    .addPanel(journalstdout),
+
+  local NodeDashboard =
+    dashboard.new(
+      '%sNodes' % $._config.dashboardNamePrefix,
+      time_from='now-1h',
+      tags=($._config.dashboardTags),
+      timezone='utc',
+      refresh='30s',
+      graphTooltip='shared_crosshair'
+    )
+    .addTemplate(prometheusDatasourceTemplate)
+    .addTemplate(instanceTemplate)
+    .addRow(cpuRow)
+    .addRow(memoryRow)
+    .addRow(diskRow)
+    .addRow(networkRow),
 
   grafanaDashboards+::
-    if !$._config.enableLokiLogs then {
+    if $._config.enableLokiLogs then {
       'nodes.json':
-
-        $._NodeDashboard
-        .addTemplate($._instanceTemplate),
-    }
-    else {
-      'nodes.json':
-
-        local lokiDatasourceTemplate = {
-          current:
-            {
-              text: 'Loki',
-              value: 'Loki',
-            },
-          name: 'loki_datasource',
-          label: 'Loki Data Source',
-          options: [],
-          query: 'loki',
-          hide: 0,
-          refresh: 1,
-          regex: '',
-          type: 'datasource',
-        };
-
-        local unitTemplate = template.new(
-          'unit',
-          '$loki_datasource',
-          'label_values(unit)',
-          label='Systemd Unit',
-          refresh='time',
-          includeAll=true,
-          multi=true,
-          allValues='.+',
-        );
-
-        local syslog =
-          logPanel.new(
-            'syslog Errors',
-            datasource='$loki_datasource',
-          )
-          .addTarget(
-            loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %(nodeExporterSelector)s, instance=~"$instance"} |~".+(?i)error(?-i).+"' % $._config)
-          );
-
-        local authlog =
-          logPanel.new(
-            'authlog',
-            datasource='$loki_datasource',
-          )
-          .addTarget(
-            loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-          );
-
-        local kernellog =
-          logPanel.new(
-            'Kernel logs',
-            datasource='$loki_datasource',
-          )
-          .addTarget(
-            loki.target('{filename=~"/var/log/kern.log*", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-          );
-
-        local journalsyslog =
-          logPanel.new(
-            'Journal syslogs',
-            datasource='$loki_datasource',
-          )
-          .addTarget(
-            loki.target('{transport="syslog", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-          );
-
-        local journalkernel =
-          logPanel.new(
-            'Journal Kernel logs',
-            datasource='$loki_datasource',
-          )
-          .addTarget(
-            loki.target('{transport="kernel", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-          );
-
-        local journalstdout =
-          logPanel.new(
-            'Journal stdout Errors',
-            datasource='$loki_datasource',
-          )
-          .addTarget(
-            loki.target('{transport="stdout", %(nodeExporterSelector)s, instance=~"$instance", unit=~"$unit"} |~".+(?i)error(?-i).+"' % $._config)
-          );
-
-        local lokiDirectLogRow =
-          row.new(
-            'Loki Direct Log Scrapes'
-          )
-          .addPanel(syslog)
-          .addPanel(authlog)
-          .addPanel(kernellog);
-
-        local lokiJournalLogRow =
-          row.new(
-            'Loki Journal Log Scrapes'
-          )
-          .addPanel(journalsyslog)
-          .addPanel(journalkernel)
-          .addPanel(journalstdout);
-
-        $._NodeDashboard
+        NodeDashboard
         .addTemplate(lokiDatasourceTemplate)
-        .addTemplate($._instanceTemplate)
         .addTemplate(unitTemplate)
         .addRow(lokiDirectLogRow)
         .addRow(lokiJournalLogRow),
+    }
+    else {
+      'nodes.json':
+        NodeDashboard,
+
     },
 }

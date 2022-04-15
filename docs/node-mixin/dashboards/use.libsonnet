@@ -7,8 +7,6 @@ local graphPanel = grafana.graphPanel;
 local loki = grafana.loki;
 local logPanel = grafana.logPanel;
 
-local c = import '../config.libsonnet';
-
 local datasourceTemplate = {
   current: {
     text: 'default',
