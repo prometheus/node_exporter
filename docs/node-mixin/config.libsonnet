@@ -60,6 +60,7 @@
     dashboardNamePrefix: 'Node Exporter / ',
     dashboardTags: ['node-exporter-mixin'],
 
-    enableLokiLogs: false,
+    // Set to true to add log panels to dashboards
+    enableLokiLogs: true,
   },
 }
