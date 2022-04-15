@@ -61,6 +61,6 @@
     dashboardTags: ['node-exporter-mixin'],
 
     // Set to true to add log panels to dashboards
-    enableLokiLogs: true,
+    enableLokiLogs: false,
   },
 }
