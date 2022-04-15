@@ -4,8 +4,6 @@ local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
-local loki = grafana.loki;
-local logPanel = grafana.logPanel;
 
 local datasourceTemplate = {
   current: {
@@ -216,108 +214,12 @@ local diskSpaceUtilisation =
     else
       {
         'node-rsrc-use.json':
-          local lokiDatasourceTemplate = {
-            current:
-              {
-                text: 'Loki',
-                value: 'Loki',
-              },
-            name: 'loki_datasource',
-            label: 'Loki Data Source',
-            options: [],
-            query: 'loki',
-            hide: 0,
-            refresh: 1,
-            regex: '',
-            type: 'datasource',
-          };
 
-          local unitTemplate = template.new(
-            'unit',
-            '$loki_datasource',
-            'label_values(unit)',
-            label='Systemd Unit',
-            refresh='time',
-            includeAll=true,
-            multi=true,
-            allValues='.+',
-          );
-
-          local syslog =
-            logPanel.new(
-              'syslog Errors',
-              datasource='$loki_datasource',
-            )
-            .addTarget(
-              loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"} |~".+(?i)error(?-i).+"' % $._config)
-            );
-
-          local authlog =
-            logPanel.new(
-              'authlog',
-              datasource='$loki_datasource',
-            )
-            .addTarget(
-              loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}' % $._config)
-            );
-
-          local kernellog =
-            logPanel.new(
-              'Kernel logs',
-              datasource='$loki_datasource',
-            )
-            .addTarget(
-              loki.target('{filename=~"/var/log/kern.log*", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}' % $._config)
-            );
-
-          local journalsyslog =
-            logPanel.new(
-              'Journal syslogs',
-              datasource='$loki_datasource',
-            )
-            .addTarget(
-              loki.target('{transport="syslog", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}' % $._config)
-            );
-
-          local journalkernel =
-            logPanel.new(
-              'Journal Kernel logs',
-              datasource='$loki_datasource',
-            )
-            .addTarget(
-              loki.target('{transport="kernel", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster"}' % $._config)
-            );
-
-          local journalstdout =
-            logPanel.new(
-              'Journal stdout Errors',
-              datasource='$loki_datasource',
-            )
-            .addTarget(
-              loki.target('{transport="stdout", %(nodeExporterSelector)s, instance=~"$instance", %(clusterLabel)s="$cluster", unit=~"$unit"} |~".+(?i)error(?-i).+"' % $._config)
-            );
-
-          local lokiDirectLogRow =
-            row.new(
-              'Loki Direct Log Scrapes'
-            )
-            .addPanel(syslog)
-            .addPanel(authlog)
-            .addPanel(kernellog);
-
-          local lokiJournalLogRow =
-            row.new(
-              'Loki Journal Log Scrapes'
-            )
-            .addPanel(journalsyslog)
-            .addPanel(journalkernel)
-            .addPanel(journalstdout);
-
+          local lokiMixin = import '../lib/lokimixin/loki-mixin.libsonnet';
+          local l = lokiMixin.new('%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"' % $._config);
           $._node_rsrc_use_dashboard
-          .addTemplate(lokiDatasourceTemplate)
-          .addTemplate(unitTemplate)
-          .addRow(lokiDirectLogRow)
-          .addRow(lokiJournalLogRow),
+          .addTemplates(l.templates)
+          .addRows(l.rows),
       } +
 
       if $._config.showMultiCluster then

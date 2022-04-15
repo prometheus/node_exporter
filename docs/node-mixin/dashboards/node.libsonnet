@@ -6,8 +6,6 @@ local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
 local gaugePanel = grafana70.panel.gauge;
-local loki = grafana.loki;
-local logPanel = grafana.logPanel;
 
 {
   local prometheusDatasourceTemplate = {
@@ -252,103 +250,6 @@ local logPanel = grafana.logPanel;
     label='Instance',
   ),
 
-  local lokiDatasourceTemplate = {
-    current:
-      {
-        text: 'Loki',
-        value: 'Loki',
-      },
-    name: 'loki_datasource',
-    label: 'Loki Data Source',
-    options: [],
-    query: 'loki',
-    hide: 0,
-    refresh: 1,
-    regex: '',
-    type: 'datasource',
-  },
-
-  local unitTemplate = template.new(
-    'unit',
-    '$loki_datasource',
-    'label_values(unit)',
-    label='Systemd Unit',
-    refresh='time',
-    includeAll=true,
-    multi=true,
-    allValues='.+',
-  ),
-
-  local syslog =
-    logPanel.new(
-      'syslog Errors',
-      datasource='$loki_datasource',
-    )
-    .addTarget(
-      loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %(nodeExporterSelector)s, instance=~"$instance"} |~".+(?i)error(?-i).+"' % $._config)
-    ),
-
-  local authlog =
-    logPanel.new(
-      'authlog',
-      datasource='$loki_datasource',
-    )
-    .addTarget(
-      loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-    ),
-
-  local kernellog =
-    logPanel.new(
-      'Kernel logs',
-      datasource='$loki_datasource',
-    )
-    .addTarget(
-      loki.target('{filename=~"/var/log/kern.log*", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-    ),
-
-  local journalsyslog =
-    logPanel.new(
-      'Journal syslogs',
-      datasource='$loki_datasource',
-    )
-    .addTarget(
-      loki.target('{transport="syslog", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-    ),
-
-  local journalkernel =
-    logPanel.new(
-      'Journal Kernel logs',
-      datasource='$loki_datasource',
-    )
-    .addTarget(
-      loki.target('{transport="kernel", %(nodeExporterSelector)s, instance=~"$instance"}' % $._config)
-    ),
-
-  local journalstdout =
-    logPanel.new(
-      'Journal stdout Errors',
-      datasource='$loki_datasource',
-    )
-    .addTarget(
-      loki.target('{transport="stdout", %(nodeExporterSelector)s, instance=~"$instance", unit=~"$unit"} |~".+(?i)error(?-i).+"' % $._config)
-    ),
-
-  local lokiDirectLogRow =
-    row.new(
-      'Loki Direct Log Scrapes'
-    )
-    .addPanel(syslog)
-    .addPanel(authlog)
-    .addPanel(kernellog),
-
-  local lokiJournalLogRow =
-    row.new(
-      'Loki Journal Log Scrapes'
-    )
-    .addPanel(journalsyslog)
-    .addPanel(journalkernel)
-    .addPanel(journalstdout),
-
   local NodeDashboard =
     dashboard.new(
       '%sNodes' % $._config.dashboardNamePrefix,
@@ -367,12 +268,14 @@ local logPanel = grafana.logPanel;
 
   grafanaDashboards+::
     if $._config.enableLokiLogs then {
+      local lokiMixin = import '../lib/lokimixin/loki-mixin.libsonnet',
+      local l = lokiMixin.new('%(nodeExporterSelector)s, instance="$instance"' % $._config),
       'nodes.json':
         NodeDashboard
-        .addTemplate(lokiDatasourceTemplate)
-        .addTemplate(unitTemplate)
-        .addRow(lokiDirectLogRow)
-        .addRow(lokiJournalLogRow),
+        .addTemplate(l.lokiDatasourceTemplate)
+        .addTemplate(l.unitTemplate)
+        .addRow(l.lokiDirectLogRow)
+        .addRow(l.lokiJournalLogRow),
     }
     else {
       'nodes.json':
