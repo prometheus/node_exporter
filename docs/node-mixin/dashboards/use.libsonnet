@@ -317,12 +317,7 @@ local diskSpaceUtilisation =
 
           $._node_rsrc_use_dashboard
           .addTemplate(lokiDatasourceTemplate)
-          .addTemplate($._instanceTemplate)
           .addTemplate(unitTemplate)
-          .addRow($._cpuRow)
-          .addRow($._memoryRow)
-          .addRow($._diskRow)
-          .addRow($._networkRow)
           .addRow(lokiDirectLogRow)
           .addRow(lokiJournalLogRow),
       } +
