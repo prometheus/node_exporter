@@ -272,10 +272,8 @@ local gaugePanel = grafana70.panel.gauge;
       local l = lokiMixin.new('%(nodeExporterSelector)s, instance="$instance"' % $._config),
       'nodes.json':
         NodeDashboard
-        .addTemplate(l.lokiDatasourceTemplate)
-        .addTemplate(l.unitTemplate)
-        .addRow(l.lokiDirectLogRow)
-        .addRow(l.lokiJournalLogRow),
+        .addTemplates(l.templates)
+        .addRows(l.rows),
     }
     else {
       'nodes.json':

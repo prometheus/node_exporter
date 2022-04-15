@@ -33,13 +33,16 @@ local loki = grafana.loki;
       allValues='.+',
     ),
 
-    syslog::
+    errlog::
       logPanel.new(
-        'syslog Errors',
+        'Errors in system logs',
         datasource='$loki_datasource',
       )
-      .addTarget(
-        loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %s} |~".+(?i)error(?-i).+"' % dashboardSelector)
+      .addTargets(
+        [
+          loki.target('{level=~"err|crit|alert|emerg",unit=~"$unit", %s}"' % dashboardSelector),
+          loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %s} |~".+(?i)error(?-i).+"' % dashboardSelector),
+        ]
       ),
 
     authlog::
@@ -47,8 +50,11 @@ local loki = grafana.loki;
         'authlog',
         datasource='$loki_datasource',
       )
-      .addTarget(
-        loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %s}' % dashboardSelector)
+      .addTargets(
+        [
+          loki.target('{unit="ssh.service", %s}' % dashboardSelector),
+          loki.target('{filename=~"/var/log/auth.log|/var/log/secure", %s}' % dashboardSelector),
+        ]
       ),
 
     kernellog::
@@ -56,57 +62,38 @@ local loki = grafana.loki;
         'Kernel logs',
         datasource='$loki_datasource',
       )
-      .addTarget(
-        loki.target('{filename=~"/var/log/kern.log*", %s}' % dashboardSelector)
+      .addTargets(
+        [
+          loki.target('{transport="kernel", %s}' % dashboardSelector),
+          loki.target('{filename="/var/log/kern.log", %s}' % dashboardSelector),
+        ]
+
       ),
 
-    journalsyslog::
+    alllogs::
       logPanel.new(
-        'Journal syslogs',
+        'All system logs',
         datasource='$loki_datasource',
       )
-      .addTarget(
-        loki.target('{transport="syslog", %s}' % dashboardSelector)
+      .addTargets(
+        [
+          loki.target('{transport!="", %s}' % dashboardSelector),
+          loki.target('{filename!="", %s}' % dashboardSelector),
+        ]
       ),
 
-    journalkernel::
-      logPanel.new(
-        'Journal Kernel logs',
-        datasource='$loki_datasource',
-      )
-      .addTarget(
-        loki.target('{transport="kernel", %s}' % dashboardSelector)
-      ),
-
-    journalstdout::
-      logPanel.new(
-        'Journal stdout Errors',
-        datasource='$loki_datasource',
-      )
-      .addTarget(
-        loki.target('{transport="stdout", %s, unit=~"$unit"} |~".+(?i)error(?-i).+"' % dashboardSelector)
-      ),
-
-    lokiDirectLogRow::
+    lokiLogRow::
       row.new(
-        'Loki Direct Log Scrapes'
+        'Logs'
       )
-      .addPanel(self.syslog)
+      .addPanel(self.errlog)
       .addPanel(self.authlog)
-      .addPanel(self.kernellog),
-
-    lokiJournalLogRow::
-      row.new(
-        'Loki Journal Log Scrapes'
-      )
-      .addPanel(self.journalsyslog)
-      .addPanel(self.journalkernel)
-      .addPanel(self.journalstdout),
+      .addPanel(self.kernellog)
+      .addPanel(self.alllogs),
 
     rows::
       [
-        self.lokiDirectLogRow,
-        self.lokiJournalLogRow,
+        self.lokiLogRow,
       ],
 
     templates::
