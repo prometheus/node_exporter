@@ -40,7 +40,7 @@ local loki = grafana.loki;
       )
       .addTargets(
         [
-          loki.target('{level=~"err|crit|alert|emerg",unit=~"$unit", %s}"' % dashboardSelector),
+          loki.target('{level=~"err|crit|alert|emerg",unit=~"$unit", %s}' % dashboardSelector),
           loki.target('{filename=~"/var/log/syslog*|/var/log/messages*", %s} |~".+(?i)error(?-i).+"' % dashboardSelector),
         ]
       ),
