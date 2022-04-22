@@ -134,14 +134,6 @@ func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, labelValue string) []bcac
 			extraLabel:      label,
 			extraLabelValue: labelValue,
 		},
-		{
-			name:            "cache_readaheads_total",
-			desc:            "Count of times readahead occurred.",
-			value:           float64(ps.CacheReadaheads),
-			metricType:      prometheus.CounterValue,
-			extraLabel:      label,
-			extraLabelValue: labelValue,
-		},
 	}
 	return metrics
 }
