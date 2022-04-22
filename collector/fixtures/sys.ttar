@@ -141,7 +141,7 @@ Mode: 400
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/dmi/id/product_version
 Lines: 1
-À[‡
+ï¿½[ï¿½
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/dmi/id/sys_vendor
@@ -1253,7 +1253,7 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/model
 Lines: 1
-Samsung SSD 970 PRO 512GB               
+Samsung SSD 970 PRO 512GB
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/serial
@@ -1440,7 +1440,7 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/power_supply/BAT0/model_name
 Lines: 1
-LNV-45N1ÀÀ
+LNV-45N1ï¿½
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/power_supply/BAT0/power
@@ -2394,11 +2394,6 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_day/cache_readaheads
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_five_minute
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2433,11 +2428,6 @@ Lines: 1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_five_minute/cache_misses
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_five_minute/cache_readaheads
 Lines: 1
 0
 Mode: 644
@@ -2480,11 +2470,6 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_hour/cache_readaheads
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_total
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2519,11 +2504,6 @@ Lines: 1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_total/cache_misses
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb/bcache/stats_total/cache_readaheads
 Lines: 1
 0
 Mode: 644
@@ -2597,7 +2577,7 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan1_label
 Lines: 1
-Left side  
+Left side
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan1_manual
@@ -2631,7 +2611,7 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan2_label
 Lines: 1
-Right side 
+Right side
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan2_manual
@@ -3893,11 +3873,6 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_day/cache_readaheads
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_five_minute
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3932,11 +3907,6 @@ Lines: 1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_five_minute/cache_misses
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_five_minute/cache_readaheads
 Lines: 1
 0
 Mode: 644
@@ -3979,11 +3949,6 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_hour/cache_readaheads
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_total
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -4018,11 +3983,6 @@ Lines: 1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_total/cache_misses
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/fs/bcache/deaddd54-c735-46d5-868e-f331c5fd7c74/stats_total/cache_readaheads
 Lines: 1
 0
 Mode: 644
