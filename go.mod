@@ -18,11 +18,11 @@ require (
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.33.0
 	github.com/prometheus/exporter-toolkit v0.7.1
-	github.com/prometheus/procfs v0.7.4-0.20211011103944-1a7a2bd3279f
+	github.com/prometheus/procfs v0.8.1-0.20220924142815-6f02dd1b17c7
 	github.com/safchain/ethtool v0.2.0
 	github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 // indirect
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
-	golang.org/x/sys v0.0.0-20220330033206-e17cdc41300f
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
