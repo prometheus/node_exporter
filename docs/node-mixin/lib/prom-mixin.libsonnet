@@ -212,7 +212,7 @@ local gaugePanel = grafana70.panel.gauge;
           },
         ],
         yaxes: [
-          self.yaxe(format='bytes'),
+          self.yaxe(format='Bps'),
           self.yaxe(format='s'),
         ],
       },
@@ -266,28 +266,30 @@ local gaugePanel = grafana70.panel.gauge;
     local networkReceived =
       graphPanel.new(
         'Network Received',
+        description="Network received (bits/s)",
         datasource='$datasource',
         span=6,
-        format='bytes',
+        format='bps',
         min=0,
         fill=0,
       )
       .addTarget(prometheus.target(
-        'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % config,
+        'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
       )),
 
     local networkTransmitted =
       graphPanel.new(
         'Network Transmitted',
+        description="Network transmitted (bits/s)",
         datasource='$datasource',
         span=6,
-        format='bytes',
+        format='bps',
         min=0,
         fill=0,
       )
       .addTarget(prometheus.target(
-        'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % config,
+        'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
       )),
 
