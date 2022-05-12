@@ -191,14 +191,17 @@ local gaugePanel = grafana70.panel.gauge;
       .addTarget(prometheus.target(
         'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} read',
+        intervalFactor=1,
       ))
       .addTarget(prometheus.target(
         'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} written',
+        intervalFactor=1,
       ))
       .addTarget(prometheus.target(
         'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} io time',
+        intervalFactor=1,
       )) +
       {
         seriesOverrides: [
@@ -213,7 +216,7 @@ local gaugePanel = grafana70.panel.gauge;
         ],
         yaxes: [
           self.yaxe(format='Bps'),
-          self.yaxe(format='s'),
+          self.yaxe(format='percentunit'),
         ],
       },
 
@@ -266,7 +269,7 @@ local gaugePanel = grafana70.panel.gauge;
     local networkReceived =
       graphPanel.new(
         'Network Received',
-        description="Network received (bits/s)",
+        description='Network received (bits/s)',
         datasource='$datasource',
         span=6,
         format='bps',
@@ -276,12 +279,13 @@ local gaugePanel = grafana70.panel.gauge;
       .addTarget(prometheus.target(
         'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
+        intervalFactor=1,
       )),
 
     local networkTransmitted =
       graphPanel.new(
         'Network Transmitted',
-        description="Network transmitted (bits/s)",
+        description='Network transmitted (bits/s)',
         datasource='$datasource',
         span=6,
         format='bps',
@@ -291,6 +295,7 @@ local gaugePanel = grafana70.panel.gauge;
       .addTarget(prometheus.target(
         'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
+        intervalFactor=1,
       )),
 
     local cpuRow =
