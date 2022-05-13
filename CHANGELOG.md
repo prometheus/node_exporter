@@ -8,6 +8,7 @@
 * [ENHANCEMENT] Add node_softirqs_total metric #2221
 * [ENHANCEMENT] Add device filter flags to arp collector #2254
 * [ENHANCEMENT] Add rapl zone name label option #2401
+* [ENHANCEMENT] Add slabinfo collector #1799
 * [BUGFIX] Sanitize rapl zone names #2299
 
 ## 1.3.1 / 2021-12-01

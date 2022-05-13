@@ -1,0 +1,6 @@
+slabinfo - version: 2.1
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : tunables <limit> <batchcount> <sharedfactor> : slabdata <active_slabs> <num_slabs> <sharedavail>
+tw_sock_TCP          704    864    256   32    2 : tunables    0    0    0 : slabdata     27     27      0
+dmaengine-unmap-128   1206   1320   1088   30    8 : tunables    0    0    0 : slabdata     44     44      0
+kmalloc-8192         132    148   8192    4    8 : tunables    0    0    0 : slabdata     37     37      0
+kmem_cache           320    320    256   32    2 : tunables    0    0    0 : slabdata     10     10      0

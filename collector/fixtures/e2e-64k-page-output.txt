@@ -3013,6 +3013,7 @@ node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="rapl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="selinux"} 1
+node_scrape_collector_success{collector="slabinfo"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
@@ -3029,6 +3030,36 @@ node_scrape_collector_success{collector="zoneinfo"} 1
 # HELP node_selinux_enabled SELinux is enabled, 1 is true, 0 is false
 # TYPE node_selinux_enabled gauge
 node_selinux_enabled 0
+# HELP node_slabinfo_active_objects The number of objects that are currently active (i.e., in use).
+# TYPE node_slabinfo_active_objects gauge
+node_slabinfo_active_objects{slab="dmaengine-unmap-128"} 1206
+node_slabinfo_active_objects{slab="kmalloc-8192"} 132
+node_slabinfo_active_objects{slab="kmem_cache"} 320
+node_slabinfo_active_objects{slab="tw_sock_TCP"} 704
+# HELP node_slabinfo_object_size_bytes The size of objects in this slab, in bytes.
+# TYPE node_slabinfo_object_size_bytes gauge
+node_slabinfo_object_size_bytes{slab="dmaengine-unmap-128"} 1088
+node_slabinfo_object_size_bytes{slab="kmalloc-8192"} 8192
+node_slabinfo_object_size_bytes{slab="kmem_cache"} 256
+node_slabinfo_object_size_bytes{slab="tw_sock_TCP"} 256
+# HELP node_slabinfo_objects The total number of allocated objects (i.e., objects that are both in use and not in use).
+# TYPE node_slabinfo_objects gauge
+node_slabinfo_objects{slab="dmaengine-unmap-128"} 1320
+node_slabinfo_objects{slab="kmalloc-8192"} 148
+node_slabinfo_objects{slab="kmem_cache"} 320
+node_slabinfo_objects{slab="tw_sock_TCP"} 864
+# HELP node_slabinfo_objects_per_slab The number of objects stored in each slab.
+# TYPE node_slabinfo_objects_per_slab gauge
+node_slabinfo_objects_per_slab{slab="dmaengine-unmap-128"} 30
+node_slabinfo_objects_per_slab{slab="kmalloc-8192"} 4
+node_slabinfo_objects_per_slab{slab="kmem_cache"} 32
+node_slabinfo_objects_per_slab{slab="tw_sock_TCP"} 32
+# HELP node_slabinfo_pages_per_slab The number of pages allocated for each slab.
+# TYPE node_slabinfo_pages_per_slab gauge
+node_slabinfo_pages_per_slab{slab="dmaengine-unmap-128"} 8
+node_slabinfo_pages_per_slab{slab="kmalloc-8192"} 8
+node_slabinfo_pages_per_slab{slab="kmem_cache"} 2
+node_slabinfo_pages_per_slab{slab="tw_sock_TCP"} 2
 # HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
