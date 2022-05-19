@@ -67,7 +67,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	}
 	if *oldDiskstatsDeviceExclude != "" {
 		if *diskstatsDeviceExclude == "" {
-			level.Warn(logger).Log("msg", "--collector.netdev.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
+			level.Warn(logger).Log("msg", "--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
 			*diskstatsDeviceExclude = *oldDiskstatsDeviceExclude
 		} else {
 			return nil, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
