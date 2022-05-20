@@ -192,14 +192,17 @@ local table = grafana70.panel.table;
       .addTarget(prometheus.target(
         'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} read',
+        intervalFactor=1,
       ))
       .addTarget(prometheus.target(
         'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} written',
+        intervalFactor=1,
       ))
       .addTarget(prometheus.target(
         'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} io time',
+        intervalFactor=1,
       )) +
       {
         seriesOverrides: [
@@ -213,8 +216,8 @@ local table = grafana70.panel.table;
           },
         ],
         yaxes: [
-          self.yaxe(format='bytes'),
-          self.yaxe(format='s'),
+          self.yaxe(format='Bps'),
+          self.yaxe(format='percentunit'),
         ],
       },
 
@@ -410,29 +413,33 @@ local table = grafana70.panel.table;
     local networkReceived =
       graphPanel.new(
         'Network Received',
+        description='Network received (bits/s)',
         datasource='$datasource',
         span=6,
-        format='bytes',
+        format='bps',
         min=0,
         fill=0,
       )
       .addTarget(prometheus.target(
-        'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % config,
+        'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
+        intervalFactor=1,
       )),
 
     local networkTransmitted =
       graphPanel.new(
         'Network Transmitted',
+        description='Network transmitted (bits/s)',
         datasource='$datasource',
         span=6,
-        format='bytes',
+        format='bps',
         min=0,
         fill=0,
       )
       .addTarget(prometheus.target(
-        'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval])' % config,
+        'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
+        intervalFactor=1,
       )),
 
     local cpuRow =
