@@ -218,7 +218,6 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		if c.deviceFilter.ignored(dev) {
 			continue
 		}
-
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
