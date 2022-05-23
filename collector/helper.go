@@ -14,7 +14,6 @@
 package collector
 
 import (
-	"bytes"
 	"io/ioutil"
 	"regexp"
 	"strconv"
@@ -31,19 +30,6 @@ func readUintFromFile(path string) (uint64, error) {
 		return 0, err
 	}
 	return value, nil
-}
-
-// Take a []byte{} and return a string based on null termination.
-// This is useful for situations where the OS has returned a null terminated
-// string to use.
-// If this function happens to receive a byteArray that contains no nulls, we
-// simply convert the array to a string with no bounding.
-func bytesToString(byteArray []byte) string {
-	n := bytes.IndexByte(byteArray, 0)
-	if n < 0 {
-		return string(byteArray)
-	}
-	return string(byteArray[:n])
 }
 
 var metricNameRegex = regexp.MustCompile(`_*[^0-9A-Za-z_]+_*`)
