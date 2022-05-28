@@ -17,13 +17,11 @@
 package collector
 
 import (
-	"bytes"
 	"fmt"
-	"os"
 	"strings"
 	"syscall"
-	"unsafe"
 
+	dennwc "github.com/dennwc/btrfs"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/btrfs"
@@ -67,11 +65,19 @@ func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for _, s := range stats {
 		// match up procfs and ioctl info by filesystem UUID
-		ioctlStats := ioctlStatsMap[s.UUID]
+		ioctlStats := ioctlStatsMap[strings.Replace(s.UUID, "-", "", -1)]
 		c.updateBtrfsStats(ch, s, ioctlStats)
 	}
 
 	return nil
+}
+
+var errorStatTypeNames = []string{
+	"write",
+	"read",
+	"flush",
+	"corruption",
+	"generation",
 }
 
 type ioctlFsDeviceStats struct {
@@ -81,38 +87,16 @@ type ioctlFsDeviceStats struct {
 	bytesUsed  uint64
 	totalBytes uint64
 
-	errorStats map[string]uint64
+	writeErrs      uint64
+	readErrs       uint64
+	flushErrs      uint64
+	corruptionErrs uint64
+	generationErrs uint64
 }
 
 type ioctlFsStats struct {
 	uuid    string
 	devices []ioctlFsDeviceStats
-}
-
-// Magic constants for ioctl
-//nolint:revive
-const (
-	_BTRFS_IOC_FS_INFO       = 0x8400941F
-	_BTRFS_IOC_DEV_INFO      = 0xD000941E
-	_BTRFS_IOC_GET_DEV_STATS = 0x00c4089434
-)
-
-type _UuidBytes [16]byte
-
-func (id _UuidBytes) String() string {
-	return fmt.Sprintf("%x-%x-%x-%x-%x", id[0:4], id[4:6], id[6:8], id[8:10], id[10:])
-}
-
-//name matches linux struct
-//nolint:revive
-type btrfs_ioctl_fs_info_args struct {
-	maxID          uint64          // out
-	numDevices     uint64          // out
-	fsID           _UuidBytes      // out
-	nodeSize       uint32          // out
-	sectorSize     uint32          // out
-	cloneAlignment uint32          // out
-	_              [122*8 + 4]byte // pad to 1k
 }
 
 func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
@@ -138,32 +122,27 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 			continue
 		}
 
-		fd, err := os.Open(mount.mountPoint)
+		fs, err := dennwc.Open(mount.mountPoint, true)
 		if err != nil {
 			// failed to open this mount point, maybe we didn't have permission
 			// maybe we'll find another mount point for this FS later
 			continue
 		}
 
-		var fsInfo = btrfs_ioctl_fs_info_args{}
-		_, _, errno := syscall.Syscall(
-			syscall.SYS_IOCTL,
-			fd.Fd(),
-			uintptr(_BTRFS_IOC_FS_INFO),
-			uintptr(unsafe.Pointer(&fsInfo)))
-		if errno != 0 {
+		fsInfo, err := fs.Info()
+		if err != nil {
 			// Failed to get the FS info for some reason,
 			// perhaps it'll work with a different mount point
 			continue
 		}
 
-		fsID := fsInfo.fsID.String()
+		fsID := fsInfo.FSID.String()
 		if _, found := fsStats[fsID]; found {
 			// We already found this filesystem by another mount point
 			continue
 		}
 
-		deviceStats, err := c.getIoctlDeviceStats(fd, &fsInfo)
+		deviceStats, err := c.getIoctlDeviceStats(fs, &fsInfo)
 		if err != nil {
 			return nil, err
 		}
@@ -178,114 +157,39 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 	return fsStats, nil
 }
 
-// Known/supported device stats fields
-//nolint:revive
-const (
-	// direct indicators of I/O failures:
+func (c *btrfsCollector) getIoctlDeviceStats(fs *dennwc.FS, fsInfo *dennwc.Info) ([]ioctlFsDeviceStats, error) {
+	devices := make([]ioctlFsDeviceStats, 0, fsInfo.NumDevices)
 
-	_BTRFS_DEV_STAT_WRITE_ERRS = iota
-	_BTRFS_DEV_STAT_READ_ERRS
-	_BTRFS_DEV_STAT_FLUSH_ERRS
+	for i := uint64(0); i <= fsInfo.MaxID; i++ {
+		deviceInfo, err := fs.GetDevInfo(i)
 
-	// indirect indicators of I/O failures:
-
-	_BTRFS_DEV_STAT_CORRUPTION_ERRS // checksum error, bytenr error or contents is illegal
-	_BTRFS_DEV_STAT_GENERATION_ERRS // an indication that blocks have not been written
-
-	_BTRFS_DEV_STAT_VALUES_MAX // counter to indicate the number of known stats we support
-)
-
-var errorStatFields = []int{
-	_BTRFS_DEV_STAT_WRITE_ERRS,
-	_BTRFS_DEV_STAT_READ_ERRS,
-	_BTRFS_DEV_STAT_FLUSH_ERRS,
-	_BTRFS_DEV_STAT_CORRUPTION_ERRS,
-	_BTRFS_DEV_STAT_GENERATION_ERRS,
-}
-var errorStatNames = []string{
-	"write",
-	"read",
-	"flush",
-	"corruption",
-	"generation",
-}
-
-//name matches linux struct
-//nolint:revive
-type btrfs_ioctl_dev_info_args struct {
-	deviceID   uint64      // in/out
-	uuid       _UuidBytes  // in/out
-	bytesUsed  uint64      // out
-	totalBytes uint64      // out
-	_          [379]uint64 // pad to 4k
-	path       [1024]byte  // out
-}
-
-//name matches linux struct
-//nolint:revive
-type btrfs_ioctl_get_dev_stats struct {
-	deviceID  uint64                                       // in
-	itemCount uint64                                       // in/out
-	flags     uint64                                       // in/out
-	values    [_BTRFS_DEV_STAT_VALUES_MAX]uint64           // out values
-	_         [128 - 2 - _BTRFS_DEV_STAT_VALUES_MAX]uint64 // pad to 1k
-}
-
-func (c *btrfsCollector) getIoctlDeviceStats(fd *os.File, fsInfo *btrfs_ioctl_fs_info_args) ([]ioctlFsDeviceStats, error) {
-	devices := make([]ioctlFsDeviceStats, 0, fsInfo.numDevices)
-
-	var deviceInfo btrfs_ioctl_dev_info_args
-	var deviceStats btrfs_ioctl_get_dev_stats
-
-	for i := uint64(0); i <= fsInfo.maxID; i++ {
-		deviceInfo = btrfs_ioctl_dev_info_args{
-			deviceID: i,
-		}
-		deviceStats = btrfs_ioctl_get_dev_stats{
-			deviceID:  i,
-			itemCount: _BTRFS_DEV_STAT_VALUES_MAX,
-		}
-
-		_, _, errno := syscall.Syscall(
-			syscall.SYS_IOCTL,
-			fd.Fd(),
-			uintptr(_BTRFS_IOC_DEV_INFO),
-			uintptr(unsafe.Pointer(&deviceInfo)))
-
-		if errno == syscall.ENODEV {
-			// device IDs do not consistently start at 0, so we expect this
-			continue
-		}
-		if errno != 0 {
-			return nil, errno
-		}
-
-		_, _, errno = syscall.Syscall(
-			syscall.SYS_IOCTL,
-			fd.Fd(),
-			uintptr(_BTRFS_IOC_GET_DEV_STATS),
-			uintptr(unsafe.Pointer(&deviceStats)))
-
-		if errno != 0 {
-			return nil, errno
-		}
-
-		errorStats := make(map[string]uint64, deviceStats.itemCount)
-		for i, fieldIndex := range errorStatFields {
-			if int(deviceStats.itemCount) >= fieldIndex {
-				errorStats[errorStatNames[i]] = deviceStats.values[fieldIndex]
+		if err != nil {
+			if errno, ok := err.(syscall.Errno); ok && errno == syscall.ENODEV {
+				// device IDs do not consistently start at 0, nor are ranges contiguous, so we expect this
+				continue
 			}
+			return nil, err
+		}
+
+		deviceStats, err := fs.GetDevStats(i)
+		if err != nil {
+			return nil, err
 		}
 
 		devices = append(devices, ioctlFsDeviceStats{
-			path:       string(bytes.Trim(deviceInfo.path[:], "\x00")),
-			uuid:       deviceInfo.uuid.String(),
-			bytesUsed:  deviceInfo.bytesUsed,
-			totalBytes: deviceInfo.totalBytes,
-			errorStats: errorStats,
+			path:       deviceInfo.Path,
+			uuid:       deviceInfo.UUID.String(),
+			bytesUsed:  deviceInfo.BytesUsed,
+			totalBytes: deviceInfo.TotalBytes,
+
+			writeErrs:      deviceStats.WriteErrs,
+			readErrs:       deviceStats.ReadErrs,
+			flushErrs:      deviceStats.FlushErrs,
+			corruptionErrs: deviceStats.CorruptionErrs,
+			generationErrs: deviceStats.GenerationErrs,
 		})
 
-		if uint64(len(devices)) == fsInfo.numDevices {
+		if uint64(len(devices)) == fsInfo.NumDevices {
 			break
 		}
 	}
@@ -401,16 +305,22 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 				})
 
 			errorLabels := append([]string{"type"}, extraLabels...)
-			for errorName, count := range dev.errorStats {
-				errorLabelValues := append([]string{errorName}, extraLabelValues...)
+			values := []uint64{
+				dev.writeErrs,
+				dev.readErrs,
+				dev.flushErrs,
+				dev.corruptionErrs,
+				dev.generationErrs,
+			}
+			for i, errorType := range errorStatTypeNames {
 				metrics = append(metrics,
 					btrfsMetric{
 						name:            "device_errors_total",
 						desc:            "Errors reported for the device",
 						metricType:      prometheus.CounterValue,
-						value:           float64(count),
+						value:           float64(values[i]),
 						extraLabel:      errorLabels,
-						extraLabelValue: errorLabelValues,
+						extraLabelValue: append([]string{errorType}, extraLabelValues...),
 					})
 			}
 		}
