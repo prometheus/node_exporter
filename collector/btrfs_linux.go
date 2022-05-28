@@ -23,6 +23,7 @@ import (
 
 	dennwc "github.com/dennwc/btrfs"
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/btrfs"
 )
@@ -126,6 +127,10 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 		if err != nil {
 			// failed to open this mount point, maybe we didn't have permission
 			// maybe we'll find another mount point for this FS later
+			level.Debug(c.logger).Log(
+				"msg", "Error inspecting btrfs mountpoint",
+				"mountPoint", mount.mountPoint,
+				"err", err)
 			continue
 		}
 
@@ -133,6 +138,10 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 		if err != nil {
 			// Failed to get the FS info for some reason,
 			// perhaps it'll work with a different mount point
+			level.Debug(c.logger).Log(
+				"msg", "Error querying btrfs filesystem",
+				"mountPoint", mount.mountPoint,
+				"err", err)
 			continue
 		}
 
@@ -144,6 +153,10 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 
 		deviceStats, err := c.getIoctlDeviceStats(fs, &fsInfo)
 		if err != nil {
+			level.Debug(c.logger).Log(
+				"msg", "Error querying btrfs device stats",
+				"mountPoint", mount.mountPoint,
+				"err", err)
 			return nil, err
 		}
 
