@@ -68,7 +68,7 @@ var (
 )
 
 func init() {
-	registerCollector("ipvs", defaultEnabled, NewIPVSCollector)
+	registerCollector("ipvs", defaultDisabled, NewIPVSCollector)
 }
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
