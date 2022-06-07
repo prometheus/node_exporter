@@ -49,7 +49,7 @@ func NewTestDiskStatsCollector(logger log.Logger) (prometheus.Collector, error) 
 func TestDiskStats(t *testing.T) {
 	*sysPath = "fixtures/sys"
 	*procPath = "fixtures/proc"
-	*ignoredDevices = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	*diskstatsDeviceExclude = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 	testcase := `# HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
