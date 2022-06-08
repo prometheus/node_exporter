@@ -6,6 +6,7 @@ local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
 local gaugePanel = grafana70.panel.gauge;
+local table = grafana70.panel.table;
 
 {
 
@@ -217,51 +218,194 @@ local gaugePanel = grafana70.panel.gauge;
         ],
       },
 
-    // TODO: Somehow partition this by device while excluding read-only devices.
     local diskSpaceUsage =
-      graphPanel.new(
-        'Disk Space Usage',
+      table.new(
+        title='Disk Space Usage',
         datasource='$datasource',
-        span=6,
-        format='bytes',
-        min=0,
-        fill=1,
-        stack=true,
       )
+      .setFieldConfig(unit='decbytes')
+      .addThresholdStep(color='green', value=null)
+      .addThresholdStep(color='yellow', value=0.8)
+      .addThresholdStep(color='red', value=0.9)
       .addTarget(prometheus.target(
         |||
-          sum(
-            max by (device) (
-              node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s}
-            -
-              node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s}
-            )
-          )
+          max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
         ||| % config,
-        legendFormat='used',
+        legendFormat='',
+        instant=true,
+        format='table'
       ))
       .addTarget(prometheus.target(
         |||
-          sum(
-            max by (device) (
-              node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s}
-            )
-          )
+          max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
         ||| % config,
-        legendFormat='available',
-      )) +
-      {
-        seriesOverrides: [
+        legendFormat='',
+        instant=true,
+        format='table'
+      ))
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Mounted on',
+        },
+        properties=[
           {
-            alias: 'used',
-            color: '#E0B400',
+            id: 'custom.width',
+            value: 260,
+          },
+        ],
+      )
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Size',
+        },
+        properties=[
+
+          {
+            id: 'custom.width',
+            value: 93,
+          },
+
+        ],
+      )
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Used',
+        },
+        properties=[
+          {
+            id: 'custom.width',
+            value: 72,
+          },
+        ],
+      )
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Available',
+        },
+        properties=[
+          {
+            id: 'custom.width',
+            value: 88,
+          },
+        ],
+      )
+
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Used, %',
+        },
+        properties=[
+          {
+            id: 'unit',
+            value: 'percentunit',
           },
           {
-            alias: 'available',
-            color: '#73BF69',
+            id: 'custom.displayMode',
+            value: 'gradient-gauge',
+          },
+          {
+            id: 'max',
+            value: 1,
+          },
+          {
+            id: 'min',
+            value: 0,
+          },
+        ]
+      )
+      + { span: 6 }
+      + {
+        transformations: [
+          {
+            id: 'groupBy',
+            options: {
+              fields: {
+                'Value #A': {
+                  aggregations: [
+                    'lastNotNull',
+                  ],
+                  operation: 'aggregate',
+                },
+                'Value #B': {
+                  aggregations: [
+                    'lastNotNull',
+                  ],
+                  operation: 'aggregate',
+                },
+                mountpoint: {
+                  aggregations: [],
+                  operation: 'groupby',
+                },
+              },
+            },
+          },
+          {
+            id: 'merge',
+            options: {},
+          },
+          {
+            id: 'calculateField',
+            options: {
+              alias: 'Used',
+              binary: {
+                left: 'Value #A (lastNotNull)',
+                operator: '-',
+                reducer: 'sum',
+                right: 'Value #B (lastNotNull)',
+              },
+              mode: 'binary',
+              reduce: {
+                reducer: 'sum',
+              },
+            },
+          },
+          {
+            id: 'calculateField',
+            options: {
+              alias: 'Used, %',
+              binary: {
+                left: 'Used',
+                operator: '/',
+                reducer: 'sum',
+                right: 'Value #A (lastNotNull)',
+              },
+              mode: 'binary',
+              reduce: {
+                reducer: 'sum',
+              },
+            },
+          },
+          {
+            id: 'organize',
+            options: {
+              excludeByName: {},
+              indexByName: {},
+              renameByName: {
+                'Value #A (lastNotNull)': 'Size',
+                'Value #B (lastNotNull)': 'Available',
+                mountpoint: 'Mounted on',
+              },
+            },
+          },
+          {
+            id: 'sortBy',
+            options: {
+              fields: {},
+              sort: [
+                {
+                  field: 'Mounted on',
+                },
+              ],
+            },
           },
         ],
       },
+
 
     local networkReceived =
       graphPanel.new(
