@@ -26,16 +26,25 @@ import (
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
+
+const raplCollectorSubsystem = "rapl"
 
 type raplCollector struct {
 	fs     sysfs.FS
 	logger log.Logger
+
+	joulesMetricDesc *prometheus.Desc
 }
 
 func init() {
-	registerCollector("rapl", defaultEnabled, NewRaplCollector)
+	registerCollector(raplCollectorSubsystem, defaultEnabled, NewRaplCollector)
 }
+
+var (
+	raplZoneLabel = kingpin.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
+)
 
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
 func NewRaplCollector(logger log.Logger) (Collector, error) {
@@ -45,9 +54,16 @@ func NewRaplCollector(logger log.Logger) (Collector, error) {
 		return nil, err
 	}
 
+	joulesMetricDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, raplCollectorSubsystem, "joules_total"),
+		"Current RAPL value in joules",
+		[]string{"index", "path", "rapl_zone"}, nil,
+	)
+
 	collector := raplCollector{
-		fs:     fs,
-		logger: logger,
+		fs:               fs,
+		logger:           logger,
+		joulesMetricDesc: joulesMetricDesc,
 	}
 	return &collector, nil
 }
@@ -69,7 +85,7 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, rz := range zones {
-		newMicrojoules, err := rz.GetEnergyMicrojoules()
+		microJoules, err := rz.GetEnergyMicrojoules()
 		if err != nil {
 			if errors.Is(err, os.ErrPermission) {
 				level.Debug(c.logger).Log("msg", "Can't access energy_uj file", "zone", rz, "err", err)
@@ -77,21 +93,48 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			return err
 		}
-		index := strconv.Itoa(rz.Index)
 
-		descriptor := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "rapl", SanitizeMetricName(rz.Name+"_joules_total")),
-			"Current RAPL "+rz.Name+" value in joules",
-			[]string{"index", "path"}, nil,
-		)
+		joules := float64(microJoules) / 1000000.0
 
-		ch <- prometheus.MustNewConstMetric(
-			descriptor,
-			prometheus.CounterValue,
-			float64(newMicrojoules)/1000000.0,
-			index,
-			rz.Path,
-		)
+		if *raplZoneLabel {
+			ch <- c.joulesMetricWithZoneLabel(rz, joules)
+		} else {
+			ch <- c.joulesMetric(rz, joules)
+		}
 	}
 	return nil
+}
+
+func (c *raplCollector) joulesMetric(z sysfs.RaplZone, v float64) prometheus.Metric {
+	index := strconv.Itoa(z.Index)
+	descriptor := prometheus.NewDesc(
+		prometheus.BuildFQName(
+			namespace,
+			raplCollectorSubsystem,
+			fmt.Sprintf("%s_joules_total", SanitizeMetricName(z.Name)),
+		),
+		fmt.Sprintf("Current RAPL %s value in joules", z.Name),
+		[]string{"index", "path"}, nil,
+	)
+
+	return prometheus.MustNewConstMetric(
+		descriptor,
+		prometheus.CounterValue,
+		v,
+		index,
+		z.Path,
+	)
+}
+
+func (c *raplCollector) joulesMetricWithZoneLabel(z sysfs.RaplZone, v float64) prometheus.Metric {
+	index := strconv.Itoa(z.Index)
+
+	return prometheus.MustNewConstMetric(
+		c.joulesMetricDesc,
+		prometheus.CounterValue,
+		v,
+		index,
+		z.Path,
+		z.Name,
+	)
 }
