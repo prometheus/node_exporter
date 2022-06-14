@@ -349,7 +349,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func udevDeviceInformation(major, minor uint32) (udevInfo, error) {
-	filename := fmt.Sprintf("/run/udev/data/b%d:%d", major, minor)
+	filename := udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
 
 	data, err := os.Open(filename)
 	if err != nil {
