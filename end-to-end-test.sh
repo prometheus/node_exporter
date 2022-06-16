@@ -44,7 +44,7 @@ enabled_collectors=$(cat << COLLECTORS
   thermal_zone
   textfile
   bonding
-  udp_queues 
+  udp_queues
   vmstat
   wifi
   xfs
@@ -121,6 +121,7 @@ fi
   --path.rootfs="collector/fixtures" \
   --path.procfs="collector/fixtures/proc" \
   --path.sysfs="collector/fixtures/sys" \
+  --path.udev.data="collector/fixtures/udev/data" \
   $(for c in ${enabled_collectors}; do echo --collector.${c}  ; done) \
   $(for c in ${disabled_collectors}; do echo --no-collector.${c}  ; done) \
   --collector.textfile.directory="collector/fixtures/textfile/two_metric_files/" \
