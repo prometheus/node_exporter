@@ -38,28 +38,31 @@ const (
 
 	diskstatsDefaultIgnoredDevices = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 
-	// udev attributes
-	udevDMLVLayer               = "E:DM_LV_LAYER"
-	udevDMLVName                = "E:DM_LV_NAME"
-	udevDMName                  = "E:DM_NAME"
-	udevDMUUID                  = "E:DM_UUID"
-	udevDMVGName                = "E:DM_VG_NAME"
-	udevIDATA                   = "E:ID_ATA"
-	udevIDATARotationRateRPM    = "E:ID_ATA_ROTATION_RATE_RPM"
-	udevIDATASATA               = "E:ID_ATA_SATA"
-	udevIDATASATASignalRateGen1 = "E:ID_ATA_SATA_SIGNAL_RATE_GEN1"
-	udevIDATASATASignalRateGen2 = "E:ID_ATA_SATA_SIGNAL_RATE_GEN2"
-	udevIDATAWriteCache         = "E:ID_ATA_WRITE_CACHE"
-	udevIDATAWriteCacheEnabled  = "E:ID_ATA_WRITE_CACHE_ENABLED"
-	udevIDFSType                = "E:ID_FS_TYPE"
-	udevIDFSUsage               = "E:ID_FS_USAGE"
-	udevIDFSUUID                = "E:ID_FS_UUID"
-	udevIDFSVersion             = "E:ID_FS_VERSION"
-	udevIDModel                 = "E:ID_MODEL"
-	udevIDPath                  = "E:ID_PATH"
-	udevIDRevision              = "E:ID_REVISION"
-	udevIDSerialShort           = "E:ID_SERIAL_SHORT"
-	udevIDWWN                   = "E:ID_WWN"
+	// See udevadm(8).
+	udevDevicePropertyPrefix = "E:"
+
+	// Udev device properties.
+	udevDMLVLayer               = "DM_LV_LAYER"
+	udevDMLVName                = "DM_LV_NAME"
+	udevDMName                  = "DM_NAME"
+	udevDMUUID                  = "DM_UUID"
+	udevDMVGName                = "DM_VG_NAME"
+	udevIDATA                   = "ID_ATA"
+	udevIDATARotationRateRPM    = "ID_ATA_ROTATION_RATE_RPM"
+	udevIDATASATA               = "ID_ATA_SATA"
+	udevIDATASATASignalRateGen1 = "ID_ATA_SATA_SIGNAL_RATE_GEN1"
+	udevIDATASATASignalRateGen2 = "ID_ATA_SATA_SIGNAL_RATE_GEN2"
+	udevIDATAWriteCache         = "ID_ATA_WRITE_CACHE"
+	udevIDATAWriteCacheEnabled  = "ID_ATA_WRITE_CACHE_ENABLED"
+	udevIDFSType                = "ID_FS_TYPE"
+	udevIDFSUsage               = "ID_FS_USAGE"
+	udevIDFSUUID                = "ID_FS_UUID"
+	udevIDFSVersion             = "ID_FS_VERSION"
+	udevIDModel                 = "ID_MODEL"
+	udevIDPath                  = "ID_PATH"
+	udevIDRevision              = "ID_REVISION"
+	udevIDSerialShort           = "ID_SERIAL_SHORT"
+	udevIDWWN                   = "ID_WWN"
 )
 
 type typedFactorDesc struct {
@@ -268,7 +271,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		info, err := udevDeviceInformation(stats.MajorNumber, stats.MinorNumber)
+		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
 		if err != nil {
 			level.Error(c.logger).Log("msg", "Failed to parse udev info", "err", err)
 		}
@@ -348,7 +351,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func udevDeviceInformation(major, minor uint32) (udevInfo, error) {
+func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 	filename := udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
 
 	data, err := os.Open(filename)
@@ -361,13 +364,22 @@ func udevDeviceInformation(major, minor uint32) (udevInfo, error) {
 
 	scanner := bufio.NewScanner(data)
 	for scanner.Scan() {
+		line := scanner.Text()
+
+		// We're only interested in device properties.
+		if !strings.HasPrefix(line, udevDevicePropertyPrefix) {
+			continue
+		}
+
+		line = strings.TrimPrefix(line, udevDevicePropertyPrefix)
+
 		/* TODO: After we drop support for Go 1.17, the condition below can be simplified to:
 
-		if name, value, found := strings.Cut(scanner.Text(), "="); found {
+		if name, value, found := strings.Cut(line, "="); found {
 			info[name] = value
 		}
 		*/
-		if fields := strings.SplitN(scanner.Text(), "=", 2); len(fields) == 2 {
+		if fields := strings.SplitN(line, "=", 2); len(fields) == 2 {
 			info[fields[0]] = fields[1]
 		}
 	}
