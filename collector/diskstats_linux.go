@@ -77,14 +77,15 @@ func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) pr
 }
 
 type diskstatsCollector struct {
-	deviceFilter         deviceFilter
-	fs                   blockdevice.FS
-	infoDesc             typedFactorDesc
-	descs                []typedFactorDesc
-	filesystemInfoDesc   typedFactorDesc
-	deviceMapperInfoDesc typedFactorDesc
-	ataDescs             map[string]typedFactorDesc
-	logger               log.Logger
+	deviceFilter            deviceFilter
+	fs                      blockdevice.FS
+	infoDesc                typedFactorDesc
+	descs                   []typedFactorDesc
+	filesystemInfoDesc      typedFactorDesc
+	deviceMapperInfoDesc    typedFactorDesc
+	ataDescs                map[string]typedFactorDesc
+	logger                  log.Logger
+	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
 
 func init() {
@@ -105,7 +106,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}
 
-	return &diskstatsCollector{
+	collector := diskstatsCollector{
 		deviceFilter: deviceFilter,
 		fs:           fs,
 		infoDesc: typedFactorDesc{
@@ -256,7 +257,16 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 			},
 		},
 		logger: logger,
-	}, nil
+	}
+
+	// Only enable getting device properties from udev if the directory is readable.
+	if stat, err := os.Stat(*udevDataPath); err != nil || !stat.IsDir() {
+		level.Error(logger).Log("msg", "Failed to open directory, disabling udev device properties", "path", *udevDataPath)
+	} else {
+		collector.getUdevDeviceProperties = getUdevDeviceProperties
+	}
+
+	return &collector, nil
 }
 
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
@@ -273,7 +283,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
 		if err != nil {
-			level.Error(c.logger).Log("msg", "Failed to parse udev info", "err", err)
+			level.Debug(c.logger).Log("msg", "Failed to parse udev info", "err", err)
 		}
 
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev,
