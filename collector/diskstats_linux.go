@@ -29,6 +29,10 @@ import (
 
 const (
 	secondsPerTick = 1.0 / 1000.0
+
+	// Read sectors and write sectors are the "standard UNIX 512-byte sectors, not any device- or filesystem-specific block size."
+	// See also https://www.kernel.org/doc/Documentation/block/stat.txt
+	unixSectorSize = 512.0
 )
 
 var (
@@ -195,14 +199,6 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		diskSectorSize := 512.0
-		blockQueue, err := c.fs.SysBlockDeviceQueueStats(dev)
-		if err != nil {
-			level.Debug(c.logger).Log("msg", "Error getting queue stats", "device", dev, "err", err)
-		} else {
-			diskSectorSize = float64(blockQueue.LogicalBlockSize)
-		}
-
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
@@ -210,11 +206,11 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		for i, val := range []float64{
 			float64(stats.ReadIOs),
 			float64(stats.ReadMerges),
-			float64(stats.ReadSectors) * diskSectorSize,
+			float64(stats.ReadSectors) * unixSectorSize,
 			float64(stats.ReadTicks) * secondsPerTick,
 			float64(stats.WriteIOs),
 			float64(stats.WriteMerges),
-			float64(stats.WriteSectors) * diskSectorSize,
+			float64(stats.WriteSectors) * unixSectorSize,
 			float64(stats.WriteTicks) * secondsPerTick,
 			float64(stats.IOsInProgress),
 			float64(stats.IOsTotalTicks) * secondsPerTick,

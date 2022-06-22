@@ -22,7 +22,7 @@ import (
 	"strconv"
 
 	"github.com/go-kit/log"
-	"github.com/godbus/dbus"
+	"github.com/godbus/dbus/v5"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

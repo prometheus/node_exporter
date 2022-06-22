@@ -27,7 +27,7 @@ func TestNetDevStatsIgnore(t *testing.T) {
 	}
 	defer file.Close()
 
-	filter := newNetDevFilter("^veth", "")
+	filter := newDeviceFilter("^veth", "")
 
 	netStats, err := parseNetDevStats(file, &filter, log.NewNopLogger())
 	if err != nil {
@@ -70,7 +70,7 @@ func TestNetDevStatsAccept(t *testing.T) {
 	}
 	defer file.Close()
 
-	filter := newNetDevFilter("", "^💩0$")
+	filter := newDeviceFilter("", "^💩0$")
 	netStats, err := parseNetDevStats(file, &filter, log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
