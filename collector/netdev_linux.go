@@ -34,7 +34,7 @@ var (
 	procNetDevFieldSep    = regexp.MustCompile(` +`)
 )
 
-func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	file, err := os.Open(procFilePath("net/dev"))
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error
 	return parseNetDevStats(file, filter, logger)
 }
 
-func parseNetDevStats(r io.Reader, filter *netDevFilter, logger log.Logger) (netDevStats, error) {
+func parseNetDevStats(r io.Reader, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Scan() // skip first header
 	scanner.Scan()

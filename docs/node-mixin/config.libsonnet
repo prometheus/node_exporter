@@ -49,8 +49,8 @@
 
     // Available disk space (%) thresholds on which to trigger the
     // 'NodeFilesystemAlmostOutOfSpace' alerts.
-    fsSpaceAvailableCriticalThreshold: 5,
-    fsSpaceAvailableWarningThreshold: 3,
+    fsSpaceAvailableWarningThreshold: 5,
+    fsSpaceAvailableCriticalThreshold: 3,
 
     rateInterval: '5m',
     // Opt-in for multi-cluster support.
