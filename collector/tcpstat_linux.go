@@ -18,13 +18,12 @@ package collector
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
-	"strconv"
-	"strings"
+	"syscall"
+	"unsafe"
 
 	"github.com/go-kit/log"
+	"github.com/mdlayher/netlink"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -80,16 +79,64 @@ func NewTCPStatCollector(logger log.Logger) (Collector, error) {
 	}, nil
 }
 
+// InetDiagSockID (inet_diag_sockid) contains the socket identity.
+// https://github.com/torvalds/linux/blob/v4.0/include/uapi/linux/inet_diag.h#L13
+type InetDiagSockID struct {
+	SourcePort [2]byte
+	DestPort   [2]byte
+	SourceIP   [4][4]byte
+	DestIP     [4][4]byte
+	Interface  uint32
+	Cookie     [2]uint32
+}
+
+// InetDiagReqV2 (inet_diag_req_v2) is used to request diagnostic data.
+// https://github.com/torvalds/linux/blob/v4.0/include/uapi/linux/inet_diag.h#L37
+type InetDiagReqV2 struct {
+	Family   uint8
+	Protocol uint8
+	Ext      uint8
+	Pad      uint8
+	States   uint32
+	ID       InetDiagSockID
+}
+
+const sizeOfDiagRequest = 0x38
+
+func (req *InetDiagReqV2) Serialize() []byte {
+	return (*(*[sizeOfDiagRequest]byte)(unsafe.Pointer(req)))[:]
+}
+
+func (req *InetDiagReqV2) Len() int {
+	return sizeOfDiagRequest
+}
+
+type InetDiagMsg struct {
+	Family  uint8
+	State   uint8
+	Timer   uint8
+	Retrans uint8
+	ID      InetDiagSockID
+	Expires uint32
+	RQueue  uint32
+	WQueue  uint32
+	UID     uint32
+	Inode   uint32
+}
+
+func parseInetDiagMsg(b []byte) *InetDiagMsg {
+	return (*InetDiagMsg)(unsafe.Pointer(&b[0]))
+}
+
 func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
-	tcpStats, err := getTCPStats(procFilePath("net/tcp"))
+	tcpStats, err := getTCPStats(syscall.AF_INET)
 	if err != nil {
 		return fmt.Errorf("couldn't get tcpstats: %w", err)
 	}
 
 	// if enabled ipv6 system
-	tcp6File := procFilePath("net/tcp6")
-	if _, hasIPv6 := os.Stat(tcp6File); hasIPv6 == nil {
-		tcp6Stats, err := getTCPStats(tcp6File)
+	if _, hasIPv6 := os.Stat(procFilePath("net/tcp6")); hasIPv6 == nil {
+		tcp6Stats, err := getTCPStats(syscall.AF_INET6)
 		if err != nil {
 			return fmt.Errorf("couldn't get tcp6stats: %w", err)
 		}
@@ -102,59 +149,51 @@ func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	for st, value := range tcpStats {
 		ch <- c.desc.mustNewConstMetric(value, st.String())
 	}
+
 	return nil
 }
 
-func getTCPStats(statsFile string) (map[tcpConnectionState]float64, error) {
-	file, err := os.Open(statsFile)
+func getTCPStats(family uint8) (map[tcpConnectionState]float64, error) {
+	const TCPFAll = 0xFFF
+	const InetDiagInfo = 2
+	const SockDiagByFamily = 20
+
+	conn, err := netlink.Dial(syscall.NETLINK_INET_DIAG, nil)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't connect netlink: %w", err)
+	}
+	defer conn.Close()
+
+	msg := netlink.Message{
+		Header: netlink.Header{
+			Type:  SockDiagByFamily,
+			Flags: syscall.NLM_F_REQUEST | syscall.NLM_F_DUMP,
+		},
+		Data: (&InetDiagReqV2{
+			Family:   family,
+			Protocol: syscall.IPPROTO_TCP,
+			States:   TCPFAll,
+			Ext:      0 | 1<<(InetDiagInfo-1),
+		}).Serialize(),
+	}
+
+	messages, err := conn.Execute(msg)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	return parseTCPStats(file)
+	return parseTCPStats(messages)
 }
 
-func parseTCPStats(r io.Reader) (map[tcpConnectionState]float64, error) {
+func parseTCPStats(msgs []netlink.Message) (map[tcpConnectionState]float64, error) {
 	tcpStats := map[tcpConnectionState]float64{}
-	contents, err := ioutil.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
 
-	for _, line := range strings.Split(string(contents), "\n")[1:] {
-		parts := strings.Fields(line)
-		if len(parts) == 0 {
-			continue
-		}
-		if len(parts) < 5 {
-			return nil, fmt.Errorf("invalid TCP stats line: %q", line)
-		}
+	for _, m := range msgs {
+		msg := parseInetDiagMsg(m.Data)
 
-		qu := strings.Split(parts[4], ":")
-		if len(qu) < 2 {
-			return nil, fmt.Errorf("cannot parse tx_queues and rx_queues: %q", line)
-		}
-
-		tx, err := strconv.ParseUint(qu[0], 16, 64)
-		if err != nil {
-			return nil, err
-		}
-		tcpStats[tcpConnectionState(tcpTxQueuedBytes)] += float64(tx)
-
-		rx, err := strconv.ParseUint(qu[1], 16, 64)
-		if err != nil {
-			return nil, err
-		}
-		tcpStats[tcpConnectionState(tcpRxQueuedBytes)] += float64(rx)
-
-		st, err := strconv.ParseInt(parts[3], 16, 8)
-		if err != nil {
-			return nil, err
-		}
-
-		tcpStats[tcpConnectionState(st)]++
-
+		tcpStats[tcpTxQueuedBytes] += float64(msg.WQueue)
+		tcpStats[tcpRxQueuedBytes] += float64(msg.RQueue)
+		tcpStats[tcpConnectionState(msg.State)]++
 	}
 
 	return tcpStats, nil

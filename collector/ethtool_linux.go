@@ -27,6 +27,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/go-kit/log"
@@ -73,8 +74,9 @@ func (e *ethtoolLibrary) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 type ethtoolCollector struct {
 	fs             sysfs.FS
 	entries        map[string]*prometheus.Desc
+	entriesMutex   sync.Mutex
 	ethtool        Ethtool
-	deviceFilter   netDevFilter
+	deviceFilter   deviceFilter
 	infoDesc       *prometheus.Desc
 	metricsPattern *regexp.Regexp
 	logger         log.Logger
@@ -98,7 +100,7 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 	return &ethtoolCollector{
 		fs:             fs,
 		ethtool:        &ethtoolLibrary{e},
-		deviceFilter:   newNetDevFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
+		deviceFilter:   newDeviceFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
 		metricsPattern: regexp.MustCompile(*ethtoolIncludedMetrics),
 		logger:         logger,
 		entries: map[string]*prometheus.Desc{
@@ -233,9 +235,9 @@ func (c *ethtoolCollector) updatePortCapabilities(ch chan<- prometheus.Metric, p
 	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT) != 0 {
 		asymmetricPause = 1.0
 	}
-	ch <- prometheus.MustNewConstMetric(c.entries[fmt.Sprintf("%s_autonegotiate", prefix)], prometheus.GaugeValue, autonegotiate, device)
-	ch <- prometheus.MustNewConstMetric(c.entries[fmt.Sprintf("%s_pause", prefix)], prometheus.GaugeValue, pause, device)
-	ch <- prometheus.MustNewConstMetric(c.entries[fmt.Sprintf("%s_asymmetricpause", prefix)], prometheus.GaugeValue, asymmetricPause, device)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_autonegotiate", prefix)), prometheus.GaugeValue, autonegotiate, device)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_pause", prefix)), prometheus.GaugeValue, pause, device)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_asymmetricpause", prefix)), prometheus.GaugeValue, asymmetricPause, device)
 }
 
 // updatePortInfo generates port type metrics to indicate if the network devices supports Twisted Pair, optical fiber, etc.
@@ -251,7 +253,7 @@ func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device st
 		"Backplane": unix.ETHTOOL_LINK_MODE_Backplane_BIT,
 	} {
 		if linkModes&(1<<bit) != 0 {
-			ch <- prometheus.MustNewConstMetric(c.entries["supported_port"], prometheus.GaugeValue, 1.0, device, name)
+			ch <- prometheus.MustNewConstMetric(c.entry("supported_port"), prometheus.GaugeValue, 1.0, device, name)
 		}
 
 	}
@@ -299,7 +301,7 @@ func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix stri
 		unix.ETHTOOL_LINK_MODE_25000baseCR_Full_BIT:   {25000, full, "CR"},
 	} {
 		if linkModes&(1<<bit) != 0 {
-			ch <- prometheus.MustNewConstMetric(c.entries[linkMode], prometheus.GaugeValue,
+			ch <- prometheus.MustNewConstMetric(c.entry(linkMode), prometheus.GaugeValue,
 				float64(labels.speed)*Mbps, device, labels.duplex, fmt.Sprintf("%dbase%s", labels.speed, labels.phy))
 		}
 	}
@@ -334,7 +336,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			c.updatePortCapabilities(ch, "supported", device, linkInfo.Supported)
 			c.updateSpeeds(ch, "advertised", device, linkInfo.Advertising)
 			c.updatePortCapabilities(ch, "advertised", device, linkInfo.Advertising)
-			ch <- prometheus.MustNewConstMetric(c.entries["autonegotiate"], prometheus.GaugeValue, float64(linkInfo.Autoneg), device)
+			ch <- prometheus.MustNewConstMetric(c.entry("autonegotiate"), prometheus.GaugeValue, float64(linkInfo.Autoneg), device)
 		} else {
 			if errno, ok := err.(syscall.Errno); ok {
 				if err == unix.EOPNOTSUPP {
@@ -420,19 +422,32 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			val := stats[metric]
 
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
-			entry, exists := c.entries[metric]
-			if !exists {
-				entry = prometheus.NewDesc(
-					metricFQName,
-					fmt.Sprintf("Network interface %s", metric),
-					[]string{"device"}, nil,
-				)
-				c.entries[metric] = entry
-			}
+			entry := c.entryWithCreate(metric, metricFQName)
 			ch <- prometheus.MustNewConstMetric(
 				entry, prometheus.UntypedValue, float64(val), device)
 		}
 	}
 
 	return nil
+}
+
+func (c *ethtoolCollector) entryWithCreate(key, metricFQName string) *prometheus.Desc {
+	c.entriesMutex.Lock()
+	defer c.entriesMutex.Unlock()
+
+	if _, ok := c.entries[key]; !ok {
+		c.entries[key] = prometheus.NewDesc(
+			metricFQName,
+			fmt.Sprintf("Network interface %s", key),
+			[]string{"device"}, nil,
+		)
+	}
+
+	return c.entries[key]
+}
+
+func (c *ethtoolCollector) entry(key string) *prometheus.Desc {
+	c.entriesMutex.Lock()
+	defer c.entriesMutex.Unlock()
+	return c.entries[key]
 }

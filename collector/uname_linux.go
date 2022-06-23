@@ -16,11 +16,7 @@
 
 package collector
 
-import (
-	"bytes"
-
-	"golang.org/x/sys/unix"
-)
+import "golang.org/x/sys/unix"
 
 func getUname() (uname, error) {
 	var utsname unix.Utsname
@@ -29,12 +25,12 @@ func getUname() (uname, error) {
 	}
 
 	output := uname{
-		SysName:    string(utsname.Sysname[:bytes.IndexByte(utsname.Sysname[:], 0)]),
-		Release:    string(utsname.Release[:bytes.IndexByte(utsname.Release[:], 0)]),
-		Version:    string(utsname.Version[:bytes.IndexByte(utsname.Version[:], 0)]),
-		Machine:    string(utsname.Machine[:bytes.IndexByte(utsname.Machine[:], 0)]),
-		NodeName:   string(utsname.Nodename[:bytes.IndexByte(utsname.Nodename[:], 0)]),
-		DomainName: string(utsname.Domainname[:bytes.IndexByte(utsname.Domainname[:], 0)]),
+		SysName:    unix.ByteSliceToString(utsname.Sysname[:]),
+		Release:    unix.ByteSliceToString(utsname.Release[:]),
+		Version:    unix.ByteSliceToString(utsname.Version[:]),
+		Machine:    unix.ByteSliceToString(utsname.Machine[:]),
+		NodeName:   unix.ByteSliceToString(utsname.Nodename[:]),
+		DomainName: unix.ByteSliceToString(utsname.Domainname[:]),
 	}
 
 	return output, nil

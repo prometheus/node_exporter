@@ -14,66 +14,56 @@
 package collector
 
 import (
-	"os"
-	"strings"
+	"bytes"
+	"encoding/binary"
+	"syscall"
 	"testing"
+
+	"github.com/mdlayher/netlink"
 )
 
-func Test_parseTCPStatsError(t *testing.T) {
-	tests := []struct {
-		name string
-		in   string
-	}{
-		{
-			name: "too few fields",
-			in:   "sl  local_address\n  0: 00000000:0016",
-		},
-		{
-			name: "missing colon in tx-rx field",
-			in: "sl  local_address rem_address   st tx_queue rx_queue\n" +
-				" 1: 0F02000A:0016 0202000A:8B6B 01 0000000000000001",
-		},
-		{
-			name: "tx parsing issue",
-			in: "sl  local_address rem_address   st tx_queue rx_queue\n" +
-				" 1: 0F02000A:0016 0202000A:8B6B 01 0000000x:00000001",
-		},
-		{
-			name: "rx parsing issue",
-			in: "sl  local_address rem_address   st tx_queue rx_queue\n" +
-				" 1: 0F02000A:0016 0202000A:8B6B 01 00000000:0000000x",
-		},
-		{
-			name: "state parsing issue",
-			in: "sl  local_address rem_address   st tx_queue rx_queue\n" +
-				" 1: 0F02000A:0016 0202000A:8B6B 0H 00000000:00000001",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if _, err := parseTCPStats(strings.NewReader(tt.in)); err == nil {
-				t.Fatal("expected an error, but none occurred")
-			}
-		})
-	}
-}
-
-func TestTCPStat(t *testing.T) {
-
-	noFile, _ := os.Open("follow the white rabbit")
-	defer noFile.Close()
-
-	if _, err := parseTCPStats(noFile); err == nil {
-		t.Fatal("expected an error, but none occurred")
+func Test_parseTCPStats(t *testing.T) {
+	encode := func(m InetDiagMsg) []byte {
+		var buf bytes.Buffer
+		err := binary.Write(&buf, binary.LittleEndian, m)
+		if err != nil {
+			panic(err)
+		}
+		return buf.Bytes()
 	}
 
-	file, err := os.Open("fixtures/proc/net/tcpstat")
-	if err != nil {
-		t.Fatal(err)
+	msg := []netlink.Message{
+		{
+			Data: encode(InetDiagMsg{
+				Family:  syscall.AF_INET,
+				State:   uint8(tcpEstablished),
+				Timer:   0,
+				Retrans: 0,
+				ID:      InetDiagSockID{},
+				Expires: 0,
+				RQueue:  11,
+				WQueue:  21,
+				UID:     0,
+				Inode:   0,
+			}),
+		},
+		{
+			Data: encode(InetDiagMsg{
+				Family:  syscall.AF_INET,
+				State:   uint8(tcpListen),
+				Timer:   0,
+				Retrans: 0,
+				ID:      InetDiagSockID{},
+				Expires: 0,
+				RQueue:  11,
+				WQueue:  21,
+				UID:     0,
+				Inode:   0,
+			}),
+		},
 	}
-	defer file.Close()
 
-	tcpStats, err := parseTCPStats(file)
+	tcpStats, err := parseTCPStats(msg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,35 +79,8 @@ func TestTCPStat(t *testing.T) {
 	if want, got := 42, int(tcpStats[tcpTxQueuedBytes]); want != got {
 		t.Errorf("want tcpstat number of bytes in tx queue %d, got %d", want, got)
 	}
-	if want, got := 1, int(tcpStats[tcpRxQueuedBytes]); want != got {
+	if want, got := 22, int(tcpStats[tcpRxQueuedBytes]); want != got {
 		t.Errorf("want tcpstat number of bytes in rx queue %d, got %d", want, got)
 	}
 
-}
-
-func Test_getTCPStats(t *testing.T) {
-	type args struct {
-		statsFile string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name:    "file not found",
-			args:    args{statsFile: "somewhere over the rainbow"},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			_, err := getTCPStats(tt.args.statsFile)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("getTCPStats() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			// other cases are covered by TestTCPStat()
-		})
-	}
 }
