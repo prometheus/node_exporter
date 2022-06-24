@@ -18,6 +18,7 @@ package collector
 
 import (
 	"fmt"
+	"path"
 	"strings"
 	"syscall"
 
@@ -294,9 +295,10 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, ioctlStats *btrfsIoctlFsStat
 	}
 
 	for _, dev := range ioctlStats.devices {
-		// trim the /dev/ prefix from the device name so the value should match
-		// the value used in the fallback branch above
-		device := strings.TrimPrefix(dev.path, "/dev/")
+		// trim the path prefix from the device name so the value should match
+		// the value used in the fallback branch above.
+		// e.g. /dev/sda -> sda, /rootfs/dev/md1 -> md1
+		_, device := path.Split(dev.path)
 
 		extraLabels := []string{"device", "device_uuid"}
 		extraLabelValues := []string{device, dev.uuid}
