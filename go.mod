@@ -18,7 +18,7 @@ require (
 	github.com/mdlayher/wifi v0.0.0-20220320220353-954ff73a19a5
 	github.com/prometheus/client_golang v1.12.1
 	github.com/prometheus/client_model v0.2.0
-	github.com/prometheus/common v0.33.0
+	github.com/prometheus/common v0.35.0
 	github.com/prometheus/exporter-toolkit v0.7.1
 	github.com/prometheus/procfs v0.7.4-0.20211209105546-0f8a320e1e1f
 	github.com/safchain/ethtool v0.2.0
