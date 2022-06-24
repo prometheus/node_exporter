@@ -269,6 +269,11 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 		},
 	}
 
+	// Information about data, metadata and system data.
+	metrics = append(metrics, c.getAllocationStats("data", s.Allocation.Data)...)
+	metrics = append(metrics, c.getAllocationStats("metadata", s.Allocation.Metadata)...)
+	metrics = append(metrics, c.getAllocationStats("system", s.Allocation.System)...)
+
 	// Information about devices.
 	if iocStats == nil {
 		for n, dev := range s.Devices {
@@ -281,71 +286,67 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 				extraLabelValue: []string{n},
 			})
 		}
-	} else {
-		for _, dev := range iocStats.devices {
-			// trim the /dev/ prefix from the device name so the value should match
-			// the value used in the fallback branch above
-			device := strings.TrimPrefix(dev.path, "/dev/")
-
-			extraLabels := []string{"device", "device_uuid"}
-			extraLabelValues := []string{device, dev.uuid}
-
-			metrics = append(metrics,
-				btrfsMetric{
-					name:            "device_size_bytes",
-					desc:            "Size of a device that is part of the filesystem.",
-					metricType:      prometheus.GaugeValue,
-					value:           float64(dev.totalBytes),
-					extraLabel:      extraLabels,
-					extraLabelValue: extraLabelValues,
-				},
-				// A bytes available metric is probably more useful than a
-				// bytes used metric, because large numbers of bytes will
-				// suffer from floating point representation issues
-				// and we probably care more about the number when it's low anyway
-				btrfsMetric{
-					name:            "device_unused_bytes",
-					desc:            "Unused bytes unused on a device that is part of the filesystem.",
-					metricType:      prometheus.GaugeValue,
-					value:           float64(dev.totalBytes - dev.bytesUsed),
-					extraLabel:      extraLabels,
-					extraLabelValue: extraLabelValues,
-				})
-
-			errorLabels := append([]string{"type"}, extraLabels...)
-			values := []uint64{
-				dev.writeErrs,
-				dev.readErrs,
-				dev.flushErrs,
-				dev.corruptionErrs,
-				dev.generationErrs,
-			}
-			btrfsErrorTypeNames := []string{
-				"write",
-				"read",
-				"flush",
-				"corruption",
-				"generation",
-			}
-
-			for i, errorType := range btrfsErrorTypeNames {
-				metrics = append(metrics,
-					btrfsMetric{
-						name:            "device_errors_total",
-						desc:            "Errors reported for the device",
-						metricType:      prometheus.CounterValue,
-						value:           float64(values[i]),
-						extraLabel:      errorLabels,
-						extraLabelValue: append([]string{errorType}, extraLabelValues...),
-					})
-			}
-		}
+		return metrics
 	}
 
-	// Information about data, metadata and system data.
-	metrics = append(metrics, c.getAllocationStats("data", s.Allocation.Data)...)
-	metrics = append(metrics, c.getAllocationStats("metadata", s.Allocation.Metadata)...)
-	metrics = append(metrics, c.getAllocationStats("system", s.Allocation.System)...)
+	for _, dev := range iocStats.devices {
+		// trim the /dev/ prefix from the device name so the value should match
+		// the value used in the fallback branch above
+		device := strings.TrimPrefix(dev.path, "/dev/")
+
+		extraLabels := []string{"device", "device_uuid"}
+		extraLabelValues := []string{device, dev.uuid}
+
+		metrics = append(metrics,
+			btrfsMetric{
+				name:            "device_size_bytes",
+				desc:            "Size of a device that is part of the filesystem.",
+				metricType:      prometheus.GaugeValue,
+				value:           float64(dev.totalBytes),
+				extraLabel:      extraLabels,
+				extraLabelValue: extraLabelValues,
+			},
+			// A bytes available metric is probably more useful than a
+			// bytes used metric, because large numbers of bytes will
+			// suffer from floating point representation issues
+			// and we probably care more about the number when it's low anyway
+			btrfsMetric{
+				name:            "device_unused_bytes",
+				desc:            "Unused bytes unused on a device that is part of the filesystem.",
+				metricType:      prometheus.GaugeValue,
+				value:           float64(dev.totalBytes - dev.bytesUsed),
+				extraLabel:      extraLabels,
+				extraLabelValue: extraLabelValues,
+			})
+
+		errorLabels := append([]string{"type"}, extraLabels...)
+		values := []uint64{
+			dev.writeErrs,
+			dev.readErrs,
+			dev.flushErrs,
+			dev.corruptionErrs,
+			dev.generationErrs,
+		}
+		btrfsErrorTypeNames := []string{
+			"write",
+			"read",
+			"flush",
+			"corruption",
+			"generation",
+		}
+
+		for i, errorType := range btrfsErrorTypeNames {
+			metrics = append(metrics,
+				btrfsMetric{
+					name:            "device_errors_total",
+					desc:            "Errors reported for the device",
+					metricType:      prometheus.CounterValue,
+					value:           float64(values[i]),
+					extraLabel:      errorLabels,
+					extraLabelValue: append([]string{errorType}, extraLabelValues...),
+				})
+		}
+	}
 
 	return metrics
 }
