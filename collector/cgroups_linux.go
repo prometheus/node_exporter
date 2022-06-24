@@ -18,21 +18,23 @@ package collector
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
+const cgroupsCollectorSubsystem = "cgroups"
+
 type cgroupSummaryCollector struct {
 	fs      procfs.FS
 	cgroups *prometheus.Desc
+	enabled *prometheus.Desc
 	logger  log.Logger
 }
 
 func init() {
-	registerCollector("cgroupSummary", defaultEnabled, NewCgroupSummaryCollector)
+	registerCollector(cgroupsCollectorSubsystem, defaultDisabled, NewCgroupSummaryCollector)
 }
 
 // NewCgroupSummaryCollector returns a new Collector exposing a summary of cgroups.
@@ -44,9 +46,14 @@ func NewCgroupSummaryCollector(logger log.Logger) (Collector, error) {
 	return &cgroupSummaryCollector{
 		fs: fs,
 		cgroups: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "cgroups_total"),
+			prometheus.BuildFQName(namespace, cgroupsCollectorSubsystem, "cgroups"),
 			"Current cgroup number of the subsystem.",
-			[]string{"subsys_name", "enabled"}, nil,
+			[]string{"subsys_name"}, nil,
+		),
+		enabled: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cgroupsCollectorSubsystem, "enabled"),
+			"Current cgroup number of the subsystem.",
+			[]string{"subsys_name"}, nil,
 		),
 		logger: logger,
 	}, nil
@@ -59,7 +66,8 @@ func (c *cgroupSummaryCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 	for _, cs := range cgroupSummarys {
-		ch <- prometheus.MustNewConstMetric(c.cgroups, prometheus.CounterValue, float64(cs.Cgroups), cs.SubsysName, strconv.Itoa(cs.Enabled))
+		ch <- prometheus.MustNewConstMetric(c.cgroups, prometheus.GaugeValue, float64(cs.Cgroups), cs.SubsysName)
+		ch <- prometheus.MustNewConstMetric(c.enabled, prometheus.GaugeValue, float64(cs.Enabled), cs.SubsysName)
 	}
 	return nil
 }
