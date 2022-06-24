@@ -61,12 +61,16 @@ func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	ioctlStatsMap, err := c.getIoctlStats()
 	if err != nil {
-		return fmt.Errorf("failed to retrieve Btrfs stats with ioctl: %w", err)
+		level.Debug(c.logger).Log(
+			"msg", "Error querying btrfs device stats with ioctl",
+			"err", err)
+		ioctlStatsMap = make(map[string]*btrfsIoctlFsStats)
 	}
 
 	for _, s := range stats {
-		// match up procfs and ioctl info by filesystem UUID
-		ioctlStats := ioctlStatsMap[strings.Replace(s.UUID, "-", "", -1)]
+		// match up procfs and ioctl info by filesystem UUID (without dashes)
+		var fsUUID = strings.Replace(s.UUID, "-", "", -1)
+		ioctlStats := ioctlStatsMap[fsUUID]
 		c.updateBtrfsStats(ch, s, ioctlStats)
 	}
 
@@ -152,7 +156,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 				"msg", "Error querying btrfs device stats",
 				"mountPoint", mount.mountPoint,
 				"err", err)
-			return nil, err
+			continue
 		}
 
 		devicesDone[mount.device] = struct{}{}
