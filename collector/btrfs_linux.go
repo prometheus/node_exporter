@@ -77,7 +77,7 @@ func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-type ioctlFsDeviceStats struct {
+type btrfsIoctlFsDevStats struct {
 	path string
 	uuid string
 
@@ -94,12 +94,12 @@ type ioctlFsDeviceStats struct {
 	generationErrs uint64
 }
 
-type ioctlFsStats struct {
+type btrfsIoctlFsStats struct {
 	uuid    string
-	devices []ioctlFsDeviceStats
+	devices []btrfsIoctlFsDevStats
 }
 
-func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
+func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) {
 	// Instead of introducing more ioctl calls to scan for all btrfs
 	// filesytems re-use our mount point utils to find known mounts
 	mountsList, err := mountPointDetails(c.logger)
@@ -110,7 +110,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 	// track devices we have successfully scanned, by device path
 	devicesDone := make(map[string]struct{})
 	// filesystems scann results by UUID
-	fsStats := make(map[string]*ioctlFsStats)
+	fsStats := make(map[string]*btrfsIoctlFsStats)
 
 	for _, mount := range mountsList {
 		if mount.fsType != "btrfs" {
@@ -160,7 +160,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 		}
 
 		devicesDone[mount.device] = struct{}{}
-		fsStats[fsID] = &ioctlFsStats{
+		fsStats[fsID] = &btrfsIoctlFsStats{
 			uuid:    fsID,
 			devices: deviceStats,
 		}
@@ -169,8 +169,8 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*ioctlFsStats, error) {
 	return fsStats, nil
 }
 
-func (c *btrfsCollector) getIoctlDeviceStats(fs *dennwc.FS, fsInfo *dennwc.Info) ([]ioctlFsDeviceStats, error) {
-	devices := make([]ioctlFsDeviceStats, 0, fsInfo.NumDevices)
+func (c *btrfsCollector) getIoctlDeviceStats(fs *dennwc.FS, fsInfo *dennwc.Info) ([]btrfsIoctlFsDevStats, error) {
+	devices := make([]btrfsIoctlFsDevStats, 0, fsInfo.NumDevices)
 
 	for i := uint64(0); i <= fsInfo.MaxID; i++ {
 		deviceInfo, err := fs.GetDevInfo(i)
@@ -188,7 +188,7 @@ func (c *btrfsCollector) getIoctlDeviceStats(fs *dennwc.FS, fsInfo *dennwc.Info)
 			return nil, err
 		}
 
-		devices = append(devices, ioctlFsDeviceStats{
+		devices = append(devices, btrfsIoctlFsDevStats{
 			path:       deviceInfo.Path,
 			uuid:       deviceInfo.UUID.String(),
 			bytesUsed:  deviceInfo.BytesUsed,
@@ -220,14 +220,14 @@ type btrfsMetric struct {
 }
 
 // updateBtrfsStats collects statistics for one bcache ID.
-func (c *btrfsCollector) updateBtrfsStats(ch chan<- prometheus.Metric, s *btrfs.Stats, iocStats *ioctlFsStats) {
+func (c *btrfsCollector) updateBtrfsStats(ch chan<- prometheus.Metric, s *btrfs.Stats, ioctlStats *btrfsIoctlFsStats) {
 	const subsystem = "btrfs"
 
 	// Basic information about the filesystem.
 	devLabels := []string{"uuid"}
 
 	// Retrieve the metrics.
-	metrics := c.getMetrics(s, iocStats)
+	metrics := c.getMetrics(s, ioctlStats)
 
 	// Convert all gathered metrics to Prometheus Metrics and add to channel.
 	for _, m := range metrics {
@@ -255,7 +255,7 @@ func (c *btrfsCollector) updateBtrfsStats(ch chan<- prometheus.Metric, s *btrfs.
 }
 
 // getMetrics returns metrics for the given Btrfs statistics.
-func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []btrfsMetric {
+func (c *btrfsCollector) getMetrics(s *btrfs.Stats, ioctlStats *btrfsIoctlFsStats) []btrfsMetric {
 	metrics := []btrfsMetric{
 		{
 			name:            "info",
@@ -279,7 +279,7 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 	metrics = append(metrics, c.getAllocationStats("system", s.Allocation.System)...)
 
 	// Information about devices.
-	if iocStats == nil {
+	if ioctlStats == nil {
 		for n, dev := range s.Devices {
 			metrics = append(metrics, btrfsMetric{
 				name:            "device_size_bytes",
@@ -293,7 +293,7 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 		return metrics
 	}
 
-	for _, dev := range iocStats.devices {
+	for _, dev := range ioctlStats.devices {
 		// trim the /dev/ prefix from the device name so the value should match
 		// the value used in the fallback branch above
 		device := strings.TrimPrefix(dev.path, "/dev/")
