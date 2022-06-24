@@ -73,14 +73,6 @@ func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-var errorStatTypeNames = []string{
-	"write",
-	"read",
-	"flush",
-	"corruption",
-	"generation",
-}
-
 type ioctlFsDeviceStats struct {
 	path string
 	uuid string
@@ -88,6 +80,9 @@ type ioctlFsDeviceStats struct {
 	bytesUsed  uint64
 	totalBytes uint64
 
+	// The error stats below match the following upstream lists:
+	// https://github.com/dennwc/btrfs/blob/b3db0b2dedac3bf580f412034d77e0bf4b420167/btrfs.go#L132-L140
+	// https://github.com/torvalds/linux/blob/70d605cbeecb408dd884b1f0cd3963eeeaac144c/include/uapi/linux/btrfs.h#L680-L692
 	writeErrs      uint64
 	readErrs       uint64
 	flushErrs      uint64
@@ -325,7 +320,15 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, iocStats *ioctlFsStats) []bt
 				dev.corruptionErrs,
 				dev.generationErrs,
 			}
-			for i, errorType := range errorStatTypeNames {
+			btrfsErrorTypeNames := []string{
+				"write",
+				"read",
+				"flush",
+				"corruption",
+				"generation",
+			}
+
+			for i, errorType := range btrfsErrorTypeNames {
 				metrics = append(metrics,
 					btrfsMetric{
 						name:            "device_errors_total",
