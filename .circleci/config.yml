@@ -8,6 +8,11 @@ executors:
   golang:
     docker:
       - image: cimg/go:1.18
+  arm:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.medium
+
 jobs:
   test:
     executor: golang
@@ -17,6 +22,12 @@ jobs:
       - run: make
       - prometheus/store_artifact:
           file: node_exporter
+  test-arm:
+    executor: arm
+    steps:
+      - checkout
+      - run: uname -a
+      - run: make test-e2e
   codespell:
     docker:
       - image: circleci/python
@@ -83,6 +94,10 @@ workflows:
   node_exporter:
     jobs:
       - test:
+          filters:
+            tags:
+              only: /.*/
+      - test-arm:
           filters:
             tags:
               only: /.*/
