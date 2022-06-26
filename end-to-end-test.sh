@@ -71,6 +71,20 @@ case "${arch}" in
   *) fixture='collector/fixtures/e2e-output.txt' ;;
 esac
 
+# Only test CPU info collection on x86_64.
+case "${arch}" in
+  x86_64)
+    cpu_info_collector='--collector.cpu.info'
+    cpu_info_bugs='^(cpu_meltdown|spectre_.*|mds)$'
+    cpu_info_flags='^(aes|avx.?|constant_tsc)$'
+    ;;
+  *)
+    cpu_info_collector='--no-collector.cpu.info'
+    cpu_info_bugs=''
+    cpu_info_flags=''
+    ;;
+esac
+
 keep=0; update=0; verbose=0
 while getopts 'hkuv' opt
 do
@@ -114,9 +128,9 @@ fi
   --collector.netclass.ignored-devices="(dmz|int)" \
   --collector.netclass.ignore-invalid-speed \
   --collector.bcache.priorityStats \
-  --collector.cpu.info \
-  --collector.cpu.info.flags-include="^(aes|avx.?|constant_tsc)$" \
-  --collector.cpu.info.bugs-include="^(cpu_meltdown|spectre_.*|mds)$" \
+  "${cpu_info_collector}" \
+  --collector.cpu.info.bugs-include="${cpu_info_bugs}" \
+  --collector.cpu.info.flags-include="${cpu_info_flags}" \
   --collector.stat.softirq \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
