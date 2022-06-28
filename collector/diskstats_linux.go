@@ -18,13 +18,9 @@ package collector
 
 import (
 	"fmt"
-	"regexp"
-
 	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -33,10 +29,8 @@ const (
 	// Read sectors and write sectors are the "standard UNIX 512-byte sectors, not any device- or filesystem-specific block size."
 	// See also https://www.kernel.org/doc/Documentation/block/stat.txt
 	unixSectorSize = 512.0
-)
 
-var (
-	ignoredDevices = kingpin.Flag("collector.diskstats.ignored-devices", "Regexp of devices to ignore for diskstats.").Default("^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$").String()
+	diskstatsDefaultIgnoredDevices = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 )
 
 type typedFactorDesc struct {
@@ -49,11 +43,11 @@ func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) pr
 }
 
 type diskstatsCollector struct {
-	ignoredDevicesPattern *regexp.Regexp
-	fs                    blockdevice.FS
-	infoDesc              typedFactorDesc
-	descs                 []typedFactorDesc
-	logger                log.Logger
+	deviceFilter deviceFilter
+	fs           blockdevice.FS
+	infoDesc     typedFactorDesc
+	descs        []typedFactorDesc
+	logger       log.Logger
 }
 
 func init() {
@@ -69,9 +63,14 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
+	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
+	}
+
 	return &diskstatsCollector{
-		ignoredDevicesPattern: regexp.MustCompile(*ignoredDevices),
-		fs:                    fs,
+		deviceFilter: deviceFilter,
+		fs:           fs,
 		infoDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
 				"Info of /sys/block/<block_device>.",
@@ -194,11 +193,9 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for _, stats := range diskStats {
 		dev := stats.DeviceName
-		if c.ignoredDevicesPattern.MatchString(dev) {
-			level.Debug(c.logger).Log("msg", "Ignoring device", "device", dev, "pattern", c.ignoredDevicesPattern)
+		if c.deviceFilter.ignored(dev) {
 			continue
 		}
-
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev, fmt.Sprint(stats.MajorNumber), fmt.Sprint(stats.MinorNumber))
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
