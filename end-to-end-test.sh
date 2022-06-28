@@ -37,6 +37,7 @@ enabled_collectors=$(cat << COLLECTORS
   qdisc
   rapl
   schedstat
+  selinux
   sockstat
   stat
   thermal_zone

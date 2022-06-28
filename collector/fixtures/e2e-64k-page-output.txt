@@ -3012,6 +3012,7 @@ node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="rapl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
+node_scrape_collector_success{collector="selinux"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
@@ -3025,6 +3026,9 @@ node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
 node_scrape_collector_success{collector="zoneinfo"} 1
+# HELP node_selinux_enabled SELinux is enabled, 1 is true, 0 is false
+# TYPE node_selinux_enabled gauge
+node_selinux_enabled 0
 # HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
