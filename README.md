@@ -124,6 +124,7 @@ selinux | Exposes SELinux statistics. | Linux
 sockstat | Exposes various statistics from `/proc/net/sockstat`. | Linux
 softnet | Exposes statistics from `/proc/net/softnet_stat`. | Linux
 stat | Exposes various statistics from `/proc/stat`. This includes boot time, forks and interrupts. | Linux
+sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
 tapestats | Exposes statistics from `/sys/class/scsi_tape`. | Linux
 textfile | Exposes statistics read from local disk. The `--collector.textfile.directory` flag must be set. | _any_
 thermal | Exposes thermal statistics like `pmset -g therm`. | Darwin
