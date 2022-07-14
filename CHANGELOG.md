@@ -5,6 +5,7 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [FEATURE] Add sysctl collector #2425
 * [ENHANCEMENT] Add node_softirqs_total metric #2221
 * [ENHANCEMENT] Add device filter flags to arp collector #2254
 * [ENHANCEMENT] Add rapl zone name label option #2401

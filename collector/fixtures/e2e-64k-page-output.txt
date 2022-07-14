@@ -3052,6 +3052,7 @@ node_scrape_collector_success{collector="slabinfo"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
+node_scrape_collector_success{collector="sysctl"} 1
 node_scrape_collector_success{collector="tapestats"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
@@ -3185,6 +3186,33 @@ node_softnet_times_squeezed_total{cpu="0"} 1
 node_softnet_times_squeezed_total{cpu="1"} 10
 node_softnet_times_squeezed_total{cpu="2"} 85
 node_softnet_times_squeezed_total{cpu="3"} 50
+# HELP node_sysctl_fs_file_nr sysctl fs.file-nr
+# TYPE node_sysctl_fs_file_nr untyped
+node_sysctl_fs_file_nr{index="0"} 1024
+node_sysctl_fs_file_nr{index="1"} 0
+node_sysctl_fs_file_nr{index="2"} 1.631329e+06
+# HELP node_sysctl_fs_file_nr_current sysctl fs.file-nr, field 1
+# TYPE node_sysctl_fs_file_nr_current untyped
+node_sysctl_fs_file_nr_current 0
+# HELP node_sysctl_fs_file_nr_max sysctl fs.file-nr, field 2
+# TYPE node_sysctl_fs_file_nr_max untyped
+node_sysctl_fs_file_nr_max 1.631329e+06
+# HELP node_sysctl_fs_file_nr_total sysctl fs.file-nr, field 0
+# TYPE node_sysctl_fs_file_nr_total untyped
+node_sysctl_fs_file_nr_total 1024
+# HELP node_sysctl_info sysctl info
+# TYPE node_sysctl_info gauge
+node_sysctl_info{index="0",name="kernel.seccomp.actions_avail",value="kill_process"} 1
+node_sysctl_info{index="1",name="kernel.seccomp.actions_avail",value="kill_thread"} 1
+node_sysctl_info{index="2",name="kernel.seccomp.actions_avail",value="trap"} 1
+node_sysctl_info{index="3",name="kernel.seccomp.actions_avail",value="errno"} 1
+node_sysctl_info{index="4",name="kernel.seccomp.actions_avail",value="user_notif"} 1
+node_sysctl_info{index="5",name="kernel.seccomp.actions_avail",value="trace"} 1
+node_sysctl_info{index="6",name="kernel.seccomp.actions_avail",value="log"} 1
+node_sysctl_info{index="7",name="kernel.seccomp.actions_avail",value="allow"} 1
+# HELP node_sysctl_kernel_threads_max sysctl kernel.threads-max
+# TYPE node_sysctl_kernel_threads_max untyped
+node_sysctl_kernel_threads_max 7801
 # HELP node_tape_io_now The number of I/Os currently outstanding to this device.
 # TYPE node_tape_io_now gauge
 node_tape_io_now{device="st0"} 1

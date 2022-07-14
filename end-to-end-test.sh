@@ -43,6 +43,7 @@ enabled_collectors=$(cat << COLLECTORS
   slabinfo
   sockstat
   stat
+  sysctl
   textfile
   thermal_zone
   udp_queues
@@ -135,6 +136,10 @@ fi
   --collector.cpu.info.bugs-include="${cpu_info_bugs}" \
   --collector.cpu.info.flags-include="${cpu_info_flags}" \
   --collector.stat.softirq \
+  --collector.sysctl.include="kernel.threads-max" \
+  --collector.sysctl.include="fs.file-nr" \
+  --collector.sysctl.include="fs.file-nr:total,current,max" \
+  --collector.sysctl.include-info="kernel.seccomp.actions_avail" \
   --web.listen-address "127.0.0.1:${port}" \
   --log.level="debug" > "${tmpdir}/node_exporter.log" 2>&1 &
 
