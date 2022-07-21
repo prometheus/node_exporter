@@ -214,15 +214,15 @@
             alert: 'NodeClockSkewDetected',
             expr: |||
               (
-                node_timex_offset_seconds > 0.05
+                node_timex_offset_seconds{%(nodeExporterSelector)s} > 0.05
               and
-                deriv(node_timex_offset_seconds[5m]) >= 0
+                deriv(node_timex_offset_seconds{%(nodeExporterSelector)s}[5m]) >= 0
               )
               or
               (
-                node_timex_offset_seconds < -0.05
+                node_timex_offset_seconds{%(nodeExporterSelector)s} < -0.05
               and
-                deriv(node_timex_offset_seconds[5m]) <= 0
+                deriv(node_timex_offset_seconds{%(nodeExporterSelector)s}[5m]) <= 0
               )
             ||| % $._config,
             'for': '10m',
@@ -237,9 +237,9 @@
           {
             alert: 'NodeClockNotSynchronising',
             expr: |||
-              min_over_time(node_timex_sync_status[5m]) == 0
+              min_over_time(node_timex_sync_status{%(nodeExporterSelector)s}[5m]) == 0
               and
-              node_timex_maxerror_seconds >= 16
+              node_timex_maxerror_seconds{%(nodeExporterSelector)s} >= 16
             ||| % $._config,
             'for': '10m',
             labels: {
@@ -253,7 +253,7 @@
           {
             alert: 'NodeRAIDDegraded',
             expr: |||
-              node_md_disks_required - ignoring (state) (node_md_disks{state="active"}) > 0
+              node_md_disks_required{%(nodeExporterSelector)s,%(diskDeviceSelector)s} - ignoring (state) (node_md_disks{state="active",%(nodeExporterSelector)s,%(diskDeviceSelector)s}) > 0
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -267,7 +267,7 @@
           {
             alert: 'NodeRAIDDiskFailure',
             expr: |||
-              node_md_disks{state="failed"} > 0
+              node_md_disks{state="failed",%(nodeExporterSelector)s,%(diskDeviceSelector)s} > 0
             ||| % $._config,
             labels: {
               severity: 'warning',
