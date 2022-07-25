@@ -5,10 +5,11 @@ set -euf -o pipefail
 enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
+  bonding
   btrfs
   buddyinfo
-  conntrack
   cgroups
+  conntrack
   cpu
   cpufreq
   diskstats
@@ -34,6 +35,7 @@ enabled_collectors=$(cat << COLLECTORS
   nfs
   nfsd
   pressure
+  processes
   qdisc
   rapl
   schedstat
@@ -41,15 +43,13 @@ enabled_collectors=$(cat << COLLECTORS
   slabinfo
   sockstat
   stat
-  thermal_zone
   textfile
-  bonding
+  thermal_zone
   udp_queues
   vmstat
   wifi
   xfs
   zfs
-  processes
   zoneinfo
 COLLECTORS
 )
