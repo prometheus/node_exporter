@@ -300,7 +300,7 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, ioctlStats *btrfsIoctlFsStat
 		// e.g. /dev/sda -> sda, /rootfs/dev/md1 -> md1
 		_, device := path.Split(dev.path)
 
-		extraLabels := []string{"device", "device_uuid"}
+		extraLabels := []string{"device", "btrfs_dev_uuid"}
 		extraLabelValues := []string{device, dev.uuid}
 
 		metrics = append(metrics,
