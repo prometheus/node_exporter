@@ -297,6 +297,13 @@ node_cpu_guest_seconds_total{cpu="6",mode="nice"} 0.07
 node_cpu_guest_seconds_total{cpu="6",mode="user"} 0.08
 node_cpu_guest_seconds_total{cpu="7",mode="nice"} 0.08
 node_cpu_guest_seconds_total{cpu="7",mode="user"} 0.09
+# HELP node_cpu_isolated Whether each core is isolated, information from /sys/devices/system/cpu/isolated.
+# TYPE node_cpu_isolated gauge
+node_cpu_isolated{cpu="1"} 1
+node_cpu_isolated{cpu="3"} 1
+node_cpu_isolated{cpu="4"} 1
+node_cpu_isolated{cpu="5"} 1
+node_cpu_isolated{cpu="9"} 1
 # HELP node_cpu_package_throttles_total Number of times this CPU package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30
