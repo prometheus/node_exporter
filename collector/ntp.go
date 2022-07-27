@@ -75,6 +75,10 @@ func NewNtpCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("offset tolerance must be non-negative")
 	}
 
+	if *ntpServerPort < 1 || *ntpServerPort > 65535 {
+		return nil, fmt.Errorf("invalid NTP port number %d; must be between 1 and 65535 inclusive", *ntpServerPort)
+	}
+
 	return &ntpCollector{
 		stratum: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "stratum"),
