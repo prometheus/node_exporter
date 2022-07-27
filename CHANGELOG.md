@@ -5,6 +5,37 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.4.0-rc.0 / 2022-07-27
+
+* [ENHANCEMENT] Add device filter flags to arp collector (#2254)
+* [ENHANCEMENT] Add additional vm_stat memory metrics for darwin (#2240)
+* [ENHANCEMENT] [node-mixin] Change current datasource to grafana's default (#2281)
+* [BUGFIX] Fix concurrency issue in ethtool collector (#2289)
+* [ENHANCEMENT] systemd: Expose systemd minor version (#2282)
+* [BUGFIX] Fix iostat on macos broken by deprecation warning (#2292)
+* [BUGFIX] Fix concurrency issue in netdev collector (#2292)
+* [BUGFIX] Fix diskstat reads and write metrics for disks with different sector sizes (#2311)
+* [ENHANCEMENT] Enable builds against older macOS SDK (#2327)
+* [BUGFIX] Fix NodeFileDescriptorLimit alerts (#2340)
+* [FEATURE] [node-mixin] Add darwin dashboard to mixin (#2351)
+* [BUGFIX] [node-mixin] Fix fsSpaceAvailableCriticalThreshold and fsSpaceAvailableWarning (#2352)
+* [ENHANCEMENT] Use netlink for tcpstat collector (#2322)
+* [ENHANCEMENT] Use netlink to get netdev stats (#2074)
+* [ENHANCEMENT] [node-mixin] Change disk graph to disk table #2364
+* [BUGFIX] rapl_collector: Fix issue with invalid metric name (#2299)
+* [FEATURE] Add cgroup summary collector (#2408)
+* [FEATURE] Add rapl zone label option (#2401)
+* [FEATURE] Add selinux collector (#2205)
+* [ENHANCEMENT] Add diskstats include and exclude device flags (#2417)
+* [FEATURE] Add slab info collector (#2376)
+* [ENHANCEMENT] collector/diskstats: Add labels and metrics from udev (#2404)
+* [ENHANCEMENT] [node-mixin] Add missing selectors (#2426)
+* [FEATURE] Add "isolated" metric on cpu collector on linux (#2251)
+* [ENHANCEMENT] Ad user_wired_bytes and laundry_bytes on *bsd (#2266)
+* [FEATURE] Also track the CPU Spin time for OpenBSD systems. #1971
+* [ENHANCEMENT] qdisk-linux: Add exclude and include flags for interface name #2432
+* [ENHANCEMENT] [node-mixin] Change io time units to %util (#2375))
+* [ENHANCEMENT] Allow user to select port on NTP server to query #2270
 * [FEATURE] Add sysctl collector #2425
 * [ENHANCEMENT] Add node_softirqs_total metric #2221
 * [ENHANCEMENT] Add device filter flags to arp collector #2254
