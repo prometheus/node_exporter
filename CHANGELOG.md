@@ -5,12 +5,40 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
-* [FEATURE] Add sysctl collector #2425
-* [ENHANCEMENT] Add node_softirqs_total metric #2221
-* [ENHANCEMENT] Add device filter flags to arp collector #2254
-* [ENHANCEMENT] Add rapl zone name label option #2401
-* [ENHANCEMENT] Add slabinfo collector #1799
-* [BUGFIX] Sanitize rapl zone names #2299
+## 1.4.0-rc.0 / 2022-07-27
+
+* [BUGFIX] [node-mixin] Fix fsSpaceAvailableCriticalThreshold and fsSpaceAvailableWarning (#2352)
+* [BUGFIX] Fix concurrency issue in ethtool collector (#2289)
+* [BUGFIX] Fix concurrency issue in netdev collector (#2267)
+* [BUGFIX] Fix diskstat reads and write metrics for disks with different sector sizes (#2311)
+* [BUGFIX] Fix iostat on macos broken by deprecation warning (#2292)
+* [BUGFIX] Fix NodeFileDescriptorLimit alerts (#2340)
+* [BUGFIX] Sanitize rapl zone names (#2299)
+* [ENHANCEMENT] [node-mixin] Add missing selectors (#2426)
+* [ENHANCEMENT] [node-mixin] Change current datasource to grafana's default (#2281)
+* [ENHANCEMENT] [node-mixin] Change disk graph to disk table #2364
+* [ENHANCEMENT] [node-mixin] Change io time units to %util (#2375))
+* [ENHANCEMENT] Ad user_wired_bytes and laundry_bytes on *bsd (#2266)
+* [ENHANCEMENT] Add additional vm_stat memory metrics for darwin (#2240)
+* [ENHANCEMENT] Add device filter flags to arp collector (#2254)
+* [ENHANCEMENT] Add diskstats include and exclude device flags (#2417)
+* [ENHANCEMENT] Add node_softirqs_total metric (#2221)
+* [ENHANCEMENT] Add rapl zone name label option (#2401)
+* [ENHANCEMENT] Add slabinfo collector (#1799)
+* [ENHANCEMENT] Allow user to select port on NTP server to query (#2270)
+* [ENHANCEMENT] collector/diskstats: Add labels and metrics from udev (#2404)
+* [ENHANCEMENT] Enable builds against older macOS SDK (#2327)
+* [ENHANCEMENT] qdisk-linux: Add exclude and include flags for interface name #2432
+* [ENHANCEMENT] systemd: Expose systemd minor version (#2282)
+* [ENHANCEMENT] Use netlink for tcpstat collector (#2322)
+* [ENHANCEMENT] Use netlink to get netdev stats (#2074)
+* [FEATURE] [node-mixin] Add darwin dashboard to mixin (#2351)
+* [FEATURE] Add "isolated" metric on cpu collector on linux (#2251)
+* [FEATURE] Add cgroup summary collector (#2408)
+* [FEATURE] Add selinux collector (#2205)
+* [FEATURE] Add slab info collector (#2376)
+* [FEATURE] Add sysctl collector (#2425)
+* [FEATURE] Also track the CPU Spin time for OpenBSD systems (#1971)
 
 ## 1.3.1 / 2021-12-01
 
