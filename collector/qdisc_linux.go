@@ -19,7 +19,7 @@ package collector
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/ema/qdisc"
@@ -100,7 +100,7 @@ func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
 func testQdiscGet(fixtures string) ([]qdisc.QdiscInfo, error) {
 	var res []qdisc.QdiscInfo
 
-	b, err := ioutil.ReadFile(filepath.Join(fixtures, "results.json"))
+	b, err := os.ReadFile(filepath.Join(fixtures, "results.json"))
 	if err != nil {
 		return res, err
 	}

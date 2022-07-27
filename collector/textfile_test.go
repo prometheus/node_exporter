@@ -15,9 +15,9 @@ package collector
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/go-kit/log"
@@ -120,7 +120,7 @@ func TestTextfileCollector(t *testing.T) {
 		promhttp.HandlerFor(registry, promhttp.HandlerOpts{}).ServeHTTP(rw, &http.Request{})
 		got := string(rw.Body.String())
 
-		want, err := ioutil.ReadFile(test.out)
+		want, err := os.ReadFile(test.out)
 		if err != nil {
 			t.Fatalf("%d. error reading fixture file %s: %s", i, test.out, err)
 		}

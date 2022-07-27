@@ -18,14 +18,14 @@ package collector
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
 
 // Read loadavg from /proc.
 func getLoad() (loads []float64, err error) {
-	data, err := ioutil.ReadFile(procFilePath("loadavg"))
+	data, err := os.ReadFile(procFilePath("loadavg"))
 	if err != nil {
 		return nil, err
 	}
