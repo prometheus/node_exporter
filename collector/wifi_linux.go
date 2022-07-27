@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -366,7 +365,7 @@ type mockWifiStater struct {
 }
 
 func (s *mockWifiStater) unmarshalJSONFile(filename string, v interface{}) error {
-	b, err := ioutil.ReadFile(filepath.Join(s.fixtures, filename))
+	b, err := os.ReadFile(filepath.Join(s.fixtures, filename))
 	if err != nil {
 		return err
 	}
