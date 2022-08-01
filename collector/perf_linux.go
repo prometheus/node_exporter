@@ -397,23 +397,23 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			[]string{"cpu"},
 			nil,
 		),
-		"stalled_cycles_backend": prometheus.NewDesc(
+		"stalled_cycles_backend_total": prometheus.NewDesc(
 			prometheus.BuildFQName(
 				namespace,
 				perfSubsystem,
-				"stalled_cycles_backend",
+				"stalled_cycles_backend_total",
 			),
 			"Number of stalled backend CPU cycles",
 			[]string{"cpu"},
 			nil,
 		),
-		"stalled_cycles_frontend": prometheus.NewDesc(
+		"stalled_cycles_frontend_total": prometheus.NewDesc(
 			prometheus.BuildFQName(
 				namespace,
 				perfSubsystem,
 				"stalled_cycles_frontend_total",
 			),
-			"Number of stalled fronted CPU cycles",
+			"Number of stalled frontend CPU cycles",
 			[]string{"cpu"},
 			nil,
 		),
@@ -682,7 +682,7 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 
 		if hwProfile.StalledCyclesBackend != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.desc["stalled_cycles_backend"],
+				c.desc["stalled_cycles_backend_total"],
 				prometheus.CounterValue, float64(*hwProfile.StalledCyclesBackend),
 				cpuid,
 			)
@@ -690,7 +690,7 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 
 		if hwProfile.StalledCyclesFrontend != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.desc["stalled_cycles_frontend"],
+				c.desc["stalled_cycles_frontend_total"],
 				prometheus.CounterValue, float64(*hwProfile.StalledCyclesFrontend),
 				cpuid,
 			)
