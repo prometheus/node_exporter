@@ -411,7 +411,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			prometheus.BuildFQName(
 				namespace,
 				perfSubsystem,
-				"stalled_cycles_frontend",
+				"stalled_cycles_frontend_total",
 			),
 			"Number of stalled fronted CPU cycles",
 			[]string{"cpu"},
