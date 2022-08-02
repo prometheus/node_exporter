@@ -397,6 +397,26 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			[]string{"cpu"},
 			nil,
 		),
+		"stalled_cycles_backend_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"stalled_cycles_backend_total",
+			),
+			"Number of stalled backend CPU cycles",
+			[]string{"cpu"},
+			nil,
+		),
+		"stalled_cycles_frontend_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"stalled_cycles_frontend_total",
+			),
+			"Number of stalled frontend CPU cycles",
+			[]string{"cpu"},
+			nil,
+		),
 		"page_faults_total": prometheus.NewDesc(
 			prometheus.BuildFQName(
 				namespace,
@@ -598,6 +618,9 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 		if err := (*profiler).Profile(hwProfile); err != nil {
 			return err
 		}
+		if hwProfile == nil {
+			continue
+		}
 
 		cpuid := strconv.Itoa(c.hwProfilerCPUMap[profiler])
 
@@ -656,6 +679,22 @@ func (c *perfCollector) updateHardwareStats(ch chan<- prometheus.Metric) error {
 				cpuid,
 			)
 		}
+
+		if hwProfile.StalledCyclesBackend != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["stalled_cycles_backend_total"],
+				prometheus.CounterValue, float64(*hwProfile.StalledCyclesBackend),
+				cpuid,
+			)
+		}
+
+		if hwProfile.StalledCyclesFrontend != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["stalled_cycles_frontend_total"],
+				prometheus.CounterValue, float64(*hwProfile.StalledCyclesFrontend),
+				cpuid,
+			)
+		}
 	}
 
 	return nil
@@ -666,6 +705,9 @@ func (c *perfCollector) updateSoftwareStats(ch chan<- prometheus.Metric) error {
 		swProfile := &perf.SoftwareProfile{}
 		if err := (*profiler).Profile(swProfile); err != nil {
 			return err
+		}
+		if swProfile == nil {
+			continue
 		}
 
 		cpuid := strconv.Itoa(c.swProfilerCPUMap[profiler])
@@ -719,6 +761,9 @@ func (c *perfCollector) updateCacheStats(ch chan<- prometheus.Metric) error {
 		cacheProfile := &perf.CacheProfile{}
 		if err := (*profiler).Profile(cacheProfile); err != nil {
 			return err
+		}
+		if cacheProfile == nil {
+			continue
 		}
 
 		cpuid := strconv.Itoa(c.cacheProfilerCPUMap[profiler])
