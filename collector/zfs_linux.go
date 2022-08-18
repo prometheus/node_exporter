@@ -42,7 +42,7 @@ const (
 	// kstatDataString = "7"
 )
 
-var zfsPoolStatesName = []string{"online", "degraded", "faulted", "offline", "removed", "unavail"}
+var zfsPoolStatesName = []string{"online", "degraded", "faulted", "offline", "removed", "unavail", "suspended"}
 
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 	file, err := os.Open(procFilePath(path))
