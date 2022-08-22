@@ -74,10 +74,6 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	if zpoolPaths == nil {
-		return nil
-	}
-
 	for _, zpoolPath := range zpoolPaths {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
