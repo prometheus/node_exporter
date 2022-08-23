@@ -76,7 +76,7 @@ type ethtoolCollector struct {
 	entries        map[string]*prometheus.Desc
 	entriesMutex   sync.Mutex
 	ethtool        Ethtool
-	deviceFilter   netDevFilter
+	deviceFilter   deviceFilter
 	infoDesc       *prometheus.Desc
 	metricsPattern *regexp.Regexp
 	logger         log.Logger
@@ -100,7 +100,7 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 	return &ethtoolCollector{
 		fs:             fs,
 		ethtool:        &ethtoolLibrary{e},
-		deviceFilter:   newNetDevFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
+		deviceFilter:   newDeviceFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
 		metricsPattern: regexp.MustCompile(*ethtoolIncludedMetrics),
 		logger:         logger,
 		entries: map[string]*prometheus.Desc{

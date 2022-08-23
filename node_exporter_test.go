@@ -15,7 +15,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -84,17 +84,17 @@ func TestHandlingOfDuplicatedMetrics(t *testing.T) {
 		t.Skipf("node_exporter binary not available, try to run `make build` first: %s", err)
 	}
 
-	dir, err := ioutil.TempDir("", "node-exporter")
+	dir, err := os.MkdirTemp("", "node-exporter")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer os.RemoveAll(dir)
 
 	content := []byte("dummy_metric 1\n")
-	if err := ioutil.WriteFile(filepath.Join(dir, "a.prom"), content, 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "a.prom"), content, 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := ioutil.WriteFile(filepath.Join(dir, "b.prom"), content, 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "b.prom"), content, 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -113,7 +113,7 @@ func queryExporter(address string) error {
 	if err != nil {
 		return err
 	}
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}

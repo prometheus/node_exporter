@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-func TestNetDevFilter(t *testing.T) {
+func TestDeviceFilter(t *testing.T) {
 	tests := []struct {
 		ignore         string
 		accept         string
@@ -33,7 +33,7 @@ func TestNetDevFilter(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		filter := newNetDevFilter(test.ignore, test.accept)
+		filter := newDeviceFilter(test.ignore, test.accept)
 		result := filter.ignored(test.name)
 
 		if result != test.expectedResult {

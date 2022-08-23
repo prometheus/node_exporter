@@ -60,12 +60,13 @@ endif
 
 PROMU := $(FIRST_GOPATH)/bin/promu --config $(PROMU_CONF)
 
+e2e-out-64k-page = collector/fixtures/e2e-64k-page-output.txt
 e2e-out = collector/fixtures/e2e-output.txt
 ifeq ($(MACH), ppc64le)
-	e2e-out = collector/fixtures/e2e-64k-page-output.txt
+	e2e-out = $(e2e-out-64k-page)
 endif
 ifeq ($(MACH), aarch64)
-	e2e-out = collector/fixtures/e2e-64k-page-output.txt
+	e2e-out = $(e2e-out-64k-page)
 endif
 
 # 64bit -> 32bit mapping for cross-checking. At least for amd64/386, the 64bit CPU can execute 32bit code but not the other way around, so we don't support cross-testing upwards.
@@ -123,6 +124,7 @@ skip-test-e2e:
 checkmetrics: $(PROMTOOL)
 	@echo ">> checking metrics for correctness"
 	./checkmetrics.sh $(PROMTOOL) $(e2e-out)
+	./checkmetrics.sh $(PROMTOOL) $(e2e-out-64k-page)
 
 .PHONY: checkrules
 checkrules: $(PROMTOOL)

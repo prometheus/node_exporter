@@ -14,14 +14,14 @@
 package collector
 
 import (
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
 func readUintFromFile(path string) (uint64, error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return 0, err
 	}

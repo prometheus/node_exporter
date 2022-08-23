@@ -31,7 +31,7 @@ import (
 */
 import "C"
 
-func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	var ifap, ifa *C.struct_ifaddrs
@@ -53,16 +53,20 @@ func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error
 
 		data := (*C.struct_if_data)(ifa.ifa_data)
 
+		// https://github.com/openbsd/src/blob/master/sys/net/if.h#L101-L126
 		netDev[dev] = map[string]uint64{
 			"receive_packets":    uint64(data.ifi_ipackets),
 			"transmit_packets":   uint64(data.ifi_opackets),
-			"receive_errs":       uint64(data.ifi_ierrors),
-			"transmit_errs":      uint64(data.ifi_oerrors),
 			"receive_bytes":      uint64(data.ifi_ibytes),
 			"transmit_bytes":     uint64(data.ifi_obytes),
+			"receive_errors":     uint64(data.ifi_ierrors),
+			"transmit_errors":    uint64(data.ifi_oerrors),
+			"receive_dropped":    uint64(data.ifi_iqdrops),
+			"transmit_dropped":   uint64(data.ifi_oqdrops),
 			"receive_multicast":  uint64(data.ifi_imcasts),
 			"transmit_multicast": uint64(data.ifi_omcasts),
-			"receive_drop":       uint64(data.ifi_iqdrops),
+			"collisions":         uint64(data.ifi_collisions),
+			"noproto":            uint64(data.ifi_noproto),
 		}
 	}
 

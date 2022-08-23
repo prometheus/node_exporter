@@ -18,7 +18,6 @@ package collector
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -196,13 +195,13 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	paths, err := filepath.Glob(c.path)
 	if err != nil || len(paths) == 0 {
 		// not glob or not accessible path either way assume single
-		// directory and let ioutil.ReadDir handle it
+		// directory and let os.ReadDir handle it
 		paths = []string{c.path}
 	}
 
 	mtimes := make(map[string]time.Time)
 	for _, path := range paths {
-		files, err := ioutil.ReadDir(path)
+		files, err := os.ReadDir(path)
 		if err != nil && path != "" {
 			errored = true
 			level.Error(c.logger).Log("msg", "failed to read textfile collector directory", "path", path, "err", err)

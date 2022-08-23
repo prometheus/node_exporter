@@ -18,6 +18,7 @@ package collector
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -27,6 +28,7 @@ import (
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+	"github.com/prometheus/procfs/sysfs"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -39,9 +41,11 @@ type cpuCollector struct {
 	cpuGuest           *prometheus.Desc
 	cpuCoreThrottle    *prometheus.Desc
 	cpuPackageThrottle *prometheus.Desc
+	cpuIsolated        *prometheus.Desc
 	logger             log.Logger
 	cpuStats           []procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
+	isolatedCpus       []uint16
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
@@ -68,6 +72,20 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
+
+	sysfs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
+
+	isolcpus, err := sysfs.IsolatedCPUs()
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return nil, fmt.Errorf("Unable to get isolated cpus: %w", err)
+		}
+		level.Debug(logger).Log("msg", "Could not open isolated file", "error", err)
+	}
+
 	c := &cpuCollector{
 		fs:  fs,
 		cpu: nodeCPUSecondsDesc,
@@ -101,7 +119,13 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 			"Number of times this CPU package has been throttled.",
 			[]string{"package"}, nil,
 		),
-		logger: logger,
+		cpuIsolated: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "isolated"),
+			"Whether each core is isolated, information from /sys/devices/system/cpu/isolated.",
+			[]string{"cpu"}, nil,
+		),
+		logger:       logger,
+		isolatedCpus: isolcpus,
 	}
 	err = c.compileIncludeFlags(flagsInclude, bugsInclude)
 	if err != nil {
@@ -141,6 +165,9 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	if err := c.updateStat(ch); err != nil {
 		return err
+	}
+	if c.isolatedCpus != nil {
+		c.updateIsolated(ch)
 	}
 	return c.updateThermalThrottle(ch)
 }
@@ -274,6 +301,14 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 		}
 	}
 	return nil
+}
+
+// updateIsolated reads /sys/devices/system/cpu/isolated through sysfs and exports isolation level metrics.
+func (c *cpuCollector) updateIsolated(ch chan<- prometheus.Metric) {
+	for _, cpu := range c.isolatedCpus {
+		cpuNum := strconv.Itoa(int(cpu))
+		ch <- prometheus.MustNewConstMetric(c.cpuIsolated, prometheus.GaugeValue, 1.0, cpuNum)
+	}
 }
 
 // updateStat reads /proc/stat through procfs and exports CPU-related metrics.

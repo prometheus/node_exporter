@@ -1,0 +1,20 @@
+S:disk/by-id/dm-name-nvme0n1_crypt
+S:mapper/nvme0n1_crypt
+S:disk/by-id/lvm-pv-uuid-c3C3uW-gD96-Yw69-c1CJ-5MwT-6ysM-mST0vB
+S:disk/by-id/dm-uuid-CRYPT-LUKS2-jolaulot80fy9zsiobkxyxo7y2dqeho2-nvme0n1_crypt
+I:72859885
+E:DM_UDEV_DISABLE_LIBRARY_FALLBACK_FLAG=1
+E:DM_UDEV_PRIMARY_SOURCE_FLAG=1
+E:DM_UDEV_RULES=1
+E:DM_UDEV_RULES_VSN=2
+E:DM_NAME=nvme0n1_crypt
+E:DM_UUID=CRYPT-LUKS2-jolaulot80fy9zsiobkxyxo7y2dqeho2-nvme0n1_crypt
+E:DM_SUSPENDED=0
+E:ID_FS_UUID=c3C3uW-gD96-Yw69-c1CJ-5MwT-6ysM-mST0vB
+E:ID_FS_UUID_ENC=c3C3uW-gD96-Yw69-c1CJ-5MwT-6ysM-mST0vB
+E:ID_FS_VERSION=LVM2 001
+E:ID_FS_TYPE=LVM2_member
+E:ID_FS_USAGE=raid
+G:systemd
+Q:systemd
+V:1

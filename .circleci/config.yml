@@ -7,7 +7,12 @@ executors:
   # should also be updated.
   golang:
     docker:
-      - image: circleci/golang:1.17
+      - image: cimg/go:1.18
+  arm:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.medium
+
 jobs:
   test:
     executor: golang
@@ -17,6 +22,12 @@ jobs:
       - run: make
       - prometheus/store_artifact:
           file: node_exporter
+  test-arm:
+    executor: arm
+    steps:
+      - checkout
+      - run: uname -a
+      - run: make test-e2e
   codespell:
     docker:
       - image: circleci/python
@@ -54,9 +65,9 @@ jobs:
           destination: /build
   test_docker:
     machine:
-      image: ubuntu-2004:202101-01
+      image: ubuntu-2204:2022.04.2
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.16-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.18-base
       REPO_PATH: github.com/prometheus/node_exporter
     steps:
       - prometheus/setup_environment
@@ -83,6 +94,10 @@ workflows:
   node_exporter:
     jobs:
       - test:
+          filters:
+            tags:
+              only: /.*/
+      - test-arm:
           filters:
             tags:
               only: /.*/
