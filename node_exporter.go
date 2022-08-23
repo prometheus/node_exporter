@@ -25,7 +25,6 @@ import (
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
 
-	"github.com/coreos/go-systemd/activation"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -33,6 +32,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/exporter-toolkit/web"
+	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
 	"github.com/prometheus/node_exporter/collector"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -143,14 +143,6 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 
 func main() {
 	var (
-		listenAddress = kingpin.Flag(
-			"web.listen-address",
-			"Address on which to expose metrics and web interface.",
-		).Default(":9100").String()
-		listenSystemdSocket = kingpin.Flag(
-			"web.systemd-socket",
-			"Use systemd socket activation listener instead of port listener.",
-		).Bool()
 		metricsPath = kingpin.Flag(
 			"web.telemetry-path",
 			"Path under which to expose metrics.",
@@ -167,10 +159,7 @@ func main() {
 			"collector.disable-defaults",
 			"Set all collectors to disabled by default.",
 		).Default("false").Bool()
-		configFile = kingpin.Flag(
-			"web.config",
-			"[EXPERIMENTAL] Path to config yaml file that can enable TLS or authentication.",
-		).Default("").String()
+		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine)
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -201,32 +190,9 @@ func main() {
 			</html>`))
 	})
 
-	if *listenSystemdSocket {
-		level.Info(logger).Log("msg", "Listening on systemd activated listener.")
-		listeners, err := activation.Listeners()
-		if err != nil {
-			level.Error(logger).Log("err", err)
-			os.Exit(1)
-		}
-		if len(listeners) < 1 {
-			level.Error(logger).Log("msg", "No socket activation file descriptors found.")
-			os.Exit(1)
-		}
-		if len(listeners) > 1 {
-			level.Error(logger).Log("msg", "More than one socket activation file descriptor found.")
-			os.Exit(1)
-		}
-		server := &http.Server{}
-		if err := web.Serve(listeners[0], server, *configFile, logger); err != nil {
-			level.Error(logger).Log("err", err)
-			os.Exit(1)
-		}
-	} else {
-		level.Info(logger).Log("msg", "Listening on", "address", *listenAddress)
-		server := &http.Server{Addr: *listenAddress}
-		if err := web.ListenAndServe(server, *configFile, logger); err != nil {
-			level.Error(logger).Log("err", err)
-			os.Exit(1)
-		}
+	server := &http.Server{}
+	if err := web.ListenAndServe(server, toolkitFlags, logger); err != nil {
+		level.Error(logger).Log("err", err)
+		os.Exit(1)
 	}
 }
