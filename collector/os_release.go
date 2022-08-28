@@ -59,7 +59,7 @@ type osReleaseCollector struct {
 	os                 *osRelease
 	osFilename         string    // file name of cached release information
 	osMtime            time.Time // mtime of cached release file
-	osMutex            sync.Mutex
+	osMutex            sync.RWMutex
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	versionDesc        *prometheus.Desc
@@ -120,7 +120,10 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	}
 
 	t := stat.ModTime()
-	if path == c.osFilename && t == c.osMtime {
+	c.osMutex.RLock()
+	upToDate := path == c.osFilename && t == c.osMtime
+	c.osMutex.RUnlock()
+	if upToDate {
 		// osReleaseCollector struct is already up-to-date.
 		return nil
 	}
