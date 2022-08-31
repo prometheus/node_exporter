@@ -13,6 +13,8 @@ require (
 	github.com/lufia/iostat v1.2.0
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/wifi v0.0.0-20200527114002-84f0b9457fdd
+	github.com/montanaflynn/stats v0.6.6
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.32.1
@@ -21,7 +23,9 @@ require (
 	github.com/safchain/ethtool v0.1.0
 	github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 // indirect
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
-	golang.org/x/sys v0.0.0-20211117180635-dee7805ff2e1
+	github.com/stretchr/testify v1.4.0
+	github.com/tklauser/go-sysconf v0.3.10
+	golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 

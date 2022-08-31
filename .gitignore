@@ -39,5 +39,9 @@ collector/fixtures/sys/
 
 # upstream updating dev test
 percona/tests/upstream_update/metrics.upstream.txt
-percona/tests/upstream_update/metrics.percona.no-values.txt
-percona/tests/upstream_update/metrics.upstream.no-values.txt
+/percona/tests/upstream_update/assets/metrics.names.new.txt
+/percona/tests/upstream_update/assets/metrics.names.old.txt
+/percona/tests/upstream_update/assets/metrics.new.txt
+/percona/tests/upstream_update/assets/metrics.old.txt
+/percona/tests/upstream_update/assets/node_exporter
+/percona/tests/upstream_update/assets/node_exporter_percona
