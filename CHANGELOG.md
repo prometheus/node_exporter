@@ -354,7 +354,7 @@ Other breaking changes:
 * [CHANGE] Greatly reduce the metrics vmstat returns by default. #874
 * [CHANGE] Greatly trim what netstat collector exposes by default #876
 * [CHANGE] Drop `exec_` prefix and move `node_boot_time_seconds` from `exec` to new `boottime` collector and enable for Darwin/Dragonfly/FreeBSD/NetBSD/OpenBSD. #839, #901
-* [CHANGE] Remove depreated gmond collector #852
+* [CHANGE] Remove deprecated gmond collector #852
 * [CHANGE] align Darwin disk stat names with Linux #930
 * [FEATURE] Add `collect[]` parameter #699
 * [FEATURE] Add text collector conversion for ipmitool output. #746
@@ -422,7 +422,7 @@ Windows support is now removed, the [wmi_exporter](https://github.com/martinlind
 * [FEATURE] Add bcache collector for Linux #597
 * [FEATURE] Add parsing /proc/net/snmp6 file for Linux #615
 * [FEATURE] Add timex collector for Linux #664
-* [ENHANCEMENT] Include overal health status in smartmon.sh example script #546
+* [ENHANCEMENT] Include overall health status in smartmon.sh example script #546
 * [ENHANCEMENT] Include `guest_nice` in CPU collector #554
 * [ENHANCEMENT] Add exec_boot_time for freebsd, dragonfly #550
 * [ENHANCEMENT] Get full resolution for node_time #555
