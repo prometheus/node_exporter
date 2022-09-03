@@ -50,17 +50,19 @@ const (
 )
 
 var (
-	factories              = make(map[string]func(logger log.Logger) (Collector, error))
-	initiatedCollectorsMtx = sync.Mutex{}
-	initiatedCollectors    = make(map[string]Collector)
-	collectorState         = make(map[string]*bool)
-	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	factories                = make(map[string]func(logger log.Logger) (Collector, error))
+	initiatedCollectorsMtx   = sync.Mutex{}
+	initiatedCollectors      = make(map[string]Collector)
+	collectorState           = make(map[string]*bool)
+	forcedCollectors         = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	defaultEnabledCollectors = map[string]bool{} // collectors all default enabled collectors
 )
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(logger log.Logger) (Collector, error)) {
 	var helpDefaultState string
 	if isDefaultEnabled {
 		helpDefaultState = "enabled"
+		defaultEnabledCollectors[collector] = true
 	} else {
 		helpDefaultState = "disabled"
 	}
@@ -87,6 +89,16 @@ func DisableDefaultCollectors() {
 	for c := range collectorState {
 		if _, ok := forcedCollectors[c]; !ok {
 			*collectorState[c] = false
+		}
+	}
+}
+
+// EnableDefaultCollectors sets the collector state to true for all collectors which
+// have not been explicitly enabled on the command line.
+func EnableDefaultCollectors() {
+	for c := range collectorState {
+		if _, ok := defaultEnabledCollectors[c]; ok {
+			*collectorState[c] = true
 		}
 	}
 }
