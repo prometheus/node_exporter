@@ -159,7 +159,7 @@ func main() {
 			"collector.disable-defaults",
 			"Set all collectors to disabled by default.",
 		).Default("false").Bool()
-		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine)
+		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, 9100)
 	)
 
 	promlogConfig := &promlog.Config{}
