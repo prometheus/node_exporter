@@ -1,7 +1,7 @@
 ---
 version: 2.1
 orbs:
-  prometheus: prometheus/prometheus@0.16.0
+  prometheus: "null"
 executors:
   # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
   # should also be updated.
@@ -12,7 +12,6 @@ executors:
     machine:
       image: ubuntu-2004:current
     resource_class: arm.medium
-
 jobs:
   test:
     executor: golang
