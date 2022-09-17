@@ -17,16 +17,21 @@
 package collector
 
 import (
+	"bytes"
 	"errors"
-	"fmt"
 	"math"
+	"os/exec"
+	"regexp"
 	"strconv"
+	"strings"
 	"unsafe"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"howett.net/plist"
 )
 
 type clockinfo struct {
@@ -43,6 +48,35 @@ type cputime struct {
 	sys  float64
 	intr float64
 	idle float64
+}
+
+func getCPUTemperatures() (map[int]float64, error) {
+	out, err := exec.Command("envstat", "-x").Output()
+	if err != nil {
+		return nil, errors.New("envstat not found or not executable")
+	}
+
+	var data map[string]interface{}
+	decoder := plist.NewDecoder(bytes.NewReader(out))
+	err = decoder.Decode(&data)
+	if err != nil {
+		return nil, errors.New("envstat output could not be decoded")
+	}
+
+	temperatures := make(map[int]float64)
+	for device, _ := range data {
+		if strings.HasPrefix(device, "coretemp") {
+			sensor := data[device].([]interface{})[0]
+			currentValue := sensor.(map[string]interface{})["cur-value"]
+			description := sensor.(map[string]interface{})["description"]
+			re := regexp.MustCompile("^cpu([0-9]+) temperature$")
+			core := re.FindStringSubmatch(description.(string))[1]
+			temp := ((float64(uint64(currentValue.(uint64)))) / 1000000) - 273.15
+			ncore, _ := strconv.Atoi(core)
+			temperatures[ncore] = temp
+		}
+	}
+	return temperatures, nil
 }
 
 func getCPUTimes() ([]cputime, error) {
@@ -135,6 +169,12 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return err
 	}
+
+	cpuTemperatures, err := getCPUTemperatures()
+	if err != nil {
+		return err
+	}
+
 	for cpu, t := range cpuTimes {
 		lcpu := strconv.Itoa(cpu)
 		ch <- c.cpu.mustNewConstMetric(float64(t.user), lcpu, "user")
@@ -143,35 +183,12 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.cpu.mustNewConstMetric(float64(t.intr), lcpu, "interrupt")
 		ch <- c.cpu.mustNewConstMetric(float64(t.idle), lcpu, "idle")
 
-		temp, err := unix.SysctlUint32(fmt.Sprintf("dev.cpu.%d.temperature", cpu))
-		if err != nil {
-			if err == unix.ENOENT {
-				// No temperature information for this CPU
-				level.Debug(c.logger).Log("msg", "no temperature information for CPU", "cpu", cpu)
-			} else {
-				// Unexpected error
-				ch <- c.temp.mustNewConstMetric(math.NaN(), lcpu)
-				level.Error(c.logger).Log("msg", "failed to query CPU temperature for CPU", "cpu", cpu, "err", err)
-			}
-			continue
+		if temp, ok := cpuTemperatures[cpu]; ok {
+			ch <- c.temp.mustNewConstMetric(temp, lcpu)
+		} else {
+			level.Debug(c.logger).Log("msg", "no temperature information for CPU", "cpu", cpu)
+			ch <- c.temp.mustNewConstMetric(math.NaN(), lcpu)
 		}
-
-		// Temp is a signed integer in deci-degrees Kelvin.
-		// Cast uint32 to int32 and convert to float64 degrees Celsius.
-		//
-		// 2732 is used as the conversion constant for deci-degrees
-		// Kelvin, in multiple places in the kernel that feed into this
-		// sysctl, so we want to maintain consistency:
-		//
-		// sys/dev/amdtemp/amdtemp.c
-		//   #define AMDTEMP_ZERO_C_TO_K 2732
-		//
-		// sys/dev/acpica/acpi_thermal.c
-		//   #define TZ_ZEROC            2732
-		//
-		// sys/dev/coretemp/coretemp.c
-		//   #define TZ_ZEROC            2732
-		ch <- c.temp.mustNewConstMetric(float64(int32(temp)-2732)/10, lcpu)
 	}
 	return err
 }
