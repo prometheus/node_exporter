@@ -95,91 +95,51 @@ func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
 
-		if ifaceInfo.AddrAssignType != nil {
-			pushMetric(ch, c.subsystem, "address_assign_type", *ifaceInfo.AddrAssignType, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.Carrier != nil {
-			pushMetric(ch, c.subsystem, "carrier", *ifaceInfo.Carrier, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.CarrierChanges != nil {
-			pushMetric(ch, c.subsystem, "carrier_changes_total", *ifaceInfo.CarrierChanges, ifaceInfo.Name, prometheus.CounterValue)
-		}
-
-		if ifaceInfo.CarrierUpCount != nil {
-			pushMetric(ch, c.subsystem, "carrier_up_changes_total", *ifaceInfo.CarrierUpCount, ifaceInfo.Name, prometheus.CounterValue)
-		}
-
-		if ifaceInfo.CarrierDownCount != nil {
-			pushMetric(ch, c.subsystem, "carrier_down_changes_total", *ifaceInfo.CarrierDownCount, ifaceInfo.Name, prometheus.CounterValue)
-		}
-
-		if ifaceInfo.DevID != nil {
-			pushMetric(ch, c.subsystem, "device_id", *ifaceInfo.DevID, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.Dormant != nil {
-			pushMetric(ch, c.subsystem, "dormant", *ifaceInfo.Dormant, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.Flags != nil {
-			pushMetric(ch, c.subsystem, "flags", *ifaceInfo.Flags, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.IfIndex != nil {
-			pushMetric(ch, c.subsystem, "iface_id", *ifaceInfo.IfIndex, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.IfLink != nil {
-			pushMetric(ch, c.subsystem, "iface_link", *ifaceInfo.IfLink, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.LinkMode != nil {
-			pushMetric(ch, c.subsystem, "iface_link_mode", *ifaceInfo.LinkMode, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.MTU != nil {
-			pushMetric(ch, c.subsystem, "mtu_bytes", *ifaceInfo.MTU, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.NameAssignType != nil {
-			pushMetric(ch, c.subsystem, "name_assign_type", *ifaceInfo.NameAssignType, ifaceInfo.Name, prometheus.GaugeValue)
-		}
-
-		if ifaceInfo.NetDevGroup != nil {
-			pushMetric(ch, c.subsystem, "net_dev_group", *ifaceInfo.NetDevGroup, ifaceInfo.Name, prometheus.GaugeValue)
-		}
+		pushMetric(ch, c.getFieldDesc("address_assign_type"), "address_assign_type", ifaceInfo.AddrAssignType, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier"), "carrier", ifaceInfo.Carrier, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier_changes_total"), "carrier_changes_total", ifaceInfo.CarrierChanges, prometheus.CounterValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier_up_changes_total"), "carrier_up_changes_total", ifaceInfo.CarrierUpCount, prometheus.CounterValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier_down_changes_total"), "carrier_down_changes_total", ifaceInfo.CarrierDownCount, prometheus.CounterValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("device_id"), "device_id", ifaceInfo.DevID, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("dormant"), "dormant", ifaceInfo.Dormant, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("flags"), "flags", ifaceInfo.Flags, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("iface_id"), "iface_id", ifaceInfo.IfIndex, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("iface_link"), "iface_link", ifaceInfo.IfLink, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("iface_link_mode"), "iface_link_mode", ifaceInfo.LinkMode, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("mtu_bytes"), "mtu_bytes", ifaceInfo.MTU, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("name_assign_type"), "name_assign_type", ifaceInfo.NameAssignType, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("net_dev_group"), "net_dev_group", ifaceInfo.NetDevGroup, prometheus.GaugeValue, ifaceInfo.Name)
 
 		if ifaceInfo.Speed != nil {
 			// Some devices return -1 if the speed is unknown.
 			if *ifaceInfo.Speed >= 0 || !*netclassInvalidSpeed {
 				speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
-				pushMetric(ch, c.subsystem, "speed_bytes", speedBytes, ifaceInfo.Name, prometheus.GaugeValue)
+				pushMetric(ch, c.getFieldDesc("speed_bytes"), "speed_bytes", speedBytes, prometheus.GaugeValue, ifaceInfo.Name)
 			}
 		}
 
-		if ifaceInfo.TxQueueLen != nil {
-			pushMetric(ch, c.subsystem, "transmit_queue_length", *ifaceInfo.TxQueueLen, ifaceInfo.Name, prometheus.GaugeValue)
-		}
+		pushMetric(ch, c.getFieldDesc("transmit_queue_length"), "transmit_queue_length", ifaceInfo.TxQueueLen, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("protocol_type"), "protocol_type", ifaceInfo.Type, prometheus.GaugeValue, ifaceInfo.Name)
 
-		if ifaceInfo.Type != nil {
-			pushMetric(ch, c.subsystem, "protocol_type", *ifaceInfo.Type, ifaceInfo.Name, prometheus.GaugeValue)
-		}
 	}
 
 	return nil
 }
 
-func pushMetric(ch chan<- prometheus.Metric, subsystem string, name string, value int64, ifaceName string, valueType prometheus.ValueType) {
-	fieldDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystem, name),
-		fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
-		[]string{"device"},
-		nil,
-	)
+func (c *netClassCollector) getFieldDesc(name string) *prometheus.Desc {
+	fieldDesc, exists := c.metricDescs[name]
 
-	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, float64(value), ifaceName)
+	if !exists {
+		fieldDesc = prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, name),
+			fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
+			[]string{"device"},
+			nil,
+		)
+		c.metricDescs[name] = fieldDesc
+	}
+
+	return fieldDesc
 }
 
 func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
