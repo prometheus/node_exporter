@@ -102,15 +102,15 @@ type btrfsIoctlFsStats struct {
 
 func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) {
 	// Instead of introducing more ioctl calls to scan for all btrfs
-	// filesytems re-use our mount point utils to find known mounts
+	// filesystems re-use our mount point utils to find known mounts
 	mountsList, err := mountPointDetails(c.logger)
 	if err != nil {
 		return nil, err
 	}
 
-	// track devices we have successfully scanned, by device path
+	// Track devices we have successfully scanned, by device path.
 	devicesDone := make(map[string]struct{})
-	// filesystems scann results by UUID
+	// Filesystems scann results by UUID.
 	fsStats := make(map[string]*btrfsIoctlFsStats)
 
 	for _, mount := range mountsList {
@@ -119,14 +119,14 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 		}
 
 		if _, found := devicesDone[mount.device]; found {
-			// We already found this filesystem by another mount point
+			// We already found this filesystem by another mount point.
 			continue
 		}
 
 		fs, err := dennwc.Open(mount.mountPoint, true)
 		if err != nil {
-			// failed to open this mount point, maybe we didn't have permission
-			// maybe we'll find another mount point for this FS later
+			// Failed to open this mount point, maybe we didn't have permission
+			// maybe we'll find another mount point for this FS later.
 			level.Debug(c.logger).Log(
 				"msg", "Error inspecting btrfs mountpoint",
 				"mountPoint", mount.mountPoint,
@@ -178,7 +178,7 @@ func (c *btrfsCollector) getIoctlDeviceStats(fs *dennwc.FS, fsInfo *dennwc.Info)
 
 		if err != nil {
 			if errno, ok := err.(syscall.Errno); ok && errno == syscall.ENODEV {
-				// device IDs do not consistently start at 0, nor are ranges contiguous, so we expect this
+				// Device IDs do not consistently start at 0, nor are ranges contiguous, so we expect this.
 				continue
 			}
 			return nil, err
