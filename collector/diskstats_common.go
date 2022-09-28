@@ -33,9 +33,20 @@ const (
 var (
 	diskLabelNames = []string{"device"}
 
-	diskstatsDeviceExclude    = kingpin.Flag("collector.diskstats.device-exclude", "Regexp of diskstats devices to exclude (mutually exclusive to device-include).").Default(diskstatsDefaultIgnoredDevices).String()
-	oldDiskstatsDeviceExclude = kingpin.Flag("collector.diskstats.ignored-devices", "DEPRECATED: Use collector.diskstats.device-exclude").String()
-	diskstatsDeviceInclude    = kingpin.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
+	diskstatsDeviceExcludeSet bool
+	diskstatsDeviceExclude    = kingpin.Flag(
+		"collector.diskstats.device-exclude",
+		"Regexp of diskstats devices to exclude (mutually exclusive to device-include).",
+	).Default(diskstatsDefaultIgnoredDevices).PreAction(func(c *kingpin.ParseContext) error {
+		diskstatsDeviceExcludeSet = true
+		return nil
+	}).String()
+	oldDiskstatsDeviceExclude = kingpin.Flag(
+		"collector.diskstats.ignored-devices",
+		"DEPRECATED: Use collector.diskstats.device-exclude",
+	).Hidden().String()
+
+	diskstatsDeviceInclude = kingpin.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
 
 	readsCompletedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
@@ -84,7 +95,7 @@ var (
 
 func newDiskstatsDeviceFilter(logger log.Logger) (deviceFilter, error) {
 	if *oldDiskstatsDeviceExclude != "" {
-		if *diskstatsDeviceExclude == "" {
+		if !diskstatsDeviceExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
 			*diskstatsDeviceExclude = *oldDiskstatsDeviceExclude
 		} else {
