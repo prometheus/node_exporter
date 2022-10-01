@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/beevik/ntp v0.3.0
-	github.com/coreos/go-systemd/v22 v22.3.2
+	github.com/coreos/go-systemd/v22 v22.4.0
 	github.com/dennwc/btrfs v0.0.0-20220403080356-b3db0b2dedac
 	github.com/ema/qdisc v0.0.0-20200603082823-62d0308e3e00
 	github.com/go-kit/log v0.2.1
