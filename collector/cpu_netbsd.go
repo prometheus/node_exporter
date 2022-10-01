@@ -17,11 +17,10 @@
 package collector
 
 import (
-	"bytes"
 	"errors"
 	"math"
-	"os/exec"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -50,33 +49,115 @@ type cputime struct {
 	idle float64
 }
 
-func getCPUTemperatures() (map[int]float64, error) {
-	out, err := exec.Command("envstat", "-x").Output()
+type plistref struct {
+	pref_plist unsafe.Pointer
+	pref_len   uint64
+}
+
+type values struct {
+	CurValue    int    `plist:"cur-value"`
+	Description string `plist:"description"`
+	State       string `plist:"state"`
+	Type        string `plist:"type"`
+}
+
+type prop []values
+
+type props map[string]prop
+
+func readBytes(ptr unsafe.Pointer, length uint64) []byte {
+	buf := make([]byte, length-1)
+	var i uint64
+	for ; i < length-1; i++ {
+		buf[i] = *(*byte)(unsafe.Pointer(uintptr(ptr) + uintptr(i)))
+	}
+	return buf
+}
+
+func ioctl(fd int, nr int64, typ byte, size uintptr, retptr unsafe.Pointer) error {
+	_, _, errno := unix.Syscall(
+		unix.SYS_IOCTL,
+		uintptr(fd),
+		// Some magicks derived from sys/ioccom.h.
+		uintptr((0x40000000|0x80000000)|
+			((int64(size)&(1<<13-1))<<16)|
+			(int64(typ)<<8)|
+			nr,
+		),
+		uintptr(retptr),
+	)
+	if errno != 0 {
+		return errno
+	}
+	return nil
+}
+
+func readProps() (props, error) {
+	fd, err := unix.Open("/dev/sysmon", unix.O_RDONLY, 0777)
 	if err != nil {
-		return nil, errors.New("envstat not found or not executable")
+		return nil, err
+	}
+	defer unix.Close(fd)
+
+	var retptr plistref
+
+	if err = ioctl(fd, 0, 'E', unsafe.Sizeof(retptr), unsafe.Pointer(&retptr)); err != nil {
+		return nil, err
 	}
 
-	var data map[string]interface{}
-	decoder := plist.NewDecoder(bytes.NewReader(out))
-	err = decoder.Decode(&data)
-	if err != nil {
-		return nil, errors.New("envstat output could not be decoded")
-	}
+	bytes := readBytes(retptr.pref_plist, retptr.pref_len)
 
-	temperatures := make(map[int]float64)
-	for device, _ := range data {
-		if strings.HasPrefix(device, "coretemp") {
-			sensor := data[device].([]interface{})[0]
-			currentValue := sensor.(map[string]interface{})["cur-value"]
-			description := sensor.(map[string]interface{})["description"]
-			re := regexp.MustCompile("^cpu([0-9]+) temperature$")
-			core := re.FindStringSubmatch(description.(string))[1]
-			temp := ((float64(uint64(currentValue.(uint64)))) / 1000000) - 273.15
-			ncore, _ := strconv.Atoi(core)
-			temperatures[ncore] = temp
+	var props props
+	if _, err = plist.Unmarshal(bytes, &props); err != nil {
+		return nil, err
+	}
+	return props, nil
+}
+
+func sortFilterProps(props props, prefix string) []string {
+	var keys []string
+	for key := range props {
+		if !strings.HasPrefix(key, prefix) {
+			continue
 		}
+		keys = append(keys, key)
 	}
-	return temperatures, nil
+	sort.Strings(keys)
+	return keys
+}
+
+func convertTemperatures(prop prop, res map[int]float64) error {
+
+	for _, val := range prop {
+		if val.State == "invalid" || val.State == "unknown" || val.State == "" {
+			continue
+		}
+
+		re := regexp.MustCompile("^cpu([0-9]+) temperature$")
+		core := re.FindStringSubmatch(val.Description)[1]
+		ncore, _ := strconv.Atoi(core)
+		temperature := ((float64(uint64(val.CurValue))) / 1000000) - 273.15
+		res[ncore] = temperature
+	}
+	return nil
+}
+
+func getCPUTemperatures() (map[int]float64, error) {
+
+	res := make(map[int]float64)
+
+	// Read all properties
+	props, err := readProps()
+	if err != nil {
+		return res, err
+	}
+
+	keys := sortFilterProps(props, "coretemp")
+	for idx, _ := range keys {
+		convertTemperatures(props[keys[idx]], res)
+	}
+
+	return res, nil
 }
 
 func getCPUTimes() ([]cputime, error) {
@@ -157,8 +238,9 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	// We want time spent per-cpu per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// Order: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR
-	// sysctl kern.cp_times provides hw.ncpu * CPUSTATES long integers:
-	//   hw.ncpu * (space-separated list of the above variables)
+	// sysctl kern.cp_time.x provides CPUSTATES long integers:
+	//  (space-separated list of the above variables, where
+	//   x stands for the number of the CPU core)
 	//
 	// Each value is a counter incremented at frequency
 	//   kern.clockrate.(stathz | hz)
