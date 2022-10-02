@@ -482,7 +482,7 @@ local table = grafana70.panel.table;
         '%sNodes' % config.dashboardNamePrefix,
         time_from='now-1h',
         tags=(config.dashboardTags),
-        timezone='utc',
+        timezone=config.dashboardTimezone,
         refresh='30s',
         graphTooltip='shared_crosshair'
       )
@@ -493,7 +493,7 @@ local table = grafana70.panel.table;
         '%sMacOS' % config.dashboardNamePrefix,
         time_from='now-1h',
         tags=(config.dashboardTags),
-        timezone='utc',
+        timezone=config.dashboardTimezone,
         refresh='30s',
         graphTooltip='shared_crosshair'
       )
