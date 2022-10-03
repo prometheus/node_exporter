@@ -23,9 +23,10 @@ import (
 
 var (
 	// The path of the proc filesystem.
-	procPath   = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
-	sysPath    = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
-	rootfsPath = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
+	procPath     = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
+	sysPath      = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
+	rootfsPath   = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
+	udevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
 )
 
 func procFilePath(name string) string {
@@ -38,6 +39,10 @@ func sysFilePath(name string) string {
 
 func rootfsFilePath(name string) string {
 	return filepath.Join(*rootfsPath, name)
+}
+
+func udevDataFilePath(name string) string {
+	return filepath.Join(*udevDataPath, name)
 }
 
 func rootfsStripPrefix(path string) string {

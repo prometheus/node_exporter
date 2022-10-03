@@ -12,8 +12,6 @@
 # TYPE go_memstats_buck_hash_sys_bytes gauge
 # HELP go_memstats_frees_total Total number of frees.
 # TYPE go_memstats_frees_total counter
-# HELP go_memstats_gc_cpu_fraction The fraction of this program's available CPU time used by the GC since the program started.
-# TYPE go_memstats_gc_cpu_fraction gauge
 # HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
 # TYPE go_memstats_gc_sys_bytes gauge
 # HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
@@ -238,6 +236,34 @@ node_buddyinfo_blocks{node="0",size="8",zone="Normal"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="DMA"} 1
 node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
+# HELP node_cgroups_cgroups Current cgroup number of the subsystem.
+# TYPE node_cgroups_cgroups gauge
+node_cgroups_cgroups{subsys_name="blkio"} 170
+node_cgroups_cgroups{subsys_name="cpu"} 172
+node_cgroups_cgroups{subsys_name="cpuacct"} 172
+node_cgroups_cgroups{subsys_name="cpuset"} 47
+node_cgroups_cgroups{subsys_name="devices"} 170
+node_cgroups_cgroups{subsys_name="freezer"} 47
+node_cgroups_cgroups{subsys_name="hugetlb"} 47
+node_cgroups_cgroups{subsys_name="memory"} 234
+node_cgroups_cgroups{subsys_name="net_cls"} 47
+node_cgroups_cgroups{subsys_name="perf_event"} 47
+node_cgroups_cgroups{subsys_name="pids"} 170
+node_cgroups_cgroups{subsys_name="rdma"} 1
+# HELP node_cgroups_enabled Current cgroup number of the subsystem.
+# TYPE node_cgroups_enabled gauge
+node_cgroups_enabled{subsys_name="blkio"} 1
+node_cgroups_enabled{subsys_name="cpu"} 1
+node_cgroups_enabled{subsys_name="cpuacct"} 1
+node_cgroups_enabled{subsys_name="cpuset"} 1
+node_cgroups_enabled{subsys_name="devices"} 1
+node_cgroups_enabled{subsys_name="freezer"} 1
+node_cgroups_enabled{subsys_name="hugetlb"} 1
+node_cgroups_enabled{subsys_name="memory"} 1
+node_cgroups_enabled{subsys_name="net_cls"} 1
+node_cgroups_enabled{subsys_name="perf_event"} 1
+node_cgroups_enabled{subsys_name="pids"} 1
+node_cgroups_enabled{subsys_name="rdma"} 1
 # HELP node_context_switches_total Total number of context switches.
 # TYPE node_context_switches_total counter
 node_context_switches_total 3.8014093e+07
@@ -293,6 +319,13 @@ node_cpu_info{cachesize="8192 KB",core="2",cpu="2",family="6",microcode="0xb4",m
 node_cpu_info{cachesize="8192 KB",core="2",cpu="6",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="3",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
 node_cpu_info{cachesize="8192 KB",core="3",cpu="7",family="6",microcode="0xb4",model="142",model_name="Intel(R) Core(TM) i7-8650U CPU @ 1.90GHz",package="0",stepping="10",vendor="GenuineIntel"} 1
+# HELP node_cpu_isolated Whether each core is isolated, information from /sys/devices/system/cpu/isolated.
+# TYPE node_cpu_isolated gauge
+node_cpu_isolated{cpu="1"} 1
+node_cpu_isolated{cpu="3"} 1
+node_cpu_isolated{cpu="4"} 1
+node_cpu_isolated{cpu="5"} 1
+node_cpu_isolated{cpu="9"} 1
 # HELP node_cpu_package_throttles_total Number of times this CPU package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30
@@ -381,6 +414,29 @@ node_cpu_seconds_total{cpu="7",mode="softirq"} 0.31
 node_cpu_seconds_total{cpu="7",mode="steal"} 0
 node_cpu_seconds_total{cpu="7",mode="system"} 101.64
 node_cpu_seconds_total{cpu="7",mode="user"} 290.98
+# HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
+# TYPE node_disk_ata_rotation_rate_rpm gauge
+node_disk_ata_rotation_rate_rpm{device="sda"} 7200
+node_disk_ata_rotation_rate_rpm{device="sdb"} 0
+node_disk_ata_rotation_rate_rpm{device="sdc"} 0
+# HELP node_disk_ata_write_cache ATA disk has a write cache.
+# TYPE node_disk_ata_write_cache gauge
+node_disk_ata_write_cache{device="sda"} 1
+node_disk_ata_write_cache{device="sdb"} 1
+node_disk_ata_write_cache{device="sdc"} 1
+# HELP node_disk_ata_write_cache_enabled ATA disk has its write cache enabled.
+# TYPE node_disk_ata_write_cache_enabled gauge
+node_disk_ata_write_cache_enabled{device="sda"} 0
+node_disk_ata_write_cache_enabled{device="sdb"} 1
+node_disk_ata_write_cache_enabled{device="sdc"} 0
+# HELP node_disk_device_mapper_info Info about disk device mapper.
+# TYPE node_disk_device_mapper_info gauge
+node_disk_device_mapper_info{device="dm-0",lv_layer="",lv_name="",name="nvme0n1_crypt",uuid="CRYPT-LUKS2-jolaulot80fy9zsiobkxyxo7y2dqeho2-nvme0n1_crypt",vg_name=""} 1
+node_disk_device_mapper_info{device="dm-1",lv_layer="",lv_name="swap_1",name="system-swap_1",uuid="LVM-wbGqQEBL9SxrW2DLntJwgg8fAv946hw3Tvjqh0v31fWgxEtD4BoHO0lROWFUY65T",vg_name="system"} 1
+node_disk_device_mapper_info{device="dm-2",lv_layer="",lv_name="root",name="system-root",uuid="LVM-NWEDo8q5ABDyJuC3F8veKNyWfYmeIBfFMS4MF3HakzUhkk7ekDm6fJTHkl2fYHe7",vg_name="system"} 1
+node_disk_device_mapper_info{device="dm-3",lv_layer="",lv_name="var",name="system-var",uuid="LVM-hrxHo0rlZ6U95ku5841Lpd17bS1Z7V7lrtEE60DVgE6YEOCdS9gcDGyonWim4hGP",vg_name="system"} 1
+node_disk_device_mapper_info{device="dm-4",lv_layer="",lv_name="tmp",name="system-tmp",uuid="LVM-XTNGOHjPWLHcxmJmVu5cWTXEtuzqDeBkdEHAZW5q9LxWQ2d4mb5CchUQzUPJpl8H",vg_name="system"} 1
+node_disk_device_mapper_info{device="dm-5",lv_layer="",lv_name="home",name="system-home",uuid="LVM-MtoJaWTpjWRXlUnNFlpxZauTEuYlMvGFutigEzCCrfj8CNh6jCRi5LQJXZCpLjPf",vg_name="system"} 1
 # HELP node_disk_discard_time_seconds_total This is the total number of seconds spent by all discards.
 # TYPE node_disk_discard_time_seconds_total counter
 node_disk_discard_time_seconds_total{device="sdb"} 11.13
@@ -397,6 +453,18 @@ node_disk_discards_completed_total{device="sdc"} 18851
 # TYPE node_disk_discards_merged_total counter
 node_disk_discards_merged_total{device="sdb"} 0
 node_disk_discards_merged_total{device="sdc"} 0
+# HELP node_disk_filesystem_info Info about disk filesystem.
+# TYPE node_disk_filesystem_info gauge
+node_disk_filesystem_info{device="dm-0",type="LVM2_member",usage="raid",uuid="c3C3uW-gD96-Yw69-c1CJ-5MwT-6ysM-mST0vB",version="LVM2 001"} 1
+node_disk_filesystem_info{device="dm-1",type="swap",usage="other",uuid="5272bb60-04b5-49cd-b730-be57c7604450",version="1"} 1
+node_disk_filesystem_info{device="dm-2",type="ext4",usage="filesystem",uuid="3deafd0d-faff-4695-8d15-51061ae1f51b",version="1.0"} 1
+node_disk_filesystem_info{device="dm-3",type="ext4",usage="filesystem",uuid="5c772222-f7d4-4c8e-87e8-e97df6b7a45e",version="1.0"} 1
+node_disk_filesystem_info{device="dm-4",type="ext4",usage="filesystem",uuid="a9479d44-60e1-4015-a1e5-bb065e6dd11b",version="1.0"} 1
+node_disk_filesystem_info{device="dm-5",type="ext4",usage="filesystem",uuid="b05b726a-c718-4c4d-8641-7c73a7696d83",version="1.0"} 1
+node_disk_filesystem_info{device="mmcblk0p1",type="vfat",usage="filesystem",uuid="6284-658D",version="FAT32"} 1
+node_disk_filesystem_info{device="mmcblk0p2",type="ext4",usage="filesystem",uuid="83324ce8-a6f3-4e35-ad64-dbb3d6b87a32",version="1.0"} 1
+node_disk_filesystem_info{device="sda",type="LVM2_member",usage="raid",uuid="cVVv6j-HSA2-IY33-1Jmj-dO2H-YL7w-b4Oxqw",version="LVM2 001"} 1
+node_disk_filesystem_info{device="sdc",type="LVM2_member",usage="raid",uuid="QFy9W7-Brj3-hQ6v-AF8i-3Zqg-n3Vs-kGY4vb",version="LVM2 001"} 1
 # HELP node_disk_flush_requests_time_seconds_total This is the total number of seconds spent by all flush requests.
 # TYPE node_disk_flush_requests_time_seconds_total counter
 node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
@@ -405,21 +473,21 @@ node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
 node_disk_flush_requests_total{device="sdc"} 1555
 # HELP node_disk_info Info of /sys/block/<block_device>.
 # TYPE node_disk_info gauge
-node_disk_info{device="dm-0",major="252",minor="0"} 1
-node_disk_info{device="dm-1",major="252",minor="1"} 1
-node_disk_info{device="dm-2",major="252",minor="2"} 1
-node_disk_info{device="dm-3",major="252",minor="3"} 1
-node_disk_info{device="dm-4",major="252",minor="4"} 1
-node_disk_info{device="dm-5",major="252",minor="5"} 1
-node_disk_info{device="mmcblk0",major="179",minor="0"} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1"} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2"} 1
-node_disk_info{device="nvme0n1",major="259",minor="0"} 1
-node_disk_info{device="sda",major="8",minor="0"} 1
-node_disk_info{device="sdb",major="8",minor="0"} 1
-node_disk_info{device="sdc",major="8",minor="0"} 1
-node_disk_info{device="sr0",major="11",minor="0"} 1
-node_disk_info{device="vda",major="254",minor="0"} 1
+node_disk_info{device="dm-0",major="252",minor="0",model="",path="",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-1",major="252",minor="1",model="",path="",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
+node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
+node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
+node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
+node_disk_info{device="sdc",major="8",minor="32",model="INTEL_SSDS9X9SI0",path="pci-0000:00:1f.2-ata-4",revision="0100",serial="3EWB5Y25CWQWA7EH1U",wwn="0x58907ddc573a5de"} 1
+node_disk_info{device="sr0",major="11",minor="0",model="Virtual_CDROM0",path="pci-0000:00:14.0-usb-0:1.1:1.0-scsi-0:0:0:0",revision="1.00",serial="AAAABBBBCCCC1",wwn=""} 1
+node_disk_info{device="vda",major="254",minor="0",model="",path="pci-0000:00:06.0",revision="",serial="",wwn=""} 1
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -2375,199 +2443,54 @@ node_network_protocol_type{device="bond0"} 1
 node_network_protocol_type{device="eth0"} 1
 # HELP node_network_receive_bytes_total Network device statistic receive_bytes.
 # TYPE node_network_receive_bytes_total counter
-node_network_receive_bytes_total{device="docker0"} 6.4910168e+07
-node_network_receive_bytes_total{device="eth0"} 6.8210035552e+10
-node_network_receive_bytes_total{device="flannel.1"} 1.8144009813e+10
-node_network_receive_bytes_total{device="ibr10:30"} 0
-node_network_receive_bytes_total{device="lo"} 4.35303245e+08
-node_network_receive_bytes_total{device="lxcbr0"} 0
-node_network_receive_bytes_total{device="tun0"} 1888
-node_network_receive_bytes_total{device="veth4B09XN"} 648
-node_network_receive_bytes_total{device="wlan0"} 1.0437182923e+10
-node_network_receive_bytes_total{device="💩0"} 5.7750104e+07
 # HELP node_network_receive_compressed_total Network device statistic receive_compressed.
 # TYPE node_network_receive_compressed_total counter
-node_network_receive_compressed_total{device="docker0"} 0
-node_network_receive_compressed_total{device="eth0"} 0
-node_network_receive_compressed_total{device="flannel.1"} 0
-node_network_receive_compressed_total{device="ibr10:30"} 0
 node_network_receive_compressed_total{device="lo"} 0
-node_network_receive_compressed_total{device="lxcbr0"} 0
-node_network_receive_compressed_total{device="tun0"} 0
-node_network_receive_compressed_total{device="veth4B09XN"} 0
-node_network_receive_compressed_total{device="wlan0"} 0
-node_network_receive_compressed_total{device="💩0"} 0
 # HELP node_network_receive_drop_total Network device statistic receive_drop.
 # TYPE node_network_receive_drop_total counter
-node_network_receive_drop_total{device="docker0"} 0
-node_network_receive_drop_total{device="eth0"} 0
-node_network_receive_drop_total{device="flannel.1"} 0
-node_network_receive_drop_total{device="ibr10:30"} 0
 node_network_receive_drop_total{device="lo"} 0
-node_network_receive_drop_total{device="lxcbr0"} 0
-node_network_receive_drop_total{device="tun0"} 0
-node_network_receive_drop_total{device="veth4B09XN"} 0
-node_network_receive_drop_total{device="wlan0"} 0
-node_network_receive_drop_total{device="💩0"} 0
 # HELP node_network_receive_errs_total Network device statistic receive_errs.
 # TYPE node_network_receive_errs_total counter
-node_network_receive_errs_total{device="docker0"} 0
-node_network_receive_errs_total{device="eth0"} 0
-node_network_receive_errs_total{device="flannel.1"} 0
-node_network_receive_errs_total{device="ibr10:30"} 0
 node_network_receive_errs_total{device="lo"} 0
-node_network_receive_errs_total{device="lxcbr0"} 0
-node_network_receive_errs_total{device="tun0"} 0
-node_network_receive_errs_total{device="veth4B09XN"} 0
-node_network_receive_errs_total{device="wlan0"} 0
-node_network_receive_errs_total{device="💩0"} 0
 # HELP node_network_receive_fifo_total Network device statistic receive_fifo.
 # TYPE node_network_receive_fifo_total counter
-node_network_receive_fifo_total{device="docker0"} 0
-node_network_receive_fifo_total{device="eth0"} 0
-node_network_receive_fifo_total{device="flannel.1"} 0
-node_network_receive_fifo_total{device="ibr10:30"} 0
 node_network_receive_fifo_total{device="lo"} 0
-node_network_receive_fifo_total{device="lxcbr0"} 0
-node_network_receive_fifo_total{device="tun0"} 0
-node_network_receive_fifo_total{device="veth4B09XN"} 0
-node_network_receive_fifo_total{device="wlan0"} 0
-node_network_receive_fifo_total{device="💩0"} 0
 # HELP node_network_receive_frame_total Network device statistic receive_frame.
 # TYPE node_network_receive_frame_total counter
-node_network_receive_frame_total{device="docker0"} 0
-node_network_receive_frame_total{device="eth0"} 0
-node_network_receive_frame_total{device="flannel.1"} 0
-node_network_receive_frame_total{device="ibr10:30"} 0
 node_network_receive_frame_total{device="lo"} 0
-node_network_receive_frame_total{device="lxcbr0"} 0
-node_network_receive_frame_total{device="tun0"} 0
-node_network_receive_frame_total{device="veth4B09XN"} 0
-node_network_receive_frame_total{device="wlan0"} 0
-node_network_receive_frame_total{device="💩0"} 0
 # HELP node_network_receive_multicast_total Network device statistic receive_multicast.
 # TYPE node_network_receive_multicast_total counter
-node_network_receive_multicast_total{device="docker0"} 0
-node_network_receive_multicast_total{device="eth0"} 0
-node_network_receive_multicast_total{device="flannel.1"} 0
-node_network_receive_multicast_total{device="ibr10:30"} 0
 node_network_receive_multicast_total{device="lo"} 0
-node_network_receive_multicast_total{device="lxcbr0"} 0
-node_network_receive_multicast_total{device="tun0"} 0
-node_network_receive_multicast_total{device="veth4B09XN"} 0
-node_network_receive_multicast_total{device="wlan0"} 0
-node_network_receive_multicast_total{device="💩0"} 72
+# HELP node_network_receive_nohandler_total Network device statistic receive_nohandler.
+# TYPE node_network_receive_nohandler_total counter
+node_network_receive_nohandler_total{device="lo"} 0
 # HELP node_network_receive_packets_total Network device statistic receive_packets.
 # TYPE node_network_receive_packets_total counter
-node_network_receive_packets_total{device="docker0"} 1.065585e+06
-node_network_receive_packets_total{device="eth0"} 5.20993275e+08
-node_network_receive_packets_total{device="flannel.1"} 2.28499337e+08
-node_network_receive_packets_total{device="ibr10:30"} 0
-node_network_receive_packets_total{device="lo"} 1.832522e+06
-node_network_receive_packets_total{device="lxcbr0"} 0
-node_network_receive_packets_total{device="tun0"} 24
-node_network_receive_packets_total{device="veth4B09XN"} 8
-node_network_receive_packets_total{device="wlan0"} 1.3899359e+07
-node_network_receive_packets_total{device="💩0"} 105557
 # HELP node_network_speed_bytes speed_bytes value of /sys/class/net/<iface>.
 # TYPE node_network_speed_bytes gauge
 node_network_speed_bytes{device="eth0"} 1.25e+08
 # HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
 # TYPE node_network_transmit_bytes_total counter
-node_network_transmit_bytes_total{device="docker0"} 2.681662018e+09
-node_network_transmit_bytes_total{device="eth0"} 9.315587528e+09
-node_network_transmit_bytes_total{device="flannel.1"} 2.0758990068e+10
-node_network_transmit_bytes_total{device="ibr10:30"} 0
-node_network_transmit_bytes_total{device="lo"} 4.35303245e+08
-node_network_transmit_bytes_total{device="lxcbr0"} 2.630299e+06
-node_network_transmit_bytes_total{device="tun0"} 67120
-node_network_transmit_bytes_total{device="veth4B09XN"} 1.943284e+06
-node_network_transmit_bytes_total{device="wlan0"} 2.85164936e+09
-node_network_transmit_bytes_total{device="💩0"} 4.04570255e+08
 # HELP node_network_transmit_carrier_total Network device statistic transmit_carrier.
 # TYPE node_network_transmit_carrier_total counter
-node_network_transmit_carrier_total{device="docker0"} 0
-node_network_transmit_carrier_total{device="eth0"} 0
-node_network_transmit_carrier_total{device="flannel.1"} 0
-node_network_transmit_carrier_total{device="ibr10:30"} 0
 node_network_transmit_carrier_total{device="lo"} 0
-node_network_transmit_carrier_total{device="lxcbr0"} 0
-node_network_transmit_carrier_total{device="tun0"} 0
-node_network_transmit_carrier_total{device="veth4B09XN"} 0
-node_network_transmit_carrier_total{device="wlan0"} 0
-node_network_transmit_carrier_total{device="💩0"} 0
 # HELP node_network_transmit_colls_total Network device statistic transmit_colls.
 # TYPE node_network_transmit_colls_total counter
-node_network_transmit_colls_total{device="docker0"} 0
-node_network_transmit_colls_total{device="eth0"} 0
-node_network_transmit_colls_total{device="flannel.1"} 0
-node_network_transmit_colls_total{device="ibr10:30"} 0
 node_network_transmit_colls_total{device="lo"} 0
-node_network_transmit_colls_total{device="lxcbr0"} 0
-node_network_transmit_colls_total{device="tun0"} 0
-node_network_transmit_colls_total{device="veth4B09XN"} 0
-node_network_transmit_colls_total{device="wlan0"} 0
-node_network_transmit_colls_total{device="💩0"} 0
 # HELP node_network_transmit_compressed_total Network device statistic transmit_compressed.
 # TYPE node_network_transmit_compressed_total counter
-node_network_transmit_compressed_total{device="docker0"} 0
-node_network_transmit_compressed_total{device="eth0"} 0
-node_network_transmit_compressed_total{device="flannel.1"} 0
-node_network_transmit_compressed_total{device="ibr10:30"} 0
 node_network_transmit_compressed_total{device="lo"} 0
-node_network_transmit_compressed_total{device="lxcbr0"} 0
-node_network_transmit_compressed_total{device="tun0"} 0
-node_network_transmit_compressed_total{device="veth4B09XN"} 0
-node_network_transmit_compressed_total{device="wlan0"} 0
-node_network_transmit_compressed_total{device="💩0"} 0
 # HELP node_network_transmit_drop_total Network device statistic transmit_drop.
 # TYPE node_network_transmit_drop_total counter
-node_network_transmit_drop_total{device="docker0"} 0
-node_network_transmit_drop_total{device="eth0"} 0
-node_network_transmit_drop_total{device="flannel.1"} 64
-node_network_transmit_drop_total{device="ibr10:30"} 0
 node_network_transmit_drop_total{device="lo"} 0
-node_network_transmit_drop_total{device="lxcbr0"} 0
-node_network_transmit_drop_total{device="tun0"} 0
-node_network_transmit_drop_total{device="veth4B09XN"} 0
-node_network_transmit_drop_total{device="wlan0"} 0
-node_network_transmit_drop_total{device="💩0"} 0
 # HELP node_network_transmit_errs_total Network device statistic transmit_errs.
 # TYPE node_network_transmit_errs_total counter
-node_network_transmit_errs_total{device="docker0"} 0
-node_network_transmit_errs_total{device="eth0"} 0
-node_network_transmit_errs_total{device="flannel.1"} 0
-node_network_transmit_errs_total{device="ibr10:30"} 0
 node_network_transmit_errs_total{device="lo"} 0
-node_network_transmit_errs_total{device="lxcbr0"} 0
-node_network_transmit_errs_total{device="tun0"} 0
-node_network_transmit_errs_total{device="veth4B09XN"} 0
-node_network_transmit_errs_total{device="wlan0"} 0
-node_network_transmit_errs_total{device="💩0"} 0
 # HELP node_network_transmit_fifo_total Network device statistic transmit_fifo.
 # TYPE node_network_transmit_fifo_total counter
-node_network_transmit_fifo_total{device="docker0"} 0
-node_network_transmit_fifo_total{device="eth0"} 0
-node_network_transmit_fifo_total{device="flannel.1"} 0
-node_network_transmit_fifo_total{device="ibr10:30"} 0
 node_network_transmit_fifo_total{device="lo"} 0
-node_network_transmit_fifo_total{device="lxcbr0"} 0
-node_network_transmit_fifo_total{device="tun0"} 0
-node_network_transmit_fifo_total{device="veth4B09XN"} 0
-node_network_transmit_fifo_total{device="wlan0"} 0
-node_network_transmit_fifo_total{device="💩0"} 0
 # HELP node_network_transmit_packets_total Network device statistic transmit_packets.
 # TYPE node_network_transmit_packets_total counter
-node_network_transmit_packets_total{device="docker0"} 1.929779e+06
-node_network_transmit_packets_total{device="eth0"} 4.3451486e+07
-node_network_transmit_packets_total{device="flannel.1"} 2.58369223e+08
-node_network_transmit_packets_total{device="ibr10:30"} 0
-node_network_transmit_packets_total{device="lo"} 1.832522e+06
-node_network_transmit_packets_total{device="lxcbr0"} 28339
-node_network_transmit_packets_total{device="tun0"} 934
-node_network_transmit_packets_total{device="veth4B09XN"} 10640
-node_network_transmit_packets_total{device="wlan0"} 1.17262e+07
-node_network_transmit_packets_total{device="💩0"} 304261
 # HELP node_network_transmit_queue_length transmit_queue_length value of /sys/class/net/<iface>.
 # TYPE node_network_transmit_queue_length gauge
 node_network_transmit_queue_length{device="bond0"} 1000
@@ -2973,6 +2896,7 @@ node_scrape_collector_success{collector="bcache"} 1
 node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="btrfs"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
+node_scrape_collector_success{collector="cgroups"} 1
 node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
 node_scrape_collector_success{collector="cpufreq"} 1
@@ -3007,9 +2931,12 @@ node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="rapl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
+node_scrape_collector_success{collector="selinux"} 1
+node_scrape_collector_success{collector="slabinfo"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
+node_scrape_collector_success{collector="sysctl"} 1
 node_scrape_collector_success{collector="tapestats"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
@@ -3020,6 +2947,39 @@ node_scrape_collector_success{collector="wifi"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
 node_scrape_collector_success{collector="zoneinfo"} 1
+# HELP node_selinux_enabled SELinux is enabled, 1 is true, 0 is false
+# TYPE node_selinux_enabled gauge
+node_selinux_enabled 0
+# HELP node_slabinfo_active_objects The number of objects that are currently active (i.e., in use).
+# TYPE node_slabinfo_active_objects gauge
+node_slabinfo_active_objects{slab="dmaengine-unmap-128"} 1206
+node_slabinfo_active_objects{slab="kmalloc-8192"} 132
+node_slabinfo_active_objects{slab="kmem_cache"} 320
+node_slabinfo_active_objects{slab="tw_sock_TCP"} 704
+# HELP node_slabinfo_object_size_bytes The size of objects in this slab, in bytes.
+# TYPE node_slabinfo_object_size_bytes gauge
+node_slabinfo_object_size_bytes{slab="dmaengine-unmap-128"} 1088
+node_slabinfo_object_size_bytes{slab="kmalloc-8192"} 8192
+node_slabinfo_object_size_bytes{slab="kmem_cache"} 256
+node_slabinfo_object_size_bytes{slab="tw_sock_TCP"} 256
+# HELP node_slabinfo_objects The total number of allocated objects (i.e., objects that are both in use and not in use).
+# TYPE node_slabinfo_objects gauge
+node_slabinfo_objects{slab="dmaengine-unmap-128"} 1320
+node_slabinfo_objects{slab="kmalloc-8192"} 148
+node_slabinfo_objects{slab="kmem_cache"} 320
+node_slabinfo_objects{slab="tw_sock_TCP"} 864
+# HELP node_slabinfo_objects_per_slab The number of objects stored in each slab.
+# TYPE node_slabinfo_objects_per_slab gauge
+node_slabinfo_objects_per_slab{slab="dmaengine-unmap-128"} 30
+node_slabinfo_objects_per_slab{slab="kmalloc-8192"} 4
+node_slabinfo_objects_per_slab{slab="kmem_cache"} 32
+node_slabinfo_objects_per_slab{slab="tw_sock_TCP"} 32
+# HELP node_slabinfo_pages_per_slab The number of pages allocated for each slab.
+# TYPE node_slabinfo_pages_per_slab gauge
+node_slabinfo_pages_per_slab{slab="dmaengine-unmap-128"} 8
+node_slabinfo_pages_per_slab{slab="kmalloc-8192"} 8
+node_slabinfo_pages_per_slab{slab="kmem_cache"} 2
+node_slabinfo_pages_per_slab{slab="tw_sock_TCP"} 2
 # HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
@@ -3110,6 +3070,33 @@ node_softnet_times_squeezed_total{cpu="0"} 1
 node_softnet_times_squeezed_total{cpu="1"} 10
 node_softnet_times_squeezed_total{cpu="2"} 85
 node_softnet_times_squeezed_total{cpu="3"} 50
+# HELP node_sysctl_fs_file_nr sysctl fs.file-nr
+# TYPE node_sysctl_fs_file_nr untyped
+node_sysctl_fs_file_nr{index="0"} 1024
+node_sysctl_fs_file_nr{index="1"} 0
+node_sysctl_fs_file_nr{index="2"} 1.631329e+06
+# HELP node_sysctl_fs_file_nr_current sysctl fs.file-nr, field 1
+# TYPE node_sysctl_fs_file_nr_current untyped
+node_sysctl_fs_file_nr_current 0
+# HELP node_sysctl_fs_file_nr_max sysctl fs.file-nr, field 2
+# TYPE node_sysctl_fs_file_nr_max untyped
+node_sysctl_fs_file_nr_max 1.631329e+06
+# HELP node_sysctl_fs_file_nr_total sysctl fs.file-nr, field 0
+# TYPE node_sysctl_fs_file_nr_total untyped
+node_sysctl_fs_file_nr_total 1024
+# HELP node_sysctl_info sysctl info
+# TYPE node_sysctl_info gauge
+node_sysctl_info{index="0",name="kernel.seccomp.actions_avail",value="kill_process"} 1
+node_sysctl_info{index="1",name="kernel.seccomp.actions_avail",value="kill_thread"} 1
+node_sysctl_info{index="2",name="kernel.seccomp.actions_avail",value="trap"} 1
+node_sysctl_info{index="3",name="kernel.seccomp.actions_avail",value="errno"} 1
+node_sysctl_info{index="4",name="kernel.seccomp.actions_avail",value="user_notif"} 1
+node_sysctl_info{index="5",name="kernel.seccomp.actions_avail",value="trace"} 1
+node_sysctl_info{index="6",name="kernel.seccomp.actions_avail",value="log"} 1
+node_sysctl_info{index="7",name="kernel.seccomp.actions_avail",value="allow"} 1
+# HELP node_sysctl_kernel_threads_max sysctl kernel.threads-max
+# TYPE node_sysctl_kernel_threads_max untyped
+node_sysctl_kernel_threads_max 7801
 # HELP node_tape_io_now The number of I/Os currently outstanding to this device.
 # TYPE node_tape_io_now gauge
 node_tape_io_now{device="st0"} 1

@@ -17,86 +17,73 @@
 package collector
 
 import (
-	"bufio"
-	"fmt"
-	"io"
-	"os"
-	"regexp"
-	"strconv"
-	"strings"
-
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+
+	"github.com/jsimonetti/rtnetlink"
 )
 
-var (
-	procNetDevInterfaceRE = regexp.MustCompile(`^(.+): *(.+)$`)
-	procNetDevFieldSep    = regexp.MustCompile(` +`)
-)
-
-func getNetDevStats(filter *netDevFilter, logger log.Logger) (netDevStats, error) {
-	file, err := os.Open(procFilePath("net/dev"))
+func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+	conn, err := rtnetlink.Dial(nil)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer conn.Close()
 
-	return parseNetDevStats(file, filter, logger)
-}
-
-func parseNetDevStats(r io.Reader, filter *netDevFilter, logger log.Logger) (netDevStats, error) {
-	scanner := bufio.NewScanner(r)
-	scanner.Scan() // skip first header
-	scanner.Scan()
-	parts := strings.Split(scanner.Text(), "|")
-	if len(parts) != 3 { // interface + receive + transmit
-		return nil, fmt.Errorf("invalid header line in net/dev: %s",
-			scanner.Text())
+	links, err := conn.Link.List()
+	if err != nil {
+		return nil, err
 	}
 
-	receiveHeader := strings.Fields(parts[1])
-	transmitHeader := strings.Fields(parts[2])
-	headerLength := len(receiveHeader) + len(transmitHeader)
+	return netlinkStats(links, filter, logger), nil
+}
 
-	netDev := netDevStats{}
-	for scanner.Scan() {
-		line := strings.TrimLeft(scanner.Text(), " ")
-		parts := procNetDevInterfaceRE.FindStringSubmatch(line)
-		if len(parts) != 3 {
-			return nil, fmt.Errorf("couldn't get interface name, invalid line in net/dev: %q", line)
-		}
+func netlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logger log.Logger) netDevStats {
+	metrics := netDevStats{}
 
-		dev := parts[1]
-		if filter.ignored(dev) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
+	for _, msg := range links {
+		name := msg.Attributes.Name
+		stats := msg.Attributes.Stats64
+
+		if filter.ignored(name) {
+			level.Debug(logger).Log("msg", "Ignoring device", "device", name)
 			continue
 		}
 
-		values := procNetDevFieldSep.Split(strings.TrimLeft(parts[2], " "), -1)
-		if len(values) != headerLength {
-			return nil, fmt.Errorf("couldn't get values, invalid line in net/dev: %q", parts[2])
+		// https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_link.h#L42-L246
+		metrics[name] = map[string]uint64{
+			"receive_packets":  stats.RXPackets,
+			"transmit_packets": stats.TXPackets,
+			"receive_bytes":    stats.RXBytes,
+			"transmit_bytes":   stats.TXBytes,
+			"receive_errors":   stats.RXErrors,
+			"transmit_errors":  stats.TXErrors,
+			"receive_dropped":  stats.RXDropped,
+			"transmit_dropped": stats.TXDropped,
+			"multicast":        stats.Multicast,
+			"collisions":       stats.Collisions,
+
+			// detailed rx_errors
+			"receive_length_errors": stats.RXLengthErrors,
+			"receive_over_errors":   stats.RXOverErrors,
+			"receive_crc_errors":    stats.RXCRCErrors,
+			"receive_frame_errors":  stats.RXFrameErrors,
+			"receive_fifo_errors":   stats.RXFIFOErrors,
+			"receive_missed_errors": stats.RXMissedErrors,
+
+			// detailed tx_errors
+			"transmit_aborted_errors":   stats.TXAbortedErrors,
+			"transmit_carrier_errors":   stats.TXCarrierErrors,
+			"transmit_fifo_errors":      stats.TXFIFOErrors,
+			"transmit_heartbeat_errors": stats.TXHeartbeatErrors,
+			"transmit_window_errors":    stats.TXWindowErrors,
+
+			// for cslip etc
+			"receive_compressed":  stats.RXCompressed,
+			"transmit_compressed": stats.TXCompressed,
+			"receive_nohandler":   stats.RXNoHandler,
 		}
-
-		devStats := map[string]uint64{}
-		addStats := func(key, value string) {
-			v, err := strconv.ParseUint(value, 0, 64)
-			if err != nil {
-				level.Debug(logger).Log("msg", "invalid value in netstats", "key", key, "value", value, "err", err)
-				return
-			}
-
-			devStats[key] = v
-		}
-
-		for i := 0; i < len(receiveHeader); i++ {
-			addStats("receive_"+receiveHeader[i], values[i])
-		}
-
-		for i := 0; i < len(transmitHeader); i++ {
-			addStats("transmit_"+transmitHeader[i], values[i+len(receiveHeader)])
-		}
-
-		netDev[dev] = devStats
 	}
-	return netDev, scanner.Err()
+
+	return metrics
 }

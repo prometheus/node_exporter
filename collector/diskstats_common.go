@@ -18,7 +18,12 @@
 package collector
 
 import (
+	"errors"
+
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -27,6 +32,10 @@ const (
 
 var (
 	diskLabelNames = []string{"device"}
+
+	diskstatsDeviceExclude    = kingpin.Flag("collector.diskstats.device-exclude", "Regexp of diskstats devices to exclude (mutually exclusive to device-include).").Default(diskstatsDefaultIgnoredDevices).String()
+	oldDiskstatsDeviceExclude = kingpin.Flag("collector.diskstats.ignored-devices", "DEPRECATED: Use collector.diskstats.device-exclude").String()
+	diskstatsDeviceInclude    = kingpin.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
 
 	readsCompletedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
@@ -72,3 +81,28 @@ var (
 		nil,
 	)
 )
+
+func newDiskstatsDeviceFilter(logger log.Logger) (deviceFilter, error) {
+	if *oldDiskstatsDeviceExclude != "" {
+		if *diskstatsDeviceExclude == "" {
+			level.Warn(logger).Log("msg", "--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
+			*diskstatsDeviceExclude = *oldDiskstatsDeviceExclude
+		} else {
+			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
+		}
+	}
+
+	if *diskstatsDeviceExclude != "" && *diskstatsDeviceInclude != "" {
+		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+	}
+
+	if *diskstatsDeviceExclude != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *diskstatsDeviceExclude)
+	}
+
+	if *diskstatsDeviceInclude != "" {
+		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *diskstatsDeviceInclude)
+	}
+
+	return newDeviceFilter(*diskstatsDeviceExclude, *diskstatsDeviceInclude), nil
+}

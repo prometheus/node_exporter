@@ -14,15 +14,14 @@
 package collector
 
 import (
-	"bytes"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
 func readUintFromFile(path string) (uint64, error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return 0, err
 	}
@@ -33,22 +32,9 @@ func readUintFromFile(path string) (uint64, error) {
 	return value, nil
 }
 
-// Take a []byte{} and return a string based on null termination.
-// This is useful for situations where the OS has returned a null terminated
-// string to use.
-// If this function happens to receive a byteArray that contains no nulls, we
-// simply convert the array to a string with no bounding.
-func bytesToString(byteArray []byte) string {
-	n := bytes.IndexByte(byteArray, 0)
-	if n < 0 {
-		return string(byteArray)
-	}
-	return string(byteArray[:n])
-}
-
 var metricNameRegex = regexp.MustCompile(`_*[^0-9A-Za-z_]+_*`)
 
-// Sanitize the given metric name by replacing invalid characters by underscores.
+// SanitizeMetricName sanitize the given metric name by replacing invalid characters by underscores.
 //
 // OpenMetrics and the Prometheus exposition format require the metric name
 // to consist only of alphanumericals and "_", ":" and they must not start

@@ -83,6 +83,12 @@ func NewMemoryCollector(logger log.Logger) (Collector, error) {
 				conversion:  fromPage,
 			},
 			{
+				name:        "user_wired_bytes",
+				description: "Locked in memory by user, mlock, etc",
+				mib:         "vm.stats.vm.v_user_wire_count",
+				conversion:  fromPage,
+			},
+			{
 				name:        "cache_bytes",
 				description: "Almost free, backed by swap or files, available for re-allocation",
 				mib:         "vm.stats.vm.v_cache_count",
@@ -98,6 +104,12 @@ func NewMemoryCollector(logger log.Logger) (Collector, error) {
 				name:        "free_bytes",
 				description: "Unallocated, available for allocation",
 				mib:         "vm.stats.vm.v_free_count",
+				conversion:  fromPage,
+			},
+			{
+				name:        "laundry_bytes",
+				description: "Dirty not recently used by userland",
+				mib:         "vm.stats.vm.v_laundry_count",
 				conversion:  fromPage,
 			},
 			{

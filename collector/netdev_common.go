@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"sync"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -35,13 +36,15 @@ var (
 	netdevDeviceExclude    = kingpin.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").String()
 	oldNetdevDeviceExclude = kingpin.Flag("collector.netdev.device-blacklist", "DEPRECATED: Use collector.netdev.device-exclude").Hidden().String()
 	netdevAddressInfo      = kingpin.Flag("collector.netdev.address-info", "Collect address-info for every device").Bool()
+	netdevDetailedMetrics  = kingpin.Flag("collector.netdev.enable-detailed-metrics", "Use (incompatible) metric names that provide more detailed stats on Linux").Bool()
 )
 
 type netDevCollector struct {
-	subsystem    string
-	deviceFilter netDevFilter
-	metricDescs  map[string]*prometheus.Desc
-	logger       log.Logger
+	subsystem        string
+	deviceFilter     deviceFilter
+	metricDescsMutex sync.Mutex
+	metricDescs      map[string]*prometheus.Desc
+	logger           log.Logger
 }
 
 type netDevStats map[string]map[string]uint64
@@ -84,10 +87,26 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 
 	return &netDevCollector{
 		subsystem:    "network",
-		deviceFilter: newNetDevFilter(*netdevDeviceExclude, *netdevDeviceInclude),
+		deviceFilter: newDeviceFilter(*netdevDeviceExclude, *netdevDeviceInclude),
 		metricDescs:  map[string]*prometheus.Desc{},
 		logger:       logger,
 	}, nil
+}
+
+func (c *netDevCollector) metricDesc(key string) *prometheus.Desc {
+	c.metricDescsMutex.Lock()
+	defer c.metricDescsMutex.Unlock()
+
+	if _, ok := c.metricDescs[key]; !ok {
+		c.metricDescs[key] = prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
+			fmt.Sprintf("Network device statistic %s.", key),
+			[]string{"device"},
+			nil,
+		)
+	}
+
+	return c.metricDescs[key]
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
@@ -96,17 +115,11 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
 	for dev, devStats := range netDev {
+		if !*netdevDetailedMetrics {
+			legacy(devStats)
+		}
 		for key, value := range devStats {
-			desc, ok := c.metricDescs[key]
-			if !ok {
-				desc = prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
-					fmt.Sprintf("Network device statistic %s.", key),
-					[]string{"device"},
-					nil,
-				)
-				c.metricDescs[key] = desc
-			}
+			desc := c.metricDesc(key)
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
 		}
 	}
@@ -174,4 +187,55 @@ func getAddrsInfo(interfaces []net.Interface) []addrInfo {
 	}
 
 	return res
+}
+
+// https://github.com/torvalds/linux/blob/master/net/core/net-procfs.c#L75-L97
+func legacy(metrics map[string]uint64) {
+	if metric, ok := pop(metrics, "receive_errors"); ok {
+		metrics["receive_errs"] = metric
+	}
+	if metric, ok := pop(metrics, "receive_dropped"); ok {
+		metrics["receive_drop"] = metric + popz(metrics, "receive_missed_errors")
+	}
+	if metric, ok := pop(metrics, "receive_fifo_errors"); ok {
+		metrics["receive_fifo"] = metric
+	}
+	if metric, ok := pop(metrics, "receive_frame_errors"); ok {
+		metrics["receive_frame"] = metric + popz(metrics, "receive_length_errors") + popz(metrics, "receive_over_errors") + popz(metrics, "receive_crc_errors")
+	}
+	if metric, ok := pop(metrics, "multicast"); ok {
+		metrics["receive_multicast"] = metric
+	}
+	if metric, ok := pop(metrics, "transmit_errors"); ok {
+		metrics["transmit_errs"] = metric
+	}
+	if metric, ok := pop(metrics, "transmit_dropped"); ok {
+		metrics["transmit_drop"] = metric
+	}
+	if metric, ok := pop(metrics, "transmit_fifo_errors"); ok {
+		metrics["transmit_fifo"] = metric
+	}
+	if metric, ok := pop(metrics, "multicast"); ok {
+		metrics["receive_multicast"] = metric
+	}
+	if metric, ok := pop(metrics, "collisions"); ok {
+		metrics["transmit_colls"] = metric
+	}
+	if metric, ok := pop(metrics, "transmit_carrier_errors"); ok {
+		metrics["transmit_carrier"] = metric + popz(metrics, "transmit_aborted_errors") + popz(metrics, "transmit_heartbeat_errors") + popz(metrics, "transmit_window_errors")
+	}
+}
+
+func pop(m map[string]uint64, key string) (uint64, bool) {
+	value, ok := m[key]
+	delete(m, key)
+	return value, ok
+}
+
+func popz(m map[string]uint64, key string) uint64 {
+	if value, ok := m[key]; ok {
+		delete(m, key)
+		return value
+	}
+	return 0
 }

@@ -17,51 +17,6 @@ import (
 	"testing"
 )
 
-func TestBytesToString(t *testing.T) {
-	tests := []struct {
-		name     string
-		b        []byte
-		expected string
-	}{
-		{
-			"Single null byte",
-			[]byte{0},
-			"",
-		},
-		{
-			"Empty byte array",
-			[]byte{},
-			"",
-		},
-		{
-			"Not null terminated",
-			[]byte{65, 66, 67},
-			"ABC",
-		},
-		{
-			"Null randomly in array",
-			[]byte{65, 66, 67, 0, 65, 0, 65},
-			"ABC",
-		},
-		{
-			"Array starts with null and contains other valid bytes",
-			[]byte{0, 65, 66, 67, 0},
-			"",
-		},
-	}
-
-	for _, tt := range tests {
-		name := tt.name
-		b := tt.b
-		result := bytesToString(b)
-		expected := tt.expected
-
-		if result != expected {
-			t.Errorf("bytesToString(%#v): Name: %s, expected %#v, got %#v)", b, name, expected, result)
-		}
-	}
-}
-
 func TestSanitizeMetricName(t *testing.T) {
 	testcases := map[string]string{
 		"":                             "",

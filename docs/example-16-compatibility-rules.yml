@@ -21,8 +21,8 @@ groups:
         expr: node_intr
   - name: node_exporter-16-cpu
     rules:
-      - record: node_cpu_seconds_total
-        expr: label_replace(node_cpu, "cpu", "$1", "cpu", "cpu(.+)")
+      - record: node_cpu
+        expr: label_replace(node_cpu_seconds_total, "cpu", "$1", "cpu", "cpu(.+)")
   - name: node_exporter-16-diskstats
     rules:
       - record: node_disk_read_bytes_total

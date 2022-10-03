@@ -17,7 +17,7 @@
 package collector
 
 import (
-	"io/ioutil"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -29,7 +29,7 @@ import (
 )
 
 func canTestPerf(t *testing.T) {
-	paranoidBytes, err := ioutil.ReadFile("/proc/sys/kernel/perf_event_paranoid")
+	paranoidBytes, err := os.ReadFile("/proc/sys/kernel/perf_event_paranoid")
 	if err != nil {
 		t.Skip("Procfs not mounted, skipping perf tests")
 	}
