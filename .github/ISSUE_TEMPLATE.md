@@ -23,6 +23,8 @@
 ### node_exporter command line flags
 <!-- Please list all of the command line flags -->
 
+### node_exporter log output
+
 ### Are you running node_exporter in Docker?
 <!-- Please note the warning above. -->
 
