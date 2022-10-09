@@ -13,7 +13,7 @@ require (
 	github.com/hodgesds/perf-utils v0.5.1
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
 	github.com/josharian/native v1.0.0
-	github.com/jsimonetti/rtnetlink v1.2.2
+	github.com/jsimonetti/rtnetlink v1.2.3
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/netlink v1.6.2
@@ -26,7 +26,7 @@ require (
 	github.com/prometheus/procfs v0.8.0
 	github.com/safchain/ethtool v0.2.0
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
