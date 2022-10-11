@@ -931,18 +931,18 @@ node_hwmon_pwm_weight_temp_step_tol{chip="nct6779",sensor="pwm1"} 0
 # TYPE node_hwmon_sensor_label gauge
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp1"} 1
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp2"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="left_side",sensor="fan1"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="right_side",sensor="fan2"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_0",label="core_0",sensor="temp2"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_0",label="core_1",sensor="temp3"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_0",label="core_2",sensor="temp4"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_0",label="core_3",sensor="temp5"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_0",label="physical_id_0",sensor="temp1"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_1",label="core_0",sensor="temp2"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_1",label="core_1",sensor="temp3"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_1",label="core_2",sensor="temp4"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_1",label="core_3",sensor="temp5"} 1
-node_hwmon_sensor_label{chip="platform_coretemp_1",label="physical_id_0",sensor="temp1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Left side  ",sensor="fan1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Right side ",sensor="fan2"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 0",sensor="temp2"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 1",sensor="temp3"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 2",sensor="temp4"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 3",sensor="temp5"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_0",label="Physical id 0",sensor="temp1"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_1",label="Core 0",sensor="temp2"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_1",label="Core 1",sensor="temp3"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_1",label="Core 2",sensor="temp4"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_1",label="Core 3",sensor="temp5"} 1
+node_hwmon_sensor_label{chip="platform_coretemp_1",label="Physical id 0",sensor="temp1"} 1
 # HELP node_hwmon_temp_celsius Hardware monitor for temperature (input)
 # TYPE node_hwmon_temp_celsius gauge
 node_hwmon_temp_celsius{chip="hwmon4",sensor="temp1"} 55
