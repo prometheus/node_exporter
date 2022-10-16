@@ -163,7 +163,7 @@ var links = []rtnetlink.LinkMessage{
 func TestNetDevStatsIgnore(t *testing.T) {
 	filter := newDeviceFilter("^veth", "")
 
-	netStats := netlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
 
 	if want, got := uint64(10437182923), netStats["wlan0"]["receive_bytes"]; want != got {
 		t.Errorf("want netstat wlan0 bytes %v, got %v", want, got)
@@ -196,7 +196,7 @@ func TestNetDevStatsIgnore(t *testing.T) {
 
 func TestNetDevStatsAccept(t *testing.T) {
 	filter := newDeviceFilter("", "^💩0$")
-	netStats := netlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
 
 	if want, got := 1, len(netStats); want != got {
 		t.Errorf("want count of devices to be %d, got %d", want, got)
@@ -227,7 +227,7 @@ func TestNetDevLegacyMetricNames(t *testing.T) {
 	}
 
 	filter := newDeviceFilter("", "")
-	netStats := netlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
 
 	for dev, devStats := range netStats {
 		legacy(devStats)
@@ -260,7 +260,7 @@ func TestNetDevLegacyMetricValues(t *testing.T) {
 	}
 
 	filter := newDeviceFilter("", "^enp0s0f0$")
-	netStats := netlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
 	metrics, ok := netStats["enp0s0f0"]
 	if !ok {
 		t.Error("expected stats for interface enp0s0f0")
@@ -282,7 +282,7 @@ func TestNetDevLegacyMetricValues(t *testing.T) {
 
 func TestNetDevMetricValues(t *testing.T) {
 	filter := newDeviceFilter("", "")
-	netStats := netlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
 
 	for _, msg := range links {
 		device := msg.Attributes.Name
