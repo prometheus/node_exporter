@@ -1,0 +1,4 @@
+# TYPE events_total counter
+events_total{foo="bar",file="b"} 30
+events_total{foo="baz",file="b"} 40
+

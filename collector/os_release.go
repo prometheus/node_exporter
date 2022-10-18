@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"encoding/xml"
 	"errors"
 	"io"
 	"os"
@@ -30,8 +31,9 @@ import (
 )
 
 const (
-	etcOSRelease    = "/etc/os-release"
-	usrLibOSRelease = "/usr/lib/os-release"
+	etcOSRelease       = "/etc/os-release"
+	usrLibOSRelease    = "/usr/lib/os-release"
+	systemVersionPlist = "/System/Library/CoreServices/SystemVersion.plist"
 )
 
 var (
@@ -59,10 +61,19 @@ type osReleaseCollector struct {
 	os                 *osRelease
 	osFilename         string    // file name of cached release information
 	osMtime            time.Time // mtime of cached release file
-	osMutex            sync.Mutex
+	osMutex            sync.RWMutex
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	versionDesc        *prometheus.Desc
+}
+
+type Plist struct {
+	Dict Dict `xml:"dict"`
+}
+
+type Dict struct {
+	Key    []string `xml:"key"`
+	String []string `xml:"string"`
 }
 
 func init() {
@@ -80,7 +91,7 @@ func NewOSCollector(logger log.Logger) (Collector, error) {
 			[]string{"build_id", "id", "id_like", "image_id", "image_version", "name", "pretty_name",
 				"variant", "variant_id", "version", "version_codename", "version_id"}, nil,
 		),
-		osReleaseFilenames: []string{etcOSRelease, usrLibOSRelease},
+		osReleaseFilenames: []string{etcOSRelease, usrLibOSRelease, systemVersionPlist},
 		versionDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "os", "version"),
 			"Metric containing the major.minor part of the OS version.",
@@ -120,7 +131,10 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	}
 
 	t := stat.ModTime()
-	if path == c.osFilename && t == c.osMtime {
+	c.osMutex.RLock()
+	upToDate := path == c.osFilename && t == c.osMtime
+	c.osMutex.RUnlock()
+	if upToDate {
 		// osReleaseCollector struct is already up-to-date.
 		return nil
 	}
@@ -133,10 +147,17 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 		"file", path, "old_value", c.osMtime, "new_value", t)
 	c.osFilename = path
 	c.osMtime = t
-
-	c.os, err = parseOSRelease(releaseFile)
-	if err != nil {
-		return err
+	//  SystemVersion.plist is xml file with MacOs version info
+	if strings.Contains(releaseFile.Name(), "SystemVersion.plist") {
+		c.os, err = getMacosProductVersion(releaseFile.Name())
+		if err != nil {
+			return err
+		}
+	} else {
+		c.os, err = parseOSRelease(releaseFile)
+		if err != nil {
+			return err
+		}
 	}
 
 	majorMinor := versionRegex.FindString(c.os.VersionID)
@@ -175,4 +196,36 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 			c.os.ID, c.os.IDLike, c.os.Name)
 	}
 	return nil
+}
+
+func getMacosProductVersion(filename string) (*osRelease, error) {
+	f, _ := os.Open(filename)
+	bytePlist, _ := io.ReadAll(f)
+	f.Close()
+
+	var plist Plist
+	err := xml.Unmarshal(bytePlist, &plist)
+	if err != nil {
+		return &osRelease{}, err
+	}
+
+	var osVersionID, osVersionName, osBuildID string
+	if len(plist.Dict.Key) > 0 {
+		for index, value := range plist.Dict.Key {
+			switch value {
+			case "ProductVersion":
+				osVersionID = plist.Dict.String[index]
+			case "ProductName":
+				osVersionName = plist.Dict.String[index]
+			case "ProductBuildVersion":
+				osBuildID = plist.Dict.String[index]
+			}
+		}
+	}
+	return &osRelease{
+		Name:      osVersionName,
+		Version:   osVersionID,
+		VersionID: osVersionID,
+		BuildID:   osBuildID,
+	}, nil
 }

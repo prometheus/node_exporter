@@ -192,12 +192,10 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 
 		labels := []string{hwmonName, sensor}
 		if labelText, ok := sensorData["label"]; ok {
-			label := cleanMetricName(labelText)
-			if label != "" {
-				desc := prometheus.NewDesc("node_hwmon_sensor_label", "Label for given chip and sensor",
-					[]string{"chip", "sensor", "label"}, nil)
-				ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 1.0, hwmonName, sensor, label)
-			}
+			label := strings.ToValidUTF8(labelText, "�")
+			desc := prometheus.NewDesc("node_hwmon_sensor_label", "Label for given chip and sensor",
+				[]string{"chip", "sensor", "label"}, nil)
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 1.0, hwmonName, sensor, label)
 		}
 
 		if sensorType == "beep_enable" {
