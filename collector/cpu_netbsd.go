@@ -92,8 +92,8 @@ func ioctl(fd int, nr int64, typ byte, size uintptr, retptr unsafe.Pointer) erro
 	return nil
 }
 
-func readProps() (props, error) {
-	fd, err := unix.Open("/dev/sysmon", unix.O_RDONLY, 0777)
+func readSysmonProps() (props, error) {
+	fd, err := unix.Open(rootfsFilePath("/dev/sysmon"), unix.O_RDONLY, 0777)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func getCPUTemperatures() (map[int]float64, error) {
 	res := make(map[int]float64)
 
 	// Read all properties
-	props, err := readProps()
+	props, err := readSysmonProps()
 	if err != nil {
 		return res, err
 	}
@@ -168,6 +168,7 @@ func getCPUTimes() ([]cputime, error) {
 		return nil, err
 	}
 	clock := *(*clockinfo)(unsafe.Pointer(&clockb[0]))
+
 	var cpufreq float64
 	if clock.stathz > 0 {
 		cpufreq = float64(clock.stathz)
