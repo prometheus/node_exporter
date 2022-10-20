@@ -16,6 +16,14 @@
     // alerting, you can exclude them here, e.g. 'fstype!="tmpfs"'.
     fsSelector: 'fstype!=""',
 
+    // Select the mountpoint for filesystem-related queries. If left
+    // empty, all mountpoints are selected. For example if you have a
+    // special purpose tmpfs instance that has a fixed size and will
+    // always be 100% full, but you still want alerts and dashboards for
+    // other tmpfs instances, you can exclude those by mountpoint prefix
+    // like so: 'mountpoint!~"/var/lib/foo.*"'.
+    fsMountpointSelector: 'mountpoint!=""',
+
     // Select the device for disk-related queries. If left empty, all
     // devices are selected. If you have unusual devices you don't
     // want to include in dashboards and alerting, you can exclude
