@@ -232,7 +232,7 @@ local table = grafana70.panel.table;
       .addThresholdStep(color='red', value=0.9)
       .addTarget(prometheus.target(
         |||
-          max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
+          max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s, %(fsMountpointSelector)s})
         ||| % config,
         legendFormat='',
         instant=true,
@@ -240,7 +240,7 @@ local table = grafana70.panel.table;
       ))
       .addTarget(prometheus.target(
         |||
-          max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s})
+          max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s, %(fsMountpointSelector)s})
         ||| % config,
         legendFormat='',
         instant=true,
