@@ -12,6 +12,7 @@ require (
 	github.com/hashicorp/go-envparse v0.0.0-20200406174449-d9cfd743a15e
 	github.com/hodgesds/perf-utils v0.5.1
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
+	github.com/josharian/native v1.0.0
 	github.com/jsimonetti/rtnetlink v1.2.2
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
@@ -40,7 +41,6 @@ require (
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/josharian/native v1.0.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mdlayher/genetlink v1.2.0 // indirect
