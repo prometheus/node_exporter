@@ -16,9 +16,9 @@ package collector
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -189,7 +189,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 			rw := httptest.NewRecorder()
 			promhttp.InstrumentMetricHandler(registry, promhttp.HandlerFor(registry, promhttp.HandlerOpts{})).ServeHTTP(rw, &http.Request{})
 
-			wantMetrics, err := ioutil.ReadFile(test.metricsFile)
+			wantMetrics, err := os.ReadFile(test.metricsFile)
 			if err != nil {
 				t.Fatalf("unable to read input test file %s: %s", test.metricsFile, err)
 			}

@@ -24,14 +24,18 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+const diskstatsDefaultIgnoredDevices = ""
+
 type typedDescFunc struct {
 	typedDesc
 	value func(stat *iostat.DriveStats) float64
 }
 
 type diskstatsCollector struct {
-	descs  []typedDescFunc
-	logger log.Logger
+	descs []typedDescFunc
+
+	deviceFilter deviceFilter
+	logger       log.Logger
 }
 
 func init() {
@@ -41,6 +45,11 @@ func init() {
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
+
+	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
+	}
 
 	return &diskstatsCollector{
 		descs: []typedDescFunc{
@@ -183,7 +192,9 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				},
 			},
 		},
-		logger: logger,
+
+		deviceFilter: deviceFilter,
+		logger:       logger,
 	}, nil
 }
 
@@ -194,6 +205,9 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, stats := range diskStats {
+		if c.deviceFilter.ignored(stats.Name) {
+			continue
+		}
 		for _, desc := range c.descs {
 			v := desc.value(stats)
 			ch <- desc.mustNewConstMetric(v, stats.Name)

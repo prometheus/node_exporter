@@ -17,12 +17,12 @@ import (
 	"regexp"
 )
 
-type netDevFilter struct {
+type deviceFilter struct {
 	ignorePattern *regexp.Regexp
 	acceptPattern *regexp.Regexp
 }
 
-func newNetDevFilter(ignoredPattern, acceptPattern string) (f netDevFilter) {
+func newDeviceFilter(ignoredPattern, acceptPattern string) (f deviceFilter) {
 	if ignoredPattern != "" {
 		f.ignorePattern = regexp.MustCompile(ignoredPattern)
 	}
@@ -35,7 +35,7 @@ func newNetDevFilter(ignoredPattern, acceptPattern string) (f netDevFilter) {
 }
 
 // ignores returns whether the device should be ignored
-func (f *netDevFilter) ignored(name string) bool {
+func (f *deviceFilter) ignored(name string) bool {
 	return ((f.ignorePattern != nil && f.ignorePattern.MatchString(name)) ||
 		(f.acceptPattern != nil && !f.acceptPattern.MatchString(name)))
 }

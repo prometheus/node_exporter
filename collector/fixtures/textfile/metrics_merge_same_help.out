@@ -1,0 +1,13 @@
+# HELP events_total The same help.
+# TYPE events_total counter
+events_total{file="a",foo="bar"} 10
+events_total{file="a",foo="baz"} 20
+events_total{file="b",foo="bar"} 30
+events_total{file="b",foo="baz"} 40
+# HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
+# TYPE node_textfile_mtime_seconds gauge
+node_textfile_mtime_seconds{file="fixtures/textfile/metrics_merge_same_help/a.prom"} 1
+node_textfile_mtime_seconds{file="fixtures/textfile/metrics_merge_same_help/b.prom"} 1
+# HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
+# TYPE node_textfile_scrape_error gauge
+node_textfile_scrape_error 0

@@ -27,8 +27,6 @@ var expectedBtrfsMetrics = [][]btrfsMetric{
 	{
 		{name: "info", value: 1, extraLabel: []string{"label"}, extraLabelValue: []string{"fixture"}},
 		{name: "global_rsv_size_bytes", value: 1.6777216e+07},
-		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop25"}},
-		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop26"}},
 		{name: "reserved_bytes", value: 0, extraLabel: []string{"block_group_type"}, extraLabelValue: []string{"data"}},
 		{name: "used_bytes", value: 8.08189952e+08, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid0"}},
 		{name: "size_bytes", value: 2.147483648e+09, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid0"}},
@@ -41,14 +39,12 @@ var expectedBtrfsMetrics = [][]btrfsMetric{
 		{name: "used_bytes", value: 16384, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"system", "raid1"}},
 		{name: "size_bytes", value: 8.388608e+06, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"system", "raid1"}},
 		{name: "allocation_ratio", value: 2, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"system", "raid1"}},
+		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop25"}},
+		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop26"}},
 	},
 	{
 		{name: "info", value: 1, extraLabel: []string{"label"}, extraLabelValue: []string{""}},
 		{name: "global_rsv_size_bytes", value: 1.6777216e+07},
-		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop22"}},
-		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop23"}},
-		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop24"}},
-		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop25"}},
 		{name: "reserved_bytes", value: 0, extraLabel: []string{"block_group_type"}, extraLabelValue: []string{"data"}},
 		{name: "used_bytes", value: 0, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid5"}},
 		{name: "size_bytes", value: 6.44087808e+08, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid5"}},
@@ -61,6 +57,10 @@ var expectedBtrfsMetrics = [][]btrfsMetric{
 		{name: "used_bytes", value: 16384, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"system", "raid6"}},
 		{name: "size_bytes", value: 1.6777216e+07, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"system", "raid6"}},
 		{name: "allocation_ratio", value: 2, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"system", "raid6"}},
+		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop22"}},
+		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop23"}},
+		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop24"}},
+		{name: "device_size_bytes", value: 1.073741824e+10, extraLabel: []string{"device"}, extraLabelValue: []string{"loop25"}},
 	},
 }
 
@@ -104,7 +104,7 @@ func TestBtrfs(t *testing.T) {
 	}
 
 	for i, s := range stats {
-		metrics := collector.getMetrics(s)
+		metrics := collector.getMetrics(s, nil)
 		if len(metrics) != len(expectedBtrfsMetrics[i]) {
 			t.Fatalf("Unexpected number of Btrfs metrics: expected %v, got %v", len(expectedBtrfsMetrics[i]), len(metrics))
 		}

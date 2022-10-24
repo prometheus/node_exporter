@@ -34,7 +34,7 @@ var (
 )
 
 type arpCollector struct {
-	deviceFilter netDevFilter
+	deviceFilter deviceFilter
 	entries      *prometheus.Desc
 	logger       log.Logger
 }
@@ -46,7 +46,7 @@ func init() {
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector(logger log.Logger) (Collector, error) {
 	return &arpCollector{
-		deviceFilter: newNetDevFilter(*arpDeviceExclude, *arpDeviceInclude),
+		deviceFilter: newDeviceFilter(*arpDeviceExclude, *arpDeviceInclude),
 		entries: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "arp", "entries"),
 			"ARP entries by device",
