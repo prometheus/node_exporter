@@ -453,7 +453,7 @@ local diskSpaceUtilisation =
                                    sum (
                                      sum without (device) (
                                        max without (fstype, mountpoint, instance, pod) ((
-                                         node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s) - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s}
+                                         node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s}
                                        ) != 0)
                                      )
                                      / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s})))
