@@ -52,5 +52,7 @@ exclusions:
       reason: Units are indeed set for all but load average (which doesn't have a reasonable unit), but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
     - dashboard: Node Exporter / USE Method / Cluster
       reason: Units are indeed set, but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
+    - dashboard: Node Exporter / USE Method / Multi-cluster
+      reason: Units are indeed set, but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
     - dashboard: Node Exporter / USE Method / Node
       reason: Units are indeed set, but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
