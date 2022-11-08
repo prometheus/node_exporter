@@ -123,13 +123,15 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 			continue
 		}
 
-		fs, err := dennwc.Open(mount.mountPoint, true)
+		mountPath := rootfsFilePath(mount.mountPoint)
+
+		fs, err := dennwc.Open(mountPath, true)
 		if err != nil {
 			// Failed to open this mount point, maybe we didn't have permission
 			// maybe we'll find another mount point for this FS later.
 			level.Debug(c.logger).Log(
 				"msg", "Error inspecting btrfs mountpoint",
-				"mountPoint", mount.mountPoint,
+				"mountPoint", mountPath,
 				"err", err)
 			continue
 		}
@@ -140,7 +142,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 			// perhaps it'll work with a different mount point
 			level.Debug(c.logger).Log(
 				"msg", "Error querying btrfs filesystem",
-				"mountPoint", mount.mountPoint,
+				"mountPoint", mountPath,
 				"err", err)
 			continue
 		}
@@ -155,7 +157,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 		if err != nil {
 			level.Debug(c.logger).Log(
 				"msg", "Error querying btrfs device stats",
-				"mountPoint", mount.mountPoint,
+				"mountPoint", mountPath,
 				"err", err)
 			continue
 		}
