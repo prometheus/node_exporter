@@ -24,10 +24,6 @@ The `node_exporter` listens on HTTP port 9100 by default. See the `--help` outpu
 
 For automated installs with [Ansible](https://www.ansible.com/), there is the [Cloud Alchemy role](https://github.com/cloudalchemy/ansible-node-exporter).
 
-### RHEL/CentOS/Fedora
-
-There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
-
 ### Docker
 
 The `node_exporter` is designed to monitor the host system. It's not recommended
