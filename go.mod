@@ -16,6 +16,7 @@ require (
 	github.com/jsimonetti/rtnetlink v1.2.3
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
+	github.com/mdlayher/ethtool v0.0.0-20220830195143-0e16326d06d1
 	github.com/mdlayher/netlink v1.6.2
 	github.com/mdlayher/wifi v0.0.0-20220320220353-954ff73a19a5
 	github.com/opencontainers/selinux v1.10.2
