@@ -27,7 +27,7 @@ require (
 	github.com/prometheus/procfs v0.8.0
 	github.com/safchain/ethtool v0.2.0
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
-	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec
+	golang.org/x/sys v0.1.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	howett.net/plist v1.0.0
 )
@@ -51,10 +51,10 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a // indirect
-	golang.org/x/net v0.0.0-20220923203811-8be639271d50 // indirect
+	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
