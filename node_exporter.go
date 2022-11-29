@@ -20,6 +20,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/user"
+	"runtime"
 	"sort"
 
 	"github.com/prometheus/common/promlog"
@@ -159,6 +160,9 @@ func main() {
 			"collector.disable-defaults",
 			"Set all collectors to disabled by default.",
 		).Default("false").Bool()
+		maxProcs = kingpin.Flag(
+			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
+		).Envar("GOMAXPROCS").Default("1").Int()
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
 	)
 
@@ -178,6 +182,8 @@ func main() {
 	if user, err := user.Current(); err == nil && user.Uid == "0" {
 		level.Warn(logger).Log("msg", "Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")
 	}
+	runtime.GOMAXPROCS(*maxProcs)
+	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", *maxProcs)
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

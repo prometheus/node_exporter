@@ -5,6 +5,13 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+NOTE: This changes the Go runtime "GOMAXPROCS" to 1. This is done to limit the
+  concurrency of the exporter to 1 CPU thread at a time in order to avoid a
+  race condition problem in the Linux kernel (#2500) and parallel IO issues
+  on nodes with high numbers of CPUs/CPU threads (#1880).
+
+* [CHANGE] Default GOMAXPROCS to 1
+
 ## 1.4.0 / 2022-09-24
 
 * [CHANGE] Merge metrics descriptions in textfile collector #2475
