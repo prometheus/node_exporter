@@ -5,6 +5,12 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.4.1 / 2022-11-29
+
+* [BUGFIX] Fix diskstats exclude flags #2487
+* [BUGFIX] Security: Update go/x/crypto and go/x/net (CVE-2022-27191 CVE-2022-27664) #2488
+* [BUGFIX] Security: Update exporter-toolkit (CVE-2022-46146) #2531
+
 ## 1.4.0 / 2022-09-24
 
 * [CHANGE] Merge metrics descriptions in textfile collector #2475
