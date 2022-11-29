@@ -335,7 +335,7 @@ To see all available configuration flags:
 The exporter supports TLS via a new web configuration file.
 
 ```console
-./node_exporter --web.config=web-config.yml
+./node_exporter --web.config.file=web-config.yml
 ```
 
 See the [exporter-toolkit https package](https://github.com/prometheus/exporter-toolkit/blob/v0.1.0/https/README.md) for more details.
