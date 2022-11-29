@@ -5,12 +5,28 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.5.0 / 2022-11-29
+
 NOTE: This changes the Go runtime "GOMAXPROCS" to 1. This is done to limit the
   concurrency of the exporter to 1 CPU thread at a time in order to avoid a
   race condition problem in the Linux kernel (#2500) and parallel IO issues
   on nodes with high numbers of CPUs/CPU threads (#1880).
 
-* [CHANGE] Default GOMAXPROCS to 1
+* [CHANGE] Default GOMAXPROCS to 1 #2530
+* [FEATURE] Add multiple listeners and systemd socket listener activation #2393
+* [ENHANCEMENT] Add RTNL version of netclass collector #2492, #2528
+* [BUGFIX] Fix diskstats exclude flags #2487
+* [BUGFIX] Bump go/x/crypt and go/x/net #2488
+* [BUGFIX] Fix hwmon label sanitizer #2504
+* [BUGFIX] Use native endianness when encoding InetDiagMsg #2508
+* [BUGFIX] Fix btrfs device stats always being zero #2516
+* [BUGFIX] Security: Update exporter-toolkit (CVE-2022-46146) #2531
+
+## 1.4.1 / 2022-11-29
+
+* [BUGFIX] Fix diskstats exclude flags #2487
+* [BUGFIX] Security: Update go/x/crypto and go/x/net (CVE-2022-27191 CVE-2022-27664) #2488
+* [BUGFIX] Security: Update exporter-toolkit (CVE-2022-46146) #2531
 
 ## 1.4.0 / 2022-09-24
 
