@@ -32,6 +32,7 @@ import (
 var (
 	netclassIgnoredDevices = kingpin.Flag("collector.netclass.ignored-devices", "Regexp of net devices to ignore for netclass collector.").Default("^$").String()
 	netclassInvalidSpeed   = kingpin.Flag("collector.netclass.ignore-invalid-speed", "Ignore devices where the speed is invalid. This will be the default behavior in 2.x.").Bool()
+	netclassNetlink        = kingpin.Flag("collector.netclass.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("false").Bool()
 )
 
 type netClassCollector struct {
@@ -63,6 +64,13 @@ func NewNetClassCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
+	if *netclassNetlink {
+		return c.netClassRTNLUpdate(ch)
+	}
+	return c.netClassSysfsUpdate(ch)
+}
+
+func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) error {
 	netClass, err := c.getNetClassInfo()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
@@ -132,7 +140,7 @@ func (c *netClassCollector) getFieldDesc(name string) *prometheus.Desc {
 	if !exists {
 		fieldDesc = prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, name),
-			fmt.Sprintf("%s value of /sys/class/net/<iface>.", name),
+			fmt.Sprintf("Network device property: %s", name),
 			[]string{"device"},
 			nil,
 		)

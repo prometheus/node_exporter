@@ -20,9 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"regexp"
 
-	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/mdlayher/ethtool"
@@ -31,37 +29,14 @@ import (
 )
 
 var (
-	netclassRTNLIgnoredDevices = kingpin.Flag("collector.netclass_rtnl.ignored-devices", "Regexp of net devices to ignore for netclass_rtnl collector.").Default("^$").String()
-	netclassRTNLWithStats      = kingpin.Flag("collector.netclass_rtnl.with-stats", "Expose the statistics for each network device, replacing netdev collector.").Bool()
-	operstateStr               = []string{
+	netclassRTNLWithStats = kingpin.Flag("collector.netclass_rtnl.with-stats", "Expose the statistics for each network device, replacing netdev collector.").Bool()
+	operstateStr          = []string{
 		"unknown", "notpresent", "down", "lowerlayerdown", "testing",
 		"dormant", "up",
 	}
 )
 
-type netClassRTNLCollector struct {
-	subsystem             string
-	ignoredDevicesPattern *regexp.Regexp
-	metricDescs           map[string]*prometheus.Desc
-	logger                log.Logger
-}
-
-func init() {
-	registerCollector("netclass_rtnl", defaultDisabled, NewNetClassRTNLCollector)
-}
-
-// NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassRTNLCollector(logger log.Logger) (Collector, error) {
-	pattern := regexp.MustCompile(*netclassRTNLIgnoredDevices)
-	return &netClassRTNLCollector{
-		subsystem:             "network",
-		ignoredDevicesPattern: pattern,
-		metricDescs:           map[string]*prometheus.Desc{},
-		logger:                logger,
-	}, nil
-}
-
-func (c *netClassRTNLCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) error {
 	linkModes := make(map[string]*ethtool.LinkMode)
 	lms, err := c.getLinkModes()
 	if err != nil {
@@ -146,7 +121,7 @@ func (c *netClassRTNLCollector) Update(ch chan<- prometheus.Metric) error {
 		pushMetric(ch, c.getFieldDesc("transmit_queue_length"), "transmit_queue_length", msg.Attributes.TxQueueLen, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("protocol_type"), "protocol_type", msg.Type, prometheus.GaugeValue, msg.Attributes.Name)
 
-		// skip statistics if argument collector.netclass_rtnl.with-stats is false or statistics are unavailable.
+		// Skip statistics if argument collector.netclass_rtnl.with-stats is false or statistics are unavailable.
 		if netclassRTNLWithStats == nil || !*netclassRTNLWithStats || msg.Attributes.Stats64 == nil {
 			continue
 		}
@@ -162,7 +137,7 @@ func (c *netClassRTNLCollector) Update(ch chan<- prometheus.Metric) error {
 		pushMetric(ch, c.getFieldDesc("multicast_total"), "multicast_total", msg.Attributes.Stats64.Multicast, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("collisions_total"), "collisions_total", msg.Attributes.Stats64.Collisions, prometheus.GaugeValue, msg.Attributes.Name)
 
-		// detailed rx_errors
+		// Detailed rx_errors.
 		pushMetric(ch, c.getFieldDesc("receive_length_errors_total"), "receive_length_errors_total", msg.Attributes.Stats64.RXLengthErrors, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("receive_over_errors_total"), "receive_over_errors_total", msg.Attributes.Stats64.RXOverErrors, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("receive_crc_errors_total"), "receive_crc_errors_total", msg.Attributes.Stats64.RXCRCErrors, prometheus.GaugeValue, msg.Attributes.Name)
@@ -170,14 +145,14 @@ func (c *netClassRTNLCollector) Update(ch chan<- prometheus.Metric) error {
 		pushMetric(ch, c.getFieldDesc("receive_fifo_errors_total"), "receive_fifo_errors_total", msg.Attributes.Stats64.RXFIFOErrors, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("receive_missed_errors_total"), "receive_missed_errors_total", msg.Attributes.Stats64.RXMissedErrors, prometheus.GaugeValue, msg.Attributes.Name)
 
-		// detailed tx_errors
+		// Detailed tx_errors.
 		pushMetric(ch, c.getFieldDesc("transmit_aborted_errors_total"), "transmit_aborted_errors_total", msg.Attributes.Stats64.TXAbortedErrors, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("transmit_carrier_errors_total"), "transmit_carrier_errors_total", msg.Attributes.Stats64.TXCarrierErrors, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("transmit_fifo_errors_total"), "transmit_fifo_errors_total", msg.Attributes.Stats64.TXFIFOErrors, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("transmit_heartbeat_errors_total"), "transmit_heartbeat_errors_total", msg.Attributes.Stats64.TXHeartbeatErrors, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("transmit_window_errors_total"), "transmit_window_errors_total", msg.Attributes.Stats64.TXWindowErrors, prometheus.GaugeValue, msg.Attributes.Name)
 
-		// for cslip etc
+		// For cslip, etc.
 		pushMetric(ch, c.getFieldDesc("receive_compressed_total"), "receive_compressed_total", msg.Attributes.Stats64.RXCompressed, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("transmit_compressed_total"), "transmit_compressed_total", msg.Attributes.Stats64.TXCompressed, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("receive_nohandler_total"), "receive_nohandler_total", msg.Attributes.Stats64.RXNoHandler, prometheus.GaugeValue, msg.Attributes.Name)
@@ -187,23 +162,7 @@ func (c *netClassRTNLCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *netClassRTNLCollector) getFieldDesc(name string) *prometheus.Desc {
-	fieldDesc, exists := c.metricDescs[name]
-
-	if !exists {
-		fieldDesc = prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, c.subsystem, name),
-			fmt.Sprintf("Network device property %s.", name),
-			[]string{"device"},
-			nil,
-		)
-		c.metricDescs[name] = fieldDesc
-	}
-
-	return fieldDesc
-}
-
-func (c *netClassRTNLCollector) getNetClassInfoRTNL() ([]rtnetlink.LinkMessage, error) {
+func (c *netClassCollector) getNetClassInfoRTNL() ([]rtnetlink.LinkMessage, error) {
 	conn, err := rtnetlink.Dial(nil)
 	if err != nil {
 		return nil, err
@@ -216,7 +175,7 @@ func (c *netClassRTNLCollector) getNetClassInfoRTNL() ([]rtnetlink.LinkMessage, 
 
 }
 
-func (c *netClassRTNLCollector) getLinkModes() ([]*ethtool.LinkMode, error) {
+func (c *netClassCollector) getLinkModes() ([]*ethtool.LinkMode, error) {
 	conn, err := ethtool.New()
 	if err != nil {
 		return nil, err

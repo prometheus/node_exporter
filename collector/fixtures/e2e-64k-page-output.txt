@@ -2355,47 +2355,47 @@ node_netstat_Udp_RcvbufErrors 9
 # HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
 # TYPE node_netstat_Udp_SndbufErrors untyped
 node_netstat_Udp_SndbufErrors 8
-# HELP node_network_address_assign_type address_assign_type value of /sys/class/net/<iface>.
+# HELP node_network_address_assign_type Network device property: address_assign_type
 # TYPE node_network_address_assign_type gauge
 node_network_address_assign_type{device="bond0"} 3
 node_network_address_assign_type{device="eth0"} 3
-# HELP node_network_carrier carrier value of /sys/class/net/<iface>.
+# HELP node_network_carrier Network device property: carrier
 # TYPE node_network_carrier gauge
 node_network_carrier{device="bond0"} 1
 node_network_carrier{device="eth0"} 1
-# HELP node_network_carrier_changes_total carrier_changes_total value of /sys/class/net/<iface>.
+# HELP node_network_carrier_changes_total Network device property: carrier_changes_total
 # TYPE node_network_carrier_changes_total counter
 node_network_carrier_changes_total{device="bond0"} 2
 node_network_carrier_changes_total{device="eth0"} 2
-# HELP node_network_carrier_down_changes_total carrier_down_changes_total value of /sys/class/net/<iface>.
+# HELP node_network_carrier_down_changes_total Network device property: carrier_down_changes_total
 # TYPE node_network_carrier_down_changes_total counter
 node_network_carrier_down_changes_total{device="bond0"} 1
 node_network_carrier_down_changes_total{device="eth0"} 1
-# HELP node_network_carrier_up_changes_total carrier_up_changes_total value of /sys/class/net/<iface>.
+# HELP node_network_carrier_up_changes_total Network device property: carrier_up_changes_total
 # TYPE node_network_carrier_up_changes_total counter
 node_network_carrier_up_changes_total{device="bond0"} 1
 node_network_carrier_up_changes_total{device="eth0"} 1
-# HELP node_network_device_id device_id value of /sys/class/net/<iface>.
+# HELP node_network_device_id Network device property: device_id
 # TYPE node_network_device_id gauge
 node_network_device_id{device="bond0"} 32
 node_network_device_id{device="eth0"} 32
-# HELP node_network_dormant dormant value of /sys/class/net/<iface>.
+# HELP node_network_dormant Network device property: dormant
 # TYPE node_network_dormant gauge
 node_network_dormant{device="bond0"} 1
 node_network_dormant{device="eth0"} 1
-# HELP node_network_flags flags value of /sys/class/net/<iface>.
+# HELP node_network_flags Network device property: flags
 # TYPE node_network_flags gauge
 node_network_flags{device="bond0"} 4867
 node_network_flags{device="eth0"} 4867
-# HELP node_network_iface_id iface_id value of /sys/class/net/<iface>.
+# HELP node_network_iface_id Network device property: iface_id
 # TYPE node_network_iface_id gauge
 node_network_iface_id{device="bond0"} 2
 node_network_iface_id{device="eth0"} 2
-# HELP node_network_iface_link iface_link value of /sys/class/net/<iface>.
+# HELP node_network_iface_link Network device property: iface_link
 # TYPE node_network_iface_link gauge
 node_network_iface_link{device="bond0"} 2
 node_network_iface_link{device="eth0"} 2
-# HELP node_network_iface_link_mode iface_link_mode value of /sys/class/net/<iface>.
+# HELP node_network_iface_link_mode Network device property: iface_link_mode
 # TYPE node_network_iface_link_mode gauge
 node_network_iface_link_mode{device="bond0"} 1
 node_network_iface_link_mode{device="eth0"} 1
@@ -2403,19 +2403,19 @@ node_network_iface_link_mode{device="eth0"} 1
 # TYPE node_network_info gauge
 node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="bond0",duplex="full",ifalias="",operstate="up"} 1
 node_network_info{address="01:01:01:01:01:01",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up"} 1
-# HELP node_network_mtu_bytes mtu_bytes value of /sys/class/net/<iface>.
+# HELP node_network_mtu_bytes Network device property: mtu_bytes
 # TYPE node_network_mtu_bytes gauge
 node_network_mtu_bytes{device="bond0"} 1500
 node_network_mtu_bytes{device="eth0"} 1500
-# HELP node_network_name_assign_type name_assign_type value of /sys/class/net/<iface>.
+# HELP node_network_name_assign_type Network device property: name_assign_type
 # TYPE node_network_name_assign_type gauge
 node_network_name_assign_type{device="bond0"} 2
 node_network_name_assign_type{device="eth0"} 2
-# HELP node_network_net_dev_group net_dev_group value of /sys/class/net/<iface>.
+# HELP node_network_net_dev_group Network device property: net_dev_group
 # TYPE node_network_net_dev_group gauge
 node_network_net_dev_group{device="bond0"} 0
 node_network_net_dev_group{device="eth0"} 0
-# HELP node_network_protocol_type protocol_type value of /sys/class/net/<iface>.
+# HELP node_network_protocol_type Network device property: protocol_type
 # TYPE node_network_protocol_type gauge
 node_network_protocol_type{device="bond0"} 1
 node_network_protocol_type{device="eth0"} 1
@@ -2444,7 +2444,7 @@ node_network_receive_multicast_total{device="lo"} 0
 node_network_receive_nohandler_total{device="lo"} 0
 # HELP node_network_receive_packets_total Network device statistic receive_packets.
 # TYPE node_network_receive_packets_total counter
-# HELP node_network_speed_bytes speed_bytes value of /sys/class/net/<iface>.
+# HELP node_network_speed_bytes Network device property: speed_bytes
 # TYPE node_network_speed_bytes gauge
 node_network_speed_bytes{device="eth0"} 1.25e+08
 # HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
@@ -2469,7 +2469,7 @@ node_network_transmit_errs_total{device="lo"} 0
 node_network_transmit_fifo_total{device="lo"} 0
 # HELP node_network_transmit_packets_total Network device statistic transmit_packets.
 # TYPE node_network_transmit_packets_total counter
-# HELP node_network_transmit_queue_length transmit_queue_length value of /sys/class/net/<iface>.
+# HELP node_network_transmit_queue_length Network device property: transmit_queue_length
 # TYPE node_network_transmit_queue_length gauge
 node_network_transmit_queue_length{device="bond0"} 1000
 node_network_transmit_queue_length{device="eth0"} 1000
