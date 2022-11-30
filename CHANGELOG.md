@@ -5,6 +5,8 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [CHANGE] Rename of --web.config="" to --web.config.file="" #2535
+
 ## 1.5.0 / 2022-11-29
 
 NOTE: This changes the Go runtime "GOMAXPROCS" to 1. This is done to limit the
