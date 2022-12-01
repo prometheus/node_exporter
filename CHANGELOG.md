@@ -12,6 +12,8 @@ NOTE: This changes the Go runtime "GOMAXPROCS" to 1. This is done to limit the
   race condition problem in the Linux kernel (#2500) and parallel IO issues
   on nodes with high numbers of CPUs/CPU threads (#1880).
 
+NOTE: A command line arg has been changed from `--web.config` to `--web.config.file`.
+
 * [CHANGE] Default GOMAXPROCS to 1 #2530
 * [FEATURE] Add multiple listeners and systemd socket listener activation #2393
 * [ENHANCEMENT] Add RTNL version of netclass collector #2492, #2528
