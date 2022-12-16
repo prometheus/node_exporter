@@ -77,12 +77,12 @@ func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 
 	enumeratedEntry := getTotalArpEntries(entries)
 
-	for device, entry := range enumeratedEntry {
+	for device, entryCount := range enumeratedEntry {
 		if c.deviceFilter.ignored(device) {
 			continue
 		}
 		ch <- prometheus.MustNewConstMetric(
-			c.entries, prometheus.GaugeValue, float64(entry), device)
+			c.entries, prometheus.GaugeValue, float64(entryCount), device)
 	}
 
 	return nil
