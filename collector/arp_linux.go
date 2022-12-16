@@ -63,7 +63,7 @@ func getTotalArpEntries(deviceEntries []procfs.ARPEntry) map[string]uint32 {
 	entries := make(map[string]uint32)
 
 	for _, device := range deviceEntries {
-		entries[device.Device] += 1
+		entries[device.Device]++
 	}
 
 	return entries
