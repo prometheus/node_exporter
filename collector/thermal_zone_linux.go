@@ -17,9 +17,12 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -70,6 +73,10 @@ func NewThermalZoneCollector(logger log.Logger) (Collector, error) {
 func (c *thermalZoneCollector) Update(ch chan<- prometheus.Metric) error {
 	thermalZones, err := c.fs.ClassThermalZoneStats()
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) || errors.Is(err, os.ErrInvalid) {
+			level.Debug(c.logger).Log("msg", "Could not read thermal zone stats", "err", err)
+			return ErrNoData
+		}
 		return err
 	}
 
