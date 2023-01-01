@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/go-envparse v0.1.0
 	github.com/hodgesds/perf-utils v0.6.0
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
-	github.com/josharian/native v1.0.0
+	github.com/josharian/native v1.1.0
 	github.com/jsimonetti/rtnetlink v1.3.0
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
