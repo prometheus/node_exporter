@@ -7,7 +7,8 @@ local graphPanel = grafana.graphPanel;
 local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
 local gaugePanel = grafana70.panel.gauge;
 local table = grafana70.panel.table;
-
+local nodePanels = import 'panels.libsonnet';
+local nodeTimeseries = nodePanels.nodeTimeseries;
 {
 
   new(config=null, platform=null):: {
@@ -45,15 +46,17 @@ local table = grafana70.panel.table;
 
 
     local idleCPU =
-      graphPanel.new(
-        'CPU Usage',
-        datasource='$datasource',
-        span=6,
-        format='percentunit',
-        max=1,
-        min=0,
-        stack=true,
+      nodeTimeseries.new(
+        graphPanel.new(
+          'CPU Usage',
+          datasource='$datasource',
+          span=6,
+        )
       )
+      .withUnit('percentunit')
+      .withStacking('normal')
+      .withMin(0)
+      .withMax(1)
       .addTarget(prometheus.target(
         |||
           (
@@ -62,32 +65,53 @@ local table = grafana70.panel.table;
             count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"})
           )
         ||| % config,
-        legendFormat='{{cpu}}',
+        legendFormat='cpu {{cpu}}',
         intervalFactor=5,
       )),
 
     local systemLoad =
-      graphPanel.new(
-        'Load Average',
-        datasource='$datasource',
-        span=6,
-        format='short',
-        min=0,
-        fill=0,
+      nodeTimeseries.new(
+        graphPanel.new(
+          'Load Average',
+          datasource='$datasource',
+          span=6,
+          fill=0,
+        )
       )
+      .withUnit('short')
+      .withMin(0)
+      .withFillOpacity(0)
       .addTarget(prometheus.target('node_load1{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='1m load average'))
       .addTarget(prometheus.target('node_load5{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='5m load average'))
       .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='15m load average'))
-      .addTarget(prometheus.target('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % config, legendFormat='logical cores')),
-
-    local memoryGraphPanelPrototype =
+      .addTarget(prometheus.target('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % config, legendFormat='logical cores'))
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'logical cores',
+        },
+        properties=[
+          {
+            id: 'custom.lineStyle',
+            value: {
+              fill: 'dash',
+              dash: [
+                10,
+                10,
+              ],
+            },
+          },
+        ]
+      ),
+    local memoryGraphPanelPrototype = nodeTimeseries.new(
       graphPanel.new(
         'Memory Usage',
         datasource='$datasource',
         span=9,
-        format='bytes',
-        min=0,
-      ),
+      )
+    )
+                                      .withMin(0)
+                                      .withUnit('bytes'),
     local memoryGraph =
       if platform == 'Linux' then
         memoryGraphPanelPrototype { stack: true }
@@ -181,45 +205,60 @@ local table = grafana70.panel.table;
         )),
 
     local diskIO =
-      graphPanel.new(
-        'Disk I/O',
-        datasource='$datasource',
-        span=6,
-        min=0,
-        fill=0,
+      nodeTimeseries.new(
+        graphPanel.new(
+          'Disk I/O',
+          datasource='$datasource',
+          span=6,
+        )
       )
+      .withFillOpacity(0)
+      .withMin(0)
       // TODO: Does it make sense to have those three in the same panel?
       .addTarget(prometheus.target(
         'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} read',
-        intervalFactor=1,
       ))
       .addTarget(prometheus.target(
         'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} written',
-        intervalFactor=1,
       ))
       .addTarget(prometheus.target(
         'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} io time',
-        intervalFactor=1,
-      )) +
-      {
-        seriesOverrides: [
+      ))
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: '/ read| written/',
+        },
+        properties=[
           {
-            alias: '/ read| written/',
-            yaxis: 1,
+            id: 'unit',
+            value: 'bps',
+          },
+        ]
+      )
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: '/ io time/',
+        },
+        properties=[
+          {
+            id: 'unit',
+            value: 'percentunit',
           },
           {
-            alias: '/ io time/',
-            yaxis: 2,
+            id: 'custom.axisSoftMax',
+            value: 1,
           },
-        ],
-        yaxes: [
-          self.yaxe(format='Bps'),
-          self.yaxe(format='percentunit'),
-        ],
-      },
+          {
+            id: 'custom.drawStyle',
+            value: 'points',
+          },
+        ]
+      ),
 
     local diskSpaceUsage =
       table.new(
@@ -411,15 +450,17 @@ local table = grafana70.panel.table;
 
 
     local networkReceived =
-      graphPanel.new(
-        'Network Received',
-        description='Network received (bits/s)',
-        datasource='$datasource',
-        span=6,
-        format='bps',
-        min=0,
-        fill=0,
+      nodeTimeseries.new(
+        graphPanel.new(
+          'Network Received',
+          description='Network received (bits/s)',
+          datasource='$datasource',
+          span=6,
+        )
       )
+      .withFillOpacity(10)
+      .withMin(0)
+      .withUnit('bps')
       .addTarget(prometheus.target(
         'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
@@ -427,15 +468,17 @@ local table = grafana70.panel.table;
       )),
 
     local networkTransmitted =
-      graphPanel.new(
-        'Network Transmitted',
-        description='Network transmitted (bits/s)',
-        datasource='$datasource',
-        span=6,
-        format='bps',
-        min=0,
-        fill=0,
+      nodeTimeseries.new(
+        graphPanel.new(
+          'Network Transmitted',
+          description='Network transmitted (bits/s)',
+          datasource='$datasource',
+          span=6,
+        )
       )
+      .withFillOpacity(10)
+      .withMin(0)
+      .withUnit('bps')
       .addTarget(prometheus.target(
         'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
