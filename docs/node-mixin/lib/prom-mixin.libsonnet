@@ -523,10 +523,10 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
     dashboard: if platform == 'Linux' then
       dashboard.new(
         '%sNodes' % config.dashboardNamePrefix,
-        time_from='now-1h',
+        time_from=config.dashboardInterval,
         tags=(config.dashboardTags),
-        timezone='utc',
-        refresh='30s',
+        timezone=config.dashboardTimezone,
+        refresh=config.dashboardRefresh,
         graphTooltip='shared_crosshair'
       )
       .addTemplates(templates)
@@ -534,10 +534,10 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
     else if platform == 'Darwin' then
       dashboard.new(
         '%sMacOS' % config.dashboardNamePrefix,
-        time_from='now-1h',
+        time_from=config.dashboardInterval,
         tags=(config.dashboardTags),
-        timezone='utc',
-        refresh='30s',
+        timezone=config.dashboardTimezone,
+        refresh=config.dashboardRefresh,
         graphTooltip='shared_crosshair'
       )
       .addTemplates(templates)
