@@ -250,6 +250,15 @@ found using [`perf list`](http://man7.org/linux/man-pages/man1/perf.1.html) or
 from debugfs. And example usage of this would be
 `--collector.perf.tracepoint="sched:sched_process_exec"`.
 
+Model specific registers (MSRs) can also be collected by perf collector. This
+can be enabled by passing the `--collector.perf.msr` flag. An example would be
+`--collector.perf.msr test:0x00:8:big`. The configuration per MSR collector is
+separated by a colon and the values represent the offset, size (in bytes) and
+byte order of the MSR value. Reading MSRs requires access to the
+`/dev/cpu/CPUNUM/msr` file, which by default has access to the root user/group.
+Using `node_exporter` as a non root user may require changes to these
+permissions. For more details see [`man 4 msr`](https://man7.org/linux/man-pages/man4/msr.4.html).
+
 ### Sysctl Collector
 
 The `sysctl` collector can be enabled with `--collector.sysctl`. It supports exposing numeric sysctl values
