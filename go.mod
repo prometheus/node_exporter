@@ -29,6 +29,7 @@ require (
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	golang.org/x/sys v0.2.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+	howett.net/plist v1.0.0
 )
 
 require (
