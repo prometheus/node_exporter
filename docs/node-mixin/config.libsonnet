@@ -67,7 +67,7 @@
 
     dashboardNamePrefix: 'Node Exporter / ',
     dashboardTags: ['node-exporter-mixin'],
-    dashboardRefresh: "30s",
+    dashboardRefresh: '30s',
     dashboardTimezone: 'utc',
     dashboardInterval: 'now-2h',
   },
