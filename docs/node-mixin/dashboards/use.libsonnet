@@ -146,11 +146,11 @@ local diskSpaceUtilisation =
 
                            dashboard.new(
                              '%sUSE Method / Node' % $._config.dashboardNamePrefix,
-                              time_from=$._config.dashboardInterval,
-                              tags=($._config.dashboardTags),
-                              timezone=$._config.dashboardTimezone,
-                              refresh=$._config.dashboardRefresh,
-                              graphTooltip='shared_crosshair'
+                             time_from=$._config.dashboardInterval,
+                             tags=($._config.dashboardTags),
+                             timezone=$._config.dashboardTimezone,
+                             refresh=$._config.dashboardRefresh,
+                             graphTooltip='shared_crosshair'
                            )
                            .addTemplate(datasourceTemplate)
                            .addTemplate($._clusterTemplate)
