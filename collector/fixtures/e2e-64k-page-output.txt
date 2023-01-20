@@ -723,7 +723,7 @@ node_entropy_available_bits 1337
 # HELP node_entropy_pool_size_bits Bits of entropy pool.
 # TYPE node_entropy_pool_size_bits gauge
 node_entropy_pool_size_bits 4096
-# HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built.
+# HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
 # HELP node_fibrechannel_error_frames_total Number of errors in frames
 # TYPE node_fibrechannel_error_frames_total counter
