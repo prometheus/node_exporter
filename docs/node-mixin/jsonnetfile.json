@@ -18,6 +18,14 @@
         }
       },
       "version": "master"
+    },
+    {
+      "source": {
+        "local": {
+          "directory": "../../../jsonnet-libs/panels-lib"
+        }
+      },
+      "version": ""
     }
   ],
   "legacyImports": false

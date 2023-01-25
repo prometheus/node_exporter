@@ -1,3 +1,0 @@
-{
-  nodeTimeseries:: import 'timeseries.libsonnet',
-}

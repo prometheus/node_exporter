@@ -4,46 +4,151 @@ local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
+local statPanel = grafana.statPanel;
 local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
 local gaugePanel = grafana70.panel.gauge;
 local table = grafana70.panel.table;
-local nodePanels = import 'panels.libsonnet';
-local nodeTimeseries = nodePanels.nodeTimeseries;
+local nodePanels = import 'panels-lib/panels.libsonnet';
+local commonPanels = import 'panels-lib/common/panels.libsonnet';
+local nodeTimeseries = nodePanels.timeseries;
+local nodeTemplates = import 'templates.libsonnet';
 {
 
   new(config=null, platform=null):: {
 
-    local prometheusDatasourceTemplate = {
-      current: {
-        text: 'default',
-        value: 'default',
-      },
-      hide: 0,
-      label: 'Data Source',
-      name: 'datasource',
-      options: [],
-      query: 'prometheus',
-      refresh: 1,
-      regex: '',
-      type: 'datasource',
-    },
 
-    local instanceTemplatePrototype =
-      template.new(
-        'instance',
-        '$datasource',
-        '',
-        refresh='time',
-        label='Instance',
-      ),
-    local instanceTemplate =
-      if platform == 'Darwin' then
-        instanceTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, sysname="Darwin"}, instance)' % config }
-      else
-        instanceTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, sysname!="Darwin"}, instance)' % config },
+    local uptimePanel =
+      commonPanels.uptime.new(
+        statPanel.new(
+          'Uptime',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        |||
+          time() - node_boot_time_seconds{%(nodeExporterSelector)s, instance="$instance"}
+        ||| % config,
+      )) { span: 3, height: '100px' },
 
+    local cpuCountPanel =
+      commonPanels.info.new(
+        statPanel.new(
+          'CPU Count',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        expr=
+        |||
+          count(count by (cpu)(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"}))
+        ||| % config,
+      ))
+      { span: 3, height: '100px' },
+    local memoryTotalPanel =
+      commonPanels.info.new(
+        statPanel.new(
+          'Memory Total',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        |||
+          node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
+        ||| % config,
+      ))
+      .withUnits('bytes')
+      .withDecimals(0)
+      { span: 3, height: '100px' },
+
+    local osPanel =
+
+      commonPanels.info.new(
+        statPanel.new(
+          'OS',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        expr=
+        |||
+          node_os_info{%(nodeExporterSelector)s, instance="$instance"}
+        ||| % config,
+        format='table'
+      ))
+      { options+: { reduceOptions+: { fields: '/^pretty_name$/' } } }
+      { span: 3, height: '100px' },
+
+    local nodeNamePanel =
+
+      commonPanels.info.new(
+        statPanel.new(
+          'Hostname',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        expr=
+        |||
+          node_uname_info{%(nodeExporterSelector)s, instance="$instance"}
+        ||| % config,
+        format='table'
+      ))
+      { options+: { reduceOptions+: { fields: '/^nodename$/' } } }
+      { span: 3, height: '100px' },
+
+    local kernelVersionPanel =
+
+      commonPanels.info.new(
+        statPanel.new(
+          'Kernel version',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        expr=
+        |||
+          node_uname_info{%(nodeExporterSelector)s, instance="$instance"}
+        ||| % config,
+        format='table'
+      ))
+      { options+: { reduceOptions+: { fields: '/^release$/' } } }
+      { span: 3, height: '100px' },
+
+    local totalSwapPanel =
+
+      commonPanels.info.new(
+        statPanel.new(
+          'Total swap',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        expr=
+        |||
+          node_memory_SwapTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
+        ||| % config,
+      ))
+      .withUnits('bytes')
+      .withDecimals(0)
+      { span: 3, height: '100px' },
+
+    local totalRootFSPanel =
+
+      commonPanels.info.new(
+        statPanel.new(
+          'Root mount size',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        expr=
+        |||
+          node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", mountpoint="/",fstype!="rootfs"}
+        ||| % config,
+      ))
+      .withUnits('bytes')
+      .withDecimals(0)
+      { span: 3, height: '100px' },
 
     local idleCPU =
       nodeTimeseries.new(
@@ -53,7 +158,7 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
           span=6,
         )
       )
-      .withUnit('percentunit')
+      .withUnits('percentunit')
       .withStacking('normal')
       .withMin(0)
       .withMax(1)
@@ -78,7 +183,7 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
           fill=0,
         )
       )
-      .withUnit('short')
+      .withUnits('short')
       .withMin(0)
       .withFillOpacity(0)
       .addTarget(prometheus.target('node_load1{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='1m load average'))
@@ -111,7 +216,7 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
       )
     )
                                       .withMin(0)
-                                      .withUnit('bytes'),
+                                      .withUnits('bytes'),
     local memoryGraph =
       if platform == 'Linux' then
         memoryGraphPanelPrototype { stack: true }
@@ -460,7 +565,7 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
       )
       .withFillOpacity(10)
       .withMin(0)
-      .withUnit('bps')
+      .withUnits('bps')
       .addTarget(prometheus.target(
         'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
@@ -478,12 +583,23 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
       )
       .withFillOpacity(10)
       .withMin(0)
-      .withUnit('bps')
+      .withUnits('bps')
       .addTarget(prometheus.target(
         'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
         legendFormat='{{device}}',
         intervalFactor=1,
       )),
+
+    local infoRow =
+      row.new('Overview')
+      .addPanel(uptimePanel)
+      .addPanel(nodeNamePanel)
+      .addPanel(kernelVersionPanel)
+      .addPanel(osPanel)
+      .addPanel(cpuCountPanel)
+      .addPanel(memoryTotalPanel)
+      .addPanel(totalSwapPanel)
+      .addPanel(totalRootFSPanel),
 
     local cpuRow =
       row.new('CPU')
@@ -507,18 +623,14 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
 
     local rows =
       [
+        infoRow,
         cpuRow,
         memoryRow,
         diskRow,
         networkRow,
       ],
 
-    local templates =
-      [
-        prometheusDatasourceTemplate,
-        instanceTemplate,
-      ],
-
+    local templates = nodeTemplates.new(config=config, platform=platform).templates,
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
@@ -527,8 +639,16 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
         tags=(config.dashboardTags),
         timezone=config.dashboardTimezone,
         refresh=config.dashboardRefresh,
-        graphTooltip='shared_crosshair'
-      )
+        graphTooltip='shared_crosshair',
+        uid='nodes'
+      ) { editable: true }
+      // .addLink(grafana.link.dashboards(
+      //   asDropdown=true,
+      //   title='Other Node dashboards',
+      //   includeVars=true,
+      //   keepTime=true,
+      //   tags=(config.dashboardTags),
+      // ))
       .addTemplates(templates)
       .addRows(rows)
     else if platform == 'Darwin' then
@@ -538,7 +658,8 @@ local nodeTimeseries = nodePanels.nodeTimeseries;
         tags=(config.dashboardTags),
         timezone=config.dashboardTimezone,
         refresh=config.dashboardRefresh,
-        graphTooltip='shared_crosshair'
+        graphTooltip='shared_crosshair',
+        uid='nodes-darwin'
       )
       .addTemplates(templates)
       .addRows(rows),
