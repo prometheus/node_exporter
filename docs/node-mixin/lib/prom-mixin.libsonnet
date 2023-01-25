@@ -18,7 +18,7 @@ local nodeTemplates = import 'templates.libsonnet';
 
 
     local uptimePanel =
-      commonPanels.uptime.new(
+      commonPanels.uptimeStat.new(
         statPanel.new(
           'Uptime',
           datasource='$datasource',
@@ -31,7 +31,7 @@ local nodeTemplates = import 'templates.libsonnet';
       )) { span: 3, height: '100px' },
 
     local cpuCountPanel =
-      commonPanels.info.new(
+      commonPanels.infoStat.new(
         statPanel.new(
           'CPU Count',
           datasource='$datasource',
@@ -45,7 +45,7 @@ local nodeTemplates = import 'templates.libsonnet';
       ))
       { span: 3, height: '100px' },
     local memoryTotalPanel =
-      commonPanels.info.new(
+      commonPanels.infoStat.new(
         statPanel.new(
           'Memory Total',
           datasource='$datasource',
@@ -62,7 +62,7 @@ local nodeTemplates = import 'templates.libsonnet';
 
     local osPanel =
 
-      commonPanels.info.new(
+      commonPanels.infoStat.new(
         statPanel.new(
           'OS',
           datasource='$datasource',
@@ -80,7 +80,7 @@ local nodeTemplates = import 'templates.libsonnet';
 
     local nodeNamePanel =
 
-      commonPanels.info.new(
+      commonPanels.infoStat.new(
         statPanel.new(
           'Hostname',
           datasource='$datasource',
@@ -98,7 +98,7 @@ local nodeTemplates = import 'templates.libsonnet';
 
     local kernelVersionPanel =
 
-      commonPanels.info.new(
+      commonPanels.infoStat.new(
         statPanel.new(
           'Kernel version',
           datasource='$datasource',
@@ -116,7 +116,7 @@ local nodeTemplates = import 'templates.libsonnet';
 
     local totalSwapPanel =
 
-      commonPanels.info.new(
+      commonPanels.infoStat.new(
         statPanel.new(
           'Total swap',
           datasource='$datasource',
@@ -134,7 +134,7 @@ local nodeTemplates = import 'templates.libsonnet';
 
     local totalRootFSPanel =
 
-      commonPanels.info.new(
+      commonPanels.infoStat.new(
         statPanel.new(
           'Root mount size',
           datasource='$datasource',
@@ -149,6 +149,24 @@ local nodeTemplates = import 'templates.libsonnet';
       .withUnits('bytes')
       .withDecimals(0)
       { span: 3, height: '100px' },
+
+    local cpuStatPanel =
+      commonPanels.percentUsageStat.new(
+        statPanel.new(
+          'CPU Usage',
+          datasource='$datasource',
+        )
+      )
+      .addTarget(prometheus.target(
+        |||
+          (((count(count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"}) by (cpu))) 
+          - 
+          avg(sum by (mode)(irate(node_cpu_seconds_total{mode='idle',%(nodeExporterSelector)s, instance="$instance"}[5m])))) * 100) 
+          / 
+          count(count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"}) by (cpu))
+        ||| % config,
+      )) { span: 3 },
+
 
     local idleCPU =
       nodeTimeseries.new(
@@ -179,7 +197,7 @@ local nodeTemplates = import 'templates.libsonnet';
         graphPanel.new(
           'Load Average',
           datasource='$datasource',
-          span=6,
+          span=3,
           fill=0,
         )
       )
@@ -264,17 +282,12 @@ local nodeTemplates = import 'templates.libsonnet';
 
     // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
     local memoryGaugePanelPrototype =
-      gaugePanel.new(
-        title='Memory Usage',
-        datasource='$datasource',
-      )
-      .addThresholdStep('rgba(50, 172, 45, 0.97)')
-      .addThresholdStep('rgba(237, 129, 40, 0.89)', 80)
-      .addThresholdStep('rgba(245, 54, 54, 0.9)', 90)
-      .setFieldConfig(max=100, min=0, unit='percent')
-      + {
-        span: 3,
-      },
+      commonPanels.percentUsageStat.new(
+        statPanel.new(
+          'Memory Usage',
+          datasource='$datasource',
+        )
+      ){ span: 3 },
 
     local memoryGauge =
       if platform == 'Linux' then
@@ -604,7 +617,8 @@ local nodeTemplates = import 'templates.libsonnet';
     local cpuRow =
       row.new('CPU')
       .addPanel(idleCPU)
-      .addPanel(systemLoad),
+      .addPanel(systemLoad)
+      .addPanel(cpuStatPanel),
 
     local memoryRow =
       row.new('Memory')
