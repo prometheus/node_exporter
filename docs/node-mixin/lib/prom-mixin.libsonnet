@@ -189,7 +189,7 @@ local nodeTemplates = import 'templates.libsonnet';
           )
         ||| % config,
         legendFormat='cpu {{cpu}}',
-        intervalFactor=5,
+        intervalFactor=1,
       )),
 
     local systemLoad =
