@@ -3088,12 +3088,12 @@ node_softnet_received_rps_total{cpu="0"} 0
 node_softnet_received_rps_total{cpu="1"} 0
 node_softnet_received_rps_total{cpu="2"} 487
 node_softnet_received_rps_total{cpu="3"} 0
-# HELP node_softnet_times_squeezed_total Number of times processing packets ran out of quota
-# TYPE node_softnet_times_squeezed_total counter
-node_softnet_times_squeezed_total{cpu="0"} 0
-node_softnet_times_squeezed_total{cpu="1"} 0
-node_softnet_times_squeezed_total{cpu="2"} 0
-node_softnet_times_squeezed_total{cpu="3"} 0
+# HELP node_softnet_time_squeezed_total Number of times processing packets ran out of quota
+# TYPE node_softnet_time_squeezed_total counter
+node_softnet_time_squeezed_total{cpu="0"} 0
+node_softnet_time_squeezed_total{cpu="1"} 0
+node_softnet_time_squeezed_total{cpu="2"} 0
+node_softnet_time_squeezed_total{cpu="3"} 0
 # HELP node_softnet_width softnet_data's Width
 # TYPE node_softnet_width gauge
 node_softnet_width{cpu="0"} 13
