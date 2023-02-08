@@ -6,208 +6,101 @@ local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 local statPanel = grafana.statPanel;
 local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
-local gaugePanel = grafana70.panel.gauge;
 local table = grafana70.panel.table;
-local nodePanels = import 'panels-lib/panels.libsonnet';
-local commonPanels = import 'panels-lib/common/panels.libsonnet';
+local nodePanels = import '../lib/panels/panels.libsonnet';
+local commonPanels = import '../lib/panels/common/panels.libsonnet';
 local nodeTimeseries = nodePanels.timeseries;
-local nodeTemplates = import 'templates.libsonnet';
+local common = import '../lib/common.libsonnet';
+local nodeTemplates = common.templates;
+
 {
 
   new(config=null, platform=null):: {
 
+    local c = common.new(config=config, platform=platform),
+    local commonPromTarget = c.commonPromTarget,
+    local templates = c.templates,
+    local q = c.queries,
 
     local uptimePanel =
-      commonPanels.uptimeStat.new(
-        statPanel.new(
-          'Uptime',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        |||
-          time() - node_boot_time_seconds{%(nodeExporterSelector)s, instance="$instance"}
-        ||| % config,
-      )) { span: 3, height: '100px' },
+      commonPanels.uptimeStat.new()
+      .addTarget(commonPromTarget(expr=q.uptime)),
 
     local cpuCountPanel =
-      commonPanels.infoStat.new(
-        statPanel.new(
-          'CPU Count',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        expr=
-        |||
-          count(count by (cpu)(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"}))
-        ||| % config,
-      ))
-      { span: 3, height: '100px' },
+      commonPanels.infoStat.new('CPU Count')
+        .addTarget(commonPromTarget(expr=q.cpuCount)),
+
     local memoryTotalPanel =
-      commonPanels.infoStat.new(
-        statPanel.new(
-          'Memory Total',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        |||
-          node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
-        ||| % config,
-      ))
-      .withUnits('bytes')
-      .withDecimals(0)
-      { span: 3, height: '100px' },
+      commonPanels.infoStat.new('Memory Total')
+        .addTarget(commonPromTarget(expr=q.memoryTotal, ))
+        .withUnits('bytes')
+        .withDecimals(0),
 
     local osPanel =
-
-      commonPanels.infoStat.new(
-        statPanel.new(
-          'OS',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        expr=
-        |||
-          node_os_info{%(nodeExporterSelector)s, instance="$instance"}
-        ||| % config,
-        format='table'
-      ))
-      { options+: { reduceOptions+: { fields: '/^pretty_name$/' } } }
-      { span: 3, height: '100px' },
+      commonPanels.infoStat.new('OS')
+        .addTarget(commonPromTarget(
+          expr=q.osInfo, format='table'
+        )) { options+: { reduceOptions+: { fields: '/^pretty_name$/' } } },
 
     local nodeNamePanel =
-
-      commonPanels.infoStat.new(
-        statPanel.new(
-          'Hostname',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        expr=
-        |||
-          node_uname_info{%(nodeExporterSelector)s, instance="$instance"}
-        ||| % config,
-        format='table'
+      commonPanels.infoStat.new('Hostname')
+      .addTarget(commonPromTarget(
+        expr=q.nodeInfo, format='table'
       ))
-      { options+: { reduceOptions+: { fields: '/^nodename$/' } } }
-      { span: 3, height: '100px' },
+      { options+: { reduceOptions+: { fields: '/^nodename$/' } } },
 
     local kernelVersionPanel =
 
-      commonPanels.infoStat.new(
-        statPanel.new(
-          'Kernel version',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        expr=
-        |||
-          node_uname_info{%(nodeExporterSelector)s, instance="$instance"}
-        ||| % config,
-        format='table'
-      ))
+      commonPanels.infoStat.new('Kernel version')
+        .addTarget(commonPromTarget(
+          expr=q.nodeInfo, format='table'
+        ))
       { options+: { reduceOptions+: { fields: '/^release$/' } } }
-      { span: 3, height: '100px' },
+    ,
 
     local totalSwapPanel =
-
-      commonPanels.infoStat.new(
-        statPanel.new(
-          'Total swap',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        expr=
-        |||
-          node_memory_SwapTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
-        ||| % config,
-      ))
+      commonPanels.infoStat.new('Total swap')
+        .addTarget(commonPromTarget(
+          expr=q.memorySwapTotal
+        ))
       .withUnits('bytes')
-      .withDecimals(0)
-      { span: 3, height: '100px' },
+      .withDecimals(0),
 
     local totalRootFSPanel =
-
-      commonPanels.infoStat.new(
-        statPanel.new(
-          'Root mount size',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        expr=
-        |||
-          node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", mountpoint="/",fstype!="rootfs"}
-        ||| % config,
+      commonPanels.infoStat.new('Root mount size')
+      .addTarget(commonPromTarget(
+        expr=q.fsSizeTotalRoot,
       ))
       .withUnits('bytes')
-      .withDecimals(0)
-      { span: 3, height: '100px' },
+      .withDecimals(0),
 
     local cpuStatPanel =
-      commonPanels.percentUsageStat.new(
-        statPanel.new(
-          'CPU Usage',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        |||
-          (((count(count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"}) by (cpu))) 
-          - 
-          avg(sum by (mode)(irate(node_cpu_seconds_total{mode='idle',%(nodeExporterSelector)s, instance="$instance"}[5m])))) * 100) 
-          / 
-          count(count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"}) by (cpu))
-        ||| % config,
-      )) { span: 3 },
+      commonPanels.percentUsageStat.new('CPU Usage')
+      .addTarget(commonPromTarget(
+        expr=q.cpuUsage
+      )),
 
 
     local idleCPU =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'CPU Usage',
-          datasource='$datasource',
-          span=6,
-        )
-      )
+      nodePanels.timeseries.new('CPU Usage')
       .withUnits('percentunit')
       .withStacking('normal')
       .withMin(0)
       .withMax(1)
-      .addTarget(prometheus.target(
-        |||
-          (
-            (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance="$instance"}[$__rate_interval])))
-          / ignoring(cpu) group_left
-            count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance"})
-          )
-        ||| % config,
+      .addTarget(commonPromTarget(
+        expr=q.cpuUsagePerCore,
         legendFormat='cpu {{cpu}}',
-        intervalFactor=1,
       )),
 
     local systemLoad =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Load Average',
-          datasource='$datasource',
-          span=3,
-          fill=0,
-        )
-      )
+      nodePanels.timeseries.new('Load Average')
       .withUnits('short')
       .withMin(0)
       .withFillOpacity(0)
-      .addTarget(prometheus.target('node_load1{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='1m load average'))
-      .addTarget(prometheus.target('node_load5{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='5m load average'))
-      .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='15m load average'))
-      .addTarget(prometheus.target('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % config, legendFormat='logical cores'))
+      .addTarget(commonPromTarget('node_load1{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='1m load average'))
+      .addTarget(commonPromTarget('node_load5{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='5m load average'))
+      .addTarget(commonPromTarget('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='15m load average'))
+      .addTarget(commonPromTarget('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % config, legendFormat='logical cores'))
       .addOverride(
         matcher={
           id: 'byName',
@@ -226,19 +119,13 @@ local nodeTemplates = import 'templates.libsonnet';
           },
         ]
       ),
-    local memoryGraphPanelPrototype = nodeTimeseries.new(
-      graphPanel.new(
-        'Memory Usage',
-        datasource='$datasource',
-        span=9,
-      )
-    )
+    local memoryGraphPanelPrototype = nodePanels.timeseries.new('Memory Usage')
                                       .withMin(0)
                                       .withUnits('bytes'),
     local memoryGraph =
       if platform == 'Linux' then
         memoryGraphPanelPrototype { stack: true }
-        .addTarget(prometheus.target(
+        .addTarget(commonPromTarget(
           |||
             (
               node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
@@ -252,14 +139,14 @@ local nodeTemplates = import 'templates.libsonnet';
           ||| % config,
           legendFormat='memory used'
         ))
-        .addTarget(prometheus.target('node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory buffers'))
-        .addTarget(prometheus.target('node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory cached'))
-        .addTarget(prometheus.target('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory free'))
+        .addTarget(commonPromTarget('node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory buffers'))
+        .addTarget(commonPromTarget('node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory cached'))
+        .addTarget(commonPromTarget('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory free'))
       else if platform == 'Darwin' then
         // not useful to stack
         memoryGraphPanelPrototype { stack: false }
-        .addTarget(prometheus.target('node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Physical Memory'))
-        .addTarget(prometheus.target(
+        .addTarget(commonPromTarget('node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Physical Memory'))
+        .addTarget(commonPromTarget(
           |||
             (
                 node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"} -
@@ -269,7 +156,7 @@ local nodeTemplates = import 'templates.libsonnet';
             )
           ||| % config, legendFormat='Memory Used'
         ))
-        .addTarget(prometheus.target(
+        .addTarget(commonPromTarget(
           |||
             (
                 node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"} -
@@ -277,23 +164,18 @@ local nodeTemplates = import 'templates.libsonnet';
             )
           ||| % config, legendFormat='App Memory'
         ))
-        .addTarget(prometheus.target('node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Wired Memory'))
-        .addTarget(prometheus.target('node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Compressed')),
+        .addTarget(commonPromTarget('node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Wired Memory'))
+        .addTarget(commonPromTarget('node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Compressed')),
 
     // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
     local memoryGaugePanelPrototype =
-      commonPanels.percentUsageStat.new(
-        statPanel.new(
-          'Memory Usage',
-          datasource='$datasource',
-        )
-      ){ span: 3 },
+      commonPanels.percentUsageStat.new('Memory Usage'),
 
     local memoryGauge =
       if platform == 'Linux' then
         memoryGaugePanelPrototype
 
-        .addTarget(prometheus.target(
+        .addTarget(commonPromTarget(
           |||
             100 -
             (
@@ -306,7 +188,7 @@ local nodeTemplates = import 'templates.libsonnet';
 
       else if platform == 'Darwin' then
         memoryGaugePanelPrototype
-        .addTarget(prometheus.target(
+        .addTarget(commonPromTarget(
           |||
             (
                 (
@@ -323,25 +205,19 @@ local nodeTemplates = import 'templates.libsonnet';
         )),
 
     local diskIO =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Disk I/O',
-          datasource='$datasource',
-          span=6,
-        )
-      )
+      nodePanels.timeseries.new('Disk I/O')
       .withFillOpacity(0)
       .withMin(0)
       // TODO: Does it make sense to have those three in the same panel?
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} read',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} written',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
         legendFormat='{{device}} io time',
       ))
@@ -380,14 +256,13 @@ local nodeTemplates = import 'templates.libsonnet';
 
     local diskSpaceUsage =
       table.new(
-        title='Disk Space Usage',
-        datasource='$datasource',
+        title='Disk Space Usage'
       )
       .setFieldConfig(unit='decbytes')
       .addThresholdStep(color='green', value=null)
       .addThresholdStep(color='yellow', value=0.8)
       .addThresholdStep(color='red', value=0.9)
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         |||
           max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s, %(fsMountpointSelector)s})
         ||| % config,
@@ -395,13 +270,13 @@ local nodeTemplates = import 'templates.libsonnet';
         instant=true,
         format='table'
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         |||
           max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s, %(fsMountpointSelector)s})
         ||| % config,
         legendFormat='',
         instant=true,
-        format='table'
+        format='table',
       ))
       .addOverride(
         matcher={
@@ -478,7 +353,6 @@ local nodeTemplates = import 'templates.libsonnet';
           },
         ]
       )
-      + { span: 6 }
       + {
         transformations: [
           {
@@ -566,74 +440,74 @@ local nodeTemplates = import 'templates.libsonnet';
         ],
       },
 
-
-    local networkReceived =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Network Received',
-          description='Network received (bits/s)',
-          datasource='$datasource',
-          span=6,
-        )
+    local networkTrafficPanel =
+      commonPanels.networkTrafficGraph.new(
+        'Network Traffic', description='Network transmitted and received (bits/s)', 
       )
-      .withFillOpacity(10)
-      .withMin(0)
-      .withUnits('bps')
-      .addTarget(prometheus.target(
-        'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
-        legendFormat='{{device}}',
-        intervalFactor=1,
+      .addTarget(commonPromTarget(
+        expr=q.networkReceiveBitsPerSec,
+        legendFormat='{{device}} received',
+      ))
+      .addTarget(commonPromTarget(
+        expr=q.networkTransmitBitsPerSec,
+        legendFormat='{{device}} transmitted',
       )),
 
-    local networkTransmitted =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Network Transmitted',
-          description='Network transmitted (bits/s)',
-          datasource='$datasource',
-          span=6,
-        )
-      )
-      .withFillOpacity(10)
-      .withMin(0)
-      .withUnits('bps')
-      .addTarget(prometheus.target(
-        'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", device!="lo"}[$__rate_interval]) * 8' % config,
-        legendFormat='{{device}}',
-        intervalFactor=1,
-      )),
+    local networkErrorsDropsPanel =
+      nodePanels.timeseries.new('Network Errors and Dropped Packets', )
+      .addTarget(commonPromTarget(
+        expr=q.networkReceiveErrorsPerSec,
+        legendFormat='{{device}} errors in',
+      ))
+      .addTarget(commonPromTarget(
+        expr=q.networkTransmitErrorsPerSec,
+        legendFormat='{{device}} errors out',
+      ))
+      .addTarget(commonPromTarget(
+        expr=q.networkReceiveDropsPerSec,
+        legendFormat='{{device}} drop in',
+      ))
+      .addTarget(commonPromTarget(
+        expr=q.networkTransmitDropsPerSec,
+        legendFormat='{{device}} drop out',
+      ))
+      .withDecimals(1)
+      .withUnits('pps')
+      .withNegativeYByRegex(' out')
+      .withAxisLabel('out(-) / in(+)'),
+
 
     local infoRow =
       row.new('Overview')
-      .addPanel(uptimePanel)
-      .addPanel(nodeNamePanel)
-      .addPanel(kernelVersionPanel)
-      .addPanel(osPanel)
-      .addPanel(cpuCountPanel)
-      .addPanel(memoryTotalPanel)
-      .addPanel(totalSwapPanel)
-      .addPanel(totalRootFSPanel),
+      .addPanel(uptimePanel { span: 3, height: '100px' })
+      .addPanel(nodeNamePanel { span: 3, height: '100px' })
+      .addPanel(kernelVersionPanel { span: 3, height: '100px' })
+      .addPanel(osPanel { span: 3, height: '100px' })
+      .addPanel(cpuCountPanel { span: 3, height: '100px' })
+      .addPanel(memoryTotalPanel { span: 3, height: '100px' })
+      .addPanel(totalSwapPanel { span: 3, height: '100px' })
+      .addPanel(totalRootFSPanel { span: 3, height: '100px' }),
 
     local cpuRow =
       row.new('CPU')
-      .addPanel(idleCPU)
-      .addPanel(systemLoad)
-      .addPanel(cpuStatPanel),
+      .addPanel(idleCPU { span: 6 })
+      .addPanel(systemLoad { span: 3 })
+      .addPanel(cpuStatPanel { span: 3 }),
 
     local memoryRow =
       row.new('Memory')
-      .addPanel(memoryGraph)
-      .addPanel(memoryGauge),
+      .addPanel(memoryGraph { span: 9 })
+      .addPanel(memoryGauge { span: 3 }),
 
     local diskRow =
       row.new('Disk')
-      .addPanel(diskIO)
-      .addPanel(diskSpaceUsage),
+      .addPanel(diskIO { span: 6 })
+      .addPanel(diskSpaceUsage { span: 6 }),
 
     local networkRow =
       row.new('Network')
-      .addPanel(networkReceived)
-      .addPanel(networkTransmitted),
+      .addPanel(networkTrafficPanel { span: 6 })
+      .addPanel(networkErrorsDropsPanel { span: 6 }),
 
     local rows =
       [
@@ -643,8 +517,6 @@ local nodeTemplates = import 'templates.libsonnet';
         diskRow,
         networkRow,
       ],
-
-    local templates = nodeTemplates.new(config=config, platform=platform).templates,
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
@@ -656,13 +528,13 @@ local nodeTemplates = import 'templates.libsonnet';
         graphTooltip='shared_crosshair',
         uid='nodes'
       ) { editable: true }
-      // .addLink(grafana.link.dashboards(
-      //   asDropdown=true,
-      //   title='Other Node dashboards',
-      //   includeVars=true,
-      //   keepTime=true,
-      //   tags=(config.dashboardTags),
-      // ))
+      .addLink(grafana.link.dashboards(
+        asDropdown=true,
+        title='Other Node dashboards',
+        includeVars=true,
+        keepTime=true,
+        tags=(config.dashboardTags),
+      ))
       .addTemplates(templates)
       .addRows(rows)
     else if platform == 'Darwin' then

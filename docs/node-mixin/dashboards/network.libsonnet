@@ -4,242 +4,417 @@ local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
-local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
-local gaugePanel = grafana70.panel.gauge;
-local table = grafana70.panel.table;
-
-local nodePanels = import 'panels-lib/panels.libsonnet';
-local commonPanels = import 'panels-lib/common/panels.libsonnet';
+local nodePanels = import '../lib/panels/panels.libsonnet';
+local commonPanels = import '../lib/panels/common/panels.libsonnet';
 local nodeTimeseries = nodePanels.timeseries;
-local nodeTemplates = import '../lib/templates.libsonnet';
+local common = import '../lib/common.libsonnet';
+
 {
 
   new(config=null, platform=null):: {
-
-
-//
+    local c = common.new(config=config, platform=platform),
+    local commonPromTarget = c.commonPromTarget,
+    local templates = c.templates,
+    local q = c.queries,
 
     local networkTrafficPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Traffic',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        'irate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])*8' % config,
+      commonPanels.networkTrafficGraph.new('Network Traffic')
+      .addTarget(commonPromTarget(
+        expr=q.networkReceiveBitsPerSec,
         legendFormat='{{device}} received',
       ))
-      .addTarget(prometheus.target(
-        'irate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])*8' % config,
+      .addTarget(commonPromTarget(
+        expr=q.networkTransmitBitsPerSec,
         legendFormat='{{device}} transmitted',
-      ))
-      .withDecimals(1)
-      .withUnits("bps")
-      .withNegativeYByRegex("transmit")
-      .withAxisLabel("Transmit(-) | Receive(+)"),
+      )),
 
     local networkPacketsPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Unicast Packets',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
+      nodeTimeseries.new('Unicast Packets')
+      .addTarget(commonPromTarget(
         'irate(node_network_receive_packets_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} received',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'irate(node_network_transmit_packets_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
-      .withUnits("pps")
-      .withNegativeYByRegex("transmit")
-      .withAxisLabel("Transmit(-) | Receive(+)"),
+      .withUnits('pps')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)'),
 
     local networkErrorsPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Errors',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        'irate(node_network_receive_errs_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+      nodeTimeseries.new('Network Errors')
+      .addTarget(commonPromTarget(
+        expr=q.networkReceiveErrorsPerSec,
         legendFormat='{{device}} received',
       ))
-      .addTarget(prometheus.target(
-        'irate(node_network_transmit_errs_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+      .addTarget(commonPromTarget(
+        expr=q.networkTransmitErrorsPerSec,
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
-      .withUnits("pps")
-      .withNegativeYByRegex("transmit")
-      .withAxisLabel("Transmit(-) | Receive(+)"),
+      .withUnits('pps')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)'),
 
     local networkDropsPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Dropped Packets',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
-        'irate(node_network_receive_drop_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+      nodeTimeseries.new('Dropped Packets')
+      .addTarget(commonPromTarget(
+        expr=q.networkReceiveDropsPerSec,
         legendFormat='{{device}} received',
       ))
-      .addTarget(prometheus.target(
-        'irate(node_network_transmit_drop_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+      .addTarget(commonPromTarget(
+        expr=q.networkTransmitDropsPerSec,
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
-      .withUnits("pps")
-      .withNegativeYByRegex("transmit")
-      .withAxisLabel("Transmit(-) | Receive(+)"),
+      .withUnits('pps')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)'),
     local networkCompressedPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Compressed Packets',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
+      nodeTimeseries.new('Compressed Packets')
+      .addTarget(commonPromTarget(
         'irate(node_network_receive_compressed_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} received',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'irate(node_network_transmit_compressed_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
-      .withUnits("pps")
-      .withNegativeYByRegex("transmit")
-      .withAxisLabel("Transmit(-) | Receive(+)"),
+      .withUnits('pps')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)'),
 
     local networkMulticastPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Multicast Packets',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
+      nodeTimeseries.new('Multicast Packets')
+      .addTarget(commonPromTarget(
         'irate(node_network_receive_multicast_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} received',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'irate(node_network_transmit_multicast_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
-      .withUnits("pps")
-      .withNegativeYByRegex("transmit"),
+      .withUnits('pps')
+      .withNegativeYByRegex('transmit'),
 
     local networkFifoPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Network FIFO',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
+      nodeTimeseries.new('Network FIFO')
+      .addTarget(commonPromTarget(
         'irate(node_network_receive_fifo_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} received',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'irate(node_network_transmit_fifo_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
-      .withUnits("pps")
-      .withNegativeYByRegex("transmit")
-      .withAxisLabel("Transmit(-) | Receive(+)"),
+      .withUnits('pps')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)'),
 
-      local networkNFConntrack =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'NF Conntrack',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
+    local networkNFConntrack =
+      nodeTimeseries.new('NF Conntrack')
+      .addTarget(commonPromTarget(
         'node_nf_conntrack_entries{%(nodeExporterSelector)s, instance="$instance"}' % config,
         legendFormat='NF conntrack entries',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'node_nf_conntrack_entries_limit{%(nodeExporterSelector)s, instance="$instance"}' % config,
         legendFormat='NF conntrack limits',
       ))
       .withFillOpacity(0),
 
-      local networkSoftnetPanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Softnet packets',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
+    local networkSoftnetPanel =
+      nodeTimeseries.new('Softnet Packets')
+      .addTarget(commonPromTarget(
         'irate(node_softnet_processed_total{%(nodeExporterSelector)s, instance="$instance"}[$__rate_interval])' % config,
         legendFormat='CPU {{cpu }} proccessed',
       ))
-      .addTarget(prometheus.target(
+      .addTarget(commonPromTarget(
         'irate(node_softnet_dropped_total{%(nodeExporterSelector)s, instance="$instance"}[$__rate_interval])' % config,
         legendFormat='CPU {{cpu }} dropped',
       ))
       .withDecimals(1)
-      .withUnits("pps")
-      .withNegativeYByRegex("dropped")
-      .withAxisLabel("Dropped(-) | Processed(+)"),
+      .withUnits('pps')
+      .withNegativeYByRegex('dropped')
+      .withAxisLabel('Dropped(-) | Processed(+)'),
 
-      local networkSoftnetSqueezePanel =
-      nodeTimeseries.new(
-        graphPanel.new(
-          'Softnet Out of Quota',
-          datasource='$datasource',
-        )
-      )
-      .addTarget(prometheus.target(
+    local networkSoftnetSqueezePanel =
+      nodeTimeseries.new('Softnet Out of Quota')
+      .addTarget(commonPromTarget(
         'irate(node_softnet_times_squeezed_total{%(nodeExporterSelector)s, instance="$instance"}[$__rate_interval])' % config,
         legendFormat='CPU {{cpu}} out of quota',
       ))
       .withDecimals(1)
-      .withUnits("pps"),
+      .withUnits('pps'),
 
-
-    //softnet squueze
-    //node_softnet_times_squeezed_total
-    // CPU {{cpu}} out of quota
-
-     local networkRow =
-      row.new('Network')
-      .addPanel(networkTrafficPanel + {span: 6})
-      .addPanel(networkPacketsPanel+ {span: 6})
-
-      
-      .addPanel(networkErrorsPanel+ {span: 6})
-      .addPanel(networkDropsPanel+ {span: 6})
-
-      .addPanel(networkMulticastPanel+ {span: 6})
-      .addPanel(networkFifoPanel+ {span: 6})
-
-      .addPanel(networkCompressedPanel+ {span: 6})
-      .addPanel(networkNFConntrack+ {span: 6})
-
-      .addPanel(networkSoftnetPanel + {span: 6})
-      .addPanel(networkSoftnetSqueezePanel + {span: 6})
-      
+    local networkInterfacesTable =
+      nodePanels.table.new(
+        title='Network Interfaces Overview'
+      )
+      # "Value #A"
+      .addTarget(commonPromTarget(
+        expr='node_network_up{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        format="table",
+        instant=true,
+      ))
+      # "Value #B"
+      .addTarget(commonPromTarget(
+        expr='node_network_carrier{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        format="table",
+        instant=true,
+      ))
+      # "Value #C"
+      .addTarget(commonPromTarget(
+        expr=q.networkTransmitBitsPerSec,
+        format="table",
+        instant=true,
+      ))
+      # "Value #D"
+      .addTarget(commonPromTarget(
+        expr=q.networkReceiveBitsPerSec,
+        format="table",
+        instant=true,
+      ))
+      # "Value #E"
+      .addTarget(commonPromTarget(
+        expr='node_arp_entries{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        format="table",
+        instant=true,
+      ))
+      # "Value #F"
+      .addTarget(commonPromTarget(
+        expr='node_network_mtu_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        format="table",
+        instant=true,
+      ))
+      # "Value #G"
+      .addTarget(commonPromTarget(
+        expr='node_network_speed_bytes{%(nodeExporterSelector)s, instance="$instance"} * 8' % config,
+        format="table",
+        instant=true,
+      ))
+      # "Value #H"
+      .addTarget(commonPromTarget(
+        expr='node_network_transmit_queue_length{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        format="table",
+        instant=true,
+      ))
+      # "VALUE #I"
+      .addTarget(commonPromTarget(
+        expr='node_network_info{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        format="table",
+        instant=true,
+      ))
+      # "VALUE #J"
+      // .addTarget(commonPromTarget(
+      //   expr='node_network_protocol_type{%(nodeExporterSelector)s, instance="$instance"}' % config,
+      //   format="table",
+      //   instant=true,
+      // ))
+      .withTransform()
+        .joinByField(field="device")
+        // .merge()
+        .filterFieldsByName("device|address|duplex|Value.+")
+        .organize(
+          excludeByName={
+            "Value #I": true
+          },
+          renameByName=
+            {              
+              "device": "Interface",
+              "address": "Address",
+              "duplex": "Duplex",
+              "Value #A": "Up",
+              "Value #B": "Carrier",
+              "Value #C": "Transmit",
+              "Value #D": "Receive",
+              "Value #E": "ARP entries",
+              "Value #F": "MTU",
+              "Value #G": "Speed",
+              "Value #H": "Queue length",
+              // "Value #J": "Type",
+            }
+        )
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: 'Speed',
+        },
+        properties=[
+          {
+            id: 'unit',
+            value: 'bps',
+          },
+        ]
+      )
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: 'Carrier|Up',
+        },
+        properties=[
+                    {
+            "id": "custom.displayMode",
+            "value": "color-text"
+          },
+          {
+            "id": "mappings",
+            "value": [
+              {
+                "type": "value",
+                "options": {
+                  "0": {
+                    "text": "Down",
+                    "color": "light-red",
+                    "index": 1
+                  },
+                  "1": {
+                    "text": "Up",
+                    "color": "light-green",
+                    "index": 0
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      )
+      // TODO
+      // possible values: https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_arp.h      
+      // .addOverride(
+      //   matcher={
+      //     id: 'byName',
+      //     options: 'Type',
+      //   },
+      //   properties=[
+      //     {
+      //       "id": "mappings",
+      //       "value": [
+      //         {
+      //           "type": "value",
+      //           "options": {
+      //             "0": {
+      //               "text": "NET/ROM pseudo",
+      //               "index": 0
+      //             },
+      //             "1": {
+      //               "text": "Ethernet 10Mbps",
+      //               "index": 1
+      //             },
+      //             "2": {
+      //               "text": "Experimental Ethernet",
+      //               "index": 2
+      //             },
+      //             "3": {
+      //               "text": "AX.25 Level 2",
+      //               "index": 3
+      //             },
+      //             "4": {
+      //               "text": "PROnet token ring",
+      //               "index": 4
+      //             },
+      //             "5": {
+      //               "text": "Chaosnet",
+      //               "index": 5
+      //             },
+      //           }
+      //         }
+      //       ]
+      //     }
+      //   ]
+      // )
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: 'Transmit|Receive',
+        },
+        properties=[
+          {
+            id: 'unit',
+            value: 'bps',
+          },
+          {
+            id: 'custom.displayMode',
+            value: 'gradient-gauge',
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "continuous-BlYlRd"
+            }
+          },
+          {
+            "id": "max",
+            "value": 1000*1000*100
+          },
+        ]
+      )
       ,
+    
+    local networkOperStatus = 
+      nodeTimeseries.new(
+        title='Network Interfaces Operational Status'
+      )
+      .withColor(mode="palette-classic")
+      .withFillOpacity(100)
+      .withLegend(mode="list")
+      .addTarget(commonPromTarget(
+        expr='node_network_up{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        legendFormat="{{device}}"
+      ))
+      + {
+        maxDataPoints: 100,
+        type: "status-history",
+        fieldConfig+: {
+          defaults+: {
+            mappings+: [
+              {
+                "type": "value",
+                "options": {
+                  "1": {
+                    "text": "Up",
+                    "color": "light-green",
+                    "index": 1
+                  }
+                }
+              },
+              {
+                "type": "value",
+                "options": {
+                  "0": {
+                    "text": "Down",
+                    "color": "light-red",
+                    "index": 0
+                  }
+                }
+              }
 
+              ]
+            }
+          }
+        },
 
     local rows =
       [
-        networkRow,
+        row.new('Network')
+          .addPanel(networkInterfacesTable {span: 12})
+          .addPanel(networkTrafficPanel { span: 6 })
+          .addPanel(networkOperStatus {span: 6 })
+          .addPanel(networkErrorsPanel { span: 6 })
+          .addPanel(networkDropsPanel { span: 6 })
+          .addPanel(networkPacketsPanel { span: 6 })
+          .addPanel(networkMulticastPanel { span: 6 })
+          .addPanel(networkFifoPanel { span: 6 })
+          .addPanel(networkCompressedPanel { span: 6 })
+          .addPanel(networkNFConntrack { span: 6 })
+          .addPanel(networkSoftnetPanel { span: 6 })
+          .addPanel(networkSoftnetSqueezePanel { span: 6 })
       ],
-
-    local templates = nodeTemplates.new(config=config, platform=platform).templates,
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
@@ -251,6 +426,13 @@ local nodeTemplates = import '../lib/templates.libsonnet';
         graphTooltip='shared_crosshair',
         uid='node-network'
       ) { editable: true }
+      .addLink(grafana.link.dashboards(
+        asDropdown=true,
+        title='Other Node dashboards',
+        includeVars=true,
+        keepTime=true,
+        tags=(config.dashboardTags),
+      ))
       .addTemplates(templates)
       .addRows(rows)
     else if platform == 'Darwin' then {},

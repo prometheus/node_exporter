@@ -1,19 +1,28 @@
+local grafana = import 'github.com/grafana/grafonnet-lib/grafonnet/grafana.libsonnet';
+local genericPanel = import 'panel.libsonnet';
+genericPanel
 {
-  new(panel)::
-    panel
+  new(
+    title=null,
+    description=null,
+    datasource=null,
+  ):: self +
+    grafana.graphPanel.new(
+      title=title,
+      description=description,
+      datasource=datasource,
+    )
+    +
     {
       type: 'timeseries',
-      options+: {
-        tooltip: {
-          mode: 'multi',
-        },
-      },
     }
     + self.withFillOpacity(10)
     + self.withGradientMode('opacity')
     + self.withLineInterpolation('smooth')
     + self.withShowPoints('never')
-    + self.withTooltip(mode='multi', sort='none'),
+    + self.withTooltip(mode='multi', sort='none')
+    + self.withLegend(mode='list', calcs=[]),
+
   withTooltip(mode=null, sort='none'):: self {
     options+: {
       tooltip: {
@@ -21,7 +30,6 @@
         sort: 'none',
       },
     },
-
   },
   withLineInterpolation(value):: self {
     fieldConfig+: {
@@ -38,20 +46,6 @@
         custom+: {
           showPoints: value,
         },
-      },
-    },
-  },
-  withMin(value):: self {
-    fieldConfig+: {
-      defaults+: {
-        min: value,
-      },
-    },
-  },
-  withMax(value):: self {
-    fieldConfig+: {
-      defaults+: {
-        max: value,
       },
     },
   },
@@ -90,15 +84,6 @@
     },
   },
 
-  withUnit(unit):: self {
-
-    fieldConfig+: {
-      defaults+: {
-        unit: unit,
-      },
-    },
-  },
-
   withFillOpacity(opacity):: self {
     fieldConfig+: {
       defaults+: {
@@ -109,4 +94,34 @@
     },
 
   },
+
+  withAxisLabel(label):: self {
+    fieldConfig+: {
+      defaults+: {
+        custom+: {
+          axisLabel: label,
+        },
+      },
+    },
+  },
+
+  withNegativeYByRegex(regex):: self {
+      fieldConfig+: {
+        overrides+: [
+{          matcher: {
+            id: 'byRegexp',
+            options: '/'+regex+'/',
+          },
+          properties: [
+            {
+              "id": "custom.transform",
+              "value": "negative-Y"
+            },
+          ]}
+
+        ]
+      }
+      
+
+  }
 }
