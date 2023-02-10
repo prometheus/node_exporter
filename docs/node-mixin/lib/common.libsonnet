@@ -29,9 +29,10 @@ local template = grafana.template;
         'instance',
         '$datasource',
         '',
+        sort=1,
         refresh='time',
         label='Instance',
-      ) {"sort": 1},
+      ),
     local instanceTemplate =
       if platform == 'Darwin' then
         instanceTemplatePrototype
@@ -48,26 +49,51 @@ local template = grafana.template;
 
     // return common prometheus target (with project defaults)
     commonPromTarget(
-      expr=null, 
+      expr=null,
       intervalFactor=1,
-      datasource="$datasource",
+      datasource='$datasource',
       legendFormat=null,
-      format="timeseries",
+      format='timeseries',
       instant=null,
       hide=null,
       interval=null,
     )::
       prometheus.target(
-      expr=expr,
-      intervalFactor=intervalFactor,
-      datasource=datasource,
-      legendFormat=legendFormat,
-      format=format,
-      instant=instant,
-      hide=hide,
-      interval=interval
-    ),
-
+        expr=expr,
+        intervalFactor=intervalFactor,
+        datasource=datasource,
+        legendFormat=legendFormat,
+        format=format,
+        instant=instant,
+        hide=hide,
+        interval=interval
+      ),
+    // link to fleet panel
+    links:: {
+      fleetDash:: grafana.link.dashboards(
+        asDropdown=false,
+        title='Back to Node Fleet Overview',
+        tags=[],
+        includeVars=false,
+        keepTime=true,
+        url='d/node-fleet'
+      ) { type: 'link', icon: 'dashboard' },
+      nodeDash:: grafana.link.dashboards(
+        asDropdown=false,
+        title='Back to Node Overview',
+        tags=[],
+        includeVars=true,
+        keepTime=true,
+        url='d/nodes'
+      ) { type: 'link', icon: 'dashboard' },
+      otherDashes:: grafana.link.dashboards(
+        asDropdown=true,
+        title='Other Node dashboards',
+        includeVars=true,
+        keepTime=true,
+        tags=(config.dashboardTags),
+      ),
+    },
     // return common queries that could be used in multiple dashboards
     queries:: {
       uptime:: 'time() - node_boot_time_seconds{' + config.nodeExporterSelector + ', instance="$instance"}',

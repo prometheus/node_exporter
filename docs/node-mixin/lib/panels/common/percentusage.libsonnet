@@ -12,19 +12,19 @@ statPanel {
       datasource,
     )
     + self.withDecimals(1)
-    + self.withUnits("percent")
+    + self.withUnits('percent')
     + self.withMax(100)
     + self.withMin(0)
-    + self.withColor(mode="continuous-BlYlRd")
-    {
+    + self.withColor(mode='continuous-BlYlRd')
+      {
       options+: {
-        "reduceOptions": {
-        "values": false,
-        "calcs": [
-            "lastNotNull"
-        ],
-        "fields": ""
+        reduceOptions: {
+          values: false,
+          calcs: [
+            'lastNotNull',
+          ],
+          fields: '',
         },
-      }
-    }
+      },
+    },
 }

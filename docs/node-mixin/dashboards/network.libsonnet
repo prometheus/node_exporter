@@ -156,90 +156,90 @@ local common = import '../lib/common.libsonnet';
       nodePanels.table.new(
         title='Network Interfaces Overview'
       )
-      # "Value #A"
+      // "Value #A"
       .addTarget(commonPromTarget(
         expr='node_network_up{%(nodeExporterSelector)s, instance="$instance"}' % config,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "Value #B"
+      // "Value #B"
       .addTarget(commonPromTarget(
         expr='node_network_carrier{%(nodeExporterSelector)s, instance="$instance"}' % config,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "Value #C"
+      // "Value #C"
       .addTarget(commonPromTarget(
         expr=q.networkTransmitBitsPerSec,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "Value #D"
+      // "Value #D"
       .addTarget(commonPromTarget(
         expr=q.networkReceiveBitsPerSec,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "Value #E"
+      // "Value #E"
       .addTarget(commonPromTarget(
         expr='node_arp_entries{%(nodeExporterSelector)s, instance="$instance"}' % config,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "Value #F"
+      // "Value #F"
       .addTarget(commonPromTarget(
         expr='node_network_mtu_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "Value #G"
+      // "Value #G"
       .addTarget(commonPromTarget(
         expr='node_network_speed_bytes{%(nodeExporterSelector)s, instance="$instance"} * 8' % config,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "Value #H"
+      // "Value #H"
       .addTarget(commonPromTarget(
         expr='node_network_transmit_queue_length{%(nodeExporterSelector)s, instance="$instance"}' % config,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "VALUE #I"
+      // "VALUE #I"
       .addTarget(commonPromTarget(
         expr='node_network_info{%(nodeExporterSelector)s, instance="$instance"}' % config,
-        format="table",
+        format='table',
         instant=true,
       ))
-      # "VALUE #J"
+      // "VALUE #J"
       // .addTarget(commonPromTarget(
       //   expr='node_network_protocol_type{%(nodeExporterSelector)s, instance="$instance"}' % config,
       //   format="table",
       //   instant=true,
       // ))
       .withTransform()
-        .joinByField(field="device")
-        // .merge()
-        .filterFieldsByName("device|address|duplex|Value.+")
-        .organize(
-          excludeByName={
-            "Value #I": true
-          },
-          renameByName=
-            {              
-              "device": "Interface",
-              "address": "Address",
-              "duplex": "Duplex",
-              "Value #A": "Up",
-              "Value #B": "Carrier",
-              "Value #C": "Transmit",
-              "Value #D": "Receive",
-              "Value #E": "ARP entries",
-              "Value #F": "MTU",
-              "Value #G": "Speed",
-              "Value #H": "Queue length",
-              // "Value #J": "Type",
-            }
-        )
+      .joinByField(field='device')
+      // .merge()
+      .filterFieldsByName('device|address|duplex|Value.+')
+      .organize(
+        excludeByName={
+          'Value #I': true,
+        },
+        renameByName=
+        {
+          device: 'Interface',
+          address: 'Address',
+          duplex: 'Duplex',
+          'Value #A': 'Up',
+          'Value #B': 'Carrier',
+          'Value #C': 'Transmit',
+          'Value #D': 'Receive',
+          'Value #E': 'ARP entries',
+          'Value #F': 'MTU',
+          'Value #G': 'Speed',
+          'Value #H': 'Queue length',
+          // "Value #J": "Type",
+        }
+      )
       .addOverride(
         matcher={
           id: 'byRegexp',
@@ -258,34 +258,34 @@ local common = import '../lib/common.libsonnet';
           options: 'Carrier|Up',
         },
         properties=[
-                    {
-            "id": "custom.displayMode",
-            "value": "color-text"
+          {
+            id: 'custom.displayMode',
+            value: 'color-text',
           },
           {
-            "id": "mappings",
-            "value": [
+            id: 'mappings',
+            value: [
               {
-                "type": "value",
-                "options": {
-                  "0": {
-                    "text": "Down",
-                    "color": "light-red",
-                    "index": 1
+                type: 'value',
+                options: {
+                  '0': {
+                    text: 'Down',
+                    color: 'light-red',
+                    index: 1,
                   },
-                  "1": {
-                    "text": "Up",
-                    "color": "light-green",
-                    "index": 0
-                  }
-                }
-              }
-            ]
-          }
+                  '1': {
+                    text: 'Up',
+                    color: 'light-green',
+                    index: 0,
+                  },
+                },
+              },
+            ],
+          },
         ]
       )
       // TODO
-      // possible values: https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_arp.h      
+      // possible values: https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_arp.h
       // .addOverride(
       //   matcher={
       //     id: 'byName',
@@ -343,77 +343,77 @@ local common = import '../lib/common.libsonnet';
             value: 'gradient-gauge',
           },
           {
-            "id": "color",
-            "value": {
-              "mode": "continuous-BlYlRd"
-            }
+            id: 'color',
+            value: {
+              mode: 'continuous-BlYlRd',
+            },
           },
           {
-            "id": "max",
-            "value": 1000*1000*100
+            id: 'max',
+            value: 1000 * 1000 * 100,
           },
         ]
       )
-      ,
-    
-    local networkOperStatus = 
+    ,
+
+    local networkOperStatus =
       nodeTimeseries.new(
         title='Network Interfaces Operational Status'
       )
-      .withColor(mode="palette-classic")
+      .withColor(mode='palette-classic')
       .withFillOpacity(100)
-      .withLegend(mode="list")
+      .withLegend(mode='list')
       .addTarget(commonPromTarget(
         expr='node_network_up{%(nodeExporterSelector)s, instance="$instance"}' % config,
-        legendFormat="{{device}}"
+        legendFormat='{{device}}'
       ))
       + {
         maxDataPoints: 100,
-        type: "status-history",
+        type: 'status-history',
         fieldConfig+: {
           defaults+: {
             mappings+: [
               {
-                "type": "value",
-                "options": {
-                  "1": {
-                    "text": "Up",
-                    "color": "light-green",
-                    "index": 1
-                  }
-                }
+                type: 'value',
+                options: {
+                  '1': {
+                    text: 'Up',
+                    color: 'light-green',
+                    index: 1,
+                  },
+                },
               },
               {
-                "type": "value",
-                "options": {
-                  "0": {
-                    "text": "Down",
-                    "color": "light-red",
-                    "index": 0
-                  }
-                }
-              }
+                type: 'value',
+                options: {
+                  '0': {
+                    text: 'Down',
+                    color: 'light-red',
+                    index: 0,
+                  },
+                },
+              },
 
-              ]
-            }
-          }
+            ],
+          },
         },
+      },
 
     local rows =
       [
         row.new('Network')
-          .addPanel(networkInterfacesTable {span: 12})
-          .addPanel(networkTrafficPanel { span: 6 })
-          .addPanel(networkOperStatus {span: 6 })
-          .addPanel(networkErrorsPanel { span: 6 })
-          .addPanel(networkDropsPanel { span: 6 })
-          .addPanel(networkPacketsPanel { span: 6 })
-          .addPanel(networkMulticastPanel { span: 6 })
-          .addPanel(networkFifoPanel { span: 6 })
-          .addPanel(networkCompressedPanel { span: 6 })
-          .addPanel(networkNFConntrack { span: 6 })
-          .addPanel(networkSoftnetPanel { span: 6 })
-          .addPanel(networkSoftnetSqueezePanel { span: 6 })
+        .addPanel(networkInterfacesTable { span: 12 })
+        .addPanel(networkTrafficPanel { span: 6 })
+        .addPanel(networkOperStatus { span: 6 })
+        .addPanel(networkErrorsPanel { span: 6 })
+        .addPanel(networkDropsPanel { span: 6 })
+        .addPanel(networkPacketsPanel { span: 6 })
+        .addPanel(networkMulticastPanel { span: 6 })
+        .addPanel(networkFifoPanel { span: 6 })
+        .addPanel(networkCompressedPanel { span: 6 })
+        .addPanel(networkNFConntrack { span: 6 })
+        .addPanel(networkSoftnetPanel { span: 6 })
+        .addPanel(networkSoftnetSqueezePanel { span: 6 }),
       ],
 
     dashboard: if platform == 'Linux' then
@@ -426,13 +426,9 @@ local common = import '../lib/common.libsonnet';
         graphTooltip='shared_crosshair',
         uid='node-network'
       ) { editable: true }
-      .addLink(grafana.link.dashboards(
-        asDropdown=true,
-        title='Other Node dashboards',
-        includeVars=true,
-        keepTime=true,
-        tags=(config.dashboardTags),
-      ))
+      .addLink(c.links.fleetDash)
+      .addLink(c.links.nodeDash)
+      .addLink(c.links.otherDashes)
       .addTemplates(templates)
       .addRows(rows)
     else if platform == 'Darwin' then {},

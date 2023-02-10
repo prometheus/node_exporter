@@ -7,21 +7,21 @@ genericPanel
     description=null,
     datasource=null,
   ):: self +
-    grafana.graphPanel.new(
-      title=title,
-      description=description,
-      datasource=datasource,
-    )
-    +
-    {
-      type: 'timeseries',
-    }
-    + self.withFillOpacity(10)
-    + self.withGradientMode('opacity')
-    + self.withLineInterpolation('smooth')
-    + self.withShowPoints('never')
-    + self.withTooltip(mode='multi', sort='none')
-    + self.withLegend(mode='list', calcs=[]),
+      grafana.graphPanel.new(
+        title=title,
+        description=description,
+        datasource=datasource,
+      )
+      +
+      {
+        type: 'timeseries',
+      }
+      + self.withFillOpacity(10)
+      + self.withGradientMode('opacity')
+      + self.withLineInterpolation('smooth')
+      + self.withShowPoints('never')
+      + self.withTooltip(mode='multi', sort='none')
+      + self.withLegend(mode='list', calcs=[]),
 
   withTooltip(mode=null, sort='none'):: self {
     options+: {
@@ -106,22 +106,24 @@ genericPanel
   },
 
   withNegativeYByRegex(regex):: self {
-      fieldConfig+: {
-        overrides+: [
-{          matcher: {
+    fieldConfig+: {
+      overrides+: [
+        {
+          matcher: {
             id: 'byRegexp',
-            options: '/'+regex+'/',
+            options: '/' + regex + '/',
           },
           properties: [
             {
-              "id": "custom.transform",
-              "value": "negative-Y"
+              id: 'custom.transform',
+              value: 'negative-Y',
             },
-          ]}
+          ],
+        },
 
-        ]
-      }
-      
+      ],
+    },
 
-  }
+
+  },
 }

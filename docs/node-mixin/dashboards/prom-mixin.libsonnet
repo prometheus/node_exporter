@@ -28,19 +28,19 @@ local nodeTemplates = common.templates;
 
     local cpuCountPanel =
       commonPanels.infoStat.new('CPU Count')
-        .addTarget(commonPromTarget(expr=q.cpuCount)),
+      .addTarget(commonPromTarget(expr=q.cpuCount)),
 
     local memoryTotalPanel =
       commonPanels.infoStat.new('Memory Total')
-        .addTarget(commonPromTarget(expr=q.memoryTotal, ))
-        .withUnits('bytes')
-        .withDecimals(0),
+      .addTarget(commonPromTarget(expr=q.memoryTotal,))
+      .withUnits('bytes')
+      .withDecimals(0),
 
     local osPanel =
       commonPanels.infoStat.new('OS')
-        .addTarget(commonPromTarget(
-          expr=q.osInfo, format='table'
-        )) { options+: { reduceOptions+: { fields: '/^pretty_name$/' } } },
+      .addTarget(commonPromTarget(
+        expr=q.osInfo, format='table'
+      )) { options+: { reduceOptions+: { fields: '/^pretty_name$/' } } },
 
     local nodeNamePanel =
       commonPanels.infoStat.new('Hostname')
@@ -52,17 +52,17 @@ local nodeTemplates = common.templates;
     local kernelVersionPanel =
 
       commonPanels.infoStat.new('Kernel version')
-        .addTarget(commonPromTarget(
-          expr=q.nodeInfo, format='table'
-        ))
+      .addTarget(commonPromTarget(
+        expr=q.nodeInfo, format='table'
+      ))
       { options+: { reduceOptions+: { fields: '/^release$/' } } }
     ,
 
     local totalSwapPanel =
       commonPanels.infoStat.new('Total swap')
-        .addTarget(commonPromTarget(
-          expr=q.memorySwapTotal
-        ))
+      .addTarget(commonPromTarget(
+        expr=q.memorySwapTotal
+      ))
       .withUnits('bytes')
       .withDecimals(0),
 
@@ -259,9 +259,9 @@ local nodeTemplates = common.templates;
         title='Disk Space Usage'
       )
       .setFieldConfig(unit='decbytes')
-      .addThresholdStep(color='green', value=null)
-      .addThresholdStep(color='yellow', value=0.8)
-      .addThresholdStep(color='red', value=0.9)
+      .addThresholdStep(color='light-green', value=null)
+      .addThresholdStep(color='light-yellow', value=0.8)
+      .addThresholdStep(color='light-red', value=0.9)
       .addTarget(commonPromTarget(
         |||
           max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s, %(fsMountpointSelector)s})
@@ -442,7 +442,7 @@ local nodeTemplates = common.templates;
 
     local networkTrafficPanel =
       commonPanels.networkTrafficGraph.new(
-        'Network Traffic', description='Network transmitted and received (bits/s)', 
+        'Network Traffic', description='Network transmitted and received (bits/s)',
       )
       .addTarget(commonPromTarget(
         expr=q.networkReceiveBitsPerSec,
@@ -454,7 +454,7 @@ local nodeTemplates = common.templates;
       )),
 
     local networkErrorsDropsPanel =
-      nodePanels.timeseries.new('Network Errors and Dropped Packets', )
+      nodePanels.timeseries.new('Network Errors and Dropped Packets',)
       .addTarget(commonPromTarget(
         expr=q.networkReceiveErrorsPerSec,
         legendFormat='{{device}} errors in',
@@ -520,7 +520,7 @@ local nodeTemplates = common.templates;
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
-        '%sNodes' % config.dashboardNamePrefix,
+        '%sNode Overview ' % config.dashboardNamePrefix,
         time_from=config.dashboardInterval,
         tags=(config.dashboardTags),
         timezone=config.dashboardTimezone,
@@ -528,13 +528,8 @@ local nodeTemplates = common.templates;
         graphTooltip='shared_crosshair',
         uid='nodes'
       ) { editable: true }
-      .addLink(grafana.link.dashboards(
-        asDropdown=true,
-        title='Other Node dashboards',
-        includeVars=true,
-        keepTime=true,
-        tags=(config.dashboardTags),
-      ))
+      .addLink(c.links.fleetDash)
+      .addLink(c.links.otherDashes)
       .addTemplates(templates)
       .addRows(rows)
     else if platform == 'Darwin' then

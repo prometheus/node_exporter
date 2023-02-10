@@ -1,26 +1,26 @@
 // generic grafana dashboard
 {
   //feed grafonnet panel
-  new()::{},
+  new():: {},
 
   withUnits(unit):: self {
 
     fieldConfig+: {
       defaults+: {
-        unit: unit
+        unit: unit,
       },
     },
   },
 
-  withLegend(show=true, mode="table", placement="bottom", calcs=["min","mean","max","lastNotNull"]):: self {
+  withLegend(show=true, mode='table', placement='bottom', calcs=['min', 'mean', 'max', 'lastNotNull']):: self {
     options+: {
-      "legend": {
-        "showLegend": show,
-        "displayMode": mode,
-        "placement": placement,
-        "calcs": calcs,
-      }
-    }
+      legend: {
+        showLegend: show,
+        displayMode: mode,
+        placement: placement,
+        calcs: calcs,
+      },
+    },
   },
   withDecimals(decimals):: self {
 
@@ -31,17 +31,17 @@
     },
   },
 
-  withThresholds(mode="absolute", steps=null):: self {
+  withThresholds(mode='absolute', steps=null):: self {
 
     fieldConfig+: {
       defaults+: {
-        "thresholds": {
-            "mode": mode,
-            "steps": steps
+        thresholds: {
+          mode: mode,
+          steps: steps,
         },
       },
     },
-},
+  },
   withMin(value):: self {
     fieldConfig+: {
       defaults+: {
@@ -56,72 +56,72 @@
       },
     },
   },
-  withColor(color=null, mode="fixed"):: self {
-        fieldConfig+: {
-        defaults+: {
-            "color": {
-                mode: mode,
-                fixedColor: if mode == 'fixed' then color else null
-            },
+  withColor(color=null, mode='fixed'):: self {
+    fieldConfig+: {
+      defaults+: {
+        color: {
+          mode: mode,
+          fixedColor: if mode == 'fixed' then color else null,
         },
+      },
     },
   },
 
   withTransform():: self {
-    
+
     merge():: self
-    {
+              {
       transformations+: [
         {
-          "id": "merge",
-          "options": {}
+          id: 'merge',
+          options: {},
         },
-      ]
+      ],
     },
     filterFieldsByName(pattern=null):: self
-    {
+                                       {
       transformations+: [
-          {
-            "id": "filterFieldsByName",
-            "options": {
-              "include": {
-                "pattern": pattern
-              }
-            }
-          }
-      ]
+        {
+          id: 'filterFieldsByName',
+          options: {
+            include: {
+              pattern: pattern,
+            },
+          },
+        },
+      ],
     },
     joinByField(
-      mode="outer",
+      mode='outer',
       field=null
     ):: self {
       transformations+: [
         {
-          "id": "joinByField",
-          "options": {
-            "byField": field,
-            "mode": mode
-          }
+          id: 'joinByField',
+          options: {
+            byField: field,
+            mode: mode,
+          },
         },
-      ]
+      ],
     },
     organize(
       excludeByName={},
       indexByName={},
       renameByName={},
 
-      ):: self
-    {
+    ):: self
+        {
       transformations+: [
         {
-          "id": "organize",
-          "options": {
-            "excludeByName": excludeByName,
-            "indexByName": indexByName,
-            "renameByName": renameByName,
-          }
+          id: 'organize',
+          options: {
+            excludeByName: excludeByName,
+            indexByName: indexByName,
+            renameByName: renameByName,
+          },
         },
-      ]
-    }
+      ],
+    },
   },
 }

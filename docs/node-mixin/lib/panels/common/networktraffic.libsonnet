@@ -12,7 +12,7 @@ timeseries {
       datasource,
     )
     + self.withDecimals(1)
-    + self.withUnits("bps")
-    + self.withNegativeYByRegex("transmit|tx|out")
-    + self.withAxisLabel("out(-)/in(+)")
+    + self.withUnits('bps')
+    + self.withNegativeYByRegex('transmit|tx|out')
+    + self.withAxisLabel('out(-)/in(+)'),
 }

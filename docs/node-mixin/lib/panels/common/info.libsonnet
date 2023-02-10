@@ -11,20 +11,20 @@ statPanel {
       description,
       datasource,
     )
-    + self.withColor(color="text")
+    + self.withColor(color='text')
     + self.withTextSize(value=30)
-    + self.withGraphMode("none")
+    + self.withGraphMode('none')
     +
     {
       options+: {
-        "reduceOptions": {
-        "values": false,
-        "calcs": [
-            "lastNotNull"
-        ],
-        "fields": ""
+        reduceOptions: {
+          values: false,
+          calcs: [
+            'lastNotNull',
+          ],
+          fields: '',
         },
-        graphMode: "none"
-      }
-    }
+        graphMode: 'none',
+      },
+    },
 }

@@ -11,33 +11,33 @@ statPanel {
       datasource,
     )
     + self.withDecimals(1)
-    + self.withGraphMode("none")
+    + self.withGraphMode('none')
     + self.withTextSize(value=30)
-    + self.withUnits("dtdurations")
+    + self.withUnits('dtdurations')
     + self.withThresholds(
-        mode="absolute",
-        steps=[
-          {
-            "color": "orange",
-            "value": null
-          },
-          {
-            "color": "text",
-            "value": 300
-          }
-        ]
+      mode='absolute',
+      steps=[
+        {
+          color: 'orange',
+          value: null,
+        },
+        {
+          color: 'text',
+          value: 300,
+        },
+      ]
     )
-    + self.withColor(mode="thresholds")
+    + self.withColor(mode='thresholds')
     +
     {
       options+: {
-        "reduceOptions": {
-        "values": false,
-        "calcs": [
-            "lastNotNull"
-        ],
-        "fields": ""
+        reduceOptions: {
+          values: false,
+          calcs: [
+            'lastNotNull',
+          ],
+          fields: '',
         },
-      }
-    }
+      },
+    },
 }

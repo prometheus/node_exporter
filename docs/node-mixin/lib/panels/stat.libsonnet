@@ -6,23 +6,23 @@ genericPanel {
     description=null,
     datasource=null,
   ):: self +
-    grafana.statPanel.new(
-      title=title,
-      description=description,
-      datasource=datasource,
-    ),
-    withGraphMode(mode="none"):: self {
-      options+:
+      grafana.statPanel.new(
+        title=title,
+        description=description,
+        datasource=datasource,
+      ),
+  withGraphMode(mode='none'):: self {
+    options+:
       {
-        graphMode: mode
-      }
-    },
-    withTextSize(value="auto", title="auto"):: self {
-      options+:
-      {"text": {
-        "valueSize": value,
-        titleSize: title
-      }}
-    }
-    
+        graphMode: mode,
+      },
+  },
+  withTextSize(value='auto', title='auto'):: self {
+    options+:
+      { text: {
+        valueSize: value,
+        titleSize: title,
+      } },
+  },
+
 }
