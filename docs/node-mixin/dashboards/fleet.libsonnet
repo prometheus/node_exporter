@@ -108,7 +108,7 @@ local common = import '../lib/common.libsonnet';
         "Value #CPUUSAGE"
       ])
       //.addThresholdStep(color='light-green', value=null)
-      .addThresholdStep(color='text', value=null)
+      .addThresholdStep(color='light-blue', value=null)
       .addThresholdStep(color='light-yellow', value=80)
       .addThresholdStep(color='light-red', value=90)
       .addOverride(
@@ -247,10 +247,128 @@ local common = import '../lib/common.libsonnet';
       )
       .sortBy('Instance')
       ,
+    
+    local memoryUsagePanel = 
+      nodePanels.timeseries.new('Memory Usage', description="Top 25")
+      .withUnits('percent')
+      .withMin(0)
+      .withMax(100)
+      .withColor(mode="continuous-BlYlRd")
+      .withFillOpacity(5)
+      .withGradientMode("scheme")
+      .withLegend(mode='table', calcs=["mean","max","lastNotNull"], placement="right")
+      .withTooltip(mode='multi', sort='desc')
+      .addDataLink(
+        title='Drill down to instance ${__field.labels.instance}',
+        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+      )
+      .addTarget(commonPromTarget(
+        expr="topk(25, " + q.memoryUsage + ")",
+        legendFormat='{{instance}}',
+      ))
+      .addTarget(commonPromTarget(
+        expr="avg(" + q.memoryUsage + ")",
+        legendFormat='Mean',
+      ))
+      .addOverride(
+        matcher={
+          "id": "byName",
+          "options": "Mean"
+
+        },
+        properties=[
+          {
+            "id": "custom.lineStyle",
+            "value": {
+              "fill": "dash",
+              "dash": [
+                10,
+                10
+              ]
+            }
+          },
+          {
+            "id": "custom.fillOpacity",
+            "value": 0
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "light-purple"
+            }
+          },
+          {
+            "id": "custom.lineWidth",
+            "value": 2
+          }
+        ]
+      ),
+
+    local cpuUsagePanel =
+      nodePanels.timeseries.new('CPU Usage', description="Top 25")
+      .withUnits('percent')
+      .withMin(0)
+      .withMax(100)
+      .withFillOpacity(5)
+      .withColor(mode="continuous-BlYlRd")
+      .withGradientMode("scheme")
+      .withLegend(mode='table', calcs=["mean","max","lastNotNull"], placement="right")
+      .withTooltip(mode='multi', sort='desc')
+      .addDataLink(
+        title='Drill down to instance ${__field.labels.instance}',
+        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+      )
+      .addTarget(commonPromTarget(
+        expr="topk(25, " + q.cpuUsage + ")",
+        legendFormat='{{instance}}',
+      ))
+      .addTarget(commonPromTarget(
+        expr="avg(" + q.cpuUsage + ")",
+        legendFormat='Mean',
+      ))
+      .addOverride(
+        matcher={
+          "id": "byName",
+          "options": "Mean"
+
+        },
+        properties=[
+          {
+            "id": "custom.lineStyle",
+            "value": {
+              "fill": "dash",
+              "dash": [
+                10,
+                10
+              ]
+            }
+          },
+          {
+            "id": "custom.fillOpacity",
+            "value": 0
+          },
+          {
+            "id": "color",
+            "value": {
+              "mode": "fixed",
+              "fixedColor": "light-purple"
+            }
+          },
+          {
+            "id": "custom.lineWidth",
+            "value": 2
+          }
+        ]
+      )
+      ,
+
     local rows =
       [
         row.new('Overview')
-        .addPanel(fleetTable { span: 12, height: '800px' }),
+        .addPanel(fleetTable { span: 12, height: '800px' })
+        .addPanel(cpuUsagePanel {span: 12 })
+        .addPanel(memoryUsagePanel{span: 12 }),
       ],
 
     dashboard: if platform == 'Linux' then

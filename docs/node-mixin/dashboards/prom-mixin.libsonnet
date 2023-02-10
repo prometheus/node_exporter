@@ -249,7 +249,7 @@ local nodeTemplates = common.templates;
       )
       .setFieldConfig(unit='decbytes')
       //.addThresholdStep(color='light-green', value=null)
-      .addThresholdStep(color='text', value=null)
+      .addThresholdStep(color='light-blue', value=null)
       .addThresholdStep(color='light-yellow', value=0.8)
       .addThresholdStep(color='light-red', value=0.9)
       .addTarget(commonPromTarget(

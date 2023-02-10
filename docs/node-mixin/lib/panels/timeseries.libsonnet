@@ -27,7 +27,7 @@ genericPanel
     options+: {
       tooltip: {
         mode: 'multi',
-        sort: 'none',
+        sort: sort,
       },
     },
   },
@@ -83,7 +83,6 @@ genericPanel
       },
     },
   },
-
   withFillOpacity(opacity):: self {
     fieldConfig+: {
       defaults+: {
