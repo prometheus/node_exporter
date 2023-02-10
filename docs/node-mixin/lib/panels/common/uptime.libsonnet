@@ -12,7 +12,7 @@ statPanel {
     )
     + self.withDecimals(1)
     + self.withGraphMode('none')
-    + self.withTextSize(value=30)
+    + self.withTextSize(value=20)
     + self.withUnits('dtdurations')
     + self.withThresholds(
       mode='absolute',

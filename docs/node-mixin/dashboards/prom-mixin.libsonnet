@@ -5,8 +5,6 @@ local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 local statPanel = grafana.statPanel;
-local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
-local table = grafana70.panel.table;
 local nodePanels = import '../lib/panels/panels.libsonnet';
 local commonPanels = import '../lib/panels/common/panels.libsonnet';
 local nodeTimeseries = nodePanels.timeseries;
@@ -32,7 +30,7 @@ local nodeTemplates = common.templates;
 
     local memoryTotalPanel =
       commonPanels.infoStat.new('Memory Total')
-      .addTarget(commonPromTarget(expr=q.memoryTotal,))
+      .addTarget(commonPromTarget(expr=q.memoryTotal))
       .withUnits('bytes')
       .withDecimals(0),
 
@@ -97,10 +95,10 @@ local nodeTemplates = common.templates;
       .withUnits('short')
       .withMin(0)
       .withFillOpacity(0)
-      .addTarget(commonPromTarget('node_load1{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='1m load average'))
-      .addTarget(commonPromTarget('node_load5{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='5m load average'))
-      .addTarget(commonPromTarget('node_load15{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='15m load average'))
-      .addTarget(commonPromTarget('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", mode="idle"})' % config, legendFormat='logical cores'))
+      .addTarget(commonPromTarget(q.systemLoad1, legendFormat='1m load average'))
+      .addTarget(commonPromTarget(q.systemLoad5, legendFormat='5m load average'))
+      .addTarget(commonPromTarget(q.systemLoad15, legendFormat='15m load average'))
+      .addTarget(commonPromTarget(q.cpuCount, legendFormat='logical cores'))
       .addOverride(
         matcher={
           id: 'byName',
@@ -175,16 +173,7 @@ local nodeTemplates = common.templates;
       if platform == 'Linux' then
         memoryGaugePanelPrototype
 
-        .addTarget(commonPromTarget(
-          |||
-            100 -
-            (
-              avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance"}) /
-              avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"})
-            * 100
-            )
-          ||| % config,
-        ))
+        .addTarget(commonPromTarget(q.memoryUsage))
 
       else if platform == 'Darwin' then
         memoryGaugePanelPrototype
@@ -255,11 +244,12 @@ local nodeTemplates = common.templates;
       ),
 
     local diskSpaceUsage =
-      table.new(
+      nodePanels.table.new(
         title='Disk Space Usage'
       )
       .setFieldConfig(unit='decbytes')
-      .addThresholdStep(color='light-green', value=null)
+      //.addThresholdStep(color='light-green', value=null)
+      .addThresholdStep(color='text', value=null)
       .addThresholdStep(color='light-yellow', value=0.8)
       .addThresholdStep(color='light-red', value=0.9)
       .addTarget(commonPromTarget(
@@ -339,9 +329,13 @@ local nodeTemplates = common.templates;
             id: 'unit',
             value: 'percentunit',
           },
+          // {
+          //   id: 'custom.displayMode',
+          //   value: 'gradient-gauge',
+          // },
           {
-            id: 'custom.displayMode',
-            value: 'gradient-gauge',
+            "id": "custom.displayMode",
+            "value": "basic"
           },
           {
             id: 'max',
@@ -353,8 +347,9 @@ local nodeTemplates = common.templates;
           },
         ]
       )
+      .sortBy('Mounted on')
       + {
-        transformations: [
+        transformations+: [
           {
             id: 'groupBy',
             options: {
@@ -425,18 +420,19 @@ local nodeTemplates = common.templates;
                 mountpoint: 'Mounted on',
               },
             },
-          },
-          {
-            id: 'sortBy',
-            options: {
-              fields: {},
-              sort: [
-                {
-                  field: 'Mounted on',
-                },
-              ],
-            },
-          },
+          }
+          
+          // {
+          //   id: 'sortBy',
+          //   options: {
+          //     fields: {},
+          //     sort: [
+          //       {
+          //         field: 'Mounted on',
+          //       },
+          //     ],
+          //   },
+          // },
         ],
       },
 
@@ -479,7 +475,7 @@ local nodeTemplates = common.templates;
 
     local infoRow =
       row.new('Overview')
-      .addPanel(uptimePanel { span: 3, height: '100px' })
+      .addPanel(uptimePanel { span: 3, height: '100px' } )
       .addPanel(nodeNamePanel { span: 3, height: '100px' })
       .addPanel(kernelVersionPanel { span: 3, height: '100px' })
       .addPanel(osPanel { span: 3, height: '100px' })

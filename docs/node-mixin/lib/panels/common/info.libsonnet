@@ -12,7 +12,7 @@ statPanel {
       datasource,
     )
     + self.withColor(color='text')
-    + self.withTextSize(value=30)
+    + self.withTextSize(value=20)
     + self.withGraphMode('none')
     +
     {

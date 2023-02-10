@@ -29,37 +29,28 @@ local common = import '../lib/common.libsonnet';
 
     local q = c.queries,
 
-    local networkInterfacesTable =
+    local fleetTable =
       nodePanels.table.new(
         title='Linux Nodes Overview'
       )
-      // "Value #A"
+      //ABCDEFGHIJKLMNOPQRSTUVWXYZ
+      .addTarget(commonPromTarget(expr=q.osInfo, format='table', instant=true) {refId: "INFO"})
+      .addTarget(commonPromTarget(expr=q.nodeInfo, format='table', instant=true) {refId: "OS"})
+      .addTarget(commonPromTarget(expr=q.uptime, format='table', instant=true) {refId: "UPTIME"})
+      .addTarget(commonPromTarget(expr=q.systemLoad1, format='table', instant=true) {refId: "LOAD1"})
+      .addTarget(commonPromTarget(expr=q.systemLoad5, format='table', instant=true) {refId: "LOAD5"})
+      .addTarget(commonPromTarget(expr=q.systemLoad15, format='table', instant=true) {refId: "LOAD15"})
       .addTarget(commonPromTarget(
-        expr='avg by (instance) (node_load1{%(nodeExporterSelector)s, instance="$instance"})' % config,
+        expr=q.cpuCount,
         format='table',
         instant=true,
-      ))
-      // "Value #B" (number of cpu)
+      ) {refId: "CPUCOUNT"})
       .addTarget(commonPromTarget(
-        expr='count by (instance)(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance"})' % config,
-        format='table',
-        instant=true,
-      ))
-      // "Value #C (memory usage)"
-      .addTarget(commonPromTarget(
-        expr=
-        |||
-          100 -
-          (
-            avg by (instance) (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance=~"$instance"}) /
-            avg by (instance) (node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance=~"$instance"})
-          * 100
-          )
-        ||| % config,
-        format='table',
-        instant=true,
-      ))
-      // "Value #D (mount / usage)"
+        expr=q.cpuUsage, format='table', instant=true,
+      ) {refId: "CPUUSAGE"})
+      .addTarget(commonPromTarget(expr=q.memoryTotal, format='table', instant=true) {refId: "MEMTOTAL"})
+      .addTarget(commonPromTarget(expr=q.memoryUsage, format='table', instant=true) {refId: "MEMUSAGE"})
+      .addTarget(commonPromTarget(expr=q.fsSizeTotalRoot, format='table', instant=true) {refId: "FSTOTAL"})
       .addTarget(commonPromTarget(
         expr=
         |||
@@ -69,25 +60,55 @@ local common = import '../lib/common.libsonnet';
         ||| % config,
         format='table',
         instant=true,
-      ))
+      ) {refId: "FSUSAGE"})
+      .addTarget(commonPromTarget(
+        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="critical"}[1m]))' %config,
+        format='table',
+        instant=true
+        ) {refId: "CRITICAL"})
+      .addTarget(commonPromTarget(
+        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="warning"}[1m]))' %config,
+        format='table',
+        instant=true
+        ) {refId: "WARNING"})
       .withTransform()
-      .joinByField(field='instance')
-      // .merge()
-      .filterFieldsByName('instance|Value.+')
-      .organize(
-        excludeByName={
-        },
-        renameByName=
-        {
-          instance: 'Instance',
-          'Value #A': 'Load average 1',
-          'Value #B': 'Cores',
-          'Value #C': 'Memory usage',
-          'Value #D': 'Root / disk usage',
-        }
-      )
-      .withFooter(reducer=['mean'], fields=['Value #C'])
-      .addThresholdStep(color='light-green', value=null)
+        .joinByField(field='instance')
+        //disable kernel and os:
+        //.filterFieldsByName('instance|pretty_name|nodename|release|Value.+')
+        .filterFieldsByName('instance|nodename|Value.+')
+        .organize(
+          excludeByName={
+            'Value #OS': true,
+            'Value #INFO': true,
+            'Value #LOAD5': true,
+            'Value #LOAD15': true,
+          },
+          renameByName={
+            'instance': 'Instance',
+            'pretty_name': 'OS',
+            'nodename': 'Hostname',
+            'release': 'Kernel version',
+            'Value #LOAD1': 'Load 1m',
+            'Value #LOAD5': 'Load 5m',
+            'Value #LOAD15': 'Load 15m',
+            'Value #CPUCOUNT': 'Cores',
+            'Value #CPUUSAGE': 'CPU usage',
+            'Value #MEMTOTAL': 'Memory total',
+            'Value #MEMUSAGE': 'Memory usage',
+            'Value #FSTOTAL': 'Root disk size',
+            'Value #FSUSAGE': 'Root disk usage',
+            'Value #UPTIME': 'Uptime',
+            'Value #CRITICAL': 'Crit Alerts',
+            'Value #WARNING': 'Warnings',
+          }
+        )
+      .withFooter(reducer=['mean'], fields=[
+        'Value #LOAD1',
+        "Value #MEMUSAGE",
+        "Value #CPUUSAGE"
+      ])
+      //.addThresholdStep(color='light-green', value=null)
+      .addThresholdStep(color='text', value=null)
       .addThresholdStep(color='light-yellow', value=80)
       .addThresholdStep(color='light-red', value=90)
       .addOverride(
@@ -101,26 +122,118 @@ local common = import '../lib/common.libsonnet';
             value: [
               {
                 targetBlank: true,
-                title: 'Drill down to instance',
+                title: 'Drill down to instance ${__data.fields.instance}',
                 url: 'd/nodes?var-instance=${__data.fields.instance}&${__url_time_range}',
               },
             ],
+          },
+          {
+            "id": "custom.filterable",
+            "value": true
           },
         ]
       )
       .addOverride(
         matcher={
           id: 'byRegexp',
-          options: 'Memory usage|Root / disk usage',
+          options: 'OS|Kernel version|Hostname',
+        },
+        properties=[
+          {
+            "id": "custom.filterable",
+            "value": true
+          },
+        ]
+      )
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: 'Memory total|Root disk size',
+        },
+        properties=[
+          {
+            id: 'unit',
+            value: 'bytes',
+          },
+          {
+            "id": "decimals",
+            "value": 0
+          },
+        ]
+      )
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Cores'
+        },
+        properties=[
+          {
+            "id": "custom.width",
+            "value": 60
+          }
+        ]
+      )
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: 'Load.+'
+        },
+        properties=[
+          {
+            "id": "custom.width",
+            "value": 60
+          }
+        ]
+      )
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Uptime',
+        },
+        properties=[
+          {
+            id: 'unit',
+            value: 'dtdurations',
+          },
+          {
+            "id": "custom.displayMode",
+            "value": "color-text"
+          },
+          {
+            "id": "thresholds",
+            "value": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "light-orange",
+                  "value": null
+                },
+                {
+                  "color": "text",
+                  "value": 300
+                }
+              ]
+            }
+          },
+        ]
+      )
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: 'CPU usage|Memory usage|Root disk usage',
         },
         properties=[
           {
             id: 'unit',
             value: 'percent',
           },
+          // {
+          //   id: 'custom.displayMode',
+          //   value: 'gradient-gauge',
+          // },
           {
-            id: 'custom.displayMode',
-            value: 'gradient-gauge',
+            "id": "custom.displayMode",
+            "value": "basic"
           },
           {
             id: 'max',
@@ -131,11 +244,13 @@ local common = import '../lib/common.libsonnet';
             value: 0,
           },
         ]
-      ),
+      )
+      .sortBy('Instance')
+      ,
     local rows =
       [
         row.new('Overview')
-        .addPanel(networkInterfacesTable { span: 12, height: '800px' }),
+        .addPanel(fleetTable { span: 12, height: '800px' }),
       ],
 
     dashboard: if platform == 'Linux' then

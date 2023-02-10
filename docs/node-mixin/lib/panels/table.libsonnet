@@ -13,6 +13,16 @@ genericPanel
         description=description,
         datasource=datasource,
       ),
+  sortBy(field, desc=false):: self {
+    options+: {
+      "sortBy": [
+      {
+        "displayName": field,
+        "desc": desc,
+      }
+    ]
+    }
+  },
   withFooter(reducer=['mean'], fields=[]):: self {
 
     options+: {
