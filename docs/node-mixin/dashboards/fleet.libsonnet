@@ -62,12 +62,12 @@ local common = import '../lib/common.libsonnet';
         instant=true,
       ) { refId: 'FSUSAGE' })
       .addTarget(commonPromTarget(
-        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="critical"}[1m]))' % config,
+        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="critical"}[1m])) * group by (instance) (node_uname_info{})' % config,
         format='table',
         instant=true
       ) { refId: 'CRITICAL' })
       .addTarget(commonPromTarget(
-        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="warning"}[1m]))' % config,
+        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="warning"}[1m])) * group by (instance) (node_uname_info{})' % config,
         format='table',
         instant=true
       ) { refId: 'WARNING' })
