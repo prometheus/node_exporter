@@ -131,6 +131,19 @@ local template = grafana.template;
       fsSizeTotalRoot:: 'node_filesystem_size_bytes{%(nodeExporterSelector)s, instance=~"$instance", mountpoint="/",fstype!="rootfs"}' % config,
       osInfo:: 'node_os_info{%(nodeExporterSelector)s, instance=~"$instance"}' % config,
       nodeInfo:: 'node_uname_info{%(nodeExporterSelector)s, instance=~"$instance"}' % config,
+      diskReadTime:: 'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance=~"$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
+      diskWriteTime:: 'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance=~"$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
+      diskIoTime:: 'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance=~"$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
+      diskSpaceUsage::
+        |||
+          sort_desc(1 -
+            (
+            max by (job, instance, fstype, device) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
+            /
+            max by (job, instance, fstype, device) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
+            ) != 0
+          )
+        ||| % config,
       networkReceiveBitsPerSec:: 'irate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance=~"$instance"}[$__rate_interval])*8' % config,
       networkTransmitBitsPerSec:: 'irate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance=~"$instance"}[$__rate_interval])*8' % config,
       networkReceiveErrorsPerSec:: 'irate(node_network_receive_errs_total{%(nodeExporterSelector)s, instance=~"$instance",}[$__rate_interval])' % config,

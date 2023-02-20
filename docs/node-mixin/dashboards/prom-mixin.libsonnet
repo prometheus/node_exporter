@@ -199,15 +199,15 @@ local nodeTemplates = common.templates;
       .withMin(0)
       // TODO: Does it make sense to have those three in the same panel?
       .addTarget(commonPromTarget(
-        'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
+        q.diskReadTime,
         legendFormat='{{device}} read',
       ))
       .addTarget(commonPromTarget(
-        'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
+        q.diskWriteTime,
         legendFormat='{{device}} written',
       ))
       .addTarget(commonPromTarget(
-        'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
+        q.diskIoTime,
         legendFormat='{{device}} io time',
       ))
       .addOverride(
@@ -334,8 +334,8 @@ local nodeTemplates = common.templates;
           //   value: 'gradient-gauge',
           // },
           {
-            "id": "custom.displayMode",
-            "value": "basic"
+            id: 'custom.displayMode',
+            value: 'basic',
           },
           {
             id: 'max',
@@ -420,8 +420,8 @@ local nodeTemplates = common.templates;
                 mountpoint: 'Mounted on',
               },
             },
-          }
-          
+          },
+
           // {
           //   id: 'sortBy',
           //   options: {
@@ -475,7 +475,7 @@ local nodeTemplates = common.templates;
 
     local infoRow =
       row.new('Overview')
-      .addPanel(uptimePanel { span: 3, height: '100px' } )
+      .addPanel(uptimePanel { span: 3, height: '100px' })
       .addPanel(nodeNamePanel { span: 3, height: '100px' })
       .addPanel(kernelVersionPanel { span: 3, height: '100px' })
       .addPanel(osPanel { span: 3, height: '100px' })

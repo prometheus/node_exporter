@@ -63,7 +63,7 @@
     rateInterval: '5m',
     // Opt-in for multi-cluster support.
     showMultiCluster: false,
-    clusterLabel: 'cluster',
+    clusterLabel: 'job',
 
     dashboardNamePrefix: 'Node Exporter / ',
     dashboardTags: ['node-exporter-mixin'],

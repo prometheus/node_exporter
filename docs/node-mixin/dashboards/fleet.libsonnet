@@ -34,23 +34,23 @@ local common = import '../lib/common.libsonnet';
         title='Linux Nodes Overview'
       )
       //ABCDEFGHIJKLMNOPQRSTUVWXYZ
-      .addTarget(commonPromTarget(expr=q.osInfo, format='table', instant=true) {refId: "INFO"})
-      .addTarget(commonPromTarget(expr=q.nodeInfo, format='table', instant=true) {refId: "OS"})
-      .addTarget(commonPromTarget(expr=q.uptime, format='table', instant=true) {refId: "UPTIME"})
-      .addTarget(commonPromTarget(expr=q.systemLoad1, format='table', instant=true) {refId: "LOAD1"})
-      .addTarget(commonPromTarget(expr=q.systemLoad5, format='table', instant=true) {refId: "LOAD5"})
-      .addTarget(commonPromTarget(expr=q.systemLoad15, format='table', instant=true) {refId: "LOAD15"})
+      .addTarget(commonPromTarget(expr=q.osInfo, format='table', instant=true) { refId: 'INFO' })
+      .addTarget(commonPromTarget(expr=q.nodeInfo, format='table', instant=true) { refId: 'OS' })
+      .addTarget(commonPromTarget(expr=q.uptime, format='table', instant=true) { refId: 'UPTIME' })
+      .addTarget(commonPromTarget(expr=q.systemLoad1, format='table', instant=true) { refId: 'LOAD1' })
+      .addTarget(commonPromTarget(expr=q.systemLoad5, format='table', instant=true) { refId: 'LOAD5' })
+      .addTarget(commonPromTarget(expr=q.systemLoad15, format='table', instant=true) { refId: 'LOAD15' })
       .addTarget(commonPromTarget(
         expr=q.cpuCount,
         format='table',
         instant=true,
-      ) {refId: "CPUCOUNT"})
+      ) { refId: 'CPUCOUNT' })
       .addTarget(commonPromTarget(
         expr=q.cpuUsage, format='table', instant=true,
-      ) {refId: "CPUUSAGE"})
-      .addTarget(commonPromTarget(expr=q.memoryTotal, format='table', instant=true) {refId: "MEMTOTAL"})
-      .addTarget(commonPromTarget(expr=q.memoryUsage, format='table', instant=true) {refId: "MEMUSAGE"})
-      .addTarget(commonPromTarget(expr=q.fsSizeTotalRoot, format='table', instant=true) {refId: "FSTOTAL"})
+      ) { refId: 'CPUUSAGE' })
+      .addTarget(commonPromTarget(expr=q.memoryTotal, format='table', instant=true) { refId: 'MEMTOTAL' })
+      .addTarget(commonPromTarget(expr=q.memoryUsage, format='table', instant=true) { refId: 'MEMUSAGE' })
+      .addTarget(commonPromTarget(expr=q.fsSizeTotalRoot, format='table', instant=true) { refId: 'FSTOTAL' })
       .addTarget(commonPromTarget(
         expr=
         |||
@@ -60,52 +60,52 @@ local common = import '../lib/common.libsonnet';
         ||| % config,
         format='table',
         instant=true,
-      ) {refId: "FSUSAGE"})
+      ) { refId: 'FSUSAGE' })
       .addTarget(commonPromTarget(
-        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="critical"}[1m]))' %config,
+        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="critical"}[1m]))' % config,
         format='table',
         instant=true
-        ) {refId: "CRITICAL"})
+      ) { refId: 'CRITICAL' })
       .addTarget(commonPromTarget(
-        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="warning"}[1m]))' %config,
+        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="warning"}[1m]))' % config,
         format='table',
         instant=true
-        ) {refId: "WARNING"})
+      ) { refId: 'WARNING' })
       .withTransform()
-        .joinByField(field='instance')
-        //disable kernel and os:
-        //.filterFieldsByName('instance|pretty_name|nodename|release|Value.+')
-        .filterFieldsByName('instance|nodename|Value.+')
-        .organize(
-          excludeByName={
-            'Value #OS': true,
-            'Value #INFO': true,
-            'Value #LOAD5': true,
-            'Value #LOAD15': true,
-          },
-          renameByName={
-            'instance': 'Instance',
-            'pretty_name': 'OS',
-            'nodename': 'Hostname',
-            'release': 'Kernel version',
-            'Value #LOAD1': 'Load 1m',
-            'Value #LOAD5': 'Load 5m',
-            'Value #LOAD15': 'Load 15m',
-            'Value #CPUCOUNT': 'Cores',
-            'Value #CPUUSAGE': 'CPU usage',
-            'Value #MEMTOTAL': 'Memory total',
-            'Value #MEMUSAGE': 'Memory usage',
-            'Value #FSTOTAL': 'Root disk size',
-            'Value #FSUSAGE': 'Root disk usage',
-            'Value #UPTIME': 'Uptime',
-            'Value #CRITICAL': 'Crit Alerts',
-            'Value #WARNING': 'Warnings',
-          }
-        )
+      .joinByField(field='instance')
+      //disable kernel and os:
+      //.filterFieldsByName('instance|pretty_name|nodename|release|Value.+')
+      .filterFieldsByName('instance|nodename|Value.+')
+      .organize(
+        excludeByName={
+          'Value #OS': true,
+          'Value #INFO': true,
+          'Value #LOAD5': true,
+          'Value #LOAD15': true,
+        },
+        renameByName={
+          instance: 'Instance',
+          pretty_name: 'OS',
+          nodename: 'Hostname',
+          release: 'Kernel version',
+          'Value #LOAD1': 'Load 1m',
+          'Value #LOAD5': 'Load 5m',
+          'Value #LOAD15': 'Load 15m',
+          'Value #CPUCOUNT': 'Cores',
+          'Value #CPUUSAGE': 'CPU usage',
+          'Value #MEMTOTAL': 'Memory total',
+          'Value #MEMUSAGE': 'Memory usage',
+          'Value #FSTOTAL': 'Root disk size',
+          'Value #FSUSAGE': 'Root disk usage',
+          'Value #UPTIME': 'Uptime',
+          'Value #CRITICAL': 'Crit Alerts',
+          'Value #WARNING': 'Warnings',
+        }
+      )
       .withFooter(reducer=['mean'], fields=[
         'Value #LOAD1',
-        "Value #MEMUSAGE",
-        "Value #CPUUSAGE"
+        'Value #MEMUSAGE',
+        'Value #CPUUSAGE',
       ])
       //.addThresholdStep(color='light-green', value=null)
       .addThresholdStep(color='light-blue', value=null)
@@ -128,8 +128,8 @@ local common = import '../lib/common.libsonnet';
             ],
           },
           {
-            "id": "custom.filterable",
-            "value": true
+            id: 'custom.filterable',
+            value: true,
           },
         ]
       )
@@ -140,8 +140,8 @@ local common = import '../lib/common.libsonnet';
         },
         properties=[
           {
-            "id": "custom.filterable",
-            "value": true
+            id: 'custom.filterable',
+            value: true,
           },
         ]
       )
@@ -156,33 +156,33 @@ local common = import '../lib/common.libsonnet';
             value: 'bytes',
           },
           {
-            "id": "decimals",
-            "value": 0
+            id: 'decimals',
+            value: 0,
           },
         ]
       )
       .addOverride(
         matcher={
           id: 'byName',
-          options: 'Cores'
+          options: 'Cores',
         },
         properties=[
           {
-            "id": "custom.width",
-            "value": 60
-          }
+            id: 'custom.width',
+            value: 60,
+          },
         ]
       )
       .addOverride(
         matcher={
           id: 'byRegexp',
-          options: 'Load.+'
+          options: 'Load.+',
         },
         properties=[
           {
-            "id": "custom.width",
-            "value": 60
-          }
+            id: 'custom.width',
+            value: 60,
+          },
         ]
       )
       .addOverride(
@@ -196,24 +196,24 @@ local common = import '../lib/common.libsonnet';
             value: 'dtdurations',
           },
           {
-            "id": "custom.displayMode",
-            "value": "color-text"
+            id: 'custom.displayMode',
+            value: 'color-text',
           },
           {
-            "id": "thresholds",
-            "value": {
-              "mode": "absolute",
-              "steps": [
+            id: 'thresholds',
+            value: {
+              mode: 'absolute',
+              steps: [
                 {
-                  "color": "light-orange",
-                  "value": null
+                  color: 'light-orange',
+                  value: null,
                 },
                 {
-                  "color": "text",
-                  "value": 300
-                }
-              ]
-            }
+                  color: 'text',
+                  value: 300,
+                },
+              ],
+            },
           },
         ]
       )
@@ -232,8 +232,8 @@ local common = import '../lib/common.libsonnet';
           //   value: 'gradient-gauge',
           // },
           {
-            "id": "custom.displayMode",
-            "value": "basic"
+            id: 'custom.displayMode',
+            value: 'basic',
           },
           {
             id: 'max',
@@ -246,129 +246,245 @@ local common = import '../lib/common.libsonnet';
         ]
       )
       .sortBy('Instance')
-      ,
-    
-    local memoryUsagePanel = 
-      nodePanels.timeseries.new('Memory Usage', description="Top 25")
+    ,
+
+    local memoryUsagePanel =
+      nodePanels.timeseries.new('Memory Usage', description='Top 25')
       .withUnits('percent')
       .withMin(0)
       .withMax(100)
-      .withColor(mode="continuous-BlYlRd")
+      .withColor(mode='continuous-BlYlRd')
       .withFillOpacity(5)
-      .withGradientMode("scheme")
-      .withLegend(mode='table', calcs=["mean","max","lastNotNull"], placement="right")
+      .withGradientMode('scheme')
+      .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
       .withTooltip(mode='multi', sort='desc')
       .addDataLink(
         title='Drill down to instance ${__field.labels.instance}',
         url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
       )
       .addTarget(commonPromTarget(
-        expr="topk(25, " + q.memoryUsage + ")",
+        expr='topk(25, ' + q.memoryUsage + ')',
         legendFormat='{{instance}}',
       ))
       .addTarget(commonPromTarget(
-        expr="avg(" + q.memoryUsage + ")",
+        expr='avg(' + q.memoryUsage + ')',
         legendFormat='Mean',
       ))
       .addOverride(
         matcher={
-          "id": "byName",
-          "options": "Mean"
+          id: 'byName',
+          options: 'Mean',
 
         },
         properties=[
           {
-            "id": "custom.lineStyle",
-            "value": {
-              "fill": "dash",
-              "dash": [
+            id: 'custom.lineStyle',
+            value: {
+              fill: 'dash',
+              dash: [
                 10,
-                10
-              ]
-            }
+                10,
+              ],
+            },
           },
           {
-            "id": "custom.fillOpacity",
-            "value": 0
+            id: 'custom.fillOpacity',
+            value: 0,
           },
           {
-            "id": "color",
-            "value": {
-              "mode": "fixed",
-              "fixedColor": "light-purple"
-            }
+            id: 'color',
+            value: {
+              mode: 'fixed',
+              fixedColor: 'light-purple',
+            },
           },
           {
-            "id": "custom.lineWidth",
-            "value": 2
-          }
+            id: 'custom.lineWidth',
+            value: 2,
+          },
         ]
       ),
 
     local cpuUsagePanel =
-      nodePanels.timeseries.new('CPU Usage', description="Top 25")
+      nodePanels.timeseries.new('CPU Usage', description='Top 25')
       .withUnits('percent')
       .withMin(0)
       .withMax(100)
       .withFillOpacity(5)
-      .withColor(mode="continuous-BlYlRd")
-      .withGradientMode("scheme")
-      .withLegend(mode='table', calcs=["mean","max","lastNotNull"], placement="right")
+      .withColor(mode='continuous-BlYlRd')
+      .withGradientMode('scheme')
+      .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
       .withTooltip(mode='multi', sort='desc')
       .addDataLink(
         title='Drill down to instance ${__field.labels.instance}',
         url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
       )
       .addTarget(commonPromTarget(
-        expr="topk(25, " + q.cpuUsage + ")",
+        expr='topk(25, ' + q.cpuUsage + ')',
         legendFormat='{{instance}}',
       ))
       .addTarget(commonPromTarget(
-        expr="avg(" + q.cpuUsage + ")",
+        expr='avg(' + q.cpuUsage + ')',
         legendFormat='Mean',
       ))
       .addOverride(
         matcher={
-          "id": "byName",
-          "options": "Mean"
+          id: 'byName',
+          options: 'Mean',
 
         },
         properties=[
           {
-            "id": "custom.lineStyle",
-            "value": {
-              "fill": "dash",
-              "dash": [
+            id: 'custom.lineStyle',
+            value: {
+              fill: 'dash',
+              dash: [
                 10,
-                10
-              ]
-            }
+                10,
+              ],
+            },
           },
           {
-            "id": "custom.fillOpacity",
-            "value": 0
+            id: 'custom.fillOpacity',
+            value: 0,
           },
           {
-            "id": "color",
-            "value": {
-              "mode": "fixed",
-              "fixedColor": "light-purple"
-            }
+            id: 'color',
+            value: {
+              mode: 'fixed',
+              fixedColor: 'light-purple',
+            },
           },
           {
-            "id": "custom.lineWidth",
-            "value": 2
-          }
+            id: 'custom.lineWidth',
+            value: 2,
+          },
         ]
+      ),
+
+    local diskIOPanel =
+      nodePanels.timeseries.new('Disks I/O', description='Top 25')
+      .withUnits('percentunit')
+      .withMin(0)
+      .withMax(1)
+      .withFillOpacity(5)
+      .withColor(mode='continuous-BlYlRd')
+      .withGradientMode('scheme')
+      .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
+      .withTooltip(mode='multi', sort='desc')
+      .addDataLink(
+        title='Drill down to instance ${__field.labels.instance}',
+        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
       )
-      ,
+      .addTarget(commonPromTarget(
+        expr='topk(25, ' + q.diskIoTime + ')',
+        legendFormat='{{instance}}: {{device}}',
+      ))
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Mean',
+
+        },
+        properties=[
+          {
+            id: 'custom.lineStyle',
+            value: {
+              fill: 'dash',
+              dash: [
+                10,
+                10,
+              ],
+            },
+          },
+          {
+            id: 'custom.fillOpacity',
+            value: 0,
+          },
+          {
+            id: 'color',
+            value: {
+              mode: 'fixed',
+              fixedColor: 'light-purple',
+            },
+          },
+          {
+            id: 'custom.lineWidth',
+            value: 2,
+          },
+        ]
+      ),
+    local diskSpacePanel =
+      nodePanels.timeseries.new('Disks Space Usage', description='Top 25')
+      .withUnits('percentunit')
+      .withMin(0)
+      .withMax(1)
+      .withFillOpacity(5)
+      .withColor(mode='continuous-BlYlRd')
+      .withGradientMode('scheme')
+      .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
+      .withTooltip(mode='multi', sort='desc')
+      .addDataLink(
+        title='Drill down to instance ${__field.labels.instance}',
+        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+      )
+      .addTarget(commonPromTarget(
+        expr='topk(25, ' + q.diskSpaceUsage + ')',
+        legendFormat='{{instance}}: {{mountpoint}}',
+      ))
+      .addOverride(
+        matcher={
+          id: 'byName',
+          options: 'Mean',
+
+        },
+        properties=[
+          {
+            id: 'custom.lineStyle',
+            value: {
+              fill: 'dash',
+              dash: [
+                10,
+                10,
+              ],
+            },
+          },
+          {
+            id: 'custom.fillOpacity',
+            value: 0,
+          },
+          {
+            id: 'color',
+            value: {
+              mode: 'fixed',
+              fixedColor: 'light-purple',
+            },
+          },
+          {
+            id: 'custom.lineWidth',
+            value: 2,
+          },
+        ]
+      ),
+    local networkErrorsDropsPanel =
+      nodePanels.timeseries.new('Network Errors and Dropped Packets', description='Top 25')
+      .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
+      .withTooltip(mode='multi', sort='desc')
+      .addTarget(commonPromTarget(
+        expr='topk(25, ' + q.networkReceiveErrorsPerSec + ' + ' + q.networkTransmitErrorsPerSec + ' + ' + q.networkReceiveDropsPerSec + ' + ' + q.networkTransmitDropsPerSec + ') >0',
+        legendFormat='{{instance}}: {{device}} errors or dropped',
+      ))
+      .withDecimals(1)
+      .withUnits('pps'),
 
     local rows =
       [
         row.new('Overview')
         .addPanel(fleetTable { span: 12, height: '800px' })
-        .addPanel(cpuUsagePanel {span: 12 })
-        .addPanel(memoryUsagePanel{span: 12 }),
+        .addPanel(cpuUsagePanel { span: 12 })
+        .addPanel(memoryUsagePanel { span: 12 })
+        .addPanel(diskIOPanel { span: 6 }).addPanel(diskSpacePanel { span: 6 })
+        .addPanel(networkErrorsDropsPanel { span: 12 }),
       ],
 
     dashboard: if platform == 'Linux' then
