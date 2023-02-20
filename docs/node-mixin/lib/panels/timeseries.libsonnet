@@ -22,7 +22,24 @@ genericPanel
       + self.withShowPoints('never')
       + self.withTooltip(mode='multi', sort='none')
       + self.withLegend(mode='list', calcs=[]),
-
+  withDrawStyle(style):: self {
+    fieldConfig+: {
+      defaults+: {
+        custom+: {
+          drawStyle: style,
+        },
+      },
+    },
+  },
+  withPointsSize(size):: self {
+    fieldConfig+: {
+      defaults+: {
+        custom+: {
+          pointSize: size,
+        },
+      },
+    },
+  },
   withTooltip(mode=null, sort='none'):: self {
     options+: {
       tooltip: {

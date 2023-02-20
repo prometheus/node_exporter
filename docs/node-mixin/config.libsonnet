@@ -8,7 +8,7 @@
     // dashboard if mixing up all those metrics in the same dashboard
     // doesn't make sense (e.g. because they are coming from different
     // clusters).
-    nodeExporterSelector: 'job="integrations/node_exporter"',
+    nodeExporterSelector: 'job!=""',
 
     // Select the fstype for filesystem-related queries. If left
     // empty, all filesystems are selected. If you have unusual

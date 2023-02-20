@@ -138,9 +138,9 @@ local template = grafana.template;
         |||
           sort_desc(1 -
             (
-            max by (job, instance, fstype, device) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
+            max by (job, instance, fstype, device, mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
             /
-            max by (job, instance, fstype, device) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
+            max by (job, instance, fstype, device, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
             ) != 0
           )
         ||| % config,

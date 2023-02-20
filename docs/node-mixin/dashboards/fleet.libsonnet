@@ -471,11 +471,17 @@ local common = import '../lib/common.libsonnet';
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
       .withTooltip(mode='multi', sort='desc')
       .addTarget(commonPromTarget(
-        expr='topk(25, ' + q.networkReceiveErrorsPerSec + ' + ' + q.networkTransmitErrorsPerSec + ' + ' + q.networkReceiveDropsPerSec + ' + ' + q.networkTransmitDropsPerSec + ') >0',
-        legendFormat='{{instance}}: {{device}} errors or dropped',
+        expr='topk(25, ' + q.networkReceiveErrorsPerSec + ' + ' + q.networkTransmitErrorsPerSec + ' + ' + q.networkReceiveDropsPerSec + ' + ' + q.networkTransmitDropsPerSec + ') > 0.5',
+        legendFormat='{{instance}}: {{device}}',
       ))
       .withDecimals(1)
-      .withUnits('pps'),
+      .withUnits('pps')
+      .withDrawStyle('points')
+      .withPointsSize(5)
+      .addDataLink(
+        title='Drill down to instance ${__field.labels.instance}',
+        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+      ),
 
     local rows =
       [
