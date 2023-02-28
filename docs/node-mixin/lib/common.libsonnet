@@ -8,6 +8,23 @@ local template = grafana.template;
 
   new(config=null, platform=null):: {
 
+
+    local labelsToRegexSelector(labels) =
+      std.join(',', ['%s=~"$%s"' % [label, label] for label in labels]),
+    local labelsToLegend(labels) =
+      std.join('/', ['{{%s}}' % [label] for label in labels]),
+
+    local labelsToURLvars(labels, prefix) =
+      std.join('&', ['var-%s=${%s%s}' % [label, prefix, label] for label in labels]),
+    // export
+    labelsToLegend:: labelsToLegend,
+    labelsToURLvars:: labelsToURLvars,
+
+
+    // add to all queries but not templates
+    local nodeQuerySelector = labelsToRegexSelector(std.split(config.groupLabels + ',' + config.instanceLabels, ',')),
+    nodeQuerySelector:: nodeQuerySelector,
+
     // common templates
     local prometheusDatasourceTemplate = {
       current: {
@@ -24,28 +41,65 @@ local template = grafana.template;
       type: 'datasource',
     },
 
-    local instanceTemplatePrototype =
-      template.new(
-        'instance',
-        '$datasource',
-        '',
-        sort=1,
-        refresh='time',
-        label='Instance',
-      ),
-    local instanceTemplate =
-      if platform == 'Darwin' then
-        instanceTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, sysname="Darwin"}, instance)' % config }
-      else
-        instanceTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, sysname!="Darwin"}, instance)' % config },
+    local chainLabelsfold(prev, label) = {
+      chain:
+        if std.length(prev) > 0
+        then
+          [[label] + prev.chain[0]] + prev.chain
+        else
+          [[label]],
+    },
+
+    local chainLabels(labels) =
+      [
+        {
+          label: l[0:1][0],
+          chainSelector: labelsToRegexSelector(std.reverse(l[1:])),
+        }
+        for l in std.reverse(std.foldl(chainLabelsfold, labels, init={}).chain)
+      ],
+
+    local groupTemplates =
+      [
+        template.new(
+          name=label.label,
+          label=label.label,
+          datasource='$datasource',
+          query='',
+          current='',
+          refresh=2,
+          includeAll=true,
+          // do not use .* will get series without such label at all when ALL is selected.
+          // do not use .+ will ignore nodeExporterSelector results
+          // use null for group values
+          allValues=null,
+          sort=1
+        )
+        {
+          query: if platform == 'Darwin' then 'label_values(node_uname_info{sysname="Darwin", %(nodeExporterSelector)s, %(chainSelector)s}, %(label)s)' % config { label: label.label, chainSelector: label.chainSelector }
+          else 'label_values(node_uname_info{sysname!="Darwin", %(nodeExporterSelector)s, %(chainSelector)s}, %(label)s)' % config { label: label.label, chainSelector: label.chainSelector },
+        }
+        for label in chainLabels(std.split(config.groupLabels, ','))
+      ],
+
+    local instanceTemplates =
+      [
+        template.new(
+          label.label,
+          '$datasource',
+          'label_values(node_uname_info{%(nodeExporterSelector)s, %(chainSelector)s}, %(label)s)' % config { label: label.label, chainSelector: labelsToRegexSelector(std.split(config.groupLabels, ',')) + ',' + label.chainSelector },
+          sort=1,
+          refresh='time',
+          label=label.label,
+        )
+        for label in chainLabels(std.split(config.instanceLabels, ','))
+      ],
+
 
     // return common templates
-    templates: [
-      prometheusDatasourceTemplate,
-      instanceTemplate,
-    ],
+    templates: [prometheusDatasourceTemplate] + groupTemplates + instanceTemplates,
+    // return templates where instance select is not required
+    groupDashboardTemplates: [prometheusDatasourceTemplate] + groupTemplates,
 
     // return common prometheus target (with project defaults)
     commonPromTarget(
@@ -93,63 +147,73 @@ local template = grafana.template;
         keepTime=true,
         tags=(config.dashboardTags),
       ),
+      // used in fleet table
+      instanceDataLinkForTable:: {
+        title: 'Drill down to instance ${__data.fields.%s}' % std.split(config.instanceLabels, ',')[0],
+        url: 'd/nodes?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__data.fields.') + '&${__url_time_range}',
+      },
+      // used in ts panels
+      instanceDataLink:: {
+        title: 'Drill down to instance ${__field.labels.%s}' % std.split(config.instanceLabels, ',')[0],
+        url: 'd/nodes?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__field.labels.') + '&${__url_time_range}',
+      },
     },
     // return common queries that could be used in multiple dashboards
     queries:: {
-      systemLoad1:: 'avg by (instance) (node_load1{%(nodeExporterSelector)s, instance=~"$instance"})' % config,
-      systemLoad5:: 'avg by (instance) (node_load5{%(nodeExporterSelector)s, instance=~"$instance"})' % config,
-      systemLoad15:: 'avg by (instance) (node_load15{%(nodeExporterSelector)s, instance=~"$instance"})' % config,
-      uptime:: 'time() - node_boot_time_seconds{' + config.nodeExporterSelector + ', instance=~"$instance"}',
-      cpuCount:: 'count by (instance) (node_cpu_seconds_total{%(nodeExporterSelector)s, instance=~"$instance", mode="idle"})' % config,
+      systemLoad1:: 'avg by (%(instanceLabels)s) (node_load1{%(nodeQuerySelector)s})' % config { nodeQuerySelector: nodeQuerySelector },
+      systemLoad5:: 'avg by (%(instanceLabels)s) (node_load5{%(nodeQuerySelector)s})' % config { nodeQuerySelector: nodeQuerySelector },
+      systemLoad15:: 'avg by (%(instanceLabels)s) (node_load15{%(nodeQuerySelector)s})' % config { nodeQuerySelector: nodeQuerySelector },
+      uptime:: 'time() - node_boot_time_seconds{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      cpuCount:: 'count by (%(instanceLabels)s) (node_cpu_seconds_total{%(nodeQuerySelector)s, mode="idle"})' % config { nodeQuerySelector: nodeQuerySelector },
       cpuUsage::
         |||
-          (((count by (instance) (count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance=~"$instance"}) by (cpu, instance))) 
+          (((count by (%(instanceLabels)s) (count(node_cpu_seconds_total{%(nodeQuerySelector)s}) by (cpu, %(instanceLabels)s))) 
           - 
-          avg by (instance) (sum by (instance, mode)(irate(node_cpu_seconds_total{mode='idle',%(nodeExporterSelector)s, instance=~"$instance"}[5m])))) * 100) 
+          avg by (%(instanceLabels)s) (sum by (%(instanceLabels)s, mode)(irate(node_cpu_seconds_total{mode='idle',%(nodeExporterSelector)s}[5m])))) * 100) 
           / 
-          count by(instance) (count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance=~"$instance"}) by (cpu, instance))
-        ||| % config,
+          count by(%(instanceLabels)s) (count(node_cpu_seconds_total{%(nodeQuerySelector)s}) by (cpu, %(instanceLabels)s))
+        ||| % config { nodeQuerySelector: nodeQuerySelector },
       cpuUsagePerCore::
         |||
           (
-            (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance=~"$instance"}[$__rate_interval])))
+            (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeQuerySelector)s, mode=~"idle|iowait|steal"}[$__rate_interval])))
           / ignoring(cpu) group_left
-            count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance=~"$instance"})
+            count without (cpu, mode) (node_cpu_seconds_total{%(nodeQuerySelector)s, mode="idle"})
           )
-        ||| % config,
-      memoryTotal:: 'node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance=~"$instance"}' % config,
-      memorySwapTotal:: 'node_memory_SwapTotal_bytes{%(nodeExporterSelector)s, instance=~"$instance"}' % config,
+        ||| % config { nodeQuerySelector: nodeQuerySelector },
+      memoryTotal:: 'node_memory_MemTotal_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      memorySwapTotal:: 'node_memory_SwapTotal_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
       memoryUsage::
         |||
           100 -
           (
-            avg by (instance) (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance=~"$instance"}) /
-            avg by (instance) (node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance=~"$instance"})
+            avg by (%(instanceLabels)s) (node_memory_MemAvailable_bytes{%(nodeQuerySelector)s}) /
+            avg by (%(instanceLabels)s) (node_memory_MemTotal_bytes{%(nodeQuerySelector)s})
           * 100
           )
-        ||| % config,
-      fsSizeTotalRoot:: 'node_filesystem_size_bytes{%(nodeExporterSelector)s, instance=~"$instance", mountpoint="/",fstype!="rootfs"}' % config,
-      osInfo:: 'node_os_info{%(nodeExporterSelector)s, instance=~"$instance"}' % config,
-      nodeInfo:: 'node_uname_info{%(nodeExporterSelector)s, instance=~"$instance"}' % config,
-      diskReadTime:: 'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance=~"$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
-      diskWriteTime:: 'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance=~"$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
-      diskIoTime:: 'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance=~"$instance", %(diskDeviceSelector)s}[$__rate_interval])' % config,
+        ||| % config { nodeQuerySelector: nodeQuerySelector },
+      fsSizeTotalRoot:: 'node_filesystem_size_bytes{%(nodeQuerySelector)s, mountpoint="/",fstype!="rootfs"}' % config { nodeQuerySelector: nodeQuerySelector },
+      osInfo:: 'node_os_info{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      nodeInfo:: 'node_uname_info{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      diskReadTime:: 'rate(node_disk_read_bytes_total{%(nodeQuerySelector)s, %(diskDeviceSelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      diskWriteTime:: 'rate(node_disk_written_bytes_total{%(nodeQuerySelector)s, %(diskDeviceSelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      diskIoTime:: 'rate(node_disk_io_time_seconds_total{%(nodeQuerySelector)s, %(diskDeviceSelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
       diskSpaceUsage::
         |||
           sort_desc(1 -
             (
-            max by (job, instance, fstype, device, mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
+            max by (job, %(instanceLabels)s, fstype, device, mountpoint) (node_filesystem_avail_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
             /
-            max by (job, instance, fstype, device, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance=~"$instance", %(fsSelector)s, %(fsMountpointSelector)s})
+            max by (job, %(instanceLabels)s, fstype, device, mountpoint) (node_filesystem_size_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
             ) != 0
           )
-        ||| % config,
-      networkReceiveBitsPerSec:: 'irate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance=~"$instance"}[$__rate_interval])*8' % config,
-      networkTransmitBitsPerSec:: 'irate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance=~"$instance"}[$__rate_interval])*8' % config,
-      networkReceiveErrorsPerSec:: 'irate(node_network_receive_errs_total{%(nodeExporterSelector)s, instance=~"$instance",}[$__rate_interval])' % config,
-      networkTransmitErrorsPerSec:: 'irate(node_network_transmit_errs_total{%(nodeExporterSelector)s, instance=~"$instance",}[$__rate_interval])' % config,
-      networkReceiveDropsPerSec:: 'irate(node_network_receive_drop_total{%(nodeExporterSelector)s, instance=~"$instance",}[$__rate_interval])' % config,
-      networkTransmitDropsPerSec:: 'irate(node_network_transmit_drop_total{%(nodeExporterSelector)s, instance=~"$instance",}[$__rate_interval])' % config,
+        ||| % config { nodeQuerySelector: nodeQuerySelector },
+      networkReceiveBitsPerSec:: 'irate(node_network_receive_bytes_total{%(nodeQuerySelector)s}[$__rate_interval])*8' % config { nodeQuerySelector: nodeQuerySelector },
+      networkTransmitBitsPerSec:: 'irate(node_network_transmit_bytes_total{%(nodeQuerySelector)s}[$__rate_interval])*8' % config { nodeQuerySelector: nodeQuerySelector },
+      networkReceiveErrorsPerSec:: 'irate(node_network_receive_errs_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      networkTransmitErrorsPerSec:: 'irate(node_network_transmit_errs_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      networkReceiveDropsPerSec:: 'irate(node_network_receive_drop_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      networkTransmitDropsPerSec:: 'irate(node_network_transmit_drop_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
     },
   },
 

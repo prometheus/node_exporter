@@ -31,11 +31,11 @@ local common = import '../lib/common.libsonnet';
     local networkPacketsPanel =
       nodeTimeseries.new('Unicast Packets')
       .addTarget(commonPromTarget(
-        'irate(node_network_receive_packets_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_receive_packets_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} received',
       ))
       .addTarget(commonPromTarget(
-        'irate(node_network_transmit_packets_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_transmit_packets_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
@@ -75,11 +75,11 @@ local common = import '../lib/common.libsonnet';
     local networkCompressedPanel =
       nodeTimeseries.new('Compressed Packets')
       .addTarget(commonPromTarget(
-        'irate(node_network_receive_compressed_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_receive_compressed_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} received',
       ))
       .addTarget(commonPromTarget(
-        'irate(node_network_transmit_compressed_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_transmit_compressed_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
@@ -90,11 +90,11 @@ local common = import '../lib/common.libsonnet';
     local networkMulticastPanel =
       nodeTimeseries.new('Multicast Packets')
       .addTarget(commonPromTarget(
-        'irate(node_network_receive_multicast_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_receive_multicast_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} received',
       ))
       .addTarget(commonPromTarget(
-        'irate(node_network_transmit_multicast_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_transmit_multicast_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
@@ -104,11 +104,11 @@ local common = import '../lib/common.libsonnet';
     local networkFifoPanel =
       nodeTimeseries.new('Network FIFO')
       .addTarget(commonPromTarget(
-        'irate(node_network_receive_fifo_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_receive_fifo_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} received',
       ))
       .addTarget(commonPromTarget(
-        'irate(node_network_transmit_fifo_total{%(nodeExporterSelector)s, instance="$instance",}[$__rate_interval])' % config,
+        'irate(node_network_transmit_fifo_total{%(nodeQuerySelector)s,}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}} transmitted',
       ))
       .withDecimals(1)
@@ -119,11 +119,11 @@ local common = import '../lib/common.libsonnet';
     local networkNFConntrack =
       nodeTimeseries.new('NF Conntrack')
       .addTarget(commonPromTarget(
-        'node_nf_conntrack_entries{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        'node_nf_conntrack_entries{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='NF conntrack entries',
       ))
       .addTarget(commonPromTarget(
-        'node_nf_conntrack_entries_limit{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        'node_nf_conntrack_entries_limit{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='NF conntrack limits',
       ))
       .withFillOpacity(0),
@@ -131,11 +131,11 @@ local common = import '../lib/common.libsonnet';
     local networkSoftnetPanel =
       nodeTimeseries.new('Softnet Packets')
       .addTarget(commonPromTarget(
-        'irate(node_softnet_processed_total{%(nodeExporterSelector)s, instance="$instance"}[$__rate_interval])' % config,
+        'irate(node_softnet_processed_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='CPU {{cpu }} proccessed',
       ))
       .addTarget(commonPromTarget(
-        'irate(node_softnet_dropped_total{%(nodeExporterSelector)s, instance="$instance"}[$__rate_interval])' % config,
+        'irate(node_softnet_dropped_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='CPU {{cpu }} dropped',
       ))
       .withDecimals(1)
@@ -146,7 +146,7 @@ local common = import '../lib/common.libsonnet';
     local networkSoftnetSqueezePanel =
       nodeTimeseries.new('Softnet Out of Quota')
       .addTarget(commonPromTarget(
-        'irate(node_softnet_times_squeezed_total{%(nodeExporterSelector)s, instance="$instance"}[$__rate_interval])' % config,
+        'irate(node_softnet_times_squeezed_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='CPU {{cpu}} out of quota',
       ))
       .withDecimals(1)
@@ -158,13 +158,13 @@ local common = import '../lib/common.libsonnet';
       )
       // "Value #A"
       .addTarget(commonPromTarget(
-        expr='node_network_up{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        expr='node_network_up{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ))
       // "Value #B"
       .addTarget(commonPromTarget(
-        expr='node_network_carrier{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        expr='node_network_carrier{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ))
@@ -182,37 +182,37 @@ local common = import '../lib/common.libsonnet';
       ))
       // "Value #E"
       .addTarget(commonPromTarget(
-        expr='node_arp_entries{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        expr='node_arp_entries{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ))
       // "Value #F"
       .addTarget(commonPromTarget(
-        expr='node_network_mtu_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        expr='node_network_mtu_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ))
       // "Value #G"
       .addTarget(commonPromTarget(
-        expr='node_network_speed_bytes{%(nodeExporterSelector)s, instance="$instance"} * 8' % config,
+        expr='node_network_speed_bytes{%(nodeQuerySelector)s} * 8' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ))
       // "Value #H"
       .addTarget(commonPromTarget(
-        expr='node_network_transmit_queue_length{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        expr='node_network_transmit_queue_length{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ))
       // "VALUE #I"
       .addTarget(commonPromTarget(
-        expr='node_network_info{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        expr='node_network_info{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ))
       // "VALUE #J"
       // .addTarget(commonPromTarget(
-      //   expr='node_network_protocol_type{%(nodeExporterSelector)s, instance="$instance"}' % config,
+      //   expr='node_network_protocol_type{%(nodeQuerySelector)s}' % config {nodeQuerySelector: c.nodeQuerySelector},
       //   format="table",
       //   instant=true,
       // ))
@@ -364,7 +364,7 @@ local common = import '../lib/common.libsonnet';
       .withFillOpacity(100)
       .withLegend(mode='list')
       .addTarget(commonPromTarget(
-        expr='node_network_up{%(nodeExporterSelector)s, instance="$instance"}' % config,
+        expr='node_network_up{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}}'
       ))
       + {
@@ -418,7 +418,7 @@ local common = import '../lib/common.libsonnet';
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
-        '%sNode Network' % config.dashboardNamePrefix,
+        '%sNode Network' % config { nodeQuerySelector: c.nodeQuerySelector }.dashboardNamePrefix,
         time_from=config.dashboardInterval,
         tags=(config.dashboardTags),
         timezone=config.dashboardTimezone,

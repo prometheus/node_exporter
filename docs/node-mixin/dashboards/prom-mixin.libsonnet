@@ -126,44 +126,44 @@ local nodeTemplates = common.templates;
         .addTarget(commonPromTarget(
           |||
             (
-              node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance"}
+              node_memory_MemTotal_bytes{%(nodeQuerySelector)s}
             -
-              node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}
+              node_memory_MemFree_bytes{%(nodeQuerySelector)s}
             -
-              node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance"}
+              node_memory_Buffers_bytes{%(nodeQuerySelector)s}
             -
-              node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}
+              node_memory_Cached_bytes{%(nodeQuerySelector)s}
             )
-          ||| % config,
+          ||| % config { nodeQuerySelector: c.nodeQuerySelector },
           legendFormat='memory used'
         ))
-        .addTarget(commonPromTarget('node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory buffers'))
-        .addTarget(commonPromTarget('node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory cached'))
-        .addTarget(commonPromTarget('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='memory free'))
+        .addTarget(commonPromTarget('node_memory_Buffers_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory buffers'))
+        .addTarget(commonPromTarget('node_memory_Cached_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory cached'))
+        .addTarget(commonPromTarget('node_memory_MemFree_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory free'))
       else if platform == 'Darwin' then
         // not useful to stack
         memoryGraphPanelPrototype { stack: false }
-        .addTarget(commonPromTarget('node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Physical Memory'))
+        .addTarget(commonPromTarget('node_memory_total_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Physical Memory'))
         .addTarget(commonPromTarget(
           |||
             (
-                node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"} -
-                node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance"} +
-                node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"} +
-                node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"}
+                node_memory_internal_bytes{%(nodeQuerySelector)s} -
+                node_memory_purgeable_bytes{%(nodeQuerySelector)s} +
+                node_memory_wired_bytes{%(nodeQuerySelector)s} +
+                node_memory_compressed_bytes{%(nodeQuerySelector)s}
             )
-          ||| % config, legendFormat='Memory Used'
+          ||| % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Memory Used'
         ))
         .addTarget(commonPromTarget(
           |||
             (
-                node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"} -
-                node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance"}
+                node_memory_internal_bytes{%(nodeQuerySelector)s} -
+                node_memory_purgeable_bytes{%(nodeQuerySelector)s}
             )
-          ||| % config, legendFormat='App Memory'
+          ||| % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='App Memory'
         ))
-        .addTarget(commonPromTarget('node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Wired Memory'))
-        .addTarget(commonPromTarget('node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"}' % config, legendFormat='Compressed')),
+        .addTarget(commonPromTarget('node_memory_wired_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Wired Memory'))
+        .addTarget(commonPromTarget('node_memory_compressed_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Compressed')),
 
     // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
     local memoryGaugePanelPrototype =
@@ -181,16 +181,16 @@ local nodeTemplates = common.templates;
           |||
             (
                 (
-                  avg(node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance"}) -
-                  avg(node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance"}) +
-                  avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance"}) +
-                  avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                  avg(node_memory_internal_bytes{%(nodeQuerySelector)s}) -
+                  avg(node_memory_purgeable_bytes{%(nodeQuerySelector)s}) +
+                  avg(node_memory_wired_bytes{%(nodeQuerySelector)s}) +
+                  avg(node_memory_compressed_bytes{%(nodeQuerySelector)s})
                 ) /
-                avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance"})
+                avg(node_memory_total_bytes{%(nodeQuerySelector)s})
             )
             *
             100
-          ||| % config
+          ||| % config { nodeQuerySelector: c.nodeQuerySelector }
         )),
 
     local diskIO =
@@ -254,16 +254,16 @@ local nodeTemplates = common.templates;
       .addThresholdStep(color='light-red', value=0.9)
       .addTarget(commonPromTarget(
         |||
-          max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s, %(fsMountpointSelector)s})
-        ||| % config,
+          max by (mountpoint) (node_filesystem_size_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
+        ||| % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='',
         instant=true,
         format='table'
       ))
       .addTarget(commonPromTarget(
         |||
-          max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(fsSelector)s, %(fsMountpointSelector)s})
-        ||| % config,
+          max by (mountpoint) (node_filesystem_avail_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
+        ||| % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='',
         instant=true,
         format='table',
@@ -516,7 +516,7 @@ local nodeTemplates = common.templates;
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
-        '%sNode Overview ' % config.dashboardNamePrefix,
+        '%sNode Overview ' % config { nodeQuerySelector: c.nodeQuerySelector }.dashboardNamePrefix,
         time_from=config.dashboardInterval,
         tags=(config.dashboardTags),
         timezone=config.dashboardTimezone,
@@ -530,7 +530,7 @@ local nodeTemplates = common.templates;
       .addRows(rows)
     else if platform == 'Darwin' then
       dashboard.new(
-        '%sMacOS' % config.dashboardNamePrefix,
+        '%sMacOS' % config { nodeQuerySelector: c.nodeQuerySelector }.dashboardNamePrefix,
         time_from=config.dashboardInterval,
         tags=(config.dashboardTags),
         timezone=config.dashboardTimezone,

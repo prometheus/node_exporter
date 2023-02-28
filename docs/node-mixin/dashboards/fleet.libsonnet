@@ -14,8 +14,10 @@ local common = import '../lib/common.libsonnet';
   new(config=null, platform=null):: {
     local c = common.new(config=config, platform=platform),
     local commonPromTarget = c.commonPromTarget,
+
+
     local templates = [
-      if template.label == 'Instance'
+      if std.member(std.split(config.instanceLabels, ','), template.name)
       then
         template
         {
@@ -54,28 +56,28 @@ local common = import '../lib/common.libsonnet';
       .addTarget(commonPromTarget(
         expr=
         |||
-          100-(max by (instance) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance=~"$instance", fstype!="", mountpoint="/"})
+          100-(max by (%(instanceLabels)s) (node_filesystem_avail_bytes{%(nodeQuerySelector)s, fstype!="", mountpoint="/"})
           /
-          max by (instance) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance=~"$instance", fstype!="", mountpoint="/"}) * 100)
-        ||| % config,
+          max by (%(instanceLabels)s) (node_filesystem_size_bytes{%(nodeQuerySelector)s, fstype!="", mountpoint="/"}) * 100)
+        ||| % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true,
       ) { refId: 'FSUSAGE' })
       .addTarget(commonPromTarget(
-        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="critical"}[1m])) * group by (instance) (node_uname_info{})' % config,
+        expr='count by (%(instanceLabels)s) (max_over_time(ALERTS{%(nodeQuerySelector)s, alertstate="firing", severity="critical"}[1m])) * group by (%(instanceLabels)s) (node_uname_info{})' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true
       ) { refId: 'CRITICAL' })
       .addTarget(commonPromTarget(
-        expr='count by (instance) (max_over_time(ALERTS{%(nodeExporterSelector)s, instance=~"$instance", alertstate="firing", severity="warning"}[1m])) * group by (instance) (node_uname_info{})' % config,
+        expr='count by (%(instanceLabels)s) (max_over_time(ALERTS{%(nodeQuerySelector)s, alertstate="firing", severity="warning"}[1m])) * group by (%(instanceLabels)s) (node_uname_info{})' % config { nodeQuerySelector: c.nodeQuerySelector },
         format='table',
         instant=true
       ) { refId: 'WARNING' })
       .withTransform()
-      .joinByField(field='instance')
+      .joinByField(field=std.split(config.instanceLabels, ',')[0])
       //disable kernel and os:
       //.filterFieldsByName('instance|pretty_name|nodename|release|Value.+')
-      .filterFieldsByName('instance|nodename|Value.+')
+      .filterFieldsByName(std.split(config.instanceLabels, ',')[0] + '|nodename|Value.+')
       .organize(
         excludeByName={
           'Value #OS': true,
@@ -122,8 +124,8 @@ local common = import '../lib/common.libsonnet';
             value: [
               {
                 targetBlank: true,
-                title: 'Drill down to instance ${__data.fields.instance}',
-                url: 'd/nodes?var-instance=${__data.fields.instance}&${__url_time_range}',
+                title: c.links.instanceDataLinkForTable.title,
+                url: c.links.instanceDataLinkForTable.url,
               },
             ],
           },
@@ -254,17 +256,17 @@ local common = import '../lib/common.libsonnet';
       .withMin(0)
       .withMax(100)
       .withColor(mode='continuous-BlYlRd')
-      .withFillOpacity(5)
+      .withFillOpacity(1)
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
       .withTooltip(mode='multi', sort='desc')
       .addDataLink(
-        title='Drill down to instance ${__field.labels.instance}',
-        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+        title=c.links.instanceDataLink.title,
+        url=c.links.instanceDataLink.url,
       )
       .addTarget(commonPromTarget(
         expr='topk(25, ' + q.memoryUsage + ')',
-        legendFormat='{{instance}}',
+        legendFormat=c.labelsToLegend(std.split(config.instanceLabels, ','))
       ))
       .addTarget(commonPromTarget(
         expr='avg(' + q.memoryUsage + ')',
@@ -310,18 +312,18 @@ local common = import '../lib/common.libsonnet';
       .withUnits('percent')
       .withMin(0)
       .withMax(100)
-      .withFillOpacity(5)
+      .withFillOpacity(1)
       .withColor(mode='continuous-BlYlRd')
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
       .withTooltip(mode='multi', sort='desc')
       .addDataLink(
-        title='Drill down to instance ${__field.labels.instance}',
-        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+        title=c.links.instanceDataLink.title,
+        url=c.links.instanceDataLink.url,
       )
       .addTarget(commonPromTarget(
         expr='topk(25, ' + q.cpuUsage + ')',
-        legendFormat='{{instance}}',
+        legendFormat=c.labelsToLegend(std.split(config.instanceLabels, ',')),
       ))
       .addTarget(commonPromTarget(
         expr='avg(' + q.cpuUsage + ')',
@@ -367,18 +369,18 @@ local common = import '../lib/common.libsonnet';
       .withUnits('percentunit')
       .withMin(0)
       .withMax(1)
-      .withFillOpacity(5)
+      .withFillOpacity(1)
       .withColor(mode='continuous-BlYlRd')
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
       .withTooltip(mode='multi', sort='desc')
       .addDataLink(
-        title='Drill down to instance ${__field.labels.instance}',
-        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+        title=c.links.instanceDataLink.title,
+        url=c.links.instanceDataLink.url,
       )
       .addTarget(commonPromTarget(
         expr='topk(25, ' + q.diskIoTime + ')',
-        legendFormat='{{instance}}: {{device}}',
+        legendFormat=c.labelsToLegend(std.split(config.instanceLabels, ',')) + ': {{device}}',
       ))
       .addOverride(
         matcher={
@@ -419,18 +421,18 @@ local common = import '../lib/common.libsonnet';
       .withUnits('percentunit')
       .withMin(0)
       .withMax(1)
-      .withFillOpacity(5)
+      .withFillOpacity(1)
       .withColor(mode='continuous-BlYlRd')
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
       .withTooltip(mode='multi', sort='desc')
       .addDataLink(
-        title='Drill down to instance ${__field.labels.instance}',
-        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+        title=c.links.instanceDataLink.title,
+        url=c.links.instanceDataLink.url,
       )
       .addTarget(commonPromTarget(
         expr='topk(25, ' + q.diskSpaceUsage + ')',
-        legendFormat='{{instance}}: {{mountpoint}}',
+        legendFormat=c.labelsToLegend(std.split(config.instanceLabels, ',')) + ': {{mountpoint}}',
       ))
       .addOverride(
         matcher={
@@ -472,15 +474,15 @@ local common = import '../lib/common.libsonnet';
       .withTooltip(mode='multi', sort='desc')
       .addTarget(commonPromTarget(
         expr='topk(25, ' + q.networkReceiveErrorsPerSec + ' + ' + q.networkTransmitErrorsPerSec + ' + ' + q.networkReceiveDropsPerSec + ' + ' + q.networkTransmitDropsPerSec + ') > 0.5',
-        legendFormat='{{instance}}: {{device}}',
+        legendFormat=c.labelsToLegend(std.split(config.instanceLabels, ',')) + ': {{device}}',
       ))
       .withDecimals(1)
       .withUnits('pps')
       .withDrawStyle('points')
       .withPointsSize(5)
       .addDataLink(
-        title='Drill down to instance ${__field.labels.instance}',
-        url='d/nodes?var-instance=${__field.labels.instance}&${__url_time_range}'
+        title=c.links.instanceDataLink.title,
+        url=c.links.instanceDataLink.url,
       ),
 
     local rows =
