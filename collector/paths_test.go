@@ -16,8 +16,8 @@ package collector
 import (
 	"testing"
 
+	kingpin "github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/procfs"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 func TestDefaultProcPath(t *testing.T) {

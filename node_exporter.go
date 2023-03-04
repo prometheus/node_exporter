@@ -26,6 +26,7 @@ import (
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
 
+	kingpin "github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,7 +36,6 @@ import (
 	"github.com/prometheus/exporter-toolkit/web"
 	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
 	"github.com/prometheus/node_exporter/collector"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
