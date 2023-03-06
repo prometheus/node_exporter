@@ -66,7 +66,9 @@
       },
     },
   },
-
+  withMaxDataPoints(value):: self {
+    maxDataPoints: value
+  },
   withTransform():: self {
 
     merge():: self

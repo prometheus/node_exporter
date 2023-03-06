@@ -398,6 +398,132 @@ local common = import '../lib/common.libsonnet';
           },
         },
       },
+    // https://github.com/prometheus/node_exporter/pull/2346/files#diff-3699c850869aecf912f8e8272958b556913fc266534206833a5dcb7d6cca3610
+    local networkSockstatTCP =
+      nodeTimeseries.new(
+        title='Sockets TCP'
+      )
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_TCP_alloc{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Allocated'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_TCP6_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv6 In use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_TCP_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv4 In use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_TCP_orphan{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Orphan sockets'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_TCP_tw{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Time wait'
+      )),
+
+    local networkSockstatUDP =
+      nodeTimeseries.new(
+        title='Sockets UDP'
+      )
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_UDPLITE_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv4 UDPLITE in use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_UDP_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv4 UDP in use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_UDPLITE6_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv6 UDPLITE in use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_UDP6_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv6 UDP in use'
+      )),
+      
+    local networkSockstatOther =
+      nodeTimeseries.new(
+        title='Sockets Other'
+      )
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_FRAG_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv4 Frag sockets in use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_FRAG6_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv6 Frag sockets in use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_RAW_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv4 Raw sockets in use'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_RAW6_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv6 Raw sockets in use'
+      )),
+
+
+      local networkSockstatMemory =
+      nodeTimeseries.new(
+        title='Sockets Memory'
+      )
+      .withMaxDataPoints(100)
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_TCP_mem{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Memory pages allocated for TCP sockets'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_UDP_mem{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Memory pages allocated for UDP sockets'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_TCP_mem_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Memory bytes allocated for TCP sockets'
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_UDP_mem_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Memory bytes allocated for UDP sockets'
+      ))
+      .addOverride(
+        matcher={
+          id: 'byRegexp',
+          options: '/bytes/',
+        },
+        properties=[
+          {
+            id: 'unit',
+            value: 'bytes',
+          },
+          {
+            id: 'custom.drawStyle',
+            value: 'lines',
+          },
+          {
+            "id": "custom.drawStyle",
+            "value": "bars"
+          },
+          {
+            "id": "custom.stacking",
+            "value": {
+              "mode": "normal",
+              "group": "A"
+            }
+          },
+        ]
+      ),
+
+    local networkSockstatAll =
+      nodeTimeseries.new(
+        title='Sockets in use'
+      )
+      .addTarget(commonPromTarget(
+        expr='node_sockstat_sockets_used{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='IPv4 sockets in use'
+      )),
 
     local rows =
       [
@@ -414,6 +540,16 @@ local common = import '../lib/common.libsonnet';
         .addPanel(networkNFConntrack { span: 6 })
         .addPanel(networkSoftnetPanel { span: 6 })
         .addPanel(networkSoftnetSqueezePanel { span: 6 }),
+        row.new('Network Sockets')
+        .addPanel(networkSockstatAll {span: 12})
+        .addPanel(networkSockstatTCP {span: 6})
+        .addPanel(networkSockstatUDP {span: 6})
+        .addPanel(networkSockstatMemory {span: 6})
+        .addPanel(networkSockstatOther {span: 6}),
+
+        row.new('Network Netstat')
+        .addPanel(networkSockstatTCP {span: 6})
+        .addPanel(networkSockstatTCP {span: 6})
       ],
 
     dashboard: if platform == 'Linux' then
