@@ -1,0 +1,70 @@
+name: Trivy scheduled scans
+
+on:
+  schedule:
+    # 00:00 every 14 days 
+    - cron: 0 0 */14 * *
+
+jobs:
+  trivy-repo-scan:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    name: Trivy scheduled repo scan
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          submodules: recursive
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - name: Run Trivy vulnerability scanner in repo mode (sarif)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  trivy-image-scan:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    name: Trivy scheduled image scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          submodules: recursive
+      - name: Checkout LFS objects
+        run: git lfs checkout
+
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t ${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner in image mode (sarif output)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ github.sha }}'
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+ 
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
