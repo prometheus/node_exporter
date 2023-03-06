@@ -35,7 +35,6 @@ local common = import '../lib/common.libsonnet';
       nodePanels.table.new(
         title='Linux Nodes Overview'
       )
-      //ABCDEFGHIJKLMNOPQRSTUVWXYZ
       .addTarget(commonPromTarget(expr=q.osInfo, format='table', instant=true) { refId: 'INFO' })
       .addTarget(commonPromTarget(expr=q.nodeInfo, format='table', instant=true) { refId: 'OS' })
       .addTarget(commonPromTarget(expr=q.uptime, format='table', instant=true) { refId: 'UPTIME' })
@@ -259,7 +258,6 @@ local common = import '../lib/common.libsonnet';
       .withFillOpacity(1)
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
-      .withTooltip(mode='multi', sort='desc')
       .addDataLink(
         title=c.links.instanceDataLink.title,
         url=c.links.instanceDataLink.url,
@@ -316,7 +314,6 @@ local common = import '../lib/common.libsonnet';
       .withColor(mode='continuous-BlYlRd')
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
-      .withTooltip(mode='multi', sort='desc')
       .addDataLink(
         title=c.links.instanceDataLink.title,
         url=c.links.instanceDataLink.url,
@@ -373,7 +370,6 @@ local common = import '../lib/common.libsonnet';
       .withColor(mode='continuous-BlYlRd')
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
-      .withTooltip(mode='multi', sort='desc')
       .addDataLink(
         title=c.links.instanceDataLink.title,
         url=c.links.instanceDataLink.url,
@@ -425,7 +421,6 @@ local common = import '../lib/common.libsonnet';
       .withColor(mode='continuous-BlYlRd')
       .withGradientMode('scheme')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
-      .withTooltip(mode='multi', sort='desc')
       .addDataLink(
         title=c.links.instanceDataLink.title,
         url=c.links.instanceDataLink.url,
@@ -471,7 +466,6 @@ local common = import '../lib/common.libsonnet';
     local networkErrorsDropsPanel =
       nodePanels.timeseries.new('Network Errors and Dropped Packets', description='Top 25')
       .withLegend(mode='table', calcs=['mean', 'max', 'lastNotNull'], placement='right')
-      .withTooltip(mode='multi', sort='desc')
       .addTarget(commonPromTarget(
         expr='topk(25, ' + q.networkReceiveErrorsPerSec + ' + ' + q.networkTransmitErrorsPerSec + ' + ' + q.networkReceiveDropsPerSec + ' + ' + q.networkTransmitDropsPerSec + ') > 0.5',
         legendFormat=c.labelsToLegend(std.split(config.instanceLabels, ',')) + ': {{device}}',

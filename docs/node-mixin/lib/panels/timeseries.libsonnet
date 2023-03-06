@@ -20,7 +20,7 @@ genericPanel
       + self.withGradientMode('opacity')
       + self.withLineInterpolation('smooth')
       + self.withShowPoints('never')
-      + self.withTooltip(mode='multi', sort='none')
+      + self.withTooltip(mode='multi', sort='desc')
       + self.withLegend(mode='list', calcs=[]),
   withDrawStyle(style):: self {
     fieldConfig+: {

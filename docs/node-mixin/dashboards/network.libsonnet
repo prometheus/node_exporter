@@ -358,13 +358,13 @@ local common = import '../lib/common.libsonnet';
 
     local networkOperStatus =
       nodeTimeseries.new(
-        title='Network Interfaces Operational Status'
+        title='Network Interfaces Carrier Status'
       )
       .withColor(mode='palette-classic')
       .withFillOpacity(100)
       .withLegend(mode='list')
       .addTarget(commonPromTarget(
-        expr='node_network_up{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='node_network_carrier{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='{{device}}'
       ))
       + {
@@ -525,6 +525,176 @@ local common = import '../lib/common.libsonnet';
         legendFormat='IPv4 sockets in use'
       )),
 
+    local networkNetstatIP =
+      nodeTimeseries.new(
+        title='IP octets'
+      )
+      .withUnits('oct/s')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)')
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_IpExt_InOctets{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Octets received'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_IpExt_OutOctets{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Octets transmitted'
+      )),
+
+
+
+    local networkNetstatTCP =
+      nodeTimeseries.new(
+        title='TCP segments'
+      )
+      .withUnits('seg/s')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)')
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Tcp_InSegs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP received'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Tcp_OutSegs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP transmitted'
+      )),
+
+    local networkNetstatTCPerrors =
+      nodeTimeseries.new(
+        title='TCP errors rate'
+      )
+      .withUnits('err/s')
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_TcpExt_ListenOverflows{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP overflow'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_TcpExt_ListenDrops{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP ListenDrops - SYNs to LISTEN sockets ignored'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_TcpExt_TCPSynRetrans{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP SYN rentransmits'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Tcp_RetransSegs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP retransmitted segments, containing one or more previously transmitted octets'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Tcp_InErrs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP received with errors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Tcp_OutRsts{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='TCP segments sent with RST flag'
+      )),
+
+    local networkNetstatUDP =
+      nodeTimeseries.new(
+        title='UDP datagrams'
+      )
+      .withUnits('dat/s')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)')
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp_InDatagrams{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP received'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp_OutDatagrams{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP transmitted'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp6_InDatagrams{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP6 received'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp6_OutDatagrams{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP6 transmitted'
+      )),
+
+    local networkNetstatUDPerrors =
+      nodeTimeseries.new(
+        title='UDP errors rate'
+      )
+      .withUnits('err/s')
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_UdpLite_InErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDPLite InErrors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp_InErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP InErrors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp6_InErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP6 InErrors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp_NoPorts{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP NoPorts'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp6_NoPorts{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP6 NoPorts'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp_RcvbufErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP receive buffer errors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp6_RcvbufErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP6 receive buffer errors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp_SndbufErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP send buffer errors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Udp6_SndbufErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='UDP6 send buffer errors'
+      )),
+
+
+    local networkNetstatICMP =
+      nodeTimeseries.new(
+        title='ICMP messages'
+      )
+      .withUnits('msg/s')
+      .withNegativeYByRegex('transmit')
+      .withAxisLabel('out(-) / in(+)')
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Icmp_InMsgs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='ICMP received'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Icmp_OutMsgs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='ICMP transmitted'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Icmp6_InMsgs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='ICMP6 received'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Icmp6_OutMsgs{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='ICMP6 transmitted'
+      )),
+
+    local networkNetstatICMPerrors =
+      nodeTimeseries.new(
+        title='ICMP errors rate'
+      )
+      .withUnits('err/s')
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Icmp_InErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='ICMP Errors'
+      ))
+      .addTarget(commonPromTarget(
+        expr='irate(node_netstat_Icmp6_InErrors{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='ICMP6 Errors'
+      )),
+
+
     local rows =
       [
         row.new('Network')
@@ -548,8 +718,14 @@ local common = import '../lib/common.libsonnet';
         .addPanel(networkSockstatOther {span: 6}),
 
         row.new('Network Netstat')
-        .addPanel(networkSockstatTCP {span: 6})
-        .addPanel(networkSockstatTCP {span: 6})
+        .addPanel(networkNetstatIP {span: 12})
+        .addPanel(networkNetstatTCP {span: 6})
+        .addPanel(networkNetstatTCPerrors {span: 6})
+        .addPanel(networkNetstatUDP {span: 6})
+        .addPanel(networkNetstatUDPerrors {span: 6})
+        .addPanel(networkNetstatICMP {span: 6})
+        .addPanel(networkNetstatICMPerrors {span: 6})
+
       ],
 
     dashboard: if platform == 'Linux' then
