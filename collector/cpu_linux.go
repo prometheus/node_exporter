@@ -29,6 +29,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -423,5 +425,13 @@ func (c *cpuCollector) updateCPUStats(newStats map[int64]procfs.CPUStat) {
 		}
 
 		c.cpuStats[i] = cpuStats
+	}
+
+	// Remove offline CPUs.
+	if len(newStats) != len(c.cpuStats) {
+		onlineCPUIds := maps.Keys(newStats)
+		maps.DeleteFunc(c.cpuStats, func(key int64, item procfs.CPUStat) bool {
+			return !slices.Contains(onlineCPUIds, key)
+		})
 	}
 }

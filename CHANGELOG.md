@@ -5,6 +5,8 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [BUGFIX] Remove metrics of offline CPUs in CPU collector #2605
+
 ## 1.5.0 / 2022-11-29
 
 NOTE: This changes the Go runtime "GOMAXPROCS" to 1. This is done to limit the
@@ -139,7 +141,7 @@ NOTE: Filesystem collector flags have been renamed. `--collector.filesystem.igno
 * [BUGFIX] Fix wrong value for OpenBSD memory buffer cache #2015
 * [BUGFIX] Only initiate collectors once #2048
 * [BUGFIX] Handle small backwards jumps in CPU idle #2067
-  
+
 ## 1.1.2 / 2021-03-05
 
 * [BUGFIX] Handle errors from disabled PSI subsystem #1983
