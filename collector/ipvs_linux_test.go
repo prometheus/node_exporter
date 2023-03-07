@@ -24,9 +24,9 @@ import (
 
 	"github.com/go-kit/log"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 func TestIPVSCollector(t *testing.T) {
