@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 func Test_parseFilesystemLabelsError(t *testing.T) {

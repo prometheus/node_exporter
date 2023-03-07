@@ -19,9 +19,9 @@ package collector
 import (
 	"testing"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/procfs"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 func TestReadProcessStatus(t *testing.T) {

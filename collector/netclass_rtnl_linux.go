@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"io/fs"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/mdlayher/ethtool"
 	"github.com/prometheus/client_golang/prometheus"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
