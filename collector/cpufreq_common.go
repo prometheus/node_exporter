@@ -23,17 +23,17 @@ import (
 var (
 	cpuFreqHertzDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
-		"Current cpu thread frequency in hertz.",
+		"Current CPU thread frequency in hertz.",
 		[]string{"cpu"}, nil,
 	)
 	cpuFreqMinDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_min_hertz"),
-		"Minimum cpu thread frequency in hertz.",
+		"Minimum CPU thread frequency in hertz.",
 		[]string{"cpu"}, nil,
 	)
 	cpuFreqMaxDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
-		"Maximum cpu thread frequency in hertz.",
+		"Maximum CPU thread frequency in hertz.",
 		[]string{"cpu"}, nil,
 	)
 	cpuFreqScalingFreqDesc = prometheus.NewDesc(
@@ -50,5 +50,10 @@ var (
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_max_hertz"),
 		"Maximum scaled CPU thread frequency in hertz.",
 		[]string{"cpu"}, nil,
+	)
+	cpuFreqScalingGovernorDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_governor"),
+		"Current enabled CPU frequency governor.",
+		[]string{"cpu", "governor"}, nil,
 	)
 )
