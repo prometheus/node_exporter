@@ -1,13 +1,13 @@
 ---
 version: 2.1
 orbs:
-  prometheus: prometheus/prometheus@0.16.0
+  prometheus: prometheus/prometheus@0.17.1
 executors:
   # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
   # should also be updated.
   golang:
     docker:
-      - image: cimg/go:1.19
+      - image: cimg/go:1.20
   arm:
     machine:
       image: ubuntu-2004:current

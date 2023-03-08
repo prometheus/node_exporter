@@ -1,6 +1,6 @@
 module github.com/prometheus/node_exporter
 
-go 1.18
+go 1.19
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.3.2-0.20230301032407-649b5a2df7c0
