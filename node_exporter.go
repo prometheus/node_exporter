@@ -186,23 +186,25 @@ func main() {
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
-	landingConfig := web.LandingConfig{
-		Name:        "Node Exporter",
-		Description: "Prometheus Node Exporter",
-		Version:     version.Info(),
-		Links: []web.LandingLinks{
-			{
-				Address: *metricsPath,
-				Text:    "Metrics",
+	if *metricsPath != "/" {
+		landingConfig := web.LandingConfig{
+			Name:        "Node Exporter",
+			Description: "Prometheus Node Exporter",
+			Version:     version.Info(),
+			Links: []web.LandingLinks{
+				{
+					Address: *metricsPath,
+					Text:    "Metrics",
+				},
 			},
-		},
+		}
+		landingPage, err := web.NewLandingPage(landingConfig)
+		if err != nil {
+			level.Error(logger).Log("err", err)
+			os.Exit(1)
+		}
+		http.Handle("/", landingPage)
 	}
-	landingPage, err := web.NewLandingPage(landingConfig)
-	if err != nil {
-		level.Error(logger).Log("err", err)
-		os.Exit(1)
-	}
-	http.Handle("/", landingPage)
 
 	server := &http.Server{}
 	if err := web.ListenAndServe(server, toolkitFlags, logger); err != nil {
