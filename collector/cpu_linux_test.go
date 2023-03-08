@@ -115,3 +115,88 @@ func TestCPU(t *testing.T) {
 		t.Fatalf("should have %v CPU Stat: got %v", resetIdle, got)
 	}
 }
+
+func TestCPUOffline(t *testing.T) {
+	// CPU 1 goes offline.
+	firstCPUStat := map[int64]procfs.CPUStat{
+		0: {
+			User:      100.0,
+			Nice:      100.0,
+			System:    100.0,
+			Idle:      100.0,
+			Iowait:    100.0,
+			IRQ:       100.0,
+			SoftIRQ:   100.0,
+			Steal:     100.0,
+			Guest:     100.0,
+			GuestNice: 100.0,
+		},
+		1: {
+			User:      101.0,
+			Nice:      101.0,
+			System:    101.0,
+			Idle:      101.0,
+			Iowait:    101.0,
+			IRQ:       101.0,
+			SoftIRQ:   101.0,
+			Steal:     101.0,
+			Guest:     101.0,
+			GuestNice: 101.0,
+		},
+	}
+
+	c := makeTestCPUCollector(firstCPUStat)
+	want := map[int64]procfs.CPUStat{
+		0: {
+			User:      100.0,
+			Nice:      100.0,
+			System:    100.0,
+			Idle:      100.0,
+			Iowait:    100.0,
+			IRQ:       100.0,
+			SoftIRQ:   100.0,
+			Steal:     100.0,
+			Guest:     100.0,
+			GuestNice: 100.0,
+		},
+	}
+	c.updateCPUStats(want)
+	got := c.cpuStats
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("should have %v CPU Stat: got %v", want, got)
+	}
+
+	// CPU 1 comes back online.
+	want = map[int64]procfs.CPUStat{
+		0: {
+			User:      100.0,
+			Nice:      100.0,
+			System:    100.0,
+			Idle:      100.0,
+			Iowait:    100.0,
+			IRQ:       100.0,
+			SoftIRQ:   100.0,
+			Steal:     100.0,
+			Guest:     100.0,
+			GuestNice: 100.0,
+		},
+		1: {
+			User:      101.0,
+			Nice:      101.0,
+			System:    101.0,
+			Idle:      101.0,
+			Iowait:    101.0,
+			IRQ:       101.0,
+			SoftIRQ:   101.0,
+			Steal:     101.0,
+			Guest:     101.0,
+			GuestNice: 101.0,
+		},
+	}
+	c.updateCPUStats(want)
+	got = c.cpuStats
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("should have %v CPU Stat: got %v", want, got)
+	}
+
+}

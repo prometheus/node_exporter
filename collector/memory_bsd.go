@@ -87,6 +87,7 @@ func NewMemoryCollector(logger log.Logger) (Collector, error) {
 				description: "Locked in memory by user, mlock, etc",
 				mib:         "vm.stats.vm.v_user_wire_count",
 				conversion:  fromPage,
+				dataType:    bsdSysctlTypeCLong,
 			},
 			{
 				name:        "cache_bytes",
