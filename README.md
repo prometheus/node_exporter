@@ -179,7 +179,7 @@ zoneinfo | Exposes NUMA memory zone metrics. | Linux
 
 ### Deprecated
 
-These colectors are deprecated and will be removed in the next major release.
+These collectors are deprecated and will be removed in the next major release.
 
 Name     | Description | OS
 ---------|-------------|----
