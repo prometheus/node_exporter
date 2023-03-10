@@ -449,7 +449,7 @@ Windows support is now removed, the [wmi_exporter](https://github.com/martinlind
 * [CHANGE] Switch to kingpin flags #639
 * [CHANGE] Replace --collectors.enabled with per-collector flags #640
 * [FEATURE] Add ARP collector for Linux #540
-* [FEATURE] Add XFS colector for Linux #568, #575
+* [FEATURE] Add XFS collector for Linux #568, #575
 * [FEATURE] Add qdisc collector for Linux #580
 * [FEATURE] Add cpufreq stats for Linux #548
 * [FEATURE] Add diskstats for Darwin #593
