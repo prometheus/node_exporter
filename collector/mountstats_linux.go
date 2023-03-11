@@ -53,6 +53,7 @@ type mountStatsCollector struct {
 	NFSOperationsQueueTimeSecondsTotal    *prometheus.Desc
 	NFSOperationsResponseTimeSecondsTotal *prometheus.Desc
 	NFSOperationsRequestTimeSecondsTotal  *prometheus.Desc
+	NFSOperationsAverageRTTSeconds        *prometheus.Desc
 
 	// Transport statistics
 	NFSTransportBindTotal              *prometheus.Desc
@@ -318,6 +319,13 @@ func NewMountStatsCollector(logger log.Logger) (Collector, error) {
 		NFSOperationsRequestTimeSecondsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "operations_request_time_seconds_total"),
 			"Duration all requests took from when a request was enqueued to when it was completely handled for a given operation, in seconds.",
+			opLabels,
+			nil,
+		),
+
+		NFSOperationsAverageRTTSeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "operations_average_round_trip_time_seconds"),
+			"Duration from the time that the client's kernel sends the RPC request until the time it receives the reply.",
 			opLabels,
 			nil,
 		),
@@ -743,6 +751,13 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 			c.NFSOperationsRequestTimeSecondsTotal,
 			prometheus.CounterValue,
 			float64(op.CumulativeTotalRequestMilliseconds%float64Mantissa)/1000.0,
+			opLabelValues...,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSOperationsAverageRTTSeconds,
+			prometheus.GaugeValue,
+			op.AverageRTTMilliseconds/1000.0,
 			opLabelValues...,
 		)
 	}
