@@ -67,5 +67,7 @@
 
     dashboardNamePrefix: 'Node Exporter / ',
     dashboardTags: ['node-exporter-mixin'],
+
+    dashboardTimezone: 'utc',
   },
 }

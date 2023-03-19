@@ -148,7 +148,7 @@ local diskSpaceUtilisation =
                              '%sUSE Method / Node' % $._config.dashboardNamePrefix,
                              time_from='now-1h',
                              tags=($._config.dashboardTags),
-                             timezone='utc',
+                             timezone=$._config.dashboardTimezone,
                              refresh='30s',
                              graphTooltip='shared_crosshair'
                            )
@@ -213,7 +213,7 @@ local diskSpaceUtilisation =
                              '%sUSE Method / Cluster' % $._config.dashboardNamePrefix,
                              time_from='now-1h',
                              tags=($._config.dashboardTags),
-                             timezone='utc',
+                             timezone=$._config.dashboardTimezone,
                              refresh='30s',
                              graphTooltip='shared_crosshair'
                            )
@@ -324,7 +324,7 @@ local diskSpaceUtilisation =
                              '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,
                              time_from='now-1h',
                              tags=($._config.dashboardTags),
-                             timezone='utc',
+                             timezone=$._config.dashboardTimezone,
                              refresh='30s',
                              graphTooltip='shared_crosshair'
                            )
