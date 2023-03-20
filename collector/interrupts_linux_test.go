@@ -31,10 +31,39 @@ func TestInterrupts(t *testing.T) {
 	}
 
 	if want, got := "5031", interrupts["NMI"].values[1]; want != got {
-		t.Errorf("want interrupts %s, got %s", want, got)
+		t.Errorf("want interrupts value %s, got %s", want, got)
 	}
 
 	if want, got := "4968", interrupts["NMI"].values[3]; want != got {
-		t.Errorf("want interrupts %s, got %s", want, got)
+		t.Errorf("want interrupts value %s, got %s", want, got)
+	}
+
+	if want, got := "IR-IO-APIC-edge", interrupts["12"].info; want != got {
+		t.Errorf("want interrupts info %s, got %s", want, got)
+	}
+
+	if want, got := "i8042", interrupts["12"].devices; want != got {
+		t.Errorf("want interrupts devices %s, got %s", want, got)
+	}
+
+}
+
+// https://github.com/prometheus/node_exporter/issues/2557
+// On aarch64 the interrupts file can have zero spaces between the label of
+// the row and the first value if the value is large
+func TestInterruptsArm(t *testing.T) {
+	file, err := os.Open("fixtures/proc/interrupts_aarch64")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+
+	interrupts, err := parseInterrupts(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, ok := interrupts["IPI0"]; !ok {
+		t.Errorf("IPI0 label not found in interrupts")
 	}
 }

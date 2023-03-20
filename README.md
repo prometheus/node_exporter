@@ -165,7 +165,6 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
-ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
@@ -177,6 +176,14 @@ systemd | Exposes service and system status from [systemd](http://www.freedeskto
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
+
+### Deprecated
+
+These collectors are deprecated and will be removed in the next major release.
+
+Name     | Description | OS
+---------|-------------|----
+ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
 
 ### Perf Collector
 

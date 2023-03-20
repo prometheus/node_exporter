@@ -1,0 +1,61 @@
+          CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
+ 10: 3287008667 3310445093 3301386305 3273132897 3368262064 3641875466 3360412019 3225020442     GICv3  27 Level     arch_timer
+ 14:       7815          0          0          4          0          0          0          0     GICv3  37 Level     ttyS0
+ 17:          0          0          0          0          0          0          0          0     GICv3  48 Edge      ACPI:Ged
+ 18:          0          0          0          0          0          0          0          0     GICv3  49 Edge      ACPI:Ged
+ 19:          0          0          0          0          0          0          0          0     GICv3  50 Edge      ACPI:Ged
+ 20:          0          0          0          0          0          0          0          0     GICv3  51 Edge      ACPI:Ged
+ 21:          0          0          0          0          0          0          0          0     GICv3  52 Edge      ACPI:Ged
+ 22:          0          0          0          0          0          0          0          0     GICv3  53 Edge      ACPI:Ged
+ 23:          0          0          0          0          0          0          0          0     GICv3  54 Edge      ACPI:Ged
+ 24:          0          0          0          0          0          0          0          0     GICv3  55 Edge      ACPI:Ged
+ 25:          0          0          0          0          0          0          0          0     GICv3  56 Edge      ACPI:Ged
+ 26:          0          0          0          0          0          0          0          0     GICv3  57 Edge      ACPI:Ged
+ 27:          0          0          0          0          0          0          0          0     GICv3  58 Edge      ACPI:Ged
+ 28:          0          0          0          0          0          0          0          0     GICv3  59 Edge      ACPI:Ged
+ 29:          0          0          0          0          0          0          0          0     GICv3  60 Edge      ACPI:Ged
+ 30:          0          0          0          0          0          0          0          0     GICv3  61 Edge      ACPI:Ged
+ 31:          0          0          0          0          0          0          0          0     GICv3  62 Edge      ACPI:Ged
+ 32:          0          0          0          0          0          0          0          0     GICv3  63 Edge      ACPI:Ged
+ 33:          0          0          0          0          0          0          0          0     GICv3  64 Edge      ACPI:Ged
+ 34:          0          0          0          0          0          0          0          0     GICv3  65 Edge      ACPI:Ged
+ 35:          0          0          0          0          0          0          0          0     GICv3  66 Edge      ACPI:Ged
+ 36:          0          0          0          0          0          0          0          0     GICv3  67 Edge      ACPI:Ged
+ 37:          0          0          0          0          0          0          0          0     GICv3  68 Edge      ACPI:Ged
+ 38:          0          0          0          0          0          0          0          0     GICv3  69 Edge      ACPI:Ged
+ 39:          0          0          0          0          0          0          0          0     GICv3  70 Edge      ACPI:Ged
+ 40:          0          0          0          0          0          0          0          0     GICv3  71 Edge      ACPI:Ged
+ 41:          0          0          0          0          0          0          0          0     GICv3  72 Edge      ACPI:Ged
+ 42:          0          0          0          0          0          0          0          0     GICv3  73 Edge      ACPI:Ged
+ 43:          0          0          0          0          0          0          0          0     GICv3  74 Edge      ACPI:Ged
+ 44:          0          0          0          0          0          0          0          0     GICv3  75 Edge      ACPI:Ged
+ 45:          0          0          0          0          0          0          0          0     GICv3  76 Edge      ACPI:Ged
+ 46:          0          0          0          0          0          0          0          0     GICv3  77 Edge      ACPI:Ged
+ 47:          0          0          0          0          0          0          0          0     GICv3  78 Edge      ACPI:Ged
+ 48:          0          0          0          0          0          0          0          0     GICv3  79 Edge      ACPI:Ged
+ 49:          0          0          0          0          0          0          0          0     GICv3  23 Level     arm-pmu
+ 50:          0          0          0          0          0          0          0          0  ARMH0061:00   3 Edge      ACPI:Event
+ 51:         13          0          0         20          4          0          0          0   ITS-MSI 65536 Edge      nvme0q0
+ 52:          0          9          0          0          0          5         20          0   ITS-MSI 507904 Edge      nvme1q0
+ 53:  129969327          0          0          0          0          0          0          0   ITS-MSI 65537 Edge      nvme0q1
+ 54:          0          0          0          0  126913956          0          0          0   ITS-MSI 65538 Edge      nvme0q2
+ 55:          0  199619844          0          0          0          0          0          0   ITS-MSI 507905 Edge      nvme1q1
+ 56:          0          0          0          0          0  198494086          0          0   ITS-MSI 507906 Edge      nvme1q2
+ 57:          0          0         51          0          0   32479308          0          0   ITS-MSI 81920 Edge      ena-mgmnt@pci:0000:00:05.0
+ 58:          0          0 1195697946        437          0          0          0          0   ITS-MSI 81921 Edge      eth0-Tx-Rx-0
+ 59:          0          0          0 2709937608       1619          0          0          0   ITS-MSI 81922 Edge      eth0-Tx-Rx-1
+ 60:          0 1457922109          0          0          0         71          0          0   ITS-MSI 81923 Edge      eth0-Tx-Rx-2
+ 61: 2052879736          0          0          0          0          0        124          0   ITS-MSI 81924 Edge      eth0-Tx-Rx-3
+ 62:          0          0          0          0          0          0 2268695629       1530   ITS-MSI 81925 Edge      eth0-Tx-Rx-4
+ 63:         50          0          0          0          0          0          0 1997799253   ITS-MSI 81926 Edge      eth0-Tx-Rx-5
+ 64:          0         48          0          0 1238622585          0          0          0   ITS-MSI 81927 Edge      eth0-Tx-Rx-6
+ 65:          0          0         47          0          0          0          0 1574978449   ITS-MSI 81928 Edge      eth0-Tx-Rx-7
+IPI0:2768808080 2844211768 2878602432 2730576120 2723524623 3349096412 2717389879 2154252810       Rescheduling interrupts
+IPI1: 357815098  213258177  153713187  132890624  124746406  123498004  122386326  120728639       Function call interrupts
+IPI2:         0          0          0          0          0          0          0          0       CPU stop interrupts
+IPI3:         0          0          0          0          0          0          0          0       CPU stop (for crash dump) interrupts
+IPI4:         0          0          0          0          0          0          0          0       Timer broadcast interrupts
+IPI5:         0          0          0          0          0          0          0          0       IRQ work interrupts
+IPI6:         0          0          0          0          0          0          0          0       CPU wake-up interrupts
+Err:          0
+                                                                              

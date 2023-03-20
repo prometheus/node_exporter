@@ -348,6 +348,16 @@ node_cpu_scaling_frequency_min_hertz{cpu="0"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="1"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="2"} 1e+06
 node_cpu_scaling_frequency_min_hertz{cpu="3"} 1e+06
+# HELP node_cpu_scaling_governor Current enabled CPU frequency governor.
+# TYPE node_cpu_scaling_governor gauge
+node_cpu_scaling_governor{cpu="0",governor="performance"} 0
+node_cpu_scaling_governor{cpu="0",governor="powersave"} 1
+node_cpu_scaling_governor{cpu="1",governor="performance"} 0
+node_cpu_scaling_governor{cpu="1",governor="powersave"} 1
+node_cpu_scaling_governor{cpu="2",governor="performance"} 0
+node_cpu_scaling_governor{cpu="2",governor="powersave"} 1
+node_cpu_scaling_governor{cpu="3",governor="performance"} 0
+node_cpu_scaling_governor{cpu="3",governor="powersave"} 1
 # HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.
 # TYPE node_cpu_seconds_total counter
 node_cpu_seconds_total{cpu="0",mode="idle"} 10870.69

@@ -18,10 +18,10 @@ package collector
 
 import (
 	"fmt"
-
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+	"strings"
 )
 
 type cpuFreqCollector struct {
@@ -103,6 +103,22 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 				float64(*stats.ScalingMaximumFrequency)*1000.0,
 				stats.Name,
 			)
+		}
+		if stats.Governor != "" {
+			availableGovernors := strings.Split(stats.AvailableGovernors, " ")
+			for _, g := range availableGovernors {
+				state := 0
+				if g == stats.Governor {
+					state = 1
+				}
+				ch <- prometheus.MustNewConstMetric(
+					cpuFreqScalingGovernorDesc,
+					prometheus.GaugeValue,
+					float64(state),
+					stats.Name,
+					g,
+				)
+			}
 		}
 	}
 	return nil
