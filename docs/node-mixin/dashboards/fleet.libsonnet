@@ -500,6 +500,7 @@ local common = import '../lib/common.libsonnet';
         uid='node-fleet'
       ) { editable: true }
       .addLink(c.links.otherDashes { includeVars: false })
+      .addAnnotations(c.annotations)
       .addTemplates(templates)
       .addRows(rows)
     else if platform == 'Darwin' then {},

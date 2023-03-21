@@ -511,6 +511,7 @@ local nodeTemplates = common.templates;
       ) { editable: true }
       .addLink(c.links.fleetDash)
       .addLink(c.links.otherDashes)
+      .addAnnotations(c.annotations)
       .addTemplates(templates)
       .addPanels(panelsGrid)
     else if platform == 'Darwin' then

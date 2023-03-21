@@ -444,7 +444,7 @@ local common = import '../lib/common.libsonnet';
         expr='node_sockstat_UDP6_inuse{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='IPv6 UDP in use'
       )),
-      
+
     local networkSockstatOther =
       nodeTimeseries.new(
         title='Sockets Other'
@@ -467,7 +467,7 @@ local common = import '../lib/common.libsonnet';
       )),
 
 
-      local networkSockstatMemory =
+    local networkSockstatMemory =
       nodeTimeseries.new(
         title='Sockets Memory'
       )
@@ -503,15 +503,15 @@ local common = import '../lib/common.libsonnet';
             value: 'lines',
           },
           {
-            "id": "custom.drawStyle",
-            "value": "bars"
+            id: 'custom.drawStyle',
+            value: 'bars',
           },
           {
-            "id": "custom.stacking",
-            "value": {
-              "mode": "normal",
-              "group": "A"
-            }
+            id: 'custom.stacking',
+            value: {
+              mode: 'normal',
+              group: 'A',
+            },
           },
         ]
       ),
@@ -540,7 +540,6 @@ local common = import '../lib/common.libsonnet';
         expr='irate(node_netstat_IpExt_OutOctets{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Octets transmitted'
       )),
-
 
 
     local networkNetstatTCP =
@@ -711,20 +710,20 @@ local common = import '../lib/common.libsonnet';
         .addPanel(networkSoftnetPanel { span: 6 })
         .addPanel(networkSoftnetSqueezePanel { span: 6 }),
         row.new('Network Sockets')
-        .addPanel(networkSockstatAll {span: 12})
-        .addPanel(networkSockstatTCP {span: 6})
-        .addPanel(networkSockstatUDP {span: 6})
-        .addPanel(networkSockstatMemory {span: 6})
-        .addPanel(networkSockstatOther {span: 6}),
+        .addPanel(networkSockstatAll { span: 12 })
+        .addPanel(networkSockstatTCP { span: 6 })
+        .addPanel(networkSockstatUDP { span: 6 })
+        .addPanel(networkSockstatMemory { span: 6 })
+        .addPanel(networkSockstatOther { span: 6 }),
 
         row.new('Network Netstat')
-        .addPanel(networkNetstatIP {span: 12})
-        .addPanel(networkNetstatTCP {span: 6})
-        .addPanel(networkNetstatTCPerrors {span: 6})
-        .addPanel(networkNetstatUDP {span: 6})
-        .addPanel(networkNetstatUDPerrors {span: 6})
-        .addPanel(networkNetstatICMP {span: 6})
-        .addPanel(networkNetstatICMPerrors {span: 6})
+        .addPanel(networkNetstatIP { span: 12 })
+        .addPanel(networkNetstatTCP { span: 6 })
+        .addPanel(networkNetstatTCPerrors { span: 6 })
+        .addPanel(networkNetstatUDP { span: 6 })
+        .addPanel(networkNetstatUDPerrors { span: 6 })
+        .addPanel(networkNetstatICMP { span: 6 })
+        .addPanel(networkNetstatICMPerrors { span: 6 }),
 
       ],
 
@@ -741,6 +740,7 @@ local common = import '../lib/common.libsonnet';
       .addLink(c.links.fleetDash)
       .addLink(c.links.nodeDash)
       .addLink(c.links.otherDashes)
+      .addAnnotations(c.annotations)
       .addTemplates(templates)
       .addRows(rows)
     else if platform == 'Darwin' then {},

@@ -95,11 +95,28 @@ local template = grafana.template;
         for label in chainLabels(std.split(config.instanceLabels, ','))
       ],
 
-
     // return common templates
     templates: [prometheusDatasourceTemplate] + groupTemplates + instanceTemplates,
     // return templates where instance select is not required
     groupDashboardTemplates: [prometheusDatasourceTemplate] + groupTemplates,
+
+    local rebootAnnotation = {
+      datasource: {
+        type: 'prometheus',
+        uid: '$datasource',
+      },
+      enable: true,
+      hide: true,
+      expr: 'node_boot_time_seconds{%(nodeQuerySelector)s}*1000 > $__from < $__to' % config { nodeQuerySelector: nodeQuerySelector },
+      name: 'Reboot',
+      iconColor: 'orange',
+      tagKeys: config.instanceLabels,
+      textFormat: '',
+      titleFormat: 'Reboot',
+      useValueForTime: 'on',
+    },
+    // return common annotations
+    annotations: [rebootAnnotation],
 
     // return common prometheus target (with project defaults)
     commonPromTarget(
