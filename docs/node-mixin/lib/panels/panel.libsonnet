@@ -67,7 +67,7 @@
     },
   },
   withMaxDataPoints(value):: self {
-    maxDataPoints: value
+    maxDataPoints: value,
   },
   withTransform():: self {
 

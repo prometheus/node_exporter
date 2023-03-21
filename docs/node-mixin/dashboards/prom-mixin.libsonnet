@@ -473,47 +473,32 @@ local nodeTemplates = common.templates;
       .withAxisLabel('out(-) / in(+)'),
 
 
-    local infoRow =
-      row.new('Overview')
-      .addPanel(uptimePanel { span: 3, height: '100px' })
-      .addPanel(nodeNamePanel { span: 3, height: '100px' })
-      .addPanel(kernelVersionPanel { span: 3, height: '100px' })
-      .addPanel(osPanel { span: 3, height: '100px' })
-      .addPanel(cpuCountPanel { span: 3, height: '100px' })
-      .addPanel(memoryTotalPanel { span: 3, height: '100px' })
-      .addPanel(totalSwapPanel { span: 3, height: '100px' })
-      .addPanel(totalRootFSPanel { span: 3, height: '100px' }),
-
-    local cpuRow =
-      row.new('CPU')
-      .addPanel(idleCPU { span: 6 })
-      .addPanel(systemLoad { span: 3 })
-      .addPanel(cpuStatPanel { span: 3 }),
-
-    local memoryRow =
-      row.new('Memory')
-      .addPanel(memoryGraph { span: 9 })
-      .addPanel(memoryGauge { span: 3 }),
-
-    local diskRow =
-      row.new('Disk')
-      .addPanel(diskIO { span: 6 })
-      .addPanel(diskSpaceUsage { span: 6 }),
-
-    local networkRow =
-      row.new('Network')
-      .addPanel(networkTrafficPanel { span: 6 })
-      .addPanel(networkErrorsDropsPanel { span: 6 }),
-
-    local rows =
+    local panelsGrid =
       [
-        infoRow,
-        cpuRow,
-        memoryRow,
-        diskRow,
-        networkRow,
+        // use negative gravity effect, max w=24
+        { type: 'row', title: 'Overview' },
+        uptimePanel { gridPos: { x: 0, w: 6, h: 2 } },
+        nodeNamePanel { gridPos: { x: 6, w: 6, h: 2 } },
+        kernelVersionPanel { gridPos: { x: 12, w: 6, h: 2 } },
+        osPanel { gridPos: { x: 18, w: 6, h: 2 } },
+        cpuCountPanel { gridPos: { x: 0, w: 6, h: 2 } },
+        memoryTotalPanel { gridPos: { x: 6, w: 6, h: 2 } },
+        totalSwapPanel { gridPos: { x: 12, w: 6, h: 2 } },
+        totalRootFSPanel { gridPos: { x: 18, w: 6, h: 2 } },
+        { type: 'row', title: 'CPU' } { gridPos: { y: 25 } },
+        cpuStatPanel { gridPos: { x: 0, w: 6, h: 6, y: 25 } },
+        idleCPU { gridPos: { x: 6, w: 12, h: 6, y: 25 } },
+        systemLoad { gridPos: { x: 18, w: 6, h: 6, y: 25 } },
+        { type: 'row', title: 'Memory' } { gridPos: { y: 50 } },
+        memoryGauge { gridPos: { x: 0, w: 6, h: 6, y: 50 } },
+        memoryGraph { gridPos: { x: 6, w: 18, h: 6, y: 50 } },
+        { type: 'row', title: 'Disk' } { gridPos: { y: 75 } },
+        diskIO { gridPos: { x: 0, w: 12, h: 6, y: 75 } },
+        diskSpaceUsage { gridPos: { x: 12, w: 12, h: 6, y: 75 } },
+        { type: 'row', title: 'Network' } { gridPos: { y: 100 } },
+        networkTrafficPanel { gridPos: { x: 0, w: 12, h: 6, y: 100 } },
+        networkErrorsDropsPanel { gridPos: { x: 12, w: 12, h: 6, y: 100 } },
       ],
-
     dashboard: if platform == 'Linux' then
       dashboard.new(
         '%sNode Overview ' % config { nodeQuerySelector: c.nodeQuerySelector }.dashboardNamePrefix,
@@ -527,7 +512,7 @@ local nodeTemplates = common.templates;
       .addLink(c.links.fleetDash)
       .addLink(c.links.otherDashes)
       .addTemplates(templates)
-      .addRows(rows)
+      .addPanels(panelsGrid)
     else if platform == 'Darwin' then
       dashboard.new(
         '%sMacOS' % config { nodeQuerySelector: c.nodeQuerySelector }.dashboardNamePrefix,
@@ -539,7 +524,7 @@ local nodeTemplates = common.templates;
         uid='nodes-darwin'
       )
       .addTemplates(templates)
-      .addRows(rows),
+      .addPanels(panelsGrid),
 
   },
 }
