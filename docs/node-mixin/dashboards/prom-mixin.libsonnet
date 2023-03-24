@@ -78,9 +78,10 @@ local nodeTemplates = common.templates;
         expr=q.cpuUsage
       )),
 
-    local memoryGraphPanelPrototype = nodePanels.timeseries.new('Memory Usage')
-                                      .withMin(0)
-                                      .withUnits('bytes'),
+    local memoryGraphPanelPrototype =
+        nodePanels.timeseries.new('Memory Usage')
+          .withMin(0)
+          .withUnits('bytes'),
     local memoryGraph =
       if platform == 'Linux' then
         memoryGraphPanelPrototype { stack: true }
