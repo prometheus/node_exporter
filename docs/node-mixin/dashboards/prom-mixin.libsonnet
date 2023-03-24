@@ -72,89 +72,6 @@ local nodeTemplates = common.templates;
       .withUnits('bytes')
       .withDecimals(0),
 
-    local cpuStatPanel =
-      commonPanels.percentUsageStat.new('CPU Usage')
-      .addTarget(commonPromTarget(
-        expr=q.cpuUsage
-      )),
-
-    local memoryGraphPanelPrototype =
-        nodePanels.timeseries.new('Memory Usage')
-          .withMin(0)
-          .withUnits('bytes'),
-    local memoryGraph =
-      if platform == 'Linux' then
-        memoryGraphPanelPrototype { stack: true }
-        .addTarget(commonPromTarget(
-          |||
-            (
-              node_memory_MemTotal_bytes{%(nodeQuerySelector)s}
-            -
-              node_memory_MemFree_bytes{%(nodeQuerySelector)s}
-            -
-              node_memory_Buffers_bytes{%(nodeQuerySelector)s}
-            -
-              node_memory_Cached_bytes{%(nodeQuerySelector)s}
-            )
-          ||| % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat='memory used'
-        ))
-        .addTarget(commonPromTarget('node_memory_Buffers_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory buffers'))
-        .addTarget(commonPromTarget('node_memory_Cached_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory cached'))
-        .addTarget(commonPromTarget('node_memory_MemFree_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory free'))
-      else if platform == 'Darwin' then
-        // not useful to stack
-        memoryGraphPanelPrototype { stack: false }
-        .addTarget(commonPromTarget('node_memory_total_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Physical Memory'))
-        .addTarget(commonPromTarget(
-          |||
-            (
-                node_memory_internal_bytes{%(nodeQuerySelector)s} -
-                node_memory_purgeable_bytes{%(nodeQuerySelector)s} +
-                node_memory_wired_bytes{%(nodeQuerySelector)s} +
-                node_memory_compressed_bytes{%(nodeQuerySelector)s}
-            )
-          ||| % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Memory Used'
-        ))
-        .addTarget(commonPromTarget(
-          |||
-            (
-                node_memory_internal_bytes{%(nodeQuerySelector)s} -
-                node_memory_purgeable_bytes{%(nodeQuerySelector)s}
-            )
-          ||| % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='App Memory'
-        ))
-        .addTarget(commonPromTarget('node_memory_wired_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Wired Memory'))
-        .addTarget(commonPromTarget('node_memory_compressed_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Compressed')),
-
-    // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
-    local memoryGaugePanelPrototype =
-      commonPanels.percentUsageStat.new('Memory Usage'),
-
-    local memoryGauge =
-      if platform == 'Linux' then
-        memoryGaugePanelPrototype
-
-        .addTarget(commonPromTarget(q.memoryUsage))
-
-      else if platform == 'Darwin' then
-        memoryGaugePanelPrototype
-        .addTarget(commonPromTarget(
-          |||
-            (
-                (
-                  avg(node_memory_internal_bytes{%(nodeQuerySelector)s}) -
-                  avg(node_memory_purgeable_bytes{%(nodeQuerySelector)s}) +
-                  avg(node_memory_wired_bytes{%(nodeQuerySelector)s}) +
-                  avg(node_memory_compressed_bytes{%(nodeQuerySelector)s})
-                ) /
-                avg(node_memory_total_bytes{%(nodeQuerySelector)s})
-            )
-            *
-            100
-          ||| % config { nodeQuerySelector: c.nodeQuerySelector }
-        )),
-
     local networkTrafficPanel =
       commonPanels.networkTrafficGraph.new(
         'Network Traffic', description='Network transmitted and received (bits/s)',
@@ -205,12 +122,12 @@ local nodeTemplates = common.templates;
         totalSwapPanel { gridPos: { x: 12, w: 6, h: 2 } },
         totalRootFSPanel { gridPos: { x: 18, w: 6, h: 2 } },
         { type: 'row', title: 'CPU' } { gridPos: { y: 25 } },
-        cpuStatPanel { gridPos: { x: 0, w: 6, h: 6, y: 25 } },
+        c.panelsWithTargets.cpuStatPanel { gridPos: { x: 0, w: 6, h: 6, y: 25 } },
         c.panelsWithTargets.idleCPU { gridPos: { x: 6, w: 12, h: 6, y: 25 } },
         c.panelsWithTargets.systemLoad { gridPos: { x: 18, w: 6, h: 6, y: 25 } },
         { type: 'row', title: 'Memory' } { gridPos: { y: 50 } },
-        memoryGauge { gridPos: { x: 0, w: 6, h: 6, y: 50 } },
-        memoryGraph { gridPos: { x: 6, w: 18, h: 6, y: 50 } },
+        c.panelsWithTargets.memoryGauge { gridPos: { x: 0, w: 6, h: 6, y: 50 } },
+        c.panelsWithTargets.memoryGraph { gridPos: { x: 6, w: 18, h: 6, y: 50 } },
         { type: 'row', title: 'Disk' } { gridPos: { y: 75 } },
         c.panelsWithTargets.diskIO { gridPos: { x: 0, w: 12, h: 8, y: 75 } },
         c.panelsWithTargets.fsSpaceUsage { gridPos: { x: 12, w: 12, h: 8, y: 75 } },

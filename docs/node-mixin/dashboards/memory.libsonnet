@@ -17,90 +17,90 @@ local common = import '../lib/common.libsonnet';
     local templates = c.templates,
     local q = c.queries,
 
-    local memoryPagesInOut = 
+    local memoryPagesInOut =
       nodeTimeseries.new('Memory Pages In / Out')
       .withNegativeYByRegex('out')
       .withAxisLabel('out(-) / in(+)')
       .addTarget(commonPromTarget(
-        expr='irate(node_vmstat_pgpgin{%(nodeQuerySelector)s}[$__rate_interval])'  % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='irate(node_vmstat_pgpgin{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Pagesin - Page in operations'
       ))
       .addTarget(commonPromTarget(
-        expr='irate(node_vmstat_pgpgin{%(nodeQuerySelector)s}[$__rate_interval])'  % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='irate(node_vmstat_pgpgin{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Pagesout - Page out operations'
       )),
-    local memoryPagesSwapInOut = 
+    local memoryPagesSwapInOut =
       nodeTimeseries.new('Memory Pages Swap In / Out')
       .withNegativeYByRegex('out')
       .withAxisLabel('out(-) / in(+)')
       .addTarget(commonPromTarget(
-        expr='irate(node_vmstat_pswpin{%(nodeQuerySelector)s}[$__rate_interval])'  % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='irate(node_vmstat_pswpin{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Pswpin - Pages swapped in'
       ))
       .addTarget(commonPromTarget(
-        expr='irate(node_vmstat_pswpout{%(nodeQuerySelector)s}[$__rate_interval])'  % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='irate(node_vmstat_pswpout{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Pswpout - Pages swapped out'
       )),
 
-    local memoryPagesFaults = 
+    local memoryPagesFaults =
       nodeTimeseries.new('Memory Page Faults')
       .addTarget(commonPromTarget(
-        expr='irate(node_vmstat_pgfault{%(nodeQuerySelector)s}[$__rate_interval])'  % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='irate(node_vmstat_pgfault{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Pgfault - Page major and minor fault operations'
       ))
       .addTarget(commonPromTarget(
-        expr='irate(node_vmstat_pgmajfault{%(nodeQuerySelector)s}[$__rate_interval])'  % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='irate(node_vmstat_pgmajfault{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Pgmajfault - Major page fault operations'
       ))
       .addTarget(commonPromTarget(
         expr=
-          |||
-            irate(node_vmstat_pgfault{%(nodeQuerySelector)s}[$__rate_interval])
-            -
-            irate(node_vmstat_pgmajfault{%(nodeQuerySelector)s}[$__rate_interval])
-          ||| % config { nodeQuerySelector: c.nodeQuerySelector },
+        |||
+          irate(node_vmstat_pgfault{%(nodeQuerySelector)s}[$__rate_interval])
+          -
+          irate(node_vmstat_pgmajfault{%(nodeQuerySelector)s}[$__rate_interval])
+        ||| % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Pgminfault - Minor page fault operations'
       )),
 
-      local memoryOOMkiller =
+    local memoryOOMkiller =
       nodeTimeseries.new('OOM Killer')
-        .addTarget(commonPromTarget(
-          expr="increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__rate_interval])" % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat="OOM killer invocations"
-        )),
-      
-      local memoryActiveInactive = 
-        nodeTimeseries.new('Memory Active / Inactive')
-        .withUnits("decbytes")
-        .addTarget(commonPromTarget(
-          expr='node_memory_Inactive_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat='Inactive - Memory which has been less recently used.  It is more eligible to be reclaimed for other purposes',
-        ))
-        .addTarget(commonPromTarget(
-          expr='node_memory_Active_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat='Active - Memory that has been used more recently and usually not reclaimed unless absolutely necessary',
-        )),
+      .addTarget(commonPromTarget(
+        expr='increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='OOM killer invocations'
+      )),
 
-      local memoryActiveInactiveDetail = 
-        nodeTimeseries.new('Memory Active / Inactive Details')
-        .withUnits("decbytes")
-        .addTarget(commonPromTarget(
-          expr='node_memory_Inactive_file_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat='Inactive_file - File-backed memory on inactive LRU list',
-        ))
-        .addTarget(commonPromTarget(
-          expr='node_memory_Inactive_anon_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat='Inactive_anon - Anonymous and swap cache on inactive LRU list, including tmpfs (shmem)',
-        ))
-        .addTarget(commonPromTarget(
-          expr='node_memory_Active_file_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat='Active_file - File-backed memory on active LRU list',
-        ))
-        .addTarget(commonPromTarget(
-          expr='node_memory_Active_anon_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
-          legendFormat='Active_anon - Anonymous and swap cache on active least-recently-used (LRU) list, including tmpfs',
-        )),
-      
+    local memoryActiveInactive =
+      nodeTimeseries.new('Memory Active / Inactive')
+      .withUnits('decbytes')
+      .addTarget(commonPromTarget(
+        expr='node_memory_Inactive_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Inactive - Memory which has been less recently used.  It is more eligible to be reclaimed for other purposes',
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_memory_Active_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Active - Memory that has been used more recently and usually not reclaimed unless absolutely necessary',
+      )),
+
+    local memoryActiveInactiveDetail =
+      nodeTimeseries.new('Memory Active / Inactive Details')
+      .withUnits('decbytes')
+      .addTarget(commonPromTarget(
+        expr='node_memory_Inactive_file_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Inactive_file - File-backed memory on inactive LRU list',
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_memory_Inactive_anon_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Inactive_anon - Anonymous and swap cache on inactive LRU list, including tmpfs (shmem)',
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_memory_Active_file_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Active_file - File-backed memory on active LRU list',
+      ))
+      .addTarget(commonPromTarget(
+        expr='node_memory_Active_anon_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
+        legendFormat='Active_anon - Anonymous and swap cache on active least-recently-used (LRU) list, including tmpfs',
+      )),
+
     local memoryCommited =
       nodeTimeseries.new('Memory Commited')
       .withUnits('decbytes')
@@ -204,7 +204,7 @@ local common = import '../lib/common.libsonnet';
       )),
     local memoryHugePagesSize =
       nodeTimeseries.new('Memory HugePages Size')
-      .withUnits("decbytes")
+      .withUnits('decbytes')
       .addTarget(commonPromTarget(
         expr='node_memory_HugePages_Total{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='HugePages - Total size of the pool of huge pages'
@@ -215,7 +215,7 @@ local common = import '../lib/common.libsonnet';
       )),
     local memoryDirectMap =
       nodeTimeseries.new('Memory Direct Map')
-      .withUnits("decbytes")
+      .withUnits('decbytes')
       .addTarget(commonPromTarget(
         expr='node_memory_DirectMap1G_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='DirectMap1G'
@@ -228,36 +228,36 @@ local common = import '../lib/common.libsonnet';
         expr='node_memory_DirectMap4k_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='DirectMap4k'
       )),
-      
+
     local memoryBounce =
       nodeTimeseries.new('Memory Bounce')
-      .withUnits("decbytes")
+      .withUnits('decbytes')
       .addTarget(commonPromTarget(
         expr='node_memory_Bounce_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='Bounce - Memory used for block device bounce buffers'
       )),
     local panelsGrid =
       [
-        //TODO add generic graphs
-        
-        {type:"row", title: "Vmstat" , gridPos: {y: 25}},
-        memoryPagesInOut {gridPos: {x:0, w:12, h: 8, y: 25}},
-        memoryPagesSwapInOut {gridPos: {x:12, w:12, h: 8, y: 25}},
-        memoryPagesFaults {gridPos: {x:0, w:12, h: 8, y: 25}},
-        memoryOOMkiller {gridPos: {x:12, w:12, h: 8, y: 25}},
-        {type:"row", title: "Memstat", gridPos: {y: 50}},
-        memoryActiveInactive {gridPos: {x:0, w:12, h: 8, y: 50}},
-        memoryActiveInactiveDetail {gridPos: {x:12, w:12, h: 8, y: 50}},
-        memoryCommited {gridPos: {x:0, w:12, h: 8, y: 50}},
-        memorySharedAndMapped {gridPos: {x:12, w:12, h: 8, y: 50}},
-        memoryWriteAndDirty {gridPos: {x:0, w:12, h: 8, y: 50}},
-        memoryVmalloc {gridPos: {x:12, w:12, h: 8, y: 50}},
-        memorySlab {gridPos: {x:0, w:12, h: 8, y: 50}},
-        memoryAnonymous {gridPos: {x:12, w:12, h: 8, y: 50}},
-        memoryHugePagesCounter {gridPos: {x:0, w:12, h: 8, y: 50}},
-        memoryHugePagesSize {gridPos: {x:12, w:12, h: 8, y: 50}},
-        memoryDirectMap {gridPos: {x:0, w:12, h: 8, y: 50}},
-        memoryBounce {gridPos: {x:12, w:12, h: 8, y: 50}},
+        c.panelsWithTargets.memoryGauge { gridPos: { x: 0, w: 6, h: 6, y: 0 } },
+        c.panelsWithTargets.memoryGraph { gridPos: { x: 6, w: 18, h: 6, y: 0 } },
+        { type: 'row', title: 'Vmstat', gridPos: { y: 25 } },
+        memoryPagesInOut { gridPos: { x: 0, w: 12, h: 8, y: 25 } },
+        memoryPagesSwapInOut { gridPos: { x: 12, w: 12, h: 8, y: 25 } },
+        memoryPagesFaults { gridPos: { x: 0, w: 12, h: 8, y: 25 } },
+        memoryOOMkiller { gridPos: { x: 12, w: 12, h: 8, y: 25 } },
+        { type: 'row', title: 'Memstat', gridPos: { y: 50 } },
+        memoryActiveInactive { gridPos: { x: 0, w: 12, h: 8, y: 50 } },
+        memoryActiveInactiveDetail { gridPos: { x: 12, w: 12, h: 8, y: 50 } },
+        memoryCommited { gridPos: { x: 0, w: 12, h: 8, y: 50 } },
+        memorySharedAndMapped { gridPos: { x: 12, w: 12, h: 8, y: 50 } },
+        memoryWriteAndDirty { gridPos: { x: 0, w: 12, h: 8, y: 50 } },
+        memoryVmalloc { gridPos: { x: 12, w: 12, h: 8, y: 50 } },
+        memorySlab { gridPos: { x: 0, w: 12, h: 8, y: 50 } },
+        memoryAnonymous { gridPos: { x: 12, w: 12, h: 8, y: 50 } },
+        memoryHugePagesCounter { gridPos: { x: 0, w: 12, h: 8, y: 50 } },
+        memoryHugePagesSize { gridPos: { x: 12, w: 12, h: 8, y: 50 } },
+        memoryDirectMap { gridPos: { x: 0, w: 12, h: 8, y: 50 } },
+        memoryBounce { gridPos: { x: 12, w: 12, h: 8, y: 50 } },
       ],
 
     dashboard: if platform == 'Linux' then
