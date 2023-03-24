@@ -3,11 +3,14 @@ local dashboard = grafana.dashboard;
 local row = grafana.row;
 local prometheus = grafana.prometheus;
 local template = grafana.template;
-
+local nodePanels = import '../lib/panels/panels.libsonnet';
+local commonPanels = import '../lib/panels/common/panels.libsonnet';
+local nodeTimeseries = nodePanels.timeseries;
 {
 
   new(config=null, platform=null):: {
 
+    local c = self,
 
     local labelsToRegexSelector(labels) =
       std.join(',', ['%s=~"$%s"' % [label, label] for label in labels]),
@@ -190,6 +193,12 @@ local template = grafana.template;
           / 
           count by(%(instanceLabels)s) (count(node_cpu_seconds_total{%(nodeQuerySelector)s}) by (cpu, %(instanceLabels)s))
         ||| % config { nodeQuerySelector: nodeQuerySelector },
+      cpuUsageModes::
+        |||
+          sum by(%(instanceLabels)s, mode) (irate(node_cpu_seconds_total{%(nodeQuerySelector)s}[$__rate_interval])) 
+          / on(%(instanceLabels)s) 
+          group_left sum by (%(instanceLabels)s)((irate(node_cpu_seconds_total{%(nodeQuerySelector)s}[$__rate_interval]))) * 100
+        ||| % config { nodeQuerySelector: nodeQuerySelector },
       cpuUsagePerCore::
         |||
           (
@@ -209,6 +218,10 @@ local template = grafana.template;
           * 100
           )
         ||| % config { nodeQuerySelector: nodeQuerySelector },
+
+      process_max_fds:: 'process_max_fds{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      process_open_fds:: 'process_open_fds{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+
       fsSizeTotalRoot:: 'node_filesystem_size_bytes{%(nodeQuerySelector)s, mountpoint="/",fstype!="rootfs"}' % config { nodeQuerySelector: nodeQuerySelector },
       osInfo:: 'node_os_info{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
       nodeInfo:: 'node_uname_info{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
@@ -225,12 +238,74 @@ local template = grafana.template;
             ) != 0
           )
         ||| % config { nodeQuerySelector: nodeQuerySelector },
+      node_filesystem_avail_bytes:: 'node_filesystem_avail_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
       networkReceiveBitsPerSec:: 'irate(node_network_receive_bytes_total{%(nodeQuerySelector)s}[$__rate_interval])*8' % config { nodeQuerySelector: nodeQuerySelector },
       networkTransmitBitsPerSec:: 'irate(node_network_transmit_bytes_total{%(nodeQuerySelector)s}[$__rate_interval])*8' % config { nodeQuerySelector: nodeQuerySelector },
       networkReceiveErrorsPerSec:: 'irate(node_network_receive_errs_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
       networkTransmitErrorsPerSec:: 'irate(node_network_transmit_errs_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
       networkReceiveDropsPerSec:: 'irate(node_network_receive_drop_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
       networkTransmitDropsPerSec:: 'irate(node_network_transmit_drop_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+
+      systemContextSwitches:: 'irate(node_context_switches_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      systemInterrupts:: 'irate(node_intr_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
+
+      //time
+      node_timex_estimated_error_seconds:: 'node_timex_estimated_error_seconds{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      node_timex_offset_seconds:: 'node_timex_offset_seconds{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      node_timex_maxerror_seconds:: 'node_timex_maxerror_seconds{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+
+      node_timex_sync_status:: 'node_timex_sync_status{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+
+      node_systemd_units:: 'node_systemd_units{%(nodeQuerySelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+
+
+    },
+    // share across dashboards
+    panelsWithTargets:: {
+      // cpu
+      idleCPU::
+        nodePanels.timeseries.new('CPU Usage')
+        .withUnits('percent')
+        .withStacking('normal')
+        .withMin(0)
+        .withMax(1)
+        .addTarget(c.commonPromTarget(
+          expr=c.queries.cpuUsagePerCore,
+          legendFormat='cpu {{cpu}}',
+        )),
+
+      systemLoad::
+        nodePanels.timeseries.new('Load Average')
+        .withUnits('short')
+        .withMin(0)
+        .withFillOpacity(0)
+        .addTarget(c.commonPromTarget(c.queries.systemLoad1, legendFormat='1m load average'))
+        .addTarget(c.commonPromTarget(c.queries.systemLoad5, legendFormat='5m load average'))
+        .addTarget(c.commonPromTarget(c.queries.systemLoad15, legendFormat='15m load average'))
+        .addTarget(c.commonPromTarget(c.queries.cpuCount, legendFormat='logical cores'))
+        .addOverride(
+          matcher={
+            id: 'byName',
+            options: 'logical cores',
+          },
+          properties=[
+            {
+              id: 'custom.lineStyle',
+              value: {
+                fill: 'dash',
+                dash: [
+                  10,
+                  10,
+                ],
+              },
+            },
+          ]
+        ),
+
+      systemContextSwitches::
+        nodePanels.timeseries.new('Context Switches / Interrupts')
+        .addTarget(c.commonPromTarget(c.queries.systemContextSwitches, legendFormat='Context Switches'))
+        .addTarget(c.commonPromTarget(c.queries.systemInterrupts, legendFormat='Interrupts')),
     },
   },
 
