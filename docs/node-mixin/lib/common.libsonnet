@@ -519,54 +519,54 @@ local nodeTimeseries = nodePanels.timeseries;
           ],
         },
 
-        diskIO::
-      nodePanels.timeseries.new('Disk I/O')
-      .withFillOpacity(0)
-      .withMin(0)
-      .addTarget(c.commonPromTarget(
-        c.queries.diskReadTime,
-        legendFormat='{{device}} read',
-      ))
-      .addTarget(c.commonPromTarget(
-        c.queries.diskWriteTime,
-        legendFormat='{{device}} written',
-      ))
-      .addTarget(c.commonPromTarget(
-        c.queries.diskIoTime,
-        legendFormat='{{device}} io time',
-      ))
-      .addOverride(
-        matcher={
-          id: 'byRegexp',
-          options: '/ read| written/',
-        },
-        properties=[
-          {
-            id: 'unit',
-            value: 'bps',
+      diskIO::
+        nodePanels.timeseries.new('Disk I/O')
+        .withFillOpacity(0)
+        .withMin(0)
+        .addTarget(c.commonPromTarget(
+          c.queries.diskReadTime,
+          legendFormat='{{device}} read',
+        ))
+        .addTarget(c.commonPromTarget(
+          c.queries.diskWriteTime,
+          legendFormat='{{device}} written',
+        ))
+        .addTarget(c.commonPromTarget(
+          c.queries.diskIoTime,
+          legendFormat='{{device}} io time',
+        ))
+        .addOverride(
+          matcher={
+            id: 'byRegexp',
+            options: '/ read| written/',
           },
-        ]
-      )
-      .addOverride(
-        matcher={
-          id: 'byRegexp',
-          options: '/ io time/',
-        },
-        properties=[
-          {
-            id: 'unit',
-            value: 'percentunit',
+          properties=[
+            {
+              id: 'unit',
+              value: 'bps',
+            },
+          ]
+        )
+        .addOverride(
+          matcher={
+            id: 'byRegexp',
+            options: '/ io time/',
           },
-          {
-            id: 'custom.axisSoftMax',
-            value: 1,
-          },
-          {
-            id: 'custom.drawStyle',
-            value: 'points',
-          },
-        ]
-      ),
+          properties=[
+            {
+              id: 'unit',
+              value: 'percentunit',
+            },
+            {
+              id: 'custom.axisSoftMax',
+              value: 1,
+            },
+            {
+              id: 'custom.drawStyle',
+              value: 'points',
+            },
+          ]
+        ),
     },
   },
 

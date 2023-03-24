@@ -212,7 +212,7 @@ local nodeTemplates = common.templates;
         memoryGraph { gridPos: { x: 6, w: 18, h: 6, y: 50 } },
         { type: 'row', title: 'Disk' } { gridPos: { y: 75 } },
         c.panelsWithTargets.diskIO { gridPos: { x: 0, w: 12, h: 8, y: 75 } },
-        c.panelsWithTargets.fsSpaceUsage { gridPos: { x: 12, w: 12, h:8, y: 75 } },
+        c.panelsWithTargets.fsSpaceUsage { gridPos: { x: 12, w: 12, h: 8, y: 75 } },
         { type: 'row', title: 'Network' } { gridPos: { y: 100 } },
         networkTrafficPanel { gridPos: { x: 0, w: 12, h: 8, y: 100 } },
         networkErrorsDropsPanel { gridPos: { x: 12, w: 12, h: 8, y: 100 } },

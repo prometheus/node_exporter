@@ -102,12 +102,10 @@ local common = import '../lib/common.libsonnet';
         c.panelsWithTargets.systemLoad { gridPos: { x: 0, h: 6, w: 12 } },
         c.panelsWithTargets.systemContextSwitches { gridPos: { x: 12, h: 6, w: 12 } },
         { type: 'row', title: 'Systemd', gridPos: { x: 0, w: 24, y: 25 } },
-        systemdStates { gridPos: { x: 0, h: 6, w: 12, y:25 } },
+        systemdStates { gridPos: { x: 0, h: 6, w: 12, y: 25 } },
         { type: 'row', title: 'Time', gridPos: { x: 0, w: 24, y: 50 } },
         timeSyncronizedStatus { gridPos: { x: 0, h: 3, w: 24, y: 50 } },
         timeSyncDrift { gridPos: { x: 0, h: 6, w: 24, y: 50 } },
-
-
       ],
 
     dashboard: if platform == 'Linux' then

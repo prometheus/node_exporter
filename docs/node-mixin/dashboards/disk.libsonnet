@@ -77,14 +77,14 @@ local common = import '../lib/common.libsonnet';
       .withAxisLabel('read(-) / write(+)')
       .addTarget(commonPromTarget(
         expr=q.node_disk_reads_completed_total,
-        legendFormat="{{device}} reads completed",
+        legendFormat='{{device}} reads completed',
       ))
       .addTarget(commonPromTarget(
         expr=q.node_disk_writes_completed_total,
-        legendFormat="{{device}} writes completed",
+        legendFormat='{{device}} writes completed',
       )),
 
-    local diskAvgWaitTime = 
+    local diskAvgWaitTime =
       nodeTimeseries.new(
         title='Disk Average Wait Time',
         description='The average time for requests issued to the device to be served. This includes the time spent by the requests in queue and the time spent servicing them.'
@@ -94,21 +94,21 @@ local common = import '../lib/common.libsonnet';
       .withAxisLabel('read(-) / write(+)')
       .addTarget(commonPromTarget(
         expr=q.diskWaitReadTime,
-        legendFormat="{{device}} read wait time avg",
+        legendFormat='{{device}} read wait time avg',
       ))
       .addTarget(commonPromTarget(
         expr=q.diskWaitWriteTime,
-        legendFormat="{{device}} write wait time avg",
+        legendFormat='{{device}} write wait time avg',
       )),
 
-    local diskAvgQueueSize = 
+    local diskAvgQueueSize =
       nodeTimeseries.new(
         title='Average Queue Size (aqu-sz)',
         description='The average queue length of the requests that were issued to the device.'
       )
       .addTarget(commonPromTarget(
         expr=q.diskAvgQueueSize,
-        legendFormat="{{device}}",
+        legendFormat='{{device}}',
       )),
 
     local panelsGrid =
