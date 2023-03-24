@@ -724,7 +724,6 @@ local common = import '../lib/common.libsonnet';
         .addPanel(networkNetstatUDPerrors { span: 6 })
         .addPanel(networkNetstatICMP { span: 6 })
         .addPanel(networkNetstatICMPerrors { span: 6 }),
-
       ],
 
     dashboard: if platform == 'Linux' then

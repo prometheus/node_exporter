@@ -56,6 +56,60 @@ local common = import '../lib/common.libsonnet';
         expr=q.node_filesystem_device_error,
         legendFormat='{{ mountpoint }}'
       )),
+    local fileDescriptors =
+      nodeTimeseries.new('File Descriptors')
+      .addTarget(commonPromTarget(
+        expr=q.process_max_fds,
+        legendFormat='Maximum open file descriptors',
+      ))
+      .addTarget(commonPromTarget(
+        expr=q.process_open_fds,
+        legendFormat='Open file descriptors',
+      )),
+
+    local diskIOcompleted =
+      nodeTimeseries.new(
+        title='Disk IOps completed',
+        description='The number (after merges) of I/O requests completed per second for the device'
+      )
+      .withUnits('iops/s')
+      .withNegativeYByRegex('reads')
+      .withAxisLabel('read(-) / write(+)')
+      .addTarget(commonPromTarget(
+        expr=q.node_disk_reads_completed_total,
+        legendFormat="{{device}} reads completed",
+      ))
+      .addTarget(commonPromTarget(
+        expr=q.node_disk_writes_completed_total,
+        legendFormat="{{device}} writes completed",
+      )),
+
+    local diskAvgWaitTime = 
+      nodeTimeseries.new(
+        title='Disk Average Wait Time',
+        description='The average time for requests issued to the device to be served. This includes the time spent by the requests in queue and the time spent servicing them.'
+      )
+      .withUnits('seconds')
+      .withNegativeYByRegex('read')
+      .withAxisLabel('read(-) / write(+)')
+      .addTarget(commonPromTarget(
+        expr=q.diskWaitReadTime,
+        legendFormat="{{device}} read wait time avg",
+      ))
+      .addTarget(commonPromTarget(
+        expr=q.diskWaitWriteTime,
+        legendFormat="{{device}} write wait time avg",
+      )),
+
+    local diskAvgQueueSize = 
+      nodeTimeseries.new(
+        title='Average Queue Size (aqu-sz)',
+        description='The average queue length of the requests that were issued to the device.'
+      )
+      .addTarget(commonPromTarget(
+        expr=q.diskAvgQueueSize,
+        legendFormat="{{device}}",
+      )),
 
     local panelsGrid =
       [
@@ -65,8 +119,12 @@ local common = import '../lib/common.libsonnet';
         fsInodes { gridPos: { x: 0, w: 12, h: 8, y: 0 } },
         fsInodesTotal { gridPos: { x: 12, w: 12, h: 8, y: 0 } },
         fsErrorsandRO { gridPos: { x: 0, w: 12, h: 8, y: 0 } },
-
+        fileDescriptors { gridPos: { x: 12, w: 12, h: 8, y: 0 } },
         { type: 'row', title: 'Disk', gridPos: { y: 25 } },
+        c.panelsWithTargets.diskIO { gridPos: { x: 0, w: 12, h: 8, y: 25 } },
+        diskIOcompleted { gridPos: { x: 12, w: 12, h: 8, y: 25 } },
+        diskAvgWaitTime { gridPos: { x: 0, w: 12, h: 8, y: 25 } },
+        diskAvgQueueSize { gridPos: { x: 12, w: 12, h: 8, y: 25 } },
       ],
 
     dashboard: if platform == 'Linux' then

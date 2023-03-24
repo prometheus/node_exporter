@@ -154,57 +154,6 @@ local nodeTemplates = common.templates;
           ||| % config { nodeQuerySelector: c.nodeQuerySelector }
         )),
 
-    local diskIO =
-      nodePanels.timeseries.new('Disk I/O')
-      .withFillOpacity(0)
-      .withMin(0)
-      // TODO: Does it make sense to have those three in the same panel?
-      .addTarget(commonPromTarget(
-        q.diskReadTime,
-        legendFormat='{{device}} read',
-      ))
-      .addTarget(commonPromTarget(
-        q.diskWriteTime,
-        legendFormat='{{device}} written',
-      ))
-      .addTarget(commonPromTarget(
-        q.diskIoTime,
-        legendFormat='{{device}} io time',
-      ))
-      .addOverride(
-        matcher={
-          id: 'byRegexp',
-          options: '/ read| written/',
-        },
-        properties=[
-          {
-            id: 'unit',
-            value: 'bps',
-          },
-        ]
-      )
-      .addOverride(
-        matcher={
-          id: 'byRegexp',
-          options: '/ io time/',
-        },
-        properties=[
-          {
-            id: 'unit',
-            value: 'percentunit',
-          },
-          {
-            id: 'custom.axisSoftMax',
-            value: 1,
-          },
-          {
-            id: 'custom.drawStyle',
-            value: 'points',
-          },
-        ]
-      ),
-
-
     local networkTrafficPanel =
       commonPanels.networkTrafficGraph.new(
         'Network Traffic', description='Network transmitted and received (bits/s)',
@@ -244,7 +193,7 @@ local nodeTemplates = common.templates;
 
     local panelsGrid =
       [
-        // use negative gravity effect, max w=24, default h=6
+        // use negative gravity effect, max w=24, default h=8
         { type: 'row', title: 'Overview' },
         uptimePanel { gridPos: { x: 0, w: 6, h: 2 } },
         nodeNamePanel { gridPos: { x: 6, w: 6, h: 2 } },
@@ -262,11 +211,11 @@ local nodeTemplates = common.templates;
         memoryGauge { gridPos: { x: 0, w: 6, h: 6, y: 50 } },
         memoryGraph { gridPos: { x: 6, w: 18, h: 6, y: 50 } },
         { type: 'row', title: 'Disk' } { gridPos: { y: 75 } },
-        diskIO { gridPos: { x: 0, w: 12, h: 6, y: 75 } },
-        c.panelsWithTargets.fsSpaceUsage { gridPos: { x: 12, w: 12, h: 6, y: 75 } },
+        c.panelsWithTargets.diskIO { gridPos: { x: 0, w: 12, h: 8, y: 75 } },
+        c.panelsWithTargets.fsSpaceUsage { gridPos: { x: 12, w: 12, h:8, y: 75 } },
         { type: 'row', title: 'Network' } { gridPos: { y: 100 } },
-        networkTrafficPanel { gridPos: { x: 0, w: 12, h: 6, y: 100 } },
-        networkErrorsDropsPanel { gridPos: { x: 12, w: 12, h: 6, y: 100 } },
+        networkTrafficPanel { gridPos: { x: 0, w: 12, h: 8, y: 100 } },
+        networkErrorsDropsPanel { gridPos: { x: 12, w: 12, h: 8, y: 100 } },
       ],
     dashboard: if platform == 'Linux' then
       dashboard.new(
