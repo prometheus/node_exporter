@@ -66,7 +66,7 @@ genericPanel
       },
     },
   },
-  withStacking(stack):: self {
+  withStacking(stack='normal'):: self {
     fieldConfig+: {
       defaults+: {
         custom+: {

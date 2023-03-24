@@ -2,7 +2,7 @@
 local timeseries = import '../timeseries.libsonnet';
 timeseries {
   new(
-    title='Uptime',
+    title=null,
     description=null,
     datasource=null,
   )::
