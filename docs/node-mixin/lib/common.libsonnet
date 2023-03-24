@@ -239,6 +239,10 @@ local nodeTimeseries = nodePanels.timeseries;
           )
         ||| % config { nodeQuerySelector: nodeQuerySelector },
       node_filesystem_avail_bytes:: 'node_filesystem_avail_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      node_filesystem_files_free:: 'node_filesystem_files_free{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      node_filesystem_files:: 'node_filesystem_files{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      node_filesystem_readonly:: 'node_filesystem_readonly{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
+      node_filesystem_device_error:: 'node_filesystem_device_error{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s}' % config { nodeQuerySelector: nodeQuerySelector },
       networkReceiveBitsPerSec:: 'irate(node_network_receive_bytes_total{%(nodeQuerySelector)s}[$__rate_interval])*8' % config { nodeQuerySelector: nodeQuerySelector },
       networkTransmitBitsPerSec:: 'irate(node_network_transmit_bytes_total{%(nodeQuerySelector)s}[$__rate_interval])*8' % config { nodeQuerySelector: nodeQuerySelector },
       networkReceiveErrorsPerSec:: 'irate(node_network_receive_errs_total{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: nodeQuerySelector },
@@ -306,6 +310,199 @@ local nodeTimeseries = nodePanels.timeseries;
         nodePanels.timeseries.new('Context Switches / Interrupts')
         .addTarget(c.commonPromTarget(c.queries.systemContextSwitches, legendFormat='Context Switches'))
         .addTarget(c.commonPromTarget(c.queries.systemInterrupts, legendFormat='Interrupts')),
+
+      fsSpaceUsage::
+        nodePanels.table.new(
+          title='Filesystem Space Usage'
+        )
+        .setFieldConfig(unit='decbytes')
+        //.addThresholdStep(color='light-green', value=null)
+        .addThresholdStep(color='light-blue', value=null)
+        .addThresholdStep(color='light-yellow', value=0.8)
+        .addThresholdStep(color='light-red', value=0.9)
+        .addTarget(c.commonPromTarget(
+          |||
+            max by (mountpoint) (node_filesystem_size_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
+          ||| % config { nodeQuerySelector: c.nodeQuerySelector },
+          legendFormat='',
+          instant=true,
+          format='table'
+        ))
+        .addTarget(c.commonPromTarget(
+          |||
+            max by (mountpoint) (node_filesystem_avail_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
+          ||| % config { nodeQuerySelector: c.nodeQuerySelector },
+          legendFormat='',
+          instant=true,
+          format='table',
+        ))
+        .addOverride(
+          matcher={
+            id: 'byName',
+            options: 'Mounted on',
+          },
+          properties=[
+            {
+              id: 'custom.width',
+              value: 260,
+            },
+          ],
+        )
+        .addOverride(
+          matcher={
+            id: 'byName',
+            options: 'Size',
+          },
+          properties=[
+
+            {
+              id: 'custom.width',
+              value: 93,
+            },
+
+          ],
+        )
+        .addOverride(
+          matcher={
+            id: 'byName',
+            options: 'Used',
+          },
+          properties=[
+            {
+              id: 'custom.width',
+              value: 72,
+            },
+          ],
+        )
+        .addOverride(
+          matcher={
+            id: 'byName',
+            options: 'Available',
+          },
+          properties=[
+            {
+              id: 'custom.width',
+              value: 88,
+            },
+          ],
+        )
+
+        .addOverride(
+          matcher={
+            id: 'byName',
+            options: 'Used, %',
+          },
+          properties=[
+            {
+              id: 'unit',
+              value: 'percentunit',
+            },
+            // {
+            //   id: 'custom.displayMode',
+            //   value: 'gradient-gauge',
+            // },
+            {
+              id: 'custom.displayMode',
+              value: 'basic',
+            },
+            {
+              id: 'max',
+              value: 1,
+            },
+            {
+              id: 'min',
+              value: 0,
+            },
+          ]
+        )
+        .sortBy('Mounted on')
+        + {
+          transformations+: [
+            {
+              id: 'groupBy',
+              options: {
+                fields: {
+                  'Value #A': {
+                    aggregations: [
+                      'lastNotNull',
+                    ],
+                    operation: 'aggregate',
+                  },
+                  'Value #B': {
+                    aggregations: [
+                      'lastNotNull',
+                    ],
+                    operation: 'aggregate',
+                  },
+                  mountpoint: {
+                    aggregations: [],
+                    operation: 'groupby',
+                  },
+                },
+              },
+            },
+            {
+              id: 'merge',
+              options: {},
+            },
+            {
+              id: 'calculateField',
+              options: {
+                alias: 'Used',
+                binary: {
+                  left: 'Value #A (lastNotNull)',
+                  operator: '-',
+                  reducer: 'sum',
+                  right: 'Value #B (lastNotNull)',
+                },
+                mode: 'binary',
+                reduce: {
+                  reducer: 'sum',
+                },
+              },
+            },
+            {
+              id: 'calculateField',
+              options: {
+                alias: 'Used, %',
+                binary: {
+                  left: 'Used',
+                  operator: '/',
+                  reducer: 'sum',
+                  right: 'Value #A (lastNotNull)',
+                },
+                mode: 'binary',
+                reduce: {
+                  reducer: 'sum',
+                },
+              },
+            },
+            {
+              id: 'organize',
+              options: {
+                excludeByName: {},
+                indexByName: {},
+                renameByName: {
+                  'Value #A (lastNotNull)': 'Size',
+                  'Value #B (lastNotNull)': 'Available',
+                  mountpoint: 'Mounted on',
+                },
+              },
+            },
+
+            // {
+            //   id: 'sortBy',
+            //   options: {
+            //     fields: {},
+            //     sort: [
+            //       {
+            //         field: 'Mounted on',
+            //       },
+            //     ],
+            //   },
+            // },
+          ],
+        },
     },
   },
 

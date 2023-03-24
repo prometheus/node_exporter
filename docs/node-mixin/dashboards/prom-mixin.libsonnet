@@ -78,45 +78,6 @@ local nodeTemplates = common.templates;
         expr=q.cpuUsage
       )),
 
-
-    local idleCPU =
-      nodePanels.timeseries.new('CPU Usage')
-      .withUnits('percentunit')
-      .withStacking('normal')
-      .withMin(0)
-      .withMax(1)
-      .addTarget(commonPromTarget(
-        expr=q.cpuUsagePerCore,
-        legendFormat='cpu {{cpu}}',
-      )),
-
-    local systemLoad =
-      nodePanels.timeseries.new('Load Average')
-      .withUnits('short')
-      .withMin(0)
-      .withFillOpacity(0)
-      .addTarget(commonPromTarget(q.systemLoad1, legendFormat='1m load average'))
-      .addTarget(commonPromTarget(q.systemLoad5, legendFormat='5m load average'))
-      .addTarget(commonPromTarget(q.systemLoad15, legendFormat='15m load average'))
-      .addTarget(commonPromTarget(q.cpuCount, legendFormat='logical cores'))
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'logical cores',
-        },
-        properties=[
-          {
-            id: 'custom.lineStyle',
-            value: {
-              fill: 'dash',
-              dash: [
-                10,
-                10,
-              ],
-            },
-          },
-        ]
-      ),
     local memoryGraphPanelPrototype = nodePanels.timeseries.new('Memory Usage')
                                       .withMin(0)
                                       .withUnits('bytes'),
@@ -243,198 +204,6 @@ local nodeTemplates = common.templates;
         ]
       ),
 
-    local diskSpaceUsage =
-      nodePanels.table.new(
-        title='Disk Space Usage'
-      )
-      .setFieldConfig(unit='decbytes')
-      //.addThresholdStep(color='light-green', value=null)
-      .addThresholdStep(color='light-blue', value=null)
-      .addThresholdStep(color='light-yellow', value=0.8)
-      .addThresholdStep(color='light-red', value=0.9)
-      .addTarget(commonPromTarget(
-        |||
-          max by (mountpoint) (node_filesystem_size_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
-        ||| % config { nodeQuerySelector: c.nodeQuerySelector },
-        legendFormat='',
-        instant=true,
-        format='table'
-      ))
-      .addTarget(commonPromTarget(
-        |||
-          max by (mountpoint) (node_filesystem_avail_bytes{%(nodeQuerySelector)s, %(fsSelector)s, %(fsMountpointSelector)s})
-        ||| % config { nodeQuerySelector: c.nodeQuerySelector },
-        legendFormat='',
-        instant=true,
-        format='table',
-      ))
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Mounted on',
-        },
-        properties=[
-          {
-            id: 'custom.width',
-            value: 260,
-          },
-        ],
-      )
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Size',
-        },
-        properties=[
-
-          {
-            id: 'custom.width',
-            value: 93,
-          },
-
-        ],
-      )
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Used',
-        },
-        properties=[
-          {
-            id: 'custom.width',
-            value: 72,
-          },
-        ],
-      )
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Available',
-        },
-        properties=[
-          {
-            id: 'custom.width',
-            value: 88,
-          },
-        ],
-      )
-
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Used, %',
-        },
-        properties=[
-          {
-            id: 'unit',
-            value: 'percentunit',
-          },
-          // {
-          //   id: 'custom.displayMode',
-          //   value: 'gradient-gauge',
-          // },
-          {
-            id: 'custom.displayMode',
-            value: 'basic',
-          },
-          {
-            id: 'max',
-            value: 1,
-          },
-          {
-            id: 'min',
-            value: 0,
-          },
-        ]
-      )
-      .sortBy('Mounted on')
-      + {
-        transformations+: [
-          {
-            id: 'groupBy',
-            options: {
-              fields: {
-                'Value #A': {
-                  aggregations: [
-                    'lastNotNull',
-                  ],
-                  operation: 'aggregate',
-                },
-                'Value #B': {
-                  aggregations: [
-                    'lastNotNull',
-                  ],
-                  operation: 'aggregate',
-                },
-                mountpoint: {
-                  aggregations: [],
-                  operation: 'groupby',
-                },
-              },
-            },
-          },
-          {
-            id: 'merge',
-            options: {},
-          },
-          {
-            id: 'calculateField',
-            options: {
-              alias: 'Used',
-              binary: {
-                left: 'Value #A (lastNotNull)',
-                operator: '-',
-                reducer: 'sum',
-                right: 'Value #B (lastNotNull)',
-              },
-              mode: 'binary',
-              reduce: {
-                reducer: 'sum',
-              },
-            },
-          },
-          {
-            id: 'calculateField',
-            options: {
-              alias: 'Used, %',
-              binary: {
-                left: 'Used',
-                operator: '/',
-                reducer: 'sum',
-                right: 'Value #A (lastNotNull)',
-              },
-              mode: 'binary',
-              reduce: {
-                reducer: 'sum',
-              },
-            },
-          },
-          {
-            id: 'organize',
-            options: {
-              excludeByName: {},
-              indexByName: {},
-              renameByName: {
-                'Value #A (lastNotNull)': 'Size',
-                'Value #B (lastNotNull)': 'Available',
-                mountpoint: 'Mounted on',
-              },
-            },
-          },
-
-          // {
-          //   id: 'sortBy',
-          //   options: {
-          //     fields: {},
-          //     sort: [
-          //       {
-          //         field: 'Mounted on',
-          //       },
-          //     ],
-          //   },
-          // },
-        ],
-      },
 
     local networkTrafficPanel =
       commonPanels.networkTrafficGraph.new(
@@ -475,7 +244,7 @@ local nodeTemplates = common.templates;
 
     local panelsGrid =
       [
-        // use negative gravity effect, max w=24
+        // use negative gravity effect, max w=24, default h=6
         { type: 'row', title: 'Overview' },
         uptimePanel { gridPos: { x: 0, w: 6, h: 2 } },
         nodeNamePanel { gridPos: { x: 6, w: 6, h: 2 } },
@@ -487,14 +256,14 @@ local nodeTemplates = common.templates;
         totalRootFSPanel { gridPos: { x: 18, w: 6, h: 2 } },
         { type: 'row', title: 'CPU' } { gridPos: { y: 25 } },
         cpuStatPanel { gridPos: { x: 0, w: 6, h: 6, y: 25 } },
-        idleCPU { gridPos: { x: 6, w: 12, h: 6, y: 25 } },
-        systemLoad { gridPos: { x: 18, w: 6, h: 6, y: 25 } },
+        c.panelsWithTargets.idleCPU { gridPos: { x: 6, w: 12, h: 6, y: 25 } },
+        c.panelsWithTargets.systemLoad { gridPos: { x: 18, w: 6, h: 6, y: 25 } },
         { type: 'row', title: 'Memory' } { gridPos: { y: 50 } },
         memoryGauge { gridPos: { x: 0, w: 6, h: 6, y: 50 } },
         memoryGraph { gridPos: { x: 6, w: 18, h: 6, y: 50 } },
         { type: 'row', title: 'Disk' } { gridPos: { y: 75 } },
         diskIO { gridPos: { x: 0, w: 12, h: 6, y: 75 } },
-        diskSpaceUsage { gridPos: { x: 12, w: 12, h: 6, y: 75 } },
+        c.panelsWithTargets.fsSpaceUsage { gridPos: { x: 12, w: 12, h: 6, y: 75 } },
         { type: 'row', title: 'Network' } { gridPos: { y: 100 } },
         networkTrafficPanel { gridPos: { x: 0, w: 12, h: 6, y: 100 } },
         networkErrorsDropsPanel { gridPos: { x: 12, w: 12, h: 6, y: 100 } },
