@@ -337,6 +337,20 @@
               description: 'Memory is filling up on {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
             },
           },
+          {
+            alert: 'NodeSystemdServiceFailed',
+            expr: |||
+              node_systemd_unit_state{%(nodeExporterSelector)s, state="failed"} == 1
+            ||| % $._config,
+            'for': '5m',
+            labels: {
+              severity: 'critical',
+            },
+            annotations: {
+              summary: 'Systemd service has entered failed state.',
+              description: 'Systemd service {{ $labels.name }} has entered failed state on {{ $labels.instance }}',
+            },
+          },
         ],
       },
     ],
