@@ -159,7 +159,7 @@
           {
             alert: 'NodeNetworkReceiveErrs',
             expr: |||
-              rate(node_network_receive_errs_total[2m]) / rate(node_network_receive_packets_total[2m]) > 0.01
+              rate(node_network_receive_errs_total{%(nodeExporterSelector)s}[2m]) / rate(node_network_receive_packets_total{%(nodeExporterSelector)s}[2m]) > 0.01
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -173,7 +173,7 @@
           {
             alert: 'NodeNetworkTransmitErrs',
             expr: |||
-              rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m]) > 0.01
+              rate(node_network_transmit_errs_total{%(nodeExporterSelector)s}[2m]) / rate(node_network_transmit_packets_total{%(nodeExporterSelector)s}[2m]) > 0.01
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -187,7 +187,7 @@
           {
             alert: 'NodeHighNumberConntrackEntriesUsed',
             expr: |||
-              (node_nf_conntrack_entries / node_nf_conntrack_entries_limit) > 0.75
+              (node_nf_conntrack_entries{%(nodeExporterSelector)s} / node_nf_conntrack_entries_limit) > 0.75
             ||| % $._config,
             annotations: {
               summary: 'Number of conntrack are getting close to the limit.',
