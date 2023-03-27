@@ -309,6 +309,34 @@
               description: 'File descriptors limit at {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.',
             },
           },
+          {
+            alert: 'NodeCPUHighUsage',
+            expr: |||
+              sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode!="idle"}[2m]))) > 0.8
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'High CPU usage.',
+              description: 'CPU usage on {{ $labels.instance }} has been above 80% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
+            },
+          },
+          {
+            alert: 'NodeMemoryHighUtilization',
+            expr: |||
+              100 - node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100 < 10
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Host is running out of memory',
+              description: 'Memory is filling up on {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
+            },
+          },
         ],
       },
     ],
