@@ -231,7 +231,7 @@
             },
             annotations: {
               summary: 'Clock skew detected.',
-              description: 'Clock on {{ $labels.instance }} is out of sync by more than 0.05s. Ensure NTP is configured correctly on this host.',
+              description: 'Clock at {{ $labels.instance }} is out of sync by more than 0.05s. Ensure NTP is configured correctly on this host.',
             },
           },
           {
@@ -247,7 +247,7 @@
             },
             annotations: {
               summary: 'Clock not synchronising.',
-              description: 'Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
+              description: 'Clock at {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.',
             },
           },
           {
@@ -261,7 +261,7 @@
             },
             annotations: {
               summary: 'RAID Array is degraded',
-              description: "RAID array '{{ $labels.device }}' on {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.",
+              description: "RAID array '{{ $labels.device }}' at {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.",
             },
           },
           {
@@ -274,7 +274,7 @@
             },
             annotations: {
               summary: 'Failed device in RAID array',
-              description: "At least one device in RAID array on {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.",
+              description: "At least one device in RAID array at {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.",
             },
           },
           {
@@ -320,7 +320,7 @@
             },
             annotations: {
               summary: 'High CPU usage.',
-              description: 'CPU usage on {{ $labels.instance }} has been above 80% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
+              description: 'CPU usage at {{ $labels.instance }} has been above 80% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
             },
           },
           {
@@ -334,7 +334,7 @@
             },
             annotations: {
               summary: 'Host is running out of memory',
-              description: 'Memory is filling up on {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
+              description: 'Memory is filling up at {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
             },
           },
           {
@@ -348,7 +348,7 @@
             },
             annotations: {
               summary: 'Systemd service has entered failed state.',
-              description: 'Systemd service {{ $labels.name }} has entered failed state on {{ $labels.instance }}',
+              description: 'Systemd service {{ $labels.name }} has entered failed state at {{ $labels.instance }}',
             },
           },
         ],
