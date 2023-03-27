@@ -326,7 +326,7 @@
           {
             alert: 'NodeMemoryHighUtilization',
             expr: |||
-              100 - node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100 < 10
+              100 - (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > 90
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -334,7 +334,9 @@
             },
             annotations: {
               summary: 'Host is running out of memory.',
-              description: 'Memory is filling up at {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
+              description: |||
+                Memory is filling up at {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.
+              |||,
             },
           },
           {
