@@ -333,8 +333,25 @@
               severity: 'warning',
             },
             annotations: {
-              summary: 'Host is running out of memory',
+              summary: 'Host is running out of memory.',
               description: 'Memory is filling up at {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
+            },
+          },
+          {
+            alert: 'NodeDiskIOSaturation',
+            expr: |||
+              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s}[5m]) > 10
+            ||| % $._config,
+            'for': '30m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Disk IO queue is high.',
+              description: |||
+                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above 10 for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.
+                This symptom might indicate disk saturation.,
+              |||,
             },
           },
           {
