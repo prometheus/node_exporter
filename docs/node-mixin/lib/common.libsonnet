@@ -320,7 +320,11 @@ local nodeTimeseries = nodePanels.timeseries;
             },
           ]
         ),
-
+      cpuStatPanel::
+        commonPanels.percentUsageStat.new('CPU Usage')
+        .addTarget(c.commonPromTarget(
+          expr=c.queries.cpuUsage
+        )),
       systemContextSwitches::
         nodePanels.timeseries.new('Context Switches / Interrupts')
         .addTarget(c.commonPromTarget(c.queries.systemContextSwitches, legendFormat='Context Switches'))
@@ -518,7 +522,82 @@ local nodeTimeseries = nodePanels.timeseries;
             // },
           ],
         },
+      memoryGraphPanelPrototype::
+        nodePanels.timeseries.new('Memory Usage')
+        .withMin(0)
+        .withUnits('bytes'),
+      memoryGraph::
+        if platform == 'Linux' then
+          self.memoryGraphPanelPrototype { stack: true }
+          .addTarget(c.commonPromTarget(
+            |||
+              (
+                node_memory_MemTotal_bytes{%(nodeQuerySelector)s}
+              -
+                node_memory_MemFree_bytes{%(nodeQuerySelector)s}
+              -
+                node_memory_Buffers_bytes{%(nodeQuerySelector)s}
+              -
+                node_memory_Cached_bytes{%(nodeQuerySelector)s}
+              )
+            ||| % config { nodeQuerySelector: c.nodeQuerySelector },
+            legendFormat='memory used'
+          ))
+          .addTarget(c.commonPromTarget('node_memory_Buffers_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory buffers'))
+          .addTarget(c.commonPromTarget('node_memory_Cached_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory cached'))
+          .addTarget(c.commonPromTarget('node_memory_MemFree_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='memory free'))
+        else if platform == 'Darwin' then
+          // not useful to stack
+          self.memoryGraphPanelPrototype { stack: false }
+          .addTarget(c.commonPromTarget('node_memory_total_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Physical Memory'))
+          .addTarget(c.commonPromTarget(
+            |||
+              (
+                  node_memory_internal_bytes{%(nodeQuerySelector)s} -
+                  node_memory_purgeable_bytes{%(nodeQuerySelector)s} +
+                  node_memory_wired_bytes{%(nodeQuerySelector)s} +
+                  node_memory_compressed_bytes{%(nodeQuerySelector)s}
+              )
+            ||| % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Memory Used'
+          ))
+          .addTarget(c.commonPromTarget(
+            |||
+              (
+                  node_memory_internal_bytes{%(nodeQuerySelector)s} -
+                  node_memory_purgeable_bytes{%(nodeQuerySelector)s}
+              )
+            ||| % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='App Memory'
+          ))
+          .addTarget(c.commonPromTarget('node_memory_wired_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Wired Memory'))
+          .addTarget(c.commonPromTarget('node_memory_compressed_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector }, legendFormat='Compressed')),
 
+      // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
+      memoryGaugePanelPrototype::
+        commonPanels.percentUsageStat.new('Memory Usage'),
+
+      memoryGauge::
+        if platform == 'Linux' then
+          self.memoryGaugePanelPrototype
+
+          .addTarget(c.commonPromTarget(c.queries.memoryUsage))
+
+        else if platform == 'Darwin' then
+          self.memoryGaugePanelPrototype
+          .addTarget(c.commonPromTarget(
+            |||
+              (
+                  (
+                    avg(node_memory_internal_bytes{%(nodeQuerySelector)s}) -
+                    avg(node_memory_purgeable_bytes{%(nodeQuerySelector)s}) +
+                    avg(node_memory_wired_bytes{%(nodeQuerySelector)s}) +
+                    avg(node_memory_compressed_bytes{%(nodeQuerySelector)s})
+                  ) /
+                  avg(node_memory_total_bytes{%(nodeQuerySelector)s})
+              )
+              *
+              100
+            ||| % config { nodeQuerySelector: c.nodeQuerySelector }
+          )),
       diskIO::
         nodePanels.timeseries.new('Disk I/O')
         .withFillOpacity(0)
