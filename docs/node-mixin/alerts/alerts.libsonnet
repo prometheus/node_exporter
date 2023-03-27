@@ -53,7 +53,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '30m',
+            'for': '15m',
             labels: {
               severity: 'warning',
             },
@@ -71,7 +71,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '30m',
+            'for': '15m',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
@@ -129,7 +129,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '1h',
+            'for': '15m',
             labels: {
               severity: 'warning',
             },
@@ -147,7 +147,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '1h',
+            'for': '15m',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
