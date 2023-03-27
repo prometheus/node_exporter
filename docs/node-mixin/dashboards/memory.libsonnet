@@ -65,7 +65,7 @@ local common = import '../lib/common.libsonnet';
     local memoryOOMkiller =
       nodeTimeseries.new('OOM Killer')
       .addTarget(commonPromTarget(
-        expr='increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__rate_interval])' % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__interval]) offset -$__increase' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='OOM killer invocations'
       )),
 
