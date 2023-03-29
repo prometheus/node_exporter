@@ -112,14 +112,49 @@ local nodeTimeseries = nodePanels.timeseries;
       hide: true,
       expr: 'node_boot_time_seconds{%(nodeQuerySelector)s}*1000 > $__from < $__to' % config { nodeQuerySelector: nodeQuerySelector },
       name: 'Reboot',
-      iconColor: 'orange',
+      iconColor: 'light-orange',
       tagKeys: config.instanceLabels,
       textFormat: '',
       titleFormat: 'Reboot',
       useValueForTime: 'on',
     },
+    local memoryOOMkillerAnnotation = {
+      datasource: {
+        type: 'prometheus',
+        uid: '$datasource',
+      },
+      enable: true,
+      hide: true,
+      expr: 'increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      name: 'OOMkill',
+      iconColor: 'light-purple',
+      tagKeys: config.instanceLabels,
+      textFormat: '',
+      titleFormat: 'OOMkill',
+    },
+    local newKernelAnnotation = {
+      datasource: {
+        type: 'prometheus',
+        uid: '$datasource',
+      },
+      enable: true,
+      hide: true,
+      expr: |||
+        changes(
+        sum by (%(instanceLabels)s) (
+            group by (%(instanceLabels)s,release) (node_uname_info{%(nodeQuerySelector)s})
+            )
+        [$__interval:1m] offset -$__interval) > 1
+      ||| % config { nodeQuerySelector: nodeQuerySelector },
+      name: 'Kernel update',
+      iconColor: 'light-blue',
+      tagKeys: config.instanceLabels,
+      textFormat: '',
+      titleFormat: 'Kernel update',
+      step: '5m',  // must be larger than possible scrape periods
+    },
     // return common annotations
-    annotations: [rebootAnnotation],
+    annotations: [rebootAnnotation, memoryOOMkillerAnnotation, newKernelAnnotation],
 
     // return common prometheus target (with project defaults)
     commonPromTarget(
