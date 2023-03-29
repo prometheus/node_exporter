@@ -398,7 +398,7 @@
             ||| % $._config,
             'for': '5m',
             labels: {
-              severity: 'critical',
+              severity: 'warning',
             },
             annotations: {
               summary: 'Systemd service has entered failed state.',
