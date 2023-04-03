@@ -5,8 +5,6 @@ local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 
-local c = import '../config.libsonnet';
-
 local datasourceTemplate = {
   current: {
     text: 'default',
