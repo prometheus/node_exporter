@@ -65,7 +65,7 @@ local common = import '../lib/common.libsonnet';
     local memoryOOMkiller =
       nodeTimeseries.new('OOM Killer')
       .addTarget(commonPromTarget(
-        expr='increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__interval]) offset -$__increase' % config { nodeQuerySelector: c.nodeQuerySelector },
+        expr='increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__interval]) offset -$__interval' % config { nodeQuerySelector: c.nodeQuerySelector },
         legendFormat='OOM killer invocations'
       )),
 
@@ -268,8 +268,8 @@ local common = import '../lib/common.libsonnet';
         timezone=config.dashboardTimezone,
         refresh=config.dashboardRefresh,
         graphTooltip='shared_crosshair',
-        uid='node-memory'
-      ) { editable: true }
+        uid=config.grafanaDashboardIDs['nodes-memory.json'],
+      )
       .addLink(c.links.fleetDash)
       .addLink(c.links.nodeDash)
       .addLink(c.links.otherDashes)

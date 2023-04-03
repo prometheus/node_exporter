@@ -135,8 +135,8 @@ local common = import '../lib/common.libsonnet';
         timezone=config.dashboardTimezone,
         refresh=config.dashboardRefresh,
         graphTooltip='shared_crosshair',
-        uid='node-disk'
-      ) { editable: true }
+        uid=config.grafanaDashboardIDs['nodes-disk.json']
+      )
       .addLink(c.links.fleetDash)
       .addLink(c.links.nodeDash)
       .addLink(c.links.otherDashes)

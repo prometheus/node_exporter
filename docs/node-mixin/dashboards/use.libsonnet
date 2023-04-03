@@ -148,7 +148,8 @@ local diskSpaceUtilisation =
                              tags=($._config.dashboardTags),
                              timezone=$._config.dashboardTimezone,
                              refresh=$._config.dashboardRefresh,
-                             graphTooltip='shared_crosshair'
+                             graphTooltip='shared_crosshair',
+                             uid=$._config.grafanaDashboardIDs['node-rsrc-use.json'],
                            )
                            .addTemplate(datasourceTemplate)
                            .addTemplate($._clusterTemplate)
@@ -209,11 +210,12 @@ local diskSpaceUtilisation =
                          'node-cluster-rsrc-use.json':
                            dashboard.new(
                              '%sUSE Method / Cluster' % $._config.dashboardNamePrefix,
-                             time_from='now-1h',
+                             time_from=$._config.dashboardInterval,
                              tags=($._config.dashboardTags),
-                             timezone='utc',
-                             refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             timezone=$._config.dashboardTimezone,
+                             refresh=$._config.dashboardRefresh,
+                             graphTooltip='shared_crosshair',
+                             uid=$._config.grafanaDashboardIDs['node-cluster-rsrc-use.json'],
                            )
                            .addTemplate(datasourceTemplate)
                            .addTemplate($._clusterTemplate)
@@ -320,11 +322,12 @@ local diskSpaceUtilisation =
                          'node-multicluster-rsrc-use.json':
                            dashboard.new(
                              '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,
-                             time_from='now-1h',
+                             time_from=$._config.dashboardInterval,
                              tags=($._config.dashboardTags),
-                             timezone='utc',
-                             refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             timezone=$._config.dashboardTimezone,
+                             refresh=$._config.dashboardRefresh,
+                             graphTooltip='shared_crosshair',
+                             uid=$._config.grafanaDashboardIDs['node-multicluster-rsrc-use.json'],
                            )
                            .addTemplate(datasourceTemplate)
                            .addRow(

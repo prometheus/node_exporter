@@ -143,8 +143,8 @@ local nodeTemplates = common.templates;
         timezone=config.dashboardTimezone,
         refresh=config.dashboardRefresh,
         graphTooltip='shared_crosshair',
-        uid='nodes'
-      ) { editable: true }
+        uid=config.grafanaDashboardIDs['nodes.json'],
+      )
       .addLink(c.links.fleetDash)
       .addLink(c.links.otherDashes)
       .addAnnotations(c.annotations)
@@ -158,7 +158,7 @@ local nodeTemplates = common.templates;
         timezone=config.dashboardTimezone,
         refresh=config.dashboardRefresh,
         graphTooltip='shared_crosshair',
-        uid='nodes-darwin'
+        uid=config.grafanaDashboardIDs['nodes-darwin.json'],
       )
       .addTemplates(templates)
       .addPanels(panelsGrid),

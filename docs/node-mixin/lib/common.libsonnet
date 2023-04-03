@@ -22,8 +22,6 @@ local nodeTimeseries = nodePanels.timeseries;
     // export
     labelsToLegend:: labelsToLegend,
     labelsToURLvars:: labelsToURLvars,
-
-
     // add to all queries but not templates
     local nodeQuerySelector = labelsToRegexSelector(std.split(config.groupLabels + ',' + config.instanceLabels, ',')),
     nodeQuerySelector:: nodeQuerySelector,
@@ -185,7 +183,7 @@ local nodeTimeseries = nodePanels.timeseries;
         tags=[],
         includeVars=false,
         keepTime=true,
-        url='d/node-fleet'
+        url='d/' + config.grafanaDashboardIDs['nodes-fleet.json']
       ) { type: 'link', icon: 'dashboard' },
       nodeDash:: grafana.link.dashboards(
         asDropdown=false,
@@ -193,11 +191,11 @@ local nodeTimeseries = nodePanels.timeseries;
         tags=[],
         includeVars=true,
         keepTime=true,
-        url='d/nodes'
+        url='d/' + config.grafanaDashboardIDs['nodes.json']
       ) { type: 'link', icon: 'dashboard' },
       otherDashes:: grafana.link.dashboards(
         asDropdown=true,
-        title='Other Node dashboards',
+        title='Other Node Dashboards',
         includeVars=true,
         keepTime=true,
         tags=(config.dashboardTags),
@@ -205,12 +203,12 @@ local nodeTimeseries = nodePanels.timeseries;
       // used in fleet table
       instanceDataLinkForTable:: {
         title: 'Drill down to instance ${__data.fields.%s}' % std.split(config.instanceLabels, ',')[0],
-        url: 'd/nodes?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__data.fields.') + '&${__url_time_range}',
+        url: 'd/' + config.grafanaDashboardIDs['nodes.json'] + '?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__data.fields.') + '&${__url_time_range}',
       },
       // used in ts panels
       instanceDataLink:: {
         title: 'Drill down to instance ${__field.labels.%s}' % std.split(config.instanceLabels, ',')[0],
-        url: 'd/nodes?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__field.labels.') + '&${__url_time_range}',
+        url: 'd/' + config.grafanaDashboardIDs['nodes.json'] + '?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__field.labels.') + '&${__url_time_range}',
       },
     },
     // return common queries that could be used in multiple dashboards

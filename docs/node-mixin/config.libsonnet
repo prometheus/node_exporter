@@ -8,7 +8,7 @@
     // dashboard if mixing up all those metrics in the same dashboard
     // doesn't make sense (e.g. because they are coming from different
     // clusters).
-    nodeExporterSelector: 'job!=""',
+    nodeExporterSelector: 'job="node"',
 
     // Select the fstype for filesystem-related queries. If left
     // empty, all filesystems are selected. If you have unusual
@@ -63,17 +63,36 @@
     rateInterval: '5m',
     // Opt-in for multi-cluster support.
     showMultiCluster: false,
-    
+
     clusterLabel: 'cluster',
-    // commaSeparated list of 'group' labels:
-    groupLabels: "job",
+
+    // groupLabels is a string with comma-separated
+    // labels that are common labels of instances belonging to the
+    // same logical group. Include not only enough labels to
+    // identify cluster members, but also all common labels you want
+    // to keep for resulting cluster-level alerts.
+    groupLabels: 'job',
     // commaSeparated list of labels identifying a single instance:
-    instanceLabels: "instance",
+    instanceLabels: 'instance',
 
     dashboardNamePrefix: 'Node Exporter / ',
     dashboardTags: ['node-exporter-mixin'],
     dashboardRefresh: '30s',
     dashboardTimezone: 'utc',
     dashboardInterval: 'now-2h',
+
+    // Grafana dashboard IDs are necessary for stable links for dashboards
+    grafanaDashboardIDs: {
+      'node-rsrc-use.json': 'node-rsrc-use',
+      'node-cluster-rsrc-use.json': 'node-cluster-rsrc-use',
+      'node-multicluster-rsrc-use.json': 'node-multicluster-rsrc-use',
+      'nodes.json': 'nodes',
+      'nodes-darwin.json': 'nodes-darwin',
+      'nodes-system.json': 'node-system',
+      'nodes-memory.json': 'node-memory',
+      'nodes-network.json': 'node-network',
+      'nodes-disk.json': 'node-disk',
+      'nodes-fleet.json': 'node-fleet',
+    },
   },
 }
