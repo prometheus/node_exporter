@@ -21,7 +21,7 @@
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of space within the next 24 hours.',
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up.',
             },
           },
           {
@@ -41,7 +41,7 @@
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of space within the next 4 hours.',
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up fast.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up fast.',
             },
           },
           {
@@ -59,7 +59,7 @@
             },
             annotations: {
               summary: 'Filesystem has less than %(fsSpaceAvailableWarningThreshold)d%% space left.' % $._config,
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
           {
@@ -77,7 +77,7 @@
             },
             annotations: {
               summary: 'Filesystem has less than %(fsSpaceAvailableCriticalThreshold)d%% space left.' % $._config,
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.',
             },
           },
           {
@@ -97,7 +97,7 @@
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of inodes within the next 24 hours.',
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up.',
             },
           },
           {
@@ -117,7 +117,7 @@
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of inodes within the next 4 hours.',
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up fast.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up fast.',
             },
           },
           {
@@ -135,7 +135,7 @@
             },
             annotations: {
               summary: 'Filesystem has less than 5% inodes left.',
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
             },
           },
           {
@@ -153,7 +153,7 @@
             },
             annotations: {
               summary: 'Filesystem has less than 3% inodes left.',
-              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
+              description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
             },
           },
           {
