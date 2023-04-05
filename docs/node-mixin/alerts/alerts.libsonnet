@@ -312,15 +312,17 @@
           {
             alert: 'NodeCPUHighUsage',
             expr: |||
-              sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode!="idle"}[2m]))) > 0.8
+              sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode!="idle"}[2m]))) * 100 > %(cpuHighUsageThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
-              severity: 'warning',
+              severity: 'info',
             },
             annotations: {
               summary: 'High CPU usage.',
-              description: 'CPU usage at {{ $labels.instance }} has been above 80% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.',
+              description: |||
+                CPU usage at {{ $labels.instance }} has been above %(cpuHighUsageThreshold)d%% for the last 15 minutes, is currently at {{ printf "%%.2f" $value }}%%.
+              ||| % $._config,
             },
           },
           {
@@ -336,7 +338,7 @@
             annotations: {
               summary: 'System saturated, load per core is very high.',
               description: |||
-                System load per core at {{ $labels.instance }} has been above %(systemSaturationPerCoreThreshold)d for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
+                System load per core at {{ $labels.instance }} has been above %(systemSaturationPerCoreThreshold)d for the last 15 minutes, is currently at {{ printf "%%.2f" $value }}.
                 This might indicate this instance resources saturation and can cause it becoming unresponsive.
               ||| % $._config,
             },
@@ -353,7 +355,7 @@
             annotations: {
               summary: 'Memory major page faults are occurring at very high rate.',
               description: |||
-                Memory major pages are occurring at very high rate at {{ $labels.instance }}, %(memoryMajorPagesFaultsThreshold)d major page faults per second for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
+                Memory major pages are occurring at very high rate at {{ $labels.instance }}, %(memoryMajorPagesFaultsThreshold)d major page faults per second for the last 15 minutes, is currently at {{ printf "%%.2f" $value }}.
                 Please check that there is enough memory available at this instance.
               ||| % $._config,
             },
@@ -370,7 +372,7 @@
             annotations: {
               summary: 'Host is running out of memory.',
               description: |||
-                Memory is filling up at {{ $labels.instance }}, has been above %(memoryHighUtilizationThreshold)d%% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.
+                Memory is filling up at {{ $labels.instance }}, has been above %(memoryHighUtilizationThreshold)d%% for the last 15 minutes, is currently at {{ printf "%%.2f" $value }}%%.
               ||| % $._config,
             },
           },
@@ -386,7 +388,7 @@
             annotations: {
               summary: 'Disk IO queue is high.',
               description: |||
-                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above %(diskIOSaturationThreshold)d for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
+                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above %(diskIOSaturationThreshold)d for the last 15 minutes, is currently at {{ printf "%%.2f" $value }}.
                 This symptom might indicate disk saturation.
               ||| % $._config,
             },

@@ -43,7 +43,9 @@
     // just a warning for K8s nodes.
     nodeCriticalSeverity: 'critical',
 
-
+    // CPU utilization (%) on which to trigger the
+    // 'NodeCPUHighUsage' alert.
+    cpuHighUsageThreshold: 90,
     // Load average 1m (per core) on which to trigger the
     // 'NodeSystemSaturation' alert.
     systemSaturationPerCoreThreshold: 2,
