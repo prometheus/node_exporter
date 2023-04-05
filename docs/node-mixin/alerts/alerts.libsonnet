@@ -327,7 +327,7 @@
             alert: 'NodeSystemSaturation',
             expr: |||
               node_load1{%(nodeExporterSelector)s}
-              / count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}) > 2
+              / count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle"}) > %(systemSaturationPerCoreThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -336,15 +336,15 @@
             annotations: {
               summary: 'System saturated, load per core is very high.',
               description: |||
-                System load per core at {{ $labels.instance }} has been above 2 for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
+                System load per core at {{ $labels.instance }} has been above %(systemSaturationPerCoreThreshold)d for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
                 This might indicate this instance resources saturation and can cause it becoming unresponsive.
-              |||,
+              ||| % $._config,
             },
           },
           {
             alert: 'NodeMemoryMajorPagesFaults',
             expr: |||
-              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[5m]) > %(memoryMajorPagesFaultsWarningThreshold)s
+              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[5m]) > %(memoryMajorPagesFaultsThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -353,7 +353,7 @@
             annotations: {
               summary: 'Memory major page faults are occurring at very high rate.',
               description: |||
-                Memory major pages are occurring at very high rate at {{ $labels.instance }}, %(memoryMajorPagesFaultsWarningThreshold)s major page faults per second for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
+                Memory major pages are occurring at very high rate at {{ $labels.instance }}, %(memoryMajorPagesFaultsThreshold)d major page faults per second for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
                 Please check that there is enough memory available at this instance.
               ||| % $._config,
             },
@@ -361,7 +361,7 @@
           {
             alert: 'NodeMemoryHighUtilization',
             expr: |||
-              100 - (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > %(memoryHighUtilizationThreshold)s
+              100 - (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > %(memoryHighUtilizationThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -370,14 +370,14 @@
             annotations: {
               summary: 'Host is running out of memory.',
               description: |||
-                Memory is filling up at {{ $labels.instance }}, has been above %(memoryHighUtilizationThreshold)s% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.
-              |||,
+                Memory is filling up at {{ $labels.instance }}, has been above %(memoryHighUtilizationThreshold)d%% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.
+              ||| % $._config,
             },
           },
           {
             alert: 'NodeDiskIOSaturation',
             expr: |||
-              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[5m]) > 10
+              rate(node_disk_io_time_weighted_seconds_total{%(nodeExporterSelector)s, %(diskDeviceSelector)s}[5m]) > %(diskIOSaturationThreshold)d
             ||| % $._config,
             'for': '30m',
             labels: {
@@ -386,9 +386,9 @@
             annotations: {
               summary: 'Disk IO queue is high.',
               description: |||
-                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above 10 for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
+                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above %(diskIOSaturationThreshold)d for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
                 This symptom might indicate disk saturation.
-              |||,
+              ||| % $._config,
             },
           },
           {
