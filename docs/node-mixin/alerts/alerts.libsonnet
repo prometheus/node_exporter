@@ -204,7 +204,7 @@
             ||| % $._config,
             annotations: {
               summary: 'Node Exporter text file collector failed to scrape.',
-              description: 'Node Exporter text file collector failed to scrape.',
+              description: 'Node Exporter text file collector on {{ $labels.instance }} failed to scrape.',
             },
             labels: {
               severity: 'warning',
@@ -260,7 +260,7 @@
               severity: 'critical',
             },
             annotations: {
-              summary: 'RAID Array is degraded',
+              summary: 'RAID Array is degraded.',
               description: "RAID array '{{ $labels.device }}' at {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.",
             },
           },
@@ -273,7 +273,7 @@
               severity: 'warning',
             },
             annotations: {
-              summary: 'Failed device in RAID array',
+              summary: 'Failed device in RAID array.',
               description: "At least one device in RAID array at {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.",
             },
           },
