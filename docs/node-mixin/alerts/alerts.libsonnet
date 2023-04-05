@@ -344,7 +344,7 @@
           {
             alert: 'NodeMemoryMajorPagesFaults',
             expr: |||
-              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[5m]) > 500
+              rate(node_vmstat_pgmajfault{%(nodeExporterSelector)s}[5m]) > %(memoryMajorPagesFaultsWarningThreshold)s
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -353,15 +353,15 @@
             annotations: {
               summary: 'Memory major page faults are occurring at very high rate.',
               description: |||
-                Memory major pages are occurring at very high rate at {{ $labels.instance }}, 500 major page faults per second for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
+                Memory major pages are occurring at very high rate at {{ $labels.instance }}, %(memoryMajorPagesFaultsWarningThreshold)s major page faults per second for the last 15 minutes, is currently at {{ printf "%.2f" $value }}.
                 Please check that there is enough memory available at this instance.
-              |||,
+              ||| % $._config,
             },
           },
           {
             alert: 'NodeMemoryHighUtilization',
             expr: |||
-              100 - (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > 90
+              100 - (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > %(memoryHighUtilizationThreshold)s
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -370,7 +370,7 @@
             annotations: {
               summary: 'Host is running out of memory.',
               description: |||
-                Memory is filling up at {{ $labels.instance }}, has been above 90% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.
+                Memory is filling up at {{ $labels.instance }}, has been above %(memoryHighUtilizationThreshold)s% for the last 15 minutes, is currently at {{ printf "%.2f" $value }}%.
               |||,
             },
           },

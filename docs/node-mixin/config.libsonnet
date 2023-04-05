@@ -60,6 +60,14 @@
     fsSpaceAvailableWarningThreshold: 5,
     fsSpaceAvailableCriticalThreshold: 3,
 
+    // Memory utilzation (%) level on which to trigger the
+    // 'NodeMemoryHighUtilization' alert.
+    memoryHighUtilizationThreshold: 90,
+
+    // Threshold for the rate of memory major page faults to trigger
+    // 'NodeMemoryMajorPagesFaults' alert.
+    memoryMajorPagesFaultsWarningThreshold: 500,
+
     rateInterval: '5m',
     // Opt-in for multi-cluster support.
     showMultiCluster: false,
