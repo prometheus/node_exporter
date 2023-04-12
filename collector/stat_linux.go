@@ -19,10 +19,10 @@ package collector
 import (
 	"fmt"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type statCollector struct {

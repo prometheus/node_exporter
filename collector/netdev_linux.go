@@ -19,11 +19,11 @@ package collector
 import (
 	"fmt"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/prometheus/procfs"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (

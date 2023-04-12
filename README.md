@@ -24,10 +24,6 @@ The `node_exporter` listens on HTTP port 9100 by default. See the `--help` outpu
 
 For automated installs with [Ansible](https://www.ansible.com/), there is the [Cloud Alchemy role](https://github.com/cloudalchemy/ansible-node-exporter).
 
-### RHEL/CentOS/Fedora
-
-There is a [community-supplied COPR repository](https://copr.fedorainfracloud.org/coprs/ibotty/prometheus-exporters/) which closely follows upstream releases.
-
 ### Docker
 
 The `node_exporter` is designed to monitor the host system. It's not recommended
@@ -169,7 +165,6 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
-ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
@@ -181,6 +176,14 @@ systemd | Exposes service and system status from [systemd](http://www.freedeskto
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
+
+### Deprecated
+
+These collectors are deprecated and will be removed in the next major release.
+
+Name     | Description | OS
+---------|-------------|----
+ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
 
 ### Perf Collector
 
@@ -339,7 +342,7 @@ To see all available configuration flags:
 The exporter supports TLS via a new web configuration file.
 
 ```console
-./node_exporter --web.config=web-config.yml
+./node_exporter --web.config.file=web-config.yml
 ```
 
 See the [exporter-toolkit https package](https://github.com/prometheus/exporter-toolkit/blob/v0.1.0/https/README.md) for more details.

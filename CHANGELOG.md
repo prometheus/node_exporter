@@ -5,6 +5,33 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+* [BUGFIX] Remove metrics of offline CPUs in CPU collector #2605
+
+## 1.5.0 / 2022-11-29
+
+NOTE: This changes the Go runtime "GOMAXPROCS" to 1. This is done to limit the
+  concurrency of the exporter to 1 CPU thread at a time in order to avoid a
+  race condition problem in the Linux kernel (#2500) and parallel IO issues
+  on nodes with high numbers of CPUs/CPU threads (#1880).
+
+NOTE: A command line arg has been changed from `--web.config` to `--web.config.file`.
+
+* [CHANGE] Default GOMAXPROCS to 1 #2530
+* [FEATURE] Add multiple listeners and systemd socket listener activation #2393
+* [ENHANCEMENT] Add RTNL version of netclass collector #2492, #2528
+* [BUGFIX] Fix diskstats exclude flags #2487
+* [BUGFIX] Bump go/x/crypt and go/x/net #2488
+* [BUGFIX] Fix hwmon label sanitizer #2504
+* [BUGFIX] Use native endianness when encoding InetDiagMsg #2508
+* [BUGFIX] Fix btrfs device stats always being zero #2516
+* [BUGFIX] Security: Update exporter-toolkit (CVE-2022-46146) #2531
+
+## 1.4.1 / 2022-11-29
+
+* [BUGFIX] Fix diskstats exclude flags #2487
+* [BUGFIX] Security: Update go/x/crypto and go/x/net (CVE-2022-27191 CVE-2022-27664) #2488
+* [BUGFIX] Security: Update exporter-toolkit (CVE-2022-46146) #2531
+
 ## 1.4.0 / 2022-09-24
 
 * [CHANGE] Merge metrics descriptions in textfile collector #2475
@@ -114,7 +141,7 @@ NOTE: Filesystem collector flags have been renamed. `--collector.filesystem.igno
 * [BUGFIX] Fix wrong value for OpenBSD memory buffer cache #2015
 * [BUGFIX] Only initiate collectors once #2048
 * [BUGFIX] Handle small backwards jumps in CPU idle #2067
-  
+
 ## 1.1.2 / 2021-03-05
 
 * [BUGFIX] Handle errors from disabled PSI subsystem #1983
@@ -422,7 +449,7 @@ Windows support is now removed, the [wmi_exporter](https://github.com/martinlind
 * [CHANGE] Switch to kingpin flags #639
 * [CHANGE] Replace --collectors.enabled with per-collector flags #640
 * [FEATURE] Add ARP collector for Linux #540
-* [FEATURE] Add XFS colector for Linux #568, #575
+* [FEATURE] Add XFS collector for Linux #568, #575
 * [FEATURE] Add qdisc collector for Linux #580
 * [FEATURE] Add cpufreq stats for Linux #548
 * [FEATURE] Add diskstats for Darwin #593

@@ -17,15 +17,11 @@
 package collector
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
-	"strings"
-
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/prometheus/procfs"
 )
 
 var (
@@ -34,6 +30,7 @@ var (
 )
 
 type arpCollector struct {
+	fs           procfs.FS
 	deviceFilter deviceFilter
 	entries      *prometheus.Desc
 	logger       log.Logger
@@ -45,7 +42,13 @@ func init() {
 
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector(logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
+
 	return &arpCollector{
+		fs:           fs,
 		deviceFilter: newDeviceFilter(*arpDeviceExclude, *arpDeviceInclude),
 		entries: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "arp", "entries"),
@@ -56,56 +59,25 @@ func NewARPCollector(logger log.Logger) (Collector, error) {
 	}, nil
 }
 
-func getARPEntries() (map[string]uint32, error) {
-	file, err := os.Open(procFilePath("net/arp"))
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	entries, err := parseARPEntries(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return entries, nil
-}
-
-// TODO: This should get extracted to the github.com/prometheus/procfs package
-// to support more complete parsing of /proc/net/arp. Instead of adding
-// more fields to this function's return values it should get moved and
-// changed to support each field.
-func parseARPEntries(data io.Reader) (map[string]uint32, error) {
-	scanner := bufio.NewScanner(data)
+func getTotalArpEntries(deviceEntries []procfs.ARPEntry) map[string]uint32 {
 	entries := make(map[string]uint32)
 
-	for scanner.Scan() {
-		columns := strings.Fields(scanner.Text())
-
-		if len(columns) < 6 {
-			return nil, fmt.Errorf("unexpected ARP table format")
-		}
-
-		if columns[0] != "IP" {
-			deviceIndex := len(columns) - 1
-			entries[columns[deviceIndex]]++
-		}
+	for _, device := range deviceEntries {
+		entries[device.Device]++
 	}
 
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("failed to parse ARP info: %w", err)
-	}
-
-	return entries, nil
+	return entries
 }
 
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
-	entries, err := getARPEntries()
+	entries, err := c.fs.GatherARPEntries()
 	if err != nil {
 		return fmt.Errorf("could not get ARP entries: %w", err)
 	}
 
-	for device, entryCount := range entries {
+	enumeratedEntry := getTotalArpEntries(entries)
+
+	for device, entryCount := range enumeratedEntry {
 		if c.deviceFilter.ignored(device) {
 			continue
 		}

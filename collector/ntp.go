@@ -22,10 +22,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/beevik/ntp"
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -79,6 +80,7 @@ func NewNtpCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("invalid NTP port number %d; must be between 1 and 65535 inclusive", *ntpServerPort)
 	}
 
+	level.Warn(logger).Log("msg", "This collector is deprecated and will be removed in the next major version release.")
 	return &ntpCollector{
 		stratum: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "stratum"),

@@ -18,21 +18,15 @@ package collector
 
 import (
 	"fmt"
-
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+	"strings"
 )
 
 type cpuFreqCollector struct {
-	fs             sysfs.FS
-	cpuFreq        *prometheus.Desc
-	cpuFreqMin     *prometheus.Desc
-	cpuFreqMax     *prometheus.Desc
-	scalingFreq    *prometheus.Desc
-	scalingFreqMin *prometheus.Desc
-	scalingFreqMax *prometheus.Desc
-	logger         log.Logger
+	fs     sysfs.FS
+	logger log.Logger
 }
 
 func init() {
@@ -47,37 +41,7 @@ func NewCPUFreqCollector(logger log.Logger) (Collector, error) {
 	}
 
 	return &cpuFreqCollector{
-		fs: fs,
-		cpuFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
-			"Current cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		cpuFreqMin: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_min_hertz"),
-			"Minimum cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		cpuFreqMax: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
-			"Maximum cpu thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		scalingFreq: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_hertz"),
-			"Current scaled CPU thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		scalingFreqMin: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_min_hertz"),
-			"Minimum scaled CPU thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
-		scalingFreqMax: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_max_hertz"),
-			"Maximum scaled CPU thread frequency in hertz.",
-			[]string{"cpu"}, nil,
-		),
+		fs:     fs,
 		logger: logger,
 	}, nil
 }
@@ -94,7 +58,7 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, stats := range cpuFreqs {
 		if stats.CpuinfoCurrentFrequency != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.cpuFreq,
+				cpuFreqHertzDesc,
 				prometheus.GaugeValue,
 				float64(*stats.CpuinfoCurrentFrequency)*1000.0,
 				stats.Name,
@@ -102,7 +66,7 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		if stats.CpuinfoMinimumFrequency != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.cpuFreqMin,
+				cpuFreqMinDesc,
 				prometheus.GaugeValue,
 				float64(*stats.CpuinfoMinimumFrequency)*1000.0,
 				stats.Name,
@@ -110,7 +74,7 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		if stats.CpuinfoMaximumFrequency != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.cpuFreqMax,
+				cpuFreqMaxDesc,
 				prometheus.GaugeValue,
 				float64(*stats.CpuinfoMaximumFrequency)*1000.0,
 				stats.Name,
@@ -118,7 +82,7 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		if stats.ScalingCurrentFrequency != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.scalingFreq,
+				cpuFreqScalingFreqDesc,
 				prometheus.GaugeValue,
 				float64(*stats.ScalingCurrentFrequency)*1000.0,
 				stats.Name,
@@ -126,7 +90,7 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		if stats.ScalingMinimumFrequency != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.scalingFreqMin,
+				cpuFreqScalingFreqMinDesc,
 				prometheus.GaugeValue,
 				float64(*stats.ScalingMinimumFrequency)*1000.0,
 				stats.Name,
@@ -134,11 +98,27 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		if stats.ScalingMaximumFrequency != nil {
 			ch <- prometheus.MustNewConstMetric(
-				c.scalingFreqMax,
+				cpuFreqScalingFreqMaxDesc,
 				prometheus.GaugeValue,
 				float64(*stats.ScalingMaximumFrequency)*1000.0,
 				stats.Name,
 			)
+		}
+		if stats.Governor != "" {
+			availableGovernors := strings.Split(stats.AvailableGovernors, " ")
+			for _, g := range availableGovernors {
+				state := 0
+				if g == stats.Governor {
+					state = 1
+				}
+				ch <- prometheus.MustNewConstMetric(
+					cpuFreqScalingGovernorDesc,
+					prometheus.GaugeValue,
+					float64(state),
+					stats.Name,
+					g,
+				)
+			}
 		}
 	}
 	return nil
