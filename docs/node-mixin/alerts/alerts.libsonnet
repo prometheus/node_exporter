@@ -53,7 +53,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '30m',
+            'for': '15m',
             labels: {
               severity: 'warning',
             },
@@ -71,7 +71,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '30m',
+            'for': '15m',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
@@ -129,7 +129,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '1h',
+            'for': '15m',
             labels: {
               severity: 'warning',
             },
@@ -147,7 +147,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '1h',
+            'for': '15m',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
@@ -161,7 +161,7 @@
             expr: |||
               rate(node_network_receive_errs_total{%(nodeExporterSelector)s}[2m]) / rate(node_network_receive_packets_total{%(nodeExporterSelector)s}[2m]) > 0.01
             ||| % $._config,
-            'for': '1h',
+            'for': '15m',
             labels: {
               severity: 'warning',
             },
@@ -175,7 +175,7 @@
             expr: |||
               rate(node_network_transmit_errs_total{%(nodeExporterSelector)s}[2m]) / rate(node_network_transmit_packets_total{%(nodeExporterSelector)s}[2m]) > 0.01
             ||| % $._config,
-            'for': '1h',
+            'for': '15m',
             labels: {
               severity: 'warning',
             },
@@ -261,7 +261,7 @@
             },
             annotations: {
               summary: 'RAID Array is degraded.',
-              description: "RAID array '{{ $labels.device }}' on {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.",
+              description: "RAID array '{{ $labels.device }}' at {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.",
             },
           },
           {
@@ -274,7 +274,7 @@
             },
             annotations: {
               summary: 'Failed device in RAID array.',
-              description: "At least one device in RAID array on {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.",
+              description: "At least one device in RAID array at {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.",
             },
           },
           {
