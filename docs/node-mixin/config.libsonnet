@@ -43,6 +43,13 @@
     // just a warning for K8s nodes.
     nodeCriticalSeverity: 'critical',
 
+    // CPU utilization (%) on which to trigger the
+    // 'NodeCPUHighUsage' alert.
+    cpuHighUsageThreshold: 90,
+    // Load average 1m (per core) on which to trigger the
+    // 'NodeSystemSaturation' alert.
+    systemSaturationPerCoreThreshold: 2,
+
     // Available disk space (%) thresholds on which to trigger the
     // 'NodeFilesystemSpaceFillingUp' alerts. These alerts fire if the disk
     // usage grows in a way that it is predicted to run out in 4h or 1d
@@ -60,12 +67,51 @@
     fsSpaceAvailableWarningThreshold: 5,
     fsSpaceAvailableCriticalThreshold: 3,
 
+    // Memory utilzation (%) level on which to trigger the
+    // 'NodeMemoryHighUtilization' alert.
+    memoryHighUtilizationThreshold: 90,
+
+    // Threshold for the rate of memory major page faults to trigger
+    // 'NodeMemoryMajorPagesFaults' alert.
+    memoryMajorPagesFaultsThreshold: 500,
+
+    // Disk IO queue level above which to trigger
+    // 'NodeDiskIOSaturation' alert.
+    diskIOSaturationThreshold: 10,
+
     rateInterval: '5m',
     // Opt-in for multi-cluster support.
     showMultiCluster: false,
+
     clusterLabel: 'cluster',
+
+    // groupLabels is a string with comma-separated
+    // labels that are common labels of instances belonging to the
+    // same logical group. Include not only enough labels to
+    // identify cluster members, but also all common labels you want
+    // to keep for resulting cluster-level alerts.
+    groupLabels: 'job',
+    // commaSeparated list of labels identifying a single instance:
+    instanceLabels: 'instance',
 
     dashboardNamePrefix: 'Node Exporter / ',
     dashboardTags: ['node-exporter-mixin'],
+    dashboardRefresh: '30s',
+    dashboardTimezone: 'utc',
+    dashboardInterval: 'now-2h',
+
+    // Grafana dashboard IDs are necessary for stable links for dashboards
+    grafanaDashboardIDs: {
+      'node-rsrc-use.json': 'node-rsrc-use',
+      'node-cluster-rsrc-use.json': 'node-cluster-rsrc-use',
+      'node-multicluster-rsrc-use.json': 'node-multicluster-rsrc-use',
+      'nodes.json': 'nodes',
+      'nodes-darwin.json': 'nodes-darwin',
+      'nodes-system.json': 'node-system',
+      'nodes-memory.json': 'node-memory',
+      'nodes-network.json': 'node-network',
+      'nodes-disk.json': 'node-disk',
+      'nodes-fleet.json': 'node-fleet',
+    },
   },
 }
