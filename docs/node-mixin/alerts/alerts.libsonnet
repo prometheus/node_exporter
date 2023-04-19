@@ -2,7 +2,7 @@
   prometheusAlerts+:: {
     groups+: [
       {
-        name: 'node-exporter',
+        name: 'node-exporter-filesystem',
         rules: [
           {
             alert: 'NodeFilesystemSpaceFillingUp',
@@ -156,6 +156,13 @@
               description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
             },
           },
+        ],
+      },
+
+      {
+        name: 'node-exporter',
+        rules: [
+
           {
             alert: 'NodeNetworkReceiveErrs',
             expr: |||
@@ -275,38 +282,6 @@
             annotations: {
               summary: 'Failed device in RAID array.',
               description: "At least one device in RAID array at {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.",
-            },
-          },
-          {
-            alert: 'NodeFileDescriptorLimit',
-            expr: |||
-              (
-                node_filefd_allocated{%(nodeExporterSelector)s} * 100 / node_filefd_maximum{%(nodeExporterSelector)s} > 70
-              )
-            ||| % $._config,
-            'for': '15m',
-            labels: {
-              severity: 'warning',
-            },
-            annotations: {
-              summary: 'Kernel is predicted to exhaust file descriptors limit soon.',
-              description: 'File descriptors limit at {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.',
-            },
-          },
-          {
-            alert: 'NodeFileDescriptorLimit',
-            expr: |||
-              (
-                node_filefd_allocated{%(nodeExporterSelector)s} * 100 / node_filefd_maximum{%(nodeExporterSelector)s} > 90
-              )
-            ||| % $._config,
-            'for': '15m',
-            labels: {
-              severity: 'critical',
-            },
-            annotations: {
-              summary: 'Kernel is predicted to exhaust file descriptors limit soon.',
-              description: 'File descriptors limit at {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.',
             },
           },
           {
