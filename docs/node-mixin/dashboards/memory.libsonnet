@@ -166,7 +166,7 @@ local common = import '../lib/common.libsonnet';
       nodeTimeseries.new(
         'Memory Shared and Mapped',
         description=|||
-          Mapped: This refers to the memory used in mapped page files that have been mmaped, such as libraries.
+          Mapped: This refers to the memory used in mapped page files that have been memory mapped, such as libraries.
           Shmem: This is the memory used by shared memory, which is shared between multiple processes, including RAM disks.
           ShmemHugePages: This is the memory used by shared memory and tmpfs allocated with huge pages.
           ShmemPmdMapped: This is the amount of shared memory (shmem/tmpfs) backed by huge pages.

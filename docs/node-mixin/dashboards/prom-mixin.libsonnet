@@ -91,11 +91,11 @@ local nodeTemplates = common.templates;
         description=|||
           errors received: Total number of bad packets received on this network device. This counter must include events counted by rx_length_errors, rx_crc_errors, rx_frame_errors and other errors not otherwise counted.
 
-          errors tranmitted: Total number of transmit problems. This counter must include events counter by tx_aborted_errors, tx_carrier_errors, tx_fifo_errors, tx_heartbeat_errors, tx_window_errors and other errors not otherwise counted.
+          errors transmitted: Total number of transmit problems. This counter must include events counter by tx_aborted_errors, tx_carrier_errors, tx_fifo_errors, tx_heartbeat_errors, tx_window_errors and other errors not otherwise counted.
 
           drops received: Number of packets received but not processed, e.g. due to lack of resources or unsupported protocol. For hardware interfaces this counter may include packets discarded due to L2 address filtering but should not include packets dropped by the device due to buffer exhaustion which are counted separately in rx_missed_errors (since procfs folds those two counters together).
 
-          drops tranmitted: Number of packets dropped on their way to transmission, e.g. due to lack of resources.
+          drops transmitted: Number of packets dropped on their way to transmission, e.g. due to lack of resources.
 
           https://docs.kernel.org/networking/statistics.html
         |||
@@ -106,7 +106,7 @@ local nodeTemplates = common.templates;
       ))
       .addTarget(commonPromTarget(
         expr=q.networkTransmitErrorsPerSec,
-        legendFormat='{{device}} errors tranmitted',
+        legendFormat='{{device}} errors transmitted',
       ))
       .addTarget(commonPromTarget(
         expr=q.networkReceiveDropsPerSec,

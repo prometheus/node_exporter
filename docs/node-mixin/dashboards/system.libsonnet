@@ -51,7 +51,7 @@ local common = import '../lib/common.libsonnet';
       { options+: { reduceOptions+: { fields: '/^time_zone$/' } } },
     local timeSyncDrift =
       nodeTimeseries.new(
-        'Time Syncronized Drift',
+        'Time Synchronized Drift',
         description=|||
           Time synchronization is essential to ensure accurate timekeeping, which is critical for many system operations such as logging, authentication, and network communication, as well as distributed systems or clusters where data consistency is important.
         |||
@@ -70,10 +70,10 @@ local common = import '../lib/common.libsonnet';
         legendFormat='Maximum error in seconds'
       )),
 
-    local timeSyncronizedStatus =
+    local timeSynchronizedStatus =
       nodeTimeseries.new(
-        'Time Syncronized Status',
-        description='Status of time syncronization.'
+        'Time Synchronized Status',
+        description='Status of time synchronization.'
       )
       .withColor(mode='palette-classic')
       .withFillOpacity(75)
@@ -125,7 +125,7 @@ local common = import '../lib/common.libsonnet';
         c.panelsWithTargets.systemContextSwitches { gridPos: { x: 12, h: 6, w: 12, y: 25 } },
         { type: 'row', title: 'Time', gridPos: { x: 0, w: 24, y: 75 } },
         timeZoneOffset { gridPos: { x: 0, h: 3, w: 3, y: 75 } },
-        timeSyncronizedStatus { gridPos: { x: 3, h: 3, w: 21, y: 75 } },
+        timeSynchronizedStatus { gridPos: { x: 3, h: 3, w: 21, y: 75 } },
         timeSyncDrift { gridPos: { x: 0, h: 6, w: 24, y: 80 } },
       ],
 
