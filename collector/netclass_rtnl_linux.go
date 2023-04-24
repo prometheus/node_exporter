@@ -20,12 +20,14 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"path/filepath"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/mdlayher/ethtool"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 var (
@@ -57,14 +59,27 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		}
 	}
 
+	// Get most attributes from Netlink
 	lMsgs, err := c.getNetClassInfoRTNL()
 	if err != nil {
 		return fmt.Errorf("could not get net class info: %w", err)
 	}
+
+	relevantLinks := make([]rtnetlink.LinkMessage, 0, len(lMsgs))
 	for _, msg := range lMsgs {
-		if c.ignoredDevicesPattern.MatchString(msg.Attributes.Name) {
-			continue
+		if !c.ignoredDevicesPattern.MatchString(msg.Attributes.Name) {
+			relevantLinks = append(relevantLinks, msg)
 		}
+	}
+
+	// Read sysfs for attributes that Netlink doesn't expose
+	sysfsAttrs, err := getSysfsAttributes(relevantLinks)
+	if err != nil {
+		return fmt.Errorf("could not get sysfs device info: %w", err)
+	}
+
+	// Parse all the info and update metrics
+	for _, msg := range relevantLinks {
 		upDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "up"),
 			"Value is 1 if operstate is 'up', 0 otherwise.",
@@ -96,12 +111,16 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 			duplex = lm.Duplex.String()
 		}
 
+		ifaceInfo := sysfsAttrs[msg.Attributes.Name]
+
 		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, msg.Attributes.Address.String(), msg.Attributes.Broadcast.String(), duplex, operstateStr[int(msg.Attributes.OperationalState)], ifalias)
 
+		pushMetric(ch, c.getFieldDesc("address_assign_type"), "address_assign_type", ifaceInfo.AddrAssignType, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier"), "carrier", msg.Attributes.Carrier, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier_changes_total"), "carrier_changes_total", msg.Attributes.CarrierChanges, prometheus.CounterValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier_up_changes_total"), "carrier_up_changes_total", msg.Attributes.CarrierUpCount, prometheus.CounterValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier_down_changes_total"), "carrier_down_changes_total", msg.Attributes.CarrierDownCount, prometheus.CounterValue, msg.Attributes.Name)
+		pushMetric(ch, c.getFieldDesc("device_id"), "device_id", ifaceInfo.DevID, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("flags"), "flags", msg.Flags, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("iface_id"), "iface_id", msg.Index, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("iface_link_mode"), "iface_link_mode", msg.Attributes.LinkMode, prometheus.GaugeValue, msg.Attributes.Name)
@@ -117,6 +136,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		}
 
 		pushMetric(ch, c.getFieldDesc("mtu_bytes"), "mtu_bytes", msg.Attributes.MTU, prometheus.GaugeValue, msg.Attributes.Name)
+		pushMetric(ch, c.getFieldDesc("name_assign_type"), "name_assign_type", ifaceInfo.NameAssignType, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("net_dev_group"), "net_dev_group", msg.Attributes.NetDevGroup, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("transmit_queue_length"), "transmit_queue_length", msg.Attributes.TxQueueLen, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("protocol_type"), "protocol_type", msg.Type, prometheus.GaugeValue, msg.Attributes.Name)
@@ -185,4 +205,26 @@ func (c *netClassCollector) getLinkModes() ([]*ethtool.LinkMode, error) {
 	lms, err := conn.LinkModes()
 
 	return lms, err
+}
+
+// getSysfsAttributes reads attributes that are absent from netlink but provided
+// by sysfs.
+func getSysfsAttributes(links []rtnetlink.LinkMessage) (sysfs.NetClass, error) {
+	netClass := sysfs.NetClass{}
+	for _, msg := range links {
+		interfaceClass := sysfs.NetClassIface{}
+		ifName := msg.Attributes.Name
+		devPath := filepath.Join("/sys", "class", "net", ifName)
+
+		// These three attributes hold a device-specific lock when
+		// accessed, not the RTNL lock, so they are much less impactful
+		// than reading most of the other attributes from sysfs.
+		for _, attr := range []string{"addr_assign_type", "dev_id", "name_assign_type"} {
+			if err := sysfs.ParseNetClassAttribute(devPath, attr, &interfaceClass); err != nil {
+				return nil, err
+			}
+		}
+		netClass[ifName] = interfaceClass
+	}
+	return netClass, nil
 }
