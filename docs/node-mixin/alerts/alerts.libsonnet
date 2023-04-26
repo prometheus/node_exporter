@@ -333,7 +333,7 @@
             ||| % $._config,
             'for': '15m',
             labels: {
-              severity: 'critical',
+              severity: 'warning',
             },
             annotations: {
               summary: 'System saturated, load per core is very high.',
