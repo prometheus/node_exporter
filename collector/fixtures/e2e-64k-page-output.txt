@@ -4165,16 +4165,25 @@ node_zfs_zpool_rupdate{zpool="poolz1"} 1.10734831944501e+14
 # HELP node_zfs_zpool_state kstat.zfs.misc.state
 # TYPE node_zfs_zpool_state gauge
 node_zfs_zpool_state{state="degraded",zpool="pool1"} 0
+node_zfs_zpool_state{state="degraded",zpool="pool2"} 0
 node_zfs_zpool_state{state="degraded",zpool="poolz1"} 1
 node_zfs_zpool_state{state="faulted",zpool="pool1"} 0
+node_zfs_zpool_state{state="faulted",zpool="pool2"} 0
 node_zfs_zpool_state{state="faulted",zpool="poolz1"} 0
 node_zfs_zpool_state{state="offline",zpool="pool1"} 0
+node_zfs_zpool_state{state="offline",zpool="pool2"} 0
 node_zfs_zpool_state{state="offline",zpool="poolz1"} 0
 node_zfs_zpool_state{state="online",zpool="pool1"} 1
+node_zfs_zpool_state{state="online",zpool="pool2"} 0
 node_zfs_zpool_state{state="online",zpool="poolz1"} 0
 node_zfs_zpool_state{state="removed",zpool="pool1"} 0
+node_zfs_zpool_state{state="removed",zpool="pool2"} 0
 node_zfs_zpool_state{state="removed",zpool="poolz1"} 0
+node_zfs_zpool_state{state="suspended",zpool="pool1"} 0
+node_zfs_zpool_state{state="suspended",zpool="pool2"} 1
+node_zfs_zpool_state{state="suspended",zpool="poolz1"} 0
 node_zfs_zpool_state{state="unavail",zpool="pool1"} 0
+node_zfs_zpool_state{state="unavail",zpool="pool2"} 0
 node_zfs_zpool_state{state="unavail",zpool="poolz1"} 0
 # HELP node_zfs_zpool_wcnt kstat.zfs.misc.io.wcnt
 # TYPE node_zfs_zpool_wcnt untyped
