@@ -79,6 +79,25 @@ Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
 To enable only some specific collector(s), use `--collector.disable-defaults --collector.<name> ...`.
 
+### Exclude flags
+
+A few collectors can be configured to exclude certain patterns using dedicated flags:
+
+Collector | Flag
+--- | ---
+arp | --collector.arp.device-exclude
+diskstats | --collector.diskstats.device-exclude
+filesystem | --collector.filesystem.fs-types-exclude
+filesystem | --collector.filesystem.mount-points-exclude
+netdev | --collector.netdev.device-exclude
+systemd | --collector.systemd.unit-exclude
+
+Example:
+
+```txt
+--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+```
+
 ### Enabled by default
 
 Name     | Description | OS
