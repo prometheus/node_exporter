@@ -79,24 +79,42 @@ Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
 To enable only some specific collector(s), use `--collector.disable-defaults --collector.<name> ...`.
 
-### Exclude flags
+### Include & Exclude flags
 
-A few collectors can be configured to exclude certain patterns using dedicated flags:
-
-Collector | Flag
---- | ---
-arp | --collector.arp.device-exclude
-diskstats | --collector.diskstats.device-exclude
-filesystem | --collector.filesystem.fs-types-exclude
-filesystem | --collector.filesystem.mount-points-exclude
-netdev | --collector.netdev.device-exclude
-systemd | --collector.systemd.unit-exclude
+A few collectors can be configured to include or exclude certain patterns using dedicated flags. The flags are mutually exclusive on collectors that support both.
 
 Example:
 
 ```txt
 --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
 ```
+
+#### Exclude Flags
+
+Collector | Exclude Flag
+--- | ---
+arp | --collector.arp.device-exclude
+diskstats | --collector.diskstats.device-exclude
+ethtool | --collector.ethtool.device-exclude
+filesystem | --collector.filesystem.fs-types-exclude
+filesystem | --collector.filesystem.mount-points-exclude
+netdev | --collector.netdev.device-exclude
+qdisk | --collector.qdisk.device-exclude
+systemd | --collector.systemd.unit-exclude
+
+#### Include Flags
+
+Collector | Exclude Flag
+--- | ---
+arp | --collector.arp.device-include
+cpu | --collector.cpu.info.bugs-include
+cpu | --collector.cpu.info.flags-include
+diskstats | --collector.diskstats.device-include
+ethtool | --collector.ethtool.metrics-include
+netdev | --collector.netdev.device-include
+netdev | --collector.qdisk.device-include
+sysctl | --collector.sysctl.include
+systemd | --collector.systemd.unit-include
 
 ### Enabled by default
 
