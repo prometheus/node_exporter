@@ -91,7 +91,7 @@ Example:
 
 #### Exclude Flags
 
-Collector | Exclude Flag
+Collector | Flag
 --- | ---
 arp | --collector.arp.device-exclude
 diskstats | --collector.diskstats.device-exclude
@@ -104,7 +104,7 @@ systemd | --collector.systemd.unit-exclude
 
 #### Include Flags
 
-Collector | Exclude Flag
+Collector | Flag
 --- | ---
 arp | --collector.arp.device-include
 cpu | --collector.cpu.info.bugs-include
