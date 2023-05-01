@@ -29,7 +29,7 @@ require (
 	github.com/safchain/ethtool v0.3.0
 	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
-	golang.org/x/sys v0.6.0
+	golang.org/x/sys v0.7.0
 	howett.net/plist v1.0.0
 )
 
