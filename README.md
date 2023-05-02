@@ -195,7 +195,6 @@ network_route | Exposes the routing table as metrics | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
-runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
 supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
@@ -211,6 +210,7 @@ These collectors are deprecated and will be removed in the next major release.
 Name     | Description | OS
 ---------|-------------|----
 ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
+runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 
 ### Perf Collector
 
