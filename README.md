@@ -79,6 +79,33 @@ Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
 To enable only some specific collector(s), use `--collector.disable-defaults --collector.<name> ...`.
 
+### Include & Exclude flags
+
+A few collectors can be configured to include or exclude certain patterns using dedicated flags. The exclude flags are used to indicate "all except", while the include flags are used to say "none except". Note that these flags are mutually exclusive on collectors that support both.
+
+Example:
+
+```txt
+--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+```
+
+List:
+
+Collector | Scope | Include Flag | Exclude Flag
+--- | --- | --- | ---
+arp | device | --collector.arp.device-include | --collector.arp.device-exclude
+cpu | bugs | --collector.cpu.info.bugs-include | N/A
+cpu | flags | --collector.cpu.info.flags-include | N/A
+diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
+ethtool | device | N/A | --collector.ethtool.device-exclude
+ethtool | metrics | --collector.ethtool.metrics-include | N/A
+filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
+filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
+netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
+qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
+sysctl | all | --collector.sysctl.include | N/A
+systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
+
 ### Enabled by default
 
 Name     | Description | OS
