@@ -21,13 +21,13 @@ require (
 	github.com/mdlayher/netlink v1.7.2
 	github.com/mdlayher/wifi v0.0.0-20220330172155-a44c70b6d3c8
 	github.com/opencontainers/selinux v1.11.0
+	github.com/prometheus-community/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	github.com/prometheus/client_golang v1.15.0
 	github.com/prometheus/client_model v0.3.0
 	github.com/prometheus/common v0.42.0
 	github.com/prometheus/exporter-toolkit v0.9.1
 	github.com/prometheus/procfs v0.9.0
 	github.com/safchain/ethtool v0.3.0
-	github.com/soundcloud/go-runit v0.0.0-20150630195641-06ad41a06c4a
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
 	golang.org/x/sys v0.7.0
 	howett.net/plist v1.0.0
