@@ -89,32 +89,22 @@ Example:
 --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
 ```
 
-#### Exclude Flags
+List:
 
-Collector | Flag
---- | ---
-arp | --collector.arp.device-exclude
-diskstats | --collector.diskstats.device-exclude
-ethtool | --collector.ethtool.device-exclude
-filesystem | --collector.filesystem.fs-types-exclude
-filesystem | --collector.filesystem.mount-points-exclude
-netdev | --collector.netdev.device-exclude
-qdisk | --collector.qdisk.device-exclude
-systemd | --collector.systemd.unit-exclude
-
-#### Include Flags
-
-Collector | Flag
---- | ---
-arp | --collector.arp.device-include
-cpu | --collector.cpu.info.bugs-include
-cpu | --collector.cpu.info.flags-include
-diskstats | --collector.diskstats.device-include
-ethtool | --collector.ethtool.metrics-include
-netdev | --collector.netdev.device-include
-netdev | --collector.qdisk.device-include
-sysctl | --collector.sysctl.include
-systemd | --collector.systemd.unit-include
+Collector | Scope | Include Flag | Exclude Flag
+--- | --- | --- | ---
+arp | device | --collector.arp.device-include | --collector.arp.device-exclude
+cpu | bugs | --collector.cpu.info.bugs-include | N/A
+cpu | flags | --collector.cpu.info.flags-include | N/A
+diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
+ethtool | device | N/A | --collector.ethtool.device-exclude
+ethtool | metrics | --collector.ethtool.metrics-include | N/A
+filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
+filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
+netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
+qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
+sysctl | all | --collector.sysctl.include | N/A
+systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
 
 ### Enabled by default
 
