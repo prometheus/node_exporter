@@ -81,7 +81,7 @@ To enable only some specific collector(s), use `--collector.disable-defaults --c
 
 ### Include & Exclude flags
 
-A few collectors can be configured to include or exclude certain patterns using dedicated flags. The flags are mutually exclusive on collectors that support both.
+A few collectors can be configured to include or exclude certain patterns using dedicated flags. The exclude flags are used to indicate "all except", while the include flags are used to say "none except". Note that these flags are mutually exclusive on collectors that support both.
 
 Example:
 
