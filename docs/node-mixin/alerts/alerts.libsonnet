@@ -309,6 +309,38 @@
               description: 'File descriptors limit at {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.',
             },
           },
+          {
+            alert: 'NodeHighCPUUtilization',
+            expr: |||
+              (
+                avg(node_cpu{%(nodeExporterSelector)s,mode="system"}) > 90
+              )
+            ||| % $._config,
+            'for': '10m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'High CPU usage for a node, tasks may run slower than normal.',
+              description: 'High CPU usage for {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.',
+            },
+          },
+          {
+            alert: 'NodeHighCPUUtilization',
+            expr: |||
+              (
+                avg(node_cpu{%(nodeExporterSelector)s,mode="system"}) > 95
+              )
+            ||| % $._config,
+            'for': '10m',
+            labels: {
+              severity: 'critical',
+            },
+            annotations: {
+              summary: 'High CPU usage for a node, tasks may run slower than normal.',
+              description: 'High CPU usage for {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.',
+            },
+          },
         ],
       },
     ],
