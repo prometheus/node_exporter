@@ -3104,12 +3104,6 @@ node_softnet_times_squeezed_total{cpu="0"} 1
 node_softnet_times_squeezed_total{cpu="1"} 10
 node_softnet_times_squeezed_total{cpu="2"} 85
 node_softnet_times_squeezed_total{cpu="3"} 50
-# HELP node_softnet_width softnet_data's Width
-# TYPE node_softnet_width gauge
-node_softnet_width{cpu="0"} 11
-node_softnet_width{cpu="1"} 11
-node_softnet_width{cpu="2"} 11
-node_softnet_width{cpu="3"} 11
 # HELP node_sysctl_fs_file_nr sysctl fs.file-nr
 # TYPE node_sysctl_fs_file_nr untyped
 node_sysctl_fs_file_nr{index="0"} 1024

@@ -34,7 +34,6 @@ type softnetCollector struct {
 	receivedRps       *prometheus.Desc
 	flowLimitCount    *prometheus.Desc
 	softnetBacklogLen *prometheus.Desc
-	width             *prometheus.Desc
 	logger            log.Logger
 }
 
@@ -88,11 +87,6 @@ func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 		softnetBacklogLen: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, softnetSubsystem, "backlog_len_total"),
 			"Softnet backlog status",
-			[]string{"cpu"}, nil,
-		),
-		width: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, softnetSubsystem, "width"),
-			"softnet_data's Width",
 			[]string{"cpu"}, nil,
 		),
 		logger: logger,
@@ -153,14 +147,8 @@ func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.softnetBacklogLen,
-			prometheus.CounterValue,
-			float64(cpuStats.SoftnetBacklogLen),
-			cpu,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.width,
 			prometheus.GaugeValue,
-			float64(cpuStats.Width),
+			float64(cpuStats.SoftnetBacklogLen),
 			cpu,
 		)
 	}
