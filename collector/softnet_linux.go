@@ -101,6 +101,8 @@ func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 
 // Update gets parsed softnet statistics using procfs.
 func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
+	var cpu string
+
 	stats, err := c.fs.NetSoftnetStat()
 	if err != nil {
 		return fmt.Errorf("could not get softnet statistics: %w", err)
@@ -108,9 +110,9 @@ func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for cpuNumber, cpuStats := range stats {
 		if cpuStats.Width >= 13 {
-			cpu := strconv.FormatUint(uint64(cpuStats.Index), 10)
+			cpu = strconv.FormatUint(uint64(cpuStats.Index), 10)
 		} else {
-			cpu := strconv.Itoa(cpuNumber)
+			cpu = strconv.Itoa(cpuNumber)
 		}
 
 		ch <- prometheus.MustNewConstMetric(
