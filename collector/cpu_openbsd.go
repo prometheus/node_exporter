@@ -25,14 +25,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-type clockinfo struct {
-	hz      int32
-	tick    int32
-	tickadj int32
-	stathz  int32
-	profhz  int32
-}
-
 const (
 	CP_USER = iota
 	CP_NICE
@@ -72,8 +64,8 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	if err != nil {
 		return err
 	}
-	clock := *(*clockinfo)(unsafe.Pointer(&clockb[0]))
-	hz := float64(clock.stathz)
+	clock := *(*unix.Clockinfo)(unsafe.Pointer(&clockb[0]))
+	hz := float64(clock.Stathz)
 
 	ncpus, err := unix.SysctlUint32("hw.ncpu")
 	if err != nil {
