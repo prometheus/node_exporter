@@ -85,7 +85,7 @@ func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 			[]string{"cpu"}, nil,
 		),
 		softnetBacklogLen: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, softnetSubsystem, "backlog_len_total"),
+			prometheus.BuildFQName(namespace, softnetSubsystem, "backlog_len"),
 			"Softnet backlog status",
 			[]string{"cpu"}, nil,
 		),
