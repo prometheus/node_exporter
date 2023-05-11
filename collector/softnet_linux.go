@@ -106,8 +106,12 @@ func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("could not get softnet statistics: %w", err)
 	}
 
-	for _, cpuStats := range stats {
-		cpu := strconv.FormatUint(uint64(cpuStats.Index), 10)
+	for cpuNumber, cpuStats := range stats {
+		if cpuStats.Width >= 13 {
+			cpu := strconv.FormatUint(uint64(cpuStats.Index), 10)
+		} else {
+			cpu := strconv.Itoa(cpuNumber)
+		}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.processed,
