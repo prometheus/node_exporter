@@ -66,7 +66,7 @@ func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 			[]string{"cpu"}, nil,
 		),
 		timeSqueezed: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, softnetSubsystem, "time_squeezed_total"),
+			prometheus.BuildFQName(namespace, softnetSubsystem, "times_squeezed_total"),
 			"Number of times processing packets ran out of quota",
 			[]string{"cpu"}, nil,
 		),

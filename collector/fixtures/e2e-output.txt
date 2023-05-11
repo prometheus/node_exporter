@@ -3080,9 +3080,9 @@ node_softnet_processed_total{cpu="0"} 299641
 # HELP node_softnet_received_rps_total Number of times cpu woken up received_rps
 # TYPE node_softnet_received_rps_total counter
 node_softnet_received_rps_total{cpu="0"} 0
-# HELP node_softnet_time_squeezed_total Number of times processing packets ran out of quota
-# TYPE node_softnet_time_squeezed_total counter
-node_softnet_time_squeezed_total{cpu="0"} 1
+# HELP node_softnet_times_squeezed_total Number of times processing packets ran out of quota
+# TYPE node_softnet_times_squeezed_total counter
+node_softnet_times_squeezed_total{cpu="0"} 1
 # HELP node_softnet_width softnet_data's Width
 # TYPE node_softnet_width gauge
 node_softnet_width{cpu="0"} 11
