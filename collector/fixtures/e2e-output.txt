@@ -3063,7 +3063,7 @@ node_softirqs_total{vector="sched"} 622196
 node_softirqs_total{vector="tasklet"} 1.783454e+06
 node_softirqs_total{vector="timer"} 1.481983e+06
 # HELP node_softnet_backlog_len_total Softnet backlog status
-# TYPE node_softnet_backlog_len_total counter
+# TYPE node_softnet_backlog_len_total gauge
 node_softnet_backlog_len_total{cpu="0"} 0
 node_softnet_backlog_len_total{cpu="1"} 0
 node_softnet_backlog_len_total{cpu="2"} 0
