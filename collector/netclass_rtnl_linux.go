@@ -43,7 +43,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		if !errors.Is(errors.Unwrap(err), fs.ErrNotExist) {
 			return fmt.Errorf("could not get link modes: %w", err)
 		}
-		level.Info(c.logger).Log("msg", "ETHTOOL netlink interface unavailable, duplex and linkspeed are not scraped.")
+		level.Info(c.logger).Log("msg", "ETHTOOL netlink interface unavailable and linkspeed are not scraped.")
 	} else {
 		for _, lm := range lms {
 			if c.ignoredDevicesPattern.MatchString(lm.Interface.Name) {
@@ -80,7 +80,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		infoDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
 			"Non-numeric data of <iface>, value is always 1.",
-			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			[]string{"device", "address", "broadcast", "operstate", "ifalias"},
 			nil,
 		)
 		infoValue := 1.0
@@ -90,13 +90,8 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 			ifalias = *msg.Attributes.Alias
 		}
 
-		duplex := ""
-		lm, lmExists := linkModes[msg.Attributes.Name]
-		if lmExists {
-			duplex = lm.Duplex.String()
-		}
 
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, msg.Attributes.Address.String(), msg.Attributes.Broadcast.String(), duplex, operstateStr[int(msg.Attributes.OperationalState)], ifalias)
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, msg.Attributes.Address.String(), msg.Attributes.Broadcast.String(), operstateStr[int(msg.Attributes.OperationalState)], ifalias)
 
 		pushMetric(ch, c.getFieldDesc("carrier"), "carrier", msg.Attributes.Carrier, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier_changes_total"), "carrier_changes_total", msg.Attributes.CarrierChanges, prometheus.CounterValue, msg.Attributes.Name)
