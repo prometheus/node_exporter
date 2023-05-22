@@ -2776,7 +2776,7 @@ node_power_supply_energy_watthour{power_supply="BAT0"} 36.58
 # HELP node_power_supply_info info of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_info gauge
 node_power_supply_info{power_supply="AC",type="Mains"} 1
-node_power_supply_info{capacity_level="Normal",manufacturer="LGC",model_name="LNV-45N1�",power_supply="BAT0",serial_number="38109",status="Discharging",technology="Li-ion",type="Battery"} 1
+node_power_supply_info{capacity_level="Normal",manufacturer="LGC",model_name="LNV-45N1��",power_supply="BAT0",serial_number="38109",status="Discharging",technology="Li-ion",type="Battery"} 1
 # HELP node_power_supply_online online value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_online gauge
 node_power_supply_online{power_supply="AC"} 0
