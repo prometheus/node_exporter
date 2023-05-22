@@ -97,7 +97,7 @@ node_bcache_cache_misses_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-8
 node_bcache_cache_read_races_total{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_cache_readaheads_total Count of times readahead occurred.
 # TYPE node_bcache_cache_readaheads_total counter
-node_bcache_cache_readaheads_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+node_bcache_cache_readaheads_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 13
 # HELP node_bcache_congested Congestion.
 # TYPE node_bcache_congested gauge
 node_bcache_congested{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
