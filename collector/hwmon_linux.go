@@ -18,12 +18,14 @@ package collector
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,6 +33,17 @@ import (
 )
 
 var (
+	hwmonIncludeSet bool
+	hwmonInclude    = kingpin.Flag("collector.hwmon.unit-include", "Regexp of hwmon units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
+	hwmonIncludeSet = true
+		return nil
+	}).String()
+	hwmonExcludeSet bool
+	hwmonExclude    = kingpin.Flag("collector.hwmon.unit-exclude", "Regexp of hwmon units to exclude. Units must both match include and not match exclude to be included.").Default("").PreAction(func(c *kingpin.ParseContext) error {
+  hwmonExcludeSet = true
+		return nil
+	}).String()
+
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
 	hwmonLabelDesc          = []string{"chip", "sensor"}
@@ -47,13 +60,25 @@ func init() {
 }
 
 type hwMonCollector struct {
-	logger log.Logger
+	hwmonIncludePattern *regexp.Regexp
+	hwmonExcludePattern *regexp.Regexp
+	logger              log.Logger
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
 func NewHwMonCollector(logger log.Logger) (Collector, error) {
-	return &hwMonCollector{logger}, nil
+
+	level.Info(logger).Log("msg", "Parsed flag --collector.hwmon.unit-include", "flag", *hwmonInclude)
+	hwmonIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *hwmonInclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.hwmon.unit-exclude", "flag", *hwmonExclude)
+	hwmonExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *hwmonExclude))
+
+	return &hwMonCollector{
+		hwmonIncludePattern: hwmonIncludePattern,
+		hwmonExcludePattern: hwmonExcludePattern,
+		logger:              logger,
+	}, nil
 }
 
 func cleanMetricName(name string) string {
