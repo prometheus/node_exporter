@@ -102,16 +102,8 @@ func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("could not get softnet statistics: %w", err)
 	}
 
-	for cpuNumber, cpuStats := range stats {
-		// cpuStats.Index in /proc/net/softnet_stat was introduced in Linux 5.14
-		// for older kernel we still rely on the line index
-		// Linux 5.14 https://elixir.bootlin.com/linux/v5.14/source/net/core/net-procfs.c#L169
-		// https://github.com/prometheus/procfs/pull/517
-		if cpuStats.Width >= 13 {
-			cpu = strconv.FormatUint(uint64(cpuStats.Index), 10)
-		} else {
-			cpu = strconv.Itoa(cpuNumber)
-		}
+	for _, cpuStats := range stats {
+		cpu = strconv.FormatUint(uint64(cpuStats.Index), 10)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.processed,
