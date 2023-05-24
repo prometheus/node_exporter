@@ -79,6 +79,33 @@ Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
 To enable only some specific collector(s), use `--collector.disable-defaults --collector.<name> ...`.
 
+### Include & Exclude flags
+
+A few collectors can be configured to include or exclude certain patterns using dedicated flags. The exclude flags are used to indicate "all except", while the include flags are used to say "none except". Note that these flags are mutually exclusive on collectors that support both.
+
+Example:
+
+```txt
+--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)
+```
+
+List:
+
+Collector | Scope | Include Flag | Exclude Flag
+--- | --- | --- | ---
+arp | device | --collector.arp.device-include | --collector.arp.device-exclude
+cpu | bugs | --collector.cpu.info.bugs-include | N/A
+cpu | flags | --collector.cpu.info.flags-include | N/A
+diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
+ethtool | device | N/A | --collector.ethtool.device-exclude
+ethtool | metrics | --collector.ethtool.metrics-include | N/A
+filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
+filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
+netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
+qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
+sysctl | all | --collector.sysctl.include | N/A
+systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
+
 ### Enabled by default
 
 Name     | Description | OS
@@ -107,6 +134,7 @@ mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `
 meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
 netclass | Exposes network interface info from `/sys/class/net/` | Linux
 netdev | Exposes network interface statistics such as bytes transferred. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
+netisr | Exposes netisr statistics | FreeBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
@@ -168,9 +196,7 @@ network_route | Exposes the routing table as metrics | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
-runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
-supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
@@ -184,6 +210,8 @@ These collectors are deprecated and will be removed in the next major release.
 Name     | Description | OS
 ---------|-------------|----
 ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
+runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
+supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 
 ### Perf Collector
 

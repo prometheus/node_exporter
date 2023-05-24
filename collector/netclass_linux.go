@@ -19,6 +19,7 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"regexp"
 
@@ -96,12 +97,12 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 		infoDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
 			"Non-numeric data from /sys/class/net/<iface>, value is always 1.",
-			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			[]string{"device", "address", "broadcast", "duplex", "operstate", "adminstate", "ifalias"},
 			nil,
 		)
 		infoValue := 1.0
 
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, ifaceInfo.IfAlias)
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, getAdminState(ifaceInfo.Flags), ifaceInfo.IfAlias)
 
 		pushMetric(ch, c.getFieldDesc("address_assign_type"), "address_assign_type", ifaceInfo.AddrAssignType, prometheus.GaugeValue, ifaceInfo.Name)
 		pushMetric(ch, c.getFieldDesc("carrier"), "carrier", ifaceInfo.Carrier, prometheus.GaugeValue, ifaceInfo.Name)
@@ -169,4 +170,16 @@ func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
 	}
 
 	return netClass, nil
+}
+
+func getAdminState(flags *int64) string {
+	if flags == nil {
+		return "unknown"
+	}
+
+	if *flags&int64(net.FlagUp) == 1 {
+		return "up"
+	}
+
+	return "down"
 }

@@ -35,14 +35,14 @@ const (
 	// kstatDataChar   = "0"
 	// kstatDataInt32  = "1"
 	// kstatDataUint32 = "2"
-	// kstatDataInt64  = "3"
+	kstatDataInt64  = "3"
 	kstatDataUint64 = "4"
 	// kstatDataLong   = "5"
 	// kstatDataUlong  = "6"
 	// kstatDataString = "7"
 )
 
-var zfsPoolStatesName = []string{"online", "degraded", "faulted", "offline", "removed", "unavail"}
+var zfsPoolStatesName = []string{"online", "degraded", "faulted", "offline", "removed", "unavail", "suspended"}
 
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 	file, err := os.Open(procFilePath(path))
@@ -163,7 +163,7 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 
 		// kstat data type (column 2) should be KSTAT_DATA_UINT64, otherwise ignore
 		// TODO: when other KSTAT_DATA_* types arrive, much of this will need to be restructured
-		if parts[1] == kstatDataUint64 {
+		if parts[1] == kstatDataUint64 || parts[1] == kstatDataInt64 {
 			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
 			value, err := strconv.ParseUint(parts[2], 10, 64)
 			if err != nil {

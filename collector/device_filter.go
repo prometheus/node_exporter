@@ -34,8 +34,8 @@ func newDeviceFilter(ignoredPattern, acceptPattern string) (f deviceFilter) {
 	return
 }
 
-// ignores returns whether the device should be ignored
+// ignored returns whether the device should be ignored
 func (f *deviceFilter) ignored(name string) bool {
-	return ((f.ignorePattern != nil && f.ignorePattern.MatchString(name)) ||
-		(f.acceptPattern != nil && !f.acceptPattern.MatchString(name)))
+	return (f.ignorePattern != nil && f.ignorePattern.MatchString(name)) ||
+		(f.acceptPattern != nil && !f.acceptPattern.MatchString(name))
 }
