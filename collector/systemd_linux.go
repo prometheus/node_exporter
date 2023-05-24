@@ -42,15 +42,15 @@ const (
 )
 
 var (
-	systemdIncludeSet bool
-	systemdInclude    = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
-		systemdIncludeSet = true
+	unitIncludeSet bool
+	unitInclude    = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
+		unitIncludeSet = true
 		return nil
 	}).String()
 	oldUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
-	systemdExcludeSet bool
-	systemdExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
-		systemdExcludeSet = true
+	unitExcludeSet bool
+	unitExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
+		unitExcludeSet = true
 		return nil
 	}).String()
 	oldUnitExclude         = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
@@ -75,8 +75,8 @@ type systemdCollector struct {
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
-	systemdIncludePattern         *regexp.Regexp
-	systemdExcludePattern         *regexp.Regexp
+	unitIncludePattern            *regexp.Regexp
+	unitExcludePattern            *regexp.Regexp
 	logger                        log.Logger
 }
 
@@ -134,25 +134,25 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		"Detected systemd version", []string{"version"}, nil)
 
 	if *oldUnitExclude != "" {
-		if !systemdExcludeSet {
+		if !unitExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-exclude")
-			*systemdExclude = *oldUnitExclude
+			*unitExclude = *oldUnitExclude
 		} else {
 			return nil, errors.New("--collector.systemd.unit-blacklist and --collector.systemd.unit-exclude are mutually exclusive")
 		}
 	}
 	if *oldUnitInclude != "" {
-		if !systemdIncludeSet {
+		if !unitIncludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
-			*systemdInclude = *oldUnitInclude
+			*unitInclude = *oldUnitInclude
 		} else {
 			return nil, errors.New("--collector.systemd.unit-whitelist and --collector.systemd.unit-include are mutually exclusive")
 		}
 	}
-	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-include", "flag", *systemdInclude)
-	systemdIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *systemdInclude))
-	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *systemdExclude)
-	systemdExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *systemdExclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-include", "flag", *unitInclude)
+	unitIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitInclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *unitExclude)
+	unitExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitExclude))
 
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
@@ -167,8 +167,8 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
 		systemdVersionDesc:            systemdVersionDesc,
-		systemdIncludePattern:         systemdIncludePattern,
-		systemdExcludePattern:         systemdExcludePattern,
+		unitIncludePattern:            unitIncludePattern,
+		unitExcludePattern:            unitExcludePattern,
 		logger:                        logger,
 	}, nil
 }
@@ -206,7 +206,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	level.Debug(c.logger).Log("msg", "collectSummaryMetrics took", "duration_seconds", time.Since(begin).Seconds())
 
 	begin = time.Now()
-	units := filterUnits(allUnits, c.systemdIncludePattern, c.systemdExcludePattern, c.logger)
+	units := filterUnits(allUnits, c.unitIncludePattern, c.unitExcludePattern, c.logger)
 	level.Debug(c.logger).Log("msg", "filterUnits took", "duration_seconds", time.Since(begin).Seconds())
 
 	var wg sync.WaitGroup
