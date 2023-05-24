@@ -35,12 +35,12 @@ import (
 var (
 	hwmonIncludeSet bool
 	hwmonInclude    = kingpin.Flag("collector.hwmon.unit-include", "Regexp of hwmon units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
-	hwmonIncludeSet = true
+		hwmonIncludeSet = true
 		return nil
 	}).String()
 	hwmonExcludeSet bool
 	hwmonExclude    = kingpin.Flag("collector.hwmon.unit-exclude", "Regexp of hwmon units to exclude. Units must both match include and not match exclude to be included.").Default("").PreAction(func(c *kingpin.ParseContext) error {
-  hwmonExcludeSet = true
+		hwmonExcludeSet = true
 		return nil
 	}).String()
 
