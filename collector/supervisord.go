@@ -69,6 +69,8 @@ func NewSupervisordCollector(logger log.Logger) (Collector, error) {
 		xrpc = xmlrpc.NewClient(*supervisordURL)
 	}
 
+	level.Warn(logger).Log("msg", "This collector is deprecated and will be removed in the next major version release.")
+
 	return &supervisordCollector{
 		upDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "up"),

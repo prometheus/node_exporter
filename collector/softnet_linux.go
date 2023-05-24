@@ -26,11 +26,15 @@ import (
 )
 
 type softnetCollector struct {
-	fs           procfs.FS
-	processed    *prometheus.Desc
-	dropped      *prometheus.Desc
-	timeSqueezed *prometheus.Desc
-	logger       log.Logger
+	fs                procfs.FS
+	processed         *prometheus.Desc
+	dropped           *prometheus.Desc
+	timeSqueezed      *prometheus.Desc
+	cpuCollision      *prometheus.Desc
+	receivedRps       *prometheus.Desc
+	flowLimitCount    *prometheus.Desc
+	softnetBacklogLen *prometheus.Desc
+	logger            log.Logger
 }
 
 const (
@@ -65,19 +69,41 @@ func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 			"Number of times processing packets ran out of quota",
 			[]string{"cpu"}, nil,
 		),
+		cpuCollision: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, softnetSubsystem, "cpu_collision_total"),
+			"Number of collision occur while obtaining device lock while transmitting",
+			[]string{"cpu"}, nil,
+		),
+		receivedRps: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, softnetSubsystem, "received_rps_total"),
+			"Number of times cpu woken up received_rps",
+			[]string{"cpu"}, nil,
+		),
+		flowLimitCount: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, softnetSubsystem, "flow_limit_count_total"),
+			"Number of times flow limit has been reached",
+			[]string{"cpu"}, nil,
+		),
+		softnetBacklogLen: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, softnetSubsystem, "backlog_len"),
+			"Softnet backlog status",
+			[]string{"cpu"}, nil,
+		),
 		logger: logger,
 	}, nil
 }
 
 // Update gets parsed softnet statistics using procfs.
 func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
+	var cpu string
+
 	stats, err := c.fs.NetSoftnetStat()
 	if err != nil {
 		return fmt.Errorf("could not get softnet statistics: %w", err)
 	}
 
-	for cpuNumber, cpuStats := range stats {
-		cpu := strconv.Itoa(cpuNumber)
+	for _, cpuStats := range stats {
+		cpu = strconv.FormatUint(uint64(cpuStats.Index), 10)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.processed,
@@ -95,6 +121,30 @@ func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
 			c.timeSqueezed,
 			prometheus.CounterValue,
 			float64(cpuStats.TimeSqueezed),
+			cpu,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.cpuCollision,
+			prometheus.CounterValue,
+			float64(cpuStats.CPUCollision),
+			cpu,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.receivedRps,
+			prometheus.CounterValue,
+			float64(cpuStats.ReceivedRps),
+			cpu,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.flowLimitCount,
+			prometheus.CounterValue,
+			float64(cpuStats.FlowLimitCount),
+			cpu,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.softnetBacklogLen,
+			prometheus.GaugeValue,
+			float64(cpuStats.SoftnetBacklogLen),
 			cpu,
 		)
 	}
