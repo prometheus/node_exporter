@@ -42,6 +42,7 @@ enabled_collectors=$(cat << COLLECTORS
   selinux
   slabinfo
   sockstat
+  softirqs
   stat
   sysctl
   textfile

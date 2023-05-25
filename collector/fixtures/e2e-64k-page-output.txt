@@ -2922,6 +2922,7 @@ node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="selinux"} 1
 node_scrape_collector_success{collector="slabinfo"} 1
 node_scrape_collector_success{collector="sockstat"} 1
+node_scrape_collector_success{collector="softirqs"} 1
 node_scrape_collector_success{collector="softnet"} 1
 node_scrape_collector_success{collector="stat"} 1
 node_scrape_collector_success{collector="sysctl"} 1
@@ -3028,6 +3029,28 @@ node_sockstat_UDP_mem_bytes 0
 # HELP node_sockstat_sockets_used Number of IPv4 sockets in use.
 # TYPE node_sockstat_sockets_used gauge
 node_sockstat_sockets_used 229
+# HELP node_softirqs_functions_total Softirq counts per CPU.
+# TYPE node_softirqs_functions_total counter
+node_softirqs_functions_total{cpu="0",type="BLOCK"} 23776
+node_softirqs_functions_total{cpu="0",type="HI"} 7
+node_softirqs_functions_total{cpu="0",type="HRTIMER"} 40
+node_softirqs_functions_total{cpu="0",type="IRQ_POLL"} 0
+node_softirqs_functions_total{cpu="0",type="NET_RX"} 43066
+node_softirqs_functions_total{cpu="0",type="NET_TX"} 2301
+node_softirqs_functions_total{cpu="0",type="RCU"} 155929
+node_softirqs_functions_total{cpu="0",type="SCHED"} 378895
+node_softirqs_functions_total{cpu="0",type="TASKLET"} 372
+node_softirqs_functions_total{cpu="0",type="TIMER"} 424191
+node_softirqs_functions_total{cpu="1",type="BLOCK"} 24115
+node_softirqs_functions_total{cpu="1",type="HI"} 1
+node_softirqs_functions_total{cpu="1",type="HRTIMER"} 346
+node_softirqs_functions_total{cpu="1",type="IRQ_POLL"} 0
+node_softirqs_functions_total{cpu="1",type="NET_RX"} 104508
+node_softirqs_functions_total{cpu="1",type="NET_TX"} 2430
+node_softirqs_functions_total{cpu="1",type="RCU"} 146631
+node_softirqs_functions_total{cpu="1",type="SCHED"} 152852
+node_softirqs_functions_total{cpu="1",type="TASKLET"} 1899
+node_softirqs_functions_total{cpu="1",type="TIMER"} 108342
 # HELP node_softirqs_total Number of softirq calls.
 # TYPE node_softirqs_total counter
 node_softirqs_total{vector="block"} 186066
