@@ -22,7 +22,7 @@ The `node_exporter` listens on HTTP port 9100 by default. See the `--help` outpu
 
 ### Ansible
 
-For automated installs with [Ansible](https://www.ansible.com/), there is the [Cloud Alchemy role](https://github.com/cloudalchemy/ansible-node-exporter).
+For automated installs with [Ansible](https://www.ansible.com/), there is the [Prometheus Community role](https://github.com/prometheus-community/ansible).
 
 ### Docker
 
