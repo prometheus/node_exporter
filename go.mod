@@ -17,7 +17,7 @@ require (
 	github.com/jsimonetti/rtnetlink v1.3.2
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
-	github.com/mdlayher/ethtool v0.0.0-20220830195143-0e16326d06d1
+	github.com/mdlayher/ethtool v0.0.0-20221212131811-ba3b4bc2e02c
 	github.com/mdlayher/netlink v1.7.2
 	github.com/mdlayher/wifi v0.0.0-20220330172155-a44c70b6d3c8
 	github.com/opencontainers/selinux v1.11.0
@@ -28,7 +28,7 @@ require (
 	github.com/prometheus/exporter-toolkit v0.10.0
 	github.com/prometheus/procfs v0.10.0
 	github.com/safchain/ethtool v0.3.0
-	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/sys v0.8.0
 	howett.net/plist v1.0.0
 )
@@ -45,7 +45,7 @@ require (
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
-	github.com/mdlayher/genetlink v1.2.0 // indirect
+	github.com/mdlayher/genetlink v1.3.1 // indirect
 	github.com/mdlayher/socket v0.4.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 // indirect
