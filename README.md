@@ -22,7 +22,7 @@ The `node_exporter` listens on HTTP port 9100 by default. See the `--help` outpu
 
 ### Ansible
 
-For automated installs with [Ansible](https://www.ansible.com/), there is the [Cloud Alchemy role](https://github.com/cloudalchemy/ansible-node-exporter).
+For automated installs with [Ansible](https://www.ansible.com/), there is the [Prometheus Community role](https://github.com/prometheus-community/ansible).
 
 ### Docker
 
@@ -197,7 +197,7 @@ perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel conf
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
-supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
+softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
@@ -212,6 +212,7 @@ Name     | Description | OS
 ---------|-------------|----
 ntp | Exposes local NTP daemon health to check [time](./docs/TIME.md) | _any_
 runit | Exposes service status from [runit](http://smarden.org/runit/). | _any_
+supervisord | Exposes service status from [supervisord](http://supervisord.org/). | _any_
 
 ### Perf Collector
 
