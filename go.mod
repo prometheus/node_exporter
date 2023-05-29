@@ -7,7 +7,7 @@ require (
 	github.com/beevik/ntp v0.3.0
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/dennwc/btrfs v0.0.0-20230312211831-a1f570bd01a1
-	github.com/ema/qdisc v0.0.0-20200603082823-62d0308e3e00
+	github.com/ema/qdisc v0.0.0-20230120214811-5b708f463de3
 	github.com/go-kit/log v0.2.1
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/hashicorp/go-envparse v0.1.0
@@ -21,15 +21,15 @@ require (
 	github.com/mdlayher/netlink v1.7.2
 	github.com/mdlayher/wifi v0.0.0-20220330172155-a44c70b6d3c8
 	github.com/opencontainers/selinux v1.11.0
-	github.com/prometheus-community/go-runit v0.0.0-20150630195641-06ad41a06c4a
-	github.com/prometheus/client_golang v1.15.0
-	github.com/prometheus/client_model v0.3.0
-	github.com/prometheus/common v0.42.0
-	github.com/prometheus/exporter-toolkit v0.9.1
-	github.com/prometheus/procfs v0.9.0
+	github.com/prometheus-community/go-runit v0.1.0
+	github.com/prometheus/client_golang v1.15.1
+	github.com/prometheus/client_model v0.4.0
+	github.com/prometheus/common v0.44.0
+	github.com/prometheus/exporter-toolkit v0.10.0
+	github.com/prometheus/procfs v0.10.0
 	github.com/safchain/ethtool v0.3.0
-	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
-	golang.org/x/sys v0.7.0
+	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
+	golang.org/x/sys v0.8.0
 	howett.net/plist v1.0.0
 )
 
@@ -48,15 +48,14 @@ require (
 	github.com/mdlayher/genetlink v1.2.0 // indirect
 	github.com/mdlayher/socket v0.4.1 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/crypto v0.7.0 // indirect
-	golang.org/x/net v0.9.0 // indirect
-	golang.org/x/oauth2 v0.6.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/crypto v0.8.0 // indirect
+	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/oauth2 v0.8.0 // indirect
+	golang.org/x/sync v0.2.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect

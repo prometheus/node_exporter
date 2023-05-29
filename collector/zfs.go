@@ -52,7 +52,7 @@ func NewZFSCollector(logger log.Logger) (Collector, error) {
 		linuxPathMap: map[string]string{
 			"zfs_abd":         "abdstats",
 			"zfs_arc":         "arcstats",
-			"zfs_dbuf":        "dbuf_stats",
+			"zfs_dbuf":        "dbufstats",
 			"zfs_dmu_tx":      "dmu_tx",
 			"zfs_dnode":       "dnodestats",
 			"zfs_fm":          "fm",

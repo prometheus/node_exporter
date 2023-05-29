@@ -97,7 +97,7 @@ node_bcache_cache_misses_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-8
 node_bcache_cache_read_races_total{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_cache_readaheads_total Count of times readahead occurred.
 # TYPE node_bcache_cache_readaheads_total counter
-node_bcache_cache_readaheads_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+node_bcache_cache_readaheads_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 13
 # HELP node_bcache_congested Congestion.
 # TYPE node_bcache_congested gauge
 node_bcache_congested{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
@@ -2776,7 +2776,7 @@ node_power_supply_energy_watthour{power_supply="BAT0"} 36.58
 # HELP node_power_supply_info info of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_info gauge
 node_power_supply_info{power_supply="AC",type="Mains"} 1
-node_power_supply_info{capacity_level="Normal",manufacturer="LGC",model_name="LNV-45N1�",power_supply="BAT0",serial_number="38109",status="Discharging",technology="Li-ion",type="Battery"} 1
+node_power_supply_info{capacity_level="Normal",manufacturer="LGC",model_name="LNV-45N1��",power_supply="BAT0",serial_number="38109",status="Discharging",technology="Li-ion",type="Battery"} 1
 # HELP node_power_supply_online online value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_online gauge
 node_power_supply_online{power_supply="AC"} 0
@@ -3040,18 +3040,42 @@ node_softirqs_total{vector="rcu"} 508444
 node_softirqs_total{vector="sched"} 622196
 node_softirqs_total{vector="tasklet"} 1.783454e+06
 node_softirqs_total{vector="timer"} 1.481983e+06
+# HELP node_softnet_backlog_len Softnet backlog status
+# TYPE node_softnet_backlog_len gauge
+node_softnet_backlog_len{cpu="0"} 0
+node_softnet_backlog_len{cpu="1"} 0
+node_softnet_backlog_len{cpu="2"} 0
+node_softnet_backlog_len{cpu="3"} 0
+# HELP node_softnet_cpu_collision_total Number of collision occur while obtaining device lock while transmitting
+# TYPE node_softnet_cpu_collision_total counter
+node_softnet_cpu_collision_total{cpu="0"} 0
+node_softnet_cpu_collision_total{cpu="1"} 0
+node_softnet_cpu_collision_total{cpu="2"} 0
+node_softnet_cpu_collision_total{cpu="3"} 0
 # HELP node_softnet_dropped_total Number of dropped packets
 # TYPE node_softnet_dropped_total counter
 node_softnet_dropped_total{cpu="0"} 0
 node_softnet_dropped_total{cpu="1"} 41
 node_softnet_dropped_total{cpu="2"} 0
 node_softnet_dropped_total{cpu="3"} 0
+# HELP node_softnet_flow_limit_count_total Number of times flow limit has been reached
+# TYPE node_softnet_flow_limit_count_total counter
+node_softnet_flow_limit_count_total{cpu="0"} 0
+node_softnet_flow_limit_count_total{cpu="1"} 0
+node_softnet_flow_limit_count_total{cpu="2"} 0
+node_softnet_flow_limit_count_total{cpu="3"} 0
 # HELP node_softnet_processed_total Number of processed packets
 # TYPE node_softnet_processed_total counter
 node_softnet_processed_total{cpu="0"} 299641
 node_softnet_processed_total{cpu="1"} 916354
 node_softnet_processed_total{cpu="2"} 5.577791e+06
 node_softnet_processed_total{cpu="3"} 3.113785e+06
+# HELP node_softnet_received_rps_total Number of times cpu woken up received_rps
+# TYPE node_softnet_received_rps_total counter
+node_softnet_received_rps_total{cpu="0"} 0
+node_softnet_received_rps_total{cpu="1"} 0
+node_softnet_received_rps_total{cpu="2"} 0
+node_softnet_received_rps_total{cpu="3"} 0
 # HELP node_softnet_times_squeezed_total Number of times processing packets ran out of quota
 # TYPE node_softnet_times_squeezed_total counter
 node_softnet_times_squeezed_total{cpu="0"} 1
@@ -3660,193 +3684,193 @@ node_zfs_arc_prefetch_metadata_misses 16071
 # HELP node_zfs_arc_size kstat.zfs.misc.arcstats.size
 # TYPE node_zfs_arc_size untyped
 node_zfs_arc_size 1.603939792e+09
-# HELP node_zfs_dbuf_dbuf_cache_count kstat.zfs.misc.dbuf_stats.dbuf_cache_count
+# HELP node_zfs_dbuf_dbuf_cache_count kstat.zfs.misc.dbufstats.dbuf_cache_count
 # TYPE node_zfs_dbuf_dbuf_cache_count untyped
 node_zfs_dbuf_dbuf_cache_count 27
-# HELP node_zfs_dbuf_dbuf_cache_hiwater_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_hiwater_bytes
+# HELP node_zfs_dbuf_dbuf_cache_hiwater_bytes kstat.zfs.misc.dbufstats.dbuf_cache_hiwater_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_hiwater_bytes untyped
 node_zfs_dbuf_dbuf_cache_hiwater_bytes 6.9117804e+07
-# HELP node_zfs_dbuf_dbuf_cache_level_0 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_0
+# HELP node_zfs_dbuf_dbuf_cache_level_0 kstat.zfs.misc.dbufstats.dbuf_cache_level_0
 # TYPE node_zfs_dbuf_dbuf_cache_level_0 untyped
 node_zfs_dbuf_dbuf_cache_level_0 27
-# HELP node_zfs_dbuf_dbuf_cache_level_0_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_0_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_0_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_0_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_0_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_0_bytes 302080
-# HELP node_zfs_dbuf_dbuf_cache_level_1 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_1
+# HELP node_zfs_dbuf_dbuf_cache_level_1 kstat.zfs.misc.dbufstats.dbuf_cache_level_1
 # TYPE node_zfs_dbuf_dbuf_cache_level_1 untyped
 node_zfs_dbuf_dbuf_cache_level_1 0
-# HELP node_zfs_dbuf_dbuf_cache_level_10 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_10
+# HELP node_zfs_dbuf_dbuf_cache_level_10 kstat.zfs.misc.dbufstats.dbuf_cache_level_10
 # TYPE node_zfs_dbuf_dbuf_cache_level_10 untyped
 node_zfs_dbuf_dbuf_cache_level_10 0
-# HELP node_zfs_dbuf_dbuf_cache_level_10_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_10_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_10_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_10_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_10_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_10_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_11 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_11
+# HELP node_zfs_dbuf_dbuf_cache_level_11 kstat.zfs.misc.dbufstats.dbuf_cache_level_11
 # TYPE node_zfs_dbuf_dbuf_cache_level_11 untyped
 node_zfs_dbuf_dbuf_cache_level_11 0
-# HELP node_zfs_dbuf_dbuf_cache_level_11_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_11_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_11_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_11_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_11_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_11_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_1_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_1_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_1_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_1_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_1_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_1_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_2 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_2
+# HELP node_zfs_dbuf_dbuf_cache_level_2 kstat.zfs.misc.dbufstats.dbuf_cache_level_2
 # TYPE node_zfs_dbuf_dbuf_cache_level_2 untyped
 node_zfs_dbuf_dbuf_cache_level_2 0
-# HELP node_zfs_dbuf_dbuf_cache_level_2_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_2_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_2_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_2_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_2_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_2_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_3 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_3
+# HELP node_zfs_dbuf_dbuf_cache_level_3 kstat.zfs.misc.dbufstats.dbuf_cache_level_3
 # TYPE node_zfs_dbuf_dbuf_cache_level_3 untyped
 node_zfs_dbuf_dbuf_cache_level_3 0
-# HELP node_zfs_dbuf_dbuf_cache_level_3_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_3_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_3_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_3_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_3_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_3_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_4 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_4
+# HELP node_zfs_dbuf_dbuf_cache_level_4 kstat.zfs.misc.dbufstats.dbuf_cache_level_4
 # TYPE node_zfs_dbuf_dbuf_cache_level_4 untyped
 node_zfs_dbuf_dbuf_cache_level_4 0
-# HELP node_zfs_dbuf_dbuf_cache_level_4_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_4_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_4_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_4_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_4_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_4_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_5 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_5
+# HELP node_zfs_dbuf_dbuf_cache_level_5 kstat.zfs.misc.dbufstats.dbuf_cache_level_5
 # TYPE node_zfs_dbuf_dbuf_cache_level_5 untyped
 node_zfs_dbuf_dbuf_cache_level_5 0
-# HELP node_zfs_dbuf_dbuf_cache_level_5_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_5_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_5_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_5_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_5_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_5_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_6 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_6
+# HELP node_zfs_dbuf_dbuf_cache_level_6 kstat.zfs.misc.dbufstats.dbuf_cache_level_6
 # TYPE node_zfs_dbuf_dbuf_cache_level_6 untyped
 node_zfs_dbuf_dbuf_cache_level_6 0
-# HELP node_zfs_dbuf_dbuf_cache_level_6_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_6_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_6_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_6_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_6_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_6_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_7 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_7
+# HELP node_zfs_dbuf_dbuf_cache_level_7 kstat.zfs.misc.dbufstats.dbuf_cache_level_7
 # TYPE node_zfs_dbuf_dbuf_cache_level_7 untyped
 node_zfs_dbuf_dbuf_cache_level_7 0
-# HELP node_zfs_dbuf_dbuf_cache_level_7_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_7_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_7_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_7_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_7_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_7_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_8 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_8
+# HELP node_zfs_dbuf_dbuf_cache_level_8 kstat.zfs.misc.dbufstats.dbuf_cache_level_8
 # TYPE node_zfs_dbuf_dbuf_cache_level_8 untyped
 node_zfs_dbuf_dbuf_cache_level_8 0
-# HELP node_zfs_dbuf_dbuf_cache_level_8_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_8_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_8_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_8_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_8_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_8_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_level_9 kstat.zfs.misc.dbuf_stats.dbuf_cache_level_9
+# HELP node_zfs_dbuf_dbuf_cache_level_9 kstat.zfs.misc.dbufstats.dbuf_cache_level_9
 # TYPE node_zfs_dbuf_dbuf_cache_level_9 untyped
 node_zfs_dbuf_dbuf_cache_level_9 0
-# HELP node_zfs_dbuf_dbuf_cache_level_9_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_level_9_bytes
+# HELP node_zfs_dbuf_dbuf_cache_level_9_bytes kstat.zfs.misc.dbufstats.dbuf_cache_level_9_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_level_9_bytes untyped
 node_zfs_dbuf_dbuf_cache_level_9_bytes 0
-# HELP node_zfs_dbuf_dbuf_cache_lowater_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_lowater_bytes
+# HELP node_zfs_dbuf_dbuf_cache_lowater_bytes kstat.zfs.misc.dbufstats.dbuf_cache_lowater_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_lowater_bytes untyped
 node_zfs_dbuf_dbuf_cache_lowater_bytes 5.6550932e+07
-# HELP node_zfs_dbuf_dbuf_cache_max_bytes kstat.zfs.misc.dbuf_stats.dbuf_cache_max_bytes
+# HELP node_zfs_dbuf_dbuf_cache_max_bytes kstat.zfs.misc.dbufstats.dbuf_cache_max_bytes
 # TYPE node_zfs_dbuf_dbuf_cache_max_bytes untyped
 node_zfs_dbuf_dbuf_cache_max_bytes 6.2834368e+07
-# HELP node_zfs_dbuf_dbuf_cache_size kstat.zfs.misc.dbuf_stats.dbuf_cache_size
+# HELP node_zfs_dbuf_dbuf_cache_size kstat.zfs.misc.dbufstats.dbuf_cache_size
 # TYPE node_zfs_dbuf_dbuf_cache_size untyped
 node_zfs_dbuf_dbuf_cache_size 302080
-# HELP node_zfs_dbuf_dbuf_cache_size_max kstat.zfs.misc.dbuf_stats.dbuf_cache_size_max
+# HELP node_zfs_dbuf_dbuf_cache_size_max kstat.zfs.misc.dbufstats.dbuf_cache_size_max
 # TYPE node_zfs_dbuf_dbuf_cache_size_max untyped
 node_zfs_dbuf_dbuf_cache_size_max 394240
-# HELP node_zfs_dbuf_dbuf_cache_total_evicts kstat.zfs.misc.dbuf_stats.dbuf_cache_total_evicts
+# HELP node_zfs_dbuf_dbuf_cache_total_evicts kstat.zfs.misc.dbufstats.dbuf_cache_total_evicts
 # TYPE node_zfs_dbuf_dbuf_cache_total_evicts untyped
 node_zfs_dbuf_dbuf_cache_total_evicts 0
-# HELP node_zfs_dbuf_hash_chain_max kstat.zfs.misc.dbuf_stats.hash_chain_max
+# HELP node_zfs_dbuf_hash_chain_max kstat.zfs.misc.dbufstats.hash_chain_max
 # TYPE node_zfs_dbuf_hash_chain_max untyped
 node_zfs_dbuf_hash_chain_max 0
-# HELP node_zfs_dbuf_hash_chains kstat.zfs.misc.dbuf_stats.hash_chains
+# HELP node_zfs_dbuf_hash_chains kstat.zfs.misc.dbufstats.hash_chains
 # TYPE node_zfs_dbuf_hash_chains untyped
 node_zfs_dbuf_hash_chains 0
-# HELP node_zfs_dbuf_hash_collisions kstat.zfs.misc.dbuf_stats.hash_collisions
+# HELP node_zfs_dbuf_hash_collisions kstat.zfs.misc.dbufstats.hash_collisions
 # TYPE node_zfs_dbuf_hash_collisions untyped
 node_zfs_dbuf_hash_collisions 0
-# HELP node_zfs_dbuf_hash_dbuf_level_0 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_0
+# HELP node_zfs_dbuf_hash_dbuf_level_0 kstat.zfs.misc.dbufstats.hash_dbuf_level_0
 # TYPE node_zfs_dbuf_hash_dbuf_level_0 untyped
 node_zfs_dbuf_hash_dbuf_level_0 37
-# HELP node_zfs_dbuf_hash_dbuf_level_0_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_0_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_0_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_0_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_0_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_0_bytes 465920
-# HELP node_zfs_dbuf_hash_dbuf_level_1 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_1
+# HELP node_zfs_dbuf_hash_dbuf_level_1 kstat.zfs.misc.dbufstats.hash_dbuf_level_1
 # TYPE node_zfs_dbuf_hash_dbuf_level_1 untyped
 node_zfs_dbuf_hash_dbuf_level_1 10
-# HELP node_zfs_dbuf_hash_dbuf_level_10 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_10
+# HELP node_zfs_dbuf_hash_dbuf_level_10 kstat.zfs.misc.dbufstats.hash_dbuf_level_10
 # TYPE node_zfs_dbuf_hash_dbuf_level_10 untyped
 node_zfs_dbuf_hash_dbuf_level_10 0
-# HELP node_zfs_dbuf_hash_dbuf_level_10_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_10_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_10_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_10_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_10_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_10_bytes 0
-# HELP node_zfs_dbuf_hash_dbuf_level_11 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_11
+# HELP node_zfs_dbuf_hash_dbuf_level_11 kstat.zfs.misc.dbufstats.hash_dbuf_level_11
 # TYPE node_zfs_dbuf_hash_dbuf_level_11 untyped
 node_zfs_dbuf_hash_dbuf_level_11 0
-# HELP node_zfs_dbuf_hash_dbuf_level_11_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_11_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_11_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_11_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_11_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_11_bytes 0
-# HELP node_zfs_dbuf_hash_dbuf_level_1_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_1_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_1_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_1_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_1_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_1_bytes 1.31072e+06
-# HELP node_zfs_dbuf_hash_dbuf_level_2 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_2
+# HELP node_zfs_dbuf_hash_dbuf_level_2 kstat.zfs.misc.dbufstats.hash_dbuf_level_2
 # TYPE node_zfs_dbuf_hash_dbuf_level_2 untyped
 node_zfs_dbuf_hash_dbuf_level_2 2
-# HELP node_zfs_dbuf_hash_dbuf_level_2_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_2_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_2_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_2_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_2_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_2_bytes 262144
-# HELP node_zfs_dbuf_hash_dbuf_level_3 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_3
+# HELP node_zfs_dbuf_hash_dbuf_level_3 kstat.zfs.misc.dbufstats.hash_dbuf_level_3
 # TYPE node_zfs_dbuf_hash_dbuf_level_3 untyped
 node_zfs_dbuf_hash_dbuf_level_3 2
-# HELP node_zfs_dbuf_hash_dbuf_level_3_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_3_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_3_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_3_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_3_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_3_bytes 262144
-# HELP node_zfs_dbuf_hash_dbuf_level_4 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_4
+# HELP node_zfs_dbuf_hash_dbuf_level_4 kstat.zfs.misc.dbufstats.hash_dbuf_level_4
 # TYPE node_zfs_dbuf_hash_dbuf_level_4 untyped
 node_zfs_dbuf_hash_dbuf_level_4 2
-# HELP node_zfs_dbuf_hash_dbuf_level_4_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_4_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_4_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_4_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_4_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_4_bytes 262144
-# HELP node_zfs_dbuf_hash_dbuf_level_5 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_5
+# HELP node_zfs_dbuf_hash_dbuf_level_5 kstat.zfs.misc.dbufstats.hash_dbuf_level_5
 # TYPE node_zfs_dbuf_hash_dbuf_level_5 untyped
 node_zfs_dbuf_hash_dbuf_level_5 2
-# HELP node_zfs_dbuf_hash_dbuf_level_5_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_5_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_5_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_5_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_5_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_5_bytes 262144
-# HELP node_zfs_dbuf_hash_dbuf_level_6 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_6
+# HELP node_zfs_dbuf_hash_dbuf_level_6 kstat.zfs.misc.dbufstats.hash_dbuf_level_6
 # TYPE node_zfs_dbuf_hash_dbuf_level_6 untyped
 node_zfs_dbuf_hash_dbuf_level_6 0
-# HELP node_zfs_dbuf_hash_dbuf_level_6_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_6_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_6_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_6_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_6_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_6_bytes 0
-# HELP node_zfs_dbuf_hash_dbuf_level_7 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_7
+# HELP node_zfs_dbuf_hash_dbuf_level_7 kstat.zfs.misc.dbufstats.hash_dbuf_level_7
 # TYPE node_zfs_dbuf_hash_dbuf_level_7 untyped
 node_zfs_dbuf_hash_dbuf_level_7 0
-# HELP node_zfs_dbuf_hash_dbuf_level_7_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_7_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_7_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_7_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_7_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_7_bytes 0
-# HELP node_zfs_dbuf_hash_dbuf_level_8 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_8
+# HELP node_zfs_dbuf_hash_dbuf_level_8 kstat.zfs.misc.dbufstats.hash_dbuf_level_8
 # TYPE node_zfs_dbuf_hash_dbuf_level_8 untyped
 node_zfs_dbuf_hash_dbuf_level_8 0
-# HELP node_zfs_dbuf_hash_dbuf_level_8_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_8_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_8_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_8_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_8_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_8_bytes 0
-# HELP node_zfs_dbuf_hash_dbuf_level_9 kstat.zfs.misc.dbuf_stats.hash_dbuf_level_9
+# HELP node_zfs_dbuf_hash_dbuf_level_9 kstat.zfs.misc.dbufstats.hash_dbuf_level_9
 # TYPE node_zfs_dbuf_hash_dbuf_level_9 untyped
 node_zfs_dbuf_hash_dbuf_level_9 0
-# HELP node_zfs_dbuf_hash_dbuf_level_9_bytes kstat.zfs.misc.dbuf_stats.hash_dbuf_level_9_bytes
+# HELP node_zfs_dbuf_hash_dbuf_level_9_bytes kstat.zfs.misc.dbufstats.hash_dbuf_level_9_bytes
 # TYPE node_zfs_dbuf_hash_dbuf_level_9_bytes untyped
 node_zfs_dbuf_hash_dbuf_level_9_bytes 0
-# HELP node_zfs_dbuf_hash_elements kstat.zfs.misc.dbuf_stats.hash_elements
+# HELP node_zfs_dbuf_hash_elements kstat.zfs.misc.dbufstats.hash_elements
 # TYPE node_zfs_dbuf_hash_elements untyped
 node_zfs_dbuf_hash_elements 55
-# HELP node_zfs_dbuf_hash_elements_max kstat.zfs.misc.dbuf_stats.hash_elements_max
+# HELP node_zfs_dbuf_hash_elements_max kstat.zfs.misc.dbufstats.hash_elements_max
 # TYPE node_zfs_dbuf_hash_elements_max untyped
 node_zfs_dbuf_hash_elements_max 55
-# HELP node_zfs_dbuf_hash_hits kstat.zfs.misc.dbuf_stats.hash_hits
+# HELP node_zfs_dbuf_hash_hits kstat.zfs.misc.dbufstats.hash_hits
 # TYPE node_zfs_dbuf_hash_hits untyped
 node_zfs_dbuf_hash_hits 108807
-# HELP node_zfs_dbuf_hash_insert_race kstat.zfs.misc.dbuf_stats.hash_insert_race
+# HELP node_zfs_dbuf_hash_insert_race kstat.zfs.misc.dbufstats.hash_insert_race
 # TYPE node_zfs_dbuf_hash_insert_race untyped
 node_zfs_dbuf_hash_insert_race 0
-# HELP node_zfs_dbuf_hash_misses kstat.zfs.misc.dbuf_stats.hash_misses
+# HELP node_zfs_dbuf_hash_misses kstat.zfs.misc.dbufstats.hash_misses
 # TYPE node_zfs_dbuf_hash_misses untyped
 node_zfs_dbuf_hash_misses 1851
 # HELP node_zfs_dmu_tx_dmu_tx_assigned kstat.zfs.misc.dmu_tx.dmu_tx_assigned

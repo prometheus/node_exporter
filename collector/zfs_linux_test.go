@@ -391,7 +391,7 @@ func TestAbdstatsParsing(t *testing.T) {
 }
 
 func TestDbufstatsParsing(t *testing.T) {
-	dbufstatsFile, err := os.Open("fixtures/proc/spl/kstat/zfs/dbuf_stats")
+	dbufstatsFile, err := os.Open("fixtures/proc/spl/kstat/zfs/dbufstats")
 	if err != nil {
 		t.Fatal(err)
 	}
