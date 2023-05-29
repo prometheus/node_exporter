@@ -179,6 +179,14 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 		return err
 	}
 
+	if c.hwmonIncludePattern.MatchString(hwmonName) && !c.hwmonExcludePattern.MatchString(hwmonName) {
+    level.Debug(c.logger).Log("msg", "Adding device", "device", hwmonName)
+		return nil
+  } else {
+    level.Debug(c.logger).Log("msg", "Ignoring device", "device", hwmonName)
+		return err
+  }
+
 	data := make(map[string]map[string]string)
 	err = collectSensorData(dir, data)
 	if err != nil {
