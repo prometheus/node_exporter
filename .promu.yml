@@ -21,4 +21,5 @@ tarball:
 crossbuild:
     platforms:
         - linux
+        - linux/riscv64
         - openbsd/amd64
