@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.3.2
-	github.com/beevik/ntp v0.3.0
+	github.com/beevik/ntp v1.0.0
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/dennwc/btrfs v0.0.0-20230312211831-a1f570bd01a1
 	github.com/ema/qdisc v0.0.0-20230120214811-5b708f463de3
