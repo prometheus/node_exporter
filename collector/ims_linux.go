@@ -42,7 +42,7 @@ func init() {
 func NewImsCollector(logger log.Logger) (Collector, error) {
 	level.Info(logger).Log("msg", "Parsed flag --collector.ims.provider", "flag", *provider)
 
-	description := "A metric with a constant '1' value labeld by"
+	description := "A metric with a constant '1' value labelled by"
 	buildFqdn := prometheus.BuildFQName(namespace, "ims", "info")
 
 	switch *provider {

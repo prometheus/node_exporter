@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/go-kit/log"
@@ -49,6 +50,8 @@ func NewAzureInstanceMetadataCollector(description string, fqdn string, logger l
 	for k := range mapping {
 		labels = append(labels, k)
 	}
+
+	sort.Strings(labels)
 
 	infoDesc := prometheus.NewDesc(
 		fqdn,
