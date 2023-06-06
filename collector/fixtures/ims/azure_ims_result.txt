@@ -1,0 +1,3 @@
+# HELP node_ims_info A metric with a constant '1' value labeld by: vm_sku, vm_zone, provider, location .
+# TYPE node_ims_info gauge
+node_ims_info{location="westus",provider="Microsoft.Compute",vm_sku="Standard_A3",vm_zone="1"} 1
