@@ -28,14 +28,14 @@ var (
 	provider = kingpin.Flag(
 		"collector.ims.provider",
 		"Name of the cloud provider to select instance meta service (azure)",
-	).Default("disabled").String()
+	).String()
 )
 
 type disabledInstanceMetadataCollector struct {
 }
 
 func init() {
-	registerCollector("ims", defaultEnabled, NewImsCollector)
+	registerCollector("ims", defaultDisabled, NewImsCollector)
 }
 
 // NewImsCollector returna a new Collector exposing instance metadata services information.
@@ -48,9 +48,9 @@ func NewImsCollector(logger log.Logger) (Collector, error) {
 	switch *provider {
 	case azureProvider:
 		return NewAzureInstanceMetadataCollector(description, buildFqdn, logger), nil
-	default:
-		return &disabledInstanceMetadataCollector{}, nil
 	}
+
+	return &disabledInstanceMetadataCollector{}, nil
 }
 
 // Default instance metadata collector, do nothing if collector is not configured.

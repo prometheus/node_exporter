@@ -2896,7 +2896,6 @@ node_scrape_collector_success{collector="entropy"} 1
 node_scrape_collector_success{collector="fibrechannel"} 1
 node_scrape_collector_success{collector="filefd"} 1
 node_scrape_collector_success{collector="hwmon"} 1
-node_scrape_collector_success{collector="ims"} 1
 node_scrape_collector_success{collector="infiniband"} 1
 node_scrape_collector_success{collector="interrupts"} 1
 node_scrape_collector_success{collector="ipvs"} 1
