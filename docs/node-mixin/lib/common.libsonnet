@@ -202,12 +202,12 @@ local nodeTimeseries = nodePanels.timeseries;
       // used in fleet table
       instanceDataLinkForTable:: {
         title: 'Drill down to instance ${__data.fields.%s}' % std.split(config.instanceLabels, ',')[0],
-        url: 'd/' + config.grafanaDashboardIDs['nodes.json'] + '?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__data.fields.') + '&${__url_time_range}',
+        url: 'd/' + config.grafanaDashboardIDs['nodes.json'] + '?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__data.fields.') + '&${__url_time_range}&var-datasource=${datasource}',
       },
       // used in ts panels
       instanceDataLink:: {
         title: 'Drill down to instance ${__field.labels.%s}' % std.split(config.instanceLabels, ',')[0],
-        url: 'd/' + config.grafanaDashboardIDs['nodes.json'] + '?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__field.labels.') + '&${__url_time_range}',
+        url: 'd/' + config.grafanaDashboardIDs['nodes.json'] + '?' + labelsToURLvars(std.split(config.instanceLabels, ','), prefix='__field.labels.') + '&${__url_time_range}&var-datasource=${datasource}',
       },
     },
     // return common queries that could be used in multiple dashboards
