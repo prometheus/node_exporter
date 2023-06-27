@@ -17,10 +17,15 @@
 package collector
 
 import (
+	"bufio"
 	"fmt"
-	"golang.org/x/sys/unix"
 	"net"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+
+	"golang.org/x/sys/unix"
 
 	"github.com/go-kit/log"
 	"github.com/jsimonetti/rtnetlink"
@@ -43,7 +48,7 @@ func NewNetworkRouteCollector(logger log.Logger) (Collector, error) {
 
 	routeInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "route_info"),
-		"network routing table information", []string{"device", "src", "dest", "gw", "priority", "proto", "weight"}, nil,
+		"network routing table information", []string{"device", "src", "dest", "gw", "priority", "proto", "weight", "table", "type"}, nil,
 	)
 	routesDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "routes"),
@@ -76,15 +81,56 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get routes: %w", err)
 	}
 
+	routeTableIDName, err := routeTableIDToString()
+	if err != nil {
+		return fmt.Errorf("couldn't get route table names: %w", err)
+	}
+
 	for _, route := range routes {
-		if route.Type != unix.RTA_DST {
-			continue
+		if route.Type == unix.RTN_BLACKHOLE || route.Type == unix.RTN_UNREACHABLE {
+			labels := []string{
+				"", // if
+				networkRouteIPToString(route.Attributes.Src),                            // src
+				networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
+				"", // gw
+				strconv.FormatUint(uint64(route.Attributes.Priority), 10), // priority(metrics)
+				networkRouteProtocolToString(route.Protocol),              // proto
+				"", // weight
+				routeTableNameFromID(routeTableIDName, int(route.Attributes.Table)), // table
+				routeTypeToString(route.Type),                                       // type
+			}
+			ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
 		}
-		if len(route.Attributes.Multipath) != 0 {
-			for _, nextHop := range route.Attributes.Multipath {
+
+		if route.Type == unix.RTN_UNICAST {
+			if len(route.Attributes.Multipath) != 0 {
+				for _, nextHop := range route.Attributes.Multipath {
+					ifName := ""
+					for _, link := range links {
+						if link.Index == nextHop.Hop.IfIndex {
+							ifName = link.Attributes.Name
+							break
+						}
+					}
+
+					labels := []string{
+						ifName, // if
+						networkRouteIPToString(route.Attributes.Src),                            // src
+						networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
+						networkRouteIPToString(nextHop.Gateway),                                 // gw
+						strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
+						networkRouteProtocolToString(route.Protocol),                            // proto
+						strconv.Itoa(int(nextHop.Hop.Hops) + 1),                                 // weight
+						routeTableNameFromID(routeTableIDName, int(route.Attributes.Table)),     // table
+						routeTypeToString(route.Type),                                           // type
+					}
+					ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
+					deviceRoutes[ifName]++
+				}
+			} else {
 				ifName := ""
 				for _, link := range links {
-					if link.Index == nextHop.Hop.IfIndex {
+					if link.Index == route.Attributes.OutIface {
 						ifName = link.Attributes.Name
 						break
 					}
@@ -94,34 +140,16 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 					ifName, // if
 					networkRouteIPToString(route.Attributes.Src),                            // src
 					networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
-					networkRouteIPToString(nextHop.Gateway),                                 // gw
+					networkRouteIPToString(route.Attributes.Gateway),                        // gw
 					strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
 					networkRouteProtocolToString(route.Protocol),                            // proto
-					strconv.Itoa(int(nextHop.Hop.Hops) + 1),                                 // weight
+					"", // weight
+					routeTableNameFromID(routeTableIDName, int(route.Attributes.Table)), // table
+					routeTypeToString(route.Type),                                       // type
 				}
 				ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
 				deviceRoutes[ifName]++
 			}
-		} else {
-			ifName := ""
-			for _, link := range links {
-				if link.Index == route.Attributes.OutIface {
-					ifName = link.Attributes.Name
-					break
-				}
-			}
-
-			labels := []string{
-				ifName, // if
-				networkRouteIPToString(route.Attributes.Src),                            // src
-				networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
-				networkRouteIPToString(route.Attributes.Gateway),                        // gw
-				strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
-				networkRouteProtocolToString(route.Protocol),                            // proto
-				"", // weight
-			}
-			ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
-			deviceRoutes[ifName]++
 		}
 	}
 
@@ -200,5 +228,90 @@ func networkRouteProtocolToString(protocol uint8) string {
 	case 192:
 		return "eigrp"
 	}
+	return "unknown"
+}
+
+func routeTableIDToString() (map[int]string, error) {
+	routeTableName := make(map[int]string)
+	// Paths are optional and do not have to exist
+	rt_tablesConfigFile := "/etc/iproute2/rt_tables"
+	rt_tablesConfigDir := "/etc/iproute2/rt_tables.d"
+
+	rt_tableConfigPaths := make([]string, 0)
+
+	fileInfo, err := os.Stat(rt_tablesConfigFile)
+	if err == nil {
+		if !fileInfo.IsDir() {
+			rt_tableConfigPaths = append(rt_tableConfigPaths, rt_tablesConfigFile)
+		}
+	}
+
+	files, err := os.ReadDir(rt_tablesConfigDir)
+	if err == nil {
+		for _, file := range files {
+			// iproute2 processes all files ending in '.conf'
+			if filepath.Ext(file.Name()) == ".conf" {
+				if !file.IsDir() {
+					rt_tableConfigPaths = append(rt_tableConfigPaths, filepath.Join(rt_tablesConfigDir, file.Name()))
+				}
+			}
+		}
+	}
+
+	for _, configPath := range rt_tableConfigPaths {
+		f, err := os.Open(configPath)
+		if err != nil {
+			return nil, fmt.Errorf("could not open %s", configPath)
+		}
+		defer f.Close()
+
+		scanner := bufio.NewScanner(f)
+
+		for scanner.Scan() {
+			if strings.HasPrefix(scanner.Text(), "#") {
+				continue
+			}
+
+			// Split each line into <table id, table name> pairs
+			// Try tab as a delimiter first, then space
+			config := strings.Split(scanner.Text(), "\t")
+			if len(config) != 2 {
+				config = strings.Split(scanner.Text(), " ")
+			}
+			if len(config) == 2 {
+				tableID, err := strconv.Atoi(config[0])
+				if err != nil {
+					return nil, fmt.Errorf("invalid rt_tables config in %s", configPath)
+				}
+				tableName := config[1]
+				routeTableName[tableID] = tableName
+			}
+		}
+	}
+
+	return routeTableName, nil
+}
+
+func routeTableNameFromID(routeTableIDName map[int]string, routeTableID int) string {
+	// If no table name is defined, simply use the ID
+	name, ok := routeTableIDName[routeTableID]
+	if ok {
+		return name
+	} else {
+		return strconv.Itoa(routeTableID)
+	}
+}
+
+func routeTypeToString(routeType uint8) string {
+	// Subset of possible types defined on https://man7.org/linux/man-pages/man7/rtnetlink.7.html
+	switch routeType {
+	case unix.RTN_BLACKHOLE:
+		return "blackhole"
+	case unix.RTN_UNREACHABLE:
+		return "unreachable"
+	case unix.RTN_UNICAST:
+		return "unicast"
+	}
+
 	return "unknown"
 }
