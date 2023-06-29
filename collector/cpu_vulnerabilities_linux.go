@@ -32,47 +32,34 @@ var (
 		[]string{"codename", "state"},
 		nil,
 	)
-	totalCountDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuVulerabilitiesCollector, "total"),
-		"Total number of reported vulnerabilities",
-		nil,
-		nil,
-	)
 )
 
-type cpuVulnerabilitiesCollector struct {
-	vulnerabilities map[string]*sysfs.Vulnerability
-	total           float64
-}
+type cpuVulnerabilitiesCollector struct{}
 
 func init() {
 	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, NewVulnerabilitySysfsCollector)
 }
 
 func NewVulnerabilitySysfsCollector(logger log.Logger) (Collector, error) {
+	return &cpuVulnerabilitiesCollector{}, nil
+}
+
+func (v *cpuVulnerabilitiesCollector) Update(ch chan<- prometheus.Metric) error {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+		return fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	vulnerabilities, err := fs.CPUVulnerabilities()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get vulnerabilities: %w", err)
+		return fmt.Errorf("failed to get vulnerabilities: %w", err)
 	}
 
-	return &cpuVulnerabilitiesCollector{
-		vulnerabilities: vulnerabilities,
-		total:           float64(len(vulnerabilities)), // this assumes the number of cpu vulnerabilities doesn't change during the lifetime of the node_exporter process
-	}, nil
-}
-
-func (v *cpuVulnerabilitiesCollector) Update(ch chan<- prometheus.Metric) error {
-	ch <- prometheus.MustNewConstMetric(totalCountDesc, prometheus.CounterValue, v.total)
-	for _, vulnerability := range v.vulnerabilities {
+	for _, vulnerability := range vulnerabilities {
 		ch <- prometheus.MustNewConstMetric(
 			vulnerabilityDesc,
 			prometheus.GaugeValue,
-			float64(vulnerability.State),
+			1.0,
 			vulnerability.CodeName,
 			sysfs.VulnerabilityHumanEncoding[vulnerability.State],
 		)
