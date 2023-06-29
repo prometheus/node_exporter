@@ -53,7 +53,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '15m',
+            'for': '30m',
             labels: {
               severity: 'warning',
             },
@@ -71,7 +71,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '15m',
+            'for': '30m',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
@@ -129,7 +129,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '15m',
+            'for': '1h',
             labels: {
               severity: 'warning',
             },
@@ -147,7 +147,7 @@
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
             ||| % $._config,
-            'for': '15m',
+            'for': '1h',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
@@ -161,7 +161,7 @@
             expr: |||
               rate(node_network_receive_errs_total{%(nodeExporterSelector)s}[2m]) / rate(node_network_receive_packets_total{%(nodeExporterSelector)s}[2m]) > 0.01
             ||| % $._config,
-            'for': '15m',
+            'for': '1h',
             labels: {
               severity: 'warning',
             },
@@ -175,7 +175,7 @@
             expr: |||
               rate(node_network_transmit_errs_total{%(nodeExporterSelector)s}[2m]) / rate(node_network_transmit_packets_total{%(nodeExporterSelector)s}[2m]) > 0.01
             ||| % $._config,
-            'for': '15m',
+            'for': '1h',
             labels: {
               severity: 'warning',
             },
