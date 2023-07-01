@@ -28,13 +28,6 @@ jobs:
       - checkout
       - run: uname -a
       - run: make test-e2e
-  codespell:
-    docker:
-      - image: circleci/python
-    steps:
-      - checkout
-      - run: sudo pip install codespell
-      - run: codespell --skip=".git,./vendor,ttar,go.mod,go.sum,*pem,./collector/fixtures" -I scripts/codespell_ignore.txt
   test_mixins:
     executor: golang
     steps:
@@ -102,10 +95,6 @@ workflows:
             tags:
               only: /.*/
       - build:
-          filters:
-            tags:
-              only: /.*/
-      - codespell:
           filters:
             tags:
               only: /.*/
