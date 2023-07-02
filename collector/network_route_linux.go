@@ -87,69 +87,64 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, route := range routes {
-		if route.Type == unix.RTN_BLACKHOLE || route.Type == unix.RTN_UNREACHABLE {
+		var ifName, weight, gateway string
+
+		switch route.Type {
+
+		case unix.RTN_BLACKHOLE, unix.RTN_UNREACHABLE:
 			labels := []string{
-				"", // if
+				ifName, // if
 				networkRouteIPToString(route.Attributes.Src),                            // src
 				networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
-				"", // gw
+				gateway, // gw
 				strconv.FormatUint(uint64(route.Attributes.Priority), 10), // priority(metrics)
 				networkRouteProtocolToString(route.Protocol),              // proto
-				"", // weight
+				weight, // weight
 				routeTableNameFromID(routeTableIDName, int(route.Attributes.Table)), // table
 				routeTypeToString(route.Type),                                       // type
 			}
 			ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
-		}
 
-		if route.Type == unix.RTN_UNICAST {
-			if len(route.Attributes.Multipath) != 0 {
+		case unix.RTN_UNICAST:
+			// Unicast route with multiple next-hops
+			if len(route.Attributes.Multipath) > 0 {
 				for _, nextHop := range route.Attributes.Multipath {
-					ifName := ""
+					ifName = ""
 					for _, link := range links {
 						if link.Index == nextHop.Hop.IfIndex {
 							ifName = link.Attributes.Name
 							break
 						}
 					}
-
-					labels := []string{
-						ifName, // if
-						networkRouteIPToString(route.Attributes.Src),                            // src
-						networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
-						networkRouteIPToString(nextHop.Gateway),                                 // gw
-						strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
-						networkRouteProtocolToString(route.Protocol),                            // proto
-						strconv.Itoa(int(nextHop.Hop.Hops) + 1),                                 // weight
-						routeTableNameFromID(routeTableIDName, int(route.Attributes.Table)),     // table
-						routeTypeToString(route.Type),                                           // type
-					}
-					ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
-					deviceRoutes[ifName]++
+					weight = strconv.Itoa(int(nextHop.Hop.Hops) + 1)
+					gateway = networkRouteIPToString(nextHop.Gateway)
 				}
-			} else {
-				ifName := ""
+			}
+
+			// Unicast routes with a single next-hop
+			if len(route.Attributes.Multipath) == 0 {
 				for _, link := range links {
 					if link.Index == route.Attributes.OutIface {
 						ifName = link.Attributes.Name
 						break
 					}
 				}
-
-				labels := []string{
-					ifName, // if
-					networkRouteIPToString(route.Attributes.Src),                            // src
-					networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
-					networkRouteIPToString(route.Attributes.Gateway),                        // gw
-					strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
-					networkRouteProtocolToString(route.Protocol),                            // proto
-					"", // weight
-					routeTableNameFromID(routeTableIDName, int(route.Attributes.Table)), // table
-					routeTypeToString(route.Type),                                       // type
-				}
-				ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
-				deviceRoutes[ifName]++
+				gateway = networkRouteIPToString(route.Attributes.Gateway)
 			}
+
+			labels := []string{
+				ifName, // if
+				networkRouteIPToString(route.Attributes.Src),                            // src
+				networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
+				gateway, // gw
+				strconv.FormatUint(uint64(route.Attributes.Priority), 10), // priority(metrics)
+				networkRouteProtocolToString(route.Protocol),              // proto
+				weight, // weight
+				routeTableNameFromID(routeTableIDName, int(route.Attributes.Table)), // table
+				routeTypeToString(route.Type),                                       // type
+			}
+			ch <- prometheus.MustNewConstMetric(n.routeInfoDesc, prometheus.GaugeValue, 1, labels...)
+			deviceRoutes[ifName]++
 		}
 	}
 
