@@ -1,0 +1,58 @@
+---
+exclusions:
+  template-datasource-rule:
+    reason: using the not yet implemented new convention for dashboards with Loki and Prometheus datasources.
+  panel-datasource-rule:
+    reason: using the not yet implemented new convention for dashboards with Loki and Prometheus datasources.
+  target-job-rule:
+    reason: Job is hardcoded by the mixin.
+    entries:
+    - dashboard: Node Exporter / USE Method / Node
+    - dashboard: Node Exporter / Nodes
+    - dashboard: Node Exporter / MacOS
+    - dashboard: Node Exporter / USE Method / Multi-cluster
+    - dashboard: Node Exporter / USE Method / Cluster
+  template-job-rule:
+    reason: Job is hardcoded by the mixin.
+    entries:
+    - dashboard: Node Exporter / USE Method / Node
+    - dashboard: Node Exporter / Nodes
+    - dashboard: Node Exporter / MacOS
+    - dashboard: Node Exporter / USE Method / Multi-cluster
+    - dashboard: Node Exporter / USE Method / Cluster
+  target-instance-rule:
+    entries:
+    - dashboard: Node Exporter / USE Method / Multi-cluster
+      reason: Instances are aggregated for all clusters
+    - dashboard: Node Exporter / USE Method / Cluster
+      reason: Instances are aggregated for the whole cluster
+    - dashboard: Node Exporter / USE Method / Node
+      reason: Dashboard only allows selecting a single instance at a time.
+    - dashboard: Node Exporter / Nodes
+      reason: Dashboard only allows selecting a single instance at a time.
+    - dashboard: Node Exporter / MacOS
+      reason: Dashboard only allows selecting a single instance at a time.
+  template-instance-rule:
+    entries:
+    - dashboard: Node Exporter / USE Method / Multi-cluster
+      reason: Instances are aggregated for all clusters
+    - dashboard: Node Exporter / USE Method / Cluster
+      reason: Instances are aggregated for the whole cluster
+    - dashboard: Node Exporter / Nodes
+      reason: Dashboard only allows selecting a single instance at a time.
+    - dashboard: Node Exporter / MacOS
+      reason: Ignoring mislabeling of instance template
+    - dashboard: Node Exporter / USE Method / Node
+      reason: Ignoring mislabeling of instance template
+  panel-units-rule:
+    entries:
+    - dashboard: Node Exporter / Nodes
+      reason: Units are indeed set for all but load average (which doesn't have a reasonable unit), but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
+    - dashboard: Node Exporter / MacOS
+      reason: Units are indeed set for all but load average (which doesn't have a reasonable unit), but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
+    - dashboard: Node Exporter / USE Method / Cluster
+      reason: Units are indeed set, but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
+    - dashboard: Node Exporter / USE Method / Multi-cluster
+      reason: Units are indeed set, but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.
+    - dashboard: Node Exporter / USE Method / Node
+      reason: Units are indeed set, but in the yaxis "format" property rather than in field config. The dashboard linter needs to be patched accordingly.

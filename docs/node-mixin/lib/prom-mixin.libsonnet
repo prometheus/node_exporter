@@ -47,6 +47,7 @@ local table = grafana70.panel.table;
     local idleCPU =
       graphPanel.new(
         'CPU Usage',
+        description='Total CPU utilisation percent.',
         datasource='$datasource',
         span=6,
         format='percentunit',
@@ -69,6 +70,7 @@ local table = grafana70.panel.table;
     local systemLoad =
       graphPanel.new(
         'Load Average',
+        description='System load average over the previous 1, 5, and 15 minute ranges. A measurement of how many processes are waiting for CPU cycles. The maximum number is the number of CPU cores for the node.',
         datasource='$datasource',
         span=6,
         format='short',
@@ -83,6 +85,7 @@ local table = grafana70.panel.table;
     local memoryGraphPanelPrototype =
       graphPanel.new(
         'Memory Usage',
+        description='Memory usage by category, measured in bytes.',
         datasource='$datasource',
         span=9,
         format='bytes',
@@ -137,6 +140,7 @@ local table = grafana70.panel.table;
     local memoryGaugePanelPrototype =
       gaugePanel.new(
         title='Memory Usage',
+        description='Total memory utilisation by category, in bytes.',
         datasource='$datasource',
       )
       .addThresholdStep('rgba(50, 172, 45, 0.97)')
@@ -183,6 +187,7 @@ local table = grafana70.panel.table;
     local diskIO =
       graphPanel.new(
         'Disk I/O',
+        description='Disk read/writes in bytes, and total IO seconds.',
         datasource='$datasource',
         span=6,
         min=0,
@@ -224,6 +229,7 @@ local table = grafana70.panel.table;
     local diskSpaceUsage =
       table.new(
         title='Disk Space Usage',
+        description='Disk utilisation in percent, by mountpoint. Some duplication can occur if the same filesystem is mounted in multiple locations.',
         datasource='$datasource',
       )
       .setFieldConfig(unit='decbytes')
