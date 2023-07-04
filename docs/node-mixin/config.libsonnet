@@ -43,6 +43,13 @@
     // just a warning for K8s nodes.
     nodeCriticalSeverity: 'critical',
 
+    // CPU utilization (%) on which to trigger the
+    // 'NodeCPUHighUsage' alert.
+    cpuHighUsageThreshold: 90,
+    // Load average 1m (per core) on which to trigger the
+    // 'NodeSystemSaturation' alert.
+    systemSaturationPerCoreThreshold: 2,
+
     // Available disk space (%) thresholds on which to trigger the
     // 'NodeFilesystemSpaceFillingUp' alerts. These alerts fire if the disk
     // usage grows in a way that it is predicted to run out in 4h or 1d
@@ -59,6 +66,18 @@
     // 'NodeFilesystemAlmostOutOfSpace' alerts.
     fsSpaceAvailableWarningThreshold: 5,
     fsSpaceAvailableCriticalThreshold: 3,
+
+    // Memory utilzation (%) level on which to trigger the
+    // 'NodeMemoryHighUtilization' alert.
+    memoryHighUtilizationThreshold: 90,
+
+    // Threshold for the rate of memory major page faults to trigger
+    // 'NodeMemoryMajorPagesFaults' alert.
+    memoryMajorPagesFaultsThreshold: 500,
+
+    // Disk IO queue level above which to trigger
+    // 'NodeDiskIOSaturation' alert.
+    diskIOSaturationThreshold: 10,
 
     rateInterval: '5m',
     // Opt-in for multi-cluster support.
