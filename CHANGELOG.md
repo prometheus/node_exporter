@@ -130,9 +130,9 @@ NOTE: In order to support globs in the textfile collector path, filenames expose
 * [ENHANCEMENT] Add flag to disable guest CPU metrics #2123
 * [ENHANCEMENT] Add DMI collector #2131
 * [ENHANCEMENT] Add threads metrics to processes collector #2164
-* [ENHANCMMENT] Reduce timer GC delays in the Linux filesystem collector #2169
-* [ENHANCMMENT] Add TCPTimeouts to netstat default filter #2189
-* [ENHANCMMENT] Use SysctlTimeval for boottime collector on BSD #2208
+* [ENHANCEMENT] Reduce timer GC delays in the Linux filesystem collector #2169
+* [ENHANCEMENT] Add TCPTimeouts to netstat default filter #2189
+* [ENHANCEMENT] Use SysctlTimeval for boottime collector on BSD #2208
 * [BUGFIX] ethtool: Sanitize metric names #2093
 * [BUGFIX] Fix ethtool collector for multiple interfaces #2126
 * [BUGFIX] Fix possible panic on macOS #2133
@@ -462,7 +462,7 @@ Other breaking changes:
 **Breaking changes**
 
 This release contains major breaking changes to flag handling.
-* The flag library has been changed, all flags now require double-dashs. (`-foo` becomes `--foo`).
+* The flag library has been changed, all flags now require double-dashes. (`-foo` becomes `--foo`).
 * The collector selection flag has been replaced by individual boolean flags.
 * The `-collector.procfs` and `-collector.sysfs` flags have been renamed to `--path.procfs` and `--path.sysfs` respectively.
 
