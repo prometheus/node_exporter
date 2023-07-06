@@ -18,7 +18,6 @@ package collector
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -33,8 +32,8 @@ import (
 )
 
 var (
-	collectorHWmonUnitInclude = kingpin.Flag("collector.hwmon.unit-include", "Regexp of hwmon devices to include (mutually exclusive to device-exclude).").String()
-	collectorHWmonUnitExclude = kingpin.Flag("collector.hwmon.unit-exclude", "Regexp of hwmon devices to exclude (mutually exclusive to device-include).").String()
+	collectorHWmonChipInclude = kingpin.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
+	collectorHWmonChipExclude = kingpin.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
 
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
@@ -62,7 +61,7 @@ func NewHwMonCollector(logger log.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorHWmonUnitExclude, *collectorHWmonUnitExclude),
+		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipExclude),
 	}, nil
 }
 
