@@ -36,7 +36,11 @@ const (
 )
 
 var (
-	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$").String()
+	envNetstatMetrics = os.Getenv("NETSTAT_METRICS")
+	netstatMetricsList = strings.Split(envNetstatMetrics, ",")
+	regexpPattern = "^(" + strings.Join(netstatMetricsList, "|") + ")$"
+
+	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default(regexpPattern).String()
 )
 
 type netStatCollector struct {
