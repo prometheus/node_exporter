@@ -18,7 +18,6 @@ package collector
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
