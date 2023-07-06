@@ -33,16 +33,8 @@ import (
 )
 
 var (
-	hwmonIncludeSet bool
-	hwmonInclude    = kingpin.Flag("collector.hwmon.unit-include", "Regexp of hwmon units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
-		hwmonIncludeSet = true
-		return nil
-	}).String()
-	hwmonExcludeSet bool
-	hwmonExclude    = kingpin.Flag("collector.hwmon.unit-exclude", "Regexp of hwmon units to exclude. Units must both match include and not match exclude to be included.").Default("").PreAction(func(c *kingpin.ParseContext) error {
-		hwmonExcludeSet = true
-		return nil
-	}).String()
+	collectorHWmonUnitInclude = kingpin.Flag("collector.hwmon.unit-include", "Regexp of hwmon devices to include (mutually exclusive to device-exclude).").String()
+	collectorHWmonUnitExclude = kingpin.Flag("collector.hwmon.unit-exclude", "Regexp of hwmon devices to exclude (mutually exclusive to device-include).").String()
 
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
@@ -60,24 +52,17 @@ func init() {
 }
 
 type hwMonCollector struct {
-	hwmonIncludePattern *regexp.Regexp
-	hwmonExcludePattern *regexp.Regexp
-	logger              log.Logger
+	deviceFilter deviceFilter
+	logger       log.Logger
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
 func NewHwMonCollector(logger log.Logger) (Collector, error) {
 
-	level.Info(logger).Log("msg", "Parsed flag --collector.hwmon.unit-include", "flag", *hwmonInclude)
-	hwmonIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *hwmonInclude))
-	level.Info(logger).Log("msg", "Parsed flag --collector.hwmon.unit-exclude", "flag", *hwmonExclude)
-	hwmonExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *hwmonExclude))
-
 	return &hwMonCollector{
-		hwmonIncludePattern: hwmonIncludePattern,
-		hwmonExcludePattern: hwmonExcludePattern,
-		logger:              logger,
+		logger:       logger,
+		deviceFilter: newDeviceFilter(*collectorHWmonUnitExclude, *collectorHWmonUnitExclude),
 	}, nil
 }
 
