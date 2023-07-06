@@ -163,6 +163,10 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 		return err
 	}
 
+	if c.deviceFilter.ignored(hwmonName) {
+		return nil
+	}
+
 	data := make(map[string]map[string]string)
 	err = collectSensorData(dir, data)
 	if err != nil {
