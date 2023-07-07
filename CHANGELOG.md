@@ -2,6 +2,7 @@
 
 * [CHANGE]
 * [FEATURE]
+* [ENHANCEMENT] Add include and exclude filter for hwmon collector #2699
 * [ENHANCEMENT]
 * [BUGFIX]
 
