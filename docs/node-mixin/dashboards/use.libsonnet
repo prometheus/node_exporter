@@ -37,7 +37,7 @@ local CPUSaturation =
   // average relates to the "CPU saturation" in the title.
   graphPanel.new(
     'CPU Saturation (Load1 per CPU)',
-    description='System load average over the last minute. A measurement of how many processes are waiting for CPU cycles. The maximum number is the number of CPU cores for the node.',
+    description='System load average over the last minute. A measurement of how many processes are waiting for CPU cycles. The value is as a percent compared to the number of CPU cores for the node.',
     datasource='$datasource',
     span=6,
     format='percentunit',
@@ -49,7 +49,7 @@ local CPUSaturation =
 local memoryUtilisation =
   graphPanel.new(
     'Memory Utilisation',
-    description='Total memory utilisation in bytes.',
+    description='Total memory utilisation in percent.',
     datasource='$datasource',
     span=6,
     format='percentunit',
