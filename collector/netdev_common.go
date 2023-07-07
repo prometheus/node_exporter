@@ -20,6 +20,8 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 	"net"
 	"strconv"
 	"sync"
@@ -118,9 +120,20 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 		if !*netdevDetailedMetrics {
 			legacy(devStats)
 		}
+
+		// Get the allowed metrics from environment variable
+		allowedMetricsEnv := os.Getenv("NETDEV_METRICS")
+		allowedMetricsSlice := strings.Split(allowedMetricsEnv, ",")
+		allowedMetrics := make(map[string]bool)
+		for _, metric := range allowedMetricsSlice {
+			allowedMetrics[metric] = true
+		}
+		
 		for key, value := range devStats {
-			desc := c.metricDesc(key)
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
+			if _, ok := allowedMetrics[key]; ok {
+				desc := c.metricDesc(key)
+				ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
+			}
 		}
 	}
 	if *netdevAddressInfo {
