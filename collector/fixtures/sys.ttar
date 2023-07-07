@@ -356,6 +356,9 @@ Lines: 1
 100000
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon5
+SymlinkTo: ../../devices/platform/bogus.0/hwmon/hwmon5/
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/infiniband
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2671,6 +2674,45 @@ Path: sys/devices/platform/applesmc.768/name
 Lines: 1
 applesmc
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/bogus.0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/bogus.0/hwmon
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/bogus.0/hwmon/hwmon5
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/bogus.0/hwmon/hwmon5/bogus1_crit
+Lines: 1
+100000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/bogus.0/hwmon/hwmon5/bogus1_crit_alarm
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/bogus.0/hwmon/hwmon5/bogus1_input
+Lines: 1
+55000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/bogus.0/hwmon/hwmon5/bogus1_label
+Lines: 1
+Physical id 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/bogus.0/hwmon/hwmon5/bogus1_max
+Lines: 1
+84000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/bogus.0/hwmon/hwmon5/name
+Lines: 1
+bogus
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/platform/coretemp.0
 Mode: 755

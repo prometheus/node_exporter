@@ -132,6 +132,7 @@ fi
   --collector.qdisc.fixtures="collector/fixtures/qdisc/" \
   --collector.qdisk.device-include="(wlan0|eth0)" \
   --collector.arp.device-exclude="nope" \
+  --collector.hwmon.chip-include="(applesmc|coretemp|hwmon4|nct6779)" \
   --collector.netclass.ignored-devices="(dmz|int)" \
   --collector.netclass.ignore-invalid-speed \
   --collector.netdev.device-include="lo" \

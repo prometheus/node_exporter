@@ -61,7 +61,7 @@ func NewHwMonCollector(logger log.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipExclude),
+		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipInclude),
 	}, nil
 }
 
@@ -164,6 +164,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 	}
 
 	if c.deviceFilter.ignored(hwmonName) {
+		level.Debug(c.logger).Log("msg", "ignoring hwmon chip", "chip", hwmonName)
 		return nil
 	}
 
