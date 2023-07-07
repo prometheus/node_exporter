@@ -402,6 +402,13 @@ node_cpu_seconds_total{cpu="7",mode="softirq"} 0.31
 node_cpu_seconds_total{cpu="7",mode="steal"} 0
 node_cpu_seconds_total{cpu="7",mode="system"} 101.64
 node_cpu_seconds_total{cpu="7",mode="user"} 290.98
+# HELP node_cpu_vulnerabilities_info Details of each CPU vulnerability reported by sysfs. The value of the series is an int encoded state of the vulnerability. The same state is stored as a string in the label
+# TYPE node_cpu_vulnerabilities_info gauge
+node_cpu_vulnerabilities_info{codename="itlb_multihit",state="not affected"} 1
+node_cpu_vulnerabilities_info{codename="mds",state="vulnerable"} 1
+node_cpu_vulnerabilities_info{codename="retbleed",state="mitigation"} 1
+node_cpu_vulnerabilities_info{codename="spectre_v1",state="mitigation"} 1
+node_cpu_vulnerabilities_info{codename="spectre_v2",state="mitigation"} 1
 # HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200
@@ -2887,6 +2894,7 @@ node_scrape_collector_success{collector="buddyinfo"} 1
 node_scrape_collector_success{collector="cgroups"} 1
 node_scrape_collector_success{collector="conntrack"} 1
 node_scrape_collector_success{collector="cpu"} 1
+node_scrape_collector_success{collector="cpu_vulnerabilities"} 1
 node_scrape_collector_success{collector="cpufreq"} 1
 node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="dmi"} 1
