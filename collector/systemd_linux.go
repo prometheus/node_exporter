@@ -42,18 +42,18 @@ const (
 )
 
 var (
-	unitIncludeSet bool
-	unitInclude    = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
-		unitIncludeSet = true
+	systemdUnitIncludeSet bool
+	systemdUnitInclude    = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
+		systemdUnitIncludeSet = true
 		return nil
 	}).String()
-	oldUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
-	unitExcludeSet bool
-	unitExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
-		unitExcludeSet = true
+	oldSystemdUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
+	systemdUnitExcludeSet bool
+	systemdUnitExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
+		systemdUnitExcludeSet = true
 		return nil
 	}).String()
-	oldUnitExclude         = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
+	oldSystemdUnitExclude  = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
 	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
 	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
 	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
@@ -75,9 +75,10 @@ type systemdCollector struct {
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
-	unitIncludePattern            *regexp.Regexp
-	unitExcludePattern            *regexp.Regexp
-	logger                        log.Logger
+	// Use regexps for more flexability than device_filter.go allows
+	systemdUnitIncludePattern *regexp.Regexp
+	systemdUnitExcludePattern *regexp.Regexp
+	logger                    log.Logger
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
@@ -133,26 +134,26 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		prometheus.BuildFQName(namespace, subsystem, "version"),
 		"Detected systemd version", []string{"version"}, nil)
 
-	if *oldUnitExclude != "" {
-		if !unitExcludeSet {
+	if *oldSystemdUnitExclude != "" {
+		if !systemdUnitExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-exclude")
-			*unitExclude = *oldUnitExclude
+			*systemdUnitExclude = *oldSystemdUnitExclude
 		} else {
 			return nil, errors.New("--collector.systemd.unit-blacklist and --collector.systemd.unit-exclude are mutually exclusive")
 		}
 	}
-	if *oldUnitInclude != "" {
-		if !unitIncludeSet {
+	if *oldSystemdUnitInclude != "" {
+		if !systemdUnitIncludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
-			*unitInclude = *oldUnitInclude
+			*systemdUnitInclude = *oldSystemdUnitInclude
 		} else {
 			return nil, errors.New("--collector.systemd.unit-whitelist and --collector.systemd.unit-include are mutually exclusive")
 		}
 	}
-	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-include", "flag", *unitInclude)
-	unitIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitInclude))
-	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *unitExclude)
-	unitExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *unitExclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-include", "flag", *systemdUnitInclude)
+	systemdUnitIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *systemdUnitInclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *systemdUnitExclude)
+	systemdUnitExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *systemdUnitExclude))
 
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
@@ -167,8 +168,8 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
 		systemdVersionDesc:            systemdVersionDesc,
-		unitIncludePattern:            unitIncludePattern,
-		unitExcludePattern:            unitExcludePattern,
+		systemdUnitIncludePattern:     systemdUnitIncludePattern,
+		systemdUnitExcludePattern:     systemdUnitExcludePattern,
 		logger:                        logger,
 	}, nil
 }
@@ -206,7 +207,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	level.Debug(c.logger).Log("msg", "collectSummaryMetrics took", "duration_seconds", time.Since(begin).Seconds())
 
 	begin = time.Now()
-	units := filterUnits(allUnits, c.unitIncludePattern, c.unitExcludePattern, c.logger)
+	units := filterUnits(allUnits, c.systemdUnitIncludePattern, c.systemdUnitExcludePattern, c.logger)
 	level.Debug(c.logger).Log("msg", "filterUnits took", "duration_seconds", time.Since(begin).Seconds())
 
 	var wg sync.WaitGroup
