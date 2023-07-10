@@ -101,6 +101,7 @@ ethtool | device | --collector.ethtool.device-include | --collector.ethtool.devi
 ethtool | metrics | --collector.ethtool.metrics-include | N/A
 filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
 filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
+hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
 qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
 sysctl | all | --collector.sysctl.include | N/A
