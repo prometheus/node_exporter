@@ -106,7 +106,8 @@ local common = import '../lib/common.libsonnet';
         description=|||
           Inactive: Memory which has been less recently used.  It is more eligible to be reclaimed for other purposes.
           Active: Memory that has been used more recently and usually not reclaimed unless absolutely necessary.
-        |||)
+        |||
+      )
       .withUnits('decbytes')
       .addTarget(commonPromTarget(
         expr='node_memory_Inactive_bytes{%(nodeQuerySelector)s}' % config { nodeQuerySelector: c.nodeQuerySelector },
