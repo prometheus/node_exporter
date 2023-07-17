@@ -5,6 +5,10 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.6.1 / 2023-06-17
+
+Rebuild with latest Go compiler bugfix release.
+
 ## 1.6.0 / 2023-05-27
 
 * [CHANGE] Fix cpustat when some cpus are offline #2318
