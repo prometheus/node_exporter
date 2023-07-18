@@ -335,9 +335,7 @@ func (c *systemdCollector) collectSockets(conn *dbus.Conn, ch chan<- prometheus.
 
 		// NRefused wasn't added until systemd 239.
 		refusedConnectionCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Socket", "NRefused")
-		if err != nil {
-			//log.Debugf("couldn't get unit '%s' NRefused: %s", unit.Name, err)
-		} else {
+		if err == nil {
 			ch <- prometheus.MustNewConstMetric(
 				c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
 				float64(refusedConnectionCount.Value.Value().(uint32)), unit.Name)
