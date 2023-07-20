@@ -19,9 +19,8 @@ package collector
 import (
 	"fmt"
 
-	"github.com/go-kit/log/level"
-
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -216,7 +215,7 @@ func NewZfsCollector(logger log.Logger) (Collector, error) {
 				dataType:    bsdSysctlTypeUint64,
 				valueType:   prometheus.GaugeValue,
 			},
-			// when FreeBSD 14.0+, `p` install of `meta`, `pm` and `pd`.
+			// when FreeBSD 14.0+, `meta/pm/pd` install of `p`.
 			{
 				name:        "arcstats_p_bytes",
 				description: "ZFS ARC MRU target size",
@@ -275,6 +274,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {
+			// warn logging
 			level.Warn(c.logger).Log("name", m.name, "couldn't get sysctl:", err)
 			continue
 		}
