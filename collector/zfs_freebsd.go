@@ -275,6 +275,7 @@ func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
 	if err != nil {
 		return fmt.Errorf("couldn't get sysctl: %w", err)
 	}
+
 	for dataset, _ := range zfsDatasets {
 		if strings.HasSuffix(dataset, ".dataset_name") {
 			zfsPoolObjs = append(zfsPoolObjs, strings.SplitAfter(dataset, ".")[3])
@@ -282,21 +283,22 @@ func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
 	}
 
 	// TODO(conallob): Check if bsdSysCtl or prometheus.Metric should be used
-	perPoolMetric := []bsdSysctl{}
+	perPoolMetrics := []bsdSysctl{}
 	sysCtlMetrics := []string{
 		"nunlinked", "nunlinks", "nread", "reads", "nwritten", "writes",
 	}
 
 	for poolObj := range zfsPoolObjs {
 		for metric := range sysCtlMetrics {
-			sysCtlMetrics = append(sysCtlMetrics, {
-				name: fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
-				description: fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
-				mib:         fmt.Sprintf("%s.%s.%s",
+			perPoolMetrics = append(perPoolMetrics, {
+				name:					fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
+				description: 	fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
+				mib:         	fmt.Sprintf("%s.%s.%s",
 												zfsPoolMibPrefix, poolObj, metric),
-				dataType:    bsdSysctlTypeUint64,
-				valueType:   prometheus.CounterValue,
+				dataType:    	bsdSysctlTypeUint64,
+				valueType:   	prometheus.CounterValue,
 			})
+		}
 	}
 
 	return nil
