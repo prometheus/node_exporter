@@ -39,7 +39,7 @@ func init() {
 }
 
 // NewRunitCollector returns a new Collector exposing runit statistics.
-func NewRunitCollector(logger log.Logger) (Collector, error) {
+func NewRunitCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (
 		subsystem   = "service"
 		constLabels = prometheus.Labels{"supervisor": "runit"}

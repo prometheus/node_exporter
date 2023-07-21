@@ -54,7 +54,7 @@ func init() {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector(logger log.Logger) (Collector, error) {
+func NewNetDevCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *oldNetdevDeviceInclude != "" {
 		if *netdevDeviceInclude == "" {
 			level.Warn(logger).Log("msg", "--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")

@@ -43,7 +43,7 @@ type zfsCollector struct {
 }
 
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
-func NewZFSCollector(logger log.Logger) (Collector, error) {
+func NewZFSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &zfsCollector{
 		linuxProcpathBase:    "spl/kstat/zfs",
 		linuxZpoolIoPath:     "/*/io",

@@ -95,7 +95,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
+func NewDiskstatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 	fs, err := blockdevice.NewFS(*procPath, *sysPath)
 	if err != nil {

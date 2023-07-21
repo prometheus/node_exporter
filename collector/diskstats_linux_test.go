@@ -36,8 +36,8 @@ func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestDiskStatsCollector(logger log.Logger) (prometheus.Collector, error) {
-	dsc, err := NewDiskstatsCollector(logger)
+func NewTestDiskStatsCollector(config NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+	dsc, err := NewDiskstatsCollector(config, logger)
 	if err != nil {
 		return testDiskStatsCollector{}, err
 	}
@@ -314,12 +314,13 @@ node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
+	config := NodeCollectorConfig{}
 	logger := log.NewLogfmtLogger(os.Stderr)
-	collector, err := NewDiskstatsCollector(logger)
+	collector, err := NewDiskstatsCollector(config, logger)
 	if err != nil {
 		panic(err)
 	}
-	c, err := NewTestDiskStatsCollector(logger)
+	c, err := NewTestDiskStatsCollector(config, logger)
 	if err != nil {
 		t.Fatal(err)
 	}

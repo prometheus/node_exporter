@@ -40,7 +40,7 @@ func init() {
 	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, NewVulnerabilitySysfsCollector)
 }
 
-func NewVulnerabilitySysfsCollector(logger log.Logger) (Collector, error) {
+func NewVulnerabilitySysfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &cpuVulnerabilitiesCollector{}, nil
 }
 

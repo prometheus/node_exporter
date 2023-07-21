@@ -38,7 +38,7 @@ func init() {
 }
 
 // NewNetworkRouteCollector returns a new Collector exposing systemd statistics.
-func NewNetworkRouteCollector(logger log.Logger) (Collector, error) {
+func NewNetworkRouteCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "network"
 
 	routeInfoDesc := prometheus.NewDesc(

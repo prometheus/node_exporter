@@ -36,7 +36,7 @@ func init() {
 	registerCollector("zfs", defaultEnabled, NewZfsCollector)
 }
 
-func NewZfsCollector(logger log.Logger) (Collector, error) {
+func NewZfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &zfsCollector{
 		sysctls: []bsdSysctl{
 			{

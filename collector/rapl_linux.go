@@ -47,7 +47,7 @@ var (
 )
 
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
-func NewRaplCollector(logger log.Logger) (Collector, error) {
+func NewRaplCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 
 	if err != nil {

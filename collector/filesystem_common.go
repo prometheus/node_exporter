@@ -88,7 +88,7 @@ func init() {
 }
 
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.
-func NewFilesystemCollector(logger log.Logger) (Collector, error) {
+func NewFilesystemCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *oldMountPointsExcluded != "" {
 		if !mountPointsExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.filesystem.ignored-mount-points is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.mount-points-exclude")

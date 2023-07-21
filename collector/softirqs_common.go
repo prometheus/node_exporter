@@ -34,7 +34,7 @@ func init() {
 }
 
 // NewSoftirqsCollector returns a new Collector exposing softirq stats.
-func NewSoftirqsCollector(logger log.Logger) (Collector, error) {
+func NewSoftirqsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	desc := typedDesc{prometheus.NewDesc(
 		namespace+"_softirqs_functions_total",
 		"Softirq counts per CPU.",

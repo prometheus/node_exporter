@@ -53,7 +53,7 @@ func init() {
 }
 
 // NewMeminfoNumaCollector returns a new Collector exposing memory stats.
-func NewMeminfoNumaCollector(logger log.Logger) (Collector, error) {
+func NewMeminfoNumaCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &meminfoNumaCollector{
 		metricDescs: map[string]*prometheus.Desc{},
 		logger:      logger,

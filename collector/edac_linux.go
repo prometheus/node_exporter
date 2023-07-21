@@ -47,7 +47,7 @@ func init() {
 }
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector(logger log.Logger) (Collector, error) {
+func NewEdacCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "correctable_errors_total"),

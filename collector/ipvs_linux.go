@@ -73,11 +73,11 @@ func init() {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector(logger log.Logger) (Collector, error) {
-	return newIPVSCollector(logger)
+func NewIPVSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return newIPVSCollector(config, logger)
 }
 
-func newIPVSCollector(logger log.Logger) (*ipvsCollector, error) {
+func newIPVSCollector(config NodeCollectorConfig, logger log.Logger) (*ipvsCollector, error) {
 	var (
 		c         ipvsCollector
 		err       error

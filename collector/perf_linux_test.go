@@ -45,7 +45,7 @@ func canTestPerf(t *testing.T) {
 
 func TestPerfCollector(t *testing.T) {
 	canTestPerf(t)
-	collector, err := NewPerfCollector(log.NewNopLogger())
+	collector, err := NewPerfCollector(NodeCollectorConfig{}, log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func TestPerfCollectorStride(t *testing.T) {
 				}
 			}
 			perfCPUsFlag = &test.flag
-			collector, err := NewPerfCollector(log.NewNopLogger())
+			collector, err := NewPerfCollector(NodeCollectorConfig{}, log.NewNopLogger())
 			if err != nil {
 				t.Fatal(err)
 			}

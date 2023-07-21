@@ -40,7 +40,7 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
+func NewInfiniBandCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 

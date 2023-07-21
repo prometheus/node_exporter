@@ -41,7 +41,7 @@ func init() {
 }
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
-func NewBuddyinfoCollector(logger log.Logger) (Collector, error) {
+func NewBuddyinfoCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
 		"Count of free blocks according to size.",

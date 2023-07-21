@@ -38,7 +38,7 @@ func init() {
 }
 
 // NewCgroupSummaryCollector returns a new Collector exposing a summary of cgroups.
-func NewCgroupSummaryCollector(logger log.Logger) (Collector, error) {
+func NewCgroupSummaryCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

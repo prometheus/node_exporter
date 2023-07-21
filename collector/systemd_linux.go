@@ -88,7 +88,7 @@ func init() {
 }
 
 // NewSystemdCollector returns a new Collector exposing systemd statistics.
-func NewSystemdCollector(logger log.Logger) (Collector, error) {
+func NewSystemdCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "systemd"
 
 	unitDesc := prometheus.NewDesc(

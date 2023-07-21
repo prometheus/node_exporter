@@ -41,7 +41,7 @@ func init() {
 	registerCollector("sysctl", defaultDisabled, NewSysctlCollector)
 }
 
-func NewSysctlCollector(logger log.Logger) (Collector, error) {
+func NewSysctlCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

@@ -39,7 +39,7 @@ func init() {
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger log.Logger) (Collector, error) {
+func NewMeminfoCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &meminfoCollector{logger}, nil
 }
 

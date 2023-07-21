@@ -46,7 +46,7 @@ func init() {
 }
 
 // NewDrmCollector returns a new Collector exposing /sys/class/drm/card?/device stats.
-func NewDrmCollector(logger log.Logger) (Collector, error) {
+func NewDrmCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

@@ -47,7 +47,7 @@ func init() {
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
-func NewvmStatCollector(logger log.Logger) (Collector, error) {
+func NewvmStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*vmStatFields)
 	return &vmStatCollector{
 		fieldPattern: pattern,

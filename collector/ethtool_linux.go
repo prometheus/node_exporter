@@ -85,7 +85,7 @@ type ethtoolCollector struct {
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
 // This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.
-func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
+func makeEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (*ethtoolCollector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -213,8 +213,8 @@ func buildEthtoolFQName(metric string) string {
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
-func NewEthtoolCollector(logger log.Logger) (Collector, error) {
-	return makeEthtoolCollector(logger)
+func NewEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return makeEthtoolCollector(config, logger)
 }
 
 // updatePortCapabilities generates metrics for autonegotiate, pause and asymmetricpause.
