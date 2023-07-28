@@ -26,6 +26,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -39,12 +40,18 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+const (
+	collectorName           = "ethtool"
+	laneInformationPosition = 2
+)
+
 var (
 	ethtoolDeviceInclude   = kingpin.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
 	ethtoolDeviceExclude   = kingpin.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
 	ethtoolIncludedMetrics = kingpin.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(".*").String()
 	ethtoolReceivedRegex   = regexp.MustCompile(`(^|_)rx(_|$)`)
 	ethtoolTransmitRegex   = regexp.MustCompile(`(^|_)tx(_|$)`)
+	laneRegex              = regexp.MustCompilePOSIX(fmt.Sprintf("^%s_%s_[0-9]+_.*", namespace, collectorName))
 )
 
 type Ethtool interface {
@@ -105,39 +112,39 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 		logger:         logger,
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "ethtool", "received_bytes_total"),
+				prometheus.BuildFQName(namespace, collectorName, "received_bytes_total"),
 				"Network interface bytes received",
-				[]string{"device"}, nil,
+				[]string{"device", "lane"}, nil,
 			),
 			"rx_dropped": prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "ethtool", "received_dropped_total"),
+				prometheus.BuildFQName(namespace, collectorName, "received_dropped_total"),
 				"Number of received frames dropped",
-				[]string{"device"}, nil,
+				[]string{"device", "lane"}, nil,
 			),
 			"rx_errors": prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "ethtool", "received_errors_total"),
+				prometheus.BuildFQName(namespace, collectorName, "received_errors_total"),
 				"Number of received frames with errors",
-				[]string{"device"}, nil,
+				[]string{"device", "lane"}, nil,
 			),
 			"rx_packets": prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "ethtool", "received_packets_total"),
+				prometheus.BuildFQName(namespace, collectorName, "received_packets_total"),
 				"Network interface packets received",
-				[]string{"device"}, nil,
+				[]string{"device", "lane"}, nil,
 			),
 			"tx_bytes": prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "ethtool", "transmitted_bytes_total"),
+				prometheus.BuildFQName(namespace, collectorName, "transmitted_bytes_total"),
 				"Network interface bytes sent",
-				[]string{"device"}, nil,
+				[]string{"device", "lane"}, nil,
 			),
 			"tx_errors": prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "ethtool", "transmitted_errors_total"),
+				prometheus.BuildFQName(namespace, collectorName, "transmitted_errors_total"),
 				"Number of sent frames with errors",
-				[]string{"device"}, nil,
+				[]string{"device", "lane"}, nil,
 			),
 			"tx_packets": prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, "ethtool", "transmitted_packets_total"),
+				prometheus.BuildFQName(namespace, collectorName, "transmitted_packets_total"),
 				"Network interface packets sent",
-				[]string{"device"}, nil,
+				[]string{"device", "lane"}, nil,
 			),
 
 			// link info
@@ -193,7 +200,7 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 			),
 		},
 		infoDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "ethtool", "info"),
+			prometheus.BuildFQName(namespace, collectorName, "info"),
 			"A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.",
 			[]string{"bus_info", "device", "driver", "expansion_rom_version", "firmware_version", "version"}, nil,
 		),
@@ -201,7 +208,7 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 }
 
 func init() {
-	registerCollector("ethtool", defaultDisabled, NewEthtoolCollector)
+	registerCollector(collectorName, defaultDisabled, NewEthtoolCollector)
 }
 
 // Generate the fully-qualified metric name for the ethool metric.
@@ -209,7 +216,7 @@ func buildEthtoolFQName(metric string) string {
 	metricName := strings.TrimLeft(strings.ToLower(SanitizeMetricName(metric)), "_")
 	metricName = ethtoolReceivedRegex.ReplaceAllString(metricName, "${1}received${2}")
 	metricName = ethtoolTransmitRegex.ReplaceAllString(metricName, "${1}transmitted${2}")
-	return prometheus.BuildFQName(namespace, "ethtool", metricName)
+	return prometheus.BuildFQName(namespace, collectorName, metricName)
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
@@ -474,16 +481,55 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 				continue
 			}
 
-			val := stats[metric]
+			lane := extractLane(metricFQName)
+			laneStr := ""
+			if lane != -1 {
+				metric = dropLaneIndexFromMetric(metric)
+				metricFQName = dropLaneIndexFromMetricFQName(metricFQName)
+				laneStr = fmt.Sprintf("%d", lane)
+			}
 
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
-			entry := c.entryWithCreate(metric, metricFQName)
+			desc := c.entryWithCreate(metric, metricFQName)
 			ch <- prometheus.MustNewConstMetric(
-				entry, prometheus.UntypedValue, float64(val), device)
+				desc, prometheus.UntypedValue, float64(stats[metric]), device, laneStr)
 		}
 	}
 
 	return nil
+}
+
+func dropLaneIndexFromMetricFQName(name string) string {
+	return dropElementFromMetricFQName(name, laneInformationPosition)
+}
+
+func dropElementFromMetricFQName(name string, dropIndex int) string {
+	parts := strings.Split(name, "_")
+	parts = dropElementFromStrSlice(parts, dropIndex)
+	return strings.Join(parts, "_")
+}
+
+func dropLaneIndexFromMetric(metric string) string {
+	return strings.Split(metric, " ")[1]
+}
+
+func dropElementFromStrSlice(s []string, i int) []string {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
+func extractLane(metricName string) int {
+	if !laneRegex.Match([]byte(metricName)) {
+		return -1
+	}
+
+	nStr := strings.Split(metricName, "_")[laneInformationPosition]
+	n, err := strconv.Atoi(nStr)
+	if err != nil {
+		return -1
+	}
+
+	return n
 }
 
 func (c *ethtoolCollector) entryWithCreate(key, metricFQName string) *prometheus.Desc {
@@ -494,7 +540,7 @@ func (c *ethtoolCollector) entryWithCreate(key, metricFQName string) *prometheus
 		c.entries[key] = prometheus.NewDesc(
 			metricFQName,
 			fmt.Sprintf("Network interface %s", key),
-			[]string{"device"}, nil,
+			[]string{"device", "lane"}, nil,
 		)
 	}
 

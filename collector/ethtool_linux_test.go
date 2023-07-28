@@ -254,12 +254,14 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 
 func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(logger)
-	collector.ethtool = &EthtoolFixture{
-		fixturePath: "fixtures/ethtool/",
-	}
 	if err != nil {
 		return nil, err
 	}
+
+	collector.ethtool = &EthtoolFixture{
+		fixturePath: "fixtures/ethtool/",
+	}
+
 	return collector, nil
 }
 
@@ -284,46 +286,46 @@ func TestBuildEthtoolFQName(t *testing.T) {
 func TestEthToolCollector(t *testing.T) {
 	testcase := `# HELP node_ethtool_align_errors Network interface align_errors
 # TYPE node_ethtool_align_errors untyped
-node_ethtool_align_errors{device="eth0"} 0
+node_ethtool_align_errors{device="eth0",lane=""} 0
 # HELP node_ethtool_info A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.
 # TYPE node_ethtool_info gauge
 node_ethtool_info{bus_info="0000:00:1f.6",device="eth0",driver="e1000e",expansion_rom_version="",firmware_version="0.5-4",version="5.11.0-22-generic"} 1
 # HELP node_ethtool_received_broadcast Network interface rx_broadcast
 # TYPE node_ethtool_received_broadcast untyped
-node_ethtool_received_broadcast{device="eth0"} 5792
+node_ethtool_received_broadcast{device="eth0",lane=""} 5792
 # HELP node_ethtool_received_errors_total Number of received frames with errors
 # TYPE node_ethtool_received_errors_total untyped
-node_ethtool_received_errors_total{device="eth0"} 0
+node_ethtool_received_errors_total{device="eth0",lane=""} 0
 # HELP node_ethtool_received_missed Network interface rx_missed
 # TYPE node_ethtool_received_missed untyped
-node_ethtool_received_missed{device="eth0"} 401
+node_ethtool_received_missed{device="eth0",lane=""} 401
 # HELP node_ethtool_received_multicast Network interface rx_multicast
 # TYPE node_ethtool_received_multicast untyped
-node_ethtool_received_multicast{device="eth0"} 23973
+node_ethtool_received_multicast{device="eth0",lane=""} 23973
 # HELP node_ethtool_received_packets_total Network interface packets received
 # TYPE node_ethtool_received_packets_total untyped
-node_ethtool_received_packets_total{device="eth0"} 1.260062e+06
+node_ethtool_received_packets_total{device="eth0",lane=""} 1.260062e+06
 # HELP node_ethtool_received_unicast Network interface rx_unicast
 # TYPE node_ethtool_received_unicast untyped
-node_ethtool_received_unicast{device="eth0"} 1.230297e+06
+node_ethtool_received_unicast{device="eth0",lane=""} 1.230297e+06
 # HELP node_ethtool_transmitted_aborted Network interface tx_aborted
 # TYPE node_ethtool_transmitted_aborted untyped
-node_ethtool_transmitted_aborted{device="eth0"} 0
+node_ethtool_transmitted_aborted{device="eth0",lane=""} 0
 # HELP node_ethtool_transmitted_errors_total Number of sent frames with errors
 # TYPE node_ethtool_transmitted_errors_total untyped
-node_ethtool_transmitted_errors_total{device="eth0"} 0
+node_ethtool_transmitted_errors_total{device="eth0",lane=""} 0
 # HELP node_ethtool_transmitted_multi_collisions Network interface tx_multi_collisions
 # TYPE node_ethtool_transmitted_multi_collisions untyped
-node_ethtool_transmitted_multi_collisions{device="eth0"} 0
+node_ethtool_transmitted_multi_collisions{device="eth0",lane=""} 0
 # HELP node_ethtool_transmitted_packets_total Network interface packets sent
 # TYPE node_ethtool_transmitted_packets_total untyped
-node_ethtool_transmitted_packets_total{device="eth0"} 961500
+node_ethtool_transmitted_packets_total{device="eth0",lane=""} 961500
 # HELP node_ethtool_transmitted_single_collisions Network interface tx_single_collisions
 # TYPE node_ethtool_transmitted_single_collisions untyped
-node_ethtool_transmitted_single_collisions{device="eth0"} 0
+node_ethtool_transmitted_single_collisions{device="eth0",lane=""} 0
 # HELP node_ethtool_transmitted_underrun Network interface tx_underrun
 # TYPE node_ethtool_transmitted_underrun untyped
-node_ethtool_transmitted_underrun{device="eth0"} 0
+node_ethtool_transmitted_underrun{device="eth0",lane=""} 0
 # HELP node_network_advertised_speed_bytes Combination of speeds and features offered by network device
 # TYPE node_network_advertised_speed_bytes gauge
 node_network_advertised_speed_bytes{device="eth0",duplex="full",mode="1000baseT"} 1.25e+08
@@ -391,5 +393,83 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDropElementFromMetricFQName(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "Index at expected position",
+			input:    "node_ethtool_1_foo",
+			expected: "node_ethtool_foo",
+		},
+		{
+			name:     "Unexpected index",
+			input:    "node_1_ethtool_foo",
+			expected: "node_1_foo",
+		},
+		{
+			name:     "No index",
+			input:    "node_ethtool_foo",
+			expected: "node_ethtool",
+		},
+	}
+
+	for _, test := range tests {
+		res := dropElementFromMetricFQName(test.input, 2)
+		if res != test.expected {
+			t.Fatalf("Unexpected result %q for test %q: Expected %q", res, test.name, test.expected)
+		}
+	}
+}
+
+func TestDropLaneIndexFromMetric(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "index in suqare brackets",
+			input:    "[7]: rx_ucast_packets",
+			expected: "rx_ucast_packets",
+		},
+	}
+
+	for _, test := range tests {
+		res := dropLaneIndexFromMetric(test.input)
+		if res != test.expected {
+			t.Fatalf("Unexpected result %q for test %q: Expected %q", res, test.name, test.expected)
+		}
+	}
+}
+
+func TestExtractLane(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected int
+	}{
+		{
+			name:     "Metric with index",
+			input:    "node_ethtool_1_foo",
+			expected: 1,
+		},
+		{
+			name:     "Metric without index",
+			input:    "node_ethtool_foo",
+			expected: -1,
+		},
+	}
+
+	for _, test := range tests {
+		res := extractLane(test.input)
+		if res != test.expected {
+			t.Fatalf("Unexpected result %d for test %q: Expected %d", res, test.name, test.expected)
+		}
 	}
 }
