@@ -14,7 +14,7 @@ require (
 	github.com/hodgesds/perf-utils v0.7.0
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
 	github.com/josharian/native v1.1.0
-	github.com/jsimonetti/rtnetlink v1.3.3
+	github.com/jsimonetti/rtnetlink v1.3.4
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/ethtool v0.1.0
@@ -29,7 +29,7 @@ require (
 	github.com/prometheus/procfs v0.11.0
 	github.com/safchain/ethtool v0.3.0
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
-	golang.org/x/sys v0.9.0
+	golang.org/x/sys v0.10.0
 	howett.net/plist v1.0.0
 )
 
