@@ -56,11 +56,50 @@ func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logg
 	metrics := netDevStats{}
 
 	for _, msg := range links {
+		if msg.Attributes == nil {
+			level.Debug(logger).Log("msg", "No netlink attributes, skipping")
+			continue
+		}
 		name := msg.Attributes.Name
 		stats := msg.Attributes.Stats64
+		if stats32 := msg.Attributes.Stats; stats == nil && stats32 != nil {
+			stats = &rtnetlink.LinkStats64{
+				RXPackets:          uint64(stats32.RXPackets),
+				TXPackets:          uint64(stats32.TXPackets),
+				RXBytes:            uint64(stats32.RXBytes),
+				TXBytes:            uint64(stats32.TXBytes),
+				RXErrors:           uint64(stats32.RXErrors),
+				TXErrors:           uint64(stats32.TXErrors),
+				RXDropped:          uint64(stats32.RXDropped),
+				TXDropped:          uint64(stats32.TXDropped),
+				Multicast:          uint64(stats32.Multicast),
+				Collisions:         uint64(stats32.Collisions),
+				RXLengthErrors:     uint64(stats32.RXLengthErrors),
+				RXOverErrors:       uint64(stats32.RXOverErrors),
+				RXCRCErrors:        uint64(stats32.RXCRCErrors),
+				RXFrameErrors:      uint64(stats32.RXFrameErrors),
+				RXFIFOErrors:       uint64(stats32.RXFIFOErrors),
+				RXMissedErrors:     uint64(stats32.RXMissedErrors),
+				TXAbortedErrors:    uint64(stats32.TXAbortedErrors),
+				TXCarrierErrors:    uint64(stats32.TXCarrierErrors),
+				TXFIFOErrors:       uint64(stats32.TXFIFOErrors),
+				TXHeartbeatErrors:  uint64(stats32.TXHeartbeatErrors),
+				TXWindowErrors:     uint64(stats32.TXWindowErrors),
+				RXCompressed:       uint64(stats32.RXCompressed),
+				TXCompressed:       uint64(stats32.TXCompressed),
+				RXNoHandler:        uint64(stats32.RXNoHandler),
+				RXOtherhostDropped: 0,
+			}
+		}
 
 		if filter.ignored(name) {
 			level.Debug(logger).Log("msg", "Ignoring device", "device", name)
+			continue
+		}
+
+		// Make sure we don't panic when accessing `stats` attributes below.
+		if stats == nil {
+			level.Debug(logger).Log("msg", "No netlink stats, skipping")
 			continue
 		}
 
