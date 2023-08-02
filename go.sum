@@ -47,8 +47,8 @@ github.com/josharian/native v1.1.0 h1:uuaP0hAbW7Y4l0ZRQ6C9zfb7Mg1mbFKry/xzDAfmtL
 github.com/josharian/native v1.1.0/go.mod h1:7X/raswPFr05uY3HiLlYeyQntB6OO7E/d2Cu7qoaN2w=
 github.com/jpillora/backoff v1.0.0 h1:uvFg412JmmHBHw7iwprIxkPMI+sGQ4kzOWsMeHnm2EA=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
-github.com/jsimonetti/rtnetlink v1.3.3 h1:ycpm3z8XlAzmaacVRjdUT3x6MM1o3YBXsXc7DXSRNCE=
-github.com/jsimonetti/rtnetlink v1.3.3/go.mod h1:mW4xSP3wkiqWxHMlfG/gOufp3XnhAxu7EhfABmrWSh8=
+github.com/jsimonetti/rtnetlink v1.3.4 h1:uUcd9SE8sQe/enLBEVaWDkgGYWNsX3EU4eIxbEZYmF0=
+github.com/jsimonetti/rtnetlink v1.3.4/go.mod h1:jGCNm5lJdGplEXKCVwqhQ5tRIGV0dNREhLyNWVzBxHc=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
