@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build openbsd && !amd64 && !nointerrupts
-// +build openbsd,!amd64,!nointerrupts
+//go:build !nointerrupts && !amd64
+// +build !nointerrupts,!amd64
 
 package collector
 
