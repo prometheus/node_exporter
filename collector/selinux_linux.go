@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build linux && !noselinux
-// +build linux,!noselinux
+//go:build !noselinux
+// +build !noselinux
 
 package collector
 
