@@ -2328,6 +2328,30 @@ node_netstat_TcpExt_SyncookiesSent 0
 # HELP node_netstat_TcpExt_TCPTimeouts Statistic TcpExtTCPTimeouts.
 # TYPE node_netstat_TcpExt_TCPTimeouts untyped
 node_netstat_TcpExt_TCPTimeouts 115
+# HELP node_netstat_TcpExt_TCPBacklogDrop Statistic TCPBacklogDrop.
+# TYPE node_netstat_TcpExt_TCPBacklogDrop untyped
+node_netstat_TcpExt_TCPBacklogDrop 0
+# HELP node_netstat_TcpExt_TCPMinTTLDrop Statistic TCPMinTTLDrop.
+# TYPE node_netstat_TcpExt_TCPMinTTLDrop untyped
+node_netstat_TcpExt_TCPMinTTLDrop 0
+# HELP node_netstat_TcpExt_TCPDeferAcceptDrop Statistic TCPDeferAcceptDrop.
+# TYPE node_netstat_TcpExt_TCPDeferAcceptDrop untyped
+node_netstat_TcpExt_TCPDeferAcceptDrop 0
+# HELP node_netstat_TcpExt_TCPReqQFullDrop Statistic TCPReqQFullDrop.
+# TYPE node_netstat_TcpExt_TCPReqQFullDrop untyped
+node_netstat_TcpExt_TCPReqQFullDrop 0
+# HELP node_netstat_TcpExt_TCPZeroWindowDrop Statistic TCPZeroWindowDrop.
+# TYPE node_netstat_TcpExt_TCPZeroWindowDrop untyped
+node_netstat_TcpExt_TCPZeroWindowDrop 0
+# HELP node_netstat_TcpExt_TCPRcvQDrop Statistic TCPRcvQDrop.
+# TYPE node_netstat_TcpExt_TCPRcvQDrop untyped
+node_netstat_TcpExt_TCPRcvQDrop 0
+# HELP node_netstat_TcpExt_LockDroppedIcmps Statistic LockDroppedIcmps.
+# TYPE node_netstat_TcpExt_LockDroppedIcmps untyped
+node_netstat_TcpExt_LockDroppedIcmps 0
+# HELP node_netstat_TcpExt_PFMemallocDrop Statistic PFMemallocDrop.
+# TYPE node_netstat_TcpExt_PFMemallocDrop untyped
+node_netstat_TcpExt_PFMemallocDrop 0
 # HELP node_netstat_Tcp_ActiveOpens Statistic TcpActiveOpens.
 # TYPE node_netstat_Tcp_ActiveOpens untyped
 node_netstat_Tcp_ActiveOpens 3556
