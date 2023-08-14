@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build netbsd && !nomeminfo
-// +build netbsd,!nomeminfo
+//go:build !nomeminfo
+// +build !nomeminfo
 
 package collector
 
