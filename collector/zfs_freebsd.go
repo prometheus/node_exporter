@@ -315,15 +315,13 @@ func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
 		}
 	}
 
-	perPoolMetrics := []bsdSysctl{}
-
 	for zpoolDataset := range zfsDatasetsNames {
 		zfsDatasetLabels := map[string]string{
 			"dataset": zpoolDataset,
 			"zpool":   strings.SplitAfter(zpoolDataset, "/")[0],
 		}
 		for metric := range sysCtlMetrics {
-			perPoolMetrics = append(perPoolMetrics, bsdSysctl{
+			c.sysctls = append(c.sysctls, bsdSysctl{
 				name:        fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
 				description: fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
 				mib:         fmt.Sprintf("%s.%s.%s", zfsPoolMibPrefix, poolObj, metric),
