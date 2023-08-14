@@ -61,7 +61,7 @@ type bsdSysctl struct {
 	conversion func(float64) float64
 
 	// Prometheus labels
-	labels	prometheus.Labels
+	labels prometheus.Labels
 }
 
 func (b bsdSysctl) Value() (float64, error) {
