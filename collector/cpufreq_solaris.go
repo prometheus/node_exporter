@@ -36,7 +36,7 @@ func init() {
 	registerCollector("cpufreq", defaultEnabled, NewCpuFreqCollector)
 }
 
-func NewCpuFreqCollector(logger log.Logger) (Collector, error) {
+func NewCpuFreqCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &cpuFreqCollector{
 		logger: logger,
 	}, nil

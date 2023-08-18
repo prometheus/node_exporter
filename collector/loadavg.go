@@ -35,7 +35,7 @@ func init() {
 }
 
 // NewLoadavgCollector returns a new Collector exposing load average stats.
-func NewLoadavgCollector(logger log.Logger) (Collector, error) {
+func NewLoadavgCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &loadavgCollector{
 		metric: []typedDesc{
 			{prometheus.NewDesc(namespace+"_load1", "1m load average.", nil, nil), prometheus.GaugeValue},

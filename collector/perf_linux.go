@@ -301,7 +301,7 @@ func newPerfTracepointCollector(
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
-func NewPerfCollector(logger log.Logger) (Collector, error) {
+func NewPerfCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	collector := &perfCollector{
 		perfHwProfilers:     map[int]*perf.HardwareProfiler{},
 		perfSwProfilers:     map[int]*perf.SoftwareProfiler{},

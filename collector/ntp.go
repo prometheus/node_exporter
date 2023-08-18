@@ -62,7 +62,7 @@ func init() {
 // Default definition of "local" is:
 // - collector.ntp.server address is a loopback address (or collector.ntp.server-is-mine flag is turned on)
 // - the server is reachable with outgoin IP_TTL = 1
-func NewNtpCollector(logger log.Logger) (Collector, error) {
+func NewNtpCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	ipaddr := net.ParseIP(*ntpServer)
 	if !*ntpServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
 		return nil, fmt.Errorf("only IP address of local NTP server is valid for --collector.ntp.server")

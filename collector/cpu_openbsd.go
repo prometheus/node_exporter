@@ -52,7 +52,7 @@ func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }
 
-func NewCPUCollector(logger log.Logger) (Collector, error) {
+func NewCPUCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &cpuCollector{
 		cpu:    typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		logger: logger,

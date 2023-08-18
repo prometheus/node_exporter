@@ -69,7 +69,7 @@ func init() {
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUCollector(logger log.Logger) (Collector, error) {
+func NewCPUCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

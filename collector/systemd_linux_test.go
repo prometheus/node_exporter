@@ -103,7 +103,7 @@ func TestSystemdIgnoreFilter(t *testing.T) {
 }
 func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	logger := log.NewNopLogger()
-	c, err := NewSystemdCollector(logger)
+	c, err := NewSystemdCollector(NodeCollectorConfig{}, logger)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -40,7 +40,7 @@ func init() {
 	registerCollector("powersupplyclass", defaultEnabled, NewPowerSupplyClassCollector)
 }
 
-func NewPowerSupplyClassCollector(logger log.Logger) (Collector, error) {
+func NewPowerSupplyClassCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*powerSupplyClassIgnoredPowerSupplies)
 	return &powerSupplyClassCollector{
 		subsystem:      "power_supply",

@@ -67,7 +67,7 @@ type wifiStater interface {
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector(logger log.Logger) (Collector, error) {
+func NewWifiCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const (
 		subsystem = "wifi"
 	)

@@ -36,6 +36,7 @@ import (
 	"github.com/prometheus/exporter-toolkit/web"
 	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
 	"github.com/prometheus/node_exporter/collector"
+	"github.com/prometheus/node_exporter/kingpinconfig"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -48,14 +49,16 @@ type handler struct {
 	exporterMetricsRegistry *prometheus.Registry
 	includeExporterMetrics  bool
 	maxRequests             int
+	collectorConfig         collector.NodeCollectorConfig
 	logger                  log.Logger
 }
 
-func newHandler(includeExporterMetrics bool, maxRequests int, logger log.Logger) *handler {
+func newHandler(includeExporterMetrics bool, maxRequests int, collectorConfig collector.NodeCollectorConfig, logger log.Logger) *handler {
 	h := &handler{
 		exporterMetricsRegistry: prometheus.NewRegistry(),
 		includeExporterMetrics:  includeExporterMetrics,
 		maxRequests:             maxRequests,
+		collectorConfig:         collectorConfig,
 		logger:                  logger,
 	}
 	if h.includeExporterMetrics {
@@ -99,7 +102,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // (in which case it will log all the collectors enabled via command-line
 // flags).
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
-	nc, err := collector.NewNodeCollector(h.logger, filters...)
+	nc, err := collector.NewNodeCollector(h.collectorConfig, h.logger, filters...)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't create collector: %s", err)
 	}
@@ -163,7 +166,8 @@ func main() {
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
-		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
+		toolkitFlags    = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
+		collectorConfig = kingpinconfig.AddFlags(kingpin.CommandLine)
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -185,7 +189,7 @@ func main() {
 	runtime.GOMAXPROCS(*maxProcs)
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 
-	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
+	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, collectorConfig, logger))
 	if *metricsPath != "/" {
 		landingConfig := web.LandingConfig{
 			Name:        "Node Exporter",

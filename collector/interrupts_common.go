@@ -32,7 +32,7 @@ func init() {
 }
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
-func NewInterruptsCollector(logger log.Logger) (Collector, error) {
+func NewInterruptsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			namespace+"_interrupts_total",

@@ -86,7 +86,7 @@ func init() {
 }
 
 // NewLogindCollector returns a new Collector exposing logind statistics.
-func NewLogindCollector(logger log.Logger) (Collector, error) {
+func NewLogindCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &logindCollector{logger}, nil
 }
 

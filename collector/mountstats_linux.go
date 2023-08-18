@@ -111,7 +111,7 @@ func init() {
 }
 
 // NewMountStatsCollector returns a new Collector exposing NFS statistics.
-func NewMountStatsCollector(logger log.Logger) (Collector, error) {
+func NewMountStatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

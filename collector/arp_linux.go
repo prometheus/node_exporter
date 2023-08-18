@@ -18,15 +18,10 @@ package collector
 
 import (
 	"fmt"
-	"github.com/alecthomas/kingpin/v2"
+
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
-)
-
-var (
-	arpDeviceInclude = kingpin.Flag("collector.arp.device-include", "Regexp of arp devices to include (mutually exclusive to device-exclude).").String()
-	arpDeviceExclude = kingpin.Flag("collector.arp.device-exclude", "Regexp of arp devices to exclude (mutually exclusive to device-include).").String()
 )
 
 type arpCollector struct {
@@ -41,7 +36,7 @@ func init() {
 }
 
 // NewARPCollector returns a new Collector exposing ARP stats.
-func NewARPCollector(logger log.Logger) (Collector, error) {
+func NewARPCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -49,7 +44,7 @@ func NewARPCollector(logger log.Logger) (Collector, error) {
 
 	return &arpCollector{
 		fs:           fs,
-		deviceFilter: newDeviceFilter(*arpDeviceExclude, *arpDeviceInclude),
+		deviceFilter: newDeviceFilter(*config.Arp.DeviceExclude, *config.Arp.DeviceInclude),
 		entries: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "arp", "entries"),
 			"ARP entries by device",

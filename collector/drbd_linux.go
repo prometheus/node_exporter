@@ -86,7 +86,7 @@ func init() {
 	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
-func newDRBDCollector(logger log.Logger) (Collector, error) {
+func newDRBDCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &drbdCollector{
 		numerical: map[string]drbdNumericalMetric{
 			"ns": newDRBDNumericalMetric(

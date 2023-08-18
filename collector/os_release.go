@@ -81,7 +81,7 @@ func init() {
 }
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(logger log.Logger) (Collector, error) {
+func NewOSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &osReleaseCollector{
 		logger: logger,
 		infoDesc: prometheus.NewDesc(

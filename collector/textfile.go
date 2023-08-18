@@ -55,7 +55,7 @@ func init() {
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files
 // in the given textfile directory.
-func NewTextFileCollector(logger log.Logger) (Collector, error) {
+func NewTextFileCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	c := &textFileCollector{
 		path:   *textFileDirectory,
 		logger: logger,

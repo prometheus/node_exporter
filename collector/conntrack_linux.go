@@ -57,7 +57,7 @@ func init() {
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(logger log.Logger) (Collector, error) {
+func NewConntrackCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),

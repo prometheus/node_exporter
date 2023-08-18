@@ -49,8 +49,8 @@ func (c testEthtoolCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestEthtoolCollector(logger log.Logger) (prometheus.Collector, error) {
-	dsc, err := NewEthtoolTestCollector(logger)
+func NewTestEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+	dsc, err := NewEthtoolTestCollector(config, logger)
 	if err != nil {
 		return testEthtoolCollector{}, err
 	}
@@ -255,8 +255,8 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return res, err
 }
 
-func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
-	collector, err := makeEthtoolCollector(logger)
+func NewEthtoolTestCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	collector, err := makeEthtoolCollector(config, logger)
 	collector.ethtool = &EthtoolFixture{
 		fixturePath: "fixtures/ethtool/",
 	}
@@ -370,12 +370,13 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 `
 	*sysPath = "fixtures/sys"
 
+	config := NodeCollectorConfig{}
 	logger := log.NewLogfmtLogger(os.Stderr)
-	collector, err := NewEthtoolTestCollector(logger)
+	collector, err := NewEthtoolTestCollector(config, logger)
 	if err != nil {
 		panic(err)
 	}
-	c, err := NewTestEthtoolCollector(logger)
+	c, err := NewTestEthtoolCollector(config, logger)
 	if err != nil {
 		t.Fatal(err)
 	}

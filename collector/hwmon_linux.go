@@ -57,7 +57,7 @@ type hwMonCollector struct {
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(logger log.Logger) (Collector, error) {
+func NewHwMonCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,

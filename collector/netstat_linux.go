@@ -50,7 +50,7 @@ func init() {
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(logger log.Logger) (Collector, error) {
+func NewNetStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*netStatFields)
 	return &netStatCollector{
 		fieldPattern: pattern,

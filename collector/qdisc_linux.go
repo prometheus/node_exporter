@@ -51,7 +51,7 @@ func init() {
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
-func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
+func NewQdiscStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *collectorQdiskDeviceExclude != "" && *collectorQdiskDeviceInclude != "" {
 		return nil, fmt.Errorf("collector.qdisk.device-include and collector.qdisk.device-exclude are mutaly exclusive")
 	}

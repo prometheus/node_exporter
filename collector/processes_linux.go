@@ -47,7 +47,7 @@ func init() {
 }
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
-func NewProcessStatCollector(logger log.Logger) (Collector, error) {
+func NewProcessStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

@@ -33,7 +33,7 @@ func init() {
 	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
-func NewLnstatCollector(logger log.Logger) (Collector, error) {
+func NewLnstatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &lnstatCollector{logger}, nil
 }
 

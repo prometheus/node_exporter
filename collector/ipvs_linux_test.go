@@ -114,7 +114,7 @@ func TestIPVSCollector(t *testing.T) {
 			if _, err := kingpin.CommandLine.Parse(args); err != nil {
 				t.Fatal(err)
 			}
-			collector, err := newIPVSCollector(log.NewNopLogger())
+			collector, err := newIPVSCollector(NodeCollectorConfig{}, log.NewNopLogger())
 			if err != nil {
 				if test.err == nil {
 					t.Fatal(err)
@@ -182,7 +182,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 			if _, err := kingpin.CommandLine.Parse(args); err != nil {
 				t.Fatal(err)
 			}
-			collector, err := NewIPVSCollector(log.NewNopLogger())
+			collector, err := NewIPVSCollector(NodeCollectorConfig{}, log.NewNopLogger())
 			if err != nil {
 				t.Fatal(err)
 			}
