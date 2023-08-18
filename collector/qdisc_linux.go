@@ -60,7 +60,7 @@ func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
 			level.Warn(logger).Log("msg", "--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")
 			*collectorQdiscDeviceInclude = *oldCollectorQdiskDeviceInclude
 		} else {
-			return nil, errors.New("--collector.qdisk.device-include and --collector.qdisc.device-include are mutually exclusive")
+			return nil, fmt.Errorf("--collector.qdisk.device-include and --collector.qdisc.device-include are mutually exclusive")
 		}
 	}
 
@@ -69,7 +69,7 @@ func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
 			level.Warn(logger).Log("msg", "--collector.qdisk.device-exclude is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-exclude")
 			*collectorQdiscDeviceExclude = *oldCollectorQdiskDeviceExclude
 		} else {
-			return nil, errors.New("--collector.qdisk.device-exclude and --collector.qdisc.device-exclude are mutually exclusive")
+			return nil, fmt.Errorf("--collector.qdisk.device-exclude and --collector.qdisc.device-exclude are mutually exclusive")
 		}
 	}
 
