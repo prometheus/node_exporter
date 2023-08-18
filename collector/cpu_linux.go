@@ -184,7 +184,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 	for _, cpu := range info {
 		ch <- prometheus.MustNewConstMetric(c.cpuInfo,
 			prometheus.GaugeValue,
-			1,
+			cpu.CPUMHz,
 			cpu.PhysicalID,
 			cpu.CoreID,
 			strconv.Itoa(int(cpu.Processor)),
