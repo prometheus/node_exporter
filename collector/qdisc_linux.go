@@ -41,9 +41,11 @@ type qdiscStatCollector struct {
 }
 
 var (
-	collectorQdisc              = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
-	collectorQdiscDeviceInclude = kingpin.Flag("collector.qdisc.device-include", "Regexp of qdisc devices to include (mutually exclusive to device-exclude).").String()
-	collectorQdiscDeviceExclude = kingpin.Flag("collector.qdisc.device-exclude", "Regexp of qdisc devices to exclude (mutually exclusive to device-include).").String()
+	collectorQdisc                 = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
+	collectorQdiscDeviceInclude    = kingpin.Flag("collector.qdisc.device-include", "Regexp of qdisc devices to include (mutually exclusive to device-exclude).").String()
+	oldCollectorQdiskDeviceInclude = kingpin.Flag("collector.qdisk.device-include", "DEPRECATED: Use collector.qdisc.device-include").Hidden().String()
+	collectorQdiscDeviceExclude    = kingpin.Flag("collector.qdisc.device-exclude", "Regexp of qdisc devices to exclude (mutually exclusive to device-include).").String()
+	oldCollectorQdiskDeviceExclude = kingpin.Flag("collector.qdisk.device-exclude", "DEPRECATED: Use collector.qdisc.device-exclude").Hidden().String()
 )
 
 func init() {
@@ -52,6 +54,24 @@ func init() {
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
 func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
+	if *oldCollectorQdiskDeviceInclude != "" {
+		if *collectorQdiscDeviceInclude == "" {
+			level.Warn(logger).Log("msg", "--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")
+			*collectorQdiscDeviceInclude = *oldCollectorQdiskDeviceInclude
+		} else {
+			return nil, errors.New("--collector.qdisk.device-include and --collector.qdisc.device-include are mutually exclusive")
+		}
+	}
+
+	if *oldCollectorQdiskDeviceExclude != "" {
+		if *collectorQdiscDeviceExclude == "" {
+			level.Warn(logger).Log("msg", "--collector.qdisk.device-exclude is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-exclude")
+			*collectorQdiscDeviceExclude = *oldCollectorQdiskDeviceExclude
+		} else {
+			return nil, errors.New("--collector.qdisk.device-exclude and --collector.qdisc.device-exclude are mutually exclusive")
+		}
+	}
+
 	if *collectorQdiscDeviceExclude != "" && *collectorQdiscDeviceInclude != "" {
 		return nil, fmt.Errorf("collector.qdisc.device-include and collector.qdisc.device-exclude are mutaly exclusive")
 	}
@@ -93,7 +113,7 @@ func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
 			[]string{"device", "kind"}, nil,
 		), prometheus.GaugeValue},
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorQdiscDeviceExclude, *collectorQdiscDeviceExclude),
+		deviceFilter: newDeviceFilter(*collectorQdiscDeviceExclude, *collectorQdiscDeviceInclude),
 	}, nil
 }
 
