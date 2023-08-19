@@ -11,9 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build (darwin || linux || openbsd || netbsd) && !nomeminfo
+//go:build (darwin || linux || openbsd || netbsd) && !nomeminfo && cgo
 // +build darwin linux openbsd netbsd
 // +build !nomeminfo
+// +build cgo
 
 package collector
 

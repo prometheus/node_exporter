@@ -11,9 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nodiskstats && (openbsd || linux || darwin)
+//go:build !nodiskstats && (openbsd || linux || darwin) && cgo
 // +build !nodiskstats
 // +build openbsd linux darwin
+// +build cgo
 
 package collector
 
