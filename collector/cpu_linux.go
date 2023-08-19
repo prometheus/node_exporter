@@ -205,7 +205,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 
 	cpuFreqEnabled, ok := collectorState["cpufreq"]
 	if !ok || cpuFreqEnabled == nil {
-		level.Warn(c.logger).Log("cpufreq key missing or nil value in collectorState map", err)
+		level.Debug(c.logger).Log("cpufreq key missing or nil value in collectorState map", err)
 	} else if !*cpuFreqEnabled {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
