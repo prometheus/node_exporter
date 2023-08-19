@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nobtrfs
-// +build !nobtrfs
+//go:build !nobtrfs && cgo
+// +build !nobtrfs,cgo
 
 package collector
 
