@@ -107,7 +107,12 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 func NewNC(logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 
+	loggerInfo := level.Info(logger)
+
 	for c, _ := range collectorState {
+		_ = loggerInfo.Log(
+			"collector", "NewNC",
+			"c", *collectorState[c])
 		*collectorState[c] = true
 	}
 
