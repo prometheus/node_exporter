@@ -103,6 +103,39 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 	}
 }
 
+// NewNC creates a new NodeCollector.
+func NewNC(logger log.Logger, filters ...string) (*NodeCollector, error) {
+	f := make(map[string]bool)
+
+	for c, _ := range collectorState {
+		*collectorState[c] = true
+	}
+
+	for _, filter := range filters {
+		f[filter] = true
+	}
+
+	collectors := make(map[string]Collector)
+	initiatedCollectorsMtx.Lock()
+	defer initiatedCollectorsMtx.Unlock()
+	for key, enabled := range collectorState {
+		if !*enabled || (len(f) > 0 && !f[key]) {
+			continue
+		}
+		if collector, ok := initiatedCollectors[key]; ok {
+			collectors[key] = collector
+		} else {
+			collector, err := factories[key](log.With(logger, "collector", key))
+			if err != nil {
+				return nil, err
+			}
+			collectors[key] = collector
+			initiatedCollectors[key] = collector
+		}
+	}
+	return &NodeCollector{Collectors: collectors, logger: logger}, nil
+}
+
 // NewNodeCollector creates a new NodeCollector.
 func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
