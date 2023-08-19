@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nopowersupplyclass
-// +build !nopowersupplyclass
+//go:build !nopowersupplyclass && cgo
+// +build !nopowersupplyclass,cgo
 
 package collector
 
