@@ -11,6 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noloadavg
+// +build !noloadavg
+
 package collector
 
 import "testing"
