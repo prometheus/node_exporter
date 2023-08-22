@@ -24,6 +24,7 @@ enabled_collectors=$(cat << COLLECTORS
   infiniband
   interrupts
   ipvs
+  key_users
   ksmd
   lnstat
   loadavg

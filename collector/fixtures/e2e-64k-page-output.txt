@@ -1291,6 +1291,55 @@ node_ipvs_outgoing_bytes_total 0
 # HELP node_ipvs_outgoing_packets_total The total number of outgoing packets.
 # TYPE node_ipvs_outgoing_packets_total counter
 node_ipvs_outgoing_packets_total 0
+# HELP node_keys_maxbytes Key utilization field maxbytes.
+# TYPE node_keys_maxbytes gauge
+node_keys_maxbytes{uid="0"} 2.5e+07
+node_keys_maxbytes{uid="1000"} 20000
+node_keys_maxbytes{uid="101"} 20000
+node_keys_maxbytes{uid="102"} 20000
+node_keys_maxbytes{uid="104"} 20000
+# HELP node_keys_maxkeys Key utilization field maxkeys.
+# TYPE node_keys_maxkeys gauge
+node_keys_maxkeys{uid="0"} 1e+06
+node_keys_maxkeys{uid="1000"} 200
+node_keys_maxkeys{uid="101"} 200
+node_keys_maxkeys{uid="102"} 200
+node_keys_maxkeys{uid="104"} 200
+# HELP node_keys_nikeys Key utilization field nikeys.
+# TYPE node_keys_nikeys gauge
+node_keys_nikeys{uid="0"} 50
+node_keys_nikeys{uid="1000"} 12
+node_keys_nikeys{uid="101"} 1
+node_keys_nikeys{uid="102"} 1
+node_keys_nikeys{uid="104"} 1
+# HELP node_keys_nkeys Key utilization field nkeys.
+# TYPE node_keys_nkeys gauge
+node_keys_nkeys{uid="0"} 50
+node_keys_nkeys{uid="1000"} 11
+node_keys_nkeys{uid="101"} 1
+node_keys_nkeys{uid="102"} 1
+node_keys_nkeys{uid="104"} 1
+# HELP node_keys_qnbytes Key utilization field qnbytes.
+# TYPE node_keys_qnbytes gauge
+node_keys_qnbytes{uid="0"} 883
+node_keys_qnbytes{uid="1000"} 250
+node_keys_qnbytes{uid="101"} 9
+node_keys_qnbytes{uid="102"} 9
+node_keys_qnbytes{uid="104"} 9
+# HELP node_keys_qnkeys Key utilization field qnkeys.
+# TYPE node_keys_qnkeys gauge
+node_keys_qnkeys{uid="0"} 44
+node_keys_qnkeys{uid="1000"} 13
+node_keys_qnkeys{uid="101"} 1
+node_keys_qnkeys{uid="102"} 1
+node_keys_qnkeys{uid="104"} 1
+# HELP node_keys_usage Key utilization field usage.
+# TYPE node_keys_usage gauge
+node_keys_usage{uid="0"} 51
+node_keys_usage{uid="1000"} 11
+node_keys_usage{uid="101"} 1
+node_keys_usage{uid="102"} 1
+node_keys_usage{uid="104"} 1
 # HELP node_ksmd_full_scans_total ksmd 'full_scans' file.
 # TYPE node_ksmd_full_scans_total counter
 node_ksmd_full_scans_total 323
@@ -2907,6 +2956,7 @@ node_scrape_collector_success{collector="hwmon"} 1
 node_scrape_collector_success{collector="infiniband"} 1
 node_scrape_collector_success{collector="interrupts"} 1
 node_scrape_collector_success{collector="ipvs"} 1
+node_scrape_collector_success{collector="key_users"} 1
 node_scrape_collector_success{collector="ksmd"} 1
 node_scrape_collector_success{collector="lnstat"} 1
 node_scrape_collector_success{collector="loadavg"} 1
