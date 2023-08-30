@@ -50,14 +50,14 @@ const (
 )
 
 var (
-	factories              = make(map[string]func(config NodeCollectorConfig, logger log.Logger) (Collector, error))
+	factories              = make(map[string]func(config any, logger log.Logger) (Collector, error))
 	initiatedCollectorsMtx = sync.Mutex{}
 	initiatedCollectors    = make(map[string]Collector)
 	collectorState         = make(map[string]*bool)
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
-func registerCollector(collector string, isDefaultEnabled bool, factory func(config NodeCollectorConfig, logger log.Logger) (Collector, error)) {
+func registerCollector(collector string, isDefaultEnabled bool, factory func(config any, logger log.Logger) (Collector, error)) {
 	var helpDefaultState string
 	if isDefaultEnabled {
 		helpDefaultState = "enabled"

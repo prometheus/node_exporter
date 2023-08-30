@@ -19,8 +19,3 @@ package collector
 type NodeCollectorConfig struct {
 	Arp ArpConfig
 }
-
-type ArpConfig struct {
-	DeviceInclude *string
-	DeviceExclude *string
-}
