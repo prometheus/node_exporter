@@ -29,7 +29,7 @@ var (
 	vulnerabilityDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, cpuVulerabilitiesCollector, "info"),
 		"Details of each CPU vulnerability reported by sysfs. The value of the series is an int encoded state of the vulnerability. The same state is stored as a string in the label",
-		[]string{"codename", "state"},
+		[]string{"codename", "state", "mitigation"},
 		nil,
 	)
 )
@@ -62,6 +62,7 @@ func (v *cpuVulnerabilitiesCollector) Update(ch chan<- prometheus.Metric) error 
 			1.0,
 			vulnerability.CodeName,
 			sysfs.VulnerabilityHumanEncoding[vulnerability.State],
+			vulnerability.Mitigation,
 		)
 	}
 	return nil
