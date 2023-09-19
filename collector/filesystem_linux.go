@@ -109,6 +109,14 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 }
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
+	var ro float64
+	for _, option := range strings.Split(labels.options, ",") {
+		if option == "ro" {
+			ro = 1
+			break
+		}
+	}
+
 	success := make(chan struct{})
 	go stuckMountWatcher(labels.mountPoint, success, c.logger)
 
@@ -129,16 +137,10 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
+			ro:          ro,
 		}
 	}
 
-	var ro float64
-	for _, option := range strings.Split(labels.options, ",") {
-		if option == "ro" {
-			ro = 1
-			break
-		}
-	}
 	return filesystemStats{
 		labels:    labels,
 		size:      float64(buf.Blocks) * float64(buf.Bsize),
