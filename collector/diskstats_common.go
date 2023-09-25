@@ -20,7 +20,6 @@ package collector
 import (
 	"errors"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -34,19 +33,6 @@ var (
 	diskLabelNames = []string{"device"}
 
 	diskstatsDeviceExcludeSet bool
-	diskstatsDeviceExclude    = kingpin.Flag(
-		"collector.diskstats.device-exclude",
-		"Regexp of diskstats devices to exclude (mutually exclusive to device-include).",
-	).Default(diskstatsDefaultIgnoredDevices).PreAction(func(c *kingpin.ParseContext) error {
-		diskstatsDeviceExcludeSet = true
-		return nil
-	}).String()
-	oldDiskstatsDeviceExclude = kingpin.Flag(
-		"collector.diskstats.ignored-devices",
-		"DEPRECATED: Use collector.diskstats.device-exclude",
-	).Hidden().String()
-
-	diskstatsDeviceInclude = kingpin.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
 
 	readsCompletedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
@@ -93,27 +79,35 @@ var (
 	)
 )
 
-func newDiskstatsDeviceFilter(logger log.Logger) (deviceFilter, error) {
-	if *oldDiskstatsDeviceExclude != "" {
+type DiskstatsDeviceFilterConfig struct {
+	DiskstatsDeviceExclude    *string
+	OldDiskstatsDeviceExclude *string
+	DiskstatsDeviceInclude    *string
+}
+
+func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger log.Logger) (deviceFilter, error) {
+	if *config.OldDiskstatsDeviceExclude != "" {
 		if !diskstatsDeviceExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
-			*diskstatsDeviceExclude = *oldDiskstatsDeviceExclude
+			*config.DiskstatsDeviceExclude = *config.OldDiskstatsDeviceExclude
 		} else {
 			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
 		}
 	}
 
-	if *diskstatsDeviceExclude != "" && *diskstatsDeviceInclude != "" {
+	if *config.DiskstatsDeviceExclude != "" && *config.DiskstatsDeviceInclude != "" {
 		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
 	}
 
-	if *diskstatsDeviceExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *diskstatsDeviceExclude)
+	if *config.DiskstatsDeviceExclude != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *config.DiskstatsDeviceExclude)
+	} else {
+		*config.DiskstatsDeviceExclude = diskstatsDefaultIgnoredDevices
 	}
 
-	if *diskstatsDeviceInclude != "" {
-		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *diskstatsDeviceInclude)
+	if *config.DiskstatsDeviceInclude != "" {
+		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *config.DiskstatsDeviceInclude)
 	}
 
-	return newDeviceFilter(*diskstatsDeviceExclude, *diskstatsDeviceInclude), nil
+	return newDeviceFilter(*config.DiskstatsDeviceExclude, *config.DiskstatsDeviceInclude), nil
 }

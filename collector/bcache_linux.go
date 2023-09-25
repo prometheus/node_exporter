@@ -19,29 +19,32 @@ package collector
 import (
 	"fmt"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
 )
 
-var (
-	priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
-)
-
 func init() {
-	registerCollector("bcache", defaultEnabled, NewBcacheCollector)
+	registerCollector("bcache", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		bcacheConfig := config.(BcacheConfig)
+		return NewBcacheCollector(bcacheConfig, logger)
+	})
 }
 
 // A bcacheCollector is a Collector which gathers metrics from Linux bcache.
 type bcacheCollector struct {
 	fs     bcache.FS
 	logger log.Logger
+	config BcacheConfig
+}
+
+type BcacheConfig struct {
+	PriorityStats *bool
 }
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
-func NewBcacheCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewBcacheCollector(config BcacheConfig, logger log.Logger) (Collector, error) {
 	fs, err := bcache.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -50,6 +53,7 @@ func NewBcacheCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 	return &bcacheCollector{
 		fs:     fs,
 		logger: logger,
+		config: config,
 	}, nil
 }
 
@@ -58,7 +62,7 @@ func NewBcacheCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
 	var stats []*bcache.Stats
 	var err error
-	if *priorityStats {
+	if *c.config.PriorityStats {
 		stats, err = c.fs.Stats()
 	} else {
 		stats, err = c.fs.StatsWithoutPriority()
@@ -317,7 +321,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabelValue: cache.Name,
 			},
 		}
-		if *priorityStats {
+		if *c.config.PriorityStats {
 			// metrics in /sys/fs/bcache/<uuid>/<cache>/priority_stats
 			priorityStatsMetrics := []bcacheMetric{
 				{

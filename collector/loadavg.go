@@ -31,11 +31,13 @@ type loadavgCollector struct {
 }
 
 func init() {
-	registerCollector("loadavg", defaultEnabled, NewLoadavgCollector)
+	registerCollector("loadavg", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewLoadavgCollector(logger)
+	})
 }
 
 // NewLoadavgCollector returns a new Collector exposing load average stats.
-func NewLoadavgCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewLoadavgCollector(logger log.Logger) (Collector, error) {
 	return &loadavgCollector{
 		metric: []typedDesc{
 			{prometheus.NewDesc(namespace+"_load1", "1m load average.", nil, nil), prometheus.GaugeValue},

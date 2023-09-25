@@ -34,11 +34,13 @@ type dmiCollector struct {
 }
 
 func init() {
-	registerCollector("dmi", defaultEnabled, NewDMICollector)
+	registerCollector("dmi", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewDMICollector(logger)
+	})
 }
 
 // NewDMICollector returns a new Collector exposing DMI information.
-func NewDMICollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewDMICollector(logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

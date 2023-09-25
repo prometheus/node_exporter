@@ -36,11 +36,13 @@ type fileFDStatCollector struct {
 }
 
 func init() {
-	registerCollector(fileFDStatSubsystem, defaultEnabled, NewFileFDStatCollector)
+	registerCollector(fileFDStatSubsystem, defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewFileFDStatCollector(logger)
+	})
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
-func NewFileFDStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewFileFDStatCollector(logger log.Logger) (Collector, error) {
 	return &fileFDStatCollector{logger}, nil
 }
 

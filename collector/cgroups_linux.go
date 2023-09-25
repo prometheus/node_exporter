@@ -34,11 +34,13 @@ type cgroupSummaryCollector struct {
 }
 
 func init() {
-	registerCollector(cgroupsCollectorSubsystem, defaultDisabled, NewCgroupSummaryCollector)
+	registerCollector(cgroupsCollectorSubsystem, defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewCgroupSummaryCollector(logger)
+	})
 }
 
 // NewCgroupSummaryCollector returns a new Collector exposing a summary of cgroups.
-func NewCgroupSummaryCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewCgroupSummaryCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

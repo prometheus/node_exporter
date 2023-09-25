@@ -32,11 +32,13 @@ type mdadmCollector struct {
 }
 
 func init() {
-	registerCollector("mdadm", defaultEnabled, NewMdadmCollector)
+	registerCollector("mdadm", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewMdadmCollector(logger)
+	})
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
-func NewMdadmCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewMdadmCollector(logger log.Logger) (Collector, error) {
 	return &mdadmCollector{logger}, nil
 }
 

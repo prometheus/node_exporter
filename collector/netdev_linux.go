@@ -19,18 +19,13 @@ package collector
 import (
 	"fmt"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/prometheus/procfs"
 )
 
-var (
-	netDevNetlink = kingpin.Flag("collector.netdev.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("true").Bool()
-)
-
-func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(netDevNetlink *bool, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	if *netDevNetlink {
 		return netlinkStats(filter, logger)
 	}

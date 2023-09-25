@@ -102,11 +102,13 @@ type devstatCollector struct {
 }
 
 func init() {
-	registerCollector("devstat", defaultDisabled, NewDevstatCollector)
+	registerCollector("devstat", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewDevstatCollector(logger)
+	})
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewDevstatCollector(logger log.Logger) (Collector, error) {
 	return &devstatCollector{
 		bytesDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "bytes_total"),

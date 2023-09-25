@@ -30,7 +30,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -40,11 +39,8 @@ import (
 )
 
 var (
-	ethtoolDeviceInclude   = kingpin.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
-	ethtoolDeviceExclude   = kingpin.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
-	ethtoolIncludedMetrics = kingpin.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(".*").String()
-	ethtoolReceivedRegex   = regexp.MustCompile(`(^|_)rx(_|$)`)
-	ethtoolTransmitRegex   = regexp.MustCompile(`(^|_)tx(_|$)`)
+	ethtoolReceivedRegex = regexp.MustCompile(`(^|_)rx(_|$)`)
+	ethtoolTransmitRegex = regexp.MustCompile(`(^|_)tx(_|$)`)
 )
 
 type Ethtool interface {
@@ -82,10 +78,16 @@ type ethtoolCollector struct {
 	logger         log.Logger
 }
 
+type EthtoolConfig struct {
+	DeviceInclude   *string
+	DeviceExclude   *string
+	IncludedMetrics *string
+}
+
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
 // This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.
-func makeEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (*ethtoolCollector, error) {
+func makeEthtoolCollector(config EthtoolConfig, logger log.Logger) (*ethtoolCollector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -100,8 +102,8 @@ func makeEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (*ethto
 	return &ethtoolCollector{
 		fs:             fs,
 		ethtool:        &ethtoolLibrary{e},
-		deviceFilter:   newDeviceFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
-		metricsPattern: regexp.MustCompile(*ethtoolIncludedMetrics),
+		deviceFilter:   newDeviceFilter(*config.DeviceExclude, *config.DeviceInclude),
+		metricsPattern: regexp.MustCompile(*config.IncludedMetrics),
 		logger:         logger,
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
@@ -201,7 +203,10 @@ func makeEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (*ethto
 }
 
 func init() {
-	registerCollector("ethtool", defaultDisabled, NewEthtoolCollector)
+	registerCollector("ethtool", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(EthtoolConfig)
+		return NewEthtoolCollector(cfg, logger)
+	})
 }
 
 // Generate the fully-qualified metric name for the ethool metric.
@@ -213,7 +218,7 @@ func buildEthtoolFQName(metric string) string {
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
-func NewEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewEthtoolCollector(config EthtoolConfig, logger log.Logger) (Collector, error) {
 	return makeEthtoolCollector(config, logger)
 }
 

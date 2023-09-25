@@ -45,11 +45,13 @@ type pressureStatsCollector struct {
 }
 
 func init() {
-	registerCollector("pressure", defaultEnabled, NewPressureStatsCollector)
+	registerCollector("pressure", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewPressureStatsCollector(logger)
+	})
 }
 
 // NewPressureStatsCollector returns a Collector exposing pressure stall information
-func NewPressureStatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewPressureStatsCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

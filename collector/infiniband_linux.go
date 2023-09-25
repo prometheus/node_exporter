@@ -36,11 +36,13 @@ type infinibandCollector struct {
 }
 
 func init() {
-	registerCollector("infiniband", defaultEnabled, NewInfiniBandCollector)
+	registerCollector("infiniband", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewInfiniBandCollector(logger)
+	})
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 

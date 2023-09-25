@@ -26,7 +26,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -35,23 +34,26 @@ const (
 	netStatsSubsystem = "netstat"
 )
 
-var (
-	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$").String()
-)
-
 type netStatCollector struct {
 	fieldPattern *regexp.Regexp
 	logger       log.Logger
 }
 
 func init() {
-	registerCollector("netstat", defaultEnabled, NewNetStatCollector)
+	registerCollector(netStatsSubsystem, defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(NetStatConfig)
+		return NewNetStatCollector(cfg, logger)
+	})
+}
+
+type NetStatConfig struct {
+	Fields *string
 }
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
-	pattern := regexp.MustCompile(*netStatFields)
+func NewNetStatCollector(config NetStatConfig, logger log.Logger) (Collector, error) {
+	pattern := regexp.MustCompile(*config.Fields)
 	return &netStatCollector{
 		fieldPattern: pattern,
 		logger:       logger,

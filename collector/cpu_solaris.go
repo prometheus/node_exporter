@@ -33,10 +33,12 @@ type cpuCollector struct {
 }
 
 func init() {
-	registerCollector("cpu", defaultEnabled, NewCpuCollector)
+	registerCollector("cpu", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewCPUCollector(logger)
+	})
 }
 
-func NewCpuCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewCpuCollector(logger log.Logger) (Collector, error) {
 	return &cpuCollector{
 		cpu:    typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		logger: logger,

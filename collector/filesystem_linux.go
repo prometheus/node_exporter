@@ -26,7 +26,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
@@ -37,12 +36,6 @@ const (
 	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 )
 
-var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
-	"how long to wait for a mount to respond before marking it as stale").
-	Hidden().Default("5s").Duration()
-var statWorkerCount = kingpin.Flag("collector.filesystem.stat-workers",
-	"how many stat calls to process simultaneously").
-	Hidden().Default("4").Int()
 var stuckMounts = make(map[string]struct{})
 var stuckMountsMtx = &sync.Mutex{}
 
@@ -57,7 +50,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
-	workerCount := *statWorkerCount
+	workerCount := *c.config.StatWorkerCount
 	if workerCount < 1 {
 		workerCount = 1
 	}
@@ -110,7 +103,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
 	success := make(chan struct{})
-	go stuckMountWatcher(labels.mountPoint, success, c.logger)
+	go stuckMountWatcher(c.config.MountTimeout, labels.mountPoint, success, c.logger)
 
 	buf := new(unix.Statfs_t)
 	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
@@ -153,7 +146,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
+func stuckMountWatcher(mountTimeout *time.Duration, mountPoint string, success chan struct{}, logger log.Logger) {
 	mountCheckTimer := time.NewTimer(*mountTimeout)
 	defer mountCheckTimer.Stop()
 	select {

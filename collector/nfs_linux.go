@@ -44,11 +44,13 @@ type nfsCollector struct {
 }
 
 func init() {
-	registerCollector("nfs", defaultEnabled, NewNfsCollector)
+	registerCollector("nfs", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewNfsCollector(logger)
+	})
 }
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.
-func NewNfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNfsCollector(logger log.Logger) (Collector, error) {
 	fs, err := nfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

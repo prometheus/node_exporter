@@ -28,11 +28,13 @@ type interruptsCollector struct {
 }
 
 func init() {
-	registerCollector("interrupts", defaultDisabled, NewInterruptsCollector)
+	registerCollector("interrupts", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewInterruptsCollector(logger)
+	})
 }
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
-func NewInterruptsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewInterruptsCollector(logger log.Logger) (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			namespace+"_interrupts_total",

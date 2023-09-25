@@ -37,10 +37,12 @@ var (
 type cpuVulnerabilitiesCollector struct{}
 
 func init() {
-	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, NewVulnerabilitySysfsCollector)
+	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewVulnerabilitySysfsCollector(logger)
+	})
 }
 
-func NewVulnerabilitySysfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewVulnerabilitySysfsCollector(logger log.Logger) (Collector, error) {
 	return &cpuVulnerabilitiesCollector{}, nil
 }
 

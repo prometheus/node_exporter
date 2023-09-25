@@ -33,10 +33,12 @@ const (
 )
 
 func init() {
-	registerCollector("netisr", defaultEnabled, NewNetisrCollector)
+	registerCollector("netisr", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewNetisrCollector(logger)
+	})
 }
 
-func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNetisrCollector(logger log.Logger) (Collector, error) {
 	return &netisrCollector{
 		sysctls: []bsdSysctl{
 			{

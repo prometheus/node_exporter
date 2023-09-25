@@ -218,11 +218,13 @@ type statCollector struct {
 }
 
 func init() {
-	registerCollector("cpu", defaultEnabled, NewStatCollector)
+	registerCollector("cpu", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewStatCollector(logger)
+	})
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewStatCollector(logger log.Logger) (Collector, error) {
 	return &statCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		temp: typedDesc{prometheus.NewDesc(

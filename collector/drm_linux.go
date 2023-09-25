@@ -42,11 +42,13 @@ type drmCollector struct {
 }
 
 func init() {
-	registerCollector("drm", defaultDisabled, NewDrmCollector)
+	registerCollector("drm", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewDrmCollector(logger)
+	})
 }
 
 // NewDrmCollector returns a new Collector exposing /sys/class/drm/card?/device stats.
-func NewDrmCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewDrmCollector(logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,9 +31,6 @@ import (
 )
 
 var (
-	collectorHWmonChipInclude = kingpin.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
-	collectorHWmonChipExclude = kingpin.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
-
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
 	hwmonLabelDesc          = []string{"chip", "sensor"}
@@ -47,7 +43,10 @@ var (
 )
 
 func init() {
-	registerCollector("hwmon", defaultEnabled, NewHwMonCollector)
+	registerCollector("hwmon", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(HwMonConfig)
+		return NewHwMonCollector(cfg, logger)
+	})
 }
 
 type hwMonCollector struct {
@@ -55,13 +54,18 @@ type hwMonCollector struct {
 	logger       log.Logger
 }
 
+type HwMonConfig struct {
+	ChipInclude *string
+	ChipExclude *string
+}
+
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewHwMonCollector(config HwMonConfig, logger log.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipInclude),
+		deviceFilter: newDeviceFilter(*config.ChipExclude, *config.ChipInclude),
 	}, nil
 }
 

@@ -53,11 +53,13 @@ type conntrackStatistics struct {
 }
 
 func init() {
-	registerCollector("conntrack", defaultEnabled, NewConntrackCollector)
+	registerCollector("conntrack", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewConntrackCollector(logger)
+	})
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewConntrackCollector(logger log.Logger) (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),

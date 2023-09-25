@@ -35,7 +35,9 @@ type ksmdCollector struct {
 }
 
 func init() {
-	registerCollector("ksmd", defaultDisabled, NewKsmdCollector)
+	registerCollector("ksmd", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewKsmdCollector(logger)
+	})
 }
 
 func getCanonicalMetricName(filename string) string {
@@ -50,7 +52,7 @@ func getCanonicalMetricName(filename string) string {
 }
 
 // NewKsmdCollector returns a new Collector exposing kernel/system statistics.
-func NewKsmdCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewKsmdCollector(logger log.Logger) (Collector, error) {
 	subsystem := "ksmd"
 	descs := make(map[string]*prometheus.Desc)
 

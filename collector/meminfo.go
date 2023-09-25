@@ -35,11 +35,13 @@ type meminfoCollector struct {
 }
 
 func init() {
-	registerCollector("meminfo", defaultEnabled, NewMeminfoCollector)
+	registerCollector("meminfo", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewMeminfoCollector(logger)
+	})
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewMeminfoCollector(logger log.Logger) (Collector, error) {
 	return &meminfoCollector{logger}, nil
 }
 

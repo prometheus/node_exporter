@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -51,25 +50,33 @@ type cpuCollector struct {
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
+
+	config CPUConfig
 }
 
 // Idle jump back limit in seconds.
 const jumpBackSeconds = 3.0
 
 var (
-	enableCPUGuest       = kingpin.Flag("collector.cpu.guest", "Enables metric node_cpu_guest_seconds_total").Default("true").Bool()
-	enableCPUInfo        = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
-	flagsInclude         = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
-	bugsInclude          = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
 	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
 )
 
+type CPUConfig struct {
+	EnableCPUGuest *bool
+	EnableCPUInfo  *bool
+	FlagsInclude   *string
+	BugsInclude    *string
+}
+
 func init() {
-	registerCollector("cpu", defaultEnabled, NewCPUCollector)
+	registerCollector("cpu", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		cpuConfig := config.(CPUConfig)
+		return NewCPUCollector(cpuConfig, logger)
+	})
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewCPUCollector(config CPUConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -129,8 +136,9 @@ func NewCPUCollector(config NodeCollectorConfig, logger log.Logger) (Collector, 
 		logger:       logger,
 		isolatedCpus: isolcpus,
 		cpuStats:     make(map[int64]procfs.CPUStat),
+		config:       config,
 	}
-	err = c.compileIncludeFlags(flagsInclude, bugsInclude)
+	err = c.compileIncludeFlags(c.config.FlagsInclude, c.config.BugsInclude)
 	if err != nil {
 		return nil, fmt.Errorf("fail to compile --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include, the values of them must be regular expressions: %w", err)
 	}
@@ -138,8 +146,8 @@ func NewCPUCollector(config NodeCollectorConfig, logger log.Logger) (Collector, 
 }
 
 func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *string) error {
-	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*enableCPUInfo {
-		*enableCPUInfo = true
+	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*c.config.EnableCPUInfo {
+		*c.config.EnableCPUInfo = true
 		level.Info(c.logger).Log("msg", "--collector.cpu.info has been set to `true` because you set the following flags, like --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include")
 	}
 
@@ -161,7 +169,7 @@ func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *st
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
-	if *enableCPUInfo {
+	if *c.config.EnableCPUInfo {
 		if err := c.updateInfo(ch); err != nil {
 			return err
 		}
@@ -337,7 +345,7 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuNum, "softirq")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuNum, "steal")
 
-		if *enableCPUGuest {
+		if *c.config.EnableCPUGuest {
 			// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
 			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")
 			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")

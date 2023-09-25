@@ -90,19 +90,22 @@ type diskstatsCollector struct {
 }
 
 func init() {
-	registerCollector("diskstats", defaultEnabled, NewDiskstatsCollector)
+	registerCollector("diskstats", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(DiskstatsDeviceFilterConfig)
+		return NewDiskstatsCollector(cfg, logger)
+	})
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewDiskstatsCollector(config DiskstatsDeviceFilterConfig, logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 	fs, err := blockdevice.NewFS(*procPath, *sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+	deviceFilter, err := newDiskstatsDeviceFilter(config, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}

@@ -43,11 +43,13 @@ type processCollector struct {
 }
 
 func init() {
-	registerCollector("processes", defaultDisabled, NewProcessStatCollector)
+	registerCollector("processes", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewProcessStatCollector(logger)
+	})
 }
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
-func NewProcessStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewProcessStatCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

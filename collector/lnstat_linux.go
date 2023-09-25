@@ -30,10 +30,12 @@ type lnstatCollector struct {
 }
 
 func init() {
-	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
+	registerCollector("lnstat", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewLnstatCollector(logger)
+	})
 }
 
-func NewLnstatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewLnstatCollector(logger log.Logger) (Collector, error) {
 	return &lnstatCollector{logger}, nil
 }
 

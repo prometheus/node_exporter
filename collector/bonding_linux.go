@@ -34,12 +34,14 @@ type bondingCollector struct {
 }
 
 func init() {
-	registerCollector("bonding", defaultEnabled, NewBondingCollector)
+	registerCollector("bonding", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewBondingCollector(logger)
+	})
 }
 
 // NewBondingCollector returns a newly allocated bondingCollector.
 // It exposes the number of configured and active slave of linux bonding interfaces.
-func NewBondingCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewBondingCollector(logger log.Logger) (Collector, error) {
 	return &bondingCollector{
 		slaves: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "bonding", "slaves"),

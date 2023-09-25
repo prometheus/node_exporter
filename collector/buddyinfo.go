@@ -37,11 +37,13 @@ type buddyinfoCollector struct {
 }
 
 func init() {
-	registerCollector("buddyinfo", defaultDisabled, NewBuddyinfoCollector)
+	registerCollector("buddyinfo", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewBuddyinfoCollector(logger)
+	})
 }
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
-func NewBuddyinfoCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewBuddyinfoCollector(logger log.Logger) (Collector, error) {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
 		"Count of free blocks according to size.",

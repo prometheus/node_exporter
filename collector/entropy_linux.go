@@ -32,11 +32,13 @@ type entropyCollector struct {
 }
 
 func init() {
-	registerCollector("entropy", defaultEnabled, NewEntropyCollector)
+	registerCollector("entropy", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewEntropyCollector(logger)
+	})
 }
 
 // NewEntropyCollector returns a new Collector exposing entropy stats.
-func NewEntropyCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewEntropyCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

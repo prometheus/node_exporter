@@ -18,10 +18,11 @@ package collector
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-	"strings"
 )
 
 type cpuFreqCollector struct {
@@ -30,11 +31,13 @@ type cpuFreqCollector struct {
 }
 
 func init() {
-	registerCollector("cpufreq", defaultEnabled, NewCPUFreqCollector)
+	registerCollector("cpufreq", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewCPUFreqCollector(logger)
+	})
 }
 
 // NewCPUFreqCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUFreqCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewCPUFreqCollector(logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

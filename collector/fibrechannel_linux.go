@@ -36,11 +36,13 @@ type fibrechannelCollector struct {
 }
 
 func init() {
-	registerCollector("fibrechannel", defaultEnabled, NewFibreChannelCollector)
+	registerCollector("fibrechannel", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewFibreChannelCollector(logger)
+	})
 }
 
 // NewFibreChannelCollector returns a new Collector exposing FibreChannel stats.
-func NewFibreChannelCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
 	var i fibrechannelCollector
 	var err error
 

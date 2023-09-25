@@ -17,5 +17,18 @@
 package collector
 
 type NodeCollectorConfig struct {
-	Arp ArpConfig
+	Arp                   ArpConfig
+	Bcache                BcacheConfig
+	CPU                   CPUConfig
+	DiskstatsDeviceFilter DiskstatsDeviceFilterConfig
+	Ethtool               EthtoolConfig
+	Filesystem            FilesystemConfig
+	HwMon                 HwMonConfig
+	IPVS                  IPVSConfig
+	NetClass              NetClassConfig
+	NetDev                NetDevConfig
+	NetStat               NetStatConfig
+	NTP                   NTPConfig
+	Perf                  PerfConfig
+	PowerSupplyClass      PowerSupplyClassConfig
 }

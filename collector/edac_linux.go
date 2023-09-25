@@ -43,11 +43,13 @@ type edacCollector struct {
 }
 
 func init() {
-	registerCollector("edac", defaultEnabled, NewEdacCollector)
+	registerCollector("edac", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewEdacCollector(logger)
+	})
 }
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewEdacCollector(logger log.Logger) (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "correctable_errors_total"),

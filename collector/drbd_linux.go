@@ -83,10 +83,12 @@ type drbdCollector struct {
 }
 
 func init() {
-	registerCollector("drbd", defaultDisabled, newDRBDCollector)
+	registerCollector("drbd", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return newDRBDCollector(logger)
+	})
 }
 
-func newDRBDCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func newDRBDCollector(logger log.Logger) (Collector, error) {
 	return &drbdCollector{
 		numerical: map[string]drbdNumericalMetric{
 			"ns": newDRBDNumericalMetric(

@@ -36,7 +36,9 @@ type nfsdCollector struct {
 }
 
 func init() {
-	registerCollector("nfsd", defaultEnabled, NewNFSdCollector)
+	registerCollector("nfsd", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewNFSdCollector(logger)
+	})
 }
 
 const (
@@ -44,7 +46,7 @@ const (
 )
 
 // NewNFSdCollector returns a new Collector exposing /proc/net/rpc/nfsd statistics.
-func NewNFSdCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNFSdCollector(logger log.Logger) (Collector, error) {
 	fs, err := nfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
