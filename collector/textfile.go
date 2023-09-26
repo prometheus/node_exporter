@@ -48,10 +48,7 @@ type textFileCollector struct {
 }
 
 func init() {
-	registerCollector("textfile", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(TextFileConfig)
-		return NewTextFileCollector(cfg, logger)
-	})
+	registerCollector("textfile", defaultEnabled, NewTextFileCollector)
 }
 
 type TextFileConfig struct {
@@ -60,9 +57,9 @@ type TextFileConfig struct {
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files
 // in the given textfile directory.
-func NewTextFileCollector(config TextFileConfig, logger log.Logger) (Collector, error) {
+func NewTextFileCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	c := &textFileCollector{
-		path:   *config.Directory,
+		path:   *config.TextFile.Directory,
 		logger: logger,
 	}
 	return c, nil

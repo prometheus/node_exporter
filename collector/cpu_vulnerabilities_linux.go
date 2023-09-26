@@ -34,20 +34,20 @@ var (
 	)
 )
 
-type cpuVulnerabilitiesCollector struct{}
-
-func init() {
-	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewVulnerabilitySysfsCollector(logger)
-	})
+type cpuVulnerabilitiesCollector struct {
+	config NodeCollectorConfig
 }
 
-func NewVulnerabilitySysfsCollector(logger log.Logger) (Collector, error) {
-	return &cpuVulnerabilitiesCollector{}, nil
+func init() {
+	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, NewVulnerabilitySysfsCollector)
+}
+
+func NewVulnerabilitySysfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return &cpuVulnerabilitiesCollector{config}, nil
 }
 
 func (v *cpuVulnerabilitiesCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(*v.config.Path.SysPath)
 	if err != nil {
 		return fmt.Errorf("failed to open sysfs: %w", err)
 	}

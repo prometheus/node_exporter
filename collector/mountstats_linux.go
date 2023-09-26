@@ -107,14 +107,12 @@ type nfsDeviceIdentifier struct {
 }
 
 func init() {
-	registerCollector("mountstats", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewMountStatsCollector(logger)
-	})
+	registerCollector("mountstats", defaultDisabled, NewMountStatsCollector)
 }
 
 // NewMountStatsCollector returns a new Collector exposing NFS statistics.
-func NewMountStatsCollector(logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewMountStatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

@@ -140,7 +140,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		pushMetric(ch, c.getFieldDesc("protocol_type"), "protocol_type", msg.Type, prometheus.GaugeValue, msg.Attributes.Name)
 
 		// Skip statistics if argument collector.netclass_rtnl.with-stats is false or statistics are unavailable.
-		if c.config.RTNLWithStats == nil || !*c.config.RTNLWithStats || msg.Attributes.Stats64 == nil {
+		if c.config.NetClass.RTNLWithStats == nil || !*c.config.NetClass.RTNLWithStats || msg.Attributes.Stats64 == nil {
 			continue
 		}
 

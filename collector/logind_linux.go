@@ -82,13 +82,11 @@ type logindSeatEntry struct {
 }
 
 func init() {
-	registerCollector("logind", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewLogindCollector(logger)
-	})
+	registerCollector("logind", defaultDisabled, NewLogindCollector)
 }
 
 // NewLogindCollector returns a new Collector exposing logind statistics.
-func NewLogindCollector(logger log.Logger) (Collector, error) {
+func NewLogindCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &logindCollector{logger}, nil
 }
 

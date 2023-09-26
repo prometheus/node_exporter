@@ -35,13 +35,11 @@ type networkRouteCollector struct {
 }
 
 func init() {
-	registerCollector("network_route", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewNetworkRouteCollector(logger)
-	})
+	registerCollector("network_route", defaultDisabled, NewNetworkRouteCollector)
 }
 
 // NewNetworkRouteCollector returns a new Collector exposing systemd statistics.
-func NewNetworkRouteCollector(logger log.Logger) (Collector, error) {
+func NewNetworkRouteCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "network"
 
 	routeInfoDesc := prometheus.NewDesc(

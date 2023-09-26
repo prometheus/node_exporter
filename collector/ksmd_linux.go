@@ -32,12 +32,11 @@ var (
 type ksmdCollector struct {
 	metricDescs map[string]*prometheus.Desc
 	logger      log.Logger
+	config      NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("ksmd", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewKsmdCollector(logger)
-	})
+	registerCollector("ksmd", defaultDisabled, NewKsmdCollector)
 }
 
 func getCanonicalMetricName(filename string) string {
@@ -52,7 +51,7 @@ func getCanonicalMetricName(filename string) string {
 }
 
 // NewKsmdCollector returns a new Collector exposing kernel/system statistics.
-func NewKsmdCollector(logger log.Logger) (Collector, error) {
+func NewKsmdCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	subsystem := "ksmd"
 	descs := make(map[string]*prometheus.Desc)
 
@@ -61,13 +60,13 @@ func NewKsmdCollector(logger log.Logger) (Collector, error) {
 			prometheus.BuildFQName(namespace, subsystem, getCanonicalMetricName(n)),
 			fmt.Sprintf("ksmd '%s' file.", n), nil, nil)
 	}
-	return &ksmdCollector{descs, logger}, nil
+	return &ksmdCollector{descs, logger, config}, nil
 }
 
 // Update implements Collector and exposes kernel and system statistics.
 func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
-		val, err := readUintFromFile(sysFilePath(filepath.Join("kernel/mm/ksm", n)))
+		val, err := readUintFromFile(c.config.Path.sysFilePath(filepath.Join("kernel/mm/ksm", n)))
 		if err != nil {
 			return err
 		}

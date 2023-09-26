@@ -35,14 +35,11 @@ type netClassCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
 	logger                log.Logger
-	config                NetClassConfig
+	config                NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("netclass", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(NetClassConfig)
-		return NewNetClassCollector(cfg, logger)
-	})
+	registerCollector("netclass", defaultEnabled, NewNetClassCollector)
 }
 
 type NetClassConfig struct {
@@ -53,12 +50,12 @@ type NetClassConfig struct {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector(config NetClassConfig, logger log.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewNetClassCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
-	pattern := regexp.MustCompile(*config.IgnoredDevices)
+	pattern := regexp.MustCompile(*config.NetClass.IgnoredDevices)
 	return &netClassCollector{
 		fs:                    fs,
 		subsystem:             "network",
@@ -70,7 +67,7 @@ func NewNetClassCollector(config NetClassConfig, logger log.Logger) (Collector, 
 }
 
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
-	if *c.config.Netlink {
+	if *c.config.NetClass.Netlink {
 		return c.netClassRTNLUpdate(ch)
 	}
 	return c.netClassSysfsUpdate(ch)
@@ -126,7 +123,7 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 
 		if ifaceInfo.Speed != nil {
 			// Some devices return -1 if the speed is unknown.
-			if *ifaceInfo.Speed >= 0 || !*c.config.InvalidSpeed {
+			if *ifaceInfo.Speed >= 0 || !*c.config.NetClass.InvalidSpeed {
 				speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
 				pushMetric(ch, c.getFieldDesc("speed_bytes"), "speed_bytes", speedBytes, prometheus.GaugeValue, ifaceInfo.Name)
 			}

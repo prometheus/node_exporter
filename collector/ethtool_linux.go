@@ -87,8 +87,8 @@ type EthtoolConfig struct {
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
 // This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.
-func makeEthtoolCollector(config EthtoolConfig, logger log.Logger) (*ethtoolCollector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func makeEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (*ethtoolCollector, error) {
+	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
@@ -102,8 +102,8 @@ func makeEthtoolCollector(config EthtoolConfig, logger log.Logger) (*ethtoolColl
 	return &ethtoolCollector{
 		fs:             fs,
 		ethtool:        &ethtoolLibrary{e},
-		deviceFilter:   newDeviceFilter(*config.DeviceExclude, *config.DeviceInclude),
-		metricsPattern: regexp.MustCompile(*config.IncludedMetrics),
+		deviceFilter:   newDeviceFilter(*config.Ethtool.DeviceExclude, *config.Ethtool.DeviceInclude),
+		metricsPattern: regexp.MustCompile(*config.Ethtool.IncludedMetrics),
 		logger:         logger,
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
@@ -203,10 +203,7 @@ func makeEthtoolCollector(config EthtoolConfig, logger log.Logger) (*ethtoolColl
 }
 
 func init() {
-	registerCollector("ethtool", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(EthtoolConfig)
-		return NewEthtoolCollector(cfg, logger)
-	})
+	registerCollector("ethtool", defaultDisabled, NewEthtoolCollector)
 }
 
 // Generate the fully-qualified metric name for the ethool metric.
@@ -218,7 +215,7 @@ func buildEthtoolFQName(metric string) string {
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
-func NewEthtoolCollector(config EthtoolConfig, logger log.Logger) (Collector, error) {
+func NewEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return makeEthtoolCollector(config, logger)
 }
 

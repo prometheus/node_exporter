@@ -29,6 +29,7 @@ type NodeCollectorConfig struct {
 	NetDev                NetDevConfig
 	NetStat               NetStatConfig
 	NTP                   NTPConfig
+	Path                  PathConfig
 	Perf                  PerfConfig
 	PowerSupplyClass      PowerSupplyClassConfig
 	Qdisc                 QdiscConfig

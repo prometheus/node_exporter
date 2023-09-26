@@ -31,7 +31,7 @@ var (
 )
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
-	file, err := os.Open(procFilePath("meminfo"))
+	file, err := os.Open(c.config.Path.procFilePath("meminfo"))
 	if err != nil {
 		return nil, err
 	}

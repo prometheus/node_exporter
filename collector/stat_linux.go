@@ -34,14 +34,11 @@ type statCollector struct {
 	procsBlocked *prometheus.Desc
 	softIRQ      *prometheus.Desc
 	logger       log.Logger
-	config       StatConfig
+	config       NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("stat", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(StatConfig)
-		return NewStatCollector(cfg, logger)
-	})
+	registerCollector("stat", defaultEnabled, NewStatCollector)
 }
 
 type StatConfig struct {
@@ -49,8 +46,8 @@ type StatConfig struct {
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector(config StatConfig, logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
@@ -112,7 +109,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, float64(stats.ProcessesRunning))
 	ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, float64(stats.ProcessesBlocked))
 
-	if *c.config.Softirq {
+	if *c.config.Stat.Softirq {
 		si := stats.SoftIRQ
 
 		for _, vec := range []struct {

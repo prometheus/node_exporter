@@ -53,8 +53,8 @@ var (
 )
 
 // NewSchedstatCollector returns a new Collector exposing task scheduler statistics
-func NewSchedstatCollector(logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewSchedstatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
@@ -68,9 +68,7 @@ type schedstatCollector struct {
 }
 
 func init() {
-	registerCollector("schedstat", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewSchedstatCollector(logger)
-	})
+	registerCollector("schedstat", defaultEnabled, NewSchedstatCollector)
 }
 
 func (c *schedstatCollector) Update(ch chan<- prometheus.Metric) error {

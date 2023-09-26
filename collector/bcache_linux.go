@@ -25,17 +25,15 @@ import (
 )
 
 func init() {
-	registerCollector("bcache", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		bcacheConfig := config.(BcacheConfig)
-		return NewBcacheCollector(bcacheConfig, logger)
-	})
+	registerCollector("bcache", defaultEnabled, NewBcacheCollector)
+
 }
 
 // A bcacheCollector is a Collector which gathers metrics from Linux bcache.
 type bcacheCollector struct {
 	fs     bcache.FS
 	logger log.Logger
-	config BcacheConfig
+	config NodeCollectorConfig
 }
 
 type BcacheConfig struct {
@@ -44,8 +42,8 @@ type BcacheConfig struct {
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
-func NewBcacheCollector(config BcacheConfig, logger log.Logger) (Collector, error) {
-	fs, err := bcache.NewFS(*sysPath)
+func NewBcacheCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := bcache.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
@@ -62,7 +60,7 @@ func NewBcacheCollector(config BcacheConfig, logger log.Logger) (Collector, erro
 func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
 	var stats []*bcache.Stats
 	var err error
-	if *c.config.PriorityStats {
+	if *c.config.Bcache.PriorityStats {
 		stats, err = c.fs.Stats()
 	} else {
 		stats, err = c.fs.StatsWithoutPriority()
@@ -321,7 +319,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabelValue: cache.Name,
 			},
 		}
-		if *c.config.PriorityStats {
+		if *c.config.Bcache.PriorityStats {
 			// metrics in /sys/fs/bcache/<uuid>/<cache>/priority_stats
 			priorityStatsMetrics := []bcacheMetric{
 				{

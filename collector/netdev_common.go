@@ -35,16 +35,13 @@ type netDevCollector struct {
 	metricDescsMutex sync.Mutex
 	metricDescs      map[string]*prometheus.Desc
 	logger           log.Logger
-	config           NetDevConfig
+	config           NodeCollectorConfig
 }
 
 type netDevStats map[string]map[string]uint64
 
 func init() {
-	registerCollector("netdev", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(NetDevConfig)
-		return NewNetDevCollector(cfg, logger)
-	})
+	registerCollector("netdev", defaultEnabled, NewNetDevCollector)
 }
 
 type NetDevConfig struct {
@@ -58,40 +55,40 @@ type NetDevConfig struct {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector(config NetDevConfig, logger log.Logger) (Collector, error) {
-	if *config.OldDeviceInclude != "" {
-		if *config.DeviceInclude == "" {
+func NewNetDevCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	if *config.NetDev.OldDeviceInclude != "" {
+		if *config.NetDev.DeviceInclude == "" {
 			level.Warn(logger).Log("msg", "--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")
-			*config.DeviceInclude = *config.OldDeviceInclude
+			*config.NetDev.DeviceInclude = *config.NetDev.OldDeviceInclude
 		} else {
 			return nil, errors.New("--collector.netdev.device-whitelist and --collector.netdev.device-include are mutually exclusive")
 		}
 	}
 
-	if *config.OldDeviceExclude != "" {
-		if *config.DeviceExclude == "" {
+	if *config.NetDev.OldDeviceExclude != "" {
+		if *config.NetDev.DeviceExclude == "" {
 			level.Warn(logger).Log("msg", "--collector.netdev.device-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-exclude")
-			*config.DeviceExclude = *config.OldDeviceExclude
+			*config.NetDev.DeviceExclude = *config.NetDev.OldDeviceExclude
 		} else {
 			return nil, errors.New("--collector.netdev.device-blacklist and --collector.netdev.device-exclude are mutually exclusive")
 		}
 	}
 
-	if *config.DeviceExclude != "" && *config.DeviceInclude != "" {
+	if *config.NetDev.DeviceExclude != "" && *config.NetDev.DeviceInclude != "" {
 		return nil, errors.New("device-exclude & device-include are mutually exclusive")
 	}
 
-	if *config.DeviceExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.netdev.device-exclude", "flag", *netdevDeviceExclude)
+	if *config.NetDev.DeviceExclude != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.netdev.device-exclude", "flag", *config.NetDev.DeviceExclude)
 	}
 
-	if *config.DeviceInclude != "" {
-		level.Info(logger).Log("msg", "Parsed Flag --collector.netdev.device-include", "flag", *netdevDeviceInclude)
+	if *config.NetDev.DeviceInclude != "" {
+		level.Info(logger).Log("msg", "Parsed Flag --collector.netdev.device-include", "flag", *config.NetDev.DeviceInclude)
 	}
 
 	return &netDevCollector{
 		subsystem:    "network",
-		deviceFilter: newDeviceFilter(*config.DeviceExclude, *config.DeviceInclude),
+		deviceFilter: newDeviceFilter(*config.NetDev.DeviceExclude, *config.NetDev.DeviceInclude),
 		metricDescs:  map[string]*prometheus.Desc{},
 		logger:       logger,
 		config:       config,
@@ -115,12 +112,12 @@ func (c *netDevCollector) metricDesc(key string) *prometheus.Desc {
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(c.config.Netlink, &c.deviceFilter, c.logger)
+	netDev, err := getNetDevStats(c.config, c.config.NetDev.Netlink, &c.deviceFilter, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
 	for dev, devStats := range netDev {
-		if !*c.config.DetailedMetrics {
+		if !*c.config.NetDev.DetailedMetrics {
 			legacy(devStats)
 		}
 		for key, value := range devStats {
@@ -128,7 +125,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
 		}
 	}
-	if *c.config.AddressInfo {
+	if *c.config.NetDev.AddressInfo {
 		interfaces, err := net.Interfaces()
 		if err != nil {
 			return fmt.Errorf("could not get network interfaces: %w", err)

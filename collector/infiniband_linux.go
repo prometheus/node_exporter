@@ -36,17 +36,15 @@ type infinibandCollector struct {
 }
 
 func init() {
-	registerCollector("infiniband", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewInfiniBandCollector(logger)
-	})
+	registerCollector("infiniband", defaultEnabled, NewInfiniBandCollector)
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
+func NewInfiniBandCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 
-	i.fs, err = sysfs.NewFS(*sysPath)
+	i.fs, err = sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

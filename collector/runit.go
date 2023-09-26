@@ -29,14 +29,11 @@ type runitCollector struct {
 	stateNormal    typedDesc
 	stateTimestamp typedDesc
 	logger         log.Logger
-	config         RunitConfig
+	config         NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("runit", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(RunitConfig)
-		return NewRunitCollector(cfg, logger)
-	})
+	registerCollector("runit", defaultDisabled, NewRunitCollector)
 }
 
 type RunitConfig struct {
@@ -44,7 +41,7 @@ type RunitConfig struct {
 }
 
 // NewRunitCollector returns a new Collector exposing runit statistics.
-func NewRunitCollector(config RunitConfig, logger log.Logger) (Collector, error) {
+func NewRunitCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (
 		subsystem   = "service"
 		constLabels = prometheus.Labels{"supervisor": "runit"}
@@ -80,7 +77,7 @@ func NewRunitCollector(config RunitConfig, logger log.Logger) (Collector, error)
 }
 
 func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
-	services, err := runit.GetServices(*c.config.ServiceDir)
+	services, err := runit.GetServices(*c.config.Runit.ServiceDir)
 	if err != nil {
 		return err
 	}

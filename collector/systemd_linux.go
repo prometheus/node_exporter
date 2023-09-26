@@ -64,16 +64,13 @@ type systemdCollector struct {
 	systemdUnitIncludePattern *regexp.Regexp
 	systemdUnitExcludePattern *regexp.Regexp
 	logger                    log.Logger
-	config                    SystemdConfig
+	config                    NodeCollectorConfig
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
 
 func init() {
-	registerCollector("systemd", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(SystemdConfig)
-		return NewSystemdCollector(cfg, logger)
-	})
+	registerCollector("systemd", defaultDisabled, NewSystemdCollector)
 }
 
 type SystemdConfig struct {
@@ -88,7 +85,7 @@ type SystemdConfig struct {
 }
 
 // NewSystemdCollector returns a new Collector exposing systemd statistics.
-func NewSystemdCollector(config SystemdConfig, logger log.Logger) (Collector, error) {
+func NewSystemdCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "systemd"
 
 	unitDesc := prometheus.NewDesc(
@@ -134,26 +131,26 @@ func NewSystemdCollector(config SystemdConfig, logger log.Logger) (Collector, er
 		prometheus.BuildFQName(namespace, subsystem, "version"),
 		"Detected systemd version", []string{"version"}, nil)
 
-	if *config.OldUnitExclude != "" {
+	if *config.Systemd.OldUnitExclude != "" {
 		if !systemdUnitExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-exclude")
-			*config.UnitExclude = *config.OldUnitExclude
+			*config.Systemd.UnitExclude = *config.Systemd.OldUnitExclude
 		} else {
 			return nil, errors.New("--collector.systemd.unit-blacklist and --collector.systemd.unit-exclude are mutually exclusive")
 		}
 	}
-	if *config.OldUnitInclude != "" {
+	if *config.Systemd.OldUnitInclude != "" {
 		if !systemdUnitIncludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
-			*config.UnitInclude = *config.OldUnitInclude
+			*config.Systemd.UnitInclude = *config.Systemd.OldUnitInclude
 		} else {
 			return nil, errors.New("--collector.systemd.unit-whitelist and --collector.systemd.unit-include are mutually exclusive")
 		}
 	}
-	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-include", "flag", *config.UnitInclude)
-	systemdUnitIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *config.UnitInclude))
-	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *config.UnitExclude)
-	systemdUnitExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *config.UnitExclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-include", "flag", *config.Systemd.UnitInclude)
+	systemdUnitIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *config.Systemd.UnitInclude))
+	level.Info(logger).Log("msg", "Parsed flag --collector.systemd.unit-exclude", "flag", *config.Systemd.UnitExclude)
+	systemdUnitExcludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *config.Systemd.UnitExclude))
 
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
@@ -178,7 +175,7 @@ func NewSystemdCollector(config SystemdConfig, logger log.Logger) (Collector, er
 // to reduce wait time for responses.
 func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	begin := time.Now()
-	conn, err := newSystemdDbusConn(c.config.Private)
+	conn, err := newSystemdDbusConn(c.config.Systemd.Private)
 	if err != nil {
 		return fmt.Errorf("couldn't get dbus connection: %w", err)
 	}
@@ -221,7 +218,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		level.Debug(c.logger).Log("msg", "collectUnitStatusMetrics took", "duration_seconds", time.Since(begin).Seconds())
 	}()
 
-	if *c.config.EnableStartTimeMetrics {
+	if *c.config.Systemd.EnableStartTimeMetrics {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -231,7 +228,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		}()
 	}
 
-	if *c.config.EnableTaskMetrics {
+	if *c.config.Systemd.EnableTaskMetrics {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -295,7 +292,7 @@ func (c *systemdCollector) collectUnitStatusMetrics(conn *dbus.Conn, ch chan<- p
 				c.unitDesc, prometheus.GaugeValue, isActive,
 				unit.Name, stateName, serviceType)
 		}
-		if *c.config.EnableRestartsMetrics && strings.HasSuffix(unit.Name, ".service") {
+		if *c.config.Systemd.EnableRestartsMetrics && strings.HasSuffix(unit.Name, ".service") {
 			// NRestarts wasn't added until systemd 235.
 			restartsCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "NRestarts")
 			if err != nil {

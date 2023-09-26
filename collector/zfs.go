@@ -30,9 +30,7 @@ var errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
 type zfsSysctl string
 
 func init() {
-	registerCollector("zfs", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewZFSCollector(logger)
-	})
+	registerCollector("zfs", defaultEnabled, NewZFSCollector)
 }
 
 type zfsCollector struct {
@@ -42,10 +40,11 @@ type zfsCollector struct {
 	linuxZpoolStatePath  string
 	linuxPathMap         map[string]string
 	logger               log.Logger
+	config               NodeCollectorConfig
 }
 
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
-func NewZFSCollector(logger log.Logger) (Collector, error) {
+func NewZFSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &zfsCollector{
 		linuxProcpathBase:    "spl/kstat/zfs",
 		linuxZpoolIoPath:     "/*/io",
@@ -65,6 +64,7 @@ func NewZFSCollector(logger log.Logger) (Collector, error) {
 			"zfs_zil":         "zil",
 		},
 		logger: logger,
+		config: config,
 	}, nil
 }
 

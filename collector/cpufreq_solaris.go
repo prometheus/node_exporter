@@ -33,12 +33,10 @@ type cpuFreqCollector struct {
 }
 
 func init() {
-	registerCollector("cpufreq", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewCPUFreqCollector(logger)
-	})
+	registerCollector("cpufreq", defaultEnabled, NewCPUFreqCollector)
 }
 
-func NewCpuFreqCollector(logger log.Logger) (Collector, error) {
+func NewCpuFreqCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &cpuFreqCollector{
 		logger: logger,
 	}, nil

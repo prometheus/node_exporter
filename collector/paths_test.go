@@ -25,11 +25,11 @@ func TestDefaultProcPath(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got, want := procFilePath("somefile"), "/proc/somefile"; got != want {
+	if got, want := c.config.Path.procFilePath("somefile"), "/proc/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := procFilePath("some/file"), "/proc/some/file"; got != want {
+	if got, want := c.config.Path.procFilePath("some/file"), "/proc/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
@@ -39,39 +39,39 @@ func TestCustomProcPath(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got, want := procFilePath("somefile"), "../some/place/somefile"; got != want {
+	if got, want := c.config.Path.procFilePath("somefile"), "../some/place/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := procFilePath("some/file"), "../some/place/some/file"; got != want {
+	if got, want := c.config.Path.procFilePath("some/file"), "../some/place/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
-func TestDefaultSysPath(t *testing.T) {
+func TestDefault*config.Path.SysPath(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.sysfs", "/sys"}); err != nil {
 		t.Fatal(err)
 	}
 
-	if got, want := sysFilePath("somefile"), "/sys/somefile"; got != want {
+	if got, want := *config.Path.SysPath("somefile"), "/sys/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := sysFilePath("some/file"), "/sys/some/file"; got != want {
+	if got, want := *config.Path.SysPath("some/file"), "/sys/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
-func TestCustomSysPath(t *testing.T) {
+func TestCustom*config.Path.SysPath(t *testing.T) {
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.sysfs", "./../some/./place/"}); err != nil {
 		t.Fatal(err)
 	}
 
-	if got, want := sysFilePath("somefile"), "../some/place/somefile"; got != want {
+	if got, want := *config.Path.SysPath("somefile"), "../some/place/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := sysFilePath("some/file"), "../some/place/some/file"; got != want {
+	if got, want := *config.Path.SysPath("some/file"), "../some/place/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }

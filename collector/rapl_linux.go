@@ -35,14 +35,11 @@ type raplCollector struct {
 	logger log.Logger
 
 	joulesMetricDesc *prometheus.Desc
-	config           RaplConfig
+	config           NodeCollectorConfig
 }
 
 func init() {
-	registerCollector(raplCollectorSubsystem, defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(RaplConfig)
-		return NewRaplCollector(cfg, logger)
-	})
+	registerCollector(raplCollectorSubsystem, defaultEnabled, NewRaplCollector)
 }
 
 type RaplConfig struct {
@@ -50,8 +47,8 @@ type RaplConfig struct {
 }
 
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
-func NewRaplCollector(config RaplConfig, logger log.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewRaplCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(*config.Path.SysPath)
 
 	if err != nil {
 		return nil, err
@@ -100,7 +97,7 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 
 		joules := float64(microJoules) / 1000000.0
 
-		if *c.config.ZoneLabel {
+		if *c.config.Rapl.ZoneLabel {
 			ch <- c.joulesMetricWithZoneLabel(rz, joules)
 		} else {
 			ch <- c.joulesMetric(rz, joules)

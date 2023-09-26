@@ -32,10 +32,7 @@ type arpCollector struct {
 }
 
 func init() {
-	registerCollector("arp", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		arpConfig := config.(ArpConfig)
-		return NewARPCollector(arpConfig, logger)
-	})
+	registerCollector("arp", defaultEnabled, NewARPCollector)
 }
 
 type ArpConfig struct {
@@ -44,15 +41,15 @@ type ArpConfig struct {
 }
 
 // NewARPCollector returns a new Collector exposing ARP stats.
-func NewARPCollector(config ArpConfig, logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewARPCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	return &arpCollector{
 		fs:           fs,
-		deviceFilter: newDeviceFilter(*config.DeviceExclude, *config.DeviceInclude),
+		deviceFilter: newDeviceFilter(*config.Arp.DeviceExclude, *config.Arp.DeviceInclude),
 		entries: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "arp", "entries"),
 			"ARP entries by device",

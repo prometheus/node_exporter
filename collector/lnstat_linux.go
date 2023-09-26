@@ -27,16 +27,15 @@ import (
 
 type lnstatCollector struct {
 	logger log.Logger
+	config NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("lnstat", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewLnstatCollector(logger)
-	})
+	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
-func NewLnstatCollector(logger log.Logger) (Collector, error) {
-	return &lnstatCollector{logger}, nil
+func NewLnstatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return &lnstatCollector{logger, config}, nil
 }
 
 func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
@@ -44,7 +43,7 @@ func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
 		subsystem = "lnstat"
 	)
 
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*c.config.Path.ProcPath)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}

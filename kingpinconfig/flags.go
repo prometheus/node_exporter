@@ -16,6 +16,7 @@ package kingpinconfig
 import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/node_exporter/collector"
+	"github.com/prometheus/procfs"
 )
 
 func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
@@ -107,6 +108,11 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 	// max-distance option is used as-is without phi*(1<<poll)
 	config.NTP.MaxDistance = a.Flag("collector.ntp.max-distance", "Max accumulated distance to the root").Default("3.46608s").Duration()
 	config.NTP.OffsetTolerance = a.Flag("collector.ntp.local-offset-tolerance", "Offset between local clock and local ntpd time to tolerate").Default("1ms").Duration()
+
+	*config.Path.ProcPath = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
+	config.Path.*config.Path.SysPath = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
+	config.Path.RootfsPath = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
+	config.Path.UdevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
 
 	config.Perf.CPUs = a.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
 	config.Perf.Tracepoint = a.Flag("collector.perf.tracepoint", "perf tracepoint that should be collected").Strings()

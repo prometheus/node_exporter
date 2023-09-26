@@ -33,7 +33,7 @@ var (
 )
 
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
-	interrupts, err := getInterrupts()
+	interrupts, err := getInterrupts(c.config)
 	if err != nil {
 		return fmt.Errorf("couldn't get interrupts: %w", err)
 	}
@@ -55,8 +55,8 @@ type interrupt struct {
 	values  []string
 }
 
-func getInterrupts() (map[string]interrupt, error) {
-	file, err := os.Open(procFilePath("interrupts"))
+func getInterrupts(config NodeCollectorConfig) (map[string]interrupt, error) {
+	file, err := os.Open(config.Path.procFilePath("interrupts"))
 	if err != nil {
 		return nil, err
 	}

@@ -28,12 +28,10 @@ type bootTimeCollector struct {
 }
 
 func init() {
-	registerCollector("boottime", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return newBootTimeCollector(logger)
-	})
+	registerCollector("boottime", defaultEnabled, newBootTimeCollector)
 }
 
-func newBootTimeCollector(logger log.Logger) (Collector, error) {
+func newBootTimeCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &bootTimeCollector{
 		boottime: typedDesc{
 			prometheus.NewDesc(

@@ -41,14 +41,11 @@ var (
 type ntpCollector struct {
 	stratum, leap, rtt, offset, reftime, rootDelay, rootDispersion, sanity typedDesc
 	logger                                                                 log.Logger
-	config                                                                 NTPConfig
+	config                                                                 NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("ntp", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(NTPConfig)
-		return NewNtpCollector(cfg, logger)
-	})
+	registerCollector("ntp", defaultDisabled, NewNtpCollector)
 }
 
 type NTPConfig struct {
@@ -65,22 +62,22 @@ type NTPConfig struct {
 // Default definition of "local" is:
 // - collector.ntp.server address is a loopback address (or collector.ntp.server-is-mine flag is turned on)
 // - the server is reachable with outgoin IP_TTL = 1
-func NewNtpCollector(config NTPConfig, logger log.Logger) (Collector, error) {
-	ipaddr := net.ParseIP(*config.Server)
-	if !*config.ServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
+func NewNtpCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	ipaddr := net.ParseIP(*config.NTP.Server)
+	if !*config.NTP.ServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
 		return nil, fmt.Errorf("only IP address of local NTP server is valid for --collector.ntp.server")
 	}
 
-	if *config.ProtocolVersion < 2 || *config.ProtocolVersion > 4 {
-		return nil, fmt.Errorf("invalid NTP protocol version %d; must be 2, 3, or 4", *config.ProtocolVersion)
+	if *config.NTP.ProtocolVersion < 2 || *config.NTP.ProtocolVersion > 4 {
+		return nil, fmt.Errorf("invalid NTP protocol version %d; must be 2, 3, or 4", *config.NTP.ProtocolVersion)
 	}
 
-	if *config.OffsetTolerance < 0 {
+	if *config.NTP.OffsetTolerance < 0 {
 		return nil, fmt.Errorf("offset tolerance must be non-negative")
 	}
 
-	if *config.ServerPort < 1 || *config.ServerPort > 65535 {
-		return nil, fmt.Errorf("invalid NTP port number %d; must be between 1 and 65535 inclusive", *config.ServerPort)
+	if *config.NTP.ServerPort < 1 || *config.NTP.ServerPort > 65535 {
+		return nil, fmt.Errorf("invalid NTP port number %d; must be between 1 and 65535 inclusive", *config.NTP.ServerPort)
 	}
 
 	level.Warn(logger).Log("msg", "This collector is deprecated and will be removed in the next major version release.")
@@ -130,11 +127,11 @@ func NewNtpCollector(config NTPConfig, logger log.Logger) (Collector, error) {
 }
 
 func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
-	resp, err := ntp.QueryWithOptions(*c.config.Server, ntp.QueryOptions{
-		Version: *c.config.ProtocolVersion,
-		TTL:     *c.config.IPTTL,
+	resp, err := ntp.QueryWithOptions(*c.config.NTP.Server, ntp.QueryOptions{
+		Version: *c.config.NTP.ProtocolVersion,
+		TTL:     *c.config.NTP.IPTTL,
 		Timeout: time.Second, // default `ntpdate` timeout
-		Port:    *c.config.ServerPort,
+		Port:    *c.config.NTP.ServerPort,
 	})
 	if err != nil {
 		return fmt.Errorf("couldn't get SNTP reply: %w", err)
@@ -159,7 +156,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	// Here is SNTP packet sanity check that is exposed to move burden of
 	// configuration from node_exporter user to the developer.
 
-	maxerr := *c.config.OffsetTolerance
+	maxerr := *c.config.NTP.OffsetTolerance
 	leapMidnightMutex.Lock()
 	if resp.Leap == ntp.LeapAddSecond || resp.Leap == ntp.LeapDelSecond {
 		// state of leapMidnight is cached as leap flag is dropped right after midnight
@@ -171,7 +168,7 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	leapMidnightMutex.Unlock()
 
-	if resp.Validate() == nil && resp.RootDistance <= *c.config.MaxDistance && resp.MinError <= maxerr {
+	if resp.Validate() == nil && resp.RootDistance <= *c.config.NTP.MaxDistance && resp.MinError <= maxerr {
 		ch <- c.sanity.mustNewConstMetric(1)
 	} else {
 		ch <- c.sanity.mustNewConstMetric(0)

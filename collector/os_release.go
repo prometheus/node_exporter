@@ -65,6 +65,7 @@ type osReleaseCollector struct {
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	versionDesc        *prometheus.Desc
+	config             NodeCollectorConfig
 }
 
 type Plist struct {
@@ -77,13 +78,11 @@ type Dict struct {
 }
 
 func init() {
-	registerCollector("os", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewOSCollector(logger)
-	})
+	registerCollector("os", defaultEnabled, NewOSCollector)
 }
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(logger log.Logger) (Collector, error) {
+func NewOSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &osReleaseCollector{
 		logger: logger,
 		infoDesc: prometheus.NewDesc(
@@ -99,6 +98,7 @@ func NewOSCollector(logger log.Logger) (Collector, error) {
 			"Metric containing the major.minor part of the OS version.",
 			[]string{"id", "id_like", "name"}, nil,
 		),
+		config: config,
 	}, nil
 }
 
@@ -176,7 +176,7 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 
 func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 	for i, path := range c.osReleaseFilenames {
-		err := c.UpdateStruct(*rootfsPath + path)
+		err := c.UpdateStruct(*c.config.Path.RootfsPath + path)
 		if err == nil {
 			break
 		}

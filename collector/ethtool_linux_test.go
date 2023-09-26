@@ -23,6 +23,7 @@ import (
 	"syscall"
 	"testing"
 
+	"github.com/docker/cli/cli/config"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
@@ -365,7 +366,7 @@ node_network_supported_speed_bytes{device="eth0",duplex="full",mode="10baseT"} 1
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="100baseT"} 1.25e+07
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1.25e+06
 `
-	*sysPath = "fixtures/sys"
+	*config.Path.SysPath = "fixtures/sys"
 
 	config := NodeCollectorConfig{}
 	logger := log.NewLogfmtLogger(os.Stderr)

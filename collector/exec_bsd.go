@@ -28,13 +28,11 @@ type execCollector struct {
 }
 
 func init() {
-	registerCollector("exec", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewExecCollector(logger)
-	})
+	registerCollector("exec", defaultEnabled, NewExecCollector)
 }
 
 // NewExecCollector returns a new Collector exposing system execution statistics.
-func NewExecCollector(logger log.Logger) (Collector, error) {
+func NewExecCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	// From sys/vm/vm_meter.c:
 	// All are of type CTLTYPE_UINT.
 	//

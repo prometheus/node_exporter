@@ -56,15 +56,12 @@ type diskstatsCollector struct {
 }
 
 func init() {
-	registerCollector("diskstats", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(DiskstatsDeviceFilterConfig)
-		return NewDiskstatsCollector(cfg, logger)
-	})
+	registerCollector("diskstats", defaultEnabled, NewDiskstatsCollector)
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(config DiskstatsDeviceFilterConfig, logger log.Logger) (Collector, error) {
-	deviceFilter, err := newDiskstatsDeviceFilter(config, logger)
+func NewDiskstatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	deviceFilter, err := newDiskstatsDeviceFilter(config.DiskstatsDeviceFilter, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}

@@ -34,10 +34,7 @@ type sysctlCollector struct {
 }
 
 func init() {
-	registerCollector("sysctl", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(SysctlConfig)
-		return NewSysctlCollector(cfg, logger)
-	})
+	registerCollector("sysctl", defaultDisabled, NewSysctlCollector)
 }
 
 type SysctlConfig struct {
@@ -45,8 +42,8 @@ type SysctlConfig struct {
 	IncludeInfo *[]string
 }
 
-func NewSysctlCollector(config SysctlConfig, logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewSysctlCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
@@ -56,7 +53,7 @@ func NewSysctlCollector(config SysctlConfig, logger log.Logger) (Collector, erro
 		sysctls: []*sysctl{},
 	}
 
-	for _, include := range *config.Include {
+	for _, include := range *config.Sysctl.Include {
 		sysctl, err := newSysctl(include, true)
 		if err != nil {
 			return nil, err
@@ -64,7 +61,7 @@ func NewSysctlCollector(config SysctlConfig, logger log.Logger) (Collector, erro
 		c.sysctls = append(c.sysctls, sysctl)
 	}
 
-	for _, include := range *config.IncludeInfo {
+	for _, include := range *config.Sysctl.IncludeInfo {
 		sysctl, err := newSysctl(include, false)
 		if err != nil {
 			return nil, err

@@ -29,17 +29,16 @@ import (
 
 type mdadmCollector struct {
 	logger log.Logger
+	config NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("mdadm", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewMdadmCollector(logger)
-	})
+	registerCollector("mdadm", defaultEnabled, NewMdadmCollector)
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
-func NewMdadmCollector(logger log.Logger) (Collector, error) {
-	return &mdadmCollector{logger}, nil
+func NewMdadmCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return &mdadmCollector{logger, config}, nil
 }
 
 var (
@@ -104,7 +103,7 @@ var (
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*c.config.Path.ProcPath)
 
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
@@ -114,7 +113,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "Not collecting mdstat, file does not exist", "file", *procPath)
+			level.Debug(c.logger).Log("msg", "Not collecting mdstat, file does not exist", "file", *c.config.Path.ProcPath)
 			return ErrNoData
 		}
 

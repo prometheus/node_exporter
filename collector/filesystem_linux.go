@@ -41,7 +41,7 @@ var stuckMountsMtx = &sync.Mutex{}
 
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	mps, err := mountPointDetails(c.logger)
+	mps, err := mountPointDetails(c.config, c.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
-	workerCount := *c.config.StatWorkerCount
+	workerCount := *c.config.Filesystem.StatWorkerCount
 	if workerCount < 1 {
 		workerCount = 1
 	}
@@ -103,10 +103,10 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
 	success := make(chan struct{})
-	go stuckMountWatcher(c.config.MountTimeout, labels.mountPoint, success, c.logger)
+	go stuckMountWatcher(c.config.Filesystem.MountTimeout, labels.mountPoint, success, c.logger)
 
 	buf := new(unix.Statfs_t)
-	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
+	err := unix.Statfs(c.config.Path.rootfsFilePath(labels.mountPoint), buf)
 	stuckMountsMtx.Lock()
 	close(success)
 
@@ -118,7 +118,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	stuckMountsMtx.Unlock()
 
 	if err != nil {
-		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", c.config.Path.rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
@@ -166,22 +166,22 @@ func stuckMountWatcher(mountTimeout *time.Duration, mountPoint string, success c
 	}
 }
 
-func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("1/mounts"))
+func mountPointDetails(config NodeCollectorConfig, logger log.Logger) ([]filesystemLabels, error) {
+	file, err := os.Open(config.Path.procFilePath("1/mounts"))
 	if errors.Is(err, os.ErrNotExist) {
 		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
 		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
-		file, err = os.Open(procFilePath("mounts"))
+		file, err = os.Open(config.Path.procFilePath("mounts"))
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return parseFilesystemLabels(file)
+	return parseFilesystemLabels(config, file)
 }
 
-func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
+func parseFilesystemLabels(config NodeCollectorConfig, r io.Reader) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
 	scanner := bufio.NewScanner(r)
@@ -199,7 +199,7 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
-			mountPoint: rootfsStripPrefix(parts[1]),
+			mountPoint: config.Path.rootfsStripPrefix(parts[1]),
 			fsType:     parts[2],
 			options:    parts[3],
 		})

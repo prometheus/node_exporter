@@ -80,15 +80,14 @@ type drbdCollector struct {
 	stringPair map[string]drbdStringPairMetric
 	connected  *prometheus.Desc
 	logger     log.Logger
+	config     NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("drbd", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		return newDRBDCollector(logger)
-	})
+	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
-func newDRBDCollector(logger log.Logger) (Collector, error) {
+func newDRBDCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &drbdCollector{
 		numerical: map[string]drbdNumericalMetric{
 			"ns": newDRBDNumericalMetric(
@@ -185,11 +184,12 @@ func newDRBDCollector(logger log.Logger) (Collector, error) {
 			nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 
 func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
-	statsFile := procFilePath("drbd")
+	statsFile := c.config.Path.procFilePath("drbd")
 	file, err := os.Open(statsFile)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

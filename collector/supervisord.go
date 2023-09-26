@@ -43,10 +43,7 @@ type supervisordCollector struct {
 }
 
 func init() {
-	registerCollector("supervisord", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(SupervisordConfig)
-		return NewSupervisordCollector(cfg, logger)
-	})
+	registerCollector("supervisord", defaultDisabled, NewSupervisordCollector)
 }
 
 type SupervisordConfig struct {
@@ -54,13 +51,13 @@ type SupervisordConfig struct {
 }
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
-func NewSupervisordCollector(config SupervisordConfig, logger log.Logger) (Collector, error) {
+func NewSupervisordCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
 	)
 
-	if u, err := url.Parse(*config.URL); err == nil && u.Scheme == "unix" {
+	if u, err := url.Parse(*config.Supervisord.URL); err == nil && u.Scheme == "unix" {
 		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
 		// about a non-http(s) transport.
 		xrpc = xmlrpc.NewClient("http://unix/RPC2")
@@ -71,7 +68,7 @@ func NewSupervisordCollector(config SupervisordConfig, logger log.Logger) (Colle
 			},
 		}
 	} else {
-		xrpc = xmlrpc.NewClient(*config.URL)
+		xrpc = xmlrpc.NewClient(*config.Supervisord.URL)
 	}
 
 	level.Warn(logger).Log("msg", "This collector is deprecated and will be removed in the next major version release.")

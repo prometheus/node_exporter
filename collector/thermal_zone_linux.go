@@ -39,14 +39,12 @@ type thermalZoneCollector struct {
 }
 
 func init() {
-	registerCollector("thermal_zone", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewThermalZoneCollector(logger)
-	})
+	registerCollector("thermal_zone", defaultEnabled, NewThermalZoneCollector)
 }
 
 // NewThermalZoneCollector returns a new Collector exposing kernel/system statistics.
-func NewThermalZoneCollector(logger log.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewThermalZoneCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

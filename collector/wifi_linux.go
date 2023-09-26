@@ -45,14 +45,11 @@ type wifiCollector struct {
 	stationBeaconLossTotal       *prometheus.Desc
 
 	logger log.Logger
-	config WifiConfig
+	config NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("wifi", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(WifiConfig)
-		return NewWifiCollector(cfg, logger)
-	})
+	registerCollector("wifi", defaultDisabled, NewWifiCollector)
 }
 
 type WifiConfig struct {
@@ -70,7 +67,7 @@ type wifiStater interface {
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector(config WifiConfig, logger log.Logger) (Collector, error) {
+func NewWifiCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const (
 		subsystem = "wifi"
 	)
@@ -169,7 +166,7 @@ func NewWifiCollector(config WifiConfig, logger log.Logger) (Collector, error) {
 }
 
 func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
-	stat, err := newWifiStater(*c.config.Fixtures)
+	stat, err := newWifiStater(*c.config.Wifi.Fixtures)
 	if err != nil {
 		// Cannot access wifi metrics, report no error.
 		if errors.Is(err, os.ErrNotExist) {

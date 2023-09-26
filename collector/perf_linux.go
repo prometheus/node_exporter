@@ -34,10 +34,7 @@ const (
 )
 
 func init() {
-	registerCollector(perfSubsystem, defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(PerfConfig)
-		return NewPerfCollector(cfg, logger)
-	})
+	registerCollector(perfSubsystem, defaultDisabled, NewPerfCollector)
 }
 
 type PerfConfig struct {
@@ -303,7 +300,7 @@ func newPerfTracepointCollector(
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
-func NewPerfCollector(config PerfConfig, logger log.Logger) (Collector, error) {
+func NewPerfCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	collector := &perfCollector{
 		perfHwProfilers:     map[int]*perf.HardwareProfiler{},
 		perfSwProfilers:     map[int]*perf.SoftwareProfiler{},
@@ -318,8 +315,8 @@ func NewPerfCollector(config PerfConfig, logger log.Logger) (Collector, error) {
 		cpus []int
 		err  error
 	)
-	if config.CPUs != nil && *config.CPUs != "" {
-		cpus, err = perfCPUFlagToCPUs(*config.CPUs)
+	if config.Perf.CPUs != nil && *config.Perf.CPUs != "" {
+		cpus, err = perfCPUFlagToCPUs(*config.Perf.CPUs)
 		if err != nil {
 			return nil, err
 		}
@@ -331,8 +328,8 @@ func NewPerfCollector(config PerfConfig, logger log.Logger) (Collector, error) {
 	}
 
 	// First configure any tracepoints.
-	if *config.Tracepoint != nil && len(*config.Tracepoint) > 0 {
-		tracepointCollector, err := newPerfTracepointCollector(logger, *config.Tracepoint, cpus)
+	if *config.Perf.Tracepoint != nil && len(*config.Perf.Tracepoint) > 0 {
+		tracepointCollector, err := newPerfTracepointCollector(logger, *config.Perf.Tracepoint, cpus)
 		if err != nil {
 			return nil, err
 		}
@@ -341,27 +338,27 @@ func NewPerfCollector(config PerfConfig, logger log.Logger) (Collector, error) {
 
 	// Configure perf profilers
 	hardwareProfilers := perf.AllHardwareProfilers
-	if *config.HwProfiler != nil && len(*config.HwProfiler) > 0 {
+	if *config.Perf.HwProfiler != nil && len(*config.Perf.HwProfiler) > 0 {
 		// hardwareProfilers = 0
-		for _, hf := range *config.HwProfiler {
+		for _, hf := range *config.Perf.HwProfiler {
 			if v, ok := perfHardwareProfilerMap[hf]; ok {
 				hardwareProfilers |= v
 			}
 		}
 	}
 	softwareProfilers := perf.AllSoftwareProfilers
-	if *config.SwProfiler != nil && len(*config.SwProfiler) > 0 {
+	if *config.Perf.SwProfiler != nil && len(*config.Perf.SwProfiler) > 0 {
 		// softwareProfilers = 0
-		for _, sf := range *config.SwProfiler {
+		for _, sf := range *config.Perf.SwProfiler {
 			if v, ok := perfSoftwareProfilerMap[sf]; ok {
 				softwareProfilers |= v
 			}
 		}
 	}
 	cacheProfilers := perf.L1DataReadHitProfiler | perf.L1DataReadMissProfiler | perf.L1DataWriteHitProfiler | perf.L1InstrReadMissProfiler | perf.InstrTLBReadHitProfiler | perf.InstrTLBReadMissProfiler | perf.LLReadHitProfiler | perf.LLReadMissProfiler | perf.LLWriteHitProfiler | perf.LLWriteMissProfiler | perf.BPUReadHitProfiler | perf.BPUReadMissProfiler
-	if *config.CaProfilerFlag != nil && len(*config.CaProfilerFlag) > 0 {
+	if *config.Perf.CaProfilerFlag != nil && len(*config.Perf.CaProfilerFlag) > 0 {
 		cacheProfilers = 0
-		for _, cf := range *config.CaProfilerFlag {
+		for _, cf := range *config.Perf.CaProfilerFlag {
 			if v, ok := perfCacheProfilerMap[cf]; ok {
 				cacheProfilers |= v
 			}
@@ -372,7 +369,7 @@ func NewPerfCollector(config PerfConfig, logger log.Logger) (Collector, error) {
 	for _, cpu := range cpus {
 		// Use -1 to profile all processes on the CPU, see:
 		// man perf_event_open
-		if !*config.NoHwProfiler {
+		if !*config.Perf.NoHwProfiler {
 			hwProf, err := perf.NewHardwareProfiler(
 				-1,
 				cpu,
@@ -388,7 +385,7 @@ func NewPerfCollector(config PerfConfig, logger log.Logger) (Collector, error) {
 			collector.hwProfilerCPUMap[&hwProf] = cpu
 		}
 
-		if !*config.NoSwProfiler {
+		if !*config.Perf.NoSwProfiler {
 			swProf, err := perf.NewSoftwareProfiler(-1, cpu, softwareProfilers)
 			if err != nil && !swProf.HasProfilers() {
 				return nil, err
@@ -400,7 +397,7 @@ func NewPerfCollector(config PerfConfig, logger log.Logger) (Collector, error) {
 			collector.swProfilerCPUMap[&swProf] = cpu
 		}
 
-		if !*config.NoCaProfiler {
+		if !*config.Perf.NoCaProfiler {
 			cacheProf, err := perf.NewCacheProfiler(
 				-1,
 				cpu,

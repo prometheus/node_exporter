@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
+	"github.com/docker/cli/cli/config"
 	"github.com/go-kit/log"
 	"github.com/prometheus/procfs"
 )
@@ -29,7 +30,7 @@ func TestReadProcessStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := 1
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		t.Errorf("failed to open procfs: %v", err)
 	}
@@ -45,7 +46,7 @@ func TestReadProcessStatus(t *testing.T) {
 
 		t.Fatalf("Process states cannot be nil %v:", states)
 	}
-	maxPid, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
+	maxPid, err := readUintFromFile(c.config.Path.procFilePath("sys/kernel/pid_max"))
 	if err != nil {
 		t.Fatalf("Unable to retrieve limit number of maximum pids alloved %v\n", err)
 	}

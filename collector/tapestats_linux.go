@@ -44,10 +44,7 @@ type tapestatsCollector struct {
 }
 
 func init() {
-	registerCollector("tapestats", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(TapestatsConfig)
-		return NewTapestatsCollector(cfg, logger)
-	})
+	registerCollector("tapestats", defaultEnabled, NewTapestatsCollector)
 }
 
 type TapestatsConfig struct {
@@ -56,10 +53,10 @@ type TapestatsConfig struct {
 
 // NewTapestatsCollector returns a new Collector exposing tape device stats.
 // Docs from https://www.kernel.org/doc/html/latest/scsi/st.html#sysfs-and-statistics-for-tape-devices
-func NewTapestatsCollector(config TapestatsConfig, logger log.Logger) (Collector, error) {
+func NewTapestatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var tapeLabelNames = []string{"device"}
 
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
@@ -67,7 +64,7 @@ func NewTapestatsCollector(config TapestatsConfig, logger log.Logger) (Collector
 	tapeSubsystem := "tape"
 
 	return &tapestatsCollector{
-		ignoredDevicesPattern: regexp.MustCompile(*config.IgnoredDevices),
+		ignoredDevicesPattern: regexp.MustCompile(*config.Tapestats.IgnoredDevices),
 
 		ioNow: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, tapeSubsystem, "io_now"),

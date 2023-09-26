@@ -37,13 +37,11 @@ const (
 type netStatCollector struct {
 	fieldPattern *regexp.Regexp
 	logger       log.Logger
+	config       NodeCollectorConfig
 }
 
 func init() {
-	registerCollector(netStatsSubsystem, defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(NetStatConfig)
-		return NewNetStatCollector(cfg, logger)
-	})
+	registerCollector(netStatsSubsystem, defaultEnabled, NewNetStatCollector)
 }
 
 type NetStatConfig struct {
@@ -52,24 +50,25 @@ type NetStatConfig struct {
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(config NetStatConfig, logger log.Logger) (Collector, error) {
-	pattern := regexp.MustCompile(*config.Fields)
+func NewNetStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	pattern := regexp.MustCompile(*config.NetStat.Fields)
 	return &netStatCollector{
 		fieldPattern: pattern,
 		logger:       logger,
+		config:       config,
 	}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
-	netStats, err := getNetStats(procFilePath("net/netstat"))
+	netStats, err := getNetStats(c.config.Path.procFilePath("net/netstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
-	snmpStats, err := getNetStats(procFilePath("net/snmp"))
+	snmpStats, err := getNetStats(c.config.Path.procFilePath("net/snmp"))
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP stats: %w", err)
 	}
-	snmp6Stats, err := getSNMP6Stats(procFilePath("net/snmp6"))
+	snmp6Stats, err := getSNMP6Stats(c.config.Path.procFilePath("net/snmp6"))
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP6 stats: %w", err)
 	}

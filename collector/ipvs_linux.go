@@ -66,10 +66,7 @@ var (
 )
 
 func init() {
-	registerCollector("ipvs", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		cfg := config.(IPVSConfig)
-		return NewIPVSCollector(cfg, logger)
-	})
+	registerCollector("ipvs", defaultEnabled, NewIPVSCollector)
 }
 
 type IPVSConfig struct {
@@ -78,27 +75,27 @@ type IPVSConfig struct {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector(config IPVSConfig, logger log.Logger) (Collector, error) {
+func NewIPVSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return newIPVSCollector(config, logger)
 }
 
-func newIPVSCollector(config IPVSConfig, logger log.Logger) (*ipvsCollector, error) {
+func newIPVSCollector(config NodeCollectorConfig, logger log.Logger) (*ipvsCollector, error) {
 	var (
 		c         ipvsCollector
 		err       error
 		subsystem = "ipvs"
 	)
 
-	if *config.Labels == "" {
-		*config.Labels = strings.Join(fullIpvsBackendLabels, ",")
+	if *config.IPVS.Labels == "" {
+		*config.IPVS.Labels = strings.Join(fullIpvsBackendLabels, ",")
 	}
 
-	if c.backendLabels, err = c.parseIpvsLabels(*config.Labels); err != nil {
+	if c.backendLabels, err = c.parseIpvsLabels(*config.IPVS.Labels); err != nil {
 		return nil, err
 	}
 
 	c.logger = logger
-	c.fs, err = procfs.NewFS(*procPath)
+	c.fs, err = procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

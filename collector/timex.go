@@ -62,13 +62,11 @@ type timexCollector struct {
 }
 
 func init() {
-	registerCollector("timex", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewTimexCollector(logger)
-	})
+	registerCollector("timex", defaultEnabled, NewTimexCollector)
 }
 
 // NewTimexCollector returns a new Collector exposing adjtime(3) stats.
-func NewTimexCollector(logger log.Logger) (Collector, error) {
+func NewTimexCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "timex"
 
 	return &timexCollector{

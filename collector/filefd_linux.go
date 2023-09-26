@@ -33,21 +33,20 @@ const (
 
 type fileFDStatCollector struct {
 	logger log.Logger
+	config NodeCollectorConfig
 }
 
 func init() {
-	registerCollector(fileFDStatSubsystem, defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewFileFDStatCollector(logger)
-	})
+	registerCollector(fileFDStatSubsystem, defaultEnabled, NewFileFDStatCollector)
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
-func NewFileFDStatCollector(logger log.Logger) (Collector, error) {
-	return &fileFDStatCollector{logger}, nil
+func NewFileFDStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return &fileFDStatCollector{logger, config}, nil
 }
 
 func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) error {
-	fileFDStat, err := parseFileFDStats(procFilePath("sys/fs/file-nr"))
+	fileFDStat, err := parseFileFDStats(c.config.Path.procFilePath("sys/fs/file-nr"))
 	if err != nil {
 		return fmt.Errorf("couldn't get file-nr: %w", err)
 	}

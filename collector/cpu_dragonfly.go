@@ -82,13 +82,11 @@ type statCollector struct {
 }
 
 func init() {
-	registerCollector("cpu", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewStatCollector(logger)
-	})
+	registerCollector("cpu", defaultEnabled, NewStatCollector)
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(logger log.Logger) (Collector, error) {
+func NewStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &statCollector{
 		cpu:    nodeCPUSecondsDesc,
 		logger: logger,

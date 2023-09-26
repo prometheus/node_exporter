@@ -33,17 +33,16 @@ import (
 type btrfsCollector struct {
 	fs     btrfs.FS
 	logger log.Logger
+	config NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("btrfs", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
-		return NewBtrfsCollector(logger)
-	})
+	registerCollector("btrfs", defaultEnabled, NewBtrfsCollector)
 }
 
 // NewBtrfsCollector returns a new Collector exposing Btrfs statistics.
-func NewBtrfsCollector(logger log.Logger) (Collector, error) {
-	fs, err := btrfs.NewFS(*sysPath)
+func NewBtrfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := btrfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
@@ -51,6 +50,7 @@ func NewBtrfsCollector(logger log.Logger) (Collector, error) {
 	return &btrfsCollector{
 		fs:     fs,
 		logger: logger,
+		config: config,
 	}, nil
 }
 
@@ -105,7 +105,7 @@ type btrfsIoctlFsStats struct {
 func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) {
 	// Instead of introducing more ioctl calls to scan for all btrfs
 	// filesystems re-use our mount point utils to find known mounts
-	mountsList, err := mountPointDetails(c.logger)
+	mountsList, err := mountPointDetails(c.config, c.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 			continue
 		}
 
-		mountPath := rootfsFilePath(mount.mountPoint)
+		mountPath := c.config.Path.rootfsFilePath(mount.mountPoint)
 
 		fs, err := dennwc.Open(mountPath, true)
 		if err != nil {
