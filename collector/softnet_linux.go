@@ -42,11 +42,13 @@ const (
 )
 
 func init() {
-	registerCollector("softnet", defaultEnabled, NewSoftnetCollector)
+	registerCollector("softnet", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewSoftnetCollector(logger)
+	})
 }
 
 // NewSoftnetCollector returns a new Collector exposing softnet metrics.
-func NewSoftnetCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSoftnetCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

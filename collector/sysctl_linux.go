@@ -18,16 +18,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
 var (
-	sysctlInclude     = kingpin.Flag("collector.sysctl.include", "Select sysctl metrics to include").Strings()
-	sysctlIncludeInfo = kingpin.Flag("collector.sysctl.include-info", "Select sysctl metrics to include as info metrics").Strings()
-
 	sysctlInfoDesc = prometheus.NewDesc(prometheus.BuildFQName(namespace, "sysctl", "info"), "sysctl info", []string{"name", "value", "index"}, nil)
 )
 
@@ -38,10 +34,18 @@ type sysctlCollector struct {
 }
 
 func init() {
-	registerCollector("sysctl", defaultDisabled, NewSysctlCollector)
+	registerCollector("sysctl", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(SysctlConfig)
+		return NewSysctlCollector(cfg, logger)
+	})
 }
 
-func NewSysctlCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+type SysctlConfig struct {
+	Include     *[]string
+	IncludeInfo *[]string
+}
+
+func NewSysctlCollector(config SysctlConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -52,7 +56,7 @@ func NewSysctlCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 		sysctls: []*sysctl{},
 	}
 
-	for _, include := range *sysctlInclude {
+	for _, include := range *config.Include {
 		sysctl, err := newSysctl(include, true)
 		if err != nil {
 			return nil, err
@@ -60,7 +64,7 @@ func NewSysctlCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 		c.sysctls = append(c.sysctls, sysctl)
 	}
 
-	for _, include := range *sysctlIncludeInfo {
+	for _, include := range *config.IncludeInfo {
 		sysctl, err := newSysctl(include, false)
 		if err != nil {
 			return nil, err

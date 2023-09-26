@@ -32,10 +32,12 @@ type slabinfoCollector struct {
 }
 
 func init() {
-	registerCollector("slabinfo", defaultDisabled, NewSlabinfoCollector)
+	registerCollector("slabinfo", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewSlabinfoCollector(logger)
+	})
 }
 
-func NewSlabinfoCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSlabinfoCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

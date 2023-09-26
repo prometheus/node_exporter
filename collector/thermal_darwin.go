@@ -63,7 +63,9 @@ type thermCollector struct {
 const thermal = "thermal"
 
 func init() {
-	registerCollector(thermal, defaultEnabled, NewThermCollector)
+	registerCollector(thermal, defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewThermCollector(logger)
+	})
 }
 
 // NewThermCollector returns a new Collector exposing current CPU power levels.

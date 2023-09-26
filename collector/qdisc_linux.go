@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/ema/qdisc"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
@@ -38,21 +37,25 @@ type qdiscStatCollector struct {
 	overlimits   typedDesc
 	qlength      typedDesc
 	backlog      typedDesc
+	config       QdiscConfig
 }
 
-var (
-	collectorQdisc              = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
-	collectorQdiskDeviceInclude = kingpin.Flag("collector.qdisk.device-include", "Regexp of qdisk devices to include (mutually exclusive to device-exclude).").String()
-	collectorQdiskDeviceExclude = kingpin.Flag("collector.qdisk.device-exclude", "Regexp of qdisk devices to exclude (mutually exclusive to device-include).").String()
-)
-
 func init() {
-	registerCollector("qdisc", defaultDisabled, NewQdiscStatCollector)
+	registerCollector("qdisc", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(QdiscConfig)
+		return NewQdiscStatCollector(cfg, logger)
+	})
+}
+
+type QdiscConfig struct {
+	Fixtures      *string
+	DeviceInclude *string
+	DeviceExclude *string
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
-func NewQdiscStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
-	if *collectorQdiskDeviceExclude != "" && *collectorQdiskDeviceInclude != "" {
+func NewQdiscStatCollector(config QdiscConfig, logger log.Logger) (Collector, error) {
+	if *config.DeviceExclude != "" && *config.DeviceInclude != "" {
 		return nil, fmt.Errorf("collector.qdisk.device-include and collector.qdisk.device-exclude are mutaly exclusive")
 	}
 
@@ -93,7 +96,8 @@ func NewQdiscStatCollector(config NodeCollectorConfig, logger log.Logger) (Colle
 			[]string{"device", "kind"}, nil,
 		), prometheus.GaugeValue},
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorQdiskDeviceExclude, *collectorQdiskDeviceExclude),
+		deviceFilter: newDeviceFilter(*config.DeviceExclude, *config.DeviceExclude),
+		config:       config,
 	}, nil
 }
 
@@ -113,7 +117,7 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 	var msgs []qdisc.QdiscInfo
 	var err error
 
-	fixtures := *collectorQdisc
+	fixtures := *c.config.Fixtures
 
 	if fixtures == "" {
 		msgs, err = qdisc.Get()

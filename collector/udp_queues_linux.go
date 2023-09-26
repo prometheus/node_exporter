@@ -36,11 +36,13 @@ type (
 )
 
 func init() {
-	registerCollector("udp_queues", defaultEnabled, NewUDPqueuesCollector)
+	registerCollector("udp_queues", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewUDPqueuesCollector(logger)
+	})
 }
 
 // NewUDPqueuesCollector returns a new Collector exposing network udp queued bytes.
-func NewUDPqueuesCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewUDPqueuesCollector(logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

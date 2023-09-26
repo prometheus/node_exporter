@@ -21,15 +21,10 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-)
-
-var (
-	ignoredTapeDevices = kingpin.Flag("collector.tapestats.ignored-devices", "Regexp of devices to ignore for tapestats.").Default("^$").String()
 )
 
 type tapestatsCollector struct {
@@ -49,12 +44,19 @@ type tapestatsCollector struct {
 }
 
 func init() {
-	registerCollector("tapestats", defaultEnabled, NewTapestatsCollector)
+	registerCollector("tapestats", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(TapestatsConfig)
+		return NewTapestatsCollector(cfg, logger)
+	})
+}
+
+type TapestatsConfig struct {
+	IgnoredDevices *string
 }
 
 // NewTapestatsCollector returns a new Collector exposing tape device stats.
 // Docs from https://www.kernel.org/doc/html/latest/scsi/st.html#sysfs-and-statistics-for-tape-devices
-func NewTapestatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewTapestatsCollector(config TapestatsConfig, logger log.Logger) (Collector, error) {
 	var tapeLabelNames = []string{"device"}
 
 	fs, err := sysfs.NewFS(*sysPath)
@@ -65,7 +67,7 @@ func NewTapestatsCollector(config NodeCollectorConfig, logger log.Logger) (Colle
 	tapeSubsystem := "tape"
 
 	return &tapestatsCollector{
-		ignoredDevicesPattern: regexp.MustCompile(*ignoredTapeDevices),
+		ignoredDevicesPattern: regexp.MustCompile(*config.IgnoredDevices),
 
 		ioNow: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, tapeSubsystem, "io_now"),

@@ -118,5 +118,43 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 	config.Perf.CaProfilerFlag = a.Flag("collector.perf.cache-profilers", "perf cache profilers that should be collected").Strings()
 
 	config.PowerSupplyClass.IgnoredPowerSupplies = a.Flag("collector.powersupply.ignored-supplies", "Regexp of power supplies to ignore for powersupplyclass collector.").Default("^$").String()
+
+	config.Qdisc.Fixtures = a.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
+	config.Qdisc.DeviceInclude = a.Flag("collector.qdisk.device-include", "Regexp of qdisk devices to include (mutually exclusive to device-exclude).").String()
+	config.Qdisc.DeviceExclude = a.Flag("collector.qdisk.device-exclude", "Regexp of qdisk devices to exclude (mutually exclusive to device-include).").String()
+
+	config.Rapl.ZoneLabel = a.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
+
+	config.Runit.ServiceDir = a.Flag("collector.runit.servicedir", "Path to runit service directory.").Default("/etc/service").String()
+
+	config.Stat.Softirq = a.Flag("collector.stat.softirq", "Export softirq calls per vector").Default("false").Bool()
+
+	config.Supervisord.URL = a.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").Envar("SUPERVISORD_URL").String()
+
+	config.Sysctl.Include = a.Flag("collector.sysctl.include", "Select sysctl metrics to include").Strings()
+	config.Sysctl.IncludeInfo = a.Flag("collector.sysctl.include-info", "Select sysctl metrics to include as info metrics").Strings()
+
+	config.Systemd.UnitInclude = a.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
+		systemdUnitIncludeSet = true
+		return nil
+	}).String()
+	config.Systemd.UnitExclude = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
+		systemdUnitExcludeSet = true
+		return nil
+	}).String()
+	config.Systemd.OldUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
+	config.Systemd.OldUnitExclude = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
+	config.Systemd.Private = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
+	config.Systemd.EnableTaskMetrics = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
+	config.Systemd.EnableRestartsMetrics = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
+	config.Systemd.EnableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
+
+	config.Tapestats.IgnoredDevices = kingpin.Flag("collector.tapestats.ignored-devices", "Regexp of devices to ignore for tapestats.").Default("^$").String()
+
+	config.TextFile.Directory = a.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
+
+	config.VmStat.Fields = a.Flag("collector.vmstat.fields", "Regexp of fields to return for vmstat collector.").Default("^(oom_kill|pgpg|pswp|pg.*fault).*").String()
+
+	config.Wifi.Fixtures = a.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector end-to-end testing").Default("").String()
 	return config
 }

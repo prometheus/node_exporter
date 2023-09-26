@@ -49,11 +49,13 @@ type uname struct {
 }
 
 func init() {
-	registerCollector("uname", defaultEnabled, newUnameCollector)
+	registerCollector("uname", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return newUnameCollector(logger)
+	})
 }
 
 // NewUnameCollector returns new unameCollector.
-func newUnameCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func newUnameCollector(logger log.Logger) (Collector, error) {
 	return &unameCollector{logger}, nil
 }
 

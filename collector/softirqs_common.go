@@ -18,6 +18,7 @@ package collector
 
 import (
 	"fmt"
+
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
@@ -30,11 +31,13 @@ type softirqsCollector struct {
 }
 
 func init() {
-	registerCollector("softirqs", defaultDisabled, NewSoftirqsCollector)
+	registerCollector("softirqs", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewSoftirqsCollector(logger)
+	})
 }
 
 // NewSoftirqsCollector returns a new Collector exposing softirq stats.
-func NewSoftirqsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSoftirqsCollector(logger log.Logger) (Collector, error) {
 	desc := typedDesc{prometheus.NewDesc(
 		namespace+"_softirqs_functions_total",
 		"Softirq counts per CPU.",

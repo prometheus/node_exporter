@@ -64,11 +64,13 @@ type tcpStatCollector struct {
 }
 
 func init() {
-	registerCollector("tcpstat", defaultDisabled, NewTCPStatCollector)
+	registerCollector("tcpstat", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewTCPStatCollector(logger)
+	})
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
-func NewTCPStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewTCPStatCollector(logger log.Logger) (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),

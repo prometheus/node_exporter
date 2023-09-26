@@ -19,7 +19,6 @@ package collector
 import (
 	"fmt"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
@@ -35,16 +34,22 @@ type statCollector struct {
 	procsBlocked *prometheus.Desc
 	softIRQ      *prometheus.Desc
 	logger       log.Logger
+	config       StatConfig
 }
 
-var statSoftirqFlag = kingpin.Flag("collector.stat.softirq", "Export softirq calls per vector").Default("false").Bool()
-
 func init() {
-	registerCollector("stat", defaultEnabled, NewStatCollector)
+	registerCollector("stat", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		cfg := config.(StatConfig)
+		return NewStatCollector(cfg, logger)
+	})
+}
+
+type StatConfig struct {
+	Softirq *bool
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewStatCollector(config StatConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -87,6 +92,7 @@ func NewStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector,
 			[]string{"vector"}, nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 
@@ -106,7 +112,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, float64(stats.ProcessesRunning))
 	ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, float64(stats.ProcessesBlocked))
 
-	if *statSoftirqFlag {
+	if *c.config.Softirq {
 		si := stats.SoftIRQ
 
 		for _, vec := range []struct {

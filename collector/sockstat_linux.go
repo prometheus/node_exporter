@@ -39,11 +39,13 @@ type sockStatCollector struct {
 }
 
 func init() {
-	registerCollector(sockStatSubsystem, defaultEnabled, NewSockStatCollector)
+	registerCollector(sockStatSubsystem, defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewSockStatCollector(logger)
+	})
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSockStatCollector(logger log.Logger) (Collector, error) {
 	return &sockStatCollector{logger}, nil
 }
 

@@ -30,11 +30,13 @@ type selinuxCollector struct {
 }
 
 func init() {
-	registerCollector("selinux", defaultEnabled, NewSelinuxCollector)
+	registerCollector("selinux", defaultEnabled, func(config any, logger log.Logger) (Collector, error) {
+		return NewSelinuxCollector(logger)
+	})
 }
 
 // NewSelinuxCollector returns a new Collector exposing SELinux statistics.
-func NewSelinuxCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSelinuxCollector(logger log.Logger) (Collector, error) {
 	const subsystem = "selinux"
 
 	return &selinuxCollector{

@@ -31,4 +31,15 @@ type NodeCollectorConfig struct {
 	NTP                   NTPConfig
 	Perf                  PerfConfig
 	PowerSupplyClass      PowerSupplyClassConfig
+	Qdisc                 QdiscConfig
+	Rapl                  RaplConfig
+	Runit                 RunitConfig
+	Stat                  StatConfig
+	Supervisord           SupervisordConfig
+	Sysctl                SysctlConfig
+	Systemd               SystemdConfig
+	Tapestats             TapestatsConfig
+	TextFile              TextFileConfig
+	VmStat                VmStatConfig
+	Wifi                  WifiConfig
 }

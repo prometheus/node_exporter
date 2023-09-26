@@ -82,7 +82,6 @@ type logindSeatEntry struct {
 }
 
 func init() {
-	registerCollector("logind", defaultDisabled, NewLogindCollector)
 	registerCollector("logind", defaultDisabled, func(config any, logger log.Logger) (Collector, error) {
 		return NewLogindCollector(logger)
 	})
