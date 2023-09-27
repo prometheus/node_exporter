@@ -17,11 +17,12 @@
 package collector
 
 type NodeCollectorConfig struct {
-	Filesystem  FilesystemConfig
-	NetDev      NetDevConfig
-	NTP         NTPConfig
-	Path        PathConfig
-	Runit       RunitConfig
-	Supervisord SupervisordConfig
-	TextFile    TextFileConfig
+	DiskstatsDeviceFilter DiskstatsDeviceFilterConfig
+	Filesystem            FilesystemConfig
+	NetDev                NetDevConfig
+	NTP                   NTPConfig
+	Path                  PathConfig
+	Runit                 RunitConfig
+	Supervisord           SupervisordConfig
+	TextFile              TextFileConfig
 }
