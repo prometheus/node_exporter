@@ -16,8 +16,10 @@ package collector
 import "testing"
 
 func TestLoad(t *testing.T) {
+	config := NodeCollectorConfig{}
+
 	want := []float64{0.21, 0.37, 0.39}
-	loads, err := parseLoad("0.21 0.37 0.39 1/719 19737")
+	loads, err := parseLoad(config, "0.21 0.37 0.39 1/719 19737")
 	if err != nil {
 		t.Fatal(err)
 	}

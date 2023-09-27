@@ -36,7 +36,7 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 		"collector.diskstats.device-exclude",
 		"Regexp of diskstats devices to exclude (mutually exclusive to device-include).",
 	).PreAction(func(c *kingpin.ParseContext) error {
-		diskstatsDeviceExcludeSet = true
+		config.DiskstatsDeviceFilter.DiskstatsDeviceExcludeSet = true
 		return nil
 	}).String()
 	config.DiskstatsDeviceFilter.OldDiskstatsDeviceExclude = a.Flag(
@@ -53,7 +53,7 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 		"collector.filesystem.mount-points-exclude",
 		"Regexp of mount points to exclude for filesystem collector.",
 	).PreAction(func(c *kingpin.ParseContext) error {
-		mountPointsExcludeSet = true
+		config.Filesystem.MountPointsExcludeSet = true
 		return nil
 	}).String()
 	config.Filesystem.OldMountPointsExcluded = a.Flag(
@@ -65,7 +65,7 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 		"collector.filesystem.fs-types-exclude",
 		"Regexp of filesystem types to exclude for filesystem collector.",
 	).PreAction(func(c *kingpin.ParseContext) error {
-		fsTypesExcludeSet = true
+		config.Filesystem.FSTypesExcludeSet = true
 		return nil
 	}).String()
 	config.Filesystem.OldFSTypesExcluded = a.Flag(
@@ -109,10 +109,10 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 	config.NTP.MaxDistance = a.Flag("collector.ntp.max-distance", "Max accumulated distance to the root").Default("3.46608s").Duration()
 	config.NTP.OffsetTolerance = a.Flag("collector.ntp.local-offset-tolerance", "Offset between local clock and local ntpd time to tolerate").Default("1ms").Duration()
 
-	*config.Path.ProcPath = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
-	config.Path.*config.Path.SysPath = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
-	config.Path.RootfsPath = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
-	config.Path.UdevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
+	config.Path.ProcPath = a.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
+	config.Path.SysPath = a.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
+	config.Path.RootfsPath = a.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
+	config.Path.UdevDataPath = a.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
 
 	config.Perf.CPUs = a.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
 	config.Perf.Tracepoint = a.Flag("collector.perf.tracepoint", "perf tracepoint that should be collected").Strings()
@@ -141,21 +141,21 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 	config.Sysctl.IncludeInfo = a.Flag("collector.sysctl.include-info", "Select sysctl metrics to include as info metrics").Strings()
 
 	config.Systemd.UnitInclude = a.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
-		systemdUnitIncludeSet = true
+		config.Systemd.UnitIncludeSet = true
 		return nil
 	}).String()
-	config.Systemd.UnitExclude = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
-		systemdUnitExcludeSet = true
+	config.Systemd.UnitExclude = a.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
+		config.Systemd.UnitExcludeSet = true
 		return nil
 	}).String()
-	config.Systemd.OldUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
-	config.Systemd.OldUnitExclude = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
-	config.Systemd.Private = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
-	config.Systemd.EnableTaskMetrics = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
-	config.Systemd.EnableRestartsMetrics = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
-	config.Systemd.EnableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
+	config.Systemd.OldUnitInclude = a.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
+	config.Systemd.OldUnitExclude = a.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
+	config.Systemd.Private = a.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
+	config.Systemd.EnableTaskMetrics = a.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
+	config.Systemd.EnableRestartsMetrics = a.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
+	config.Systemd.EnableStartTimeMetrics = a.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
 
-	config.Tapestats.IgnoredDevices = kingpin.Flag("collector.tapestats.ignored-devices", "Regexp of devices to ignore for tapestats.").Default("^$").String()
+	config.Tapestats.IgnoredDevices = a.Flag("collector.tapestats.ignored-devices", "Regexp of devices to ignore for tapestats.").Default("^$").String()
 
 	config.TextFile.Directory = a.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
 

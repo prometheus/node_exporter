@@ -47,10 +47,25 @@ func NewTestDiskStatsCollector(config NodeCollectorConfig, logger log.Logger) (p
 }
 
 func TestDiskStats(t *testing.T) {
-	*sysPath = "fixtures/sys"
-	*procPath = "fixtures/proc"
-	*udevDataPath = "fixtures/udev/data"
-	*diskstatsDeviceExclude = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	empty := ""
+	config := NodeCollectorConfig{
+		DiskstatsDeviceFilter: DiskstatsDeviceFilterConfig{
+			DiskstatsDeviceExclude:    &empty,
+			DiskstatsDeviceInclude:    &empty,
+			OldDiskstatsDeviceExclude: &empty,
+		},
+	}
+	sysPath := "fixtures/sys"
+	config.Path.SysPath = &sysPath
+
+	procPath := "fixtures/proc"
+	config.Path.ProcPath = &procPath
+
+	udevDataPath := "fixtures/udev/data"
+	config.Path.UdevDataPath = &udevDataPath
+
+	diskstatsDeviceExclude := "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	config.DiskstatsDeviceFilter.DiskstatsDeviceExclude = &diskstatsDeviceExclude
 	testcase := `# HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200
@@ -314,7 +329,6 @@ node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
-	config := NodeCollectorConfig{}
 	logger := log.NewLogfmtLogger(os.Stderr)
 	collector, err := NewDiskstatsCollector(config, logger)
 	if err != nil {

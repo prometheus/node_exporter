@@ -20,12 +20,12 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/docker/cli/cli/config"
 	"github.com/go-kit/log"
 	"github.com/prometheus/procfs"
 )
 
 func TestReadProcessStatus(t *testing.T) {
+	config := NodeCollectorConfig{}
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 		t.Fatal(err)
 	}

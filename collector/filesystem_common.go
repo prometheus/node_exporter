@@ -34,9 +34,6 @@ import (
 // * filesystemCollector.GetStats
 
 var (
-	mountPointsExcludeSet bool
-	fsTypesExcludeSet     bool
-
 	filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
 )
 
@@ -62,8 +59,10 @@ type filesystemStats struct {
 }
 type FilesystemConfig struct {
 	MountPointsExclude     *string
+	MountPointsExcludeSet  bool
 	OldMountPointsExcluded *string
 	FSTypesExclude         *string
+	FSTypesExcludeSet      bool
 	OldFSTypesExcluded     *string
 	MountTimeout           *time.Duration
 	StatWorkerCount        *int
@@ -76,7 +75,7 @@ func init() {
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.
 func NewFilesystemCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *config.Filesystem.OldMountPointsExcluded != "" {
-		if !mountPointsExcludeSet {
+		if !config.Filesystem.MountPointsExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.filesystem.ignored-mount-points is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.mount-points-exclude")
 			*config.Filesystem.MountPointsExclude = *config.Filesystem.OldMountPointsExcluded
 		} else {
@@ -90,7 +89,7 @@ func NewFilesystemCollector(config NodeCollectorConfig, logger log.Logger) (Coll
 	}
 
 	if *config.Filesystem.OldFSTypesExcluded != "" {
-		if !fsTypesExcludeSet {
+		if !config.Filesystem.FSTypesExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.filesystem.ignored-fs-types is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.fs-types-exclude")
 			*config.Filesystem.FSTypesExclude = *config.Filesystem.OldFSTypesExcluded
 		} else {

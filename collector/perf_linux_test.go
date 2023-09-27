@@ -65,6 +65,8 @@ func TestPerfCollector(t *testing.T) {
 }
 
 func TestPerfCollectorStride(t *testing.T) {
+	config := NodeCollectorConfig{}
+
 	canTestPerf(t)
 
 	tests := []struct {
@@ -97,8 +99,8 @@ func TestPerfCollectorStride(t *testing.T) {
 					t.Skipf("Skipping test because runtime.NumCPU < %d", cpu)
 				}
 			}
-			perfCPUsFlag = &test.flag
-			collector, err := NewPerfCollector(NodeCollectorConfig{}, log.NewNopLogger())
+			config.Perf.CPUs = &test.flag
+			collector, err := NewPerfCollector(config, log.NewNopLogger())
 			if err != nil {
 				t.Fatal(err)
 			}

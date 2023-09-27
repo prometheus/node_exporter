@@ -32,8 +32,6 @@ const (
 var (
 	diskLabelNames = []string{"device"}
 
-	diskstatsDeviceExcludeSet bool
-
 	readsCompletedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
 		"The total number of reads completed successfully.",
@@ -81,13 +79,14 @@ var (
 
 type DiskstatsDeviceFilterConfig struct {
 	DiskstatsDeviceExclude    *string
+	DiskstatsDeviceExcludeSet bool
 	OldDiskstatsDeviceExclude *string
 	DiskstatsDeviceInclude    *string
 }
 
 func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger log.Logger) (deviceFilter, error) {
 	if *config.OldDiskstatsDeviceExclude != "" {
-		if !diskstatsDeviceExcludeSet {
+		if !config.DiskstatsDeviceExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
 			*config.DiskstatsDeviceExclude = *config.OldDiskstatsDeviceExclude
 		} else {

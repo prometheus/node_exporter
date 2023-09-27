@@ -23,7 +23,6 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/docker/cli/cli/config"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
@@ -283,6 +282,7 @@ func TestBuildEthtoolFQName(t *testing.T) {
 }
 
 func TestEthToolCollector(t *testing.T) {
+	config := NodeCollectorConfig{}
 	testcase := `# HELP node_ethtool_align_errors Network interface align_errors
 # TYPE node_ethtool_align_errors untyped
 node_ethtool_align_errors{device="eth0"} 0
@@ -366,9 +366,9 @@ node_network_supported_speed_bytes{device="eth0",duplex="full",mode="10baseT"} 1
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="100baseT"} 1.25e+07
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1.25e+06
 `
-	*config.Path.SysPath = "fixtures/sys"
+	sysPath := "fixtures/sys"
+	config.Path.SysPath = &sysPath
 
-	config := NodeCollectorConfig{}
 	logger := log.NewLogfmtLogger(os.Stderr)
 	collector, err := NewEthtoolTestCollector(config, logger)
 	if err != nil {

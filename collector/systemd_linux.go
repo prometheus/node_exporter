@@ -41,9 +41,6 @@ const (
 )
 
 var (
-	systemdUnitIncludeSet bool
-	systemdUnitExcludeSet bool
-
 	systemdVersionRE = regexp.MustCompile(`[0-9]{3,}(\.[0-9]+)?`)
 )
 
@@ -75,7 +72,9 @@ func init() {
 
 type SystemdConfig struct {
 	UnitInclude            *string
+	UnitIncludeSet         bool
 	UnitExclude            *string
+	UnitExcludeSet         bool
 	OldUnitInclude         *string
 	OldUnitExclude         *string
 	Private                *bool
@@ -132,7 +131,7 @@ func NewSystemdCollector(config NodeCollectorConfig, logger log.Logger) (Collect
 		"Detected systemd version", []string{"version"}, nil)
 
 	if *config.Systemd.OldUnitExclude != "" {
-		if !systemdUnitExcludeSet {
+		if !config.Systemd.UnitExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-exclude")
 			*config.Systemd.UnitExclude = *config.Systemd.OldUnitExclude
 		} else {
@@ -140,7 +139,7 @@ func NewSystemdCollector(config NodeCollectorConfig, logger log.Logger) (Collect
 		}
 	}
 	if *config.Systemd.OldUnitInclude != "" {
-		if !systemdUnitIncludeSet {
+		if !config.Systemd.UnitIncludeSet {
 			level.Warn(logger).Log("msg", "--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
 			*config.Systemd.UnitInclude = *config.Systemd.OldUnitInclude
 		} else {

@@ -21,57 +21,64 @@ import (
 )
 
 func TestDefaultProcPath(t *testing.T) {
+	config := PathConfig{}
+
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", procfs.DefaultMountPoint}); err != nil {
 		t.Fatal(err)
 	}
 
-	if got, want := c.config.Path.procFilePath("somefile"), "/proc/somefile"; got != want {
+	if got, want := config.procFilePath("somefile"), "/proc/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := c.config.Path.procFilePath("some/file"), "/proc/some/file"; got != want {
+	if got, want := config.procFilePath("some/file"), "/proc/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
 func TestCustomProcPath(t *testing.T) {
+	config := PathConfig{}
+
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./../some/./place/"}); err != nil {
 		t.Fatal(err)
 	}
 
-	if got, want := c.config.Path.procFilePath("somefile"), "../some/place/somefile"; got != want {
+	if got, want := config.procFilePath("somefile"), "../some/place/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := c.config.Path.procFilePath("some/file"), "../some/place/some/file"; got != want {
+	if got, want := config.procFilePath("some/file"), "../some/place/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
-func TestDefault*config.Path.SysPath(t *testing.T) {
+func TestDefaultSysPath(t *testing.T) {
+	config := PathConfig{}
+
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.sysfs", "/sys"}); err != nil {
 		t.Fatal(err)
 	}
 
-	if got, want := *config.Path.SysPath("somefile"), "/sys/somefile"; got != want {
+	if got, want := config.sysFilePath("somefile"), "/sys/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := *config.Path.SysPath("some/file"), "/sys/some/file"; got != want {
+	if got, want := config.sysFilePath("some/file"), "/sys/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
-func TestCustom*config.Path.SysPath(t *testing.T) {
+func TestCustomSysPath(t *testing.T) {
+	config := PathConfig{}
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.sysfs", "./../some/./place/"}); err != nil {
 		t.Fatal(err)
 	}
 
-	if got, want := *config.Path.SysPath("somefile"), "../some/place/somefile"; got != want {
+	if got, want := config.sysFilePath("somefile"), "../some/place/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := *config.Path.SysPath("some/file"), "../some/place/some/file"; got != want {
+	if got, want := config.sysFilePath("some/file"), "../some/place/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }

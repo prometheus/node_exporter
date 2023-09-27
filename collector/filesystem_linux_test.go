@@ -14,14 +14,16 @@
 package collector
 
 import (
-	"github.com/go-kit/log"
 	"strings"
 	"testing"
+
+	"github.com/go-kit/log"
 
 	"github.com/alecthomas/kingpin/v2"
 )
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
+	config := NodeCollectorConfig{}
 	tests := []struct {
 		name string
 		in   string
@@ -34,7 +36,7 @@ func Test_parseFilesystemLabelsError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := parseFilesystemLabels(strings.NewReader(tt.in)); err == nil {
+			if _, err := parseFilesystemLabels(config, strings.NewReader(tt.in)); err == nil {
 				t.Fatal("expected an error, but none occurred")
 			}
 		})
@@ -42,9 +44,12 @@ func Test_parseFilesystemLabelsError(t *testing.T) {
 }
 
 func TestMountPointDetails(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures/proc"}); err != nil {
-		t.Fatal(err)
-	}
+	path := "./fixtures/proc"
+	config := NodeCollectorConfig{Path: PathConfig{ProcPath: &path, SysPath: &path, RootfsPath: &path, UdevDataPath: &path}}
+
+	// if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures/proc"}); err != nil {
+	// 	t.Fatal(err)
+	// }
 
 	expected := map[string]string{
 		"/":                               "",
@@ -79,7 +84,7 @@ func TestMountPointDetails(t *testing.T) {
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
 	}
 
-	filesystems, err := mountPointDetails(log.NewNopLogger())
+	filesystems, err := mountPointDetails(config, log.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
@@ -92,6 +97,8 @@ func TestMountPointDetails(t *testing.T) {
 }
 
 func TestMountsFallback(t *testing.T) {
+	config := NodeCollectorConfig{}
+
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_hidepid/proc"}); err != nil {
 		t.Fatal(err)
 	}
@@ -100,7 +107,7 @@ func TestMountsFallback(t *testing.T) {
 		"/": "",
 	}
 
-	filesystems, err := mountPointDetails(log.NewNopLogger())
+	filesystems, err := mountPointDetails(config, log.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
@@ -113,6 +120,8 @@ func TestMountsFallback(t *testing.T) {
 }
 
 func TestPathRootfs(t *testing.T) {
+	config := NodeCollectorConfig{}
+
 	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_bindmount/proc", "--path.rootfs", "/host"}); err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +137,7 @@ func TestPathRootfs(t *testing.T) {
 		"/sys/fs/cgroup": "",
 	}
 
-	filesystems, err := mountPointDetails(log.NewNopLogger())
+	filesystems, err := mountPointDetails(config, log.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
