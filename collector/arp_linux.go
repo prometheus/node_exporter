@@ -62,6 +62,7 @@ func NewARPCollector(config NodeCollectorConfig, logger log.Logger) (Collector, 
 			[]string{"device"}, nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 

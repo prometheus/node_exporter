@@ -47,5 +47,6 @@ func NewPowerSupplyClassCollector(config NodeCollectorConfig, logger log.Logger)
 		ignoredPattern: pattern,
 		metricDescs:    map[string]*prometheus.Desc{},
 		logger:         logger,
+		config:         config,
 	}, nil
 }
