@@ -34,7 +34,7 @@ func init() {
 }
 
 // NewSelinuxCollector returns a new Collector exposing SELinux statistics.
-func NewSelinuxCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSelinuxCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "selinux"
 
 	return &selinuxCollector{

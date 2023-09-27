@@ -29,7 +29,7 @@ import (
 
 type mdadmCollector struct {
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -37,7 +37,7 @@ func init() {
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
-func NewMdadmCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewMdadmCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &mdadmCollector{logger, config}, nil
 }
 

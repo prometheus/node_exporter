@@ -25,7 +25,7 @@ import (
 	"github.com/prometheus/procfs"
 )
 
-func getNetDevStats(config NodeCollectorConfig, netDevNetlink *bool, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(config *NodeCollectorConfig, netDevNetlink *bool, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	if *netDevNetlink {
 		return netlinkStats(filter, logger)
 	}
@@ -136,7 +136,7 @@ func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logg
 	return metrics
 }
 
-func procNetDevStats(config NodeCollectorConfig, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func procNetDevStats(config *NodeCollectorConfig, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	metrics := netDevStats{}
 
 	fs, err := procfs.NewFS(*config.Path.ProcPath)

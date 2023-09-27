@@ -33,7 +33,7 @@ const (
 
 type fileFDStatCollector struct {
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -41,7 +41,7 @@ func init() {
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
-func NewFileFDStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewFileFDStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &fileFDStatCollector{logger, config}, nil
 }
 

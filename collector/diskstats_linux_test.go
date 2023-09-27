@@ -39,7 +39,7 @@ func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestDiskStatsCollector(config NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+func NewTestDiskStatsCollector(config *NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
 	dsc, err := NewDiskstatsCollector(config, logger)
 	if err != nil {
 		return testDiskStatsCollector{}, err
@@ -50,7 +50,7 @@ func NewTestDiskStatsCollector(config NodeCollectorConfig, logger log.Logger) (p
 }
 
 func TestDiskStats(t *testing.T) {
-	config := NodeCollectorConfig{
+	config := &NodeCollectorConfig{
 		DiskstatsDeviceFilter: DiskstatsDeviceFilterConfig{
 			DeviceExclude:    new(string),
 			DeviceInclude:    new(string),

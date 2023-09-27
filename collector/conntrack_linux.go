@@ -39,7 +39,7 @@ type conntrackCollector struct {
 	earlyDrop     *prometheus.Desc
 	searchRestart *prometheus.Desc
 	logger        log.Logger
-	config        NodeCollectorConfig
+	config        *NodeCollectorConfig
 }
 
 type conntrackStatistics struct {
@@ -58,7 +58,7 @@ func init() {
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewConntrackCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),
@@ -162,7 +162,7 @@ func (c *conntrackCollector) handleErr(err error) error {
 	return fmt.Errorf("failed to retrieve conntrack stats: %w", err)
 }
 
-func getConntrackStatistics(config NodeCollectorConfig) (*conntrackStatistics, error) {
+func getConntrackStatistics(config *NodeCollectorConfig) (*conntrackStatistics, error) {
 	c := conntrackStatistics{}
 
 	fs, err := procfs.NewFS(*config.Path.ProcPath)

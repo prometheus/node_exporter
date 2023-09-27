@@ -36,7 +36,7 @@ var pageSize = os.Getpagesize()
 
 type sockStatCollector struct {
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -44,7 +44,7 @@ func init() {
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSockStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &sockStatCollector{logger, config}, nil
 }
 

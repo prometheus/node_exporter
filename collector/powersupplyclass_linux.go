@@ -155,7 +155,7 @@ func pushPowerSupplyMetric(ch chan<- prometheus.Metric, subsystem string, name s
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, value, powerSupplyName)
 }
 
-func getPowerSupplyClassInfo(config NodeCollectorConfig, ignore *regexp.Regexp) (sysfs.PowerSupplyClass, error) {
+func getPowerSupplyClassInfo(config *NodeCollectorConfig, ignore *regexp.Regexp) (sysfs.PowerSupplyClass, error) {
 	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, err

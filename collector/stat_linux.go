@@ -34,7 +34,7 @@ type statCollector struct {
 	procsBlocked *prometheus.Desc
 	softIRQ      *prometheus.Desc
 	logger       log.Logger
-	config       NodeCollectorConfig
+	config       *NodeCollectorConfig
 }
 
 func init() {
@@ -46,7 +46,7 @@ type StatConfig struct {
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

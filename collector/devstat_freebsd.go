@@ -51,7 +51,7 @@ func init() {
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewDevstatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &devstatCollector{
 		devinfo: &C.struct_devinfo{},
 		bytes: typedDesc{prometheus.NewDesc(

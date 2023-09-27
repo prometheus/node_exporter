@@ -24,7 +24,7 @@ import (
 )
 
 // Read loadavg from /proc.
-func getLoad(config NodeCollectorConfig) (loads []float64, err error) {
+func getLoad(config *NodeCollectorConfig) (loads []float64, err error) {
 	data, err := os.ReadFile(config.Path.procFilePath("loadavg"))
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func getLoad(config NodeCollectorConfig) (loads []float64, err error) {
 }
 
 // Parse /proc loadavg and return 1m, 5m and 15m.
-func parseLoad(config NodeCollectorConfig, data string) (loads []float64, err error) {
+func parseLoad(config *NodeCollectorConfig, data string) (loads []float64, err error) {
 	loads = make([]float64, 3)
 	parts := strings.Fields(data)
 	if len(parts) < 3 {

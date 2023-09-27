@@ -105,7 +105,7 @@ func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	logger := log.NewNopLogger()
 	defaultInclude := ".+"
 	defaultExclude := ".+\\.(automount|device|mount|scope|slice)"
-	config := NodeCollectorConfig{Systemd: SystemdConfig{
+	config := &NodeCollectorConfig{Systemd: SystemdConfig{
 		UnitInclude:    &defaultInclude,
 		UnitExclude:    &defaultExclude,
 		OldUnitInclude: new(string),

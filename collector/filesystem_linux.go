@@ -168,7 +168,7 @@ func stuckMountWatcher(mountTimeout *time.Duration, mountPoint string, success c
 	}
 }
 
-func mountPointDetails(config NodeCollectorConfig, logger log.Logger) ([]filesystemLabels, error) {
+func mountPointDetails(config *NodeCollectorConfig, logger log.Logger) ([]filesystemLabels, error) {
 	file, err := os.Open(config.Path.procFilePath("1/mounts"))
 	if errors.Is(err, os.ErrNotExist) {
 		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
@@ -183,7 +183,7 @@ func mountPointDetails(config NodeCollectorConfig, logger log.Logger) ([]filesys
 	return parseFilesystemLabels(config, file)
 }
 
-func parseFilesystemLabels(config NodeCollectorConfig, r io.Reader) ([]filesystemLabels, error) {
+func parseFilesystemLabels(config *NodeCollectorConfig, r io.Reader) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
 	scanner := bufio.NewScanner(r)

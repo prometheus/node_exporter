@@ -222,7 +222,7 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &statCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		temp: typedDesc{prometheus.NewDesc(

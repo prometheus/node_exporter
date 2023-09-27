@@ -49,11 +49,11 @@ type handler struct {
 	exporterMetricsRegistry *prometheus.Registry
 	includeExporterMetrics  bool
 	maxRequests             int
-	collectorConfig         collector.NodeCollectorConfig
+	collectorConfig         *collector.NodeCollectorConfig
 	logger                  log.Logger
 }
 
-func newHandler(includeExporterMetrics bool, maxRequests int, collectorConfig collector.NodeCollectorConfig, logger log.Logger) *handler {
+func newHandler(includeExporterMetrics bool, maxRequests int, collectorConfig *collector.NodeCollectorConfig, logger log.Logger) *handler {
 	h := &handler{
 		exporterMetricsRegistry: prometheus.NewRegistry(),
 		includeExporterMetrics:  includeExporterMetrics,

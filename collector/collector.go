@@ -50,14 +50,14 @@ const (
 )
 
 var (
-	factories              = make(map[string]func(config NodeCollectorConfig, logger log.Logger) (Collector, error))
+	factories              = make(map[string]func(config *NodeCollectorConfig, logger log.Logger) (Collector, error))
 	initiatedCollectorsMtx = sync.Mutex{}
 	initiatedCollectors    = make(map[string]Collector)
 	collectorState         = make(map[string]*bool)
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
-func registerCollector(collector string, isDefaultEnabled bool, factory func(config NodeCollectorConfig, logger log.Logger) (Collector, error)) {
+func registerCollector(collector string, isDefaultEnabled bool, factory func(config *NodeCollectorConfig, logger log.Logger) (Collector, error)) {
 	var helpDefaultState string
 	if isDefaultEnabled {
 		helpDefaultState = "enabled"
@@ -104,7 +104,7 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 }
 
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(config NodeCollectorConfig, logger log.Logger, filters ...string) (*NodeCollector, error) {
+func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
 		enabled, exist := collectorState[filter]

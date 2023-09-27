@@ -44,7 +44,7 @@ func canTestPerf(t *testing.T) {
 
 func TestPerfCollector(t *testing.T) {
 	canTestPerf(t)
-	collector, err := NewPerfCollector(NodeCollectorConfig{}, log.NewNopLogger())
+	collector, err := NewPerfCollector(&NodeCollectorConfig{}, log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,7 +64,7 @@ func TestPerfCollector(t *testing.T) {
 }
 
 func TestPerfCollectorStride(t *testing.T) {
-	config := NodeCollectorConfig{}
+	config := &NodeCollectorConfig{}
 
 	canTestPerf(t)
 

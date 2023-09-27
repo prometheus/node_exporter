@@ -65,7 +65,7 @@ func init() {
 	registerCollector(zfsCollectorSubsystem, defaultEnabled, NewZfsCollector)
 }
 
-func NewZfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewZfsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &zfsCollector{
 		abdstatsLinearCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "abdstats_linear_count_total"),

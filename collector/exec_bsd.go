@@ -32,7 +32,7 @@ func init() {
 }
 
 // NewExecCollector returns a new Collector exposing system execution statistics.
-func NewExecCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewExecCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	// From sys/vm/vm_meter.c:
 	// All are of type CTLTYPE_UINT.
 	//

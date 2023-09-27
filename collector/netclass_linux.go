@@ -35,7 +35,7 @@ type netClassCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
 	logger                log.Logger
-	config                NodeCollectorConfig
+	config                *NodeCollectorConfig
 }
 
 func init() {
@@ -50,7 +50,7 @@ type NetClassConfig struct {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNetClassCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

@@ -35,7 +35,7 @@ type netDevCollector struct {
 	metricDescsMutex sync.Mutex
 	metricDescs      map[string]*prometheus.Desc
 	logger           log.Logger
-	config           NodeCollectorConfig
+	config           *NodeCollectorConfig
 }
 
 type netDevStats map[string]map[string]uint64
@@ -55,7 +55,7 @@ type NetDevConfig struct {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNetDevCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *config.NetDev.OldDeviceInclude != "" {
 		if *config.NetDev.DeviceInclude == "" {
 			level.Warn(logger).Log("msg", "--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")

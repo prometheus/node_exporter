@@ -55,7 +55,7 @@ type interrupt struct {
 	values  []string
 }
 
-func getInterrupts(config NodeCollectorConfig) (map[string]interrupt, error) {
+func getInterrupts(config *NodeCollectorConfig) (map[string]interrupt, error) {
 	file, err := os.Open(config.Path.procFilePath("interrupts"))
 	if err != nil {
 		return nil, err

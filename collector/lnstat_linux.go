@@ -27,14 +27,14 @@ import (
 
 type lnstatCollector struct {
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 func init() {
 	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
-func NewLnstatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewLnstatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &lnstatCollector{logger, config}, nil
 }
 

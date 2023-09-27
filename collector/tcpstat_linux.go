@@ -61,7 +61,7 @@ const (
 type tcpStatCollector struct {
 	desc   typedDesc
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -69,7 +69,7 @@ func init() {
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
-func NewTCPStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewTCPStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),

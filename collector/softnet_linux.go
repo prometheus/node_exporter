@@ -46,7 +46,7 @@ func init() {
 }
 
 // NewSoftnetCollector returns a new Collector exposing softnet metrics.
-func NewSoftnetCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSoftnetCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

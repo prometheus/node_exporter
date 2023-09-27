@@ -40,7 +40,7 @@ type processCollector struct {
 	pidUsed      *prometheus.Desc
 	pidMax       *prometheus.Desc
 	logger       log.Logger
-	config       NodeCollectorConfig
+	config       *NodeCollectorConfig
 }
 
 func init() {
@@ -48,7 +48,7 @@ func init() {
 }
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
-func NewProcessStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewProcessStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

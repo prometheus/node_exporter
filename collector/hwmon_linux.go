@@ -49,7 +49,7 @@ func init() {
 type hwMonCollector struct {
 	deviceFilter deviceFilter
 	logger       log.Logger
-	config       NodeCollectorConfig
+	config       *NodeCollectorConfig
 }
 
 type HwMonConfig struct {
@@ -59,7 +59,7 @@ type HwMonConfig struct {
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewHwMonCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,

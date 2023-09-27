@@ -49,7 +49,7 @@ func (c testEthtoolCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+func NewTestEthtoolCollector(config *NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
 	dsc, err := NewEthtoolTestCollector(config, logger)
 	if err != nil {
 		return testEthtoolCollector{}, err
@@ -255,7 +255,7 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return res, err
 }
 
-func NewEthtoolTestCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewEthtoolTestCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(config, logger)
 	collector.ethtool = &EthtoolFixture{
 		fixturePath: "fixtures/ethtool/",
@@ -285,7 +285,7 @@ func TestBuildEthtoolFQName(t *testing.T) {
 }
 
 func TestEthToolCollector(t *testing.T) {
-	config := NodeCollectorConfig{
+	config := &NodeCollectorConfig{
 		Ethtool: EthtoolConfig{
 			DeviceInclude:   new(string),
 			DeviceExclude:   new(string),

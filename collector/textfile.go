@@ -57,7 +57,7 @@ type TextFileConfig struct {
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files
 // in the given textfile directory.
-func NewTextFileCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewTextFileCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	c := &textFileCollector{
 		path:   *config.TextFile.Directory,
 		logger: logger,

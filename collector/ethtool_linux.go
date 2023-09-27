@@ -87,7 +87,7 @@ type EthtoolConfig struct {
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
 // This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.
-func makeEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (*ethtoolCollector, error) {
+func makeEthtoolCollector(config *NodeCollectorConfig, logger log.Logger) (*ethtoolCollector, error) {
 	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -215,7 +215,7 @@ func buildEthtoolFQName(metric string) string {
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
-func NewEthtoolCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewEthtoolCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return makeEthtoolCollector(config, logger)
 }
 

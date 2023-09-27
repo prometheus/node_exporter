@@ -32,7 +32,7 @@ func init() {
 }
 
 // newBootTimeCollector returns a new Collector exposing system boot time on BSD systems.
-func newBootTimeCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func newBootTimeCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &bootTimeCollector{
 		logger: logger,
 	}, nil

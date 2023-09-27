@@ -30,7 +30,7 @@ type timeCollector struct {
 	clocksourcesAvailable typedDesc
 	clocksourceCurrent    typedDesc
 	logger                log.Logger
-	config                NodeCollectorConfig
+	config                *NodeCollectorConfig
 }
 
 func init() {
@@ -39,7 +39,7 @@ func init() {
 
 // NewTimeCollector returns a new Collector exposing the current system time in
 // seconds since epoch.
-func NewTimeCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewTimeCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "time"
 	return &timeCollector{
 		now: typedDesc{prometheus.NewDesc(

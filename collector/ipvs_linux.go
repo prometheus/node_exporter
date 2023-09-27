@@ -75,11 +75,11 @@ type IPVSConfig struct {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewIPVSCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return newIPVSCollector(config, logger)
 }
 
-func newIPVSCollector(config NodeCollectorConfig, logger log.Logger) (*ipvsCollector, error) {
+func newIPVSCollector(config *NodeCollectorConfig, logger log.Logger) (*ipvsCollector, error) {
 	var (
 		c         ipvsCollector
 		err       error

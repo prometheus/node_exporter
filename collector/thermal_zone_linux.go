@@ -43,7 +43,7 @@ func init() {
 }
 
 // NewThermalZoneCollector returns a new Collector exposing kernel/system statistics.
-func NewThermalZoneCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewThermalZoneCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

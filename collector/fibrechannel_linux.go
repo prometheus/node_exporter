@@ -40,7 +40,7 @@ func init() {
 }
 
 // NewFibreChannelCollector returns a new Collector exposing FibreChannel stats.
-func NewFibreChannelCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewFibreChannelCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var i fibrechannelCollector
 	var err error
 

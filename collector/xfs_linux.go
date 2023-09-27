@@ -35,7 +35,7 @@ func init() {
 }
 
 // NewXFSCollector returns a new Collector exposing XFS statistics.
-func NewXFSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewXFSCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := xfs.NewFS(*config.Path.ProcPath, *config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

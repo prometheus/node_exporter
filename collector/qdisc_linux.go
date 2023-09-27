@@ -38,7 +38,7 @@ type qdiscStatCollector struct {
 	overlimits   typedDesc
 	qlength      typedDesc
 	backlog      typedDesc
-	config       NodeCollectorConfig
+	config       *NodeCollectorConfig
 }
 
 func init() {
@@ -54,7 +54,7 @@ type QdiscConfig struct {
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
-func NewQdiscStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewQdiscStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *config.Qdisc.OldDeviceInclude != "" {
 		if *config.Qdisc.DeviceInclude == "" {
 			level.Warn(logger).Log("msg", "--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")

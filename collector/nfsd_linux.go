@@ -44,7 +44,7 @@ const (
 )
 
 // NewNFSdCollector returns a new Collector exposing /proc/net/rpc/nfsd statistics.
-func NewNFSdCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNFSdCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := nfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

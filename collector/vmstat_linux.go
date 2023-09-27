@@ -35,7 +35,7 @@ const (
 type vmStatCollector struct {
 	fieldPattern *regexp.Regexp
 	logger       log.Logger
-	config       NodeCollectorConfig
+	config       *NodeCollectorConfig
 }
 
 func init() {
@@ -47,7 +47,7 @@ type VmStatConfig struct {
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
-func NewvmStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewvmStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*config.VmStat.Fields)
 	return &vmStatCollector{
 		fieldPattern: pattern,

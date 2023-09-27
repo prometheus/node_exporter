@@ -61,7 +61,7 @@ func init() {
 }
 
 // NewCPUCollector returns a new Collector exposing CPU stats.
-func NewCPUCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewCPUCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &statCollector{
 		cpu:    nodeCPUSecondsDesc,
 		logger: logger,

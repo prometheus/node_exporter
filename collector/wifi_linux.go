@@ -45,7 +45,7 @@ type wifiCollector struct {
 	stationBeaconLossTotal       *prometheus.Desc
 
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -67,7 +67,7 @@ type wifiStater interface {
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewWifiCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const (
 		subsystem = "wifi"
 	)

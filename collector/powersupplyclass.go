@@ -29,7 +29,7 @@ type powerSupplyClassCollector struct {
 	ignoredPattern *regexp.Regexp
 	metricDescs    map[string]*prometheus.Desc
 	logger         log.Logger
-	config         NodeCollectorConfig
+	config         *NodeCollectorConfig
 }
 
 func init() {
@@ -40,7 +40,7 @@ type PowerSupplyClassConfig struct {
 	IgnoredPowerSupplies *string
 }
 
-func NewPowerSupplyClassCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewPowerSupplyClassCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*config.PowerSupplyClass.IgnoredPowerSupplies)
 	return &powerSupplyClassCollector{
 		subsystem:      "power_supply",

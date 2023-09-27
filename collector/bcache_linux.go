@@ -33,7 +33,7 @@ func init() {
 type bcacheCollector struct {
 	fs     bcache.FS
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 type BcacheConfig struct {
@@ -42,7 +42,7 @@ type BcacheConfig struct {
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
-func NewBcacheCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewBcacheCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := bcache.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

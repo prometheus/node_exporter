@@ -86,8 +86,8 @@ type diskstatsCollector struct {
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
 	logger                  log.Logger
-	getUdevDeviceProperties func(NodeCollectorConfig, uint32, uint32) (udevInfo, error)
-	config                  NodeCollectorConfig
+	getUdevDeviceProperties func(*NodeCollectorConfig, uint32, uint32) (udevInfo, error)
+	config                  *NodeCollectorConfig
 }
 
 func init() {
@@ -96,7 +96,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewDiskstatsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 	fs, err := blockdevice.NewFS(*config.Path.ProcPath, *config.Path.SysPath)
 	if err != nil {
@@ -372,7 +372,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func getUdevDeviceProperties(config NodeCollectorConfig, major, minor uint32) (udevInfo, error) {
+func getUdevDeviceProperties(config *NodeCollectorConfig, major, minor uint32) (udevInfo, error) {
 	filename := config.Path.udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
 
 	data, err := os.Open(filename)

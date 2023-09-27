@@ -36,7 +36,7 @@ func init() {
 	registerCollector("netisr", defaultEnabled, NewNetisrCollector)
 }
 
-func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNetisrCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &netisrCollector{
 		sysctls: []bsdSysctl{
 			{

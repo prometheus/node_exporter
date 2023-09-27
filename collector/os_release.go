@@ -65,7 +65,7 @@ type osReleaseCollector struct {
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	versionDesc        *prometheus.Desc
-	config             NodeCollectorConfig
+	config             *NodeCollectorConfig
 }
 
 type Plist struct {
@@ -82,7 +82,7 @@ func init() {
 }
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewOSCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &osReleaseCollector{
 		logger: logger,
 		infoDesc: prometheus.NewDesc(

@@ -43,7 +43,7 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewDiskstatsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 
 	deviceFilter, err := newDiskstatsDeviceFilter(config.DiskstatsDeviceFilter, logger)

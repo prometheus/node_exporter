@@ -87,7 +87,7 @@ func TestUpdateStruct(t *testing.T) {
 	}
 	wantedVersion := 20.04
 
-	collector, err := NewOSCollector(NodeCollectorConfig{}, log.NewNopLogger())
+	collector, err := NewOSCollector(&NodeCollectorConfig{}, log.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

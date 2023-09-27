@@ -41,7 +41,7 @@ func init() {
 }
 
 // NewMemoryCollector returns a new Collector exposing memory stats.
-func NewMemoryCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewMemoryCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	tmp32, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
 	if err != nil {
 		return nil, fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %w", err)

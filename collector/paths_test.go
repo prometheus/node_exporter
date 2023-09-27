@@ -75,8 +75,8 @@ func TestCustomSysPath(t *testing.T) {
 	}
 }
 
-func newNodeCollectorWithPaths() NodeCollectorConfig {
-	return NodeCollectorConfig{Path: PathConfig{
+func newNodeCollectorWithPaths() *NodeCollectorConfig {
+	return &NodeCollectorConfig{Path: PathConfig{
 		ProcPath:     new(string),
 		SysPath:      new(string),
 		RootfsPath:   new(string),

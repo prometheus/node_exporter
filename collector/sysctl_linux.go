@@ -42,7 +42,7 @@ type SysctlConfig struct {
 	IncludeInfo *[]string
 }
 
-func NewSysctlCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSysctlCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

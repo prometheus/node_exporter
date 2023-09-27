@@ -33,7 +33,7 @@ import (
 type btrfsCollector struct {
 	fs     btrfs.FS
 	logger log.Logger
-	config NodeCollectorConfig
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -41,7 +41,7 @@ func init() {
 }
 
 // NewBtrfsCollector returns a new Collector exposing Btrfs statistics.
-func NewBtrfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewBtrfsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := btrfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

@@ -24,7 +24,7 @@ import (
 )
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
-	config := NodeCollectorConfig{}
+	config := &NodeCollectorConfig{}
 	tests := []struct {
 		name string
 		in   string

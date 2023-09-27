@@ -35,7 +35,7 @@ type raplCollector struct {
 	logger log.Logger
 
 	joulesMetricDesc *prometheus.Desc
-	config           NodeCollectorConfig
+	config           *NodeCollectorConfig
 }
 
 func init() {
@@ -47,7 +47,7 @@ type RaplConfig struct {
 }
 
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
-func NewRaplCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewRaplCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*config.Path.SysPath)
 
 	if err != nil {

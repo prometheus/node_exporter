@@ -67,7 +67,7 @@ func init() {
 }
 
 // NewThermCollector returns a new Collector exposing current CPU power levels.
-func NewThermCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewThermCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &thermCollector{
 		cpuSchedulerLimit: typedDesc{
 			desc: prometheus.NewDesc(

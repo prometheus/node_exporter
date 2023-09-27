@@ -106,7 +106,7 @@ func init() {
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector(config NodeCollectorConfiglogger log.Logger) (Collector, error) {
+func NewDevstatCollector(config  *NodeCollectorConfiglogger log.Logger) (Collector, error) {
 	return &devstatCollector{
 		bytesDesc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, devstatSubsystem, "bytes_total"),

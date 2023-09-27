@@ -29,7 +29,7 @@ type runitCollector struct {
 	stateNormal    typedDesc
 	stateTimestamp typedDesc
 	logger         log.Logger
-	config         NodeCollectorConfig
+	config         *NodeCollectorConfig
 }
 
 func init() {
@@ -41,7 +41,7 @@ type RunitConfig struct {
 }
 
 // NewRunitCollector returns a new Collector exposing runit statistics.
-func NewRunitCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewRunitCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (
 		subsystem   = "service"
 		constLabels = prometheus.Labels{"supervisor": "runit"}

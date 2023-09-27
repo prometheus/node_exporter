@@ -51,7 +51,7 @@ type SupervisordConfig struct {
 }
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
-func NewSupervisordCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSupervisordCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}

@@ -18,6 +18,7 @@ package collector
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -39,7 +40,7 @@ func init() {
 	registerCollector(zfsCollectorSubsystem, defaultEnabled, NewZfsCollector)
 }
 
-func NewZfsCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewZfsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &zfsCollector{
 		sysctls: []bsdSysctl{
 			{

@@ -19,8 +19,8 @@ import (
 	"github.com/prometheus/procfs"
 )
 
-func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
-	config := collector.NodeCollectorConfig{}
+func AddFlags(a *kingpin.Application) *collector.NodeCollectorConfig {
+	config := &collector.NodeCollectorConfig{}
 
 	config.Arp.DeviceInclude = a.Flag("collector.arp.device-include", "Regexp of arp devices to include (mutually exclusive to device-exclude).").String()
 	config.Arp.DeviceExclude = a.Flag("collector.arp.device-exclude", "Regexp of arp devices to exclude (mutually exclusive to device-include).").String()

@@ -37,7 +37,7 @@ const (
 type netStatCollector struct {
 	fieldPattern *regexp.Regexp
 	logger       log.Logger
-	config       NodeCollectorConfig
+	config       *NodeCollectorConfig
 }
 
 func init() {
@@ -50,7 +50,7 @@ type NetStatConfig struct {
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNetStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*config.NetStat.Fields)
 	return &netStatCollector{
 		fieldPattern: pattern,

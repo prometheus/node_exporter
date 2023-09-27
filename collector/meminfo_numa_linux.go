@@ -46,7 +46,7 @@ type meminfoMetric struct {
 type meminfoNumaCollector struct {
 	metricDescs map[string]*prometheus.Desc
 	logger      log.Logger
-	config      NodeCollectorConfig
+	config      *NodeCollectorConfig
 }
 
 func init() {
@@ -54,7 +54,7 @@ func init() {
 }
 
 // NewMeminfoNumaCollector returns a new Collector exposing memory stats.
-func NewMeminfoNumaCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewMeminfoNumaCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &meminfoNumaCollector{
 		metricDescs: map[string]*prometheus.Desc{},
 		logger:      logger,
@@ -81,7 +81,7 @@ func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func getMemInfoNuma(config NodeCollectorConfig) ([]meminfoMetric, error) {
+func getMemInfoNuma(config *NodeCollectorConfig) ([]meminfoMetric, error) {
 	var (
 		metrics []meminfoMetric
 	)
