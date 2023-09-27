@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build dragonfly || freebsd || netbsd || openbsd
-// +build dragonfly freebsd netbsd openbsd
+//go:build dragonfly || freebsd || netbsd || openbsd || 386
+// +build dragonfly freebsd netbsd openbsd 386
 
 package collector
 

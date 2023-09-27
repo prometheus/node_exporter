@@ -112,7 +112,7 @@ func (c *netDevCollector) metricDesc(key string) *prometheus.Desc {
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(c.config, c.config.NetDev.Netlink, &c.deviceFilter, c.logger)
+	netDev, err := getNetDevStats(&c.deviceFilter, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}

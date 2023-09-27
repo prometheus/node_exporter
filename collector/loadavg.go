@@ -49,7 +49,7 @@ func NewLoadavgCollector(config *NodeCollectorConfig, logger log.Logger) (Collec
 }
 
 func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) error {
-	loads, err := getLoad(c.config)
+	loads, err := getLoad()
 	if err != nil {
 		return fmt.Errorf("couldn't get load: %w", err)
 	}

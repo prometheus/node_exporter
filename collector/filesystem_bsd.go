@@ -39,7 +39,7 @@ const (
 )
 
 // Expose filesystem fullness.
-func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
+func (c *filesystemCollector) GetStats(p PathConfig) (stats []filesystemStats, err error) {
 	var mntbuf *C.struct_statfs
 	count := C.getmntinfo(&mntbuf, C.MNT_NOWAIT)
 	if count == 0 {
@@ -70,7 +70,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		stats = append(stats, filesystemStats{
 			labels: filesystemLabels{
 				device:     device,
-				mountPoint: rootfsStripPrefix(mountpoint),
+				mountPoint: p.rootfsStripPrefix(mountpoint),
 				fsType:     fstype,
 			},
 			size:      float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
