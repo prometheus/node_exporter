@@ -18,8 +18,6 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
-
-	"github.com/alecthomas/kingpin/v2"
 )
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
@@ -45,11 +43,8 @@ func Test_parseFilesystemLabelsError(t *testing.T) {
 
 func TestMountPointDetails(t *testing.T) {
 	path := "./fixtures/proc"
-	config := NodeCollectorConfig{Path: PathConfig{ProcPath: &path, SysPath: &path, RootfsPath: &path, UdevDataPath: &path}}
-
-	// if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures/proc"}); err != nil {
-	// 	t.Fatal(err)
-	// }
+	config := newNodeCollectorWithPaths()
+	config.Path.ProcPath = &path
 
 	expected := map[string]string{
 		"/":                               "",
@@ -97,11 +92,9 @@ func TestMountPointDetails(t *testing.T) {
 }
 
 func TestMountsFallback(t *testing.T) {
-	config := NodeCollectorConfig{}
-
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_hidepid/proc"}); err != nil {
-		t.Fatal(err)
-	}
+	path := "./fixtures_hidepid/proc"
+	config := newNodeCollectorWithPaths()
+	config.Path.ProcPath = &path
 
 	expected := map[string]string{
 		"/": "",
@@ -120,11 +113,11 @@ func TestMountsFallback(t *testing.T) {
 }
 
 func TestPathRootfs(t *testing.T) {
-	config := NodeCollectorConfig{}
-
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_bindmount/proc", "--path.rootfs", "/host"}); err != nil {
-		t.Fatal(err)
-	}
+	procPath := "./fixtures_bindmount/proc"
+	rootfsPath := "/host"
+	config := newNodeCollectorWithPaths()
+	config.Path.ProcPath = &procPath
+	config.Path.RootfsPath = &rootfsPath
 
 	expected := map[string]string{
 		// should modify these mountpoints (removes /host, see fixture proc file)

@@ -100,7 +100,15 @@ func TestSystemdIgnoreFilter(t *testing.T) {
 }
 func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	logger := log.NewNopLogger()
-	c, err := NewSystemdCollector(NodeCollectorConfig{}, logger)
+	defaultInclude := ".+"
+	defaultExclude := ".+\\.(automount|device|mount|scope|slice)"
+	config := NodeCollectorConfig{Systemd: SystemdConfig{
+		UnitInclude:    &defaultInclude,
+		UnitExclude:    &defaultExclude,
+		OldUnitInclude: new(string),
+		OldUnitExclude: new(string),
+	}}
+	c, err := NewSystemdCollector(config, logger)
 	if err != nil {
 		t.Fatal(err)
 	}

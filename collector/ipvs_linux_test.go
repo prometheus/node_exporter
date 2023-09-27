@@ -24,12 +24,15 @@ import (
 
 	"github.com/go-kit/log"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func TestIPVSCollector(t *testing.T) {
+	path := "fixtures/proc"
+	config := newNodeCollectorWithPaths()
+	config.Path.ProcPath = &path
+
 	testcases := []struct {
 		labels  string
 		expects []string
@@ -104,14 +107,11 @@ func TestIPVSCollector(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			args := []string{"--path.procfs", "fixtures/proc"}
+			config.IPVS.Labels = new(string)
 			if test.labels != "<none>" {
-				args = append(args, "--collector.ipvs.backend-labels="+test.labels)
+				config.IPVS.Labels = &test.labels
 			}
-			if _, err := kingpin.CommandLine.Parse(args); err != nil {
-				t.Fatal(err)
-			}
-			collector, err := newIPVSCollector(NodeCollectorConfig{}, log.NewNopLogger())
+			collector, err := newIPVSCollector(config, log.NewNopLogger())
 			if err != nil {
 				if test.err == nil {
 					t.Fatal(err)
@@ -161,6 +161,10 @@ func (c miniCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func TestIPVSCollectorResponse(t *testing.T) {
+	path := "fixtures/proc"
+	config := newNodeCollectorWithPaths()
+	config.Path.ProcPath = &path
+
 	testcases := []struct {
 		labels      string
 		metricsFile string
@@ -172,14 +176,11 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			args := []string{"--path.procfs", "fixtures/proc"}
+			config.IPVS.Labels = new(string)
 			if test.labels != "<none>" {
-				args = append(args, "--collector.ipvs.backend-labels="+test.labels)
+				config.IPVS.Labels = &test.labels
 			}
-			if _, err := kingpin.CommandLine.Parse(args); err != nil {
-				t.Fatal(err)
-			}
-			collector, err := NewIPVSCollector(NodeCollectorConfig{}, log.NewNopLogger())
+			collector, err := NewIPVSCollector(config, log.NewNopLogger())
 			if err != nil {
 				t.Fatal(err)
 			}

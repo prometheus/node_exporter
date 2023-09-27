@@ -282,7 +282,13 @@ func TestBuildEthtoolFQName(t *testing.T) {
 }
 
 func TestEthToolCollector(t *testing.T) {
-	config := NodeCollectorConfig{}
+	config := NodeCollectorConfig{
+		Ethtool: EthtoolConfig{
+			DeviceInclude:   new(string),
+			DeviceExclude:   new(string),
+			IncludedMetrics: new(string),
+		},
+	}
 	testcase := `# HELP node_ethtool_align_errors Network interface align_errors
 # TYPE node_ethtool_align_errors untyped
 node_ethtool_align_errors{device="eth0"} 0

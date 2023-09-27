@@ -83,6 +83,7 @@ func NewProcessStatCollector(config NodeCollectorConfig, logger log.Logger) (Col
 			"Number of max PIDs limit", nil, nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 func (c *processCollector) Update(ch chan<- prometheus.Metric) error {

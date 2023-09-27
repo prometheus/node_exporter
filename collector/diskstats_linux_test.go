@@ -47,12 +47,11 @@ func NewTestDiskStatsCollector(config NodeCollectorConfig, logger log.Logger) (p
 }
 
 func TestDiskStats(t *testing.T) {
-	empty := ""
 	config := NodeCollectorConfig{
 		DiskstatsDeviceFilter: DiskstatsDeviceFilterConfig{
-			DiskstatsDeviceExclude:    &empty,
-			DiskstatsDeviceInclude:    &empty,
-			OldDiskstatsDeviceExclude: &empty,
+			DiskstatsDeviceExclude:    new(string),
+			DiskstatsDeviceInclude:    new(string),
+			OldDiskstatsDeviceExclude: new(string),
 		},
 	}
 	sysPath := "fixtures/sys"
