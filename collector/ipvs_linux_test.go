@@ -110,8 +110,8 @@ func TestIPVSCollector(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			config.IPVS.Labels = new(string)
 			if test.labels != "<none>" {
+				config.IPVS.LabelsSet = true
 				config.IPVS.Labels = &test.labels
 			}
 			collector, err := newIPVSCollector(config, log.NewNopLogger())
@@ -179,8 +179,8 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			config.IPVS.Labels = new(string)
 			if test.labels != "<none>" {
+				config.IPVS.LabelsSet = true
 				config.IPVS.Labels = &test.labels
 			}
 			collector, err := NewIPVSCollector(config, log.NewNopLogger())
