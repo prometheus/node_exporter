@@ -37,6 +37,7 @@ type cpuCollector struct {
 	fs                 procfs.FS
 	cpu                *prometheus.Desc
 	cpuInfo            *prometheus.Desc
+	cpuFrequencyHz     *prometheus.Desc
 	cpuFlagsInfo       *prometheus.Desc
 	cpuBugsInfo        *prometheus.Desc
 	cpuGuest           *prometheus.Desc
@@ -99,6 +100,11 @@ func NewCPUCollector(config NodeCollectorConfig, logger log.Logger) (Collector, 
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
 			"CPU information from /proc/cpuinfo.",
 			[]string{"package", "core", "cpu", "vendor", "family", "model", "model_name", "microcode", "stepping", "cachesize"}, nil,
+		),
+		cpuFrequencyHz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
+			"CPU frequency in hertz from /proc/cpuinfo.",
+			[]string{"package", "core", "cpu"}, nil,
 		),
 		cpuFlagsInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "flag_info"),
@@ -200,6 +206,20 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.Microcode,
 			cpu.Stepping,
 			cpu.CacheSize)
+	}
+
+	cpuFreqEnabled, ok := collectorState["cpufreq"]
+	if !ok || cpuFreqEnabled == nil {
+		level.Debug(c.logger).Log("cpufreq key missing or nil value in collectorState map", err)
+	} else if !*cpuFreqEnabled {
+		for _, cpu := range info {
+			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
+				prometheus.GaugeValue,
+				cpu.CPUMHz*1e6,
+				cpu.PhysicalID,
+				cpu.CoreID,
+				strconv.Itoa(int(cpu.Processor)))
+		}
 	}
 
 	if len(info) != 0 {

@@ -17,11 +17,15 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
+	"net"
 
 	"github.com/go-kit/log"
+	"github.com/jsimonetti/rtnetlink"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+	"golang.org/x/sys/unix"
 )
 
 type arpCollector struct {
@@ -29,6 +33,7 @@ type arpCollector struct {
 	deviceFilter deviceFilter
 	entries      *prometheus.Desc
 	logger       log.Logger
+	config       NodeCollectorConfig
 }
 
 func init() {
@@ -38,6 +43,7 @@ func init() {
 type ArpConfig struct {
 	DeviceInclude *string
 	DeviceExclude *string
+	Netlink       *bool
 }
 
 // NewARPCollector returns a new Collector exposing ARP stats.
@@ -69,13 +75,65 @@ func getTotalArpEntries(deviceEntries []procfs.ARPEntry) map[string]uint32 {
 	return entries
 }
 
-func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
-	entries, err := c.fs.GatherARPEntries()
+func getTotalArpEntriesRTNL() (map[string]uint32, error) {
+	conn, err := rtnetlink.Dial(nil)
 	if err != nil {
-		return fmt.Errorf("could not get ARP entries: %w", err)
+		return nil, err
+	}
+	defer conn.Close()
+
+	neighbors, err := conn.Neigh.List()
+	if err != nil {
+		return nil, err
 	}
 
-	enumeratedEntry := getTotalArpEntries(entries)
+	ifIndexEntries := make(map[uint32]uint32)
+
+	for _, n := range neighbors {
+		// Neighbors will also contain IPv6 neighbors, but since this is purely an ARP collector,
+		// restrict to AF_INET. Also skip entries which have state NUD_NOARP to conform to output
+		// of /proc/net/arp.
+		if n.Family == unix.AF_INET && n.State&unix.NUD_NOARP == 0 {
+			ifIndexEntries[n.Index]++
+		}
+	}
+
+	enumEntries := make(map[string]uint32)
+
+	// Convert interface indexes to names.
+	for ifIndex, entryCount := range ifIndexEntries {
+		iface, err := net.InterfaceByIndex(int(ifIndex))
+		if err != nil {
+			if errors.Unwrap(err).Error() == "no such network interface" {
+				continue
+			}
+			return nil, err
+		}
+
+		enumEntries[iface.Name] = entryCount
+	}
+
+	return enumEntries, nil
+}
+
+func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
+	var enumeratedEntry map[string]uint32
+
+	if *c.config.Arp.Netlink {
+		var err error
+
+		enumeratedEntry, err = getTotalArpEntriesRTNL()
+		if err != nil {
+			return fmt.Errorf("could not get ARP entries: %w", err)
+		}
+	} else {
+		entries, err := c.fs.GatherARPEntries()
+		if err != nil {
+			return fmt.Errorf("could not get ARP entries: %w", err)
+		}
+
+		enumeratedEntry = getTotalArpEntries(entries)
+	}
 
 	for device, entryCount := range enumeratedEntry {
 		if c.deviceFilter.ignored(device) {

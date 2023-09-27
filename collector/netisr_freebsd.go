@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build freebsd && !nonetisr
-// +build freebsd,!nonetisr
+//go:build !nonetisr
+// +build !nonetisr
 
 package collector
 
@@ -45,6 +45,7 @@ func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 				mib:         "net.isr.numthreads",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
+				labels:      nil,
 			},
 			{
 				name:        "maxprot",
@@ -52,6 +53,7 @@ func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 				mib:         "net.isr.maxprot",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
+				labels:      nil,
 			},
 			{
 				name:        "defaultqlimit",
@@ -59,6 +61,7 @@ func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 				mib:         "net.isr.defaultqlimit",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
+				labels:      nil,
 			},
 			{
 				name:        "maxqlimit",
@@ -66,6 +69,7 @@ func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 				mib:         "net.isr.maxqlimit",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
+				labels:      nil,
 			},
 			{
 				name:        "bindthreads",
@@ -73,6 +77,7 @@ func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 				mib:         "net.isr.bindthreads",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
+				labels:      nil,
 			},
 			{
 				name:        "maxthreads",
@@ -80,6 +85,7 @@ func NewNetisrCollector(config NodeCollectorConfig, logger log.Logger) (Collecto
 				mib:         "net.isr.maxthreads",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
+				labels:      nil,
 			},
 		},
 		logger: logger,

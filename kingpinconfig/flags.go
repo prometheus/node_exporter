@@ -24,6 +24,7 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 
 	config.Arp.DeviceInclude = a.Flag("collector.arp.device-include", "Regexp of arp devices to include (mutually exclusive to device-exclude).").String()
 	config.Arp.DeviceExclude = a.Flag("collector.arp.device-exclude", "Regexp of arp devices to exclude (mutually exclusive to device-include).").String()
+	config.Arp.Netlink = a.Flag("collector.arp.netlink", "Use netlink to gather stats instead of /proc/net/arp.").Default("true").Bool()
 
 	config.Bcache.PriorityStats = a.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
 
@@ -126,8 +127,10 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 	config.PowerSupplyClass.IgnoredPowerSupplies = a.Flag("collector.powersupply.ignored-supplies", "Regexp of power supplies to ignore for powersupplyclass collector.").Default("^$").String()
 
 	config.Qdisc.Fixtures = a.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
-	config.Qdisc.DeviceInclude = a.Flag("collector.qdisk.device-include", "Regexp of qdisk devices to include (mutually exclusive to device-exclude).").String()
-	config.Qdisc.DeviceExclude = a.Flag("collector.qdisk.device-exclude", "Regexp of qdisk devices to exclude (mutually exclusive to device-include).").String()
+	config.Qdisc.DeviceInclude = a.Flag("collector.qdisc.device-include", "Regexp of qdisc devices to include (mutually exclusive to device-exclude).").String()
+	config.Qdisc.OldDeviceInclude = a.Flag("collector.qdisk.device-include", "DEPRECATED: Use collector.qdisc.device-include").Hidden().String()
+	config.Qdisc.DeviceExclude = a.Flag("collector.qdisc.device-exclude", "Regexp of qdisc devices to exclude (mutually exclusive to device-include).").String()
+	config.Qdisc.OldDeviceExclude = a.Flag("collector.qdisk.device-exclude", "DEPRECATED: Use collector.qdisc.device-exclude").Hidden().String()
 
 	config.Rapl.ZoneLabel = a.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
 

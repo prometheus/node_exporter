@@ -181,6 +181,11 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 			c.deviceErrorDesc, prometheus.GaugeValue,
 			s.deviceError, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
+		ch <- prometheus.MustNewConstMetric(
+			c.roDesc, prometheus.GaugeValue,
+			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+		)
+
 		if s.deviceError > 0 {
 			continue
 		}
@@ -204,10 +209,6 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			c.filesFreeDesc, prometheus.GaugeValue,
 			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.roDesc, prometheus.GaugeValue,
-			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType,
 		)
 	}
 	return nil

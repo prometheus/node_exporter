@@ -24,6 +24,7 @@ import (
 
 	"github.com/ema/qdisc"
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -45,15 +46,35 @@ func init() {
 }
 
 type QdiscConfig struct {
-	Fixtures      *string
-	DeviceInclude *string
-	DeviceExclude *string
+	Fixtures         *string
+	DeviceInclude    *string
+	OldDeviceInclude *string
+	DeviceExclude    *string
+	OldDeviceExclude *string
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
 func NewQdiscStatCollector(config NodeCollectorConfig, logger log.Logger) (Collector, error) {
-	if *config.Qdisc.DeviceExclude != "" && *config.Qdisc.DeviceInclude != "" {
-		return nil, fmt.Errorf("collector.qdisk.device-include and collector.qdisk.device-exclude are mutaly exclusive")
+	if *config.Qdisc.OldDeviceInclude != "" {
+		if *config.Qdisc.DeviceInclude == "" {
+			level.Warn(logger).Log("msg", "--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")
+			*config.Qdisc.DeviceInclude = *config.Qdisc.OldDeviceInclude
+		} else {
+			return nil, fmt.Errorf("--collector.qdisk.device-include and --collector.qdisc.device-include are mutually exclusive")
+		}
+	}
+
+	if *config.Qdisc.OldDeviceExclude != "" {
+		if *config.Qdisc.DeviceExclude == "" {
+			level.Warn(logger).Log("msg", "--collector.qdisk.device-exclude is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-exclude")
+			*config.Qdisc.DeviceExclude = *config.Qdisc.OldDeviceExclude
+		} else {
+			return nil, fmt.Errorf("--collector.qdisk.device-exclude and --collector.qdisc.device-exclude are mutually exclusive")
+		}
+	}
+
+	if *config.Qdisc.DeviceInclude != "" && *config.Qdisc.DeviceExclude != "" {
+		return nil, fmt.Errorf("collector.qdisc.device-include and collector.qdisc.device-exclude are mutaly exclusive")
 	}
 
 	return &qdiscStatCollector{
@@ -93,7 +114,7 @@ func NewQdiscStatCollector(config NodeCollectorConfig, logger log.Logger) (Colle
 			[]string{"device", "kind"}, nil,
 		), prometheus.GaugeValue},
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*config.Qdisc.DeviceExclude, *config.Qdisc.DeviceExclude),
+		deviceFilter: newDeviceFilter(*config.Qdisc.OldDeviceExclude, *config.Qdisc.DeviceInclude),
 		config:       config,
 	}, nil
 }

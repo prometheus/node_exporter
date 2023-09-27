@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build solaris && !nocpu
-// +build solaris,!nocpu
+//go:build !nocpu
+// +build !nocpu
 
 package collector
 
