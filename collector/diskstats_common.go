@@ -78,35 +78,35 @@ var (
 )
 
 type DiskstatsDeviceFilterConfig struct {
-	DiskstatsDeviceExclude    *string
-	DiskstatsDeviceExcludeSet bool
-	OldDiskstatsDeviceExclude *string
-	DiskstatsDeviceInclude    *string
+	DeviceExclude    *string
+	DeviceExcludeSet bool
+	OldDeviceExclude *string
+	DeviceInclude    *string
 }
 
 func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger log.Logger) (deviceFilter, error) {
-	if *config.OldDiskstatsDeviceExclude != "" {
-		if !config.DiskstatsDeviceExcludeSet {
+	if *config.OldDeviceExclude != "" {
+		if !config.DeviceExcludeSet {
 			level.Warn(logger).Log("msg", "--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
-			*config.DiskstatsDeviceExclude = *config.OldDiskstatsDeviceExclude
+			*config.DeviceExclude = *config.OldDeviceExclude
 		} else {
 			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
 		}
 	}
 
-	if *config.DiskstatsDeviceExclude != "" && *config.DiskstatsDeviceInclude != "" {
+	if *config.DeviceExclude != "" && *config.DeviceInclude != "" {
 		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
 	}
 
-	if *config.DiskstatsDeviceExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *config.DiskstatsDeviceExclude)
+	if *config.DeviceExclude != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *config.DeviceExclude)
 	} else {
-		*config.DiskstatsDeviceExclude = diskstatsDefaultIgnoredDevices
+		*config.DeviceExclude = diskstatsDefaultIgnoredDevices
 	}
 
-	if *config.DiskstatsDeviceInclude != "" {
-		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *config.DiskstatsDeviceInclude)
+	if *config.DeviceInclude != "" {
+		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *config.DeviceInclude)
 	}
 
-	return newDeviceFilter(*config.DiskstatsDeviceExclude, *config.DiskstatsDeviceInclude), nil
+	return newDeviceFilter(*config.DeviceExclude, *config.DeviceInclude), nil
 }

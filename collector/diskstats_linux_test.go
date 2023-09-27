@@ -52,9 +52,9 @@ func NewTestDiskStatsCollector(config NodeCollectorConfig, logger log.Logger) (p
 func TestDiskStats(t *testing.T) {
 	config := NodeCollectorConfig{
 		DiskstatsDeviceFilter: DiskstatsDeviceFilterConfig{
-			DiskstatsDeviceExclude:    new(string),
-			DiskstatsDeviceInclude:    new(string),
-			OldDiskstatsDeviceExclude: new(string),
+			DeviceExclude:    new(string),
+			DeviceInclude:    new(string),
+			OldDeviceExclude: new(string),
 		},
 	}
 	sysPath := "fixtures/sys"
@@ -67,7 +67,7 @@ func TestDiskStats(t *testing.T) {
 	config.Path.UdevDataPath = &udevDataPath
 
 	diskstatsDeviceExclude := "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
-	config.DiskstatsDeviceFilter.DiskstatsDeviceExclude = &diskstatsDeviceExclude
+	config.DiskstatsDeviceFilter.DeviceExclude = &diskstatsDeviceExclude
 	testcase := `# HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200

@@ -33,18 +33,18 @@ func AddFlags(a *kingpin.Application) collector.NodeCollectorConfig {
 	config.CPU.FlagsInclude = a.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
 	config.CPU.BugsInclude = a.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
 
-	config.DiskstatsDeviceFilter.DiskstatsDeviceExclude = a.Flag(
+	config.DiskstatsDeviceFilter.DeviceExclude = a.Flag(
 		"collector.diskstats.device-exclude",
 		"Regexp of diskstats devices to exclude (mutually exclusive to device-include).",
 	).PreAction(func(c *kingpin.ParseContext) error {
-		config.DiskstatsDeviceFilter.DiskstatsDeviceExcludeSet = true
+		config.DiskstatsDeviceFilter.DeviceExcludeSet = true
 		return nil
 	}).String()
-	config.DiskstatsDeviceFilter.OldDiskstatsDeviceExclude = a.Flag(
+	config.DiskstatsDeviceFilter.OldDeviceExclude = a.Flag(
 		"collector.diskstats.ignored-devices",
 		"DEPRECATED: Use collector.diskstats.device-exclude",
 	).Hidden().String()
-	config.DiskstatsDeviceFilter.DiskstatsDeviceInclude = a.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
+	config.DiskstatsDeviceFilter.DeviceInclude = a.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
 
 	config.Ethtool.DeviceInclude = a.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
 	config.Ethtool.DeviceExclude = a.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
