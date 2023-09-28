@@ -160,7 +160,7 @@ func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Col
 }
 
 func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.GetStats()
+	stats, err := c.GetStats(c.config.Path)
 	if err != nil {
 		return err
 	}

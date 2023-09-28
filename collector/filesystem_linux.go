@@ -40,7 +40,7 @@ var stuckMounts = make(map[string]struct{})
 var stuckMountsMtx = &sync.Mutex{}
 
 // GetStats returns filesystem stats.
-func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
+func (c *filesystemCollector) GetStats(_ PathConfig) ([]filesystemStats, error) {
 	mps, err := mountPointDetails(c.config, c.logger)
 	if err != nil {
 		return nil, err
