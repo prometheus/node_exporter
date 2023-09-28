@@ -31,7 +31,7 @@ import (
 */
 import "C"
 
-func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(_ *NodeCollectorConfig, _ *bool, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	var ifap, ifa *C.struct_ifaddrs
