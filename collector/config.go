@@ -201,5 +201,6 @@ type FilesystemConfig struct {
 }
 
 type IPVSConfig struct {
-	Labels *string
+	Labels    *string
+	LabelsSet bool
 }
