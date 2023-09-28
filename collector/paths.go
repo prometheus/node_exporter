@@ -18,13 +18,6 @@ import (
 	"strings"
 )
 
-type PathConfig struct {
-	ProcPath     *string
-	SysPath      *string
-	RootfsPath   *string
-	UdevDataPath *string
-}
-
 func (p *PathConfig) procFilePath(name string) string {
 	return filepath.Join(*p.ProcPath, name)
 }

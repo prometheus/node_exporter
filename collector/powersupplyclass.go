@@ -36,10 +36,6 @@ func init() {
 	registerCollector("powersupplyclass", defaultEnabled, NewPowerSupplyClassCollector)
 }
 
-type PowerSupplyClassConfig struct {
-	IgnoredPowerSupplies *string
-}
-
 func NewPowerSupplyClassCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*config.PowerSupplyClass.IgnoredPowerSupplies)
 	return &powerSupplyClassCollector{

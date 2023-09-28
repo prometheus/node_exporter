@@ -48,16 +48,6 @@ func init() {
 	registerCollector("ntp", defaultDisabled, NewNtpCollector)
 }
 
-type NTPConfig struct {
-	Server          *string
-	ServerPort      *int
-	ProtocolVersion *int
-	ServerIsLocal   *bool
-	IPTTL           *int
-	MaxDistance     *time.Duration
-	OffsetTolerance *time.Duration
-}
-
 // NewNtpCollector returns a new Collector exposing sanity of local NTP server.
 // Default definition of "local" is:
 // - collector.ntp.server address is a loopback address (or collector.ntp.server-is-mine flag is turned on)

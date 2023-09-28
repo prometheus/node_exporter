@@ -41,10 +41,6 @@ func init() {
 	registerCollector("stat", defaultEnabled, NewStatCollector)
 }
 
-type StatConfig struct {
-	Softirq *bool
-}
-
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
 func NewStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)

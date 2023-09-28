@@ -19,12 +19,10 @@ package collector
 
 import (
 	"errors"
-	"regexp"
-	"time"
-
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"regexp"
 )
 
 // Arch-dependent implementation must define:
@@ -56,16 +54,6 @@ type filesystemStats struct {
 	size, free, avail float64
 	files, filesFree  float64
 	ro, deviceError   float64
-}
-type FilesystemConfig struct {
-	MountPointsExclude     *string
-	MountPointsExcludeSet  bool
-	OldMountPointsExcluded *string
-	FSTypesExclude         *string
-	FSTypesExcludeSet      bool
-	OldFSTypesExcluded     *string
-	MountTimeout           *time.Duration
-	StatWorkerCount        *int
 }
 
 func init() {
@@ -165,7 +153,7 @@ func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Col
 }
 
 func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
-	stats, err := c.GetStats(c.config.Path)
+	stats, err := c.GetStats()
 	if err != nil {
 		return err
 	}

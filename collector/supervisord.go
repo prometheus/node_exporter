@@ -46,10 +46,6 @@ func init() {
 	registerCollector("supervisord", defaultDisabled, NewSupervisordCollector)
 }
 
-type SupervisordConfig struct {
-	URL *string
-}
-
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
 func NewSupervisordCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (

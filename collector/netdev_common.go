@@ -44,16 +44,6 @@ func init() {
 	registerCollector("netdev", defaultEnabled, NewNetDevCollector)
 }
 
-type NetDevConfig struct {
-	DeviceInclude    *string
-	OldDeviceInclude *string
-	DeviceExclude    *string
-	OldDeviceExclude *string
-	AddressInfo      *bool
-	DetailedMetrics  *bool
-	Netlink          *bool
-}
-
 // NewNetDevCollector returns a new Collector exposing network device stats.
 func NewNetDevCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *config.NetDev.OldDeviceInclude != "" {
@@ -112,7 +102,7 @@ func (c *netDevCollector) metricDesc(key string) *prometheus.Desc {
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(&c.deviceFilter, c.logger)
+	netDev, err := getNetDevStats(c.config, c.config.NetDev.Netlink, &c.deviceFilter, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
