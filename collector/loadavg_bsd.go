@@ -23,7 +23,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func getLoad() ([]float64, error) {
+func getLoad(_ *NodeCollectorConfig) ([]float64, error) {
 	type loadavg struct {
 		load  [3]uint32
 		scale int

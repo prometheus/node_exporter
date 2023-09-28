@@ -52,10 +52,6 @@ func init() {
 	registerCollector("wifi", defaultDisabled, NewWifiCollector)
 }
 
-type WifiConfig struct {
-	Fixtures *string
-}
-
 var _ wifiStater = &wifi.Client{}
 
 // wifiStater is an interface used to swap out a *wifi.Client for end to end tests.

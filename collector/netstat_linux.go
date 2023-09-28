@@ -44,10 +44,6 @@ func init() {
 	registerCollector(netStatsSubsystem, defaultEnabled, NewNetStatCollector)
 }
 
-type NetStatConfig struct {
-	Fields *string
-}
-
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
 func NewNetStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {

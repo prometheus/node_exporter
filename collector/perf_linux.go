@@ -37,17 +37,6 @@ func init() {
 	registerCollector(perfSubsystem, defaultDisabled, NewPerfCollector)
 }
 
-type PerfConfig struct {
-	CPUs           *string
-	Tracepoint     *[]string
-	NoHwProfiler   *bool
-	HwProfiler     *[]string
-	NoSwProfiler   *bool
-	SwProfiler     *[]string
-	NoCaProfiler   *bool
-	CaProfilerFlag *[]string
-}
-
 var (
 	perfHardwareProfilerMap = map[string]perf.HardwareProfilerType{
 		"CpuCycles":             perf.CpuCyclesProfiler,

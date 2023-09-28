@@ -52,11 +52,6 @@ type hwMonCollector struct {
 	config       *NodeCollectorConfig
 }
 
-type HwMonConfig struct {
-	ChipInclude *string
-	ChipExclude *string
-}
-
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
 func NewHwMonCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {

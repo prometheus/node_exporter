@@ -36,10 +36,6 @@ type bcacheCollector struct {
 	config *NodeCollectorConfig
 }
 
-type BcacheConfig struct {
-	PriorityStats *bool
-}
-
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
 func NewBcacheCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {

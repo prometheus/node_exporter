@@ -44,16 +44,6 @@ func init() {
 	registerCollector("netdev", defaultEnabled, NewNetDevCollector)
 }
 
-type NetDevConfig struct {
-	DeviceInclude    *string
-	OldDeviceInclude *string
-	DeviceExclude    *string
-	OldDeviceExclude *string
-	AddressInfo      *bool
-	DetailedMetrics  *bool
-	Netlink          *bool
-}
-
 // NewNetDevCollector returns a new Collector exposing network device stats.
 func NewNetDevCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *config.NetDev.OldDeviceInclude != "" {

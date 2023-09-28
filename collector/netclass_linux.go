@@ -42,13 +42,6 @@ func init() {
 	registerCollector("netclass", defaultEnabled, NewNetClassCollector)
 }
 
-type NetClassConfig struct {
-	IgnoredDevices *string
-	InvalidSpeed   *bool
-	Netlink        *bool
-	RTNLWithStats  *bool
-}
-
 // NewNetClassCollector returns a new Collector exposing network class stats.
 func NewNetClassCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*config.Path.SysPath)
