@@ -93,12 +93,15 @@ func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger log.Log
 
 	if *config.DeviceExclude != "" {
 		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *config.DeviceExclude)
-	} else {
-		*config.DeviceExclude = diskstatsDefaultIgnoredDevices
 	}
 
 	if *config.DeviceInclude != "" {
 		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *config.DeviceInclude)
+	}
+
+	if !config.DeviceExcludeSet { // use default exclude devices if flag is not set
+		devices := diskstatsDefaultIgnoredDevices
+		config.DeviceExclude = &devices
 	}
 
 	return newDeviceFilter(*config.DeviceExclude, *config.DeviceInclude), nil

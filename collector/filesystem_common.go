@@ -70,10 +70,14 @@ func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Col
 			return nil, errors.New("--collector.filesystem.ignored-mount-points and --collector.filesystem.mount-points-exclude are mutually exclusive")
 		}
 	}
+
 	if *config.Filesystem.MountPointsExclude != "" {
 		level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.mount-points-exclude", "flag", *config.Filesystem.MountPointsExclude)
-	} else {
-		*config.Filesystem.MountPointsExclude = defMountPointsExcluded
+	}
+
+	if !config.Filesystem.MountPointsExcludeSet { // use default mount points if flag is not set
+		mountPoints := defMountPointsExcluded
+		config.Filesystem.MountPointsExclude = &mountPoints
 	}
 
 	if *config.Filesystem.OldFSTypesExcluded != "" {
@@ -84,11 +88,14 @@ func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Col
 			return nil, errors.New("--collector.filesystem.ignored-fs-types and --collector.filesystem.fs-types-exclude are mutually exclusive")
 		}
 	}
+
 	if *config.Filesystem.FSTypesExclude != "" {
 		level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.fs-types-exclude", "flag", *config.Filesystem.FSTypesExclude)
+	}
 
-	} else {
-		*config.Filesystem.FSTypesExclude = defFSTypesExcluded
+	if !config.Filesystem.FSTypesExcludeSet { // use default fs types if flag is not set
+		fsTypes := defFSTypesExcluded
+		config.Filesystem.FSTypesExclude = &fsTypes
 	}
 
 	subsystem := "filesystem"

@@ -82,8 +82,9 @@ func newIPVSCollector(config *NodeCollectorConfig, logger log.Logger) (*ipvsColl
 		subsystem = "ipvs"
 	)
 
-	if *config.IPVS.Labels == "" {
-		*config.IPVS.Labels = strings.Join(fullIpvsBackendLabels, ",")
+	if !config.IPVS.LabelsSet { // use default labels if flag is not set
+		labels := strings.Join(fullIpvsBackendLabels, ",")
+		config.IPVS.Labels = &labels
 	}
 
 	if c.backendLabels, err = c.parseIpvsLabels(*config.IPVS.Labels); err != nil {

@@ -83,7 +83,10 @@ func AddFlags(a *kingpin.Application) *collector.NodeCollectorConfig {
 	config.HwMon.ChipInclude = a.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
 	config.HwMon.ChipExclude = a.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
 
-	config.IPVS.Labels = a.Flag("collector.ipvs.backend-labels", "Comma separated list for IPVS backend stats labels.").String()
+	config.IPVS.Labels = a.Flag("collector.ipvs.backend-labels", "Comma separated list for IPVS backend stats labels.").PreAction(func(c *kingpin.ParseContext) error {
+		config.IPVS.LabelsSet = true
+		return nil
+	}).String()
 
 	config.NetClass.IgnoredDevices = a.Flag("collector.netclass.ignored-devices", "Regexp of net devices to ignore for netclass collector.").Default("^$").String()
 	config.NetClass.InvalidSpeed = a.Flag("collector.netclass.ignore-invalid-speed", "Ignore devices where the speed is invalid. This will be the default behavior in 2.x.").Bool()
