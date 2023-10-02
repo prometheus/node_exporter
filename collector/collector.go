@@ -53,9 +53,22 @@ var (
 	factories              = make(map[string]func(config *NodeCollectorConfig, logger log.Logger) (Collector, error))
 	initiatedCollectorsMtx = sync.Mutex{}
 	initiatedCollectors    = make(map[string]Collector)
-	collectorState         = make(map[string]*bool)
+	collectorStateGlobal   = make(map[string]*bool)
+	availableCollectors    = make([]string, 0)
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
+
+func getDefaults() map[string]bool {
+	defaults := make(map[string]bool)
+	for k, v := range collectorStateGlobal {
+		defaults[k] = *v
+	}
+	return defaults
+}
+
+func GetAvailableCollectors() []string {
+	return availableCollectors
+}
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(config *NodeCollectorConfig, logger log.Logger) (Collector, error)) {
 	var helpDefaultState string
@@ -64,13 +77,14 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func(con
 	} else {
 		helpDefaultState = "disabled"
 	}
+	availableCollectors = append(availableCollectors, collector)
 
 	flagName := fmt.Sprintf("collector.%s", collector)
 	flagHelp := fmt.Sprintf("Enable the %s collector (default: %s).", collector, helpDefaultState)
 	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
 
 	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Action(collectorFlagAction(collector)).Bool()
-	collectorState[collector] = flag
+	collectorStateGlobal[collector] = flag
 
 	factories[collector] = factory
 }
@@ -84,9 +98,9 @@ type NodeCollector struct {
 // DisableDefaultCollectors sets the collector state to false for all collectors which
 // have not been explicitly enabled on the command line.
 func DisableDefaultCollectors() {
-	for c := range collectorState {
+	for c := range collectorStateGlobal {
 		if _, ok := forcedCollectors[c]; !ok {
-			*collectorState[c] = false
+			*collectorStateGlobal[c] = false
 		}
 	}
 }
@@ -106,12 +120,13 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 // NewNodeCollector creates a new NodeCollector.
 func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
+	defaults := getDefaults()
 	for _, filter := range filters {
-		enabled, exist := collectorState[filter]
+		enabled, exist := defaults[filter]
 		if !exist {
 			return nil, fmt.Errorf("missing collector: %s", filter)
 		}
-		if !*enabled {
+		if !enabled {
 			return nil, fmt.Errorf("disabled collector: %s", filter)
 		}
 		f[filter] = true
@@ -119,8 +134,8 @@ func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ..
 	collectors := make(map[string]Collector)
 	initiatedCollectorsMtx.Lock()
 	defer initiatedCollectorsMtx.Unlock()
-	for key, enabled := range collectorState {
-		if !*enabled || (len(f) > 0 && !f[key]) {
+	for key, enabled := range defaults {
+		if !enabled || (len(f) > 0 && !f[key]) {
 			continue
 		}
 		if collector, ok := initiatedCollectors[key]; ok {
