@@ -208,18 +208,13 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.CacheSize)
 	}
 
-	cpuFreqEnabled, ok := collectorState["cpufreq"]
-	if !ok || cpuFreqEnabled == nil {
-		level.Debug(c.logger).Log("cpufreq key missing or nil value in collectorState map", err)
-	} else if !*cpuFreqEnabled {
-		for _, cpu := range info {
-			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
-				prometheus.GaugeValue,
-				cpu.CPUMHz*1e6,
-				cpu.PhysicalID,
-				cpu.CoreID,
-				strconv.Itoa(int(cpu.Processor)))
-		}
+	for _, cpu := range info {
+		ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
+			prometheus.GaugeValue,
+			cpu.CPUMHz*1e6,
+			cpu.PhysicalID,
+			cpu.CoreID,
+			strconv.Itoa(int(cpu.Processor)))
 	}
 
 	if len(info) != 0 {
