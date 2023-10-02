@@ -27,7 +27,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(_ *NodeCollectorConfig, _ *bool, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	ifs, err := net.Interfaces()

@@ -47,10 +47,6 @@ func init() {
 	registerCollector("tapestats", defaultEnabled, NewTapestatsCollector)
 }
 
-type TapestatsConfig struct {
-	IgnoredDevices *string
-}
-
 // NewTapestatsCollector returns a new Collector exposing tape device stats.
 // Docs from https://www.kernel.org/doc/html/latest/scsi/st.html#sysfs-and-statistics-for-tape-devices
 func NewTapestatsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {

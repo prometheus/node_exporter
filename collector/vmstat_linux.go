@@ -42,10 +42,6 @@ func init() {
 	registerCollector(vmStatSubsystem, defaultEnabled, NewvmStatCollector)
 }
 
-type VmStatConfig struct {
-	Fields *string
-}
-
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
 func NewvmStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*config.VmStat.Fields)

@@ -36,10 +36,6 @@ func init() {
 	registerCollector("runit", defaultDisabled, NewRunitCollector)
 }
 
-type RunitConfig struct {
-	ServiceDir *string
-}
-
 // NewRunitCollector returns a new Collector exposing runit statistics.
 func NewRunitCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (

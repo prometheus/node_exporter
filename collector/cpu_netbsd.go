@@ -92,8 +92,8 @@ func ioctl(fd int, nr int64, typ byte, size uintptr, retptr unsafe.Pointer) erro
 	return nil
 }
 
-func readSysmonProperties() (sysmonProperties, error) {
-	fd, err := unix.Open(rootfsFilePath("/dev/sysmon"), unix.O_RDONLY, 0777)
+func readSysmonProperties(p PathConfig) (sysmonProperties, error) {
+	fd, err := unix.Open(p.rootfsStripPrefix("/dev/sysmon"), unix.O_RDONLY, 0777)
 	if err != nil {
 		return nil, err
 	}
@@ -142,12 +142,12 @@ func convertTemperatures(prop sysmonProperty, res map[int]float64) error {
 	return nil
 }
 
-func getCPUTemperatures() (map[int]float64, error) {
+func getCPUTemperatures(p PathConfig) (map[int]float64, error) {
 
 	res := make(map[int]float64)
 
 	// Read all properties
-	props, err := readSysmonProperties()
+	props, err := readSysmonProperties(p)
 	if err != nil {
 		return res, err
 	}
@@ -215,6 +215,7 @@ type statCollector struct {
 	cpu    typedDesc
 	temp   typedDesc
 	logger log.Logger
+	p      PathConfig
 }
 
 func init() {
@@ -231,6 +232,7 @@ func NewStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector
 			[]string{"cpu"}, nil,
 		), prometheus.GaugeValue},
 		logger: logger,
+		p:      config.Path,
 	}, nil
 }
 
@@ -253,7 +255,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	cpuTemperatures, err := getCPUTemperatures()
+	cpuTemperatures, err := getCPUTemperatures(c.p)
 	if err != nil {
 		return err
 	}

@@ -70,19 +70,6 @@ func init() {
 	registerCollector("systemd", defaultDisabled, NewSystemdCollector)
 }
 
-type SystemdConfig struct {
-	UnitInclude            *string
-	UnitIncludeSet         bool
-	UnitExclude            *string
-	UnitExcludeSet         bool
-	OldUnitInclude         *string
-	OldUnitExclude         *string
-	Private                *bool
-	EnableTaskMetrics      *bool
-	EnableRestartsMetrics  *bool
-	EnableStartTimeMetrics *bool
-}
-
 // NewSystemdCollector returns a new Collector exposing systemd statistics.
 func NewSystemdCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "systemd"

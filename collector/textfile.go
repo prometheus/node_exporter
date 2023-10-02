@@ -51,10 +51,6 @@ func init() {
 	registerCollector("textfile", defaultEnabled, NewTextFileCollector)
 }
 
-type TextFileConfig struct {
-	Directory *string
-}
-
 // NewTextFileCollector returns a new Collector exposing metrics read from files
 // in the given textfile directory.
 func NewTextFileCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {

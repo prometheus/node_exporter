@@ -42,10 +42,6 @@ func init() {
 	registerCollector(raplCollectorSubsystem, defaultEnabled, NewRaplCollector)
 }
 
-type RaplConfig struct {
-	ZoneLabel *bool
-}
-
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
 func NewRaplCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*config.Path.SysPath)

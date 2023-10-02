@@ -78,12 +78,6 @@ type ethtoolCollector struct {
 	logger         log.Logger
 }
 
-type EthtoolConfig struct {
-	DeviceInclude   *string
-	DeviceExclude   *string
-	IncludedMetrics *string
-}
-
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
 // This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.

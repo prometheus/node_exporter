@@ -62,13 +62,6 @@ var (
 	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
 )
 
-type CPUConfig struct {
-	EnableCPUGuest *bool
-	EnableCPUInfo  *bool
-	FlagsInclude   *string
-	BugsInclude    *string
-}
-
 func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }

@@ -40,12 +40,6 @@ func init() {
 	registerCollector("arp", defaultEnabled, NewARPCollector)
 }
 
-type ArpConfig struct {
-	DeviceInclude *string
-	DeviceExclude *string
-	Netlink       *bool
-}
-
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)

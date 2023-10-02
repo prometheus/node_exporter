@@ -37,11 +37,6 @@ func init() {
 	registerCollector("sysctl", defaultDisabled, NewSysctlCollector)
 }
 
-type SysctlConfig struct {
-	Include     *[]string
-	IncludeInfo *[]string
-}
-
 func NewSysctlCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {

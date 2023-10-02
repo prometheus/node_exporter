@@ -69,11 +69,6 @@ func init() {
 	registerCollector("ipvs", defaultEnabled, NewIPVSCollector)
 }
 
-type IPVSConfig struct {
-	Labels    *string
-	LabelsSet bool
-}
-
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
 func NewIPVSCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {

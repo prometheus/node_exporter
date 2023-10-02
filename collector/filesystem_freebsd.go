@@ -27,7 +27,7 @@ const (
 )
 
 // Expose filesystem fullness.
-func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
+func (c *filesystemCollector) GetStats(_ PathConfig) ([]filesystemStats, error) {
 	n, err := unix.Getfsstat(nil, unix.MNT_NOWAIT)
 	if err != nil {
 		return nil, err

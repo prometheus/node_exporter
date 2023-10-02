@@ -77,13 +77,6 @@ var (
 	)
 )
 
-type DiskstatsDeviceFilterConfig struct {
-	DeviceExclude    *string
-	DeviceExcludeSet bool
-	OldDeviceExclude *string
-	DeviceInclude    *string
-}
-
 func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger log.Logger) (deviceFilter, error) {
 	if *config.OldDeviceExclude != "" {
 		if !config.DeviceExcludeSet {

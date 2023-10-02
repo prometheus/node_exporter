@@ -45,14 +45,6 @@ func init() {
 	registerCollector("qdisc", defaultDisabled, NewQdiscStatCollector)
 }
 
-type QdiscConfig struct {
-	Fixtures         *string
-	DeviceInclude    *string
-	OldDeviceInclude *string
-	DeviceExclude    *string
-	OldDeviceExclude *string
-}
-
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
 func NewQdiscStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	if *config.Qdisc.OldDeviceInclude != "" {
