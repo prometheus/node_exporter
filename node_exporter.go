@@ -102,7 +102,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // (in which case it will log all the collectors enabled via command-line
 // flags).
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
-	nc, err := collector.NewNodeCollector(h.collectorConfig, collector.GetDefaults(), h.logger, filters...)
+	nc, err := collector.NewNodeCollector(h.collectorConfig, collector.GetFlagDefaults(), h.logger, filters...)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't create collector: %s", err)
 	}

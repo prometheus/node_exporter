@@ -53,7 +53,8 @@ var (
 	factories              = make(map[string]func(config *NodeCollectorConfig, logger log.Logger) (Collector, error))
 	initiatedCollectorsMtx = sync.Mutex{}
 	initiatedCollectors    = make(map[string]Collector)
-	collectorStateGlobal   = make(map[string]*bool)
+	collectorStateGlobal   = make(map[string]bool)
+	collectorFlagState     = make(map[string]*bool)
 	availableCollectors    = make([]string, 0)
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
@@ -61,6 +62,14 @@ var (
 func GetDefaults() map[string]bool {
 	defaults := make(map[string]bool)
 	for k, v := range collectorStateGlobal {
+		defaults[k] = v
+	}
+	return defaults
+}
+
+func GetFlagDefaults() map[string]bool {
+	defaults := make(map[string]bool)
+	for k, v := range collectorFlagState {
 		defaults[k] = *v
 	}
 	return defaults
@@ -84,7 +93,8 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func(con
 	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
 
 	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Action(collectorFlagAction(collector)).Bool()
-	collectorStateGlobal[collector] = flag
+	collectorStateGlobal[collector] = isDefaultEnabled
+	collectorFlagState[collector] = flag
 
 	factories[collector] = factory
 }
@@ -98,9 +108,9 @@ type NodeCollector struct {
 // DisableDefaultCollectors sets the collector state to false for all collectors which
 // have not been explicitly enabled on the command line.
 func DisableDefaultCollectors() {
-	for c := range collectorStateGlobal {
+	for c := range collectorFlagState {
 		if _, ok := forcedCollectors[c]; !ok {
-			*collectorStateGlobal[c] = false
+			*collectorFlagState[c] = false
 		}
 	}
 }
