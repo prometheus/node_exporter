@@ -61,7 +61,7 @@ type systemdCollector struct {
 	systemdUnitIncludePattern *regexp.Regexp
 	systemdUnitExcludePattern *regexp.Regexp
 	logger                    log.Logger
-	config                    NodeCollectorConfig
+	config                    *NodeCollectorConfig
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
@@ -154,6 +154,7 @@ func NewSystemdCollector(config *NodeCollectorConfig, logger log.Logger) (Collec
 		systemdUnitIncludePattern:     systemdUnitIncludePattern,
 		systemdUnitExcludePattern:     systemdUnitExcludePattern,
 		logger:                        logger,
+		config:                        config,
 	}, nil
 }
 
