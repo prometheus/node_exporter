@@ -58,7 +58,7 @@ var (
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
-func getDefaults() map[string]bool {
+func GetDefaults() map[string]bool {
 	defaults := make(map[string]bool)
 	for k, v := range collectorStateGlobal {
 		defaults[k] = *v
@@ -118,11 +118,10 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 }
 
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ...string) (*NodeCollector, error) {
+func NewNodeCollector(config *NodeCollectorConfig, enabledCollectors map[string]bool, logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
-	defaults := getDefaults()
 	for _, filter := range filters {
-		enabled, exist := defaults[filter]
+		enabled, exist := enabledCollectors[filter]
 		if !exist {
 			return nil, fmt.Errorf("missing collector: %s", filter)
 		}
@@ -134,7 +133,7 @@ func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ..
 	collectors := make(map[string]Collector)
 	initiatedCollectorsMtx.Lock()
 	defer initiatedCollectorsMtx.Unlock()
-	for key, enabled := range defaults {
+	for key, enabled := range enabledCollectors {
 		if !enabled || (len(f) > 0 && !f[key]) {
 			continue
 		}
