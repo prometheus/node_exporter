@@ -41,7 +41,7 @@ var (
 type ntpCollector struct {
 	stratum, leap, rtt, offset, reftime, rootDelay, rootDispersion, sanity typedDesc
 	logger                                                                 log.Logger
-	config                                                                 NodeCollectorConfig
+	config                                                                 *NodeCollectorConfig
 }
 
 func init() {
@@ -113,6 +113,7 @@ func NewNtpCollector(config *NodeCollectorConfig, logger log.Logger) (Collector,
 			nil, nil,
 		), prometheus.GaugeValue},
 		logger: logger,
+		config: config,
 	}, nil
 }
 
