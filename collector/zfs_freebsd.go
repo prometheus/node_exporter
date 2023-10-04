@@ -337,11 +337,11 @@ func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
 
 	for dataset, _ := range zfsDatasets {
 		if strings.HasSuffix(dataset, ".dataset_name") {
-			zfsDatasetNames = append(zfsDatasetNames, strings.SplitAfter(dataset, ".")[3])
+			zfsDatasetsNames = append(zfsDatasetsNames, strings.SplitAfter(dataset, ".")[3])
 		}
 	}
 
-	for zpoolDataset := range zfsDatasetsNames {
+	for _, zpoolDataset := range zfsDatasetsNames {
 		zfsDatasetLabels := map[string]string{
 			"dataset": zpoolDataset,
 			"zpool":   strings.SplitAfter(zpoolDataset, "/")[0],
