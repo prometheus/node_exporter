@@ -327,7 +327,7 @@ func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
 		"nunlinked", "nunlinks", "nread", "reads", "nwritten", "writes",
 	}
 	zfsPoolMibPrefix := "kstat.zfs.pool.dataset"
-	zfsDatasetsNames := []string{}
+	zfsDatasetNames := []string{}
 
 	zfsDatasets, err := unix.Sysctl(zfsPoolMibPrefix)
 	if err != nil {
