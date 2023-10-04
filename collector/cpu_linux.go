@@ -201,13 +201,16 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.CacheSize)
 	}
 
-	for _, cpu := range info {
-		ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
-			prometheus.GaugeValue,
-			cpu.CPUMHz*1e6,
-			cpu.PhysicalID,
-			cpu.CoreID,
-			strconv.Itoa(int(cpu.Processor)))
+	// This should only run if CPUFREQ is NOT enabled.
+	if found, enabled := c.config.Collectors["cpufreq"]; found && !enabled {
+		for _, cpu := range info {
+			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
+				prometheus.GaugeValue,
+				cpu.CPUMHz*1e6,
+				cpu.PhysicalID,
+				cpu.CoreID,
+				strconv.Itoa(int(cpu.Processor)))
+		}
 	}
 
 	if len(info) != 0 {

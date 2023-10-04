@@ -102,7 +102,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // (in which case it will log all the collectors enabled via command-line
 // flags).
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
-	nc, err := collector.NewNodeCollector(h.collectorConfig, collector.GetFlagDefaults(), h.logger, filters...)
+	nc, err := collector.NewNodeCollector(h.collectorConfig, h.logger, filters...)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't create collector: %s", err)
 	}
@@ -188,7 +188,7 @@ func main() {
 	}
 	runtime.GOMAXPROCS(*maxProcs)
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
-
+	collectorConfig.Collectors = collector.GetFlagDefaults()
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, collectorConfig, logger))
 	if *metricsPath != "/" {
 		landingConfig := web.LandingConfig{

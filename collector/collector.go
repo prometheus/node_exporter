@@ -126,10 +126,10 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 }
 
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(config *NodeCollectorConfig, enabledCollectors map[string]bool, logger log.Logger, filters ...string) (*NodeCollector, error) {
+func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
-		enabled, exist := enabledCollectors[filter]
+		enabled, exist := config.Collectors[filter]
 		if !exist {
 			return nil, fmt.Errorf("missing collector: %s", filter)
 		}
@@ -140,7 +140,7 @@ func NewNodeCollector(config *NodeCollectorConfig, enabledCollectors map[string]
 	}
 	collectors := make(map[string]Collector)
 
-	for key, enabled := range enabledCollectors {
+	for key, enabled := range config.Collectors {
 		if !enabled || (len(f) > 0 && !f[key]) {
 			continue
 		}

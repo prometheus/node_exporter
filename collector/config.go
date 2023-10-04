@@ -42,6 +42,8 @@ type NodeCollectorConfig struct {
 	TextFile              TextFileConfig
 	VmStat                VmStatConfig
 	Wifi                  WifiConfig
+
+	Collectors map[string]bool
 }
 
 type WifiConfig struct {
