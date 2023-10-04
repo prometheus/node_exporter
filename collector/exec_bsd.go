@@ -62,7 +62,6 @@ func NewExecCollector(config *NodeCollectorConfig, logger log.Logger) (Collector
 				description: "System calls since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_syscall",
 			},
-			labels: nil,
 			{
 				name:        "exec_device_interrupts_total",
 				description: "Device interrupts since system boot.  Resets at architecture unsigned integer.",
