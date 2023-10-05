@@ -43,7 +43,8 @@ type NodeCollectorConfig struct {
 	VmStat                VmStatConfig
 	Wifi                  WifiConfig
 
-	Collectors map[string]bool
+	Collectors               map[string]bool
+	AllowCachingOfCollectors bool
 }
 
 type WifiConfig struct {

@@ -189,6 +189,7 @@ func main() {
 	runtime.GOMAXPROCS(*maxProcs)
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 	collectorConfig.Collectors = collector.GetFlagDefaults()
+	collectorConfig.AllowCachingOfCollectors = true
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, collectorConfig, logger))
 	if *metricsPath != "/" {
 		landingConfig := web.LandingConfig{

@@ -50,11 +50,13 @@ const (
 )
 
 var (
-	factories            = make(map[string]func(config *NodeCollectorConfig, logger log.Logger) (Collector, error))
-	collectorStateGlobal = make(map[string]bool)
-	collectorFlagState   = make(map[string]*bool)
-	availableCollectors  = make([]string, 0)
-	forcedCollectors     = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	factories              = make(map[string]func(config *NodeCollectorConfig, logger log.Logger) (Collector, error))
+	initiatedCollectorsMtx = sync.Mutex{}
+	initiatedCollectors    = make(map[string]Collector)
+	collectorStateGlobal   = make(map[string]bool)
+	collectorFlagState     = make(map[string]*bool)
+	availableCollectors    = make([]string, 0)
+	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
 func GetDefaults() map[string]bool {
@@ -140,15 +142,22 @@ func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ..
 	}
 	collectors := make(map[string]Collector)
 
+	initiatedCollectorsMtx.Lock()
+	defer initiatedCollectorsMtx.Unlock()
 	for key, enabled := range config.Collectors {
 		if !enabled || (len(f) > 0 && !f[key]) {
 			continue
 		}
-		collector, err := factories[key](config, log.With(logger, "collector", key))
-		if err != nil {
-			return nil, err
+		if collector, ok := initiatedCollectors[key]; ok && config.AllowCachingOfCollectors {
+			collectors[key] = collector
+		} else {
+			collector, err := factories[key](config, log.With(logger, "collector", key))
+			if err != nil {
+				return nil, err
+			}
+			collectors[key] = collector
+			initiatedCollectors[key] = collector
 		}
-		collectors[key] = collector
 	}
 	return &NodeCollector{Collectors: collectors, logger: logger}, nil
 }
