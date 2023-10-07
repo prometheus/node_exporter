@@ -377,7 +377,7 @@ The exporter supports TLS via a new web configuration file.
 ./node_exporter --web.config.file=web-config.yml
 ```
 
-See the [exporter-toolkit web-configuration](https://github.com/prometheus/exporter-toolkit/blob/v0.10.0/docs/web-configuration.md) for more details.
+See the [exporter-toolkit web-configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) for more details.
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
