@@ -26,7 +26,7 @@ require (
 	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16
 	github.com/prometheus/common v0.44.0
 	github.com/prometheus/exporter-toolkit v0.10.0
-	github.com/prometheus/procfs v0.11.1
+	github.com/prometheus/procfs v0.12.0
 	github.com/safchain/ethtool v0.3.0
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	golang.org/x/sys v0.13.0
