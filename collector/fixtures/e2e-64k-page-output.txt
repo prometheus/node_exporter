@@ -2740,11 +2740,11 @@ node_nfsd_requests_total{method="SetAttr",proto="3"} 0
 node_nfsd_requests_total{method="SetAttr",proto="4"} 0
 node_nfsd_requests_total{method="SymLink",proto="2"} 0
 node_nfsd_requests_total{method="SymLink",proto="3"} 0
-node_nfsd_requests_total{method="Verify",proto="4"} 3
+node_nfsd_requests_total{method="Verify",proto="4"} 0
 node_nfsd_requests_total{method="WrCache",proto="2"} 0
 node_nfsd_requests_total{method="Write",proto="2"} 0
 node_nfsd_requests_total{method="Write",proto="3"} 0
-node_nfsd_requests_total{method="Write",proto="4"} 3
+node_nfsd_requests_total{method="Write",proto="4"} 0
 # HELP node_nfsd_rpc_errors_total Total number of NFSd RPC errors by error type.
 # TYPE node_nfsd_rpc_errors_total counter
 node_nfsd_rpc_errors_total{error="auth"} 2
