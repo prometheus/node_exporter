@@ -2301,10 +2301,18 @@ node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",mount
 # TYPE node_mountstats_nfs_transport_backlog_queue_total counter
 node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
 node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_bad_reply_total Total number of bad reply when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_bad_reply_total counter
+node_mountstats_nfs_transport_bad_reply_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_bad_reply_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_bad_transaction_ids_total Number of times the NFS server sent a response with a transaction ID unknown to this client.
 # TYPE node_mountstats_nfs_transport_bad_transaction_ids_total counter
 node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
 node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_bcall_total Total number of bcall when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_bcall_total counter
+node_mountstats_nfs_transport_bcall_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_bcall_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_bind_total Number of times the client has had to establish a connection from scratch to the NFS server.
 # TYPE node_mountstats_nfs_transport_bind_total counter
 node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
@@ -2313,22 +2321,82 @@ node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountadd
 # TYPE node_mountstats_nfs_transport_connect_total counter
 node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 1
 node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_empty_sendctx_q_total Total number of empty sendctx q when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_empty_sendctx_q_total counter
+node_mountstats_nfs_transport_empty_sendctx_q_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_empty_sendctx_q_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_failed_marshal_total Total number of failed marshal when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_failed_marshal_total counter
+node_mountstats_nfs_transport_failed_marshal_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_failed_marshal_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_fixup_copy_total Total number of fixup copy accessed when receiving a reply.
+# TYPE node_mountstats_nfs_transport_fixup_copy_total counter
+node_mountstats_nfs_transport_fixup_copy_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_fixup_copy_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_hardway_register_total Total number of hardway register when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_hardway_register_total counter
+node_mountstats_nfs_transport_hardway_register_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_hardway_register_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_idle_time_seconds Duration since the NFS mount last saw any RPC traffic, in seconds.
 # TYPE node_mountstats_nfs_transport_idle_time_seconds gauge
 node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 11
 node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_local_inv_needed_total Total number of local inv needed accessed when receiving a reply.
+# TYPE node_mountstats_nfs_transport_local_inv_needed_total counter
+node_mountstats_nfs_transport_local_inv_needed_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_local_inv_needed_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_maximum_rpc_slots Maximum number of simultaneously active RPC requests ever used.
 # TYPE node_mountstats_nfs_transport_maximum_rpc_slots gauge
 node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 24
 node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 24
+# HELP node_mountstats_nfs_transport_mrs_allocated_total Total number of mrs allocated when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_mrs_allocated_total counter
+node_mountstats_nfs_transport_mrs_allocated_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_mrs_allocated_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_mrs_orphaned_total Total number of mrs orphaned when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_mrs_orphaned_total counter
+node_mountstats_nfs_transport_mrs_orphaned_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_mrs_orphaned_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_mrs_recycled_total Total number of mrs recycled when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_mrs_recycled_total counter
+node_mountstats_nfs_transport_mrs_recycled_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_mrs_recycled_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_nomsg_call_total Total number of nomsg call when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_nomsg_call_total counter
+node_mountstats_nfs_transport_nomsg_call_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_nomsg_call_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_pending_queue_total Total number of items added to the RPC transmission pending queue.
 # TYPE node_mountstats_nfs_transport_pending_queue_total counter
 node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 5726
 node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 5726
+# HELP node_mountstats_nfs_transport_pullup_copy_total Total number of pullup copy when rarely accessed error counters.
+# TYPE node_mountstats_nfs_transport_pullup_copy_total counter
+node_mountstats_nfs_transport_pullup_copy_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_pullup_copy_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_rdma_reply_total Total number of rdma reply accessed when receiving a reply.
+# TYPE node_mountstats_nfs_transport_rdma_reply_total gauge
+node_mountstats_nfs_transport_rdma_reply_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_rdma_reply_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_rdma_request_total Total number of rdma request accessed when sending a call.
+# TYPE node_mountstats_nfs_transport_rdma_request_total gauge
+node_mountstats_nfs_transport_rdma_request_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_rdma_request_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_read_chunk_total Total number of read chunk accessed when sending a call.
+# TYPE node_mountstats_nfs_transport_read_chunk_total counter
+node_mountstats_nfs_transport_read_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_read_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_receives_total Number of RPC responses for this mount received from the NFS server.
 # TYPE node_mountstats_nfs_transport_receives_total counter
 node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
 node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
+# HELP node_mountstats_nfs_transport_reply_chunk_total Total number of reply chunk accessed when sending a call.
+# TYPE node_mountstats_nfs_transport_reply_chunk_total counter
+node_mountstats_nfs_transport_reply_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_reply_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_reply_waitsfor_send_total Total number of reply waits for send accessed when receiving a reply.
+# TYPE node_mountstats_nfs_transport_reply_waitsfor_send_total counter
+node_mountstats_nfs_transport_reply_waitsfor_send_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_reply_waitsfor_send_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_sending_queue_total Total number of items added to the RPC transmission sending queue.
 # TYPE node_mountstats_nfs_transport_sending_queue_total counter
 node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 26
@@ -2337,6 +2405,10 @@ node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test"
 # TYPE node_mountstats_nfs_transport_sends_total counter
 node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
 node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
+# HELP node_mountstats_nfs_transport_write_chunk_total Total number of write chunk accessed when sending a call.
+# TYPE node_mountstats_nfs_transport_write_chunk_total counter
+node_mountstats_nfs_transport_write_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_write_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_write_bytes_total Number of bytes written using the write() syscall.
 # TYPE node_mountstats_nfs_write_bytes_total counter
 node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
