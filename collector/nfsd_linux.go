@@ -396,6 +396,10 @@ func (c *nfsdCollector) updateNFSdRequestsv4Stats(ch chan<- prometheus.Metric, s
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.SetAttr), proto, "SetAttr")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SetClientID), proto, "SetClientID")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SetClientIDConfirm), proto, "SetClientIDConfirm")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.Verify), proto, "Verify")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.Write), proto, "Write")

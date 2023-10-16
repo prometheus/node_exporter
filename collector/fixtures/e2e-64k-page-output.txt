@@ -2738,6 +2738,8 @@ node_nfsd_requests_total{method="SecInfo",proto="4"} 0
 node_nfsd_requests_total{method="SetAttr",proto="2"} 0
 node_nfsd_requests_total{method="SetAttr",proto="3"} 0
 node_nfsd_requests_total{method="SetAttr",proto="4"} 0
+node_nfsd_requests_total{method="SetClientID",proto="4"} 3
+node_nfsd_requests_total{method="SetClientIDConfirm",proto="4"} 3
 node_nfsd_requests_total{method="SymLink",proto="2"} 0
 node_nfsd_requests_total{method="SymLink",proto="3"} 0
 node_nfsd_requests_total{method="Verify",proto="4"} 0
