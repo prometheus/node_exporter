@@ -306,7 +306,7 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		),
 
 		NFSTransportRdmaRequestTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_request_sum"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_requests"),
 			"Total number of rdma request accessed when sending a call.",
 			labels,
 			nil,
@@ -369,7 +369,7 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		),
 
 		NFSTransportRdmaReplyTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_reply_sum"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_reply_requests"),
 			"Total number of rdma reply accessed when receiving a reply.",
 			labels,
 			nil,
