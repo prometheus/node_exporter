@@ -854,7 +854,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportRdmaRequestTotal,
-		prometheus.ValueType,
+		prometheus.GaugeValue,
 		float64(s.Transport.TotalRdmaRequest),
 		labelValues...,
 	)
@@ -917,7 +917,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportRdmaReplyTotal,
-		prometheus.ValueType,
+		prometheus.GaugeValue,
 		float64(s.Transport.TotalRdmaReply),
 		labelValues...,
 	)
