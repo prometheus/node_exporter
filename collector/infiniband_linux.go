@@ -85,6 +85,38 @@ func NewInfiniBandCollector(logger log.Logger) (Collector, error) {
 		"port_receive_switch_relay_errors_total":     "Number of packets that could not be forwarded by the switch.",
 		"symbol_error_total":                         "Number of minor link errors detected on one or more physical lanes.",
 		"vl15_dropped_total":                         "Number of incoming VL15 packets dropped due to resource limitations.",
+
+		// https://enterprise-support.nvidia.com/s/article/understanding-mlx5-linux-counters-and-status-parameters
+		"duplicate_request_total":          "The number of received packets. A duplicate request is a request that had been previously executed.",
+		"implied_nak_seq_errors_total":     "The number of time the requested decided an ACK. with a PSN larger than the expected PSN for an RDMA read or response.",
+		"lifespan_millisecond":             "The maximum period in ms which defines the aging of the counter reads. Two consecutive reads within this period might return the same values.",
+		"local_ack_timeout_errors_total":   "The number of times QP's ack timer expired for RC, XRC, DCT QPs at the sender side. The QP retry limit was not exceed, therefore it is still recoverable error.",
+		"np_cnp_sent_total":                "The number of CNP packets sent by the Notification Point when it noticed congestion experienced in the RoCEv2 IP header (ECN bits). The counters was added in MLNX_OFED 4.1",
+		"np_ecn_marked_roce_packets_total": "The number of RoCEv2 packets received by the notification point which were marked for experiencing the congestion (ECN bits where '11' on the ingress RoCE traffic) . The counters was added in MLNX_OFED 4.1",
+		"out_of_buffer_total":              "The number of drops occurred due to lack of WQE for the associated QPs.",
+		"out_of_sequence_total":            "The number of out of sequence packets received.",
+		"packet_seq_errors_total":          "The number of received NAK sequence error packets. The QP retry limit was not exceeded.",
+		"req_cqe_errors_total":             "The number of times requester detected CQEs completed with errors. The counters was added in MLNX_OFED 4.1",
+		"req_cqe_flush_errors_total":       "The number of times requester detected CQEs completed with flushed errors. The counters was added in MLNX_OFED 4.1",
+		"req_remote_access_errors_total":   "The number of times requester detected remote access errors. The counters was added in MLNX_OFED 4.1",
+		"req_remote_invalid_request_total": "The number of times requester detected remote invalid request errors. The counters was added in MLNX_OFED 4.1",
+		"resp_cqe_errors_total":            "The number of times responder detected CQEs completed with errors. The counters was added in MLNX_OFED 4.1",
+		"resp_cqe_flush_errors_total":      "The number of times responder detected CQEs completed with flushed errors. The counters was added in MLNX_OFED 4.1",
+		"resp_local_length_errors_total":   "The number of times responder detected local length errors. The counters was added in MLNX_OFED 4.1",
+		"resp_remote_access_errors_total":  "The number of times responder detected remote access errors. The counters was added in MLNX_OFED 4.1",
+		"rnr_nak_retry_errors_total":       "The number of received RNR NAK packets. The QP retry limit was not exceeded.",
+		"roce_adp_retrans_total":           "The number of adaptive retransmissions for RoCE traffic. The counter was added in MLNX_OFED rev 5.0-1.0.0.0 and kernel v5.6.0",
+		"roce_adp_retrans_to_total":        "The number of times RoCE traffic reached timeout due to adaptive retransmission. The counter was added in MLNX_OFED rev 5.0-1.0.0.0 and kernel v5.6.0",
+		"roce_slow_restart_total":          "The number of times RoCE slow restart was used. The counter was added in MLNX_OFED rev 5.0-1.0.0.0 and kernel v5.6.0",
+		"roce_slow_restart_cnps_total":     "The number of times RoCE slow restart generated CNP packets. The counter was added in MLNX_OFED rev 5.0-1.0.0.0 and kernel v5.6.0",
+		"roce_slow_restart_trans_total":    "The number of times RoCE slow restart changed state to slow restart. The counter was added in MLNX_OFED rev 5.0-1.0.0.0 and kernel v5.6.0",
+		"rp_cnp_handled_total":             "The number of CNP packets handled by the Reaction Point HCA to throttle the transmission rate. The counters was added in MLNX_OFED 4.1",
+		"rp_cnp_ignored_total":             "The number of CNP packets received and ignored by the Reaction Point HCA. This counter should not raise if RoCE Congestion Control was enabled in the network. If this counter raise, verify that ECN was enabled on the adapter.",
+		"rx_atomic_requests_total":         "The number of received ATOMIC request for the associated QPs.",
+		"rx_dct_connect_total":             "The number of received connection request for the associated DCTs.",
+		"rx_read_requests_total":           "The number of received READ requests for the associated QPs.",
+		"rx_write_requests_total":          "The number of received WRITE requests for the associated QPs.",
+		"rx_icrc_encapsulated_total":       "The number of RoCE packets with ICRC errors. This counter was added in MLNX_OFED 4.4 and kernel 4.19",
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)
@@ -169,6 +201,39 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			c.pushCounter(ch, "port_receive_switch_relay_errors_total", port.Counters.PortRcvSwitchRelayErrors, port.Name, portStr)
 			c.pushCounter(ch, "symbol_error_total", port.Counters.SymbolError, port.Name, portStr)
 			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr)
+
+			// port.HwCounters
+			c.pushMetric(ch, "lifespan_millisecond", port.HwCounters.Lifespan, port.Name, portStr, prometheus.GaugeValue)
+
+			c.pushCounter(ch, "duplicate_request_total", port.HwCounters.DuplicateRequest, port.Name, portStr)
+			c.pushCounter(ch, "implied_nak_seq_errors_total", port.HwCounters.ImpliedNakSeqErr, port.Name, portStr)
+			c.pushCounter(ch, "local_ack_timeout_errors_total", port.HwCounters.LocalAckTimeoutErr, port.Name, portStr)
+			c.pushCounter(ch, "np_cnp_sent_total", port.HwCounters.NpCnpSent, port.Name, portStr)
+			c.pushCounter(ch, "np_ecn_marked_roce_packets_total", port.HwCounters.NpEcnMarkedRocePackets, port.Name, portStr)
+			c.pushCounter(ch, "out_of_buffer_total", port.HwCounters.OutOfBuffer, port.Name, portStr)
+			c.pushCounter(ch, "out_of_sequence_total", port.HwCounters.OutOfSequence, port.Name, portStr)
+			c.pushCounter(ch, "packet_seq_errors_total", port.HwCounters.PacketSeqErr, port.Name, portStr)
+			c.pushCounter(ch, "req_cqe_errors_total", port.HwCounters.ReqCqeError, port.Name, portStr)
+			c.pushCounter(ch, "req_cqe_flush_errors_total", port.HwCounters.ReqCqeFlushError, port.Name, portStr)
+			c.pushCounter(ch, "req_remote_access_errors_total", port.HwCounters.ReqRemoteAccessErrors, port.Name, portStr)
+			c.pushCounter(ch, "req_remote_invalid_request_total", port.HwCounters.ReqRemoteInvalidRequest, port.Name, portStr)
+			c.pushCounter(ch, "resp_cqe_errors_total", port.HwCounters.RespCqeError, port.Name, portStr)
+			c.pushCounter(ch, "resp_cqe_flush_errors_total", port.HwCounters.RespCqeFlushError, port.Name, portStr)
+			c.pushCounter(ch, "resp_local_length_errors_total", port.HwCounters.RespLocalLengthError, port.Name, portStr)
+			c.pushCounter(ch, "resp_remote_access_errors_total", port.HwCounters.RespRemoteAccessErrors, port.Name, portStr)
+			c.pushCounter(ch, "rnr_nak_retry_errors_total", port.HwCounters.RnrNakRetryErr, port.Name, portStr)
+			c.pushCounter(ch, "roce_adp_retrans_total", port.HwCounters.RoceAdpRetrans, port.Name, portStr)
+			c.pushCounter(ch, "roce_adp_retrans_to_total", port.HwCounters.RoceAdpRetransTo, port.Name, portStr)
+			c.pushCounter(ch, "roce_slow_restart_total", port.HwCounters.RoceSlowRestart, port.Name, portStr)
+			c.pushCounter(ch, "roce_slow_restart_cnps_total", port.HwCounters.RoceSlowRestartCnps, port.Name, portStr)
+			c.pushCounter(ch, "roce_slow_restart_trans_total", port.HwCounters.RoceSlowRestartTrans, port.Name, portStr)
+			c.pushCounter(ch, "rp_cnp_handled_total", port.HwCounters.RpCnpHandled, port.Name, portStr)
+			c.pushCounter(ch, "rp_cnp_ignored_total", port.HwCounters.RpCnpIgnored, port.Name, portStr)
+			c.pushCounter(ch, "rx_atomic_requests_total", port.HwCounters.RxAtomicRequests, port.Name, portStr)
+			c.pushCounter(ch, "rx_dct_connect_total", port.HwCounters.RxDctConnect, port.Name, portStr)
+			c.pushCounter(ch, "rx_read_requests_total", port.HwCounters.RxReadRequests, port.Name, portStr)
+			c.pushCounter(ch, "rx_write_requests_total", port.HwCounters.RxWriteRequests, port.Name, portStr)
+			c.pushCounter(ch, "rx_icrc_encapsulated_total", port.HwCounters.RxIcrcEncapsulated, port.Name, portStr)
 		}
 	}
 
