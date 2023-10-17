@@ -203,7 +203,7 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr)
 
 			// port.HwCounters
-			c.pushMetric(ch, "lifespan_millisecond", port.HwCounters.Lifespan, port.Name, portStr, prometheus.GaugeValue)
+			c.pushMetric(ch, "lifespan_millisecond", *port.HwCounters.Lifespan, port.Name, portStr, prometheus.GaugeValue)
 
 			c.pushCounter(ch, "duplicate_request_total", port.HwCounters.DuplicateRequest, port.Name, portStr)
 			c.pushCounter(ch, "implied_nak_seq_errors_total", port.HwCounters.ImpliedNakSeqErr, port.Name, portStr)
