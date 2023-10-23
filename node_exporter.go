@@ -25,6 +25,7 @@ import (
 
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
+	"go.uber.org/automaxprocs/maxprocs"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
@@ -173,7 +174,7 @@ func main() {
 			"Set all collectors to disabled by default.",
 		).Default("false").Bool()
 		maxProcs = kingpin.Flag(
-			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
+			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS). If < 1, it will use all available CPU quota.",
 		).Envar("GOMAXPROCS").Default("1").Int()
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
 	)
@@ -195,6 +196,18 @@ func main() {
 		level.Warn(logger).Log("msg", "Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")
 	}
 	runtime.GOMAXPROCS(*maxProcs)
+
+	if *maxProcs < 1 {
+		debugPrintf := func(format string, v ...interface{}) {
+			level.Debug(logger).Log("msg", fmt.Sprintf(format, v...))
+		}
+		undo, err := maxprocs.Set(maxprocs.Logger(debugPrintf))
+		defer undo()
+		if err != nil {
+			level.Warn(logger).Log("failed to set GOMAXPROCS automatically: %v", err)
+		}
+	}
+
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
