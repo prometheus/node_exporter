@@ -285,56 +285,56 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		),
 
 		NFSTransportReadChunkTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_read_chunk_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_read_chunks_total"),
 			"Total number of read chunk accessed when sending a call.",
 			labels,
 			nil,
 		),
 
 		NFSTransportWriteChunkTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_write_chunk_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_write_chunks_total"),
 			"Total number of write chunk accessed when sending a call.",
 			labels,
 			nil,
 		),
 
 		NFSTransportReplyChunkTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_reply_chunk_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_reply_chunks_total"),
 			"Total number of reply chunk accessed when sending a call.",
 			labels,
 			nil,
 		),
 
 		NFSTransportRdmaRequestTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_requests"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_requests_total"),
 			"Total number of rdma request accessed when sending a call.",
 			labels,
 			nil,
 		),
 
 		NFSTransportPullupCopyTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_pullup_copy_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_pullup_copies_total"),
 			"Total number of pullup copy when rarely accessed error counters.",
 			labels,
 			nil,
 		),
 
 		NFSTransportHardwayRegisterTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_hardway_register_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_hardway_registrations_total"),
 			"Total number of hardway register when rarely accessed error counters.",
 			labels,
 			nil,
 		),
 
 		NFSTransportFailedMarshalTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_failed_marshal_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_marshal_failures_total"),
 			"Total number of failed marshal when rarely accessed error counters.",
 			labels,
 			nil,
 		),
 
 		NFSTransportBadReplyTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_bad_reply_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_bad_replies_total"),
 			"Total number of bad reply when rarely accessed error counters.",
 			labels,
 			nil,
@@ -369,14 +369,14 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		),
 
 		NFSTransportRdmaReplyTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_reply_requests"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_reply_requests_total"),
 			"Total number of rdma reply accessed when receiving a reply.",
 			labels,
 			nil,
 		),
 
 		NFSTransportFixupCopyTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_fixup_copy_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_fixup_copies_total"),
 			"Total number of fixup copy accessed when receiving a reply.",
 			labels,
 			nil,
@@ -389,19 +389,19 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 			nil,
 		),
 		NFSTransportLocalInvNeededTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_local_inv_needed_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_local_inv_requests_total"),
 			"Total number of local inv needed accessed when receiving a reply.",
 			labels,
 			nil,
 		),
 		NFSTransportNomsgCallTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_nomsg_call_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_nomsg_call_requests_total"),
 			"Total number of nomsg call when rarely accessed error counters.",
 			labels,
 			nil,
 		),
 		NFSTransportBcallCountTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "transport_bcall_total"),
+			prometheus.BuildFQName(namespace, subsystem, "transport_bcall_requests_total"),
 			"Total number of bcall when rarely accessed error counters.",
 			labels,
 			nil,
@@ -854,7 +854,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportRdmaRequestTotal,
-		prometheus.GaugeValue,
+		prometheus.CounterValue,
 		float64(s.Transport.TotalRdmaRequest),
 		labelValues...,
 	)
@@ -917,7 +917,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportRdmaReplyTotal,
-		prometheus.GaugeValue,
+		prometheus.CounterValue,
 		float64(s.Transport.TotalRdmaReply),
 		labelValues...,
 	)
