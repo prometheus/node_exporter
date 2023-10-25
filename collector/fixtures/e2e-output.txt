@@ -2389,10 +2389,10 @@ node_mountstats_nfs_transport_read_chunks_total{export="192.168.1.1:/srv/test",m
 # TYPE node_mountstats_nfs_transport_receives_total counter
 node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
 node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
-# HELP node_mountstats_nfs_transport_reply_chunk_total Total number of reply chunk accessed when sending a call.
-# TYPE node_mountstats_nfs_transport_reply_chunk_total counter
-node_mountstats_nfs_transport_reply_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_reply_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_reply_chunks_total Total number of reply chunk accessed when sending a call.
+# TYPE node_mountstats_nfs_transport_reply_chunks_total counter
+node_mountstats_nfs_transport_reply_chunks_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_reply_chunks_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_reply_waitsfor_send_total Total number of reply waits for send accessed when receiving a reply.
 # TYPE node_mountstats_nfs_transport_reply_waitsfor_send_total counter
 node_mountstats_nfs_transport_reply_waitsfor_send_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
@@ -2405,10 +2405,10 @@ node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test"
 # TYPE node_mountstats_nfs_transport_sends_total counter
 node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
 node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
-# HELP node_mountstats_nfs_transport_write_chunk_total Total number of write chunk accessed when sending a call.
-# TYPE node_mountstats_nfs_transport_write_chunk_total counter
-node_mountstats_nfs_transport_write_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_write_chunk_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_transport_write_chunks_total Total number of write chunk accessed when sending a call.
+# TYPE node_mountstats_nfs_transport_write_chunks_total counter
+node_mountstats_nfs_transport_write_chunks_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
+node_mountstats_nfs_transport_write_chunks_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_write_bytes_total Number of bytes written using the write() syscall.
 # TYPE node_mountstats_nfs_write_bytes_total counter
 node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
