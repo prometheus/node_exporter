@@ -33,8 +33,8 @@ Rebuild with latest Go compiler bugfix release.
 * [ENHANCEMENT] Use `SCSI_IDENT_SERIAL` as serial in diskstats #2612
 * [ENHANCEMENT] Read missing from netlink netclass attributes from sysfs #2669
 * [BUGFIX] perf: fixes for automatically detecting the correct tracefs mountpoints #2553
-* [BUGFIX] Fix `thermal_zone` collector noise @2554
-* [BUGFIX] Fix a problem fetching the user wire count on FreeBSD 2584
+* [BUGFIX] Fix `thermal_zone` collector noise #2554
+* [BUGFIX] Fix a problem fetching the user wire count on FreeBSD #2584
 * [BUGFIX] interrupts: Fix fields on linux aarch64 #2631
 * [BUGFIX] Remove metrics of offline CPUs in CPU collector #2605
 * [BUGFIX] Fix OpenBSD filesystem collector string parsing #2637
