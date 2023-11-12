@@ -407,6 +407,20 @@
               description: 'Systemd service {{ $labels.name }} has entered failed state at {{ $labels.instance }}',
             },
           },
+          {
+            alert: 'NodeBondingDegraded',
+            expr: |||
+              (node_bonding_slaves - node_bonding_active) != 0
+            ||| % $._config,
+            'for': '5m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Bonding interface is degraded',
+              description: 'Bonding interface {{ $labels.master }} on {{ $labels.instance }} is in degraded state due to one or more slave failures.',
+            },
+          },
         ],
       },
     ],
