@@ -46,7 +46,7 @@ jobs:
     parallelism: 3
     steps:
       - prometheus/setup_environment
-      - run: docker run --privileged linuxkit/binfmt:v0.8
+      - run: docker run --privileged linuxkit/binfmt:af88a591f9cc896a52ce596b9cf7ca26a061ef97
       - run: promu crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
       - run: promu --config .promu-cgo.yml crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
       - persist_to_workspace:

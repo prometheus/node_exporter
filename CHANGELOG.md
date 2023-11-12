@@ -5,6 +5,23 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.7.0 / 2023-11-11
+
+* [FEATURE] Add ZFS freebsd per dataset stats #2753
+* [FEATURE] Add cpu vulnerabilities reporting from sysfs #2721
+* [ENHANCEMENT] Parallelize stat calls in Linux filesystem collector #1772
+* [ENHANCEMENT] Add missing linkspeeds to ethtool collector 2711
+* [ENHANCEMENT] Add CPU MHz as the value for `node_cpu_info` metric #2778
+* [ENHANCEMENT] Improve qdisc collector performance #2779
+* [ENHANCEMENT] Add include and exclude filter for hwmon collector #2699
+* [ENHANCEMENT] Optionally fetch ARP stats via rtnetlink instead of procfs #2777
+* [BUFFIX] Fix ZFS arcstats on FreeBSD 14.0+ 2754
+* [BUGFIX] Fallback to 32-bit stats in netdev #2757
+* [BUGFIX] Close btrfs.FS handle after use #2780
+* [BUGFIX] Move RO status before error return #2807
+* [BUFFIX] Fix `promhttp_metric_handler_errors_total` being always active #2808
+* [BUGFIX] Fix nfsd v4 index miss #2824
+
 ## 1.6.1 / 2023-06-17
 
 Rebuild with latest Go compiler bugfix release.
