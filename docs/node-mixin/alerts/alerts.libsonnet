@@ -10,7 +10,7 @@
               (
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceFillingUpWarningThreshold)d
               and
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 24*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[%(fsSpaceFillingUpPredictionWindow)s], 24*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
