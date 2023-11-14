@@ -1,0 +1,3 @@
+{
+  ntp: import './ntp.libsonnet',
+}
