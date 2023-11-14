@@ -441,7 +441,7 @@ local utils = commonlib.utils;
       memorySharedAndMapped:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory shared and mapped',
-          targets=[t.memoryMappedBytes, t.memoryShmemBytes, t.memoryShmemBytes, t.memoryShmemHugePagesBytes],
+          targets=[t.memoryMappedBytes, t.memoryShmemBytes, t.memoryShmemPmdMappedBytes, t.memoryShmemHugePagesBytes],
           description=|||
             - Mapped: This refers to the memory used in mapped page files that have been memory mapped, such as libraries.
             - Shmem: This is the memory used by shared memory, which is shared between multiple processes, including RAM disks.
@@ -1073,7 +1073,12 @@ local utils = commonlib.utils;
         local override = g.panel.timeSeries.standardOptions.override;
         commonlib.panels.network.timeSeries.packets.new(
           'UDP datagrams',
-          targets=[t.networkNetstatIPInUDPPerSec, t.networkNetstatIPOutUDPPerSec],
+          targets=[
+            t.networkNetstatIPInUDPPerSec,
+            t.networkNetstatIPOutUDPPerSec,
+            t.networkNetstatIPInUDP6PerSec,
+            t.networkNetstatIPOutUDP6PerSec,
+          ],
           description='Rate of UDP datagrams received and transmitted.'
         )
         + commonlib.panels.network.timeSeries.traffic.withNegateOutPackets()
