@@ -491,13 +491,13 @@ local lokiQuery = g.query.loki;
     diskIOreadBytesPerSec:
       prometheusQuery.new(
         prometheusDatasource,
-        'irate(node_disk_reads_completed_total{%(queriesSelector)s, %(diskDeviceSelector)s}[$__rate_interval])' % variables { diskDeviceSelector: config.diskDeviceSelector },
+        'irate(node_disk_read_bytes_total{%(queriesSelector)s, %(diskDeviceSelector)s}[$__rate_interval])' % variables { diskDeviceSelector: config.diskDeviceSelector },
       )
       + prometheusQuery.withLegendFormat('{{ device }} read'),
     diskIOwriteBytesPerSec:
       prometheusQuery.new(
         prometheusDatasource,
-        'irate(node_disk_writes_completed_total{%(queriesSelector)s, %(diskDeviceSelector)s}[$__rate_interval])' % variables { diskDeviceSelector: config.diskDeviceSelector },
+        'irate(node_disk_written_bytes_total{%(queriesSelector)s, %(diskDeviceSelector)s}[$__rate_interval])' % variables { diskDeviceSelector: config.diskDeviceSelector },
       )
       + prometheusQuery.withLegendFormat('{{ device }} written'),
     diskIOutilization:
@@ -661,7 +661,7 @@ local lokiQuery = g.query.loki;
     networkArpEntries:
       prometheusQuery.new(
         prometheusDatasource,
-        'node_network_arp{%(queriesSelector)s}' % variables,
+        'node_arp_entries{%(queriesSelector)s}' % variables,
       ),
     networkMtuBytes:
       prometheusQuery.new(
@@ -997,6 +997,20 @@ local lokiQuery = g.query.loki;
         'irate(node_netstat_Udp_OutDatagrams{%(queriesSelector)s}[$__rate_interval])' % variables
       )
       + prometheusQuery.withLegendFormat('UDP transmitted'),
+
+    networkNetstatIPInUDP6PerSec:
+      prometheusQuery.new(
+        prometheusDatasource,
+        'irate(node_netstat_Udp6_InDatagrams{%(queriesSelector)s}[$__rate_interval])' % variables
+      )
+      + prometheusQuery.withLegendFormat('UDP6 received'),
+
+    networkNetstatIPOutUDP6PerSec:
+      prometheusQuery.new(
+        prometheusDatasource,
+        'irate(node_netstat_Udp6_OutDatagrams{%(queriesSelector)s}[$__rate_interval])' % variables
+      )
+      + prometheusQuery.withLegendFormat('UDP6 transmitted'),
 
     //UDP errors
     networkNetstatUDPLiteInErrorsPerSec:
