@@ -2,7 +2,7 @@
   new(this): {
     groups: [
       {
-        name: if this.config.uid == 'node' then 'node-exporter-filesystem' else this.config.uid + '-linux-filesystem-alerts',
+        name: if this.config.uid == 'node' then 'node-exporter-filesystem' else this.config.uid + '-filesystem-alerts',
         rules: [
           {
             alert: 'NodeFilesystemSpaceFillingUp',
@@ -160,7 +160,7 @@
       },
       {
         // defaults to 'node-exporter for backward compatibility with old node-mixin
-        name: if this.config.uid == 'node' then 'node-exporter' else this.config.uid + '-linux-alerts',
+        name: if this.config.uid == 'node' then 'node-exporter' else this.config.uid + '-alerts',
         rules: [
           {
             alert: 'NodeNetworkReceiveErrs',
