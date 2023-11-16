@@ -59,7 +59,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
               panels.diskUsage { gridPos+: { w: 12, h: 8 } },
               g.panel.row.new('Network'),
               panels.networkUsagePerSec { gridPos+: { w: 12, h: 8 } },
-              panels.networkErrorsPerSec { gridPos+: { w: 12, h: 8 } },
+              panels.networkErrorsAndDroppedPerSec { gridPos+: { w: 12, h: 8 } },
             ], 6, 2
           )
         )
