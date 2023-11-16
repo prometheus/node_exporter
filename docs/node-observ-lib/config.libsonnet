@@ -7,7 +7,7 @@
   // 'instanceLabels' - one or more labels that can be used to identify single entity of instances. In simple cases, can be 'instance' or 'pod'.
   // 'uid' - UID to prefix all dashboards original uids
 
-  filteringSelector: std.get(self, 'nodeExporterSelector', default='"job="node"'),
+  filteringSelector: std.get(self, 'nodeExporterSelector', default='job="node"'),
   groupLabels: ['job'],
   instanceLabels: ['instance'],
   dashboardNamePrefix: 'Node exporter / ',
