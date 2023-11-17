@@ -24,7 +24,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/mattn/go-xmlrpc"
@@ -32,8 +31,7 @@ import (
 )
 
 var (
-	supervisordURL = kingpin.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").Envar("SUPERVISORD_URL").String()
-	xrpc           *xmlrpc.Client
+	xrpc *xmlrpc.Client
 )
 
 type supervisordCollector struct {
@@ -49,13 +47,13 @@ func init() {
 }
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
-func NewSupervisordCollector(logger log.Logger) (Collector, error) {
+func NewSupervisordCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
 	)
 
-	if u, err := url.Parse(*supervisordURL); err == nil && u.Scheme == "unix" {
+	if u, err := url.Parse(*config.Supervisord.URL); err == nil && u.Scheme == "unix" {
 		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
 		// about a non-http(s) transport.
 		xrpc = xmlrpc.NewClient("http://unix/RPC2")
@@ -66,7 +64,7 @@ func NewSupervisordCollector(logger log.Logger) (Collector, error) {
 			},
 		}
 	} else {
-		xrpc = xmlrpc.NewClient(*supervisordURL)
+		xrpc = xmlrpc.NewClient(*config.Supervisord.URL)
 	}
 
 	level.Warn(logger).Log("msg", "This collector is deprecated and will be removed in the next major version release.")

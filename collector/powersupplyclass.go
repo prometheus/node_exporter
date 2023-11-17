@@ -20,13 +20,8 @@ package collector
 import (
 	"regexp"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
-)
-
-var (
-	powerSupplyClassIgnoredPowerSupplies = kingpin.Flag("collector.powersupply.ignored-supplies", "Regexp of power supplies to ignore for powersupplyclass collector.").Default("^$").String()
 )
 
 type powerSupplyClassCollector struct {
@@ -34,18 +29,20 @@ type powerSupplyClassCollector struct {
 	ignoredPattern *regexp.Regexp
 	metricDescs    map[string]*prometheus.Desc
 	logger         log.Logger
+	config         *NodeCollectorConfig
 }
 
 func init() {
 	registerCollector("powersupplyclass", defaultEnabled, NewPowerSupplyClassCollector)
 }
 
-func NewPowerSupplyClassCollector(logger log.Logger) (Collector, error) {
-	pattern := regexp.MustCompile(*powerSupplyClassIgnoredPowerSupplies)
+func NewPowerSupplyClassCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	pattern := regexp.MustCompile(*config.PowerSupplyClass.IgnoredPowerSupplies)
 	return &powerSupplyClassCollector{
 		subsystem:      "power_supply",
 		ignoredPattern: pattern,
 		metricDescs:    map[string]*prometheus.Desc{},
 		logger:         logger,
+		config:         config,
 	}, nil
 }

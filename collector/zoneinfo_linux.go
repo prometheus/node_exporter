@@ -33,12 +33,12 @@ type zoneinfoCollector struct {
 }
 
 func init() {
-	registerCollector("zoneinfo", defaultDisabled, NewZoneinfoCollector)
+	registerCollector(zoneinfoSubsystem, defaultDisabled, NewZoneinfoCollector)
 }
 
 // NewZoneinfoCollector returns a new Collector exposing zone stats.
-func NewZoneinfoCollector(logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewZoneinfoCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

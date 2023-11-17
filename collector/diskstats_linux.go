@@ -86,7 +86,8 @@ type diskstatsCollector struct {
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
 	logger                  log.Logger
-	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
+	getUdevDeviceProperties func(*NodeCollectorConfig, uint32, uint32) (udevInfo, error)
+	config                  *NodeCollectorConfig
 }
 
 func init() {
@@ -95,14 +96,14 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
+func NewDiskstatsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
-	fs, err := blockdevice.NewFS(*procPath, *sysPath)
+	fs, err := blockdevice.NewFS(*config.Path.ProcPath, *config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+	deviceFilter, err := newDiskstatsDeviceFilter(config.DiskstatsDeviceFilter, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}
@@ -258,11 +259,12 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 			},
 		},
 		logger: logger,
+		config: config,
 	}
 
 	// Only enable getting device properties from udev if the directory is readable.
-	if stat, err := os.Stat(*udevDataPath); err != nil || !stat.IsDir() {
-		level.Error(logger).Log("msg", "Failed to open directory, disabling udev device properties", "path", *udevDataPath)
+	if stat, err := os.Stat(*config.Path.UdevDataPath); err != nil || !stat.IsDir() {
+		level.Error(logger).Log("msg", "Failed to open directory, disabling udev device properties", "path", *config.Path.UdevDataPath)
 	} else {
 		collector.getUdevDeviceProperties = getUdevDeviceProperties
 	}
@@ -282,7 +284,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
+		info, err := getUdevDeviceProperties(c.config, stats.MajorNumber, stats.MinorNumber)
 		if err != nil {
 			level.Debug(c.logger).Log("msg", "Failed to parse udev info", "err", err)
 		}
@@ -370,8 +372,8 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
-	filename := udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
+func getUdevDeviceProperties(config *NodeCollectorConfig, major, minor uint32) (udevInfo, error) {
+	filename := config.Path.udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
 
 	data, err := os.Open(filename)
 	if err != nil {

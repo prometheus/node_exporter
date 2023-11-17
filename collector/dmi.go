@@ -38,8 +38,8 @@ func init() {
 }
 
 // NewDMICollector returns a new Collector exposing DMI information.
-func NewDMICollector(logger log.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewDMICollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

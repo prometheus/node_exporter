@@ -32,6 +32,7 @@ const (
 
 type meminfoCollector struct {
 	logger log.Logger
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -39,8 +40,8 @@ func init() {
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger log.Logger) (Collector, error) {
-	return &meminfoCollector{logger}, nil
+func NewMeminfoCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return &meminfoCollector{logger, config}, nil
 }
 
 // Update calls (*meminfoCollector).getMemInfo to get the platform specific

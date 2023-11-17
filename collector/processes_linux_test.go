@@ -19,21 +19,21 @@ package collector
 import (
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/procfs"
 )
 
 func TestReadProcessStatus(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
-		t.Fatal(err)
-	}
+	path := "fixtures/proc"
+	config := newNodeCollectorWithPaths()
+	config.Path.ProcPath = &path
+
 	want := 1
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		t.Errorf("failed to open procfs: %v", err)
 	}
-	c := processCollector{fs: fs, logger: log.NewNopLogger()}
+	c := processCollector{fs: fs, logger: log.NewNopLogger(), config: config}
 	pids, states, threads, _, err := c.getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
@@ -45,7 +45,7 @@ func TestReadProcessStatus(t *testing.T) {
 
 		t.Fatalf("Process states cannot be nil %v:", states)
 	}
-	maxPid, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
+	maxPid, err := readUintFromFile(c.config.Path.procFilePath("sys/kernel/pid_max"))
 	if err != nil {
 		t.Fatalf("Unable to retrieve limit number of maximum pids alloved %v\n", err)
 	}

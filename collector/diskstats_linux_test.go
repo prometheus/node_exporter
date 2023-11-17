@@ -39,8 +39,8 @@ func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestDiskStatsCollector(logger log.Logger) (prometheus.Collector, error) {
-	dsc, err := NewDiskstatsCollector(logger)
+func NewTestDiskStatsCollector(config *NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+	dsc, err := NewDiskstatsCollector(config, logger)
 	if err != nil {
 		return testDiskStatsCollector{}, err
 	}
@@ -50,10 +50,24 @@ func NewTestDiskStatsCollector(logger log.Logger) (prometheus.Collector, error) 
 }
 
 func TestDiskStats(t *testing.T) {
-	*sysPath = "fixtures/sys"
-	*procPath = "fixtures/proc"
-	*udevDataPath = "fixtures/udev/data"
-	*diskstatsDeviceExclude = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	config := &NodeCollectorConfig{
+		DiskstatsDeviceFilter: DiskstatsDeviceFilterConfig{
+			DeviceExclude:    new(string),
+			DeviceInclude:    new(string),
+			OldDeviceExclude: new(string),
+		},
+	}
+	sysPath := "fixtures/sys"
+	config.Path.SysPath = &sysPath
+
+	procPath := "fixtures/proc"
+	config.Path.ProcPath = &procPath
+
+	udevDataPath := "fixtures/udev/data"
+	config.Path.UdevDataPath = &udevDataPath
+
+	diskstatsDeviceExclude := "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	config.DiskstatsDeviceFilter.DeviceExclude = &diskstatsDeviceExclude
 	testcase := `# HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200
@@ -318,11 +332,11 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
 	logger := log.NewLogfmtLogger(os.Stderr)
-	collector, err := NewDiskstatsCollector(logger)
+	collector, err := NewDiskstatsCollector(config, logger)
 	if err != nil {
 		panic(err)
 	}
-	c, err := NewTestDiskStatsCollector(logger)
+	c, err := NewTestDiskStatsCollector(config, logger)
 	if err != nil {
 		t.Fatal(err)
 	}
