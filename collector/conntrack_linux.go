@@ -39,6 +39,7 @@ type conntrackCollector struct {
 	earlyDrop     *prometheus.Desc
 	searchRestart *prometheus.Desc
 	logger        log.Logger
+	config        *NodeCollectorConfig
 }
 
 type conntrackStatistics struct {
@@ -57,7 +58,7 @@ func init() {
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(logger log.Logger) (Collector, error) {
+func NewConntrackCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),
@@ -110,25 +111,26 @@ func NewConntrackCollector(logger log.Logger) (Collector, error) {
 			nil, nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 
 func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
-	value, err := readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_count"))
+	value, err := readUintFromFile(c.config.Path.procFilePath("sys/net/netfilter/nf_conntrack_count"))
 	if err != nil {
 		return c.handleErr(err)
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.current, prometheus.GaugeValue, float64(value))
 
-	value, err = readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_max"))
+	value, err = readUintFromFile(c.config.Path.procFilePath("sys/net/netfilter/nf_conntrack_max"))
 	if err != nil {
 		return c.handleErr(err)
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.limit, prometheus.GaugeValue, float64(value))
 
-	conntrackStats, err := getConntrackStatistics()
+	conntrackStats, err := getConntrackStatistics(c.config)
 	if err != nil {
 		return c.handleErr(err)
 	}
@@ -160,10 +162,10 @@ func (c *conntrackCollector) handleErr(err error) error {
 	return fmt.Errorf("failed to retrieve conntrack stats: %w", err)
 }
 
-func getConntrackStatistics() (*conntrackStatistics, error) {
+func getConntrackStatistics(config *NodeCollectorConfig) (*conntrackStatistics, error) {
 	c := conntrackStatistics{}
 
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

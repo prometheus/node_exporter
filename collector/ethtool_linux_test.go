@@ -49,8 +49,8 @@ func (c testEthtoolCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestEthtoolCollector(logger log.Logger) (prometheus.Collector, error) {
-	dsc, err := NewEthtoolTestCollector(logger)
+func NewTestEthtoolCollector(config *NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+	dsc, err := NewEthtoolTestCollector(config, logger)
 	if err != nil {
 		return testEthtoolCollector{}, err
 	}
@@ -255,8 +255,8 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return res, err
 }
 
-func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
-	collector, err := makeEthtoolCollector(logger)
+func NewEthtoolTestCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	collector, err := makeEthtoolCollector(config, logger)
 	collector.ethtool = &EthtoolFixture{
 		fixturePath: "fixtures/ethtool/",
 	}
@@ -285,6 +285,13 @@ func TestBuildEthtoolFQName(t *testing.T) {
 }
 
 func TestEthToolCollector(t *testing.T) {
+	config := &NodeCollectorConfig{
+		Ethtool: EthtoolConfig{
+			DeviceInclude:   new(string),
+			DeviceExclude:   new(string),
+			IncludedMetrics: new(string),
+		},
+	}
 	testcase := `# HELP node_ethtool_align_errors Network interface align_errors
 # TYPE node_ethtool_align_errors untyped
 node_ethtool_align_errors{device="eth0"} 0
@@ -368,14 +375,15 @@ node_network_supported_speed_bytes{device="eth0",duplex="full",mode="10baseT"} 1
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="100baseT"} 1.25e+07
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1.25e+06
 `
-	*sysPath = "fixtures/sys"
+	sysPath := "fixtures/sys"
+	config.Path.SysPath = &sysPath
 
 	logger := log.NewLogfmtLogger(os.Stderr)
-	collector, err := NewEthtoolTestCollector(logger)
+	collector, err := NewEthtoolTestCollector(config, logger)
 	if err != nil {
 		panic(err)
 	}
-	c, err := NewTestEthtoolCollector(logger)
+	c, err := NewTestEthtoolCollector(config, logger)
 	if err != nil {
 		t.Fatal(err)
 	}

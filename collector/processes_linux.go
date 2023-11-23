@@ -40,15 +40,16 @@ type processCollector struct {
 	pidUsed      *prometheus.Desc
 	pidMax       *prometheus.Desc
 	logger       log.Logger
+	config       *NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("processes", defaultDisabled, NewProcessStatCollector)
+	registerCollector("processes", defaultEnabled, NewProcessStatCollector)
 }
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
-func NewProcessStatCollector(logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewProcessStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
@@ -82,6 +83,7 @@ func NewProcessStatCollector(logger log.Logger) (Collector, error) {
 			"Number of max PIDs limit", nil, nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
@@ -91,7 +93,7 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	ch <- prometheus.MustNewConstMetric(c.threadAlloc, prometheus.GaugeValue, float64(threads))
-	maxThreads, err := readUintFromFile(procFilePath("sys/kernel/threads-max"))
+	maxThreads, err := readUintFromFile(c.config.Path.procFilePath("sys/kernel/threads-max"))
 	if err != nil {
 		return fmt.Errorf("unable to retrieve limit number of threads: %w", err)
 	}
@@ -105,7 +107,7 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.threadsState, prometheus.GaugeValue, float64(threadStates[state]), state)
 	}
 
-	pidM, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
+	pidM, err := readUintFromFile(c.config.Path.procFilePath("sys/kernel/pid_max"))
 	if err != nil {
 		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %w", err)
 	}
@@ -148,7 +150,7 @@ func (c *processCollector) getAllocatedThreads() (int, map[string]int32, int, ma
 }
 
 func (c *processCollector) getThreadStates(pid int, pidStat procfs.ProcStat, threadStates map[string]int32) error {
-	fs, err := procfs.NewFS(procFilePath(path.Join(strconv.Itoa(pid), "task")))
+	fs, err := procfs.NewFS(c.config.Path.procFilePath(path.Join(strconv.Itoa(pid), "task")))
 	if err != nil {
 		if c.isIgnoredError(err) {
 			level.Debug(c.logger).Log("msg", "file not found when retrieving tasks for pid", "pid", pid, "err", err)

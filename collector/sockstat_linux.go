@@ -36,6 +36,7 @@ var pageSize = os.Getpagesize()
 
 type sockStatCollector struct {
 	logger log.Logger
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -43,12 +44,12 @@ func init() {
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector(logger log.Logger) (Collector, error) {
-	return &sockStatCollector{logger}, nil
+func NewSockStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return &sockStatCollector{logger, config}, nil
 }
 
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*c.config.Path.ProcPath)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}

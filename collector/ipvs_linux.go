@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -64,7 +63,6 @@ var (
 		ipvsLabelProto,
 		ipvsLabelLocalMark,
 	}
-	ipvsLabels = kingpin.Flag("collector.ipvs.backend-labels", "Comma separated list for IPVS backend stats labels.").Default(strings.Join(fullIpvsBackendLabels, ",")).String()
 )
 
 func init() {
@@ -73,23 +71,28 @@ func init() {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector(logger log.Logger) (Collector, error) {
-	return newIPVSCollector(logger)
+func NewIPVSCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	return newIPVSCollector(config, logger)
 }
 
-func newIPVSCollector(logger log.Logger) (*ipvsCollector, error) {
+func newIPVSCollector(config *NodeCollectorConfig, logger log.Logger) (*ipvsCollector, error) {
 	var (
 		c         ipvsCollector
 		err       error
 		subsystem = "ipvs"
 	)
 
-	if c.backendLabels, err = c.parseIpvsLabels(*ipvsLabels); err != nil {
+	if !config.IPVS.LabelsSet { // use default labels if flag is not set
+		labels := strings.Join(fullIpvsBackendLabels, ",")
+		config.IPVS.Labels = &labels
+	}
+
+	if c.backendLabels, err = c.parseIpvsLabels(*config.IPVS.Labels); err != nil {
 		return nil, err
 	}
 
 	c.logger = logger
-	c.fs, err = procfs.NewFS(*procPath)
+	c.fs, err = procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

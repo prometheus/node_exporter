@@ -18,9 +18,10 @@ package collector
 
 import (
 	"fmt"
-	"golang.org/x/sys/unix"
 	"net"
 	"strconv"
+
+	"golang.org/x/sys/unix"
 
 	"github.com/go-kit/log"
 	"github.com/jsimonetti/rtnetlink"
@@ -38,7 +39,7 @@ func init() {
 }
 
 // NewNetworkRouteCollector returns a new Collector exposing systemd statistics.
-func NewNetworkRouteCollector(logger log.Logger) (Collector, error) {
+func NewNetworkRouteCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const subsystem = "network"
 
 	routeInfoDesc := prometheus.NewDesc(

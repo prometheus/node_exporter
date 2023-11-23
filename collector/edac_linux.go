@@ -40,6 +40,7 @@ type edacCollector struct {
 	csRowCECount *prometheus.Desc
 	csRowUECount *prometheus.Desc
 	logger       log.Logger
+	config       *NodeCollectorConfig
 }
 
 func init() {
@@ -47,7 +48,7 @@ func init() {
 }
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector(logger log.Logger) (Collector, error) {
+func NewEdacCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "correctable_errors_total"),
@@ -70,11 +71,12 @@ func NewEdacCollector(logger log.Logger) (Collector, error) {
 			[]string{"controller", "csrow"}, nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 
 func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
-	memControllers, err := filepath.Glob(sysFilePath("devices/system/edac/mc/mc[0-9]*"))
+	memControllers, err := filepath.Glob(c.config.Path.sysFilePath("devices/system/edac/mc/mc[0-9]*"))
 	if err != nil {
 		return err
 	}

@@ -15,6 +15,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/prometheus/node_exporter/kingpinconfig"
 	stdlog "log"
 	"net/http"
 	_ "net/http/pprof"
@@ -48,14 +49,16 @@ type handler struct {
 	exporterMetricsRegistry *prometheus.Registry
 	includeExporterMetrics  bool
 	maxRequests             int
+	collectorConfig         *collector.NodeCollectorConfig
 	logger                  log.Logger
 }
 
-func newHandler(includeExporterMetrics bool, maxRequests int, logger log.Logger) *handler {
+func newHandler(includeExporterMetrics bool, maxRequests int, collectorConfig *collector.NodeCollectorConfig, logger log.Logger) *handler {
 	h := &handler{
 		exporterMetricsRegistry: prometheus.NewRegistry(),
 		includeExporterMetrics:  includeExporterMetrics,
 		maxRequests:             maxRequests,
+		collectorConfig:         collectorConfig,
 		logger:                  logger,
 	}
 	if h.includeExporterMetrics {
@@ -99,7 +102,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // (in which case it will log all the collectors enabled via command-line
 // flags).
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
-	nc, err := collector.NewNodeCollector(h.logger, filters...)
+	nc, err := collector.NewNodeCollector(h.collectorConfig, h.logger, filters...)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't create collector: %s", err)
 	}
@@ -123,34 +126,22 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	if err := r.Register(nc); err != nil {
 		return nil, fmt.Errorf("couldn't register node collector: %s", err)
 	}
-
-	var handler http.Handler
+	handler := promhttp.HandlerFor(
+		prometheus.Gatherers{h.exporterMetricsRegistry, r},
+		promhttp.HandlerOpts{
+			ErrorLog:            stdlog.New(log.NewStdlibAdapter(level.Error(h.logger)), "", 0),
+			ErrorHandling:       promhttp.ContinueOnError,
+			MaxRequestsInFlight: h.maxRequests,
+			Registry:            h.exporterMetricsRegistry,
+		},
+	)
 	if h.includeExporterMetrics {
-		handler = promhttp.HandlerFor(
-			prometheus.Gatherers{h.exporterMetricsRegistry, r},
-			promhttp.HandlerOpts{
-				ErrorLog:            stdlog.New(log.NewStdlibAdapter(level.Error(h.logger)), "", 0),
-				ErrorHandling:       promhttp.ContinueOnError,
-				MaxRequestsInFlight: h.maxRequests,
-				Registry:            h.exporterMetricsRegistry,
-			},
-		)
 		// Note that we have to use h.exporterMetricsRegistry here to
 		// use the same promhttp metrics for all expositions.
 		handler = promhttp.InstrumentMetricHandler(
 			h.exporterMetricsRegistry, handler,
 		)
-	} else {
-		handler = promhttp.HandlerFor(
-			r,
-			promhttp.HandlerOpts{
-				ErrorLog:            stdlog.New(log.NewStdlibAdapter(level.Error(h.logger)), "", 0),
-				ErrorHandling:       promhttp.ContinueOnError,
-				MaxRequestsInFlight: h.maxRequests,
-			},
-		)
 	}
-
 	return handler, nil
 }
 
@@ -175,7 +166,8 @@ func main() {
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
-		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
+		toolkitFlags    = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
+		collectorConfig = kingpinconfig.AddFlags(kingpin.CommandLine)
 	)
 
 	promlogConfig := &promlog.Config{}
@@ -196,8 +188,9 @@ func main() {
 	}
 	runtime.GOMAXPROCS(*maxProcs)
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
-
-	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
+	collectorConfig.Collectors = collector.GetFlagDefaults()
+	collectorConfig.AllowCachingOfCollectors = true
+	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, collectorConfig, logger))
 	if *metricsPath != "/" {
 		landingConfig := web.LandingConfig{
 			Name:        "Node Exporter",

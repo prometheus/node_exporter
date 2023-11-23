@@ -16,62 +16,70 @@ package collector
 import (
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/procfs"
 )
 
 func TestDefaultProcPath(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", procfs.DefaultMountPoint}); err != nil {
-		t.Fatal(err)
-	}
+	config := newNodeCollectorWithPaths()
+	path := procfs.DefaultMountPoint
+	config.Path.ProcPath = &path
 
-	if got, want := procFilePath("somefile"), "/proc/somefile"; got != want {
+	if got, want := config.Path.procFilePath("somefile"), "/proc/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := procFilePath("some/file"), "/proc/some/file"; got != want {
+	if got, want := config.Path.procFilePath("some/file"), "/proc/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
 func TestCustomProcPath(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./../some/./place/"}); err != nil {
-		t.Fatal(err)
-	}
+	config := newNodeCollectorWithPaths()
+	path := "./../some/./place/"
+	config.Path.ProcPath = &path
 
-	if got, want := procFilePath("somefile"), "../some/place/somefile"; got != want {
+	if got, want := config.Path.procFilePath("somefile"), "../some/place/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := procFilePath("some/file"), "../some/place/some/file"; got != want {
+	if got, want := config.Path.procFilePath("some/file"), "../some/place/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
 func TestDefaultSysPath(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.sysfs", "/sys"}); err != nil {
-		t.Fatal(err)
-	}
+	config := newNodeCollectorWithPaths()
+	path := "/sys"
+	config.Path.SysPath = &path
 
-	if got, want := sysFilePath("somefile"), "/sys/somefile"; got != want {
+	if got, want := config.Path.sysFilePath("somefile"), "/sys/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := sysFilePath("some/file"), "/sys/some/file"; got != want {
+	if got, want := config.Path.sysFilePath("some/file"), "/sys/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 }
 
 func TestCustomSysPath(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.sysfs", "./../some/./place/"}); err != nil {
-		t.Fatal(err)
-	}
+	config := newNodeCollectorWithPaths()
+	path := "./../some/./place/"
+	config.Path.SysPath = &path
 
-	if got, want := sysFilePath("somefile"), "../some/place/somefile"; got != want {
+	if got, want := config.Path.sysFilePath("somefile"), "../some/place/somefile"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
 
-	if got, want := sysFilePath("some/file"), "../some/place/some/file"; got != want {
+	if got, want := config.Path.sysFilePath("some/file"), "../some/place/some/file"; got != want {
 		t.Errorf("Expected: %s, Got: %s", want, got)
 	}
+}
+
+func newNodeCollectorWithPaths() *NodeCollectorConfig {
+	return &NodeCollectorConfig{Path: PathConfig{
+		ProcPath:     new(string),
+		SysPath:      new(string),
+		RootfsPath:   new(string),
+		UdevDataPath: new(string),
+	}}
 }

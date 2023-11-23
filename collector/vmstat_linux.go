@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -33,30 +32,28 @@ const (
 	vmStatSubsystem = "vmstat"
 )
 
-var (
-	vmStatFields = kingpin.Flag("collector.vmstat.fields", "Regexp of fields to return for vmstat collector.").Default("^(oom_kill|pgpg|pswp|pg.*fault).*").String()
-)
-
 type vmStatCollector struct {
 	fieldPattern *regexp.Regexp
 	logger       log.Logger
+	config       *NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("vmstat", defaultEnabled, NewvmStatCollector)
+	registerCollector(vmStatSubsystem, defaultEnabled, NewvmStatCollector)
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
-func NewvmStatCollector(logger log.Logger) (Collector, error) {
-	pattern := regexp.MustCompile(*vmStatFields)
+func NewvmStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	pattern := regexp.MustCompile(*config.VmStat.Fields)
 	return &vmStatCollector{
 		fieldPattern: pattern,
 		logger:       logger,
+		config:       config,
 	}, nil
 }
 
 func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
-	file, err := os.Open(procFilePath("vmstat"))
+	file, err := os.Open(c.config.Path.procFilePath("vmstat"))
 	if err != nil {
 		return err
 	}
