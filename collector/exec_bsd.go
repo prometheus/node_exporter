@@ -32,7 +32,7 @@ func init() {
 }
 
 // NewExecCollector returns a new Collector exposing system execution statistics.
-func NewExecCollector(logger log.Logger) (Collector, error) {
+func NewExecCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	// From sys/vm/vm_meter.c:
 	// All are of type CTLTYPE_UINT.
 	//
@@ -62,7 +62,6 @@ func NewExecCollector(logger log.Logger) (Collector, error) {
 				description: "System calls since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_syscall",
 			},
-			labels: nil,
 			{
 				name:        "exec_device_interrupts_total",
 				description: "Device interrupts since system boot.  Resets at architecture unsigned integer.",

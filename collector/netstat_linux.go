@@ -26,7 +26,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -35,39 +34,37 @@ const (
 	netStatsSubsystem = "netstat"
 )
 
-var (
-	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$").String()
-)
-
 type netStatCollector struct {
 	fieldPattern *regexp.Regexp
 	logger       log.Logger
+	config       *NodeCollectorConfig
 }
 
 func init() {
-	registerCollector("netstat", defaultEnabled, NewNetStatCollector)
+	registerCollector(netStatsSubsystem, defaultEnabled, NewNetStatCollector)
 }
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(logger log.Logger) (Collector, error) {
-	pattern := regexp.MustCompile(*netStatFields)
+func NewNetStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	pattern := regexp.MustCompile(*config.NetStat.Fields)
 	return &netStatCollector{
 		fieldPattern: pattern,
 		logger:       logger,
+		config:       config,
 	}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
-	netStats, err := getNetStats(procFilePath("net/netstat"))
+	netStats, err := getNetStats(c.config.Path.procFilePath("net/netstat"))
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
-	snmpStats, err := getNetStats(procFilePath("net/snmp"))
+	snmpStats, err := getNetStats(c.config.Path.procFilePath("net/snmp"))
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP stats: %w", err)
 	}
-	snmp6Stats, err := getSNMP6Stats(procFilePath("net/snmp6"))
+	snmp6Stats, err := getSNMP6Stats(c.config.Path.procFilePath("net/snmp6"))
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP6 stats: %w", err)
 	}

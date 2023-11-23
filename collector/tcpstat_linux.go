@@ -61,6 +61,7 @@ const (
 type tcpStatCollector struct {
 	desc   typedDesc
 	logger log.Logger
+	config *NodeCollectorConfig
 }
 
 func init() {
@@ -68,7 +69,7 @@ func init() {
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
-func NewTCPStatCollector(logger log.Logger) (Collector, error) {
+func NewTCPStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
@@ -76,6 +77,7 @@ func NewTCPStatCollector(logger log.Logger) (Collector, error) {
 			[]string{"state"}, nil,
 		), prometheus.GaugeValue},
 		logger: logger,
+		config: config,
 	}, nil
 }
 
@@ -135,7 +137,7 @@ func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	// if enabled ipv6 system
-	if _, hasIPv6 := os.Stat(procFilePath("net/tcp6")); hasIPv6 == nil {
+	if _, hasIPv6 := os.Stat(c.config.Path.procFilePath("net/tcp6")); hasIPv6 == nil {
 		tcp6Stats, err := getTCPStats(syscall.AF_INET6)
 		if err != nil {
 			return fmt.Errorf("couldn't get tcp6stats: %w", err)

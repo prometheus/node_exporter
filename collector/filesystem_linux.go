@@ -26,7 +26,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
@@ -37,18 +36,12 @@ const (
 	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
 )
 
-var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
-	"how long to wait for a mount to respond before marking it as stale").
-	Hidden().Default("5s").Duration()
-var statWorkerCount = kingpin.Flag("collector.filesystem.stat-workers",
-	"how many stat calls to process simultaneously").
-	Hidden().Default("4").Int()
 var stuckMounts = make(map[string]struct{})
 var stuckMountsMtx = &sync.Mutex{}
 
 // GetStats returns filesystem stats.
-func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	mps, err := mountPointDetails(c.logger)
+func (c *filesystemCollector) GetStats(_ PathConfig) ([]filesystemStats, error) {
+	mps, err := mountPointDetails(c.config, c.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +50,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
-	workerCount := *statWorkerCount
+	workerCount := *c.config.Filesystem.StatWorkerCount
 	if workerCount < 1 {
 		workerCount = 1
 	}
@@ -118,10 +111,10 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	}
 
 	success := make(chan struct{})
-	go stuckMountWatcher(labels.mountPoint, success, c.logger)
+	go stuckMountWatcher(c.config.Filesystem.MountTimeout, labels.mountPoint, success, c.logger)
 
 	buf := new(unix.Statfs_t)
-	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
+	err := unix.Statfs(c.config.Path.rootfsFilePath(labels.mountPoint), buf)
 	stuckMountsMtx.Lock()
 	close(success)
 
@@ -133,7 +126,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	stuckMountsMtx.Unlock()
 
 	if err != nil {
-		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", c.config.Path.rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
@@ -155,7 +148,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
+func stuckMountWatcher(mountTimeout *time.Duration, mountPoint string, success chan struct{}, logger log.Logger) {
 	mountCheckTimer := time.NewTimer(*mountTimeout)
 	defer mountCheckTimer.Stop()
 	select {
@@ -175,22 +168,22 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 	}
 }
 
-func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("1/mounts"))
+func mountPointDetails(config *NodeCollectorConfig, logger log.Logger) ([]filesystemLabels, error) {
+	file, err := os.Open(config.Path.procFilePath("1/mounts"))
 	if errors.Is(err, os.ErrNotExist) {
 		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
 		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
-		file, err = os.Open(procFilePath("mounts"))
+		file, err = os.Open(config.Path.procFilePath("mounts"))
 	}
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	return parseFilesystemLabels(file)
+	return parseFilesystemLabels(config, file)
 }
 
-func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
+func parseFilesystemLabels(config *NodeCollectorConfig, r io.Reader) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
 	scanner := bufio.NewScanner(r)
@@ -208,7 +201,7 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:     parts[0],
-			mountPoint: rootfsStripPrefix(parts[1]),
+			mountPoint: config.Path.rootfsStripPrefix(parts[1]),
 			fsType:     parts[2],
 			options:    parts[3],
 		})

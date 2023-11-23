@@ -40,11 +40,11 @@ func init() {
 }
 
 // NewFibreChannelCollector returns a new Collector exposing FibreChannel stats.
-func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
+func NewFibreChannelCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	var i fibrechannelCollector
 	var err error
 
-	i.fs, err = sysfs.NewFS(*sysPath)
+	i.fs, err = sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

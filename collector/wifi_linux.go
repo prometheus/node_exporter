@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/mdlayher/wifi"
@@ -46,11 +45,8 @@ type wifiCollector struct {
 	stationBeaconLossTotal       *prometheus.Desc
 
 	logger log.Logger
+	config *NodeCollectorConfig
 }
-
-var (
-	collectorWifi = kingpin.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
-)
 
 func init() {
 	registerCollector("wifi", defaultDisabled, NewWifiCollector)
@@ -67,7 +63,7 @@ type wifiStater interface {
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector(logger log.Logger) (Collector, error) {
+func NewWifiCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 	const (
 		subsystem = "wifi"
 	)
@@ -161,11 +157,12 @@ func NewWifiCollector(logger log.Logger) (Collector, error) {
 			nil,
 		),
 		logger: logger,
+		config: config,
 	}, nil
 }
 
 func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
-	stat, err := newWifiStater(*collectorWifi)
+	stat, err := newWifiStater(*c.config.Wifi.Fixtures)
 	if err != nil {
 		// Cannot access wifi metrics, report no error.
 		if errors.Is(err, os.ErrNotExist) {

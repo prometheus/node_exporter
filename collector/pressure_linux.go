@@ -49,8 +49,8 @@ func init() {
 }
 
 // NewPressureStatsCollector returns a Collector exposing pressure stall information
-func NewPressureStatsCollector(logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewPressureStatsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

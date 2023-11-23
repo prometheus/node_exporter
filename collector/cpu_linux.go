@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -52,16 +51,14 @@ type cpuCollector struct {
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
+
+	config *NodeCollectorConfig
 }
 
 // Idle jump back limit in seconds.
 const jumpBackSeconds = 3.0
 
 var (
-	enableCPUGuest       = kingpin.Flag("collector.cpu.guest", "Enables metric node_cpu_guest_seconds_total").Default("true").Bool()
-	enableCPUInfo        = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
-	flagsInclude         = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
-	bugsInclude          = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
 	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
 )
 
@@ -70,13 +67,13 @@ func init() {
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUCollector(logger log.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewCPUCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	sysfs, err := sysfs.NewFS(*sysPath)
+	sysfs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
@@ -135,8 +132,9 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 		logger:       logger,
 		isolatedCpus: isolcpus,
 		cpuStats:     make(map[int64]procfs.CPUStat),
+		config:       config,
 	}
-	err = c.compileIncludeFlags(flagsInclude, bugsInclude)
+	err = c.compileIncludeFlags(c.config.CPU.FlagsInclude, c.config.CPU.BugsInclude)
 	if err != nil {
 		return nil, fmt.Errorf("fail to compile --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include, the values of them must be regular expressions: %w", err)
 	}
@@ -144,8 +142,8 @@ func NewCPUCollector(logger log.Logger) (Collector, error) {
 }
 
 func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *string) error {
-	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*enableCPUInfo {
-		*enableCPUInfo = true
+	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*c.config.CPU.EnableCPUInfo {
+		*c.config.CPU.EnableCPUInfo = true
 		level.Info(c.logger).Log("msg", "--collector.cpu.info has been set to `true` because you set the following flags, like --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include")
 	}
 
@@ -167,7 +165,7 @@ func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *st
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
-	if *enableCPUInfo {
+	if *c.config.CPU.EnableCPUInfo {
 		if err := c.updateInfo(ch); err != nil {
 			return err
 		}
@@ -178,7 +176,7 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if c.isolatedCpus != nil {
 		c.updateIsolated(ch)
 	}
-	return c.updateThermalThrottle(ch)
+	return c.updateThermalThrottle(c.config, ch)
 }
 
 // updateInfo reads /proc/cpuinfo
@@ -203,10 +201,8 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.CacheSize)
 	}
 
-	cpuFreqEnabled, ok := collectorState["cpufreq"]
-	if !ok || cpuFreqEnabled == nil {
-		level.Debug(c.logger).Log("cpufreq key missing or nil value in collectorState map", err)
-	} else if !*cpuFreqEnabled {
+	// This should only run if CPUFREQ is NOT enabled.
+	if found, enabled := c.config.Collectors["cpufreq"]; found && !enabled {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
 				prometheus.GaugeValue,
@@ -249,8 +245,8 @@ func updateFieldInfo(valueList []string, filter *regexp.Regexp, desc *prometheus
 }
 
 // updateThermalThrottle reads /sys/devices/system/cpu/cpu* and expose thermal throttle statistics.
-func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error {
-	cpus, err := filepath.Glob(sysFilePath("devices/system/cpu/cpu[0-9]*"))
+func (c *cpuCollector) updateThermalThrottle(config *NodeCollectorConfig, ch chan<- prometheus.Metric) error {
+	cpus, err := filepath.Glob(config.Path.sysFilePath("devices/system/cpu/cpu[0-9]*"))
 	if err != nil {
 		return err
 	}
@@ -357,7 +353,7 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuNum, "softirq")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuNum, "steal")
 
-		if *enableCPUGuest {
+		if *c.config.CPU.EnableCPUGuest {
 			// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
 			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")
 			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")

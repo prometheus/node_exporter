@@ -50,27 +50,51 @@ const (
 )
 
 var (
-	factories              = make(map[string]func(logger log.Logger) (Collector, error))
+	factories              = make(map[string]func(config *NodeCollectorConfig, logger log.Logger) (Collector, error))
 	initiatedCollectorsMtx = sync.Mutex{}
 	initiatedCollectors    = make(map[string]Collector)
-	collectorState         = make(map[string]*bool)
+	collectorStateGlobal   = make(map[string]bool)
+	collectorFlagState     = make(map[string]*bool)
+	availableCollectors    = make([]string, 0)
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
-func registerCollector(collector string, isDefaultEnabled bool, factory func(logger log.Logger) (Collector, error)) {
+func GetDefaults() map[string]bool {
+	defaults := make(map[string]bool)
+	for k, v := range collectorStateGlobal {
+		defaults[k] = v
+	}
+	return defaults
+}
+
+func GetFlagDefaults() map[string]bool {
+	defaults := make(map[string]bool)
+	for k, v := range collectorFlagState {
+		defaults[k] = *v
+	}
+	return defaults
+}
+
+func GetAvailableCollectors() []string {
+	return availableCollectors
+}
+
+func registerCollector(collector string, isDefaultEnabled bool, factory func(config *NodeCollectorConfig, logger log.Logger) (Collector, error)) {
 	var helpDefaultState string
 	if isDefaultEnabled {
 		helpDefaultState = "enabled"
 	} else {
 		helpDefaultState = "disabled"
 	}
+	availableCollectors = append(availableCollectors, collector)
 
 	flagName := fmt.Sprintf("collector.%s", collector)
 	flagHelp := fmt.Sprintf("Enable the %s collector (default: %s).", collector, helpDefaultState)
 	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
 
 	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Action(collectorFlagAction(collector)).Bool()
-	collectorState[collector] = flag
+	collectorStateGlobal[collector] = isDefaultEnabled
+	collectorFlagState[collector] = flag
 
 	factories[collector] = factory
 }
@@ -84,9 +108,9 @@ type NodeCollector struct {
 // DisableDefaultCollectors sets the collector state to false for all collectors which
 // have not been explicitly enabled on the command line.
 func DisableDefaultCollectors() {
-	for c := range collectorState {
+	for c := range collectorFlagState {
 		if _, ok := forcedCollectors[c]; !ok {
-			*collectorState[c] = false
+			*collectorFlagState[c] = false
 		}
 	}
 }
@@ -104,29 +128,30 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 }
 
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, error) {
+func NewNodeCollector(config *NodeCollectorConfig, logger log.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
-		enabled, exist := collectorState[filter]
+		enabled, exist := config.Collectors[filter]
 		if !exist {
 			return nil, fmt.Errorf("missing collector: %s", filter)
 		}
-		if !*enabled {
+		if !enabled {
 			return nil, fmt.Errorf("disabled collector: %s", filter)
 		}
 		f[filter] = true
 	}
 	collectors := make(map[string]Collector)
+
 	initiatedCollectorsMtx.Lock()
 	defer initiatedCollectorsMtx.Unlock()
-	for key, enabled := range collectorState {
-		if !*enabled || (len(f) > 0 && !f[key]) {
+	for key, enabled := range config.Collectors {
+		if !enabled || (len(f) > 0 && !f[key]) {
 			continue
 		}
-		if collector, ok := initiatedCollectors[key]; ok {
+		if collector, ok := initiatedCollectors[key]; ok && config.AllowCachingOfCollectors {
 			collectors[key] = collector
 		} else {
-			collector, err := factories[key](log.With(logger, "collector", key))
+			collector, err := factories[key](config, log.With(logger, "collector", key))
 			if err != nil {
 				return nil, err
 			}

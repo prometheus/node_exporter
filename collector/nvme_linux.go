@@ -37,8 +37,8 @@ func init() {
 }
 
 // NewNVMeCollector returns a new Collector exposing NVMe stats.
-func NewNVMeCollector(logger log.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewNVMeCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(*config.Path.SysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

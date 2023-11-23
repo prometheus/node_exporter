@@ -27,7 +27,7 @@ const (
 )
 
 // Expose filesystem fullness.
-func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
+func (c *filesystemCollector) GetStats(_ PathConfig) ([]filesystemStats, error) {
 	n, err := unix.Getfsstat(nil, unix.MNT_NOWAIT)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		stats = append(stats, filesystemStats{
 			labels: filesystemLabels{
 				device:     device,
-				mountPoint: rootfsStripPrefix(mountpoint),
+				mountPoint: c.config.Path.rootfsStripPrefix(mountpoint),
 				fsType:     fstype,
 			},
 			size:      float64(fs.Blocks) * float64(fs.Bsize),

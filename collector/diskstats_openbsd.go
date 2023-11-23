@@ -49,8 +49,8 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
-	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+func NewDiskstatsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+	deviceFilter, err := newDiskstatsDeviceFilter(config.DiskstatsDeviceFilter, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}

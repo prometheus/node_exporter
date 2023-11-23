@@ -19,22 +19,17 @@ package collector
 import (
 	"fmt"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/prometheus/procfs"
 )
 
-var (
-	netDevNetlink = kingpin.Flag("collector.netdev.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("true").Bool()
-)
-
-func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(config *NodeCollectorConfig, netDevNetlink *bool, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	if *netDevNetlink {
 		return netlinkStats(filter, logger)
 	}
-	return procNetDevStats(filter, logger)
+	return procNetDevStats(config, filter, logger)
 }
 
 func netlinkStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
@@ -141,10 +136,10 @@ func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logg
 	return metrics
 }
 
-func procNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func procNetDevStats(config *NodeCollectorConfig, filter *deviceFilter, logger log.Logger) (netDevStats, error) {
 	metrics := netDevStats{}
 
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return metrics, fmt.Errorf("failed to open procfs: %w", err)
 	}

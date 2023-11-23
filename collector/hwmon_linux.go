@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,9 +31,6 @@ import (
 )
 
 var (
-	collectorHWmonChipInclude = kingpin.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
-	collectorHWmonChipExclude = kingpin.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
-
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
 	hwmonLabelDesc          = []string{"chip", "sensor"}
@@ -53,15 +49,17 @@ func init() {
 type hwMonCollector struct {
 	deviceFilter deviceFilter
 	logger       log.Logger
+	config       *NodeCollectorConfig
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(logger log.Logger) (Collector, error) {
+func NewHwMonCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipInclude),
+		deviceFilter: newDeviceFilter(*config.HwMon.ChipExclude, *config.HwMon.ChipInclude),
+		config:       config,
 	}, nil
 }
 
@@ -432,7 +430,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updatesHwmon for each folder
 
-	hwmonPathName := filepath.Join(sysFilePath("class"), "hwmon")
+	hwmonPathName := filepath.Join(c.config.Path.sysFilePath("class"), "hwmon")
 
 	hwmonFiles, err := os.ReadDir(hwmonPathName)
 	if err != nil {
