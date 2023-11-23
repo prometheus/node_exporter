@@ -26,10 +26,10 @@ For automated installs with [Ansible](https://www.ansible.com/), there is the [P
 
 ### Docker
 
-The `node_exporter` is designed to monitor the host system. It's not recommended
-to deploy it as a Docker container because it requires access to the host system.
+The `node_exporter` is designed to monitor the host system. Deploying in containers requires
+extra care in order to avoid monitoring the container itself.
 
-For situations where Docker deployment is needed, some extra flags must be used to allow
+For situations where containerized deployment is needed, some extra flags must be used to allow
 the `node_exporter` access to the host namespaces.
 
 Be aware that any non-root mount points you want to monitor will need to be bind-mounted
