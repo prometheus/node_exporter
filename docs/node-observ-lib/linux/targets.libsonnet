@@ -132,13 +132,13 @@ local lokiQuery = g.query.loki;
         'node_memory_MemAvailable_bytes{%(queriesSelector)s}' % variables
       )
       + prometheusQuery.withLegendFormat('Memory available'),
-    memoryBuffersBytes:
+    memoryCachedBytes:
       prometheusQuery.new(
         prometheusDatasource,
         'node_memory_Cached_bytes{%(queriesSelector)s}' % variables
       )
-      + prometheusQuery.withLegendFormat('Memory buffers'),
-    memoryCachedBytes:
+      + prometheusQuery.withLegendFormat('Memory cached'),
+    memoryBuffersBytes:
       prometheusQuery.new(
         prometheusDatasource,
         'node_memory_Buffers_bytes{%(queriesSelector)s}' % variables
