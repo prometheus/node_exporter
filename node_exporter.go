@@ -17,9 +17,10 @@ import (
 	"fmt"
 	stdlog "log"
 	"net/http"
-	_ "net/http/pprof"
+	"net/http/pprof"
 	"os"
 	"os/user"
+	"path"
 	"runtime"
 	"sort"
 
@@ -37,6 +38,11 @@ import (
 	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
 	"github.com/prometheus/node_exporter/collector"
 )
+
+func init() {
+	// reset default serve mux to remove handlers registered by imported packages
+	http.DefaultServeMux = http.NewServeMux()
+}
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
 // created on the fly, if filtering is requested. Create instances with
@@ -164,7 +170,9 @@ func main() {
 			"web.disable-exporter-metrics",
 			"Exclude metrics about the exporter itself (promhttp_*, process_*, go_*).",
 		).Bool()
-		maxRequests = kingpin.Flag(
+		pprofEnabled = kingpin.Flag("debug.pprof", "If true enables debug pprof endpoints on /debug/pprof.").Default("true").Bool()
+		pprofPath    = kingpin.Flag("debug.path", "The URL under which debug pprof endpoints are available if not disabled by --no-debug.pprof option.").Default("/debug/pprof/").String()
+		maxRequests  = kingpin.Flag(
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
@@ -196,6 +204,14 @@ func main() {
 	}
 	runtime.GOMAXPROCS(*maxProcs)
 	level.Debug(logger).Log("msg", "Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
+
+	if *pprofEnabled {
+		http.HandleFunc(*pprofPath, pprof.Index)
+		http.HandleFunc(path.Join(*pprofPath, "cmdline"), pprof.Cmdline)
+		http.HandleFunc(path.Join(*pprofPath, "profile"), pprof.Profile)
+		http.HandleFunc(path.Join(*pprofPath, "symbol"), pprof.Symbol)
+		http.HandleFunc(path.Join(*pprofPath, "trace"), pprof.Trace)
+	}
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
 	if *metricsPath != "/" {
