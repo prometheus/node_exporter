@@ -1,7 +1,4 @@
-local g = import './g.libsonnet';
-local nodelib = import './main.libsonnet';
-
-
+local nodelib = import './linux/main.libsonnet';
 local linux =
   nodelib.new()
   + nodelib.withConfigMixin({
@@ -12,7 +9,6 @@ local linux =
     dashboardTags: ['node-exporter-mixin'],
     uid: 'node',
   });
-
 {
   grafanaDashboards+:: linux.grafana.dashboards,
   prometheusAlerts+:: linux.prometheus.alerts,

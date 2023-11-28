@@ -1,3 +1,0 @@
-{
-  uptime: import './uptime.libsonnet',
-}
