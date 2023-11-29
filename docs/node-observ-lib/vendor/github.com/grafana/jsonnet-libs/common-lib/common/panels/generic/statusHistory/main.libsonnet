@@ -1,3 +1,0 @@
-{
-  base: import './base.libsonnet',
-}
