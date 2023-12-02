@@ -51,6 +51,7 @@ enabled_collectors=$(cat << COLLECTORS
   udp_queues
   vmstat
   wifi
+  xfrm
   xfs
   zfs
   zoneinfo
