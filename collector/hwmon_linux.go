@@ -447,7 +447,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, hwDir := range hwmonFiles {
 		hwmonXPathName := filepath.Join(hwmonPathName, hwDir.Name())
 		fileInfo, err := os.Lstat(hwmonXPathName)
-		if err!=nil {
+		if err != nil {
 			continue
 		}
 
