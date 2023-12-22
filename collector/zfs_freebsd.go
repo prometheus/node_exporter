@@ -17,16 +17,16 @@
 package collector
 
 import (
-	"fmt"
-	"os/exec"
-	"regexp"
-	"strconv"
-	"strings"
+	// "fmt"
+	// "os/exec"
+	// "regexp"
+	// "strconv"
+	// "strings"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/sys/unix"
+	// "golang.org/x/sys/unix"
 )
 
 type zfsCollector struct {
@@ -302,7 +302,7 @@ func NewZfsCollector(logger log.Logger) (Collector, error) {
 		},
 		logger: logger,
 	}
-	c.parseFreeBSDPoolObjsetStats()
+	// c.parseFreeBSDPoolObjsetStats()
 	return &c, nil
 }
 
@@ -326,77 +326,77 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-type DataSets struct {
-	dataSetName string
-	objSetID    uint64
-	zPoolName   string
-}
+// type DataSets struct {
+// 	dataSetName string
+// 	objSetID    uint64
+// 	zPoolName   string
+// }
 
-func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
-	nameRe := regexp.MustCompile(`^(?P<dataset>\S+)`)
-	numRe := regexp.MustCompile(`(?P<setid>\d+)\s*$`)
-	sysCtlMetrics := []string{
-		"nunlinked", "nunlinks", "nread", "reads", "nwritten", "writes",
-	}
+// func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
+// 	nameRe := regexp.MustCompile(`^(?P<dataset>\S+)`)
+// 	numRe := regexp.MustCompile(`(?P<setid>\d+)\s*$`)
+// 	sysCtlMetrics := []string{
+// 		"nunlinked", "nunlinks", "nread", "reads", "nwritten", "writes",
+// 	}
 
-	cmdOut, err := exec.Command("zfs", "list", "-tfilesystem", "-oname,objsetid").Output()
-	if err != nil {
-		return fmt.Errorf("zfs cmd err, %w", err)
-	}
-	t := string(cmdOut[:])
-	dataSets := []DataSets{}
+// 	cmdOut, err := exec.Command("zfs", "list", "-tfilesystem", "-oname,objsetid").Output()
+// 	if err != nil {
+// 		return fmt.Errorf("zfs cmd err, %w", err)
+// 	}
+// 	t := string(cmdOut[:])
+// 	dataSets := []DataSets{}
 
-	zfsListStrs := strings.Split(t, "\n")
-	// default pool name is zroot
-	zPoolName := "zroot"
-	for idx := range zfsListStrs {
-		tmpStr := zfsListStrs[idx]
-		name := nameRe.FindAllString(tmpStr, -1)
-		num := numRe.FindAllString(tmpStr, -1)
-		if len(name) == 1 && len(num) == 1 {
-			objSetId, err := strconv.ParseUint(num[0], 10, 64)
-			if err != nil {
-				// warn error info
-				continue
-			}
-			if objSetId == 0x36 {
-				zPoolName = name[0]
-			}
-			temp := DataSets{
-				name[0], objSetId, zPoolName,
-			}
-			dataSets = append(dataSets, temp)
-		}
-	}
+// 	zfsListStrs := strings.Split(t, "\n")
+// 	// default pool name is zroot
+// 	zPoolName := "zroot"
+// 	for idx := range zfsListStrs {
+// 		tmpStr := zfsListStrs[idx]
+// 		name := nameRe.FindAllString(tmpStr, -1)
+// 		num := numRe.FindAllString(tmpStr, -1)
+// 		if len(name) == 1 && len(num) == 1 {
+// 			objSetId, err := strconv.ParseUint(num[0], 10, 64)
+// 			if err != nil {
+// 				// warn error info
+// 				continue
+// 			}
+// 			if objSetId == 0x36 {
+// 				zPoolName = name[0]
+// 			}
+// 			temp := DataSets{
+// 				name[0], objSetId, zPoolName,
+// 			}
+// 			dataSets = append(dataSets, temp)
+// 		}
+// 	}
 
-	for datasetIdx := range dataSets {
-		dataSetName := dataSets[datasetIdx].dataSetName
-		zPoolName := dataSets[datasetIdx].zPoolName
-		objSetID := dataSets[datasetIdx].objSetID
+// 	for datasetIdx := range dataSets {
+// 		dataSetName := dataSets[datasetIdx].dataSetName
+// 		zPoolName := dataSets[datasetIdx].zPoolName
+// 		objSetID := dataSets[datasetIdx].objSetID
 
-		for sysCtlMetricID := range sysCtlMetrics {
-			metric := sysCtlMetrics[sysCtlMetricID]
-			metricItem := fmt.Sprintf("kstat.zfs.%s.dataset.objset-0x%x.%s", zPoolName, objSetID, metric)
-			_, err := unix.SysctlUint64(metricItem)
-			if err != nil {
-				// warn, some metricData no such file or directory
-				continue
-			}
-			zfsDatasetLabels := map[string]string{
-				"dataset": dataSetName,
-				"zpool":   zPoolName,
-			}
-			t := strings.Replace(dataSetName, "/", "_", -1)
-			c.sysctls = append(c.sysctls, bsdSysctl{
-				name:        fmt.Sprintf("node_zfs_%s_dataset_%s", t, metric),
-				description: fmt.Sprintf("node_zfs_%s_dataset_%s", t, metric),
-				mib:         metricItem,
-				dataType:    bsdSysctlTypeUint64,
-				valueType:   prometheus.CounterValue,
-				labels:      zfsDatasetLabels,
-			})
-		}
-	}
+// 		for sysCtlMetricID := range sysCtlMetrics {
+// 			metric := sysCtlMetrics[sysCtlMetricID]
+// 			metricItem := fmt.Sprintf("kstat.zfs.%s.dataset.objset-0x%x.%s", zPoolName, objSetID, metric)
+// 			_, err := unix.SysctlUint64(metricItem)
+// 			if err != nil {
+// 				// warn, some metricData no such file or directory
+// 				continue
+// 			}
+// 			zfsDatasetLabels := map[string]string{
+// 				"dataset": dataSetName,
+// 				"zpool":   zPoolName,
+// 			}
+// 			t := strings.Replace(dataSetName, "/", "_", -1)
+// 			c.sysctls = append(c.sysctls, bsdSysctl{
+// 				name:        fmt.Sprintf("node_zfs_%s_dataset_%s", t, metric),
+// 				description: fmt.Sprintf("node_zfs_%s_dataset_%s", t, metric),
+// 				mib:         metricItem,
+// 				dataType:    bsdSysctlTypeUint64,
+// 				valueType:   prometheus.CounterValue,
+// 				labels:      zfsDatasetLabels,
+// 			})
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
