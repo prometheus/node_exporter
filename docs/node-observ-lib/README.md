@@ -6,7 +6,7 @@ This jsonnet observability lib can be used to generate observability package for
 
 ```sh
 jb init
-jb install https://github.com/grafana/node_exporter/docs/node-observ-lib
+jb install https://github.com/prometheus/node_exporter/docs/node-observ-lib
 ```
 
 ## Examples
