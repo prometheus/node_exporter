@@ -12,8 +12,7 @@
 // limitations under the License.
 
 //go:build dragonfly && !nofilesystem
-// +build dragonfly
-// +build !nofilesystem
+// +build dragonfly,!nofilesystem
 
 package collector
 
