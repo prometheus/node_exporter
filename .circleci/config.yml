@@ -60,7 +60,7 @@ jobs:
     machine:
       image: ubuntu-2204:current
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.18-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.21-base
       REPO_PATH: github.com/prometheus/node_exporter
     steps:
       - prometheus/setup_environment
