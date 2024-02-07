@@ -444,6 +444,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	var lastErr error
 	for _, hwDir := range hwmonFiles {
 		hwmonXPathName := filepath.Join(hwmonPathName, hwDir.Name())
 		fileInfo, err := os.Lstat(hwmonXPathName)
@@ -462,10 +463,10 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		if lastErr := c.updateHwmon(ch, hwmonXPathName); lastErr != nil {
-			err = lastErr
+		if err = c.updateHwmon(ch, hwmonXPathName); err != nil {
+			lastErr = err
 		}
 	}
 
-	return err
+	return lastErr
 }
