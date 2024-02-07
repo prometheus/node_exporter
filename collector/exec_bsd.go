@@ -61,8 +61,8 @@ func NewExecCollector(logger log.Logger) (Collector, error) {
 				name:        "exec_system_calls_total",
 				description: "System calls since system boot.  Resets at architecture unsigned integer.",
 				mib:         "vm.stats.sys.v_syscall",
+				labels:      nil,
 			},
-			labels: nil,
 			{
 				name:        "exec_device_interrupts_total",
 				description: "Device interrupts since system boot.  Resets at architecture unsigned integer.",
