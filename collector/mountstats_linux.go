@@ -53,6 +53,7 @@ type mountStatsCollector struct {
 	NFSOperationsQueueTimeSecondsTotal    *prometheus.Desc
 	NFSOperationsResponseTimeSecondsTotal *prometheus.Desc
 	NFSOperationsRequestTimeSecondsTotal  *prometheus.Desc
+	NFSOperationsErrorsTotal              *prometheus.Desc
 
 	// Transport statistics
 	NFSTransportBindTotal              *prometheus.Desc
@@ -318,6 +319,13 @@ func NewMountStatsCollector(logger log.Logger) (Collector, error) {
 		NFSOperationsRequestTimeSecondsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "operations_request_time_seconds_total"),
 			"Duration all requests took from when a request was enqueued to when it was completely handled for a given operation, in seconds.",
+			opLabels,
+			nil,
+		),
+
+		NFSOperationsErrorsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "operations_errors_total"),
+			"Number of errors for a given operation",
 			opLabels,
 			nil,
 		),
@@ -743,6 +751,13 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 			c.NFSOperationsRequestTimeSecondsTotal,
 			prometheus.CounterValue,
 			float64(op.CumulativeTotalRequestMilliseconds%float64Mantissa)/1000.0,
+			opLabelValues...,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSOperationsErrorsTotal,
+			prometheus.CounterValue,
+			float64(op.Errors%float64Mantissa),
 			opLabelValues...,
 		)
 	}
