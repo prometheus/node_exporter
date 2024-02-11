@@ -133,6 +133,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	stuckMountsMtx.Unlock()
 
 	if err != nil {
+                labels.device_error = err.Error()
 		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
