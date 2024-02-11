@@ -85,6 +85,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 			stuckMountsMtx.Lock()
 			if _, ok := stuckMounts[labels.mountPoint]; ok {
+		                labels.device_error = "mountpoint timeout"
 				stats = append(stats, filesystemStats{
 					labels:      labels,
 					deviceError: 1,
@@ -125,6 +126,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	close(success)
 
 	if err != nil {
+		labels.device_error = err.Error()
 		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
@@ -215,6 +217,7 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 			mountPoint: rootfsStripPrefix(parts[1]),
 			fsType:     parts[2],
 			options:    parts[3],
+			device_error:    "",
 		})
 	}
 
