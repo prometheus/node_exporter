@@ -59,9 +59,6 @@ type bsdSysctl struct {
 
 	// Post-retrieval conversion hooks
 	conversion func(float64) float64
-
-	// Prometheus labels
-	labels prometheus.Labels
 }
 
 func (b bsdSysctl) Value() (float64, error) {
