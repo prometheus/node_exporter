@@ -2,6 +2,7 @@ linters:
   enable:
     - misspell
     - revive
+    - stylecheck
   disable:
     # Disable soon to deprecated[1] linters that lead to false
     # positives when build tags disable certain files[2]
