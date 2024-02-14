@@ -69,21 +69,18 @@ func NewMemoryCollector(logger log.Logger) (Collector, error) {
 				description: "Recently used by userland",
 				mib:         "vm.stats.vm.v_active_count",
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "inactive_bytes",
 				description: "Not recently used by userland",
 				mib:         "vm.stats.vm.v_inactive_count",
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "wired_bytes",
 				description: "Locked in memory by kernel, mlock, etc",
 				mib:         "vm.stats.vm.v_wire_count",
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "user_wired_bytes",
@@ -91,49 +88,42 @@ func NewMemoryCollector(logger log.Logger) (Collector, error) {
 				mib:         "vm.stats.vm.v_user_wire_count",
 				conversion:  fromPage,
 				dataType:    bsdSysctlTypeCLong,
-				labels:      nil,
 			},
 			{
 				name:        "cache_bytes",
 				description: "Almost free, backed by swap or files, available for re-allocation",
 				mib:         "vm.stats.vm.v_cache_count",
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "buffer_bytes",
 				description: "Disk IO Cache entries for non ZFS filesystems, only usable by kernel",
 				mib:         "vfs.bufspace",
 				dataType:    bsdSysctlTypeCLong,
-				labels:      nil,
 			},
 			{
 				name:        "free_bytes",
 				description: "Unallocated, available for allocation",
 				mib:         "vm.stats.vm.v_free_count",
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "laundry_bytes",
 				description: "Dirty not recently used by userland",
 				mib:         "vm.stats.vm.v_laundry_count",
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "size_bytes",
 				description: "Total physical memory size",
 				mib:         "vm.stats.vm.v_page_count",
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "swap_size_bytes",
 				description: "Total swap memory size",
 				mib:         mibSwapTotal,
 				dataType:    bsdSysctlTypeUint64,
-				labels:      nil,
 			},
 			// Descriptions via: top(1)
 			{
@@ -142,7 +132,6 @@ func NewMemoryCollector(logger log.Logger) (Collector, error) {
 				mib:         "vm.stats.vm.v_swappgsin",
 				valueType:   prometheus.CounterValue,
 				conversion:  fromPage,
-				labels:      nil,
 			},
 			{
 				name:        "swap_out_bytes_total",
@@ -150,7 +139,6 @@ func NewMemoryCollector(logger log.Logger) (Collector, error) {
 				mib:         "vm.stats.vm.v_swappgsout",
 				valueType:   prometheus.CounterValue,
 				conversion:  fromPage,
-				labels:      nil,
 			},
 		},
 	}, nil
