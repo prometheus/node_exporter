@@ -180,12 +180,25 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 }
 
 func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
+
+	level.Info(logger).Log("msg", "mountPointDetails", "procFilePath(1/mounts)", procFilePath("1/mounts"))
+
 	file, err := os.Open(procFilePath("1/mounts"))
 	if errors.Is(err, os.ErrNotExist) {
 		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
 		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
 		file, err = os.Open(procFilePath("mounts"))
 	}
+
+	if errors.Is(err, os.ErrNotExist) {
+		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
+		level.Error(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
+
+		level.Info(logger).Log("msg", "mountPointDetails", "procFilePath(mounts)", procFilePath("mounts"))
+
+		file, err = os.Open(procFilePath("mounts"))
+	}
+
 	if err != nil {
 		return nil, err
 	}
