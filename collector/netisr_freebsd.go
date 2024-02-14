@@ -45,7 +45,6 @@ func NewNetisrCollector(logger log.Logger) (Collector, error) {
 				mib:         "net.isr.numthreads",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
-				labels:      nil,
 			},
 			{
 				name:        "maxprot",
@@ -53,7 +52,6 @@ func NewNetisrCollector(logger log.Logger) (Collector, error) {
 				mib:         "net.isr.maxprot",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
-				labels:      nil,
 			},
 			{
 				name:        "defaultqlimit",
@@ -61,7 +59,6 @@ func NewNetisrCollector(logger log.Logger) (Collector, error) {
 				mib:         "net.isr.defaultqlimit",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
-				labels:      nil,
 			},
 			{
 				name:        "maxqlimit",
@@ -69,7 +66,6 @@ func NewNetisrCollector(logger log.Logger) (Collector, error) {
 				mib:         "net.isr.maxqlimit",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
-				labels:      nil,
 			},
 			{
 				name:        "bindthreads",
@@ -77,7 +73,6 @@ func NewNetisrCollector(logger log.Logger) (Collector, error) {
 				mib:         "net.isr.bindthreads",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
-				labels:      nil,
 			},
 			{
 				name:        "maxthreads",
@@ -85,7 +80,6 @@ func NewNetisrCollector(logger log.Logger) (Collector, error) {
 				mib:         "net.isr.maxthreads",
 				dataType:    bsdSysctlTypeUint32,
 				valueType:   prometheus.GaugeValue,
-				labels:      nil,
 			},
 		},
 		logger: logger,
