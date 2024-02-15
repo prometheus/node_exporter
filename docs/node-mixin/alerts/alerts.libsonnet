@@ -388,7 +388,7 @@
             annotations: {
               summary: 'Disk IO queue is high.',
               description: |||
-                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above %(diskIOSaturationThreshold)d for the last 15 minutes, is currently at {{ printf "%%.2f" $value }}.
+                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above %(diskIOSaturationThreshold)d for the last 30 minutes, is currently at {{ printf "%%.2f" $value }}.
                 This symptom might indicate disk saturation.
               ||| % $._config,
             },
