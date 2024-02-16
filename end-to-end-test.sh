@@ -58,6 +58,7 @@ enabled_collectors=$(cat << COLLECTORS
   interrupts
   ipvs
   ksmd
+  ktls
   lnstat
   loadavg
   mdadm
