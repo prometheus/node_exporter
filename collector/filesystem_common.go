@@ -60,7 +60,7 @@ var (
 		"Regexp of filesystem types to ignore for filesystem collector.",
 	).Hidden().String()
 
-	filesystemLabelNames = []string{"device", "mountpoint", "fstype"}
+	filesystemLabelNames = []string{"device", "mountpoint", "fstype", "device_error"}
 )
 
 type filesystemCollector struct {
@@ -73,7 +73,7 @@ type filesystemCollector struct {
 }
 
 type filesystemLabels struct {
-	device, mountPoint, fsType, options string
+	device, mountPoint, fsType, options, deviceError string
 }
 
 type filesystemStats struct {
@@ -184,11 +184,11 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(
 			c.deviceErrorDesc, prometheus.GaugeValue,
-			s.deviceError, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+			s.deviceError, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.roDesc, prometheus.GaugeValue,
-			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
 
 		if s.deviceError > 0 {
@@ -197,23 +197,23 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(
 			c.sizeDesc, prometheus.GaugeValue,
-			s.size, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+			s.size, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.freeDesc, prometheus.GaugeValue,
-			s.free, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+			s.free, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.availDesc, prometheus.GaugeValue,
-			s.avail, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+			s.avail, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.filesDesc, prometheus.GaugeValue,
-			s.files, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+			s.files, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.filesFreeDesc, prometheus.GaugeValue,
-			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType,
+			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
 	}
 	return nil
