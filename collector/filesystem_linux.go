@@ -209,17 +209,10 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
 
 		filesystems = append(filesystems, filesystemLabels{
-<<<<<<< HEAD
 			device:      parts[0],
 			mountPoint:  rootfsStripPrefix(parts[1]),
 			fsType:      parts[2],
 			options:     parts[3],
-=======
-			device:       parts[0],
-			mountPoint:   rootfsStripPrefix(parts[1]),
-			fsType:       parts[2],
-			options:      parts[3],
->>>>>>> 8d495980343a6ad1177b53b6fb709e1ee6e24736
 			deviceError: "",
 		})
 	}
