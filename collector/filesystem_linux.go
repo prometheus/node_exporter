@@ -123,7 +123,15 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 
 	buf := new(unix.Statfs_t)
 	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
+	stuckMountsMtx.Lock()
 	close(success)
+
+	// If the mount has been marked as stuck, unmark it and log it's recovery.
+	if _, ok := stuckMounts[labels.mountPoint]; ok {
+		level.Debug(c.logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
+		delete(stuckMounts, labels.mountPoint)
+	}
+	stuckMountsMtx.Unlock()
 
 	if err != nil {
 		labels.deviceError = err.Error()
@@ -155,29 +163,17 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 	select {
 	case <-success:
 		// Success
-		// If the mount has been marked as stuck, unmark it and log it's recovery.
-		stuckMountsMtx.Lock()
-		defer stuckMountsMtx.Unlock()
-		if _, ok := stuckMounts[mountPoint]; ok {
-			level.Debug(logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", mountPoint)
-			delete(stuckMounts, mountPoint)
-		}
 	case <-mountCheckTimer.C:
 		// Timed out, mark mount as stuck
 		stuckMountsMtx.Lock()
-		defer stuckMountsMtx.Unlock()
 		select {
 		case <-success:
 			// Success came in just after the timeout was reached, don't label the mount as stuck
-			// If the mount has been marked as stuck, unmark it and log it's recovery.
-			if _, ok := stuckMounts[mountPoint]; ok {
-				level.Debug(logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", mountPoint)
-				delete(stuckMounts, mountPoint)
-			}
 		default:
 			level.Debug(logger).Log("msg", "Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
 			stuckMounts[mountPoint] = struct{}{}
 		}
+		stuckMountsMtx.Unlock()
 	}
 }
 
