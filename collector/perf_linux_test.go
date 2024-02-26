@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !noprocesses
-// +build !noprocesses
+//go:build !noperf
+// +build !noperf
 
 package collector
 
@@ -24,7 +24,6 @@ import (
 	"testing"
 
 	"github.com/go-kit/log"
-
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -54,7 +53,9 @@ func TestPerfCollector(t *testing.T) {
 	metrics := make(chan prometheus.Metric)
 	defer close(metrics)
 	go func() {
+		i := 0
 		for range metrics {
+			i++
 		}
 	}()
 	if err := collector.Update(metrics); err != nil {

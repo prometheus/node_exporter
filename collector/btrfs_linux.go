@@ -135,6 +135,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 				"err", err)
 			continue
 		}
+		defer fs.Close()
 
 		fsInfo, err := fs.Info()
 		if err != nil {

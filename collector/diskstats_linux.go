@@ -36,7 +36,7 @@ const (
 	// See also https://www.kernel.org/doc/Documentation/block/stat.txt
 	unixSectorSize = 512.0
 
-	diskstatsDefaultIgnoredDevices = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	diskstatsDefaultIgnoredDevices = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 
 	// See udevadm(8).
 	udevDevicePropertyPrefix = "E:"

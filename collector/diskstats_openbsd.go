@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build openbsd && !amd64 && !nodiskstats
-// +build openbsd,!amd64,!nodiskstats
+//go:build !nodiskstats && !amd64
+// +build !nodiskstats,!amd64
 
 package collector
 

@@ -82,6 +82,8 @@ func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	c.updateNFSdRequestsv2Stats(ch, &stats.V2Stats)
 	c.updateNFSdRequestsv3Stats(ch, &stats.V3Stats)
 	c.updateNFSdRequestsv4Stats(ch, &stats.V4Ops)
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(stats.WdelegGetattr), "4", "WdelegGetattr")
 
 	return nil
 }
@@ -395,6 +397,10 @@ func (c *nfsdCollector) updateNFSdRequestsv4Stats(ch chan<- prometheus.Metric, s
 		float64(s.SecInfo), proto, "SecInfo")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.SetAttr), proto, "SetAttr")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SetClientID), proto, "SetClientID")
+	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
+		float64(s.SetClientIDConfirm), proto, "SetClientIDConfirm")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,
 		float64(s.Verify), proto, "Verify")
 	ch <- prometheus.MustNewConstMetric(c.requestsDesc, prometheus.CounterValue,

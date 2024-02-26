@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build linux && !noinfiniband
-// +build linux,!noinfiniband
+//go:build !noinfiniband
+// +build !noinfiniband
 
 package collector
 

@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build solaris && !noboottime
-// +build solaris,!noboottime
+//go:build !noboottime
+// +build !noboottime
 
 package collector
 

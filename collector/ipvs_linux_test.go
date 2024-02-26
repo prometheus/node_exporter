@@ -11,6 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noipvs
+// +build !noipvs
+
 package collector
 
 import (
@@ -209,9 +212,8 @@ func TestIPVSCollectorResponse(t *testing.T) {
 					if want == got {
 						// this is a line we are interested in, and it is correct
 						continue wantLoop
-					} else {
-						gotLinesIdx++
 					}
+					gotLinesIdx++
 				}
 				// if this point is reached, the line we want was missing
 				t.Fatalf("Missing expected output line(s), first missing line is %s", want)

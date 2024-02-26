@@ -11,14 +11,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nofilesystem
+// +build !nofilesystem
+
 package collector
 
 import (
-	"github.com/go-kit/log"
 	"strings"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
+	"github.com/go-kit/log"
 )
 
 func Test_parseFilesystemLabelsError(t *testing.T) {

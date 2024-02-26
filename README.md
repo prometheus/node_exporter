@@ -26,10 +26,10 @@ For automated installs with [Ansible](https://www.ansible.com/), there is the [P
 
 ### Docker
 
-The `node_exporter` is designed to monitor the host system. It's not recommended
-to deploy it as a Docker container because it requires access to the host system.
+The `node_exporter` is designed to monitor the host system. Deploying in containers requires
+extra care in order to avoid monitoring the container itself.
 
-For situations where Docker deployment is needed, some extra flags must be used to allow
+For situations where containerized deployment is needed, some extra flags must be used to allow
 the `node_exporter` access to the host namespaces.
 
 Be aware that any non-root mount points you want to monitor will need to be bind-mounted
@@ -186,13 +186,14 @@ buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinf
 cgroups | A summary of the number of active and enabled cgroups | Linux
 cpu\_vulnerabilities | Exposes CPU vulnerability information from sysfs. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
+drm | Expose GPU metrics using sysfs / DRM, `amdgpu` is the only driver which exposes this information through DRM | Linux
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 lnstat | Exposes stats from `/proc/net/stat/`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
-meminfo\_numa | Exposes memory statistics from `/proc/meminfo_numa`. | Linux
+meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
@@ -204,6 +205,7 @@ sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
+xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
 
 ### Deprecated
@@ -376,7 +378,7 @@ The exporter supports TLS via a new web configuration file.
 ./node_exporter --web.config.file=web-config.yml
 ```
 
-See the [exporter-toolkit https package](https://github.com/prometheus/exporter-toolkit/blob/v0.1.0/https/README.md) for more details.
+See the [exporter-toolkit web-configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) for more details.
 
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/

@@ -85,6 +85,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 			stuckMountsMtx.Lock()
 			if _, ok := stuckMounts[labels.mountPoint]; ok {
+				labels.deviceError = "mountpoint timeout"
 				stats = append(stats, filesystemStats{
 					labels:      labels,
 					deviceError: 1,
@@ -109,6 +110,14 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 }
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
+	var ro float64
+	for _, option := range strings.Split(labels.options, ",") {
+		if option == "ro" {
+			ro = 1
+			break
+		}
+	}
+
 	success := make(chan struct{})
 	go stuckMountWatcher(labels.mountPoint, success, c.logger)
 
@@ -125,20 +134,15 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	stuckMountsMtx.Unlock()
 
 	if err != nil {
+		labels.deviceError = err.Error()
 		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
+			ro:          ro,
 		}
 	}
 
-	var ro float64
-	for _, option := range strings.Split(labels.options, ",") {
-		if option == "ro" {
-			ro = 1
-			break
-		}
-	}
 	return filesystemStats{
 		labels:    labels,
 		size:      float64(buf.Blocks) * float64(buf.Bsize),
@@ -205,10 +209,11 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:     parts[0],
-			mountPoint: rootfsStripPrefix(parts[1]),
-			fsType:     parts[2],
-			options:    parts[3],
+			device:      parts[0],
+			mountPoint:  rootfsStripPrefix(parts[1]),
+			fsType:      parts[2],
+			options:     parts[3],
+			deviceError: "",
 		})
 	}
 

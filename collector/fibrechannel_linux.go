@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build linux && !nofibrechannel
-// +build linux,!nofibrechannel
+//go:build !nofibrechannel
+// +build !nofibrechannel
 
 package collector
 

@@ -54,13 +54,19 @@
     // 'NodeFilesystemSpaceFillingUp' alerts. These alerts fire if the disk
     // usage grows in a way that it is predicted to run out in 4h or 1d
     // and if the provided thresholds have been reached right now.
-    // In some cases you'll want to adjust these, e.g. by default Kubernetes
+    // In some cases you'll want to adjust these, e.g., by default, Kubernetes
     // runs the image garbage collection when the disk usage reaches 85%
     // of its available space. In that case, you'll want to reduce the
     // critical threshold below to something like 14 or 15, otherwise
     // the alert could fire under normal node usage.
+    // Additionally, the prediction window for the alert can be configured
+    // to account for environments where disk usage can fluctuate within
+    // a short time frame. By extending the prediction window, you can
+    // reduce false positives caused by temporary spikes, providing a
+    // more accurate prediction of disk space issues.
     fsSpaceFillingUpWarningThreshold: 40,
     fsSpaceFillingUpCriticalThreshold: 20,
+    fsSpaceFillingUpPredictionWindow: '6h',
 
     // Available disk space (%) thresholds on which to trigger the
     // 'NodeFilesystemAlmostOutOfSpace' alerts.

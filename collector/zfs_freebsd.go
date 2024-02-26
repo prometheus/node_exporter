@@ -17,9 +17,8 @@
 package collector
 
 import (
-	"fmt"
-
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -214,10 +213,32 @@ func NewZfsCollector(logger log.Logger) (Collector, error) {
 				dataType:    bsdSysctlTypeUint64,
 				valueType:   prometheus.GaugeValue,
 			},
+			// when FreeBSD 14.0+, `meta/pm/pd` install of `p`.
 			{
 				name:        "arcstats_p_bytes",
 				description: "ZFS ARC MRU target size",
 				mib:         "kstat.zfs.misc.arcstats.p",
+				dataType:    bsdSysctlTypeUint64,
+				valueType:   prometheus.GaugeValue,
+			},
+			{
+				name:        "arcstats_meta_bytes",
+				description: "ZFS ARC metadata target frac ",
+				mib:         "kstat.zfs.misc.arcstats.meta",
+				dataType:    bsdSysctlTypeUint64,
+				valueType:   prometheus.GaugeValue,
+			},
+			{
+				name:        "arcstats_pd_bytes",
+				description: "ZFS ARC data MRU target frac",
+				mib:         "kstat.zfs.misc.arcstats.pd",
+				dataType:    bsdSysctlTypeUint64,
+				valueType:   prometheus.GaugeValue,
+			},
+			{
+				name:        "arcstats_pm_bytes",
+				description: "ZFS ARC meta MRU target frac",
+				mib:         "kstat.zfs.misc.arcstats.pm",
 				dataType:    bsdSysctlTypeUint64,
 				valueType:   prometheus.GaugeValue,
 			},
@@ -251,7 +272,9 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {
-			return fmt.Errorf("couldn't get sysctl: %w", err)
+			// debug logging
+			level.Debug(c.logger).Log("name", m.name, "couldn't get sysctl:", err)
+			continue
 		}
 
 		ch <- prometheus.MustNewConstMetric(

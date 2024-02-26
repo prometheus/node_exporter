@@ -38,6 +38,9 @@ const (
 	// 1 second in
 	nanoSeconds  = 1000000000
 	microSeconds = 1000000
+
+	// See NOTES in adjtimex(2).
+	ppm16frac = 1000000.0 * 65536.0
 )
 
 type timexCollector struct {
@@ -183,8 +186,6 @@ func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	} else {
 		divisor = microSeconds
 	}
-	// See NOTES in adjtimex(2).
-	const ppm16frac = 1000000.0 * 65536.0
 
 	ch <- c.syncStatus.mustNewConstMetric(syncStatus)
 	ch <- c.offset.mustNewConstMetric(float64(timex.Offset) / divisor)

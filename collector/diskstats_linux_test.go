@@ -11,6 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !nodiskstats
+// +build !nodiskstats
+
 package collector
 
 import (
@@ -50,7 +53,7 @@ func TestDiskStats(t *testing.T) {
 	*sysPath = "fixtures/sys"
 	*procPath = "fixtures/proc"
 	*udevDataPath = "fixtures/udev/data"
-	*diskstatsDeviceExclude = "^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 	testcase := `# HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200
