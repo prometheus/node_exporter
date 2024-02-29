@@ -445,18 +445,19 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		// Sanitizing the metric names can lead to duplicate metric names. Therefore check for clashes beforehand.
 		metricFQNames := make(map[string]string)
 		for metric := range stats {
-			if !c.metricsPattern.MatchString(metric) {
+			metricName := SanitizeMetricName(metric)
+			if !c.metricsPattern.MatchString(metricName) {
 				continue
 			}
-			metricFQName := buildEthtoolFQName(metric)
+			metricFQName := buildEthtoolFQName(metricName)
 			existingMetric, exists := metricFQNames[metricFQName]
 			if exists {
 				level.Debug(c.logger).Log("msg", "dropping duplicate metric name", "device", device,
-					"metricFQName", metricFQName, "metric1", existingMetric, "metric2", metric)
-				// Keep the metric as "deleted" in the dict in case there are 3 duplicates.
+					"metricFQName", metricFQName, "metric1", existingMetric, "metric2", metricName)
+				// Keep the metricName as "deleted" in the dict in case there are 3 duplicates.
 				metricFQNames[metricFQName] = ""
 			} else {
-				metricFQNames[metricFQName] = metric
+				metricFQNames[metricFQName] = metricName
 			}
 		}
 
