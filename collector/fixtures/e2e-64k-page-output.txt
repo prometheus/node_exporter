@@ -2933,7 +2933,6 @@ node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="rapl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
-node_scrape_collector_success{collector="selinux"} 1
 node_scrape_collector_success{collector="slabinfo"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="softirqs"} 1
@@ -2951,9 +2950,6 @@ node_scrape_collector_success{collector="xfrm"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
 node_scrape_collector_success{collector="zoneinfo"} 1
-# HELP node_selinux_enabled SELinux is enabled, 1 is true, 0 is false
-# TYPE node_selinux_enabled gauge
-node_selinux_enabled 0
 # HELP node_slabinfo_active_objects The number of objects that are currently active (i.e., in use).
 # TYPE node_slabinfo_active_objects gauge
 node_slabinfo_active_objects{slab="dmaengine-unmap-128"} 1206

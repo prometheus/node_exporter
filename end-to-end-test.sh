@@ -40,7 +40,6 @@ enabled_collectors=$(cat << COLLECTORS
   qdisc
   rapl
   schedstat
-  selinux
   slabinfo
   sockstat
   softirqs
@@ -58,6 +57,7 @@ enabled_collectors=$(cat << COLLECTORS
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
+  selinux
   filesystem
   timex
   uname
