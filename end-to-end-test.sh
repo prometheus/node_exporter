@@ -49,6 +49,7 @@ enabled_collectors=$(cat << COLLECTORS
   thermal_zone
   udp_queues
   vmstat
+  watchdog
   wifi
   xfrm
   xfs
