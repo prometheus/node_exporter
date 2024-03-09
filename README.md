@@ -204,6 +204,7 @@ softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
+watchdog | Exposes statistics from `/sys/class/watchdog` | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
