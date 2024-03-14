@@ -158,6 +158,7 @@ timex | Exposes selected adjtimex(2) system call stats. | Linux
 udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
 uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
+watchdog | Exposes statistics from `/sys/class/watchdog` | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | FreeBSD, [Linux](http://zfsonlinux.org/), Solaris
 
@@ -204,7 +205,6 @@ softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
-watchdog | Exposes statistics from `/sys/class/watchdog` | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
