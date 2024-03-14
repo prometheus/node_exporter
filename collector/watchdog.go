@@ -17,9 +17,12 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -30,7 +33,7 @@ type watchdogCollector struct {
 }
 
 func init() {
-	registerCollector("watchdog", defaultDisabled, NewWatchdogCollector)
+	registerCollector("watchdog", defaultEnabled, NewWatchdogCollector)
 }
 
 // NewWatchdogCollector returns a new Collector exposing watchdog stats.
@@ -99,6 +102,10 @@ func toLabelValue(ptr *string) string {
 func (c *watchdogCollector) Update(ch chan<- prometheus.Metric) error {
 	watchdogClass, err := c.fs.WatchdogClass()
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) || errors.Is(err, os.ErrInvalid) {
+			level.Debug(c.logger).Log("msg", "Could not read watchdog stats", "err", err)
+			return ErrNoData
+		}
 		return err
 	}
 
