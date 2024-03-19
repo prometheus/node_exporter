@@ -17,6 +17,8 @@
 package collector
 
 import (
+	"golang.org/x/sys/unix"
+	"math/big"
 	"strings"
 	"testing"
 
@@ -139,6 +141,54 @@ func TestPathRootfs(t *testing.T) {
 	for _, fs := range filesystems {
 		if _, ok := expected[fs.mountPoint]; !ok {
 			t.Errorf("Got unexpected %s", fs.mountPoint)
+		}
+	}
+}
+
+func TestOverflowHandling(t *testing.T) {
+	factor := uint64(24)
+	testcases := []struct {
+		fsStats  *unix.Statfs_t
+		overflow bool
+	}{
+		{
+			fsStats: &unix.Statfs_t{
+				Bsize:  int64(float64Mantissa),
+				Blocks: factor,
+			},
+			overflow: true,
+		},
+		{
+			fsStats: &unix.Statfs_t{
+				Bsize:  int64(float64Mantissa / factor),
+				Blocks: factor,
+			},
+			overflow: false,
+		},
+	}
+	for _, testcase := range testcases {
+		var fsC = filesystemCollector{
+			logger:  log.NewNopLogger(),
+			fsStats: testcase.fsStats,
+		}
+		fsStats := fsC.processStat(filesystemLabels{
+			mountPoint: "/",
+		})
+
+		oldsize := float64(testcase.fsStats.Blocks) * float64(testcase.fsStats.Bsize)
+		size := new(big.Float).SetFloat64(fsStats.size)
+		actual := new(big.Float).
+			Mul(new(big.Float).SetFloat64(float64(testcase.fsStats.Blocks)), new(big.Float).SetFloat64(float64(testcase.fsStats.Bsize)))
+		if testcase.overflow {
+			oldsizeActualDiff := new(big.Float).Abs(new(big.Float).Sub(actual, new(big.Float).SetFloat64(oldsize)))
+			sizeActualDiff := new(big.Float).Abs(new(big.Float).Sub(actual, size))
+			if sizeActualDiff.Cmp(oldsizeActualDiff) < 0 {
+				t.Errorf("Expected size to be closer to %f than %f, got %f instead", actual, oldsize, size)
+			}
+		} else {
+			if size.Cmp(actual) != 0 {
+				t.Errorf("Expected size to be %f, got %f instead", actual, size)
+			}
 		}
 	}
 }
