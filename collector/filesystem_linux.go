@@ -21,6 +21,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
+	"math/bits"
 	"os"
 	"strings"
 	"sync"
@@ -118,28 +120,49 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 		}
 	}
 
-	success := make(chan struct{})
-	go stuckMountWatcher(labels.mountPoint, success, c.logger)
-
 	buf := new(unix.Statfs_t)
-	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
-	stuckMountsMtx.Lock()
-	close(success)
 
-	// If the mount has been marked as stuck, unmark it and log it's recovery.
-	if _, ok := stuckMounts[labels.mountPoint]; ok {
-		level.Debug(c.logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
-		delete(stuckMounts, labels.mountPoint)
+	// Allow mocking `unix.Statfs` values for testing.
+	if c.fsStats != nil {
+		buf = c.fsStats
+	} else {
+		success := make(chan struct{})
+		go stuckMountWatcher(labels.mountPoint, success, c.logger)
+		err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
+		stuckMountsMtx.Lock()
+		close(success)
+
+		// If the mount has been marked as stuck, unmark it and log it's recovery.
+		if _, ok := stuckMounts[labels.mountPoint]; ok {
+			level.Debug(c.logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
+			delete(stuckMounts, labels.mountPoint)
+		}
+		stuckMountsMtx.Unlock()
+
+		if err != nil {
+			labels.deviceError = err.Error()
+			level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+			return filesystemStats{
+				labels:      labels,
+				deviceError: 1,
+				ro:          ro,
+			}
+		}
 	}
-	stuckMountsMtx.Unlock()
 
-	if err != nil {
-		labels.deviceError = err.Error()
-		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+	// Handle for under/over-flow for cases where: "node_filesystem_{free,avail}_bytes reporting values are larger than node_filesystem_size_bytes".
+	if bits.UintSize == 64 && float64(buf.Blocks)*float64(buf.Bsize) > float64(float64Mantissa) {
+		size, _ := new(big.Float).SetUint64(buf.Blocks).Mul(new(big.Float).SetUint64(buf.Blocks), new(big.Float).SetInt64(int64(buf.Bsize))).Float64()
+		free, _ := new(big.Float).SetUint64(buf.Bfree).Mul(new(big.Float).SetUint64(buf.Bfree), new(big.Float).SetInt64(int64(buf.Bsize))).Float64()
+		avail, _ := new(big.Float).SetUint64(buf.Bavail).Mul(new(big.Float).SetUint64(buf.Bavail), new(big.Float).SetInt64(int64(buf.Bsize))).Float64()
 		return filesystemStats{
-			labels:      labels,
-			deviceError: 1,
-			ro:          ro,
+			labels:    labels,
+			size:      size,
+			free:      free,
+			avail:     avail,
+			files:     float64(buf.Files),
+			filesFree: float64(buf.Ffree),
+			ro:        ro,
 		}
 	}
 
