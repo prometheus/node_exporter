@@ -40,7 +40,6 @@ enabled_collectors=$(cat << COLLECTORS
   qdisc
   rapl
   schedstat
-  selinux
   slabinfo
   sockstat
   softirqs
@@ -50,13 +49,16 @@ enabled_collectors=$(cat << COLLECTORS
   thermal_zone
   udp_queues
   vmstat
+  watchdog
   wifi
+  xfrm
   xfs
   zfs
   zoneinfo
 COLLECTORS
 )
 disabled_collectors=$(cat << COLLECTORS
+  selinux
   filesystem
   timex
   uname

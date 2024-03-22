@@ -10,7 +10,7 @@
               (
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceFillingUpWarningThreshold)d
               and
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 24*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[%(fsSpaceFillingUpPredictionWindow)s], 24*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
@@ -388,7 +388,7 @@
             annotations: {
               summary: 'Disk IO queue is high.',
               description: |||
-                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above %(diskIOSaturationThreshold)d for the last 15 minutes, is currently at {{ printf "%%.2f" $value }}.
+                Disk IO queue (aqu-sq) is high on {{ $labels.device }} at {{ $labels.instance }}, has been above %(diskIOSaturationThreshold)d for the last 30 minutes, is currently at {{ printf "%%.2f" $value }}.
                 This symptom might indicate disk saturation.
               ||| % $._config,
             },
@@ -405,6 +405,20 @@
             annotations: {
               summary: 'Systemd service has entered failed state.',
               description: 'Systemd service {{ $labels.name }} has entered failed state at {{ $labels.instance }}',
+            },
+          },
+          {
+            alert: 'NodeBondingDegraded',
+            expr: |||
+              (node_bonding_slaves - node_bonding_active) != 0
+            ||| % $._config,
+            'for': '5m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Bonding interface is degraded',
+              description: 'Bonding interface {{ $labels.master }} on {{ $labels.instance }} is in degraded state due to one or more slave failures.',
             },
           },
         ],

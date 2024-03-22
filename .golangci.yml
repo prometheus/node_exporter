@@ -1,5 +1,6 @@
 linters:
   enable:
+    - depguard
     - misspell
     - revive
   disable:
@@ -19,6 +20,14 @@ issues:
         - errcheck
 
 linters-settings:
+  depguard:
+    rules:
+      no_exec_policy:
+        files:
+          - "!$test"
+        deny:
+          - pkg: "os/exec"
+            desc: "Using os/exec to run sub processes it not allowed by policy"
   errcheck:
     exclude-functions:
       # Used in HTTP handlers, any error is handled by the server itself.

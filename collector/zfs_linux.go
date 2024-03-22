@@ -104,7 +104,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 			return errZFSNotAvailable
 		}
 
-		err = c.parseLinuxPoolObjsetFile(file, zpoolPath, func(poolName string, datasetName string, s zfsSysctl, v uint64) {
+		err = c.parsePoolObjsetFile(file, zpoolPath, func(poolName string, datasetName string, s zfsSysctl, v uint64) {
 			ch <- c.constPoolObjsetMetric(poolName, datasetName, s, v)
 		})
 		file.Close()
@@ -220,7 +220,7 @@ func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, h
 	return scanner.Err()
 }
 
-func (c *zfsCollector) parseLinuxPoolObjsetFile(reader io.Reader, zpoolPath string, handler func(string, string, zfsSysctl, uint64)) error {
+func (c *zfsCollector) parsePoolObjsetFile(reader io.Reader, zpoolPath string, handler func(string, string, zfsSysctl, uint64)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false

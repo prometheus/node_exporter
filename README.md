@@ -26,10 +26,10 @@ For automated installs with [Ansible](https://www.ansible.com/), there is the [P
 
 ### Docker
 
-The `node_exporter` is designed to monitor the host system. It's not recommended
-to deploy it as a Docker container because it requires access to the host system.
+The `node_exporter` is designed to monitor the host system. Deploying in containers requires
+extra care in order to avoid monitoring the container itself.
 
-For situations where Docker deployment is needed, some extra flags must be used to allow
+For situations where containerized deployment is needed, some extra flags must be used to allow
 the `node_exporter` access to the host namespaces.
 
 Be aware that any non-root mount points you want to monitor will need to be bind-mounted
@@ -158,6 +158,7 @@ timex | Exposes selected adjtimex(2) system call stats. | Linux
 udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
 uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
+watchdog | Exposes statistics from `/sys/class/watchdog` | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
 zfs | Exposes [ZFS](http://open-zfs.org/) performance statistics. | FreeBSD, [Linux](http://zfsonlinux.org/), Solaris
 
@@ -205,6 +206,7 @@ sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
+xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
 
 ### Deprecated

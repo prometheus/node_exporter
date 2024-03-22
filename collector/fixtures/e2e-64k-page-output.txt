@@ -404,11 +404,11 @@ node_cpu_seconds_total{cpu="7",mode="system"} 101.64
 node_cpu_seconds_total{cpu="7",mode="user"} 290.98
 # HELP node_cpu_vulnerabilities_info Details of each CPU vulnerability reported by sysfs. The value of the series is an int encoded state of the vulnerability. The same state is stored as a string in the label
 # TYPE node_cpu_vulnerabilities_info gauge
-node_cpu_vulnerabilities_info{codename="itlb_multihit",state="not affected"} 1
-node_cpu_vulnerabilities_info{codename="mds",state="vulnerable"} 1
-node_cpu_vulnerabilities_info{codename="retbleed",state="mitigation"} 1
-node_cpu_vulnerabilities_info{codename="spectre_v1",state="mitigation"} 1
-node_cpu_vulnerabilities_info{codename="spectre_v2",state="mitigation"} 1
+node_cpu_vulnerabilities_info{codename="itlb_multihit",mitigation="",state="not affected"} 1
+node_cpu_vulnerabilities_info{codename="mds",mitigation="",state="vulnerable"} 1
+node_cpu_vulnerabilities_info{codename="retbleed",mitigation="untrained return thunk; SMT enabled with STIBP protection",state="mitigation"} 1
+node_cpu_vulnerabilities_info{codename="spectre_v1",mitigation="usercopy/swapgs barriers and __user pointer sanitization",state="mitigation"} 1
+node_cpu_vulnerabilities_info{codename="spectre_v2",mitigation="Retpolines, IBPB: conditional, STIBP: always-on, RSB filling, PBRSB-eIBRS: Not affected",state="mitigation"} 1
 # HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200
@@ -2303,6 +2303,9 @@ node_netstat_TcpExt_SyncookiesRecv 0
 # HELP node_netstat_TcpExt_SyncookiesSent Statistic TcpExtSyncookiesSent.
 # TYPE node_netstat_TcpExt_SyncookiesSent untyped
 node_netstat_TcpExt_SyncookiesSent 0
+# HELP node_netstat_TcpExt_TCPOFOQueue Statistic TcpExtTCPOFOQueue.
+# TYPE node_netstat_TcpExt_TCPOFOQueue untyped
+node_netstat_TcpExt_TCPOFOQueue 42
 # HELP node_netstat_TcpExt_TCPTimeouts Statistic TcpExtTCPTimeouts.
 # TYPE node_netstat_TcpExt_TCPTimeouts untyped
 node_netstat_TcpExt_TCPTimeouts 115
@@ -2743,6 +2746,7 @@ node_nfsd_requests_total{method="SetClientIDConfirm",proto="4"} 3
 node_nfsd_requests_total{method="SymLink",proto="2"} 0
 node_nfsd_requests_total{method="SymLink",proto="3"} 0
 node_nfsd_requests_total{method="Verify",proto="4"} 0
+node_nfsd_requests_total{method="WdelegGetattr",proto="4"} 15
 node_nfsd_requests_total{method="WrCache",proto="2"} 0
 node_nfsd_requests_total{method="Write",proto="2"} 0
 node_nfsd_requests_total{method="Write",proto="3"} 0
@@ -2929,7 +2933,6 @@ node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="rapl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
-node_scrape_collector_success{collector="selinux"} 1
 node_scrape_collector_success{collector="slabinfo"} 1
 node_scrape_collector_success{collector="sockstat"} 1
 node_scrape_collector_success{collector="softirqs"} 1
@@ -2942,13 +2945,12 @@ node_scrape_collector_success{collector="thermal_zone"} 1
 node_scrape_collector_success{collector="time"} 1
 node_scrape_collector_success{collector="udp_queues"} 1
 node_scrape_collector_success{collector="vmstat"} 1
+node_scrape_collector_success{collector="watchdog"} 1
 node_scrape_collector_success{collector="wifi"} 1
+node_scrape_collector_success{collector="xfrm"} 1
 node_scrape_collector_success{collector="xfs"} 1
 node_scrape_collector_success{collector="zfs"} 1
 node_scrape_collector_success{collector="zoneinfo"} 1
-# HELP node_selinux_enabled SELinux is enabled, 1 is true, 0 is false
-# TYPE node_selinux_enabled gauge
-node_selinux_enabled 0
 # HELP node_slabinfo_active_objects The number of objects that are currently active (i.e., in use).
 # TYPE node_slabinfo_active_objects gauge
 node_slabinfo_active_objects{slab="dmaengine-unmap-128"} 1206
@@ -3217,6 +3219,31 @@ node_vmstat_pswpin 1476
 # HELP node_vmstat_pswpout /proc/vmstat information field pswpout.
 # TYPE node_vmstat_pswpout untyped
 node_vmstat_pswpout 35045
+# HELP node_watchdog_access_cs0 Value of /sys/class/watchdog/<watchdog>/access_cs0
+# TYPE node_watchdog_access_cs0 gauge
+node_watchdog_access_cs0{name="watchdog0"} 0
+# HELP node_watchdog_bootstatus Value of /sys/class/watchdog/<watchdog>/bootstatus
+# TYPE node_watchdog_bootstatus gauge
+node_watchdog_bootstatus{name="watchdog0"} 1
+# HELP node_watchdog_fw_version Value of /sys/class/watchdog/<watchdog>/fw_version
+# TYPE node_watchdog_fw_version gauge
+node_watchdog_fw_version{name="watchdog0"} 2
+# HELP node_watchdog_info Info of /sys/class/watchdog/<watchdog>
+# TYPE node_watchdog_info gauge
+node_watchdog_info{identity="",name="watchdog1",options="",pretimeout_governor="",state="",status=""} 1
+node_watchdog_info{identity="Software Watchdog",name="watchdog0",options="0x8380",pretimeout_governor="noop",state="active",status="0x8000"} 1
+# HELP node_watchdog_nowayout Value of /sys/class/watchdog/<watchdog>/nowayout
+# TYPE node_watchdog_nowayout gauge
+node_watchdog_nowayout{name="watchdog0"} 0
+# HELP node_watchdog_pretimeout_seconds Value of /sys/class/watchdog/<watchdog>/pretimeout
+# TYPE node_watchdog_pretimeout_seconds gauge
+node_watchdog_pretimeout_seconds{name="watchdog0"} 120
+# HELP node_watchdog_timeleft_seconds Value of /sys/class/watchdog/<watchdog>/timeleft
+# TYPE node_watchdog_timeleft_seconds gauge
+node_watchdog_timeleft_seconds{name="watchdog0"} 300
+# HELP node_watchdog_timeout_seconds Value of /sys/class/watchdog/<watchdog>/timeout
+# TYPE node_watchdog_timeout_seconds gauge
+node_watchdog_timeout_seconds{name="watchdog0"} 60
 # HELP node_wifi_interface_frequency_hertz The current frequency a WiFi interface is operating at, in hertz.
 # TYPE node_wifi_interface_frequency_hertz gauge
 node_wifi_interface_frequency_hertz{device="wlan0"} 2.412e+09
@@ -3264,6 +3291,90 @@ node_wifi_station_transmit_failed_total{device="wlan0",mac_address="aa:bb:cc:dd:
 # TYPE node_wifi_station_transmit_retries_total counter
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="01:02:03:04:05:06"} 20
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 10
+# HELP node_xfrm_acquire_error_packets_total State hasn’t been fully acquired before use
+# TYPE node_xfrm_acquire_error_packets_total counter
+node_xfrm_acquire_error_packets_total 24532
+# HELP node_xfrm_fwd_hdr_error_packets_total Forward routing of a packet is not allowed
+# TYPE node_xfrm_fwd_hdr_error_packets_total counter
+node_xfrm_fwd_hdr_error_packets_total 6654
+# HELP node_xfrm_in_buffer_error_packets_total No buffer is left
+# TYPE node_xfrm_in_buffer_error_packets_total counter
+node_xfrm_in_buffer_error_packets_total 2
+# HELP node_xfrm_in_error_packets_total All errors not matched by other
+# TYPE node_xfrm_in_error_packets_total counter
+node_xfrm_in_error_packets_total 1
+# HELP node_xfrm_in_hdr_error_packets_total Header error
+# TYPE node_xfrm_in_hdr_error_packets_total counter
+node_xfrm_in_hdr_error_packets_total 4
+# HELP node_xfrm_in_no_pols_packets_total No policy is found for states e.g. Inbound SAs are correct but no SP is found
+# TYPE node_xfrm_in_no_pols_packets_total counter
+node_xfrm_in_no_pols_packets_total 65432
+# HELP node_xfrm_in_no_states_packets_total No state is found i.e. Either inbound SPI, address, or IPsec protocol at SA is wrong
+# TYPE node_xfrm_in_no_states_packets_total counter
+node_xfrm_in_no_states_packets_total 3
+# HELP node_xfrm_in_pol_block_packets_total Policy discards
+# TYPE node_xfrm_in_pol_block_packets_total counter
+node_xfrm_in_pol_block_packets_total 100
+# HELP node_xfrm_in_pol_error_packets_total Policy error
+# TYPE node_xfrm_in_pol_error_packets_total counter
+node_xfrm_in_pol_error_packets_total 10000
+# HELP node_xfrm_in_state_expired_packets_total State is expired
+# TYPE node_xfrm_in_state_expired_packets_total counter
+node_xfrm_in_state_expired_packets_total 7
+# HELP node_xfrm_in_state_invalid_packets_total State is invalid
+# TYPE node_xfrm_in_state_invalid_packets_total counter
+node_xfrm_in_state_invalid_packets_total 55555
+# HELP node_xfrm_in_state_mismatch_packets_total State has mismatch option e.g. UDP encapsulation type is mismatch
+# TYPE node_xfrm_in_state_mismatch_packets_total counter
+node_xfrm_in_state_mismatch_packets_total 23451
+# HELP node_xfrm_in_state_mode_error_packets_total Transformation mode specific error
+# TYPE node_xfrm_in_state_mode_error_packets_total counter
+node_xfrm_in_state_mode_error_packets_total 100
+# HELP node_xfrm_in_state_proto_error_packets_total Transformation protocol specific error e.g. SA key is wrong
+# TYPE node_xfrm_in_state_proto_error_packets_total counter
+node_xfrm_in_state_proto_error_packets_total 40
+# HELP node_xfrm_in_state_seq_error_packets_total Sequence error i.e. Sequence number is out of window
+# TYPE node_xfrm_in_state_seq_error_packets_total counter
+node_xfrm_in_state_seq_error_packets_total 6000
+# HELP node_xfrm_in_tmpl_mismatch_packets_total No matching template for states e.g. Inbound SAs are correct but SP rule is wrong
+# TYPE node_xfrm_in_tmpl_mismatch_packets_total counter
+node_xfrm_in_tmpl_mismatch_packets_total 51
+# HELP node_xfrm_out_bundle_check_error_packets_total Bundle check error
+# TYPE node_xfrm_out_bundle_check_error_packets_total counter
+node_xfrm_out_bundle_check_error_packets_total 555
+# HELP node_xfrm_out_bundle_gen_error_packets_total Bundle generation error
+# TYPE node_xfrm_out_bundle_gen_error_packets_total counter
+node_xfrm_out_bundle_gen_error_packets_total 43321
+# HELP node_xfrm_out_error_packets_total All errors which is not matched others
+# TYPE node_xfrm_out_error_packets_total counter
+node_xfrm_out_error_packets_total 1e+06
+# HELP node_xfrm_out_no_states_packets_total No state is found
+# TYPE node_xfrm_out_no_states_packets_total counter
+node_xfrm_out_no_states_packets_total 869
+# HELP node_xfrm_out_pol_block_packets_total Policy discards
+# TYPE node_xfrm_out_pol_block_packets_total counter
+node_xfrm_out_pol_block_packets_total 43456
+# HELP node_xfrm_out_pol_dead_packets_total Policy is dead
+# TYPE node_xfrm_out_pol_dead_packets_total counter
+node_xfrm_out_pol_dead_packets_total 7656
+# HELP node_xfrm_out_pol_error_packets_total Policy error
+# TYPE node_xfrm_out_pol_error_packets_total counter
+node_xfrm_out_pol_error_packets_total 1454
+# HELP node_xfrm_out_state_expired_packets_total State is expired
+# TYPE node_xfrm_out_state_expired_packets_total counter
+node_xfrm_out_state_expired_packets_total 565
+# HELP node_xfrm_out_state_invalid_packets_total State is invalid, perhaps expired
+# TYPE node_xfrm_out_state_invalid_packets_total counter
+node_xfrm_out_state_invalid_packets_total 28765
+# HELP node_xfrm_out_state_mode_error_packets_total Transformation mode specific error
+# TYPE node_xfrm_out_state_mode_error_packets_total counter
+node_xfrm_out_state_mode_error_packets_total 8
+# HELP node_xfrm_out_state_proto_error_packets_total Transformation protocol specific error
+# TYPE node_xfrm_out_state_proto_error_packets_total counter
+node_xfrm_out_state_proto_error_packets_total 4542
+# HELP node_xfrm_out_state_seq_error_packets_total Sequence error i.e. Sequence number overflow
+# TYPE node_xfrm_out_state_seq_error_packets_total counter
+node_xfrm_out_state_seq_error_packets_total 543
 # HELP node_xfs_allocation_btree_compares_total Number of allocation B-tree compares for a filesystem.
 # TYPE node_xfs_allocation_btree_compares_total counter
 node_xfs_allocation_btree_compares_total{device="sda1"} 0
