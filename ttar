@@ -212,16 +212,16 @@ function extract {
         local eof_without_newline
         if [ "$size" -gt 0 ]; then
             if [[ "$line" =~ [^\\]EOF ]]; then
-                # An EOF not preceeded by a backslash indicates that the line
+                # An EOF not preceded by a backslash indicates that the line
                 # does not end with a newline
                 eof_without_newline=1
             else
                 eof_without_newline=0
             fi
             # Replace NULLBYTE with null byte if at beginning of line
-            # Replace NULLBYTE with null byte unless preceeded by backslash
+            # Replace NULLBYTE with null byte unless preceded by backslash
             # Remove one backslash in front of NULLBYTE (if any)
-            # Remove EOF unless preceeded by backslash
+            # Remove EOF unless preceded by backslash
             # Remove one backslash in front of EOF
             if [ $USE_PYTHON -eq 1 ]; then
                 echo -n "$line" | python -c "$PYTHON_EXTRACT_FILTER" >> "$path"
