@@ -193,6 +193,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	var errored bool
 	var parsedFamilies []*dto.MetricFamily
 	metricsNamesToFiles := map[string][]string{}
+	metricsNamesToHelpTexts := map[string][2]string{}
 
 	paths, err := filepath.Glob(c.path)
 	if err != nil || len(paths) == 0 {
@@ -218,6 +219,23 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 			mtime, families, err := c.processFile(path, f.Name(), ch)
 
 			for _, mf := range families {
+				// Check for metrics with inconsistent help texts and take the first help text occurrence.
+				if helpTexts, seen := metricsNamesToHelpTexts[*mf.Name]; seen {
+					if mf.Help != nil && helpTexts[0] != *mf.Help || helpTexts[1] != "" {
+						metricsNamesToHelpTexts[*mf.Name] = [2]string{helpTexts[0], *mf.Help}
+						errored = true
+						level.Error(c.logger).Log("msg", "inconsistent metric help text",
+							"metric", *mf.Name,
+							"original_help_text", helpTexts[0],
+							"new_help_text", *mf.Help,
+							// Only the first file path will be recorded in case of two or more inconsistent help texts.
+							"file", metricsNamesToFiles[*mf.Name][0])
+						continue
+					}
+				}
+				if mf.Help != nil {
+					metricsNamesToHelpTexts[*mf.Name] = [2]string{*mf.Help}
+				}
 				metricsNamesToFiles[*mf.Name] = append(metricsNamesToFiles[*mf.Name], metricsFilePath)
 				parsedFamilies = append(parsedFamilies, mf)
 			}
