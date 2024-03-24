@@ -273,7 +273,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 		v, err := m.Value()
 		if err != nil {
 			// debug logging
-			level.Debug(c.logger).Log("name", m.name, "couldn't get sysctl:", err)
+			level.Debug(c.logger).Log("name", m.name, "mib", m.mib, "couldn't get sysctl:", err)
 			continue
 		}
 
