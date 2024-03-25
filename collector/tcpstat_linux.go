@@ -17,11 +17,14 @@
 package collector
 
 import (
+	"encoding/binary"
 	"fmt"
 	"os"
+	"strconv"
 	"syscall"
 	"unsafe"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/mdlayher/netlink"
 	"github.com/prometheus/client_golang/prometheus"
@@ -58,9 +61,15 @@ const (
 	tcpTxQueuedBytes
 )
 
+var (
+	tcpstatSourcePorts = kingpin.Flag("collector.tcpstat.port.source", "List of tcpstat source ports").Strings()
+	tcpstatDestPorts   = kingpin.Flag("collector.tcpstat.port.dest", "List of tcpstat destination ports").Strings()
+)
+
 type tcpStatCollector struct {
-	desc   typedDesc
-	logger log.Logger
+	desc     typedDesc
+	descPort typedDesc
+	logger   log.Logger
 }
 
 func init() {
@@ -74,6 +83,11 @@ func NewTCPStatCollector(logger log.Logger) (Collector, error) {
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
 			[]string{"state"}, nil,
+		), prometheus.GaugeValue},
+		descPort: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "tcp", "connection_states_port"),
+			"Number of connection states per port.",
+			[]string{"state", "port", "type"}, nil,
 		), prometheus.GaugeValue},
 		logger: logger,
 	}, nil
@@ -129,16 +143,26 @@ func parseInetDiagMsg(b []byte) *InetDiagMsg {
 }
 
 func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
-	tcpStats, err := getTCPStats(syscall.AF_INET)
+	messages, err := getMessagesFromSocket(syscall.AF_INET)
 	if err != nil {
 		return fmt.Errorf("couldn't get tcpstats: %w", err)
 	}
 
+	tcpStats, err := parseTCPStats(messages)
+	if err != nil {
+		return fmt.Errorf("couldn't parse tcpstats: %w", err)
+	}
+
 	// if enabled ipv6 system
 	if _, hasIPv6 := os.Stat(procFilePath("net/tcp6")); hasIPv6 == nil {
-		tcp6Stats, err := getTCPStats(syscall.AF_INET6)
+		messagesIPv6, err := getMessagesFromSocket(syscall.AF_INET6)
 		if err != nil {
 			return fmt.Errorf("couldn't get tcp6stats: %w", err)
+		}
+
+		tcp6Stats, err := parseTCPStats(messagesIPv6)
+		if err != nil {
+			return fmt.Errorf("couldn't parse tcp6stats: %w", err)
 		}
 
 		for st, value := range tcp6Stats {
@@ -150,10 +174,28 @@ func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.desc.mustNewConstMetric(value, st.String())
 	}
 
+	statsPerSourcePorts, err := parseTCPStatsPerSourcePort(messages, *tcpstatSourcePorts)
+	if err != nil {
+		return fmt.Errorf("couldn't get tcpstats per source port: %w", err)
+	}
+
+	for statePort, value := range statsPerSourcePorts {
+		ch <- c.descPort.mustNewConstMetric(value, statePort.state.String(), strconv.Itoa(statePort.port), "source")
+	}
+
+	statsPerDestPorts, err := parseTCPStatsPerDestPort(messages, *tcpstatDestPorts)
+	if err != nil {
+		return fmt.Errorf("couldn't get tcpstats per dest port: %w", err)
+	}
+
+	for statePort, value := range statsPerDestPorts {
+		ch <- c.descPort.mustNewConstMetric(value, statePort.state.String(), strconv.Itoa(statePort.port), "dest")
+	}
+
 	return nil
 }
 
-func getTCPStats(family uint8) (map[tcpConnectionState]float64, error) {
+func getMessagesFromSocket(family uint8) ([]netlink.Message, error) {
 	const TCPFAll = 0xFFF
 	const InetDiagInfo = 2
 	const SockDiagByFamily = 20
@@ -182,7 +224,7 @@ func getTCPStats(family uint8) (map[tcpConnectionState]float64, error) {
 		return nil, err
 	}
 
-	return parseTCPStats(messages)
+	return messages, nil
 }
 
 func parseTCPStats(msgs []netlink.Message) (map[tcpConnectionState]float64, error) {
@@ -197,6 +239,53 @@ func parseTCPStats(msgs []netlink.Message) (map[tcpConnectionState]float64, erro
 	}
 
 	return tcpStats, nil
+}
+
+type statePortPair struct {
+	state tcpConnectionState
+	port  int
+}
+
+func parseTCPStatsPerSourcePort(msgs []netlink.Message, sourcePorts []string) (map[statePortPair]float64, error) {
+	tcpStatsPerStatePerPort := map[statePortPair]float64{}
+
+	for _, m := range msgs {
+		msg := parseInetDiagMsg(m.Data)
+
+		for _, sourcePort := range sourcePorts {
+			sourcePortInt := int(binary.BigEndian.Uint16(msg.ID.SourcePort[:]))
+
+			if sourcePort == strconv.Itoa(sourcePortInt) {
+				tcpStatsPerStatePerPort[statePortPair{
+					state: tcpConnectionState(msg.State),
+					port:  sourcePortInt,
+				}]++
+			}
+		}
+	}
+
+	return tcpStatsPerStatePerPort, nil
+}
+
+func parseTCPStatsPerDestPort(msgs []netlink.Message, destPorts []string) (map[statePortPair]float64, error) {
+	tcpStatsPerStatePerPort := map[statePortPair]float64{}
+
+	for _, m := range msgs {
+		msg := parseInetDiagMsg(m.Data)
+
+		for _, destPort := range destPorts {
+			destPortInt := int(binary.BigEndian.Uint16(msg.ID.DestPort[:]))
+
+			if destPort == strconv.Itoa(destPortInt) {
+				tcpStatsPerStatePerPort[statePortPair{
+					state: tcpConnectionState(msg.State),
+					port:  destPortInt,
+				}]++
+			}
+		}
+	}
+
+	return tcpStatsPerStatePerPort, nil
 }
 
 func (st tcpConnectionState) String() string {
