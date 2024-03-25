@@ -66,18 +66,6 @@ func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
 		"rx_words_total":                 "Number of words received by host port",
 		"tx_frames_total":                "Number of frames transmitted by host port",
 		"link_failure_total":             "Number of times the host port link has failed",
-		"name":                           "Name of Fibre Channel HBA",
-		"speed":                          "Current operating speed",
-		"port_state":                     "Current port state",
-		"port_type":                      "Port type, what the port is connected to",
-		"symbolic_name":                  "Symbolic Name",
-		"node_name":                      "Node Name as hexadecimal string",
-		"port_id":                        "Port ID as string",
-		"port_name":                      "Port Name as hexadecimal string",
-		"fabric_name":                    "Fabric Name; 0 if PTP",
-		"dev_loss_tmo":                   "Device Loss Timeout in seconds",
-		"supported_classes":              "The FC classes supported",
-		"supported_speeds":               "The FC speeds supported",
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)

@@ -288,6 +288,87 @@ Lines: 1
 Emulex SN1100E2P FV12.4.270.3 DV12.4.0.0. HN:gotest. OS:Linux
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/fc_host/host1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/speed
+Lines: 1
+8 Gbit
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/fc_host/host1/statistics
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/dumped_frames
+Lines: 1
+0x0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/error_frames
+Lines: 1
+0x13
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/fcp_packet_aborts
+Lines: 1
+0xffffffffffffffff
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/invalid_crc_count
+Lines: 1
+0x20
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/invalid_tx_word_count
+Lines: 1
+0x80
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/link_failure_count
+Lines: 1
+0x90
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/loss_of_signal_count
+Lines: 1
+0x110
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/loss_of_sync_count
+Lines: 1
+0x100
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/nos_count
+Lines: 1
+0x120
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/rx_frames
+Lines: 1
+0x30
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/rx_words
+Lines: 1
+0x40
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/seconds_since_last_reset
+Lines: 1
+0x70
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/tx_frames
+Lines: 1
+0x50
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/statistics/tx_words
+Lines: 1
+0x60
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/hwmon
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
