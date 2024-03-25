@@ -17,6 +17,9 @@
 package collector
 
 import (
+	"errors"
+	"time"
+
 	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 )
@@ -28,16 +31,42 @@ const (
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	n, err := unix.Getfsstat(nil, unix.MNT_NOWAIT)
-	if err != nil {
+	var mountPointCount int
+	nChan := make(chan int, 1)
+	errChan := make(chan error, 1)
+	go func() {
+		var err error
+		var n int
+		n, err = unix.Getfsstat(nil, unix.MNT_WAIT)
+		if err != nil {
+			errChan <- err
+			return
+		}
+		nChan <- n
+	}()
+	select {
+	case mountPointCount = <-nChan:
+	case err := <-errChan:
 		return nil, err
+	case <-time.After(*mountTimeout):
+		return nil, errors.New("getfsstat timed out")
 	}
-	buf := make([]unix.Statfs_t, n)
-	_, err = unix.Getfsstat(buf, unix.MNT_NOWAIT)
-	if err != nil {
-		return nil, err
+
+	buf := make([]unix.Statfs_t, mountPointCount)
+	go func(buf []unix.Statfs_t) {
+		_, err := unix.Getfsstat(buf, unix.MNT_WAIT)
+		errChan <- err
+	}(buf)
+	select {
+	case err := <-errChan:
+		if err != nil {
+			return nil, err
+		}
+	case <-time.After(*mountTimeout):
+		return nil, errors.New("getfsstat timed out")
 	}
-	stats := []filesystemStats{}
+
+	var stats []filesystemStats
 	for _, fs := range buf {
 		mountpoint := unix.ByteSliceToString(fs.Mntonname[:])
 		if c.excludedMountPointsPattern.MatchString(mountpoint) {
