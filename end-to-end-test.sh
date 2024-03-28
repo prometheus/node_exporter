@@ -12,7 +12,6 @@ enabled_collectors=$(cat << COLLECTORS
   conntrack
   cpu
   cpufreq
-  cpu_vulnerabilities
   diskstats
   dmi
   drbd
