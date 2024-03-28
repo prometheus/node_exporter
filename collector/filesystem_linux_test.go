@@ -79,7 +79,8 @@ func TestMountPointDetails(t *testing.T) {
 		"/run/user/1000":                  "",
 		"/run/user/1000/gvfs":             "",
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore] bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
-		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": ""}
+		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
+	}
 
 	filesystems, err := mountPointDetails(log.NewNopLogger())
 	if err != nil {
@@ -94,7 +95,7 @@ func TestMountPointDetails(t *testing.T) {
 		foundSet[fs.mountPoint] = true
 	}
 
-	for mountPoint, _ := range expected {
+	for mountPoint := range expected {
 		if _, ok := foundSet[mountPoint]; !ok {
 			t.Errorf("Expected %s, got nothing", mountPoint)
 		}
