@@ -50,40 +50,54 @@ func TestMountPointDetails(t *testing.T) {
 	}
 
 	expected := map[string]string{
-		"/":                        "",
-		"/sys":                     "",
-		"/proc":                    "",
-		"/dev":                     "",
-		"/dev/pts":                 "",
-		"/run":                     "",
-		"/sys/kernel/security":     "",
-		"/dev/shm":                 "",
-		"/run/lock":                "",
-		"/sys/fs/cgroup":           "",
-		"/sys/fs/pstore":           "",
-		"/proc/sys/fs/binfmt_misc": "",
-		"/dev/mqueue":              "",
-		"/sys/kernel/debug":        "",
-		"/dev/hugepages":           "",
-		"/sys/fs/fuse/connections": "",
-		"/boot":                    "",
-		"/run/user/1000":           "",
-		"/run/user/1000/gvfs":      "",
-	}
+		"/":                               "",
+		"/sys":                            "",
+		"/proc":                           "",
+		"/dev":                            "",
+		"/dev/pts":                        "",
+		"/run":                            "",
+		"/sys/kernel/security":            "",
+		"/dev/shm":                        "",
+		"/run/lock":                       "",
+		"/sys/fs/cgroup":                  "",
+		"/sys/fs/cgroup/systemd":          "",
+		"/sys/fs/pstore":                  "",
+		"/sys/fs/cgroup/cpuset":           "",
+		"/sys/fs/cgroup/cpu,cpuacct":      "",
+		"/sys/fs/cgroup/devices":          "",
+		"/sys/fs/cgroup/freezer":          "",
+		"/sys/fs/cgroup/net_cls,net_prio": "",
+		"/sys/fs/cgroup/blkio":            "",
+		"/sys/fs/cgroup/perf_event":       "",
+		"/proc/sys/fs/binfmt_misc":        "",
+		"/dev/mqueue":                     "",
+		"/sys/kernel/debug":               "",
+		"/dev/hugepages":                  "",
+		"/sys/fs/fuse/connections":        "",
+		"/boot":                           "",
+		"/run/rpc_pipefs":                 "",
+		"/run/user/1000":                  "",
+		"/run/user/1000/gvfs":             "",
+		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore] bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
+		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": ""}
 
 	filesystems, err := mountPointDetails(log.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
 
+	foundSet := map[string]bool{}
 	for _, fs := range filesystems {
 		if _, ok := expected[fs.mountPoint]; !ok {
 			t.Errorf("Got unexpected %s", fs.mountPoint)
 		}
+		foundSet[fs.mountPoint] = true
 	}
 
-	if len(filesystems) != len(expected) {
-		t.Errorf("Too few returned filesystems")
+	for mountPoint, _ := range expected {
+		if _, ok := foundSet[mountPoint]; !ok {
+			t.Errorf("Expected %s, got nothing", mountPoint)
+		}
 	}
 }
 
