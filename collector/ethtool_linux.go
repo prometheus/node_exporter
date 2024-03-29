@@ -96,6 +96,16 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 		return nil, fmt.Errorf("failed to initialize ethtool library: %w", err)
 	}
 
+	if *ethtoolDeviceInclude != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.ethtool.device-include", "flag", *ethtoolDeviceInclude)
+	}
+	if *ethtoolDeviceExclude != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.ethtool.device-exclude", "flag", *ethtoolDeviceExclude)
+	}
+	if *ethtoolIncludedMetrics != "" {
+		level.Info(logger).Log("msg", "Parsed flag --collector.ethtool.metrics-include", "flag", *ethtoolIncludedMetrics)
+	}
+
 	// Pre-populate some common ethtool metrics.
 	return &ethtoolCollector{
 		fs:             fs,
