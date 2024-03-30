@@ -64,7 +64,14 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 	defer file.Close()
 
 	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v interface{}) {
-		ch <- c.constSysctlMetric(subsystem, s, v)
+		var valueAsFloat64 float64
+		switch value := v.(type) {
+		case int64:
+			valueAsFloat64 = float64(value)
+		case uint64:
+			valueAsFloat64 = float64(value)
+		}
+		ch <- c.constSysctlMetric(subsystem, s, valueAsFloat64)
 	})
 }
 

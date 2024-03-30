@@ -95,16 +95,9 @@ func (s zfsSysctl) metricName() string {
 	return strings.Replace(parts[len(parts)-1], "-", "_", -1)
 }
 
-func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, value interface{}) prometheus.Metric {
+func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, value float64) prometheus.Metric {
 	metricName := sysctl.metricName()
 
-	var valueAsFloat64 float64
-	switch v := value.(type) {
-	case int64:
-		valueAsFloat64 = float64(v)
-	case uint64:
-		valueAsFloat64 = float64(v)
-	}
 	return prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, metricName),
@@ -113,7 +106,7 @@ func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, val
 			nil,
 		),
 		prometheus.UntypedValue,
-		valueAsFloat64,
+		value,
 	)
 }
 
