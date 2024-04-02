@@ -33,12 +33,28 @@ SUPPORT_URL="https://www.debian.org/support"
 BUG_REPORT_URL="https://bugs.debian.org/"
 `
 
+const nixosTapir string = `BUG_REPORT_URL="https://github.com/NixOS/nixpkgs/issues"
+BUILD_ID="23.11.20240328.219951b"
+DOCUMENTATION_URL="https://nixos.org/learn.html"
+HOME_URL="https://nixos.org/"
+ID=nixos
+LOGO="nix-snowflake"
+NAME=NixOS
+PRETTY_NAME="NixOS 23.11 (Tapir)"
+SUPPORT_END="2024-06-30"
+SUPPORT_URL="https://nixos.org/community.html"
+VERSION="23.11 (Tapir)"
+VERSION_CODENAME=tapir
+VERSION_ID="23.11"
+`
+
 func TestParseOSRelease(t *testing.T) {
 	want := &osRelease{
 		Name:            "Ubuntu",
 		ID:              "ubuntu",
 		IDLike:          "debian",
 		PrettyName:      "Ubuntu 20.04.2 LTS",
+		SupportEnd:      "",
 		Version:         "20.04.2 LTS (Focal Fossa)",
 		VersionID:       "20.04",
 		VersionCodename: "focal",
@@ -67,6 +83,32 @@ func TestParseOSRelease(t *testing.T) {
 		VersionCodename: "bullseye",
 	}
 	got, err = parseOSRelease(strings.NewReader(debianBullseye))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("should have %+v osRelease: got %+v", want, got)
+	}
+}
+
+func TestParseOSSupportEnd(t *testing.T) {
+	want := &osRelease{
+		BuildID:         "23.11.20240328.219951b",
+		Name:            "NixOS",
+		ID:              "nixos",
+		IDLike:          "",
+		ImageID:         "",
+		ImageVersion:    "",
+		PrettyName:      "NixOS 23.11 (Tapir)",
+		SupportEnd:      "2024-06-30",
+		Variant:         "",
+		VariantID:       "",
+		Version:         "23.11 (Tapir)",
+		VersionID:       "23.11",
+		VersionCodename: "tapir",
+	}
+
+	got, err := parseOSRelease(strings.NewReader(nixosTapir))
 	if err != nil {
 		t.Fatal(err)
 	}
