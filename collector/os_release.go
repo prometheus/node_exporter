@@ -53,6 +53,7 @@ type osRelease struct {
 	BuildID         string
 	ImageID         string
 	ImageVersion    string
+	SupportEnd      string
 }
 
 type osReleaseCollector struct {
@@ -65,6 +66,8 @@ type osReleaseCollector struct {
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	versionDesc        *prometheus.Desc
+	supportEnd         time.Time
+	supportEndDesc     *prometheus.Desc
 }
 
 type Plist struct {
@@ -97,6 +100,11 @@ func NewOSCollector(logger log.Logger) (Collector, error) {
 			"Metric containing the major.minor part of the OS version.",
 			[]string{"id", "id_like", "name"}, nil,
 		),
+		supportEndDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "os", "support_end_timestamp_seconds"),
+			"Metric containing the end-of-life date timestamp of the OS.",
+			nil, nil,
+		),
 	}, nil
 }
 
@@ -115,6 +123,7 @@ func parseOSRelease(r io.Reader) (*osRelease, error) {
 		BuildID:         env["BUILD_ID"],
 		ImageID:         env["IMAGE_ID"],
 		ImageVersion:    env["IMAGE_VERSION"],
+		SupportEnd:      env["SUPPORT_END"],
 	}, err
 }
 
@@ -169,6 +178,15 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	} else {
 		c.version = 0
 	}
+
+	if c.os.SupportEnd != "" {
+		c.supportEnd, err = time.Parse("2006-01-02", c.os.SupportEnd)
+
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -195,6 +213,11 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.versionDesc, prometheus.GaugeValue, c.version,
 			c.os.ID, c.os.IDLike, c.os.Name)
 	}
+
+	if c.os.SupportEnd != "" {
+		ch <- prometheus.MustNewConstMetric(c.supportEndDesc, prometheus.GaugeValue, float64(c.supportEnd.Unix()))
+	}
+
 	return nil
 }
 
