@@ -1,0 +1,12 @@
+TlsCurrTxSw                     	5
+TlsCurrRxSw                     	5
+TlsCurrTxDevice                 	0
+TlsCurrRxDevice                 	0
+TlsTxSw                         	161
+TlsRxSw                         	178
+TlsTxDevice                     	0
+TlsRxDevice                     	0
+TlsDecryptError                 	0
+TlsRxDeviceResync               	0
+TlsDecryptRetry                 	0
+TlsRxNoPadViolation             	0
