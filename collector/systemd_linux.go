@@ -75,7 +75,7 @@ type systemdCollector struct {
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
-	// Use regexps for more flexability than device_filter.go allows
+	// Use regexps for more flexibility than device_filter.go allows
 	systemdUnitIncludePattern *regexp.Regexp
 	systemdUnitExcludePattern *regexp.Regexp
 	logger                    log.Logger

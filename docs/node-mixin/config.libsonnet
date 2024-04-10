@@ -73,7 +73,7 @@
     fsSpaceAvailableWarningThreshold: 5,
     fsSpaceAvailableCriticalThreshold: 3,
 
-    // Memory utilzation (%) level on which to trigger the
+    // Memory utilization (%) level on which to trigger the
     // 'NodeMemoryHighUtilization' alert.
     memoryHighUtilizationThreshold: 90,
 
