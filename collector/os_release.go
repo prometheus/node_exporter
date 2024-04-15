@@ -60,8 +60,6 @@ type osReleaseCollector struct {
 	infoDesc           *prometheus.Desc
 	logger             log.Logger
 	os                 *osRelease
-	osFilename         string    // file name of cached release information
-	osMtime            time.Time // mtime of cached release file
 	osMutex            sync.RWMutex
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
@@ -134,28 +132,10 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	}
 	defer releaseFile.Close()
 
-	stat, err := releaseFile.Stat()
-	if err != nil {
-		return err
-	}
-
-	t := stat.ModTime()
-	c.osMutex.RLock()
-	upToDate := path == c.osFilename && t == c.osMtime
-	c.osMutex.RUnlock()
-	if upToDate {
-		// osReleaseCollector struct is already up-to-date.
-		return nil
-	}
-
 	// Acquire a lock to update the osReleaseCollector struct.
 	c.osMutex.Lock()
 	defer c.osMutex.Unlock()
 
-	level.Debug(c.logger).Log("msg", "file modification time has changed",
-		"file", path, "old_value", c.osMtime, "new_value", t)
-	c.osFilename = path
-	c.osMtime = t
 	//  SystemVersion.plist is xml file with MacOs version info
 	if strings.Contains(releaseFile.Name(), "SystemVersion.plist") {
 		c.os, err = getMacosProductVersion(releaseFile.Name())
