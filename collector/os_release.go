@@ -180,7 +180,7 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	}
 
 	if c.os.SupportEnd != "" {
-		c.supportEnd, err = time.Parse("2006-01-02", c.os.SupportEnd)
+		c.supportEnd, err = time.Parse(time.DateOnly, c.os.SupportEnd)
 
 		if err != nil {
 			return err
