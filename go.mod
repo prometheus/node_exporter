@@ -29,7 +29,7 @@ require (
 	github.com/prometheus/procfs v0.13.0
 	github.com/safchain/ethtool v0.3.0
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
-	golang.org/x/sys v0.18.0
+	golang.org/x/sys v0.19.0
 	howett.net/plist v1.0.1
 )
 
