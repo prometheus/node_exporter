@@ -22,6 +22,7 @@ import (
 	"net"
 	"os"
 	"regexp"
+	"sync"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
@@ -41,6 +42,7 @@ type netClassCollector struct {
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
+	metricDescsMu         sync.Mutex
 	logger                log.Logger
 }
 
@@ -136,6 +138,9 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 }
 
 func (c *netClassCollector) getFieldDesc(name string) *prometheus.Desc {
+	c.metricDescsMu.Lock()
+	defer c.metricDescsMu.Unlock()
+
 	fieldDesc, exists := c.metricDescs[name]
 
 	if !exists {
