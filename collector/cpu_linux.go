@@ -21,6 +21,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"sync"
 
@@ -31,7 +32,6 @@ import (
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
 	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 )
 
 type cpuCollector struct {
