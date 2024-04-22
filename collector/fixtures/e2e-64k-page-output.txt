@@ -3244,6 +3244,7 @@ node_time_clocksource_current_info{clocksource="tsc",device="0"} 1
 # TYPE node_time_zone_offset_seconds gauge
 # HELP node_udp_queues Number of allocated memory in the kernel for UDP datagrams in bytes.
 # TYPE node_udp_queues gauge
+node_udp_queues{ip="v4",queue="drops"} 100
 node_udp_queues{ip="v4",queue="rx"} 0
 node_udp_queues{ip="v4",queue="tx"} 21
 # HELP node_vmstat_oom_kill /proc/vmstat information field oom_kill.
