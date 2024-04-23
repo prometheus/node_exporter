@@ -62,7 +62,7 @@ func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.TxQueueLength), "tx", "v4")
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.RxQueueLength), "rx", "v4")
 		if s4.Drops != nil {
-			ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(*s4.Drops), "drops", "v4")
+			ch <- prometheus.MustNewConstMetric(c.desc, prometheus.CounterValue, float64(*s4.Drops), "drops", "v4")
 		}
 	} else {
 		if errors.Is(errIPv4, os.ErrNotExist) {
@@ -77,7 +77,7 @@ func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.TxQueueLength), "tx", "v6")
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s6.RxQueueLength), "rx", "v6")
 		if s6.Drops != nil {
-			ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(*s6.Drops), "drops", "v6")
+			ch <- prometheus.MustNewConstMetric(c.desc, prometheus.CounterValue, float64(*s6.Drops), "drops", "v6")
 		}
 	} else {
 		if errors.Is(errIPv6, os.ErrNotExist) {
