@@ -99,6 +99,24 @@ var (
 		[]string{"device"},
 		nil,
 	)
+	blocksSyncedPctDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "blocks_synced_pct"),
+		"Percentage of blocks synced on device.",
+		[]string{"device"},
+		nil,
+	)
+	syncMinutesRemainingDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "sync_minutes_remaining"),
+		"Estimated finishing time for current sync in minutes.",
+		[]string{"device"},
+		nil,
+	)
+	blockSyncedSpeedDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "blocks_synced_speed"),
+		"current sync speed (in Kilobytes/sec)",
+		[]string{"device"},
+		nil,
+	)
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
@@ -206,6 +224,25 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			float64(mdStat.BlocksSynced),
 			mdStat.Name,
 		)
+		ch <- prometheus.MustNewConstMetric(
+			blocksSyncedPctDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedPct),
+			mdStat.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			syncMinutesRemainingDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedFinishTime),
+			mdStat.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			blockSyncedSpeedDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedSpeed),
+			mdStat.Name,
+		)
+
 	}
 
 	return nil
