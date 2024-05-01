@@ -233,7 +233,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			syncTimeRemainingDesc,
 			prometheus.GaugeValue,
-			float64(mdStat.BlocksSyncedFinishTime * 60),
+			float64(mdStat.BlocksSyncedFinishTime*60),
 			mdStat.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
