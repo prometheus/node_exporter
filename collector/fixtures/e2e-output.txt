@@ -1795,25 +1795,25 @@ node_md_state{device="md9",state="check"} 0
 node_md_state{device="md9",state="inactive"} 0
 node_md_state{device="md9",state="recovering"} 0
 node_md_state{device="md9",state="resync"} 1
-# HELP node_md_sync_minutes_remaining Estimated finishing time for current sync in minutes.
-# TYPE node_md_sync_minutes_remaining gauge
-node_md_sync_minutes_remaining{device="md0"} 0
-node_md_sync_minutes_remaining{device="md00"} 0
-node_md_sync_minutes_remaining{device="md10"} 0
-node_md_sync_minutes_remaining{device="md101"} 0
-node_md_sync_minutes_remaining{device="md11"} 0
-node_md_sync_minutes_remaining{device="md12"} 0
-node_md_sync_minutes_remaining{device="md120"} 0
-node_md_sync_minutes_remaining{device="md126"} 0
-node_md_sync_minutes_remaining{device="md127"} 0
-node_md_sync_minutes_remaining{device="md201"} 0.2
-node_md_sync_minutes_remaining{device="md219"} 0
-node_md_sync_minutes_remaining{device="md3"} 0
-node_md_sync_minutes_remaining{device="md4"} 0
-node_md_sync_minutes_remaining{device="md6"} 17
-node_md_sync_minutes_remaining{device="md7"} 0
-node_md_sync_minutes_remaining{device="md8"} 17
-node_md_sync_minutes_remaining{device="md9"} 0
+# HELP node_md_sync_time_remaining Estimated finishing time for current sync in seconds.
+# TYPE node_md_sync_time_remaining gauge
+node_md_sync_time_remaining{device="md0"} 0
+node_md_sync_time_remaining{device="md00"} 0
+node_md_sync_time_remaining{device="md10"} 0
+node_md_sync_time_remaining{device="md101"} 0
+node_md_sync_time_remaining{device="md11"} 0
+node_md_sync_time_remaining{device="md12"} 0
+node_md_sync_time_remaining{device="md120"} 0
+node_md_sync_time_remaining{device="md126"} 0
+node_md_sync_time_remaining{device="md127"} 0
+node_md_sync_time_remaining{device="md201"} 12
+node_md_sync_time_remaining{device="md219"} 0
+node_md_sync_time_remaining{device="md3"} 0
+node_md_sync_time_remaining{device="md4"} 0
+node_md_sync_time_remaining{device="md6"} 1020
+node_md_sync_time_remaining{device="md7"} 0
+node_md_sync_time_remaining{device="md8"} 1020
+node_md_sync_time_remaining{device="md9"} 0
 # HELP node_memory_Active_anon_bytes Memory information field Active_anon_bytes.
 # TYPE node_memory_Active_anon_bytes gauge
 node_memory_Active_anon_bytes 2.068484096e+09
