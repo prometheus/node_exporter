@@ -52,7 +52,7 @@ jobs:
       # sign the darwin build so it doesn't get SIGKILLed on start, see: https://github.com/prometheus/node_exporter/issues/2539
       - run:
           command: |
-            if [ -d "$(pwd)/.build/darwin-arm64" ]; then
+            if [[ -f "$(pwd)/.build/darwin-arm64/node_exporter" ]]; then
                 promu codesign "$(pwd)/.build/darwin-arm64/node_exporter"
             fi
       - persist_to_workspace:
