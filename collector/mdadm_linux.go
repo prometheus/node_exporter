@@ -105,9 +105,9 @@ var (
 		[]string{"device"},
 		nil,
 	)
-	syncMinutesRemainingDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "md", "sync_minutes_remaining"),
-		"Estimated finishing time for current sync in minutes.",
+	syncTimeRemainingDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "sync_time_remaining"),
+		"Estimated finishing time for current sync in seconds.",
 		[]string{"device"},
 		nil,
 	)
@@ -231,9 +231,9 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			mdStat.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
-			syncMinutesRemainingDesc,
+			syncTimeRemainingDesc,
 			prometheus.GaugeValue,
-			float64(mdStat.BlocksSyncedFinishTime),
+			float64(mdStat.BlocksSyncedFinishTime * 60),
 			mdStat.Name,
 		)
 		ch <- prometheus.MustNewConstMetric(
