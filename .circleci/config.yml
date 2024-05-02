@@ -49,6 +49,16 @@ jobs:
       - run: docker run --privileged linuxkit/binfmt:af88a591f9cc896a52ce596b9cf7ca26a061ef97
       - run: promu crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
       - run: promu --config .promu-cgo.yml crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
+      # sign the darwin build so it doesn't get SIGKILLed on start, see: https://github.com/prometheus/node_exporter/issues/2539
+      - run:
+          command: |
+            if [[ -f "$(pwd)/.build/darwin-arm64/node_exporter" ]]; then
+                promu codesign "$(pwd)/.build/darwin-arm64/node_exporter"
+            fi
+
+            if [[ -f "$(pwd)/.build/darwin-amd64/node_exporter" ]]; then
+                promu codesign "$(pwd)/.build/darwin-amd64/node_exporter"                
+            fi
       - persist_to_workspace:
           root: .
           paths:
