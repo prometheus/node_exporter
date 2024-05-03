@@ -161,6 +161,14 @@ node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid1",uuid="0abb2
 node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+# HELP node_btrfs_commit_seconds_total Sum of the duration of all commits, in seconds.
+# TYPE node_btrfs_commit_seconds_total counter
+node_btrfs_commit_seconds_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 47836.09
+node_btrfs_commit_seconds_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_commits_total The total number of commits that have occurred.
+# TYPE node_btrfs_commits_total counter
+node_btrfs_commits_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 258051
+node_btrfs_commits_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_device_size_bytes Size of a device that is part of the filesystem.
 # TYPE node_btrfs_device_size_bytes gauge
 node_btrfs_device_size_bytes{device="loop22",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
@@ -177,6 +185,14 @@ node_btrfs_global_rsv_size_bytes{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.
 # TYPE node_btrfs_info gauge
 node_btrfs_info{label="",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1
 node_btrfs_info{label="fixture",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+# HELP node_btrfs_last_commit_seconds Duration of the most recent commit, in seconds.
+# TYPE node_btrfs_last_commit_seconds gauge
+node_btrfs_last_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+node_btrfs_last_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_max_commit_seconds Duration of the slowest commit, in seconds.
+# TYPE node_btrfs_max_commit_seconds gauge
+node_btrfs_max_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 51.462
+node_btrfs_max_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_reserved_bytes Amount of space reserved for a data type
 # TYPE node_btrfs_reserved_bytes gauge
 node_btrfs_reserved_bytes{block_group_type="data",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
