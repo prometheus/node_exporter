@@ -1,5 +1,5 @@
-local g = import './g.libsonnet';
-local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libsonnet';
+local g = import '../g.libsonnet';
+local logslib = import 'logs-lib/logs/main.libsonnet';
 {
   local root = self,
   new(this):
@@ -15,7 +15,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
     local panels = this.grafana.panels;
     local stat = g.panel.stat;
     {
-      fleet:
+      'fleet.json':
         local title = prefix + 'fleet overview';
         g.dashboard.new(title)
         + g.dashboard.withPanels(
@@ -33,7 +33,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
         )
         // hide link to self
         + root.applyCommon(vars.multiInstance, uid + '-fleet', tags, links { backToFleet+:: {}, backToOverview+:: {} }, annotations, timezone, refresh, period),
-      overview:
+      'overview.json':
         g.dashboard.new(prefix + 'overview')
         + g.dashboard.withPanels(
           g.util.grid.wrapPanels(
@@ -59,13 +59,20 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
               panels.diskUsage { gridPos+: { w: 12, h: 8 } },
               g.panel.row.new('Network'),
               panels.networkUsagePerSec { gridPos+: { w: 12, h: 8 } },
-              panels.networkErrorsPerSec { gridPos+: { w: 12, h: 8 } },
-            ], 6, 2
+              panels.networkErrorsAndDroppedPerSec { gridPos+: { w: 12, h: 8 } },
+            ]
+            +
+            if this.config.enableHardware then
+              [
+                g.panel.row.new('Hardware'),
+                panels.hardwareTemperature { gridPos+: { w: 12, h: 8 } },
+              ] else []
+            , 6, 2
           )
         )
         // defaults to uid=nodes for backward compatibility with old node-mixins
         + root.applyCommon(vars.singleInstance, (if uid == 'node' then 'nodes' else uid + '-overview'), tags, links { backToOverview+:: {} }, annotations, timezone, refresh, period),
-      network:
+      'network.json':
         g.dashboard.new(prefix + 'network')
         + g.dashboard.withPanels(
           g.util.grid.wrapPanels(
@@ -101,7 +108,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
           )
         )
         + root.applyCommon(vars.singleInstance, uid + '-network', tags, links, annotations, timezone, refresh, period),
-      memory:
+      'memory.json':
         g.dashboard.new(prefix + 'memory')
         + g.dashboard.withPanels(
           g.util.grid.wrapPanels(
@@ -131,7 +138,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
         )
         + root.applyCommon(vars.singleInstance, uid + '-memory', tags, links, annotations, timezone, refresh, period),
 
-      system:
+      'system.json':
         g.dashboard.new(prefix + 'CPU and system')
         + g.dashboard.withPanels(
           g.util.grid.wrapPanels(
@@ -151,7 +158,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
         )
         + root.applyCommon(vars.singleInstance, uid + '-system', tags, links, annotations, timezone, refresh, period),
 
-      disks:
+      'disks.json':
         g.dashboard.new(prefix + 'filesystem and disks')
         + g.dashboard.withPanels(
           g.util.grid.wrapPanels(
@@ -177,7 +184,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
     if this.config.enableLokiLogs
     then
       {
-        logs:
+        'logs.json':
           logslib.new(
             prefix + 'logs',
             datasourceName=this.grafana.variables.datasources.loki.name,
@@ -210,7 +217,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
                 this.grafana.variables.datasources.prometheus { hide: 2 },
               ],
             },
-          }.dashboards.logs,
+          }.dashboards['logs.json'],
       }
     else {},
   applyCommon(vars, uid, tags, links, annotations, timezone, refresh, period):
