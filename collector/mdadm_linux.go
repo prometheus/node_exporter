@@ -106,7 +106,7 @@ var (
 		nil,
 	)
 	syncTimeRemainingDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "md", "sync_time_remaining"),
+		prometheus.BuildFQName(namespace, "md", "sync_time_remaining_seconds"),
 		"Estimated finishing time for current sync in seconds.",
 		[]string{"device"},
 		nil,
