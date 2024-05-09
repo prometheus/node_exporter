@@ -100,7 +100,7 @@ var (
 		nil,
 	)
 	blocksSyncedPctDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "md", "blocks_synced_pct"),
+		prometheus.BuildFQName(namespace, "md", "blocks_synced_percent"),
 		"Percentage of blocks synced on device.",
 		[]string{"device"},
 		nil,
