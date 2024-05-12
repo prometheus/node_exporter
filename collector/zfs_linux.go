@@ -59,10 +59,6 @@ type zfsCollector struct {
 	logger               log.Logger
 }
 
-func init() {
-	registerCollector("zfs", defaultEnabled, NewZFSCollector)
-}
-
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
 func NewZFSCollector(logger log.Logger) (Collector, error) {
 	return &zfsCollector{

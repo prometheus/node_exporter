@@ -15,3 +15,7 @@
 // +build !nozfs
 
 package collector
+
+func init() {
+	registerCollector("zfs", defaultEnabled, NewZFSCollector)
+}
