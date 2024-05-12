@@ -11,8 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nozfs
+//go:build !nozfs && (freebsd || linux || solaris)
 // +build !nozfs
+// +build freebsd linux solaris
 
 package collector
 
