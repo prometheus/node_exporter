@@ -30,7 +30,7 @@ const (
 	zfsCollectorSubsystem = "zfs"
 )
 
-func NewZfsCollector(logger *slog.Logger) (Collector, error) {
+func NewZFSCollector(logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
 		sysctls: []bsdSysctl{
 			{
