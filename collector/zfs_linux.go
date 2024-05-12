@@ -46,7 +46,7 @@ const (
 var (
 	errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
 
-	zfsPoolStatesName = []string{"online", "degraded", "faulted", "offline", "removed", "unavail", "suspended"}
+	zfsPoolStatesName = [...]string{"online", "degraded", "faulted", "offline", "removed", "unavail", "suspended"}
 )
 
 type zfsCollector struct {
