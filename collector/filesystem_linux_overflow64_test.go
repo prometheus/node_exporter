@@ -50,8 +50,8 @@ func TestOverflowHandling(t *testing.T) {
 	}
 	for _, testcase := range testcases {
 		var fsC = filesystemCollector{
-			logger:  log.NewNopLogger(),
-			fsStats: testcase.fsStats,
+			logger:   log.NewNopLogger(),
+			_fsStats: testcase.fsStats,
 		}
 		fsStats := fsC.processStat(filesystemLabels{
 			mountPoint: "/",

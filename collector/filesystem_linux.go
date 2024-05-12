@@ -123,8 +123,8 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	buf := new(unix.Statfs_t)
 
 	// Allow mocking `unix.Statfs` values for testing.
-	if c.fsStats != nil {
-		buf = c.fsStats
+	if c._fsStats != nil {
+		buf = c._fsStats
 	} else {
 		success := make(chan struct{})
 		go stuckMountWatcher(labels.mountPoint, success, c.logger)

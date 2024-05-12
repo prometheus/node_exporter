@@ -70,8 +70,9 @@ type filesystemCollector struct {
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
-	fsStats                       *unix.Statfs_t
 	logger                        log.Logger
+	// Used to mock `unix.Statfs` values for testing.
+	_fsStats *unix.Statfs_t
 }
 
 type filesystemLabels struct {
