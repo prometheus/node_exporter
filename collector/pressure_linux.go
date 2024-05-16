@@ -102,6 +102,14 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			return fmt.Errorf("failed to retrieve pressure stats: %w", err)
 		}
+		if vals.Some == nil {
+			level.Debug(c.logger).Log("msg", "pressure information returned no 'some' data")
+			return ErrNoData
+		}
+		if vals.Full == nil {
+			level.Debug(c.logger).Log("msg", "pressure information returned no 'full' data")
+			return ErrNoData
+		}
 		switch res {
 		case "cpu":
 			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(vals.Some.Total)/1000.0/1000.0)
