@@ -5,6 +5,12 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.8.1 / 2024-05-16
+
+* [BUGFIX] Fix CPU seconds on Solaris #2963
+* [BUGFIX] Sign Darwin/MacOS binaries #3008
+* [BUGFIX] Fix pressure collector nil reference #3016
+
 ## 1.8.0 / 2024-04-24
 
 * [CHANGE] exec_bsd: Fix labels for `vm.stats.sys.v_syscall` sysctl #2895
