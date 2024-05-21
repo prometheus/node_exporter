@@ -152,9 +152,9 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 
 	// Handle for under/over-flow for cases where: "node_filesystem_{free,avail}_bytes reporting values are larger than node_filesystem_size_bytes".
 	if bits.UintSize == 64 && float64(buf.Blocks)*float64(buf.Bsize) > float64(float64Mantissa) {
-		size, _ := new(big.Float).SetUint64(buf.Blocks).Mul(new(big.Float).SetUint64(buf.Blocks), new(big.Float).SetInt64(int64(buf.Bsize))).Float64()
-		free, _ := new(big.Float).SetUint64(buf.Bfree).Mul(new(big.Float).SetUint64(buf.Bfree), new(big.Float).SetInt64(int64(buf.Bsize))).Float64()
-		avail, _ := new(big.Float).SetUint64(buf.Bavail).Mul(new(big.Float).SetUint64(buf.Bavail), new(big.Float).SetInt64(int64(buf.Bsize))).Float64()
+		size, _ := new(big.Int).Mul(new(big.Int).SetUint64(buf.Blocks), new(big.Int).SetInt64(buf.Bsize)).Float64()
+		free, _ := new(big.Int).Mul(new(big.Int).SetUint64(buf.Bfree), new(big.Int).SetInt64(buf.Bsize)).Float64()
+		avail, _ := new(big.Int).Mul(new(big.Int).SetUint64(buf.Bavail), new(big.Int).SetInt64(buf.Bsize)).Float64()
 		return filesystemStats{
 			labels:    labels,
 			size:      size,

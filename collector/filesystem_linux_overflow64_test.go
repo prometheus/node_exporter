@@ -59,8 +59,8 @@ func TestOverflowHandling(t *testing.T) {
 
 		oldsize := float64(testcase.fsStats.Blocks) * float64(testcase.fsStats.Bsize)
 		size := new(big.Float).SetFloat64(fsStats.size)
-		actual := new(big.Float).
-			Mul(new(big.Float).SetFloat64(float64(testcase.fsStats.Blocks)), new(big.Float).SetFloat64(float64(testcase.fsStats.Bsize)))
+		actualFloat64, _ := new(big.Int).Mul(new(big.Int).SetUint64(testcase.fsStats.Blocks), new(big.Int).SetInt64(testcase.fsStats.Bsize)).Float64()
+		actual := new(big.Float).SetFloat64(actualFloat64)
 		if testcase.overflow {
 			oldsizeActualDiff := new(big.Float).Abs(new(big.Float).Sub(actual, new(big.Float).SetFloat64(oldsize)))
 			sizeActualDiff := new(big.Float).Abs(new(big.Float).Sub(actual, size))
