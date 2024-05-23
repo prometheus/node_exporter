@@ -347,6 +347,11 @@ For advanced use the `node_exporter` can be passed an optional list of collector
 
 This can be useful for having different Prometheus servers collect specific metrics from nodes.
 
+### Feature Flags
+
+Feature flags are used to enable or disable specific features. They can be set using the `--feature.gates` flag (`key1=true,key2=false,...`). The following feature flags are available:
+* `ConsistentZFSLinuxMetricNames` (default: `false`): Use consistent metric names for ZFS metrics on Linux (same as BSD).
+
 ## Development building and running
 
 Prerequisites:
