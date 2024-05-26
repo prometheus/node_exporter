@@ -349,8 +349,7 @@ This can be useful for having different Prometheus servers collect specific metr
 
 ### Feature Flags
 
-Feature flags are used to enable or disable specific features. They can be set using the `--feature.gates` flag (`key1=true,key2=false,...`). The following feature flags are available:
-* `ConsistentZFSLinuxMetricNames` (default: `false`): Use consistent metric names for ZFS metrics on Linux (same as BSD).
+The `node_exporter` supports feature flags to enable or disable experimental features. These can be found in [./featuregate/feature-gates.md](./featuregate/feature-gates.md).
 
 ## Development building and running
 

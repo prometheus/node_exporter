@@ -28,6 +28,8 @@ MACH                    ?= $(shell uname -m)
 
 STATICCHECK_IGNORE =
 
+FEATURE_GATES_MANIFEST = featuregate/feature-gates.md
+
 ifeq ($(GOHOSTOS), linux)
 	test-e2e := test-e2e
 else
@@ -145,3 +147,15 @@ promtool: $(PROMTOOL)
 $(PROMTOOL):
 	mkdir -p $(FIRST_GOPATH)/bin
 	curl -fsS -L $(PROMTOOL_URL) | tar -xvzf - -C $(FIRST_GOPATH)/bin --strip 1 "prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM)/promtool"
+
+.PHONY: feature-gates
+feature-gates:
+	@echo ">> checking feature gates"
+	./feature-gates.sh
+
+.PHONY: feature-gates-verify
+feature-gates-verify: feature-gates
+	@if [ $$(git diff --exit-code -- $(FEATURE_GATES_MANIFEST)  &>/dev/null; echo $$?) -ne 0 ]; then \
+		echo ">> feature gates have changed, needs staging"; \
+		exit 1; \
+	fi
