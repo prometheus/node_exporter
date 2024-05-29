@@ -18,6 +18,7 @@ package collector
 
 import (
 	"errors"
+	"github.com/prometheus/node_exporter/featuregate"
 	"strings"
 
 	"github.com/go-kit/log"
@@ -25,7 +26,13 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
+var (
+	errZFSNotAvailable            = errors.New("ZFS / ZFS statistics are not available")
+	consistentZFSLinuxMetricNames = featuregate.NewFeatureGate(
+		"ConsistentZFSLinuxMetricNames",
+		"Use consistent metric names for ZFS metrics on Linux (similar to the ones from FreeBSD)",
+		"v1.8.1", "v1.9.0")
+)
 
 type zfsSysctl string
 
@@ -91,6 +98,10 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func (s zfsSysctl) metricName() string {
+	if isEnabled, _ := consistentZFSLinuxMetricNames.IsEnabled(); isEnabled {
+		mib := string(s)
+		return bsdsysctl[mib]
+	}
 	parts := strings.Split(string(s), ".")
 	return strings.Replace(parts[len(parts)-1], "-", "_", -1)
 }
