@@ -347,6 +347,10 @@ For advanced use the `node_exporter` can be passed an optional list of collector
 
 This can be useful for having different Prometheus servers collect specific metrics from nodes.
 
+### Feature Flags
+
+The `node_exporter` supports feature flags to enable or disable experimental features. These can be found in [./featuregate/feature-gates.md](./featuregate/feature-gates.md).
+
 ## Development building and running
 
 Prerequisites:
