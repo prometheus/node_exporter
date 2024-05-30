@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -26,15 +27,17 @@ import (
 	"strconv"
 	"sync"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
-	"golang.org/x/exp/maps"
 )
 
 type cpuCollector struct {
-	fs                 procfs.FS
+	procfs             procfs.FS
+	sysfs              sysfs.FS
 	cpu                *prometheus.Desc
 	cpuInfo            *prometheus.Desc
 	cpuFrequencyHz     *prometheus.Desc
@@ -45,6 +48,7 @@ type cpuCollector struct {
 	cpuPackageThrottle *prometheus.Desc
 	cpuIsolated        *prometheus.Desc
 	logger             *slog.Logger
+	cpuOnline          *prometheus.Desc
 	cpuStats           map[int64]procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
 	isolatedCpus       []uint16
@@ -70,17 +74,17 @@ func init() {
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
 func NewCPUCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+	pfs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	sysfs, err := sysfs.NewFS(*sysPath)
+	sfs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	isolcpus, err := sysfs.IsolatedCPUs()
+	isolcpus, err := sfs.IsolatedCPUs()
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, fmt.Errorf("Unable to get isolated cpus: %w", err)
@@ -89,8 +93,9 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	c := &cpuCollector{
-		fs:  fs,
-		cpu: nodeCPUSecondsDesc,
+		procfs: pfs,
+		sysfs:  sfs,
+		cpu:    nodeCPUSecondsDesc,
 		cpuInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
 			"CPU information from /proc/cpuinfo.",
@@ -129,6 +134,11 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 		cpuIsolated: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "isolated"),
 			"Whether each core is isolated, information from /sys/devices/system/cpu/isolated.",
+			[]string{"cpu"}, nil,
+		),
+		cpuOnline: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "online"),
+			"CPUs that are online and being scheduled.",
 			[]string{"cpu"}, nil,
 		),
 		logger:       logger,
@@ -177,12 +187,21 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	if c.isolatedCpus != nil {
 		c.updateIsolated(ch)
 	}
-	return c.updateThermalThrottle(ch)
+	err := c.updateThermalThrottle(ch)
+	if err != nil {
+		return err
+	}
+	err = c.updateOnline(ch)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // updateInfo reads /proc/cpuinfo
 func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
-	info, err := c.fs.CPUInfo()
+	info, err := c.procfs.CPUInfo()
 	if err != nil {
 		return err
 	}
@@ -333,9 +352,31 @@ func (c *cpuCollector) updateIsolated(ch chan<- prometheus.Metric) {
 	}
 }
 
+// updateOnline reads /sys/devices/system/cpu/cpu*/online through sysfs and exports online status metrics.
+func (c *cpuCollector) updateOnline(ch chan<- prometheus.Metric) error {
+	cpus, err := c.sysfs.CPUs()
+	if err != nil {
+		return err
+	}
+	// No-op if the system does not support CPU online stats.
+	cpu0 := cpus[0]
+	if _, err := cpu0.Online(); err != nil && errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	for _, cpu := range cpus {
+		setOnline := float64(0)
+		if online, _ := cpu.Online(); online {
+			setOnline = 1
+		}
+		ch <- prometheus.MustNewConstMetric(c.cpuOnline, prometheus.GaugeValue, setOnline, cpu.Number())
+	}
+
+	return nil
+}
+
 // updateStat reads /proc/stat through procfs and exports CPU-related metrics.
 func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
-	stats, err := c.fs.Stat()
+	stats, err := c.procfs.Stat()
 	if err != nil {
 		return err
 	}

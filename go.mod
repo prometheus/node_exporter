@@ -8,7 +8,6 @@ require (
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/dennwc/btrfs v0.0.0-20240418142341-0167142bde7a
 	github.com/ema/qdisc v1.0.0
-	github.com/go-kit/log v0.2.1
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/hashicorp/go-envparse v0.1.0
 	github.com/hodgesds/perf-utils v0.7.0
@@ -27,7 +26,7 @@ require (
 	github.com/prometheus/client_model v0.6.1
 	github.com/prometheus/common v0.61.0
 	github.com/prometheus/exporter-toolkit v0.13.2
-	github.com/prometheus/procfs v0.15.1
+	github.com/prometheus/procfs v0.15.2-0.20240603130017-1754b780536b // == v0.15.1 + https://github.com/prometheus/procfs/commit/1754b780536bb81082baa913e04cc4fff4d2baea
 	github.com/safchain/ethtool v0.5.9
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
 	golang.org/x/sys v0.28.0
@@ -39,7 +38,6 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dennwc/ioctl v1.0.0 // indirect
-	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
