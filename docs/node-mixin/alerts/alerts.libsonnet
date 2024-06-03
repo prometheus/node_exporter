@@ -410,8 +410,8 @@
           {
             alert: 'NodeSystemdServiceCrashlooping',
             expr: |||
-              increase(node_systemd_service_restart_total{%(filteringSelector)s}[5m]) > 2
-            ||| % this.config,
+              increase(node_systemd_service_restart_total{%(nodeExporterSelector)s}[5m]) > 2
+            ||| % $._config,
             'for': '15m',
             labels: {
               severity: 'warning',
