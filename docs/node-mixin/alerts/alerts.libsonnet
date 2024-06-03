@@ -408,6 +408,20 @@
             },
           },
           {
+            alert: 'NodeSystemdServiceCrashlooping',
+            expr: |||
+              increase(node_systemd_service_restart_total{%(filteringSelector)s}[5m]) > 2
+            ||| % this.config,
+            'for': '15m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Systemd service keeps restaring, possibly crash looping.',
+              description: 'Systemd service {{ $labels.name }} has being restarted too many times at {{ $labels.instance }} for the last 15 minutes. Please check if service is crash looping.',
+            },
+          },
+          {
             alert: 'NodeBondingDegraded',
             expr: |||
               (node_bonding_slaves - node_bonding_active) != 0
