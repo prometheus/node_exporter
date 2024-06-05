@@ -119,6 +119,16 @@ func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, err
 	collectors := make(map[string]Collector)
 	initiatedCollectorsMtx.Lock()
 	defer initiatedCollectorsMtx.Unlock()
+
+	// The meminfo collector is being deprecated in favor of the new
+	// meminfo_procfs collector. They are mutually exclusive and should not
+	// be enabled at the time same.
+	micEnabled, micExist := collectorState["meminfo"]
+	mipcEnabled, mipcExist := collectorState["meminfo_procfs"]
+	if (micExist && mipcExist) && (*micEnabled && *mipcEnabled) {
+		return nil, fmt.Errorf("'meminfo' and 'meminfo_procfs' collectors are mutually exclusive, please disable one")
+	}
+
 	for key, enabled := range collectorState {
 		if !*enabled || (len(f) > 0 && !f[key]) {
 			continue
@@ -243,4 +253,12 @@ func pushMetric(ch chan<- prometheus.Metric, fieldDesc *prometheus.Desc, name st
 	}
 
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, fVal, labelValues...)
+}
+
+func uint64PtrToFloat(u *uint64) float64 {
+	if u == nil {
+		return float64(0)
+	}
+
+	return float64(*u)
 }

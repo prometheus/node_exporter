@@ -40,6 +40,8 @@ func init() {
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
 func NewMeminfoCollector(logger log.Logger) (Collector, error) {
+	level.Warn(logger).Log("msg", "This collector is deprecated and will be removed in the next major version release.")
+
 	return &meminfoCollector{logger}, nil
 }
 
