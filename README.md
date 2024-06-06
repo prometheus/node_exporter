@@ -104,6 +104,7 @@ filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
 qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
+slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
 sysctl | all | --collector.sysctl.include | N/A
 systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
 
