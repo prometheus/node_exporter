@@ -629,7 +629,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 	)
 
 	for _, tr := range s.Transport {
-		trLabelValues := []string{export, protocol, mountAddress, strconv.FormatUint(tr.Port, 10)}
+		trLabelValues := []string{export, tr.Protocol, mountAddress, strconv.FormatUint(tr.Port, 10)}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportBindTotal,
