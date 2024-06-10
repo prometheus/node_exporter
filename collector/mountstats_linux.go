@@ -538,7 +538,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			mountAddress = miStats.SuperOptions["addr"]
 		}
 
-		deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport.Protocol, mountAddress}
+		deviceIdentifier := nfsDeviceIdentifier{m.Device, lastTransportOrEmpty(stats.Transport).Protocol, mountAddress}
 		i := deviceList[deviceIdentifier]
 		if i {
 			level.Debug(c.logger).Log("msg", "Skipping duplicate device entry", "device", deviceIdentifier)
@@ -546,10 +546,19 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		deviceList[deviceIdentifier] = true
-		c.updateNFSStats(ch, stats, m.Device, stats.Transport.Protocol, mountAddress)
+		c.updateNFSStats(ch, stats, m.Device, lastTransportOrEmpty(stats.Transport).Protocol, mountAddress)
 	}
 
 	return nil
+}
+
+// lastTransportOrEmpty returns last element from given slice. Before https://github.com/prometheus/procfs/issues/450,
+// *procfs.MountStatsNFS only contained last transport, so this preserves previous behaviour.
+func lastTransportOrEmpty(transport []procfs.NFSTransportStats) procfs.NFSTransportStats {
+	if len(transport) > 0 {
+		return transport[len(transport)-1]
+	}
+	return procfs.NFSTransportStats{}
 }
 
 func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *procfs.MountStatsNFS, export, protocol, mountAddress string) {
@@ -617,73 +626,74 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 		labelValues...,
 	)
 
+	tr := lastTransportOrEmpty(s.Transport)
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportBindTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.Bind),
+		float64(tr.Bind),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportConnectTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.Connect),
+		float64(tr.Connect),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportIdleTimeSeconds,
 		prometheus.GaugeValue,
-		float64(s.Transport.IdleTimeSeconds%float64Mantissa),
+		float64(tr.IdleTimeSeconds%float64Mantissa),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportSendsTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.Sends),
+		float64(tr.Sends),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportReceivesTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.Receives),
+		float64(tr.Receives),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportBadTransactionIDsTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.BadTransactionIDs),
+		float64(tr.BadTransactionIDs),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportBacklogQueueTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.CumulativeBacklog),
+		float64(tr.CumulativeBacklog),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportMaximumRPCSlots,
 		prometheus.GaugeValue,
-		float64(s.Transport.MaximumRPCSlotsUsed),
+		float64(tr.MaximumRPCSlotsUsed),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportSendingQueueTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.CumulativeSendingQueue),
+		float64(tr.CumulativeSendingQueue),
 		labelValues...,
 	)
 
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSTransportPendingQueueTotal,
 		prometheus.CounterValue,
-		float64(s.Transport.CumulativePendingQueue),
+		float64(tr.CumulativePendingQueue),
 		labelValues...,
 	)
 
