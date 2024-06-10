@@ -87,10 +87,10 @@ func (c *fibrechannelCollector) pushMetric(ch chan<- prometheus.Metric, name str
 	ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, float64(value), host)
 }
 
-func (c *fibrechannelCollector) pushCounter(ch chan<- prometheus.Metric, name string, value uint64, host string) {
+func (c *fibrechannelCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, host string) {
 	// Don't push counters that aren't implemented (a counter equal to maxUint64 is unimplemented by the HBA firmware)
-	if value != maxUint64 {
-		c.pushMetric(ch, name, value, host, prometheus.CounterValue)
+	if value != nil && *value != maxUint64 {
+		c.pushMetric(ch, name, *value, host, prometheus.CounterValue)
 	}
 }
 
@@ -114,24 +114,34 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		infoValue := 1.0
 
 		// First push the Host values
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, host.Name, host.Speed, host.PortState, host.PortType, host.PortID, host.PortName, host.FabricName, host.SymbolicName, host.SupportedClasses, host.SupportedSpeeds, host.DevLossTMO)
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue,
+			nilToEmpty(host.Name), nilToEmpty(host.Speed), nilToEmpty(host.PortState), nilToEmpty(host.PortType),
+			nilToEmpty(host.PortID), nilToEmpty(host.PortName), nilToEmpty(host.FabricName), nilToEmpty(host.SymbolicName),
+			nilToEmpty(host.SupportedClasses), nilToEmpty(host.SupportedSpeeds), nilToEmpty(host.DevLossTMO))
 
 		// Then the counters
-		c.pushCounter(ch, "dumped_frames_total", host.Counters.DumpedFrames, host.Name)
-		c.pushCounter(ch, "error_frames_total", host.Counters.ErrorFrames, host.Name)
-		c.pushCounter(ch, "invalid_crc_total", host.Counters.InvalidCRCCount, host.Name)
-		c.pushCounter(ch, "rx_frames_total", host.Counters.RXFrames, host.Name)
-		c.pushCounter(ch, "rx_words_total", host.Counters.RXWords, host.Name)
-		c.pushCounter(ch, "tx_frames_total", host.Counters.TXFrames, host.Name)
-		c.pushCounter(ch, "tx_words_total", host.Counters.TXWords, host.Name)
-		c.pushCounter(ch, "seconds_since_last_reset_total", host.Counters.SecondsSinceLastReset, host.Name)
-		c.pushCounter(ch, "invalid_tx_words_total", host.Counters.InvalidTXWordCount, host.Name)
-		c.pushCounter(ch, "link_failure_total", host.Counters.LinkFailureCount, host.Name)
-		c.pushCounter(ch, "loss_of_sync_total", host.Counters.LossOfSyncCount, host.Name)
-		c.pushCounter(ch, "loss_of_signal_total", host.Counters.LossOfSignalCount, host.Name)
-		c.pushCounter(ch, "nos_total", host.Counters.NosCount, host.Name)
-		c.pushCounter(ch, "fcp_packet_aborts_total", host.Counters.FCPPacketAborts, host.Name)
+		c.pushCounter(ch, "dumped_frames_total", host.Counters.DumpedFrames, nilToEmpty(host.Name))
+		c.pushCounter(ch, "error_frames_total", host.Counters.ErrorFrames, nilToEmpty(host.Name))
+		c.pushCounter(ch, "invalid_crc_total", host.Counters.InvalidCRCCount, nilToEmpty(host.Name))
+		c.pushCounter(ch, "rx_frames_total", host.Counters.RXFrames, nilToEmpty(host.Name))
+		c.pushCounter(ch, "rx_words_total", host.Counters.RXWords, nilToEmpty(host.Name))
+		c.pushCounter(ch, "tx_frames_total", host.Counters.TXFrames, nilToEmpty(host.Name))
+		c.pushCounter(ch, "tx_words_total", host.Counters.TXWords, nilToEmpty(host.Name))
+		c.pushCounter(ch, "seconds_since_last_reset_total", host.Counters.SecondsSinceLastReset, nilToEmpty(host.Name))
+		c.pushCounter(ch, "invalid_tx_words_total", host.Counters.InvalidTXWordCount, nilToEmpty(host.Name))
+		c.pushCounter(ch, "link_failure_total", host.Counters.LinkFailureCount, nilToEmpty(host.Name))
+		c.pushCounter(ch, "loss_of_sync_total", host.Counters.LossOfSyncCount, nilToEmpty(host.Name))
+		c.pushCounter(ch, "loss_of_signal_total", host.Counters.LossOfSignalCount, nilToEmpty(host.Name))
+		c.pushCounter(ch, "nos_total", host.Counters.NosCount, nilToEmpty(host.Name))
+		c.pushCounter(ch, "fcp_packet_aborts_total", host.Counters.FCPPacketAborts, nilToEmpty(host.Name))
 	}
 
 	return nil
+}
+
+func nilToEmpty(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
