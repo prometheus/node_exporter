@@ -36,7 +36,6 @@ import (
 const (
 	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)"
 	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
-	defFSTypesErrorCheck   = "^(ext4|scsi)"
 )
 
 var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
