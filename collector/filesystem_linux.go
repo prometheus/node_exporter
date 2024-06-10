@@ -25,6 +25,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"strconv"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
@@ -35,6 +36,7 @@ import (
 const (
 	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)"
 	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+	defFSTypesErrorCheck   = "^(ext4|scsi)"
 )
 
 var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
@@ -143,14 +145,54 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 		}
 	}
 
+	errors := float64(-1)
+	warnings := float64(-1)
+	messages := float64(-1)
+	if labels.fsType == "ext4" || labels.fsType == "scsi" {
+		// For fstype ext4
+		// errors_count https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=52c198c6820f68b6fbe1d83f76e34a82bf736024
+		// msg_count and warning_count https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1cf006ed19a887c22e085189c8b4a3cbf60d2246
+		if labels.fsType == "ext4" {
+			deviceNameParts := strings.Split(labels.device, "/")
+			deviceName := deviceNameParts[len(deviceNameParts)-1]
+			ext4FilesPath := fmt.Sprintf("/sys/fs/ext4/%s", deviceName)
+
+			errorsCountFilePath := fmt.Sprintf("%s/errors_count", ext4FilesPath)
+			errors, err = readTextFileCounter(errorsCountFilePath)
+			if err != nil {
+				level.Debug(c.logger).Log("msg", "Error reading errors count", "errorsCountFilePath", errorsCountFilePath, "err", err)
+				errors = float64(-1)
+			}
+
+			warningsCountFilePath := fmt.Sprintf("%s/warning_count", ext4FilesPath)
+			warnings, err = readTextFileCounter(warningsCountFilePath)
+			if err != nil {
+				level.Debug(c.logger).Log("msg", "Error reading warnings count", "warningsCountFilePath", warningsCountFilePath, "err", err)
+				warnings = float64(-1)
+			}
+			
+			messagesCountFilePath := fmt.Sprintf("%s/msg_count", ext4FilesPath)
+			messages, err = readTextFileCounter(messagesCountFilePath)
+			if err != nil {
+				level.Debug(c.logger).Log("msg", "Error reading errors count", "messagesCountFilePath", messagesCountFilePath, "err", err)
+				messages = float64(-1)
+			}
+		}
+	} else {
+		level.Debug(c.logger).Log("msg", "Ignoring unsupported fsType for error checking", "fsType", labels.fsType)
+	}
+
 	return filesystemStats{
-		labels:    labels,
-		size:      float64(buf.Blocks) * float64(buf.Bsize),
-		free:      float64(buf.Bfree) * float64(buf.Bsize),
-		avail:     float64(buf.Bavail) * float64(buf.Bsize),
-		files:     float64(buf.Files),
-		filesFree: float64(buf.Ffree),
-		ro:        ro,
+		labels:      labels,
+		size:        float64(buf.Blocks) * float64(buf.Bsize),
+		free:        float64(buf.Bfree) * float64(buf.Bsize),
+		avail:       float64(buf.Bavail) * float64(buf.Bsize),
+		files:       float64(buf.Files),
+		filesFree:   float64(buf.Ffree),
+		ro:          ro,
+		errors:      errors,
+		warnings:    warnings,
+		messages:    messages,
 	}
 }
 
@@ -218,4 +260,27 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 	}
 
 	return filesystems, scanner.Err()
+}
+
+func readTextFileCounter(filePath string) (float64, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+			return 0, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	if scanner.Scan() {
+			text := scanner.Text()
+			errorsCount, err := strconv.ParseFloat(text, 64)
+			if err != nil {
+					return 0, err
+			}
+			return errorsCount, nil
+	}
+
+	if err := scanner.Err(); err != nil {
+			return 0, err
+	}
+	return 0, errors.New("could not read errors count")
 }
