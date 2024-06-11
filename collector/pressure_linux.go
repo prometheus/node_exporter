@@ -109,7 +109,7 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			return fmt.Errorf("failed to retrieve pressure stats: %w", err)
 		}
 		// IRQ pressure does not have 'some' data.
-		// See https://github.com/torvalds/linux/blob/v6.9/kernel/sched/psi.c#L1243
+		// See https://github.com/torvalds/linux/blob/v6.9/include/linux/psi_types.h#L65
 		if vals.Some == nil && res != "irq" {
 			level.Debug(c.logger).Log("msg", "pressure information returned no 'some' data")
 			return ErrNoData
