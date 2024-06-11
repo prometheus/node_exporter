@@ -29,7 +29,7 @@ import (
 )
 
 var (
-	psiResources = []string{"cpu", "io", "memory"}
+	psiResources = []string{"cpu", "io", "memory", "irq"}
 )
 
 type pressureStatsCollector struct {
@@ -38,6 +38,7 @@ type pressureStatsCollector struct {
 	ioFull  *prometheus.Desc
 	mem     *prometheus.Desc
 	memFull *prometheus.Desc
+	irqFull *prometheus.Desc
 
 	fs procfs.FS
 
@@ -81,6 +82,11 @@ func NewPressureStatsCollector(logger log.Logger) (Collector, error) {
 			"Total time in seconds no process could make progress due to memory congestion",
 			nil, nil,
 		),
+		irqFull: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "pressure", "irq_stalled_seconds_total"),
+			"Total time in seconds no process could make progress due to IRQ congestion",
+			nil, nil,
+		),
 		fs:     fs,
 		logger: logger,
 	}, nil
@@ -102,7 +108,9 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			return fmt.Errorf("failed to retrieve pressure stats: %w", err)
 		}
-		if vals.Some == nil {
+		// IRQ pressure does not have 'some' data.
+		// See https://github.com/torvalds/linux/blob/v6.9/kernel/sched/psi.c#L1243
+		if vals.Some == nil && res != "irq" {
 			level.Debug(c.logger).Log("msg", "pressure information returned no 'some' data")
 			return ErrNoData
 		}
@@ -119,6 +127,8 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		case "memory":
 			ch <- prometheus.MustNewConstMetric(c.mem, prometheus.CounterValue, float64(vals.Some.Total)/1000.0/1000.0)
 			ch <- prometheus.MustNewConstMetric(c.memFull, prometheus.CounterValue, float64(vals.Full.Total)/1000.0/1000.0)
+		case "irq":
+			ch <- prometheus.MustNewConstMetric(c.irqFull, prometheus.CounterValue, float64(vals.Full.Total)/1000.0/1000.0)
 		default:
 			level.Debug(c.logger).Log("msg", "did not account for resource", "resource", res)
 		}
