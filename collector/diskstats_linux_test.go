@@ -320,7 +320,7 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 	logger := log.NewLogfmtLogger(os.Stderr)
 	collector, err := NewDiskstatsCollector(logger)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 	c, err := NewTestDiskStatsCollector(logger)
 	if err != nil {
