@@ -92,7 +92,10 @@ func checkMetric(exp, got *btrfsMetric) bool {
 }
 
 func TestBtrfs(t *testing.T) {
-	fs, _ := btrfs.NewFS("fixtures/sys")
+	fs, err := btrfs.NewFS("fixtures/sys")
+	if err != nil {
+		t.Fatal(err)
+	}
 	collector := &btrfsCollector{fs: fs}
 
 	stats, err := collector.fs.Stats()

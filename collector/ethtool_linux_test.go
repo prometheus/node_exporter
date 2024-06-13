@@ -257,11 +257,11 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 
 func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(logger)
-	collector.ethtool = &EthtoolFixture{
-		fixturePath: "fixtures/ethtool/",
-	}
 	if err != nil {
 		return nil, err
+	}
+	collector.ethtool = &EthtoolFixture{
+		fixturePath: "fixtures/ethtool/",
 	}
 	return collector, nil
 }
@@ -373,7 +373,7 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 	logger := log.NewLogfmtLogger(os.Stderr)
 	collector, err := NewEthtoolTestCollector(logger)
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 	c, err := NewTestEthtoolCollector(logger)
 	if err != nil {
