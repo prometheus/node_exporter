@@ -244,11 +244,3 @@ func pushMetric(ch chan<- prometheus.Metric, fieldDesc *prometheus.Desc, name st
 
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, fVal, labelValues...)
 }
-
-func uint64PtrToFloat(u *uint64) float64 {
-	if u == nil {
-		return float64(0)
-	}
-
-	return float64(*u)
-}
