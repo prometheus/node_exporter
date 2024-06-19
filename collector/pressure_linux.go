@@ -106,7 +106,7 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			level.Debug(c.logger).Log("msg", "pressure information returned no 'some' data")
 			return ErrNoData
 		}
-		if vals.Full == nil {
+		if vals.Full == nil && res != "cpu" {
 			level.Debug(c.logger).Log("msg", "pressure information returned no 'full' data")
 			return ErrNoData
 		}
