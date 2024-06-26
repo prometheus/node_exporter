@@ -12,6 +12,7 @@ device 192.168.1.1:/srv/test mounted on /mnt/nfs/test with fstype nfs4 statvers=
 	bytes:	1207640230 0 0 0 1210214218 0 295483 0
 	RPC iostats version: 1.0  p/v: 100003/4 (nfs)
 	xprt:	tcp 832 0 1 0 11 6428 6428 0 12154 0 24 26 5726
+	xprt:	tcp 689 1 2 0 0 2826 2818 0 24955 0 10 0 22129
 	per-op statistics
 	        NULL: 0 0 0 0 0 0 0 0
 	        READ: 1298 1298 0 207680 1210292152 6 79386 79407
@@ -27,6 +28,7 @@ device 192.168.1.1:/srv/test mounted on /mnt/nfs/test-dupe with fstype nfs4 stat
 	bytes:	1207640230 0 0 0 1210214218 0 295483 0
 	RPC iostats version: 1.0  p/v: 100003/4 (nfs)
 	xprt:	tcp 832 0 1 0 11 6428 6428 0 12154 0 24 26 5726
+	xprt:	tcp 689 1 2 0 0 2826 2818 0 24955 0 10 0 22129
 	per-op statistics
 	        NULL: 0 0 0 0 0 0 0 0
 	        READ: 1298 1298 0 207680 1210292152 6 79386 79407

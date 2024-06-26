@@ -2247,44 +2247,54 @@ node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",mount
 node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_backlog_queue_total Total number of items added to the RPC backlog queue.
 # TYPE node_mountstats_nfs_transport_backlog_queue_total counter
-node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 0
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 0
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_bad_transaction_ids_total Number of times the NFS server sent a response with a transaction ID unknown to this client.
 # TYPE node_mountstats_nfs_transport_bad_transaction_ids_total counter
-node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 0
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 0
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_bind_total Number of times the client has had to establish a connection from scratch to the NFS server.
 # TYPE node_mountstats_nfs_transport_bind_total counter
-node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 1
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 0
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_connect_total Number of times the client has made a TCP connection to the NFS server.
 # TYPE node_mountstats_nfs_transport_connect_total counter
-node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 1
-node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 2
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 1
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_idle_time_seconds Duration since the NFS mount last saw any RPC traffic, in seconds.
 # TYPE node_mountstats_nfs_transport_idle_time_seconds gauge
-node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 11
-node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 0
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 11
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_maximum_rpc_slots Maximum number of simultaneously active RPC requests ever used.
 # TYPE node_mountstats_nfs_transport_maximum_rpc_slots gauge
-node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 24
-node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 24
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 10
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 24
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 24
 # HELP node_mountstats_nfs_transport_pending_queue_total Total number of items added to the RPC transmission pending queue.
 # TYPE node_mountstats_nfs_transport_pending_queue_total counter
-node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 5726
-node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 5726
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 22129
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 5726
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 5726
 # HELP node_mountstats_nfs_transport_receives_total Number of RPC responses for this mount received from the NFS server.
 # TYPE node_mountstats_nfs_transport_receives_total counter
-node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
-node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 2818
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 6428
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 6428
 # HELP node_mountstats_nfs_transport_sending_queue_total Total number of items added to the RPC transmission sending queue.
 # TYPE node_mountstats_nfs_transport_sending_queue_total counter
-node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 26
-node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 26
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 0
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 26
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 26
 # HELP node_mountstats_nfs_transport_sends_total Number of RPC requests for this mount sent to the NFS server.
 # TYPE node_mountstats_nfs_transport_sends_total counter
-node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
-node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="689",protocol="tcp"} 2826
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="tcp"} 6428
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",port="832",protocol="udp"} 6428
 # HELP node_mountstats_nfs_write_bytes_total Number of bytes written using the write() syscall.
 # TYPE node_mountstats_nfs_write_bytes_total counter
 node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
