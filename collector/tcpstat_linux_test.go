@@ -86,5 +86,74 @@ func Test_parseTCPStats(t *testing.T) {
 	if want, got := 22, int(tcpStats[tcpRxQueuedBytes]); want != got {
 		t.Errorf("want tcpstat number of bytes in rx queue %d, got %d", want, got)
 	}
+}
 
+func Test_parseTCPStatsPerPort(t *testing.T) {
+	encode := func(m InetDiagMsg) []byte {
+		var buf bytes.Buffer
+		err := binary.Write(&buf, native.Endian, m)
+		if err != nil {
+			panic(err)
+		}
+		return buf.Bytes()
+	}
+
+	msg := []netlink.Message{
+		{
+			Data: encode(InetDiagMsg{
+				Family: syscall.AF_INET,
+				State:  uint8(tcpEstablished),
+				ID: InetDiagSockID{
+					DestPort: [2]byte{0, 22},
+				},
+			}),
+		},
+		{
+			Data: encode(InetDiagMsg{
+				Family: syscall.AF_INET,
+				State:  uint8(tcpEstablished),
+				ID: InetDiagSockID{
+					DestPort:   [2]byte{0, 22},
+					SourcePort: [2]byte{0, 23},
+				},
+			}),
+		},
+		{
+			Data: encode(InetDiagMsg{
+				Family: syscall.AF_INET6,
+				State:  uint8(tcpEstablished),
+				ID: InetDiagSockID{
+					SourcePort: [2]byte{0, 23},
+				},
+			}),
+		},
+	}
+
+	tcpStatsPerDestPort, err := parseTCPStatsPerDestPort(msg, []string{"22"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sp1 := statePortPair{
+		state: tcpEstablished,
+		port:  22,
+	}
+
+	sp2 := statePortPair{
+		state: tcpEstablished,
+		port:  23,
+	}
+
+	tcpStatsPerSourcePort, err := parseTCPStatsPerSourcePort(msg, []string{"23"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want, got := 2, int(tcpStatsPerDestPort[sp1]); want != got {
+		t.Errorf("tcpstat connection per %s states per dest port %d. want %d, got %d", sp1.state.String(), sp1.port, want, got)
+	}
+
+	if want, got := 2, int(tcpStatsPerSourcePort[sp2]); want != got {
+		t.Errorf("tcpstat connection per %s states per source port %d. want %d, got %d", sp2.state.String(), sp2.port, want, got)
+	}
 }
