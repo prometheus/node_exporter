@@ -2830,6 +2830,9 @@ node_pressure_io_stalled_seconds_total 159.229614
 # HELP node_pressure_io_waiting_seconds_total Total time in seconds that processes have waited due to IO congestion
 # TYPE node_pressure_io_waiting_seconds_total counter
 node_pressure_io_waiting_seconds_total 159.886802
+# HELP node_pressure_irq_stalled_seconds_total Total time in seconds no process could make progress due to IRQ congestion
+# TYPE node_pressure_irq_stalled_seconds_total counter
+node_pressure_irq_stalled_seconds_total 0.008494
 # HELP node_pressure_memory_stalled_seconds_total Total time in seconds no process could make progress due to memory congestion
 # TYPE node_pressure_memory_stalled_seconds_total counter
 node_pressure_memory_stalled_seconds_total 0
