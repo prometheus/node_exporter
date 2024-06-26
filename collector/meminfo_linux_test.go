@@ -19,18 +19,22 @@ package collector
 import (
 	"os"
 	"testing"
+
+	"github.com/go-kit/log"
 )
 
 func TestMemInfo(t *testing.T) {
-	file, err := os.Open("fixtures/proc/meminfo")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer file.Close()
+	*procPath = "fixtures/proc"
+	logger := log.NewLogfmtLogger(os.Stderr)
 
-	memInfo, err := parseMemInfo(file)
+	collector, err := NewMeminfoCollector(logger)
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
+	}
+
+	memInfo, err := collector.(*meminfoCollector).getMemInfo()
+	if err != nil {
+		panic(err)
 	}
 
 	if want, got := 3831959552.0, memInfo["MemTotal_bytes"]; want != got {
