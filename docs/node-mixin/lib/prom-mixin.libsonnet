@@ -10,7 +10,7 @@ local table = grafana70.panel.table;
 
 {
 
-  new(config=null, platform=null):: {
+  new(config=null, platform=null, uid=null):: {
 
     local prometheusDatasourceTemplate = {
       current: {
@@ -501,7 +501,8 @@ local table = grafana70.panel.table;
         tags=(config.dashboardTags),
         timezone='utc',
         refresh='30s',
-        graphTooltip='shared_crosshair'
+        graphTooltip='shared_crosshair',
+        uid=std.md5(uid)
       )
       .addTemplates(templates)
       .addRows(rows)
@@ -512,7 +513,8 @@ local table = grafana70.panel.table;
         tags=(config.dashboardTags),
         timezone='utc',
         refresh='30s',
-        graphTooltip='shared_crosshair'
+        graphTooltip='shared_crosshair',
+        uid=std.md5(uid)
       )
       .addTemplates(templates)
       .addRows(rows),

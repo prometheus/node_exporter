@@ -150,7 +150,8 @@ local diskSpaceUtilisation =
                              tags=($._config.dashboardTags),
                              timezone='utc',
                              refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             graphTooltip='shared_crosshair',
+                             uid=std.md5('node-rsrc-use.json')
                            )
                            .addTemplate(datasourceTemplate)
                            .addTemplate($._clusterTemplate)
@@ -215,7 +216,8 @@ local diskSpaceUtilisation =
                              tags=($._config.dashboardTags),
                              timezone='utc',
                              refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             graphTooltip='shared_crosshair',
+                             uid=std.md5('node-cluster-rsrc-use.json')
                            )
                            .addTemplate(datasourceTemplate)
                            .addTemplate($._clusterTemplate)
@@ -326,7 +328,8 @@ local diskSpaceUtilisation =
                              tags=($._config.dashboardTags),
                              timezone='utc',
                              refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             graphTooltip='shared_crosshair',
+                             uid=std.md5('node-multicluster-rsrc-use.json')
                            )
                            .addTemplate(datasourceTemplate)
                            .addRow(
