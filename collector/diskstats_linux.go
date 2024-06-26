@@ -22,6 +22,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"errors"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -85,6 +86,8 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedFactorDesc
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
+	ioErrDesc               typedFactorDesc
+	ioDoneDesc              typedFactorDesc
 	logger                  log.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -257,6 +260,20 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
+		ioErrDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ioerr_total"),
+			"Number of IO commands that completed with an error.",
+				[]string{"device"},
+				nil,
+			), valueType: prometheus.CounterValue,
+		},
+		ioDoneDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "iodone_total"),
+			"Number of completed or rejected IO commands.",
+				[]string{"device"},
+				nil,
+			), valueType: prometheus.CounterValue,
+		},
 		logger: logger,
 	}
 
@@ -366,6 +383,22 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
+
+		ioCounterFilesPath := fmt.Sprintf("/sys/block/%s/device", dev)
+
+		ioErrFilePath := fmt.Sprintf("%s/ioerr_cnt", ioCounterFilesPath)
+		if ioErr, err := readHexFileCounter(ioErrFilePath); err == nil {
+			ch <- c.ioErrDesc.mustNewConstMetric(ioErr, dev)
+		} else {
+			level.Debug(c.logger).Log("msg", "Error reading IO errors count", "ioErrFilePath", ioErrFilePath, "err", err)
+		}
+
+		ioDoneFilePath := fmt.Sprintf("%s/iodone_cnt", ioCounterFilesPath)
+		if ioDone, err := readHexFileCounter(ioDoneFilePath); err == nil {
+			ch <- c.ioDoneDesc.mustNewConstMetric(ioDone, dev)
+		} else {
+			level.Debug(c.logger).Log("msg", "Error reading IO done count", "ioDoneFilePath", ioDoneFilePath, "err", err)
+		}
 	}
 	return nil
 }
@@ -404,4 +437,28 @@ func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 	}
 
 	return info, nil
+}
+
+func readHexFileCounter(filePath string) (float64, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return 0, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	if scanner.Scan() {
+		text := scanner.Text()
+		// Convert hex string to int64
+		errorsCount, err := strconv.ParseInt(text, 0, 64)
+		if err != nil {
+			return 0, err
+		}
+		return float64(errorsCount), nil
+	}
+
+	if err := scanner.Err(); err != nil {
+		return 0, err
+	}
+	return 0, errors.New("could not read errors count")
 }
