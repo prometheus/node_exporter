@@ -275,6 +275,30 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, ioctlStats *btrfsIoctlFsStat
 			metricType: prometheus.GaugeValue,
 			value:      float64(s.Allocation.GlobalRsvSize),
 		},
+		{
+			name:       "commits_total",
+			desc:       "The total number of commits that have occurred.",
+			metricType: prometheus.CounterValue,
+			value:      float64(s.CommitStats.Commits),
+		},
+		{
+			name:       "last_commit_seconds",
+			desc:       "Duration of the most recent commit, in seconds.",
+			metricType: prometheus.GaugeValue,
+			value:      float64(s.CommitStats.LastCommitMs) / 1000,
+		},
+		{
+			name:       "max_commit_seconds",
+			desc:       "Duration of the slowest commit, in seconds.",
+			metricType: prometheus.GaugeValue,
+			value:      float64(s.CommitStats.MaxCommitMs) / 1000,
+		},
+		{
+			name:       "commit_seconds_total",
+			desc:       "Sum of the duration of all commits, in seconds.",
+			metricType: prometheus.CounterValue,
+			value:      float64(s.CommitStats.TotalCommitMs) / 1000,
+		},
 	}
 
 	// Information about data, metadata and system data.
