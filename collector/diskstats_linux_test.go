@@ -315,6 +315,23 @@ node_disk_written_bytes_total{device="sdb"} 1.01012736e+09
 node_disk_written_bytes_total{device="sdc"} 8.852736e+07
 node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
+# HELP node_disk_rotational Rotational indicates whether the device is a rotational disk (1) or not (0).
+# TYPE node_disk_rotational gauge
+node_disk_rotational{device="dm-0"} 0
+node_disk_rotational{device="dm-1"} 0
+node_disk_rotational{device="dm-2"} 0
+node_disk_rotational{device="dm-3"} 0
+node_disk_rotational{device="dm-4"} 0
+node_disk_rotational{device="dm-5"} 0
+node_disk_rotational{device="mmcblk0"} 0
+node_disk_rotational{device="mmcblk0p1"} 0
+node_disk_rotational{device="mmcblk0p2"} 0
+node_disk_rotational{device="nvme0n1"} 0
+node_disk_rotational{device="sda"} 1
+node_disk_rotational{device="sdb"} 0
+node_disk_rotational{device="sdc"} 0
+node_disk_rotational{device="sr0"} 0
+node_disk_rotational{device="vda"} 0
 `
 
 	logger := log.NewLogfmtLogger(os.Stderr)
