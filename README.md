@@ -372,7 +372,7 @@ To see all available configuration flags:
 
 ## TLS endpoint
 
-** EXPERIMENTAL **
+**EXPERIMENTAL**
 
 The exporter supports TLS via a new web configuration file.
 
