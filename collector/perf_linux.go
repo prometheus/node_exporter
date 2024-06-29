@@ -17,7 +17,10 @@
 package collector
 
 import (
+	"encoding/binary"
 	"fmt"
+	"math/big"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -31,18 +34,22 @@ import (
 )
 
 const (
-	perfSubsystem = "perf"
+	perfSubsystem   = "perf"
+	msrSubsystem    = "msr"
+	bigByteOrder    = "big"
+	littleByteOrder = "little"
 )
 
 var (
-	perfCPUsFlag       = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
-	perfTracepointFlag = kingpin.Flag("collector.perf.tracepoint", "perf tracepoint that should be collected").Strings()
-	perfNoHwProfiler   = kingpin.Flag("collector.perf.disable-hardware-profilers", "disable perf hardware profilers").Default("false").Bool()
-	perfHwProfilerFlag = kingpin.Flag("collector.perf.hardware-profilers", "perf hardware profilers that should be collected").Strings()
-	perfNoSwProfiler   = kingpin.Flag("collector.perf.disable-software-profilers", "disable perf software profilers").Default("false").Bool()
-	perfSwProfilerFlag = kingpin.Flag("collector.perf.software-profilers", "perf software profilers that should be collected").Strings()
-	perfNoCaProfiler   = kingpin.Flag("collector.perf.disable-cache-profilers", "disable perf cache profilers").Default("false").Bool()
-	perfCaProfilerFlag = kingpin.Flag("collector.perf.cache-profilers", "perf cache profilers that should be collected").Strings()
+	perfCPUsFlag        = kingpin.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
+	perfTracepointFlag  = kingpin.Flag("collector.perf.tracepoint", "perf tracepoint that should be collected").Strings()
+	perfNoHwProfiler    = kingpin.Flag("collector.perf.disable-hardware-profilers", "disable perf hardware profilers").Default("false").Bool()
+	perfHwProfilerFlag  = kingpin.Flag("collector.perf.hardware-profilers", "perf hardware profilers that should be collected").Strings()
+	perfNoSwProfiler    = kingpin.Flag("collector.perf.disable-software-profilers", "disable perf software profilers").Default("false").Bool()
+	perfSwProfilerFlag  = kingpin.Flag("collector.perf.software-profilers", "perf software profilers that should be collected").Strings()
+	perfNoCaProfiler    = kingpin.Flag("collector.perf.disable-cache-profilers", "disable perf cache profilers").Default("false").Bool()
+	perfCaProfilerFlag  = kingpin.Flag("collector.perf.cache-profilers", "perf cache profilers that should be collected").Strings()
+	perfMsrProfilerFlag = kingpin.Flag("collector.perf.msr", "perf model specific register (MSR) collection").Strings()
 )
 
 func init() {
@@ -176,6 +183,57 @@ func (t *perfTracepoint) tracepoint() string {
 	return t.subsystem + ":" + t.event
 }
 
+// msrMeta is for holding metadata about a model specific register (MSR) for
+// collection.
+type msrMeta struct {
+	offset int64
+	name   string
+	order  string
+	msr    *perf.MSR
+	buf    []byte
+}
+
+func newMsrMeta(cpu int, name string, offsetStr string, sizeStr string, order string) (*msrMeta, error) {
+	// Offset could either be an int or hex value so attempt to parse both.
+	size, err := strconv.ParseUint(sizeStr, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to parse MSR size: %v", err)
+	}
+	offset, err := strconv.ParseInt(offsetStr, 10, 64)
+	if err != nil {
+		i, parsedOffset := new(big.Int).SetString(offsetStr, 0)
+		if !parsedOffset || !i.IsInt64() {
+			return nil, fmt.Errorf("Failed to parse MSR offset from %s: %v", offsetStr, err)
+		}
+		offset = i.Int64()
+	}
+	path := fmt.Sprintf("%s/%d/msr", perf.MSRBaseDir, cpu)
+	msr, err := perf.NewMSR(path, os.O_RDONLY, 0440)
+	if err != nil {
+		return nil, err
+	}
+
+	return &msrMeta{
+		name:   name,
+		order:  order,
+		offset: offset,
+		msr:    msr,
+		buf:    make([]byte, size),
+	}, nil
+}
+
+func (m *msrMeta) value() (uint64, error) {
+	if err := m.msr.Read(m.offset, m.buf); err != nil {
+		return 0, err
+	}
+	if m.order == bigByteOrder {
+		return binary.BigEndian.Uint64(m.buf), nil
+	} else if m.order == littleByteOrder {
+		return binary.LittleEndian.Uint64(m.buf), nil
+	}
+	return 0, fmt.Errorf("Unknown byte order %q, specify 'big' or 'little'", m.order)
+}
+
 // perfCollector is a Collector that uses the perf subsystem to collect
 // metrics. It uses perf_event_open an ioctls for profiling. Due to the fact
 // that the perf subsystem is highly dependent on kernel configuration and
@@ -188,6 +246,7 @@ type perfCollector struct {
 	perfHwProfilers     map[int]*perf.HardwareProfiler
 	perfSwProfilers     map[int]*perf.SoftwareProfiler
 	perfCacheProfilers  map[int]*perf.CacheProfiler
+	msrProfilers        map[int][]*msrMeta
 	desc                map[string]*prometheus.Desc
 	logger              log.Logger
 	tracepointCollector *perfTracepointCollector
@@ -309,6 +368,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 		hwProfilerCPUMap:    map[*perf.HardwareProfiler]int{},
 		swProfilerCPUMap:    map[*perf.SoftwareProfiler]int{},
 		cacheProfilerCPUMap: map[*perf.CacheProfiler]int{},
+		msrProfilers:        map[int][]*msrMeta{},
 		logger:              logger,
 	}
 
@@ -412,6 +472,18 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			}
 			collector.perfCacheProfilers[cpu] = &cacheProf
 			collector.cacheProfilerCPUMap[&cacheProf] = cpu
+		}
+		collector.msrProfilers[cpu] = []*msrMeta{}
+		for _, msrConfig := range *perfMsrProfilerFlag {
+			split := strings.Split(msrConfig, ":")
+			if len(split) != 4 {
+				return nil, fmt.Errorf("Invalid MSR config: %s", msrConfig)
+			}
+			msrMeta, err := newMsrMeta(cpu, split[0], split[1], split[2], split[3])
+			if err != nil {
+				return nil, err
+			}
+			collector.msrProfilers[cpu] = append(collector.msrProfilers[cpu], msrMeta)
 		}
 	}
 
@@ -677,6 +749,22 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			nil,
 		),
 	}
+	for _, msrProfilers := range collector.msrProfilers {
+		// Only iterate once as all CPUs will have the same config.
+		for _, msrProfiler := range msrProfilers {
+			collector.desc[msrProfiler.name] = prometheus.NewDesc(
+				prometheus.BuildFQName(
+					namespace,
+					msrSubsystem,
+					msrProfiler.name,
+				),
+				fmt.Sprintf("MSR: name %s offset: %d size: %d", msrProfiler.name, msrProfiler.offset, len(msrProfiler.buf)),
+				[]string{"cpu"},
+				nil,
+			)
+		}
+		break
+	}
 
 	return collector, nil
 }
@@ -697,7 +785,27 @@ func (c *perfCollector) Update(ch chan<- prometheus.Metric) error {
 	if c.tracepointCollector != nil {
 		return c.tracepointCollector.update(ch)
 	}
+	if err := c.updateMsrStats(ch); err != nil {
+		return err
+	}
 
+	return nil
+}
+
+func (c *perfCollector) updateMsrStats(ch chan<- prometheus.Metric) error {
+	for cpu, msrProfilers := range c.msrProfilers {
+		for _, msrProfiler := range msrProfilers {
+			val, err := msrProfiler.value()
+			if err != nil {
+				return err
+			}
+			ch <- prometheus.MustNewConstMetric(
+				c.desc[msrProfiler.name],
+				prometheus.CounterValue, float64(val),
+				fmt.Sprintf("%d", cpu),
+			)
+		}
+	}
 	return nil
 }
 
