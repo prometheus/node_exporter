@@ -2344,6 +2344,9 @@ node_netstat_TcpExt_SyncookiesSent 0
 # HELP node_netstat_TcpExt_TCPOFOQueue Statistic TcpExtTCPOFOQueue.
 # TYPE node_netstat_TcpExt_TCPOFOQueue untyped
 node_netstat_TcpExt_TCPOFOQueue 42
+# HELP node_netstat_TcpExt_TCPRcvQDrop Statistic TcpExtTCPRcvQDrop.
+# TYPE node_netstat_TcpExt_TCPRcvQDrop untyped
+node_netstat_TcpExt_TCPRcvQDrop 131
 # HELP node_netstat_TcpExt_TCPTimeouts Statistic TcpExtTCPTimeouts.
 # TYPE node_netstat_TcpExt_TCPTimeouts untyped
 node_netstat_TcpExt_TCPTimeouts 115
