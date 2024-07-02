@@ -25,6 +25,7 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/jaypipes/ghw/pkg/block"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
 )
@@ -85,6 +86,7 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedFactorDesc
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
+	diskSizeDesc            typedFactorDesc
 	logger                  log.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -257,6 +259,12 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
+		diskSizeDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "size_bytes"),
+				"Size of the disk in bytes.",
+				diskLabelNames, nil,
+			), valueType: prometheus.GaugeValue,
+		},
 		logger: logger,
 	}
 
@@ -281,7 +289,6 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		if c.deviceFilter.ignored(dev) {
 			continue
 		}
-
 		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
 		if err != nil {
 			level.Debug(c.logger).Log("msg", "Failed to parse udev info", "err", err)
@@ -366,6 +373,24 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
+	}
+
+	if err := c.updateDiskSize(ch); err != nil {
+		level.Error(c.logger).Log("msg", "Failed to update disk size metric", "err", err)
+	}
+	return nil
+}
+
+func (c *diskstatsCollector) updateDiskSize(ch chan<- prometheus.Metric) error {
+	block, err := block.New()
+	if err != nil {
+		return err
+	}
+	for _, disk := range block.Disks {
+		if c.deviceFilter.ignored(disk.Name) {
+			continue
+		}
+		ch <- c.diskSizeDesc.mustNewConstMetric(float64(disk.SizeBytes), disk.Name)
 	}
 	return nil
 }
