@@ -50,8 +50,6 @@ github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973 h1:hk4LPqXIY/c9Xz
 github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973/go.mod h1:PoK3ejP3LJkGTzKqRlpvCIFas3ncU02v8zzWDW+g0FY=
 github.com/jaypipes/ghw v0.12.0 h1:xU2/MDJfWmBhJnujHY9qwXQLs3DBsf0/Xa9vECY0Tho=
 github.com/jaypipes/ghw v0.12.0/go.mod h1:jeJGbkRB2lL3/gxYzNYzEDETV1ZJ56OKr+CSeSEym+g=
-github.com/jaypipes/pcidb v1.0.0 h1:vtZIfkiCUE42oYbJS0TAq9XSfSmcsgo9IdxSm9qzYU8=
-github.com/jaypipes/pcidb v1.0.0/go.mod h1:TnYUvqhPBzCKnH34KrIX22kAeEbDCSRJ9cqLRCuNDfk=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/josharian/native v1.1.0 h1:uuaP0hAbW7Y4l0ZRQ6C9zfb7Mg1mbFKry/xzDAfmtLA=
 github.com/josharian/native v1.1.0/go.mod h1:7X/raswPFr05uY3HiLlYeyQntB6OO7E/d2Cu7qoaN2w=
@@ -77,8 +75,6 @@ github.com/mdlayher/socket v0.4.1 h1:eM9y2/jlbs1M615oshPQOHZzj6R6wMT7bX5NPiQvn2U
 github.com/mdlayher/socket v0.4.1/go.mod h1:cAqeGjoufqdxWkD7DkpyS+wcefOtmu5OQ8KuoJGIReA=
 github.com/mdlayher/wifi v0.2.0 h1:vwbVyu5MWTiFNvOmWdvIx9veBlMVnEasZ90PhUi1DYU=
 github.com/mdlayher/wifi v0.2.0/go.mod h1:yOfWhVZ4FFJxeHzAxDzt87Om9EkqqcCiY9Gi5gfSXwI=
-github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG+4E0Y=
-github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f h1:KUppIJq7/+SVif2QVs3tOP0zanoHgBEVAwHxUSIzRqU=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/opencontainers/selinux v1.11.0 h1:+5Zbo97w3Lbmb3PeqQtpmTkMwsW5nRI3YaLpt7tQ7oU=

@@ -23,10 +23,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jaypipes/ghw"
-
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
+	"github.com/jaypipes/ghw/pkg/block"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
 )
@@ -383,7 +382,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func (c *diskstatsCollector) updateDiskSize(ch chan<- prometheus.Metric) error {
-	block, err := ghw.Block()
+	block, err := block.New()
 	if err != nil {
 		return err
 	}

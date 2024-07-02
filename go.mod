@@ -37,8 +37,6 @@ require (
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
-	github.com/jaypipes/pcidb v1.0.0 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 )
 
