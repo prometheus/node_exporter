@@ -374,12 +374,11 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
-
-		if err := c.updateDiskSize(ch); err != nil {
-			level.Error(c.logger).Log("msg", "Failed to update disk size metric", "err", err)
-		}
 	}
 
+	if err := c.updateDiskSize(ch); err != nil {
+		level.Error(c.logger).Log("msg", "Failed to update disk size metric", "err", err)
+	}
 	return nil
 }
 
