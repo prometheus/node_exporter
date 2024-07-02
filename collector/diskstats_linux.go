@@ -219,6 +219,9 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 					nil,
 				), valueType: prometheus.CounterValue,
 			},
+			{
+				desc: diskCapacityDesc, valueType: prometheus.GaugeValue,
+			},
 		},
 		filesystemInfoDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "filesystem_info"),
@@ -366,6 +369,28 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
+
+		sizePath := fmt.Sprintf("/sys/block/%s/size", dev)
+		sizeBytes, err := os.ReadFile(sizePath)
+		if err != nil {
+			level.Error(c.logger).Log("msg", "Failed to read disk size", "path", sizePath, "err", err)
+			continue
+		}
+
+		size, err := strconv.ParseUint(strings.TrimSpace(string(sizeBytes)), 10, 64)
+		if err != nil {
+			level.Error(c.logger).Log("msg", "Failed to parse disk size", "err", err)
+			continue
+		}
+
+		sizeInBytes := size * 512 // convert size to bytes (size is in 512-byte sectors)
+
+		ch <- prometheus.MustNewConstMetric(
+			diskCapacityDesc,
+			prometheus.GaugeValue,
+			float64(sizeInBytes),
+			dev,
+		)
 	}
 	return nil
 }
