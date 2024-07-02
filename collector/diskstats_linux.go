@@ -23,6 +23,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jaypipes/ghw"
+
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -85,6 +87,7 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedFactorDesc
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
+	diskSizeDesc            typedFactorDesc
 	logger                  log.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -219,9 +222,6 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 					nil,
 				), valueType: prometheus.CounterValue,
 			},
-			{
-				desc: diskCapacityDesc, valueType: prometheus.GaugeValue,
-			},
 		},
 		filesystemInfoDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "filesystem_info"),
@@ -260,6 +260,12 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
+		diskSizeDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "size_bytes"),
+				"Size of the disk in bytes.",
+				diskLabelNames, nil,
+			), valueType: prometheus.GaugeValue,
+		},
 		logger: logger,
 	}
 
@@ -284,7 +290,6 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		if c.deviceFilter.ignored(dev) {
 			continue
 		}
-
 		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
 		if err != nil {
 			level.Debug(c.logger).Log("msg", "Failed to parse udev info", "err", err)
@@ -370,27 +375,24 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-		sizePath := fmt.Sprintf("/sys/block/%s/size", dev)
-		sizeBytes, err := os.ReadFile(sizePath)
-		if err != nil {
-			level.Error(c.logger).Log("msg", "Failed to read disk size", "path", sizePath, "err", err)
+		if err := c.updateDiskSize(ch); err != nil {
+			level.Error(c.logger).Log("msg", "Failed to update disk size metric", "err", err)
+		}
+	}
+
+	return nil
+}
+
+func (c *diskstatsCollector) updateDiskSize(ch chan<- prometheus.Metric) error {
+	block, err := ghw.Block()
+	if err != nil {
+		return err
+	}
+	for _, disk := range block.Disks {
+		if c.deviceFilter.ignored(disk.Name) {
 			continue
 		}
-
-		size, err := strconv.ParseUint(strings.TrimSpace(string(sizeBytes)), 10, 64)
-		if err != nil {
-			level.Error(c.logger).Log("msg", "Failed to parse disk size", "err", err)
-			continue
-		}
-
-		sizeInBytes := size * 512 // convert size to bytes (size is in 512-byte sectors)
-
-		ch <- prometheus.MustNewConstMetric(
-			diskCapacityDesc,
-			prometheus.GaugeValue,
-			float64(sizeInBytes),
-			dev,
-		)
+		ch <- c.diskSizeDesc.mustNewConstMetric(float64(disk.SizeBytes), disk.Name)
 	}
 	return nil
 }
