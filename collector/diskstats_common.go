@@ -91,12 +91,6 @@ var (
 		diskLabelNames,
 		nil,
 	)
-
-	diskCapacityDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, diskSubsystem, "capacity_bytes"),
-		"Capacity of the disk in bytes.",
-		diskLabelNames, nil,
-	)
 )
 
 func newDiskstatsDeviceFilter(logger log.Logger) (deviceFilter, error) {
