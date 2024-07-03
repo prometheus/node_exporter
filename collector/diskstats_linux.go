@@ -25,7 +25,6 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/jaypipes/ghw/pkg/block"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
 )
@@ -267,7 +266,6 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 		},
 		logger: logger,
 	}
-
 	// Only enable getting device properties from udev if the directory is readable.
 	if stat, err := os.Stat(*udevDataPath); err != nil || !stat.IsDir() {
 		level.Error(logger).Log("msg", "Failed to open directory, disabling udev device properties", "path", *udevDataPath)
@@ -283,7 +281,6 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
-
 	for _, stats := range diskStats {
 		dev := stats.DeviceName
 		if c.deviceFilter.ignored(dev) {
@@ -373,24 +370,16 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
-	}
-
-	if err := c.updateDiskSize(ch); err != nil {
-		level.Error(c.logger).Log("msg", "Failed to update disk size metric", "err", err)
-	}
-	return nil
-}
-
-func (c *diskstatsCollector) updateDiskSize(ch chan<- prometheus.Metric) error {
-	block, err := block.New()
-	if err != nil {
-		return err
-	}
-	for _, disk := range block.Disks {
-		if c.deviceFilter.ignored(disk.Name) {
-			continue
+		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
+		if err != nil {
+			level.Error(c.logger).Log("msg", "Failed to get disk queue stats", "err", err)
 		}
-		ch <- c.diskSizeDesc.mustNewConstMetric(float64(disk.SizeBytes), disk.Name)
+		size, err := c.fs.SysBlockDeviceSize(dev)
+		if err != nil {
+			level.Error(c.logger).Log("msg", "Failed to get disk size", "err", err)
+		}
+		sizeBytes := size * queueStats.LogicalBlockSize
+		ch <- c.diskSizeDesc.mustNewConstMetric(float64(sizeBytes), dev)
 	}
 	return nil
 }

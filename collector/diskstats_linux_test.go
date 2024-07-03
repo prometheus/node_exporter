@@ -249,7 +249,8 @@ node_disk_reads_merged_total{device="sr0"} 0
 node_disk_reads_merged_total{device="vda"} 15386
 # HELP node_disk_size_bytes Size of the disk in bytes.
 # TYPE node_disk_size_bytes gauge
-node_disk_size_bytes{device="nvme0n1"} 1.024209543168e+12
+node_disk_size_bytes{device="nvme0n1"} 1.073741824e+10
+node_disk_size_bytes{device="nvme1n1"} 9e+11
 # HELP node_disk_write_time_seconds_total This is the total number of seconds spent by all writes.
 # TYPE node_disk_write_time_seconds_total counter
 node_disk_write_time_seconds_total{device="dm-0"} 1.1585578e+06
