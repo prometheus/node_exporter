@@ -376,12 +376,12 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
 		if err != nil {
-			level.Error(c.logger).Log("msg", "Failed to get disk queue stats", "err", err)
+			level.Error(c.logger).Log("msg", "Failed to get device queue stats", "err", err)
 			continue
 		}
 		size, err := c.fs.SysBlockDeviceSize(dev)
 		if err != nil {
-			level.Error(c.logger).Log("msg", "Failed to get disk size", "err", err)
+			level.Error(c.logger).Log("msg", "Failed to get device size", "err", err)
 			continue
 		}
 		sizeBytes := size * queueStats.LogicalBlockSize
