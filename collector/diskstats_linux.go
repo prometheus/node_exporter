@@ -266,6 +266,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 		},
 		logger: logger,
 	}
+
 	// Only enable getting device properties from udev if the directory is readable.
 	if stat, err := os.Stat(*udevDataPath); err != nil || !stat.IsDir() {
 		level.Error(logger).Log("msg", "Failed to open directory, disabling udev device properties", "path", *udevDataPath)
