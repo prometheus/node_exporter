@@ -281,11 +281,13 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
+
 	for _, stats := range diskStats {
 		dev := stats.DeviceName
 		if c.deviceFilter.ignored(dev) {
 			continue
 		}
+
 		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
 		if err != nil {
 			level.Debug(c.logger).Log("msg", "Failed to parse udev info", "err", err)
@@ -370,13 +372,16 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
+
 		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
 		if err != nil {
 			level.Error(c.logger).Log("msg", "Failed to get disk queue stats", "err", err)
+			continue
 		}
 		size, err := c.fs.SysBlockDeviceSize(dev)
 		if err != nil {
 			level.Error(c.logger).Log("msg", "Failed to get disk size", "err", err)
+			continue
 		}
 		sizeBytes := size * queueStats.LogicalBlockSize
 		ch <- c.diskSizeDesc.mustNewConstMetric(float64(sizeBytes), dev)
