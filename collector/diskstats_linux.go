@@ -384,21 +384,10 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-		ioCounterFilesPath := fmt.Sprintf("/sys/block/%s/device", dev)
-
-		ioErrFilePath := fmt.Sprintf("%s/ioerr_cnt", ioCounterFilesPath)
-		if ioErr, err := readHexFileCounter(ioErrFilePath); err == nil {
-			ch <- c.ioErrDesc.mustNewConstMetric(ioErr, dev)
-		} else {
-			level.Debug(c.logger).Log("msg", "Error reading IO errors count", "ioErrFilePath", ioErrFilePath, "err", err)
-		}
-
-		ioDoneFilePath := fmt.Sprintf("%s/iodone_cnt", ioCounterFilesPath)
-		if ioDone, err := readHexFileCounter(ioDoneFilePath); err == nil {
-			ch <- c.ioDoneDesc.mustNewConstMetric(ioDone, dev)
-		} else {
-			level.Debug(c.logger).Log("msg", "Error reading IO done count", "ioDoneFilePath", ioDoneFilePath, "err", err)
-		}
+	ioDiskStats, err := c.fs.SysBlockDeviceIOStat(dev)
+	if err != nil {
+		return fmt.Errorf("couldn't get iodiskstats: %w", err)
+	}
 	}
 	return nil
 }
