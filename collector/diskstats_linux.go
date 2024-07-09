@@ -384,10 +384,10 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-	ioDiskStats, err := c.fs.SysBlockDeviceIOStat(dev)
-	if err != nil {
-		return fmt.Errorf("couldn't get iodiskstats: %w", err)
-	}
+	// ioDiskStats, err := c.fs.SysBlockDeviceIOStat(dev)
+	// if err != nil {
+	// 	return fmt.Errorf("couldn't get iodiskstats: %w", err)
+	// }
 	}
 	return nil
 }
@@ -426,28 +426,4 @@ func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 	}
 
 	return info, nil
-}
-
-func readHexFileCounter(filePath string) (float64, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return 0, err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	if scanner.Scan() {
-		text := scanner.Text()
-		// Convert hex string to int64
-		errorsCount, err := strconv.ParseInt(text, 0, 64)
-		if err != nil {
-			return 0, err
-		}
-		return float64(errorsCount), nil
-	}
-
-	if err := scanner.Err(); err != nil {
-		return 0, err
-	}
-	return 0, errors.New("could not read errors count")
 }
