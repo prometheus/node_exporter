@@ -207,10 +207,10 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 	for sensor, sensorData := range data {
 
 		// Filtering for sensors is done on concatenated device name and sensor name
-		// separated by an underscore. This allows for excluding or including of specific
+		// separated by a semicolon. This allows for excluding or including of specific
 		// sensors on specific devices. For example, to exclude the sensor "temp3" on
-		// the device "platform_coretemp_0", use "platform_coretemp_0_temp3"
-		if c.sensorFilter.ignored(hwmonName + "_" + sensor) {
+		// the device "platform_coretemp_0", use "platform_coretemp_0;temp3"
+		if c.sensorFilter.ignored(hwmonName + ";" + sensor) {
 			level.Debug(c.logger).Log("msg", "ignoring sensor", "sensor", sensor)
 			continue
 		}
