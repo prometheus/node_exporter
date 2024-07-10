@@ -22,7 +22,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"errors"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -384,10 +383,12 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-	// ioDiskStats, err := c.fs.SysBlockDeviceIOStat(dev)
-	// if err != nil {
-	// 	return fmt.Errorf("couldn't get iodiskstats: %w", err)
-	// }
+		if ioDiskStats, err := c.fs.SysBlockDeviceIOStat(dev); err == nil {
+			ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDiskStats.IODoneCount), dev)
+			ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDiskStats.IOErrCount), dev)
+		} else {
+			level.Debug(c.logger).Log("msg", "Error reading IO errors count", "err", err)
+		}
 	}
 	return nil
 }
