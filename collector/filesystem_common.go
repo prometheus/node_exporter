@@ -66,12 +66,9 @@ var (
 type filesystemCollector struct {
 	excludedMountPointsPattern    *regexp.Regexp
 	excludedFSTypesPattern        *regexp.Regexp
-	excludedFSTypesErrorPattern   *regexp.Regexp
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
-	errorsDesc, warningsDesc      *prometheus.Desc
-	messagesDesc                  *prometheus.Desc
 	logger                        log.Logger
 }
 
@@ -84,8 +81,6 @@ type filesystemStats struct {
 	size, free, avail float64
 	files, filesFree  float64
 	ro, deviceError   float64
-	errors, warnings  float64
-	messages          float64
 }
 
 func init() {
@@ -160,24 +155,6 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 		filesystemLabelNames, nil,
 	)
 
-	errorsDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystem, "errors"),
-		"Number of filesystem errors encountered.",
-		filesystemLabelNames, nil,
-	)
-
-	warningsDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystem, "warnings"),
-		"Number of filesystem warnings encountered.",
-		filesystemLabelNames, nil,
-	)
-
-	messagesDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystem, "messages"),
-		"Number of filesystem log messages.",
-		filesystemLabelNames, nil,
-	)
-
 	return &filesystemCollector{
 		excludedMountPointsPattern: mountPointPattern,
 		excludedFSTypesPattern:     filesystemsTypesPattern,
@@ -188,9 +165,6 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 		filesFreeDesc:              filesFreeDesc,
 		roDesc:                     roDesc,
 		deviceErrorDesc:            deviceErrorDesc,
-		errorsDesc:                 errorsDesc,
-		warningsDesc:               warningsDesc,
-		messagesDesc:               messagesDesc,
 		logger:                     logger,
 	}, nil
 }
@@ -241,27 +215,6 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 			c.filesFreeDesc, prometheus.GaugeValue,
 			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 		)
-
-		if s.errors != -1 {
-			ch <- prometheus.MustNewConstMetric(
-				c.errorsDesc, prometheus.CounterValue,
-				s.errors, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-			)
-		}
-
-		if s.warnings != -1 {
-			ch <- prometheus.MustNewConstMetric(
-				c.warningsDesc, prometheus.CounterValue,
-				s.warnings, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-			)
-		}
-
-		if s.messages != -1 {
-			ch <- prometheus.MustNewConstMetric(
-				c.messagesDesc, prometheus.CounterValue,
-				s.messages, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-			)
-		}
 	}
 	return nil
 }
