@@ -31,12 +31,11 @@ type ext4Collector struct {
 }
 
 func init() {
-	registerCollector("ext4", defaultEnabled, NewXFSCollector)
+	registerCollector("ext4", defaultEnabled, NewExt4Collector)
 }
 
 // NewExt4Collector returns a new Collector exposing ext4 statistics.
 func NewExt4Collector(logger log.Logger) (Collector, error) {
-	fmt.Printf("**************DEBUG SHAHZEB****************")
 	fs, err := ext4.NewFS(*procPath, *sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
