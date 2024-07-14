@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"unsafe"
 
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -77,10 +78,20 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	for dev, interrupt := range interrupts {
 		for cpuNo, value := range interrupt.values {
+			interruptType := fmt.Sprintf("%d", interrupt.vector)
+			filterName := interruptType + ";" + dev
+			if c.nameFilter.ignored(filterName) {
+				level.Debug(c.logger).Log("msg", "ignoring interrupt name", "filter_name", filterName)
+				continue
+			}
+			if !c.includeZeros && value == 0.0 {
+				level.Debug(c.logger).Log("msg", "ignoring interrupt with zero value", "filter_name", filterName, "cpu", cpuNo)
+				continue
+			}
 			ch <- c.desc.mustNewConstMetric(
 				value,
 				strconv.Itoa(cpuNo),
-				fmt.Sprintf("%d", interrupt.vector),
+				interruptType,
 				dev,
 			)
 		}
