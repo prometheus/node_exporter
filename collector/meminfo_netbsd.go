@@ -17,8 +17,20 @@
 package collector
 
 import (
+	"github.com/go-kit/log"
 	"golang.org/x/sys/unix"
 )
+
+type meminfoCollector struct {
+	logger log.Logger
+}
+
+// NewMeminfoCollector returns a new Collector exposing memory stats.
+func NewMeminfoCollector(logger log.Logger) (Collector, error) {
+	return &meminfoCollector{
+		logger: logger,
+	}, nil
+}
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	uvmexp, err := unix.SysctlUvmexp("vm.uvmexp2")
