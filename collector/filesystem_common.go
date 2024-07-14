@@ -70,11 +70,12 @@ type filesystemCollector struct {
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	purgeableDesc                 *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
+	mountInfoDesc                 *prometheus.Desc
 	logger                        log.Logger
 }
 
 type filesystemLabels struct {
-	device, mountPoint, fsType, options, deviceError string
+	device, mountPoint, fsType, options, deviceError, major, minor string
 }
 
 type filesystemStats struct {
@@ -163,6 +164,13 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 		filesystemLabelNames, nil,
 	)
 
+	mountInfoDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "mount_info"),
+		"Filesystem mount information.",
+		[]string{"device", "major", "minor", "mountpoint"},
+		nil,
+	)
+
 	return &filesystemCollector{
 		excludedMountPointsPattern: mountPointPattern,
 		excludedFSTypesPattern:     filesystemsTypesPattern,
@@ -174,6 +182,7 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 		purgeableDesc:              purgeableDesc,
 		roDesc:                     roDesc,
 		deviceErrorDesc:            deviceErrorDesc,
+		mountInfoDesc:              mountInfoDesc,
 		logger:                     logger,
 	}, nil
 }
@@ -231,6 +240,10 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 				s.labels.fsType,
 			)
 		}
+		ch <- prometheus.MustNewConstMetric(
+			c.mountInfoDesc, prometheus.GaugeValue,
+			1.0, s.labels.device, s.labels.major, s.labels.minor, s.labels.mountPoint,
+		)
 	}
 	return nil
 }
