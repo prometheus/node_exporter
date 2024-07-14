@@ -5,6 +5,10 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.8.2 / 2024-06-19
+
+* [BUGFIX] Fix CPU pressure metric collection #3054
+
 ## 1.8.1 / 2024-05-16
 
 * [BUGFIX] Fix CPU seconds on Solaris #2963
