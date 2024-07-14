@@ -3776,6 +3776,9 @@ node_zfs_arc_l2_writes_lock_retry 0
 # HELP node_zfs_arc_l2_writes_sent kstat.zfs.misc.arcstats.l2_writes_sent
 # TYPE node_zfs_arc_l2_writes_sent untyped
 node_zfs_arc_l2_writes_sent 0
+# HELP node_zfs_arc_memory_available_bytes kstat.zfs.misc.arcstats.memory_available_bytes
+# TYPE node_zfs_arc_memory_available_bytes untyped
+node_zfs_arc_memory_available_bytes -9.223372036854776e+17
 # HELP node_zfs_arc_memory_direct_count kstat.zfs.misc.arcstats.memory_direct_count
 # TYPE node_zfs_arc_memory_direct_count untyped
 node_zfs_arc_memory_direct_count 542
