@@ -178,11 +178,11 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 }
 
 func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("1/mounts"))
+	file, err := os.Open(procFilePath("1/mountinfo"))
 	if errors.Is(err, os.ErrNotExist) {
-		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
-		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
-		file, err = os.Open(procFilePath("mounts"))
+		// Fallback to `/proc/self/mountinfo` if `/proc/1/mountinfo` is missing due hidepid.
+		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to self mounts", "err", err)
+		file, err = os.Open(procFilePath("self/mountinfo"))
 	}
 	if err != nil {
 		return nil, err
@@ -199,20 +199,33 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
 
-		if len(parts) < 4 {
+		if len(parts) < 10 {
 			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
+		}
+
+		major, minor := 0, 0
+		_, err := fmt.Sscanf(parts[2], "%d:%d", &major, &minor)
+		if err != nil {
+			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
+		}
+
+		m := 5
+		for parts[m+1] != "-" {
+			m++
 		}
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
-		parts[1] = strings.Replace(parts[1], "\\040", " ", -1)
-		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
+		parts[4] = strings.Replace(parts[4], "\\040", " ", -1)
+		parts[4] = strings.Replace(parts[4], "\\011", "\t", -1)
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:      parts[0],
-			mountPoint:  rootfsStripPrefix(parts[1]),
-			fsType:      parts[2],
-			options:     parts[3],
+			device:      parts[m+3],
+			mountPoint:  rootfsStripPrefix(parts[4]),
+			fsType:      parts[m+2],
+			options:     parts[5],
+			major:       fmt.Sprint(major),
+			minor:       fmt.Sprint(minor),
 			deviceError: "",
 		})
 	}

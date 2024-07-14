@@ -1,0 +1,6 @@
+29 1 259:0 / /host rw,seclabel,relatime,data=ordered shared:1 - ext4 /dev/nvme1n0 rw
+30 1 260:0 / /host/media/volume1 rw,seclabel,relatime,data=ordered shared:1 - ext4 /dev/nvme1n1 rw
+31 1 261:0 / /host/media/volume2 rw,seclabel,relatime,data=ordered shared:1 - ext4 /dev/nvme1n2 rw
+31 26 0:26 / /dev/shm rw,nosuid,nodev shared:4 - tmpfs tmpfs rw,inode64
+32 28 0:27 / /run/lock rw,nosuid,nodev,noexec,relatime shared:6 - tmpfs tmpfs rw,size=5120k,inode64
+33 24 0:28 / /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime shared:9 - cgroup2 cgroup2 rw
