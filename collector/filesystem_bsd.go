@@ -19,6 +19,7 @@ package collector
 
 import (
 	"errors"
+	"time"
 	"unsafe"
 
 	"github.com/go-kit/log/level"
@@ -38,17 +39,28 @@ const (
 	readOnly               = 0x1 // MNT_RDONLY
 )
 
-// Expose filesystem fullness.
+// GetStats exposes filesystem fullness.
 func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
-	var mntbuf *C.struct_statfs
-	count := C.getmntinfo(&mntbuf, C.MNT_NOWAIT)
-	if count == 0 {
-		return nil, errors.New("getmntinfo() failed")
+	// `getmntinfo` relies on `getfsstat` in some variants, and is blocking in general.
+	count := 0
+	countCh := make(chan int, 1)
+	var mountBuf *C.struct_statfs
+	go func(mountBuf **C.struct_statfs) {
+		countCh <- int(C.getmntinfo(mountBuf, C.MNT_WAIT))
+		close(countCh)
+	}(&mountBuf)
+	select {
+	case count = <-countCh:
+		if count <= 0 {
+			return nil, errors.New("getmntinfo failed")
+		}
+	case <-time.After(*mountTimeout):
+		return nil, errors.New("getmntinfo timed out")
 	}
 
-	mnt := (*[1 << 20]C.struct_statfs)(unsafe.Pointer(mntbuf))
+	mnt := (*[1 << 20]C.struct_statfs)(unsafe.Pointer(mountBuf))
 	stats = []filesystemStats{}
-	for i := 0; i < int(count); i++ {
+	for i := 0; i < count; i++ {
 		mountpoint := C.GoString(&mnt[i].f_mntonname[0])
 		if c.excludedMountPointsPattern.MatchString(mountpoint) {
 			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
