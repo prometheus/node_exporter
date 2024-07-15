@@ -85,6 +85,8 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedFactorDesc
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
+	ioErrDesc               typedFactorDesc
+	ioDoneDesc              typedFactorDesc
 	logger                  log.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -257,6 +259,20 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
+		ioErrDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ioerr_total"),
+			"Number of IO commands that completed with an error.",
+				[]string{"device"},
+				nil,
+			), valueType: prometheus.CounterValue,
+		},
+		ioDoneDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "iodone_total"),
+			"Number of completed or rejected IO commands.",
+				[]string{"device"},
+				nil,
+			), valueType: prometheus.CounterValue,
+		},
 		logger: logger,
 	}
 
@@ -365,6 +381,13 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 					level.Error(c.logger).Log("msg", "Failed to parse ATA value", "err", err)
 				}
 			}
+		}
+
+		if ioDiskStats, err := c.fs.SysBlockDeviceIOStat(dev); err == nil {
+			ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDiskStats.IODoneCount), dev)
+			ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDiskStats.IOErrCount), dev)
+		} else {
+			level.Debug(c.logger).Log("msg", "Error reading IO errors count", "err", err)
 		}
 	}
 	return nil
