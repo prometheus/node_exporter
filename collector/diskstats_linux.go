@@ -85,6 +85,7 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedFactorDesc
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
+	queueDescs              []typedFactorDesc
 	logger                  log.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -257,6 +258,16 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
+		queueDescs: []typedFactorDesc{
+			{
+				desc: prometheus.NewDesc(
+					prometheus.BuildFQName(namespace, diskSubsystem, "rotational"),
+					"Rotational indicates whether the device is a rotational disk (1) or not (0).",
+					diskLabelNames,
+					nil,
+				), valueType: prometheus.GaugeValue,
+			},
+		},
 		logger: logger,
 	}
 
@@ -365,6 +376,20 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 					level.Error(c.logger).Log("msg", "Failed to parse ATA value", "err", err)
 				}
 			}
+		}
+
+		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
+		// Block Device Queue stats may not exist for all devices.
+		if err != nil && !os.IsNotExist(err) {
+			level.Debug(c.logger).Log("msg", "Failed to get queue stats", "err", err)
+		}
+		for i, val := range []float64{
+			float64(queueStats.Rotational),
+		} {
+			if i >= len(c.queueDescs) {
+				break
+			}
+			ch <- c.queueDescs[i].mustNewConstMetric(val, dev)
 		}
 	}
 	return nil
