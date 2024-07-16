@@ -19,6 +19,7 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"github.com/prometheus/procfs/sysfs"
 	"os"
 
 	"github.com/go-kit/log"
@@ -99,17 +100,30 @@ var (
 		[]string{"device"},
 		nil,
 	)
+
+	mdraidDisks = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "raid_disks"),
+		"Number of raid disks on device.",
+		[]string{"device"},
+		nil,
+	)
+
+	mdraidDegradedDisksDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "degraded"),
+		"Number of degraded disks on device.",
+		[]string{"device"},
+		nil,
+	)
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
+	procFS, err := procfs.NewFS(*procPath)
 
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	mdStats, err := fs.MDStat()
-
+	mdStats, err := procFS.MDStat()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			level.Debug(c.logger).Log("msg", "Not collecting mdstat, file does not exist", "file", *procPath)
@@ -199,6 +213,35 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.GaugeValue,
 			float64(mdStat.BlocksSynced),
 			mdStat.Name,
+		)
+	}
+
+	sysFS, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return fmt.Errorf("failed to open sysfs: %w", err)
+	}
+	mdraids, err := sysFS.Mdraids()
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			level.Debug(c.logger).Log("msg", "Not collecting mdraids, file does not exist", "file", *sysPath)
+			return ErrNoData
+		}
+
+		return fmt.Errorf("error parsing mdraids: %w", err)
+	}
+
+	for _, mdraid := range mdraids {
+		ch <- prometheus.MustNewConstMetric(
+			mdraidDisks,
+			prometheus.GaugeValue,
+			float64(mdraid.Disks),
+			mdraid.Device,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			mdraidDegradedDisksDesc,
+			prometheus.GaugeValue,
+			float64(mdraid.DegradedDisks),
+			mdraid.Device,
 		)
 	}
 
