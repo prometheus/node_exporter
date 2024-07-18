@@ -11,9 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nopowersupplyclass && (linux || darwin)
+//go:build !nopowersupplyclass && (linux || darwin) && cgo
 // +build !nopowersupplyclass
 // +build linux darwin
+// +build cgo
 
 package collector
 
