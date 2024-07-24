@@ -102,6 +102,8 @@ ethtool | metrics | --collector.ethtool.metrics-include | N/A
 filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
 filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
+hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exclude
+interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
 qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
@@ -372,7 +374,7 @@ To see all available configuration flags:
 
 ## TLS endpoint
 
-** EXPERIMENTAL **
+**EXPERIMENTAL**
 
 The exporter supports TLS via a new web configuration file.
 

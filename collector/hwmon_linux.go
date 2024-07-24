@@ -32,8 +32,10 @@ import (
 )
 
 var (
-	collectorHWmonChipInclude = kingpin.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
-	collectorHWmonChipExclude = kingpin.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
+	collectorHWmonChipInclude   = kingpin.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
+	collectorHWmonChipExclude   = kingpin.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
+	collectorHWmonSensorInclude = kingpin.Flag("collector.hwmon.sensor-include", "Regexp of hwmon sensor to include (mutually exclusive to sensor-exclude).").String()
+	collectorHWmonSensorExclude = kingpin.Flag("collector.hwmon.sensor-exclude", "Regexp of hwmon sensor to exclude (mutually exclusive to sensor-include).").String()
 
 	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 	hwmonFilenameFormat     = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
@@ -52,6 +54,7 @@ func init() {
 
 type hwMonCollector struct {
 	deviceFilter deviceFilter
+	sensorFilter deviceFilter
 	logger       log.Logger
 }
 
@@ -62,6 +65,7 @@ func NewHwMonCollector(logger log.Logger) (Collector, error) {
 	return &hwMonCollector{
 		logger:       logger,
 		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipInclude),
+		sensorFilter: newDeviceFilter(*collectorHWmonSensorExclude, *collectorHWmonSensorInclude),
 	}, nil
 }
 
@@ -201,6 +205,15 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 
 	// Format all sensors.
 	for sensor, sensorData := range data {
+
+		// Filtering for sensors is done on concatenated device name and sensor name
+		// separated by a semicolon. This allows for excluding or including of specific
+		// sensors on specific devices. For example, to exclude the sensor "temp3" on
+		// the device "platform_coretemp_0", use "platform_coretemp_0;temp3"
+		if c.sensorFilter.ignored(hwmonName + ";" + sensor) {
+			level.Debug(c.logger).Log("msg", "ignoring sensor", "sensor", sensor)
+			continue
+		}
 
 		_, sensorType, _, _ := explodeSensorFilename(sensor)
 

@@ -63,8 +63,15 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 	}
 	defer file.Close()
 
-	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v uint64) {
-		ch <- c.constSysctlMetric(subsystem, s, v)
+	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v interface{}) {
+		var valueAsFloat64 float64
+		switch value := v.(type) {
+		case int64:
+			valueAsFloat64 = float64(value)
+		case uint64:
+			valueAsFloat64 = float64(value)
+		}
+		ch <- c.constSysctlMetric(subsystem, s, valueAsFloat64)
 	})
 }
 
@@ -144,7 +151,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, uint64)) error {
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, interface{})) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false
@@ -163,11 +170,18 @@ func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler 
 
 		// kstat data type (column 2) should be KSTAT_DATA_UINT64, otherwise ignore
 		// TODO: when other KSTAT_DATA_* types arrive, much of this will need to be restructured
-		if parts[1] == kstatDataUint64 || parts[1] == kstatDataInt64 {
-			key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
+		key := fmt.Sprintf("kstat.zfs.misc.%s.%s", fmtExt, parts[0])
+		switch parts[1] {
+		case kstatDataUint64:
 			value, err := strconv.ParseUint(parts[2], 10, 64)
 			if err != nil {
-				return fmt.Errorf("could not parse expected integer value for %q", key)
+				return fmt.Errorf("could not parse expected unsigned integer value for %q: %w", key, err)
+			}
+			handler(zfsSysctl(key), value)
+		case kstatDataInt64:
+			value, err := strconv.ParseInt(parts[2], 10, 64)
+			if err != nil {
+				return fmt.Errorf("could not parse expected signed integer value for %q: %w", key, err)
 			}
 			handler(zfsSysctl(key), value)
 		}

@@ -161,6 +161,14 @@ node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid1",uuid="0abb2
 node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+# HELP node_btrfs_commit_seconds_total Sum of the duration of all commits, in seconds.
+# TYPE node_btrfs_commit_seconds_total counter
+node_btrfs_commit_seconds_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 47836.09
+node_btrfs_commit_seconds_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_commits_total The total number of commits that have occurred.
+# TYPE node_btrfs_commits_total counter
+node_btrfs_commits_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 258051
+node_btrfs_commits_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_device_size_bytes Size of a device that is part of the filesystem.
 # TYPE node_btrfs_device_size_bytes gauge
 node_btrfs_device_size_bytes{device="loop22",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
@@ -177,6 +185,14 @@ node_btrfs_global_rsv_size_bytes{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.
 # TYPE node_btrfs_info gauge
 node_btrfs_info{label="",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1
 node_btrfs_info{label="fixture",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+# HELP node_btrfs_last_commit_seconds Duration of the most recent commit, in seconds.
+# TYPE node_btrfs_last_commit_seconds gauge
+node_btrfs_last_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+node_btrfs_last_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_max_commit_seconds Duration of the slowest commit, in seconds.
+# TYPE node_btrfs_max_commit_seconds gauge
+node_btrfs_max_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 51.462
+node_btrfs_max_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_reserved_bytes Amount of space reserved for a data type
 # TYPE node_btrfs_reserved_bytes gauge
 node_btrfs_reserved_bytes{block_group_type="data",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
@@ -2322,6 +2338,9 @@ node_netstat_TcpExt_SyncookiesSent 0
 # HELP node_netstat_TcpExt_TCPOFOQueue Statistic TcpExtTCPOFOQueue.
 # TYPE node_netstat_TcpExt_TCPOFOQueue untyped
 node_netstat_TcpExt_TCPOFOQueue 42
+# HELP node_netstat_TcpExt_TCPRcvQDrop Statistic TcpExtTCPRcvQDrop.
+# TYPE node_netstat_TcpExt_TCPRcvQDrop untyped
+node_netstat_TcpExt_TCPRcvQDrop 131
 # HELP node_netstat_TcpExt_TCPTimeouts Statistic TcpExtTCPTimeouts.
 # TYPE node_netstat_TcpExt_TCPTimeouts untyped
 node_netstat_TcpExt_TCPTimeouts 115
@@ -2830,6 +2849,9 @@ node_pressure_io_stalled_seconds_total 159.229614
 # HELP node_pressure_io_waiting_seconds_total Total time in seconds that processes have waited due to IO congestion
 # TYPE node_pressure_io_waiting_seconds_total counter
 node_pressure_io_waiting_seconds_total 159.886802
+# HELP node_pressure_irq_stalled_seconds_total Total time in seconds no process could make progress due to IRQ congestion
+# TYPE node_pressure_irq_stalled_seconds_total counter
+node_pressure_irq_stalled_seconds_total 0.008494
 # HELP node_pressure_memory_stalled_seconds_total Total time in seconds no process could make progress due to memory congestion
 # TYPE node_pressure_memory_stalled_seconds_total counter
 node_pressure_memory_stalled_seconds_total 0
@@ -3757,6 +3779,9 @@ node_zfs_arc_l2_writes_lock_retry 0
 # HELP node_zfs_arc_l2_writes_sent kstat.zfs.misc.arcstats.l2_writes_sent
 # TYPE node_zfs_arc_l2_writes_sent untyped
 node_zfs_arc_l2_writes_sent 0
+# HELP node_zfs_arc_memory_available_bytes kstat.zfs.misc.arcstats.memory_available_bytes
+# TYPE node_zfs_arc_memory_available_bytes untyped
+node_zfs_arc_memory_available_bytes -9.223372036854776e+17
 # HELP node_zfs_arc_memory_direct_count kstat.zfs.misc.arcstats.memory_direct_count
 # TYPE node_zfs_arc_memory_direct_count untyped
 node_zfs_arc_memory_direct_count 542
