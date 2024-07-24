@@ -85,6 +85,7 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedFactorDesc
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
+	diskSizeDesc            typedFactorDesc
 	logger                  log.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -257,6 +258,12 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
+		diskSizeDesc: typedFactorDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "size_bytes"),
+				"Size of the disk in bytes.",
+				diskLabelNames, nil,
+			), valueType: prometheus.GaugeValue,
+		},
 		logger: logger,
 	}
 
@@ -366,6 +373,13 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
+
+		sizeBytes, err := c.fs.SysBlockDeviceSizeBytes(dev)
+		if err != nil {
+			level.Error(c.logger).Log("msg", "Failed to get device size", "err", err)
+			continue
+		}
+		ch <- c.diskSizeDesc.mustNewConstMetric(float64(sizeBytes), dev)
 	}
 	return nil
 }
