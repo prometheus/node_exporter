@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nonetdev && (linux || freebsd || openbsd || dragonfly || darwin)
+//go:build !nonetdev && (linux || freebsd || netbsd || openbsd || dragonfly || darwin)
 // +build !nonetdev
-// +build linux freebsd openbsd dragonfly darwin
+// +build linux freebsd netbsd openbsd dragonfly darwin
 
 package collector
 
