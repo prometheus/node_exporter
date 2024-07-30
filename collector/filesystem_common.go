@@ -11,9 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nofilesystem && (linux || freebsd || netbsd || openbsd || darwin || dragonfly)
+//go:build !nofilesystem && (linux || freebsd || netbsd || openbsd || darwin || dragonfly || aix)
 // +build !nofilesystem
-// +build linux freebsd netbsd openbsd darwin dragonfly
+// +build linux freebsd netbsd openbsd darwin dragonfly aix
 
 package collector
 
