@@ -183,7 +183,7 @@ func getCPUTimes() ([]cputime, error) {
 	if err != nil {
 		return nil, err
 	}
-	ncpus := *(*int)(unsafe.Pointer(&ncpusb[0]))
+	ncpus := int(*(*uint32)(unsafe.Pointer(&ncpusb[0])))
 
 	if ncpus < 1 {
 		return nil, errors.New("Invalid cpu number")
@@ -195,10 +195,10 @@ func getCPUTimes() ([]cputime, error) {
 		if err != nil {
 			return nil, err
 		}
-		for len(cpb) >= int(unsafe.Sizeof(int(0))) {
-			t := *(*int)(unsafe.Pointer(&cpb[0]))
+		for len(cpb) >= int(unsafe.Sizeof(uint64(0))) {
+			t := *(*uint64)(unsafe.Pointer(&cpb[0]))
 			times = append(times, float64(t)/cpufreq)
-			cpb = cpb[unsafe.Sizeof(int(0)):]
+			cpb = cpb[unsafe.Sizeof(uint64(0)):]
 		}
 	}
 
