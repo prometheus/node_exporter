@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/mdlayher/ethtool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"

@@ -21,7 +21,7 @@ import (
 	"log/slog"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
 )
