@@ -44,7 +44,7 @@ var (
 	hwmonSensorTypes        = []string{
 		"vrm", "beep_enable", "update_interval", "in", "cpu", "fan",
 		"pwm", "temp", "curr", "power", "energy", "humidity",
-		"intrusion",
+		"intrusion", "freq",
 	}
 )
 
@@ -354,6 +354,15 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 				continue
 			}
 
+			if sensorType == "freq" && element == "input" {
+				if label, ok := sensorData["label"]; ok {
+					sensorLabel := cleanMetricName(label)
+					desc := prometheus.NewDesc("node_hwmon_freq_hertz", "Hardware monitor for GPU frequency in MHz", hwmonLabelDesc, nil)
+					ch <- prometheus.MustNewConstMetric(
+						desc, prometheus.GaugeValue, parsedValue/1000000.0, append(labels[:len(labels)-1], sensorLabel)...)
+				}
+				continue
+			}
 			// fallback, just dump the metric as is
 
 			desc := prometheus.NewDesc(name, "Hardware monitor "+sensorType+" element "+element, hwmonLabelDesc, nil)
