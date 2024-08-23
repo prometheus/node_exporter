@@ -357,7 +357,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 			if sensorType == "freq" && element == "input" {
 				if label, ok := sensorData["label"]; ok {
 					sensorLabel := cleanMetricName(label)
-					desc := prometheus.NewDesc("node_hwmon_freq_hertz", "Hardware monitor for GPU frequency in MHz", hwmonLabelDesc, nil)
+					desc := prometheus.NewDesc(name+"_freq_mhz", "Hardware monitor for GPU frequency in MHz", hwmonLabelDesc, nil)
 					ch <- prometheus.MustNewConstMetric(
 						desc, prometheus.GaugeValue, parsedValue/1000000.0, append(labels[:len(labels)-1], sensorLabel)...)
 				}
