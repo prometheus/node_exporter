@@ -38,11 +38,11 @@ func TestArcstatsParsing(t *testing.T) {
 	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v interface{}) {
 
 		if s == zfsSysctl("kstat.zfs.misc.arcstats.hits") {
-			if v.(uint64) != uint64(8772612) {
+			if v.(uint64) != 8772612 {
 				t.Fatalf("Incorrect value parsed from procfs data")
 			}
 		} else if s == zfsSysctl("kstat.zfs.misc.arcstats.memory_available_bytes") {
-			if v.(int64) != int64(-922337203685477580) {
+			if v.(int64) != -922337203685477580 {
 				t.Fatalf("Incorrect value parsed from procfs data")
 			}
 		} else {
@@ -80,7 +80,7 @@ func TestZfetchstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(7067992) {
+		if v.(uint64) != 7067992 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -116,7 +116,7 @@ func TestZilParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(10) {
+		if v.(uint64) != 10 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -152,7 +152,7 @@ func TestVdevCacheStatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(40) {
+		if v.(uint64) != 40 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -188,7 +188,7 @@ func TestXuioStatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(32) {
+		if v.(uint64) != 32 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -224,7 +224,7 @@ func TestFmParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(18) {
+		if v.(uint64) != 18 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -260,7 +260,7 @@ func TestDmuTxParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(3532844) {
+		if v.(uint64) != 3532844 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -300,7 +300,7 @@ func TestZpoolParsing(t *testing.T) {
 
 			handlerCalled = true
 
-			if v != uint64(1884160) && v != uint64(2826240) {
+			if v != 1884160 && v != 2826240 {
 				t.Fatalf("Incorrect value parsed from procfs data %v", v)
 			}
 
@@ -340,7 +340,7 @@ func TestZpoolObjsetParsing(t *testing.T) {
 
 			handlerCalled = true
 
-			if v != uint64(0) && v != uint64(4) && v != uint64(10) {
+			if v != 0 && v != 4 && v != 10 {
 				t.Fatalf("Incorrect value parsed from procfs data %v", v)
 			}
 
@@ -376,7 +376,7 @@ func TestAbdstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(223232) {
+		if v.(uint64) != 223232 {
 			t.Fatalf("Incorrect value parsed from procfs abdstats data")
 		}
 
@@ -412,7 +412,7 @@ func TestDbufstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(108807) {
+		if v.(uint64) != 108807 {
 			t.Fatalf("Incorrect value parsed from procfs dbufstats data")
 		}
 
@@ -448,7 +448,7 @@ func TestDnodestatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(37617) {
+		if v.(uint64) != 37617 {
 			t.Fatalf("Incorrect value parsed from procfs dnodestats data")
 		}
 
@@ -484,7 +484,7 @@ func TestVdevMirrorstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v.(uint64) != uint64(94) {
+		if v.(uint64) != 94 {
 			t.Fatalf("Incorrect value parsed from procfs vdev_mirror_stats data")
 		}
 
@@ -521,26 +521,26 @@ func TestPoolStateParsing(t *testing.T) {
 			handlerCalled = true
 
 			if poolName == "pool1" {
-				if isActive != uint64(1) && stateName == "online" {
+				if isActive != 1 && stateName == "online" {
 					t.Fatalf("Incorrect parsed value for online state")
 				}
-				if isActive != uint64(0) && stateName != "online" {
+				if isActive != 0 && stateName != "online" {
 					t.Fatalf("Incorrect parsed value for online state")
 				}
 			}
 			if poolName == "poolz1" {
-				if isActive != uint64(1) && stateName == "degraded" {
+				if isActive != 1 && stateName == "degraded" {
 					t.Fatalf("Incorrect parsed value for degraded state")
 				}
-				if isActive != uint64(0) && stateName != "degraded" {
+				if isActive != 0 && stateName != "degraded" {
 					t.Fatalf("Incorrect parsed value for degraded state")
 				}
 			}
 			if poolName == "pool2" {
-				if isActive != uint64(1) && stateName == "suspended" {
+				if isActive != 1 && stateName == "suspended" {
 					t.Fatalf("Incorrect parsed value for suspended state")
 				}
-				if isActive != uint64(0) && stateName != "suspended" {
+				if isActive != 0 && stateName != "suspended" {
 					t.Fatalf("Incorrect parsed value for suspended state")
 				}
 			}
