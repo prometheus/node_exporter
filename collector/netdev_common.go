@@ -93,7 +93,7 @@ func NewNetDevCollector(logger log.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *netDevCollector) metricDesc(key string) *prometheus.Desc {
+func (c *netDevCollector) metricDesc(key string, labels []string) *prometheus.Desc {
 	c.metricDescsMutex.Lock()
 	defer c.metricDescsMutex.Unlock()
 
@@ -101,7 +101,7 @@ func (c *netDevCollector) metricDesc(key string) *prometheus.Desc {
 		c.metricDescs[key] = prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, key+"_total"),
 			fmt.Sprintf("Network device statistic %s.", key),
-			[]string{"device"},
+			labels,
 			nil,
 		)
 	}
@@ -114,13 +114,29 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
+
+	netDevLabels, err := getNetDevLabels()
+	if err != nil {
+		return fmt.Errorf("couldn't get netdev labels: %w", err)
+	}
+
 	for dev, devStats := range netDev {
 		if !*netdevDetailedMetrics {
 			legacy(devStats)
 		}
+
+		labels := []string{"device"}
+		labelValues := []string{dev}
+		if devLabels, exists := netDevLabels[dev]; exists {
+			for labelName, labelValue := range devLabels {
+				labels = append(labels, labelName)
+				labelValues = append(labelValues, labelValue)
+			}
+		}
+
 		for key, value := range devStats {
-			desc := c.metricDesc(key)
-			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), dev)
+			desc := c.metricDesc(key, labels)
+			ch <- prometheus.MustNewConstMetric(desc, prometheus.CounterValue, float64(value), labelValues...)
 		}
 	}
 	if *netdevAddressInfo {
