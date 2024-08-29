@@ -19,13 +19,13 @@ package collector
 
 import (
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"log/slog"
 )
 
 type interruptsCollector struct {
 	desc         typedDesc
-	logger       log.Logger
+	logger       *slog.Logger
 	nameFilter   deviceFilter
 	includeZeros bool
 }
@@ -41,7 +41,7 @@ var (
 )
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
-func NewInterruptsCollector(logger log.Logger) (Collector, error) {
+func NewInterruptsCollector(logger *slog.Logger) (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			namespace+"_interrupts_total",

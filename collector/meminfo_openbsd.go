@@ -18,8 +18,7 @@ package collector
 
 import (
 	"fmt"
-
-	"github.com/go-kit/log"
+	"log/slog"
 )
 
 /*
@@ -56,11 +55,11 @@ sysctl_bcstats(struct bcachestats *bcstats)
 import "C"
 
 type meminfoCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger log.Logger) (Collector, error) {
+func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
 	return &meminfoCollector{
 		logger: logger,
 	}, nil
