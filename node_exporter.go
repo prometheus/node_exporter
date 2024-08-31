@@ -155,6 +155,38 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
+type landingHandler struct {
+	landingPage *web.LandingPageHandler
+}
+
+func (l *landingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		w.Write([]byte("Not Found"))
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	l.landingPage.ServeHTTP(w, r)
+}
+
+func newLandingHandler(metricPath string) (*landingHandler, error) {
+	landingConfig := web.LandingConfig{
+		Name:        "Node Exporter",
+		Description: "Prometheus Node Exporter",
+		Version:     version.Info(),
+		Links: []web.LandingLinks{
+			{
+				Address: metricPath,
+				Text:    "Metrics",
+			},
+		},
+	}
+	landingPage, err := web.NewLandingPage(landingConfig)
+	if err != nil {
+		return nil, err
+	}
+	return &landingHandler{landingPage: landingPage}, nil
+}
+
 func main() {
 	var (
 		metricsPath = kingpin.Flag(
@@ -200,23 +232,12 @@ func main() {
 
 	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
 	if *metricsPath != "/" {
-		landingConfig := web.LandingConfig{
-			Name:        "Node Exporter",
-			Description: "Prometheus Node Exporter",
-			Version:     version.Info(),
-			Links: []web.LandingLinks{
-				{
-					Address: *metricsPath,
-					Text:    "Metrics",
-				},
-			},
-		}
-		landingPage, err := web.NewLandingPage(landingConfig)
+		landingPageHandler, err := newLandingHandler(*metricsPath)
 		if err != nil {
 			level.Error(logger).Log("err", err)
 			os.Exit(1)
 		}
-		http.Handle("/", landingPage)
+		http.Handle("/", landingPageHandler)
 	}
 
 	server := &http.Server{}
