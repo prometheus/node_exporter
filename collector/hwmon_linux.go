@@ -18,6 +18,7 @@ package collector
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -90,19 +91,28 @@ func addValueFile(data map[string]map[string]string, sensor string, prop string,
 }
 
 // sysReadFile is a simplified os.ReadFile that invokes syscall.Read directly.
-func sysReadFile(file string) ([]byte, error) {
+func sysReadFile(file string) (b []byte, err error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
+	defer func() {
+		if r := recover(); r != nil {
+			if rErr, ok := r.(error); ok {
+				err = rErr
+			} else {
+				err = fmt.Errorf("%v", r)
+			}
+		}
+	}()
 
 	// On some machines, hwmon drivers are broken and return EAGAIN.  This causes
 	// Go's os.ReadFile implementation to poll forever.
 	//
 	// Since we either want to read data or bail immediately, do the simplest
 	// possible read using system call directly.
-	b := make([]byte, 128)
+	b = make([]byte, 128)
 	n, err := unix.Read(int(f.Fd()), b)
 	if err != nil {
 		return nil, err
