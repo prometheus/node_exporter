@@ -15,11 +15,11 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -33,7 +33,7 @@ var (
 
 type sysctlCollector struct {
 	fs      procfs.FS
-	logger  log.Logger
+	logger  *slog.Logger
 	sysctls []*sysctl
 }
 
@@ -41,7 +41,7 @@ func init() {
 	registerCollector("sysctl", defaultDisabled, NewSysctlCollector)
 }
 
-func NewSysctlCollector(logger log.Logger) (Collector, error) {
+func NewSysctlCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

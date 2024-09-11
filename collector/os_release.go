@@ -17,6 +17,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"log/slog"
 	"os"
 	"regexp"
 	"strconv"
@@ -24,8 +25,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	envparse "github.com/hashicorp/go-envparse"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -58,7 +57,7 @@ type osRelease struct {
 
 type osReleaseCollector struct {
 	infoDesc           *prometheus.Desc
-	logger             log.Logger
+	logger             *slog.Logger
 	os                 *osRelease
 	osMutex            sync.RWMutex
 	osReleaseFilenames []string // all os-release file names to check
@@ -82,7 +81,7 @@ func init() {
 }
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(logger log.Logger) (Collector, error) {
+func NewOSCollector(logger *slog.Logger) (Collector, error) {
 	return &osReleaseCollector{
 		logger: logger,
 		infoDesc: prometheus.NewDesc(
@@ -178,7 +177,7 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		if errors.Is(err, os.ErrNotExist) {
 			if i >= (len(c.osReleaseFilenames) - 1) {
-				level.Debug(c.logger).Log("msg", "no os-release file found", "files", strings.Join(c.osReleaseFilenames, ","))
+				c.logger.Debug("no os-release file found", "files", strings.Join(c.osReleaseFilenames, ","))
 				return ErrNoData
 			}
 			continue

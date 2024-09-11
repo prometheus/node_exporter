@@ -19,10 +19,9 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -61,7 +60,7 @@ type timexCollector struct {
 	stbcnt,
 	tai,
 	syncStatus typedDesc
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -69,7 +68,7 @@ func init() {
 }
 
 // NewTimexCollector returns a new Collector exposing adjtime(3) stats.
-func NewTimexCollector(logger log.Logger) (Collector, error) {
+func NewTimexCollector(logger *slog.Logger) (Collector, error) {
 	const subsystem = "timex"
 
 	return &timexCollector{
@@ -170,7 +169,7 @@ func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	status, err := unix.Adjtimex(timex)
 	if err != nil {
 		if errors.Is(err, os.ErrPermission) {
-			level.Debug(c.logger).Log("msg", "Not collecting timex metrics", "err", err)
+			c.logger.Debug("Not collecting timex metrics", "err", err)
 			return ErrNoData
 		}
 		return fmt.Errorf("failed to retrieve adjtimex stats: %w", err)

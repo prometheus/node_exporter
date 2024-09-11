@@ -18,10 +18,9 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
@@ -32,14 +31,14 @@ var (
 	netdevLabelIfAlias = kingpin.Flag("collector.netdev.label-ifalias", "Add ifAlias label").Default("false").Bool()
 )
 
-func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	if *netDevNetlink {
 		return netlinkStats(filter, logger)
 	}
 	return procNetDevStats(filter, logger)
 }
 
-func netlinkStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func netlinkStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	conn, err := rtnetlink.Dial(nil)
 	if err != nil {
 		return nil, err
@@ -54,12 +53,12 @@ func netlinkStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) 
 	return parseNetlinkStats(links, filter, logger), nil
 }
 
-func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logger log.Logger) netDevStats {
+func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logger *slog.Logger) netDevStats {
 	metrics := netDevStats{}
 
 	for _, msg := range links {
 		if msg.Attributes == nil {
-			level.Debug(logger).Log("msg", "No netlink attributes, skipping")
+			logger.Debug("No netlink attributes, skipping")
 			continue
 		}
 		name := msg.Attributes.Name
@@ -95,13 +94,13 @@ func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logg
 		}
 
 		if filter.ignored(name) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", name)
+			logger.Debug("Ignoring device", "device", name)
 			continue
 		}
 
 		// Make sure we don't panic when accessing `stats` attributes below.
 		if stats == nil {
-			level.Debug(logger).Log("msg", "No netlink stats, skipping")
+			logger.Debug("No netlink stats, skipping")
 			continue
 		}
 
@@ -143,7 +142,7 @@ func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logg
 	return metrics
 }
 
-func procNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func procNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	metrics := netDevStats{}
 
 	fs, err := procfs.NewFS(*procPath)
@@ -160,7 +159,7 @@ func procNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, erro
 		name := stats.Name
 
 		if filter.ignored(name) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", name)
+			logger.Debug("Ignoring device", "device", name)
 			continue
 		}
 

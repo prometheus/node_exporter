@@ -14,12 +14,12 @@
 package collector
 
 import (
+	"io"
+	"log/slog"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/go-kit/log"
 )
 
 const debianBullseye string = `PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
@@ -129,7 +129,7 @@ func TestUpdateStruct(t *testing.T) {
 	}
 	wantedVersion := 20.04
 
-	collector, err := NewOSCollector(log.NewNopLogger())
+	collector, err := NewOSCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatal(err)
 	}
