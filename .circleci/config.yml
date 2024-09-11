@@ -7,10 +7,10 @@ executors:
   # should also be updated.
   golang:
     docker:
-      - image: cimg/go:1.22
+      - image: cimg/go:1.23
   arm:
-    machine:
-      image: ubuntu-2204:current
+    docker:
+      - image: cimg/go:1.23
     resource_class: arm.medium
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
   test-arm:
     executor: arm
     steps:
-      - checkout
+      - prometheus/setup_environment
       - run: uname -a
       - run: make test-e2e
   test_mixins:
@@ -70,7 +70,7 @@ jobs:
     machine:
       image: ubuntu-2204:current
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.22-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.23-base
       REPO_PATH: github.com/prometheus/node_exporter
     steps:
       - prometheus/setup_environment
