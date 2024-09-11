@@ -24,10 +24,12 @@ import (
 	"github.com/go-kit/log/level"
 	"github.com/jsimonetti/rtnetlink"
 	"github.com/prometheus/procfs"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 var (
-	netDevNetlink = kingpin.Flag("collector.netdev.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("true").Bool()
+	netDevNetlink      = kingpin.Flag("collector.netdev.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("true").Bool()
+	netdevLabelIfAlias = kingpin.Flag("collector.netdev.label-ifalias", "Add ifAlias label").Default("false").Bool()
 )
 
 func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
@@ -183,4 +185,27 @@ func procNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, erro
 	}
 
 	return metrics, nil
+}
+
+func getNetDevLabels() (map[string]map[string]string, error) {
+	if !*netdevLabelIfAlias {
+		return nil, nil
+	}
+
+	fs, err := sysfs.NewFS(*sysPath)
+	if err != nil {
+		return nil, err
+	}
+
+	interfaces, err := fs.NetClass()
+	if err != nil {
+		return nil, err
+	}
+
+	labels := make(map[string]map[string]string)
+	for iface, params := range interfaces {
+		labels[iface] = map[string]string{"ifalias": params.IfAlias}
+	}
+
+	return labels, nil
 }
