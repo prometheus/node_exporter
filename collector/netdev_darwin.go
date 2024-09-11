@@ -118,3 +118,8 @@ type ifData64 struct {
 	Xmittiming uint32
 	Lastchange unix.Timeval32
 }
+
+func getNetDevLabels() (map[string]map[string]string, error) {
+	// to be implemented if needed
+	return nil, nil
+}
