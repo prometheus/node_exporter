@@ -4,7 +4,6 @@ go 1.22.0
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
-	github.com/beevik/ntp v1.4.3
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/dennwc/btrfs v0.0.0-20240418142341-0167142bde7a
 	github.com/ema/qdisc v1.0.0
@@ -15,13 +14,11 @@ require (
 	github.com/josharian/native v1.1.0
 	github.com/jsimonetti/rtnetlink/v2 v2.0.2
 	github.com/lufia/iostat v1.2.1
-	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/ethtool v0.2.0
 	github.com/mdlayher/netlink v1.7.2
 	github.com/mdlayher/wifi v0.3.1
 	github.com/opencontainers/selinux v1.11.1
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55
-	github.com/prometheus-community/go-runit v0.1.0
 	github.com/prometheus/client_golang v1.20.5
 	github.com/prometheus/client_model v0.6.1
 	github.com/prometheus/common v0.61.0
