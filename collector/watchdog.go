@@ -19,17 +19,16 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
 
 type watchdogCollector struct {
 	fs     sysfs.FS
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -37,7 +36,7 @@ func init() {
 }
 
 // NewWatchdogCollector returns a new Collector exposing watchdog stats.
-func NewWatchdogCollector(logger log.Logger) (Collector, error) {
+func NewWatchdogCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -103,7 +102,7 @@ func (c *watchdogCollector) Update(ch chan<- prometheus.Metric) error {
 	watchdogClass, err := c.fs.WatchdogClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) || errors.Is(err, os.ErrInvalid) {
-			level.Debug(c.logger).Log("msg", "Could not read watchdog stats", "err", err)
+			c.logger.Debug("Could not read watchdog stats", "err", err)
 			return ErrNoData
 		}
 		return err

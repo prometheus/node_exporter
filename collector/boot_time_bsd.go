@@ -18,13 +18,13 @@
 package collector
 
 import (
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+	"log/slog"
 )
 
 type bootTimeCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -32,7 +32,7 @@ func init() {
 }
 
 // newBootTimeCollector returns a new Collector exposing system boot time on BSD systems.
-func newBootTimeCollector(logger log.Logger) (Collector, error) {
+func newBootTimeCollector(logger *slog.Logger) (Collector, error) {
 	return &bootTimeCollector{
 		logger: logger,
 	}, nil

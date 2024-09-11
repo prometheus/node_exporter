@@ -19,16 +19,15 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
 type mdadmCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -36,7 +35,7 @@ func init() {
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
-func NewMdadmCollector(logger log.Logger) (Collector, error) {
+func NewMdadmCollector(logger *slog.Logger) (Collector, error) {
 	return &mdadmCollector{logger}, nil
 }
 
@@ -112,7 +111,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "Not collecting mdstat, file does not exist", "file", *procPath)
+			c.logger.Debug("Not collecting mdstat, file does not exist", "file", *procPath)
 			return ErrNoData
 		}
 
@@ -120,7 +119,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, mdStat := range mdStats {
-		level.Debug(c.logger).Log("msg", "collecting metrics for device", "device", mdStat.Name)
+		c.logger.Debug("collecting metrics for device", "device", mdStat.Name)
 
 		stateVals := make(map[string]float64)
 		stateVals[mdStat.ActivityState] = 1

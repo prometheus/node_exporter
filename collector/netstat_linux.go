@@ -21,13 +21,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -41,7 +41,7 @@ var (
 
 type netStatCollector struct {
 	fieldPattern *regexp.Regexp
-	logger       log.Logger
+	logger       *slog.Logger
 }
 
 func init() {
@@ -50,7 +50,7 @@ func init() {
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(logger log.Logger) (Collector, error) {
+func NewNetStatCollector(logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*netStatFields)
 	return &netStatCollector{
 		fieldPattern: pattern,

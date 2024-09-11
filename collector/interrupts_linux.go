@@ -25,7 +25,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -42,7 +41,7 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 		for cpuNo, value := range interrupt.values {
 			filterName := name + ";" + interrupt.info + ";" + interrupt.devices
 			if c.nameFilter.ignored(filterName) {
-				level.Debug(c.logger).Log("msg", "ignoring interrupt name", "filter_name", filterName)
+				c.logger.Debug("ignoring interrupt name", "filter_name", filterName)
 				continue
 			}
 			fv, err := strconv.ParseFloat(value, 64)
@@ -50,7 +49,7 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 				return fmt.Errorf("invalid value %s in interrupts: %w", value, err)
 			}
 			if !c.includeZeros && fv == 0.0 {
-				level.Debug(c.logger).Log("msg", "ignoring interrupt with zero value", "filter_name", filterName, "cpu", cpuNo)
+				c.logger.Debug("ignoring interrupt with zero value", "filter_name", filterName, "cpu", cpuNo)
 				continue
 			}
 			ch <- c.desc.mustNewConstMetric(fv, strconv.Itoa(cpuNo), name, interrupt.info, interrupt.devices)

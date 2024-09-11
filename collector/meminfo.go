@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -41,7 +40,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get meminfo: %w", err)
 	}
-	level.Debug(c.logger).Log("msg", "Set node_mem", "memInfo", fmt.Sprintf("%v", memInfo))
+	c.logger.Debug("Set node_mem", "memInfo", fmt.Sprintf("%v", memInfo))
 	for k, v := range memInfo {
 		if strings.HasSuffix(k, "_total") {
 			metricType = prometheus.CounterValue
