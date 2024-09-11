@@ -72,3 +72,8 @@ func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error
 
 	return netDev, nil
 }
+
+func getNetDevLabels() (map[string]map[string]string, error) {
+	// to be implemented if needed
+	return nil, nil
+}
