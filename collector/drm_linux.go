@@ -18,8 +18,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -30,7 +30,7 @@ const (
 
 type drmCollector struct {
 	fs                    sysfs.FS
-	logger                log.Logger
+	logger                *slog.Logger
 	CardInfo              *prometheus.Desc
 	GPUBusyPercent        *prometheus.Desc
 	MemoryGTTSize         *prometheus.Desc
@@ -46,7 +46,7 @@ func init() {
 }
 
 // NewDrmCollector returns a new Collector exposing /sys/class/drm/card?/device stats.
-func NewDrmCollector(logger log.Logger) (Collector, error) {
+func NewDrmCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

@@ -18,8 +18,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -30,7 +30,7 @@ type cgroupSummaryCollector struct {
 	fs      procfs.FS
 	cgroups *prometheus.Desc
 	enabled *prometheus.Desc
-	logger  log.Logger
+	logger  *slog.Logger
 }
 
 func init() {
@@ -38,7 +38,7 @@ func init() {
 }
 
 // NewCgroupSummaryCollector returns a new Collector exposing a summary of cgroups.
-func NewCgroupSummaryCollector(logger log.Logger) (Collector, error) {
+func NewCgroupSummaryCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

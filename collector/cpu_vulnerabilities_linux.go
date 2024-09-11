@@ -15,8 +15,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -40,7 +40,7 @@ func init() {
 	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, NewVulnerabilitySysfsCollector)
 }
 
-func NewVulnerabilitySysfsCollector(logger log.Logger) (Collector, error) {
+func NewVulnerabilitySysfsCollector(logger *slog.Logger) (Collector, error) {
 	return &cpuVulnerabilitiesCollector{}, nil
 }
 
