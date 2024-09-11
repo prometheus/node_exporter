@@ -56,6 +56,7 @@ var (
 	oldSystemdUnitExclude  = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
 	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
 	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
+	enableNetworkMetrics   = kingpin.Flag("collector.systemd.network-metrics", "Enable service unit network metrics").Bool()
 	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
 	enableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
 
@@ -67,6 +68,10 @@ type systemdCollector struct {
 	unitStartTimeDesc             *prometheus.Desc
 	unitTasksCurrentDesc          *prometheus.Desc
 	unitTasksMaxDesc              *prometheus.Desc
+	unitEgressBytesDesc           *prometheus.Desc
+	unitIngressBytesDesc          *prometheus.Desc
+	unitEgressPacketsDesc         *prometheus.Desc
+	unitIngressPacketsDesc        *prometheus.Desc
 	systemRunningDesc             *prometheus.Desc
 	summaryDesc                   *prometheus.Desc
 	nRestartsDesc                 *prometheus.Desc
@@ -106,6 +111,22 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 	unitTasksMaxDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_tasks_max"),
 		"Maximum number of tasks per Systemd unit", []string{"name"}, nil,
+	)
+	unitEgressBytesDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_egress_bytes"),
+		"network bytes sent by unit", []string{"name"}, nil,
+	)
+	unitIngressBytesDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_ingress_bytes"),
+		"network bytes received by unit", []string{"name"}, nil,
+	)
+	unitEgressPacketsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_egress_packets"),
+		"network packets sent by unit", []string{"name"}, nil,
+	)
+	unitIngressPacketsDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_ingress_packets"),
+		"network packets received by unit", []string{"name"}, nil,
 	)
 	systemRunningDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "system_running"),
@@ -160,6 +181,10 @@ func NewSystemdCollector(logger log.Logger) (Collector, error) {
 		unitStartTimeDesc:             unitStartTimeDesc,
 		unitTasksCurrentDesc:          unitTasksCurrentDesc,
 		unitTasksMaxDesc:              unitTasksMaxDesc,
+		unitEgressBytesDesc:           unitEgressBytesDesc,
+		unitIngressBytesDesc:          unitIngressBytesDesc,
+		unitEgressPacketsDesc:         unitEgressPacketsDesc,
+		unitIngressPacketsDesc:        unitIngressPacketsDesc,
 		systemRunningDesc:             systemRunningDesc,
 		summaryDesc:                   summaryDesc,
 		nRestartsDesc:                 nRestartsDesc,
@@ -238,6 +263,16 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 			begin = time.Now()
 			c.collectUnitTasksMetrics(conn, ch, units)
 			level.Debug(c.logger).Log("msg", "collectUnitTasksMetrics took", "duration_seconds", time.Since(begin).Seconds())
+		}()
+	}
+
+	if *enableNetworkMetrics {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			begin = time.Now()
+			c.collectUnitNetworkMetrics(conn, ch, units)
+			level.Debug(c.logger).Log("msg", "collectUnitNetworkMetrics took", "duration_seconds", time.Since(begin).Seconds())
 		}()
 	}
 
@@ -389,6 +424,58 @@ func (c *systemdCollector) collectUnitTasksMetrics(conn *dbus.Conn, ch chan<- pr
 				if val != math.MaxUint64 {
 					ch <- prometheus.MustNewConstMetric(
 						c.unitTasksMaxDesc, prometheus.GaugeValue,
+						float64(val), unit.Name)
+				}
+			}
+		}
+	}
+}
+
+func (c *systemdCollector) collectUnitNetworkMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+	var val uint64
+	for _, unit := range units {
+		if strings.HasSuffix(unit.Name, ".service") {
+			egress_bytes, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "IPEgressBytes")
+			if err != nil {
+				level.Debug(c.logger).Log("msg", "couldn't get unit IPEgressBytes", "unit", unit.Name, "err", err)
+			} else {
+				val = egress_bytes.Value.Value().(uint64)
+				if val != math.MaxUint64 {
+					ch <- prometheus.MustNewConstMetric(
+						c.unitEgressBytesDesc, prometheus.GaugeValue,
+						float64(val), unit.Name)
+				}
+			}
+			ingress_bytes, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "IPIngressBytes")
+			if err != nil {
+				level.Debug(c.logger).Log("msg", "couldn't get unit IPIngressBytes", "unit", unit.Name, "err", err)
+			} else {
+				val = ingress_bytes.Value.Value().(uint64)
+				if val != math.MaxUint64 {
+					ch <- prometheus.MustNewConstMetric(
+						c.unitIngressBytesDesc, prometheus.GaugeValue,
+						float64(val), unit.Name)
+				}
+			}
+			egress_packets, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "IPEgressPackets")
+			if err != nil {
+				level.Debug(c.logger).Log("msg", "couldn't get unit IPEgressPackets", "unit", unit.Name, "err", err)
+			} else {
+				val = egress_packets.Value.Value().(uint64)
+				if val != math.MaxUint64 {
+					ch <- prometheus.MustNewConstMetric(
+						c.unitEgressPacketsDesc, prometheus.GaugeValue,
+						float64(val), unit.Name)
+				}
+			}
+			ingress_packets, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "IPIngressPackets")
+			if err != nil {
+				level.Debug(c.logger).Log("msg", "couldn't get unit IPIngressPackets", "unit", unit.Name, "err", err)
+			} else {
+				val = ingress_packets.Value.Value().(uint64)
+				if val != math.MaxUint64 {
+					ch <- prometheus.MustNewConstMetric(
+						c.unitIngressPacketsDesc, prometheus.GaugeValue,
 						float64(val), unit.Name)
 				}
 			}
