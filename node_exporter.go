@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/user"
 	"runtime"
+	"slices"
 	"sort"
 
 	"github.com/prometheus/common/promslog"
@@ -42,6 +43,8 @@ import (
 // newHandler.
 type handler struct {
 	unfilteredHandler http.Handler
+	// enabledCollectors list is used for logging and filtering
+	enabledCollectors []string
 	// exporterMetricsRegistry is a separate registry for the metrics about
 	// the exporter itself.
 	exporterMetricsRegistry *prometheus.Registry
@@ -73,16 +76,39 @@ func newHandler(includeExporterMetrics bool, maxRequests int, logger *slog.Logge
 
 // ServeHTTP implements http.Handler.
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	filters := r.URL.Query()["collect[]"]
-	h.logger.Debug("collect query:", "filters", filters)
+	collects := r.URL.Query()["collect[]"]
+	h.logger.Debug("collect query:", "collects", collects)
 
-	if len(filters) == 0 {
+	excludes := r.URL.Query()["exclude[]"]
+	h.logger.Debug("exclude query:", "excludes", excludes)
+
+	if len(collects) == 0 && len(excludes) == 0 {
 		// No filters, use the prepared unfiltered handler.
 		h.unfilteredHandler.ServeHTTP(w, r)
 		return
 	}
+
+	if len(collects) > 0 && len(excludes) > 0 {
+		h.logger.Debug("rejecting combined collect and exclude queries")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Combined collect and exclude queries are not allowed."))
+		return
+	}
+
+	filters := &collects
+	if len(excludes) > 0 {
+		// In exclude mode, filtered collectors = enabled - excludeed.
+		f := []string{}
+		for _, c := range h.enabledCollectors {
+			if (slices.Index(excludes, c)) == -1 {
+				f = append(f, c)
+			}
+		}
+		filters = &f
+	}
+
 	// To serve filtered metrics, we create a filtering handler on the fly.
-	filteredHandler, err := h.innerHandler(filters...)
+	filteredHandler, err := h.innerHandler(*filters...)
 	if err != nil {
 		h.logger.Warn("Couldn't create filtered metrics handler:", "err", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -107,12 +133,11 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	// only once upon startup.
 	if len(filters) == 0 {
 		h.logger.Info("Enabled collectors")
-		collectors := []string{}
 		for n := range nc.Collectors {
-			collectors = append(collectors, n)
+			h.enabledCollectors = append(h.enabledCollectors, n)
 		}
-		sort.Strings(collectors)
-		for _, c := range collectors {
+		sort.Strings(h.enabledCollectors)
+		for _, c := range h.enabledCollectors {
 			h.logger.Info(c)
 		}
 	}
