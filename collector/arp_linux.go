@@ -23,7 +23,7 @@ import (
 	"net"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"golang.org/x/sys/unix"

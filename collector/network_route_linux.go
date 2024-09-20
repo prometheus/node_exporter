@@ -18,13 +18,13 @@ package collector
 
 import (
 	"fmt"
-	"golang.org/x/sys/unix"
 	"log/slog"
 	"net"
 	"strconv"
 
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 )
 
 type networkRouteCollector struct {
