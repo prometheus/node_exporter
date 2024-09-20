@@ -21,7 +21,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 )
 
 var links = []rtnetlink.LinkMessage{
