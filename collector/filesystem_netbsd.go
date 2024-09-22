@@ -18,10 +18,10 @@ package collector
 
 import (
 	"fmt"
-	"github.com/go-kit/log/level"
-	"golang.org/x/sys/unix"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -98,14 +98,14 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	for _, v := range mnt {
 		mountpoint := unix.ByteSliceToString(v.F_mntonname[:])
 		if c.excludedMountPointsPattern.MatchString(mountpoint) {
-			level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", mountpoint)
+			c.logger.Debug("msg", "Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
 		device := unix.ByteSliceToString(v.F_mntfromname[:])
 		fstype := unix.ByteSliceToString(v.F_fstypename[:])
 		if c.excludedFSTypesPattern.MatchString(fstype) {
-			level.Debug(c.logger).Log("msg", "Ignoring fs type", "type", fstype)
+			c.logger.Debug("msg", "Ignoring fs type", "type", fstype)
 			continue
 		}
 
