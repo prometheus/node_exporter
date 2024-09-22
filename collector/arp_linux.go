@@ -19,11 +19,11 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"golang.org/x/sys/unix"
@@ -39,7 +39,7 @@ type arpCollector struct {
 	fs           procfs.FS
 	deviceFilter deviceFilter
 	entries      *prometheus.Desc
-	logger       log.Logger
+	logger       *slog.Logger
 }
 
 func init() {
@@ -47,7 +47,7 @@ func init() {
 }
 
 // NewARPCollector returns a new Collector exposing ARP stats.
-func NewARPCollector(logger log.Logger) (Collector, error) {
+func NewARPCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

@@ -18,6 +18,7 @@ package collector
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -25,8 +26,6 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -55,12 +54,12 @@ func init() {
 type hwMonCollector struct {
 	deviceFilter deviceFilter
 	sensorFilter deviceFilter
-	logger       log.Logger
+	logger       *slog.Logger
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(logger log.Logger) (Collector, error) {
+func NewHwMonCollector(logger *slog.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,
@@ -168,7 +167,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 	}
 
 	if c.deviceFilter.ignored(hwmonName) {
-		level.Debug(c.logger).Log("msg", "ignoring hwmon chip", "chip", hwmonName)
+		c.logger.Debug("ignoring hwmon chip", "chip", hwmonName)
 		return nil
 	}
 
@@ -211,7 +210,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 		// sensors on specific devices. For example, to exclude the sensor "temp3" on
 		// the device "platform_coretemp_0", use "platform_coretemp_0;temp3"
 		if c.sensorFilter.ignored(hwmonName + ";" + sensor) {
-			level.Debug(c.logger).Log("msg", "ignoring sensor", "sensor", sensor)
+			c.logger.Debug("ignoring sensor", "sensor", sensor)
 			continue
 		}
 
@@ -459,7 +458,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	hwmonFiles, err := os.ReadDir(hwmonPathName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "hwmon collector metrics are not available for this system")
+			c.logger.Debug("hwmon collector metrics are not available for this system")
 			return ErrNoData
 		}
 

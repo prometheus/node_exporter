@@ -17,10 +17,10 @@
 package collector
 
 import (
+	"log/slog"
 	"strconv"
 	"unsafe"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -45,14 +45,14 @@ const (
 
 type cpuCollector struct {
 	cpu    typedDesc
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
 }
 
-func NewCPUCollector(logger log.Logger) (Collector, error) {
+func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 	return &cpuCollector{
 		cpu:    typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		logger: logger,

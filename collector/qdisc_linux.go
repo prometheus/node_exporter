@@ -19,18 +19,17 @@ package collector
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/ema/qdisc"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type qdiscStatCollector struct {
-	logger       log.Logger
+	logger       *slog.Logger
 	deviceFilter deviceFilter
 	bytes        typedDesc
 	packets      typedDesc
@@ -54,10 +53,10 @@ func init() {
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
-func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
+func NewQdiscStatCollector(logger *slog.Logger) (Collector, error) {
 	if *oldCollectorQdiskDeviceInclude != "" {
 		if *collectorQdiscDeviceInclude == "" {
-			level.Warn(logger).Log("msg", "--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")
+			logger.Warn("--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")
 			*collectorQdiscDeviceInclude = *oldCollectorQdiskDeviceInclude
 		} else {
 			return nil, fmt.Errorf("--collector.qdisk.device-include and --collector.qdisc.device-include are mutually exclusive")
@@ -66,7 +65,7 @@ func NewQdiscStatCollector(logger log.Logger) (Collector, error) {
 
 	if *oldCollectorQdiskDeviceExclude != "" {
 		if *collectorQdiscDeviceExclude == "" {
-			level.Warn(logger).Log("msg", "--collector.qdisk.device-exclude is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-exclude")
+			logger.Warn("--collector.qdisk.device-exclude is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-exclude")
 			*collectorQdiscDeviceExclude = *oldCollectorQdiskDeviceExclude
 		} else {
 			return nil, fmt.Errorf("--collector.qdisk.device-exclude and --collector.qdisc.device-exclude are mutually exclusive")

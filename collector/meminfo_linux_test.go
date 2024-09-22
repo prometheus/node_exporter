@@ -17,15 +17,14 @@
 package collector
 
 import (
-	"os"
+	"io"
+	"log/slog"
 	"testing"
-
-	"github.com/go-kit/log"
 )
 
 func TestMemInfo(t *testing.T) {
 	*procPath = "fixtures/proc"
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
 	collector, err := NewMeminfoCollector(logger)
 	if err != nil {

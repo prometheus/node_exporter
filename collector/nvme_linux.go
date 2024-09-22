@@ -19,17 +19,16 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
 
 type nvmeCollector struct {
 	fs     sysfs.FS
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -37,7 +36,7 @@ func init() {
 }
 
 // NewNVMeCollector returns a new Collector exposing NVMe stats.
-func NewNVMeCollector(logger log.Logger) (Collector, error) {
+func NewNVMeCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -53,7 +52,7 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.NVMeClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "nvme statistics not found, skipping")
+			c.logger.Debug("nvme statistics not found, skipping")
 			return ErrNoData
 		}
 		return fmt.Errorf("error obtaining NVMe class info: %w", err)
