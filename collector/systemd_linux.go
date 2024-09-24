@@ -18,7 +18,6 @@ package collector
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"math"
@@ -46,13 +45,11 @@ var (
 		systemdUnitIncludeSet = true
 		return nil
 	}).String()
-	oldSystemdUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
 	systemdUnitExcludeSet bool
 	systemdUnitExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
 		systemdUnitExcludeSet = true
 		return nil
 	}).String()
-	oldSystemdUnitExclude  = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
 	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
 	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
 	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
@@ -133,22 +130,6 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 		prometheus.BuildFQName(namespace, subsystem, "version"),
 		"Detected systemd version", []string{"version"}, nil)
 
-	if *oldSystemdUnitExclude != "" {
-		if !systemdUnitExcludeSet {
-			logger.Warn("--collector.systemd.unit-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-exclude")
-			*systemdUnitExclude = *oldSystemdUnitExclude
-		} else {
-			return nil, errors.New("--collector.systemd.unit-blacklist and --collector.systemd.unit-exclude are mutually exclusive")
-		}
-	}
-	if *oldSystemdUnitInclude != "" {
-		if !systemdUnitIncludeSet {
-			logger.Warn("--collector.systemd.unit-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.systemd.unit-include")
-			*systemdUnitInclude = *oldSystemdUnitInclude
-		} else {
-			return nil, errors.New("--collector.systemd.unit-whitelist and --collector.systemd.unit-include are mutually exclusive")
-		}
-	}
 	logger.Info("Parsed flag --collector.systemd.unit-include", "flag", *systemdUnitInclude)
 	systemdUnitIncludePattern := regexp.MustCompile(fmt.Sprintf("^(?:%s)$", *systemdUnitInclude))
 	logger.Info("Parsed flag --collector.systemd.unit-exclude", "flag", *systemdUnitExclude)

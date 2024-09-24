@@ -42,7 +42,7 @@ func init() {
 }
 
 var (
-	raplZoneLabel = kingpin.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
+	raplZoneLabel = kingpin.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Default("true").Bool()
 )
 
 // NewRaplCollector returns a new Collector exposing RAPL metrics.

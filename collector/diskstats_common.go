@@ -40,10 +40,6 @@ var (
 		diskstatsDeviceExcludeSet = true
 		return nil
 	}).String()
-	oldDiskstatsDeviceExclude = kingpin.Flag(
-		"collector.diskstats.ignored-devices",
-		"DEPRECATED: Use collector.diskstats.device-exclude",
-	).Hidden().String()
 
 	diskstatsDeviceInclude = kingpin.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
 
@@ -93,15 +89,6 @@ var (
 )
 
 func newDiskstatsDeviceFilter(logger *slog.Logger) (deviceFilter, error) {
-	if *oldDiskstatsDeviceExclude != "" {
-		if !diskstatsDeviceExcludeSet {
-			logger.Warn("--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
-			*diskstatsDeviceExclude = *oldDiskstatsDeviceExclude
-		} else {
-			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
-		}
-	}
-
 	if *diskstatsDeviceExclude != "" && *diskstatsDeviceInclude != "" {
 		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
 	}

@@ -30,12 +30,10 @@ import (
 )
 
 var (
-	netdevDeviceInclude    = kingpin.Flag("collector.netdev.device-include", "Regexp of net devices to include (mutually exclusive to device-exclude).").String()
-	oldNetdevDeviceInclude = kingpin.Flag("collector.netdev.device-whitelist", "DEPRECATED: Use collector.netdev.device-include").Hidden().String()
-	netdevDeviceExclude    = kingpin.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").String()
-	oldNetdevDeviceExclude = kingpin.Flag("collector.netdev.device-blacklist", "DEPRECATED: Use collector.netdev.device-exclude").Hidden().String()
-	netdevAddressInfo      = kingpin.Flag("collector.netdev.address-info", "Collect address-info for every device").Bool()
-	netdevDetailedMetrics  = kingpin.Flag("collector.netdev.enable-detailed-metrics", "Use (incompatible) metric names that provide more detailed stats on Linux").Bool()
+	netdevDeviceInclude   = kingpin.Flag("collector.netdev.device-include", "Regexp of net devices to include (mutually exclusive to device-exclude).").String()
+	netdevDeviceExclude   = kingpin.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").String()
+	netdevAddressInfo     = kingpin.Flag("collector.netdev.address-info", "Collect address-info for every device").Bool()
+	netdevDetailedMetrics = kingpin.Flag("collector.netdev.enable-detailed-metrics", "Use (incompatible) metric names that provide more detailed stats on Linux").Bool()
 )
 
 type netDevCollector struct {
@@ -54,24 +52,6 @@ func init() {
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
 func NewNetDevCollector(logger *slog.Logger) (Collector, error) {
-	if *oldNetdevDeviceInclude != "" {
-		if *netdevDeviceInclude == "" {
-			logger.Warn("--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")
-			*netdevDeviceInclude = *oldNetdevDeviceInclude
-		} else {
-			return nil, errors.New("--collector.netdev.device-whitelist and --collector.netdev.device-include are mutually exclusive")
-		}
-	}
-
-	if *oldNetdevDeviceExclude != "" {
-		if *netdevDeviceExclude == "" {
-			logger.Warn("--collector.netdev.device-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-exclude")
-			*netdevDeviceExclude = *oldNetdevDeviceExclude
-		} else {
-			return nil, errors.New("--collector.netdev.device-blacklist and --collector.netdev.device-exclude are mutually exclusive")
-		}
-	}
-
 	if *netdevDeviceExclude != "" && *netdevDeviceInclude != "" {
 		return nil, errors.New("device-exclude & device-include are mutually exclusive")
 	}

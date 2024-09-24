@@ -18,7 +18,6 @@
 package collector
 
 import (
-	"errors"
 	"log/slog"
 	"regexp"
 
@@ -41,10 +40,6 @@ var (
 		mountPointsExcludeSet = true
 		return nil
 	}).String()
-	oldMountPointsExcluded = kingpin.Flag(
-		"collector.filesystem.ignored-mount-points",
-		"Regexp of mount points to ignore for filesystem collector.",
-	).Hidden().String()
 
 	fsTypesExcludeSet bool
 	fsTypesExclude    = kingpin.Flag(
@@ -54,10 +49,6 @@ var (
 		fsTypesExcludeSet = true
 		return nil
 	}).String()
-	oldFSTypesExcluded = kingpin.Flag(
-		"collector.filesystem.ignored-fs-types",
-		"Regexp of filesystem types to ignore for filesystem collector.",
-	).Hidden().String()
 
 	filesystemLabelNames = []string{"device", "mountpoint", "fstype", "device_error"}
 )
@@ -89,24 +80,6 @@ func init() {
 
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.
 func NewFilesystemCollector(logger *slog.Logger) (Collector, error) {
-	if *oldMountPointsExcluded != "" {
-		if !mountPointsExcludeSet {
-			logger.Warn("--collector.filesystem.ignored-mount-points is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.mount-points-exclude")
-			*mountPointsExclude = *oldMountPointsExcluded
-		} else {
-			return nil, errors.New("--collector.filesystem.ignored-mount-points and --collector.filesystem.mount-points-exclude are mutually exclusive")
-		}
-	}
-
-	if *oldFSTypesExcluded != "" {
-		if !fsTypesExcludeSet {
-			logger.Warn("--collector.filesystem.ignored-fs-types is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.fs-types-exclude")
-			*fsTypesExclude = *oldFSTypesExcluded
-		} else {
-			return nil, errors.New("--collector.filesystem.ignored-fs-types and --collector.filesystem.fs-types-exclude are mutually exclusive")
-		}
-	}
-
 	subsystem := "filesystem"
 	logger.Info("Parsed flag --collector.filesystem.mount-points-exclude", "flag", *mountPointsExclude)
 	mountPointPattern := regexp.MustCompile(*mountPointsExclude)
