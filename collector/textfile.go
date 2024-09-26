@@ -32,8 +32,8 @@ import (
 )
 
 var (
-	textFileDirectory = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from.").Default("").String()
-	mtimeDesc         = prometheus.NewDesc(
+	textFileDirectories = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from, supports glob matching. (repeatable)").Default("").Strings()
+	mtimeDesc           = prometheus.NewDesc(
 		"node_textfile_mtime_seconds",
 		"Unixtime mtime of textfiles successfully read.",
 		[]string{"file"},
@@ -42,7 +42,7 @@ var (
 )
 
 type textFileCollector struct {
-	path string
+	paths []string
 	// Only set for testing to get predictable output.
 	mtime  *float64
 	logger *slog.Logger
@@ -56,7 +56,7 @@ func init() {
 // in the given textfile directory.
 func NewTextFileCollector(logger *slog.Logger) (Collector, error) {
 	c := &textFileCollector{
-		path:   *textFileDirectory,
+		paths:  *textFileDirectories,
 		logger: logger,
 	}
 	return c, nil
@@ -194,11 +194,15 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	metricsNamesToFiles := map[string][]string{}
 	metricsNamesToHelpTexts := map[string][2]string{}
 
-	paths, err := filepath.Glob(c.path)
-	if err != nil || len(paths) == 0 {
-		// not glob or not accessible path either way assume single
-		// directory and let os.ReadDir handle it
-		paths = []string{c.path}
+	paths := []string{}
+	for _, glob := range c.paths {
+		ps, err := filepath.Glob(glob)
+		if err != nil || len(ps) == 0 {
+			// not glob or not accessible path either way assume single
+			// directory and let os.ReadDir handle it
+			ps = []string{glob}
+		}
+		paths = append(paths, ps...)
 	}
 
 	mtimes := make(map[string]time.Time)
