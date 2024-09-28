@@ -11,6 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noosrelease && !aix
+// +build !noosrelease,!aix
+
 package collector
 
 import (
