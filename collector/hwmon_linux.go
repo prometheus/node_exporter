@@ -18,6 +18,7 @@ package collector
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -106,6 +107,9 @@ func sysReadFile(file string) ([]byte, error) {
 	n, err := unix.Read(int(f.Fd()), b)
 	if err != nil {
 		return nil, err
+	}
+	if n < 0 {
+		return nil, fmt.Errorf("failed to read file: %q, read returned negative bytes value: %d", file, n)
 	}
 
 	return b[:n], nil

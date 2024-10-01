@@ -18,8 +18,10 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -41,7 +43,67 @@ const (
 	// kstatDataString = "7"
 )
 
-var zfsPoolStatesName = []string{"online", "degraded", "faulted", "offline", "removed", "unavail", "suspended"}
+var (
+	errZFSNotAvailable = errors.New("ZFS / ZFS statistics are not available")
+
+	zfsPoolStatesName = [...]string{"online", "degraded", "faulted", "offline", "removed", "unavail", "suspended"}
+)
+
+type zfsCollector struct {
+	linuxProcpathBase    string
+	linuxZpoolIoPath     string
+	linuxZpoolObjsetPath string
+	linuxZpoolStatePath  string
+	linuxPathMap         map[string]string
+	logger               *slog.Logger
+}
+
+// NewZFSCollector returns a new Collector exposing ZFS statistics.
+func NewZFSCollector(logger *slog.Logger) (Collector, error) {
+	return &zfsCollector{
+		linuxProcpathBase:    "spl/kstat/zfs",
+		linuxZpoolIoPath:     "/*/io",
+		linuxZpoolObjsetPath: "/*/objset-*",
+		linuxZpoolStatePath:  "/*/state",
+		linuxPathMap: map[string]string{
+			"zfs_abd":         "abdstats",
+			"zfs_arc":         "arcstats",
+			"zfs_dbuf":        "dbufstats",
+			"zfs_dmu_tx":      "dmu_tx",
+			"zfs_dnode":       "dnodestats",
+			"zfs_fm":          "fm",
+			"zfs_vdev_cache":  "vdev_cache_stats", // vdev_cache is deprecated
+			"zfs_vdev_mirror": "vdev_mirror_stats",
+			"zfs_xuio":        "xuio_stats", // no known consumers of the XUIO interface on Linux exist
+			"zfs_zfetch":      "zfetchstats",
+			"zfs_zil":         "zil",
+		},
+		logger: logger,
+	}, nil
+}
+
+func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
+	if _, err := c.openProcFile(c.linuxProcpathBase); err != nil {
+		if err == errZFSNotAvailable {
+			c.logger.Debug(err.Error())
+			return ErrNoData
+		}
+	}
+
+	for subsystem := range c.linuxPathMap {
+		if err := c.updateZfsStats(subsystem, ch); err != nil {
+			if err == errZFSNotAvailable {
+				c.logger.Debug(err.Error())
+				// ZFS /proc files are added as new features to ZFS arrive, it is ok to continue
+				continue
+			}
+			return err
+		}
+	}
+
+	// Pool stats
+	return c.updatePoolStats(ch)
+}
 
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 	file, err := os.Open(procFilePath(path))
@@ -303,4 +365,74 @@ func (c *zfsCollector) parsePoolStateFile(reader io.Reader, zpoolPath string, ha
 	}
 
 	return nil
+}
+
+func (c *zfsCollector) constSysctlMetric(subsystem string, sysctl zfsSysctl, value float64) prometheus.Metric {
+	metricName := sysctl.metricName()
+
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, metricName),
+			string(sysctl),
+			nil,
+			nil,
+		),
+		prometheus.UntypedValue,
+		value,
+	)
+}
+
+func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value uint64) prometheus.Metric {
+	metricName := sysctl.metricName()
+
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "zfs_zpool", metricName),
+			string(sysctl),
+			[]string{"zpool"},
+			nil,
+		),
+		prometheus.UntypedValue,
+		float64(value),
+		poolName,
+	)
+}
+
+func (c *zfsCollector) constPoolObjsetMetric(poolName string, datasetName string, sysctl zfsSysctl, value uint64) prometheus.Metric {
+	metricName := sysctl.metricName()
+
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "zfs_zpool_dataset", metricName),
+			string(sysctl),
+			[]string{"zpool", "dataset"},
+			nil,
+		),
+		prometheus.UntypedValue,
+		float64(value),
+		poolName,
+		datasetName,
+	)
+}
+
+func (c *zfsCollector) constPoolStateMetric(poolName string, stateName string, isActive uint64) prometheus.Metric {
+	return prometheus.MustNewConstMetric(
+		prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "zfs_zpool", "state"),
+			"kstat.zfs.misc.state",
+			[]string{"zpool", "state"},
+			nil,
+		),
+		prometheus.GaugeValue,
+		float64(isActive),
+		poolName,
+		stateName,
+	)
+}
+
+type zfsSysctl string
+
+func (s zfsSysctl) metricName() string {
+	parts := strings.Split(string(s), ".")
+	return strings.Replace(parts[len(parts)-1], "-", "_", -1)
 }
