@@ -42,6 +42,11 @@ var (
 		"Card information",
 		[]string{"card", "memory_vendor", "power_performance_level", "unique_id", "vendor"}, nil,
 	)
+	drmCardInfoWithChip = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, drmCollectorSubsystem, "card_info"),
+		"Card information",
+		[]string{"card", "memory_vendor", "power_performance_level", "unique_id", "chip", "vendor"}, nil,
+	)
 	drmGPUBusyPercent = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, drmCollectorSubsystem, "gpu_busy_percent"),
 		"How busy the GPU is as a percentage.",
@@ -96,6 +101,22 @@ func (c *drmCollector) Update(ch chan<- prometheus.Metric) error {
 	return c.updateAMDCards(ch)
 }
 
+func chipName(s sysfs.ClassDRMCardAMDGPUStats) string {
+	// generate a chip name based on the deviceType and devName
+	cleanDevName := cleanMetricName(s.DevName)
+	cleanDevType := cleanMetricName(s.DevType)
+
+	if cleanDevType != "" && cleanDevName != "" {
+		return cleanDevType + "_" + cleanDevName
+	}
+
+	if cleanDevName != "" {
+		return cleanDevName
+	}
+
+	return ""
+}
+
 func (c *drmCollector) updateAMDCards(ch chan<- prometheus.Metric) error {
 	vendor := "amd"
 	stats, err := c.fs.ClassDRMCardAMDGPUStats()
@@ -104,10 +125,15 @@ func (c *drmCollector) updateAMDCards(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, s := range stats {
-		ch <- prometheus.MustNewConstMetric(
-			drmCardInfo, prometheus.GaugeValue, 1,
-			s.Name, s.MemoryVRAMVendor, s.PowerDPMForcePerformanceLevel, s.UniqueID, vendor)
-
+		if chip := chipName(s); chip != "" {
+			ch <- prometheus.MustNewConstMetric(
+				drmCardInfoWithChip, prometheus.GaugeValue, 1,
+				s.Name, s.MemoryVRAMVendor, s.PowerDPMForcePerformanceLevel, s.UniqueID, chip, vendor)
+		} else {
+			ch <- prometheus.MustNewConstMetric(
+				drmCardInfo, prometheus.GaugeValue, 1,
+				s.Name, s.MemoryVRAMVendor, s.PowerDPMForcePerformanceLevel, s.UniqueID, vendor)
+		}
 		ch <- prometheus.MustNewConstMetric(
 			drmGPUBusyPercent, prometheus.GaugeValue, float64(s.GPUBusyPercent), s.Name)
 
