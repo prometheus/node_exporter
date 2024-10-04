@@ -10,7 +10,11 @@ local gaugePanel = grafana70.panel.gauge;
 local table = grafana70.panel.table;
 
 local timeSeriesPanel = grafana.panel.timeSeries;
-
+local tsOptions = timeSeriesPanel.options;
+local tsStandardOptions = timeSeriesPanel.standardOptions;
+local tsQueryOptions = timeSeriesPanel.queryOptions;
+local tsCustom = timeSeriesPanel.fieldConfig.defaults.custom;
+local tsLegend = tsOptions.legend;
 
 {
 
@@ -20,43 +24,56 @@ local timeSeriesPanel = grafana.panel.timeSeries;
       'datasource', 'prometheus'
     ),
 
-    local clusterVariablePrototype = variable.query.new('cluster')
-    + variable.query.withDatasourceFromVariable(datasource)
-    + (if config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
-    + variable.query.refresh.onTime()
-    + variable.generalOptions.withLabel("Cluster"),
+    local clusterVariablePrototype =
+      variable.query.new('cluster')
+      + variable.query.withDatasourceFromVariable(datasource)
+      + (if config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
+      + variable.query.refresh.onTime()
+      + variable.generalOptions.withLabel('Cluster'),
 
-    local clusterVariable = 
+    local clusterVariable =
       if platform == 'Darwin' then
-        clusterVariablePrototype + 
-        variable.query.queryTypes.withLabelValues(
-          config,
-          'node_uname_info{%(nodeExporterSelector)s, sysname="Darwin"}, %(clusterLabel)s',
+        clusterVariablePrototype
+        + variable.query.queryTypes.withLabelValues(
+          ' %(clusterLabel)s' % config,
+          'node_uname_info{%(nodeExporterSelector)s, sysname="Darwin"}' % config,
         )
       else
-      clusterVariablePrototype + 
-        variable.query.queryTypes.withLabelValues(
-          config,
-          'node_uname_info{%(nodeExporterSelector)s, sysname!="Darwin"}, %(clusterLabel)s',
+        clusterVariablePrototype
+        + variable.query.queryTypes.withLabelValues(
+          '%(clusterLabel)s' % config,
+          'node_uname_info{%(nodeExporterSelector)s, sysname!="Darwin"}' % config,
         ),
 
-    local instanceTemplatePrototype =
-      template.new(
-        'instance',
-        '$datasource',
-        '',
-        refresh='time',
-        label='Instance',
-      ),
-    local instanceTemplate =
+    local instanceVariablePrototype =
+      variable.query.new('instance')
+      + variable.query.withDatasourceFromVariable(datasource)
+      + variable.query.refresh.onTime()
+      + variable.generalOptions.withLabel('Instance'),
+
+    local instanceVariable =
       if platform == 'Darwin' then
-        instanceTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster", sysname="Darwin"}, instance)' % config }
+        instanceVariablePrototype
+        + variable.query.queryTypes.withLabelValues(
+          'instance',
+          'node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster", sysname="Darwin"}' % config,
+        )
       else
-        instanceTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster", sysname!="Darwin"}, instance)' % config },
+        instanceVariablePrototype
+        + variable.query.queryTypes.withLabelValues(
+          'instance',
+          'node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster", sysname!="Darwin"}' % config,
+        ),
 
     local idleCPU =
+      timeSeriesPanel.new('CPU Usage')
+      + variable.query.withDatasourceFromVariable(datasource)
+      + tsStandardOptions.withUnit('percentunit')
+      + tsCustom.stacking.withMode('normal')
+      // TODO - max, min, width
+      // TODO - target
+
+
       graphPanel.new(
         'CPU Usage',
         datasource='$datasource',

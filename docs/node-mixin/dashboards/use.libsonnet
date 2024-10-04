@@ -17,12 +17,13 @@ local datasource = variable.datasource.new(
   'datasource', 'prometheus'
 );
 
-local tsCommonPanelOptions = variable.query.withDatasourceFromVariable(datasource)
-                             + tsCustom.stacking.withMode('normal')
-                             + tsCustom.withFillOpacity(100)
-                             + tsLegend.withShowLegend(false)
-                             + tsOptions.tooltip.withMode('multi')
-                             + tsOptions.tooltip.withSort('desc');
+local tsCommonPanelOptions =
+  variable.query.withDatasourceFromVariable(datasource)
+  + tsCustom.stacking.withMode('normal')
+  + tsCustom.withFillOpacity(100)
+  + tsLegend.withShowLegend(false)
+  + tsOptions.tooltip.withMode('multi')
+  + tsOptions.tooltip.withSort('desc');
 
 local CPUUtilisation =
   timeSeriesPanel.new(
