@@ -18,11 +18,11 @@ local datasource = variable.datasource.new(
 );
 
 local tsCommonPanelOptions = variable.query.withDatasourceFromVariable(datasource)
-  + tsCustom.stacking.withMode('normal')
-  + tsCustom.withFillOpacity(100)
-  + tsLegend.withShowLegend(false)
-  + tsOptions.tooltip.withMode("multi")
-  + tsOptions.tooltip.withSort("desc");
+                             + tsCustom.stacking.withMode('normal')
+                             + tsCustom.withFillOpacity(100)
+                             + tsLegend.withShowLegend(false)
+                             + tsOptions.tooltip.withMode('multi')
+                             + tsOptions.tooltip.withSort('desc');
 
 local CPUUtilisation =
   timeSeriesPanel.new(
@@ -101,7 +101,7 @@ local diskSpaceUtilisation =
   + tsStandardOptions.withUnit('percentunit');
 
 {
-    _clusterVariable::
+  _clusterVariable::
     variable.query.new('cluster')
     + variable.query.withDatasourceFromVariable(datasource)
     + variable.query.queryTypes.withLabelValues(
@@ -109,363 +109,367 @@ local diskSpaceUtilisation =
       'node_time_seconds',
     )
     + if $._config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing()
-    + variable.query.withRefresh(2)
-    + variable.query.selectionOptions.withIncludeAll(false)
-    + variable.query.withSort(1),
-    
+                                                                                                                + variable.query.withRefresh(2)
+                                                                                                                + variable.query.selectionOptions.withIncludeAll(false)
+                                                                                                                + variable.query.withSort(1),
+
   grafanaDashboards+:: {
-    'node-rsrc-use.json':
-      dashboard.new(
-        '%sUSE Method / Node' % $._config.dashboardNamePrefix,
-      )
-      + dashboard.time.withFrom('now-1h')
-      + dashboard.withTags($._config.dashboardTags)
-      + dashboard.withTimezone('utc')
-      + dashboard.withRefresh('30s')
-      + dashboard.graphTooltip.withSharedCrosshair()
-      + dashboard.withUid(std.md5('node-rsrc-use.json'))
-      + dashboard.withVariables([
-        datasource,
-        $._clusterVariable,
-        variable.query.new('instance')
-        + variable.query.withDatasourceFromVariable(datasource)
-        + variable.query.queryTypes.withLabelValues(
-          'instance',
-          'node_exporter_build_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config,
-        )
-        + variable.query.withRefresh(2)
-        + variable.query.withSort(1),
-      ])
-      // TODO - panel width
-      + dashboard.withPanels(
-        grafana.util.grid.makeGrid([
-          row.new('CPU')
-          + row.withPanels([
-            CPUUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
-            CPUSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Saturation')]),
-          ]),
-          row.new('Memory')
-          + row.withPanels([
-            memoryUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
-            memorySaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Major page Faults')]),
-          ]),
-          row.new('Network')
-          + row.withPanels([
-            networkUtilisation + tsQueryOptions.withTargets([
-              prometheus.new('$datasource', 'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
-              prometheus.new('$datasource', 'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
-            ]),
-            networkSaturation + tsQueryOptions.withTargets([
-              prometheus.new('$datasource', 'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
-              prometheus.new('$datasource', 'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
-            ]),
-          ]),
-          row.new('Disk IO')
-          + row.withPanels([
-            diskIOUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
-            diskIOSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
-          ]),
-          row.new('Disk Space')
-          + row.withPanels([
-            diskSpaceUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sort_desc(1 -
-                    (
-                      max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
-                      /
-                      max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
-                    ) != 0
-                  )
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{device}}')
-            ]),
-          ]),
-        ]),
-      ),
-    'node-cluster-rsrc-use.json':
-      dashboard.new(
-        '%sUSE Method / Cluster' % $._config.dashboardNamePrefix,
-      )
-      + dashboard.time.withFrom('now-1h')
-      + dashboard.withTags($._config.dashboardTags)
-      + dashboard.withTimezone('utc')
-      + dashboard.withRefresh('30s')
-      + dashboard.graphTooltip.withSharedCrosshair()
-      + dashboard.withUid(std.md5('node-cluster-rsrc-use.json'))
-      + dashboard.withVariables([
-        datasource,
-        $._clusterVariable,
-        variable.query.withDatasourceFromVariable(datasource)
-        + variable.query.withRefresh(2)
-        + variable.query.withSort(1),
-      ])
-      // TODO - panel width
-      + dashboard.withPanels(
-        grafana.util.grid.makeGrid([
-          row.new('CPU')
-          + row.withPanels([
-            CPUUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  ((
-                    instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                    *
-                    instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                  ) != 0 )
-                  / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{ instance }}')
-            ]),
-            CPUSaturation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  (
-                    instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                    / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
-                  )  != 0
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{ instance }}')
-            ]),
-          ]),
-          row.new('Memory')
-          + row.withPanels([
-            memoryUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  (
-                    instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                    / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
-                  ) != 0
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{ instance }}')
-            ]),
-            memorySaturation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config
-            ) + prometheus.withLegendFormat('{{ instance }}')
-            ]),
-          ]),
-          row.new('Network')
-          + row.withPanels([
-            networkUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
-              ) + prometheus.withLegendFormat('{{ instance }} Receive'),
-              prometheus.new(
-                '$datasource',
-                'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
-              ) + prometheus.withLegendFormat('{{ instance }} Transmit'),
-            ]),
-            networkSaturation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
-              ) + prometheus.withLegendFormat('{{ instance }} Receive'),
-              prometheus.new(
-                '$datasource',
-                'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
-              ) + prometheus.withLegendFormat('{{ instance }} Transmit'),
-            ]),
-          ]),
-          row.new('Disk IO')
-          + row.withPanels([
-            diskIOUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                  / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{ instance }} {{device}}')]),
-            diskIOSaturation + tsQueryOptions.withTargets([prometheus.new(
-              '$datasource',
-              |||
-                instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
-              ||| % $._config
-            ) + prometheus.withLegendFormat('{{ instance }} {{device}}')]),
-          ]),
-          row.new('Disk Space')
-          + row.withPanels([
-            diskSpaceUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum without (device) (
-                    max without (fstype, mountpoint) ((
-                      node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"}
-                      -
-                      node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"}
-                    ) != 0)
-                  )
-                  / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"})))
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{ instance }}')]),
-          ]),
-        ]),
-      ),
-  }  +
-  if $._config.showMultiCluster then {
-    // TODO - test thoroughly
-    'node-multicluster-rsrc-use.json':
-      dashboard.new(
-        '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,
-      )
-      + dashboard.time.withFrom('now-1h')
-      + dashboard.withTags($._config.dashboardTags)
-      + dashboard.withTimezone('utc')
-      + dashboard.withRefresh('30s')
-      + dashboard.graphTooltip.withSharedCrosshair()
-      + dashboard.withUid(std.md5('node-multicluster-rsrc-use.json'))
-      + dashboard.withVariables([
-        datasource,
-        variable.query.withDatasourceFromVariable(datasource)
-        + variable.query.withRefresh(2)
-        + variable.query.withSort(1),
-      ])
-      // TODO - panel width
-      + dashboard.withPanels(
-        grafana.util.grid.makeGrid([
-          row.new('CPU')
-          + row.withPanels([
-            CPUUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum(
-                    ((
-                      instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                      *
-                      instance:node_num_cpu:sum{%(nodeExporterSelector)s}
-                    ) != 0)
-                    / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s}))
-                  ) by (%(clusterLabel)s)
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}')
-            ]),
-            CPUSaturation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}
-                      / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}))
-                  ) != 0) by (%(clusterLabel)s)
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}')
-            ]),
-          ]),
-          row.new('Memory')
-          + row.withPanels([
-            memoryUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}
-                      / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}))
-                  ) != 0) by (%(clusterLabel)s)
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}')
-            ]),
-            memorySaturation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                  ) != 0) by (%(clusterLabel)s)
-                |||
-                 % $._config
-            ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}')
-            ]),
-          ]),
-          row.new('Network')
-          + row.withPanels([
-            networkUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                  ) != 0) by (%(clusterLabel)s)
-                |||  % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Receive'),
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                  ) != 0) by (%(clusterLabel)s)
-                |||  % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Transmit'),
-            ]),
-            networkSaturation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                  ) != 0) by (%(clusterLabel)s)
-                |||  % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Receive'),
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                  ) != 0) by (%(clusterLabel)s)
-                |||  % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Transmit'),
-            ]),
-          ]),
-          row.new('Disk IO')
-          + row.withPanels([
-            diskIOUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum((
-                      instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                      / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
-                  ) != 0) by (%(clusterLabel)s, device)
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} {{device}}')]),
-            diskIOSaturation + tsQueryOptions.withTargets([prometheus.new(
-              '$datasource',
-              |||
-                sum((
-                  instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
-                  / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
-                ) != 0) by (%(clusterLabel)s, device)
-              ||| % $._config
-            ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} {{device}}')]),
-          ]),
-          row.new('Disk Space')
-          + row.withPanels([
-            diskSpaceUtilisation + tsQueryOptions.withTargets([
-              prometheus.new(
-                '$datasource',
-                |||
-                  sum (
-                    sum without (device) (
-                      max without (fstype, mountpoint, instance, pod) ((
-                        node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s}
-                      ) != 0)
-                    )
-                    / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s})))
-                  ) by (%(clusterLabel)s)
-                ||| % $._config
-              ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}')]),
-          ]),
-        ]),
-      ),
-    } else {},
+                         'node-rsrc-use.json':
+                           dashboard.new(
+                             '%sUSE Method / Node' % $._config.dashboardNamePrefix,
+                           )
+                           + dashboard.time.withFrom('now-1h')
+                           + dashboard.withTags($._config.dashboardTags)
+                           + dashboard.withTimezone('utc')
+                           + dashboard.withRefresh('30s')
+                           + dashboard.graphTooltip.withSharedCrosshair()
+                           + dashboard.withUid(std.md5('node-rsrc-use.json'))
+                           + dashboard.withVariables([
+                             datasource,
+                             $._clusterVariable,
+                             variable.query.new('instance')
+                             + variable.query.withDatasourceFromVariable(datasource)
+                             + variable.query.queryTypes.withLabelValues(
+                               'instance',
+                               'node_exporter_build_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config,
+                             )
+                             + variable.query.withRefresh(2)
+                             + variable.query.withSort(1),
+                           ])
+                           // TODO - panel width
+                           + dashboard.withPanels(
+                             grafana.util.grid.makeGrid([
+                               row.new('CPU')
+                               + row.withPanels([
+                                 CPUUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
+                                 CPUSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Saturation')]),
+                               ]),
+                               row.new('Memory')
+                               + row.withPanels([
+                                 memoryUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
+                                 memorySaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Major page Faults')]),
+                               ]),
+                               row.new('Network')
+                               + row.withPanels([
+                                 networkUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new('$datasource', 'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
+                                   prometheus.new('$datasource', 'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
+                                 ]),
+                                 networkSaturation + tsQueryOptions.withTargets([
+                                   prometheus.new('$datasource', 'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
+                                   prometheus.new('$datasource', 'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
+                                 ]),
+                               ]),
+                               row.new('Disk IO')
+                               + row.withPanels([
+                                 diskIOUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
+                                 diskIOSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
+                               ]),
+                               row.new('Disk Space')
+                               + row.withPanels([
+                                 diskSpaceUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sort_desc(1 -
+                                         (
+                                           max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
+                                           /
+                                           max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
+                                         ) != 0
+                                       )
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{device}}'),
+                                 ]),
+                               ]),
+                             ]),
+                           ),
+                         'node-cluster-rsrc-use.json':
+                           dashboard.new(
+                             '%sUSE Method / Cluster' % $._config.dashboardNamePrefix,
+                           )
+                           + dashboard.time.withFrom('now-1h')
+                           + dashboard.withTags($._config.dashboardTags)
+                           + dashboard.withTimezone('utc')
+                           + dashboard.withRefresh('30s')
+                           + dashboard.graphTooltip.withSharedCrosshair()
+                           + dashboard.withUid(std.md5('node-cluster-rsrc-use.json'))
+                           + dashboard.withVariables([
+                             datasource,
+                             $._clusterVariable,
+                             variable.query.withDatasourceFromVariable(datasource)
+                             + variable.query.withRefresh(2)
+                             + variable.query.withSort(1),
+                           ])
+                           // TODO - panel width
+                           + dashboard.withPanels(
+                             grafana.util.grid.makeGrid([
+                               row.new('CPU')
+                               + row.withPanels([
+                                 CPUUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       ((
+                                         instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                         *
+                                         instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                       ) != 0 )
+                                       / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }}'),
+                                 ]),
+                                 CPUSaturation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       (
+                                         instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                         / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                       )  != 0
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }}'),
+                                 ]),
+                               ]),
+                               row.new('Memory')
+                               + row.withPanels([
+                                 memoryUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       (
+                                         instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                         / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                       ) != 0
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }}'),
+                                 ]),
+                                 memorySaturation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }}'),
+                                 ]),
+                               ]),
+                               row.new('Network')
+                               + row.withPanels([
+                                 networkUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }} Receive'),
+                                   prometheus.new(
+                                     '$datasource',
+                                     'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }} Transmit'),
+                                 ]),
+                                 networkSaturation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }} Receive'),
+                                   prometheus.new(
+                                     '$datasource',
+                                     'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }} Transmit'),
+                                 ]),
+                               ]),
+                               row.new('Disk IO')
+                               + row.withPanels([
+                                 diskIOUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                       / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }} {{device}}'),
+                                 ]),
+                                 diskIOSaturation + tsQueryOptions.withTargets([prometheus.new(
+                                   '$datasource',
+                                   |||
+                                     instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                     / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                   ||| % $._config
+                                 ) + prometheus.withLegendFormat('{{ instance }} {{device}}')]),
+                               ]),
+                               row.new('Disk Space')
+                               + row.withPanels([
+                                 diskSpaceUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum without (device) (
+                                         max without (fstype, mountpoint) ((
+                                           node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"}
+                                           -
+                                           node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"}
+                                         ) != 0)
+                                       )
+                                       / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"})))
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{ instance }}'),
+                                 ]),
+                               ]),
+                             ]),
+                           ),
+                       } +
+                       if $._config.showMultiCluster then {
+                         // TODO - test thoroughly
+                         'node-multicluster-rsrc-use.json':
+                           dashboard.new(
+                             '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,
+                           )
+                           + dashboard.time.withFrom('now-1h')
+                           + dashboard.withTags($._config.dashboardTags)
+                           + dashboard.withTimezone('utc')
+                           + dashboard.withRefresh('30s')
+                           + dashboard.graphTooltip.withSharedCrosshair()
+                           + dashboard.withUid(std.md5('node-multicluster-rsrc-use.json'))
+                           + dashboard.withVariables([
+                             datasource,
+                             variable.query.withDatasourceFromVariable(datasource)
+                             + variable.query.withRefresh(2)
+                             + variable.query.withSort(1),
+                           ])
+                           // TODO - panel width
+                           + dashboard.withPanels(
+                             grafana.util.grid.makeGrid([
+                               row.new('CPU')
+                               + row.withPanels([
+                                 CPUUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum(
+                                         ((
+                                           instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                           *
+                                           instance:node_num_cpu:sum{%(nodeExporterSelector)s}
+                                         ) != 0)
+                                         / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s}))
+                                       ) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}'),
+                                 ]),
+                                 CPUSaturation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}
+                                           / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s}))
+                                       ) != 0) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}'),
+                                 ]),
+                               ]),
+                               row.new('Memory')
+                               + row.withPanels([
+                                 memoryUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}
+                                           / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s}))
+                                       ) != 0) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}'),
+                                 ]),
+                                 memorySaturation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       ) != 0) by (%(clusterLabel)s)
+                                     |||
+                                     % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}'),
+                                 ]),
+                               ]),
+                               row.new('Network')
+                               + row.withPanels([
+                                 networkUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       ) != 0) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Receive'),
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       ) != 0) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Transmit'),
+                                 ]),
+                                 networkSaturation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       ) != 0) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Receive'),
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       ) != 0) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} Transmit'),
+                                 ]),
+                               ]),
+                               row.new('Disk IO')
+                               + row.withPanels([
+                                 diskIOUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum((
+                                           instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                           / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
+                                       ) != 0) by (%(clusterLabel)s, device)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} {{device}}'),
+                                 ]),
+                                 diskIOSaturation + tsQueryOptions.withTargets([prometheus.new(
+                                   '$datasource',
+                                   |||
+                                     sum((
+                                       instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}
+                                       / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s}))
+                                     ) != 0) by (%(clusterLabel)s, device)
+                                   ||| % $._config
+                                 ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} {{device}}')]),
+                               ]),
+                               row.new('Disk Space')
+                               + row.withPanels([
+                                 diskSpaceUtilisation + tsQueryOptions.withTargets([
+                                   prometheus.new(
+                                     '$datasource',
+                                     |||
+                                       sum (
+                                         sum without (device) (
+                                           max without (fstype, mountpoint, instance, pod) ((
+                                             node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s} - node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s}
+                                           ) != 0)
+                                         )
+                                         / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s})))
+                                       ) by (%(clusterLabel)s)
+                                     ||| % $._config
+                                   ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}'),
+                                 ]),
+                               ]),
+                             ]),
+                           ),
+                       } else {},
 }
