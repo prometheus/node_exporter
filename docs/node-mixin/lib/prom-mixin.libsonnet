@@ -5,9 +5,6 @@ local prometheus = grafana.query.prometheus;
 local variable = dashboard.variable;
 local template = grafana.template;
 
-local graphPanel = grafana.graphPanel;
-local gaugePanel = grafana70.panel.gauge;
-local table = grafana70.panel.table;
 
 local timeSeriesPanel = grafana.panel.timeSeries;
 local tsOptions = timeSeriesPanel.options;
@@ -16,17 +13,23 @@ local tsQueryOptions = timeSeriesPanel.queryOptions;
 local tsCustom = timeSeriesPanel.fieldConfig.defaults.custom;
 local tsLegend = tsOptions.legend;
 
+local gaugePanel = grafana.panel.gauge;
+local gaugeStep = gaugePanel.standardOptions.threshold.step;
+
+local table = grafana.panel.table;
+local tableStep = table.standardOptions.threshold.step;
+
 {
 
   new(config=null, platform=null, uid=null):: {
 
-    local datasource = variable.datasource.new(
+    local prometheusDatasourceVariable = variable.datasource.new(
       'datasource', 'prometheus'
     ),
 
     local clusterVariablePrototype =
       variable.query.new('cluster')
-      + variable.query.withDatasourceFromVariable(datasource)
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + (if config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
       + variable.query.refresh.onTime()
       + variable.generalOptions.withLabel('Cluster'),
@@ -47,7 +50,7 @@ local tsLegend = tsOptions.legend;
 
     local instanceVariablePrototype =
       variable.query.new('instance')
-      + variable.query.withDatasourceFromVariable(datasource)
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + variable.query.refresh.onTime()
       + variable.generalOptions.withLabel('Instance'),
 
@@ -67,223 +70,233 @@ local tsLegend = tsOptions.legend;
 
     local idleCPU =
       timeSeriesPanel.new('CPU Usage')
-      + variable.query.withDatasourceFromVariable(datasource)
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + tsStandardOptions.withUnit('percentunit')
       + tsCustom.stacking.withMode('normal')
-      // TODO - max, min, width
-      // TODO - target
-
-
-      graphPanel.new(
-        'CPU Usage',
-        datasource='$datasource',
-        span=6,
-        format='percentunit',
-        max=1,
-        min=0,
-        stack=true,
-      )
-      .addTarget(prometheus.target(
-        |||
-          (
-            (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance="$instance", %(clusterLabel)s="$cluster"}[$__rate_interval])))
-          / ignoring(cpu) group_left
-            count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance", %(clusterLabel)s="$cluster"})
-          )
-        ||| % config,
-        legendFormat='{{cpu}}',
-        intervalFactor=5,
-      )),
-
-    local systemLoad =
-      graphPanel.new(
-        'Load Average',
-        datasource='$datasource',
-        span=6,
-        format='short',
-        min=0,
-        fill=0,
-      )
-      .addTarget(prometheus.target('node_load1{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='1m load average'))
-      .addTarget(prometheus.target('node_load5{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='5m load average'))
-      .addTarget(prometheus.target('node_load15{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='15m load average'))
-      .addTarget(prometheus.target('count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", mode="idle"})' % config, legendFormat='logical cores')),
-
-    local memoryGraphPanelPrototype =
-      graphPanel.new(
-        'Memory Usage',
-        datasource='$datasource',
-        span=9,
-        format='bytes',
-        min=0,
-      ),
-    local memoryGraph =
-      if platform == 'Linux' then
-        memoryGraphPanelPrototype { stack: true }
-        .addTarget(prometheus.target(
+      + tsStandardOptions.withMax(1)
+      + tsStandardOptions.withMin(0)
+      + tsQueryOptions.withTargets([
+        prometheus.new(
+          '$datasource',
           |||
             (
-              node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
-            -
-              node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
-            -
-              node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
-            -
-              node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance="$instance", %(clusterLabel)s="$cluster"}[$__rate_interval])))
+            / ignoring(cpu) group_left
+              count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance", %(clusterLabel)s="$cluster"})
             )
           ||| % config,
-          legendFormat='memory used'
-        ))
-        .addTarget(prometheus.target('node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='memory buffers'))
-        .addTarget(prometheus.target('node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='memory cached'))
-        .addTarget(prometheus.target('node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='memory free'))
+        )
+        + prometheus.withLegendFormat('{{cpu}}')
+        + prometheus.withIntervalFactor('5'),
+      ]),
+
+    local systemLoad =
+      timeSeriesPanel.new('Load Average')
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
+      + tsStandardOptions.withUnit('short')
+      + tsStandardOptions.withMin(0)
+      + tsCustom.withFillOpacity(0)
+      + tsQueryOptions.withTargets([
+        prometheus.new('$datasource', 'node_load1{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('1m load average'),
+        prometheus.new('$datasource', 'node_load5{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('5m load average'),
+        prometheus.new('$datasource', 'node_load15{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('15m load average'),
+        prometheus.new('$datasource', 'count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", mode="idle"})' % config) + prometheus.withLegendFormat('logical cores'),
+      ]),
+
+    // TODO - span 9
+    local memoryGraphPanelPrototype =
+      timeSeriesPanel.new('Memory Usage')
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
+      + tsStandardOptions.withUnit('bytes')
+      + tsStandardOptions.withMin(0),
+
+
+    local memoryGraph =
+      if platform == 'Linux' then
+        memoryGraphPanelPrototype
+        + tsCustom.stacking.withMode('normal')
+        + tsQueryOptions.withTargets([
+          prometheus.new(
+            '$datasource',
+            |||
+              (
+                node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              -
+                node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              -
+                node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              -
+                node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              )
+            ||| % config,
+          ) + prometheus.withLegendFormat('memory used'),
+          prometheus.new('$datasource', 'node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('memory buffers'),
+          prometheus.new('$datasource', 'node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('memory cached'),
+          prometheus.new('$datasource', 'node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('memory free'),
+        ])
       else if platform == 'Darwin' then
         // not useful to stack
-        memoryGraphPanelPrototype { stack: false }
-        .addTarget(prometheus.target('node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='Physical Memory'))
-        .addTarget(prometheus.target(
-          |||
-            (
-                node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
-                node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} +
-                node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} +
-                node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
-            )
-          ||| % config, legendFormat='Memory Used'
-        ))
-        .addTarget(prometheus.target(
-          |||
-            (
-                node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
-                node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
-            )
-          ||| % config, legendFormat='App Memory'
-        ))
-        .addTarget(prometheus.target('node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='Wired Memory'))
-        .addTarget(prometheus.target('node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='Compressed'))
+        memoryGraphPanelPrototype
+        + tsCustom.stacking.withMode('none')
+        + tsQueryOptions.withTargets([
+          prometheus.new('$datasource', 'node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Physical Memory'),
+          prometheus.new(
+            '$datasource',
+            |||
+              (
+                  node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
+                  node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} +
+                  node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} +
+                  node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              )
+            ||| % config
+          ) + prometheus.withLegendFormat(
+            'Memory Used'
+          ),
+          prometheus.new(
+            '$datasource',
+            |||
+              (
+                  node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
+                  node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              )
+            ||| % config
+          ) + prometheus.withLegendFormat(
+            'App Memory'
+          ),
+          prometheus.new('$datasource', 'node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Wired Memory'),
+          prometheus.new('$datasource', 'node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Compressed'),
+        ])
+
       else if platform == 'AIX' then
-        memoryGraphPanelPrototype { stack: false }
-        .addTarget(prometheus.target('node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config, legendFormat='Physical Memory'))
-        .addTarget(prometheus.target(
-          |||
-            (
-                node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
-                node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
-            )
-          ||| % config, legendFormat='Memory Used'
-        )),
+        memoryGraphPanelPrototype
+        + tsCustom.stacking.withMode('none')
+        + tsQueryOptions.withTargets([
+          prometheus.new('$datasource', 'node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Physical Memory'),
+          prometheus.new(
+            '$datasource',
+            |||
+              (
+                  node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
+                  node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+              )
+            ||| % config
+          ) + prometheus.withLegendFormat('Memory Used'),
+        ]),
 
 
     // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
+    // TODO - span 3
     local memoryGaugePanelPrototype =
-      gaugePanel.new(
-        title='Memory Usage',
-        datasource='$datasource',
-      )
-      .addThresholdStep('rgba(50, 172, 45, 0.97)')
-      .addThresholdStep('rgba(237, 129, 40, 0.89)', 80)
-      .addThresholdStep('rgba(245, 54, 54, 0.9)', 90)
-      .setFieldConfig(max=100, min=0, unit='percent')
-      + {
-        span: 3,
-      },
+      gaugePanel.new('Memory Usage')
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
+      + gaugePanel.standardOptions.thresholds.withSteps([
+        gaugeStep.withColor('rgba(50, 172, 45, 0.97)'),
+        gaugeStep.withColor('rgba(237, 129, 40, 0.89)') + gaugeStep.withValue(80),
+        gaugeStep.withColor('rgba(245, 54, 54, 0.9)') + gaugeStep.withValue(90),
+      ])
+      + gaugePanel.standardOptions.withMax(100)
+      + gaugePanel.standardOptions.withMin(0)
+      + gaugePanel.standardOptions.withUnit('percent'),
 
     local memoryGauge =
       if platform == 'Linux' then
         memoryGaugePanelPrototype
-
-        .addTarget(prometheus.target(
-          |||
-            100 -
-            (
-              avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) /
-              avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
-            * 100
-            )
-          ||| % config,
-        ))
+        + gaugePanel.queryOptions.withTargets([
+          prometheus.new(
+            '$datasource',
+            |||
+              100 -
+              (
+                avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) /
+                avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+              * 100
+              )
+            ||| % config,
+          ),
+        ])
 
       else if platform == 'Darwin' then
         memoryGaugePanelPrototype
-        .addTarget(prometheus.target(
-          |||
-            (
-                (
-                  avg(node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) -
-                  avg(node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) +
-                  avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) +
-                  avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
-                ) /
-                avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
-            )
-            *
-            100
-          ||| % config
-        ))
+        + gaugePanel.queryOptions.withTargets([
+          prometheus.new(
+            '$datasource',
+            |||
+              (
+                  (
+                    avg(node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) -
+                    avg(node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) +
+                    avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) +
+                    avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+                  ) /
+                  avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+              )
+              *
+              100
+            ||| % config
+          ),
+        ])
+
       else if platform == 'AIX' then
         memoryGaugePanelPrototype
-        .addTarget(prometheus.target(
-          |||
-            100 -
-            (
-              avg(node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) /
-              avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
-              * 100
-            )
-          ||| % config
-        )),
+        + gaugePanel.queryOptions.withTargets([
+          prometheus.new(
+            '$datasource',
+            |||
+              100 -
+              (
+                avg(node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) /
+                avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+                * 100
+              )
+            ||| % config
+          ),
+        ]),
 
 
     local diskIO =
-      graphPanel.new(
-        'Disk I/O',
-        datasource='$datasource',
-        span=6,
-        min=0,
-        fill=0,
-      )
-      // TODO: Does it make sense to have those three in the same panel?
-      .addTarget(prometheus.target(
-        'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config,
-        legendFormat='{{device}} read',
-        intervalFactor=1,
-      ))
-      .addTarget(prometheus.target(
-        'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config,
-        legendFormat='{{device}} written',
-        intervalFactor=1,
-      ))
-      .addTarget(prometheus.target(
-        'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config,
-        legendFormat='{{device}} io time',
-        intervalFactor=1,
-      )) +
-      {
-        seriesOverrides: [
-          {
-            alias: '/ read| written/',
-            yaxis: 1,
-          },
-          {
-            alias: '/ io time/',
-            yaxis: 2,
-          },
-        ],
-        yaxes: [
-          self.yaxe(format='Bps'),
-          self.yaxe(format='percentunit'),
-        ],
-      },
+      timeSeriesPanel.new('Disk I/O')
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
+      + tsStandardOptions.withMin(0)
+      + tsCustom.withFillOpacity(0)
+      + tsQueryOptions.withTargets([
+        // TODO: Does it make sense to have those three in the same panel?
+        prometheus.new('$datasource', 'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
+        + prometheus.withLegendFormat('{{device}} read')
+        + prometheus.withIntervalFactor(1),
+        prometheus.new('$datasource', 'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
+        + prometheus.withLegendFormat('{{device}} written')
+        + prometheus.withIntervalFactor(1),
+        prometheus.new('$datasource', 'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
+        + prometheus.withLegendFormat('{{device}} io time')
+        + prometheus.withIntervalFactor(1),
+      ])
+      + tsStandardOptions.withOverrides(
+        [
+          tsStandardOptions.override.byRegexp.new('/ read| written/')
+          + tsStandardOptions.override.byRegexp.withPropertiesFromOptions(
+            tsStandardOptions.withUnit('Bps')
+          ),
+          tsStandardOptions.override.byRegexp.new('/ io time/')
+          + tsStandardOptions.override.byRegexp.withPropertiesFromOptions(tsStandardOptions.withUnit('percentunit')),
+        ]
+      ),
 
     local diskSpaceUsage =
-      table.new(
-        title='Disk Space Usage',
-        datasource='$datasource',
+      table.new('Disk Space Usage')
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
+      + table.standardOptions.withUnit('decbytes')
+      + table.standardOptions.thresholds.withSteps(
+        [
+        tableStep.withColor('green'),
+        tableStep.withColor('yellow') + gaugeStep.withValue(0.8),
+        tableStep.withColor('red') + gaugeStep.withValue(0.9),
+        ]
       )
-      .setFieldConfig(unit='decbytes')
-      .addThresholdStep(color='green', value=null)
-      .addThresholdStep(color='yellow', value=0.8)
-      .addThresholdStep(color='red', value=0.9)
+      + table.queryOptions.withTargets([
+
+      ]),
+      // TODO - here
       .addTarget(prometheus.target(
         |||
           max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
@@ -465,109 +478,111 @@ local tsLegend = tsOptions.legend;
 
 
     local networkReceived =
-      graphPanel.new(
-        'Network Received',
-        description='Network received (bits/s)',
-        datasource='$datasource',
-        span=6,
-        format='bps',
-        min=0,
-        fill=0,
-      )
-      .addTarget(prometheus.target(
-        'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config,
-        legendFormat='{{device}}',
-        intervalFactor=1,
-      )),
+      timeSeriesPanel.new('Network Received')
+      + timeSeriesPanel.panelOptions.withDescription('Network received (bits/s)')
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
+      + tsStandardOptions.withUnit('bps')
+      + tsStandardOptions.withMin(0)
+      + tsCustom.withFillOpacity(0)
+      + tsQueryOptions.withTargets([
+        prometheus.new('$datasource', 'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
+        + prometheus.withLegendFormat('1m load average')
+        + prometheus.withIntervalFactor(1)
+      ]),
 
     local networkTransmitted =
-      graphPanel.new(
-        'Network Transmitted',
-        description='Network transmitted (bits/s)',
-        datasource='$datasource',
-        span=6,
-        format='bps',
-        min=0,
-        fill=0,
-      )
-      .addTarget(prometheus.target(
-        'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config,
-        legendFormat='{{device}}',
-        intervalFactor=1,
-      )),
+      timeSeriesPanel.new('Network Transmitted')
+      + timeSeriesPanel.panelOptions.withDescription('Network transmitted (bits/s)')
+      + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
+      + tsStandardOptions.withUnit('bps')
+      + tsStandardOptions.withMin(0)
+      + tsCustom.withFillOpacity(0)
+      + tsQueryOptions.withTargets([
+        prometheus.new('$datasource', 'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
+        + prometheus.withLegendFormat('1m load average')
+        + prometheus.withIntervalFactor(1)
+      ]),
 
     local cpuRow =
       row.new('CPU')
-      .addPanel(idleCPU)
-      .addPanel(systemLoad),
+      + row.withPanels([
+        idleCPU,
+        systemLoad,
+      ]),
 
     local memoryRow =
       row.new('Memory')
-      .addPanel(memoryGraph)
-      .addPanel(memoryGauge),
+      + row.withPanels([
+
+        memoryGraph,
+        memoryGauge,
+      ]),
 
     local diskRow =
       row.new('Disk')
-      .addPanel(diskIO)
-      .addPanel(diskSpaceUsage),
+      + row.withPanels([
+        diskIO,
+        diskSpaceUsage,
+      ]),
 
     local networkRow =
       row.new('Network')
-      .addPanel(networkReceived)
-      .addPanel(networkTransmitted),
+      + row.withPanels([
+        networkReceived,
+        networkTransmitted,
+      ]),
 
-    local rows =
-      [
+    local panels =
+      grafana.util.grid.makeGrid([
         cpuRow,
         memoryRow,
         diskRow,
         networkRow,
-      ],
+      ]),
 
-    local templates =
+    local variables =
       [
-        prometheusDatasourceTemplate,
-        clusterTemplate,
-        instanceTemplate,
+        prometheusDatasourceVariable,
+        clusterVariable,
+        instanceVariable,
       ],
-
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
         '%sNodes' % config.dashboardNamePrefix,
-        time_from='now-1h',
-        tags=(config.dashboardTags),
-        timezone='utc',
-        refresh='30s',
-        uid=std.md5(uid),
-        graphTooltip='shared_crosshair'
       )
-      .addTemplates(templates)
-      .addRows(rows)
+      + dashboard.time.withFrom('now-1h')
+      + dashboard.withTags(config.dashboardTags)
+      + dashboard.withTimezone('utc')
+      + dashboard.withRefresh('30s')
+      + dashboard.withUid(std.md5(uid))
+      + dashboard.graphTooltip.withSharedCrosshair()
+      + dashboard.withVariables(variables)
+      + dashboard.withPanels(panels)
     else if platform == 'Darwin' then
       dashboard.new(
         '%sMacOS' % config.dashboardNamePrefix,
-        time_from='now-1h',
-        tags=(config.dashboardTags),
-        timezone='utc',
-        refresh='30s',
-        uid=std.md5(uid),
-        graphTooltip='shared_crosshair'
       )
-      .addTemplates(templates)
-      .addRows(rows)
+      + dashboard.time.withFrom('now-1h')
+      + dashboard.withTags(config.dashboardTags)
+      + dashboard.withTimezone('utc')
+      + dashboard.withRefresh('30s')
+      + dashboard.withUid(std.md5(uid))
+      + dashboard.graphTooltip.withSharedCrosshair()
+      + dashboard.withVariables(variables)
+      + dashboard.withPanels(panels)
     else if platform == 'AIX' then
       dashboard.new(
         '%sAIX' % config.dashboardNamePrefix,
-        time_from='now-1h',
-        tags=(config.dashboardTags),
-        timezone='utc',
-        refresh='30s',
-        uid=std.md5(uid),
-        graphTooltip='shared_crosshair'
       )
-      .addTemplates(templates)
-      .addRows(rows),
+      + dashboard.time.withFrom('now-1h')
+      + dashboard.withTags(config.dashboardTags)
+      + dashboard.withTimezone('utc')
+      + dashboard.withRefresh('30s')
+      + dashboard.withUid(std.md5(uid))
+      + dashboard.graphTooltip.withSharedCrosshair()
+      + dashboard.withVariables(variables)
+      + dashboard.withPanels(panels),
 
   },
 }
