@@ -3,15 +3,12 @@ local dashboard = grafana.dashboard;
 local row = grafana.panel.row;
 local prometheus = grafana.query.prometheus;
 local variable = dashboard.variable;
-local template = grafana.template;
-
 
 local timeSeriesPanel = grafana.panel.timeSeries;
 local tsOptions = timeSeriesPanel.options;
 local tsStandardOptions = timeSeriesPanel.standardOptions;
 local tsQueryOptions = timeSeriesPanel.queryOptions;
 local tsCustom = timeSeriesPanel.fieldConfig.defaults.custom;
-local tsLegend = tsOptions.legend;
 
 local gaugePanel = grafana.panel.gauge;
 local gaugeStep = gaugePanel.standardOptions.threshold.step;
@@ -32,7 +29,7 @@ local tableStep = table.standardOptions.threshold.step;
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + (if config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
       + variable.query.refresh.onTime()
-      + variable.generalOptions.withLabel('Cluster'),
+      + variable.query.generalOptions.withLabel('Cluster'),
 
     local clusterVariable =
       if platform == 'Darwin' then
@@ -52,7 +49,7 @@ local tableStep = table.standardOptions.threshold.step;
       variable.query.new('instance')
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + variable.query.refresh.onTime()
-      + variable.generalOptions.withLabel('Instance'),
+      + variable.query.generalOptions.withLabel('Instance'),
 
     local instanceVariable =
       if platform == 'Darwin' then
@@ -75,6 +72,8 @@ local tableStep = table.standardOptions.threshold.step;
       + tsCustom.stacking.withMode('normal')
       + tsStandardOptions.withMax(1)
       + tsStandardOptions.withMin(0)
+      + tsOptions.tooltip.withMode('multi')
+      + tsCustom.withFillOpacity(10)
       + tsQueryOptions.withTargets([
         prometheus.new(
           '$datasource',
@@ -87,7 +86,7 @@ local tableStep = table.standardOptions.threshold.step;
           ||| % config,
         )
         + prometheus.withLegendFormat('{{cpu}}')
-        + prometheus.withIntervalFactor('5'),
+        + prometheus.withIntervalFactor(5),
       ]),
 
     local systemLoad =
@@ -96,6 +95,7 @@ local tableStep = table.standardOptions.threshold.step;
       + tsStandardOptions.withUnit('short')
       + tsStandardOptions.withMin(0)
       + tsCustom.withFillOpacity(0)
+      + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         prometheus.new('$datasource', 'node_load1{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('1m load average'),
         prometheus.new('$datasource', 'node_load5{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('5m load average'),
@@ -108,8 +108,9 @@ local tableStep = table.standardOptions.threshold.step;
       timeSeriesPanel.new('Memory Usage')
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + tsStandardOptions.withUnit('bytes')
-      + tsStandardOptions.withMin(0),
-
+      + tsStandardOptions.withMin(0)
+      + tsOptions.tooltip.withMode('multi')
+      + tsCustom.withFillOpacity(10),
 
     local memoryGraph =
       if platform == 'Linux' then
@@ -259,6 +260,7 @@ local tableStep = table.standardOptions.threshold.step;
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + tsStandardOptions.withMin(0)
       + tsCustom.withFillOpacity(0)
+      + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         // TODO: Does it make sense to have those three in the same panel?
         prometheus.new('$datasource', 'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
@@ -288,193 +290,193 @@ local tableStep = table.standardOptions.threshold.step;
       + table.standardOptions.withUnit('decbytes')
       + table.standardOptions.thresholds.withSteps(
         [
-        tableStep.withColor('green'),
-        tableStep.withColor('yellow') + gaugeStep.withValue(0.8),
-        tableStep.withColor('red') + gaugeStep.withValue(0.9),
+          tableStep.withColor('green'),
+          tableStep.withColor('yellow') + gaugeStep.withValue(0.8),
+          tableStep.withColor('red') + gaugeStep.withValue(0.9),
         ]
       )
       + table.queryOptions.withTargets([
 
       ]),
-      // TODO - here
-      .addTarget(prometheus.target(
-        |||
-          max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
-        ||| % config,
-        legendFormat='',
-        instant=true,
-        format='table'
-      ))
-      .addTarget(prometheus.target(
-        |||
-          max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
-        ||| % config,
-        legendFormat='',
-        instant=true,
-        format='table'
-      ))
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Mounted on',
-        },
-        properties=[
-          {
-            id: 'custom.width',
-            value: 260,
-          },
-        ],
-      )
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Size',
-        },
-        properties=[
+    /*       // TODO - here
+          .addTarget(prometheus.target(
+            |||
+              max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
+            ||| % config,
+            legendFormat='',
+            instant=true,
+            format='table'
+          ))
+          .addTarget(prometheus.target(
+            |||
+              max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
+            ||| % config,
+            legendFormat='',
+            instant=true,
+            format='table'
+          ))
+          .addOverride(
+            matcher={
+              id: 'byName',
+              options: 'Mounted on',
+            },
+            properties=[
+              {
+                id: 'custom.width',
+                value: 260,
+              },
+            ],
+          )
+          .addOverride(
+            matcher={
+              id: 'byName',
+              options: 'Size',
+            },
+            properties=[
 
-          {
-            id: 'custom.width',
-            value: 93,
-          },
+              {
+                id: 'custom.width',
+                value: 93,
+              },
 
-        ],
-      )
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Used',
-        },
-        properties=[
-          {
-            id: 'custom.width',
-            value: 72,
-          },
-        ],
-      )
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Available',
-        },
-        properties=[
-          {
-            id: 'custom.width',
-            value: 88,
-          },
-        ],
-      )
+            ],
+          )
+          .addOverride(
+            matcher={
+              id: 'byName',
+              options: 'Used',
+            },
+            properties=[
+              {
+                id: 'custom.width',
+                value: 72,
+              },
+            ],
+          )
+          .addOverride(
+            matcher={
+              id: 'byName',
+              options: 'Available',
+            },
+            properties=[
+              {
+                id: 'custom.width',
+                value: 88,
+              },
+            ],
+          )
 
-      .addOverride(
-        matcher={
-          id: 'byName',
-          options: 'Used, %',
-        },
-        properties=[
-          {
-            id: 'unit',
-            value: 'percentunit',
-          },
-          {
-            id: 'custom.displayMode',
-            value: 'gradient-gauge',
-          },
-          {
-            id: 'max',
-            value: 1,
-          },
-          {
-            id: 'min',
-            value: 0,
-          },
-        ]
-      )
-      + { span: 6 }
-      + {
-        transformations: [
-          {
-            id: 'groupBy',
-            options: {
-              fields: {
-                'Value #A': {
-                  aggregations: [
-                    'lastNotNull',
+          .addOverride(
+            matcher={
+              id: 'byName',
+              options: 'Used, %',
+            },
+            properties=[
+              {
+                id: 'unit',
+                value: 'percentunit',
+              },
+              {
+                id: 'custom.displayMode',
+                value: 'gradient-gauge',
+              },
+              {
+                id: 'max',
+                value: 1,
+              },
+              {
+                id: 'min',
+                value: 0,
+              },
+            ]
+          )
+          + { span: 6 }
+          + {
+            transformations: [
+              {
+                id: 'groupBy',
+                options: {
+                  fields: {
+                    'Value #A': {
+                      aggregations: [
+                        'lastNotNull',
+                      ],
+                      operation: 'aggregate',
+                    },
+                    'Value #B': {
+                      aggregations: [
+                        'lastNotNull',
+                      ],
+                      operation: 'aggregate',
+                    },
+                    mountpoint: {
+                      aggregations: [],
+                      operation: 'groupby',
+                    },
+                  },
+                },
+              },
+              {
+                id: 'merge',
+                options: {},
+              },
+              {
+                id: 'calculateField',
+                options: {
+                  alias: 'Used',
+                  binary: {
+                    left: 'Value #A (lastNotNull)',
+                    operator: '-',
+                    reducer: 'sum',
+                    right: 'Value #B (lastNotNull)',
+                  },
+                  mode: 'binary',
+                  reduce: {
+                    reducer: 'sum',
+                  },
+                },
+              },
+              {
+                id: 'calculateField',
+                options: {
+                  alias: 'Used, %',
+                  binary: {
+                    left: 'Used',
+                    operator: '/',
+                    reducer: 'sum',
+                    right: 'Value #A (lastNotNull)',
+                  },
+                  mode: 'binary',
+                  reduce: {
+                    reducer: 'sum',
+                  },
+                },
+              },
+              {
+                id: 'organize',
+                options: {
+                  excludeByName: {},
+                  indexByName: {},
+                  renameByName: {
+                    'Value #A (lastNotNull)': 'Size',
+                    'Value #B (lastNotNull)': 'Available',
+                    mountpoint: 'Mounted on',
+                  },
+                },
+              },
+              {
+                id: 'sortBy',
+                options: {
+                  fields: {},
+                  sort: [
+                    {
+                      field: 'Mounted on',
+                    },
                   ],
-                  operation: 'aggregate',
-                },
-                'Value #B': {
-                  aggregations: [
-                    'lastNotNull',
-                  ],
-                  operation: 'aggregate',
-                },
-                mountpoint: {
-                  aggregations: [],
-                  operation: 'groupby',
                 },
               },
-            },
-          },
-          {
-            id: 'merge',
-            options: {},
-          },
-          {
-            id: 'calculateField',
-            options: {
-              alias: 'Used',
-              binary: {
-                left: 'Value #A (lastNotNull)',
-                operator: '-',
-                reducer: 'sum',
-                right: 'Value #B (lastNotNull)',
-              },
-              mode: 'binary',
-              reduce: {
-                reducer: 'sum',
-              },
-            },
-          },
-          {
-            id: 'calculateField',
-            options: {
-              alias: 'Used, %',
-              binary: {
-                left: 'Used',
-                operator: '/',
-                reducer: 'sum',
-                right: 'Value #A (lastNotNull)',
-              },
-              mode: 'binary',
-              reduce: {
-                reducer: 'sum',
-              },
-            },
-          },
-          {
-            id: 'organize',
-            options: {
-              excludeByName: {},
-              indexByName: {},
-              renameByName: {
-                'Value #A (lastNotNull)': 'Size',
-                'Value #B (lastNotNull)': 'Available',
-                mountpoint: 'Mounted on',
-              },
-            },
-          },
-          {
-            id: 'sortBy',
-            options: {
-              fields: {},
-              sort: [
-                {
-                  field: 'Mounted on',
-                },
-              ],
-            },
-          },
-        ],
-      },
+            ],
+          }, */
 
 
     local networkReceived =
@@ -484,10 +486,11 @@ local tableStep = table.standardOptions.threshold.step;
       + tsStandardOptions.withUnit('bps')
       + tsStandardOptions.withMin(0)
       + tsCustom.withFillOpacity(0)
+      + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         prometheus.new('$datasource', 'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
         + prometheus.withLegendFormat('1m load average')
-        + prometheus.withIntervalFactor(1)
+        + prometheus.withIntervalFactor(1),
       ]),
 
     local networkTransmitted =
@@ -497,10 +500,11 @@ local tableStep = table.standardOptions.threshold.step;
       + tsStandardOptions.withUnit('bps')
       + tsStandardOptions.withMin(0)
       + tsCustom.withFillOpacity(0)
+      + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         prometheus.new('$datasource', 'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
         + prometheus.withLegendFormat('1m load average')
-        + prometheus.withIntervalFactor(1)
+        + prometheus.withIntervalFactor(1),
       ]),
 
     local cpuRow =
@@ -510,13 +514,11 @@ local tableStep = table.standardOptions.threshold.step;
         systemLoad,
       ]),
 
-    local memoryRow =
-      row.new('Memory')
-      + row.withPanels([
-
-        memoryGraph,
-        memoryGauge,
-      ]),
+    local memoryRow = [
+      row.new('Memory') + row.gridPos.withY(8),
+      memoryGraph + row.gridPos.withX(0) + row.gridPos.withY(9) + row.gridPos.withH(7) + row.gridPos.withW(18),
+      memoryGauge + row.gridPos.withX(18) + row.gridPos.withY(9) + row.gridPos.withH(7) + row.gridPos.withW(6),
+    ],
 
     local diskRow =
       row.new('Disk')
@@ -535,10 +537,12 @@ local tableStep = table.standardOptions.threshold.step;
     local panels =
       grafana.util.grid.makeGrid([
         cpuRow,
-        memoryRow,
+      ], panelWidth=12, panelHeight=7)
+      + memoryRow
+      + grafana.util.grid.makeGrid([
         diskRow,
         networkRow,
-      ]),
+      ], panelWidth=12, panelHeight=7, startY=18),
 
     local variables =
       [
