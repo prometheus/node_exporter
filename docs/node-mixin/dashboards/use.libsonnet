@@ -137,7 +137,6 @@ local diskSpaceUtilisation =
                              + variable.query.refresh.onTime()
                              + variable.query.withSort(asc=true),
                            ])
-                           // TODO - panel width
                            + dashboard.withPanels(
                              grafana.util.grid.makeGrid([
                                row.new('CPU')
@@ -166,6 +165,8 @@ local diskSpaceUtilisation =
                                  diskIOUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
                                  diskIOSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
                                ]),
+                             ], panelWidth=12, panelHeight=7)
+                             + grafana.util.grid.makeGrid([
                                row.new('Disk Space')
                                + row.withPanels([
                                  diskSpaceUtilisation + tsQueryOptions.withTargets([
@@ -183,7 +184,7 @@ local diskSpaceUtilisation =
                                    ) + prometheus.withLegendFormat('{{device}}'),
                                  ]),
                                ]),
-                             ]),
+                             ], panelWidth=24, panelHeight=7, startY=34),
                            ),
                          'node-cluster-rsrc-use.json':
                            dashboard.new(
@@ -202,7 +203,6 @@ local diskSpaceUtilisation =
                              + variable.query.refresh.onTime()
                              + variable.query.withSort(asc=true),
                            ])
-                           // TODO - panel width
                            + dashboard.withPanels(
                              grafana.util.grid.makeGrid([
                                row.new('CPU')
@@ -294,6 +294,8 @@ local diskSpaceUtilisation =
                                    ||| % $._config
                                  ) + prometheus.withLegendFormat('{{ instance }} {{device}}')]),
                                ]),
+                             ], panelWidth=12, panelHeight=7)
+                             + grafana.util.grid.makeGrid([
                                row.new('Disk Space')
                                + row.withPanels([
                                  diskSpaceUtilisation + tsQueryOptions.withTargets([
@@ -312,7 +314,7 @@ local diskSpaceUtilisation =
                                    ) + prometheus.withLegendFormat('{{ instance }}'),
                                  ]),
                                ]),
-                             ]),
+                             ], panelWidth=24, panelHeight=7, startY=34),
                            ),
                        } +
                        if $._config.showMultiCluster then {
@@ -333,7 +335,6 @@ local diskSpaceUtilisation =
                              + variable.query.refresh.onTime()
                              + variable.query.withSort(asc=true),
                            ])
-                           // TODO - panel width
                            + dashboard.withPanels(
                              grafana.util.grid.makeGrid([
                                row.new('CPU')
@@ -452,6 +453,9 @@ local diskSpaceUtilisation =
                                    ||| % $._config
                                  ) + prometheus.withLegendFormat('{{%(clusterLabel)s}} {{device}}')]),
                                ]),
+
+                             ], panelWidth=12, panelHeight=7)
+                             + grafana.util.grid.makeGrid([
                                row.new('Disk Space')
                                + row.withPanels([
                                  diskSpaceUtilisation + tsQueryOptions.withTargets([
@@ -470,7 +474,7 @@ local diskSpaceUtilisation =
                                    ) + prometheus.withLegendFormat('{{%(clusterLabel)s}}'),
                                  ]),
                                ]),
-                             ]),
+                             ], panelWidth=24, panelHeight=7, startY=34),
                            ),
                        } else {},
 }
