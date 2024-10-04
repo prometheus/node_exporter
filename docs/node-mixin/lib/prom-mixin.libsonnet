@@ -1,48 +1,44 @@
-local grafana = import 'github.com/grafana/grafonnet-lib/grafonnet/grafana.libsonnet';
+local grafana = import 'github.com/grafana/grafonnet/gen/grafonnet-latest/main.libsonnet';
 local dashboard = grafana.dashboard;
-local row = grafana.row;
-local prometheus = grafana.prometheus;
+local row = grafana.panel.row;
+local prometheus = grafana.query.prometheus;
+local variable = dashboard.variable;
 local template = grafana.template;
+
 local graphPanel = grafana.graphPanel;
-local grafana70 = import 'github.com/grafana/grafonnet-lib/grafonnet-7.0/grafana.libsonnet';
 local gaugePanel = grafana70.panel.gauge;
 local table = grafana70.panel.table;
+
+local timeSeriesPanel = grafana.panel.timeSeries;
+
 
 {
 
   new(config=null, platform=null, uid=null):: {
 
-    local prometheusDatasourceTemplate = {
-      current: {
-        text: 'default',
-        value: 'default',
-      },
-      hide: 0,
-      label: 'Data Source',
-      name: 'datasource',
-      options: [],
-      query: 'prometheus',
-      refresh: 1,
-      regex: '',
-      type: 'datasource',
-    },
+    local datasource = variable.datasource.new(
+      'datasource', 'prometheus'
+    ),
 
-    local clusterTemplatePrototype =
-      template.new(
-        'cluster',
-        '$datasource',
-        '',
-        hide=if config.showMultiCluster then '' else '2',
-        refresh='time',
-        label='Cluster',
-      ),
-    local clusterTemplate =
+    local clusterVariablePrototype = variable.query.new('cluster')
+    + variable.query.withDatasourceFromVariable(datasource)
+    + (if config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
+    + variable.query.resfresh.onTime()
+    + variable.generalOptions.withLabel("Cluster"),
+
+    local clusterVariable = 
       if platform == 'Darwin' then
-        clusterTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, sysname="Darwin"}, %(clusterLabel)s)' % config }
+        clusterVariablePrototype + 
+        variable.query.queryTypes.withLabelValues(
+          config,
+          'node_uname_info{%(nodeExporterSelector)s, sysname="Darwin"}, %(clusterLabel)s',
+        )
       else
-        clusterTemplatePrototype
-        { query: 'label_values(node_uname_info{%(nodeExporterSelector)s, sysname!="Darwin"}, %(clusterLabel)s)' % config },
+      clusterVariablePrototype + 
+        variable.query.queryTypes.withLabelValues(
+          config,
+          'node_uname_info{%(nodeExporterSelector)s, sysname!="Darwin"}, %(clusterLabel)s',
+        ),
 
     local instanceTemplatePrototype =
       template.new(

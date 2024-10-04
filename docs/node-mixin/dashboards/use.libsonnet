@@ -108,10 +108,10 @@ local diskSpaceUtilisation =
       $._config.clusterLabel,
       'node_time_seconds',
     )
-    + if $._config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing()
-                                                                                                                + variable.query.withRefresh(2)
-                                                                                                                + variable.query.selectionOptions.withIncludeAll(false)
-                                                                                                                + variable.query.withSort(1),
+    + (if $._config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
+    + variable.query.withRefresh(2) // TODO Check this
+    + variable.query.selectionOptions.withIncludeAll(false)
+    + variable.query.withSort(1), // TODO Check this
 
   grafanaDashboards+:: {
                          'node-rsrc-use.json':
