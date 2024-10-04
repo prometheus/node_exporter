@@ -23,7 +23,7 @@ local timeSeriesPanel = grafana.panel.timeSeries;
     local clusterVariablePrototype = variable.query.new('cluster')
     + variable.query.withDatasourceFromVariable(datasource)
     + (if config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
-    + variable.query.resfresh.onTime()
+    + variable.query.refresh.onTime()
     + variable.generalOptions.withLabel("Cluster"),
 
     local clusterVariable = 

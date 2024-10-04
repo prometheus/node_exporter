@@ -109,9 +109,9 @@ local diskSpaceUtilisation =
       'node_time_seconds',
     )
     + (if $._config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
-    + variable.query.withRefresh(2) // TODO Check this
+    + variable.query.refresh.onTime()
     + variable.query.selectionOptions.withIncludeAll(false)
-    + variable.query.withSort(1), // TODO Check this
+    + variable.query.withSort(asc=true),
 
   grafanaDashboards+:: {
                          'node-rsrc-use.json':
@@ -133,8 +133,8 @@ local diskSpaceUtilisation =
                                'instance',
                                'node_exporter_build_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config,
                              )
-                             + variable.query.withRefresh(2)
-                             + variable.query.withSort(1),
+                             + variable.query.refresh.onTime()
+                             + variable.query.withSort(asc=true),
                            ])
                            // TODO - panel width
                            + dashboard.withPanels(
@@ -198,8 +198,8 @@ local diskSpaceUtilisation =
                              datasource,
                              $._clusterVariable,
                              variable.query.withDatasourceFromVariable(datasource)
-                             + variable.query.withRefresh(2)
-                             + variable.query.withSort(1),
+                             + variable.query.refresh.onTime()
+                             + variable.query.withSort(asc=true),
                            ])
                            // TODO - panel width
                            + dashboard.withPanels(
@@ -329,8 +329,8 @@ local diskSpaceUtilisation =
                            + dashboard.withVariables([
                              datasource,
                              variable.query.withDatasourceFromVariable(datasource)
-                             + variable.query.withRefresh(2)
-                             + variable.query.withSort(1),
+                             + variable.query.refresh.onTime()
+                             + variable.query.withSort(asc=true),
                            ])
                            // TODO - panel width
                            + dashboard.withPanels(
