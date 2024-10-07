@@ -318,7 +318,6 @@ local diskSpaceUtilisation =
                            ),
                        } +
                        if $._config.showMultiCluster then {
-                         // TODO - test thoroughly
                          'node-multicluster-rsrc-use.json':
                            dashboard.new(
                              '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,

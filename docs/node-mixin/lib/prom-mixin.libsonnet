@@ -15,6 +15,8 @@ local gaugeStep = gaugePanel.standardOptions.threshold.step;
 
 local table = grafana.panel.table;
 local tableStep = table.standardOptions.threshold.step;
+local tableOverride = table.standardOptions.override;
+local tableTransformation = table.queryOptions.transformation;
 
 {
 
@@ -296,188 +298,126 @@ local tableStep = table.standardOptions.threshold.step;
         ]
       )
       + table.queryOptions.withTargets([
+        prometheus.new(
+          '$datasource',
+          |||
+            max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
+          ||| % config
+        )
+        + prometheus.withLegendFormat('')
+        + prometheus.withInstant()
+        + prometheus.withFormat('table'),
+        prometheus.new(
+          '$datasource',
+          |||
+            max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
+          ||| % config
+        )
+        + prometheus.withLegendFormat('')
+        + prometheus.withInstant()
+        + prometheus.withFormat('table'),
+      ])
+      + table.standardOptions.withOverrides([
+        tableOverride.byName.new('Mounted on')
+        + tableOverride.byName.withProperty('custom.width', 260),
+        tableOverride.byName.new('Size')
+        + tableOverride.byName.withProperty('custom.width', 93),
+        tableOverride.byName.new('Used')
+        + tableOverride.byName.withProperty('custom.width', 72),
+        tableOverride.byName.new('Available')
+        + tableOverride.byName.withProperty('custom.width', 88),
+        tableOverride.byName.new('Used, %')
+        + tableOverride.byName.withProperty('unit', 'percentunit')
+        + tableOverride.byName.withPropertiesFromOptions(
+          table.fieldConfig.defaults.custom.withCellOptions(
+            { type: 'gauge' },
+          )
+        )
+        + tableOverride.byName.withProperty('max', 1)
+        + tableOverride.byName.withProperty('min', 0),
+      ])
+      + table.queryOptions.withTransformations([
+        tableTransformation.withId('groupBy')
+        + tableTransformation.withOptions(
+          {
+            fields: {
+              'Value #A': {
+                aggregations: [
+                  'lastNotNull',
+                ],
+                operation: 'aggregate',
+              },
+              'Value #B': {
+                aggregations: [
+                  'lastNotNull',
+                ],
+                operation: 'aggregate',
+              },
+              mountpoint: {
+                aggregations: [],
+                operation: 'groupby',
+              },
+            },
+          }
+        ),
+        tableTransformation.withId('merge'),
+        tableTransformation.withId('calculateField')
+        + tableTransformation.withOptions(
+          {
+            alias: 'Used',
+            binary: {
+              left: 'Value #A (lastNotNull)',
+              operator: '-',
+              reducer: 'sum',
+              right: 'Value #B (lastNotNull)',
+            },
+            mode: 'binary',
+            reduce: {
+              reducer: 'sum',
+            },
+          }
+        ),
+        tableTransformation.withId('calculateField')
+        + tableTransformation.withOptions(
+          {
+            alias: 'Used, %',
+            binary: {
+              left: 'Used',
+              operator: '/',
+              reducer: 'sum',
+              right: 'Value #A (lastNotNull)',
+            },
+            mode: 'binary',
+            reduce: {
+              reducer: 'sum',
+            },
+          }
+        ),
+        tableTransformation.withId('organize')
+        + tableTransformation.withOptions(
+          {
+            excludeByName: {},
+            indexByName: {},
+            renameByName: {
+              'Value #A (lastNotNull)': 'Size',
+              'Value #B (lastNotNull)': 'Available',
+              mountpoint: 'Mounted on',
+            },
+          }
+        ),
+        tableTransformation.withId('sortBy')
+        + tableTransformation.withOptions(
+          {
+            fields: {},
+            sort: [
+              {
+                field: 'Mounted on',
+              },
+            ],
+          }
+        ),
 
       ]),
-    /*       // TODO - here
-          .addTarget(prometheus.target(
-            |||
-              max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
-            ||| % config,
-            legendFormat='',
-            instant=true,
-            format='table'
-          ))
-          .addTarget(prometheus.target(
-            |||
-              max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
-            ||| % config,
-            legendFormat='',
-            instant=true,
-            format='table'
-          ))
-          .addOverride(
-            matcher={
-              id: 'byName',
-              options: 'Mounted on',
-            },
-            properties=[
-              {
-                id: 'custom.width',
-                value: 260,
-              },
-            ],
-          )
-          .addOverride(
-            matcher={
-              id: 'byName',
-              options: 'Size',
-            },
-            properties=[
-
-              {
-                id: 'custom.width',
-                value: 93,
-              },
-
-            ],
-          )
-          .addOverride(
-            matcher={
-              id: 'byName',
-              options: 'Used',
-            },
-            properties=[
-              {
-                id: 'custom.width',
-                value: 72,
-              },
-            ],
-          )
-          .addOverride(
-            matcher={
-              id: 'byName',
-              options: 'Available',
-            },
-            properties=[
-              {
-                id: 'custom.width',
-                value: 88,
-              },
-            ],
-          )
-
-          .addOverride(
-            matcher={
-              id: 'byName',
-              options: 'Used, %',
-            },
-            properties=[
-              {
-                id: 'unit',
-                value: 'percentunit',
-              },
-              {
-                id: 'custom.displayMode',
-                value: 'gradient-gauge',
-              },
-              {
-                id: 'max',
-                value: 1,
-              },
-              {
-                id: 'min',
-                value: 0,
-              },
-            ]
-          )
-          + { span: 6 }
-          + {
-            transformations: [
-              {
-                id: 'groupBy',
-                options: {
-                  fields: {
-                    'Value #A': {
-                      aggregations: [
-                        'lastNotNull',
-                      ],
-                      operation: 'aggregate',
-                    },
-                    'Value #B': {
-                      aggregations: [
-                        'lastNotNull',
-                      ],
-                      operation: 'aggregate',
-                    },
-                    mountpoint: {
-                      aggregations: [],
-                      operation: 'groupby',
-                    },
-                  },
-                },
-              },
-              {
-                id: 'merge',
-                options: {},
-              },
-              {
-                id: 'calculateField',
-                options: {
-                  alias: 'Used',
-                  binary: {
-                    left: 'Value #A (lastNotNull)',
-                    operator: '-',
-                    reducer: 'sum',
-                    right: 'Value #B (lastNotNull)',
-                  },
-                  mode: 'binary',
-                  reduce: {
-                    reducer: 'sum',
-                  },
-                },
-              },
-              {
-                id: 'calculateField',
-                options: {
-                  alias: 'Used, %',
-                  binary: {
-                    left: 'Used',
-                    operator: '/',
-                    reducer: 'sum',
-                    right: 'Value #A (lastNotNull)',
-                  },
-                  mode: 'binary',
-                  reduce: {
-                    reducer: 'sum',
-                  },
-                },
-              },
-              {
-                id: 'organize',
-                options: {
-                  excludeByName: {},
-                  indexByName: {},
-                  renameByName: {
-                    'Value #A (lastNotNull)': 'Size',
-                    'Value #B (lastNotNull)': 'Available',
-                    mountpoint: 'Mounted on',
-                  },
-                },
-              },
-              {
-                id: 'sortBy',
-                options: {
-                  fields: {},
-                  sort: [
-                    {
-                      field: 'Mounted on',
-                    },
-                  ],
-                },
-              },
-            ],
-          }, */
-
 
     local networkReceived =
       timeSeriesPanel.new('Network Received')
