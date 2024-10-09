@@ -1,55 +1,59 @@
-# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
+# HELP go_gc_duration_seconds A summary of the wall-time pause (stop-the-world) duration in garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
+# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent
+# TYPE go_gc_gogc_percent gauge
+# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes
+# TYPE go_gc_gomemlimit_bytes gauge
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
 # HELP go_info Information about the Go environment.
 # TYPE go_info gauge
-# HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
+# HELP go_memstats_alloc_bytes Number of bytes allocated in heap and currently in use. Equals to /memory/classes/heap/objects:bytes.
 # TYPE go_memstats_alloc_bytes gauge
-# HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated in heap until now, even if released already. Equals to /gc/heap/allocs:bytes.
 # TYPE go_memstats_alloc_bytes_total counter
-# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table.
+# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table. Equals to /memory/classes/profiling/buckets:bytes.
 # TYPE go_memstats_buck_hash_sys_bytes gauge
-# HELP go_memstats_frees_total Total number of frees.
+# HELP go_memstats_frees_total Total number of heap objects frees. Equals to /gc/heap/frees:objects + /gc/heap/tiny/allocs:objects.
 # TYPE go_memstats_frees_total counter
-# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
+# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata. Equals to /memory/classes/metadata/other:bytes.
 # TYPE go_memstats_gc_sys_bytes gauge
-# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
+# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and currently in use, same as go_memstats_alloc_bytes. Equals to /memory/classes/heap/objects:bytes.
 # TYPE go_memstats_heap_alloc_bytes gauge
-# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used.
+# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used. Equals to /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
 # TYPE go_memstats_heap_idle_bytes gauge
-# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use.
+# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes
 # TYPE go_memstats_heap_inuse_bytes gauge
-# HELP go_memstats_heap_objects Number of allocated objects.
+# HELP go_memstats_heap_objects Number of currently allocated objects. Equals to /gc/heap/objects:objects.
 # TYPE go_memstats_heap_objects gauge
-# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS.
+# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS. Equals to /memory/classes/heap/released:bytes.
 # TYPE go_memstats_heap_released_bytes gauge
-# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system.
+# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes + /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
 # TYPE go_memstats_heap_sys_bytes gauge
 # HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
 # TYPE go_memstats_last_gc_time_seconds gauge
-# HELP go_memstats_lookups_total Total number of pointer lookups.
-# TYPE go_memstats_lookups_total counter
-# HELP go_memstats_mallocs_total Total number of mallocs.
+# HELP go_memstats_mallocs_total Total number of heap objects allocated, both live and gc-ed. Semantically a counter version for go_memstats_heap_objects gauge. Equals to /gc/heap/allocs:objects + /gc/heap/tiny/allocs:objects.
 # TYPE go_memstats_mallocs_total counter
-# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures.
+# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures. Equals to /memory/classes/metadata/mcache/inuse:bytes.
 # TYPE go_memstats_mcache_inuse_bytes gauge
-# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system.
+# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system. Equals to /memory/classes/metadata/mcache/inuse:bytes + /memory/classes/metadata/mcache/free:bytes.
 # TYPE go_memstats_mcache_sys_bytes gauge
-# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures.
+# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures. Equals to /memory/classes/metadata/mspan/inuse:bytes.
 # TYPE go_memstats_mspan_inuse_bytes gauge
-# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system.
+# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system. Equals to /memory/classes/metadata/mspan/inuse:bytes + /memory/classes/metadata/mspan/free:bytes.
 # TYPE go_memstats_mspan_sys_bytes gauge
-# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place.
+# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place. Equals to /gc/heap/goal:bytes.
 # TYPE go_memstats_next_gc_bytes gauge
-# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations.
+# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations. Equals to /memory/classes/other:bytes.
 # TYPE go_memstats_other_sys_bytes gauge
-# HELP go_memstats_stack_inuse_bytes Number of bytes in use by the stack allocator.
+# HELP go_memstats_stack_inuse_bytes Number of bytes obtained from system for stack allocator in non-CGO environments. Equals to /memory/classes/heap/stacks:bytes.
 # TYPE go_memstats_stack_inuse_bytes gauge
-# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator.
+# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator. Equals to /memory/classes/heap/stacks:bytes + /memory/classes/os-stacks:bytes.
 # TYPE go_memstats_stack_sys_bytes gauge
-# HELP go_memstats_sys_bytes Number of bytes obtained from system.
+# HELP go_memstats_sys_bytes Number of bytes obtained from system. Equals to /memory/classes/total:byte.
 # TYPE go_memstats_sys_bytes gauge
+# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads
+# TYPE go_sched_gomaxprocs_threads gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
 # HELP node_arp_entries ARP entries by device
@@ -161,6 +165,14 @@ node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid1",uuid="0abb2
 node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+# HELP node_btrfs_commit_seconds_total Sum of the duration of all commits, in seconds.
+# TYPE node_btrfs_commit_seconds_total counter
+node_btrfs_commit_seconds_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 47836.09
+node_btrfs_commit_seconds_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_commits_total The total number of commits that have occurred.
+# TYPE node_btrfs_commits_total counter
+node_btrfs_commits_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 258051
+node_btrfs_commits_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_device_size_bytes Size of a device that is part of the filesystem.
 # TYPE node_btrfs_device_size_bytes gauge
 node_btrfs_device_size_bytes{device="loop22",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
@@ -177,6 +189,14 @@ node_btrfs_global_rsv_size_bytes{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.
 # TYPE node_btrfs_info gauge
 node_btrfs_info{label="",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1
 node_btrfs_info{label="fixture",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+# HELP node_btrfs_last_commit_seconds Duration of the most recent commit, in seconds.
+# TYPE node_btrfs_last_commit_seconds gauge
+node_btrfs_last_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+node_btrfs_last_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_max_commit_seconds Duration of the slowest commit, in seconds.
+# TYPE node_btrfs_max_commit_seconds gauge
+node_btrfs_max_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 51.462
+node_btrfs_max_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_reserved_bytes Amount of space reserved for a data type
 # TYPE node_btrfs_reserved_bytes gauge
 node_btrfs_reserved_bytes{block_group_type="data",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
@@ -742,48 +762,64 @@ node_entropy_available_bits 1337
 node_entropy_pool_size_bits 4096
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
+# HELP node_fibrechannel_dumped_frames_total Number of dumped frames
+# TYPE node_fibrechannel_dumped_frames_total counter
+node_fibrechannel_dumped_frames_total{fc_host="host1"} 0
 # HELP node_fibrechannel_error_frames_total Number of errors in frames
 # TYPE node_fibrechannel_error_frames_total counter
 node_fibrechannel_error_frames_total{fc_host="host0"} 0
+node_fibrechannel_error_frames_total{fc_host="host1"} 19
 # HELP node_fibrechannel_fcp_packet_aborts_total Number of aborted packets
 # TYPE node_fibrechannel_fcp_packet_aborts_total counter
 node_fibrechannel_fcp_packet_aborts_total{fc_host="host0"} 19
 # HELP node_fibrechannel_info Non-numeric data from /sys/class/fc_host/<host>, value is always 1.
 # TYPE node_fibrechannel_info gauge
+node_fibrechannel_info{dev_loss_tmo="",fabric_name="",fc_host="host1",port_id="",port_name="",port_state="",port_type="",speed="8 Gbit",supported_classes="",supported_speeds="",symbolic_name=""} 1
 node_fibrechannel_info{dev_loss_tmo="30",fabric_name="0",fc_host="host0",port_id="000002",port_name="1000e0071bce95f2",port_state="Online",port_type="Point-To-Point (direct nport connection)",speed="16 Gbit",supported_classes="Class 3",supported_speeds="4 Gbit, 8 Gbit, 16 Gbit",symbolic_name="Emulex SN1100E2P FV12.4.270.3 DV12.4.0.0. HN:gotest. OS:Linux"} 1
 # HELP node_fibrechannel_invalid_crc_total Invalid Cyclic Redundancy Check count
 # TYPE node_fibrechannel_invalid_crc_total counter
 node_fibrechannel_invalid_crc_total{fc_host="host0"} 2
+node_fibrechannel_invalid_crc_total{fc_host="host1"} 32
 # HELP node_fibrechannel_invalid_tx_words_total Number of invalid words transmitted by host port
 # TYPE node_fibrechannel_invalid_tx_words_total counter
 node_fibrechannel_invalid_tx_words_total{fc_host="host0"} 8
+node_fibrechannel_invalid_tx_words_total{fc_host="host1"} 128
 # HELP node_fibrechannel_link_failure_total Number of times the host port link has failed
 # TYPE node_fibrechannel_link_failure_total counter
 node_fibrechannel_link_failure_total{fc_host="host0"} 9
+node_fibrechannel_link_failure_total{fc_host="host1"} 144
 # HELP node_fibrechannel_loss_of_signal_total Number of times signal has been lost
 # TYPE node_fibrechannel_loss_of_signal_total counter
 node_fibrechannel_loss_of_signal_total{fc_host="host0"} 17
+node_fibrechannel_loss_of_signal_total{fc_host="host1"} 272
 # HELP node_fibrechannel_loss_of_sync_total Number of failures on either bit or transmission word boundaries
 # TYPE node_fibrechannel_loss_of_sync_total counter
 node_fibrechannel_loss_of_sync_total{fc_host="host0"} 16
+node_fibrechannel_loss_of_sync_total{fc_host="host1"} 256
 # HELP node_fibrechannel_nos_total Number Not_Operational Primitive Sequence received by host port
 # TYPE node_fibrechannel_nos_total counter
 node_fibrechannel_nos_total{fc_host="host0"} 18
+node_fibrechannel_nos_total{fc_host="host1"} 288
 # HELP node_fibrechannel_rx_frames_total Number of frames received
 # TYPE node_fibrechannel_rx_frames_total counter
 node_fibrechannel_rx_frames_total{fc_host="host0"} 3
+node_fibrechannel_rx_frames_total{fc_host="host1"} 48
 # HELP node_fibrechannel_rx_words_total Number of words received by host port
 # TYPE node_fibrechannel_rx_words_total counter
 node_fibrechannel_rx_words_total{fc_host="host0"} 4
+node_fibrechannel_rx_words_total{fc_host="host1"} 64
 # HELP node_fibrechannel_seconds_since_last_reset_total Number of seconds since last host port reset
 # TYPE node_fibrechannel_seconds_since_last_reset_total counter
 node_fibrechannel_seconds_since_last_reset_total{fc_host="host0"} 7
+node_fibrechannel_seconds_since_last_reset_total{fc_host="host1"} 112
 # HELP node_fibrechannel_tx_frames_total Number of frames transmitted by host port
 # TYPE node_fibrechannel_tx_frames_total counter
 node_fibrechannel_tx_frames_total{fc_host="host0"} 5
+node_fibrechannel_tx_frames_total{fc_host="host1"} 80
 # HELP node_fibrechannel_tx_words_total Number of words transmitted by host port
 # TYPE node_fibrechannel_tx_words_total counter
 node_fibrechannel_tx_words_total{fc_host="host0"} 6
+node_fibrechannel_tx_words_total{fc_host="host1"} 96
 # HELP node_filefd_allocated File descriptor statistics: allocated.
 # TYPE node_filefd_allocated gauge
 node_filefd_allocated 1024
@@ -2306,6 +2342,9 @@ node_netstat_TcpExt_SyncookiesSent 0
 # HELP node_netstat_TcpExt_TCPOFOQueue Statistic TcpExtTCPOFOQueue.
 # TYPE node_netstat_TcpExt_TCPOFOQueue untyped
 node_netstat_TcpExt_TCPOFOQueue 42
+# HELP node_netstat_TcpExt_TCPRcvQDrop Statistic TcpExtTCPRcvQDrop.
+# TYPE node_netstat_TcpExt_TCPRcvQDrop untyped
+node_netstat_TcpExt_TCPRcvQDrop 131
 # HELP node_netstat_TcpExt_TCPTimeouts Statistic TcpExtTCPTimeouts.
 # TYPE node_netstat_TcpExt_TCPTimeouts untyped
 node_netstat_TcpExt_TCPTimeouts 115
@@ -2814,6 +2853,9 @@ node_pressure_io_stalled_seconds_total 159.229614
 # HELP node_pressure_io_waiting_seconds_total Total time in seconds that processes have waited due to IO congestion
 # TYPE node_pressure_io_waiting_seconds_total counter
 node_pressure_io_waiting_seconds_total 159.886802
+# HELP node_pressure_irq_stalled_seconds_total Total time in seconds no process could make progress due to IRQ congestion
+# TYPE node_pressure_irq_stalled_seconds_total counter
+node_pressure_irq_stalled_seconds_total 0.008494
 # HELP node_pressure_memory_stalled_seconds_total Total time in seconds no process could make progress due to memory congestion
 # TYPE node_pressure_memory_stalled_seconds_total counter
 node_pressure_memory_stalled_seconds_total 0
@@ -3741,6 +3783,9 @@ node_zfs_arc_l2_writes_lock_retry 0
 # HELP node_zfs_arc_l2_writes_sent kstat.zfs.misc.arcstats.l2_writes_sent
 # TYPE node_zfs_arc_l2_writes_sent untyped
 node_zfs_arc_l2_writes_sent 0
+# HELP node_zfs_arc_memory_available_bytes kstat.zfs.misc.arcstats.memory_available_bytes
+# TYPE node_zfs_arc_memory_available_bytes untyped
+node_zfs_arc_memory_available_bytes -9.223372036854776e+17
 # HELP node_zfs_arc_memory_direct_count kstat.zfs.misc.arcstats.memory_direct_count
 # TYPE node_zfs_arc_memory_direct_count untyped
 node_zfs_arc_memory_direct_count 542
@@ -4548,6 +4593,10 @@ node_zoneinfo_spanned_pages{node="0",zone="Normal"} 7.806976e+06
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.
 # TYPE process_max_fds gauge
+# HELP process_network_receive_bytes_total Number of bytes received by the process over the network.
+# TYPE process_network_receive_bytes_total counter
+# HELP process_network_transmit_bytes_total Number of bytes sent by the process over the network.
+# TYPE process_network_transmit_bytes_total counter
 # HELP process_open_fds Number of open file descriptors.
 # TYPE process_open_fds gauge
 # HELP process_resident_memory_bytes Resident memory size in bytes.

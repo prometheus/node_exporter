@@ -39,9 +39,18 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	}
 	for name, interrupt := range interrupts {
 		for cpuNo, value := range interrupt.values {
+			filterName := name + ";" + interrupt.info + ";" + interrupt.devices
+			if c.nameFilter.ignored(filterName) {
+				c.logger.Debug("ignoring interrupt name", "filter_name", filterName)
+				continue
+			}
 			fv, err := strconv.ParseFloat(value, 64)
 			if err != nil {
 				return fmt.Errorf("invalid value %s in interrupts: %w", value, err)
+			}
+			if !c.includeZeros && fv == 0.0 {
+				c.logger.Debug("ignoring interrupt with zero value", "filter_name", filterName, "cpu", cpuNo)
+				continue
 			}
 			ch <- c.desc.mustNewConstMetric(fv, strconv.Itoa(cpuNo), name, interrupt.info, interrupt.devices)
 		}

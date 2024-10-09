@@ -18,8 +18,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -28,7 +28,7 @@ type entropyCollector struct {
 	fs              procfs.FS
 	entropyAvail    *prometheus.Desc
 	entropyPoolSize *prometheus.Desc
-	logger          log.Logger
+	logger          *slog.Logger
 }
 
 func init() {
@@ -36,7 +36,7 @@ func init() {
 }
 
 // NewEntropyCollector returns a new Collector exposing entropy stats.
-func NewEntropyCollector(logger log.Logger) (Collector, error) {
+func NewEntropyCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

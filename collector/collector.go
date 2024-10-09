@@ -17,12 +17,11 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -50,14 +49,14 @@ const (
 )
 
 var (
-	factories              = make(map[string]func(logger log.Logger) (Collector, error))
+	factories              = make(map[string]func(logger *slog.Logger) (Collector, error))
 	initiatedCollectorsMtx = sync.Mutex{}
 	initiatedCollectors    = make(map[string]Collector)
 	collectorState         = make(map[string]*bool)
 	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
-func registerCollector(collector string, isDefaultEnabled bool, factory func(logger log.Logger) (Collector, error)) {
+func registerCollector(collector string, isDefaultEnabled bool, factory func(logger *slog.Logger) (Collector, error)) {
 	var helpDefaultState string
 	if isDefaultEnabled {
 		helpDefaultState = "enabled"
@@ -78,7 +77,7 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func(log
 // NodeCollector implements the prometheus.Collector interface.
 type NodeCollector struct {
 	Collectors map[string]Collector
-	logger     log.Logger
+	logger     *slog.Logger
 }
 
 // DisableDefaultCollectors sets the collector state to false for all collectors which
@@ -104,7 +103,7 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 }
 
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, error) {
+func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
 	f := make(map[string]bool)
 	for _, filter := range filters {
 		enabled, exist := collectorState[filter]
@@ -126,7 +125,7 @@ func NewNodeCollector(logger log.Logger, filters ...string) (*NodeCollector, err
 		if collector, ok := initiatedCollectors[key]; ok {
 			collectors[key] = collector
 		} else {
-			collector, err := factories[key](log.With(logger, "collector", key))
+			collector, err := factories[key](logger.With("collector", key))
 			if err != nil {
 				return nil, err
 			}
@@ -156,7 +155,7 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Wait()
 }
 
-func execute(name string, c Collector, ch chan<- prometheus.Metric, logger log.Logger) {
+func execute(name string, c Collector, ch chan<- prometheus.Metric, logger *slog.Logger) {
 	begin := time.Now()
 	err := c.Update(ch)
 	duration := time.Since(begin)
@@ -164,13 +163,13 @@ func execute(name string, c Collector, ch chan<- prometheus.Metric, logger log.L
 
 	if err != nil {
 		if IsNoDataError(err) {
-			level.Debug(logger).Log("msg", "collector returned no data", "name", name, "duration_seconds", duration.Seconds(), "err", err)
+			logger.Debug("collector returned no data", "name", name, "duration_seconds", duration.Seconds(), "err", err)
 		} else {
-			level.Error(logger).Log("msg", "collector failed", "name", name, "duration_seconds", duration.Seconds(), "err", err)
+			logger.Error("collector failed", "name", name, "duration_seconds", duration.Seconds(), "err", err)
 		}
 		success = 0
 	} else {
-		level.Debug(logger).Log("msg", "collector succeeded", "name", name, "duration_seconds", duration.Seconds())
+		logger.Debug("collector succeeded", "name", name, "duration_seconds", duration.Seconds())
 		success = 1
 	}
 	ch <- prometheus.MustNewConstMetric(scrapeDurationDesc, prometheus.GaugeValue, duration.Seconds(), name)

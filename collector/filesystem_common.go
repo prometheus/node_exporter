@@ -11,19 +11,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nofilesystem && (linux || freebsd || openbsd || darwin || dragonfly)
+//go:build !nofilesystem && (linux || freebsd || netbsd || openbsd || darwin || dragonfly || aix)
 // +build !nofilesystem
-// +build linux freebsd openbsd darwin dragonfly
+// +build linux freebsd netbsd openbsd darwin dragonfly aix
 
 package collector
 
 import (
 	"errors"
+	"log/slog"
 	"regexp"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -69,11 +68,12 @@ type filesystemCollector struct {
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
-	logger                        log.Logger
+	mountInfoDesc                 *prometheus.Desc
+	logger                        *slog.Logger
 }
 
 type filesystemLabels struct {
-	device, mountPoint, fsType, options, deviceError string
+	device, mountPoint, fsType, options, deviceError, major, minor string
 }
 
 type filesystemStats struct {
@@ -88,10 +88,10 @@ func init() {
 }
 
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.
-func NewFilesystemCollector(logger log.Logger) (Collector, error) {
+func NewFilesystemCollector(logger *slog.Logger) (Collector, error) {
 	if *oldMountPointsExcluded != "" {
 		if !mountPointsExcludeSet {
-			level.Warn(logger).Log("msg", "--collector.filesystem.ignored-mount-points is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.mount-points-exclude")
+			logger.Warn("--collector.filesystem.ignored-mount-points is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.mount-points-exclude")
 			*mountPointsExclude = *oldMountPointsExcluded
 		} else {
 			return nil, errors.New("--collector.filesystem.ignored-mount-points and --collector.filesystem.mount-points-exclude are mutually exclusive")
@@ -100,7 +100,7 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 
 	if *oldFSTypesExcluded != "" {
 		if !fsTypesExcludeSet {
-			level.Warn(logger).Log("msg", "--collector.filesystem.ignored-fs-types is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.fs-types-exclude")
+			logger.Warn("--collector.filesystem.ignored-fs-types is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.fs-types-exclude")
 			*fsTypesExclude = *oldFSTypesExcluded
 		} else {
 			return nil, errors.New("--collector.filesystem.ignored-fs-types and --collector.filesystem.fs-types-exclude are mutually exclusive")
@@ -108,9 +108,9 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 	}
 
 	subsystem := "filesystem"
-	level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.mount-points-exclude", "flag", *mountPointsExclude)
+	logger.Info("Parsed flag --collector.filesystem.mount-points-exclude", "flag", *mountPointsExclude)
 	mountPointPattern := regexp.MustCompile(*mountPointsExclude)
-	level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.fs-types-exclude", "flag", *fsTypesExclude)
+	logger.Info("Parsed flag --collector.filesystem.fs-types-exclude", "flag", *fsTypesExclude)
 	filesystemsTypesPattern := regexp.MustCompile(*fsTypesExclude)
 
 	sizeDesc := prometheus.NewDesc(
@@ -155,6 +155,13 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 		filesystemLabelNames, nil,
 	)
 
+	mountInfoDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "mount_info"),
+		"Filesystem mount information.",
+		[]string{"device", "major", "minor", "mountpoint"},
+		nil,
+	)
+
 	return &filesystemCollector{
 		excludedMountPointsPattern: mountPointPattern,
 		excludedFSTypesPattern:     filesystemsTypesPattern,
@@ -165,6 +172,7 @@ func NewFilesystemCollector(logger log.Logger) (Collector, error) {
 		filesFreeDesc:              filesFreeDesc,
 		roDesc:                     roDesc,
 		deviceErrorDesc:            deviceErrorDesc,
+		mountInfoDesc:              mountInfoDesc,
 		logger:                     logger,
 	}, nil
 }
@@ -214,6 +222,10 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			c.filesFreeDesc, prometheus.GaugeValue,
 			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			c.mountInfoDesc, prometheus.GaugeValue,
+			1.0, s.labels.device, s.labels.major, s.labels.minor, s.labels.mountPoint,
 		)
 	}
 	return nil

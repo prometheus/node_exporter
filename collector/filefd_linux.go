@@ -20,10 +20,10 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"strconv"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -32,7 +32,7 @@ const (
 )
 
 type fileFDStatCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -40,7 +40,7 @@ func init() {
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
-func NewFileFDStatCollector(logger log.Logger) (Collector, error) {
+func NewFileFDStatCollector(logger *slog.Logger) (Collector, error) {
 	return &fileFDStatCollector{logger}, nil
 }
 

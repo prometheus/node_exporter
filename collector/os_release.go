@@ -11,12 +11,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !noosrelease && !aix
+// +build !noosrelease,!aix
+
 package collector
 
 import (
 	"encoding/xml"
 	"errors"
 	"io"
+	"log/slog"
 	"os"
 	"regexp"
 	"strconv"
@@ -24,8 +28,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	envparse "github.com/hashicorp/go-envparse"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -53,18 +55,19 @@ type osRelease struct {
 	BuildID         string
 	ImageID         string
 	ImageVersion    string
+	SupportEnd      string
 }
 
 type osReleaseCollector struct {
 	infoDesc           *prometheus.Desc
-	logger             log.Logger
+	logger             *slog.Logger
 	os                 *osRelease
-	osFilename         string    // file name of cached release information
-	osMtime            time.Time // mtime of cached release file
 	osMutex            sync.RWMutex
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	versionDesc        *prometheus.Desc
+	supportEnd         time.Time
+	supportEndDesc     *prometheus.Desc
 }
 
 type Plist struct {
@@ -81,7 +84,7 @@ func init() {
 }
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(logger log.Logger) (Collector, error) {
+func NewOSCollector(logger *slog.Logger) (Collector, error) {
 	return &osReleaseCollector{
 		logger: logger,
 		infoDesc: prometheus.NewDesc(
@@ -96,6 +99,11 @@ func NewOSCollector(logger log.Logger) (Collector, error) {
 			prometheus.BuildFQName(namespace, "os", "version"),
 			"Metric containing the major.minor part of the OS version.",
 			[]string{"id", "id_like", "name"}, nil,
+		),
+		supportEndDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "os", "support_end_timestamp_seconds"),
+			"Metric containing the end-of-life date timestamp of the OS.",
+			nil, nil,
 		),
 	}, nil
 }
@@ -115,6 +123,7 @@ func parseOSRelease(r io.Reader) (*osRelease, error) {
 		BuildID:         env["BUILD_ID"],
 		ImageID:         env["IMAGE_ID"],
 		ImageVersion:    env["IMAGE_VERSION"],
+		SupportEnd:      env["SUPPORT_END"],
 	}, err
 }
 
@@ -125,28 +134,10 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	}
 	defer releaseFile.Close()
 
-	stat, err := releaseFile.Stat()
-	if err != nil {
-		return err
-	}
-
-	t := stat.ModTime()
-	c.osMutex.RLock()
-	upToDate := path == c.osFilename && t == c.osMtime
-	c.osMutex.RUnlock()
-	if upToDate {
-		// osReleaseCollector struct is already up-to-date.
-		return nil
-	}
-
 	// Acquire a lock to update the osReleaseCollector struct.
 	c.osMutex.Lock()
 	defer c.osMutex.Unlock()
 
-	level.Debug(c.logger).Log("msg", "file modification time has changed",
-		"file", path, "old_value", c.osMtime, "new_value", t)
-	c.osFilename = path
-	c.osMtime = t
 	//  SystemVersion.plist is xml file with MacOs version info
 	if strings.Contains(releaseFile.Name(), "SystemVersion.plist") {
 		c.os, err = getMacosProductVersion(releaseFile.Name())
@@ -169,6 +160,15 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	} else {
 		c.version = 0
 	}
+
+	if c.os.SupportEnd != "" {
+		c.supportEnd, err = time.Parse(time.DateOnly, c.os.SupportEnd)
+
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -180,7 +180,7 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		if errors.Is(err, os.ErrNotExist) {
 			if i >= (len(c.osReleaseFilenames) - 1) {
-				level.Debug(c.logger).Log("msg", "no os-release file found", "files", strings.Join(c.osReleaseFilenames, ","))
+				c.logger.Debug("no os-release file found", "files", strings.Join(c.osReleaseFilenames, ","))
 				return ErrNoData
 			}
 			continue
@@ -195,6 +195,11 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.versionDesc, prometheus.GaugeValue, c.version,
 			c.os.ID, c.os.IDLike, c.os.Name)
 	}
+
+	if c.os.SupportEnd != "" {
+		ch <- prometheus.MustNewConstMetric(c.supportEndDesc, prometheus.GaugeValue, float64(c.supportEnd.Unix()))
+	}
+
 	return nil
 }
 

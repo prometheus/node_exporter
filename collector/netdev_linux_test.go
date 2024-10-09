@@ -17,11 +17,11 @@
 package collector
 
 import (
+	"io"
+	"log/slog"
 	"testing"
 
-	"github.com/go-kit/log"
-
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 )
 
 var links = []rtnetlink.LinkMessage{
@@ -166,7 +166,7 @@ var links = []rtnetlink.LinkMessage{
 func TestNetDevStatsIgnore(t *testing.T) {
 	filter := newDeviceFilter("^veth", "")
 
-	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	if want, got := uint64(10437182923), netStats["wlan0"]["receive_bytes"]; want != got {
 		t.Errorf("want netstat wlan0 bytes %v, got %v", want, got)
@@ -199,7 +199,7 @@ func TestNetDevStatsIgnore(t *testing.T) {
 
 func TestNetDevStatsAccept(t *testing.T) {
 	filter := newDeviceFilter("", "^💩0$")
-	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	if want, got := 1, len(netStats); want != got {
 		t.Errorf("want count of devices to be %d, got %d", want, got)
@@ -230,7 +230,7 @@ func TestNetDevLegacyMetricNames(t *testing.T) {
 	}
 
 	filter := newDeviceFilter("", "")
-	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	for dev, devStats := range netStats {
 		legacy(devStats)
@@ -263,7 +263,7 @@ func TestNetDevLegacyMetricValues(t *testing.T) {
 	}
 
 	filter := newDeviceFilter("", "^enp0s0f0$")
-	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	metrics, ok := netStats["enp0s0f0"]
 	if !ok {
 		t.Error("expected stats for interface enp0s0f0")
@@ -285,7 +285,7 @@ func TestNetDevLegacyMetricValues(t *testing.T) {
 
 func TestNetDevMetricValues(t *testing.T) {
 	filter := newDeviceFilter("", "")
-	netStats := parseNetlinkStats(links, &filter, log.NewNopLogger())
+	netStats := parseNetlinkStats(links, &filter, slog.New(slog.NewTextHandler(io.Discard, nil)))
 
 	for _, msg := range links {
 		device := msg.Attributes.Name
