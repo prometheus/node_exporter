@@ -27,6 +27,10 @@ var expectedBtrfsMetrics = [][]btrfsMetric{
 	{
 		{name: "info", value: 1, extraLabel: []string{"label"}, extraLabelValue: []string{"fixture"}},
 		{name: "global_rsv_size_bytes", value: 1.6777216e+07},
+		{name: "commits_total", value: 258051, metricType: 1},
+		{name: "last_commit_seconds", value: 1.0},
+		{name: "max_commit_seconds", value: 51.462},
+		{name: "commit_seconds_total", value: 47836.090, metricType: 1},
 		{name: "reserved_bytes", value: 0, extraLabel: []string{"block_group_type"}, extraLabelValue: []string{"data"}},
 		{name: "used_bytes", value: 8.08189952e+08, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid0"}},
 		{name: "size_bytes", value: 2.147483648e+09, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid0"}},
@@ -45,6 +49,10 @@ var expectedBtrfsMetrics = [][]btrfsMetric{
 	{
 		{name: "info", value: 1, extraLabel: []string{"label"}, extraLabelValue: []string{""}},
 		{name: "global_rsv_size_bytes", value: 1.6777216e+07},
+		{name: "commits_total", value: 0, metricType: 1},
+		{name: "last_commit_seconds", value: 0},
+		{name: "max_commit_seconds", value: 0},
+		{name: "commit_seconds_total", value: 0, metricType: 1},
 		{name: "reserved_bytes", value: 0, extraLabel: []string{"block_group_type"}, extraLabelValue: []string{"data"}},
 		{name: "used_bytes", value: 0, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid5"}},
 		{name: "size_bytes", value: 6.44087808e+08, extraLabel: []string{"block_group_type", "mode"}, extraLabelValue: []string{"data", "raid5"}},
@@ -92,7 +100,10 @@ func checkMetric(exp, got *btrfsMetric) bool {
 }
 
 func TestBtrfs(t *testing.T) {
-	fs, _ := btrfs.NewFS("fixtures/sys")
+	fs, err := btrfs.NewFS("fixtures/sys")
+	if err != nil {
+		t.Fatal(err)
+	}
 	collector := &btrfsCollector{fs: fs}
 
 	stats, err := collector.fs.Stats()

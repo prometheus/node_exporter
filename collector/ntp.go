@@ -18,14 +18,13 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"net"
 	"sync"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/beevik/ntp"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -51,7 +50,7 @@ var (
 
 type ntpCollector struct {
 	stratum, leap, rtt, offset, reftime, rootDelay, rootDispersion, sanity typedDesc
-	logger                                                                 log.Logger
+	logger                                                                 *slog.Logger
 }
 
 func init() {
@@ -62,7 +61,7 @@ func init() {
 // Default definition of "local" is:
 // - collector.ntp.server address is a loopback address (or collector.ntp.server-is-mine flag is turned on)
 // - the server is reachable with outgoin IP_TTL = 1
-func NewNtpCollector(logger log.Logger) (Collector, error) {
+func NewNtpCollector(logger *slog.Logger) (Collector, error) {
 	ipaddr := net.ParseIP(*ntpServer)
 	if !*ntpServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
 		return nil, fmt.Errorf("only IP address of local NTP server is valid for --collector.ntp.server")
@@ -80,7 +79,7 @@ func NewNtpCollector(logger log.Logger) (Collector, error) {
 		return nil, fmt.Errorf("invalid NTP port number %d; must be between 1 and 65535 inclusive", *ntpServerPort)
 	}
 
-	level.Warn(logger).Log("msg", "This collector is deprecated and will be removed in the next major version release.")
+	logger.Warn("This collector is deprecated and will be removed in the next major version release.")
 	return &ntpCollector{
 		stratum: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, ntpSubsystem, "stratum"),

@@ -7,10 +7,10 @@ executors:
   # should also be updated.
   golang:
     docker:
-      - image: cimg/go:1.22
+      - image: cimg/go:1.23
   arm:
-    machine:
-      image: ubuntu-2204:current
+    docker:
+      - image: cimg/go:1.23
     resource_class: arm.medium
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
   test-arm:
     executor: arm
     steps:
-      - checkout
+      - prometheus/setup_environment
       - run: uname -a
       - run: make test-e2e
   test_mixins:
@@ -49,6 +49,16 @@ jobs:
       - run: docker run --privileged linuxkit/binfmt:af88a591f9cc896a52ce596b9cf7ca26a061ef97
       - run: promu crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
       - run: promu --config .promu-cgo.yml crossbuild -v --parallelism $CIRCLE_NODE_TOTAL --parallelism-thread $CIRCLE_NODE_INDEX
+      # sign the darwin build so it doesn't get SIGKILLed on start, see: https://github.com/prometheus/node_exporter/issues/2539
+      - run:
+          command: |
+            if [[ -f "$(pwd)/.build/darwin-arm64/node_exporter" ]]; then
+                promu codesign "$(pwd)/.build/darwin-arm64/node_exporter"
+            fi
+
+            if [[ -f "$(pwd)/.build/darwin-amd64/node_exporter" ]]; then
+                promu codesign "$(pwd)/.build/darwin-amd64/node_exporter"                
+            fi
       - persist_to_workspace:
           root: .
           paths:
@@ -60,7 +70,7 @@ jobs:
     machine:
       image: ubuntu-2204:current
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.22-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.23-base
       REPO_PATH: github.com/prometheus/node_exporter
     steps:
       - prometheus/setup_environment

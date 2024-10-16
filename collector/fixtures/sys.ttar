@@ -4489,6 +4489,14 @@ Lines: 1
 4096
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/btrfs/0abb23a9-579b-43e6-ad30-227ef47fcb9d/commit_stats
+Lines: 4
+commits 258051
+last_commit_ms 1000
+max_commit_ms 51462
+total_commit_ms 47836090EOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/fs/btrfs/0abb23a9-579b-43e6-ad30-227ef47fcb9d/devices
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -18,11 +18,11 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/node_exporter/collector/utils"
 	"github.com/prometheus/procfs/sysfs"
 )
 
@@ -31,7 +31,7 @@ const maxUint64 = ^uint64(0)
 type fibrechannelCollector struct {
 	fs          sysfs.FS
 	metricDescs map[string]*prometheus.Desc
-	logger      log.Logger
+	logger      *slog.Logger
 	subsystem   string
 }
 
@@ -40,7 +40,7 @@ func init() {
 }
 
 // NewFibreChannelCollector returns a new Collector exposing FibreChannel stats.
-func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
+func NewFibreChannelCollector(logger *slog.Logger) (Collector, error) {
 	var i fibrechannelCollector
 	var err error
 
@@ -98,7 +98,7 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 	hosts, err := c.fs.FibreChannelClass()
 	if err != nil {
 		if os.IsNotExist(err) {
-			level.Debug(c.logger).Log("msg", "fibrechannel statistics not found, skipping")
+			c.logger.Debug("fibrechannel statistics not found, skipping")
 			return ErrNoData
 		}
 		return fmt.Errorf("error obtaining FibreChannel class info: %s", err)
@@ -114,23 +114,36 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		infoValue := 1.0
 
 		// First push the Host values
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, host.Name, host.Speed, host.PortState, host.PortType, host.PortID, host.PortName, host.FabricName, host.SymbolicName, host.SupportedClasses, host.SupportedSpeeds, host.DevLossTMO)
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, utils.SafeDereference(
+			host.Name,
+			host.Speed,
+			host.PortState,
+			host.PortType,
+			host.PortID,
+			host.PortName,
+			host.FabricName,
+			host.SymbolicName,
+			host.SupportedClasses,
+			host.SupportedSpeeds,
+			host.DevLossTMO,
+		)...)
 
 		// Then the counters
-		c.pushCounter(ch, "dumped_frames_total", host.Counters.DumpedFrames, host.Name)
-		c.pushCounter(ch, "error_frames_total", host.Counters.ErrorFrames, host.Name)
-		c.pushCounter(ch, "invalid_crc_total", host.Counters.InvalidCRCCount, host.Name)
-		c.pushCounter(ch, "rx_frames_total", host.Counters.RXFrames, host.Name)
-		c.pushCounter(ch, "rx_words_total", host.Counters.RXWords, host.Name)
-		c.pushCounter(ch, "tx_frames_total", host.Counters.TXFrames, host.Name)
-		c.pushCounter(ch, "tx_words_total", host.Counters.TXWords, host.Name)
-		c.pushCounter(ch, "seconds_since_last_reset_total", host.Counters.SecondsSinceLastReset, host.Name)
-		c.pushCounter(ch, "invalid_tx_words_total", host.Counters.InvalidTXWordCount, host.Name)
-		c.pushCounter(ch, "link_failure_total", host.Counters.LinkFailureCount, host.Name)
-		c.pushCounter(ch, "loss_of_sync_total", host.Counters.LossOfSyncCount, host.Name)
-		c.pushCounter(ch, "loss_of_signal_total", host.Counters.LossOfSignalCount, host.Name)
-		c.pushCounter(ch, "nos_total", host.Counters.NosCount, host.Name)
-		c.pushCounter(ch, "fcp_packet_aborts_total", host.Counters.FCPPacketAborts, host.Name)
+		// Note: `procfs` guarantees these a safe dereference for these counters.
+		c.pushCounter(ch, "dumped_frames_total", *host.Counters.DumpedFrames, *host.Name)
+		c.pushCounter(ch, "error_frames_total", *host.Counters.ErrorFrames, *host.Name)
+		c.pushCounter(ch, "invalid_crc_total", *host.Counters.InvalidCRCCount, *host.Name)
+		c.pushCounter(ch, "rx_frames_total", *host.Counters.RXFrames, *host.Name)
+		c.pushCounter(ch, "rx_words_total", *host.Counters.RXWords, *host.Name)
+		c.pushCounter(ch, "tx_frames_total", *host.Counters.TXFrames, *host.Name)
+		c.pushCounter(ch, "tx_words_total", *host.Counters.TXWords, *host.Name)
+		c.pushCounter(ch, "seconds_since_last_reset_total", *host.Counters.SecondsSinceLastReset, *host.Name)
+		c.pushCounter(ch, "invalid_tx_words_total", *host.Counters.InvalidTXWordCount, *host.Name)
+		c.pushCounter(ch, "link_failure_total", *host.Counters.LinkFailureCount, *host.Name)
+		c.pushCounter(ch, "loss_of_sync_total", *host.Counters.LossOfSyncCount, *host.Name)
+		c.pushCounter(ch, "loss_of_signal_total", *host.Counters.LossOfSignalCount, *host.Name)
+		c.pushCounter(ch, "nos_total", *host.Counters.NosCount, *host.Name)
+		c.pushCounter(ch, "fcp_packet_aborts_total", *host.Counters.FCPPacketAborts, *host.Name)
 	}
 
 	return nil

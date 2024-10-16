@@ -17,14 +17,14 @@
 package collector
 
 import (
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
+	"log/slog"
+
+	"unsafe"
 
 	"golang.org/x/sys/unix"
-	"unsafe"
 )
 
-func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	mib := [6]_C_int{unix.CTL_NET, unix.AF_ROUTE, 0, 0, unix.NET_RT_IFLIST, 0}
@@ -54,7 +54,7 @@ func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error
 		data := ifm.Data
 		dev := int8ToString(dl.Data[:dl.Nlen])
 		if filter.ignored(dev) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", dev)
+			logger.Debug("Ignoring device", "device", dev)
 			continue
 		}
 
@@ -75,4 +75,9 @@ func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error
 		}
 	}
 	return netDev, nil
+}
+
+func getNetDevLabels() (map[string]map[string]string, error) {
+	// to be implemented if needed
+	return nil, nil
 }

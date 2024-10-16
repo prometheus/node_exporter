@@ -18,33 +18,41 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
+var (
+	slabNameInclude = kingpin.Flag("collector.slabinfo.slabs-include", "Regexp of slabs to include in slabinfo collector.").Default(".*").String()
+	slabNameExclude = kingpin.Flag("collector.slabinfo.slabs-exclude", "Regexp of slabs to exclude in slabinfo collector.").Default("").String()
+)
+
 type slabinfoCollector struct {
-	fs        procfs.FS
-	logger    log.Logger
-	subsystem string
-	labels    []string
+	fs             procfs.FS
+	logger         *slog.Logger
+	subsystem      string
+	labels         []string
+	slabNameFilter deviceFilter
 }
 
 func init() {
 	registerCollector("slabinfo", defaultDisabled, NewSlabinfoCollector)
 }
 
-func NewSlabinfoCollector(logger log.Logger) (Collector, error) {
+func NewSlabinfoCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	return &slabinfoCollector{logger: logger,
-		fs:        fs,
-		subsystem: "slabinfo",
-		labels:    []string{"slab"},
+		fs:             fs,
+		subsystem:      "slabinfo",
+		labels:         []string{"slab"},
+		slabNameFilter: newDeviceFilter(*slabNameExclude, *slabNameInclude),
 	}, nil
 }
 
@@ -55,6 +63,9 @@ func (c *slabinfoCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, slab := range slabinfo.Slabs {
+		if c.slabNameFilter.ignored(slab.Name) {
+			continue
+		}
 		ch <- c.activeObjects(slab.Name, slab.ObjActive)
 		ch <- c.objects(slab.Name, slab.ObjNum)
 		ch <- c.objectSizeBytes(slab.Name, slab.ObjSize)
