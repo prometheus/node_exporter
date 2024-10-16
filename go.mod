@@ -2,6 +2,8 @@ module github.com/prometheus/node_exporter
 
 go 1.22.0
 
+toolchain go1.23.2
+
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/beevik/ntp v1.4.3
