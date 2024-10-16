@@ -22,8 +22,8 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/finomosec/procfs"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/procfs"
 )
 
 type mdadmCollector struct {
