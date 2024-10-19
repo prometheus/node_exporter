@@ -113,9 +113,13 @@ update_fixtures:
 	rm -vf collector/fixtures/udev/.unpacked
 	./ttar -C collector/fixtures -c -f collector/fixtures/udev.ttar udev
 
+.PHONY: tools
+tools:
+	@rm ./tools/tools >/dev/null 2>&1 || true
+	@$(GO) build -o tools ./tools/...
 
 .PHONY: test-e2e
-test-e2e: build collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked
+test-e2e: build collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked tools
 	@echo ">> running end-to-end tests"
 	./end-to-end-test.sh
 
