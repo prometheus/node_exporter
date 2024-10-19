@@ -1,0 +1,175 @@
+name: bsd
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION_FREEBSD: "123"
+  GO_VERSION_OPENBSD: "1.23.1"
+  GO_VERSION_NETBSD: "123"
+  GO_VERSION_DRAGONFLY: "1.23.3"
+  GNU_TAR_VERSION: "1.35"
+
+# To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
+jobs:
+  test_freebsd:
+    name: Run end-to-end tests on FreeBSD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: test-e2e
+        uses: vmactions/freebsd-vm@v1
+        with:
+          copyback: false
+          envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
+          usesh: true
+          prepare: |
+            pkg update -f
+            pkg install -y bash curl gtar git gmake gsed gnugrep go${GO_VERSION_FREEBSD} python
+          run: |
+            echo "::group::Setup prerequisites"
+            set -eu
+            mkdir bin
+            ln -s $(which go${GO_VERSION_FREEBSD}) $(pwd)/bin/go
+            ln -s $(which ggrep) $(pwd)/bin/grep
+            ln -s $(which gmake) $(pwd)/bin/make
+            ln -s $(which gsed) $(pwd)/bin/sed
+            ln -s $(which gtar) $(pwd)/bin/tar
+            export PATH=$(pwd)/bin:$PATH
+            echo "::endgroup::"
+
+            echo "::group::Print environment information"
+            uname -a
+            echo "GOOS: $(go env GOOS)"
+            echo "GOARCH: $(go env GOARCH)"
+            echo "::endgroup::"
+
+            echo "::group::Run End-to-End Tests"
+            git config --global --add safe.directory $(pwd)
+            gmake test-e2e
+            echo "::endgroup::"
+
+  test_openbsd:
+    name: Run end-to-end tests on OpenBSD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: test-e2e
+        uses: vmactions/openbsd-vm@v1
+        with:
+          copyback: false
+          envs: 'GO_VERSION_OPENBSD GNU_TAR_VERSION'
+          usesh: true
+          prepare: |
+            pkg_add -u
+            pkg_add bash curl gtar-${GNU_TAR_VERSION}p0-static git gmake gsed ggrep go-${GO_VERSION_OPENBSD} python
+          run: |
+            echo "::group::Setup prerequisites"
+            set -eu
+            mkdir bin
+            ln -s $(which ggrep) $(pwd)/bin/grep
+            ln -s $(which gmake) $(pwd)/bin/make
+            ln -s $(which gsed) $(pwd)/bin/sed
+            ln -s $(which gtar) $(pwd)/bin/tar
+            export PATH=$(pwd)/bin:$PATH
+            echo "::endgroup::"
+
+            echo "::group::Print environment information"
+            uname -a
+            echo "GOOS: $(go env GOOS)"
+            echo "GOARCH: $(go env GOARCH)"
+            echo "::endgroup::"
+
+            echo "::group::Run End-to-End Tests"
+            git config --global --add safe.directory $(pwd)
+            make test-e2e
+            echo "::endgroup::"
+
+  test_netbsd:
+    name: Run end-to-end tests on NetBSD
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: test-e2e
+        uses: vmactions/netbsd-vm@v1
+        with:
+          copyback: false
+          envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
+          usesh: true
+          prepare: |
+            /usr/sbin/pkg_add -u
+            /usr/sbin/pkg_add curl gtar-base-${GNU_TAR_VERSION} git gmake gsed grep go${GO_VERSION_NETBSD} python312
+          run: |
+            echo "::group::Setup prerequisites"
+            set -eu
+            mkdir bin
+            ln -s $(which go${GO_VERSION_NETBSD}) $(pwd)/bin/go
+            ln -s $(which ggrep) $(pwd)/bin/grep
+            ln -s $(which gmake) $(pwd)/bin/make
+            ln -s $(which gsed) $(pwd)/bin/sed
+            ln -s $(which gtar) $(pwd)/bin/tar
+            export PATH=$(pwd)/bin:$PATH
+            echo "::endgroup::"
+
+            echo "::group::Print environment information"
+            uname -a
+            echo "GOOS: $(go env GOOS)"
+            echo "GOARCH: $(go env GOARCH)"
+            echo "::endgroup::"
+
+            echo "::group::Run End-to-End Tests"
+            git config --global --add safe.directory $(pwd)
+            make test-e2e
+            echo "::endgroup::"
+
+  test_dragonfly:
+    name: Run end-to-end tests on DragonFly
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: test-e2e
+        uses: vmactions/dragonflybsd-vm@v1
+        with:
+          copyback: false
+          envs: 'GO_VERSION_DRAGONFLY'
+          usesh: true
+          prepare: |
+            pkg update && pkg upgrade -y
+            pkg install -y bash wget gtar git gmake gsed gnugrep python3
+          run: |
+            echo "::group::Setup prerequisites"
+            set -eu
+            mkdir bin
+            export PATH=$(pwd)/bin:$PATH
+            wget https://go.dev/dl/go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz
+            gtar xzf go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
+            ln -s $(which ggrep) $(pwd)/bin/grep
+            ln -s $(which gmake) $(pwd)/bin/make
+            ln -s $(which gsed) $(pwd)/bin/sed
+            ln -s $(which gtar) $(pwd)/bin/tar
+            ln -s $(which python3) $(pwd)/bin/python
+            echo "::endgroup::"
+
+            echo "::group::Print environment information"
+            uname -a
+            echo "GOOS: $(go env GOOS)"
+            echo "GOARCH: $(go env GOARCH)"
+            echo "::endgroup::"
+
+            echo "::group::Run End-to-End Tests"
+            git config --global --add safe.directory $(pwd)
+            gmake test-e2e
+            echo "::endgroup::"
