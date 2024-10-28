@@ -1,4 +1,4 @@
-local g = import '../g.libsonnet';
+local g = import '../../g.libsonnet';
 local commonlib = import 'common-lib/common/main.libsonnet';
 local utils = commonlib.utils;
 {
@@ -12,7 +12,7 @@ local utils = commonlib.utils;
       diskTotalRoot:
         commonlib.panels.disk.stat.total.new(
           'Root mount size',
-          targets=[t.diskTotalRoot],
+          targets=[t.disk.diskTotalRoot],
           description=|||
             Total capacity on the primary mount point /.
           |||
@@ -21,12 +21,12 @@ local utils = commonlib.utils;
         commonlib.panels.disk.table.usage.new(
           totalTarget=
           (
-            t.diskTotal
+            t.disk.diskTotal
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
           ),
           freeTarget=
-          t.diskFree
+          t.disk.diskFree
           + g.query.prometheus.withFormat('table')
           + g.query.prometheus.withInstant(true),
           groupLabel='mountpoint'
@@ -37,21 +37,21 @@ local utils = commonlib.utils;
         commonlib.panels.disk.timeSeries.available.new(
           'Filesystem space availabe',
           targets=[
-            t.diskFree,
+            t.disk.diskFree,
           ],
           description='Filesystem space utilisation in bytes, by mountpoint.'
         ),
       diskInodesFree:
         commonlib.panels.disk.timeSeries.base.new(
           'Free inodes',
-          targets=[t.diskInodesFree],
+          targets=[t.disk.diskInodesFree],
           description='The inode is a data structure in a Unix-style file system that describes a file-system object such as a file or a directory.'
         )
         + g.panel.timeSeries.standardOptions.withUnit('short'),
       diskInodesTotal:
         commonlib.panels.disk.timeSeries.base.new(
           'Total inodes',
-          targets=[t.diskInodesTotal],
+          targets=[t.disk.diskInodesTotal],
           description='The inode is a data structure in a Unix-style file system that describes a file-system object such as a file or a directory.',
         )
         + g.panel.timeSeries.standardOptions.withUnit('short'),
@@ -59,8 +59,8 @@ local utils = commonlib.utils;
         commonlib.panels.disk.timeSeries.base.new(
           'Filesystems with errors / read-only',
           targets=[
-            t.diskDeviceError,
-            t.diskReadOnly,
+            t.disk.diskDeviceError,
+            t.disk.diskReadOnly,
           ],
           description='',
         )
@@ -69,8 +69,8 @@ local utils = commonlib.utils;
         commonlib.panels.disk.timeSeries.base.new(
           'File descriptors',
           targets=[
-            t.processMaxFds,
-            t.processOpenFds,
+            t.disk.processMaxFds,
+            t.disk.processOpenFds,
           ],
           description=|||
             File descriptor is a handle to an open file or input/output (I/O) resource, such as a network socket or a pipe.
@@ -79,18 +79,18 @@ local utils = commonlib.utils;
         ),
       diskUsagePercentTopK: commonlib.panels.generic.timeSeries.topkPercentage.new(
         title='Disk space usage',
-        target=t.diskUsagePercent,
+        target=t.disk.diskUsagePercent,
         topk=25,
         instanceLabels=this.config.instanceLabels + ['volume'],
         drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
       ),
       diskIOBytesPerSec: commonlib.panels.disk.timeSeries.ioBytesPerSec.new(
-        targets=[t.diskIOreadBytesPerSec, t.diskIOwriteBytesPerSec, t.diskIOutilization]
+        targets=[t.disk.diskIOreadBytesPerSec, t.disk.diskIOwriteBytesPerSec, t.disk.diskIOutilization]
       ),
       diskIOutilPercentTopK:
         commonlib.panels.generic.timeSeries.topkPercentage.new(
           title='Disk IO',
-          target=t.diskIOutilization,
+          target=t.disk.diskIOutilization,
           topk=25,
           instanceLabels=this.config.instanceLabels + ['volume'],
           drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
@@ -98,8 +98,8 @@ local utils = commonlib.utils;
       diskIOps:
         commonlib.panels.disk.timeSeries.iops.new(
           targets=[
-            t.diskIOReads,
-            t.diskIOWrites,
+            t.disk.diskIOReads,
+            t.disk.diskIOWrites,
           ]
         ),
 
@@ -108,13 +108,13 @@ local utils = commonlib.utils;
           'Disk average queue',
           targets=
           [
-            t.diskAvgQueueSize,
+            t.disk.diskAvgQueueSize,
           ]
         ),
       diskIOWaitTime: commonlib.panels.disk.timeSeries.ioWaitTime.new(
         targets=[
-          t.diskIOWaitReadTime,
-          t.diskIOWaitWriteTime,
+          t.disk.diskIOWaitReadTime,
+          t.disk.diskIOWaitWriteTime,
         ]
       ),
     },

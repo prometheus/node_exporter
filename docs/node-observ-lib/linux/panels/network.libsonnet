@@ -1,4 +1,4 @@
-local g = import '../g.libsonnet';
+local g = import '../../g.libsonnet';
 local commonlib = import 'common-lib/common/main.libsonnet';
 local utils = commonlib.utils;
 {
@@ -18,10 +18,10 @@ local utils = commonlib.utils;
               expr: t.expr + '>0',
             },
             [
-              t.networkOutErrorsPerSec,
-              t.networkInErrorsPerSec,
-              t.networkOutDroppedPerSec,
-              t.networkInDroppedPerSec,
+              t.network.networkOutErrorsPerSec,
+              t.network.networkInErrorsPerSec,
+              t.network.networkOutDroppedPerSec,
+              t.network.networkInDroppedPerSec,
             ]
           ),
           description=|||
@@ -53,10 +53,10 @@ local utils = commonlib.utils;
               legendFormat: '{{' + this.config.instanceLabels[0] + '}}: ' + std.get(t, 'legendFormat', '{{ nic }}'),
             },
             [
-              t.networkOutErrorsPerSec,
-              t.networkInErrorsPerSec,
-              t.networkOutDroppedPerSec,
-              t.networkInDroppedPerSec,
+              t.network.networkOutErrorsPerSec,
+              t.network.networkInErrorsPerSec,
+              t.network.networkOutDroppedPerSec,
+              t.network.networkInDroppedPerSec,
             ]
           ),
           description=|||
@@ -85,28 +85,28 @@ local utils = commonlib.utils;
       networkErrorsPerSec:
         commonlib.panels.network.timeSeries.errors.new(
           'Network errors',
-          targets=[t.networkInErrorsPerSec, t.networkOutErrorsPerSec]
+          targets=[t.network.networkInErrorsPerSec, t.network.networkOutErrorsPerSec]
         )
         + commonlib.panels.network.timeSeries.errors.withNegateOutPackets(),
       networkDroppedPerSec:
         commonlib.panels.network.timeSeries.dropped.new(
-          targets=[t.networkInDroppedPerSec, t.networkOutDroppedPerSec]
+          targets=[t.network.networkInDroppedPerSec, t.network.networkOutDroppedPerSec]
         )
         + commonlib.panels.network.timeSeries.errors.withNegateOutPackets(),
       networkUsagePerSec:
         commonlib.panels.network.timeSeries.traffic.new(
-          targets=[t.networkInBitPerSecFiltered, t.networkOutBitPerSecFiltered]
+          targets=[t.network.networkInBitPerSecFiltered, t.network.networkOutBitPerSecFiltered]
         )
         + commonlib.panels.network.timeSeries.traffic.withNegateOutPackets(),
       networkPacketsPerSec:
         commonlib.panels.network.timeSeries.packets.new(
-          targets=[t.networkInPacketsPerSec, t.networkOutPacketsPerSec]
+          targets=[t.network.networkInPacketsPerSec, t.network.networkOutPacketsPerSec]
         )
         + commonlib.panels.network.timeSeries.traffic.withNegateOutPackets(),
       networkMulticastPerSec:
         commonlib.panels.network.timeSeries.multicast.new(
           'Multicast packets',
-          targets=[t.networkInMulticastPacketsPerSec, t.networkOutMulticastPacketsPerSec],
+          targets=[t.network.networkInMulticastPacketsPerSec, t.network.networkOutMulticastPacketsPerSec],
           description='Multicast packets received and transmitted.'
         )
         + commonlib.panels.network.timeSeries.traffic.withNegateOutPackets(),
@@ -114,7 +114,7 @@ local utils = commonlib.utils;
       networkFifo:
         commonlib.panels.network.timeSeries.packets.new(
           'Network FIFO',
-          targets=[t.networkFifoInPerSec, t.networkFifoOutPerSec],
+          targets=[t.network.networkFifoInPerSec, t.network.networkFifoOutPerSec],
           description=|||
             Network FIFO (First-In, First-Out) refers to a buffer used by the network stack to store packets in a queue.
             It is a mechanism used to manage network traffic and ensure that packets are delivered to their destination in the order they were received.
@@ -125,7 +125,7 @@ local utils = commonlib.utils;
       networkCompressedPerSec:
         commonlib.panels.network.timeSeries.packets.new(
           'Compressed packets',
-          targets=[t.networkCompressedInPerSec, t.networkCompressedOutPerSec],
+          targets=[t.network.networkCompressedInPerSec, t.network.networkCompressedOutPerSec],
           description=|||
             - Compressed received: 
             Number of correctly received compressed packets. This counters is only meaningful for interfaces which support packet compression (e.g. CSLIP, PPP).
@@ -140,7 +140,7 @@ local utils = commonlib.utils;
       networkNFConntrack:
         commonlib.panels.generic.timeSeries.base.new(
           'NF conntrack',
-          targets=[t.networkNFConntrackEntries, t.networkNFConntrackLimits],
+          targets=[t.network.networkNFConntrackEntries, t.network.networkNFConntrackLimits],
           description=|||
             NF Conntrack is a component of the Linux kernel's netfilter framework that provides stateful packet inspection to track and manage network connections,
             enforce firewall rules, perform NAT, and manage network address/port translation.
@@ -151,7 +151,7 @@ local utils = commonlib.utils;
       networkSoftnet:
         commonlib.panels.network.timeSeries.packets.new(
           'Softnet packets',
-          targets=[t.networkSoftnetProcessedPerSec, t.networkSoftnetDroppedPerSec],
+          targets=[t.network.networkSoftnetProcessedPerSec, t.network.networkSoftnetDroppedPerSec],
           description=|||
             Softnet packets are received by the network and queued for processing by the kernel's networking stack.
             Softnet packets are usually generated by network traffic that is directed to the local host, and they are typically processed by the kernel's networking subsystem before being passed on to the relevant application. 
@@ -162,7 +162,7 @@ local utils = commonlib.utils;
       networkSoftnetSqueeze:
         commonlib.panels.network.timeSeries.packets.new(
           'Softnet out of quota',
-          targets=[t.networkSoftnetSqueezedPerSec],
+          targets=[t.network.networkSoftnetSqueezedPerSec],
           description=|||
             "Softnet out of quota" is a network-related metric in Linux that measures the number of times the kernel's softirq processing was unable to handle incoming network traffic due to insufficient softirq processing capacity.
             This means that the kernel has reached its processing capacity limit for incoming packets, and any additional packets will be dropped or deferred.
@@ -171,7 +171,7 @@ local utils = commonlib.utils;
       networkOperStatus:
         commonlib.panels.network.statusHistory.interfaceStatus.new(
           'Network interfaces carrier status',
-          targets=[t.networkCarrier],
+          targets=[t.network.networkCarrier],
           description='Network interfaces carrier status',
         ),
       networkOverviewTable:
@@ -179,39 +179,39 @@ local utils = commonlib.utils;
           'Network interfaces overview',
           targets=
           [
-            t.networkUp
+            t.network.networkUp
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Up'),
-            t.networkCarrier
+            t.network.networkCarrier
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Carrier'),
-            t.networkOutBitPerSec
+            t.network.networkOutBitPerSec
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(false)
             + g.query.prometheus.withRefId('Transmitted'),
-            t.networkInBitPerSec
+            t.network.networkInBitPerSec
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(false)
             + g.query.prometheus.withRefId('Received'),
-            t.networkArpEntries
+            t.network.networkArpEntries
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('ARP entries'),
-            t.networkMtuBytes
+            t.network.networkMtuBytes
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('MTU'),
-            t.networkSpeedBitsPerSec
+            t.network.networkSpeedBitsPerSec
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Speed'),
-            t.networkTransmitQueueLength
+            t.network.networkTransmitQueueLength
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Queue length'),
-            t.networkInfo
+            t.network.networkInfo
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Info'),
@@ -311,14 +311,14 @@ local utils = commonlib.utils;
       networkSockstatAll:
         commonlib.panels.generic.timeSeries.base.new(
           'Sockets in use',
-          targets=[t.networkSocketsUsed],
+          targets=[t.network.networkSocketsUsed],
           description='Number of sockets currently in use.',
         ),
 
       networkSockstatTCP:
         commonlib.panels.generic.timeSeries.base.new(
           'Sockets TCP',
-          targets=[t.networkSocketsTCPAllocated, t.networkSocketsTCPIPv4, t.networkSocketsTCPIPv6, t.networkSocketsTCPOrphans, t.networkSocketsTCPTimeWait],
+          targets=[t.network.networkSocketsTCPAllocated, t.network.networkSocketsTCPIPv4, t.network.networkSocketsTCPIPv6, t.network.networkSocketsTCPOrphans, t.network.networkSocketsTCPTimeWait],
           description=|||
             TCP sockets are used for establishing and managing network connections between two endpoints over the TCP/IP protocol.
 
@@ -328,7 +328,7 @@ local utils = commonlib.utils;
       networkSockstatUDP:
         commonlib.panels.generic.timeSeries.base.new(
           'Sockets UDP',
-          targets=[t.networkSocketsUDPLiteInUse, t.networkSocketsUDPInUse, t.networkSocketsUDPLiteIPv6InUse, t.networkSocketsUDPIPv6InUse],
+          targets=[t.network.networkSocketsUDPLiteInUse, t.network.networkSocketsUDPInUse, t.network.networkSocketsUDPLiteIPv6InUse, t.network.networkSocketsUDPIPv6InUse],
           description=|||
             UDP (User Datagram Protocol) and UDPlite (UDP-Lite) sockets are used for transmitting and receiving data over the UDP and UDPlite protocols, respectively.
             Both UDP and UDPlite are connectionless protocols that do not provide a reliable data delivery mechanism.
@@ -337,7 +337,7 @@ local utils = commonlib.utils;
       networkSockstatOther:
         commonlib.panels.generic.timeSeries.base.new(
           'Sockets other',
-          targets=[t.networkSocketsFragInUse, t.networkSocketsFragIPv6InUse, t.networkSocketsRawInUse, t.networkSocketsIPv6RawInUse],
+          targets=[t.network.networkSocketsFragInUse, t.network.networkSocketsFragIPv6InUse, t.network.networkSocketsRawInUse, t.network.networkSocketsIPv6RawInUse],
           description=|||
             FRAG (IP fragment) sockets: Used to receive and process fragmented IP packets. FRAG sockets are useful in network monitoring and analysis.
 
@@ -349,7 +349,7 @@ local utils = commonlib.utils;
         local override = g.panel.timeSeries.standardOptions.override;
         commonlib.panels.generic.timeSeries.base.new(
           title='Sockets memory',
-          targets=[t.networkSocketsTCPMemoryPages, t.networkSocketsUDPMemoryPages, t.networkSocketsTCPMemoryBytes, t.networkSocketsUDPMemoryBytes],
+          targets=[t.network.networkSocketsTCPMemoryPages, t.network.networkSocketsUDPMemoryPages, t.network.networkSocketsTCPMemoryBytes, t.network.networkSocketsUDPMemoryBytes],
           description=|||
             Memory currently in use for sockets.
           |||,
@@ -372,7 +372,7 @@ local utils = commonlib.utils;
         local override = g.panel.timeSeries.standardOptions.override;
         commonlib.panels.network.timeSeries.packets.new(
           'IP octets',
-          targets=[t.networkNetstatIPInOctetsPerSec, t.networkNetstatIPOutOctetsPerSec],
+          targets=[t.network.networkNetstatIPInOctetsPerSec, t.network.networkNetstatIPOutOctetsPerSec],
           description='Rate of IP octets received and transmitted.'
         )
         + commonlib.panels.network.timeSeries.traffic.withNegateOutPackets()
@@ -383,7 +383,7 @@ local utils = commonlib.utils;
         local override = g.panel.timeSeries.standardOptions.override;
         commonlib.panels.network.timeSeries.packets.new(
           'TCP segments',
-          targets=[t.networkNetstatTCPInSegmentsPerSec, t.networkNetstatTCPOutSegmentsPerSec],
+          targets=[t.network.networkNetstatTCPInSegmentsPerSec, t.network.networkNetstatTCPOutSegmentsPerSec],
           description='Rate of TCP segments received and transmitted.'
         )
         + commonlib.panels.network.timeSeries.traffic.withNegateOutPackets()
@@ -395,12 +395,12 @@ local utils = commonlib.utils;
         commonlib.panels.network.timeSeries.errors.new(
           title='TCP errors rate',
           targets=[
-            t.networkNetstatTCPOverflowPerSec,
-            t.networkNetstatTCPListenDropsPerSec,
-            t.networkNetstatTCPRetransPerSec,
-            t.networkNetstatTCPRetransSegPerSec,
-            t.networkNetstatTCPInWithErrorsPerSec,
-            t.networkNetstatTCPOutWithRstPerSec,
+            t.network.networkNetstatTCPOverflowPerSec,
+            t.network.networkNetstatTCPListenDropsPerSec,
+            t.network.networkNetstatTCPRetransPerSec,
+            t.network.networkNetstatTCPRetransSegPerSec,
+            t.network.networkNetstatTCPInWithErrorsPerSec,
+            t.network.networkNetstatTCPOutWithRstPerSec,
           ],
           description='Rate of TCP errors.'
         )
@@ -412,10 +412,10 @@ local utils = commonlib.utils;
         commonlib.panels.network.timeSeries.packets.new(
           'UDP datagrams',
           targets=[
-            t.networkNetstatIPInUDPPerSec,
-            t.networkNetstatIPOutUDPPerSec,
-            t.networkNetstatIPInUDP6PerSec,
-            t.networkNetstatIPOutUDP6PerSec,
+            t.network.networkNetstatIPInUDPPerSec,
+            t.network.networkNetstatIPOutUDPPerSec,
+            t.network.networkNetstatIPInUDP6PerSec,
+            t.network.networkNetstatIPOutUDP6PerSec,
           ],
           description='Rate of UDP datagrams received and transmitted.'
         )
@@ -428,15 +428,15 @@ local utils = commonlib.utils;
         commonlib.panels.network.timeSeries.errors.new(
           title='UDP errors rate',
           targets=[
-            t.networkNetstatUDPLiteInErrorsPerSec,
-            t.networkNetstatUDPInErrorsPerSec,
-            t.networkNetstatUDP6InErrorsPerSec,
-            t.networkNetstatUDPNoPortsPerSec,
-            t.networkNetstatUDP6NoPortsPerSec,
-            t.networkNetstatUDPRcvBufErrsPerSec,
-            t.networkNetstatUDP6RcvBufErrsPerSec,
-            t.networkNetstatUDPSndBufErrsPerSec,
-            t.networkNetstatUDP6SndBufErrsPerSec,
+            t.network.networkNetstatUDPLiteInErrorsPerSec,
+            t.network.networkNetstatUDPInErrorsPerSec,
+            t.network.networkNetstatUDP6InErrorsPerSec,
+            t.network.networkNetstatUDPNoPortsPerSec,
+            t.network.networkNetstatUDP6NoPortsPerSec,
+            t.network.networkNetstatUDPRcvBufErrsPerSec,
+            t.network.networkNetstatUDP6RcvBufErrsPerSec,
+            t.network.networkNetstatUDPSndBufErrsPerSec,
+            t.network.networkNetstatUDP6SndBufErrsPerSec,
           ],
           description='Rate of UDP errors.'
         )
@@ -448,10 +448,10 @@ local utils = commonlib.utils;
         commonlib.panels.network.timeSeries.packets.new(
           'ICMP messages',
           targets=[
-            t.networkNetstatICMPInPerSec,
-            t.networkNetstatICMPOutPerSec,
-            t.networkNetstatICMP6InPerSec,
-            t.networkNetstatICMP6OutPerSec,
+            t.network.networkNetstatICMPInPerSec,
+            t.network.networkNetstatICMPOutPerSec,
+            t.network.networkNetstatICMP6InPerSec,
+            t.network.networkNetstatICMP6OutPerSec,
           ],
           description="Rate of ICMP messages, like 'ping', received and transmitted."
         )
@@ -464,8 +464,8 @@ local utils = commonlib.utils;
         commonlib.panels.network.timeSeries.errors.new(
           title='ICMP errors rate',
           targets=[
-            t.networkNetstatICMPInErrorsPerSec,
-            t.networkNetstatICM6PInErrorsPerSec,
+            t.network.networkNetstatICMPInErrorsPerSec,
+            t.network.networkNetstatICM6PInErrorsPerSec,
           ],
           description='Rate of ICMP messages received and transmitted with errors.'
         )

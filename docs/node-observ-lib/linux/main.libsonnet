@@ -7,7 +7,7 @@ local g = import './g.libsonnet';
 local links = import './links.libsonnet';
 local panels = import './panels/main.libsonnet';
 local rules = import './rules.libsonnet';
-local targets = import './targets.libsonnet';
+local targets = import './targets/main.libsonnet';
 local variables = import './variables.libsonnet';
 local commonlib = import 'common-lib/common/main.libsonnet';
 

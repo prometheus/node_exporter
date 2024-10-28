@@ -22,12 +22,12 @@ local utils = commonlib.utils;
             |||
           )
           + g.panel.timeSeries.queryOptions.withTargets([
-            t.memoryUsedBytes,
-            t.memoryTotalBytes,
-            t.memoryAppBytes,
-            t.memoryWiredBytes,
-            t.memoryCompressedBytes,
-            t.memorySwapUsedBytes,
+            t.memory.memoryUsedBytes,
+            t.memory.memoryTotalBytes,
+            t.memory.memoryAppBytes,
+            t.memory.memoryWiredBytes,
+            t.memory.memoryCompressedBytes,
+            t.memory.memorySwapUsedBytes,
           ])
           + commonlib.panels.generic.timeSeries.threshold.stylizeByRegexp('Physical memory'),
       },

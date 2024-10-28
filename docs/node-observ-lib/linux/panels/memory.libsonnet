@@ -1,4 +1,4 @@
-local g = import '../g.libsonnet';
+local g = import '../../g.libsonnet';
 local commonlib = import 'common-lib/common/main.libsonnet';
 local utils = commonlib.utils;
 {
@@ -9,11 +9,11 @@ local utils = commonlib.utils;
       local fieldOverride = g.panel.table.fieldOverride,
       local instanceLabel = this.config.instanceLabels[0],
 
-      memoryTotalBytes: commonlib.panels.memory.stat.total.new(targets=[t.memoryTotalBytes]),
+      memoryTotalBytes: commonlib.panels.memory.stat.total.new(targets=[t.memory.memoryTotalBytes]),
       memorySwapTotalBytes:
         commonlib.panels.memory.stat.total.new(
           'Total swap',
-          targets=[t.memorySwapTotal],
+          targets=[t.memory.memorySwapTotal],
           description=|||
             Total swap available.
 
@@ -23,10 +23,10 @@ local utils = commonlib.utils;
             freeing up physical memory for active processes and applications.
           |||
         ),
-      memoryUsageStatPercent: commonlib.panels.memory.stat.usage.new(targets=[t.memoryUsagePercent]),
+      memoryUsageStatPercent: commonlib.panels.memory.stat.usage.new(targets=[t.memory.memoryUsagePercent]),
       memotyUsageTopKPercent: commonlib.panels.generic.timeSeries.topkPercentage.new(
         title='Memory usage',
-        target=t.memoryUsagePercent,
+        target=t.memory.memoryUsagePercent,
         topk=25,
         instanceLabels=this.config.instanceLabels,
         drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
@@ -34,12 +34,12 @@ local utils = commonlib.utils;
       memoryUsageTsBytes:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           targets=[
-            t.memoryUsedBytes,
-            t.memoryCachedBytes,
-            t.memoryAvailableBytes,
-            t.memoryBuffersBytes,
-            t.memoryFreeBytes,
-            t.memoryTotalBytes,
+            t.memory.memoryUsedBytes,
+            t.memory.memoryCachedBytes,
+            t.memory.memoryAvailableBytes,
+            t.memory.memoryBuffersBytes,
+            t.memory.memoryFreeBytes,
+            t.memory.memoryTotalBytes,
           ],
           description=
           |||
@@ -58,8 +58,8 @@ local utils = commonlib.utils;
               options: {
                 mode: 'exclude',
                 names: [
-                  t.memoryTotalBytes.legendFormat,
-                  t.memoryUsedBytes.legendFormat,
+                  t.memory.memoryTotalBytes.legendFormat,
+                  t.memory.memoryUsedBytes.legendFormat,
                 ],
                 prefix: 'All except:',
                 readOnly: true,
@@ -81,7 +81,7 @@ local utils = commonlib.utils;
       memoryPagesInOut:
         commonlib.panels.memory.timeSeries.base.new(
           'Memory pages in / out',
-          targets=[t.memoryPagesIn, t.memoryPagesOut],
+          targets=[t.memory.memoryPagesIn, t.memory.memoryPagesOut],
           description=|||
             Page-In - Return of pages to physical memory. This is a common and normal event.
 
@@ -96,7 +96,7 @@ local utils = commonlib.utils;
       memoryPagesSwapInOut:
         commonlib.panels.memory.timeSeries.base.new(
           'Memory pages swapping in / out',
-          targets=[t.memoryPagesSwapIn, t.memoryPagesSwapOut],
+          targets=[t.memory.memoryPagesSwapIn, t.memory.memoryPagesSwapOut],
           description=|||
             Compared to the speed of the CPU and main memory, writing pages out to disk is relatively slow.
             Nonetheless, it is a preferable option to crashing or killing off processes.
@@ -112,7 +112,7 @@ local utils = commonlib.utils;
       memoryPagesFaults:
         commonlib.panels.memory.timeSeries.base.new(
           'Memory page faults',
-          targets=[t.memoryPageMajorFaults, t.memoryPageMinorFaults],
+          targets=[t.memory.memoryPageMajorFaults, t.memory.memoryPageMinorFaults],
           description=|||
             A page fault is an exception raised by the memory when a process accesses a memory page without the necessary preparations,
             requiring a mapping to be added to the process's virtual address space.
@@ -126,7 +126,7 @@ local utils = commonlib.utils;
       memoryOOMkiller:
         commonlib.panels.memory.timeSeries.base.new(
           'OOM Killer',
-          targets=[t.memoryOOMkiller],
+          targets=[t.events.memoryOOMkiller],
           description=|||
             Out Of Memory killer is a process used by the Linux kernel when the system is running critically low on memory.
 
@@ -137,7 +137,7 @@ local utils = commonlib.utils;
       memoryActiveInactive:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory active / inactive',
-          targets=[t.memoryActiveBytes, t.memoryInactiveBytes],
+          targets=[t.memory.memoryActiveBytes, t.memory.memoryInactiveBytes],
           description=|||
             - Inactive: Memory which has been less recently used. It is more eligible to be reclaimed for other purposes.
             - Active: Memory that has been used more recently and usually not reclaimed unless absolutely necessary.
@@ -147,7 +147,7 @@ local utils = commonlib.utils;
       memoryActiveInactiveDetail:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory active / inactive details',
-          targets=[t.memoryInactiveFile, t.memoryInactiveAnon, t.memoryActiveFile, t.memoryActiveAnon],
+          targets=[t.memory.memoryInactiveFile, t.memory.memoryInactiveAnon, t.memory.memoryActiveFile, t.memory.memoryActiveAnon],
           description=|||
             - Inactive_file: File-backed memory on inactive LRU list.
             - Inactive_anon: Anonymous and swap cache on inactive LRU list, including tmpfs (shmem).
@@ -159,7 +159,7 @@ local utils = commonlib.utils;
       memoryCommited:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory commited',
-          targets=[t.memoryCommitedAs, t.memoryCommitedLimit],
+          targets=[t.memory.memoryCommitedAs, t.memory.memoryCommitedLimit],
           description=|||
             - Committed_AS - Amount of memory presently allocated on the system.
             - CommitLimit - Amount of memory currently available to be allocated on the system.
@@ -169,7 +169,7 @@ local utils = commonlib.utils;
       memorySharedAndMapped:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory shared and mapped',
-          targets=[t.memoryMappedBytes, t.memoryShmemBytes, t.memoryShmemPmdMappedBytes, t.memoryShmemHugePagesBytes],
+          targets=[t.memory.memoryMappedBytes, t.memory.memoryShmemBytes, t.memory.memoryShmemPmdMappedBytes, t.memory.memoryShmemHugePagesBytes],
           description=|||
             - Mapped: This refers to the memory used in mapped page files that have been memory mapped, such as libraries.
             - Shmem: This is the memory used by shared memory, which is shared between multiple processes, including RAM disks.
@@ -180,7 +180,7 @@ local utils = commonlib.utils;
       memoryWriteAndDirty:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory writeback and dirty',
-          targets=[t.memoryWriteback, t.memoryWritebackTmp, t.memoryDirty],
+          targets=[t.memory.memoryWriteback, t.memory.memoryWritebackTmp, t.memory.memoryDirty],
           description=|||
             - Writeback: This refers to the memory that is currently being actively written back to the disk.
             - WritebackTmp: This is the memory used by FUSE for temporary writeback buffers.
@@ -190,7 +190,7 @@ local utils = commonlib.utils;
       memoryVmalloc:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory Vmalloc',
-          targets=[t.memoryVmallocChunk, t.memoryVmallocTotal, t.memoryVmallocUsed],
+          targets=[t.memory.memoryVmallocChunk, t.memory.memoryVmallocTotal, t.memory.memoryVmallocUsed],
           description=|||
             Virtual Memory Allocation is a type of memory allocation in Linux that allows a process to request a contiguous block of memory larger than the amount of physically available memory. This is achieved by mapping the requested memory to virtual addresses that are backed by a combination of physical memory and swap space on disk.
 
@@ -202,7 +202,7 @@ local utils = commonlib.utils;
       memorySlab:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory slab',
-          targets=[t.memorySlabSUnreclaim, t.memorySlabSReclaimable],
+          targets=[t.memory.memorySlabSUnreclaim, t.memory.memorySlabSReclaimable],
           description=|||
             Slab Allocation is a type of memory allocation in Linux that allows the kernel to efficiently manage the allocation and deallocation of small and frequently used data structures, such as network packets, file system objects, and process descriptors.
 
@@ -215,7 +215,7 @@ local utils = commonlib.utils;
       memoryAnonymous:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory slab',
-          targets=[t.memoryAnonHugePages, t.memoryAnonPages],
+          targets=[t.memory.memoryAnonHugePages, t.memory.memoryAnonPages],
           description=|||
             Memory Anonymous refers to the portion of the virtual memory that is used by a process for dynamically allocated memory that is not backed by any file or device.
 
@@ -233,7 +233,7 @@ local utils = commonlib.utils;
       memoryHugePagesCounter:
         commonlib.panels.memory.timeSeries.base.new(
           'Memory HugePages counter',
-          targets=[t.memoryHugePages_Free, t.memoryHugePages_Rsvd, t.memoryHugePages_Surp],
+          targets=[t.memory.memoryHugePages_Free, t.memory.memoryHugePages_Rsvd, t.memory.memoryHugePages_Surp],
           description=
           |||
             Huge Pages are a feature that allows for the allocation of larger memory pages than the standard 4KB page size. By using larger page sizes, the kernel can reduce the overhead associated with managing a large number of smaller pages, which can improve system performance for certain workloads.
@@ -246,7 +246,7 @@ local utils = commonlib.utils;
       memoryHugePagesSize:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory HugePages size',
-          targets=[t.memoryHugePagesTotalSize, t.memoryHugePagesSize],
+          targets=[t.memory.memoryHugePagesTotalSize, t.memory.memoryHugePagesSize],
 
           description=|||
             Huge Pages are a feature that allows for the allocation of larger memory pages than the standard 4KB page size. By using larger page sizes, the kernel can reduce the overhead associated with managing a large number of smaller pages, which can improve system performance for certain workloads.
@@ -256,7 +256,7 @@ local utils = commonlib.utils;
       memoryDirectMap:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory direct map',
-          targets=[t.memoryDirectMap1G, t.memoryDirectMap2M, t.memoryDirectMap4k],
+          targets=[t.memory.memoryDirectMap1G, t.memory.memoryDirectMap2M, t.memory.memoryDirectMap4k],
 
           description=|||
             Direct Map memory refers to the portion of the kernel's virtual address space that is directly mapped to physical memory. This mapping is set up by the kernel during boot time and is used to provide fast access to certain critical kernel data structures, such as page tables and interrupt descriptor tables.
@@ -265,7 +265,7 @@ local utils = commonlib.utils;
       memoryBounce:
         commonlib.panels.memory.timeSeries.usageBytes.new(
           'Memory bounce',
-          targets=[t.memoryBounce],
+          targets=[t.memory.memoryBounce],
           description=|||
             Memory bounce is a technique used in the Linux kernel to handle situations where direct memory access (DMA) is required but the physical memory being accessed is not contiguous. This can happen when a device, such as a network interface card or a disk controller, requires access to a large amount of memory that is not available as a single contiguous block.
 

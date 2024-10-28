@@ -1,4 +1,4 @@
-local g = import '../g.libsonnet';
+local g = import '../../g.libsonnet';
 local commonlib = import 'common-lib/common/main.libsonnet';
 local utils = commonlib.utils;
 {
@@ -9,20 +9,20 @@ local utils = commonlib.utils;
       local fieldOverride = g.panel.table.fieldOverride,
       local instanceLabel = this.config.instanceLabels[0],
 
-      uptime: commonlib.panels.system.stat.uptime.new(targets=[t.uptime]),
+      uptime: commonlib.panels.system.stat.uptime.new(targets=[t.system.uptime]),
 
       systemLoad:
         commonlib.panels.system.timeSeries.loadAverage.new(
-          loadTargets=[t.systemLoad1, t.systemLoad5, t.systemLoad15],
-          cpuCountTarget=t.cpuCount,
+          loadTargets=[t.system.systemLoad1, t.system.systemLoad5, t.system.systemLoad15],
+          cpuCountTarget=t.cpu.cpuCount,
         ),
 
       systemContextSwitchesAndInterrupts:
         commonlib.panels.generic.timeSeries.base.new(
           'Context switches/Interrupts',
           targets=[
-            t.systemContextSwitches,
-            t.systemInterrupts,
+            t.system.systemContextSwitches,
+            t.system.systemInterrupts,
           ],
           description=|||
             Context switches occur when the operating system switches from running one process to another. Interrupts are signals sent to the CPU by external devices to request its attention.
@@ -34,7 +34,7 @@ local utils = commonlib.utils;
       timeNtpStatus:
         commonlib.panels.system.statusHistory.ntp.new(
           'NTP status',
-          targets=[t.timeNtpStatus],
+          targets=[t.system.timeNtpStatus],
           description='Status of time synchronization.'
         )
         + g.panel.timeSeries.standardOptions.withNoValue('No data.')
@@ -43,9 +43,9 @@ local utils = commonlib.utils;
         commonlib.panels.generic.timeSeries.base.new(
           'Time synchronized drift',
           targets=[
-            t.timeEstimatedError,
-            t.timeOffset,
-            t.timeMaxError,
+            t.system.timeEstimatedError,
+            t.system.timeOffset,
+            t.system.timeMaxError,
           ],
           description=|||
             Time synchronization is essential to ensure accurate timekeeping, which is critical for many system operations such as logging, authentication, and network communication, as well as distributed systems or clusters where data consistency is important.
@@ -55,24 +55,24 @@ local utils = commonlib.utils;
         + g.panel.timeSeries.standardOptions.withNoValue('No data.'),
       osInfo: commonlib.panels.generic.stat.info.new(
         'OS',
-        targets=[t.osInfo],
+        targets=[t.system.osInfo],
         description='Operating system'
       )
               { options+: { reduceOptions+: { fields: '/^pretty_name$/' } } },
       kernelVersion:
         commonlib.panels.generic.stat.info.new('Kernel version',
-                                               targets=[t.unameInfo],
+                                               targets=[t.system.unameInfo],
                                                description='Kernel version of linux host.')
         { options+: { reduceOptions+: { fields: '/^release$/' } } },
       osTimezone:
         commonlib.panels.generic.stat.info.new(
-          'Timezone', targets=[t.osTimezone], description='Current system timezone.'
+          'Timezone', targets=[t.system.osTimezone], description='Current system timezone.'
         )
         { options+: { reduceOptions+: { fields: '/^time_zone$/' } } },
       hostname:
         commonlib.panels.generic.stat.info.new(
           'Hostname',
-          targets=[t.unameInfo],
+          targets=[t.system.unameInfo],
           description="System's hostname."
         )
         { options+: { reduceOptions+: { fields: '/^nodename$/' } } },

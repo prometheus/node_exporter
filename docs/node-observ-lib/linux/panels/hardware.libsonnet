@@ -1,4 +1,4 @@
-local g = import '../g.libsonnet';
+local g = import '../../g.libsonnet';
 local commonlib = import 'common-lib/common/main.libsonnet';
 local utils = commonlib.utils;
 {
@@ -11,7 +11,7 @@ local utils = commonlib.utils;
       hardwareTemperature:
         commonlib.panels.hardware.timeSeries.temperature.new(
           'Temperature',
-          targets=[t.hardwareTemperature]
+          targets=[t.hardware.hardwareTemperature]
         ),
     },
 }

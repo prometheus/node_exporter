@@ -1,4 +1,4 @@
-local g = import '../g.libsonnet';
+local g = import '../../g.libsonnet';
 local commonlib = import 'common-lib/common/main.libsonnet';
 local utils = commonlib.utils;
 {
@@ -13,47 +13,47 @@ local utils = commonlib.utils;
           'Fleet overview',
           targets=
           [
-            t.osInfoCombined
+            t.system.osInfoCombined
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('OS Info'),
-            t.uptime
+            t.system.uptime
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Uptime'),
-            t.systemLoad1
+            t.system.systemLoad1
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Load 1'),
-            t.cpuCount
+            t.cpu.cpuCount
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Cores'),
-            t.cpuUsage
+            t.cpu.cpuUsage
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('CPU usage'),
-            t.memoryTotalBytes
+            t.memory.memoryTotalBytes
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Memory total'),
-            t.memoryUsagePercent
+            t.memory.memoryUsagePercent
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Memory usage'),
-            t.diskTotalRoot
+            t.disk.diskTotalRoot
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Root mount size'),
-            t.diskUsageRootPercent
+            t.disk.diskUsageRootPercent
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('Root mount used'),
-            t.alertsCritical
+            t.alerts.alertsCritical
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('CRITICAL'),
-            t.alertsWarning
+            t.alerts.alertsWarning
             + g.query.prometheus.withFormat('table')
             + g.query.prometheus.withInstant(true)
             + g.query.prometheus.withRefId('WARNING'),
