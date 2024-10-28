@@ -5,8 +5,6 @@ local prometheus = grafana.prometheus;
 local template = grafana.template;
 local graphPanel = grafana.graphPanel;
 
-local c = import '../config.libsonnet';
-
 local datasourceTemplate = {
   current: {
     text: 'default',
@@ -25,6 +23,7 @@ local datasourceTemplate = {
 local CPUUtilisation =
   graphPanel.new(
     'CPU Utilisation',
+    description='Total CPU utilisation percent.',
     datasource='$datasource',
     span=6,
     format='percentunit',
@@ -38,6 +37,7 @@ local CPUSaturation =
   // average relates to the "CPU saturation" in the title.
   graphPanel.new(
     'CPU Saturation (Load1 per CPU)',
+    description='System load average over the last minute. A measurement of how many processes are waiting for CPU cycles. The value is as a percent compared to the number of CPU cores for the node.',
     datasource='$datasource',
     span=6,
     format='percentunit',
@@ -49,6 +49,7 @@ local CPUSaturation =
 local memoryUtilisation =
   graphPanel.new(
     'Memory Utilisation',
+    description='Total memory utilisation in percent.',
     datasource='$datasource',
     span=6,
     format='percentunit',
@@ -60,6 +61,7 @@ local memoryUtilisation =
 local memorySaturation =
   graphPanel.new(
     'Memory Saturation (Major Page Faults)',
+    description='Rate of major memory page faults.',
     datasource='$datasource',
     span=6,
     format='rds',
@@ -71,6 +73,7 @@ local memorySaturation =
 local networkUtilisation =
   graphPanel.new(
     'Network Utilisation (Bytes Receive/Transmit)',
+    description='Network Utilisation (Bytes Receive/Transmit)',
     datasource='$datasource',
     span=6,
     format='Bps',
@@ -85,6 +88,7 @@ local networkUtilisation =
 local networkSaturation =
   graphPanel.new(
     'Network Saturation (Drops Receive/Transmit)',
+    description='Network Saturation (Drops Receive/Transmit)',
     datasource='$datasource',
     span=6,
     format='Bps',
@@ -99,6 +103,7 @@ local networkSaturation =
 local diskIOUtilisation =
   graphPanel.new(
     'Disk IO Utilisation',
+    description='Disk total IO seconds.',
     datasource='$datasource',
     span=6,
     format='percentunit',
@@ -110,6 +115,7 @@ local diskIOUtilisation =
 local diskIOSaturation =
   graphPanel.new(
     'Disk IO Saturation',
+    description='Disk saturation (weighted seconds spent, 1 second rate)',
     datasource='$datasource',
     span=6,
     format='percentunit',
@@ -121,6 +127,7 @@ local diskIOSaturation =
 local diskSpaceUtilisation =
   graphPanel.new(
     'Disk Space Utilisation',
+    description='Total disk utilisation percent',
     datasource='$datasource',
     span=12,
     format='percentunit',
@@ -146,11 +153,12 @@ local diskSpaceUtilisation =
 
                            dashboard.new(
                              '%sUSE Method / Node' % $._config.dashboardNamePrefix,
-                             time_from='now-1h',
+                             time_from=$._config.dashboardInterval,
                              tags=($._config.dashboardTags),
-                             timezone='utc',
-                             refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             timezone=$._config.dashboardTimezone,
+                             refresh=$._config.dashboardRefresh,
+                             graphTooltip='shared_crosshair',
+                             uid=$._config.grafanaDashboardIDs['node-rsrc-use.json'],
                            )
                            .addTemplate(datasourceTemplate)
                            .addTemplate($._clusterTemplate)
@@ -211,11 +219,12 @@ local diskSpaceUtilisation =
                          'node-cluster-rsrc-use.json':
                            dashboard.new(
                              '%sUSE Method / Cluster' % $._config.dashboardNamePrefix,
-                             time_from='now-1h',
+                             time_from=$._config.dashboardInterval,
                              tags=($._config.dashboardTags),
-                             timezone='utc',
-                             refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             timezone=$._config.dashboardTimezone,
+                             refresh=$._config.dashboardRefresh,
+                             graphTooltip='shared_crosshair',
+                             uid=$._config.grafanaDashboardIDs['node-cluster-rsrc-use.json'],
                            )
                            .addTemplate(datasourceTemplate)
                            .addTemplate($._clusterTemplate)
@@ -322,11 +331,12 @@ local diskSpaceUtilisation =
                          'node-multicluster-rsrc-use.json':
                            dashboard.new(
                              '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,
-                             time_from='now-1h',
+                             time_from=$._config.dashboardInterval,
                              tags=($._config.dashboardTags),
-                             timezone='utc',
-                             refresh='30s',
-                             graphTooltip='shared_crosshair'
+                             timezone=$._config.dashboardTimezone,
+                             refresh=$._config.dashboardRefresh,
+                             graphTooltip='shared_crosshair',
+                             uid=$._config.grafanaDashboardIDs['node-multicluster-rsrc-use.json'],
                            )
                            .addTemplate(datasourceTemplate)
                            .addRow(

@@ -7,7 +7,7 @@
   // 'instanceLabels' - one or more labels that can be used to identify single entity of instances. In simple cases, can be 'instance' or 'pod'.
   // 'uid' - UID to prefix all dashboards original uids
 
-  filteringSelector: std.get(self, 'nodeExporterSelector', default='"job="node"'),
+  filteringSelector: std.get(self, 'nodeExporterSelector', default='job="node"'),
   groupLabels: ['job'],
   instanceLabels: ['instance'],
   dashboardNamePrefix: 'Node exporter / ',
@@ -72,7 +72,7 @@
   fsSpaceAvailableWarningThreshold: 5,
   fsSpaceAvailableCriticalThreshold: 3,
 
-  // Memory utilization (%) level on which to trigger the
+  // Memory utilzation (%) level on which to trigger the
   // 'NodeMemoryHighUtilization' alert.
   memoryHighUtilizationThreshold: 90,
 
@@ -84,11 +84,17 @@
   // 'NodeDiskIOSaturation' alert.
   diskIOSaturationThreshold: 10,
 
+  // Enable hardware related panels and alerts (temp sensors)
+  enableHardware: false,
+  // Temperature sensor treshold
+  temperatureWarnTreshold: 80,
+
   rateInterval: '5m',
 
   dashboardPeriod: 'now-1h',
   dashboardTimezone: 'default',
   dashboardRefresh: '1m',
+
   // logs lib related
   enableLokiLogs: false,
   extraLogLabels: ['transport', 'unit', 'level'],

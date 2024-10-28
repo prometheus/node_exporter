@@ -2,7 +2,7 @@
   prometheusAlerts+:: {
     groups+: [
       {
-        name: 'node-exporter',
+        name: 'node-exporter-filesystem',
         rules: [
           {
             alert: 'NodeFilesystemSpaceFillingUp',
@@ -156,6 +156,11 @@
               description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.',
             },
           },
+        ],
+      },
+      {
+        name: 'node-exporter',
+        rules: [
           {
             alert: 'NodeNetworkReceiveErrs',
             expr: |||
