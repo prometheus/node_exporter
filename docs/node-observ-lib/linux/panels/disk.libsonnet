@@ -82,7 +82,7 @@ local utils = commonlib.utils;
         target=t.diskUsagePercent,
         topk=25,
         instanceLabels=this.config.instanceLabels + ['volume'],
-        drillDownDashboardUid=this.grafana.dashboards.overview.uid,
+        drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
       ),
       diskIOBytesPerSec: commonlib.panels.disk.timeSeries.ioBytesPerSec.new(
         targets=[t.diskIOreadBytesPerSec, t.diskIOwriteBytesPerSec, t.diskIOutilization]
@@ -93,7 +93,7 @@ local utils = commonlib.utils;
           target=t.diskIOutilization,
           topk=25,
           instanceLabels=this.config.instanceLabels + ['volume'],
-          drillDownDashboardUid=this.grafana.dashboards.overview.uid,
+          drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
         ),
       diskIOps:
         commonlib.panels.disk.timeSeries.iops.new(

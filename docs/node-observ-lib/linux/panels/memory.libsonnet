@@ -29,7 +29,7 @@ local utils = commonlib.utils;
         target=t.memoryUsagePercent,
         topk=25,
         instanceLabels=this.config.instanceLabels,
-        drillDownDashboardUid=this.grafana.dashboards.overview.uid,
+        drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
       ),
       memoryUsageTsBytes:
         commonlib.panels.memory.timeSeries.usageBytes.new(

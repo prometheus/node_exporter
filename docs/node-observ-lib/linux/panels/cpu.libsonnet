@@ -18,7 +18,7 @@ local utils = commonlib.utils;
         target=t.cpuUsage,
         topk=25,
         instanceLabels=this.config.instanceLabels,
-        drillDownDashboardUid=this.grafana.dashboards.overview.uid,
+        drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
       ),
       cpuUsageStat: commonlib.panels.cpu.stat.usage.new(targets=[t.cpuUsage]),
       cpuUsageByMode: commonlib.panels.cpu.timeSeries.utilizationByMode.new(

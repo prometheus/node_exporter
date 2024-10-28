@@ -82,7 +82,7 @@ local utils = commonlib.utils;
             {
               targetBlank: false,
               title: 'Drill down to ${__field.name} ${__value.text}',
-              url: 'd/%s?var-%s=${__data.fields.%s}&${__url_time_range}&${datasource:queryparam}' % [this.grafana.dashboards.overview.uid, instanceLabel, instanceLabel],
+              url: 'd/%s?var-%s=${__data.fields.%s}&${__url_time_range}&${datasource:queryparam}' % [this.grafana.dashboards['overview.json'].uid, instanceLabel, instanceLabel],
             },
           ]),
           fieldOverride.byRegexp.new(std.join('|', std.map(utils.toSentenceCase, this.config.groupLabels)))
@@ -91,7 +91,7 @@ local utils = commonlib.utils;
             {
               targetBlank: false,
               title: 'Filter by ${__field.name}',
-              url: 'd/%s?var-${__field.name}=${__value.text}&${__url_time_range}&${datasource:queryparam}' % [this.grafana.dashboards.fleet.uid],
+              url: 'd/%s?var-${__field.name}=${__value.text}&${__url_time_range}&${datasource:queryparam}' % [this.grafana.dashboards['fleet.json'].uid],
             },
           ]),
           fieldOverride.byName.new('Cores')
