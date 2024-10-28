@@ -214,7 +214,7 @@ local utils = commonlib.utils;
         ),
       memoryAnonymous:
         commonlib.panels.memory.timeSeries.usageBytes.new(
-          'Memory slab',
+          'Memory anonymous',
           targets=[t.memory.memoryAnonHugePages, t.memory.memoryAnonPages],
           description=|||
             Memory Anonymous refers to the portion of the virtual memory that is used by a process for dynamically allocated memory that is not backed by any file or device.
