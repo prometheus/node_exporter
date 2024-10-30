@@ -219,6 +219,10 @@ local utils = commonlib.utils;
           description='Network interfaces overview.'
         )
         + g.panel.table.standardOptions.withOverridesMixin([
+          fieldOverride.byName.new('Interface')
+          + fieldOverride.byName.withProperty('custom.filterable', true),
+        ])
+        + g.panel.table.standardOptions.withOverridesMixin([
           fieldOverride.byName.new('Speed')
           + fieldOverride.byName.withPropertiesFromOptions(
             table.standardOptions.withUnit('bps')
@@ -226,7 +230,13 @@ local utils = commonlib.utils;
         ])
         + g.panel.table.standardOptions.withOverridesMixin([
           fieldOverride.byRegexp.new('Transmitted|Received')
-          + fieldOverride.byRegexp.withProperty('custom.displayMode', 'gradient-gauge')
+          + fieldOverride.byRegexp.withProperty(
+            'custom.cellOptions', {
+              type: 'gauge',
+              mode: 'gradient',
+              valueDisplayMode: 'text',
+            }
+          )
           + fieldOverride.byRegexp.withPropertiesFromOptions(
             table.standardOptions.withUnit('bps')
             + table.standardOptions.color.withMode('continuous-BlYlRd')
@@ -235,7 +245,11 @@ local utils = commonlib.utils;
         ])
         + g.panel.table.standardOptions.withOverridesMixin([
           fieldOverride.byRegexp.new('Carrier|Up')
-          + fieldOverride.byRegexp.withProperty('custom.displayMode', 'color-text')
+          + fieldOverride.byRegexp.withProperty(
+            'custom.cellOptions', {
+              type: 'color-text',
+            }
+          )
           + fieldOverride.byRegexp.withPropertiesFromOptions(
             table.standardOptions.withMappings(
               {

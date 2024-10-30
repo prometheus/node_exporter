@@ -8,8 +8,18 @@
           "subdir": "gen/grafonnet-v10.0.0"
         }
       },
-      "version": "bb2afaffbcefeae1035cd691ab06a486e0022002",
-      "sum": "gj/20VIGucG2vDGjG7YdHLC4yUUfrpuaneUYaRmymOM="
+      "version": "1ce5aec95ce32336fe47c8881361847c475b5254",
+      "sum": "xdcrJPJlpkq4+5LpGwN4tPAuheNNLXZjE6tDcyvFjr0="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/grafana/grafonnet.git",
+          "subdir": "gen/grafonnet-v11.0.0"
+        }
+      },
+      "version": "1ce5aec95ce32336fe47c8881361847c475b5254",
+      "sum": "0BvzR0i4bS4hc2O3xDv6i9m52z7mPrjvqxtcPrGhynA="
     },
     {
       "source": {
@@ -18,8 +28,8 @@
           "subdir": "common-lib"
         }
       },
-      "version": "eb731883044fc58f255d79c2a8d78a5854084e05",
-      "sum": "DqKb0LXimrOgvBIP6aXifpvJlBGUirY+FtY3xE1Hqdw="
+      "version": "b9761545ddeac33ffe25bd87121076eab258c6f1",
+      "sum": "tfvNQmtjIkqbgy7FU3FDy34OYoZhWskDCQanbiScaHU="
     },
     {
       "source": {
@@ -28,8 +38,8 @@
           "subdir": "logs-lib"
         }
       },
-      "version": "eb731883044fc58f255d79c2a8d78a5854084e05",
-      "sum": "IkBo9nj0Qt1eC9w80dO5SI4yvHzmmXcKx5BK8H8U0Mk="
+      "version": "b9761545ddeac33ffe25bd87121076eab258c6f1",
+      "sum": "05RYR0TOrWza0n8lgF9K7naGY7kM6OTBePsoiJw2TUE="
     },
     {
       "source": {
@@ -38,8 +48,8 @@
           "subdir": "doc-util"
         }
       },
-      "version": "503e5c8fe96d6b55775037713ac10b184709ad93",
-      "sum": "BY4u0kLF3Qf/4IB4HnX9S5kEQIpHb4MUrppp6WLDtlU="
+      "version": "6ac6c69685b8c29c54515448eaca583da2d88150",
+      "sum": "BrAL/k23jq+xy9oA7TWIhUx07dsA/QLm3g7ktCwe//U="
     },
     {
       "source": {
@@ -48,8 +58,18 @@
           "subdir": ""
         }
       },
-      "version": "c1a315a7dbead0335a5e0486acc5583395b22a24",
-      "sum": "UVdL+uuFI8BSQgLfMJEJk2WDKsQXNT3dRHcr2Ti9rLI="
+      "version": "63d430b69a95741061c2f7fc9d84b1a778511d9c",
+      "sum": "qiZi3axUSXCVzKUF83zSAxklwrnitMmrDK4XAfjPMdE="
+    },
+    {
+      "source": {
+        "git": {
+          "remote": "https://github.com/yugui/jsonnetunit.git",
+          "subdir": "jsonnetunit"
+        }
+      },
+      "version": "6927c58cae7624a00f368b977ccc477d4f74071f",
+      "sum": "9FFqqln65hooRF0l6rjICDtnTxUlmDj34+sKMh4sjPI="
     }
   ],
   "legacyImports": false
