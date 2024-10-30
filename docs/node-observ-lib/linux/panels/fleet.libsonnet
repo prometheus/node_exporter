@@ -98,7 +98,13 @@ local utils = commonlib.utils;
           + fieldOverride.byName.withProperty('custom.width', '120'),
           fieldOverride.byName.new('CPU usage')
           + fieldOverride.byName.withProperty('custom.width', '120')
-          + fieldOverride.byName.withProperty('custom.displayMode', 'basic')
+          + fieldOverride.byName.withProperty(
+            'custom.cellOptions', {
+              type: 'gauge',
+              mode: 'basic',
+              valueDisplayMode: 'text',
+            }
+          )
           + fieldOverride.byName.withPropertiesFromOptions(
             commonlib.panels.cpu.timeSeries.utilization.stylize()
           ),
@@ -109,7 +115,13 @@ local utils = commonlib.utils;
           ),
           fieldOverride.byName.new('Memory usage')
           + fieldOverride.byName.withProperty('custom.width', '120')
-          + fieldOverride.byName.withProperty('custom.displayMode', 'basic')
+          + fieldOverride.byName.withProperty(
+            'custom.cellOptions', {
+              type: 'gauge',
+              mode: 'basic',
+              valueDisplayMode: 'text',
+            }
+          )
           + fieldOverride.byName.withPropertiesFromOptions(
             commonlib.panels.cpu.timeSeries.utilization.stylize()
           ),
@@ -120,7 +132,13 @@ local utils = commonlib.utils;
           ),
           fieldOverride.byName.new('Root mount used')
           + fieldOverride.byName.withProperty('custom.width', '120')
-          + fieldOverride.byName.withProperty('custom.displayMode', 'basic')
+          + fieldOverride.byName.withProperty(
+            'custom.cellOptions', {
+              type: 'gauge',
+              mode: 'basic',
+              valueDisplayMode: 'text',
+            }
+          )
           + fieldOverride.byName.withPropertiesFromOptions(
             table.standardOptions.withUnit('percent')
           )
