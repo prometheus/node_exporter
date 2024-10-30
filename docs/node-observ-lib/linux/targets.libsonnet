@@ -30,7 +30,7 @@ local lokiQuery = g.query.loki;
     memoryOOMkiller:
       prometheusQuery.new(
         prometheusDatasource,
-        'increase(node_vmstat_oom_kill{%(queriesSelector)s}[$__interval])' % variables,
+        'increase(node_vmstat_oom_kill{%(queriesSelector)s}[$__interval:] offset -$__interval)' % variables,
       )
       + prometheusQuery.withLegendFormat('OOM killer invocations'),
 

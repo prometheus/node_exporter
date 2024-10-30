@@ -122,7 +122,7 @@ local nodeTimeseries = nodePanels.timeseries;
       },
       enable: true,
       hide: true,
-      expr: 'increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__interval])' % config { nodeQuerySelector: nodeQuerySelector },
+      expr: 'increase(node_vmstat_oom_kill{%(nodeQuerySelector)s}[$__interval:] offset -$__interval)' % config { nodeQuerySelector: nodeQuerySelector },
       name: 'OOMkill',
       iconColor: 'light-purple',
       tagKeys: config.instanceLabels,
