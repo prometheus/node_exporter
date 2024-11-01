@@ -6,15 +6,15 @@ fmt:
 	find . -name 'vendor' -prune -o -name '*.libsonnet' -print -o -name '*.jsonnet' -print | \
 		xargs -n 1 -- $(JSONNET_FMT) -i
 
-node_alerts.yaml: mixin.libsonnet config.libsonnet $(wildcard alerts/*)
-	jsonnet -S alerts.jsonnet > $@
+node_alerts.yaml: mixin.libsonnet lib/linux/config.libsonnet $(wildcard lib/linux/alerts/*)
+	jsonnet -J vendor -S -e 'std.manifestYamlDoc((import "mixin.libsonnet").prometheusAlerts)' > $@
 
-node_rules.yaml: mixin.libsonnet config.libsonnet $(wildcard rules/*)
-	jsonnet -S rules.jsonnet > $@
+node_rules.yaml: mixin.libsonnet lib/linux/config.libsonnet $(wildcard lib/linux/rules/*)
+	jsonnet -J vendor -S -e 'std.manifestYamlDoc((import "mixin.libsonnet").prometheusRules)' > $@
 
-dashboards_out: mixin.libsonnet config.libsonnet $(wildcard dashboards/*)
-	@mkdir -p dashboards_out
-	jsonnet -J vendor -m dashboards_out dashboards.jsonnet
+dashboards_out: mixin.libsonnet lib/linux/config.libsonnet lib/linux/dashboards.libsonnet $(wildcard lib/linux/*)
+	@mkdir -p dashboards_out/linux
+	jsonnet -J vendor -m dashboards_out/linux -e '(import "mixin.libsonnet").grafanaDashboards'
 
 lint: node_alerts.yaml node_rules.yaml
 	find . -name 'vendor' -prune -o -name '*.libsonnet' -print -o -name '*.jsonnet' -print | \
