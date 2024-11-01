@@ -1,29 +1,27 @@
 {
   // Rest of the config is imported from linux
-  filteringSelector: 'job=macos"',
+  filteringSelector: 'job="aix"',
   dashboardNamePrefix: 'MacOS / ',
   //uid prefix
-  uid: 'darwin',
+  uid: 'aix',
 
-  dashboardTags: ['macos-mixin'],
+  dashboardTags: ['aix-mixin'],
 
 
   // Alerts to keep from node-observ-lib:
-  alertsMacKeep: [
+  alertsKeep: [
     'NodeFilesystemAlmostOutOfSpace',
     'NodeNetworkReceiveErrs',
     'NodeNetworkTransmitErrs',
     'NodeTextFileCollectorScrapeError',
     'NodeFilesystemFilesFillingUp',
     'NodeFilesystemAlmostOutOfFiles',
+    'NodeCPUHighUsage',
+    'NodeSystemSaturation',
+    'NodeMemoryHighUtilization',
+    'NodeDiskIOSaturation',
   ],
   // logs lib related
   enableLokiLogs: false,
-  extraLogLabels: ['filename', 'sender'],
-  logsVolumeGroupBy: 'sender',
-  showLogsVolume: true,
-  logsFilteringSelector: self.filteringSelector,
-  logsExtraFilters: '',
-
 
 }

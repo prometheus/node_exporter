@@ -8,7 +8,7 @@ local commonlib = import 'common-lib/common/main.libsonnet';
         link.link.new('Back to ' + this.config.dashboardNamePrefix + 'fleet', '/d/' + this.grafana.dashboards['fleet.json'].uid)
         + link.link.options.withKeepTime(true),
       backToOverview:
-        link.link.new('Back to ' + this.config.dashboardNamePrefix + 'overview', '/d/' + this.grafana.dashboards['overview.json'].uid)
+        link.link.new('Back to ' + this.config.dashboardNamePrefix + 'overview', '/d/' + this.grafana.dashboards['nodes.json'].uid)
         + link.link.options.withKeepTime(true),
       otherDashboards:
         link.dashboards.new('All ' + this.config.dashboardNamePrefix + ' dashboards', this.config.dashboardTags)

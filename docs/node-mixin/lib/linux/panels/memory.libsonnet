@@ -30,7 +30,7 @@ local xtd = import 'github.com/jsonnet-libs/xtd/main.libsonnet';
         target=t.memory.memoryUsagePercent,
         topk=25,
         instanceLabels=this.config.instanceLabels,
-        drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
+        drillDownDashboardUid=this.grafana.dashboards['nodes.json'].uid,
       ),
       memoryUsageTsBytes:
         commonlib.panels.memory.timeSeries.usageBytes.new(

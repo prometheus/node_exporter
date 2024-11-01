@@ -83,7 +83,7 @@ local xtd = import 'github.com/jsonnet-libs/xtd/main.libsonnet';
         target=t.disk.diskUsagePercent,
         topk=25,
         instanceLabels=this.config.instanceLabels + ['volume'],
-        drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
+        drillDownDashboardUid=this.grafana.dashboards['nodes.json'].uid,
       ),
       diskIOBytesPerSec: commonlib.panels.disk.timeSeries.ioBytesPerSec.new(
         targets=[t.disk.diskIOreadBytesPerSec, t.disk.diskIOwriteBytesPerSec, t.disk.diskIOutilization]
@@ -94,7 +94,7 @@ local xtd = import 'github.com/jsonnet-libs/xtd/main.libsonnet';
           target=t.disk.diskIOutilization,
           topk=25,
           instanceLabels=this.config.instanceLabels + ['volume'],
-          drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
+          drillDownDashboardUid=this.grafana.dashboards['nodes.json'].uid,
         ),
       diskIOps:
         commonlib.panels.disk.timeSeries.iops.new(

@@ -24,7 +24,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
         )
         // hide link to self
         + root.applyCommon(vars.multiInstance, uid + '-fleet', tags, links { backToFleet+:: {}, backToOverview+:: {} }, annotations, timezone, refresh, period),
-      'overview.json':
+      'nodes.json':
         g.dashboard.new(prefix + 'overview')
         + g.dashboard.withPanels(
           g.util.panel.resolveCollapsedFlagOnRows(
@@ -46,7 +46,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
           )
         )
         // defaults to uid=nodes for backward compatibility with old node-mixins
-        + root.applyCommon(vars.singleInstance, (if uid == 'node' then 'nodes' else uid + '-overview'), tags, links { backToOverview+:: {} }, annotations, timezone, refresh, period),
+        + root.applyCommon(vars.singleInstance, (if uid == 'node' then std.md5('nodes.json') else uid + '-overview'), tags, links { backToOverview+:: {} }, annotations, timezone, refresh, period),
       'network.json':
         g.dashboard.new(prefix + 'network')
         + g.dashboard.withPanels(
@@ -120,7 +120,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
             )
           )
         )
-        + root.applyCommon(this.grafana.variables.use.singleInstance, uid + '-rsrc-use', tags, links, annotations, timezone, refresh, period),
+        + root.applyCommon(this.grafana.variables.use.singleInstance, std.md5(uid + '-cluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
 
       'node-cluster-rsrc-use.json':
         g.dashboard.new(prefix + 'USE method / cluster')
@@ -137,7 +137,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
             )
           )
         )
-        + root.applyCommon(this.grafana.variables.useCluster.singleInstance, uid + '-cluster-rsrc-use', tags, links, annotations, timezone, refresh, period),
+        + root.applyCommon(this.grafana.variables.useCluster.singleInstance, std.md5(uid + '-cluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
     }
     +
     (
@@ -145,7 +145,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
       then
         {
           'node-multicluster-rsrc-use.json':
-            g.dashboard.new(prefix + 'USE method / cluster')
+            g.dashboard.new(prefix + 'USE method / Multi-cluster')
             + g.dashboard.withPanels(
               g.util.panel.resolveCollapsedFlagOnRows(
                 g.util.grid.wrapPanels(
@@ -159,7 +159,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
                 )
               )
             )
-            + root.applyCommon(this.grafana.variables.useCluster.multiInstance, uid + '-multicluster-rsrc-use', tags, links, annotations, timezone, refresh, period),
+            + root.applyCommon(this.grafana.variables.useCluster.multiInstance, std.md5(uid + '-multicluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
         }
       else {}
     )

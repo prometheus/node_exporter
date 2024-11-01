@@ -19,7 +19,7 @@ local xtd = import 'github.com/jsonnet-libs/xtd/main.libsonnet';
         target=t.cpu.cpuUsage,
         topk=25,
         instanceLabels=this.config.instanceLabels,
-        drillDownDashboardUid=this.grafana.dashboards['overview.json'].uid,
+        drillDownDashboardUid=this.grafana.dashboards['nodes.json'].uid,
       ),
       cpuUsageStat: commonlib.panels.cpu.stat.usage.new(targets=[t.cpu.cpuUsage]),
       cpuUsageByMode: commonlib.panels.cpu.timeSeries.utilizationByMode.new(

@@ -10,6 +10,7 @@
   groupLabels: ['job'],
   instanceLabels: ['instance'],
   dashboardNamePrefix: 'Node exporter / ',
+  //uid prefix
   uid: 'node',
   dashboardTags: ['node-exporter-mixin'],
 
@@ -76,7 +77,7 @@
   fsSpaceAvailableWarningThreshold: 5,
   fsSpaceAvailableCriticalThreshold: 3,
 
-  // Memory utilzation (%) level on which to trigger the
+  // Memory utilization (%) level on which to trigger the
   // 'NodeMemoryHighUtilization' alert.
   memoryHighUtilizationThreshold: 90,
 
