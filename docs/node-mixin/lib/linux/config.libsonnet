@@ -100,6 +100,8 @@
   dashboardTimezone: 'default',
   dashboardRefresh: '1m',
 
+  // Opt-in for USE method dashboards
+  enableUseDashboards: true,
   // Opt-in for multi-cluster support (USE method).
   showMultiCluster: true,
   //used in USE dashboards only. For others, add cluster label to groupLabels var.

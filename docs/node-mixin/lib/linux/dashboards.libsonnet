@@ -104,63 +104,71 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
           )
         )
         + root.applyCommon(vars.singleInstance, uid + '-disk', tags, links, annotations, timezone, refresh, period),
-
-      'node-rsrc-use.json':
-        g.dashboard.new(prefix + 'USE method / node')
-        + g.dashboard.withPanels(
-          g.util.panel.resolveCollapsedFlagOnRows(
-            g.util.grid.wrapPanels(
-              [
-                rows.use.cpuUseMethod,
-                rows.use.memoryUseMethod,
-                rows.use.networkUseMethod,
-                rows.use.diskUseMethod,
-                rows.use.filesystemUseMethod,
-              ], 12, 7
-            )
-          )
-        )
-        + root.applyCommon(this.grafana.variables.use.singleInstance, std.md5(uid + '-cluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
-
-      'node-cluster-rsrc-use.json':
-        g.dashboard.new(prefix + 'USE method / cluster')
-        + g.dashboard.withPanels(
-          g.util.panel.resolveCollapsedFlagOnRows(
-            g.util.grid.wrapPanels(
-              [
-                rows.use.cpuUseClusterMethod,
-                rows.use.memoryUseClusterMethod,
-                rows.use.networkUseClusterMethod,
-                rows.use.diskUseClusterMethod,
-                rows.use.filesystemUseClusterMethod,
-              ], 12, 7
-            )
-          )
-        )
-        + root.applyCommon(this.grafana.variables.useCluster.singleInstance, std.md5(uid + '-cluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
     }
     +
     (
-      if this.config.showMultiCluster
+      if this.config.enableUseDashboards
       then
+
         {
-          'node-multicluster-rsrc-use.json':
-            g.dashboard.new(prefix + 'USE method / Multi-cluster')
+          'node-rsrc-use.json':
+            g.dashboard.new(prefix + 'USE method / node')
             + g.dashboard.withPanels(
               g.util.panel.resolveCollapsedFlagOnRows(
                 g.util.grid.wrapPanels(
                   [
-                    rows.use.cpuUseClusterMethodMulti,
-                    rows.use.memoryUseClusterMethodMulti,
-                    rows.use.networkUseClusterMethodMulti,
-                    rows.use.diskUseClusterMethodMulti,
-                    rows.use.filesystemUseClusterMethodMulti,
+                    rows.use.cpuUseMethod,
+                    rows.use.memoryUseMethod,
+                    rows.use.networkUseMethod,
+                    rows.use.diskUseMethod,
+                    rows.use.filesystemUseMethod,
                   ], 12, 7
                 )
               )
             )
-            + root.applyCommon(this.grafana.variables.useCluster.multiInstance, std.md5(uid + '-multicluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
+            + root.applyCommon(this.grafana.variables.use.singleInstance, std.md5(uid + '-cluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
+
+          'node-cluster-rsrc-use.json':
+            g.dashboard.new(prefix + 'USE method / cluster')
+            + g.dashboard.withPanels(
+              g.util.panel.resolveCollapsedFlagOnRows(
+                g.util.grid.wrapPanels(
+                  [
+                    rows.use.cpuUseClusterMethod,
+                    rows.use.memoryUseClusterMethod,
+                    rows.use.networkUseClusterMethod,
+                    rows.use.diskUseClusterMethod,
+                    rows.use.filesystemUseClusterMethod,
+                  ], 12, 7
+                )
+              )
+            )
+            + root.applyCommon(this.grafana.variables.useCluster.singleInstance, std.md5(uid + '-cluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
         }
+        +
+        (
+          if this.config.showMultiCluster
+          then
+            {
+              'node-multicluster-rsrc-use.json':
+                g.dashboard.new(prefix + 'USE method / multi-cluster')
+                + g.dashboard.withPanels(
+                  g.util.panel.resolveCollapsedFlagOnRows(
+                    g.util.grid.wrapPanels(
+                      [
+                        rows.use.cpuUseClusterMethodMulti,
+                        rows.use.memoryUseClusterMethodMulti,
+                        rows.use.networkUseClusterMethodMulti,
+                        rows.use.diskUseClusterMethodMulti,
+                        rows.use.filesystemUseClusterMethodMulti,
+                      ], 12, 7
+                    )
+                  )
+                )
+                + root.applyCommon(this.grafana.variables.useCluster.multiInstance, std.md5(uid + '-multicluster-rsrc-use.json'), tags, links, annotations, timezone, refresh, period),
+            }
+          else {}
+        )
       else {}
     )
     +
