@@ -7,7 +7,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
     local links = this.grafana.links;
     local tags = this.config.dashboardTags;
     local uid = g.util.string.slugify(this.config.uid);
-    local vars = this.grafana.variables;
+    local vars = this.grafana.variables.main;
     local annotations = this.grafana.annotations;
     local refresh = this.config.dashboardRefresh;
     local period = this.config.dashboardPeriod;
@@ -20,7 +20,7 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
         local title = prefix + 'fleet overview';
         g.dashboard.new(title)
         + g.dashboard.withPanels(
-          g.util.grid.wrapPanels(rows.fleet.panels, 12, 7)
+          g.util.grid.wrapPanels(rows.linux.fleet.panels, 12, 7)
         )
         // hide link to self
         + root.applyCommon(vars.multiInstance, uid + '-fleet', tags, links { backToFleet+:: {}, backToOverview+:: {} }, annotations, timezone, refresh, period),
@@ -30,16 +30,16 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
           g.util.panel.resolveCollapsedFlagOnRows(
             g.util.grid.wrapPanels(
               [
-                rows.overview,
-                rows.cpuOverview,
-                rows.memoryOverview,
-                rows.diskOverview,
-                rows.networkOverview,
+                rows.linux.overview,
+                rows.linux.cpuOverview,
+                rows.linux.memoryOverview,
+                rows.linux.diskOverview,
+                rows.linux.networkOverview,
               ]
               +
               if this.config.enableHardware then
                 [
-                  rows.hardware,
+                  rows.linux.hardware,
                 ] else []
               , 6, 2
             )
@@ -53,10 +53,10 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
           g.util.panel.resolveCollapsedFlagOnRows(
             g.util.grid.wrapPanels(
               [
-                rows.network,
-                rows.networkSockets
+                rows.linux.network,
+                rows.linux.networkSockets
                 + g.panel.row.withCollapsed(true),
-                rows.networkNetstat
+                rows.linux.networkNetstat
                 + g.panel.row.withCollapsed(true),
               ], 12, 8
             )
@@ -69,9 +69,9 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
           g.util.panel.resolveCollapsedFlagOnRows(
             g.util.grid.wrapPanels(
               [
-                rows.memoryOverview,
-                rows.memoryVmstat,
-                rows.memoryMemstat,
+                rows.linux.memoryOverview,
+                rows.linux.memoryVmstat,
+                rows.linux.memoryMemstat,
               ], 12, 8
             )
           )
@@ -84,68 +84,125 @@ local logslib = import 'github.com/grafana/jsonnet-libs/logs-lib/logs/main.libso
           g.util.panel.resolveCollapsedFlagOnRows(
             g.util.grid.wrapPanels(
               [
-                rows.cpuAndSystem,
-                rows.time,
+                rows.linux.cpuAndSystem,
+                rows.linux.time,
               ], 12, 7
             )
           )
         )
         + root.applyCommon(vars.singleInstance, uid + '-system', tags, links, annotations, timezone, refresh, period),
-
       'disks.json':
         g.dashboard.new(prefix + 'filesystem and disks')
         + g.dashboard.withPanels(
           g.util.panel.resolveCollapsedFlagOnRows(
             g.util.grid.wrapPanels(
               [
-                rows.filesystem,
-                rows.disk,
+                rows.linux.filesystem,
+                rows.linux.disk,
               ], 12, 8
             )
           )
         )
         + root.applyCommon(vars.singleInstance, uid + '-disk', tags, links, annotations, timezone, refresh, period),
+
+      'node-rsrc-use.json':
+        g.dashboard.new(prefix + 'USE method / node')
+        + g.dashboard.withPanels(
+          g.util.panel.resolveCollapsedFlagOnRows(
+            g.util.grid.wrapPanels(
+              [
+                rows.use.cpuUseMethod,
+                rows.use.memoryUseMethod,
+                rows.use.networkUseMethod,
+                rows.use.diskUseMethod,
+                rows.use.filesystemUseMethod,
+              ], 12, 7
+            )
+          )
+        )
+        + root.applyCommon(this.grafana.variables.use.singleInstance, uid + '-rsrc-use', tags, links, annotations, timezone, refresh, period),
+
+      'node-cluster-rsrc-use.json':
+        g.dashboard.new(prefix + 'USE method / cluster')
+        + g.dashboard.withPanels(
+          g.util.panel.resolveCollapsedFlagOnRows(
+            g.util.grid.wrapPanels(
+              [
+                rows.use.cpuUseClusterMethod,
+                rows.use.memoryUseClusterMethod,
+                rows.use.networkUseClusterMethod,
+                rows.use.diskUseClusterMethod,
+                rows.use.filesystemUseClusterMethod,
+              ], 12, 7
+            )
+          )
+        )
+        + root.applyCommon(this.grafana.variables.useCluster.singleInstance, uid + '-cluster-rsrc-use', tags, links, annotations, timezone, refresh, period),
     }
     +
-    if this.config.enableLokiLogs
-    then
-      {
-        'logs.json':
-          logslib.new(
-            prefix + 'logs',
-            datasourceName=this.grafana.variables.datasources.loki.name,
-            datasourceRegex=this.grafana.variables.datasources.loki.regex,
-            filterSelector=this.config.logsFilteringSelector,
-            labels=this.config.groupLabels + this.config.instanceLabels + this.config.extraLogLabels,
-            formatParser=null,
-            showLogsVolume=this.config.showLogsVolume,
-            logsVolumeGroupBy=this.config.logsVolumeGroupBy,
-            extraFilters=this.config.logsExtraFilters
-          )
-          {
-            dashboards+:
-              {
-                logs+:
-                  // reference to self, already generated variables, to keep them, but apply other common data in applyCommon
-                  root.applyCommon(super.logs.templating.list, uid=uid + '-logs', tags=tags, links=links, annotations=annotations, timezone=timezone, refresh=refresh, period=period),
-              },
-            panels+:
-              {
-                // modify log panel
-                logs+:
-                  g.panel.logs.options.withEnableLogDetails(true)
-                  + g.panel.logs.options.withShowTime(false)
-                  + g.panel.logs.options.withWrapLogMessage(false),
-              },
-            variables+: {
-              // add prometheus datasource for annotations processing
-              toArray+: [
-                this.grafana.variables.datasources.prometheus { hide: 2 },
-              ],
-            },
-          }.dashboards.logs,
-      }
-    else {},
+    (
+      if this.config.showMultiCluster
+      then
+        {
+          'node-multicluster-rsrc-use.json':
+            g.dashboard.new(prefix + 'USE method / cluster')
+            + g.dashboard.withPanels(
+              g.util.panel.resolveCollapsedFlagOnRows(
+                g.util.grid.wrapPanels(
+                  [
+                    rows.use.cpuUseClusterMethodMulti,
+                    rows.use.memoryUseClusterMethodMulti,
+                    rows.use.networkUseClusterMethodMulti,
+                    rows.use.diskUseClusterMethodMulti,
+                    rows.use.filesystemUseClusterMethodMulti,
+                  ], 12, 7
+                )
+              )
+            )
+            + root.applyCommon(this.grafana.variables.useCluster.multiInstance, uid + '-multicluster-rsrc-use', tags, links, annotations, timezone, refresh, period),
+        }
+      else {}
+    )
+    +
+    (if this.config.enableLokiLogs
+     then
+       {
+         'logs.json':
+           logslib.new(
+             prefix + 'logs',
+             datasourceName=this.grafana.variables.datasources.loki.name,
+             datasourceRegex=this.grafana.variables.datasources.loki.regex,
+             filterSelector=this.config.logsFilteringSelector,
+             labels=this.config.groupLabels + this.config.instanceLabels + this.config.extraLogLabels,
+             formatParser=null,
+             showLogsVolume=this.config.showLogsVolume,
+             logsVolumeGroupBy=this.config.logsVolumeGroupBy,
+             extraFilters=this.config.logsExtraFilters
+           )
+           {
+             dashboards+:
+               {
+                 logs+:
+                   // reference to self, already generated variables, to keep them, but apply other common data in applyCommon
+                   root.applyCommon(super.logs.templating.list, uid=uid + '-logs', tags=tags, links=links, annotations=annotations, timezone=timezone, refresh=refresh, period=period),
+               },
+             panels+:
+               {
+                 // modify log panel
+                 logs+:
+                   g.panel.logs.options.withEnableLogDetails(true)
+                   + g.panel.logs.options.withShowTime(false)
+                   + g.panel.logs.options.withWrapLogMessage(false),
+               },
+             variables+: {
+               // add prometheus datasource for annotations processing
+               toArray+: [
+                 this.grafana.variables.datasources.prometheus { hide: 2 },
+               ],
+             },
+           }.dashboards.logs,
+       }
+     else {}),
   applyCommon(vars, uid, tags, links, annotations, timezone, refresh, period):
     g.dashboard.withTags(tags)
     + g.dashboard.withUid(uid)

@@ -95,6 +95,11 @@
   dashboardTimezone: 'default',
   dashboardRefresh: '1m',
 
+  // Opt-in for multi-cluster support (USE method).
+  showMultiCluster: true,
+  //used in USE dashboards only. For others, add cluster label to groupLabels var.
+  clusterLabel: 'cluster',
+
   // logs lib related
   enableLokiLogs: false,
   extraLogLabels: ['transport', 'unit', 'level'],

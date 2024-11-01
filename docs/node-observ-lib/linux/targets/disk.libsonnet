@@ -4,7 +4,7 @@ local lokiQuery = g.query.loki;
 
 {
   new(this): {
-    local variables = this.grafana.variables,
+    local variables = this.grafana.variables.main,
     local config = this.config,
     local prometheusDatasource = '${' + variables.datasources.prometheus.name + '}',
     local lokiDatasource = '${' + variables.datasources.loki.name + '}',
