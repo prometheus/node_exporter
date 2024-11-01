@@ -15,7 +15,7 @@ local xtd = import 'github.com/jsonnet-libs/xtd/main.libsonnet';
           groupLabels=this.config.groupLabels,
           instanceLabels=this.config.instanceLabels,
           varMetric='node_uname_info',
-          customAllValue='.+',
+          customAllValue=this.config.customAllValue,
           enableLokiLogs=this.config.enableLokiLogs,
         ),
       // used in USE cluster dashboard
@@ -26,7 +26,7 @@ local xtd = import 'github.com/jsonnet-libs/xtd/main.libsonnet';
           groupLabels=std.uniq(this.config.groupLabels + [this.config.clusterLabel]),
           instanceLabels=this.config.instanceLabels,
           varMetric='instance:node_cpu_utilisation:rate5m',
-          customAllValue='.+',
+          customAllValue=this.config.customAllValue,
           enableLokiLogs=this.config.enableLokiLogs,
         ),
       useCluster:
@@ -35,7 +35,7 @@ local xtd = import 'github.com/jsonnet-libs/xtd/main.libsonnet';
           groupLabels=std.uniq(this.config.groupLabels + [this.config.clusterLabel]),
           instanceLabels=[],
           varMetric='instance:node_cpu_utilisation:rate5m',
-          customAllValue='.+',
+          customAllValue=this.config.customAllValue,
           enableLokiLogs=this.config.enableLokiLogs,
         ),
     },

@@ -107,6 +107,9 @@
   //used in USE dashboards only. For others, add cluster label to groupLabels var.
   clusterLabel: 'cluster',
 
+  //custom allValue to use for dashboard variables
+  customAllValue: '.+',
+
   // loki logs related related
   enableLokiLogs: false,
   extraLogLabels: ['transport', 'unit', 'level'],
