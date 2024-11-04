@@ -66,17 +66,12 @@ local table = grafana70.panel.table;
         datasource='$datasource',
         span=6,
         format='percentunit',
-        max=1,
         min=0,
         stack=true,
       )
       .addTarget(prometheus.target(
         |||
-          (
-            (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance="$instance", %(clusterLabel)s="$cluster"}[$__rate_interval])))
-          / ignoring(cpu) group_left
-            count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance", %(clusterLabel)s="$cluster"})
-          )
+          (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance="$instance", %(clusterLabel)s="$cluster"}[$__rate_interval])))
         ||| % config,
         legendFormat='{{cpu}}',
         intervalFactor=5,
