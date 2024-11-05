@@ -429,7 +429,7 @@ local tableTransformation = table.queryOptions.transformation;
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         prometheus.new('$datasource', 'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
-        + prometheus.withLegendFormat('1m load average')
+        + prometheus.withLegendFormat('{{device}}')
         + prometheus.withIntervalFactor(1),
       ]),
 
@@ -443,7 +443,7 @@ local tableTransformation = table.queryOptions.transformation;
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         prometheus.new('$datasource', 'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
-        + prometheus.withLegendFormat('1m load average')
+        + prometheus.withLegendFormat('{{device}}')
         + prometheus.withIntervalFactor(1),
       ]),
 
