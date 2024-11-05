@@ -1,0 +1,49 @@
+name: freebsd-vm
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "123"
+
+jobs:
+  test:
+    name: e2e-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          envs: 'GO_VERSION'
+          usesh: true
+          prepare: |
+            pkg update -f
+            pkg install -y bash curl git gmake go${GO_VERSION} python
+          run: | # The steps below are executed on the FreeBSD VM.
+            set -eux
+            mkdir golang-bin
+            ln -s $(which go${GO_VERSION}) golang-bin/go
+            export PATH=$PATH:$(pwd)/golang-bin
+            
+            echo "::group::Print environment information"
+            freebsd-version
+            uname -a
+            echo "GOOS: $(go env GOOS)"
+            echo "GOARCH: $(go env GOARCH)"
+            echo "::endgroup::"
+            
+            echo "::group::Run End-to-End Tests"
+            git config --global --add safe.directory $(pwd)
+            gmake test-e2e
+            echo "::endgroup::"
