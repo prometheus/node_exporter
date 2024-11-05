@@ -41,14 +41,14 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	stats = []filesystemStats{}
 	for _, v := range mnt {
 		mountpoint := unix.ByteSliceToString(v.F_mntonname[:])
-		if c.excludedMountPointsPattern.MatchString(mountpoint) {
+		if c.mountPointFilter.ignored(mountpoint) {
 			c.logger.Debug("Ignoring mount point", "mountpoint", mountpoint)
 			continue
 		}
 
 		device := unix.ByteSliceToString(v.F_mntfromname[:])
 		fstype := unix.ByteSliceToString(v.F_fstypename[:])
-		if c.excludedFSTypesPattern.MatchString(fstype) {
+		if c.fsTypeFilter.ignored(fstype) {
 			c.logger.Debug("Ignoring fs type", "type", fstype)
 			continue
 		}
