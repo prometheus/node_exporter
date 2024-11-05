@@ -76,6 +76,7 @@ local tableTransformation = table.queryOptions.transformation;
       + tsStandardOptions.withMin(0)
       + tsOptions.tooltip.withMode('multi')
       + tsCustom.withFillOpacity(10)
+      + tsCustom.withShowPoints('never')
       + tsQueryOptions.withTargets([
         prometheus.new(
           '$datasource',
@@ -97,6 +98,7 @@ local tableTransformation = table.queryOptions.transformation;
       + tsStandardOptions.withUnit('short')
       + tsStandardOptions.withMin(0)
       + tsCustom.withFillOpacity(0)
+      + tsCustom.withShowPoints('never')
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         prometheus.new('$datasource', 'node_load1{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('1m load average'),
@@ -105,14 +107,14 @@ local tableTransformation = table.queryOptions.transformation;
         prometheus.new('$datasource', 'count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", mode="idle"})' % config) + prometheus.withLegendFormat('logical cores'),
       ]),
 
-    // TODO - span 9
     local memoryGraphPanelPrototype =
       timeSeriesPanel.new('Memory Usage')
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + tsStandardOptions.withUnit('bytes')
       + tsStandardOptions.withMin(0)
       + tsOptions.tooltip.withMode('multi')
-      + tsCustom.withFillOpacity(10),
+      + tsCustom.withFillOpacity(10)
+      + tsCustom.withShowPoints('never'),
 
     local memoryGraph =
       if platform == 'Linux' then
@@ -189,7 +191,6 @@ local tableTransformation = table.queryOptions.transformation;
 
 
     // NOTE: avg() is used to circumvent a label change caused by a node_exporter rollout.
-    // TODO - span 3
     local memoryGaugePanelPrototype =
       gaugePanel.new('Memory Usage')
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
@@ -262,6 +263,7 @@ local tableTransformation = table.queryOptions.transformation;
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + tsStandardOptions.withMin(0)
       + tsCustom.withFillOpacity(0)
+      + tsCustom.withShowPoints('never')
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         // TODO: Does it make sense to have those three in the same panel?
@@ -426,6 +428,7 @@ local tableTransformation = table.queryOptions.transformation;
       + tsStandardOptions.withUnit('bps')
       + tsStandardOptions.withMin(0)
       + tsCustom.withFillOpacity(0)
+      + tsCustom.withShowPoints('never')
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         prometheus.new('$datasource', 'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)

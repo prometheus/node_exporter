@@ -21,6 +21,7 @@ local tsCommonPanelOptions =
   variable.query.withDatasourceFromVariable(datasource)
   + tsCustom.stacking.withMode('normal')
   + tsCustom.withFillOpacity(100)
+  + tsCustom.withShowPoints('never')
   + tsLegend.withShowLegend(false)
   + tsOptions.tooltip.withMode('multi')
   + tsOptions.tooltip.withSort('desc');
