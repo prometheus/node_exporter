@@ -32,6 +32,14 @@ func readUintFromFile(path string) (uint64, error) {
 	return value, nil
 }
 
+func readStringFromFile(path string) string {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(data))
+}
+
 var metricNameRegex = regexp.MustCompile(`_*[^0-9A-Za-z_]+_*`)
 
 // SanitizeMetricName sanitize the given metric name by replacing invalid characters by underscores.
