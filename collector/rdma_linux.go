@@ -117,6 +117,25 @@ func makeRdmaCollector(logger *slog.Logger) (*rdmaCollector, error) {
 		logger.Info("Parsed flag --collector.rdma.metrics-include", "flag", *rdmaIncludedMetrics)
 	}
 
+	// Update paths to respect the mount points setup.
+	for _, dir := range []*string{
+		&rdmamap.RdmaClassDir,
+		&rdmamap.RdmaIbUcmDir,
+		&rdmamap.RdmaUmadDir,
+		&rdmamap.RdmaUverbsDir,
+		&rdmamap.PciDevDir,
+		&rdmamap.AuxDevDir,
+	} {
+		*dir = strings.TrimPrefix(*dir, "/sys")
+		*dir = sysFilePath(*dir)
+	}
+	for _, dir := range []*string{
+		&rdmamap.RdmaUcmDevice,
+		&rdmamap.RdmaDeviceDir,
+	} {
+		*dir = rootfsFilePath(*dir)
+	}
+
 	entries := make(map[string]*prometheus.Desc, len(rdmaHwCounters)+len(rdmaCounters))
 	for metric, help := range rdmaHwCounters {
 		entries[metric] = prometheus.NewDesc(
@@ -224,8 +243,8 @@ func (c *rdmaCollector) Update(ch chan<- prometheus.Metric) error {
 
 		vendorID := readStringFromFile(filepath.Join(rdmamap.RdmaClassDir, device, "device", "vendor"))
 		deviceID := readStringFromFile(filepath.Join(rdmamap.RdmaClassDir, device, "device", "device"))
-		firmwareVersion := readStringFromFile("/sys/class/infiniband/mlx5_0/fw_ver")
-		driverVersion := readStringFromFile("/sys/module/mlx5_core/version")
+		firmwareVersion := readStringFromFile(filepath.Join(rdmamap.RdmaClassDir, "mlx5_0", "fw_ver"))
+		driverVersion := readStringFromFile(sysFilePath("module/mlx5_core/version"))
 		ch <- prometheus.MustNewConstMetric(c.infoDesc, prometheus.GaugeValue, 1.0,
 			device, vendorID, deviceID, firmwareVersion, driverVersion)
 	}
