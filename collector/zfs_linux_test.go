@@ -315,6 +315,55 @@ func TestZpoolParsing(t *testing.T) {
 	}
 }
 
+func TestZpoolObjsetParsingWithSpace(t *testing.T) {
+	tests := []struct {
+		path            string
+		expectedDataset string
+	}{
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool1/objset-1",
+			expectedDataset: "pool1",
+		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool1/objset-2",
+			expectedDataset: "pool1/dataset1",
+		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool3/objset-1",
+			expectedDataset: "pool1",
+		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool3/objset-2",
+			expectedDataset: "pool1/dataset with  space",
+		},
+	}
+
+	c := zfsCollector{}
+
+	var handlerCalled bool
+	for _, test := range tests {
+		file, err := os.Open(test.path)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		handlerCalled = false
+		err = c.parsePoolObjsetFile(file, test.path, func(poolName string, datasetName string, s zfsSysctl, v uint64) {
+			handlerCalled = true
+			if test.expectedDataset != datasetName {
+				t.Fatalf("Incorrectly parsed dataset name: expected: '%s', got: '%s'", test.expectedDataset, datasetName)
+			}
+		})
+		file.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !handlerCalled {
+			t.Fatalf("Zpool parsing handler was not called for '%s'", test.path)
+		}
+	}
+}
+
 func TestZpoolObjsetParsing(t *testing.T) {
 	zpoolPaths, err := filepath.Glob("fixtures/proc/spl/kstat/zfs/*/objset-*")
 	if err != nil {
