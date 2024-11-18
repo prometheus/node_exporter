@@ -19,13 +19,13 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net"
 	"os"
 	"regexp"
+	"sync"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -41,7 +41,8 @@ type netClassCollector struct {
 	subsystem             string
 	ignoredDevicesPattern *regexp.Regexp
 	metricDescs           map[string]*prometheus.Desc
-	logger                log.Logger
+	metricDescsMu         sync.Mutex
+	logger                *slog.Logger
 }
 
 func init() {
@@ -49,7 +50,7 @@ func init() {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector(logger log.Logger) (Collector, error) {
+func NewNetClassCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -75,7 +76,7 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 	netClass, err := c.getNetClassInfo()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
-			level.Debug(c.logger).Log("msg", "Could not read netclass file", "err", err)
+			c.logger.Debug("Could not read netclass file", "err", err)
 			return ErrNoData
 		}
 		return fmt.Errorf("could not get net class info: %w", err)
@@ -136,6 +137,9 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 }
 
 func (c *netClassCollector) getFieldDesc(name string) *prometheus.Desc {
+	c.metricDescsMu.Lock()
+	defer c.metricDescsMu.Unlock()
+
 	fieldDesc, exists := c.metricDescs[name]
 
 	if !exists {

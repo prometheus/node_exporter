@@ -23,6 +23,7 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"regexp"
 	"sort"
@@ -31,8 +32,6 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"github.com/safchain/ethtool"
@@ -79,13 +78,13 @@ type ethtoolCollector struct {
 	deviceFilter   deviceFilter
 	infoDesc       *prometheus.Desc
 	metricsPattern *regexp.Regexp
-	logger         log.Logger
+	logger         *slog.Logger
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
 // This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.
-func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
+func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -94,6 +93,16 @@ func makeEthtoolCollector(logger log.Logger) (*ethtoolCollector, error) {
 	e, err := ethtool.NewEthtool()
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize ethtool library: %w", err)
+	}
+
+	if *ethtoolDeviceInclude != "" {
+		logger.Info("Parsed flag --collector.ethtool.device-include", "flag", *ethtoolDeviceInclude)
+	}
+	if *ethtoolDeviceExclude != "" {
+		logger.Info("Parsed flag --collector.ethtool.device-exclude", "flag", *ethtoolDeviceExclude)
+	}
+	if *ethtoolIncludedMetrics != "" {
+		logger.Info("Parsed flag --collector.ethtool.metrics-include", "flag", *ethtoolIncludedMetrics)
 	}
 
 	// Pre-populate some common ethtool metrics.
@@ -213,7 +222,7 @@ func buildEthtoolFQName(metric string) string {
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
-func NewEthtoolCollector(logger log.Logger) (Collector, error) {
+func NewEthtoolCollector(logger *slog.Logger) (Collector, error) {
 	return makeEthtoolCollector(logger)
 }
 
@@ -366,7 +375,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 	netClass, err := c.fs.NetClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
-			level.Debug(c.logger).Log("msg", "Could not read netclass file", "err", err)
+			c.logger.Debug("Could not read netclass file", "err", err)
 			return ErrNoData
 		}
 		return fmt.Errorf("could not get net class info: %w", err)
@@ -395,12 +404,12 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		} else {
 			if errno, ok := err.(syscall.Errno); ok {
 				if err == unix.EOPNOTSUPP {
-					level.Debug(c.logger).Log("msg", "ethtool link info error", "err", err, "device", device, "errno", uint(errno))
+					c.logger.Debug("ethtool link info error", "err", err, "device", device, "errno", uint(errno))
 				} else if errno != 0 {
-					level.Error(c.logger).Log("msg", "ethtool link info error", "err", err, "device", device, "errno", uint(errno))
+					c.logger.Error("ethtool link info error", "err", err, "device", device, "errno", uint(errno))
 				}
 			} else {
-				level.Error(c.logger).Log("msg", "ethtool link info error", "err", err, "device", device)
+				c.logger.Error("ethtool link info error", "err", err, "device", device)
 			}
 		}
 
@@ -412,12 +421,12 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		} else {
 			if errno, ok := err.(syscall.Errno); ok {
 				if err == unix.EOPNOTSUPP {
-					level.Debug(c.logger).Log("msg", "ethtool driver info error", "err", err, "device", device, "errno", uint(errno))
+					c.logger.Debug("ethtool driver info error", "err", err, "device", device, "errno", uint(errno))
 				} else if errno != 0 {
-					level.Error(c.logger).Log("msg", "ethtool driver info error", "err", err, "device", device, "errno", uint(errno))
+					c.logger.Error("ethtool driver info error", "err", err, "device", device, "errno", uint(errno))
 				}
 			} else {
-				level.Error(c.logger).Log("msg", "ethtool driver info error", "err", err, "device", device)
+				c.logger.Error("ethtool driver info error", "err", err, "device", device)
 			}
 		}
 
@@ -428,12 +437,12 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		if err != nil {
 			if errno, ok := err.(syscall.Errno); ok {
 				if err == unix.EOPNOTSUPP {
-					level.Debug(c.logger).Log("msg", "ethtool stats error", "err", err, "device", device, "errno", uint(errno))
+					c.logger.Debug("ethtool stats error", "err", err, "device", device, "errno", uint(errno))
 				} else if errno != 0 {
-					level.Error(c.logger).Log("msg", "ethtool stats error", "err", err, "device", device, "errno", uint(errno))
+					c.logger.Error("ethtool stats error", "err", err, "device", device, "errno", uint(errno))
 				}
 			} else {
-				level.Error(c.logger).Log("msg", "ethtool stats error", "err", err, "device", device)
+				c.logger.Error("ethtool stats error", "err", err, "device", device)
 			}
 		}
 
@@ -445,18 +454,19 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		// Sanitizing the metric names can lead to duplicate metric names. Therefore check for clashes beforehand.
 		metricFQNames := make(map[string]string)
 		for metric := range stats {
-			if !c.metricsPattern.MatchString(metric) {
+			metricName := SanitizeMetricName(metric)
+			if !c.metricsPattern.MatchString(metricName) {
 				continue
 			}
-			metricFQName := buildEthtoolFQName(metric)
+			metricFQName := buildEthtoolFQName(metricName)
 			existingMetric, exists := metricFQNames[metricFQName]
 			if exists {
-				level.Debug(c.logger).Log("msg", "dropping duplicate metric name", "device", device,
-					"metricFQName", metricFQName, "metric1", existingMetric, "metric2", metric)
-				// Keep the metric as "deleted" in the dict in case there are 3 duplicates.
+				c.logger.Debug("dropping duplicate metric name", "device", device,
+					"metricFQName", metricFQName, "metric1", existingMetric, "metric2", metricName)
+				// Keep the metricName as "deleted" in the dict in case there are 3 duplicates.
 				metricFQNames[metricFQName] = ""
 			} else {
-				metricFQNames[metricFQName] = metric
+				metricFQNames[metricFQName] = metricName
 			}
 		}
 

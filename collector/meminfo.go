@@ -11,8 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build (darwin || linux || openbsd || netbsd) && !nomeminfo
-// +build darwin linux openbsd netbsd
+//go:build (darwin || linux || openbsd || netbsd || aix) && !nomeminfo
+// +build darwin linux openbsd netbsd aix
 // +build !nomeminfo
 
 package collector
@@ -21,8 +21,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -30,17 +28,8 @@ const (
 	memInfoSubsystem = "memory"
 )
 
-type meminfoCollector struct {
-	logger log.Logger
-}
-
 func init() {
 	registerCollector("meminfo", defaultEnabled, NewMeminfoCollector)
-}
-
-// NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger log.Logger) (Collector, error) {
-	return &meminfoCollector{logger}, nil
 }
 
 // Update calls (*meminfoCollector).getMemInfo to get the platform specific
@@ -51,7 +40,7 @@ func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get meminfo: %w", err)
 	}
-	level.Debug(c.logger).Log("msg", "Set node_mem", "memInfo", memInfo)
+	c.logger.Debug("Set node_mem", "memInfo", fmt.Sprintf("%v", memInfo))
 	for k, v := range memInfo {
 		if strings.HasSuffix(k, "_total") {
 			metricType = prometheus.CounterValue

@@ -18,9 +18,9 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -34,7 +34,7 @@ type softnetCollector struct {
 	receivedRps       *prometheus.Desc
 	flowLimitCount    *prometheus.Desc
 	softnetBacklogLen *prometheus.Desc
-	logger            log.Logger
+	logger            *slog.Logger
 }
 
 const (
@@ -46,7 +46,7 @@ func init() {
 }
 
 // NewSoftnetCollector returns a new Collector exposing softnet metrics.
-func NewSoftnetCollector(logger log.Logger) (Collector, error) {
+func NewSoftnetCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

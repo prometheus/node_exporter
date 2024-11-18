@@ -20,14 +20,13 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"log/slog"
 	"net"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
-func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error) {
+func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	ifs, err := net.Interfaces()
@@ -37,13 +36,13 @@ func getNetDevStats(filter *deviceFilter, logger log.Logger) (netDevStats, error
 
 	for _, iface := range ifs {
 		if filter.ignored(iface.Name) {
-			level.Debug(logger).Log("msg", "Ignoring device", "device", iface.Name)
+			logger.Debug("Ignoring device", "device", iface.Name)
 			continue
 		}
 
 		ifaceData, err := getIfaceData(iface.Index)
 		if err != nil {
-			level.Debug(logger).Log("msg", "failed to load data for interface", "device", iface.Name, "err", err)
+			logger.Debug("failed to load data for interface", "device", iface.Name, "err", err)
 			continue
 		}
 
@@ -117,4 +116,9 @@ type ifData64 struct {
 	Recvtiming uint32
 	Xmittiming uint32
 	Lastchange unix.Timeval32
+}
+
+func getNetDevLabels() (map[string]map[string]string, error) {
+	// to be implemented if needed
+	return nil, nil
 }
