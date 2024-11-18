@@ -240,7 +240,7 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(
 				c.purgeableDesc, prometheus.GaugeValue,
 				*s.purgeable, s.labels.device, s.labels.mountPoint,
-				s.labels.fsType,
+				s.labels.fsType, s.labels.deviceError,
 			)
 		}
 	}
