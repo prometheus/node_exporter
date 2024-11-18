@@ -42,8 +42,8 @@ Float64 *purgeable(char *path) {
 import "C"
 
 import (
-        "errors"
-        "unsafe"
+	"errors"
+	"unsafe"
 )
 
 /*
@@ -55,54 +55,54 @@ import (
 import "C"
 
 const (
-        defMountPointsExcluded = "^/(dev)($|/)"
-        defFSTypesExcluded     = "^devfs$"
-        readOnly               = 0x1 // MNT_RDONLY
+	defMountPointsExcluded = "^/(dev)($|/)"
+	defFSTypesExcluded     = "^devfs$"
+	readOnly               = 0x1 // MNT_RDONLY
 )
 
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
-        var mntbuf *C.struct_statfs
-        count := C.getmntinfo(&mntbuf, C.MNT_NOWAIT)
-        if count == 0 {
-                return nil, errors.New("getmntinfo() failed")
-        }
+	var mntbuf *C.struct_statfs
+	count := C.getmntinfo(&mntbuf, C.MNT_NOWAIT)
+	if count == 0 {
+		return nil, errors.New("getmntinfo() failed")
+	}
 
-        mnt := (*[1 << 20]C.struct_statfs)(unsafe.Pointer(mntbuf))
-        stats = []filesystemStats{}
-        for i := 0; i < int(count); i++ {
-                mountpoint := C.GoString(&mnt[i].f_mntonname[0])
-                if c.excludedMountPointsPattern.MatchString(mountpoint) {
-                        c.logger.Debug("Ignoring mount point", "mountpoint", mountpoint)
-                        continue
-                }
+	mnt := (*[1 << 20]C.struct_statfs)(unsafe.Pointer(mntbuf))
+	stats = []filesystemStats{}
+	for i := 0; i < int(count); i++ {
+		mountpoint := C.GoString(&mnt[i].f_mntonname[0])
+		if c.excludedMountPointsPattern.MatchString(mountpoint) {
+			c.logger.Debug("Ignoring mount point", "mountpoint", mountpoint)
+			continue
+		}
 
-                device := C.GoString(&mnt[i].f_mntfromname[0])
-                fstype := C.GoString(&mnt[i].f_fstypename[0])
-                if c.excludedFSTypesPattern.MatchString(fstype) {
-                        c.logger.Debug("Ignoring fs type", "type", fstype)
-                        continue
-                }
+		device := C.GoString(&mnt[i].f_mntfromname[0])
+		fstype := C.GoString(&mnt[i].f_fstypename[0])
+		if c.excludedFSTypesPattern.MatchString(fstype) {
+			c.logger.Debug("Ignoring fs type", "type", fstype)
+			continue
+		}
 
-                var ro float64
-                if (mnt[i].f_flags & readOnly) != 0 {
-                        ro = 1
-                }
+		var ro float64
+		if (mnt[i].f_flags & readOnly) != 0 {
+			ro = 1
+		}
 
-                stats = append(stats, filesystemStats{
-                        labels: filesystemLabels{
-                                device:     device,
-                                mountPoint: rootfsStripPrefix(mountpoint),
-                                fsType:     fstype,
-                        },
-                        size:      float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
-                        free:      float64(mnt[i].f_bfree) * float64(mnt[i].f_bsize),
-                        avail:     float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
-                        files:     float64(mnt[i].f_files),
-                        filesFree: float64(mnt[i].f_ffree),
-                        purgeable: (*float64)(C.purgeable(C.CString(mountpoint))),
-                        ro:        ro,
-                })
-        }
-        return stats, nil
+		stats = append(stats, filesystemStats{
+			labels: filesystemLabels{
+				device:     device,
+				mountPoint: rootfsStripPrefix(mountpoint),
+				fsType:     fstype,
+			},
+			size:      float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),
+			free:      float64(mnt[i].f_bfree) * float64(mnt[i].f_bsize),
+			avail:     float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
+			files:     float64(mnt[i].f_files),
+			filesFree: float64(mnt[i].f_ffree),
+			purgeable: (*float64)(C.purgeable(C.CString(mountpoint))),
+			ro:        ro,
+		})
+	}
+	return stats, nil
 }
