@@ -230,6 +230,11 @@ func (c *rdmaCollector) Update(ch chan<- prometheus.Metric) error {
 			if !c.metricsPattern.MatchString(name) {
 				return
 			}
+			entry := c.entry(name)
+			if entry == nil {
+				c.logger.Warn("rdma metric not found", "name", name)
+				return
+			}
 			ch <- prometheus.MustNewConstMetric(c.entry(name), prometheus.GaugeValue,
 				value, labelValues...)
 		}
