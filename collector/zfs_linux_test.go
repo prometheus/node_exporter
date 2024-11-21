@@ -330,11 +330,11 @@ func TestZpoolObjsetParsingWithSpace(t *testing.T) {
 		},
 		{
 			path:            "fixtures/proc/spl/kstat/zfs/pool3/objset-1",
-			expectedDataset: "pool1",
+			expectedDataset: "pool3",
 		},
 		{
 			path:            "fixtures/proc/spl/kstat/zfs/pool3/objset-2",
-			expectedDataset: "pool1/dataset with  space",
+			expectedDataset: "pool3/dataset with  space",
 		},
 	}
 
