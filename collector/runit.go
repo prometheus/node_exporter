@@ -17,10 +17,11 @@
 package collector
 
 import (
+	"log/slog"
+
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus-community/go-runit/runit"
 	"github.com/prometheus/client_golang/prometheus"
-	"log/slog"
 )
 
 var runitServiceDir = kingpin.Flag("collector.runit.servicedir", "Path to runit service directory.").Default("/etc/service").String()

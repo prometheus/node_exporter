@@ -18,8 +18,9 @@
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var unameDesc = prometheus.NewDesc(

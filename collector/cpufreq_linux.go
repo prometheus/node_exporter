@@ -18,10 +18,11 @@ package collector
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/procfs/sysfs"
 	"log/slog"
 	"strings"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 type cpuFreqCollector struct {
