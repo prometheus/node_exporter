@@ -1601,6 +1601,14 @@ node_md_blocks_synced{device="md6"} 1.6775552e+07
 node_md_blocks_synced{device="md7"} 7.813735424e+09
 node_md_blocks_synced{device="md8"} 1.6775552e+07
 node_md_blocks_synced{device="md9"} 0
+# HELP node_md_degraded Number of degraded disks on device.
+# TYPE node_md_degraded gauge
+node_md_degraded{device="md0"} 0
+node_md_degraded{device="md1"} 0
+node_md_degraded{device="md10"} 0
+node_md_degraded{device="md4"} 0
+node_md_degraded{device="md5"} 1
+node_md_degraded{device="md6"} 1
 # HELP node_md_disks Number of active/failed/spare disks of device.
 # TYPE node_md_disks gauge
 node_md_disks{device="md0",state="active"} 2
@@ -1673,6 +1681,14 @@ node_md_disks_required{device="md6"} 2
 node_md_disks_required{device="md7"} 4
 node_md_disks_required{device="md8"} 2
 node_md_disks_required{device="md9"} 4
+# HELP node_md_raid_disks Number of raid disks on device.
+# TYPE node_md_raid_disks gauge
+node_md_raid_disks{device="md0"} 2
+node_md_raid_disks{device="md1"} 2
+node_md_raid_disks{device="md10"} 4
+node_md_raid_disks{device="md4"} 3
+node_md_raid_disks{device="md5"} 3
+node_md_raid_disks{device="md6"} 4
 # HELP node_md_state Indicates the state of md-device.
 # TYPE node_md_state gauge
 node_md_state{device="md0",state="active"} 1
