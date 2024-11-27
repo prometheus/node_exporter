@@ -67,6 +67,7 @@ type filesystemCollector struct {
 	excludedFSTypesPattern        *regexp.Regexp
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
+	purgeableDesc                 *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
 	mountInfoDesc                 *prometheus.Desc
 	logger                        *slog.Logger
@@ -80,6 +81,7 @@ type filesystemStats struct {
 	labels            filesystemLabels
 	size, free, avail float64
 	files, filesFree  float64
+	purgeable         *float64
 	ro, deviceError   float64
 }
 
@@ -143,6 +145,12 @@ func NewFilesystemCollector(logger *slog.Logger) (Collector, error) {
 		filesystemLabelNames, nil,
 	)
 
+	purgeableDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "purgeable_bytes"),
+		"Filesystem space available including purgeable space (MacOS specific).",
+		filesystemLabelNames, nil,
+	)
+
 	roDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "readonly"),
 		"Filesystem read-only status.",
@@ -170,6 +178,7 @@ func NewFilesystemCollector(logger *slog.Logger) (Collector, error) {
 		availDesc:                  availDesc,
 		filesDesc:                  filesDesc,
 		filesFreeDesc:              filesFreeDesc,
+		purgeableDesc:              purgeableDesc,
 		roDesc:                     roDesc,
 		deviceErrorDesc:            deviceErrorDesc,
 		mountInfoDesc:              mountInfoDesc,
@@ -227,6 +236,13 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 			c.mountInfoDesc, prometheus.GaugeValue,
 			1.0, s.labels.device, s.labels.major, s.labels.minor, s.labels.mountPoint,
 		)
+		if s.purgeable != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.purgeableDesc, prometheus.GaugeValue,
+				*s.purgeable, s.labels.device, s.labels.mountPoint,
+				s.labels.fsType, s.labels.deviceError,
+			)
+		}
 	}
 	return nil
 }

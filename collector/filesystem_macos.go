@@ -11,10 +11,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build dragonfly && !nofilesystem
-// +build dragonfly,!nofilesystem
+//go:build darwin && !nofilesystem
+// +build darwin,!nofilesystem
 
 package collector
+
+/*
+#cgo CFLAGS: -x objective-c
+#cgo LDFLAGS: -framework Foundation
+#import <Foundation/Foundation.h>
+Float64 *purgeable(char *path) {
+  CFNumberRef tmp;
+  Float64 *value;
+  NSError *error = nil;
+  NSString *str = [NSString stringWithUTF8String:path];
+  NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:str];
+  NSDictionary *results = [fileURL resourceValuesForKeys:@[NSURLVolumeAvailableCapacityForImportantUsageKey] error:&error];
+  if (results) {
+    if ((tmp = CFDictionaryGetValue((CFDictionaryRef)results, NSURLVolumeAvailableCapacityForImportantUsageKey)) == NULL)
+      return NULL;
+    value = (Float64 *)malloc(sizeof(Float64));
+    if (CFNumberGetValue(tmp, kCFNumberFloat64Type, value)) {
+      return value;
+    }
+  }
+  free(value);
+  return NULL;
+}
+*/
+import "C"
 
 import (
 	"errors"
@@ -75,6 +100,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			avail:     float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
 			files:     float64(mnt[i].f_files),
 			filesFree: float64(mnt[i].f_ffree),
+			purgeable: (*float64)(C.purgeable(C.CString(mountpoint))),
 			ro:        ro,
 		})
 	}
