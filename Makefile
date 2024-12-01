@@ -28,12 +28,6 @@ MACH                    ?= $(shell uname -m)
 
 STATICCHECK_IGNORE =
 
-ifeq ($(GOHOSTOS), linux)
-	test-e2e := test-e2e
-else
-	test-e2e := skip-test-e2e
-endif
-
 # Use CGO for non-Linux builds.
 ifeq ($(GOOS), linux)
 	PROMU_CONF ?= .promu.yml
@@ -113,15 +107,15 @@ update_fixtures:
 	rm -vf collector/fixtures/udev/.unpacked
 	./ttar -C collector/fixtures -c -f collector/fixtures/udev.ttar udev
 
-
 .PHONY: test-e2e
 test-e2e: build collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked
-	@echo ">> running end-to-end tests"
-	./end-to-end-test.sh
-
-.PHONY: skip-test-e2e
-skip-test-e2e:
-	@echo ">> SKIP running end-to-end tests on $(GOHOSTOS)"
+	if [ "$(GOHOSTOS)" = "linux"  ]; then \
+		./end-to-end-test.sh; \
+	elif [ "$(GOHOSTOS)" = "freebsd"  ]; then \
+		./end-to-end-test-freebsd.sh; \
+	else \
+		echo ">> SKIP running end-to-end tests on $(GOHOSTOS)"; \
+	fi
 
 .PHONY: checkmetrics
 checkmetrics: $(PROMTOOL)
