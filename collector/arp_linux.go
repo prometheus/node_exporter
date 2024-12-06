@@ -80,7 +80,7 @@ func NewARPCollector(logger *slog.Logger) (Collector, error) {
 		states: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "arp", "states"),
 			"ARP states by device",
-			[]string{"device", "ip", "state"}, nil,
+			[]string{"device", "state"}, nil,
 		),
 		logger: logger,
 	}, nil
@@ -96,7 +96,7 @@ func getTotalArpEntries(deviceEntries []procfs.ARPEntry) map[string]uint32 {
 	return entries
 }
 
-func getArpEntriesNTRL() (map[string]uint32, map[string]neighborState, error) {
+func getArpEntriesRTNL() (map[string]uint32, map[string]map[string]int, error) {
 	conn, err := rtnetlink.Dial(nil)
 	if err != nil {
 		return nil, nil, err
@@ -109,7 +109,7 @@ func getArpEntriesNTRL() (map[string]uint32, map[string]neighborState, error) {
 	}
 
 	ifIndexEntries := make(map[uint32]uint32)
-	ifIndexStates := make(map[uint32]neighborState)
+	ifIndexStates := make(map[uint32]map[string]int)
 
 	for _, n := range neighbors {
 		// Neighbors will also contain IPv6 neighbors, but since this is purely an ARP collector,
@@ -117,12 +117,17 @@ func getArpEntriesNTRL() (map[string]uint32, map[string]neighborState, error) {
 		// of /proc/net/arp.
 		if n.Family == unix.AF_INET && n.State&unix.NUD_NOARP == 0 {
 			ifIndexEntries[n.Index]++
-			ifIndexStates[n.Index] = neighborState{ip: n.Attributes.Address.String(), state: neighborStatesMap[n.State]}
+
+			_, ok := ifIndexStates[n.Index]
+			if !ok {
+				ifIndexStates[n.Index] = make(map[string]int)
+			}
+			ifIndexStates[n.Index][neighborStatesMap[n.State]]++
 		}
 	}
 
 	enumEntries := make(map[string]uint32)
-	enumStates := make(map[string]neighborState)
+	enumStates := make(map[string]map[string]int)
 
 	// Convert interface indexes to names.
 	for ifIndex, entryCount := range ifIndexEntries {
@@ -144,13 +149,13 @@ func getArpEntriesNTRL() (map[string]uint32, map[string]neighborState, error) {
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 	var (
 		enumeratedEntry map[string]uint32
-		enumStates      map[string]neighborState
+		enumStates      map[string]map[string]int
 	)
 
 	if *arpNetlink {
 		var err error
 
-		enumeratedEntry, enumStates, err = getArpEntriesNTRL()
+		enumeratedEntry, enumStates, err = getArpEntriesRTNL()
 		if err != nil {
 			return fmt.Errorf("could not get ARP entries: %w", err)
 		}
@@ -171,9 +176,11 @@ func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 			c.entries, prometheus.GaugeValue, float64(entryCount), device)
 
 		if *arpNetlink {
-			s := enumStates[device]
-			ch <- prometheus.MustNewConstMetric(
-				c.states, prometheus.GaugeValue, 1, device, s.ip, s.state)
+			states := enumStates[device]
+			for state, count := range states {
+				ch <- prometheus.MustNewConstMetric(
+					c.states, prometheus.GaugeValue, float64(count), device, state)
+			}
 		}
 	}
 
