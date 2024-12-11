@@ -191,7 +191,7 @@
             ||| % $._config,
             annotations: {
               summary: 'Number of conntrack are getting close to the limit.',
-              description: '{{ $value | humanizePercentage }} of conntrack entries are used.',
+              description: '{{ $labels.instance }} {{ $value | humanizePercentage }} of conntrack entries are used.',
             },
             labels: {
               severity: 'warning',
