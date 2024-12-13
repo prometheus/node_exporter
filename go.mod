@@ -3,7 +3,7 @@ module github.com/prometheus/node_exporter
 go 1.22.0
 
 require (
-	github.com/Mellanox/rdmamap v1.1.0
+	github.com/Mellanox/rdmamap v1.1.1-0.20241212105033-37bd11cc4c57
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/beevik/ntp v1.4.3
 	github.com/coreos/go-systemd/v22 v22.5.0
@@ -62,5 +62,3 @@ require (
 	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-replace github.com/Mellanox/rdmamap => github.com/yeahdongcn/rdmamap v0.0.0-20241110052645-2f11ac5dce50
