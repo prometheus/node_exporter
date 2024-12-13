@@ -1,3 +1,5 @@
+github.com/Mellanox/rdmamap v1.1.1-0.20241212105033-37bd11cc4c57 h1:ffMnYJFt7Bgp/2s2fOsQ0LpKfuU4xCk4afAtQG1wuBM=
+github.com/Mellanox/rdmamap v1.1.1-0.20241212105033-37bd11cc4c57/go.mod h1:D3ffy5KqtmeWfuW0cX/GQW0J6S3k8aORk4bf9CBOhng=
 github.com/alecthomas/kingpin/v2 v2.4.0 h1:f48lwail6p8zpO1bC4TxtqACaGqHYA22qkHjHpqDjYY=
 github.com/alecthomas/kingpin/v2 v2.4.0/go.mod h1:0gyi0zQnjuFk8xrkNKamJoyUo382HRL7ATRpFZCw6tE=
 github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 h1:s6gZFSlWYmbqAuRjVTiNNhvNRfY2Wxp9nhfyel4rklc=
@@ -103,8 +105,6 @@ github.com/vishvananda/netns v0.0.4 h1:Oeaw1EM2JMxD51g9uhtC0D7erkIjgmj8+JZc26m1Y
 github.com/vishvananda/netns v0.0.4/go.mod h1:SpkAiCQRtJ6TvvxPnOSyH3BMl6unz3xZlaprSwhNNJM=
 github.com/xhit/go-str2duration/v2 v2.1.0 h1:lxklc02Drh6ynqX+DdPyp5pCKLUQpRT8bp8Ydu2Bstc=
 github.com/xhit/go-str2duration/v2 v2.1.0/go.mod h1:ohY8p+0f07DiV6Em5LKB0s2YpLtXVyJfNt1+BlmyAsU=
-github.com/yeahdongcn/rdmamap v0.0.0-20241110052645-2f11ac5dce50 h1:S5Kx7HYonzAhND9Pb7ZekrdQ/E1uc7m6ZdmVjy8pD3o=
-github.com/yeahdongcn/rdmamap v0.0.0-20241110052645-2f11ac5dce50/go.mod h1:D3ffy5KqtmeWfuW0cX/GQW0J6S3k8aORk4bf9CBOhng=
 go.uber.org/atomic v1.7.0 h1:ADUqmZGgLDDfbSL9ZmPxKTybcoEYHgpYfELNoN+7hsw=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/multierr v1.6.0 h1:y6IPFStTAIT5Ytl7/XYmHvzXQ7S3g/IeZW9hyZ5thw4=
