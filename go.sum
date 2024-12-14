@@ -83,8 +83,8 @@ github.com/prometheus/common v0.60.1 h1:FUas6GcOw66yB/73KC+BOZoFJmbo/1pojoILArPA
 github.com/prometheus/common v0.60.1/go.mod h1:h0LYf1R1deLSKtD4Vdg8gy4RuOvENW2J/h19V5NADQw=
 github.com/prometheus/exporter-toolkit v0.13.1 h1:Evsh0gWQo2bdOHlnz9+0Nm7/OFfIwhE2Ws4A2jIlR04=
 github.com/prometheus/exporter-toolkit v0.13.1/go.mod h1:ujdv2YIOxtdFxxqtloLpbqmxd5J0Le6IITUvIRSWjj0=
-github.com/prometheus/procfs v0.15.1 h1:YagwOFzUgYfKKHX6Dr+sHT7km/hxC76UB0learggepc=
-github.com/prometheus/procfs v0.15.1/go.mod h1:fB45yRUv8NstnjriLhBQLuOUt+WW4BsoGhij/e3PBqk=
+github.com/prometheus/procfs v0.15.2-0.20240603130017-1754b780536b h1:4EJkx3vycI+n5JY5ht+bnSUGamkmmXkpcNeO/OBT/0A=
+github.com/prometheus/procfs v0.15.2-0.20240603130017-1754b780536b/go.mod h1:fB45yRUv8NstnjriLhBQLuOUt+WW4BsoGhij/e3PBqk=
 github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjRBZyWFQ=
 github.com/rogpeppe/go-internal v1.10.0/go.mod h1:UQnix2H7Ngw/k4C5ijL5+65zddjncjaFoBhdsK/akog=
 github.com/safchain/ethtool v0.4.1 h1:S6mEleTADqgynileXoiapt/nKnatyR6bmIHoF+h2ADo=
