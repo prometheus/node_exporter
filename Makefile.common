@@ -201,7 +201,13 @@ common-unused:
 .PHONY: common-build
 common-build: promu
 	@echo ">> building binaries"
-	$(PROMU) build --prefix $(PREFIX) $(PROMU_BINARIES)
+	@$(PROMU) build --prefix $(PREFIX) $(PROMU_BINARIES)
+	@# Use the codesign binary directly instead of `promu codesign` as it depends on an image that doesn't support linux/arm64 (w.r.t. darwin's rosetta emulation) yet.
+	@if [ "$(GOHOSTOS)" = "darwin" ]; then \
+        if command -v codesign > /dev/null 2>&1; then \
+			codesign --sign - --force --preserve-metadata=entitlements,requirements,flags,runtime node_exporter >/dev/null 2>&1; \
+		fi; \
+	fi
 
 .PHONY: common-tarball
 common-tarball: promu
