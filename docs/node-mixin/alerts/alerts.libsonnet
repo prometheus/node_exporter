@@ -312,7 +312,7 @@
           {
             alert: 'NodeCPUHighUsage',
             expr: |||
-              sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode!="idle"}[2m]))) * 100 > %(cpuHighUsageThreshold)d
+              sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode!~"idle|iowait"}[2m]))) * 100 > %(cpuHighUsageThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
