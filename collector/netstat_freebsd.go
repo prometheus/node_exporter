@@ -36,18 +36,19 @@ import (
 */
 import "C"
 
-var metricDescs = []*prometheus.Desc{
-	prometheus.NewDesc(
-		"tcp_send_packet_total",
-		"tcp_send_packet_total",
+var (
+	bsdNetstatTcpSendPacketsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "tcp_transmit_packets_total"),
+		"TCP packets sent",
 		nil, nil,
-	),
-	prometheus.NewDesc(
-		"tcp_recv_packet_total",
-		"tcp_recv_packet_total",
+	)
+
+	bsdNetstatTcpRecvPacketsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "tcp_receive_packets_total"),
+		"TCP packets received",
 		nil, nil,
-	),
-}
+	)
+)
 
 type netStatCollector struct {
 	netStatMetric *prometheus.Desc
@@ -84,8 +85,6 @@ func getData(queryString string) ([]byte, error) {
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 
-	var result []float64
-
 	tcpData, err := getData("net.inet.tcp.stats")
 	if err != nil {
 		return err
@@ -93,16 +92,17 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 
 	tcpStats := *(*C.struct_tcpstat)(unsafe.Pointer(&tcpData[0]))
 
-	result = append(result, float64(tcpStats.tcps_sndtotal))
-	result = append(result, float64(tcpStats.tcps_rcvtotal))
+	ch <- prometheus.MustNewConstMetric(
+		bsdNetstatTcpSendPacketsTotal,
+		prometheus.CounterValue,
+		float64(tcpStats.tcps_sndtotal),
+	)
 
-	for index, value := range metricDescs {
-		ch <- prometheus.MustNewConstMetric(
-			value,
-			prometheus.UntypedValue,
-			result[index],
-		)
-	}
+	ch <- prometheus.MustNewConstMetric(
+		bsdNetstatTcpRecvPacketsTotal,
+		prometheus.CounterValue,
+		float64(tcpStats.tcps_rcvtotal),
+	)
 
 	return nil
 }
