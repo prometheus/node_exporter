@@ -50,6 +50,16 @@
     // 'NodeSystemSaturation' alert.
     systemSaturationPerCoreThreshold: 2,
 
+    // Some of the alerts use predict_linear() to fire alerts ahead of time to
+    // prevent unrecoverable situations (eg. no more disk space). However, the
+    // node may have automatic processes (cronjobs) in place to prevent that
+    // within a certain time window, this may not align with the default time
+    // window of these alerts. This can cause these alerts to start flapping.
+    // By reducing the time window, the system gets more time to
+    // resolve this before problems occur.
+    nodeWarningWindowHours: '24',
+    nodeCriticalWindowHours: '4',
+
     // Available disk space (%) thresholds on which to trigger the
     // 'NodeFilesystemSpaceFillingUp' alerts. These alerts fire if the disk
     // usage grows in a way that it is predicted to run out in 4h or 1d
