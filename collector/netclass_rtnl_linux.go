@@ -133,7 +133,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		} else {
 			pushMetric(ch, c.getFieldDesc("iface_link"), "iface_link", msg.Index, prometheus.GaugeValue, msg.Attributes.Name)
 		}
-		
+
 		if ifaceInfo.NameAssignType != nil {
 			pushMetric(ch, c.getFieldDesc("name_assign_type"), "name_assign_type", ifaceInfo.NameAssignType, prometheus.GaugeValue, msg.Attributes.Name)
 		}
