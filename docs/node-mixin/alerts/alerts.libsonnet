@@ -18,6 +18,7 @@
             'for': '1h',
             labels: {
               severity: 'warning',
+              window: '24h',
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of space within the next 24 hours.',
@@ -38,6 +39,7 @@
             'for': '1h',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
+              window: '4h',
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of space within the next 4 hours.',
@@ -56,6 +58,7 @@
             'for': '30m',
             labels: {
               severity: 'warning',
+              threshold: '%(fsSpaceAvailableWarningThreshold)d%%' % $._config,
             },
             annotations: {
               summary: 'Filesystem has less than %(fsSpaceAvailableWarningThreshold)d%% space left.' % $._config,
@@ -74,6 +77,7 @@
             'for': '30m',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
+              threshold: '%(fsSpaceAvailableCriticalThreshold)d%%' % $._config,
             },
             annotations: {
               summary: 'Filesystem has less than %(fsSpaceAvailableCriticalThreshold)d%% space left.' % $._config,
@@ -94,6 +98,7 @@
             'for': '1h',
             labels: {
               severity: 'warning',
+              window: '24h',
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of inodes within the next 24 hours.',
@@ -114,6 +119,7 @@
             'for': '1h',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
+              window: '4h',
             },
             annotations: {
               summary: 'Filesystem is predicted to run out of inodes within the next 4 hours.',
@@ -132,6 +138,7 @@
             'for': '1h',
             labels: {
               severity: 'warning',
+              threshold: '5%',
             },
             annotations: {
               summary: 'Filesystem has less than 5% inodes left.',
@@ -150,6 +157,7 @@
             'for': '1h',
             labels: {
               severity: '%(nodeCriticalSeverity)s' % $._config,
+              threshold: '3%',
             },
             annotations: {
               summary: 'Filesystem has less than 3% inodes left.',
