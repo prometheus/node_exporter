@@ -893,6 +893,10 @@ node_hwmon_fan_target_rpm{chip="nct6779",sensor="fan2"} 27000
 # HELP node_hwmon_fan_tolerance Hardware monitor fan element tolerance
 # TYPE node_hwmon_fan_tolerance gauge
 node_hwmon_fan_tolerance{chip="nct6779",sensor="fan2"} 0
+# HELP node_hwmon_freq_freq_mhz Hardware monitor for GPU frequency in MHz
+# TYPE node_hwmon_freq_freq_mhz gauge
+node_hwmon_freq_freq_mhz{chip="hwmon4",sensor="mclk"} 300
+node_hwmon_freq_freq_mhz{chip="hwmon4",sensor="sclk"} 214
 # HELP node_hwmon_in_alarm Hardware sensor alarm status (in)
 # TYPE node_hwmon_in_alarm gauge
 node_hwmon_in_alarm{chip="nct6779",sensor="in0"} 0
@@ -1006,8 +1010,10 @@ node_hwmon_pwm_weight_temp_step_tol{chip="nct6779",sensor="pwm1"} 0
 # TYPE node_hwmon_sensor_label gauge
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp1"} 1
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp2"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="Left side  ",sensor="fan1"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="Right side ",sensor="fan2"} 1
+node_hwmon_sensor_label{chip="hwmon4",label="mclk",sensor="freq2"} 1
+node_hwmon_sensor_label{chip="hwmon4",label="sclk",sensor="freq1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Left side",sensor="fan1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Right side",sensor="fan2"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 0",sensor="temp2"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 1",sensor="temp3"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 2",sensor="temp4"} 1

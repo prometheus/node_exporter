@@ -437,6 +437,26 @@ Lines: 1
 100000
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq1_input
+Lines: 1
+214000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq1_label
+Lines: 1
+sclk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq2_input
+Lines: 1
+300000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq2_label
+Lines: 1
+mclk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/hwmon/hwmon5
 SymlinkTo: ../../devices/platform/bogus.0/hwmon/hwmon5/
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1337,7 +1357,7 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/model
 Lines: 1
-Samsung SSD 970 PRO 512GB               
+Samsung SSD 970 PRO 512GB
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/serial
@@ -2750,7 +2770,7 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan1_label
 Lines: 1
-Left side  
+Left side
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan1_manual
@@ -2784,7 +2804,7 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan2_label
 Lines: 1
-Right side 
+Right side
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/platform/applesmc.768/fan2_manual
