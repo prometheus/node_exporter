@@ -38,13 +38,13 @@ import "C"
 
 var metricDescs = []*prometheus.Desc{
 	prometheus.NewDesc(
-		"tcp_send_packet_total",
-		"tcp_send_packet_total",
+		prometheus.BuildFQName(namespace, "netstat", "tcp_transmit_packets_total"),
+		"TCP packets sent",
 		nil, nil,
 	),
 	prometheus.NewDesc(
-		"tcp_recv_packet_total",
-		"tcp_recv_packet_total",
+		prometheus.BuildFQName(namespace, "netstat", "tcp_receive_packets_total"),
+		"TCP packets received",
 		nil, nil,
 	),
 }
