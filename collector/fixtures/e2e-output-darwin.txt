@@ -56,20 +56,87 @@
 # TYPE go_sched_gomaxprocs_threads gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
+# HELP node_buddyinfo_blocks Count of free blocks according to size.
+# TYPE node_buddyinfo_blocks gauge
+node_buddyinfo_blocks{node="0",size="0",zone="DMA"} 1
+node_buddyinfo_blocks{node="0",size="0",zone="DMA32"} 759
+node_buddyinfo_blocks{node="0",size="0",zone="Normal"} 4381
+node_buddyinfo_blocks{node="0",size="1",zone="DMA"} 0
+node_buddyinfo_blocks{node="0",size="1",zone="DMA32"} 572
+node_buddyinfo_blocks{node="0",size="1",zone="Normal"} 1093
+node_buddyinfo_blocks{node="0",size="10",zone="DMA"} 3
+node_buddyinfo_blocks{node="0",size="10",zone="DMA32"} 0
+node_buddyinfo_blocks{node="0",size="10",zone="Normal"} 0
+node_buddyinfo_blocks{node="0",size="2",zone="DMA"} 1
+node_buddyinfo_blocks{node="0",size="2",zone="DMA32"} 791
+node_buddyinfo_blocks{node="0",size="2",zone="Normal"} 185
+node_buddyinfo_blocks{node="0",size="3",zone="DMA"} 0
+node_buddyinfo_blocks{node="0",size="3",zone="DMA32"} 475
+node_buddyinfo_blocks{node="0",size="3",zone="Normal"} 1530
+node_buddyinfo_blocks{node="0",size="4",zone="DMA"} 2
+node_buddyinfo_blocks{node="0",size="4",zone="DMA32"} 194
+node_buddyinfo_blocks{node="0",size="4",zone="Normal"} 567
+node_buddyinfo_blocks{node="0",size="5",zone="DMA"} 1
+node_buddyinfo_blocks{node="0",size="5",zone="DMA32"} 45
+node_buddyinfo_blocks{node="0",size="5",zone="Normal"} 102
+node_buddyinfo_blocks{node="0",size="6",zone="DMA"} 1
+node_buddyinfo_blocks{node="0",size="6",zone="DMA32"} 12
+node_buddyinfo_blocks{node="0",size="6",zone="Normal"} 4
+node_buddyinfo_blocks{node="0",size="7",zone="DMA"} 0
+node_buddyinfo_blocks{node="0",size="7",zone="DMA32"} 0
+node_buddyinfo_blocks{node="0",size="7",zone="Normal"} 0
+node_buddyinfo_blocks{node="0",size="8",zone="DMA"} 1
+node_buddyinfo_blocks{node="0",size="8",zone="DMA32"} 0
+node_buddyinfo_blocks{node="0",size="8",zone="Normal"} 0
+node_buddyinfo_blocks{node="0",size="9",zone="DMA"} 1
+node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
+node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
+# HELP node_disk_read_errors_total The total number of read errors.
+# TYPE node_disk_read_errors_total counter
+node_disk_read_errors_total{device="disk0"} 0
+# HELP node_disk_read_retries_total The total number of read retries.
+# TYPE node_disk_read_retries_total counter
+node_disk_read_retries_total{device="disk0"} 0
+# HELP node_disk_write_errors_total The total number of write errors.
+# TYPE node_disk_write_errors_total counter
+node_disk_write_errors_total{device="disk0"} 0
+# HELP node_disk_write_retries_total The total number of write retries.
+# TYPE node_disk_write_retries_total counter
+node_disk_write_retries_total{device="disk0"} 0
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
-# HELP node_memory_swap_size_bytes Memory information field swap_size_bytes.
-# TYPE node_memory_swap_size_bytes gauge
-node_memory_swap_size_bytes 6.442426368e+09
+# HELP node_memory_swap_total_bytes Memory information field swap_total_bytes.
+# TYPE node_memory_swap_total_bytes gauge
+node_memory_swap_total_bytes 0
 # HELP node_memory_swap_used_bytes Memory information field swap_used_bytes.
 # TYPE node_memory_swap_used_bytes gauge
 node_memory_swap_used_bytes 0
-# HELP node_memory_swapped_in_pages_bytes_total Memory information field swapped_in_pages_bytes_total.
-# TYPE node_memory_swapped_in_pages_bytes_total counter
-node_memory_swapped_in_pages_bytes_total 0
-# HELP node_memory_swapped_out_pages_bytes_total Memory information field swapped_out_pages_bytes_total.
-# TYPE node_memory_swapped_out_pages_bytes_total counter
-node_memory_swapped_out_pages_bytes_total 0
+# HELP node_memory_total_bytes Memory information field total_bytes.
+# TYPE node_memory_total_bytes gauge
+node_memory_total_bytes 7.516192768e+09
+# HELP node_network_noproto_total Network device statistic noproto.
+# TYPE node_network_noproto_total counter
+node_network_noproto_total{device="lo0"} 0
+# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
+# TYPE node_network_receive_bytes_total counter
+# HELP node_network_receive_drop_total Network device statistic receive_drop.
+# TYPE node_network_receive_drop_total counter
+node_network_receive_drop_total{device="lo0"} 0
+# HELP node_network_receive_errs_total Network device statistic receive_errs.
+# TYPE node_network_receive_errs_total counter
+node_network_receive_errs_total{device="lo0"} 0
+# HELP node_network_receive_packets_total Network device statistic receive_packets.
+# TYPE node_network_receive_packets_total counter
+# HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.
+# TYPE node_network_transmit_bytes_total counter
+# HELP node_network_transmit_colls_total Network device statistic transmit_colls.
+# TYPE node_network_transmit_colls_total counter
+node_network_transmit_colls_total{device="lo0"} 0
+# HELP node_network_transmit_errs_total Network device statistic transmit_errs.
+# TYPE node_network_transmit_errs_total counter
+node_network_transmit_errs_total{device="lo0"} 0
+# HELP node_network_transmit_packets_total Network device statistic transmit_packets.
+# TYPE node_network_transmit_packets_total counter
 # HELP node_os_info A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, name, pretty_name, variant, variant_id, version, version_codename, version_id.
 # TYPE node_os_info gauge
 node_os_info{build_id="",id="ubuntu",id_like="debian",image_id="",image_version="",name="Ubuntu",pretty_name="Ubuntu 20.04.2 LTS",variant="",variant_id="",version="20.04.2 LTS (Focal Fossa)",version_codename="focal",version_id="20.04"} 1
@@ -81,11 +148,16 @@ node_os_version{id="ubuntu",id_like="debian",name="Ubuntu"} 20.04
 # HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.
 # TYPE node_scrape_collector_success gauge
 node_scrape_collector_success{collector="boottime"} 1
-node_scrape_collector_success{collector="cpu"} 0
+node_scrape_collector_success{collector="buddyinfo"} 1
+node_scrape_collector_success{collector="cpu"} 1
+node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="loadavg"} 1
 node_scrape_collector_success{collector="meminfo"} 1
+node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="os"} 1
+node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="textfile"} 1
+node_scrape_collector_success{collector="thermal"} 0
 node_scrape_collector_success{collector="time"} 1
 node_scrape_collector_success{collector="xfrm"} 1
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
@@ -181,8 +253,6 @@ node_xfrm_out_state_proto_error_packets_total 4542
 # HELP node_xfrm_out_state_seq_error_packets_total Sequence error i.e. Sequence number overflow
 # TYPE node_xfrm_out_state_seq_error_packets_total counter
 node_xfrm_out_state_seq_error_packets_total 543
-# HELP process_open_fds Number of open file descriptors.
-# TYPE process_open_fds gauge
 # HELP promhttp_metric_handler_errors_total Total number of internal errors encountered by the promhttp metric handler.
 # TYPE promhttp_metric_handler_errors_total counter
 promhttp_metric_handler_errors_total{cause="encoding"} 0

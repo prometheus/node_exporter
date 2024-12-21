@@ -12,11 +12,12 @@ permissions:
   contents: read
 
 env:
-  GO_VERSION_FREEBSD: "123"
-  GO_VERSION_OPENBSD: "1.23.1"
-  GO_VERSION_NETBSD: "123"
-  GO_VERSION_DRAGONFLY: "1.23.3"
   GNU_TAR_VERSION: "1.35"
+  GO_VERSION_DRAGONFLY: "1.23.3"
+  GO_VERSION_FREEBSD: "123"
+  GO_VERSION_NETBSD: "123"
+  GO_VERSION_OPENBSD: "1.23.1"
+  GO_VERSION_SOLARIS: "1.23.3"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -34,7 +35,16 @@ jobs:
           usesh: true
           prepare: |
             pkg update -f
-            pkg install -y bash curl gtar git gmake gsed gnugrep go${GO_VERSION_FREEBSD} python
+            pkg install -y \
+              bash \
+              git \
+              gmake \
+              gnugrep \
+              go${GO_VERSION_FREEBSD} \
+              gsed \
+              gtar \
+              python \
+              wget
           run: |
             echo "::group::Setup prerequisites"
             set -eu
@@ -72,7 +82,16 @@ jobs:
           usesh: true
           prepare: |
             pkg_add -u
-            pkg_add bash curl gtar-${GNU_TAR_VERSION}p0-static git gmake gsed ggrep go-${GO_VERSION_OPENBSD} python
+            pkg_add \
+              bash \
+              ggrep \
+              git \
+              gmake \
+              go-${GO_VERSION_OPENBSD} \
+              gsed \
+              gtar-${GNU_TAR_VERSION}p0-static \
+              python \
+              wget
           run: |
             echo "::group::Setup prerequisites"
             set -eu
@@ -109,7 +128,15 @@ jobs:
           usesh: true
           prepare: |
             /usr/sbin/pkg_add -u
-            /usr/sbin/pkg_add curl gtar-base-${GNU_TAR_VERSION} git gmake gsed grep go${GO_VERSION_NETBSD} python312
+            /usr/sbin/pkg_add \
+              git \
+              gmake \
+              go${GO_VERSION_NETBSD} \
+              grep \
+              gsed \
+              gtar-base-${GNU_TAR_VERSION}\
+              python312 \
+              wget
           run: |
             echo "::group::Setup prerequisites"
             set -eu
@@ -147,14 +174,23 @@ jobs:
           usesh: true
           prepare: |
             pkg update && pkg upgrade -y
-            pkg install -y bash wget gtar git gmake gsed gnugrep python3
+            pkg install -y \
+              bash \
+              git \
+              gmake \
+              gnugrep \
+              gsed \
+              gtar \
+              python3 \
+              wget
           run: |
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
             export PATH=$(pwd)/bin:$PATH
-            wget https://go.dev/dl/go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz
-            gtar xzf go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz
+            GOGZ="go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
             ln -s $(which ggrep) $(pwd)/bin/grep
             ln -s $(which gmake) $(pwd)/bin/make
@@ -173,3 +209,103 @@ jobs:
             git config --global --add safe.directory $(pwd)
             gmake test-e2e
             echo "::endgroup::"
+
+  test_solaris:
+    name: Run end-to-end tests on Solaris
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: test-e2e
+        uses: vmactions/solaris-vm@v1
+        with:
+          copyback: false
+          envs: 'GO_VERSION_SOLARIS'
+          usesh: true
+          prepare: |
+            pkg update
+            pkg install \
+              bash \
+              curl \
+              gcc \
+              git \
+              gnu-grep \
+              gnu-make \
+              gnu-sed \
+              gnu-tar
+          run: |
+            echo "::group::Setup prerequisites"
+            set -eu
+            mkdir bin
+            export PATH=$(pwd)/bin:$PATH
+            GOGZ="go${GO_VERSION_SOLARIS}.solaris-amd64.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
+            ln -s $(which ggrep) $(pwd)/bin/grep
+            ln -s $(which gmake) $(pwd)/bin/make
+            ln -s $(which gsed) $(pwd)/bin/sed
+            ln -s $(which gtar) $(pwd)/bin/tar
+            
+            echo ">> building promu as it is not shipped for Solaris"
+            git clone https://github.com/prometheus/promu.git
+            cd promu
+            go build .
+            cd -
+            
+            mkdir -p $(go env GOPATH)/bin
+            ln -s $(pwd)/promu/promu $(go env GOPATH)/bin/promu
+            export PATH=$(go env GOPATH)/bin:$PATH
+            echo "::endgroup::"
+
+            echo "::group::Print environment information"
+            uname -a
+            echo "GOOS: $(go env GOOS)"
+            echo "GOARCH: $(go env GOARCH)"
+            echo "::endgroup::"
+
+            echo "::group::Run End-to-End Tests"
+            git config --global --add safe.directory $(pwd)
+            make test-e2e
+            echo "::endgroup::"
+
+  test_macos:
+    name: Run end-to-end tests on macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          brew install \
+            bash \
+            curl \
+            git \
+            grep \
+            make \
+            gnu-sed \
+            gnu-tar \
+            go \
+            python3
+      - name: test-e2e
+        run: |
+          echo "::group::Setup prerequisites"
+          set -eu
+          mkdir bin
+          ln -s $(which ggrep) $(pwd)/bin/grep
+          ln -s $(which gmake) $(pwd)/bin/make
+          ln -s $(which gsed) $(pwd)/bin/sed
+          ln -s $(which gtar) $(pwd)/bin/tar
+          export PATH=$(pwd)/bin:$PATH
+          echo "::endgroup::"
+
+          echo "::group::Print environment information"
+          uname -a
+          echo "GOOS: $(go env GOOS)"
+          echo "GOARCH: $(go env GOARCH)"
+          echo "::endgroup::"
+
+          echo "::group::Run End-to-End Tests"
+          git config --global --add safe.directory $(pwd)
+          make test-e2e
+          echo "::endgroup::"
