@@ -93,9 +93,6 @@ node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
-# HELP node_memory_size_bytes Total physical memory size
-# TYPE node_memory_size_bytes gauge
-node_memory_size_bytes 6.214455296e+09
 # HELP node_memory_swap_in_bytes_total Bytes paged in from swap devices
 # TYPE node_memory_swap_in_bytes_total counter
 node_memory_swap_in_bytes_total 0
@@ -137,9 +134,6 @@ node_network_receive_drop_total{device="lo0"} 0
 # HELP node_network_receive_errs_total Network device statistic receive_errs.
 # TYPE node_network_receive_errs_total counter
 node_network_receive_errs_total{device="lo0"} 0
-# HELP node_network_receive_multicast_total Network device statistic receive_multicast.
-# TYPE node_network_receive_multicast_total counter
-node_network_receive_multicast_total{device="lo0"} 0
 # HELP node_network_receive_packets_total Network device statistic receive_packets.
 # TYPE node_network_receive_packets_total counter
 # HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.

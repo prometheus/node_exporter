@@ -101,9 +101,6 @@ node_network_receive_drop_total{device="lo0"} 0
 # HELP node_network_receive_errs_total Network device statistic receive_errs.
 # TYPE node_network_receive_errs_total counter
 node_network_receive_errs_total{device="lo0"} 0
-# HELP node_network_receive_multicast_total Network device statistic receive_multicast.
-# TYPE node_network_receive_multicast_total counter
-node_network_receive_multicast_total{device="lo0"} 0
 # HELP node_network_receive_packets_total Network device statistic receive_packets.
 # TYPE node_network_receive_packets_total counter
 # HELP node_network_transmit_bytes_total Network device statistic transmit_bytes.

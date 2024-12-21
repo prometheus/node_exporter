@@ -269,7 +269,7 @@ echo "========================="
 echo $! > "${tmpdir}/node_exporter.pid"
 
 generated_metrics="${tmpdir}/e2e-output.txt"
-for os in freebsd openbsd netbsd solaris dragonfly; do
+for os in freebsd openbsd netbsd solaris dragonfly darwin; do
   if [ "${GOHOSTOS}" = "${os}" ]; then
     generated_metrics="${tmpdir}/e2e-output-${GOHOSTOS}.txt"
     fixture_metrics="${fixture_metrics::-4}-${GOHOSTOS}.txt"
@@ -322,35 +322,47 @@ get "127.0.0.1:${port}/metrics" | grep --text -E -v "${skip_re}" > "${generated_
 
 non_deterministic_metrics=$(cat << METRICS
   node_boot_time_seconds
+  node_cpu_frequency_hertz
   node_cpu_seconds_total
+  node_disk_io_time_seconds_total
+  node_disk_read_bytes_total
+  node_disk_read_sectors_total
+  node_disk_read_time_seconds_total
+  node_disk_reads_completed_total
+  node_disk_write_time_seconds_total
+  node_disk_writes_completed_total
+  node_disk_written_bytes_total
+  node_disk_written_sectors_total
   node_exec_context_switches_total
   node_exec_device_interrupts_total
-  node_exec_software_interrupts_total
-  node_network_transmit_multicast_total
   node_exec_forks_total
+  node_exec_software_interrupts_total
   node_exec_system_calls_total
   node_exec_traps_total
+  node_interrupts_total
   node_load1
   node_load15
   node_load5
   node_memory_active_bytes
   node_memory_buffer_bytes
+  node_memory_cache_bytes
+  node_memory_compressed_bytes
   node_memory_free_bytes
   node_memory_inactive_bytes
+  node_memory_internal_bytes
   node_memory_laundry_bytes
+  node_memory_purgeable_bytes
+  node_memory_size_bytes
+  node_memory_swapped_in_bytes_total
+  node_memory_swapped_out_bytes_total
   node_memory_wired_bytes
-  node_interrupts_total
-  node_disk_written_bytes_total
-  node_disk_writes_completed_total
-  node_disk_reads_completed_total
-  node_disk_read_bytes_total
-  node_disk_io_time_seconds_total
-  node_memory_cache_bytes
+  node_network_receive_multicast_total
+  node_network_transmit_multicast_total
 METRICS
 )
 
 # Remove non-deterministic metrics from the generated metrics file (as we run their workflows in VMs).
-for os in freebsd openbsd netbsd solaris dragonfly; do
+for os in freebsd openbsd netbsd solaris dragonfly darwin; do
   if [ "${GOHOSTOS}" = "${os}" ]; then
     for metric in ${non_deterministic_metrics}; do
       sed -i "/${metric}/d" "${generated_metrics}"
