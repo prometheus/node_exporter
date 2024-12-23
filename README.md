@@ -44,10 +44,10 @@ docker run -d \
   --net="host" \
   --pid="host" \
   -v "/:/host:ro,rslave" \
-  -v  "/var/lib/node_exporter/textfile_collector:/textfile_collector"
+  -v  "/var/lib/node_exporter/textfile_collector:/textfile_collector" \
   quay.io/prometheus/node-exporter:latest \
-  --path.rootfs=/host --path.udev.data=/host/run/udev/data --path.procfs=/host/proc --path.sysfs=/host/sys
-  --collector.textfile.directory /var/lib/node_exporter/textfile_collector
+  --path.rootfs=/host --path.udev.data=/host/run/udev/data --path.procfs=/host/proc --path.sysfs=/host/sys \
+  --collector.textfile.directory /textfile_collector
 ```
 
 For Docker compose, similar flag changes are needed.
