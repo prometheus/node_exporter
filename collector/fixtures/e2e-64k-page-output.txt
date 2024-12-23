@@ -4315,108 +4315,139 @@ node_zfs_zil_zil_itx_needcopy_count 0
 # TYPE node_zfs_zpool_dataset_nread untyped
 node_zfs_zpool_dataset_nread{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nread{dataset="pool1/dataset1",zpool="pool1"} 28
+node_zfs_zpool_dataset_nread{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nread{dataset="pool3/dataset with  space",zpool="pool3"} 28
 node_zfs_zpool_dataset_nread{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nread{dataset="poolz1/dataset1",zpool="poolz1"} 28
 # HELP node_zfs_zpool_dataset_nunlinked kstat.zfs.misc.objset.nunlinked
 # TYPE node_zfs_zpool_dataset_nunlinked untyped
 node_zfs_zpool_dataset_nunlinked{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nunlinked{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinked{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nunlinked{dataset="pool3/dataset with  space",zpool="pool3"} 3
 node_zfs_zpool_dataset_nunlinked{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nunlinked{dataset="poolz1/dataset1",zpool="poolz1"} 14
 # HELP node_zfs_zpool_dataset_nunlinks kstat.zfs.misc.objset.nunlinks
 # TYPE node_zfs_zpool_dataset_nunlinks untyped
 node_zfs_zpool_dataset_nunlinks{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nunlinks{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinks{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nunlinks{dataset="pool3/dataset with  space",zpool="pool3"} 3
 node_zfs_zpool_dataset_nunlinks{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nunlinks{dataset="poolz1/dataset1",zpool="poolz1"} 14
 # HELP node_zfs_zpool_dataset_nwritten kstat.zfs.misc.objset.nwritten
 # TYPE node_zfs_zpool_dataset_nwritten untyped
 node_zfs_zpool_dataset_nwritten{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nwritten{dataset="pool1/dataset1",zpool="pool1"} 12302
+node_zfs_zpool_dataset_nwritten{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nwritten{dataset="pool3/dataset with  space",zpool="pool3"} 12302
 node_zfs_zpool_dataset_nwritten{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nwritten{dataset="poolz1/dataset1",zpool="poolz1"} 32806
 # HELP node_zfs_zpool_dataset_reads kstat.zfs.misc.objset.reads
 # TYPE node_zfs_zpool_dataset_reads untyped
 node_zfs_zpool_dataset_reads{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_reads{dataset="pool1/dataset1",zpool="pool1"} 2
+node_zfs_zpool_dataset_reads{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_reads{dataset="pool3/dataset with  space",zpool="pool3"} 2
 node_zfs_zpool_dataset_reads{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_reads{dataset="poolz1/dataset1",zpool="poolz1"} 2
 # HELP node_zfs_zpool_dataset_writes kstat.zfs.misc.objset.writes
 # TYPE node_zfs_zpool_dataset_writes untyped
 node_zfs_zpool_dataset_writes{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_writes{dataset="pool1/dataset1",zpool="pool1"} 4
+node_zfs_zpool_dataset_writes{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_writes{dataset="pool3/dataset with  space",zpool="pool3"} 4
 node_zfs_zpool_dataset_writes{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_writes{dataset="poolz1/dataset1",zpool="poolz1"} 10
 # HELP node_zfs_zpool_nread kstat.zfs.misc.io.nread
 # TYPE node_zfs_zpool_nread untyped
 node_zfs_zpool_nread{zpool="pool1"} 1.88416e+06
+node_zfs_zpool_nread{zpool="pool3"} 1.88416e+06
 node_zfs_zpool_nread{zpool="poolz1"} 2.82624e+06
 # HELP node_zfs_zpool_nwritten kstat.zfs.misc.io.nwritten
 # TYPE node_zfs_zpool_nwritten untyped
 node_zfs_zpool_nwritten{zpool="pool1"} 3.206144e+06
+node_zfs_zpool_nwritten{zpool="pool3"} 3.206144e+06
 node_zfs_zpool_nwritten{zpool="poolz1"} 2.680501248e+09
 # HELP node_zfs_zpool_rcnt kstat.zfs.misc.io.rcnt
 # TYPE node_zfs_zpool_rcnt untyped
 node_zfs_zpool_rcnt{zpool="pool1"} 0
+node_zfs_zpool_rcnt{zpool="pool3"} 0
 node_zfs_zpool_rcnt{zpool="poolz1"} 0
 # HELP node_zfs_zpool_reads kstat.zfs.misc.io.reads
 # TYPE node_zfs_zpool_reads untyped
 node_zfs_zpool_reads{zpool="pool1"} 22
+node_zfs_zpool_reads{zpool="pool3"} 22
 node_zfs_zpool_reads{zpool="poolz1"} 33
 # HELP node_zfs_zpool_rlentime kstat.zfs.misc.io.rlentime
 # TYPE node_zfs_zpool_rlentime untyped
 node_zfs_zpool_rlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_rlentime{zpool="pool3"} 1.04112268e+08
 node_zfs_zpool_rlentime{zpool="poolz1"} 6.472105124093e+12
 # HELP node_zfs_zpool_rtime kstat.zfs.misc.io.rtime
 # TYPE node_zfs_zpool_rtime untyped
 node_zfs_zpool_rtime{zpool="pool1"} 2.4168078e+07
+node_zfs_zpool_rtime{zpool="pool3"} 2.4168078e+07
 node_zfs_zpool_rtime{zpool="poolz1"} 9.82909164e+09
 # HELP node_zfs_zpool_rupdate kstat.zfs.misc.io.rupdate
 # TYPE node_zfs_zpool_rupdate untyped
 node_zfs_zpool_rupdate{zpool="pool1"} 7.921048984922e+13
+node_zfs_zpool_rupdate{zpool="pool3"} 7.921048984922e+13
 node_zfs_zpool_rupdate{zpool="poolz1"} 1.10734831944501e+14
 # HELP node_zfs_zpool_state kstat.zfs.misc.state
 # TYPE node_zfs_zpool_state gauge
 node_zfs_zpool_state{state="degraded",zpool="pool1"} 0
 node_zfs_zpool_state{state="degraded",zpool="pool2"} 0
+node_zfs_zpool_state{state="degraded",zpool="pool3"} 0
 node_zfs_zpool_state{state="degraded",zpool="poolz1"} 1
 node_zfs_zpool_state{state="faulted",zpool="pool1"} 0
 node_zfs_zpool_state{state="faulted",zpool="pool2"} 0
+node_zfs_zpool_state{state="faulted",zpool="pool3"} 0
 node_zfs_zpool_state{state="faulted",zpool="poolz1"} 0
 node_zfs_zpool_state{state="offline",zpool="pool1"} 0
 node_zfs_zpool_state{state="offline",zpool="pool2"} 0
+node_zfs_zpool_state{state="offline",zpool="pool3"} 0
 node_zfs_zpool_state{state="offline",zpool="poolz1"} 0
 node_zfs_zpool_state{state="online",zpool="pool1"} 1
 node_zfs_zpool_state{state="online",zpool="pool2"} 0
+node_zfs_zpool_state{state="online",zpool="pool3"} 1
 node_zfs_zpool_state{state="online",zpool="poolz1"} 0
 node_zfs_zpool_state{state="removed",zpool="pool1"} 0
 node_zfs_zpool_state{state="removed",zpool="pool2"} 0
+node_zfs_zpool_state{state="removed",zpool="pool3"} 0
 node_zfs_zpool_state{state="removed",zpool="poolz1"} 0
 node_zfs_zpool_state{state="suspended",zpool="pool1"} 0
 node_zfs_zpool_state{state="suspended",zpool="pool2"} 1
+node_zfs_zpool_state{state="suspended",zpool="pool3"} 0
 node_zfs_zpool_state{state="suspended",zpool="poolz1"} 0
 node_zfs_zpool_state{state="unavail",zpool="pool1"} 0
 node_zfs_zpool_state{state="unavail",zpool="pool2"} 0
+node_zfs_zpool_state{state="unavail",zpool="pool3"} 0
 node_zfs_zpool_state{state="unavail",zpool="poolz1"} 0
 # HELP node_zfs_zpool_wcnt kstat.zfs.misc.io.wcnt
 # TYPE node_zfs_zpool_wcnt untyped
 node_zfs_zpool_wcnt{zpool="pool1"} 0
+node_zfs_zpool_wcnt{zpool="pool3"} 0
 node_zfs_zpool_wcnt{zpool="poolz1"} 0
 # HELP node_zfs_zpool_wlentime kstat.zfs.misc.io.wlentime
 # TYPE node_zfs_zpool_wlentime untyped
 node_zfs_zpool_wlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_wlentime{zpool="pool3"} 1.04112268e+08
 node_zfs_zpool_wlentime{zpool="poolz1"} 6.472105124093e+12
 # HELP node_zfs_zpool_writes kstat.zfs.misc.io.writes
 # TYPE node_zfs_zpool_writes untyped
 node_zfs_zpool_writes{zpool="pool1"} 132
+node_zfs_zpool_writes{zpool="pool3"} 132
 node_zfs_zpool_writes{zpool="poolz1"} 25294
 # HELP node_zfs_zpool_wtime kstat.zfs.misc.io.wtime
 # TYPE node_zfs_zpool_wtime untyped
 node_zfs_zpool_wtime{zpool="pool1"} 7.155162e+06
+node_zfs_zpool_wtime{zpool="pool3"} 7.155162e+06
 node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
 # HELP node_zfs_zpool_wupdate kstat.zfs.misc.io.wupdate
 # TYPE node_zfs_zpool_wupdate untyped
 node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
+node_zfs_zpool_wupdate{zpool="pool3"} 7.9210489694949e+13
 node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # HELP node_zoneinfo_high_pages Zone watermark pages_high
 # TYPE node_zoneinfo_high_pages gauge
