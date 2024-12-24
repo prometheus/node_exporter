@@ -39,62 +39,114 @@ var (
 	rdmaDeviceExclude   = kingpin.Flag("collector.rdma.device-exclude", "Regexp of rdma devices to exclude (mutually exclusive to device-include).").String()
 	rdmaIncludedMetrics = kingpin.Flag("collector.rdma.metrics-include", "Regexp of rdma stats to include.").Default(".*").String()
 
-	rdmaHwCounters = map[string]string{
-		"roce_slow_restart_cnps":         "RDMA RoCE slow restart CNPS",
-		"rp_cnp_ignored":                 "RDMA RP CNP ignored",
-		"roce_adp_retrans_to":            "RDMA RoCE adaptive retransmission timeout",
-		"rx_icrc_encapsulated":           "RDMA RX ICRC encapsulated",
-		"resp_local_length_error":        "RDMA response local length error",
-		"np_ecn_marked_roce_packets":     "RDMA NP ECN marked RoCE packets",
-		"roce_slow_restart_trans":        "RDMA RoCE slow restart transactions",
-		"req_remote_invalid_request":     "RDMA request remote invalid request",
-		"local_ack_timeout_err":          "RDMA local ACK timeout error",
-		"lifespan":                       "RDMA lifespan",
-		"req_cqe_error":                  "RDMA request CQE error",
-		"rnr_nak_retry_err":              "RDMA RNR NAK retry error",
-		"np_cnp_sent":                    "RDMA NP CNP sent",
-		"rx_dct_connect":                 "RDMA RX DCT connect",
-		"rp_cnp_handled":                 "RDMA RP CNP handled",
-		"implied_nak_seq_err":            "RDMA implied NAK sequence error",
-		"roce_slow_restart":              "RDMA RoCE slow restart",
-		"req_cqe_flush_error":            "RDMA request CQE flush error",
-		"packet_seq_err":                 "RDMA packet sequence error",
-		"duplicate_request":              "RDMA duplicate request",
-		"roce_adp_retrans":               "RDMA RoCE adaptive retransmission",
-		"out_of_buffer":                  "RDMA out of buffer",
-		"resp_cqe_error":                 "RDMA response CQE error",
-		"resp_cqe_flush_error":           "RDMA response CQE flush error",
-		"out_of_sequence":                "RDMA out of sequence",
-		"rx_read_requests":               "RDMA RX read requests",
-		"rx_atomic_requests":             "RDMA RX atomic requests",
-		"req_remote_access_errors":       "RDMA request remote access errors",
-		"rx_write_requests":              "RDMA RX write requests",
-		"resp_remote_access_errors":      "RDMA response remote access errors",
-		"req_transport_retries_exceeded": "RDMA request transport retries exceeded",
-		"req_rnr_retries_exceeded":       "RDMA request RNR retries exceeded",
+	lookupTable = map[string]string{
+		"port_rcv_data":                   "mlx5_port_rcv_data_total",
+		"port_rcv_packets":                "mlx5_port_rcv_packets_total",
+		"port_multicast_rcv_packets":      "mlx5_port_multicast_rcv_packets_total",
+		"port_unicast_rcv_packets":        "mlx5_port_unicast_rcv_packets_total",
+		"port_xmit_data":                  "mlx5_port_xmit_data_total",
+		"port_xmit_packets":               "mlx5_port_xmit_packets_total",
+		"port_rcv_switch_relay_errors":    "mlx5_port_rcv_switch_relay_errors_total",
+		"port_rcv_errors":                 "mlx5_port_rcv_errors_total",
+		"port_rcv_constraint_errors":      "mlx5_port_rcv_constraint_errors_total",
+		"local_link_integrity_errors":     "mlx5_local_link_integrity_errors_total",
+		"port_xmit_wait":                  "mlx5_port_xmit_wait_total",
+		"port_multicast_xmit_packets":     "mlx5_port_multicast_xmit_packets_total",
+		"port_unicast_xmit_packets":       "mlx5_port_unicast_xmit_packets_total",
+		"port_xmit_discards":              "mlx5_port_xmit_discards_total",
+		"port_xmit_constraint_errors":     "mlx5_port_xmit_constraint_errors_total",
+		"port_rcv_remote_physical_errors": "mlx5_port_rcv_remote_physical_errors_total",
+		"symbol_error":                    "mlx5_symbol_error_total",
+		"VL15_dropped":                    "mlx5_vl15_dropped_total",
+		"link_error_recovery":             "mlx5_link_error_recovery_total",
+		"link_downed":                     "mlx5_link_downed_total",
+		"duplicate_request":               "mlx5_duplicate_request_total",
+		"implied_nak_seq_err":             "mlx5_implied_nak_seq_err_total",
+		"lifespan":                        "mlx5_lifespan_ms",
+		"local_ack_timeout_err":           "mlx5_local_ack_timeout_err_total",
+		"np_cnp_sent":                     "mlx5_np_cnp_sent_total",
+		"np_ecn_marked_roce_packets":      "mlx5_np_ecn_marked_roce_packets_total",
+		"out_of_buffer":                   "mlx5_out_of_buffer_total",
+		"out_of_sequence":                 "mlx5_out_of_sequence_total",
+		"packet_seq_err":                  "mlx5_packet_seq_err_total",
+		"req_cqe_error":                   "mlx5_req_cqe_error_total",
+		"req_cqe_flush_error":             "mlx5_req_cqe_flush_error_total",
+		"req_remote_access_errors":        "mlx5_req_remote_access_errors_total",
+		"req_remote_invalid_request":      "mlx5_req_remote_invalid_request_total",
+		"resp_cqe_error":                  "mlx5_resp_cqe_error_total",
+		"resp_cqe_flush_error":            "mlx5_resp_cqe_flush_error_total",
+		"resp_local_length_error":         "mlx5_resp_local_length_error_total",
+		"resp_remote_access_errors":       "mlx5_resp_remote_access_errors_total",
+		"rnr_nak_retry_err":               "mlx5_rnr_nak_retry_err_total",
+		"rp_cnp_handled":                  "mlx5_rp_cnp_handled_total",
+		"rp_cnp_ignored":                  "mlx5_rp_cnp_ignored_total",
+		"rx_atomic_requests":              "mlx5_rx_atomic_requests_total",
+		"rx_dct_connect":                  "mlx5_rx_dct_connect_total",
+		"rx_read_requests":                "mlx5_rx_read_requests_total",
+		"rx_write_requests":               "mlx5_rx_write_requests_total",
+		"rx_icrc_encapsulated":            "mlx5_rx_icrc_encapsulated_total",
+		"roce_adp_retrans":                "mlx5_roce_adp_retrans_total",
+		"roce_adp_retrans_to":             "mlx5_roce_adp_retrans_to_total",
+		"roce_slow_restart":               "mlx5_roce_slow_restart_total",
+		"roce_slow_restart_cnps":          "mlx5_roce_slow_restart_cnps_total",
+		"roce_slow_restart_trans":         "mlx5_roce_slow_restart_trans_total",
 	}
-	rdmaCounters = map[string]string{
-		"unicast_rcv_packets":             "RDMA unicast received packets",
-		"port_xmit_data":                  "RDMA port transmit data",
-		"port_xmit_constraint_errors":     "RDMA port transmit constraint errors",
-		"VL15_dropped":                    "RDMA VL15 dropped",
-		"port_rcv_errors":                 "RDMA port receive errors",
-		"port_xmit_wait":                  "RDMA port transmit wait",
-		"link_error_recovery":             "RDMA link error recovery",
-		"multicast_rcv_packets":           "RDMA multicast received packets",
-		"multicast_xmit_packets":          "RDMA multicast transmitted packets",
-		"port_rcv_remote_physical_errors": "RDMA port receive remote physical errors",
-		"port_rcv_packets":                "RDMA port receive packets",
-		"unicast_xmit_packets":            "RDMA unicast transmitted packets",
-		"excessive_buffer_overrun_errors": "RDMA excessive buffer overrun errors",
-		"port_rcv_data":                   "RDMA port receive data",
-		"port_rcv_constraint_errors":      "RDMA port receive constraint errors",
-		"link_downed":                     "RDMA link downed",
-		"local_link_integrity_errors":     "RDMA local link integrity errors",
-		"port_xmit_discards":              "RDMA port transmit discards",
-		"port_rcv_switch_relay_errors":    "RDMA port receive switch relay errors",
-		"port_xmit_packets":               "RDMA port transmit packets",
-		"symbol_error":                    "RDMA symbol error",
+
+	// https://enterprise-support.nvidia.com/s/article/understanding-mlx5-linux-counters-and-status-parameters
+	portCounters = map[string]string{
+		"mlx5_port_rcv_data_total":                   "Total number of data octets received on all VLs from the port (divided by 4, counting in double words)",
+		"mlx5_port_rcv_packets_total":                "Total number of received packets (may include packets with errors)",
+		"mlx5_port_multicast_rcv_packets_total":      "Total number of multicast packets received (including those with errors)",
+		"mlx5_port_unicast_rcv_packets_total":        "Total number of unicast packets received (including those with errors)",
+		"mlx5_port_xmit_data_total":                  "Total number of data octets transmitted on all VLs from the port (divided by 4, counting in double words)",
+		"mlx5_port_xmit_packets_total":               "Total number of transmitted packets (may include packets with errors)",
+		"mlx5_port_rcv_switch_relay_errors_total":    "Total number of packets discarded because they could not be forwarded by the switch relay",
+		"mlx5_port_rcv_errors_total":                 "Total number of received packets with errors",
+		"mlx5_port_rcv_constraint_errors_total":      "Total number of packets discarded due to constraints on the switch physical port",
+		"mlx5_local_link_integrity_errors_total":     "Total number of times local physical errors exceeded the threshold and caused a local link integrity failure",
+		"mlx5_port_xmit_wait_total":                  "Total number of ticks during which the port had data to transmit but no data was sent due to insufficient credits or lack of arbitration",
+		"mlx5_port_multicast_xmit_packets_total":     "Total number of multicast packets transmitted (including those with errors)",
+		"mlx5_port_unicast_xmit_packets_total":       "Total number of unicast packets transmitted (including those with errors)",
+		"mlx5_port_xmit_discards_total":              "Total number of outbound packets discarded because the port is down or congested",
+		"mlx5_port_xmit_constraint_errors_total":     "Total number of packets not transmitted due to constraints on the switch physical port",
+		"mlx5_port_rcv_remote_physical_errors_total": "Total number of packets marked with the EBP delimiter received on the port",
+		"mlx5_symbol_error_total":                    "Total number of minor link errors detected on one or more physical lanes",
+		"mlx5_vl15_dropped_total":                    "Total number of incoming VL15 packets dropped due to resource limitations (e.g., lack of buffers)",
+		"mlx5_link_error_recovery_total":             "Total number of successful link error recovery processes completed by the Port Training state machine",
+		"mlx5_link_downed_total":                     "Total number of failed link error recovery processes that caused the link to be downed",
+	}
+
+	hwCounters = map[string]string{
+		"mlx5_duplicate_request_total":          "Total number of received packets that were duplicates of previous requests",
+		"mlx5_implied_nak_seq_err_total":        "Total number of times the requested ACK had a PSN larger than the expected PSN for an RDMA read or response",
+		"mlx5_lifespan_ms":                      "Maximum period in milliseconds which defines the aging of counter reads",
+		"mlx5_local_ack_timeout_err_total":      "Total number of times the QP's ACK timer expired for RC, XRC, or DCT QPs at the sender side (retry limit not exceeded)",
+		"mlx5_np_cnp_sent_total":                "Total number of CNP packets sent by the Notification Point due to congestion in the RoCEv2 IP header (ECN bits)",
+		"mlx5_np_ecn_marked_roce_packets_total": "Total number of RoCEv2 packets received marked with ECN (congestion experienced)",
+		"mlx5_out_of_buffer_total":              "Total number of drops due to lack of WQE for the associated QPs",
+		"mlx5_out_of_sequence_total":            "Total number of out-of-sequence packets received",
+		"mlx5_packet_seq_err_total":             "Total number of received NAK sequence error packets (QP retry limit not exceeded)",
+		"mlx5_req_cqe_error_total":              "Total number of times the requester detected CQEs completed with errors",
+		"mlx5_req_cqe_flush_error_total":        "Total number of times the requester detected CQEs completed with flushed errors",
+		"mlx5_req_remote_access_errors_total":   "Total number of times the requester detected remote access errors",
+		"mlx5_req_remote_invalid_request_total": "Total number of times the requester detected remote invalid request errors",
+		"mlx5_resp_cqe_error_total":             "Total number of times the responder detected CQEs completed with errors",
+		"mlx5_resp_cqe_flush_error_total":       "Total number of times the responder detected CQEs completed with flushed errors",
+		"mlx5_resp_local_length_error_total":    "Total number of times the responder detected local length errors",
+		"mlx5_resp_remote_access_errors_total":  "Total number of times the responder detected remote access errors",
+		"mlx5_rnr_nak_retry_err_total":          "Total number of received RNR NAK packets (QP retry limit not exceeded)",
+		"mlx5_rp_cnp_handled_total":             "Total number of CNP packets handled by the Reaction Point HCA to throttle transmission rate",
+		"mlx5_rp_cnp_ignored_total":             "Total number of CNP packets ignored by the Reaction Point HCA",
+		"mlx5_rx_atomic_requests_total":         "Total number of received ATOMIC requests for associated QPs",
+		"mlx5_rx_dct_connect_total":             "Total number of received connection requests for associated DCTs",
+		"mlx5_rx_read_requests_total":           "Total number of received READ requests for associated QPs",
+		"mlx5_rx_write_requests_total":          "Total number of received WRITE requests for associated QPs",
+		"mlx5_rx_icrc_encapsulated_total":       "Total number of RoCE packets with ICRC errors",
+		"mlx5_roce_adp_retrans_total":           "Total number of adaptive retransmissions for RoCE traffic",
+		"mlx5_roce_adp_retrans_to_total":        "Total number of times RoCE traffic reached timeout due to adaptive retransmission",
+		"mlx5_roce_slow_restart_total":          "Total number of times RoCE slow restart was used",
+		"mlx5_roce_slow_restart_cnps_total":     "Total number of times RoCE slow restart generated CNP packets",
+		"mlx5_roce_slow_restart_trans_total":    "Total number of times RoCE slow restart changed state to slow restart",
 	}
 )
 
@@ -138,20 +190,15 @@ func makeRdmaCollector(logger *slog.Logger) (*rdmaCollector, error) {
 		*dir = rootfsFilePath(*dir)
 	}
 
-	entries := make(map[string]*prometheus.Desc, len(rdmaHwCounters)+len(rdmaCounters))
-	for metric, help := range rdmaHwCounters {
-		entries[metric] = prometheus.NewDesc(
-			buildRdmaFQName(fmt.Sprintf("hw_%s", metric)),
-			help,
-			[]string{"device", "port", "interfaces"}, nil,
-		)
-	}
-	for metric, help := range rdmaCounters {
-		entries[metric] = prometheus.NewDesc(
-			buildRdmaFQName(metric),
-			help,
-			[]string{"device", "port", "interfaces"}, nil,
-		)
+	entries := make(map[string]*prometheus.Desc, len(portCounters)+len(hwCounters))
+	for _, counters := range []map[string]string{portCounters, hwCounters} {
+		for metric, help := range counters {
+			entries[metric] = prometheus.NewDesc(
+				buildRdmaFQName(metric),
+				help,
+				[]string{"device", "port", "interfaces"}, nil,
+			)
+		}
 	}
 
 	// Pre-populate some common rdma metrics.
@@ -226,24 +273,27 @@ func (c *rdmaCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		updateFunc := func(name string, value float64, labelValues ...string) {
-			if !c.metricsPattern.MatchString(name) {
+		updateFunc := func(key string, value float64, labelValues ...string) {
+			metric, ok := lookupTable[key]
+			if !ok {
+				c.logger.Warn("rdma metric not found in lookup table", "key", key)
 				return
 			}
-			entry := c.entry(name)
+			if !c.metricsPattern.MatchString(metric) {
+				c.logger.Debug("rdma metric excluded", "metric", metric)
+				return
+			}
+			entry := c.entry(metric)
 			if entry == nil {
-				c.logger.Warn("rdma metric not found", "name", name)
+				c.logger.Warn("rdma metric not found", "metric", metric)
 				return
 			}
-			ch <- prometheus.MustNewConstMetric(c.entry(name), prometheus.GaugeValue,
+			ch <- prometheus.MustNewConstMetric(entry, prometheus.GaugeValue,
 				value, labelValues...)
 		}
 
 		for _, portstats := range stats.PortStats {
-			for _, stat := range portstats.HwStats {
-				updateFunc(stat.Name, float64(stat.Value), device, fmt.Sprintf("%d", portstats.Port), interfaces)
-			}
-			for _, stat := range portstats.Stats {
+			for _, stat := range append(portstats.HwStats, portstats.Stats...) {
 				updateFunc(stat.Name, float64(stat.Value), device, fmt.Sprintf("%d", portstats.Port), interfaces)
 			}
 		}
