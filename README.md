@@ -99,8 +99,8 @@ cpu | flags | --collector.cpu.info.flags-include | N/A
 diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
 ethtool | device | --collector.ethtool.device-include | --collector.ethtool.device-exclude
 ethtool | metrics | --collector.ethtool.metrics-include | N/A
-filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
-filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
+filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.filesystem.fs-types-exclude
+filesystem | mount-points | --collector.filesystem.mount-points-include | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
 hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exclude
 interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude

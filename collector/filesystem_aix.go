@@ -32,12 +32,12 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		return nil, err
 	}
 	for _, stat := range fsStat {
-		if c.excludedMountPointsPattern.MatchString(stat.MountPoint) {
+		if c.mountPointFilter.ignored(stat.MountPoint) {
 			c.logger.Debug("Ignoring mount point", "mountpoint", stat.MountPoint)
 			continue
 		}
 		fstype := stat.TypeString()
-		if c.excludedFSTypesPattern.MatchString(fstype) {
+		if c.fsTypeFilter.ignored(fstype) {
 			c.logger.Debug("Ignoring fs type", "type", fstype)
 			continue
 		}
