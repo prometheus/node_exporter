@@ -61,8 +61,8 @@ github.com/mdlayher/socket v0.4.1 h1:eM9y2/jlbs1M615oshPQOHZzj6R6wMT7bX5NPiQvn2U
 github.com/mdlayher/socket v0.4.1/go.mod h1:cAqeGjoufqdxWkD7DkpyS+wcefOtmu5OQ8KuoJGIReA=
 github.com/mdlayher/vsock v1.2.1 h1:pC1mTJTvjo1r9n9fbm7S1j04rCgCzhCOS5DY0zqHlnQ=
 github.com/mdlayher/vsock v1.2.1/go.mod h1:NRfCibel++DgeMD8z/hP+PPTjlNJsdPOmxcnENvE+SE=
-github.com/mdlayher/wifi v0.3.0 h1:ZfS81w/7xTWBJfhM77K0k6m3sJckwoNOoZUwOW34omo=
-github.com/mdlayher/wifi v0.3.0/go.mod h1:/bdkqKYl+lD4recmQM6bTHxMrEUW70reibTyr93CAd0=
+github.com/mdlayher/wifi v0.3.1 h1:bZDuMI1f7z5BtUUO3NgHRdR/R88YtywIe6dsEFI0Txs=
+github.com/mdlayher/wifi v0.3.1/go.mod h1:ODQaObvsglghTuNhezD9grkTB4shVNc28aJfTXmvSi8=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f h1:KUppIJq7/+SVif2QVs3tOP0zanoHgBEVAwHxUSIzRqU=
