@@ -1,0 +1,209 @@
+# HELP go_gc_duration_seconds A summary of the wall-time pause (stop-the-world) duration in garbage collection cycles.
+# TYPE go_gc_duration_seconds summary
+# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent
+# TYPE go_gc_gogc_percent gauge
+# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes
+# TYPE go_gc_gomemlimit_bytes gauge
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+# HELP go_info Information about the Go environment.
+# TYPE go_info gauge
+# HELP go_memstats_alloc_bytes Number of bytes allocated in heap and currently in use. Equals to /memory/classes/heap/objects:bytes.
+# TYPE go_memstats_alloc_bytes gauge
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated in heap until now, even if released already. Equals to /gc/heap/allocs:bytes.
+# TYPE go_memstats_alloc_bytes_total counter
+# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table. Equals to /memory/classes/profiling/buckets:bytes.
+# TYPE go_memstats_buck_hash_sys_bytes gauge
+# HELP go_memstats_frees_total Total number of heap objects frees. Equals to /gc/heap/frees:objects + /gc/heap/tiny/allocs:objects.
+# TYPE go_memstats_frees_total counter
+# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata. Equals to /memory/classes/metadata/other:bytes.
+# TYPE go_memstats_gc_sys_bytes gauge
+# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and currently in use, same as go_memstats_alloc_bytes. Equals to /memory/classes/heap/objects:bytes.
+# TYPE go_memstats_heap_alloc_bytes gauge
+# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used. Equals to /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
+# TYPE go_memstats_heap_idle_bytes gauge
+# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes
+# TYPE go_memstats_heap_inuse_bytes gauge
+# HELP go_memstats_heap_objects Number of currently allocated objects. Equals to /gc/heap/objects:objects.
+# TYPE go_memstats_heap_objects gauge
+# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS. Equals to /memory/classes/heap/released:bytes.
+# TYPE go_memstats_heap_released_bytes gauge
+# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes + /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
+# TYPE go_memstats_heap_sys_bytes gauge
+# HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
+# TYPE go_memstats_last_gc_time_seconds gauge
+# HELP go_memstats_mallocs_total Total number of heap objects allocated, both live and gc-ed. Semantically a counter version for go_memstats_heap_objects gauge. Equals to /gc/heap/allocs:objects + /gc/heap/tiny/allocs:objects.
+# TYPE go_memstats_mallocs_total counter
+# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures. Equals to /memory/classes/metadata/mcache/inuse:bytes.
+# TYPE go_memstats_mcache_inuse_bytes gauge
+# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system. Equals to /memory/classes/metadata/mcache/inuse:bytes + /memory/classes/metadata/mcache/free:bytes.
+# TYPE go_memstats_mcache_sys_bytes gauge
+# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures. Equals to /memory/classes/metadata/mspan/inuse:bytes.
+# TYPE go_memstats_mspan_inuse_bytes gauge
+# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system. Equals to /memory/classes/metadata/mspan/inuse:bytes + /memory/classes/metadata/mspan/free:bytes.
+# TYPE go_memstats_mspan_sys_bytes gauge
+# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place. Equals to /gc/heap/goal:bytes.
+# TYPE go_memstats_next_gc_bytes gauge
+# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations. Equals to /memory/classes/other:bytes.
+# TYPE go_memstats_other_sys_bytes gauge
+# HELP go_memstats_stack_inuse_bytes Number of bytes obtained from system for stack allocator in non-CGO environments. Equals to /memory/classes/heap/stacks:bytes.
+# TYPE go_memstats_stack_inuse_bytes gauge
+# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator. Equals to /memory/classes/heap/stacks:bytes + /memory/classes/os-stacks:bytes.
+# TYPE go_memstats_stack_sys_bytes gauge
+# HELP go_memstats_sys_bytes Number of bytes obtained from system. Equals to /memory/classes/total:byte.
+# TYPE go_memstats_sys_bytes gauge
+# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads
+# TYPE go_sched_gomaxprocs_threads gauge
+# HELP go_threads Number of OS threads created.
+# TYPE go_threads gauge
+# HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
+# TYPE node_exporter_build_info gauge
+# HELP node_memory_swap_size_bytes Memory information field swap_size_bytes.
+# TYPE node_memory_swap_size_bytes gauge
+node_memory_swap_size_bytes 6.442426368e+09
+# HELP node_memory_swap_used_bytes Memory information field swap_used_bytes.
+# TYPE node_memory_swap_used_bytes gauge
+node_memory_swap_used_bytes 0
+# HELP node_memory_swapped_in_pages_bytes_total Memory information field swapped_in_pages_bytes_total.
+# TYPE node_memory_swapped_in_pages_bytes_total counter
+node_memory_swapped_in_pages_bytes_total 0
+# HELP node_memory_swapped_out_pages_bytes_total Memory information field swapped_out_pages_bytes_total.
+# TYPE node_memory_swapped_out_pages_bytes_total counter
+node_memory_swapped_out_pages_bytes_total 0
+# HELP node_os_info A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, name, pretty_name, variant, variant_id, version, version_codename, version_id.
+# TYPE node_os_info gauge
+node_os_info{build_id="",id="ubuntu",id_like="debian",image_id="",image_version="",name="Ubuntu",pretty_name="Ubuntu 20.04.2 LTS",variant="",variant_id="",version="20.04.2 LTS (Focal Fossa)",version_codename="focal",version_id="20.04"} 1
+# HELP node_os_version Metric containing the major.minor part of the OS version.
+# TYPE node_os_version gauge
+node_os_version{id="ubuntu",id_like="debian",name="Ubuntu"} 20.04
+# HELP node_scrape_collector_duration_seconds node_exporter: Duration of a collector scrape.
+# TYPE node_scrape_collector_duration_seconds gauge
+# HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.
+# TYPE node_scrape_collector_success gauge
+node_scrape_collector_success{collector="boottime"} 1
+node_scrape_collector_success{collector="cpu"} 0
+node_scrape_collector_success{collector="loadavg"} 1
+node_scrape_collector_success{collector="meminfo"} 1
+node_scrape_collector_success{collector="os"} 1
+node_scrape_collector_success{collector="textfile"} 1
+node_scrape_collector_success{collector="time"} 1
+node_scrape_collector_success{collector="xfrm"} 1
+# HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.
+# TYPE node_textfile_mtime_seconds gauge
+# HELP node_textfile_scrape_error 1 if there was an error opening or reading a file, 0 otherwise
+# TYPE node_textfile_scrape_error gauge
+node_textfile_scrape_error 0
+# HELP node_time_seconds System time in seconds since epoch (1970).
+# TYPE node_time_seconds gauge
+# HELP node_time_zone_offset_seconds System time zone offset in seconds.
+# TYPE node_time_zone_offset_seconds gauge
+# HELP node_xfrm_acquire_error_packets_total State hasn’t been fully acquired before use
+# TYPE node_xfrm_acquire_error_packets_total counter
+node_xfrm_acquire_error_packets_total 24532
+# HELP node_xfrm_fwd_hdr_error_packets_total Forward routing of a packet is not allowed
+# TYPE node_xfrm_fwd_hdr_error_packets_total counter
+node_xfrm_fwd_hdr_error_packets_total 6654
+# HELP node_xfrm_in_buffer_error_packets_total No buffer is left
+# TYPE node_xfrm_in_buffer_error_packets_total counter
+node_xfrm_in_buffer_error_packets_total 2
+# HELP node_xfrm_in_error_packets_total All errors not matched by other
+# TYPE node_xfrm_in_error_packets_total counter
+node_xfrm_in_error_packets_total 1
+# HELP node_xfrm_in_hdr_error_packets_total Header error
+# TYPE node_xfrm_in_hdr_error_packets_total counter
+node_xfrm_in_hdr_error_packets_total 4
+# HELP node_xfrm_in_no_pols_packets_total No policy is found for states e.g. Inbound SAs are correct but no SP is found
+# TYPE node_xfrm_in_no_pols_packets_total counter
+node_xfrm_in_no_pols_packets_total 65432
+# HELP node_xfrm_in_no_states_packets_total No state is found i.e. Either inbound SPI, address, or IPsec protocol at SA is wrong
+# TYPE node_xfrm_in_no_states_packets_total counter
+node_xfrm_in_no_states_packets_total 3
+# HELP node_xfrm_in_pol_block_packets_total Policy discards
+# TYPE node_xfrm_in_pol_block_packets_total counter
+node_xfrm_in_pol_block_packets_total 100
+# HELP node_xfrm_in_pol_error_packets_total Policy error
+# TYPE node_xfrm_in_pol_error_packets_total counter
+node_xfrm_in_pol_error_packets_total 10000
+# HELP node_xfrm_in_state_expired_packets_total State is expired
+# TYPE node_xfrm_in_state_expired_packets_total counter
+node_xfrm_in_state_expired_packets_total 7
+# HELP node_xfrm_in_state_invalid_packets_total State is invalid
+# TYPE node_xfrm_in_state_invalid_packets_total counter
+node_xfrm_in_state_invalid_packets_total 55555
+# HELP node_xfrm_in_state_mismatch_packets_total State has mismatch option e.g. UDP encapsulation type is mismatch
+# TYPE node_xfrm_in_state_mismatch_packets_total counter
+node_xfrm_in_state_mismatch_packets_total 23451
+# HELP node_xfrm_in_state_mode_error_packets_total Transformation mode specific error
+# TYPE node_xfrm_in_state_mode_error_packets_total counter
+node_xfrm_in_state_mode_error_packets_total 100
+# HELP node_xfrm_in_state_proto_error_packets_total Transformation protocol specific error e.g. SA key is wrong
+# TYPE node_xfrm_in_state_proto_error_packets_total counter
+node_xfrm_in_state_proto_error_packets_total 40
+# HELP node_xfrm_in_state_seq_error_packets_total Sequence error i.e. Sequence number is out of window
+# TYPE node_xfrm_in_state_seq_error_packets_total counter
+node_xfrm_in_state_seq_error_packets_total 6000
+# HELP node_xfrm_in_tmpl_mismatch_packets_total No matching template for states e.g. Inbound SAs are correct but SP rule is wrong
+# TYPE node_xfrm_in_tmpl_mismatch_packets_total counter
+node_xfrm_in_tmpl_mismatch_packets_total 51
+# HELP node_xfrm_out_bundle_check_error_packets_total Bundle check error
+# TYPE node_xfrm_out_bundle_check_error_packets_total counter
+node_xfrm_out_bundle_check_error_packets_total 555
+# HELP node_xfrm_out_bundle_gen_error_packets_total Bundle generation error
+# TYPE node_xfrm_out_bundle_gen_error_packets_total counter
+node_xfrm_out_bundle_gen_error_packets_total 43321
+# HELP node_xfrm_out_error_packets_total All errors which is not matched others
+# TYPE node_xfrm_out_error_packets_total counter
+node_xfrm_out_error_packets_total 1e+06
+# HELP node_xfrm_out_no_states_packets_total No state is found
+# TYPE node_xfrm_out_no_states_packets_total counter
+node_xfrm_out_no_states_packets_total 869
+# HELP node_xfrm_out_pol_block_packets_total Policy discards
+# TYPE node_xfrm_out_pol_block_packets_total counter
+node_xfrm_out_pol_block_packets_total 43456
+# HELP node_xfrm_out_pol_dead_packets_total Policy is dead
+# TYPE node_xfrm_out_pol_dead_packets_total counter
+node_xfrm_out_pol_dead_packets_total 7656
+# HELP node_xfrm_out_pol_error_packets_total Policy error
+# TYPE node_xfrm_out_pol_error_packets_total counter
+node_xfrm_out_pol_error_packets_total 1454
+# HELP node_xfrm_out_state_expired_packets_total State is expired
+# TYPE node_xfrm_out_state_expired_packets_total counter
+node_xfrm_out_state_expired_packets_total 565
+# HELP node_xfrm_out_state_invalid_packets_total State is invalid, perhaps expired
+# TYPE node_xfrm_out_state_invalid_packets_total counter
+node_xfrm_out_state_invalid_packets_total 28765
+# HELP node_xfrm_out_state_mode_error_packets_total Transformation mode specific error
+# TYPE node_xfrm_out_state_mode_error_packets_total counter
+node_xfrm_out_state_mode_error_packets_total 8
+# HELP node_xfrm_out_state_proto_error_packets_total Transformation protocol specific error
+# TYPE node_xfrm_out_state_proto_error_packets_total counter
+node_xfrm_out_state_proto_error_packets_total 4542
+# HELP node_xfrm_out_state_seq_error_packets_total Sequence error i.e. Sequence number overflow
+# TYPE node_xfrm_out_state_seq_error_packets_total counter
+node_xfrm_out_state_seq_error_packets_total 543
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+# HELP promhttp_metric_handler_errors_total Total number of internal errors encountered by the promhttp metric handler.
+# TYPE promhttp_metric_handler_errors_total counter
+promhttp_metric_handler_errors_total{cause="encoding"} 0
+promhttp_metric_handler_errors_total{cause="gathering"} 0
+# HELP promhttp_metric_handler_requests_in_flight Current number of scrapes being served.
+# TYPE promhttp_metric_handler_requests_in_flight gauge
+promhttp_metric_handler_requests_in_flight 1
+# HELP promhttp_metric_handler_requests_total Total number of scrapes by HTTP status code.
+# TYPE promhttp_metric_handler_requests_total counter
+promhttp_metric_handler_requests_total{code="200"} 0
+promhttp_metric_handler_requests_total{code="500"} 0
+promhttp_metric_handler_requests_total{code="503"} 0
+# HELP testmetric1_1 Metric read from collector/fixtures/textfile/two_metric_files/metrics1.prom
+# TYPE testmetric1_1 untyped
+testmetric1_1{foo="bar"} 10
+# HELP testmetric1_2 Metric read from collector/fixtures/textfile/two_metric_files/metrics1.prom
+# TYPE testmetric1_2 untyped
+testmetric1_2{foo="baz"} 20
+# HELP testmetric2_1 Metric read from collector/fixtures/textfile/two_metric_files/metrics2.prom
+# TYPE testmetric2_1 untyped
+testmetric2_1{foo="bar"} 30
+# HELP testmetric2_2 Metric read from collector/fixtures/textfile/two_metric_files/metrics2.prom
+# TYPE testmetric2_2 untyped
+testmetric2_2{foo="baz"} 40
