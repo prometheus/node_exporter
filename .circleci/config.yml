@@ -57,7 +57,7 @@ jobs:
             fi
 
             if [[ -f "$(pwd)/.build/darwin-amd64/node_exporter" ]]; then
-                promu codesign "$(pwd)/.build/darwin-amd64/node_exporter"                
+                promu codesign "$(pwd)/.build/darwin-amd64/node_exporter"
             fi
       - persist_to_workspace:
           root: .
