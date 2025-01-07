@@ -47,7 +47,7 @@ enabled_collectors=$(cat << COLLECTORS
   sysctl
   textfile
   thermal_zone
-  udp_queues
+  udp
   vmstat
   watchdog
   wifi
