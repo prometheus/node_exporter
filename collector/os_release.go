@@ -137,9 +137,13 @@ func parseOSRelease(r io.Reader) (*osRelease, error) {
 }
 
 func getNixOSImageID() string {
-	currentSystemSymlink, _ := filepath.EvalSymlinks("/run/current-system")
-	nixStoreDirectory := strings.Split(currentSystemSymlink, "/")[3]
-	result := strings.Split(nixStoreDirectory, "-")[0]
+	var result string
+	currentSystemSymlink, err := filepath.EvalSymlinks("/run/current-system")
+
+	if err == nil {
+		nixStoreDirectory := strings.Split(currentSystemSymlink, "/")[3]
+		result = strings.Split(nixStoreDirectory, "-")[0]
+	}
 
 	return result
 }
