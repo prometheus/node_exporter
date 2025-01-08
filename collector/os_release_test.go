@@ -17,6 +17,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -47,6 +48,8 @@ VERSION="23.11 (Tapir)"
 VERSION_CODENAME=tapir
 VERSION_ID="23.11"
 `
+
+const defaultNixosSystemHash string = "611hrn15iag56l7z7lm6zkxy6rz4i9gp"
 
 func TestParseOSRelease(t *testing.T) {
 	want := &osRelease{
@@ -92,12 +95,17 @@ func TestParseOSRelease(t *testing.T) {
 }
 
 func TestParseOSSupportEnd(t *testing.T) {
+	nixosSystemHash, err := getNixOSSystemHash(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	want := &osRelease{
 		BuildID:         "23.11.20240328.219951b",
 		Name:            "NixOS",
 		ID:              "nixos",
 		IDLike:          "",
-		ImageID:         "",
+		ImageID:         nixosSystemHash,
 		ImageVersion:    "",
 		PrettyName:      "NixOS 23.11 (Tapir)",
 		SupportEnd:      "2024-06-30",
@@ -115,6 +123,42 @@ func TestParseOSSupportEnd(t *testing.T) {
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("should have %+v osRelease: got %+v", want, got)
 	}
+}
+
+func getNixOSSystemHash(t *testing.T) (result string, err error) {
+	if fileExists("/run/current-system") {
+		result = getCurrentNixOSSystemImageID(t)
+		t.Logf("Getting ImageID from /run/current-system: %s", result)
+	} else {
+		err = createCurrentNixOSSystemSymlink(defaultNixosSystemHash)
+		result = defaultNixosSystemHash
+		t.Logf("Creating a fake /run/current-system containing %s", result)
+	}
+
+	return result, err
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+
+	if err == nil {
+		return true
+	}
+
+	return false
+}
+
+func getCurrentNixOSSystemImageID(t *testing.T) string {
+	symLink, _ := filepath.EvalSymlinks("/run/current-system")
+	symLinkHashLong := strings.Split(symLink, "/")[3]
+	symLinkHashShort := strings.Split(symLinkHashLong, "-")[0]
+
+	t.Logf("Reading /run/current-system: %s", symLinkHashShort)
+	return string(symLinkHashShort)
+}
+
+func createCurrentNixOSSystemSymlink(hash string) error {
+	return os.WriteFile("/run/current-system", []byte(hash), 0644)
 }
 
 func TestUpdateStruct(t *testing.T) {

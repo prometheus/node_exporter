@@ -22,6 +22,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -109,7 +110,15 @@ func NewOSCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func parseOSRelease(r io.Reader) (*osRelease, error) {
+	var imageID string
 	env, err := envparse.Parse(r)
+
+	if env["NAME"] == "NixOS" {
+		imageID = getNixOSImageID()
+	} else {
+		imageID = env["IMAGE_ID"]
+	}
+
 	return &osRelease{
 		Name:            env["NAME"],
 		ID:              env["ID"],
@@ -121,10 +130,18 @@ func parseOSRelease(r io.Reader) (*osRelease, error) {
 		VersionID:       env["VERSION_ID"],
 		VersionCodename: env["VERSION_CODENAME"],
 		BuildID:         env["BUILD_ID"],
-		ImageID:         env["IMAGE_ID"],
+		ImageID:         imageID,
 		ImageVersion:    env["IMAGE_VERSION"],
 		SupportEnd:      env["SUPPORT_END"],
 	}, err
+}
+
+func getNixOSImageID() string {
+	currentSystemSymlink, _ := filepath.EvalSymlinks("/run/current-system")
+	nixStoreDirectory := strings.Split(currentSystemSymlink, "/")[3]
+	result := strings.Split(nixStoreDirectory, "-")[0]
+
+	return result
 }
 
 func (c *osReleaseCollector) UpdateStruct(path string) error {
