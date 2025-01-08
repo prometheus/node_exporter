@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -158,7 +159,8 @@ func getCurrentNixOSSystemImageID(t *testing.T) string {
 }
 
 func createCurrentNixOSSystemSymlink(hash string) error {
-	return os.WriteFile("/run/current-system", []byte(hash), 0644)
+	storePath := fmt.Sprintf("/nix/store/%s-nixos-system-nixos-20.05pre-git", hash)
+	return os.Symlink(storePath, "/run/current-system")
 }
 
 func TestUpdateStruct(t *testing.T) {
