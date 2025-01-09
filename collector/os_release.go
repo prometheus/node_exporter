@@ -146,8 +146,8 @@ func parseOSRelease(r io.Reader) (*osRelease, error) {
 		result.ImageTime = getNixOSRegistrationTimeOfPath(nixCurrentPath)
 		result.BootedImageTime = getNixOSRegistrationTimeOfPath(nixBootedPath)
 
-		result.ImageID = getNixOSHashFromPath(nixOSCurrentSystem)
-		result.BootedImageID = getNixOSHashFromPath(nixOSBootedSystem)
+		result.ImageID = getNixOSHashFromPath(nixCurrentPath)
+		result.BootedImageID = getNixOSHashFromPath(nixBootedPath)
 	}
 
 	return &result, err
@@ -189,11 +189,10 @@ func getRealPathFromLink(path string) string {
 }
 
 func getNixOSHashFromPath(path string) string {
-	symLink, _ := filepath.EvalSymlinks(path)
-	symLinkHashLong := strings.Split(symLink, "/")[3]
-	symLinkHashShort := strings.Split(symLinkHashLong, "-")[0]
+	basename := strings.TrimPrefix(path, "/nix/store/")
+	hashShort := strings.Split(basename, "-")[0]
 
-	return string(symLinkHashShort)
+	return string(hashShort)
 }
 
 func (c *osReleaseCollector) UpdateStruct(path string) error {
