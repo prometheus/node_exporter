@@ -17,8 +17,10 @@
 package collector
 
 import (
+	"database/sql"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -28,6 +30,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 
 	envparse "github.com/hashicorp/go-envparse"
 	"github.com/prometheus/client_golang/prometheus"
@@ -40,7 +44,10 @@ const (
 )
 
 var (
-	versionRegex = regexp.MustCompile(`^[0-9]+\.?[0-9]*`)
+	versionRegex       = regexp.MustCompile(`^[0-9]+\.?[0-9]*`)
+	nixOSCurrentSystem = "/run/current-system"
+	nixOSBootedSystem  = "/run/booted-system"
+	nixOSstoreDB       = "/nix/var/nix/db/db.sqlite"
 )
 
 type osRelease struct {
@@ -54,9 +61,14 @@ type osRelease struct {
 	VersionID       string
 	VersionCodename string
 	BuildID         string
-	ImageID         string
+	ImageID         string // NixOS
 	ImageVersion    string
 	SupportEnd      string
+
+	ImageTime int // NixOS
+
+	BootedImageTime int    // NixOS
+	BootedImageID   string // NixOS
 }
 
 type osReleaseCollector struct {
@@ -110,16 +122,8 @@ func NewOSCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func parseOSRelease(r io.Reader) (*osRelease, error) {
-	var imageID string
 	env, err := envparse.Parse(r)
-
-	if env["NAME"] == "NixOS" {
-		imageID = getNixOSImageID()
-	} else {
-		imageID = env["IMAGE_ID"]
-	}
-
-	return &osRelease{
+	result := osRelease{
 		Name:            env["NAME"],
 		ID:              env["ID"],
 		IDLike:          env["ID_LIKE"],
@@ -130,22 +134,66 @@ func parseOSRelease(r io.Reader) (*osRelease, error) {
 		VersionID:       env["VERSION_ID"],
 		VersionCodename: env["VERSION_CODENAME"],
 		BuildID:         env["BUILD_ID"],
-		ImageID:         imageID,
+		ImageID:         env["IMAGE_ID"],
 		ImageVersion:    env["IMAGE_VERSION"],
 		SupportEnd:      env["SUPPORT_END"],
-	}, err
-}
-
-func getNixOSImageID() string {
-	var result string
-	currentSystemSymlink, err := filepath.EvalSymlinks("/run/current-system")
-
-	if err == nil {
-		nixStoreDirectory := strings.Split(currentSystemSymlink, "/")[3]
-		result = strings.Split(nixStoreDirectory, "-")[0]
 	}
 
-	return result
+	if env["NAME"] == "NixOS" {
+		nixCurrentPath := getRealPathFromLink(nixOSCurrentSystem)
+		nixBootedPath := getRealPathFromLink(nixOSBootedSystem)
+
+		result.ImageTime = getNixOSRegistrationTimeOfPath(nixCurrentPath)
+		result.BootedImageTime = getNixOSRegistrationTimeOfPath(nixBootedPath)
+
+		result.ImageID = getNixOSHashFromPath(nixOSCurrentSystem)
+		result.BootedImageID = getNixOSHashFromPath(nixOSBootedSystem)
+	}
+
+	return &result, err
+}
+
+func getNixOSRegistrationTimeOfPath(path string) int {
+	var registrationTime int
+	uri := fmt.Sprintf("file:%s?immutable=true", nixOSstoreDB)
+
+	db, err := sql.Open("sqlite3", uri)
+	if err != nil {
+		return registrationTime
+	}
+	defer db.Close()
+
+	query := fmt.Sprintf("select registrationTime from ValidPaths where path = '%s'", path)
+	rows, err := db.Query(query)
+	if err != nil {
+		return registrationTime
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&registrationTime)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return registrationTime
+	}
+
+	return registrationTime
+}
+
+func getRealPathFromLink(path string) string {
+	symLink, _ := filepath.EvalSymlinks(path)
+	return symLink
+}
+
+func getNixOSHashFromPath(path string) string {
+	symLink, _ := filepath.EvalSymlinks(path)
+	symLinkHashLong := strings.Split(symLink, "/")[3]
+	symLinkHashShort := strings.Split(symLinkHashLong, "-")[0]
+
+	return string(symLinkHashShort)
 }
 
 func (c *osReleaseCollector) UpdateStruct(path string) error {
