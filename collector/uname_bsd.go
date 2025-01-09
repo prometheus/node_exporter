@@ -18,6 +18,7 @@
 package collector
 
 import (
+	"strconv"
 	"strings"
 
 	"golang.org/x/sys/unix"
@@ -60,4 +61,16 @@ func parseHostNameAndDomainName(utsname unix.Utsname) (hostname string, domainna
 		domainname = split[1]
 	}
 	return hostname, domainname
+}
+
+// getOSReleaseMajorMinor returns the Major.Minor version of the Operating System based on the uname's Release as a floating point number
+// this is intended to assist in detecting OS compatibilty/support
+func getOSReleaseMajorMinor() (float64, error) {
+	u, err := getUname()
+	if err != nil {
+		return 0, err
+	}
+	majorMinor := versionRegex.FindString(u.Release)
+	f, err := strconv.ParseFloat(majorMinor, 64)
+	return f, err
 }
