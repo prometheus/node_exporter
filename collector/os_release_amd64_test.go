@@ -11,6 +11,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !i386
+// +build !i386
+
 package collector
 
 import (
@@ -37,6 +40,10 @@ VERSION_ID="23.11"
 func TestParseOSSupportEnd(t *testing.T) {
 	nixOSCurrentSystem = "fixtures/run/current-system"
 	nixOSBootedSystem = "fixtures/run/booted-system"
+
+	nixOSCurrentKernel = "fixtures/run/kernel"
+	nixOSBootedKernel = "fixtures/run/kernel"
+
 	nixOSstoreDB = "fixtures/nix.sqlite"
 
 	want := &osRelease{
@@ -44,7 +51,7 @@ func TestParseOSSupportEnd(t *testing.T) {
 		Name:            "NixOS",
 		ID:              "nixos",
 		IDLike:          "",
-		ImageID:         "511hrn15gag56l7z7lm6zkxy6rz4i9gp",
+		ImageID:         "",
 		ImageVersion:    "",
 		PrettyName:      "NixOS 23.11 (Tapir)",
 		SupportEnd:      "2024-06-30",
@@ -54,9 +61,13 @@ func TestParseOSSupportEnd(t *testing.T) {
 		VersionID:       "23.11",
 		VersionCodename: "tapir",
 
-		BootedImageID:   "511hrn15gag56l7z7lm6zkxy6rz4i9gp",
-		BootedImageTime: 1736255100,
-		ImageTime:       1736255100,
+		CurrentSystemID:   "511hrn15gag56l7z7lm6zkxy6rz4i9gp",
+		BootedSystemID:    "511hrn15gag56l7z7lm6zkxy6rz4i9gp",
+		BootedSystemTime:  1736255100,
+		CurrentSystemTime: 1736255100,
+
+		CurrentKernelID: "7by5qhvdci2389xb8z85ikn5pcahiqcy",
+		BootedKernelID:  "7by5qhvdci2389xb8z85ikn5pcahiqcy",
 	}
 
 	got, err := parseOSRelease(strings.NewReader(nixosTapir))

@@ -31,7 +31,7 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 
 	envparse "github.com/hashicorp/go-envparse"
 	"github.com/prometheus/client_golang/prometheus"
@@ -48,6 +48,8 @@ var (
 	nixOSCurrentSystem = "/run/current-system"
 	nixOSBootedSystem  = "/run/booted-system"
 	nixOSstoreDB       = "/nix/var/nix/db/db.sqlite"
+	nixOSCurrentKernel = nixOSCurrentSystem + "/kernel"
+	nixOSBootedKernel  = nixOSBootedSystem + "/kernel"
 )
 
 type osRelease struct {
@@ -61,26 +63,30 @@ type osRelease struct {
 	VersionID       string
 	VersionCodename string
 	BuildID         string
-	ImageID         string // NixOS
+	ImageID         string
 	ImageVersion    string
 	SupportEnd      string
 
-	ImageTime int // NixOS
-
-	BootedImageTime int    // NixOS
-	BootedImageID   string // NixOS
+	CurrentSystemID   string // NixOS
+	CurrentSystemTime int    // NixOS
+	CurrentKernelID   string // NixOS
+	BootedSystemID    string // NixOS
+	BootedSystemTime  int    // NixOS
+	BootedKernelID    string // NixOS
 }
 
 type osReleaseCollector struct {
-	infoDesc           *prometheus.Desc
-	logger             *slog.Logger
-	os                 *osRelease
-	osMutex            sync.RWMutex
-	osReleaseFilenames []string // all os-release file names to check
-	version            float64
-	versionDesc        *prometheus.Desc
-	supportEnd         time.Time
-	supportEndDesc     *prometheus.Desc
+	infoDesc               *prometheus.Desc
+	logger                 *slog.Logger
+	os                     *osRelease
+	osMutex                sync.RWMutex
+	osReleaseFilenames     []string // all os-release file names to check
+	version                float64
+	versionDesc            *prometheus.Desc
+	supportEnd             time.Time
+	supportEndDesc         *prometheus.Desc
+	nixOSCurrentSystemDesc *prometheus.Desc
+	nixOSBootedSystemDesc  *prometheus.Desc
 }
 
 type Plist struct {
@@ -118,6 +124,16 @@ func NewOSCollector(logger *slog.Logger) (Collector, error) {
 			"Metric containing the end-of-life date timestamp of the OS.",
 			nil, nil,
 		),
+		nixOSCurrentSystemDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "os", "nixos_current_activation_timestamp_seconds"),
+			"Metric containing hash and time of activation of current systems of NixOS",
+			[]string{"system_hash", "kernel_hash"}, nil,
+		),
+		nixOSBootedSystemDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "os", "nixos_booted_activation_timestamp_seconds"),
+			"Metric containing hash and time of activation of the booted systems of NixOS",
+			[]string{"system_hash", "kernel_hash"}, nil,
+		),
 	}, nil
 }
 
@@ -140,25 +156,41 @@ func parseOSRelease(r io.Reader) (*osRelease, error) {
 	}
 
 	if env["NAME"] == "NixOS" {
-		nixCurrentPath := getRealPathFromLink(nixOSCurrentSystem)
-		nixBootedPath := getRealPathFromLink(nixOSBootedSystem)
-
-		result.ImageTime = getNixOSRegistrationTimeOfPath(nixCurrentPath)
-		result.BootedImageTime = getNixOSRegistrationTimeOfPath(nixBootedPath)
-
-		result.ImageID = getNixOSHashFromPath(nixCurrentPath)
-		result.BootedImageID = getNixOSHashFromPath(nixBootedPath)
+		getNixOSInfo(&result)
 	}
 
 	return &result, err
+}
+
+func getNixOSInfo(result *osRelease) {
+	// Guessing the real path from the symlink
+	nixCurrentPath := getRealPathFromLink(nixOSCurrentSystem)
+	nixCurrentKernelPath := getRealPathFromLink(nixOSCurrentKernel)
+	nixBootedPath := getRealPathFromLink(nixOSBootedSystem)
+	nixBootedKernelPath := getRealPathFromLink(nixOSBootedKernel)
+
+	// Extracting the hash from the path
+	result.CurrentKernelID = getNixOSHashFromPath(nixCurrentKernelPath)
+	result.CurrentSystemID = getNixOSHashFromPath(nixCurrentPath)
+	result.BootedKernelID = getNixOSHashFromPath(nixBootedKernelPath)
+	result.BootedSystemID = getNixOSHashFromPath(nixBootedPath)
+
+	// We query the database twice if the booted system is different from the current one.
+	result.CurrentSystemTime = getNixOSRegistrationTimeOfPath(nixCurrentPath)
+	if result.CurrentSystemID == result.BootedSystemID {
+		result.BootedSystemTime = result.CurrentSystemTime
+	} else {
+		result.BootedSystemTime = getNixOSRegistrationTimeOfPath(nixBootedPath)
+	}
 }
 
 func getNixOSRegistrationTimeOfPath(path string) int {
 	var registrationTime int
 	uri := fmt.Sprintf("file:%s?immutable=true", nixOSstoreDB)
 
-	db, err := sql.Open("sqlite3", uri)
+	db, err := sql.Open("sqlite", uri)
 	if err != nil {
+		slog.Error(err.Error())
 		return registrationTime
 	}
 	defer db.Close()
@@ -166,18 +198,19 @@ func getNixOSRegistrationTimeOfPath(path string) int {
 	query := fmt.Sprintf("select registrationTime from ValidPaths where path = '%s'", path)
 	rows, err := db.Query(query)
 	if err != nil {
+		slog.Error(err.Error())
 		return registrationTime
 	}
 	defer rows.Close()
 	for rows.Next() {
 		err = rows.Scan(&registrationTime)
 		if err != nil {
-			fmt.Println(err)
+			slog.Error(err.Error())
 		}
 	}
 	err = rows.Err()
 	if err != nil {
-		return registrationTime
+		slog.Error(err.Error())
 	}
 
 	return registrationTime
@@ -266,6 +299,13 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 
 	if c.os.SupportEnd != "" {
 		ch <- prometheus.MustNewConstMetric(c.supportEndDesc, prometheus.GaugeValue, float64(c.supportEnd.Unix()))
+	}
+
+	if c.os.ID == "nixos" {
+		ch <- prometheus.MustNewConstMetric(c.nixOSCurrentSystemDesc, prometheus.GaugeValue,
+			float64(c.os.CurrentSystemTime), c.os.CurrentSystemID, c.os.CurrentKernelID)
+		ch <- prometheus.MustNewConstMetric(c.nixOSBootedSystemDesc, prometheus.GaugeValue,
+			float64(c.os.BootedSystemTime), c.os.BootedSystemID, c.os.BootedKernelID)
 	}
 
 	return nil
