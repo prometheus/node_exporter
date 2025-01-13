@@ -17,13 +17,11 @@
 package collector
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
-	"net"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/jsimonetti/rtnetlink/v2"
+	"github.com/jsimonetti/rtnetlink/v2/rtnl"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"golang.org/x/sys/unix"
@@ -97,53 +95,41 @@ func getTotalArpEntries(deviceEntries []procfs.ARPEntry) map[string]uint32 {
 }
 
 func getArpEntriesRTNL() (map[string]uint32, map[string]map[string]int, error) {
-	conn, err := rtnetlink.Dial(nil)
+	conn, err := rtnl.Dial(nil)
 	if err != nil {
 		return nil, nil, err
 	}
 	defer conn.Close()
 
-	neighbors, err := conn.Neigh.List()
+	// Neighbors will also contain IPv6 neighbors, but since this is purely an ARP collector,
+	// restrict to AF_INET.
+	neighbors, err := conn.Neighbours(nil, unix.AF_INET)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	ifIndexEntries := make(map[uint32]uint32)
-	ifIndexStates := make(map[uint32]map[string]int)
+	// Map of interface name to ARP neighbor count.
+	entries := make(map[string]uint32)
+	// Map of map[InterfaceName]map[StateName]int
+	states := make(map[string]map[string]int)
 
 	for _, n := range neighbors {
-		// Neighbors will also contain IPv6 neighbors, but since this is purely an ARP collector,
-		// restrict to AF_INET. Also skip entries which have state NUD_NOARP to conform to output
-		// of /proc/net/arp.
-		if n.Family == unix.AF_INET && n.State&unix.NUD_NOARP == 0 {
-			ifIndexEntries[n.Index]++
-
-			_, ok := ifIndexStates[n.Index]
-			if !ok {
-				ifIndexStates[n.Index] = make(map[string]int)
-			}
-			ifIndexStates[n.Index][neighborStatesMap[n.State]]++
-		}
-	}
-
-	enumEntries := make(map[string]uint32)
-	enumStates := make(map[string]map[string]int)
-
-	// Convert interface indexes to names.
-	for ifIndex, entryCount := range ifIndexEntries {
-		iface, err := net.InterfaceByIndex(int(ifIndex))
-		if err != nil {
-			if errors.Unwrap(err).Error() == "no such network interface" {
-				continue
-			}
-			return nil, nil, err
+		// Skip entries which have state NUD_NOARP to conform to output of /proc/net/arp.
+		if n.State&unix.NUD_NOARP != unix.NUD_NOARP {
+			continue
 		}
 
-		enumEntries[iface.Name] = entryCount
-		enumStates[iface.Name] = ifIndexStates[ifIndex]
+		entries[n.Interface.Name]++
+
+		_, ok := states[n.Interface.Name]
+		if !ok {
+			states[n.Interface.Name] = make(map[string]int)
+		}
+
+		states[n.Interface.Name][neighborStatesMap[n.State]]++
 	}
 
-	return enumEntries, enumStates, nil
+	return entries, states, nil
 }
 
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
