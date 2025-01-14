@@ -58,6 +58,12 @@ var (
 		[]string{"device"},
 		prometheus.Labels{"state": "recovering"},
 	)
+	reshapingDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "reshaping"},
+	)
 	resyncDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "state"),
 		"Indicates the state of md-device.",
@@ -95,6 +101,25 @@ var (
 	blocksSyncedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "blocks_synced"),
 		"Number of blocks synced on device.",
+		[]string{"device"},
+		nil,
+	)
+
+	blocksToBeSyncedDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "blocks_to_be_synced"),
+		"Number of blocks on the device that need to be synced.",
+		[]string{"device"},
+		nil,
+	)
+	blocksSyncedFinishTimeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "blocks_synced_speed"),
+		"Estimated finishing time for current sync.",
+		[]string{"device"},
+		nil,
+	)
+	blocksSyncedSpeedDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "blocks_synced_speed"),
+		"Progress percentage of current sync.",
 		[]string{"device"},
 		nil,
 	)
@@ -167,6 +192,13 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 
 		ch <- prometheus.MustNewConstMetric(
+			reshapingDesc,
+			prometheus.GaugeValue,
+			stateVals["reshaping"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
 			recoveringDesc,
 			prometheus.GaugeValue,
 			stateVals["recovering"],
@@ -197,6 +229,24 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			blocksSyncedDesc,
 			prometheus.GaugeValue,
 			float64(mdStat.BlocksSynced),
+			mdStat.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			blocksToBeSyncedDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksToBeSynced),
+			mdStat.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			blocksSyncedFinishTimeDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedFinishTime),
+			mdStat.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			blocksSyncedSpeedDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedSpeed),
 			mdStat.Name,
 		)
 	}
