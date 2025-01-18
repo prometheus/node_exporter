@@ -1,0 +1,36 @@
+name: freebsd-ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "123"
+
+jobs:
+  test:
+    name: e2e-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Setup FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          envs: 'GO_VERSION'
+          usesh: true
+          prepare: |
+            pkg update -f
+            pkg install -y bash curl git gmake go${GO_VERSION} python
+          run: |
+            ln -s /usr/local/bin/bash /usr/bin/bash
+            gmake test-e2e
+            rm -rf "node_exporter/node_exporter/collector/fixtures/proc/self"
