@@ -99,7 +99,7 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 		cpuInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
 			"CPU information from /proc/cpuinfo.",
-			[]string{"package", "core", "cpu", "vendor", "family", "model", "model_name", "microcode", "stepping", "cachesize"}, nil,
+			[]string{"package", "core", "cpu", "vendor", "family", "model", "model_name", "microcode", "stepping", "cachesize", "bogomips"}, nil,
 		),
 		cpuFrequencyHz: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
@@ -218,7 +218,9 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.ModelName,
 			cpu.Microcode,
 			cpu.Stepping,
-			cpu.CacheSize)
+			cpu.CacheSize,
+			strconv.Itoa(int(cpu.BogoMips)),
+		)
 	}
 
 	cpuFreqEnabled, ok := collectorState["cpufreq"]
