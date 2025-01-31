@@ -34,6 +34,12 @@ import (
 )
 
 const (
+	// minSystemdVersionCPUUsage is the minimum SystemD version for availability of
+	// the 'CPUUsageMetrics' manager property
+	minSystemdVersionCPUUsage = 220
+	// minSystemdVersionMemoryCurrent is the minimum SystemD version for availability of
+	// the 'MemoryCurrentMetrics' manager property
+	minSystemdVersionMemoryCurrent = 219
 	// minSystemdVersionSystemState is the minimum SystemD version for availability of
 	// the 'SystemState' manager property and the timer property 'LastTriggerUSec'
 	// https://github.com/prometheus/node_exporter/issues/291
@@ -52,17 +58,20 @@ var (
 		systemdUnitExcludeSet = true
 		return nil
 	}).String()
-	oldSystemdUnitExclude  = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
-	systemdPrivate         = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
-	enableTaskMetrics      = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
-	enableRestartsMetrics  = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
-	enableStartTimeMetrics = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
+	oldSystemdUnitExclude    = kingpin.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
+	systemdPrivate           = kingpin.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
+	enablePerformanceMetrics = kingpin.Flag("collector.systemd.enable-performance-metrics", "Enables service unit performance metric unit_cpu_usage_nseconds and unit_memory_current").Bool()
+	enableTaskMetrics        = kingpin.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
+	enableRestartsMetrics    = kingpin.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
+	enableStartTimeMetrics   = kingpin.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
 
 	systemdVersionRE = regexp.MustCompile(`[0-9]{3,}(\.[0-9]+)?`)
 )
 
 type systemdCollector struct {
 	unitDesc                      *prometheus.Desc
+	unitCPUUsageDesc              *prometheus.Desc
+	unitMemoryCurrentDesc         *prometheus.Desc
 	unitStartTimeDesc             *prometheus.Desc
 	unitTasksCurrentDesc          *prometheus.Desc
 	unitTasksMaxDesc              *prometheus.Desc
@@ -93,6 +102,14 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 	unitDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_state"),
 		"Systemd unit", []string{"name", "state", "type"}, nil,
+	)
+	unitCPUUsageDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_cpu_usage_nseconds"),
+		"Current CPU used per systemd unit in nanosecond", []string{"name"}, nil,
+	)
+	unitMemoryCurrentDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "unit_memory_current"),
+		"Current memory used per systemd unit", []string{"name"}, nil,
 	)
 	unitStartTimeDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "unit_start_time_seconds"),
@@ -156,6 +173,8 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 
 	return &systemdCollector{
 		unitDesc:                      unitDesc,
+		unitCPUUsageDesc:              unitCPUUsageDesc,
+		unitMemoryCurrentDesc:         unitMemoryCurrentDesc,
 		unitStartTimeDesc:             unitStartTimeDesc,
 		unitTasksCurrentDesc:          unitTasksCurrentDesc,
 		unitTasksMaxDesc:              unitTasksMaxDesc,
@@ -186,6 +205,12 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	systemdVersion, systemdVersionFull := c.getSystemdVersion(conn)
 	if systemdVersion < minSystemdVersionSystemState {
 		c.logger.Debug("Detected systemd version is lower than minimum, some systemd state and timer metrics will not be available", "current", systemdVersion, "minimum", minSystemdVersionSystemState)
+	}
+	if *enablePerformanceMetrics && systemdVersion < minSystemdVersionCPUUsage {
+		c.logger.Debug("Detected systemd version is lower than minimum, services cpu usage metrics will not be available", "current", systemdVersion, "minimum", minSystemdVersionCPUUsage)
+	}
+	if *enablePerformanceMetrics && systemdVersion < minSystemdVersionMemoryCurrent {
+		c.logger.Debug("Detected systemd version is lower than minimum, services memory usage metrics will not be available", "current", systemdVersion, "minimum", minSystemdVersionMemoryCurrent)
 	}
 	ch <- prometheus.MustNewConstMetric(
 		c.systemdVersionDesc,
@@ -219,6 +244,28 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		c.collectUnitStatusMetrics(conn, ch, units)
 		c.logger.Debug("collectUnitStatusMetrics took", "duration_seconds", time.Since(begin).Seconds())
 	}()
+
+	if *enablePerformanceMetrics {
+		if systemdVersion >= minSystemdVersionCPUUsage {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				begin = time.Now()
+				c.collectUnitCPUUsageMetrics(conn, ch, units)
+				c.logger.Debug("collectUnitCPUUsageMetrics took", "duration_seconds", time.Since(begin).Seconds())
+			}()
+		}
+
+		if systemdVersion >= minSystemdVersionMemoryCurrent {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				begin = time.Now()
+				c.collectUnitMemoryCurrentMetrics(conn, ch, units)
+				c.logger.Debug("collectUnitMemoryCurrentMetrics took", "duration_seconds", time.Since(begin).Seconds())
+			}()
+		}
+	}
 
 	if *enableStartTimeMetrics {
 		wg.Add(1)
@@ -338,6 +385,57 @@ func (c *systemdCollector) collectSockets(conn *dbus.Conn, ch chan<- prometheus.
 			ch <- prometheus.MustNewConstMetric(
 				c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
 				float64(refusedConnectionCount.Value.Value().(uint32)), unit.Name)
+		}
+	}
+}
+
+func (c *systemdCollector) collectUnitCPUUsageMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+	var val uint64
+
+	for _, unit := range units {
+		if !strings.HasSuffix(unit.Name, ".service") {
+			continue
+		}
+		if unit.ActiveState != "active" {
+			val = 0
+		} else {
+			CPUUsageNSec, err := conn.GetServicePropertyContext(context.TODO(), unit.Name, "CPUUsageNSec")
+			if err != nil {
+				c.logger.Debug("couldn't get service property CPUUsageNSec", "unit", unit.Name, "err", err)
+				continue
+			}
+			val = CPUUsageNSec.Value.Value().(uint64)
+		}
+
+		ch <- prometheus.MustNewConstMetric(
+			c.unitCPUUsageDesc, prometheus.GaugeValue,
+			float64(val), unit.Name)
+	}
+}
+
+func (c *systemdCollector) collectUnitMemoryCurrentMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+	var val uint64
+
+	for _, unit := range units {
+		if !strings.HasSuffix(unit.Name, ".service") {
+			continue
+		}
+		if unit.ActiveState != "active" {
+			val = 0
+		} else {
+			MemoryCurrent, err := conn.GetServicePropertyContext(context.TODO(), unit.Name, "MemoryCurrent")
+			if err != nil {
+				c.logger.Debug("couldn't get service property MemoryCurrent", "unit", unit.Name, "err", err)
+				continue
+			}
+			val = MemoryCurrent.Value.Value().(uint64)
+		}
+
+		// Don't set if memoryCurrent if dbus reports MaxUint64.
+		if val != math.MaxUint64 {
+			ch <- prometheus.MustNewConstMetric(
+				c.unitMemoryCurrentDesc, prometheus.GaugeValue,
+				float64(val), unit.Name)
 		}
 	}
 }
