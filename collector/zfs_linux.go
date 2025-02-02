@@ -301,7 +301,8 @@ func (c *zfsCollector) parsePoolObjsetFile(reader io.Reader, zpoolPath string, h
 	parseLine := false
 	var zpoolName, datasetName string
 	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
+		line := scanner.Text()
+		parts := strings.Fields(line)
 
 		if !parseLine && len(parts) == 3 && parts[0] == "name" && parts[1] == "type" && parts[2] == "data" {
 			parseLine = true
@@ -315,7 +316,7 @@ func (c *zfsCollector) parsePoolObjsetFile(reader io.Reader, zpoolPath string, h
 			zpoolPathElements := strings.Split(zpoolPath, "/")
 			pathLen := len(zpoolPathElements)
 			zpoolName = zpoolPathElements[pathLen-2]
-			datasetName = parts[2]
+			datasetName = line[strings.Index(line, parts[2]):]
 			continue
 		}
 
