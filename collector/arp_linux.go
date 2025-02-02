@@ -51,11 +51,6 @@ var neighborStatesMap = map[uint16]string{
 	unix.NUD_PERMANENT:  "permanent",
 }
 
-type neighborState struct {
-	ip    string
-	state string
-}
-
 func init() {
 	registerCollector("arp", defaultEnabled, NewARPCollector)
 }
