@@ -110,7 +110,7 @@ func getArpEntriesRTNL() (map[string]uint32, map[string]map[string]int, error) {
 
 	for _, n := range neighbors {
 		// Skip entries which have state NUD_NOARP to conform to output of /proc/net/arp.
-		if n.State&unix.NUD_NOARP != unix.NUD_NOARP {
+		if n.State&unix.NUD_NOARP == unix.NUD_NOARP {
 			continue
 		}
 
