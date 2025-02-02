@@ -89,7 +89,7 @@ func getTotalArpEntries(deviceEntries []procfs.ARPEntry) map[string]uint32 {
 	return entries
 }
 
-func getArpEntriesRTNL() (map[string]uint32, map[string]map[string]uint32, error) {
+func getArpEntriesRTNL() (map[string]uint32, map[string]map[uint16]uint32, error) {
 	conn, err := rtnl.Dial(nil)
 	if err != nil {
 		return nil, nil, err
@@ -105,8 +105,8 @@ func getArpEntriesRTNL() (map[string]uint32, map[string]map[string]uint32, error
 
 	// Map of interface name to ARP neighbor count.
 	entries := make(map[string]uint32)
-	// Map of map[InterfaceName]map[StateName]int
-	states := make(map[string]map[string]uint32)
+	// Map of map[InterfaceName]map[StateCode]CountOfTheState
+	states := make(map[string]map[uint16]uint32)
 
 	for _, n := range neighbors {
 		// Skip entries which have state NUD_NOARP to conform to output of /proc/net/arp.
@@ -117,10 +117,10 @@ func getArpEntriesRTNL() (map[string]uint32, map[string]map[string]uint32, error
 		entries[n.Interface.Name]++
 
 		if _, ok := states[n.Interface.Name]; !ok {
-			states[n.Interface.Name] = make(map[string]uint32)
+			states[n.Interface.Name] = make(map[uint16]uint32)
 		}
 
-		states[n.Interface.Name][neighborStatesMap[n.State]]++
+		states[n.Interface.Name][n.State]++
 	}
 
 	return entries, states, nil
@@ -129,7 +129,7 @@ func getArpEntriesRTNL() (map[string]uint32, map[string]map[string]uint32, error
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 	var (
 		enumeratedEntry map[string]uint32
-		enumStates      map[string]map[string]uint32
+		enumStates      map[string]map[uint16]uint32
 	)
 
 	if *arpNetlink {
@@ -158,7 +158,7 @@ func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 		if *arpNetlink {
 			for state, count := range enumStates[device] {
 				ch <- prometheus.MustNewConstMetric(
-					c.states, prometheus.GaugeValue, float64(count), device, state)
+					c.states, prometheus.GaugeValue, float64(count), device, neighborStatesMap[state])
 			}
 		}
 	}
