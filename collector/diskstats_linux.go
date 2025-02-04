@@ -85,7 +85,6 @@ type diskstatsCollector struct {
 	deviceMapperInfoDesc    typedFactorDesc
 	ataDescs                map[string]typedFactorDesc
 	logger                  *slog.Logger
-	queueDescs              []typedFactorDesc
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
 
