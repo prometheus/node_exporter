@@ -372,7 +372,7 @@ func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix stri
 }
 
 func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
-	netClass, err := c.fs.NetClass()
+	netClass, err := c.fs.NetClassDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
 			c.logger.Debug("Could not read netclass file", "err", err)
@@ -385,7 +385,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("no network devices found")
 	}
 
-	for device := range netClass {
+	for _, device := range netClass {
 		var stats map[string]uint64
 		var err error
 
