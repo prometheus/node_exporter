@@ -93,8 +93,6 @@ node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
-# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
-# TYPE node_network_receive_bytes_total counter
 # HELP node_network_receive_drop_total Network device statistic receive_drop.
 # TYPE node_network_receive_drop_total counter
 node_network_receive_drop_total{device="lo0"} 0

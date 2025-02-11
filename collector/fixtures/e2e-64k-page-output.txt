@@ -2484,8 +2484,6 @@ node_network_net_dev_group{device="eth0"} 0
 # TYPE node_network_protocol_type gauge
 node_network_protocol_type{device="bond0"} 1
 node_network_protocol_type{device="eth0"} 1
-# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
-# TYPE node_network_receive_bytes_total counter
 # HELP node_network_receive_compressed_total Network device statistic receive_compressed.
 # TYPE node_network_receive_compressed_total counter
 node_network_receive_compressed_total{device="lo"} 0
