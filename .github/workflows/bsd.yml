@@ -15,7 +15,7 @@ env:
   GNU_TAR_VERSION: "1.35"
   GO_VERSION_DRAGONFLY: "1.23.3"
   GO_VERSION_FREEBSD: "123"
-  GO_VERSION_NETBSD: "123"
+  GO_VERSION_NETBSD: "1.23.3"
   GO_VERSION_OPENBSD: "1.23.1"
   GO_VERSION_SOLARIS: "1.23.3"
 
@@ -131,7 +131,6 @@ jobs:
             /usr/sbin/pkg_add \
               git \
               gmake \
-              go${GO_VERSION_NETBSD} \
               grep \
               gsed \
               gtar-base-${GNU_TAR_VERSION}\
@@ -141,7 +140,10 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            ln -s $(which go${GO_VERSION_NETBSD}) $(pwd)/bin/go
+            GOGZ="go${GO_VERSION_NETBSD}.netbsd-amd64.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
             ln -s $(which ggrep) $(pwd)/bin/grep
             ln -s $(which gmake) $(pwd)/bin/make
             ln -s $(which gsed) $(pwd)/bin/sed
@@ -187,7 +189,6 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            export PATH=$(pwd)/bin:$PATH
             GOGZ="go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
@@ -197,6 +198,7 @@ jobs:
             ln -s $(which gsed) $(pwd)/bin/sed
             ln -s $(which gtar) $(pwd)/bin/tar
             ln -s $(which python3) $(pwd)/bin/python
+            export PATH=$(pwd)/bin:$PATH
             echo "::endgroup::"
 
             echo "::group::Print environment information"
@@ -237,7 +239,6 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            export PATH=$(pwd)/bin:$PATH
             GOGZ="go${GO_VERSION_SOLARIS}.solaris-amd64.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
@@ -246,6 +247,7 @@ jobs:
             ln -s $(which gmake) $(pwd)/bin/make
             ln -s $(which gsed) $(pwd)/bin/sed
             ln -s $(which gtar) $(pwd)/bin/tar
+            export PATH=$(pwd)/bin:$PATH
             
             echo ">> building promu as it is not shipped for Solaris"
             git clone https://github.com/prometheus/promu.git
