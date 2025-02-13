@@ -18,15 +18,15 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
 type lnstatCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 	config *NodeCollectorConfig
 }
 
@@ -34,7 +34,7 @@ func init() {
 	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
-func NewLnstatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewLnstatCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	return &lnstatCollector{logger, config}, nil
 }
 

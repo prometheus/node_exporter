@@ -19,10 +19,9 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -35,7 +34,7 @@ const (
 var pageSize = os.Getpagesize()
 
 type sockStatCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 	config *NodeCollectorConfig
 }
 
@@ -44,7 +43,7 @@ func init() {
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSockStatCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	return &sockStatCollector{logger, config}, nil
 }
 
@@ -59,7 +58,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	switch {
 	case err == nil:
 	case errors.Is(err, os.ErrNotExist):
-		level.Debug(c.logger).Log("msg", "IPv4 sockstat statistics not found, skipping")
+		c.logger.Debug("IPv4 sockstat statistics not found, skipping")
 	default:
 		return fmt.Errorf("failed to get IPv4 sockstat data: %w", err)
 	}
@@ -68,7 +67,7 @@ func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	switch {
 	case err == nil:
 	case errors.Is(err, os.ErrNotExist):
-		level.Debug(c.logger).Log("msg", "IPv6 sockstat statistics not found, skipping")
+		c.logger.Debug("IPv6 sockstat statistics not found, skipping")
 	default:
 		return fmt.Errorf("failed to get IPv6 sockstat data: %w", err)
 	}

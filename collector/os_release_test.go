@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
+	"github.com/prometheus/common/promslog"
 )
 
 const debianBullseye string = `PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
@@ -87,7 +87,7 @@ func TestUpdateStruct(t *testing.T) {
 	}
 	wantedVersion := 20.04
 
-	collector, err := NewOSCollector(&NodeCollectorConfig{}, log.NewNopLogger())
+	collector, err := NewOSCollector(&NodeCollectorConfig{}, promslog.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -19,9 +19,8 @@ package collector
 
 import (
 	"errors"
+	"log/slog"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -77,10 +76,10 @@ var (
 	)
 )
 
-func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger log.Logger) (deviceFilter, error) {
+func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger *slog.Logger) (deviceFilter, error) {
 	if *config.OldDeviceExclude != "" {
 		if !config.DeviceExcludeSet {
-			level.Warn(logger).Log("msg", "--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
+			logger.Warn("--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
 			*config.DeviceExclude = *config.OldDeviceExclude
 		} else {
 			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
@@ -92,11 +91,11 @@ func newDiskstatsDeviceFilter(config DiskstatsDeviceFilterConfig, logger log.Log
 	}
 
 	if *config.DeviceExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.diskstats.device-exclude", "flag", *config.DeviceExclude)
+		logger.Info("Parsed flag --collector.diskstats.device-exclude", "flag", *config.DeviceExclude)
 	}
 
 	if *config.DeviceInclude != "" {
-		level.Info(logger).Log("msg", "Parsed Flag --collector.diskstats.device-include", "flag", *config.DeviceInclude)
+		logger.Info("Parsed Flag --collector.diskstats.device-include", "flag", *config.DeviceInclude)
 	}
 
 	if !config.DeviceExcludeSet { // use default exclude devices if flag is not set

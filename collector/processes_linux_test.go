@@ -19,7 +19,7 @@ package collector
 import (
 	"testing"
 
-	"github.com/go-kit/log"
+	"github.com/prometheus/common/promslog"
 	"github.com/prometheus/procfs"
 )
 
@@ -33,7 +33,7 @@ func TestReadProcessStatus(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to open procfs: %v", err)
 	}
-	c := processCollector{fs: fs, logger: log.NewNopLogger(), config: config}
+	c := processCollector{fs: fs, logger: promslog.NewNopLogger(), config: config}
 	pids, states, threads, _, err := c.getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)

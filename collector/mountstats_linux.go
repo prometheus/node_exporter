@@ -18,9 +18,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -96,7 +95,7 @@ type mountStatsCollector struct {
 
 	proc procfs.Proc
 
-	logger log.Logger
+	logger *slog.Logger
 }
 
 // used to uniquely identify an NFS mount to prevent duplicates
@@ -111,7 +110,7 @@ func init() {
 }
 
 // NewMountStatsCollector returns a new Collector exposing NFS statistics.
-func NewMountStatsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewMountStatsCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
@@ -541,7 +540,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport.Protocol, mountAddress}
 		i := deviceList[deviceIdentifier]
 		if i {
-			level.Debug(c.logger).Log("msg", "Skipping duplicate device entry", "device", deviceIdentifier)
+			c.logger.Debug("Skipping duplicate device entry", "device", deviceIdentifier)
 			continue
 		}
 

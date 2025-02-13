@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	"github.com/coreos/go-systemd/v22/dbus"
-	"github.com/go-kit/log"
+	"github.com/prometheus/common/promslog"
 )
 
 // Creates mock UnitLists
@@ -94,7 +94,7 @@ func TestSystemdIgnoreFilter(t *testing.T) {
 	fixtures := getUnitListFixtures()
 	includePattern := regexp.MustCompile("^foo$")
 	excludePattern := regexp.MustCompile("^bar$")
-	filtered := filterUnits(fixtures[0], includePattern, excludePattern, log.NewNopLogger())
+	filtered := filterUnits(fixtures[0], includePattern, excludePattern, promslog.NewNopLogger())
 	for _, unit := range filtered {
 		if excludePattern.MatchString(unit.Name) || !includePattern.MatchString(unit.Name) {
 			t.Error(unit.Name, "should not be in the filtered list")
@@ -102,7 +102,7 @@ func TestSystemdIgnoreFilter(t *testing.T) {
 	}
 }
 func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
-	logger := log.NewNopLogger()
+	logger := promslog.NewNopLogger()
 	defaultInclude := ".+"
 	defaultExclude := ".+\\.(automount|device|mount|scope|slice)"
 	config := &NodeCollectorConfig{Systemd: SystemdConfig{

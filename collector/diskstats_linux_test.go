@@ -18,13 +18,13 @@ package collector
 
 import (
 	"fmt"
-	"os"
+	"log/slog"
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/prometheus/common/promslog"
 )
 
 type testDiskStatsCollector struct {
@@ -39,7 +39,7 @@ func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestDiskStatsCollector(config *NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+func NewTestDiskStatsCollector(config *NodeCollectorConfig, logger *slog.Logger) (prometheus.Collector, error) {
 	dsc, err := NewDiskstatsCollector(config, logger)
 	if err != nil {
 		return testDiskStatsCollector{}, err
@@ -331,12 +331,11 @@ node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
-	logger := log.NewLogfmtLogger(os.Stderr)
-	collector, err := NewDiskstatsCollector(config, logger)
+	collector, err := NewDiskstatsCollector(config, promslog.NewNopLogger())
 	if err != nil {
 		panic(err)
 	}
-	c, err := NewTestDiskStatsCollector(config, logger)
+	c, err := NewTestDiskStatsCollector(config, promslog.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

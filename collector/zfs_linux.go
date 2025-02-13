@@ -25,7 +25,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -50,7 +49,7 @@ func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
 		// file not found error can occur if:
 		// 1. zfs module is not loaded
 		// 2. zfs version does not have the feature with metrics -- ok to ignore
-		level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", c.config.Path.procFilePath(path))
+		c.logger.Debug("Cannot open file for reading", "path", c.config.Path.procFilePath(path))
 		return nil, errZFSNotAvailable
 	}
 	return file, nil
@@ -78,7 +77,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
 			// this file should exist, but there is a race where an exporting pool can remove the files -- ok to ignore
-			level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", zpoolPath)
+			c.logger.Debug("Cannot open file for reading", "path", zpoolPath)
 			return errZFSNotAvailable
 		}
 
@@ -100,7 +99,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
 			// This file should exist, but there is a race where an exporting pool can remove the files. Ok to ignore.
-			level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", zpoolPath)
+			c.logger.Debug("Cannot open file for reading", "path", zpoolPath)
 			return errZFSNotAvailable
 		}
 
@@ -119,7 +118,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	}
 
 	if zpoolStatePaths == nil {
-		level.Debug(c.logger).Log("msg", "No pool state files found")
+		c.logger.Debug("No pool state files found")
 		return nil
 	}
 
@@ -127,7 +126,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		file, err := os.Open(zpoolPath)
 		if err != nil {
 			// This file should exist, but there is a race where an exporting pool can remove the files. Ok to ignore.
-			level.Debug(c.logger).Log("msg", "Cannot open file for reading", "path", zpoolPath)
+			c.logger.Debug("Cannot open file for reading", "path", zpoolPath)
 			return errZFSNotAvailable
 		}
 

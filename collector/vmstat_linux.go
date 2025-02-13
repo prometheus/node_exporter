@@ -19,12 +19,12 @@ package collector
 import (
 	"bufio"
 	"fmt"
+	"log/slog"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -34,7 +34,7 @@ const (
 
 type vmStatCollector struct {
 	fieldPattern *regexp.Regexp
-	logger       log.Logger
+	logger       *slog.Logger
 	config       *NodeCollectorConfig
 }
 
@@ -43,7 +43,7 @@ func init() {
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
-func NewvmStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewvmStatCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*config.VmStat.Fields)
 	return &vmStatCollector{
 		fieldPattern: pattern,

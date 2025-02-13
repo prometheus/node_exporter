@@ -18,10 +18,9 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"golang.org/x/sys/unix"
@@ -29,7 +28,7 @@ import (
 
 type zfsCollector struct {
 	sysctls []bsdSysctl
-	logger  log.Logger
+	logger  *slog.Logger
 }
 
 const (
@@ -40,7 +39,7 @@ func init() {
 	registerCollector(zfsCollectorSubsystem, defaultEnabled, NewZfsCollector)
 }
 
-func NewZfsCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewZfsCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
 		sysctls: []bsdSysctl{
 			{
@@ -307,7 +306,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 		v, err := m.Value()
 		if err != nil {
 			// debug logging
-			level.Debug(c.logger).Log("name", m.name, "couldn't get sysctl:", err)
+			c.logger.Debug("couldn't get sysctl:", "name", m.name, "err", err)
 			continue
 		}
 

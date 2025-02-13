@@ -18,8 +18,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -33,7 +33,7 @@ type statCollector struct {
 	procsRunning *prometheus.Desc
 	procsBlocked *prometheus.Desc
 	softIRQ      *prometheus.Desc
-	logger       log.Logger
+	logger       *slog.Logger
 	config       *NodeCollectorConfig
 }
 
@@ -42,7 +42,7 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewStatCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
