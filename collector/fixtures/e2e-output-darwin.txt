@@ -117,8 +117,6 @@ node_memory_total_bytes 7.516192768e+09
 # HELP node_network_noproto_total Network device statistic noproto.
 # TYPE node_network_noproto_total counter
 node_network_noproto_total{device="lo0"} 0
-# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
-# TYPE node_network_receive_bytes_total counter
 # HELP node_network_receive_drop_total Network device statistic receive_drop.
 # TYPE node_network_receive_drop_total counter
 node_network_receive_drop_total{device="lo0"} 0

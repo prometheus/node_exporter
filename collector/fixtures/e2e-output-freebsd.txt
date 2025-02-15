@@ -126,8 +126,6 @@ node_netisr_maxthreads 1
 # HELP node_netisr_numthreads netisr current thread count
 # TYPE node_netisr_numthreads gauge
 node_netisr_numthreads 1
-# HELP node_network_receive_bytes_total Network device statistic receive_bytes.
-# TYPE node_network_receive_bytes_total counter
 # HELP node_network_receive_drop_total Network device statistic receive_drop.
 # TYPE node_network_receive_drop_total counter
 node_network_receive_drop_total{device="lo0"} 0
@@ -164,6 +162,7 @@ node_scrape_collector_success{collector="loadavg"} 1
 node_scrape_collector_success{collector="meminfo"} 1
 node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="netisr"} 1
+node_scrape_collector_success{collector="netstat"} 1
 node_scrape_collector_success{collector="os"} 1
 node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="time"} 1
