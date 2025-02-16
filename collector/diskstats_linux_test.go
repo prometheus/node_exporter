@@ -18,11 +18,11 @@ package collector
 
 import (
 	"fmt"
-	"os"
+	"io"
+	"log/slog"
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )
@@ -39,7 +39,7 @@ func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestDiskStatsCollector(logger log.Logger) (prometheus.Collector, error) {
+func NewTestDiskStatsCollector(logger *slog.Logger) (prometheus.Collector, error) {
 	dsc, err := NewDiskstatsCollector(logger)
 	if err != nil {
 		return testDiskStatsCollector{}, err
@@ -113,21 +113,21 @@ node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
 node_disk_flush_requests_total{device="sdc"} 1555
 # HELP node_disk_info Info of /sys/block/<block_device>.
 # TYPE node_disk_info gauge
-node_disk_info{device="dm-0",major="252",minor="0",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-1",major="252",minor="1",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
-node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
-node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
-node_disk_info{device="sdc",major="8",minor="32",model="INTEL_SSDS9X9SI0",path="pci-0000:00:1f.2-ata-4",revision="0100",serial="3EWB5Y25CWQWA7EH1U",wwn="0x58907ddc573a5de"} 1
-node_disk_info{device="sr0",major="11",minor="0",model="Virtual_CDROM0",path="pci-0000:00:14.0-usb-0:1.1:1.0-scsi-0:0:0:0",revision="1.00",serial="AAAABBBBCCCC1",wwn=""} 1
-node_disk_info{device="vda",major="254",minor="0",model="",path="pci-0000:00:06.0",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-0",major="252",minor="0",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-1",major="252",minor="1",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",rotational="0",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
+node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",rotational="1",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
+node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",rotational="0",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
+node_disk_info{device="sdc",major="8",minor="32",model="INTEL_SSDS9X9SI0",path="pci-0000:00:1f.2-ata-4",revision="0100",rotational="0",serial="3EWB5Y25CWQWA7EH1U",wwn="0x58907ddc573a5de"} 1
+node_disk_info{device="sr0",major="11",minor="0",model="Virtual_CDROM0",path="pci-0000:00:14.0-usb-0:1.1:1.0-scsi-0:0:0:0",revision="1.00",rotational="0",serial="AAAABBBBCCCC1",wwn=""} 1
+node_disk_info{device="vda",major="254",minor="0",model="",path="pci-0000:00:06.0",revision="",rotational="0",serial="",wwn=""} 1
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -317,7 +317,7 @@ node_disk_written_bytes_total{device="sr0"} 0
 node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	collector, err := NewDiskstatsCollector(logger)
 	if err != nil {
 		t.Fatal(err)

@@ -1,0 +1,9 @@
+24 1 0x01 7 2160 221611904716 7145015038451
+name                            type data
+dataset_name                    7    pool3/dataset with  space
+writes                          4    4
+nwritten                        4    12302
+reads                           4    2
+nread                           4    28
+nunlinks                        4    3
+nunlinked                       4    3

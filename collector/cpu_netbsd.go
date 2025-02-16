@@ -18,6 +18,7 @@ package collector
 
 import (
 	"errors"
+	"log/slog"
 	"math"
 	"regexp"
 	"sort"
@@ -25,8 +26,6 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 
@@ -217,7 +216,7 @@ func getCPUTimes() ([]cputime, error) {
 type statCollector struct {
 	cpu    typedDesc
 	temp   typedDesc
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -225,7 +224,7 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(logger log.Logger) (Collector, error) {
+func NewStatCollector(logger *slog.Logger) (Collector, error) {
 	return &statCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		temp: typedDesc{prometheus.NewDesc(
@@ -272,7 +271,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		if temp, ok := cpuTemperatures[cpu]; ok {
 			ch <- c.temp.mustNewConstMetric(temp, lcpu)
 		} else {
-			level.Debug(c.logger).Log("msg", "no temperature information for CPU", "cpu", cpu)
+			c.logger.Debug("no temperature information for CPU", "cpu", cpu)
 			ch <- c.temp.mustNewConstMetric(math.NaN(), lcpu)
 		}
 	}

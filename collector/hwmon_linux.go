@@ -18,6 +18,8 @@ package collector
 
 import (
 	"errors"
+	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -25,8 +27,6 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -44,7 +44,7 @@ var (
 	hwmonSensorTypes        = []string{
 		"vrm", "beep_enable", "update_interval", "in", "cpu", "fan",
 		"pwm", "temp", "curr", "power", "energy", "humidity",
-		"intrusion",
+		"intrusion", "freq",
 	}
 )
 
@@ -55,12 +55,12 @@ func init() {
 type hwMonCollector struct {
 	deviceFilter deviceFilter
 	sensorFilter deviceFilter
-	logger       log.Logger
+	logger       *slog.Logger
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(logger log.Logger) (Collector, error) {
+func NewHwMonCollector(logger *slog.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,
@@ -107,6 +107,9 @@ func sysReadFile(file string) ([]byte, error) {
 	n, err := unix.Read(int(f.Fd()), b)
 	if err != nil {
 		return nil, err
+	}
+	if n < 0 {
+		return nil, fmt.Errorf("failed to read file: %q, read returned negative bytes value: %d", file, n)
 	}
 
 	return b[:n], nil
@@ -168,7 +171,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 	}
 
 	if c.deviceFilter.ignored(hwmonName) {
-		level.Debug(c.logger).Log("msg", "ignoring hwmon chip", "chip", hwmonName)
+		c.logger.Debug("ignoring hwmon chip", "chip", hwmonName)
 		return nil
 	}
 
@@ -211,7 +214,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 		// sensors on specific devices. For example, to exclude the sensor "temp3" on
 		// the device "platform_coretemp_0", use "platform_coretemp_0;temp3"
 		if c.sensorFilter.ignored(hwmonName + ";" + sensor) {
-			level.Debug(c.logger).Log("msg", "ignoring sensor", "sensor", sensor)
+			c.logger.Debug("ignoring sensor", "sensor", sensor)
 			continue
 		}
 
@@ -354,6 +357,15 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 				continue
 			}
 
+			if sensorType == "freq" && element == "input" {
+				if label, ok := sensorData["label"]; ok {
+					sensorLabel := cleanMetricName(label)
+					desc := prometheus.NewDesc(name+"_freq_mhz", "Hardware monitor for GPU frequency in MHz", hwmonLabelDesc, nil)
+					ch <- prometheus.MustNewConstMetric(
+						desc, prometheus.GaugeValue, parsedValue/1000000.0, append(labels[:len(labels)-1], sensorLabel)...)
+				}
+				continue
+			}
 			// fallback, just dump the metric as is
 
 			desc := prometheus.NewDesc(name, "Hardware monitor "+sensorType+" element "+element, hwmonLabelDesc, nil)
@@ -450,7 +462,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	hwmonFiles, err := os.ReadDir(hwmonPathName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "hwmon collector metrics are not available for this system")
+			c.logger.Debug("hwmon collector metrics are not available for this system")
 			return ErrNoData
 		}
 

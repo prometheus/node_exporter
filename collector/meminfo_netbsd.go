@@ -17,16 +17,16 @@
 package collector
 
 import (
-	"github.com/go-kit/log"
 	"golang.org/x/sys/unix"
+	"log/slog"
 )
 
 type meminfoCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger log.Logger) (Collector, error) {
+func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
 	return &meminfoCollector{
 		logger: logger,
 	}, nil

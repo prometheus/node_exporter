@@ -18,10 +18,10 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"path/filepath"
 	"regexp"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -39,7 +39,7 @@ type edacCollector struct {
 	ueCount      *prometheus.Desc
 	csRowCECount *prometheus.Desc
 	csRowUECount *prometheus.Desc
-	logger       log.Logger
+	logger       *slog.Logger
 }
 
 func init() {
@@ -47,7 +47,7 @@ func init() {
 }
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector(logger log.Logger) (Collector, error) {
+func NewEdacCollector(logger *slog.Logger) (Collector, error) {
 	return &edacCollector{
 		ceCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, edacSubsystem, "correctable_errors_total"),

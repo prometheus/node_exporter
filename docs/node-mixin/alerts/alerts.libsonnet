@@ -10,7 +10,7 @@
               (
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceFillingUpWarningThreshold)d
               and
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[%(fsSpaceFillingUpPredictionWindow)s], 24*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[%(fsSpaceFillingUpPredictionWindow)s], %(nodeWarningWindowHours)s*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
@@ -20,7 +20,7 @@
               severity: 'warning',
             },
             annotations: {
-              summary: 'Filesystem is predicted to run out of space within the next 24 hours.',
+              summary: 'Filesystem is predicted to run out of space within the next %(nodeWarningWindowHours)s hours.' % $._config,
               description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up.',
             },
           },
@@ -30,7 +30,7 @@
               (
                 node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_size_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < %(fsSpaceFillingUpCriticalThreshold)d
               and
-                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 4*60*60) < 0
+                predict_linear(node_filesystem_avail_bytes{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], %(nodeCriticalWindowHours)s*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
@@ -40,7 +40,7 @@
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
-              summary: 'Filesystem is predicted to run out of space within the next 4 hours.',
+              summary: 'Filesystem is predicted to run out of space within the next %(nodeCriticalWindowHours)s hours.' % $._config,
               description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up fast.',
             },
           },
@@ -86,7 +86,7 @@
               (
                 node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < 40
               and
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 24*60*60) < 0
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], %(nodeWarningWindowHours)s*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
@@ -96,7 +96,7 @@
               severity: 'warning',
             },
             annotations: {
-              summary: 'Filesystem is predicted to run out of inodes within the next 24 hours.',
+              summary: 'Filesystem is predicted to run out of inodes within the next %(nodeWarningWindowHours)s hours.' % $._config,
               description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up.',
             },
           },
@@ -106,7 +106,7 @@
               (
                 node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} / node_filesystem_files{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} * 100 < 20
               and
-                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], 4*60*60) < 0
+                predict_linear(node_filesystem_files_free{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s}[6h], %(nodeCriticalWindowHours)s*60*60) < 0
               and
                 node_filesystem_readonly{%(nodeExporterSelector)s,%(fsSelector)s,%(fsMountpointSelector)s} == 0
               )
@@ -116,7 +116,7 @@
               severity: '%(nodeCriticalSeverity)s' % $._config,
             },
             annotations: {
-              summary: 'Filesystem is predicted to run out of inodes within the next 4 hours.',
+              summary: 'Filesystem is predicted to run out of inodes within the next %(nodeCriticalWindowHours)s hours.' % $._config,
               description: 'Filesystem on {{ $labels.device }}, mounted on {{ $labels.mountpoint }}, at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up fast.',
             },
           },
@@ -191,7 +191,7 @@
             ||| % $._config,
             annotations: {
               summary: 'Number of conntrack are getting close to the limit.',
-              description: '{{ $value | humanizePercentage }} of conntrack entries are used.',
+              description: '{{ $labels.instance }} {{ $value | humanizePercentage }} of conntrack entries are used.',
             },
             labels: {
               severity: 'warning',
@@ -312,7 +312,7 @@
           {
             alert: 'NodeCPUHighUsage',
             expr: |||
-              sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode!="idle"}[2m]))) * 100 > %(cpuHighUsageThreshold)d
+              sum without(mode) (avg without (cpu) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode!~"idle|iowait"}[2m]))) * 100 > %(cpuHighUsageThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
@@ -405,6 +405,20 @@
             annotations: {
               summary: 'Systemd service has entered failed state.',
               description: 'Systemd service {{ $labels.name }} has entered failed state at {{ $labels.instance }}',
+            },
+          },
+          {
+            alert: 'NodeSystemdServiceCrashlooping',
+            expr: |||
+              increase(node_systemd_service_restart_total{%(nodeExporterSelector)s}[5m]) > 2
+            ||| % $._config,
+            'for': '15m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Systemd service keeps restaring, possibly crash looping.',
+              description: 'Systemd service {{ $labels.name }} has being restarted too many times at {{ $labels.instance }} for the last 15 minutes. Please check if service is crash looping.',
             },
           },
           {

@@ -18,10 +18,9 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/node_exporter/collector/utils"
 	"github.com/prometheus/procfs/sysfs"
@@ -32,7 +31,7 @@ const maxUint64 = ^uint64(0)
 type fibrechannelCollector struct {
 	fs          sysfs.FS
 	metricDescs map[string]*prometheus.Desc
-	logger      log.Logger
+	logger      *slog.Logger
 	subsystem   string
 }
 
@@ -41,7 +40,7 @@ func init() {
 }
 
 // NewFibreChannelCollector returns a new Collector exposing FibreChannel stats.
-func NewFibreChannelCollector(logger log.Logger) (Collector, error) {
+func NewFibreChannelCollector(logger *slog.Logger) (Collector, error) {
 	var i fibrechannelCollector
 	var err error
 
@@ -99,7 +98,7 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 	hosts, err := c.fs.FibreChannelClass()
 	if err != nil {
 		if os.IsNotExist(err) {
-			level.Debug(c.logger).Log("msg", "fibrechannel statistics not found, skipping")
+			c.logger.Debug("fibrechannel statistics not found, skipping")
 			return ErrNoData
 		}
 		return fmt.Errorf("error obtaining FibreChannel class info: %s", err)

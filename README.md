@@ -99,8 +99,8 @@ cpu | flags | --collector.cpu.info.flags-include | N/A
 diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
 ethtool | device | --collector.ethtool.device-include | --collector.ethtool.device-exclude
 ethtool | metrics | --collector.ethtool.metrics-include | N/A
-filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
-filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
+filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.filesystem.fs-types-exclude
+filesystem | mount-points | --collector.filesystem.mount-points-include | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
 hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exclude
 interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
@@ -339,13 +339,21 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 The `node_exporter` will expose all metrics from enabled collectors by default.  This is the recommended way to collect metrics to avoid errors when comparing metrics of different families.
 
-For advanced use the `node_exporter` can be passed an optional list of collectors to filter metrics. The `collect[]` parameter may be used multiple times.  In Prometheus configuration you can use this syntax under the [scrape config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<scrape_config>).
+For advanced use the `node_exporter` can be passed an optional list of collectors to filter metrics. The parameters `collect[]` and `exclude[]` can be used multiple times (but cannot be combined).  In Prometheus configuration you can use this syntax under the [scrape config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<scrape_config>).
 
+Collect only `cpu` and `meminfo` collector metrics:
 ```
   params:
     collect[]:
-      - foo
-      - bar
+      - cpu
+      - meminfo
+```
+
+Collect all enabled collector metrics but exclude `netdev`:
+```
+  params:
+    exclude[]:
+      - netdev
 ```
 
 This can be useful for having different Prometheus servers collect specific metrics from nodes.

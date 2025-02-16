@@ -1,17 +1,9 @@
 linters:
   enable:
     - depguard
+    - goimports
     - misspell
     - revive
-  disable:
-    # Disable soon to deprecated[1] linters that lead to false
-    # positives when build tags disable certain files[2]
-    # 1: https://github.com/golangci/golangci-lint/issues/1841
-    # 2: https://github.com/prometheus/node_exporter/issues/1545
-    - deadcode
-    - unused
-    - structcheck
-    - varcheck
 
 issues:
   exclude-rules:
@@ -32,8 +24,6 @@ linters-settings:
     exclude-functions:
       # Used in HTTP handlers, any error is handled by the server itself.
       - (net/http.ResponseWriter).Write
-      # Never check for logger errors.
-      - (github.com/go-kit/log.Logger).Log
   revive:
     rules:
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-parameter
