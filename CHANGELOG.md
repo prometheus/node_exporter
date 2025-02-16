@@ -5,6 +5,38 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.9.0 / 2025-02-17
+
+* [CHANGE] meminfo: Convert linux implementation to use procfs lib #3049
+* [CHANGE] Update logging to use Go log/slog #3097
+* [FEATURE] filesystem: Add `node_filesystem_mount_info` metric #2970
+* [FEATURE] btrfs: Add metrics for commit statistics #3010
+* [FEATURE] interrupts: Add collector include/exclude filtering #3028
+* [FEATURE] interrupts: Add "exclude zeros" filtering #3028
+* [FEATURE] slabinfo: Add filters for slab name. #3041
+* [FEATURE] pressure: add IRQ PSI metrics #3048
+* [FEATURE] hwmon: Add include and exclude filter for sensors #3072
+* [FEATURE] filesystem: Add NetBSD support #3082
+* [FEATURE] netdev: Add ifAlias label #3087
+* [FEATURE] hwmon: Add Support for GPU Clock Frequencies #3093
+* [FEATURE] Add `exclude[]` URL parameter #3116
+* [FEATURE] Add AIX support #3136
+* [FEATURE] filesystem: Add fs-types/mount-points include flags #3171
+* [FEATURE] netstat: Add collector for tcp packet counters for FreeBSD. #3177
+* [ENHANCEMENT] ethtool: Add logging for filtering flags #2979
+* [ENHANCEMENT] netstat: Add TCPRcvQDrop to default metrics #3021
+* [ENHANCEMENT] diskstats: Add block device rotational #3022
+* [ENHANCEMENT] cpu: Support CPU online status #3032
+* [ENHANCEMENT] arp: optimize interface name resolution #3133
+* [ENHANCEMENT] textfile: Allow specifiying multiple directory globs #3135
+* [ENHANCEMENT] filesystem: Add reporting of purgeable space on MacOS #3206
+* [ENHANCEMENT] ethtool: Skip full scan of NetClass directories #3239
+* [BUGFIX] zfs: Prevent `procfs` integer underflow #2961
+* [BUGFIX] pressure: Fix collection on systems that do not expose a full CPU stat #3054
+* [BUGFIX] cpu: Fix FreeBSD 32-bit host support and plug memory leak #3083
+* [BUGFIX] hwmon: Add safety check to hwmon read #3134
+* [BUGFIX] zfs: Allow space in dataset name #3186
+
 ## 1.8.1 / 2024-05-16
 
 * [BUGFIX] Fix CPU seconds on Solaris #2963
