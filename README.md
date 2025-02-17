@@ -1,8 +1,8 @@
 # Node exporter
 
 [![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
-[![bsd workflow](https://github.com/prometheus/node_exporter/actions/workflows/bsd.yml/badge.svg)][actions]
-[![golangci-lint workflow](https://github.com/prometheus/node_exporter/actions/workflows/golangci-lint.yml/badge.svg)][actions]
+![bsd workflow](https://github.com/prometheus/node_exporter/actions/workflows/bsd.yml/badge.svg)
+![golangci-lint workflow](https://github.com/prometheus/node_exporter/actions/workflows/golangci-lint.yml/badge.svg)
 [![Docker Repository on Quay](https://quay.io/repository/prometheus/node-exporter/status)][quay]
 [![Docker Pulls](https://img.shields.io/docker/pulls/prom/node-exporter.svg?maxAge=604800)][hub]
 [![Go Report Card](https://goreportcard.com/badge/github.com/prometheus/node_exporter)][goreportcard]
