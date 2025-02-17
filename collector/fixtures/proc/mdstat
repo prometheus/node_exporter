@@ -57,4 +57,9 @@ md120 : active linear sda1[1] sdb1[0]
 md101 : active (read-only) raid0 sdb[2] sdd[1] sdc[0]
       322560 blocks super 1.2 512k chunks
 
+md42 : active raid5 sda1[3](S) sdd1[0] sde1[1]
+      1953381440 blocks super 1.2 level 5, 64k chunk, algorithm 2 [3/2] [UU_]
+      [===========>.........]  reshape = 56.1% (1096879076/1953381440) finish=1868.1min speed=7640K/sec
+      bitmap: 4/15 pages [16KB], 65536KB chunk
+
 unused devices: <none>
