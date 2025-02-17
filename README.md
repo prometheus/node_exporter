@@ -68,6 +68,24 @@ services:
       - '/:/host:ro,rslave'
 ```
 
+For Docker compose for Docker Swarm, `network_mode` and `pid` are not supported. The `network_mode` option must be replaced with `mode: host` in the `ports` section.
+
+```yaml
+---
+version: '3.8'
+
+services:
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    . . .
+    ports:
+      - target: 9100
+        published: 9100
+        protocol: tcp
+        mode: host
+    . . .
+```
+
 On some systems, the `timex` collector requires an additional Docker flag,
 `--cap-add=SYS_TIME`, in order to access the required syscalls.
 
