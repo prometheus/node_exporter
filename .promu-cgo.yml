@@ -20,8 +20,8 @@ tarball:
         - NOTICE
 crossbuild:
     platforms:
+        - aix/ppc64
         - darwin/amd64
         - darwin/arm64
         - netbsd/amd64
         - netbsd/386
-        - aix/ppc64
