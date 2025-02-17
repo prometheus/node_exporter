@@ -24,3 +24,4 @@ crossbuild:
         - darwin/arm64
         - netbsd/amd64
         - netbsd/386
+        - aix/ppc64
