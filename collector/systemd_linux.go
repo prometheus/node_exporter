@@ -138,8 +138,8 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 		prometheus.BuildFQName(namespace, subsystem, "version"),
 		"Detected systemd version", []string{"version"}, nil)
 	virtualizationDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, subsystem, "virtualization"),
-		"Detected virtualization technology", []string{"type"}, nil)
+		prometheus.BuildFQName(namespace, subsystem, "virtualization_info"),
+		"Detected virtualization technology", []string{"virtualization_type"}, nil)
 
 	if *oldSystemdUnitExclude != "" {
 		if !systemdUnitExcludeSet {
