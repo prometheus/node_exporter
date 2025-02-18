@@ -74,6 +74,7 @@ type systemdCollector struct {
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
+	virtualizationDesc            *prometheus.Desc
 	// Use regexps for more flexibility than device_filter.go allows
 	systemdUnitIncludePattern *regexp.Regexp
 	systemdUnitExcludePattern *regexp.Regexp
@@ -81,6 +82,10 @@ type systemdCollector struct {
 }
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
+
+var getManagerPropertyFunc = func(conn *dbus.Conn, name string) (string, error) {
+	return conn.GetManagerProperty(name)
+}
 
 func init() {
 	registerCollector("systemd", defaultDisabled, NewSystemdCollector)
@@ -132,6 +137,9 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 	systemdVersionDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "version"),
 		"Detected systemd version", []string{"version"}, nil)
+	virtualizationDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "virtualization"),
+		"Detected virtualization technology", []string{"type"}, nil)
 
 	if *oldSystemdUnitExclude != "" {
 		if !systemdUnitExcludeSet {
@@ -167,6 +175,7 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
 		systemdVersionDesc:            systemdVersionDesc,
+		virtualizationDesc:            virtualizationDesc,
 		systemdUnitIncludePattern:     systemdUnitIncludePattern,
 		systemdUnitExcludePattern:     systemdUnitExcludePattern,
 		logger:                        logger,
@@ -192,6 +201,14 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		prometheus.GaugeValue,
 		systemdVersion,
 		systemdVersionFull,
+	)
+
+	systemdVirtualization := c.getSystemdVirtualization(conn)
+	ch <- prometheus.MustNewConstMetric(
+		c.virtualizationDesc,
+		prometheus.GaugeValue,
+		1.0,
+		systemdVirtualization,
 	)
 
 	allUnits, err := c.getAllUnits(conn)
@@ -421,7 +438,7 @@ func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, su
 }
 
 func (c *systemdCollector) collectSystemState(conn *dbus.Conn, ch chan<- prometheus.Metric) error {
-	systemState, err := conn.GetManagerProperty("SystemState")
+	systemState, err := getManagerPropertyFunc(conn, "SystemState")
 	if err != nil {
 		return fmt.Errorf("couldn't get system state: %w", err)
 	}
@@ -490,7 +507,7 @@ func filterUnits(units []unit, includePattern, excludePattern *regexp.Regexp, lo
 }
 
 func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) (float64, string) {
-	version, err := conn.GetManagerProperty("Version")
+	version, err := getManagerPropertyFunc(conn, "Version")
 	if err != nil {
 		c.logger.Debug("Unable to get systemd version property, defaulting to 0")
 		return 0, ""
@@ -504,4 +521,20 @@ func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) (float64, string) 
 		return 0, ""
 	}
 	return v, version
+}
+
+func (c *systemdCollector) getSystemdVirtualization(conn *dbus.Conn) string {
+	virt, err := getManagerPropertyFunc(conn, "Virtualization")
+	if err != nil {
+		c.logger.Debug("Could not get Virtualization property", "err", err)
+		return "unknown"
+	}
+
+	virtStr := strings.Trim(virt, `"`)
+	if virtStr == "" {
+		// If no virtualization type is returned, assume it's bare metal.
+		return "none"
+	}
+
+	return virtStr
 }
