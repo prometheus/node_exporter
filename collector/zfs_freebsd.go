@@ -17,13 +17,9 @@
 package collector
 
 import (
-	"fmt"
 	"log/slog"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
-
-	"golang.org/x/sys/unix"
 )
 
 type zfsCollector struct {
@@ -316,45 +312,6 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 				m.description,
 				nil, nil,
 			), m.valueType, v)
-	}
-
-	return nil
-}
-
-func (c *zfsCollector) parseFreeBSDPoolObjsetStats() error {
-
-	sysCtlMetrics := []string{
-		"nunlinked", "nunlinks", "nread", "reads", "nwritten", "writes",
-	}
-	zfsPoolMibPrefix := "kstat.zfs.pool.dataset"
-	zfsDatasetsNames := []string{}
-
-	zfsDatasets, err := unix.Sysctl(zfsPoolMibPrefix)
-	if err != nil {
-		return fmt.Errorf("couldn't get sysctl: %w", err)
-	}
-
-	for dataset, _ := range zfsDatasets {
-		if strings.HasSuffix(dataset, ".dataset_name") {
-			zfsDatasetsNames = append(zfsDatasetsNames, strings.SplitAfter(dataset, ".")[3])
-		}
-	}
-
-	for _, zpoolDataset := range zfsDatasetsNames {
-		zfsDatasetLabels := map[string]string{
-			"dataset": zpoolDataset,
-			"zpool":   strings.SplitAfter(zpoolDataset, "/")[0],
-		}
-		for metric := range sysCtlMetrics {
-			c.sysctls = append(c.sysctls, bsdSysctl{
-				name:        fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
-				description: fmt.SprintF("node_zfs_zpool_dataset_%s", metric),
-				mib:         fmt.Sprintf("%s.%s.%s", zfsPoolMibPrefix, poolObj, metric),
-				dataType:    bsdSysctlTypeUint64,
-				valueType:   prometheus.CounterValue,
-				labels:      zfsDatasetLabels,
-			})
-		}
 	}
 
 	return nil
