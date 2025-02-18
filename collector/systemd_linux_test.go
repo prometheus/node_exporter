@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"errors"
 	"io"
 	"log/slog"
 	"regexp"
@@ -135,5 +136,63 @@ func TestSystemdSummary(t *testing.T) {
 func testSummaryHelper(t *testing.T, state string, actual float64, expected float64) {
 	if actual != expected {
 		t.Errorf("Summary mode didn't count %s jobs correctly. Actual: %f, expected: %f", state, actual, expected)
+	}
+}
+
+func Test_systemdCollector_getSystemdVirtualization(t *testing.T) {
+	type fields struct {
+		logger *slog.Logger
+	}
+	type args struct {
+		conn *dbus.Conn
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		mock   func(conn *dbus.Conn, name string) (string, error)
+		want   string
+	}{
+		{
+			name:   "Error",
+			fields: fields{logger: slog.New(slog.NewTextHandler(io.Discard, nil))},
+			args:   args{conn: &dbus.Conn{}},
+			mock: func(conn *dbus.Conn, name string) (string, error) {
+				return "", errors.New("test error")
+			},
+			want: "unknown",
+		},
+		{
+			name:   "Empty",
+			fields: fields{logger: slog.New(slog.NewTextHandler(io.Discard, nil))},
+			args:   args{conn: &dbus.Conn{}},
+			mock: func(conn *dbus.Conn, name string) (string, error) {
+				return `""`, nil
+			},
+			want: "none",
+		},
+		{
+			name:   "Valid",
+			fields: fields{logger: slog.New(slog.NewTextHandler(io.Discard, nil))},
+			args:   args{conn: &dbus.Conn{}},
+			mock: func(conn *dbus.Conn, name string) (string, error) {
+				return `"kvm"`, nil
+			},
+			want: "kvm",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			origFunc := getManagerPropertyFunc
+			defer func() { getManagerPropertyFunc = origFunc }()
+			getManagerPropertyFunc = tt.mock
+
+			c := &systemdCollector{
+				logger: tt.fields.logger,
+			}
+			if got := c.getSystemdVirtualization(tt.args.conn); got != tt.want {
+				t.Errorf("systemdCollector.getSystemdVirtualization() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
