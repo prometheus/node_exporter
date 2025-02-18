@@ -19,15 +19,14 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type loadavgCollector struct {
 	metric []typedDesc
-	logger log.Logger
+	logger *slog.Logger
 	config *NodeCollectorConfig
 }
 
@@ -36,7 +35,7 @@ func init() {
 }
 
 // NewLoadavgCollector returns a new Collector exposing load average stats.
-func NewLoadavgCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewLoadavgCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	return &loadavgCollector{
 		metric: []typedDesc{
 			{prometheus.NewDesc(namespace+"_load1", "1m load average.", nil, nil), prometheus.GaugeValue},
@@ -54,7 +53,7 @@ func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get load: %w", err)
 	}
 	for i, load := range loads {
-		level.Debug(c.logger).Log("msg", "return load", "index", i, "load", load)
+		c.logger.Debug("return load", "index", i, "load", load)
 		ch <- c.metric[i].mustNewConstMetric(load)
 	}
 	return err

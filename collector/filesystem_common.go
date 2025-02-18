@@ -19,10 +19,10 @@ package collector
 
 import (
 	"errors"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
-	"github.com/prometheus/client_golang/prometheus"
+	"log/slog"
 	"regexp"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Arch-dependent implementation must define:
@@ -41,7 +41,7 @@ type filesystemCollector struct {
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	roDesc, deviceErrorDesc       *prometheus.Desc
-	logger                        log.Logger
+	logger                        *slog.Logger
 	config                        *NodeCollectorConfig
 }
 
@@ -61,10 +61,10 @@ func init() {
 }
 
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.
-func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewFilesystemCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	if *config.Filesystem.OldMountPointsExcluded != "" {
 		if !config.Filesystem.MountPointsExcludeSet {
-			level.Warn(logger).Log("msg", "--collector.filesystem.ignored-mount-points is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.mount-points-exclude")
+			logger.Warn("--collector.filesystem.ignored-mount-points is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.mount-points-exclude")
 			*config.Filesystem.MountPointsExclude = *config.Filesystem.OldMountPointsExcluded
 		} else {
 			return nil, errors.New("--collector.filesystem.ignored-mount-points and --collector.filesystem.mount-points-exclude are mutually exclusive")
@@ -72,7 +72,7 @@ func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Col
 	}
 
 	if *config.Filesystem.MountPointsExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.mount-points-exclude", "flag", *config.Filesystem.MountPointsExclude)
+		logger.Info("Parsed flag --collector.filesystem.mount-points-exclude", "flag", *config.Filesystem.MountPointsExclude)
 	}
 
 	if !config.Filesystem.MountPointsExcludeSet { // use default mount points if flag is not set
@@ -82,7 +82,7 @@ func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Col
 
 	if *config.Filesystem.OldFSTypesExcluded != "" {
 		if !config.Filesystem.FSTypesExcludeSet {
-			level.Warn(logger).Log("msg", "--collector.filesystem.ignored-fs-types is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.fs-types-exclude")
+			logger.Warn("--collector.filesystem.ignored-fs-types is DEPRECATED and will be removed in 2.0.0, use --collector.filesystem.fs-types-exclude")
 			*config.Filesystem.FSTypesExclude = *config.Filesystem.OldFSTypesExcluded
 		} else {
 			return nil, errors.New("--collector.filesystem.ignored-fs-types and --collector.filesystem.fs-types-exclude are mutually exclusive")
@@ -90,7 +90,7 @@ func NewFilesystemCollector(config *NodeCollectorConfig, logger log.Logger) (Col
 	}
 
 	if *config.Filesystem.FSTypesExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.filesystem.fs-types-exclude", "flag", *config.Filesystem.FSTypesExclude)
+		logger.Info("Parsed flag --collector.filesystem.fs-types-exclude", "flag", *config.Filesystem.FSTypesExclude)
 	}
 
 	if !config.Filesystem.FSTypesExcludeSet { // use default fs types if flag is not set

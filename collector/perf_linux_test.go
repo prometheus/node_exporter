@@ -23,8 +23,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/promslog"
 )
 
 func canTestPerf(t *testing.T) {
@@ -44,7 +44,7 @@ func canTestPerf(t *testing.T) {
 
 func TestPerfCollector(t *testing.T) {
 	canTestPerf(t)
-	collector, err := NewPerfCollector(&NodeCollectorConfig{}, log.NewNopLogger())
+	collector, err := NewPerfCollector(&NodeCollectorConfig{}, promslog.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +99,7 @@ func TestPerfCollectorStride(t *testing.T) {
 				}
 			}
 			config.Perf.CPUs = &test.flag
-			collector, err := NewPerfCollector(config, log.NewNopLogger())
+			collector, err := NewPerfCollector(config, promslog.NewNopLogger())
 			if err != nil {
 				t.Fatal(err)
 			}

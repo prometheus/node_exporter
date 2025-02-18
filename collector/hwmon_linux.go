@@ -18,14 +18,13 @@ package collector
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -48,13 +47,13 @@ func init() {
 
 type hwMonCollector struct {
 	deviceFilter deviceFilter
-	logger       log.Logger
+	logger       *slog.Logger
 	config       *NodeCollectorConfig
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewHwMonCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 
 	return &hwMonCollector{
 		logger:       logger,
@@ -162,7 +161,7 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) er
 	}
 
 	if c.deviceFilter.ignored(hwmonName) {
-		level.Debug(c.logger).Log("msg", "ignoring hwmon chip", "chip", hwmonName)
+		c.logger.Debug("ignoring hwmon chip", "chip", hwmonName)
 		return nil
 	}
 
@@ -435,7 +434,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	hwmonFiles, err := os.ReadDir(hwmonPathName)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "hwmon collector metrics are not available for this system")
+			c.logger.Debug("hwmon collector metrics are not available for this system")
 			return ErrNoData
 		}
 

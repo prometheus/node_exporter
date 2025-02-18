@@ -19,6 +19,7 @@ package collector
 import (
 	"bufio"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -26,9 +27,9 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/prometheus/common/promslog"
 	"github.com/safchain/ethtool"
 	"golang.org/x/sys/unix"
 )
@@ -49,7 +50,7 @@ func (c testEthtoolCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestEthtoolCollector(config *NodeCollectorConfig, logger log.Logger) (prometheus.Collector, error) {
+func NewTestEthtoolCollector(config *NodeCollectorConfig, logger *slog.Logger) (prometheus.Collector, error) {
 	dsc, err := NewEthtoolTestCollector(config, logger)
 	if err != nil {
 		return testEthtoolCollector{}, err
@@ -255,7 +256,7 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return res, err
 }
 
-func NewEthtoolTestCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewEthtoolTestCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(config, logger)
 	collector.ethtool = &EthtoolFixture{
 		fixturePath: "fixtures/ethtool/",
@@ -378,12 +379,11 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 	sysPath := "fixtures/sys"
 	config.Path.SysPath = &sysPath
 
-	logger := log.NewLogfmtLogger(os.Stderr)
-	collector, err := NewEthtoolTestCollector(config, logger)
+	collector, err := NewEthtoolTestCollector(config, promslog.NewNopLogger())
 	if err != nil {
 		panic(err)
 	}
-	c, err := NewTestEthtoolCollector(config, logger)
+	c, err := NewTestEthtoolCollector(config, promslog.NewNopLogger())
 	if err != nil {
 		t.Fatal(err)
 	}

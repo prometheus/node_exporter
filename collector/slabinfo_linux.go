@@ -18,15 +18,15 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
 type slabinfoCollector struct {
 	fs        procfs.FS
-	logger    log.Logger
+	logger    *slog.Logger
 	subsystem string
 	labels    []string
 }
@@ -35,7 +35,7 @@ func init() {
 	registerCollector("slabinfo", defaultDisabled, NewSlabinfoCollector)
 }
 
-func NewSlabinfoCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewSlabinfoCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*config.Path.ProcPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

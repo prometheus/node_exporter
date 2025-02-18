@@ -18,10 +18,9 @@ package collector
 
 import (
 	"errors"
+	"log/slog"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -39,12 +38,12 @@ type zfsCollector struct {
 	linuxZpoolObjsetPath string
 	linuxZpoolStatePath  string
 	linuxPathMap         map[string]string
-	logger               log.Logger
+	logger               *slog.Logger
 	config               *NodeCollectorConfig
 }
 
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
-func NewZFSCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewZFSCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
 		linuxProcpathBase:    "spl/kstat/zfs",
 		linuxZpoolIoPath:     "/*/io",
@@ -72,7 +71,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	if _, err := c.openProcFile(c.linuxProcpathBase); err != nil {
 		if err == errZFSNotAvailable {
-			level.Debug(c.logger).Log("err", err)
+			c.logger.Debug("error opening proc file", "err", err)
 			return ErrNoData
 		}
 	}
@@ -80,7 +79,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for subsystem := range c.linuxPathMap {
 		if err := c.updateZfsStats(subsystem, ch); err != nil {
 			if err == errZFSNotAvailable {
-				level.Debug(c.logger).Log("err", err)
+				c.logger.Debug("error updating zfs stats", "err", err)
 				// ZFS /proc files are added as new features to ZFS arrive, it is ok to continue
 				continue
 			}

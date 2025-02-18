@@ -18,9 +18,9 @@
 package collector
 
 import (
+	"log/slog"
 	"regexp"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -28,7 +28,7 @@ type powerSupplyClassCollector struct {
 	subsystem      string
 	ignoredPattern *regexp.Regexp
 	metricDescs    map[string]*prometheus.Desc
-	logger         log.Logger
+	logger         *slog.Logger
 	config         *NodeCollectorConfig
 }
 
@@ -36,7 +36,7 @@ func init() {
 	registerCollector("powersupplyclass", defaultEnabled, NewPowerSupplyClassCollector)
 }
 
-func NewPowerSupplyClassCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewPowerSupplyClassCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*config.PowerSupplyClass.IgnoredPowerSupplies)
 	return &powerSupplyClassCollector{
 		subsystem:      "power_supply",

@@ -20,12 +20,11 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net"
 	"strconv"
 	"sync"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -34,7 +33,7 @@ type netDevCollector struct {
 	deviceFilter     deviceFilter
 	metricDescsMutex sync.Mutex
 	metricDescs      map[string]*prometheus.Desc
-	logger           log.Logger
+	logger           *slog.Logger
 	config           *NodeCollectorConfig
 }
 
@@ -45,10 +44,10 @@ func init() {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewNetDevCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	if *config.NetDev.OldDeviceInclude != "" {
 		if *config.NetDev.DeviceInclude == "" {
-			level.Warn(logger).Log("msg", "--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")
+			logger.Warn("--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")
 			*config.NetDev.DeviceInclude = *config.NetDev.OldDeviceInclude
 		} else {
 			return nil, errors.New("--collector.netdev.device-whitelist and --collector.netdev.device-include are mutually exclusive")
@@ -57,7 +56,7 @@ func NewNetDevCollector(config *NodeCollectorConfig, logger log.Logger) (Collect
 
 	if *config.NetDev.OldDeviceExclude != "" {
 		if *config.NetDev.DeviceExclude == "" {
-			level.Warn(logger).Log("msg", "--collector.netdev.device-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-exclude")
+			logger.Warn("--collector.netdev.device-blacklist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-exclude")
 			*config.NetDev.DeviceExclude = *config.NetDev.OldDeviceExclude
 		} else {
 			return nil, errors.New("--collector.netdev.device-blacklist and --collector.netdev.device-exclude are mutually exclusive")
@@ -69,11 +68,11 @@ func NewNetDevCollector(config *NodeCollectorConfig, logger log.Logger) (Collect
 	}
 
 	if *config.NetDev.DeviceExclude != "" {
-		level.Info(logger).Log("msg", "Parsed flag --collector.netdev.device-exclude", "flag", *config.NetDev.DeviceExclude)
+		logger.Info("Parsed flag --collector.netdev.device-exclude", "flag", *config.NetDev.DeviceExclude)
 	}
 
 	if *config.NetDev.DeviceInclude != "" {
-		level.Info(logger).Log("msg", "Parsed Flag --collector.netdev.device-include", "flag", *config.NetDev.DeviceInclude)
+		logger.Info("Parsed Flag --collector.netdev.device-include", "flag", *config.NetDev.DeviceInclude)
 	}
 
 	return &netDevCollector{

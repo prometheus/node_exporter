@@ -17,10 +17,10 @@
 package collector
 
 import (
+	"log/slog"
 	"reflect"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -35,7 +35,7 @@ func makeTestCPUCollector(s map[int64]procfs.CPUStat) *cpuCollector {
 	dup := make(map[int64]procfs.CPUStat, len(s))
 	copyStats(dup, s)
 	return &cpuCollector{
-		logger:   log.NewNopLogger(),
+		logger:   slog.Default(),
 		cpuStats: dup,
 	}
 }

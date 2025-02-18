@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
+	"github.com/prometheus/common/promslog"
 )
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
@@ -82,7 +82,7 @@ func TestMountPointDetails(t *testing.T) {
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
 	}
 
-	filesystems, err := mountPointDetails(config, log.NewNopLogger())
+	filesystems, err := mountPointDetails(config, promslog.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
@@ -103,7 +103,7 @@ func TestMountsFallback(t *testing.T) {
 		"/": "",
 	}
 
-	filesystems, err := mountPointDetails(config, log.NewNopLogger())
+	filesystems, err := mountPointDetails(config, promslog.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}
@@ -133,7 +133,7 @@ func TestPathRootfs(t *testing.T) {
 		"/sys/fs/cgroup": "",
 	}
 
-	filesystems, err := mountPointDetails(config, log.NewNopLogger())
+	filesystems, err := mountPointDetails(config, promslog.NewNopLogger())
 	if err != nil {
 		t.Log(err)
 	}

@@ -25,10 +25,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/promslog"
 )
 
 func TestIPVSCollector(t *testing.T) {
@@ -114,7 +113,7 @@ func TestIPVSCollector(t *testing.T) {
 				config.IPVS.LabelsSet = true
 				config.IPVS.Labels = &test.labels
 			}
-			collector, err := newIPVSCollector(config, log.NewNopLogger())
+			collector, err := newIPVSCollector(config, promslog.NewNopLogger())
 			if err != nil {
 				if test.err == nil {
 					t.Fatal(err)
@@ -183,7 +182,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 				config.IPVS.LabelsSet = true
 				config.IPVS.Labels = &test.labels
 			}
-			collector, err := NewIPVSCollector(config, log.NewNopLogger())
+			collector, err := NewIPVSCollector(config, promslog.NewNopLogger())
 			if err != nil {
 				t.Fatal(err)
 			}

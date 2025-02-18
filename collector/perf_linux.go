@@ -18,12 +18,11 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"runtime"
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
@@ -177,7 +176,7 @@ type perfCollector struct {
 	perfSwProfilers     map[int]*perf.SoftwareProfiler
 	perfCacheProfilers  map[int]*perf.CacheProfiler
 	desc                map[string]*prometheus.Desc
-	logger              log.Logger
+	logger              *slog.Logger
 	tracepointCollector *perfTracepointCollector
 }
 
@@ -187,7 +186,7 @@ type perfTracepointCollector struct {
 	// collection order is the sorted configured collection order of the profiler.
 	collectionOrder []string
 
-	logger    log.Logger
+	logger    *slog.Logger
 	profilers map[int]perf.GroupProfiler
 }
 
@@ -206,7 +205,7 @@ func (c *perfTracepointCollector) updateCPU(cpu int, ch chan<- prometheus.Metric
 	profiler := c.profilers[cpu]
 	p := &perf.GroupProfileValue{}
 	if err := profiler.Profile(p); err != nil {
-		level.Error(c.logger).Log("msg", "Failed to collect tracepoint profile", "err", err)
+		c.logger.Error("Failed to collect tracepoint profile", "err", err)
 		return err
 	}
 
@@ -228,7 +227,7 @@ func (c *perfTracepointCollector) updateCPU(cpu int, ch chan<- prometheus.Metric
 
 // newPerfTracepointCollector returns a configured perfTracepointCollector.
 func newPerfTracepointCollector(
-	logger log.Logger,
+	logger *slog.Logger,
 	tracepointsFlag []string,
 	cpus []int,
 ) (*perfTracepointCollector, error) {
@@ -289,7 +288,7 @@ func newPerfTracepointCollector(
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
-func NewPerfCollector(config *NodeCollectorConfig, logger log.Logger) (Collector, error) {
+func NewPerfCollector(config *NodeCollectorConfig, logger *slog.Logger) (Collector, error) {
 	collector := &perfCollector{
 		perfHwProfilers:     map[int]*perf.HardwareProfiler{},
 		perfSwProfilers:     map[int]*perf.SoftwareProfiler{},
