@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"log/slog"
 	"reflect"
 	"testing"
 
@@ -34,7 +35,7 @@ func makeTestCPUCollector(s map[int64]procfs.CPUStat) *cpuCollector {
 	dup := make(map[int64]procfs.CPUStat, len(s))
 	copyStats(dup, s)
 	return &cpuCollector{
-		logger:   promspromslog.NewNopLogger(),
+		logger:   slog.Default(),
 		cpuStats: dup,
 	}
 }
