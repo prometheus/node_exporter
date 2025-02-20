@@ -139,59 +139,58 @@ func testSummaryHelper(t *testing.T, state string, actual float64, expected floa
 	}
 }
 
+// fakeManager implements the Manager interface for testing.
+type fakeManager struct {
+	result string
+	err    error
+}
+
+// GetManagerProperty returns the controlled result for tests.
+func (f *fakeManager) GetManagerProperty(prop string) (string, error) {
+	return f.result, f.err
+}
+
 func Test_systemdCollector_getSystemdVirtualization(t *testing.T) {
-	type fields struct {
-		logger *slog.Logger
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	c, err := NewSystemdCollector(logger)
+	if err != nil {
+		t.Fatal(err)
 	}
-	type args struct {
-		conn *dbus.Conn
-	}
+	sysdCollector := c.(*systemdCollector)
+
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		mock   func(conn *dbus.Conn, name string) (string, error)
-		want   string
+		name string
+		fake *fakeManager
+		want string
 	}{
 		{
-			name:   "Error",
-			fields: fields{logger: slog.New(slog.NewTextHandler(io.Discard, nil))},
-			args:   args{conn: &dbus.Conn{}},
-			mock: func(conn *dbus.Conn, name string) (string, error) {
-				return "", errors.New("test error")
+			name: "Error",
+			fake: &fakeManager{
+				err: errors.New("test error"),
 			},
 			want: "unknown",
 		},
 		{
-			name:   "Empty",
-			fields: fields{logger: slog.New(slog.NewTextHandler(io.Discard, nil))},
-			args:   args{conn: &dbus.Conn{}},
-			mock: func(conn *dbus.Conn, name string) (string, error) {
-				return `""`, nil
+			name: "Empty",
+			fake: &fakeManager{
+				result: `""`,
 			},
 			want: "none",
 		},
 		{
-			name:   "Valid",
-			fields: fields{logger: slog.New(slog.NewTextHandler(io.Discard, nil))},
-			args:   args{conn: &dbus.Conn{}},
-			mock: func(conn *dbus.Conn, name string) (string, error) {
-				return `"kvm"`, nil
+			name: "Valid",
+			fake: &fakeManager{
+				result: `"kvm"`,
 			},
 			want: "kvm",
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			origFunc := getManagerPropertyFunc
-			defer func() { getManagerPropertyFunc = origFunc }()
-			getManagerPropertyFunc = tt.mock
-
-			c := &systemdCollector{
-				logger: tt.fields.logger,
-			}
-			if got := c.getSystemdVirtualization(tt.args.conn); got != tt.want {
-				t.Errorf("systemdCollector.getSystemdVirtualization() = %v, want %v", got, tt.want)
+			got := sysdCollector.getSystemdVirtualization(tt.fake)
+			if got != tt.want {
+				t.Errorf("getSystemdVirtualization() = %v, want %v", got, tt.want)
 			}
 		})
 	}

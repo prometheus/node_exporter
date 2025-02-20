@@ -83,8 +83,8 @@ type systemdCollector struct {
 
 var unitStatesName = []string{"active", "activating", "deactivating", "inactive", "failed"}
 
-var getManagerPropertyFunc = func(conn *dbus.Conn, name string) (string, error) {
-	return conn.GetManagerProperty(name)
+type Manager interface {
+	GetManagerProperty(prop string) (string, error)
 }
 
 func init() {
@@ -437,8 +437,8 @@ func (c *systemdCollector) collectSummaryMetrics(ch chan<- prometheus.Metric, su
 	}
 }
 
-func (c *systemdCollector) collectSystemState(conn *dbus.Conn, ch chan<- prometheus.Metric) error {
-	systemState, err := getManagerPropertyFunc(conn, "SystemState")
+func (c *systemdCollector) collectSystemState(m Manager, ch chan<- prometheus.Metric) error {
+	systemState, err := m.GetManagerProperty("SystemState")
 	if err != nil {
 		return fmt.Errorf("couldn't get system state: %w", err)
 	}
@@ -506,8 +506,8 @@ func filterUnits(units []unit, includePattern, excludePattern *regexp.Regexp, lo
 	return filtered
 }
 
-func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) (float64, string) {
-	version, err := getManagerPropertyFunc(conn, "Version")
+func (c *systemdCollector) getSystemdVersion(m Manager) (float64, string) {
+	version, err := m.GetManagerProperty("Version")
 	if err != nil {
 		c.logger.Debug("Unable to get systemd version property, defaulting to 0")
 		return 0, ""
@@ -523,8 +523,8 @@ func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) (float64, string) 
 	return v, version
 }
 
-func (c *systemdCollector) getSystemdVirtualization(conn *dbus.Conn) string {
-	virt, err := getManagerPropertyFunc(conn, "Virtualization")
+func (c *systemdCollector) getSystemdVirtualization(m Manager) string {
+	virt, err := m.GetManagerProperty("Virtualization")
 	if err != nil {
 		c.logger.Debug("Could not get Virtualization property", "err", err)
 		return "unknown"
