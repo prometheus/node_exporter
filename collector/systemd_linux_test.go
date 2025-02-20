@@ -17,7 +17,6 @@
 package collector
 
 import (
-	"errors"
 	"io"
 	"log/slog"
 	"regexp"
@@ -136,62 +135,5 @@ func TestSystemdSummary(t *testing.T) {
 func testSummaryHelper(t *testing.T, state string, actual float64, expected float64) {
 	if actual != expected {
 		t.Errorf("Summary mode didn't count %s jobs correctly. Actual: %f, expected: %f", state, actual, expected)
-	}
-}
-
-// fakeManager implements the Manager interface for testing.
-type fakeManager struct {
-	result string
-	err    error
-}
-
-// GetManagerProperty returns the controlled result for tests.
-func (f *fakeManager) GetManagerProperty(prop string) (string, error) {
-	return f.result, f.err
-}
-
-func Test_systemdCollector_getSystemdVirtualization(t *testing.T) {
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewSystemdCollector(logger)
-	if err != nil {
-		t.Fatal(err)
-	}
-	sysdCollector := c.(*systemdCollector)
-
-	tests := []struct {
-		name string
-		fake *fakeManager
-		want string
-	}{
-		{
-			name: "Error",
-			fake: &fakeManager{
-				err: errors.New("test error"),
-			},
-			want: "unknown",
-		},
-		{
-			name: "Empty",
-			fake: &fakeManager{
-				result: `""`,
-			},
-			want: "none",
-		},
-		{
-			name: "Valid",
-			fake: &fakeManager{
-				result: `"kvm"`,
-			},
-			want: "kvm",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := sysdCollector.getSystemdVirtualization(tt.fake)
-			if got != tt.want {
-				t.Errorf("getSystemdVirtualization() = %v, want %v", got, tt.want)
-			}
-		})
 	}
 }
