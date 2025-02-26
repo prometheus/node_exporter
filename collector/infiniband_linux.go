@@ -134,6 +134,10 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
 
+			if port.LinkLayer != "InfiniBand" {
+				continue
+			}
+
 			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, prometheus.GaugeValue)
 			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, prometheus.GaugeValue)
 			c.pushMetric(ch, "rate_bytes_per_second", port.Rate, port.Name, portStr, prometheus.GaugeValue)
