@@ -27,8 +27,15 @@ import (
 	"github.com/prometheus/procfs"
 )
 
+const (
+	psiResourceCPU    = "cpu"
+	psiResourceIO     = "io"
+	psiResourceMemory = "memory"
+	psiResourceIRQ    = "irq"
+)
+
 var (
-	psiResources = []string{"cpu", "io", "memory", "irq"}
+	psiResources = []string{psiResourceCPU, psiResourceIO, psiResourceMemory, psiResourceIRQ}
 )
 
 type pressureStatsCollector struct {
@@ -93,13 +100,18 @@ func NewPressureStatsCollector(logger *slog.Logger) (Collector, error) {
 
 // Update calls procfs.NewPSIStatsForResource for the different resources and updates the values
 func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
+	foundResources := 0
 	for _, res := range psiResources {
 		c.logger.Debug("collecting statistics for resource", "resource", res)
 		vals, err := c.fs.PSIStatsForResource(res)
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				c.logger.Debug("pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
-				return ErrNoData
+			if errors.Is(err, os.ErrNotExist) && res != psiResourceIRQ {
+				c.logger.Debug("pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel", "resource", res)
+				continue
+			}
+			if errors.Is(err, os.ErrNotExist) && res == psiResourceIRQ {
+				c.logger.Debug("IRQ pressure information is unavailable, you need a Linux kernel >= 6.1 and/or CONFIG_PSI enabled for your kernel", "resource", res)
+				continue
 			}
 			if errors.Is(err, syscall.ENOTSUP) {
 				c.logger.Debug("pressure information is disabled, add psi=1 kernel command line to enable it")
@@ -109,28 +121,35 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		// IRQ pressure does not have 'some' data.
 		// See https://github.com/torvalds/linux/blob/v6.9/include/linux/psi_types.h#L65
-		if vals.Some == nil && res != "irq" {
+		if vals.Some == nil && res != psiResourceIRQ {
 			c.logger.Debug("pressure information returned no 'some' data")
 			return ErrNoData
 		}
-		if vals.Full == nil && res != "cpu" {
+		if vals.Full == nil && res != psiResourceCPU {
 			c.logger.Debug("pressure information returned no 'full' data")
 			return ErrNoData
 		}
 		switch res {
-		case "cpu":
+		case psiResourceCPU:
 			ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, float64(vals.Some.Total)/1000.0/1000.0)
-		case "io":
+		case psiResourceIO:
 			ch <- prometheus.MustNewConstMetric(c.io, prometheus.CounterValue, float64(vals.Some.Total)/1000.0/1000.0)
 			ch <- prometheus.MustNewConstMetric(c.ioFull, prometheus.CounterValue, float64(vals.Full.Total)/1000.0/1000.0)
-		case "memory":
+		case psiResourceMemory:
 			ch <- prometheus.MustNewConstMetric(c.mem, prometheus.CounterValue, float64(vals.Some.Total)/1000.0/1000.0)
 			ch <- prometheus.MustNewConstMetric(c.memFull, prometheus.CounterValue, float64(vals.Full.Total)/1000.0/1000.0)
-		case "irq":
+		case psiResourceIRQ:
 			ch <- prometheus.MustNewConstMetric(c.irqFull, prometheus.CounterValue, float64(vals.Full.Total)/1000.0/1000.0)
 		default:
 			c.logger.Debug("did not account for resource", "resource", res)
+			continue
 		}
+		foundResources++
+	}
+
+	if foundResources == 0 {
+		c.logger.Debug("pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
+		return ErrNoData
 	}
 
 	return nil
