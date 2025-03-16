@@ -228,7 +228,7 @@ func sendMetricSafely(ch chan<- prometheus.Metric, metric prometheus.Metric, log
 	select {
 	case ch <- metric:
 	default:
-		logger.Warn("msg", "failed to send metric", "name", name)
+		logger.Info("msg", "failed to send metric", "name", name)
 	}
 }
 
