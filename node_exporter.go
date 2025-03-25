@@ -15,6 +15,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
@@ -23,6 +24,7 @@ import (
 	"runtime"
 	"slices"
 	"sort"
+	"time"
 
 	"github.com/prometheus/common/promslog"
 	"github.com/prometheus/common/promslog/flag"
@@ -184,6 +186,14 @@ func main() {
 			"web.telemetry-path",
 			"Path under which to expose metrics.",
 		).Default("/metrics").String()
+		extraMetricsPath = kingpin.Flag(
+			"web.extra-metrics-path",
+			"Path under which to expose extra metrics.",
+		).Default("/extra-metrics").String()
+		extraMetricsRemoteURL = kingpin.Flag(
+			"web.extra-metrics-url",
+			"Url of remote metrics.",
+		).String()
 		disableExporterMetrics = kingpin.Flag(
 			"web.disable-exporter-metrics",
 			"Exclude metrics about the exporter itself (promhttp_*, process_*, go_*).",
@@ -241,10 +251,64 @@ func main() {
 		}
 		http.Handle("/", landingPage)
 	}
+	// support extra metrics path
+	hc := NewHTTPClient(*extraMetricsRemoteURL)
+	http.HandleFunc(*extraMetricsPath, hc.ExtraMetricsHandler)
 
 	server := &http.Server{}
 	if err := web.ListenAndServe(server, toolkitFlags, logger); err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
+}
+
+// HTTPClient for extra metrics
+type HTTPClient struct {
+	Client *http.Client
+	Log    *slog.Logger
+
+	RemoteURL string
+}
+
+func NewHTTPClient(url string) *HTTPClient {
+	log := slog.Default().WithGroup("extra_metrics")
+	return &HTTPClient{
+		Client: &http.Client{
+			Timeout: time.Second * 10,
+		},
+		RemoteURL: url,
+		Log:       log,
+	}
+}
+func (h *HTTPClient) ExtraMetricsHandler(w http.ResponseWriter, r *http.Request) {
+	req, err := http.NewRequest("GET", h.RemoteURL, nil)
+	if err != nil {
+		h.Log.Error("Failed to create request", "error", err)
+		http.Error(w, "Failed to create request", http.StatusInternalServerError)
+		return
+	}
+
+	for name, values := range r.Header {
+		for _, value := range values {
+			req.Header.Add(name, value)
+		}
+	}
+
+	resp, err := h.Client.Do(req)
+	if err != nil {
+		h.Log.Error("Request failed", "error", err)
+		http.Error(w, "Request failed", http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		h.Log.Error("Failed to read response", "error", err)
+		http.Error(w, "Failed to read response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(body)
+
 }
