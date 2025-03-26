@@ -24,6 +24,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
 )
@@ -63,6 +64,10 @@ const (
 	udevIDSerialShort           = "ID_SERIAL_SHORT"
 	udevIDWWN                   = "ID_WWN"
 	udevSCSIIdentSerial         = "SCSI_IDENT_SERIAL"
+)
+
+var (
+	disableQueueStats = kingpin.Flag("collector.diskstats.disable-queue-stats", "disable queue stats").Default("false").Bool()
 )
 
 type typedFactorDesc struct {
@@ -106,13 +111,16 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}
 
+	infoLabels := []string{"device", "major", "minor", "path", "wwn", "model", "serial", "revision"}
+	if !*disableQueueStats {
+		infoLabels = append(infoLabels, "rotational")
+	}
 	collector := diskstatsCollector{
 		deviceFilter: deviceFilter,
 		fs:           fs,
 		infoDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
-				"Info of /sys/block/<block_device>.",
-				[]string{"device", "major", "minor", "path", "wwn", "model", "serial", "revision", "rotational"},
+				"Info of /sys/block/<block_device>.", infoLabels,
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
@@ -294,13 +302,8 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			serial = info[udevIDSerialShort]
 		}
 
-		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
-		// Block Device Queue stats may not exist for all devices.
-		if err != nil && !os.IsNotExist(err) {
-			c.logger.Debug("Failed to get block device queue stats", "device", dev, "err", err)
-		}
-
-		ch <- c.infoDesc.mustNewConstMetric(1.0, dev,
+		labels := []string{
+			dev,
 			fmt.Sprint(stats.MajorNumber),
 			fmt.Sprint(stats.MinorNumber),
 			info[udevIDPath],
@@ -308,8 +311,18 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			info[udevIDModel],
 			serial,
 			info[udevIDRevision],
-			strconv.FormatUint(queueStats.Rotational, 2),
-		)
+		}
+
+		if !*disableQueueStats {
+			queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
+			// Block Device Queue stats may not exist for all devices.
+			if err != nil && !os.IsNotExist(err) {
+				c.logger.Debug("Failed to get block device queue stats", "device", dev, "err", err)
+			}
+			labels = append(labels, strconv.FormatUint(queueStats.Rotational, 2))
+		}
+
+		ch <- c.infoDesc.mustNewConstMetric(1.0, labels...)
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
 
