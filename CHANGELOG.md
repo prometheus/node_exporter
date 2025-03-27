@@ -5,6 +5,11 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.9.1 / 2025-04-01
+
+* [BUGFIX] pressure: Fix missing IRQ on older kernels #3263
+* [BUGFIX] Fix Darwin memory leak #3277
+
 ## 1.9.0 / 2025-02-17
 
 * [CHANGE] meminfo: Convert linux implementation to use procfs lib #3049
