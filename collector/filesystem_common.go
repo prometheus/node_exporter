@@ -89,7 +89,7 @@ type filesystemStats struct {
 	labels            filesystemLabels
 	size, free, avail float64
 	files, filesFree  float64
-	purgeable         *float64
+	purgeable         float64
 	ro, deviceError   float64
 }
 
@@ -232,11 +232,10 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 			c.mountInfoDesc, prometheus.GaugeValue,
 			1.0, s.labels.device, s.labels.major, s.labels.minor, s.labels.mountPoint,
 		)
-		if s.purgeable != nil {
+		if s.purgeable >= 0 {
 			ch <- prometheus.MustNewConstMetric(
 				c.purgeableDesc, prometheus.GaugeValue,
-				*s.purgeable, s.labels.device, s.labels.mountPoint,
-				s.labels.fsType, s.labels.deviceError,
+				s.purgeable, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 			)
 		}
 	}
