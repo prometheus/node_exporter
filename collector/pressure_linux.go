@@ -27,8 +27,15 @@ import (
 	"github.com/prometheus/procfs"
 )
 
+const (
+	psiResourceCPU    = "cpu"
+	psiResourceIO     = "io"
+	psiResourceMemory = "memory"
+	psiResourceIRQ    = "irq"
+)
+
 var (
-	psiResources = []string{"cpu", "io", "memory", "irq"}
+	psiResources = []string{psiResourceCPU, psiResourceIO, psiResourceMemory, psiResourceIRQ}
 )
 
 type pressureStatsCollector struct {
@@ -93,13 +100,18 @@ func NewPressureStatsCollector(logger *slog.Logger) (Collector, error) {
 
 // Update calls procfs.NewPSIStatsForResource for the different resources and updates the values
 func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
+	foundResources := 0
 	for _, res := range psiResources {
 		c.logger.Debug("collecting statistics for resource", "resource", res)
 		vals, err := c.fs.PSIStatsForResource(res)
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				c.logger.Debug("pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
-				return ErrNoData
+			if errors.Is(err, os.ErrNotExist) && res != psiResourceIRQ {
+				c.logger.Debug("pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel", "resource", res)
+				continue
+			}
+			if errors.Is(err, os.ErrNotExist) && res == psiResourceIRQ {
+				c.logger.Debug("pressure information is unavailable, you need a Linux kernel >= 6.1 and/or CONFIG_PSI enabled for your kernel", "resource", res)
+				continue
 			}
 			if errors.Is(err, syscall.ENOTSUP) {
 				c.logger.Debug("pressure information is disabled, add psi=1 kernel command line to enable it")
@@ -130,7 +142,14 @@ func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(c.irqFull, prometheus.CounterValue, float64(vals.Full.Total)/1000.0/1000.0)
 		default:
 			c.logger.Debug("did not account for resource", "resource", res)
+			continue
 		}
+		foundResources++
+	}
+
+	if foundResources == 0 {
+		c.logger.Debug("pressure information is unavailable, you need a Linux kernel >= 4.20 and/or CONFIG_PSI enabled for your kernel")
+		return ErrNoData
 	}
 
 	return nil
