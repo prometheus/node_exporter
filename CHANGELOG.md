@@ -5,6 +5,10 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.9.1 / 2025-03-27
+
+* [BUGFIX] Fix Darwin memory leak #3277
+
 ## 1.9.0 / 2025-02-17
 
 * [CHANGE] meminfo: Convert linux implementation to use procfs lib #3049
