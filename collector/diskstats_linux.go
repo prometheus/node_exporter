@@ -398,14 +398,8 @@ func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 
 		line = strings.TrimPrefix(line, udevDevicePropertyPrefix)
 
-		/* TODO: After we drop support for Go 1.17, the condition below can be simplified to:
-
 		if name, value, found := strings.Cut(line, "="); found {
 			info[name] = value
-		}
-		*/
-		if fields := strings.SplitN(line, "=", 2); len(fields) == 2 {
-			info[fields[0]] = fields[1]
 		}
 	}
 
