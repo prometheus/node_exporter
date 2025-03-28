@@ -325,6 +325,7 @@ get "127.0.0.1:${port}/metrics" | grep --text -E -v "${skip_re}" > "${generated_
 non_deterministic_metrics=$(cat << METRICS
   node_boot_time_seconds
   node_cpu_frequency_hertz
+  node_cpu_frequency_max_hertz
   node_cpu_seconds_total
   node_disk_io_time_seconds_total
   node_disk_read_bytes_total
