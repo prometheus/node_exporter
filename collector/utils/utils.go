@@ -13,6 +13,11 @@
 
 package utils
 
+import (
+	"bytes"
+	"strings"
+)
+
 func SafeDereference[T any](s ...*T) []T {
 	var resolved []T
 	for _, v := range s {
@@ -24,4 +29,15 @@ func SafeDereference[T any](s ...*T) []T {
 		}
 	}
 	return resolved
+}
+
+func SafeBytesToString(b []byte) string {
+	var s string
+	zeroIndex := bytes.IndexByte(b, 0)
+	if zeroIndex == -1 {
+		s = string(b)
+	} else {
+		s = string(b[:zeroIndex])
+	}
+	return strings.ToValidUTF8(s, "�")
 }

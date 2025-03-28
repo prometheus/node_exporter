@@ -21,6 +21,8 @@ import (
 	"strconv"
 	"unsafe"
 
+	"github.com/prometheus/node_exporter/collector/utils"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -49,7 +51,7 @@ func intr(idx _C_int) (itr interrupt, err error) {
 		return
 	}
 	dev := *(*[128]byte)(unsafe.Pointer(&buf[0]))
-	itr.device = string(dev[:])
+	itr.device = utils.SafeBytesToString(dev[:])
 
 	mib[2] = KERN_INTRCNT_VECTOR
 	buf, err = sysctl(mib[:])
