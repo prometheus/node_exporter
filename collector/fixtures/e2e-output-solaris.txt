@@ -91,12 +91,6 @@ node_buddyinfo_blocks{node="0",size="8",zone="Normal"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="DMA"} 1
 node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
-# HELP node_cpu_frequency_max_hertz Maximum CPU thread frequency in hertz.
-# TYPE node_cpu_frequency_max_hertz gauge
-node_cpu_frequency_max_hertz{cpu="0"} 2.445e+09
-node_cpu_frequency_max_hertz{cpu="1"} 2.445e+09
-node_cpu_frequency_max_hertz{cpu="2"} 2.445e+09
-node_cpu_frequency_max_hertz{cpu="3"} 2.445e+09
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
 # HELP node_os_info A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, name, pretty_name, variant, variant_id, version, version_codename, version_id.
