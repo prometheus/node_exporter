@@ -3,7 +3,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@
 package collector
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"unsafe"
@@ -33,19 +32,66 @@ import (
 #include <netinet/tcp.h>
 #include <netinet/tcp_var.h>
 #include <netinet/udp.h>
+#include <netinet/udp_var.h>
 */
 import "C"
 
 var (
+	// TCP metrics
 	bsdNetstatTcpSendPacketsTotal = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "netstat", "tcp_transmit_packets_total"),
 		"TCP packets sent",
 		nil, nil,
 	)
-
 	bsdNetstatTcpRecvPacketsTotal = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "netstat", "tcp_receive_packets_total"),
 		"TCP packets received",
+		nil, nil,
+	)
+	bsdNetstatTcpConnectionAttempts = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "tcp_connection_attempts_total"),
+		"Number of times TCP connections have been initiated",
+		nil, nil,
+	)
+	bsdNetstatTcpConnectionAccepts = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "tcp_connection_accepts_total"),
+		"Number of times TCP connections have made it to established state",
+		nil, nil,
+	)
+	bsdNetstatTcpConnectionDrops = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "tcp_connection_drops_total"),
+		"Number of dropped TCP connections",
+		nil, nil,
+	)
+	bsdNetstatTcpRetransmitPackets = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "tcp_retransmit_packets_total"),
+		"Number of TCP data packets retransmitted",
+		nil, nil,
+	)
+	// UDP metrics
+	bsdNetstatUdpSendPacketsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "udp_transmit_packets_total"),
+		"UDP packets sent",
+		nil, nil,
+	)
+	bsdNetstatUdpRecvPacketsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "udp_receive_packets_total"),
+		"UDP packets received",
+		nil, nil,
+	)
+	bsdNetstatUdpHeaderDrops = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "udp_header_drops_total"),
+		"Number of UDP packets dropped due to invalid header",
+		nil, nil,
+	)
+	bsdNetstatUdpBadChecksum = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "udp_bad_checksum_total"),
+		"Number of UDP packets dropped due to bad checksum",
+		nil, nil,
+	)
+	bsdNetstatUdpNoPort = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "udp_no_port_total"),
+		"Number of UDP packets to port with no listener",
 		nil, nil,
 	)
 )
@@ -76,33 +122,76 @@ func getData(queryString string) ([]byte, error) {
 		fmt.Println("Error:", err)
 		return nil, err
 	}
-
-	if len(data) < int(unsafe.Sizeof(C.struct_tcpstat{})) {
-		return nil, errors.New("Data Size mismatch")
-	}
 	return data, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
-
 	tcpData, err := getData("net.inet.tcp.stats")
-	if err != nil {
-		return err
+	if err == nil && len(tcpData) >= int(unsafe.Sizeof(C.struct_tcpstat{})) {
+		tcpStats := *(*C.struct_tcpstat)(unsafe.Pointer(&tcpData[0]))
+
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatTcpSendPacketsTotal,
+			prometheus.CounterValue,
+			float64(tcpStats.tcps_sndtotal),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatTcpRecvPacketsTotal,
+			prometheus.CounterValue,
+			float64(tcpStats.tcps_rcvtotal),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatTcpConnectionAttempts,
+			prometheus.CounterValue,
+			float64(tcpStats.tcps_connattempt),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatTcpConnectionAccepts,
+			prometheus.CounterValue,
+			float64(tcpStats.tcps_accepts),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatTcpConnectionDrops,
+			prometheus.CounterValue,
+			float64(tcpStats.tcps_drops),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatTcpRetransmitPackets,
+			prometheus.CounterValue,
+			float64(tcpStats.tcps_sndrexmitpack),
+		)
 	}
 
-	tcpStats := *(*C.struct_tcpstat)(unsafe.Pointer(&tcpData[0]))
+	udpData, err := getData("net.inet.udp.stats")
+	if err == nil && len(udpData) >= int(unsafe.Sizeof(C.struct_udpstat{})) {
+		udpStats := *(*C.struct_udpstat)(unsafe.Pointer(&udpData[0]))
 
-	ch <- prometheus.MustNewConstMetric(
-		bsdNetstatTcpSendPacketsTotal,
-		prometheus.CounterValue,
-		float64(tcpStats.tcps_sndtotal),
-	)
-
-	ch <- prometheus.MustNewConstMetric(
-		bsdNetstatTcpRecvPacketsTotal,
-		prometheus.CounterValue,
-		float64(tcpStats.tcps_rcvtotal),
-	)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatUdpSendPacketsTotal,
+			prometheus.CounterValue,
+			float64(udpStats.udps_opackets),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatUdpRecvPacketsTotal,
+			prometheus.CounterValue,
+			float64(udpStats.udps_ipackets),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatUdpHeaderDrops,
+			prometheus.CounterValue,
+			float64(udpStats.udps_hdrops),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatUdpBadChecksum,
+			prometheus.CounterValue,
+			float64(udpStats.udps_badsum),
+		)
+		ch <- prometheus.MustNewConstMetric(
+			bsdNetstatUdpNoPort,
+			prometheus.CounterValue,
+			float64(udpStats.udps_noport),
+		)
+	}
 
 	return nil
 }
