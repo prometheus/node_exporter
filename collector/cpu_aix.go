@@ -30,8 +30,29 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+var (
+	nodeCPUPhysicalSecondsDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "physical_seconds_total"),
+		"Seconds the physical CPUs spent in each mode.",
+		[]string{"cpu", "mode"}, nil,
+	)
+	nodeCPUSRunQueueDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "runqueue"),
+		"Length of the run queue.", []string{"cpu"}, nil,
+	)
+	nodeCPUFlagsDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "flags"),
+		"CPU flags.",
+		[]string{"cpu", "flag"}, nil,
+	)
+)
+
 type cpuCollector struct {
-	cpu           typedDesc
+	cpu         typedDesc
+	cpuPhysical typedDesc
+	cpuRunQueue typedDesc
+	cpuFlags    typedDesc
+
 	logger        *slog.Logger
 	tickPerSecond int64
 }
@@ -55,6 +76,9 @@ func NewCpuCollector(logger *slog.Logger) (Collector, error) {
 	}
 	return &cpuCollector{
 		cpu:           typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
+		cpuPhysical:   typedDesc{nodeCPUPhysicalSecondsDesc, prometheus.CounterValue},
+		cpuRunQueue:   typedDesc{nodeCPUSRunQueueDesc, prometheus.GaugeValue},
+		cpuFlags:      typedDesc{nodeCPUFlagsDesc, prometheus.GaugeValue},
 		logger:        logger,
 		tickPerSecond: ticks,
 	}, nil
@@ -67,10 +91,23 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for n, stat := range stats {
+		// LPAR metrics
 		ch <- c.cpu.mustNewConstMetric(float64(stat.User/c.tickPerSecond), strconv.Itoa(n), "user")
 		ch <- c.cpu.mustNewConstMetric(float64(stat.Sys/c.tickPerSecond), strconv.Itoa(n), "system")
 		ch <- c.cpu.mustNewConstMetric(float64(stat.Idle/c.tickPerSecond), strconv.Itoa(n), "idle")
 		ch <- c.cpu.mustNewConstMetric(float64(stat.Wait/c.tickPerSecond), strconv.Itoa(n), "wait")
+
+		// Physical CPU metrics
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PIdle/c.tickPerSecond), strconv.Itoa(n), "pidle")
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PUser/c.tickPerSecond), strconv.Itoa(n), "puser")
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PSys/c.tickPerSecond), strconv.Itoa(n), "psys")
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PWait/c.tickPerSecond), strconv.Itoa(n), "pwait")
+
+		// Run queue length
+		ch <- c.cpuRunQueue.mustNewConstMetric(float64(stat.RunQueue), strconv.Itoa(n))
+
+		// Flags
+		ch <- c.cpuFlags.mustNewConstMetric(float64(stat.SpurrFlag), strconv.Itoa(n), "spurr")
 	}
 	return nil
 }
