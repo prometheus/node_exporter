@@ -260,14 +260,14 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 		},
 		ioErrDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ioerr_total"),
-			"Number of IO commands that completed with an error.",
+				"Number of IO commands that completed with an error.",
 				[]string{"device"},
 				nil,
 			), valueType: prometheus.CounterValue,
 		},
 		ioDoneDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "iodone_total"),
-			"Number of completed or rejected IO commands.",
+				"Number of completed or rejected IO commands.",
 				[]string{"device"},
 				nil,
 			), valueType: prometheus.CounterValue,
@@ -393,7 +393,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDiskStats.IODoneCount), dev)
 			ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDiskStats.IOErrCount), dev)
 		} else {
-			level.Debug(c.logger).Log("msg", "Error reading IO errors count", "err", err)
+			c.logger.Debug("Error reading IO errors count", "err", err)
 		}
 	}
 	return nil

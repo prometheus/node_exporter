@@ -18,8 +18,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/ext4"
 )
@@ -27,7 +27,7 @@ import (
 // An ext4Collector is a Collector which gathers metrics from ext4 filesystems.
 type ext4Collector struct {
 	fs     ext4.FS
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -35,7 +35,7 @@ func init() {
 }
 
 // NewExt4Collector returns a new Collector exposing ext4 statistics.
-func NewExt4Collector(logger log.Logger) (Collector, error) {
+func NewExt4Collector(logger *slog.Logger) (Collector, error) {
 	fs, err := ext4.NewFS(*procPath, *sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
