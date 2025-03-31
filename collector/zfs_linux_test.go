@@ -35,24 +35,25 @@ func TestArcstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v interface{}) {
 
-		if s != zfsSysctl("kstat.zfs.misc.arcstats.hits") {
+		if s == zfsSysctl("kstat.zfs.misc.arcstats.hits") {
+			if v.(uint64) != 8772612 {
+				t.Fatalf("Incorrect value parsed from procfs data")
+			}
+		} else if s == zfsSysctl("kstat.zfs.misc.arcstats.memory_available_bytes") {
+			if v.(int64) != -922337203685477580 {
+				t.Fatalf("Incorrect value parsed from procfs data")
+			}
+		} else {
 			return
 		}
 
 		handlerCalled = true
-
-		if v != uint64(8772612) {
-			t.Fatalf("Incorrect value parsed from procfs data")
-		}
-
 	})
-
 	if err != nil {
 		t.Fatal(err)
 	}
-
 	if !handlerCalled {
 		t.Fatal("Arcstats parsing handler was not called for some expected sysctls")
 	}
@@ -71,7 +72,7 @@ func TestZfetchstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(zfetchstatsFile, "zfetchstats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(zfetchstatsFile, "zfetchstats", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.zfetchstats.hits") {
 			return
@@ -79,7 +80,7 @@ func TestZfetchstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(7067992) {
+		if v.(uint64) != 7067992 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -107,7 +108,7 @@ func TestZilParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(zilFile, "zil", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(zilFile, "zil", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.zil.zil_commit_count") {
 			return
@@ -115,7 +116,7 @@ func TestZilParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(10) {
+		if v.(uint64) != 10 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -143,7 +144,7 @@ func TestVdevCacheStatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(vdevCacheStatsFile, "vdev_cache_stats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(vdevCacheStatsFile, "vdev_cache_stats", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.vdev_cache_stats.delegations") {
 			return
@@ -151,7 +152,7 @@ func TestVdevCacheStatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(40) {
+		if v.(uint64) != 40 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -179,7 +180,7 @@ func TestXuioStatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(xuioStatsFile, "xuio_stats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(xuioStatsFile, "xuio_stats", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.xuio_stats.onloan_read_buf") {
 			return
@@ -187,7 +188,7 @@ func TestXuioStatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(32) {
+		if v.(uint64) != 32 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -215,7 +216,7 @@ func TestFmParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(fmFile, "fm", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(fmFile, "fm", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.fm.erpt-dropped") {
 			return
@@ -223,7 +224,7 @@ func TestFmParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(18) {
+		if v.(uint64) != 18 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -251,7 +252,7 @@ func TestDmuTxParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(dmuTxFile, "dmu_tx", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(dmuTxFile, "dmu_tx", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.dmu_tx.dmu_tx_assigned") {
 			return
@@ -259,7 +260,7 @@ func TestDmuTxParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(3532844) {
+		if v.(uint64) != 3532844 {
 			t.Fatalf("Incorrect value parsed from procfs data")
 		}
 
@@ -299,7 +300,7 @@ func TestZpoolParsing(t *testing.T) {
 
 			handlerCalled = true
 
-			if v != uint64(1884160) && v != uint64(2826240) {
+			if v != 1884160 && v != 2826240 {
 				t.Fatalf("Incorrect value parsed from procfs data %v", v)
 			}
 
@@ -311,6 +312,55 @@ func TestZpoolParsing(t *testing.T) {
 	}
 	if !handlerCalled {
 		t.Fatal("Zpool parsing handler was not called for some expected sysctls")
+	}
+}
+
+func TestZpoolObjsetParsingWithSpace(t *testing.T) {
+	tests := []struct {
+		path            string
+		expectedDataset string
+	}{
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool1/objset-1",
+			expectedDataset: "pool1",
+		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool1/objset-2",
+			expectedDataset: "pool1/dataset1",
+		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool3/objset-1",
+			expectedDataset: "pool3",
+		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/pool3/objset-2",
+			expectedDataset: "pool3/dataset with  space",
+		},
+	}
+
+	c := zfsCollector{}
+
+	var handlerCalled bool
+	for _, test := range tests {
+		file, err := os.Open(test.path)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		handlerCalled = false
+		err = c.parsePoolObjsetFile(file, test.path, func(poolName string, datasetName string, s zfsSysctl, v uint64) {
+			handlerCalled = true
+			if test.expectedDataset != datasetName {
+				t.Fatalf("Incorrectly parsed dataset name: expected: '%s', got: '%s'", test.expectedDataset, datasetName)
+			}
+		})
+		file.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !handlerCalled {
+			t.Fatalf("Zpool parsing handler was not called for '%s'", test.path)
+		}
 	}
 }
 
@@ -339,7 +389,7 @@ func TestZpoolObjsetParsing(t *testing.T) {
 
 			handlerCalled = true
 
-			if v != uint64(0) && v != uint64(4) && v != uint64(10) {
+			if v != 0 && v != 4 && v != 10 {
 				t.Fatalf("Incorrect value parsed from procfs data %v", v)
 			}
 
@@ -367,7 +417,7 @@ func TestAbdstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(abdstatsFile, "abdstats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(abdstatsFile, "abdstats", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.abdstats.linear_data_size") {
 			return
@@ -375,7 +425,7 @@ func TestAbdstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(223232) {
+		if v.(uint64) != 223232 {
 			t.Fatalf("Incorrect value parsed from procfs abdstats data")
 		}
 
@@ -403,7 +453,7 @@ func TestDbufstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(dbufstatsFile, "dbufstats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(dbufstatsFile, "dbufstats", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.dbufstats.hash_hits") {
 			return
@@ -411,7 +461,7 @@ func TestDbufstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(108807) {
+		if v.(uint64) != 108807 {
 			t.Fatalf("Incorrect value parsed from procfs dbufstats data")
 		}
 
@@ -439,7 +489,7 @@ func TestDnodestatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(dnodestatsFile, "dnodestats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(dnodestatsFile, "dnodestats", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.dnodestats.dnode_hold_alloc_hits") {
 			return
@@ -447,7 +497,7 @@ func TestDnodestatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(37617) {
+		if v.(uint64) != 37617 {
 			t.Fatalf("Incorrect value parsed from procfs dnodestats data")
 		}
 
@@ -475,7 +525,7 @@ func TestVdevMirrorstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(vdevMirrorStatsFile, "vdev_mirror_stats", func(s zfsSysctl, v uint64) {
+	err = c.parseProcfsFile(vdevMirrorStatsFile, "vdev_mirror_stats", func(s zfsSysctl, v interface{}) {
 
 		if s != zfsSysctl("kstat.zfs.misc.vdev_mirror_stats.preferred_not_found") {
 			return
@@ -483,7 +533,7 @@ func TestVdevMirrorstatsParsing(t *testing.T) {
 
 		handlerCalled = true
 
-		if v != uint64(94) {
+		if v.(uint64) != 94 {
 			t.Fatalf("Incorrect value parsed from procfs vdev_mirror_stats data")
 		}
 
@@ -520,26 +570,26 @@ func TestPoolStateParsing(t *testing.T) {
 			handlerCalled = true
 
 			if poolName == "pool1" {
-				if isActive != uint64(1) && stateName == "online" {
+				if isActive != 1 && stateName == "online" {
 					t.Fatalf("Incorrect parsed value for online state")
 				}
-				if isActive != uint64(0) && stateName != "online" {
+				if isActive != 0 && stateName != "online" {
 					t.Fatalf("Incorrect parsed value for online state")
 				}
 			}
 			if poolName == "poolz1" {
-				if isActive != uint64(1) && stateName == "degraded" {
+				if isActive != 1 && stateName == "degraded" {
 					t.Fatalf("Incorrect parsed value for degraded state")
 				}
-				if isActive != uint64(0) && stateName != "degraded" {
+				if isActive != 0 && stateName != "degraded" {
 					t.Fatalf("Incorrect parsed value for degraded state")
 				}
 			}
 			if poolName == "pool2" {
-				if isActive != uint64(1) && stateName == "suspended" {
+				if isActive != 1 && stateName == "suspended" {
 					t.Fatalf("Incorrect parsed value for suspended state")
 				}
-				if isActive != uint64(0) && stateName != "suspended" {
+				if isActive != 0 && stateName != "suspended" {
 					t.Fatalf("Incorrect parsed value for suspended state")
 				}
 			}

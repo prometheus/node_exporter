@@ -1,55 +1,59 @@
-# HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
+# HELP go_gc_duration_seconds A summary of the wall-time pause (stop-the-world) duration in garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
+# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent.
+# TYPE go_gc_gogc_percent gauge
+# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes.
+# TYPE go_gc_gomemlimit_bytes gauge
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
 # HELP go_info Information about the Go environment.
 # TYPE go_info gauge
-# HELP go_memstats_alloc_bytes Number of bytes allocated and still in use.
+# HELP go_memstats_alloc_bytes Number of bytes allocated in heap and currently in use. Equals to /memory/classes/heap/objects:bytes.
 # TYPE go_memstats_alloc_bytes gauge
-# HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated in heap until now, even if released already. Equals to /gc/heap/allocs:bytes.
 # TYPE go_memstats_alloc_bytes_total counter
-# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table.
+# HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket hash table. Equals to /memory/classes/profiling/buckets:bytes.
 # TYPE go_memstats_buck_hash_sys_bytes gauge
-# HELP go_memstats_frees_total Total number of frees.
+# HELP go_memstats_frees_total Total number of heap objects frees. Equals to /gc/heap/frees:objects + /gc/heap/tiny/allocs:objects.
 # TYPE go_memstats_frees_total counter
-# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata.
+# HELP go_memstats_gc_sys_bytes Number of bytes used for garbage collection system metadata. Equals to /memory/classes/metadata/other:bytes.
 # TYPE go_memstats_gc_sys_bytes gauge
-# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and still in use.
+# HELP go_memstats_heap_alloc_bytes Number of heap bytes allocated and currently in use, same as go_memstats_alloc_bytes. Equals to /memory/classes/heap/objects:bytes.
 # TYPE go_memstats_heap_alloc_bytes gauge
-# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used.
+# HELP go_memstats_heap_idle_bytes Number of heap bytes waiting to be used. Equals to /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
 # TYPE go_memstats_heap_idle_bytes gauge
-# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use.
+# HELP go_memstats_heap_inuse_bytes Number of heap bytes that are in use. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes
 # TYPE go_memstats_heap_inuse_bytes gauge
-# HELP go_memstats_heap_objects Number of allocated objects.
+# HELP go_memstats_heap_objects Number of currently allocated objects. Equals to /gc/heap/objects:objects.
 # TYPE go_memstats_heap_objects gauge
-# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS.
+# HELP go_memstats_heap_released_bytes Number of heap bytes released to OS. Equals to /memory/classes/heap/released:bytes.
 # TYPE go_memstats_heap_released_bytes gauge
-# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system.
+# HELP go_memstats_heap_sys_bytes Number of heap bytes obtained from system. Equals to /memory/classes/heap/objects:bytes + /memory/classes/heap/unused:bytes + /memory/classes/heap/released:bytes + /memory/classes/heap/free:bytes.
 # TYPE go_memstats_heap_sys_bytes gauge
 # HELP go_memstats_last_gc_time_seconds Number of seconds since 1970 of last garbage collection.
 # TYPE go_memstats_last_gc_time_seconds gauge
-# HELP go_memstats_lookups_total Total number of pointer lookups.
-# TYPE go_memstats_lookups_total counter
-# HELP go_memstats_mallocs_total Total number of mallocs.
+# HELP go_memstats_mallocs_total Total number of heap objects allocated, both live and gc-ed. Semantically a counter version for go_memstats_heap_objects gauge. Equals to /gc/heap/allocs:objects + /gc/heap/tiny/allocs:objects.
 # TYPE go_memstats_mallocs_total counter
-# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures.
+# HELP go_memstats_mcache_inuse_bytes Number of bytes in use by mcache structures. Equals to /memory/classes/metadata/mcache/inuse:bytes.
 # TYPE go_memstats_mcache_inuse_bytes gauge
-# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system.
+# HELP go_memstats_mcache_sys_bytes Number of bytes used for mcache structures obtained from system. Equals to /memory/classes/metadata/mcache/inuse:bytes + /memory/classes/metadata/mcache/free:bytes.
 # TYPE go_memstats_mcache_sys_bytes gauge
-# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures.
+# HELP go_memstats_mspan_inuse_bytes Number of bytes in use by mspan structures. Equals to /memory/classes/metadata/mspan/inuse:bytes.
 # TYPE go_memstats_mspan_inuse_bytes gauge
-# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system.
+# HELP go_memstats_mspan_sys_bytes Number of bytes used for mspan structures obtained from system. Equals to /memory/classes/metadata/mspan/inuse:bytes + /memory/classes/metadata/mspan/free:bytes.
 # TYPE go_memstats_mspan_sys_bytes gauge
-# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place.
+# HELP go_memstats_next_gc_bytes Number of heap bytes when next garbage collection will take place. Equals to /gc/heap/goal:bytes.
 # TYPE go_memstats_next_gc_bytes gauge
-# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations.
+# HELP go_memstats_other_sys_bytes Number of bytes used for other system allocations. Equals to /memory/classes/other:bytes.
 # TYPE go_memstats_other_sys_bytes gauge
-# HELP go_memstats_stack_inuse_bytes Number of bytes in use by the stack allocator.
+# HELP go_memstats_stack_inuse_bytes Number of bytes obtained from system for stack allocator in non-CGO environments. Equals to /memory/classes/heap/stacks:bytes.
 # TYPE go_memstats_stack_inuse_bytes gauge
-# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator.
+# HELP go_memstats_stack_sys_bytes Number of bytes obtained from system for stack allocator. Equals to /memory/classes/heap/stacks:bytes + /memory/classes/os-stacks:bytes.
 # TYPE go_memstats_stack_sys_bytes gauge
-# HELP go_memstats_sys_bytes Number of bytes obtained from system.
+# HELP go_memstats_sys_bytes Number of bytes obtained from system. Equals to /memory/classes/total:byte.
 # TYPE go_memstats_sys_bytes gauge
+# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads.
+# TYPE go_sched_gomaxprocs_threads gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
 # HELP node_arp_entries ARP entries by device
@@ -161,6 +165,14 @@ node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid1",uuid="0abb2
 node_btrfs_allocation_ratio{block_group_type="metadata",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid1",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 2
 node_btrfs_allocation_ratio{block_group_type="system",mode="raid6",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 2
+# HELP node_btrfs_commit_seconds_total Sum of the duration of all commits, in seconds.
+# TYPE node_btrfs_commit_seconds_total counter
+node_btrfs_commit_seconds_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 47836.09
+node_btrfs_commit_seconds_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_commits_total The total number of commits that have occurred.
+# TYPE node_btrfs_commits_total counter
+node_btrfs_commits_total{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 258051
+node_btrfs_commits_total{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_device_size_bytes Size of a device that is part of the filesystem.
 # TYPE node_btrfs_device_size_bytes gauge
 node_btrfs_device_size_bytes{device="loop22",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.073741824e+10
@@ -177,6 +189,14 @@ node_btrfs_global_rsv_size_bytes{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1.
 # TYPE node_btrfs_info gauge
 node_btrfs_info{label="",uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 1
 node_btrfs_info{label="fixture",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+# HELP node_btrfs_last_commit_seconds Duration of the most recent commit, in seconds.
+# TYPE node_btrfs_last_commit_seconds gauge
+node_btrfs_last_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 1
+node_btrfs_last_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
+# HELP node_btrfs_max_commit_seconds Duration of the slowest commit, in seconds.
+# TYPE node_btrfs_max_commit_seconds gauge
+node_btrfs_max_commit_seconds{uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 51.462
+node_btrfs_max_commit_seconds{uuid="7f07c59f-6136-449c-ab87-e1cf2328731b"} 0
 # HELP node_btrfs_reserved_bytes Amount of space reserved for a data type
 # TYPE node_btrfs_reserved_bytes gauge
 node_btrfs_reserved_bytes{block_group_type="data",uuid="0abb23a9-579b-43e6-ad30-227ef47fcb9d"} 0
@@ -490,21 +510,21 @@ node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
 node_disk_flush_requests_total{device="sdc"} 1555
 # HELP node_disk_info Info of /sys/block/<block_device>.
 # TYPE node_disk_info gauge
-node_disk_info{device="dm-0",major="252",minor="0",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-1",major="252",minor="1",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
-node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
-node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
-node_disk_info{device="sdc",major="8",minor="32",model="INTEL_SSDS9X9SI0",path="pci-0000:00:1f.2-ata-4",revision="0100",serial="3EWB5Y25CWQWA7EH1U",wwn="0x58907ddc573a5de"} 1
-node_disk_info{device="sr0",major="11",minor="0",model="Virtual_CDROM0",path="pci-0000:00:14.0-usb-0:1.1:1.0-scsi-0:0:0:0",revision="1.00",serial="AAAABBBBCCCC1",wwn=""} 1
-node_disk_info{device="vda",major="254",minor="0",model="",path="pci-0000:00:06.0",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-0",major="252",minor="0",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-1",major="252",minor="1",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",rotational="0",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
+node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",rotational="1",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
+node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",rotational="0",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
+node_disk_info{device="sdc",major="8",minor="32",model="INTEL_SSDS9X9SI0",path="pci-0000:00:1f.2-ata-4",revision="0100",rotational="0",serial="3EWB5Y25CWQWA7EH1U",wwn="0x58907ddc573a5de"} 1
+node_disk_info{device="sr0",major="11",minor="0",model="Virtual_CDROM0",path="pci-0000:00:14.0-usb-0:1.1:1.0-scsi-0:0:0:0",revision="1.00",rotational="0",serial="AAAABBBBCCCC1",wwn=""} 1
+node_disk_info{device="vda",major="254",minor="0",model="",path="pci-0000:00:06.0",revision="",rotational="0",serial="",wwn=""} 1
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -873,6 +893,10 @@ node_hwmon_fan_target_rpm{chip="nct6779",sensor="fan2"} 27000
 # HELP node_hwmon_fan_tolerance Hardware monitor fan element tolerance
 # TYPE node_hwmon_fan_tolerance gauge
 node_hwmon_fan_tolerance{chip="nct6779",sensor="fan2"} 0
+# HELP node_hwmon_freq_freq_mhz Hardware monitor for GPU frequency in MHz
+# TYPE node_hwmon_freq_freq_mhz gauge
+node_hwmon_freq_freq_mhz{chip="hwmon4",sensor="mclk"} 300
+node_hwmon_freq_freq_mhz{chip="hwmon4",sensor="sclk"} 214
 # HELP node_hwmon_in_alarm Hardware sensor alarm status (in)
 # TYPE node_hwmon_in_alarm gauge
 node_hwmon_in_alarm{chip="nct6779",sensor="in0"} 0
@@ -986,8 +1010,10 @@ node_hwmon_pwm_weight_temp_step_tol{chip="nct6779",sensor="pwm1"} 0
 # TYPE node_hwmon_sensor_label gauge
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp1"} 1
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp2"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="Left side  ",sensor="fan1"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="Right side ",sensor="fan2"} 1
+node_hwmon_sensor_label{chip="hwmon4",label="mclk",sensor="freq2"} 1
+node_hwmon_sensor_label{chip="hwmon4",label="sclk",sensor="freq1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Left side",sensor="fan1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Right side",sensor="fan2"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 0",sensor="temp2"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 1",sensor="temp3"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 2",sensor="temp4"} 1
@@ -1581,6 +1607,14 @@ node_md_blocks_synced{device="md6"} 1.6775552e+07
 node_md_blocks_synced{device="md7"} 7.813735424e+09
 node_md_blocks_synced{device="md8"} 1.6775552e+07
 node_md_blocks_synced{device="md9"} 0
+# HELP node_md_degraded Number of degraded disks on device.
+# TYPE node_md_degraded gauge
+node_md_degraded{device="md0"} 0
+node_md_degraded{device="md1"} 0
+node_md_degraded{device="md10"} 0
+node_md_degraded{device="md4"} 0
+node_md_degraded{device="md5"} 1
+node_md_degraded{device="md6"} 1
 # HELP node_md_disks Number of active/failed/spare disks of device.
 # TYPE node_md_disks gauge
 node_md_disks{device="md0",state="active"} 2
@@ -1653,6 +1687,14 @@ node_md_disks_required{device="md6"} 2
 node_md_disks_required{device="md7"} 4
 node_md_disks_required{device="md8"} 2
 node_md_disks_required{device="md9"} 4
+# HELP node_md_raid_disks Number of raid disks on device.
+# TYPE node_md_raid_disks gauge
+node_md_raid_disks{device="md0"} 2
+node_md_raid_disks{device="md1"} 2
+node_md_raid_disks{device="md10"} 4
+node_md_raid_disks{device="md4"} 3
+node_md_raid_disks{device="md5"} 3
+node_md_raid_disks{device="md6"} 4
 # HELP node_md_state Indicates the state of md-device.
 # TYPE node_md_state gauge
 node_md_state{device="md0",state="active"} 1
@@ -2344,6 +2386,9 @@ node_netstat_TcpExt_SyncookiesSent 0
 # HELP node_netstat_TcpExt_TCPOFOQueue Statistic TcpExtTCPOFOQueue.
 # TYPE node_netstat_TcpExt_TCPOFOQueue untyped
 node_netstat_TcpExt_TCPOFOQueue 42
+# HELP node_netstat_TcpExt_TCPRcvQDrop Statistic TcpExtTCPRcvQDrop.
+# TYPE node_netstat_TcpExt_TCPRcvQDrop untyped
+node_netstat_TcpExt_TCPRcvQDrop 131
 # HELP node_netstat_TcpExt_TCPTimeouts Statistic TcpExtTCPTimeouts.
 # TYPE node_netstat_TcpExt_TCPTimeouts untyped
 node_netstat_TcpExt_TCPTimeouts 115
@@ -2852,6 +2897,9 @@ node_pressure_io_stalled_seconds_total 159.229614
 # HELP node_pressure_io_waiting_seconds_total Total time in seconds that processes have waited due to IO congestion
 # TYPE node_pressure_io_waiting_seconds_total counter
 node_pressure_io_waiting_seconds_total 159.886802
+# HELP node_pressure_irq_stalled_seconds_total Total time in seconds no process could make progress due to IRQ congestion
+# TYPE node_pressure_irq_stalled_seconds_total counter
+node_pressure_irq_stalled_seconds_total 0.008494
 # HELP node_pressure_memory_stalled_seconds_total Total time in seconds no process could make progress due to memory congestion
 # TYPE node_pressure_memory_stalled_seconds_total counter
 node_pressure_memory_stalled_seconds_total 0
@@ -3779,6 +3827,9 @@ node_zfs_arc_l2_writes_lock_retry 0
 # HELP node_zfs_arc_l2_writes_sent kstat.zfs.misc.arcstats.l2_writes_sent
 # TYPE node_zfs_arc_l2_writes_sent untyped
 node_zfs_arc_l2_writes_sent 0
+# HELP node_zfs_arc_memory_available_bytes kstat.zfs.misc.arcstats.memory_available_bytes
+# TYPE node_zfs_arc_memory_available_bytes untyped
+node_zfs_arc_memory_available_bytes -9.223372036854776e+17
 # HELP node_zfs_arc_memory_direct_count kstat.zfs.misc.arcstats.memory_direct_count
 # TYPE node_zfs_arc_memory_direct_count untyped
 node_zfs_arc_memory_direct_count 542
@@ -4308,108 +4359,139 @@ node_zfs_zil_zil_itx_needcopy_count 0
 # TYPE node_zfs_zpool_dataset_nread untyped
 node_zfs_zpool_dataset_nread{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nread{dataset="pool1/dataset1",zpool="pool1"} 28
+node_zfs_zpool_dataset_nread{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nread{dataset="pool3/dataset with  space",zpool="pool3"} 28
 node_zfs_zpool_dataset_nread{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nread{dataset="poolz1/dataset1",zpool="poolz1"} 28
 # HELP node_zfs_zpool_dataset_nunlinked kstat.zfs.misc.objset.nunlinked
 # TYPE node_zfs_zpool_dataset_nunlinked untyped
 node_zfs_zpool_dataset_nunlinked{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nunlinked{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinked{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nunlinked{dataset="pool3/dataset with  space",zpool="pool3"} 3
 node_zfs_zpool_dataset_nunlinked{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nunlinked{dataset="poolz1/dataset1",zpool="poolz1"} 14
 # HELP node_zfs_zpool_dataset_nunlinks kstat.zfs.misc.objset.nunlinks
 # TYPE node_zfs_zpool_dataset_nunlinks untyped
 node_zfs_zpool_dataset_nunlinks{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nunlinks{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinks{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nunlinks{dataset="pool3/dataset with  space",zpool="pool3"} 3
 node_zfs_zpool_dataset_nunlinks{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nunlinks{dataset="poolz1/dataset1",zpool="poolz1"} 14
 # HELP node_zfs_zpool_dataset_nwritten kstat.zfs.misc.objset.nwritten
 # TYPE node_zfs_zpool_dataset_nwritten untyped
 node_zfs_zpool_dataset_nwritten{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nwritten{dataset="pool1/dataset1",zpool="pool1"} 12302
+node_zfs_zpool_dataset_nwritten{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nwritten{dataset="pool3/dataset with  space",zpool="pool3"} 12302
 node_zfs_zpool_dataset_nwritten{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nwritten{dataset="poolz1/dataset1",zpool="poolz1"} 32806
 # HELP node_zfs_zpool_dataset_reads kstat.zfs.misc.objset.reads
 # TYPE node_zfs_zpool_dataset_reads untyped
 node_zfs_zpool_dataset_reads{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_reads{dataset="pool1/dataset1",zpool="pool1"} 2
+node_zfs_zpool_dataset_reads{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_reads{dataset="pool3/dataset with  space",zpool="pool3"} 2
 node_zfs_zpool_dataset_reads{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_reads{dataset="poolz1/dataset1",zpool="poolz1"} 2
 # HELP node_zfs_zpool_dataset_writes kstat.zfs.misc.objset.writes
 # TYPE node_zfs_zpool_dataset_writes untyped
 node_zfs_zpool_dataset_writes{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_writes{dataset="pool1/dataset1",zpool="pool1"} 4
+node_zfs_zpool_dataset_writes{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_writes{dataset="pool3/dataset with  space",zpool="pool3"} 4
 node_zfs_zpool_dataset_writes{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_writes{dataset="poolz1/dataset1",zpool="poolz1"} 10
 # HELP node_zfs_zpool_nread kstat.zfs.misc.io.nread
 # TYPE node_zfs_zpool_nread untyped
 node_zfs_zpool_nread{zpool="pool1"} 1.88416e+06
+node_zfs_zpool_nread{zpool="pool3"} 1.88416e+06
 node_zfs_zpool_nread{zpool="poolz1"} 2.82624e+06
 # HELP node_zfs_zpool_nwritten kstat.zfs.misc.io.nwritten
 # TYPE node_zfs_zpool_nwritten untyped
 node_zfs_zpool_nwritten{zpool="pool1"} 3.206144e+06
+node_zfs_zpool_nwritten{zpool="pool3"} 3.206144e+06
 node_zfs_zpool_nwritten{zpool="poolz1"} 2.680501248e+09
 # HELP node_zfs_zpool_rcnt kstat.zfs.misc.io.rcnt
 # TYPE node_zfs_zpool_rcnt untyped
 node_zfs_zpool_rcnt{zpool="pool1"} 0
+node_zfs_zpool_rcnt{zpool="pool3"} 0
 node_zfs_zpool_rcnt{zpool="poolz1"} 0
 # HELP node_zfs_zpool_reads kstat.zfs.misc.io.reads
 # TYPE node_zfs_zpool_reads untyped
 node_zfs_zpool_reads{zpool="pool1"} 22
+node_zfs_zpool_reads{zpool="pool3"} 22
 node_zfs_zpool_reads{zpool="poolz1"} 33
 # HELP node_zfs_zpool_rlentime kstat.zfs.misc.io.rlentime
 # TYPE node_zfs_zpool_rlentime untyped
 node_zfs_zpool_rlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_rlentime{zpool="pool3"} 1.04112268e+08
 node_zfs_zpool_rlentime{zpool="poolz1"} 6.472105124093e+12
 # HELP node_zfs_zpool_rtime kstat.zfs.misc.io.rtime
 # TYPE node_zfs_zpool_rtime untyped
 node_zfs_zpool_rtime{zpool="pool1"} 2.4168078e+07
+node_zfs_zpool_rtime{zpool="pool3"} 2.4168078e+07
 node_zfs_zpool_rtime{zpool="poolz1"} 9.82909164e+09
 # HELP node_zfs_zpool_rupdate kstat.zfs.misc.io.rupdate
 # TYPE node_zfs_zpool_rupdate untyped
 node_zfs_zpool_rupdate{zpool="pool1"} 7.921048984922e+13
+node_zfs_zpool_rupdate{zpool="pool3"} 7.921048984922e+13
 node_zfs_zpool_rupdate{zpool="poolz1"} 1.10734831944501e+14
 # HELP node_zfs_zpool_state kstat.zfs.misc.state
 # TYPE node_zfs_zpool_state gauge
 node_zfs_zpool_state{state="degraded",zpool="pool1"} 0
 node_zfs_zpool_state{state="degraded",zpool="pool2"} 0
+node_zfs_zpool_state{state="degraded",zpool="pool3"} 0
 node_zfs_zpool_state{state="degraded",zpool="poolz1"} 1
 node_zfs_zpool_state{state="faulted",zpool="pool1"} 0
 node_zfs_zpool_state{state="faulted",zpool="pool2"} 0
+node_zfs_zpool_state{state="faulted",zpool="pool3"} 0
 node_zfs_zpool_state{state="faulted",zpool="poolz1"} 0
 node_zfs_zpool_state{state="offline",zpool="pool1"} 0
 node_zfs_zpool_state{state="offline",zpool="pool2"} 0
+node_zfs_zpool_state{state="offline",zpool="pool3"} 0
 node_zfs_zpool_state{state="offline",zpool="poolz1"} 0
 node_zfs_zpool_state{state="online",zpool="pool1"} 1
 node_zfs_zpool_state{state="online",zpool="pool2"} 0
+node_zfs_zpool_state{state="online",zpool="pool3"} 1
 node_zfs_zpool_state{state="online",zpool="poolz1"} 0
 node_zfs_zpool_state{state="removed",zpool="pool1"} 0
 node_zfs_zpool_state{state="removed",zpool="pool2"} 0
+node_zfs_zpool_state{state="removed",zpool="pool3"} 0
 node_zfs_zpool_state{state="removed",zpool="poolz1"} 0
 node_zfs_zpool_state{state="suspended",zpool="pool1"} 0
 node_zfs_zpool_state{state="suspended",zpool="pool2"} 1
+node_zfs_zpool_state{state="suspended",zpool="pool3"} 0
 node_zfs_zpool_state{state="suspended",zpool="poolz1"} 0
 node_zfs_zpool_state{state="unavail",zpool="pool1"} 0
 node_zfs_zpool_state{state="unavail",zpool="pool2"} 0
+node_zfs_zpool_state{state="unavail",zpool="pool3"} 0
 node_zfs_zpool_state{state="unavail",zpool="poolz1"} 0
 # HELP node_zfs_zpool_wcnt kstat.zfs.misc.io.wcnt
 # TYPE node_zfs_zpool_wcnt untyped
 node_zfs_zpool_wcnt{zpool="pool1"} 0
+node_zfs_zpool_wcnt{zpool="pool3"} 0
 node_zfs_zpool_wcnt{zpool="poolz1"} 0
 # HELP node_zfs_zpool_wlentime kstat.zfs.misc.io.wlentime
 # TYPE node_zfs_zpool_wlentime untyped
 node_zfs_zpool_wlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_wlentime{zpool="pool3"} 1.04112268e+08
 node_zfs_zpool_wlentime{zpool="poolz1"} 6.472105124093e+12
 # HELP node_zfs_zpool_writes kstat.zfs.misc.io.writes
 # TYPE node_zfs_zpool_writes untyped
 node_zfs_zpool_writes{zpool="pool1"} 132
+node_zfs_zpool_writes{zpool="pool3"} 132
 node_zfs_zpool_writes{zpool="poolz1"} 25294
 # HELP node_zfs_zpool_wtime kstat.zfs.misc.io.wtime
 # TYPE node_zfs_zpool_wtime untyped
 node_zfs_zpool_wtime{zpool="pool1"} 7.155162e+06
+node_zfs_zpool_wtime{zpool="pool3"} 7.155162e+06
 node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
 # HELP node_zfs_zpool_wupdate kstat.zfs.misc.io.wupdate
 # TYPE node_zfs_zpool_wupdate untyped
 node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
+node_zfs_zpool_wupdate{zpool="pool3"} 7.9210489694949e+13
 node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # HELP node_zoneinfo_high_pages Zone watermark pages_high
 # TYPE node_zoneinfo_high_pages gauge
@@ -4586,6 +4668,10 @@ node_zoneinfo_spanned_pages{node="0",zone="Normal"} 7.806976e+06
 # TYPE process_cpu_seconds_total counter
 # HELP process_max_fds Maximum number of open file descriptors.
 # TYPE process_max_fds gauge
+# HELP process_network_receive_bytes_total Number of bytes received by the process over the network.
+# TYPE process_network_receive_bytes_total counter
+# HELP process_network_transmit_bytes_total Number of bytes sent by the process over the network.
+# TYPE process_network_transmit_bytes_total counter
 # HELP process_open_fds Number of open file descriptors.
 # TYPE process_open_fds gauge
 # HELP process_resident_memory_bytes Resident memory size in bytes.

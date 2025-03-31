@@ -17,20 +17,23 @@
 package collector
 
 import (
-	"os"
+	"io"
+	"log/slog"
 	"testing"
 )
 
 func TestMemInfo(t *testing.T) {
-	file, err := os.Open("fixtures/proc/meminfo")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer file.Close()
+	*procPath = "fixtures/proc"
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-	memInfo, err := parseMemInfo(file)
+	collector, err := NewMeminfoCollector(logger)
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
+	}
+
+	memInfo, err := collector.(*meminfoCollector).getMemInfo()
+	if err != nil {
+		panic(err)
 	}
 
 	if want, got := 3831959552.0, memInfo["MemTotal_bytes"]; want != got {

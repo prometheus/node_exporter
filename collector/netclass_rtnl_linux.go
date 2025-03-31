@@ -23,8 +23,7 @@ import (
 	"path/filepath"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log/level"
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/mdlayher/ethtool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
@@ -45,7 +44,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		if !errors.Is(errors.Unwrap(err), fs.ErrNotExist) {
 			return fmt.Errorf("could not get link modes: %w", err)
 		}
-		level.Info(c.logger).Log("msg", "ETHTOOL netlink interface unavailable, duplex and linkspeed are not scraped.")
+		c.logger.Info("ETHTOOL netlink interface unavailable, duplex and linkspeed are not scraped.")
 	} else {
 		for _, lm := range lms {
 			if c.ignoredDevicesPattern.MatchString(lm.Interface.Name) {

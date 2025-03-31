@@ -24,10 +24,22 @@ import "C"
 import (
 	"encoding/binary"
 	"fmt"
+	"log/slog"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
+
+type meminfoCollector struct {
+	logger *slog.Logger
+}
+
+// NewMeminfoCollector returns a new Collector exposing memory stats.
+func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
+	return &meminfoCollector{
+		logger: logger,
+	}, nil
+}
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	host := C.mach_host_self()

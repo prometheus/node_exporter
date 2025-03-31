@@ -19,11 +19,10 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -38,7 +37,7 @@ func init() {
 }
 
 // NewDMICollector returns a new Collector exposing DMI information.
-func NewDMICollector(logger log.Logger) (Collector, error) {
+func NewDMICollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -47,7 +46,7 @@ func NewDMICollector(logger log.Logger) (Collector, error) {
 	dmi, err := fs.DMIClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(logger).Log("msg", "Platform does not support Desktop Management Interface (DMI) information", "err", err)
+			logger.Debug("Platform does not support Desktop Management Interface (DMI) information", "err", err)
 			dmi = &sysfs.DMIClass{}
 		} else {
 			return nil, fmt.Errorf("failed to read Desktop Management Interface (DMI) information: %w", err)

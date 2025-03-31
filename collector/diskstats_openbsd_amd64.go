@@ -18,9 +18,9 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"unsafe"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
@@ -52,7 +52,7 @@ type diskstatsCollector struct {
 	time   typedDesc
 
 	deviceFilter deviceFilter
-	logger       log.Logger
+	logger       *slog.Logger
 }
 
 func init() {
@@ -60,7 +60,7 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
+func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 	deviceFilter, err := newDiskstatsDeviceFilter(logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)

@@ -21,14 +21,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
 )
 
@@ -74,12 +73,12 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 	go func() {
 		for _, labels := range mps {
-			if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
-				level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", labels.mountPoint)
+			if c.mountPointFilter.ignored(labels.mountPoint) {
+				c.logger.Debug("Ignoring mount point", "mountpoint", labels.mountPoint)
 				continue
 			}
-			if c.excludedFSTypesPattern.MatchString(labels.fsType) {
-				level.Debug(c.logger).Log("msg", "Ignoring fs", "type", labels.fsType)
+			if c.fsTypeFilter.ignored(labels.fsType) {
+				c.logger.Debug("Ignoring fs type", "type", labels.fsType)
 				continue
 			}
 
@@ -90,7 +89,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 					labels:      labels,
 					deviceError: 1,
 				})
-				level.Debug(c.logger).Log("msg", "Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
+				c.logger.Debug("Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
 				stuckMountsMtx.Unlock()
 				continue
 			}
@@ -128,14 +127,14 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 
 	// If the mount has been marked as stuck, unmark it and log it's recovery.
 	if _, ok := stuckMounts[labels.mountPoint]; ok {
-		level.Debug(c.logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
+		c.logger.Debug("Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
 		delete(stuckMounts, labels.mountPoint)
 	}
 	stuckMountsMtx.Unlock()
 
 	if err != nil {
 		labels.deviceError = err.Error()
-		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+		c.logger.Debug("Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
@@ -157,7 +156,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
+func stuckMountWatcher(mountPoint string, success chan struct{}, logger *slog.Logger) {
 	mountCheckTimer := time.NewTimer(*mountTimeout)
 	defer mountCheckTimer.Stop()
 	select {
@@ -170,19 +169,19 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 		case <-success:
 			// Success came in just after the timeout was reached, don't label the mount as stuck
 		default:
-			level.Debug(logger).Log("msg", "Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
+			logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
 			stuckMounts[mountPoint] = struct{}{}
 		}
 		stuckMountsMtx.Unlock()
 	}
 }
 
-func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("1/mounts"))
+func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
+	file, err := os.Open(procFilePath("1/mountinfo"))
 	if errors.Is(err, os.ErrNotExist) {
-		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
-		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
-		file, err = os.Open(procFilePath("mounts"))
+		// Fallback to `/proc/self/mountinfo` if `/proc/1/mountinfo` is missing due hidepid.
+		logger.Debug("Reading root mounts failed, falling back to self mounts", "err", err)
+		file, err = os.Open(procFilePath("self/mountinfo"))
 	}
 	if err != nil {
 		return nil, err
@@ -199,20 +198,33 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
 
-		if len(parts) < 4 {
+		if len(parts) < 10 {
 			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
+		}
+
+		major, minor := 0, 0
+		_, err := fmt.Sscanf(parts[2], "%d:%d", &major, &minor)
+		if err != nil {
+			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
+		}
+
+		m := 5
+		for parts[m+1] != "-" {
+			m++
 		}
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
-		parts[1] = strings.Replace(parts[1], "\\040", " ", -1)
-		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
+		parts[4] = strings.Replace(parts[4], "\\040", " ", -1)
+		parts[4] = strings.Replace(parts[4], "\\011", "\t", -1)
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:      parts[0],
-			mountPoint:  rootfsStripPrefix(parts[1]),
-			fsType:      parts[2],
-			options:     parts[3],
+			device:      parts[m+3],
+			mountPoint:  rootfsStripPrefix(parts[4]),
+			fsType:      parts[m+2],
+			options:     parts[5],
+			major:       fmt.Sprint(major),
+			minor:       fmt.Sprint(minor),
 			deviceError: "",
 		})
 	}
