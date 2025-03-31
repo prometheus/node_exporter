@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -389,11 +390,35 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-		if ioDiskStats, err := c.fs.SysBlockDeviceIOStat(dev); err == nil {
-			ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDiskStats.IODoneCount), dev)
-			ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDiskStats.IOErrCount), dev)
+		// Read IO error counts if available
+		iodoneCnt, err := os.ReadFile(filepath.Join(*sysPath, "block", dev, "device/iodone_cnt"))
+		if err != nil {
+			// Skip if file doesn't exist
+			if !os.IsNotExist(err) {
+				c.logger.Debug("Error reading IO errors count", "collector", "diskstats", "err", err)
+			}
 		} else {
-			c.logger.Debug("Error reading IO errors count", "err", err)
+			iodone, err := strconv.ParseUint(strings.TrimSpace(string(iodoneCnt)), 10, 64)
+			if err != nil {
+				c.logger.Debug("Error parsing iodone count", "collector", "diskstats", "err", err)
+			} else {
+				ch <- c.ioDoneDesc.mustNewConstMetric(float64(iodone), dev)
+			}
+		}
+
+		ioerrCnt, err := os.ReadFile(filepath.Join(*sysPath, "block", dev, "device/ioerr_cnt"))
+		if err != nil {
+			// Skip if file doesn't exist
+			if !os.IsNotExist(err) {
+				c.logger.Debug("Error reading IO errors count", "collector", "diskstats", "err", err)
+			}
+		} else {
+			ioerr, err := strconv.ParseUint(strings.TrimSpace(string(ioerrCnt)), 10, 64)
+			if err != nil {
+				c.logger.Debug("Error parsing ioerr count", "collector", "diskstats", "err", err)
+			} else {
+				ch <- c.ioErrDesc.mustNewConstMetric(float64(ioerr), dev)
+			}
 		}
 	}
 	return nil
