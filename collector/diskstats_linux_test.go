@@ -181,38 +181,12 @@ node_disk_io_time_weighted_seconds_total{device="sr0"} 0
 node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
 # HELP node_disk_iodone_total Number of completed or rejected IO commands.
 # TYPE node_disk_iodone_total counter
-node_disk_iodone_total{device="dm-0"} 0
-node_disk_iodone_total{device="dm-1"} 0
-node_disk_iodone_total{device="dm-2"} 0
-node_disk_iodone_total{device="dm-3"} 0
-node_disk_iodone_total{device="dm-4"} 0
-node_disk_iodone_total{device="dm-5"} 0
-node_disk_iodone_total{device="mmcblk0"} 0
-node_disk_iodone_total{device="mmcblk0p1"} 0
-node_disk_iodone_total{device="mmcblk0p2"} 0
-node_disk_iodone_total{device="nvme0n1"} 0
 node_disk_iodone_total{device="sda"} 307
-node_disk_iodone_total{device="sdb"} 0
-node_disk_iodone_total{device="sdc"} 0
 node_disk_iodone_total{device="sr0"} 2767
-node_disk_iodone_total{device="vda"} 0
 # HELP node_disk_ioerr_total Number of IO commands that completed with an error.
 # TYPE node_disk_ioerr_total counter
-node_disk_ioerr_total{device="dm-0"} 0
-node_disk_ioerr_total{device="dm-1"} 0
-node_disk_ioerr_total{device="dm-2"} 0
-node_disk_ioerr_total{device="dm-3"} 0
-node_disk_ioerr_total{device="dm-4"} 0
-node_disk_ioerr_total{device="dm-5"} 0
-node_disk_ioerr_total{device="mmcblk0"} 0
-node_disk_ioerr_total{device="mmcblk0p1"} 0
-node_disk_ioerr_total{device="mmcblk0p2"} 0
-node_disk_ioerr_total{device="nvme0n1"} 0
 node_disk_ioerr_total{device="sda"} 3
-node_disk_ioerr_total{device="sdb"} 0
-node_disk_ioerr_total{device="sdc"} 0
 node_disk_ioerr_total{device="sr0"} 29
-node_disk_ioerr_total{device="vda"} 0
 # HELP node_disk_read_bytes_total The total number of bytes read successfully.
 # TYPE node_disk_read_bytes_total counter
 node_disk_read_bytes_total{device="dm-0"} 5.13708655616e+11
