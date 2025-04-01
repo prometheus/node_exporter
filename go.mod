@@ -2,6 +2,8 @@ module github.com/prometheus/node_exporter
 
 go 1.23.0
 
+toolchain go1.24.1
+
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/beevik/ntp v1.4.3
@@ -18,7 +20,7 @@ require (
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/ethtool v0.2.0
 	github.com/mdlayher/netlink v1.7.2
-	github.com/mdlayher/wifi v0.3.1
+	github.com/mdlayher/wifi v0.4.0
 	github.com/opencontainers/selinux v1.11.1
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55
 	github.com/prometheus-community/go-runit v0.1.0
