@@ -215,8 +215,8 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
-		parts[4] = strings.Replace(parts[4], "\\040", " ", -1)
-		parts[4] = strings.Replace(parts[4], "\\011", "\t", -1)
+		parts[4] = strings.ReplaceAll(parts[4], "\\040", " ")
+		parts[4] = strings.ReplaceAll(parts[4], "\\011", "\t")
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:      parts[m+3],
