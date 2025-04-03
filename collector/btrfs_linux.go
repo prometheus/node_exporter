@@ -69,7 +69,7 @@ func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for _, s := range stats {
 		// match up procfs and ioctl info by filesystem UUID (without dashes)
-		var fsUUID = strings.Replace(s.UUID, "-", "", -1)
+		var fsUUID = strings.ReplaceAll(s.UUID, "-", "")
 		ioctlStats := ioctlStatsMap[fsUUID]
 		c.updateBtrfsStats(ch, s, ioctlStats)
 	}
