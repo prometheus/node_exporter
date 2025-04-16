@@ -84,6 +84,10 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 		"port_receive_switch_relay_errors_total":     "Number of packets that could not be forwarded by the switch.",
 		"symbol_error_total":                         "Number of minor link errors detected on one or more physical lanes.",
 		"vl15_dropped_total":                         "Number of incoming VL15 packets dropped due to resource limitations.",
+		"rp_cnp_handled":                             "Number of CNP packets handled by the reaction point",
+		"rp_cnp_ignored":                             "Nubmer of CNP packets ignored by the reaction point",
+		"np_cnp_sent":                                "Number of CNP packets sent by notification point to respond to CE marked RoCE packets",
+		"np_ecn_marked_roce_packets":                 "Number of CE marked RoCE packets received by notification point",
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)
@@ -168,6 +172,10 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			c.pushCounter(ch, "port_receive_switch_relay_errors_total", port.Counters.PortRcvSwitchRelayErrors, port.Name, portStr, port.LinkLayer)
 			c.pushCounter(ch, "symbol_error_total", port.Counters.SymbolError, port.Name, portStr, port.LinkLayer)
 			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rp_cnp_handled", port.HwCounters.RpCnpHandled, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rp_cnp_ignored", port.HwCounters.RpCnpIgnored, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "np_cnp_sent", port.HwCounters.NpCnpSent, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "np_ecn_marked_roce_packets", port.HwCounters.NpEcnMarkedRocePackets, port.Name, portStr, port.LinkLayer)
 		}
 	}
 
