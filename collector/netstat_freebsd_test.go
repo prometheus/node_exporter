@@ -18,10 +18,15 @@ package collector
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/sys/unix"
 	"testing"
-	"unsafe"
 )
+
+func testSetup() {
+	sysctlRaw = func(name string, _ ...int) ([]byte, error) {
+		mockData := getFreeBSDDataMock(name)
+		return mockData, nil
+	}
+}
 
 func TestNetStatCollectorDescribe(t *testing.T) {
 	ch := make(chan *prometheus.Desc, 1)
@@ -31,24 +36,34 @@ func TestNetStatCollectorDescribe(t *testing.T) {
 	collector.Describe(ch)
 	desc := <-ch
 
-	if want, got := "dummy_metric", desc.String(); want != got {
+	expected := "Desc{fqName: \"dummy_metric\", help: \"dummy\", constLabels: {}, variableLabels: {}}"
+	if want, got := expected, desc.String(); want != got {
 		t.Errorf("want %s, got %s", want, got)
 	}
 }
 
-func TestGetData(t *testing.T) {
-	data, err := getData("net.inet.tcp.stats")
+func TestGetTCPMetrics(t *testing.T) {
+	testSetup()
+
+	tcpData, err := NewTCPStat().GetData()
 	if err != nil {
 		t.Fatal("unexpected error:", err)
 	}
 
-	if got, want := len(data), int(unsafe.Sizeof(unix.TCPStats{})); got < want {
-		t.Errorf("data length too small: want >= %d, got %d", want, got)
+	sndTotal := tcpData[tcpSendTotal]
+	rcvTotal := tcpData[tcpRecvTotal]
+
+	if got, want := sndTotal, float64(1234); got != want {
+		t.Errorf("unexpected sndTotal value: want %f, got %f", want, got)
+	}
+
+	if got, want := rcvTotal, float64(4321); got != want {
+		t.Errorf("unexpected rcvTotal value: want %f, got %f", want, got)
 	}
 }
 
 func TestNetStatCollectorUpdate(t *testing.T) {
-	ch := make(chan prometheus.Metric, len(metrics))
+	ch := make(chan prometheus.Metric, len(counterMetrics))
 	collector := &netStatCollector{
 		netStatMetric: prometheus.NewDesc("netstat_metric", "NetStat Metric", nil, nil),
 	}
@@ -57,11 +72,11 @@ func TestNetStatCollectorUpdate(t *testing.T) {
 		t.Fatal("unexpected error:", err)
 	}
 
-	if got, want := len(ch), len(metrics); got != want {
+	if got, want := len(ch), len(counterMetrics); got != want {
 		t.Errorf("metric count mismatch: want %d, got %d", want, got)
 	}
 
-	for range metrics {
+	for range len(counterMetrics) {
 		<-ch
 	}
 }

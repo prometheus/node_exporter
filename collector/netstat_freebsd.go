@@ -37,18 +37,62 @@ import (
 import "C"
 
 var (
-	bsdNetstatTcpSendPacketsTotal = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "netstat", "tcp_transmit_packets_total"),
-		"TCP packets sent",
-		nil, nil,
-	)
+	sysctlRaw    = unix.SysctlRaw
+	tcpSendTotal = "bsdNetstatTcpSendPacketsTotal"
+	tcpRecvTotal = "bsdNetstatTcpRecvPacketsTotal"
 
-	bsdNetstatTcpRecvPacketsTotal = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "netstat", "tcp_receive_packets_total"),
-		"TCP packets received",
-		nil, nil,
-	)
+	counterMetrics = map[string]*prometheus.Desc{
+		tcpSendTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "tcp_transmit_packets_total"),
+			"TCP packets sent", nil, nil),
+		tcpRecvTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "tcp_receive_packets_total"),
+			"TCP packets received", nil, nil),
+	}
 )
+
+type NetstatData struct {
+	structSize int
+	sysctl     string
+}
+
+type NetstatMetrics map[string]float64
+
+type NetstatTCPData NetstatData
+
+func NewTCPStat() *NetstatTCPData {
+	return &NetstatTCPData{
+		structSize: int(unsafe.Sizeof(C.struct_tcpstat{})),
+		sysctl:     "net.inet.tcp.stats",
+	}
+}
+
+func (netstatMetric *NetstatTCPData) GetData() (NetstatMetrics, error) {
+	data, err := getData(netstatMetric.sysctl, netstatMetric.structSize)
+	if err != nil {
+		return nil, err
+	}
+
+	tcpStats := *(*C.struct_tcpstat)(unsafe.Pointer(&data[0]))
+
+	return NetstatMetrics{
+		tcpSendTotal: float64(tcpStats.tcps_sndtotal),
+		tcpRecvTotal: float64(tcpStats.tcps_rcvtotal),
+	}, nil
+}
+
+func getData(queryString string, expectedSize int) ([]byte, error) {
+	data, err := sysctlRaw(queryString)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return nil, err
+	}
+
+	if len(data) < expectedSize {
+		return nil, errors.New("Data Size mismatch")
+	}
+	return data, nil
+}
 
 type netStatCollector struct {
 	netStatMetric *prometheus.Desc
@@ -70,39 +114,41 @@ func (c *netStatCollector) Collect(ch chan<- prometheus.Metric) {
 	_ = c.Update(ch)
 }
 
-func getData(queryString string) ([]byte, error) {
-	data, err := unix.SysctlRaw(queryString)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return nil, err
-	}
-
-	if len(data) < int(unsafe.Sizeof(C.struct_tcpstat{})) {
-		return nil, errors.New("Data Size mismatch")
-	}
-	return data, nil
-}
-
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
-
-	tcpData, err := getData("net.inet.tcp.stats")
+	tcpStats, err := NewTCPStat().GetData()
 	if err != nil {
 		return err
 	}
 
-	tcpStats := *(*C.struct_tcpstat)(unsafe.Pointer(&tcpData[0]))
+	allStats := make(map[string]float64)
 
-	ch <- prometheus.MustNewConstMetric(
-		bsdNetstatTcpSendPacketsTotal,
-		prometheus.CounterValue,
-		float64(tcpStats.tcps_sndtotal),
-	)
+	for k, v := range tcpStats {
+		allStats[k] = v
+	}
 
-	ch <- prometheus.MustNewConstMetric(
-		bsdNetstatTcpRecvPacketsTotal,
-		prometheus.CounterValue,
-		float64(tcpStats.tcps_rcvtotal),
-	)
+	for metricKey, metricData := range counterMetrics {
+		ch <- prometheus.MustNewConstMetric(
+			metricData,
+			prometheus.CounterValue,
+			allStats[metricKey],
+		)
+	}
 
 	return nil
+}
+
+// Used by tests to mock unix.SysctlRaw
+func getFreeBSDDataMock(sysctl string) []byte {
+
+	if sysctl == "net.inet.tcp.stats" {
+		tcpStats := C.struct_tcpstat{
+			tcps_sndtotal: 1234,
+			tcps_rcvtotal: 4321,
+		}
+		size := int(unsafe.Sizeof(C.struct_tcpstat{}))
+
+		return unsafe.Slice((*byte)(unsafe.Pointer(&tcpStats)), size)
+	}
+
+	return make([]byte, 0, 0)
 }
