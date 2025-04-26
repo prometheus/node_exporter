@@ -106,7 +106,7 @@ func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 
 	pidM, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
 	if err != nil {
-		return fmt.Errorf("unable to retrieve limit number of maximum pids alloved: %w", err)
+		return fmt.Errorf("unable to retrieve limit number of maximum pids allowed: %w", err)
 	}
 	ch <- prometheus.MustNewConstMetric(c.pidUsed, prometheus.GaugeValue, float64(pids))
 	ch <- prometheus.MustNewConstMetric(c.pidMax, prometheus.GaugeValue, float64(pidM))

@@ -48,7 +48,7 @@ func TestReadProcessStatus(t *testing.T) {
 	}
 	maxPid, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
 	if err != nil {
-		t.Fatalf("Unable to retrieve limit number of maximum pids alloved %v\n", err)
+		t.Fatalf("Unable to retrieve limit number of maximum pids allowed %v\n", err)
 	}
 	if uint64(pids) > maxPid || pids == 0 {
 		t.Fatalf("Total running pids cannot be greater than %d or equals to 0", maxPid)
