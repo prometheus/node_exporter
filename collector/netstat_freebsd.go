@@ -33,6 +33,7 @@ import (
 #include <netinet/tcp.h>
 #include <netinet/tcp_var.h>
 #include <netinet/udp.h>
+#include <netinet/udp_var.h>
 #include <netinet/ip_var.h>
 #include <netinet6/ip6_var.h>
 */
@@ -42,6 +43,8 @@ var (
 	sysctlRaw              = unix.SysctlRaw
 	tcpSendTotal           = "bsdNetstatTcpSendPacketsTotal"
 	tcpRecvTotal           = "bsdNetstatTcpRecvPacketsTotal"
+	udpSendTotal           = "bsdNetstatUdpSendPacketsTotal"
+	udpRecvTotal           = "bsdNetstatUdpRecvPacketsTotal"
 	ipv4SendTotal          = "bsdNetstatIPv4SendPacketsTotal"
 	ipv4RawSendTotal       = "bsdNetstatIPv4RawSendPacketsTotal"
 	ipv4RecvTotal          = "bsdNetstatIPv4RecvPacketsTotal"
@@ -64,6 +67,14 @@ var (
 		tcpRecvTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "netstat", "tcp_receive_packets_total"),
 			"TCP packets received", nil, nil),
+
+		// UDP stats
+		udpSendTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "udp_transmit_packets_total"),
+			"UDP packets sent", nil, nil),
+		udpRecvTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "udp_receive_packets_total"),
+			"UDP packets received", nil, nil),
 
 		// IPv4 stats
 		ipv4SendTotal: prometheus.NewDesc(
@@ -137,6 +148,29 @@ func (netstatMetric *NetstatTCPData) GetData() (NetstatMetrics, error) {
 	return NetstatMetrics{
 		tcpSendTotal: float64(tcpStats.tcps_sndtotal),
 		tcpRecvTotal: float64(tcpStats.tcps_rcvtotal),
+	}, nil
+}
+
+type NetstatUDPData NetstatData
+
+func NewUDPStat() *NetstatUDPData {
+	return &NetstatUDPData{
+		structSize: int(unsafe.Sizeof(C.struct_udpstat{})),
+		sysctl:     "net.inet.udp.stats",
+	}
+}
+
+func (netstatMetric *NetstatUDPData) GetData() (NetstatMetrics, error) {
+	data, err := getData(netstatMetric.sysctl, netstatMetric.structSize)
+	if err != nil {
+		return nil, err
+	}
+
+	udpStats := *(*C.struct_udpstat)(unsafe.Pointer(&data[0]))
+
+	return NetstatMetrics{
+		udpSendTotal: float64(udpStats.udps_opackets),
+		udpRecvTotal: float64(udpStats.udps_ipackets),
 	}, nil
 }
 
@@ -234,6 +268,11 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	udpStats, err := NewUDPStat().GetData()
+	if err != nil {
+		return err
+	}
+
 	ipv4Stats, err := NewIPv4Stat().GetData()
 	if err != nil {
 		return err
@@ -247,6 +286,10 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	allStats := make(map[string]float64)
 
 	for k, v := range tcpStats {
+		allStats[k] = v
+	}
+
+	for k, v := range udpStats {
 		allStats[k] = v
 	}
 
@@ -280,6 +323,14 @@ func getFreeBSDDataMock(sysctl string) []byte {
 		size := int(unsafe.Sizeof(C.struct_tcpstat{}))
 
 		return unsafe.Slice((*byte)(unsafe.Pointer(&tcpStats)), size)
+	} else if sysctl == "net.inet.udp.stats" {
+		udpStats := C.struct_udpstat{
+			udps_opackets: 1234,
+			udps_ipackets: 4321,
+		}
+		size := int(unsafe.Sizeof(C.struct_udpstat{}))
+
+		return unsafe.Slice((*byte)(unsafe.Pointer(&udpStats)), size)
 	} else if sysctl == "net.inet.ip.stats" {
 		ipStats := C.struct_ipstat{
 			ips_localout:    1234,
