@@ -34,6 +34,7 @@ import (
 #include <netinet/tcp_var.h>
 #include <netinet/udp.h>
 #include <netinet/ip_var.h>
+#include <netinet6/ip6_var.h>
 */
 import "C"
 
@@ -48,6 +49,12 @@ var (
 	ipv4ForwardTotal       = "bsdNetstatIPv4ForwardTotal"
 	ipv4FastForwardTotal   = "bsdNetstatIPv4FastForwardTotal"
 	ipv4DeliveredTotal     = "bsdNetstatIPv4DeliveredTotal"
+	ipv6SendTotal          = "bsdNetstatIPv6SendPacketsTotal"
+	ipv6RawSendTotal       = "bsdNetstatIPv6RawSendPacketsTotal"
+	ipv6RecvTotal          = "bsdNetstatIPv6RecvPacketsTotal"
+	ipv6RecvFragmentsTotal = "bsdNetstatIPv6RecvFragmentsTotal"
+	ipv6ForwardTotal       = "bsdNetstatIPv6ForwardTotal"
+	ipv6DeliveredTotal     = "bsdNetstatIPv6DeliveredTotal"
 
 	counterMetrics = map[string]*prometheus.Desc{
 		// TCP stats
@@ -80,6 +87,26 @@ var (
 		ipv4DeliveredTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "netstat", "ip4_delivered_total"),
 			"IPv4 packets delivered to the upper layer (packets for this host)", nil, nil),
+
+		// IPv6 stats
+		ipv6SendTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip6_transmit_packets_total"),
+			"IPv6 packets sent from this host", nil, nil),
+		ipv6RawSendTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip6_transmit_raw_packets_total"),
+			"IPv6 raw packets generated", nil, nil),
+		ipv6RecvTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip6_receive_packets_total"),
+			"IPv6 packets received", nil, nil),
+		ipv6RecvFragmentsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip6_receive_fragments_total"),
+			"IPv6 fragments received", nil, nil),
+		ipv6ForwardTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip6_forward_total"),
+			"IPv6 packets forwarded", nil, nil),
+		ipv6DeliveredTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip6_delivered_total"),
+			"IPv6 packets delivered to the upper layer (packets for this host)", nil, nil),
 	}
 )
 
@@ -141,6 +168,33 @@ func (netstatMetric *NetstatIPv4Data) GetData() (NetstatMetrics, error) {
 	}, nil
 }
 
+type NetstatIPv6Data NetstatData
+
+func NewIPv6Stat() *NetstatIPv6Data {
+	return &NetstatIPv6Data{
+		structSize: int(unsafe.Sizeof(C.struct_ipstat{})),
+		sysctl:     "net.inet6.ip6.stats",
+	}
+}
+
+func (netstatMetric *NetstatIPv6Data) GetData() (NetstatMetrics, error) {
+	data, err := getData(netstatMetric.sysctl, netstatMetric.structSize)
+	if err != nil {
+		return nil, err
+	}
+
+	ipStats := *(*C.struct_ip6stat)(unsafe.Pointer(&data[0]))
+
+	return NetstatMetrics{
+		ipv6SendTotal:          float64(ipStats.ip6s_localout),
+		ipv6RawSendTotal:       float64(ipStats.ip6s_rawout),
+		ipv6RecvTotal:          float64(ipStats.ip6s_total),
+		ipv6RecvFragmentsTotal: float64(ipStats.ip6s_fragments),
+		ipv6ForwardTotal:       float64(ipStats.ip6s_forward),
+		ipv6DeliveredTotal:     float64(ipStats.ip6s_delivered),
+	}, nil
+}
+
 func getData(queryString string, expectedSize int) ([]byte, error) {
 	data, err := sysctlRaw(queryString)
 	if err != nil {
@@ -185,6 +239,11 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	ipv6Stats, err := NewIPv6Stat().GetData()
+	if err != nil {
+		return err
+	}
+
 	allStats := make(map[string]float64)
 
 	for k, v := range tcpStats {
@@ -192,6 +251,10 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for k, v := range ipv4Stats {
+		allStats[k] = v
+	}
+
+	for k, v := range ipv6Stats {
 		allStats[k] = v
 	}
 
@@ -228,6 +291,18 @@ func getFreeBSDDataMock(sysctl string) []byte {
 			ips_delivered:   1240,
 		}
 		size := int(unsafe.Sizeof(C.struct_ipstat{}))
+
+		return unsafe.Slice((*byte)(unsafe.Pointer(&ipStats)), size)
+	} else if sysctl == "net.inet6.ip6.stats" {
+		ipStats := C.struct_ip6stat{
+			ip6s_localout:  1234,
+			ip6s_rawout:    1235,
+			ip6s_total:     1236,
+			ip6s_fragments: 1237,
+			ip6s_forward:   1238,
+			ip6s_delivered: 1240,
+		}
+		size := int(unsafe.Sizeof(C.struct_ip6stat{}))
 
 		return unsafe.Slice((*byte)(unsafe.Pointer(&ipStats)), size)
 	}
