@@ -62,6 +62,24 @@ func TestGetTCPMetrics(t *testing.T) {
 	}
 }
 
+func TestGetTCPStatesMetrics(t *testing.T) {
+	testSetup()
+
+	tcpData, err := getTCPStates()
+	if err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+
+	expected := []uint64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+
+	for i, value := range tcpData {
+		if got, want := float64(value), float64(expected[i]); got != want {
+			t.Errorf("unexpected %s value: want %f, got %f", tcpStates[i], want, got)
+		}
+	}
+
+}
+
 func TestGetUDPMetrics(t *testing.T) {
 	testSetup()
 
@@ -143,20 +161,24 @@ func TestGetIPv6Metrics(t *testing.T) {
 }
 
 func TestNetStatCollectorUpdate(t *testing.T) {
-	ch := make(chan prometheus.Metric, len(counterMetrics))
 	collector := &netStatCollector{
 		netStatMetric: prometheus.NewDesc("netstat_metric", "NetStat Metric", nil, nil),
 	}
+
+	totalMetrics := len(counterMetrics) + len(tcpStates)
+
+	ch := make(chan prometheus.Metric, totalMetrics)
+
 	err := collector.Update(ch)
 	if err != nil {
 		t.Fatal("unexpected error:", err)
 	}
 
-	if got, want := len(ch), len(counterMetrics); got != want {
-		t.Errorf("metric count mismatch: want %d, got %d", want, got)
+	if got, want := len(ch), totalMetrics; got != want {
+		t.Fatalf("metric count mismatch: want %d, got %d", want, got)
 	}
 
-	for range len(counterMetrics) {
+	for range totalMetrics {
 		<-ch
 	}
 }

@@ -17,6 +17,7 @@
 package collector
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -58,6 +59,16 @@ var (
 	ipv6RecvFragmentsTotal = "bsdNetstatIPv6RecvFragmentsTotal"
 	ipv6ForwardTotal       = "bsdNetstatIPv6ForwardTotal"
 	ipv6DeliveredTotal     = "bsdNetstatIPv6DeliveredTotal"
+
+	tcpStates = []string{
+		"CLOSED", "LISTEN", "SYN_SENT", "SYN_RCVD",
+		"ESTABLISHED", "CLOSE_WAIT", "FIN_WAIT_1", "CLOSING",
+		"LAST_ACK", "FIN_WAIT_2", "TIME_WAIT",
+	}
+
+	tcpStatesMetric = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "netstat", "tcp_connections"),
+		"Number of TCP connections per state", []string{"state"}, nil)
 
 	counterMetrics = map[string]*prometheus.Desc{
 		// TCP stats
@@ -242,6 +253,30 @@ func getData(queryString string, expectedSize int) ([]byte, error) {
 	return data, nil
 }
 
+func getTCPStates() ([]uint64, error) {
+
+	// This sysctl returns an array of uint64
+	data, err := sysctlRaw("net.inet.tcp.states")
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(data)/8 != len(tcpStates) {
+		return nil, fmt.Errorf("invalid TCP states data: expected %d entries, found %d", len(tcpStates), len(data)/8)
+	}
+
+	states := make([]uint64, 0)
+
+	offset := 0
+	for range len(tcpStates) {
+		s := data[offset : offset+8]
+		offset += 8
+		states = append(states, binary.NativeEndian.Uint64(s))
+	}
+	return states, nil
+}
+
 type netStatCollector struct {
 	netStatMetric *prometheus.Desc
 }
@@ -309,6 +344,15 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 	}
 
+	tcpConnsPerStates, err := getTCPStates()
+
+	if err != nil {
+		return err
+	}
+
+	for i, value := range tcpConnsPerStates {
+		ch <- prometheus.MustNewConstMetric(tcpStatesMetric, prometheus.GaugeValue, float64(value), tcpStates[i])
+	}
 	return nil
 }
 
@@ -323,6 +367,16 @@ func getFreeBSDDataMock(sysctl string) []byte {
 		size := int(unsafe.Sizeof(C.struct_tcpstat{}))
 
 		return unsafe.Slice((*byte)(unsafe.Pointer(&tcpStats)), size)
+	} else if sysctl == "net.inet.tcp.states" {
+		tcpStatesSlice := make([]byte, 0, len(tcpStates)*8)
+		tcpStatesValues := []uint64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
+
+		for _, value := range tcpStatesValues {
+			tcpStatesSlice = binary.NativeEndian.AppendUint64(tcpStatesSlice, value)
+		}
+
+		return tcpStatesSlice
+
 	} else if sysctl == "net.inet.udp.stats" {
 		udpStats := C.struct_udpstat{
 			udps_opackets: 1234,
