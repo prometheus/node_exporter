@@ -33,21 +33,53 @@ import (
 #include <netinet/tcp.h>
 #include <netinet/tcp_var.h>
 #include <netinet/udp.h>
+#include <netinet/ip_var.h>
 */
 import "C"
 
 var (
-	sysctlRaw    = unix.SysctlRaw
-	tcpSendTotal = "bsdNetstatTcpSendPacketsTotal"
-	tcpRecvTotal = "bsdNetstatTcpRecvPacketsTotal"
+	sysctlRaw              = unix.SysctlRaw
+	tcpSendTotal           = "bsdNetstatTcpSendPacketsTotal"
+	tcpRecvTotal           = "bsdNetstatTcpRecvPacketsTotal"
+	ipv4SendTotal          = "bsdNetstatIPv4SendPacketsTotal"
+	ipv4RawSendTotal       = "bsdNetstatIPv4RawSendPacketsTotal"
+	ipv4RecvTotal          = "bsdNetstatIPv4RecvPacketsTotal"
+	ipv4RecvFragmentsTotal = "bsdNetstatIPv4RecvFragmentsTotal"
+	ipv4ForwardTotal       = "bsdNetstatIPv4ForwardTotal"
+	ipv4FastForwardTotal   = "bsdNetstatIPv4FastForwardTotal"
+	ipv4DeliveredTotal     = "bsdNetstatIPv4DeliveredTotal"
 
 	counterMetrics = map[string]*prometheus.Desc{
+		// TCP stats
 		tcpSendTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "netstat", "tcp_transmit_packets_total"),
 			"TCP packets sent", nil, nil),
 		tcpRecvTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "netstat", "tcp_receive_packets_total"),
 			"TCP packets received", nil, nil),
+
+		// IPv4 stats
+		ipv4SendTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip4_transmit_packets_total"),
+			"IPv4 packets sent from this host", nil, nil),
+		ipv4RawSendTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip4_transmit_raw_packets_total"),
+			"IPv4 raw packets generated", nil, nil),
+		ipv4RecvTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip4_receive_packets_total"),
+			"IPv4 packets received", nil, nil),
+		ipv4RecvFragmentsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip4_receive_fragments_total"),
+			"IPv4 fragments received", nil, nil),
+		ipv4ForwardTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip4_forward_total"),
+			"IPv4 packets forwarded", nil, nil),
+		ipv4FastForwardTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip4_fast_forward_total"),
+			"IPv4 packets fast forwarded", nil, nil),
+		ipv4DeliveredTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "netstat", "ip4_delivered_total"),
+			"IPv4 packets delivered to the upper layer (packets for this host)", nil, nil),
 	}
 )
 
@@ -78,6 +110,34 @@ func (netstatMetric *NetstatTCPData) GetData() (NetstatMetrics, error) {
 	return NetstatMetrics{
 		tcpSendTotal: float64(tcpStats.tcps_sndtotal),
 		tcpRecvTotal: float64(tcpStats.tcps_rcvtotal),
+	}, nil
+}
+
+type NetstatIPv4Data NetstatData
+
+func NewIPv4Stat() *NetstatIPv4Data {
+	return &NetstatIPv4Data{
+		structSize: int(unsafe.Sizeof(C.struct_ipstat{})),
+		sysctl:     "net.inet.ip.stats",
+	}
+}
+
+func (netstatMetric *NetstatIPv4Data) GetData() (NetstatMetrics, error) {
+	data, err := getData(netstatMetric.sysctl, netstatMetric.structSize)
+	if err != nil {
+		return nil, err
+	}
+
+	ipStats := *(*C.struct_ipstat)(unsafe.Pointer(&data[0]))
+
+	return NetstatMetrics{
+		ipv4SendTotal:          float64(ipStats.ips_localout),
+		ipv4RawSendTotal:       float64(ipStats.ips_rawout),
+		ipv4RecvTotal:          float64(ipStats.ips_total),
+		ipv4RecvFragmentsTotal: float64(ipStats.ips_fragments),
+		ipv4ForwardTotal:       float64(ipStats.ips_forward),
+		ipv4FastForwardTotal:   float64(ipStats.ips_fastforward),
+		ipv4DeliveredTotal:     float64(ipStats.ips_delivered),
 	}, nil
 }
 
@@ -120,9 +180,18 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	ipv4Stats, err := NewIPv4Stat().GetData()
+	if err != nil {
+		return err
+	}
+
 	allStats := make(map[string]float64)
 
 	for k, v := range tcpStats {
+		allStats[k] = v
+	}
+
+	for k, v := range ipv4Stats {
 		allStats[k] = v
 	}
 
@@ -148,6 +217,19 @@ func getFreeBSDDataMock(sysctl string) []byte {
 		size := int(unsafe.Sizeof(C.struct_tcpstat{}))
 
 		return unsafe.Slice((*byte)(unsafe.Pointer(&tcpStats)), size)
+	} else if sysctl == "net.inet.ip.stats" {
+		ipStats := C.struct_ipstat{
+			ips_localout:    1234,
+			ips_rawout:      1235,
+			ips_total:       1236,
+			ips_fragments:   1237,
+			ips_forward:     1238,
+			ips_fastforward: 1239,
+			ips_delivered:   1240,
+		}
+		size := int(unsafe.Sizeof(C.struct_ipstat{}))
+
+		return unsafe.Slice((*byte)(unsafe.Pointer(&ipStats)), size)
 	}
 
 	return make([]byte, 0, 0)
