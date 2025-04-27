@@ -62,6 +62,36 @@ func TestGetTCPMetrics(t *testing.T) {
 	}
 }
 
+func TestGetIPv4Metrics(t *testing.T) {
+	testSetup()
+
+	ipv4Data, err := NewIPv4Stat().GetData()
+	if err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+
+	sndTotal := ipv4Data[ipv4SendTotal]
+	rcvTotal := ipv4Data[ipv4RecvTotal]
+	forwardTotal := ipv4Data[ipv4ForwardTotal]
+	deliveredTotal := ipv4Data[ipv4DeliveredTotal]
+
+	if got, want := sndTotal, float64(1234); got != want {
+		t.Errorf("unexpected sndTotal value: want %f, got %f", want, got)
+	}
+
+	if got, want := rcvTotal, float64(1236); got != want {
+		t.Errorf("unexpected rcvTotal value: want %f, got %f", want, got)
+	}
+
+	if got, want := forwardTotal, float64(1238); got != want {
+		t.Errorf("unexpected forwardTotal value: want %f, got %f", want, got)
+	}
+
+	if got, want := deliveredTotal, float64(1240); got != want {
+		t.Errorf("unexpected deliveredTotal value: want %f, got %f", want, got)
+	}
+}
+
 func TestNetStatCollectorUpdate(t *testing.T) {
 	ch := make(chan prometheus.Metric, len(counterMetrics))
 	collector := &netStatCollector{
