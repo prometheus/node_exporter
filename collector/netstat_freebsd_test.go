@@ -62,6 +62,26 @@ func TestGetTCPMetrics(t *testing.T) {
 	}
 }
 
+func TestGetUDPMetrics(t *testing.T) {
+	testSetup()
+
+	udpData, err := NewUDPStat().GetData()
+	if err != nil {
+		t.Fatal("unexpected error:", err)
+	}
+
+	sndTotal := udpData[udpSendTotal]
+	rcvTotal := udpData[udpRecvTotal]
+
+	if got, want := sndTotal, float64(1234); got != want {
+		t.Errorf("unexpected sndTotal value: want %f, got %f", want, got)
+	}
+
+	if got, want := rcvTotal, float64(4321); got != want {
+		t.Errorf("unexpected rcvTotal value: want %f, got %f", want, got)
+	}
+}
+
 func TestGetIPv4Metrics(t *testing.T) {
 	testSetup()
 
