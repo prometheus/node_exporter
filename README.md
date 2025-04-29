@@ -194,6 +194,7 @@ devstat | Exposes device statistics | Dragonfly, FreeBSD
 drm | Expose GPU metrics using sysfs / DRM, `amdgpu` is the only driver which exposes this information through DRM | Linux
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
+fscache | Exposes FS-Cache statistics from `/proc/fs/fscache/stats`. | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 lnstat | Exposes stats from `/proc/net/stat/`. | Linux
