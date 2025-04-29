@@ -876,13 +876,13 @@ node_fscache_objects_retired_total 0
 node_fscache_relinquishes_total 31939
 # HELP node_fscache_retrievals_nobuffer_total Number of retrieval (read) operations failed due to no buffer (Retrvls: nbf=nobuff).
 # TYPE node_fscache_retrievals_nobuffer_total counter
-node_fscache_retrievals_nobuffer_total 2551742
+node_fscache_retrievals_nobuffer_total 2.551742e+06
 # HELP node_fscache_retrievals_success_total Number of successful retrieval (read) operations (Retrvls: ok=success).
 # TYPE node_fscache_retrievals_success_total counter
 node_fscache_retrievals_success_total 0
 # HELP node_fscache_retrievals_total Number of retrieval (read) operations attempted (Retrvls: n=attempts).
 # TYPE node_fscache_retrievals_total counter
-node_fscache_retrievals_total 2551742
+node_fscache_retrievals_total 2.551742e+06
 # HELP node_fscache_stores_success_total Number of successful store (write) operations (Stores: ok=success).
 # TYPE node_fscache_stores_success_total counter
 node_fscache_stores_success_total 0
