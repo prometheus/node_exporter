@@ -22,14 +22,15 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type bondingCollector struct {
-	slaves, active typedDesc
-	logger         *slog.Logger
+	slaves, active, miimon typedDesc
+	logger                 *slog.Logger
 }
 
 func init() {
@@ -50,6 +51,11 @@ func NewBondingCollector(logger *slog.Logger) (Collector, error) {
 			"Number of active slaves per bonding interface.",
 			[]string{"master"}, nil,
 		), prometheus.GaugeValue},
+		miimon: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "bonding", "miimon"),
+			"MII link monitoring frequency in milliseconds.",
+			[]string{"master"}, nil,
+		), prometheus.GaugeValue},
 		logger: logger,
 	}, nil
 }
@@ -68,6 +74,18 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
 	for master, status := range bondingStats {
 		ch <- c.slaves.mustNewConstMetric(float64(status[0]), master)
 		ch <- c.active.mustNewConstMetric(float64(status[1]), master)
+	}
+
+	bondingMiimon, err := readBondingMiimon(statusfile)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.logger.Debug("Not collecting bonding, file does not exist", "file", statusfile)
+			return ErrNoData
+		}
+		return err
+	}
+	for bond, miimon := range bondingMiimon {
+		ch <- c.miimon.mustNewConstMetric(float64(miimon), bond)
 	}
 	return nil
 }
@@ -99,6 +117,29 @@ func readBondingStats(root string) (status map[string][2]int, err error) {
 			}
 		}
 		status[master] = sstat
+	}
+	return status, err
+}
+
+func readBondingMiimon(root string) (status map[string]int, err error) {
+	status = map[string]int{}
+	masters, err := os.ReadFile(filepath.Join(root, "bonding_masters"))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, master := range strings.Fields(string(masters)) {
+		miimon, err := os.ReadFile(filepath.Join(root, master, "bonding", "miimon"))
+		if err != nil {
+			return nil, err
+		}
+
+		intMiimon, err := strconv.Atoi(strings.TrimSpace(string(miimon)))
+		if err != nil {
+			return nil, err
+		}
+
+		status[master] = intMiimon
 	}
 	return status, err
 }
