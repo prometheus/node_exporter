@@ -33,6 +33,11 @@ type bondingCollector struct {
 	logger                 *slog.Logger
 }
 
+type bondingStats struct {
+	name                   string
+	slaves, active, miimon int
+}
+
 func init() {
 	registerCollector("bonding", defaultEnabled, NewBondingCollector)
 }
@@ -71,27 +76,16 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		return err
 	}
-	for master, status := range bondingStats {
-		ch <- c.slaves.mustNewConstMetric(float64(status[0]), master)
-		ch <- c.active.mustNewConstMetric(float64(status[1]), master)
-	}
-
-	bondingMiimon, err := readBondingMiimon(statusfile)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			c.logger.Debug("Not collecting bonding, file does not exist", "file", statusfile)
-			return ErrNoData
-		}
-		return err
-	}
-	for bond, miimon := range bondingMiimon {
-		ch <- c.miimon.mustNewConstMetric(float64(miimon), bond)
+	for _, bond := range bondingStats {
+		ch <- c.slaves.mustNewConstMetric(float64(bond.slaves), bond.name)
+		ch <- c.active.mustNewConstMetric(float64(bond.active), bond.name)
+		ch <- c.miimon.mustNewConstMetric(float64(bond.miimon), bond.name)
 	}
 	return nil
 }
 
-func readBondingStats(root string) (status map[string][2]int, err error) {
-	status = map[string][2]int{}
+func readBondingStats(root string) (status []bondingStats, err error) {
+	status = []bondingStats{}
 	masters, err := os.ReadFile(filepath.Join(root, "bonding_masters"))
 	if err != nil {
 		return nil, err
@@ -116,30 +110,22 @@ func readBondingStats(root string) (status map[string][2]int, err error) {
 				sstat[1]++
 			}
 		}
-		status[master] = sstat
-	}
-	return status, err
-}
 
-func readBondingMiimon(root string) (status map[string]int, err error) {
-	status = map[string]int{}
-	masters, err := os.ReadFile(filepath.Join(root, "bonding_masters"))
-	if err != nil {
-		return nil, err
-	}
-
-	for _, master := range strings.Fields(string(masters)) {
 		miimon, err := os.ReadFile(filepath.Join(root, master, "bonding", "miimon"))
 		if err != nil {
 			return nil, err
 		}
-
 		intMiimon, err := strconv.Atoi(strings.TrimSpace(string(miimon)))
 		if err != nil {
 			return nil, err
 		}
 
-		status[master] = intMiimon
+		status = append(status, bondingStats{
+			name:   master,
+			slaves: sstat[0],
+			active: sstat[1],
+			miimon: intMiimon,
+		})
 	}
 	return status, err
 }
