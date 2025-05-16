@@ -467,6 +467,8 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 				metricFQNames[metricFQName] = ""
 			} else {
 				metricFQNames[metricFQName] = metricName
+				// Later we'll go look for the stat with the "sanitized" metric name, so we can copy it there already
+				stats[metricName] = stats[metric]
 			}
 		}
 
