@@ -52,6 +52,7 @@ enabled_collectors=$(cat << COLLECTORS
   entropy
   fibrechannel
   filefd
+  fscache
   hwmon
   infiniband
   interrupts
@@ -321,7 +322,7 @@ sleep 1
 get "127.0.0.1:${port}/metrics" | grep --text -E -v "${skip_re}" > "${generated_metrics}"
 
 # The following ignore-list is only applicable to the VMs used to run E2E tests on platforms for which containerized environments are not available.
-# However, owing to this, there are some non-deterministic metrics that end up generating samples, unlike their containerized counterparts, for e.g., node_network_receive_bytes_total. 
+# However, owing to this, there are some non-deterministic metrics that end up generating samples, unlike their containerized counterparts, for e.g., node_network_receive_bytes_total.
 non_deterministic_metrics=$(cat << METRICS
   node_boot_time_seconds
   node_cpu_frequency_hertz
