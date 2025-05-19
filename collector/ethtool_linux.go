@@ -453,6 +453,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 
 		// Sanitizing the metric names can lead to duplicate metric names. Therefore check for clashes beforehand.
 		metricFQNames := make(map[string]string)
+		renamedStats := make(map[string]uint64, len(stats))
 		for metric := range stats {
 			metricName := SanitizeMetricName(metric)
 			if !c.metricsPattern.MatchString(metricName) {
@@ -467,6 +468,8 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 				metricFQNames[metricFQName] = ""
 			} else {
 				metricFQNames[metricFQName] = metricName
+				// Later we'll go look for the stat with the "sanitized" metric name, so we can copy it there already
+				renamedStats[metricName] = stats[metric]
 			}
 		}
 
@@ -484,7 +487,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 				continue
 			}
 
-			val := stats[metric]
+			val := renamedStats[metric]
 
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
 			entry := c.entryWithCreate(metric, metricFQName)
