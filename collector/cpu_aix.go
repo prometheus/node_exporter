@@ -45,13 +45,19 @@ var (
 		"CPU flags.",
 		[]string{"cpu", "flag"}, nil,
 	)
+	nodeCPUContextSwitchDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "context_switches_total"),
+		"Number of context switches.",
+		[]string{"cpu"}, nil,
+	)
 )
 
 type cpuCollector struct {
-	cpu         typedDesc
-	cpuPhysical typedDesc
-	cpuRunQueue typedDesc
-	cpuFlags    typedDesc
+	cpu              typedDesc
+	cpuPhysical      typedDesc
+	cpuRunQueue      typedDesc
+	cpuFlags         typedDesc
+	cpuContextSwitch typedDesc
 
 	logger        *slog.Logger
 	tickPerSecond int64
@@ -75,12 +81,13 @@ func NewCpuCollector(logger *slog.Logger) (Collector, error) {
 		return nil, err
 	}
 	return &cpuCollector{
-		cpu:           typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
-		cpuPhysical:   typedDesc{nodeCPUPhysicalSecondsDesc, prometheus.CounterValue},
-		cpuRunQueue:   typedDesc{nodeCPUSRunQueueDesc, prometheus.GaugeValue},
-		cpuFlags:      typedDesc{nodeCPUFlagsDesc, prometheus.GaugeValue},
-		logger:        logger,
-		tickPerSecond: ticks,
+		cpu:              typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
+		cpuPhysical:      typedDesc{nodeCPUPhysicalSecondsDesc, prometheus.CounterValue},
+		cpuRunQueue:      typedDesc{nodeCPUSRunQueueDesc, prometheus.GaugeValue},
+		cpuFlags:         typedDesc{nodeCPUFlagsDesc, prometheus.GaugeValue},
+		cpuContextSwitch: typedDesc{nodeCPUContextSwitchDesc, prometheus.CounterValue},
+		logger:           logger,
+		tickPerSecond:    ticks,
 	}, nil
 }
 
@@ -108,6 +115,9 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 
 		// Flags
 		ch <- c.cpuFlags.mustNewConstMetric(float64(stat.SpurrFlag), strconv.Itoa(n), "spurr")
+
+		// Context switches
+		ch <- c.cpuContextSwitch.mustNewConstMetric(float64(stat.CSwitches), strconv.Itoa(n))
 	}
 	return nil
 }
