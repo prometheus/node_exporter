@@ -45,7 +45,7 @@ type diskstatsCollector struct {
 	deviceFilter deviceFilter
 	logger       *slog.Logger
 
-	tickPerSecond int64
+	tickPerSecond float64
 }
 
 func init() {
@@ -151,14 +151,14 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		ch <- c.rbytes.mustNewConstMetric(float64(stat.Rblks*512), stat.Name)
 		ch <- c.wbytes.mustNewConstMetric(float64(stat.Wblks*512), stat.Name)
-		ch <- c.time.mustNewConstMetric(float64(stat.Time/c.tickPerSecond), stat.Name)
+		ch <- c.time.mustNewConstMetric(float64(stat.Time)/c.tickPerSecond, stat.Name)
 
 		ch <- c.bsize.mustNewConstMetric(float64(stat.BSize), stat.Name)
 		ch <- c.qdepth.mustNewConstMetric(float64(stat.QDepth), stat.Name)
 		ch <- c.rblks.mustNewConstMetric(float64(stat.Rblks), stat.Name)
 		ch <- c.wblks.mustNewConstMetric(float64(stat.Wblks), stat.Name)
-		ch <- c.rserv.mustNewConstMetric(float64(stat.Rserv/c.tickPerSecond), stat.Name)
-		ch <- c.wserv.mustNewConstMetric(float64(stat.Wserv/c.tickPerSecond), stat.Name)
+		ch <- c.rserv.mustNewConstMetric(float64(stat.Rserv)/c.tickPerSecond, stat.Name)
+		ch <- c.wserv.mustNewConstMetric(float64(stat.Wserv)/c.tickPerSecond, stat.Name)
 		ch <- c.xfers.mustNewConstMetric(float64(stat.Xfers), stat.Name)
 		ch <- c.xrate.mustNewConstMetric(float64(stat.XRate), stat.Name)
 	}
