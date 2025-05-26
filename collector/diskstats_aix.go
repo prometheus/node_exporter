@@ -33,9 +33,6 @@ type diskstatsCollector struct {
 	bsize  typedDesc
 	qdepth typedDesc
 
-	rblks typedDesc
-	wblks typedDesc
-
 	rserv typedDesc
 	wserv typedDesc
 
@@ -83,22 +80,6 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				diskLabelNames, nil,
 			),
 			prometheus.GaugeValue,
-		},
-		rblks: typedDesc{
-			prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, diskSubsystem, "read_blocks_total"),
-				"The total number of read blocks.",
-				diskLabelNames, nil,
-			),
-			prometheus.CounterValue,
-		},
-		wblks: typedDesc{
-			prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, diskSubsystem, "written_blocks_total"),
-				"The total number of written blocks.",
-				diskLabelNames, nil,
-			),
-			prometheus.CounterValue,
 		},
 		rserv: typedDesc{
 			prometheus.NewDesc(
@@ -151,14 +132,12 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		ch <- c.rbytes.mustNewConstMetric(float64(stat.Rblks*512), stat.Name)
 		ch <- c.wbytes.mustNewConstMetric(float64(stat.Wblks*512), stat.Name)
-		ch <- c.time.mustNewConstMetric(float64(stat.Time)/c.tickPerSecond, stat.Name)
+		ch <- c.time.mustNewConstMetric(float64(stat.Time)/float64(c.tickPerSecond), stat.Name)
 
 		ch <- c.bsize.mustNewConstMetric(float64(stat.BSize), stat.Name)
 		ch <- c.qdepth.mustNewConstMetric(float64(stat.QDepth), stat.Name)
-		ch <- c.rblks.mustNewConstMetric(float64(stat.Rblks), stat.Name)
-		ch <- c.wblks.mustNewConstMetric(float64(stat.Wblks), stat.Name)
-		ch <- c.rserv.mustNewConstMetric(float64(stat.Rserv)/c.tickPerSecond, stat.Name)
-		ch <- c.wserv.mustNewConstMetric(float64(stat.Wserv)/c.tickPerSecond, stat.Name)
+		ch <- c.rserv.mustNewConstMetric(float64(stat.Rserv)/1e9, stat.Name)
+		ch <- c.wserv.mustNewConstMetric(float64(stat.Wserv)/1e9, stat.Name)
 		ch <- c.xfers.mustNewConstMetric(float64(stat.Xfers), stat.Name)
 		ch <- c.xrate.mustNewConstMetric(float64(stat.XRate), stat.Name)
 	}
