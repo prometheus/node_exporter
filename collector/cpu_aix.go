@@ -59,20 +59,21 @@ type cpuCollector struct {
 	cpuFlags         typedDesc
 	cpuContextSwitch typedDesc
 
-	logger        *slog.Logger
-	tickPerSecond int64
+	logger             *slog.Logger
+	tickPerSecond      float64
+	purrTicksPerSecond float64
 }
 
 func init() {
 	registerCollector("cpu", defaultEnabled, NewCpuCollector)
 }
 
-func tickPerSecond() (int64, error) {
+func tickPerSecond() (float64, error) {
 	ticks, err := C.sysconf(C._SC_CLK_TCK)
 	if ticks == -1 || err != nil {
 		return 0, fmt.Errorf("failed to get clock ticks per second: %v", err)
 	}
-	return int64(ticks), nil
+	return float64(ticks), nil
 }
 
 func NewCpuCollector(logger *slog.Logger) (Collector, error) {
@@ -80,14 +81,22 @@ func NewCpuCollector(logger *slog.Logger) (Collector, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	pconfig, err := perfstat.PartitionStat()
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &cpuCollector{
-		cpu:              typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
-		cpuPhysical:      typedDesc{nodeCPUPhysicalSecondsDesc, prometheus.CounterValue},
-		cpuRunQueue:      typedDesc{nodeCPUSRunQueueDesc, prometheus.GaugeValue},
-		cpuFlags:         typedDesc{nodeCPUFlagsDesc, prometheus.GaugeValue},
-		cpuContextSwitch: typedDesc{nodeCPUContextSwitchDesc, prometheus.CounterValue},
-		logger:           logger,
-		tickPerSecond:    ticks,
+		cpu:                typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
+		cpuPhysical:        typedDesc{nodeCPUPhysicalSecondsDesc, prometheus.CounterValue},
+		cpuRunQueue:        typedDesc{nodeCPUSRunQueueDesc, prometheus.GaugeValue},
+		cpuFlags:           typedDesc{nodeCPUFlagsDesc, prometheus.GaugeValue},
+		cpuContextSwitch:   typedDesc{nodeCPUContextSwitchDesc, prometheus.CounterValue},
+		logger:             logger,
+		tickPerSecond:      ticks,
+		purrTicksPerSecond: float64(pconfig.ProcessorMhz * 1e6),
 	}, nil
 }
 
@@ -99,16 +108,16 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for n, stat := range stats {
 		// LPAR metrics
-		ch <- c.cpu.mustNewConstMetric(float64(stat.User/c.tickPerSecond), strconv.Itoa(n), "user")
-		ch <- c.cpu.mustNewConstMetric(float64(stat.Sys/c.tickPerSecond), strconv.Itoa(n), "system")
-		ch <- c.cpu.mustNewConstMetric(float64(stat.Idle/c.tickPerSecond), strconv.Itoa(n), "idle")
-		ch <- c.cpu.mustNewConstMetric(float64(stat.Wait/c.tickPerSecond), strconv.Itoa(n), "wait")
+		ch <- c.cpu.mustNewConstMetric(float64(stat.User)/c.tickPerSecond, strconv.Itoa(n), "user")
+		ch <- c.cpu.mustNewConstMetric(float64(stat.Sys)/c.tickPerSecond, strconv.Itoa(n), "system")
+		ch <- c.cpu.mustNewConstMetric(float64(stat.Idle)/c.tickPerSecond, strconv.Itoa(n), "idle")
+		ch <- c.cpu.mustNewConstMetric(float64(stat.Wait)/c.tickPerSecond, strconv.Itoa(n), "wait")
 
 		// Physical CPU metrics
-		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PIdle/c.tickPerSecond), strconv.Itoa(n), "pidle")
-		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PUser/c.tickPerSecond), strconv.Itoa(n), "puser")
-		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PSys/c.tickPerSecond), strconv.Itoa(n), "psys")
-		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PWait/c.tickPerSecond), strconv.Itoa(n), "pwait")
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PIdle)/c.purrTicksPerSecond, strconv.Itoa(n), "pidle")
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PUser)/c.purrTicksPerSecond, strconv.Itoa(n), "puser")
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PSys)/c.purrTicksPerSecond, strconv.Itoa(n), "psys")
+		ch <- c.cpuPhysical.mustNewConstMetric(float64(stat.PWait)/c.purrTicksPerSecond, strconv.Itoa(n), "pwait")
 
 		// Run queue length
 		ch <- c.cpuRunQueue.mustNewConstMetric(float64(stat.RunQueue), strconv.Itoa(n))
