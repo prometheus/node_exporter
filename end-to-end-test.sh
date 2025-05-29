@@ -67,6 +67,7 @@ enabled_collectors=$(cat << COLLECTORS
   netstat
   nfs
   nfsd
+  pcidevice
   pressure
   processes
   qdisc
