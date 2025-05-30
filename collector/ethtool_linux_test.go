@@ -212,16 +212,18 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 
 		items := strings.Split(line, ": ")
 		if items[0] == "Supported pause frame use" {
-			if items[1] == "Symmetric" {
+			switch items[1] {
+			case "Symmetric":
 				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
-			} else if items[1] == "Receive-only" {
+			case "Receive-only":
 				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
 			}
 		}
 		if items[0] == "Advertised pause frame use" {
-			if items[1] == "Symmetric" {
+			switch items[1] {
+			case "Symmetric":
 				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
-			} else if items[1] == "Receive-only" {
+			case "Receive-only":
 				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
 			}
 		}

@@ -122,11 +122,12 @@ func TestSystemdSummary(t *testing.T) {
 	summary := summarizeUnits(fixtures[0])
 
 	for _, state := range unitStatesName {
-		if state == "inactive" {
+		switch state {
+		case "inactive":
 			testSummaryHelper(t, state, summary[state], 3.0)
-		} else if state == "active" {
+		case "active":
 			testSummaryHelper(t, state, summary[state], 1.0)
-		} else {
+		default:
 			testSummaryHelper(t, state, summary[state], 0.0)
 		}
 	}
