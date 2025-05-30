@@ -269,6 +269,7 @@ func NewEthtoolTestCollector(logger *slog.Logger) (Collector, error) {
 
 func TestBuildEthtoolFQName(t *testing.T) {
 	testcases := map[string]string{
+		"port.rx_errors":               "node_ethtool_port_received_errors",
 		"rx_errors":                    "node_ethtool_received_errors",
 		"Queue[0] AllocFails":          "node_ethtool_queue_0_allocfails",
 		"Tx LPI entry count":           "node_ethtool_transmitted_lpi_entry_count",
@@ -292,6 +293,9 @@ node_ethtool_align_errors{device="eth0"} 0
 # HELP node_ethtool_info A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.
 # TYPE node_ethtool_info gauge
 node_ethtool_info{bus_info="0000:00:1f.6",device="eth0",driver="e1000e",expansion_rom_version="",firmware_version="0.5-4",version="5.11.0-22-generic"} 1
+# HELP node_ethtool_port_received_dropped Network interface port_rx_dropped
+# TYPE node_ethtool_port_received_dropped untyped
+node_ethtool_port_received_dropped{device="eth0"} 12028
 # HELP node_ethtool_received_broadcast Network interface rx_broadcast
 # TYPE node_ethtool_received_broadcast untyped
 node_ethtool_received_broadcast{device="eth0"} 5792

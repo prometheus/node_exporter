@@ -17,9 +17,10 @@
 package collector
 
 import (
+	"log/slog"
+
 	"github.com/opencontainers/selinux/go-selinux"
 	"github.com/prometheus/client_golang/prometheus"
-	"log/slog"
 )
 
 type selinuxCollector struct {

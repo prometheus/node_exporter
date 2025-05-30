@@ -73,12 +73,12 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 	go func() {
 		for _, labels := range mps {
-			if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
+			if c.mountPointFilter.ignored(labels.mountPoint) {
 				c.logger.Debug("Ignoring mount point", "mountpoint", labels.mountPoint)
 				continue
 			}
-			if c.excludedFSTypesPattern.MatchString(labels.fsType) {
-				c.logger.Debug("Ignoring fs", "type", labels.fsType)
+			if c.fsTypeFilter.ignored(labels.fsType) {
+				c.logger.Debug("Ignoring fs type", "type", labels.fsType)
 				continue
 			}
 

@@ -253,10 +253,16 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 	}
 
+	mfHelp := make(map[string]*string)
 	for _, mf := range parsedFamilies {
 		if mf.Help == nil {
+			if help, ok := mfHelp[*mf.Name]; ok {
+				mf.Help = help
+				continue
+			}
 			help := fmt.Sprintf("Metric read from %s", strings.Join(metricsNamesToFiles[*mf.Name], ", "))
 			mf.Help = &help
+			mfHelp[*mf.Name] = &help
 		}
 	}
 

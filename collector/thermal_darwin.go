@@ -50,6 +50,8 @@ import (
 	"log/slog"
 	"unsafe"
 
+	"github.com/prometheus/node_exporter/collector/utils"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -176,7 +178,7 @@ func mappingCFStringToString(s C.CFStringRef) string {
 	buf := make([]byte, maxBufLen)
 	var usedBufLen C.CFIndex
 	_ = C.CFStringGetBytes(s, C.CFRange{0, length}, C.kCFStringEncodingUTF8, C.UInt8(0), C.false, (*C.UInt8)(&buf[0]), maxBufLen, &usedBufLen)
-	return string(buf[:usedBufLen])
+	return utils.SafeBytesToString(buf[:usedBufLen])
 }
 
 func mappingCFNumberLongToInt(n C.CFNumberRef) int {

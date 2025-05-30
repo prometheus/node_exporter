@@ -112,7 +112,7 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 		infoDesc: typedFactorDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
 				"Info of /sys/block/<block_device>.",
-				[]string{"device", "major", "minor", "path", "wwn", "model", "serial", "revision"},
+				[]string{"device", "major", "minor", "path", "wwn", "model", "serial", "revision", "rotational"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
@@ -294,6 +294,12 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			serial = info[udevIDSerialShort]
 		}
 
+		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
+		// Block Device Queue stats may not exist for all devices.
+		if err != nil && !os.IsNotExist(err) {
+			c.logger.Debug("Failed to get block device queue stats", "device", dev, "err", err)
+		}
+
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev,
 			fmt.Sprint(stats.MajorNumber),
 			fmt.Sprint(stats.MinorNumber),
@@ -302,6 +308,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			info[udevIDModel],
 			serial,
 			info[udevIDRevision],
+			strconv.FormatUint(queueStats.Rotational, 2),
 		)
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
@@ -391,14 +398,8 @@ func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 
 		line = strings.TrimPrefix(line, udevDevicePropertyPrefix)
 
-		/* TODO: After we drop support for Go 1.17, the condition below can be simplified to:
-
 		if name, value, found := strings.Cut(line, "="); found {
 			info[name] = value
-		}
-		*/
-		if fields := strings.SplitN(line, "=", 2); len(fields) == 2 {
-			info[fields[0]] = fields[1]
 		}
 	}
 
