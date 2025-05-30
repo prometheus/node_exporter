@@ -25,15 +25,15 @@ func TestBonding(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bondingStats["bond0"][0] != 0 || bondingStats["bond0"][1] != 0 {
+	if bondingStats[0].name != "bond0" || bondingStats[0].slaves != 0 || bondingStats[0].active != 0 || bondingStats[0].miimon != 100 {
 		t.Fatal("bond0 in unexpected state")
 	}
 
-	if bondingStats["int"][0] != 2 || bondingStats["int"][1] != 1 {
-		t.Fatal("int in unexpected state")
+	if bondingStats[1].name != "dmz" || bondingStats[1].slaves != 2 || bondingStats[1].active != 2 || bondingStats[1].miimon != 0 {
+		t.Fatal("dmz in unexpected state")
 	}
 
-	if bondingStats["dmz"][0] != 2 || bondingStats["dmz"][1] != 2 {
-		t.Fatal("dmz in unexpected state")
+	if bondingStats[2].name != "int" || bondingStats[2].slaves != 2 || bondingStats[2].active != 1 || bondingStats[2].miimon != 200 {
+		t.Fatal("int in unexpected state")
 	}
 }
