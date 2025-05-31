@@ -87,7 +87,7 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 	isolcpus, err := sfs.IsolatedCPUs()
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return nil, fmt.Errorf("Unable to get isolated cpus: %w", err)
+			return nil, fmt.Errorf("unable to get isolated cpus: %w", err)
 		}
 		logger.Debug("Could not open isolated file", "error", err)
 	}
