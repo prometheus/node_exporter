@@ -44,7 +44,7 @@ func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	meminfo, err := c.fs.Meminfo()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get memory info: %s", err)
+		return nil, fmt.Errorf("failed to get memory info: %w", err)
 	}
 
 	metrics := make(map[string]float64)
