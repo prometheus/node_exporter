@@ -435,5 +435,5 @@ type zfsSysctl string
 
 func (s zfsSysctl) metricName() string {
 	parts := strings.Split(string(s), ".")
-	return strings.Replace(parts[len(parts)-1], "-", "_", -1)
+	return strings.ReplaceAll(parts[len(parts)-1], "-", "_")
 }

@@ -32,16 +32,20 @@ func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, err
 
 	for _, stat := range stats {
 		netDev[stat.Name] = map[string]uint64{
-			"receive_packets":    uint64(stat.RxPackets),
-			"transmit_packets":   uint64(stat.TxPackets),
-			"receive_bytes":      uint64(stat.RxBytes),
-			"transmit_bytes":     uint64(stat.TxBytes),
-			"receive_errors":     uint64(stat.RxErrors),
-			"transmit_errors":    uint64(stat.TxErrors),
-			"receive_dropped":    uint64(stat.RxPacketsDropped),
-			"transmit_dropped":   uint64(stat.TxPacketsDropped),
-			"receive_multicast":  uint64(stat.RxMulticastPackets),
-			"transmit_multicast": uint64(stat.TxMulticastPackets),
+			"receive_bytes":                      uint64(stat.RxBytes),
+			"receive_dropped":                    uint64(stat.RxPacketsDropped),
+			"receive_errors":                     uint64(stat.RxErrors),
+			"receive_multicast":                  uint64(stat.RxMulticastPackets),
+			"receive_packets":                    uint64(stat.RxPackets),
+			"receive_collision_errors":           uint64(stat.RxCollisionErrors),
+			"transmit_bytes":                     uint64(stat.TxBytes),
+			"transmit_dropped":                   uint64(stat.TxPacketsDropped),
+			"transmit_errors":                    uint64(stat.TxErrors),
+			"transmit_multicast":                 uint64(stat.TxMulticastPackets),
+			"transmit_packets":                   uint64(stat.TxPackets),
+			"transmit_queue_overflow":            uint64(stat.TxQueueOverflow),
+			"transmit_collision_single_errors":   uint64(stat.TxSingleCollisionCount),
+			"transmit_collision_multiple_errors": uint64(stat.TxMultipleCollisionCount),
 		}
 	}
 
