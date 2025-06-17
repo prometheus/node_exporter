@@ -2179,6 +2179,11 @@ Lines: 1
 1B2QEXP7
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/cntlid
+Lines: 1
+1997
+Mode: 666
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/model
 Lines: 1
 Samsung SSD 970 PRO 512GB

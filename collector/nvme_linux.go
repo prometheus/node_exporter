@@ -25,15 +25,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+	"log/slog"
 )
 
 type nvmeCollector struct {
 	fs                             sysfs.FS
-	logger                         log.Logger
+	logger                         *slog.Logger
 	namespaceInfo                  *prometheus.Desc
 	namespaceCapacityBytes         *prometheus.Desc
 	namespaceSizeBytes             *prometheus.Desc
@@ -47,7 +46,7 @@ func init() {
 }
 
 // NewNVMeCollector returns a new Collector exposing NVMe stats.
-func NewNVMeCollector(logger log.Logger) (Collector, error) {
+func NewNVMeCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -105,7 +104,7 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.NVMeClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "nvme statistics not found, skipping")
+			c.logger.Debug("nvme statistics not found, skipping")
 			return ErrNoData
 		}
 		return fmt.Errorf("error obtaining NVMe class info: %w", err)
@@ -117,13 +116,13 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 		devicePath := filepath.Join(*sysPath, "class/nvme", device.Name)
 		cntlid, err := readUintFromFile(filepath.Join(devicePath, "cntlid"))
 		if err != nil {
-			level.Debug(c.logger).Log("msg", "failed to read cntlid", "device", device.Name, "err", err)
+			c.logger.Debug("failed to read cntlid", "device", device.Name, "err", err)
 		}
 		ch <- prometheus.MustNewConstMetric(c.info, prometheus.GaugeValue, infoValue, device.Name, device.FirmwareRevision, device.Model, device.Serial, device.State, strconv.FormatUint(cntlid, 10))
 		// Find namespace directories.
 		namespacePaths, err := filepath.Glob(filepath.Join(devicePath, "nvme[0-9]*c[0-9]*n[0-9]*"))
 		if err != nil {
-			level.Error(c.logger).Log("msg", "failed to list NVMe namespaces", "device", device.Name, "err", err)
+			c.logger.Error("failed to list NVMe namespaces", "device", device.Name, "err", err)
 			continue
 		}
 		re := regexp.MustCompile(`nvme[0-9]+c[0-9]+n([0-9]+)`)
@@ -138,15 +137,15 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 			nsid := match[1]
 			nuse, err := readUintFromFile(filepath.Join(namespacePath, "nuse"))
 			if err != nil {
-				level.Debug(c.logger).Log("msg", "failed to read nuse", "device", device.Name, "namespace", match[0], "err", err)
+				c.logger.Debug("failed to read nuse", "device", device.Name, "namespace", match[0], "err", err)
 			}
 			nsze, err := readUintFromFile(filepath.Join(namespacePath, "size"))
 			if err != nil {
-				level.Debug(c.logger).Log("msg", "failed to read size", "device", device.Name, "namespace", match[0], "err", err)
+				c.logger.Debug("failed to read size", "device", device.Name, "namespace", match[0], "err", err)
 			}
 			lbaSize, err := readUintFromFile(filepath.Join(namespacePath, "queue", "logical_block_size"))
 			if err != nil {
-				level.Debug(c.logger).Log("msg", "failed to read queue/logical_block_size", "device", device.Name, "namespace", match[0], "err", err)
+				c.logger.Debug("failed to read queue/logical_block_size", "device", device.Name, "namespace", match[0], "err", err)
 			}
 			ncap := nsze * lbaSize
 			anaState := "unknown"
@@ -154,7 +153,7 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 			if err == nil {
 				anaState = strings.TrimSpace(string(anaStateSysfs))
 			} else {
-				level.Debug(c.logger).Log("msg", "failed to read ana_state", "device", device.Name, "namespace", match[0], "err", err)
+				c.logger.Debug("failed to read ana_state", "device", device.Name, "namespace", match[0], "err", err)
 			}
 
 			ch <- prometheus.MustNewConstMetric(
