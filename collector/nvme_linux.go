@@ -115,7 +115,7 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 		infoValue := 1.0
 
 		devicePath := filepath.Join(*sysPath, "class/nvme", device.Name)
-		if cntlid, err := readUintFromFile(filepath.Join(devicePath, "cntlid"))
+		cntlid, err := readUintFromFile(filepath.Join(devicePath, "cntlid"))
 		if err != nil {
 			level.Debug(c.logger).Log("msg", "failed to read cntlid", "device", device.Name, "err", err)
 		}
