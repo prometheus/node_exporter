@@ -363,7 +363,7 @@
           {
             alert: 'NodeMemoryHighUtilization',
             expr: |||
-              100 - (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > %(memoryHighUtilizationThreshold)d
+              100 - ((node_memory_Cached_bytes{%(nodeExporterSelector)s} + node_memory_MemAvailable_bytes{%(nodeExporterSelector)s}) / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > %(memoryHighUtilizationThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
