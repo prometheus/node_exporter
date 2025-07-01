@@ -13,7 +13,7 @@ require (
 	github.com/hodgesds/perf-utils v0.7.0
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
 	github.com/josharian/native v1.1.0
-	github.com/jsimonetti/rtnetlink/v2 v2.0.2
+	github.com/jsimonetti/rtnetlink/v2 v2.0.5
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/ethtool v0.2.0
@@ -54,7 +54,7 @@ require (
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sync v0.14.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
