@@ -114,11 +114,7 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 		infoValue := 1.0
 
 		devicePath := filepath.Join(*sysPath, "class/nvme", device.Name)
-		cntlid, err := readUintFromFile(filepath.Join(devicePath, "cntlid"))
-		if err != nil {
-			c.logger.Debug("failed to read cntlid", "device", device.Name, "err", err)
-		}
-		ch <- prometheus.MustNewConstMetric(c.info, prometheus.GaugeValue, infoValue, device.Name, device.FirmwareRevision, device.Model, device.Serial, device.State, strconv.FormatUint(cntlid, 10))
+		ch <- prometheus.MustNewConstMetric(c.info, prometheus.GaugeValue, infoValue, device.Name, device.FirmwareRevision, device.Model, device.Serial, device.State, device.ControllerID)
 		// Find namespace directories.
 		namespacePaths, err := filepath.Glob(filepath.Join(devicePath, "nvme[0-9]*c[0-9]*n[0-9]*"))
 		if err != nil {
