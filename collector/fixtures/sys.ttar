@@ -2174,6 +2174,11 @@ Mode: 755
 Directory: sys/class/nvme/nvme0
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/cntlid
+Lines: 1
+1997
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/firmware_rev
 Lines: 1
 1B2QEXP7
