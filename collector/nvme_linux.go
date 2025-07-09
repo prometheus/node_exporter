@@ -196,4 +196,3 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 
 	return nil
 }
-
