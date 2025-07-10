@@ -2832,6 +2832,26 @@ node_os_info{build_id="",id="ubuntu",id_like="debian",image_id="",image_version=
 # HELP node_os_version Metric containing the major.minor part of the OS version.
 # TYPE node_os_version gauge
 node_os_version{id="ubuntu",id_like="debian",name="Ubuntu"} 20.04
+# HELP node_pcidevice_current_link_transfers_per_second Value of current link's transfers per second (T/s)
+# TYPE node_pcidevice_current_link_transfers_per_second gauge
+node_pcidevice_current_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
+node_pcidevice_current_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 8e+09
+# HELP node_pcidevice_current_link_width Value of current link's width (number of lanes)
+# TYPE node_pcidevice_current_link_width gauge
+node_pcidevice_current_link_width{bus="00",device="02",function="1",segment="0000"} 4
+node_pcidevice_current_link_width{bus="01",device="00",function="0",segment="0000"} 4
+# HELP node_pcidevice_info Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.
+# TYPE node_pcidevice_info gauge
+node_pcidevice_info{bus="00",class_id="0x060400",device="02",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1634"} 1
+node_pcidevice_info{bus="01",class_id="0x010802",device="00",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0x540a"} 1
+# HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
+# TYPE node_pcidevice_max_link_transfers_per_second gauge
+node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
+node_pcidevice_max_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 8e+09
+# HELP node_pcidevice_max_link_width Value of maximum link's width (number of lanes)
+# TYPE node_pcidevice_max_link_width gauge
+node_pcidevice_max_link_width{bus="00",device="02",function="1",segment="0000"} 8
+node_pcidevice_max_link_width{bus="01",device="00",function="0",segment="0000"} 4
 # HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_capacity gauge
 node_power_supply_capacity{power_supply="BAT0"} 81
@@ -2991,6 +3011,7 @@ node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
 node_scrape_collector_success{collector="nvme"} 1
 node_scrape_collector_success{collector="os"} 1
+node_scrape_collector_success{collector="pcidevice"} 1
 node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
