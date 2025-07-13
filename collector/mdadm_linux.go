@@ -153,7 +153,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.GaugeValue,
 			float64(mdStat.DisksRecovering),
 			mdStat.Name,
-			"recovering",
+			"replacing",
 		)
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
