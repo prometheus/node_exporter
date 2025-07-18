@@ -53,9 +53,9 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 				mountPoint: stat.MountPoint,
 				fsType:     fstype,
 			},
-			size:      float64(stat.TotalBlocks / 512.0),
-			free:      float64(stat.FreeBlocks / 512.0),
-			avail:     float64(stat.FreeBlocks / 512.0), // AIX doesn't distinguish between free and available blocks.
+			size:      float64(stat.TotalBlocks * 512.0),
+			free:      float64(stat.FreeBlocks * 512.0),
+			avail:     float64(stat.FreeBlocks * 512.0), // AIX doesn't distinguish between free and available blocks.
 			files:     float64(stat.TotalInodes),
 			filesFree: float64(stat.FreeInodes),
 			ro:        ro,
