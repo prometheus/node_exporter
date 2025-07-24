@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"math"
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -126,8 +125,8 @@ func (c *pciDeviceCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, 1.0, values...)
 
 		// MaxLinkSpeed and CurrentLinkSpeed are represnted in GT/s
-		maxLinkSpeedTS := float64(int64(*device.MaxLinkSpeed * math.Pow10(9)))
-		currentLinkSpeedTS := float64(int64(*device.CurrentLinkSpeed * math.Pow10(9)))
+		maxLinkSpeedTS := float64(int64(*device.MaxLinkSpeed * 1e9))
+		currentLinkSpeedTS := float64(int64(*device.CurrentLinkSpeed * 1e9))
 
 		c.pushMetric(ch, "max_link_transfers_per_second", &maxLinkSpeedTS, device.Location, prometheus.GaugeValue)
 		c.pushMetric(ch, "max_link_width", device.MaxLinkWidth, device.Location, prometheus.GaugeValue)
