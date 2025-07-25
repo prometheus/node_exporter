@@ -2847,7 +2847,7 @@ node_pcidevice_info{bus="01",class_id="0x010802",device="00",function="0",parent
 # HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
 # TYPE node_pcidevice_max_link_transfers_per_second gauge
 node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
-node_pcidevice_max_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 8e+09
+node_pcidevice_max_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 1.6e+10
 # HELP node_pcidevice_max_link_width Value of maximum link's width (number of lanes)
 # TYPE node_pcidevice_max_link_width gauge
 node_pcidevice_max_link_width{bus="00",device="02",function="1",segment="0000"} 8

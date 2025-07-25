@@ -3441,7 +3441,7 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/max_link_speed
 Lines: 1
-8.0 GT/s PCIe
+16.0 GT/s PCIe
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/max_link_width
