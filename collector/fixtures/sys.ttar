@@ -5,240 +5,6 @@ Mode: 755
 Directory: sys/block
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: sys/block/sda
-Mode: 755
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: sys/block/sda/queue
-Mode: 755
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/add_random
-Lines: 1
-1
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/chunk_sectors
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/dax
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/discard_granularity
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/discard_max_bytes
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/discard_max_hw_bytes
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/discard_zeroes_data
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/fua
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/hw_sector_size
-Lines: 1
-512
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/io_poll
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/io_poll_delay
-Lines: 1
--1
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/io_timeout
-Lines: 1
-30000
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: sys/block/sda/queue/iosched
-Mode: 755
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/back_seek_max
-Lines: 1
-16384
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/back_seek_penalty
-Lines: 1
-2
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/fifo_expire_async
-Lines: 1
-250
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/fifo_expire_sync
-Lines: 1
-125
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/low_latency
-Lines: 1
-1
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/max_budget
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/slice_idle
-Lines: 1
-8
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/slice_idle_us
-Lines: 1
-8000
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/strict_guarantees
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iosched/timeout_sync
-Lines: 1
-125
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/iostats
-Lines: 1
-1
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/logical_block_size
-Lines: 1
-512
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/max_discard_segments
-Lines: 1
-1
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/max_hw_sectors_kb
-Lines: 1
-32767
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/max_integrity_segments
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/max_sectors_kb
-Lines: 1
-1280
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/max_segment_size
-Lines: 1
-65536
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/max_segments
-Lines: 1
-168
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/minimum_io_size
-Lines: 1
-512
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/nomerges
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/nr_requests
-Lines: 1
-64
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/nr_zones
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/optimal_io_size
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/physical_block_size
-Lines: 1
-512
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/read_ahead_kb
-Lines: 1
-128
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/rotational
-Lines: 1
-1
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/rq_affinity
-Lines: 1
-1
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/scheduler
-Lines: 1
-mq-deadline kyber [bfq] none
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/wbt_lat_usec
-Lines: 1
-75000
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/write_cache
-Lines: 1
-write back
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/write_same_max_bytes
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/write_zeroes_max_bytes
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/sda/queue/zoned
-Lines: 1
-none
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/block/md0
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -826,6 +592,240 @@ Lines: 1
 5f529b25-6efd-46e4-99a2-31f6f597be6b
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/block/sda
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/block/sda/queue
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/add_random
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/chunk_sectors
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/dax
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/discard_granularity
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/discard_max_bytes
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/discard_max_hw_bytes
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/discard_zeroes_data
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/fua
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/hw_sector_size
+Lines: 1
+512
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/io_poll
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/io_poll_delay
+Lines: 1
+-1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/io_timeout
+Lines: 1
+30000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/block/sda/queue/iosched
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/back_seek_max
+Lines: 1
+16384
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/back_seek_penalty
+Lines: 1
+2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/fifo_expire_async
+Lines: 1
+250
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/fifo_expire_sync
+Lines: 1
+125
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/low_latency
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/max_budget
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/slice_idle
+Lines: 1
+8
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/slice_idle_us
+Lines: 1
+8000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/strict_guarantees
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iosched/timeout_sync
+Lines: 1
+125
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/iostats
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/logical_block_size
+Lines: 1
+512
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/max_discard_segments
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/max_hw_sectors_kb
+Lines: 1
+32767
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/max_integrity_segments
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/max_sectors_kb
+Lines: 1
+1280
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/max_segment_size
+Lines: 1
+65536
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/max_segments
+Lines: 1
+168
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/minimum_io_size
+Lines: 1
+512
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/nomerges
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/nr_requests
+Lines: 1
+64
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/nr_zones
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/optimal_io_size
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/physical_block_size
+Lines: 1
+512
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/read_ahead_kb
+Lines: 1
+128
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/rotational
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/rq_affinity
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/scheduler
+Lines: 1
+mq-deadline kyber [bfq] none
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/wbt_lat_usec
+Lines: 1
+75000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/write_cache
+Lines: 1
+write back
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/write_same_max_bytes
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/write_zeroes_max_bytes
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/queue/zoned
+Lines: 1
+none
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/bus
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -858,6 +858,18 @@ SymlinkTo: ../../../devices/system/node/node0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/bus/node/devices/node1
 SymlinkTo: ../../../devices/system/node/node1
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/pci
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/pci/devices
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/pci/devices/0000:00:02.1
+SymlinkTo: ../../../devices/pci0000:00/0000:00:02.1
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/pci/devices/0000:01:00.0
+SymlinkTo: ../../../devices/pci0000:00/0000:00:02.1/0000:01:00.0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class
 Mode: 755
@@ -1211,6 +1223,26 @@ SymlinkTo: ../../devices/platform/nct6775.656/hwmon/hwmon3
 Directory: sys/class/hwmon/hwmon4
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq1_input
+Lines: 1
+214000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq1_label
+Lines: 1
+sclk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq2_input
+Lines: 1
+300000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon4/freq2_label
+Lines: 1
+mclk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/hwmon/hwmon4/temp1_crit
 Lines: 1
 100000
@@ -1259,26 +1291,6 @@ Mode: 644
 Path: sys/class/hwmon/hwmon4/temp2_max
 Lines: 1
 100000
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/hwmon/hwmon4/freq1_input
-Lines: 1
-214000000
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/hwmon/hwmon4/freq1_label
-Lines: 1
-sclk
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/hwmon/hwmon4/freq2_input
-Lines: 1
-300000000
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/hwmon/hwmon4/freq2_label
-Lines: 1
-mclk
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/hwmon/hwmon5
@@ -3189,6 +3201,2298 @@ Mode: 444
 Path: sys/devices/pci0000:00/0000:00:00.0/host0/port-0:0/end_device-0:0/target0:0:0/0:0:0:0/scsi_tape/st0m/stats/write_ns
 Lines: 1
 5233597394395EOF
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/driver
+SymlinkTo: ../../../../bus/pci_express/drivers/pcie_pme
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/power/async
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/subsystem
+SymlinkTo: ../../../../bus/pci_express
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie001/uevent
+Lines: 1
+DRIVER=pcie_pme
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/power/async
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/subsystem
+SymlinkTo: ../../../../bus/pci_express
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:00:02.1:pcie010/uevent
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/aer_dev_correctable
+Lines: 9
+RxErr 0
+BadTLP 0
+BadDLLP 0
+Rollover 0
+Timeout 0
+NonFatalErr 0
+CorrIntErr 0
+HeaderOF 0
+TOTAL_ERR_COR 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/aer_dev_fatal
+Lines: 19
+Undefined 0
+DLP 0
+SDES 0
+TLP 0
+FCP 0
+CmpltTO 0
+CmpltAbrt 0
+UnxCmplt 0
+RxOF 0
+MalfTLP 0
+ECRC 0
+UnsupReq 0
+ACSViol 0
+UncorrIntErr 0
+BlockedTLP 0
+AtomicOpBlocked 0
+TLPBlockedErr 0
+PoisonTLPBlocked 0
+TOTAL_ERR_FATAL 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/aer_dev_nonfatal
+Lines: 19
+Undefined 0
+DLP 0
+SDES 0
+TLP 0
+FCP 0
+CmpltTO 0
+CmpltAbrt 0
+UnxCmplt 0
+RxOF 0
+MalfTLP 0
+ECRC 0
+UnsupReq 0
+ACSViol 0
+UncorrIntErr 0
+BlockedTLP 0
+AtomicOpBlocked 0
+TLPBlockedErr 0
+PoisonTLPBlocked 0
+TOTAL_ERR_NONFATAL 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/ari_enabled
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/broken_parity_status
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/class
+Lines: 1
+0x010802
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/config
+Lines: 2
+©¿
+TNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÄ˝NULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTE©¿!PNULLBYTENULLBYTENULLBYTENULLBYTEÄNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEˇNULLBYTENULLBYTEEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/consistent_dma_mask_bits
+Lines: 1
+64
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/current_link_speed
+Lines: 1
+8.0 GT/s PCIe
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/current_link_width
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/d3cold_allowed
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/device
+Lines: 1
+0x540a
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/dma_mask_bits
+Lines: 1
+64
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/driver
+SymlinkTo: ../../../../bus/pci/drivers/nvme
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/driver_override
+Lines: 1
+(null)
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/enable
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/firmware_node
+SymlinkTo: ../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:16/device:17
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/iommu
+SymlinkTo: ../../0000:00:00.2/iommu/ivhd0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/iommu_group
+SymlinkTo: ../../../../kernel/iommu_groups/11
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/irq
+Lines: 1
+80
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/link
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/local_cpulist
+Lines: 1
+0-15
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/local_cpus
+Lines: 1
+ffff
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/max_link_speed
+Lines: 1
+16.0 GT/s PCIe
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/max_link_width
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/modalias
+Lines: 1
+pci:v0000C0A9d0000540Asv0000C0A9sd00005021bc01sc08i02
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_bus
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/81
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/82
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/83
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/84
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/85
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/86
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/87
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/88
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/msi_irqs/89
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/numa_node
+Lines: 1
+-1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/address
+Lines: 1
+0000:01:00.0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/cntlid
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/cntrltype
+Lines: 1
+io
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/dctype
+Lines: 1
+none
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/dev
+Lines: 1
+240:0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/device
+SymlinkTo: ../../../0000:01:00.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/firmware_rev
+Lines: 1
+P9CR30A 
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/device
+SymlinkTo: ../../nvme0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/name
+Lines: 1
+nvme
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/subsystem
+SymlinkTo: ../../../../../../../class/hwmon
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp1_alarm
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp1_crit
+Lines: 1
+94850
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp1_input
+Lines: 1
+43850
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp1_label
+Lines: 1
+Composite
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp1_max
+Lines: 1
+84850
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp1_min
+Lines: 1
+-150
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp2_input
+Lines: 1
+43850
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp2_label
+Lines: 1
+Sensor 1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp2_max
+Lines: 1
+65261850
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp2_min
+Lines: 1
+-273150
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp3_input
+Lines: 1
+45850
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp3_label
+Lines: 1
+Sensor 2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp3_max
+Lines: 1
+65261850
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp3_min
+Lines: 1
+-273150
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp9_input
+Lines: 1
+43850
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp9_label
+Lines: 1
+Sensor 8
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp9_max
+Lines: 1
+65261850
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/temp9_min
+Lines: 1
+-273150
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/hwmon3/uevent
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/kato
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/model
+Lines: 1
+CT2000P3SSD8                            
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/dev
+Lines: 1
+239:0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/device
+SymlinkTo: ../../nvme0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/subsystem
+SymlinkTo: ../../../../../../../class/nvme-generic
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/ng0n1/uevent
+Lines: 3
+MAJOR=239
+MINOR=0
+DEVNAME=ng0n1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/numa_node
+Lines: 1
+-1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/alignment_offset
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/bdi
+SymlinkTo: ../../../../../../virtual/bdi/259:0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/capability
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/csi
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/dev
+Lines: 1
+259:0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/device
+SymlinkTo: ../../nvme0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/discard_alignment
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/diskseq
+Lines: 1
+9
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/events
+Lines: 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/events_async
+Lines: 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/events_poll_msecs
+Lines: 1
+-1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/ext_range
+Lines: 1
+256
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/hidden
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/holders
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/inflight
+Lines: 1
+       0        0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/integrity
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/integrity/device_is_integrity_capable
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/integrity/format
+Lines: 1
+none
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/integrity/protection_interval_bytes
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/integrity/read_verify
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/integrity/tag_size
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/integrity/write_generate
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/metadata_bytes
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/0/cpu0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/0/cpu1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/0/cpu_list
+Lines: 1
+0, 1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/0/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/0/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/1/cpu2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/1/cpu3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/1/cpu_list
+Lines: 1
+2, 3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/1/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/1/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/2/cpu4
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/2/cpu5
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/2/cpu_list
+Lines: 1
+4, 5
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/2/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/2/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/3/cpu6
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/3/cpu7
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/3/cpu_list
+Lines: 1
+6, 7
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/3/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/3/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/4
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/4/cpu8
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/4/cpu9
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/4/cpu_list
+Lines: 1
+8, 9
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/4/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/4/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/5
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/5/cpu10
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/5/cpu11
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/5/cpu_list
+Lines: 1
+10, 11
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/5/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/5/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/6
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/6/cpu12
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/6/cpu13
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/6/cpu_list
+Lines: 1
+12, 13
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/6/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/6/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/7
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/7/cpu14
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/7/cpu15
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/7/cpu_list
+Lines: 1
+14, 15
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/7/nr_reserved_tags
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/mq/7/nr_tags
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nsid
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nuse
+Lines: 1
+3907029168
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/alignment_offset
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/dev
+Lines: 1
+259:1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/discard_alignment
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/holders
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/inflight
+Lines: 1
+       0        0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/partition
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/ro
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/size
+Lines: 1
+2201600
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/start
+Lines: 1
+2048
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/stat
+Lines: 1
+     575     1730    14410      185        2        0        2        0        0       17      186        1        0  2184688        1        0        0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/subsystem
+SymlinkTo: ../../../../../../../../class/block
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/trace
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/trace/act_mask
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/trace/enable
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/trace/end_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/trace/pid
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/trace/start_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p1/uevent
+Lines: 6
+MAJOR=259
+MINOR=1
+DEVNAME=nvme0n1p1
+DEVTYPE=partition
+DISKSEQ=9
+PARTN=1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/alignment_offset
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/dev
+Lines: 1
+259:2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/discard_alignment
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/holders
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/inflight
+Lines: 1
+       0        0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/partition
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/ro
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/size
+Lines: 1
+4194304
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/start
+Lines: 1
+2203648
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/stat
+Lines: 1
+     144       19     8954       32       21       14      248       20        0      128      132       45        0  3566944       79        0        0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/subsystem
+SymlinkTo: ../../../../../../../../class/block
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/trace
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/trace/act_mask
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/trace/enable
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/trace/end_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/trace/pid
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/trace/start_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p2/uevent
+Lines: 6
+MAJOR=259
+MINOR=2
+DEVNAME=nvme0n1p2
+DEVTYPE=partition
+DISKSEQ=9
+PARTN=2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/alignment_offset
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/dev
+Lines: 1
+259:3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/discard_alignment
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/holders
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/holders/dm-0
+SymlinkTo: ../../../../../../../../virtual/block/dm-0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/inflight
+Lines: 1
+       0        0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/partition
+Lines: 1
+3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/ro
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/size
+Lines: 1
+3900628992
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/start
+Lines: 1
+6397952
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/stat
+Lines: 1
+   60223    15025  4174111    24812    83879    46834  2302280    32384        0    24667    57196        0        0        0        0        0        0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/subsystem
+SymlinkTo: ../../../../../../../../class/block
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/trace
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/trace/act_mask
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/trace/enable
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/trace/end_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/trace/pid
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/trace/start_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/nvme0n1p3/uevent
+Lines: 6
+MAJOR=259
+MINOR=3
+DEVNAME=nvme0n1p3
+DEVTYPE=partition
+DISKSEQ=9
+PARTN=3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/partscan
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/passthru_err_log_enabled
+Lines: 1
+off
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/add_random
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/atomic_write_boundary_bytes
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/atomic_write_max_bytes
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/atomic_write_unit_max_bytes
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/atomic_write_unit_min_bytes
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/chunk_sectors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/dax
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/discard_granularity
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/discard_max_bytes
+Lines: 1
+2199023255040
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/discard_max_hw_bytes
+Lines: 1
+2199023255040
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/discard_zeroes_data
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/dma_alignment
+Lines: 1
+3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/fua
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/hw_sector_size
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/io_poll
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/io_poll_delay
+Lines: 1
+-1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/io_timeout
+Lines: 1
+30000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/iostats
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/logical_block_size
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/max_discard_segments
+Lines: 1
+256
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/max_hw_sectors_kb
+Lines: 1
+128
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/max_integrity_segments
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/max_sectors_kb
+Lines: 1
+128
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/max_segment_size
+Lines: 1
+4294967295
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/max_segments
+Lines: 1
+33
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/minimum_io_size
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/nomerges
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/nr_requests
+Lines: 1
+1023
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/nr_zones
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/optimal_io_size
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/physical_block_size
+Lines: 1
+512
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/read_ahead_kb
+Lines: 1
+128
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/rotational
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/rq_affinity
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/scheduler
+Lines: 1
+[none] mq-deadline 
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/stable_writes
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/virt_boundary_mask
+Lines: 1
+4095
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/wbt_lat_usec
+Lines: 1
+2000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/write_cache
+Lines: 1
+write back
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/write_same_max_bytes
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/write_zeroes_max_bytes
+Lines: 1
+131072
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/zone_append_max_bytes
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/zone_write_granularity
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/queue/zoned
+Lines: 1
+none
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/range
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/removable
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/ro
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/size
+Lines: 1
+3907029168
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/slaves
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/stat
+Lines: 1
+   61050    16774  4202091    25036    83902    46848  2302530    32404        0    20551    64225       46        0  5751632       80     3461     6703
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/subsystem
+SymlinkTo: ../../../../../../../class/block
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/trace
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/trace/act_mask
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/trace/enable
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/trace/end_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/trace/pid
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/trace/start_lba
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/uevent
+Lines: 5
+MAJOR=259
+MINOR=0
+DEVNAME=nvme0n1
+DEVTYPE=disk
+DISKSEQ=9
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/nvme0n1/wwid
+Lines: 1
+nvme.c0a9-323332384536454444384137-435432303030503353534438-00000001
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/passthru_err_log_enabled
+Lines: 1
+off
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/pm_qos_latency_tolerance_us
+Lines: 1
+100000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/queue_count
+Lines: 1
+9
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/serial
+Lines: 1
+2328E6EDD8A7        
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/sqsize
+Lines: 1
+1023
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/state
+Lines: 1
+live
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/subsysnqn
+Lines: 1
+nqn.2014.08.org.nvmexpress:c0a9c0a92328E6EDD8A7        CT2000P3SSD8                            
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/subsystem
+SymlinkTo: ../../../../../../class/nvme
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/transport
+Lines: 1
+pcie
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/nvme/nvme0/uevent
+Lines: 4
+MAJOR=240
+MINOR=0
+DEVNAME=nvme0
+NVME_TRTYPE=pcie
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/pools
+Lines: 3
+poolinfo - 0.1
+prp list 256        0   64  256  4
+prp list page       0    0 4096  0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/async
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/control
+Lines: 1
+on
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/runtime_active_time
+Lines: 1
+3838519
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/runtime_enabled
+Lines: 1
+forbidden
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/runtime_status
+Lines: 1
+active
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/runtime_usage
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_abort_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_active
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_active_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_expire_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_last_time_ms
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_max_time_ms
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power/wakeup_total_time_ms
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/power_state
+Lines: 1
+D0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/reset_method
+Lines: 1
+flr bus
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/resource
+Lines: 13
+0x00000000fd800000 0x00000000fd803fff 0x0000000000140204
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/revision
+Lines: 1
+0x01
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/subsystem
+SymlinkTo: ../../../../bus/pci
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/subsystem_device
+Lines: 1
+0x5021
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/subsystem_vendor
+Lines: 1
+0xc0a9
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/uevent
+Lines: 6
+DRIVER=nvme
+PCI_CLASS=10802
+PCI_ID=C0A9:540A
+PCI_SUBSYS_ID=C0A9:5021
+PCI_SLOT_NAME=0000:01:00.0
+MODALIAS=pci:v0000C0A9d0000540Asv0000C0A9sd00005021bc01sc08i02
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/vendor
+Lines: 1
+0xc0a9
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/ari_enabled
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/broken_parity_status
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/class
+Lines: 1
+0x060400
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/config
+Lines: 1
+"4NULLBYTENULLBYTENULLBYTENULLBYTEÅNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÒNULLBYTENULLBYTEÄ˝Ä˝ÒˇNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEPNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEˇNULLBYTENULLBYTEEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/consistent_dma_mask_bits
+Lines: 1
+32
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/current_link_speed
+Lines: 1
+8.0 GT/s PCIe
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/current_link_width
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/d3cold_allowed
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/device
+Lines: 1
+0x1634
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/dma_mask_bits
+Lines: 1
+32
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/driver
+SymlinkTo: ../../../bus/pci/drivers/pcieport
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/driver_override
+Lines: 1
+(null)
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/enable
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/firmware_node
+SymlinkTo: ../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:16
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/iommu
+SymlinkTo: ../0000:00:00.2/iommu/ivhd0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/iommu_group
+SymlinkTo: ../../../kernel/iommu_groups/2
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/irq
+Lines: 1
+39
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/link
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/local_cpulist
+Lines: 1
+0-15
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/local_cpus
+Lines: 1
+ffff
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/max_link_speed
+Lines: 1
+8.0 GT/s PCIe
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/max_link_width
+Lines: 1
+8
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/modalias
+Lines: 1
+pci:v00001022d00001634sv000017AAsd00005095bc06sc04i00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/msi_bus
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/msi_irqs
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/msi_irqs/39
+Lines: 1
+msi
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/numa_node
+Lines: 1
+-1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/pci_bus
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/cpuaffinity
+Lines: 1
+ffff
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/cpulistaffinity
+Lines: 1
+0-15
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/device
+SymlinkTo: ../../../0000:00:02.1
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/subsystem
+SymlinkTo: ../../../../../class/pci_bus
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/pci_bus/0000:01/uevent
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:00/0000:00:02.1/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/async
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/autosuspend_delay_ms
+Lines: 1
+100
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/runtime_active_kids
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/runtime_active_time
+Lines: 1
+3838515
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/runtime_enabled
+Lines: 1
+enabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/runtime_status
+Lines: 1
+active
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_abort_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_active
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_active_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_expire_count
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_last_time_ms
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_max_time_ms
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power/wakeup_total_time_ms
+Lines: 1
+
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/power_state
+Lines: 1
+D0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/reset_method
+Lines: 1
+pm
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/resource
+Lines: 17
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x00000000fd800000 0x00000000fd8fffff 0x0000000000000200
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/revision
+Lines: 1
+0x00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/secondary_bus_number
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/subordinate_bus_number
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/subsystem
+SymlinkTo: ../../../bus/pci
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/subsystem_device
+Lines: 1
+0x5095
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/subsystem_vendor
+Lines: 1
+0x17aa
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/uevent
+Lines: 6
+DRIVER=pcieport
+PCI_CLASS=60400
+PCI_ID=1022:1634
+PCI_SUBSYS_ID=17AA:5095
+PCI_SLOT_NAME=0000:00:02.1
+MODALIAS=pci:v00001022d00001634sv000017AAsd00005095bc06sc04i00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/vendor
+Lines: 1
+0x1022
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/pci0000:00/0000:00:03.0
@@ -5808,5 +8112,9 @@ Mode: 644
 Path: sys/kernel/mm/ksm/sleep_millisecs
 Lines: 1
 20
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/.unpacked
+Lines: 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
