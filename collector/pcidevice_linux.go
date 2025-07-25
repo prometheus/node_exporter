@@ -26,11 +26,41 @@ import (
 	"github.com/prometheus/procfs/sysfs"
 )
 
+const (
+	pcideviceSubsystem = "pcidevice"
+)
+
+var (
+	pcideviceLabelNames = []string{"segment", "bus", "device", "function"}
+
+	pcideviceMaxLinkTSDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "max_link_transfers_per_second"),
+		"Value of maximum link's transfers per second (T/s)",
+		pcideviceLabelNames, nil,
+	)
+	pcideviceMaxLinkWidthDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "max_link_width"),
+		"Value of maximum link's width (number of lanes)",
+		pcideviceLabelNames, nil,
+	)
+
+	pcideviceCurrentLinkTSDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "current_link_transfers_per_second"),
+		"Value of current link's transfers per second (T/s)",
+		pcideviceLabelNames, nil,
+	)
+	pcideviceCurrentLinkWidthDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "current_link_width"),
+		"Value of current link's width (number of lanes)",
+		pcideviceLabelNames, nil,
+	)
+)
+
 type pciDeviceCollector struct {
-	fs          sysfs.FS
-	metricDescs map[string]*prometheus.Desc
-	logger      *slog.Logger
-	subsystem   string
+	fs       sysfs.FS
+	infoDesc typedDesc
+	descs    []typedFactorDesc
+	logger   *slog.Logger
 }
 
 func init() {
@@ -39,42 +69,34 @@ func init() {
 
 // NewPciDeviceCollector returns a new Collector exposing PCI devices stats.
 func NewPciDeviceCollector(logger *slog.Logger) (Collector, error) {
-	var i pciDeviceCollector
-	var err error
-
-	i.fs, err = sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
-	i.logger = logger
 
-	// Detailed description for all metrics.
-	descriptions := map[string]string{
-		"max_link_transfers_per_second":     "Value of maximum link's transfers per second (T/s)",
-		"max_link_width":                    "Value of maximum link's width (number of lanes)",
-		"current_link_transfers_per_second": "Value of current link's transfers per second (T/s)",
-		"current_link_width":                "Value of current link's width (number of lanes)",
+	c := pciDeviceCollector{
+		fs:     fs,
+		logger: logger,
+		infoDesc: typedDesc{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, pcideviceSubsystem, "info"),
+				"Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.",
+				append(pcideviceLabelNames,
+					[]string{"parent_segment", "parent_bus", "parent_device", "parent_function",
+						"class_id", "vendor_id", "subsystem_vendor_id", "subsystem_device_id", "revision"}...),
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
+		descs: []typedFactorDesc{
+			{desc: pcideviceMaxLinkTSDesc, valueType: prometheus.GaugeValue},
+			{desc: pcideviceMaxLinkWidthDesc, valueType: prometheus.GaugeValue},
+			{desc: pcideviceCurrentLinkTSDesc, valueType: prometheus.GaugeValue},
+			{desc: pcideviceCurrentLinkWidthDesc, valueType: prometheus.GaugeValue},
+		},
 	}
 
-	i.metricDescs = make(map[string]*prometheus.Desc)
-	i.subsystem = "pcidevice"
-
-	for metricName, description := range descriptions {
-		i.metricDescs[metricName] = prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, i.subsystem, metricName),
-			description,
-			[]string{"segment", "bus", "device", "function"},
-			nil,
-		)
-	}
-
-	return &i, nil
-}
-
-func (c *pciDeviceCollector) pushMetric(ch chan<- prometheus.Metric, name string, value *float64, location sysfs.PciDeviceLocation, valueType prometheus.ValueType) {
-	if value != nil {
-		ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, *value, location.Strings()...)
-	}
+	return &c, nil
 }
 
 func (c *pciDeviceCollector) Update(ch chan<- prometheus.Metric) error {
@@ -88,50 +110,33 @@ func (c *pciDeviceCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, device := range devices {
-		// The format follows the definition in drivers/pci/pci-sysfs.c
-		infos := [][]string{
-			{"class_id", fmt.Sprintf("0x%06x", device.Class)},
-			{"vendor_id", fmt.Sprintf("0x%04x", device.Device)},
-			{"subsystem_vendor_id", fmt.Sprintf("0x%04x", device.SubsystemVendor)},
-			{"subsystem_device_id", fmt.Sprintf("0x%04x", device.SubsystemDevice)},
-			{"revision", fmt.Sprintf("0x%02x", device.Revision)},
-		}
-
-		labels := []string{}
-		values := []string{}
-		for i := range infos {
-			labels = append(labels, infos[i][0])
-			values = append(values, infos[i][1])
-		}
-
 		// The device location is represented in separated format.
-		labels = append(labels, []string{"segment", "bus", "device", "function"}...)
-		values = append(values, device.Location.Strings()...)
-
-		labels = append(labels, []string{"parent_segment", "parent_bus", "parent_device", "parent_function"}...)
+		values := device.Location.Strings()
 		if device.ParentLocation != nil {
 			values = append(values, device.ParentLocation.Strings()...)
 		} else {
-			// TODO: is this ok?
 			values = append(values, []string{"*", "*", "*", "*"}...)
 		}
+		values = append(values, fmt.Sprintf("0x%06x", device.Class))
+		values = append(values, fmt.Sprintf("0x%04x", device.Device))
+		values = append(values, fmt.Sprintf("0x%04x", device.SubsystemVendor))
+		values = append(values, fmt.Sprintf("0x%04x", device.SubsystemDevice))
+		values = append(values, fmt.Sprintf("0x%02x", device.Revision))
 
-		infoDesc := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, c.subsystem, "info"),
-			"Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.",
-			labels,
-			nil,
-		)
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, 1.0, values...)
+		ch <- c.infoDesc.mustNewConstMetric(1.0, values...)
 
 		// MaxLinkSpeed and CurrentLinkSpeed are represnted in GT/s
 		maxLinkSpeedTS := float64(int64(*device.MaxLinkSpeed * 1e9))
 		currentLinkSpeedTS := float64(int64(*device.CurrentLinkSpeed * 1e9))
 
-		c.pushMetric(ch, "max_link_transfers_per_second", &maxLinkSpeedTS, device.Location, prometheus.GaugeValue)
-		c.pushMetric(ch, "max_link_width", device.MaxLinkWidth, device.Location, prometheus.GaugeValue)
-		c.pushMetric(ch, "current_link_transfers_per_second", &currentLinkSpeedTS, device.Location, prometheus.GaugeValue)
-		c.pushMetric(ch, "current_link_width", device.CurrentLinkWidth, device.Location, prometheus.GaugeValue)
+		for i, val := range []float64{
+			maxLinkSpeedTS,
+			float64(*device.MaxLinkWidth),
+			currentLinkSpeedTS,
+			float64(*device.CurrentLinkWidth),
+		} {
+			ch <- c.descs[i].mustNewConstMetric(val, device.Location.Strings()...)
+		}
 	}
 
 	return nil
