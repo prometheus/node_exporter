@@ -56,7 +56,7 @@ var (
 	)
 )
 
-type pciDeviceCollector struct {
+type pcideviceCollector struct {
 	fs       sysfs.FS
 	infoDesc typedDesc
 	descs    []typedFactorDesc
@@ -64,17 +64,17 @@ type pciDeviceCollector struct {
 }
 
 func init() {
-	registerCollector("pcidevice", defaultDisabled, NewPciDeviceCollector)
+	registerCollector("pcidevice", defaultDisabled, NewPcideviceCollector)
 }
 
-// NewPciDeviceCollector returns a new Collector exposing PCI devices stats.
-func NewPciDeviceCollector(logger *slog.Logger) (Collector, error) {
+// NewPcideviceCollector returns a new Collector exposing PCI devices stats.
+func NewPcideviceCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	c := pciDeviceCollector{
+	c := pcideviceCollector{
 		fs:     fs,
 		logger: logger,
 		infoDesc: typedDesc{
@@ -99,7 +99,7 @@ func NewPciDeviceCollector(logger *slog.Logger) (Collector, error) {
 	return &c, nil
 }
 
-func (c *pciDeviceCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.PciDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
