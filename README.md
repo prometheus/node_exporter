@@ -213,6 +213,7 @@ tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/p
 wifi | Exposes WiFi device and station statistics. | Linux
 xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
+vm_sysctl | Exposes statistics from `/proc/sys/vm` | Linux
 
 ### Deprecated
 
