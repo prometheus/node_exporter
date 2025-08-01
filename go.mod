@@ -24,7 +24,7 @@ require (
 	github.com/prometheus-community/go-runit v0.1.0
 	github.com/prometheus/client_golang v1.21.1
 	github.com/prometheus/client_model v0.6.2
-	github.com/prometheus/common v0.64.0
+	github.com/prometheus/common v0.65.0
 	github.com/prometheus/exporter-toolkit v0.14.0
 	github.com/prometheus/procfs v0.17.0
 	github.com/safchain/ethtool v0.6.1
