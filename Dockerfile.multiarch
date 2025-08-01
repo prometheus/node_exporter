@@ -1,0 +1,15 @@
+FROM quay.io/prometheus/busybox:latest
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+
+LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com>"
+
+# Copy the correct binary based on target architecture
+COPY .build/${TARGETOS}-${TARGETARCH}/node_exporter /bin/node_exporter
+
+EXPOSE      9100
+USER        nobody
+ENTRYPOINT  [ "/bin/node_exporter" ] 
