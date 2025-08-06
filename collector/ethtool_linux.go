@@ -432,7 +432,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-		if stats == nil || len(stats) < 1 {
+		if len(stats) < 1 {
 			// No stats returned; device does not support ethtool stats.
 			continue
 		}

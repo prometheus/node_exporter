@@ -536,16 +536,17 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			miStats := mountsInfo[idx]
 			mountAddress = miStats.SuperOptions["addr"]
 		}
+		for _, transport := range stats.Transport {
+			deviceIdentifier := nfsDeviceIdentifier{m.Device, transport.Protocol, mountAddress}
+			i := deviceList[deviceIdentifier]
+			if i {
+				c.logger.Debug("Skipping duplicate device entry", "device", deviceIdentifier)
+				continue
+			}
 
-		deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport.Protocol, mountAddress}
-		i := deviceList[deviceIdentifier]
-		if i {
-			c.logger.Debug("Skipping duplicate device entry", "device", deviceIdentifier)
-			continue
+			deviceList[deviceIdentifier] = true
+			c.updateNFSStats(ch, stats, m.Device, transport.Protocol, mountAddress)
 		}
-
-		deviceList[deviceIdentifier] = true
-		c.updateNFSStats(ch, stats, m.Device, stats.Transport.Protocol, mountAddress)
 	}
 
 	return nil
@@ -616,76 +617,77 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 		labelValues...,
 	)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportBindTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.Bind),
-		labelValues...,
-	)
+	for _, transport := range s.Transport {
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportBindTotal,
+			prometheus.CounterValue,
+			float64(transport.Bind),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportConnectTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.Connect),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportConnectTotal,
+			prometheus.CounterValue,
+			float64(transport.Connect),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportIdleTimeSeconds,
-		prometheus.GaugeValue,
-		float64(s.Transport.IdleTimeSeconds%float64Mantissa),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportIdleTimeSeconds,
+			prometheus.GaugeValue,
+			float64(transport.IdleTimeSeconds%float64Mantissa),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportSendsTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.Sends),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportSendsTotal,
+			prometheus.CounterValue,
+			float64(transport.Sends),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportReceivesTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.Receives),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportReceivesTotal,
+			prometheus.CounterValue,
+			float64(transport.Receives),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportBadTransactionIDsTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.BadTransactionIDs),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportBadTransactionIDsTotal,
+			prometheus.CounterValue,
+			float64(transport.BadTransactionIDs),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportBacklogQueueTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.CumulativeBacklog),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportBacklogQueueTotal,
+			prometheus.CounterValue,
+			float64(transport.CumulativeBacklog),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportMaximumRPCSlots,
-		prometheus.GaugeValue,
-		float64(s.Transport.MaximumRPCSlotsUsed),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportMaximumRPCSlots,
+			prometheus.GaugeValue,
+			float64(transport.MaximumRPCSlotsUsed),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportSendingQueueTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.CumulativeSendingQueue),
-		labelValues...,
-	)
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportSendingQueueTotal,
+			prometheus.CounterValue,
+			float64(transport.CumulativeSendingQueue),
+			labelValues...,
+		)
 
-	ch <- prometheus.MustNewConstMetric(
-		c.NFSTransportPendingQueueTotal,
-		prometheus.CounterValue,
-		float64(s.Transport.CumulativePendingQueue),
-		labelValues...,
-	)
-
+		ch <- prometheus.MustNewConstMetric(
+			c.NFSTransportPendingQueueTotal,
+			prometheus.CounterValue,
+			float64(transport.CumulativePendingQueue),
+			labelValues...,
+		)
+	}
 	for _, op := range s.Operations {
 		opLabelValues := []string{export, protocol, mountAddress, op.Operation}
 
