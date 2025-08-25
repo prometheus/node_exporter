@@ -81,6 +81,7 @@ enabled_collectors=$(cat << COLLECTORS
   textfile
   thermal_zone
   udp_queues
+  udp_drops
   vmstat
   watchdog
   wifi
