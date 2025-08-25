@@ -27,18 +27,20 @@ import (
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
 	tests := []struct {
-		name string
-		in   string
+		name  string
+		in    string
+		uuids map[string]string
 	}{
 		{
-			name: "too few fields",
-			in:   "hello world",
+			name:  "too few fields",
+			in:    "hello world",
+			uuids: map[string]string{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := parseFilesystemLabels(strings.NewReader(tt.in)); err == nil {
+			if _, err := parseFilesystemLabels(strings.NewReader(tt.in), tt.uuids); err == nil {
 				t.Fatal("expected an error, but none occurred")
 			}
 		})
