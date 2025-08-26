@@ -23,6 +23,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -110,11 +111,8 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
 	var ro float64
-	for _, option := range strings.Split(labels.options, ",") {
-		if option == "ro" {
-			ro = 1
-			break
-		}
+	if isFilesystemReadOnly(labels) {
+		ro = 1
 	}
 
 	success := make(chan struct{})
@@ -198,7 +196,7 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
 
-		if len(parts) < 10 {
+		if len(parts) < 11 {
 			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
 		}
 
@@ -219,15 +217,26 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 		parts[4] = strings.ReplaceAll(parts[4], "\\011", "\t")
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:      parts[m+3],
-			mountPoint:  rootfsStripPrefix(parts[4]),
-			fsType:      parts[m+2],
-			options:     parts[5],
-			major:       fmt.Sprint(major),
-			minor:       fmt.Sprint(minor),
-			deviceError: "",
+			device:       parts[m+3],
+			mountPoint:   rootfsStripPrefix(parts[4]),
+			fsType:       parts[m+2],
+			mountOptions: parts[5],
+			superOptions: parts[10],
+			major:        fmt.Sprint(major),
+			minor:        fmt.Sprint(minor),
+			deviceError:  "",
 		})
 	}
 
 	return filesystems, scanner.Err()
+}
+
+// see https://github.com/prometheus/node_exporter/issues/3157#issuecomment-2422761187
+// if either mount or super options contain "ro" the filesystem is read-only
+func isFilesystemReadOnly(labels filesystemLabels) bool {
+	if slices.Contains(strings.Split(labels.mountOptions, ","), "ro") || slices.Contains(strings.Split(labels.superOptions, ","), "ro") {
+		return true
+	}
+
+	return false
 }
