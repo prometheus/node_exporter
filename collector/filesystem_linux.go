@@ -24,6 +24,7 @@ import (
 	"log/slog"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -222,8 +223,8 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 			fsType:       parts[m+2],
 			mountOptions: parts[5],
 			superOptions: parts[10],
-			major:        fmt.Sprint(major),
-			minor:        fmt.Sprint(minor),
+			major:        strconv.Itoa(major),
+			minor:        strconv.Itoa(minor),
 			deviceError:  "",
 		})
 	}
