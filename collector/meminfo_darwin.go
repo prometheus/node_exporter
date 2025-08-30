@@ -52,7 +52,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		&infoCount,
 	)
 	if ret != C.KERN_SUCCESS {
-		return nil, fmt.Errorf("Couldn't get memory statistics, host_statistics returned %d", ret)
+		return nil, fmt.Errorf("couldn't get memory statistics, host_statistics returned %d", ret)
 	}
 	totalb, err := unix.Sysctl("hw.memsize")
 	if err != nil {
