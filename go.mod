@@ -21,7 +21,7 @@ require (
 	github.com/opencontainers/selinux v1.12.0
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55
 	github.com/prometheus-community/go-runit v0.1.0
-	github.com/prometheus/client_golang v1.23.1
+	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.66.1
 	github.com/prometheus/exporter-toolkit v0.14.1
