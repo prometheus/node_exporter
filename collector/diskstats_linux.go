@@ -60,6 +60,7 @@ const (
 	udevIDModel                 = "ID_MODEL"
 	udevIDPath                  = "ID_PATH"
 	udevIDRevision              = "ID_REVISION"
+	udevIDSerial                = "ID_SERIAL"
 	udevIDSerialShort           = "ID_SERIAL_SHORT"
 	udevIDWWN                   = "ID_WWN"
 	udevSCSIIdentSerial         = "SCSI_IDENT_SERIAL"
@@ -292,6 +293,11 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		// If it's undefined, fallback to ID_SERIAL_SHORT instead.
 		if serial == "" {
 			serial = info[udevIDSerialShort]
+		}
+
+		// If still undefined, fallback to ID_SERIAL (used by virtio devices).
+		if serial == "" {
+			serial = info[udevIDSerial]
 		}
 
 		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
