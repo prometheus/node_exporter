@@ -1,32 +1,48 @@
+version: "2"
 linters:
   enable:
     - depguard
-    - goimports
     - misspell
     - revive
-
-issues:
-  exclude-rules:
-    - path: _test.go
-      linters:
-        - errcheck
-
-linters-settings:
-  depguard:
-    rules:
-      no_exec_policy:
-        files:
-          - "!$test"
-        deny:
-          - pkg: "os/exec"
-            desc: "Using os/exec to run sub processes it not allowed by policy"
-  errcheck:
-    exclude-functions:
+  settings:
+    depguard:
+      rules:
+        no_exec_policy:
+          files:
+            - '!$test'
+          deny:
+            - pkg: os/exec
+              desc: Using os/exec to run sub processes it not allowed by policy
+    errcheck:
       # Used in HTTP handlers, any error is handled by the server itself.
-      - (net/http.ResponseWriter).Write
-  revive:
+      exclude-functions:
+        - (net/http.ResponseWriter).Write
+    revive:
+      rules:
+        - name: unused-parameter
+          severity: warning
+          disabled: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#unused-parameter
-      - name: unused-parameter
-        severity: warning
-        disabled: true
+      - linters:
+          - errcheck
+        path: _test.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

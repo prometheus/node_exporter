@@ -36,7 +36,7 @@ func canTestPerf(t *testing.T) {
 	paranoidStr := strings.ReplaceAll(string(paranoidBytes), "\n", "")
 	paranoid, err := strconv.Atoi(paranoidStr)
 	if err != nil {
-		t.Fatalf("Expected perf_event_paranoid to be an int, got: %s", paranoidStr)
+		t.Fatalf("expected perf_event_paranoid to be an int, got: %s", paranoidStr)
 	}
 	if paranoid >= 1 {
 		t.Skip("Skipping perf tests, set perf_event_paranoid to 0")
