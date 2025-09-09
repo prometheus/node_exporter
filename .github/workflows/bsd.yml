@@ -127,8 +127,7 @@ jobs:
           envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
           usesh: true
           prepare: |
-            /usr/sbin/pkg_add -u
-            /usr/sbin/pkg_add \
+            /usr/sbin/pkg_add -u \
               git \
               gmake \
               grep \
