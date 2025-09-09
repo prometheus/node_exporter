@@ -224,7 +224,6 @@ jobs:
           envs: 'GO_VERSION_SOLARIS'
           usesh: true
           prepare: |
-            pkg update
             pkg install \
               bash \
               curl \
