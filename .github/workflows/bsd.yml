@@ -28,7 +28,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/freebsd-vm@8873d98fd1413b5977cb2f7348fe329775159892  # v1.1.9
+        uses: vmactions/freebsd-vm@05856381fab64eeee9b038a0818f6cec649ca17a  # v1.2.3
         with:
           copyback: false
           envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
@@ -168,7 +168,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@e3c420e8a2362c2496fca6e76a291abd46f5d8e7  # v1.1.0
+        uses: vmactions/dragonflybsd-vm@ff1f01c32b9e82f2ba388d0ff270442bcd6ceddc  # v1.1.1
         with:
           copyback: false
           envs: 'GO_VERSION_DRAGONFLY'
