@@ -218,13 +218,12 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/solaris-vm@cc8f82fa1a7cc746153ec3f71bf11f311f16e225  # v1.1.1
+        uses: vmactions/solaris-vm@58cbd70c6e051860f9b8f65908cc582938fbbdba  # v1.1.5
         with:
           copyback: false
           envs: 'GO_VERSION_SOLARIS'
           usesh: true
           prepare: |
-            pkg update
             pkg install \
               bash \
               curl \
