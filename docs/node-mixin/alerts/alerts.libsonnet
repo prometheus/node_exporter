@@ -424,14 +424,14 @@
           {
             alert: 'NodeBondingDegraded',
             expr: |||
-              (node_bonding_slaves - node_bonding_active) != 0
+              (node_bonding_slaves{%(nodeExporterSelector)s} - node_bonding_active{%(nodeExporterSelector)s}) != 0
             ||| % $._config,
             'for': '5m',
             labels: {
               severity: 'warning',
             },
             annotations: {
-              summary: 'Bonding interface is degraded',
+              summary: 'Bonding interface is degraded.',
               description: 'Bonding interface {{ $labels.master }} on {{ $labels.instance }} is in degraded state due to one or more slave failures.',
             },
           },
