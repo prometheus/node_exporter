@@ -18,9 +18,10 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
-	"log/slog"
 )
 
 type softirqsCollector struct {

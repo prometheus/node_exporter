@@ -1,8 +1,8 @@
 # HELP go_gc_duration_seconds A summary of the wall-time pause (stop-the-world) duration in garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
-# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent
+# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent.
 # TYPE go_gc_gogc_percent gauge
-# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes
+# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes.
 # TYPE go_gc_gomemlimit_bytes gauge
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
@@ -52,7 +52,7 @@
 # TYPE go_memstats_stack_sys_bytes gauge
 # HELP go_memstats_sys_bytes Number of bytes obtained from system. Equals to /memory/classes/total:byte.
 # TYPE go_memstats_sys_bytes gauge
-# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads
+# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads.
 # TYPE go_sched_gomaxprocs_threads gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
@@ -488,21 +488,21 @@ node_disk_flush_requests_time_seconds_total{device="sdc"} 1.944
 node_disk_flush_requests_total{device="sdc"} 1555
 # HELP node_disk_info Info of /sys/block/<block_device>.
 # TYPE node_disk_info gauge
-node_disk_info{device="dm-0",major="252",minor="0",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-1",major="252",minor="1",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",serial="",wwn=""} 1
-node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
-node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
-node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
-node_disk_info{device="sdc",major="8",minor="32",model="INTEL_SSDS9X9SI0",path="pci-0000:00:1f.2-ata-4",revision="0100",serial="3EWB5Y25CWQWA7EH1U",wwn="0x58907ddc573a5de"} 1
-node_disk_info{device="sr0",major="11",minor="0",model="Virtual_CDROM0",path="pci-0000:00:14.0-usb-0:1.1:1.0-scsi-0:0:0:0",revision="1.00",serial="AAAABBBBCCCC1",wwn=""} 1
-node_disk_info{device="vda",major="254",minor="0",model="",path="pci-0000:00:06.0",revision="",serial="",wwn=""} 1
+node_disk_info{device="dm-0",major="252",minor="0",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-1",major="252",minor="1",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",rotational="0",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
+node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",rotational="1",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
+node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",rotational="0",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
+node_disk_info{device="sdc",major="8",minor="32",model="INTEL_SSDS9X9SI0",path="pci-0000:00:1f.2-ata-4",revision="0100",rotational="0",serial="3EWB5Y25CWQWA7EH1U",wwn="0x58907ddc573a5de"} 1
+node_disk_info{device="sr0",major="11",minor="0",model="Virtual_CDROM0",path="pci-0000:00:14.0-usb-0:1.1:1.0-scsi-0:0:0:0",revision="1.00",rotational="0",serial="AAAABBBBCCCC1",wwn=""} 1
+node_disk_info{device="vda",major="254",minor="0",model="",path="pci-0000:00:06.0",revision="",rotational="0",serial="",wwn=""} 1
 # HELP node_disk_io_now The number of I/Os currently in progress.
 # TYPE node_disk_io_now gauge
 node_disk_io_now{device="dm-0"} 0
@@ -871,6 +871,10 @@ node_hwmon_fan_target_rpm{chip="nct6779",sensor="fan2"} 27000
 # HELP node_hwmon_fan_tolerance Hardware monitor fan element tolerance
 # TYPE node_hwmon_fan_tolerance gauge
 node_hwmon_fan_tolerance{chip="nct6779",sensor="fan2"} 0
+# HELP node_hwmon_freq_freq_mhz Hardware monitor for GPU frequency in MHz
+# TYPE node_hwmon_freq_freq_mhz gauge
+node_hwmon_freq_freq_mhz{chip="hwmon4",sensor="mclk"} 300
+node_hwmon_freq_freq_mhz{chip="hwmon4",sensor="sclk"} 214
 # HELP node_hwmon_in_alarm Hardware sensor alarm status (in)
 # TYPE node_hwmon_in_alarm gauge
 node_hwmon_in_alarm{chip="nct6779",sensor="in0"} 0
@@ -984,8 +988,10 @@ node_hwmon_pwm_weight_temp_step_tol{chip="nct6779",sensor="pwm1"} 0
 # TYPE node_hwmon_sensor_label gauge
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp1"} 1
 node_hwmon_sensor_label{chip="hwmon4",label="foosensor",sensor="temp2"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="Left side  ",sensor="fan1"} 1
-node_hwmon_sensor_label{chip="platform_applesmc_768",label="Right side ",sensor="fan2"} 1
+node_hwmon_sensor_label{chip="hwmon4",label="mclk",sensor="freq2"} 1
+node_hwmon_sensor_label{chip="hwmon4",label="sclk",sensor="freq1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Left side",sensor="fan1"} 1
+node_hwmon_sensor_label{chip="platform_applesmc_768",label="Right side",sensor="fan2"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 0",sensor="temp2"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 1",sensor="temp3"} 1
 node_hwmon_sensor_label{chip="platform_coretemp_0",label="Core 2",sensor="temp4"} 1
@@ -1617,6 +1623,14 @@ node_md_blocks_synced_speed{device="md6"} 259783
 node_md_blocks_synced_speed{device="md7"} 0
 node_md_blocks_synced_speed{device="md8"} 259783
 node_md_blocks_synced_speed{device="md9"} 0
+# HELP node_md_degraded Number of degraded disks on device.
+# TYPE node_md_degraded gauge
+node_md_degraded{device="md0"} 0
+node_md_degraded{device="md1"} 0
+node_md_degraded{device="md10"} 0
+node_md_degraded{device="md4"} 0
+node_md_degraded{device="md5"} 1
+node_md_degraded{device="md6"} 1
 # HELP node_md_disks Number of active/failed/spare disks of device.
 # TYPE node_md_disks gauge
 node_md_disks{device="md0",state="active"} 2
@@ -1706,6 +1720,14 @@ node_md_disks_required{device="md6"} 2
 node_md_disks_required{device="md7"} 4
 node_md_disks_required{device="md8"} 2
 node_md_disks_required{device="md9"} 4
+# HELP node_md_raid_disks Number of raid disks on device.
+# TYPE node_md_raid_disks gauge
+node_md_raid_disks{device="md0"} 2
+node_md_raid_disks{device="md1"} 2
+node_md_raid_disks{device="md10"} 4
+node_md_raid_disks{device="md4"} 3
+node_md_raid_disks{device="md5"} 3
+node_md_raid_disks{device="md6"} 4
 # HELP node_md_state Indicates the state of md-device.
 # TYPE node_md_state gauge
 node_md_state{device="md0",state="active"} 1
@@ -2884,6 +2906,26 @@ node_os_info{build_id="",id="ubuntu",id_like="debian",image_id="",image_version=
 # HELP node_os_version Metric containing the major.minor part of the OS version.
 # TYPE node_os_version gauge
 node_os_version{id="ubuntu",id_like="debian",name="Ubuntu"} 20.04
+# HELP node_pcidevice_current_link_transfers_per_second Value of current link's transfers per second (T/s)
+# TYPE node_pcidevice_current_link_transfers_per_second gauge
+node_pcidevice_current_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
+node_pcidevice_current_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 8e+09
+# HELP node_pcidevice_current_link_width Value of current link's width (number of lanes)
+# TYPE node_pcidevice_current_link_width gauge
+node_pcidevice_current_link_width{bus="00",device="02",function="1",segment="0000"} 4
+node_pcidevice_current_link_width{bus="01",device="00",function="0",segment="0000"} 4
+# HELP node_pcidevice_info Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.
+# TYPE node_pcidevice_info gauge
+node_pcidevice_info{bus="00",class_id="0x060400",device="02",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1634"} 1
+node_pcidevice_info{bus="01",class_id="0x010802",device="00",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0x540a"} 1
+# HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
+# TYPE node_pcidevice_max_link_transfers_per_second gauge
+node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
+node_pcidevice_max_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 1.6e+10
+# HELP node_pcidevice_max_link_width Value of maximum link's width (number of lanes)
+# TYPE node_pcidevice_max_link_width gauge
+node_pcidevice_max_link_width{bus="00",device="02",function="1",segment="0000"} 8
+node_pcidevice_max_link_width{bus="01",device="00",function="0",segment="0000"} 4
 # HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_capacity gauge
 node_power_supply_capacity{power_supply="BAT0"} 81
@@ -3043,6 +3085,7 @@ node_scrape_collector_success{collector="nfs"} 1
 node_scrape_collector_success{collector="nfsd"} 1
 node_scrape_collector_success{collector="nvme"} 1
 node_scrape_collector_success{collector="os"} 1
+node_scrape_collector_success{collector="pcidevice"} 1
 node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
@@ -4389,108 +4432,139 @@ node_zfs_zil_zil_itx_needcopy_count 0
 # TYPE node_zfs_zpool_dataset_nread untyped
 node_zfs_zpool_dataset_nread{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nread{dataset="pool1/dataset1",zpool="pool1"} 28
+node_zfs_zpool_dataset_nread{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nread{dataset="pool3/dataset with  space",zpool="pool3"} 28
 node_zfs_zpool_dataset_nread{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nread{dataset="poolz1/dataset1",zpool="poolz1"} 28
 # HELP node_zfs_zpool_dataset_nunlinked kstat.zfs.misc.objset.nunlinked
 # TYPE node_zfs_zpool_dataset_nunlinked untyped
 node_zfs_zpool_dataset_nunlinked{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nunlinked{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinked{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nunlinked{dataset="pool3/dataset with  space",zpool="pool3"} 3
 node_zfs_zpool_dataset_nunlinked{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nunlinked{dataset="poolz1/dataset1",zpool="poolz1"} 14
 # HELP node_zfs_zpool_dataset_nunlinks kstat.zfs.misc.objset.nunlinks
 # TYPE node_zfs_zpool_dataset_nunlinks untyped
 node_zfs_zpool_dataset_nunlinks{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nunlinks{dataset="pool1/dataset1",zpool="pool1"} 3
+node_zfs_zpool_dataset_nunlinks{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nunlinks{dataset="pool3/dataset with  space",zpool="pool3"} 3
 node_zfs_zpool_dataset_nunlinks{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nunlinks{dataset="poolz1/dataset1",zpool="poolz1"} 14
 # HELP node_zfs_zpool_dataset_nwritten kstat.zfs.misc.objset.nwritten
 # TYPE node_zfs_zpool_dataset_nwritten untyped
 node_zfs_zpool_dataset_nwritten{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_nwritten{dataset="pool1/dataset1",zpool="pool1"} 12302
+node_zfs_zpool_dataset_nwritten{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_nwritten{dataset="pool3/dataset with  space",zpool="pool3"} 12302
 node_zfs_zpool_dataset_nwritten{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_nwritten{dataset="poolz1/dataset1",zpool="poolz1"} 32806
 # HELP node_zfs_zpool_dataset_reads kstat.zfs.misc.objset.reads
 # TYPE node_zfs_zpool_dataset_reads untyped
 node_zfs_zpool_dataset_reads{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_reads{dataset="pool1/dataset1",zpool="pool1"} 2
+node_zfs_zpool_dataset_reads{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_reads{dataset="pool3/dataset with  space",zpool="pool3"} 2
 node_zfs_zpool_dataset_reads{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_reads{dataset="poolz1/dataset1",zpool="poolz1"} 2
 # HELP node_zfs_zpool_dataset_writes kstat.zfs.misc.objset.writes
 # TYPE node_zfs_zpool_dataset_writes untyped
 node_zfs_zpool_dataset_writes{dataset="pool1",zpool="pool1"} 0
 node_zfs_zpool_dataset_writes{dataset="pool1/dataset1",zpool="pool1"} 4
+node_zfs_zpool_dataset_writes{dataset="pool3",zpool="pool3"} 0
+node_zfs_zpool_dataset_writes{dataset="pool3/dataset with  space",zpool="pool3"} 4
 node_zfs_zpool_dataset_writes{dataset="poolz1",zpool="poolz1"} 0
 node_zfs_zpool_dataset_writes{dataset="poolz1/dataset1",zpool="poolz1"} 10
 # HELP node_zfs_zpool_nread kstat.zfs.misc.io.nread
 # TYPE node_zfs_zpool_nread untyped
 node_zfs_zpool_nread{zpool="pool1"} 1.88416e+06
+node_zfs_zpool_nread{zpool="pool3"} 1.88416e+06
 node_zfs_zpool_nread{zpool="poolz1"} 2.82624e+06
 # HELP node_zfs_zpool_nwritten kstat.zfs.misc.io.nwritten
 # TYPE node_zfs_zpool_nwritten untyped
 node_zfs_zpool_nwritten{zpool="pool1"} 3.206144e+06
+node_zfs_zpool_nwritten{zpool="pool3"} 3.206144e+06
 node_zfs_zpool_nwritten{zpool="poolz1"} 2.680501248e+09
 # HELP node_zfs_zpool_rcnt kstat.zfs.misc.io.rcnt
 # TYPE node_zfs_zpool_rcnt untyped
 node_zfs_zpool_rcnt{zpool="pool1"} 0
+node_zfs_zpool_rcnt{zpool="pool3"} 0
 node_zfs_zpool_rcnt{zpool="poolz1"} 0
 # HELP node_zfs_zpool_reads kstat.zfs.misc.io.reads
 # TYPE node_zfs_zpool_reads untyped
 node_zfs_zpool_reads{zpool="pool1"} 22
+node_zfs_zpool_reads{zpool="pool3"} 22
 node_zfs_zpool_reads{zpool="poolz1"} 33
 # HELP node_zfs_zpool_rlentime kstat.zfs.misc.io.rlentime
 # TYPE node_zfs_zpool_rlentime untyped
 node_zfs_zpool_rlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_rlentime{zpool="pool3"} 1.04112268e+08
 node_zfs_zpool_rlentime{zpool="poolz1"} 6.472105124093e+12
 # HELP node_zfs_zpool_rtime kstat.zfs.misc.io.rtime
 # TYPE node_zfs_zpool_rtime untyped
 node_zfs_zpool_rtime{zpool="pool1"} 2.4168078e+07
+node_zfs_zpool_rtime{zpool="pool3"} 2.4168078e+07
 node_zfs_zpool_rtime{zpool="poolz1"} 9.82909164e+09
 # HELP node_zfs_zpool_rupdate kstat.zfs.misc.io.rupdate
 # TYPE node_zfs_zpool_rupdate untyped
 node_zfs_zpool_rupdate{zpool="pool1"} 7.921048984922e+13
+node_zfs_zpool_rupdate{zpool="pool3"} 7.921048984922e+13
 node_zfs_zpool_rupdate{zpool="poolz1"} 1.10734831944501e+14
 # HELP node_zfs_zpool_state kstat.zfs.misc.state
 # TYPE node_zfs_zpool_state gauge
 node_zfs_zpool_state{state="degraded",zpool="pool1"} 0
 node_zfs_zpool_state{state="degraded",zpool="pool2"} 0
+node_zfs_zpool_state{state="degraded",zpool="pool3"} 0
 node_zfs_zpool_state{state="degraded",zpool="poolz1"} 1
 node_zfs_zpool_state{state="faulted",zpool="pool1"} 0
 node_zfs_zpool_state{state="faulted",zpool="pool2"} 0
+node_zfs_zpool_state{state="faulted",zpool="pool3"} 0
 node_zfs_zpool_state{state="faulted",zpool="poolz1"} 0
 node_zfs_zpool_state{state="offline",zpool="pool1"} 0
 node_zfs_zpool_state{state="offline",zpool="pool2"} 0
+node_zfs_zpool_state{state="offline",zpool="pool3"} 0
 node_zfs_zpool_state{state="offline",zpool="poolz1"} 0
 node_zfs_zpool_state{state="online",zpool="pool1"} 1
 node_zfs_zpool_state{state="online",zpool="pool2"} 0
+node_zfs_zpool_state{state="online",zpool="pool3"} 1
 node_zfs_zpool_state{state="online",zpool="poolz1"} 0
 node_zfs_zpool_state{state="removed",zpool="pool1"} 0
 node_zfs_zpool_state{state="removed",zpool="pool2"} 0
+node_zfs_zpool_state{state="removed",zpool="pool3"} 0
 node_zfs_zpool_state{state="removed",zpool="poolz1"} 0
 node_zfs_zpool_state{state="suspended",zpool="pool1"} 0
 node_zfs_zpool_state{state="suspended",zpool="pool2"} 1
+node_zfs_zpool_state{state="suspended",zpool="pool3"} 0
 node_zfs_zpool_state{state="suspended",zpool="poolz1"} 0
 node_zfs_zpool_state{state="unavail",zpool="pool1"} 0
 node_zfs_zpool_state{state="unavail",zpool="pool2"} 0
+node_zfs_zpool_state{state="unavail",zpool="pool3"} 0
 node_zfs_zpool_state{state="unavail",zpool="poolz1"} 0
 # HELP node_zfs_zpool_wcnt kstat.zfs.misc.io.wcnt
 # TYPE node_zfs_zpool_wcnt untyped
 node_zfs_zpool_wcnt{zpool="pool1"} 0
+node_zfs_zpool_wcnt{zpool="pool3"} 0
 node_zfs_zpool_wcnt{zpool="poolz1"} 0
 # HELP node_zfs_zpool_wlentime kstat.zfs.misc.io.wlentime
 # TYPE node_zfs_zpool_wlentime untyped
 node_zfs_zpool_wlentime{zpool="pool1"} 1.04112268e+08
+node_zfs_zpool_wlentime{zpool="pool3"} 1.04112268e+08
 node_zfs_zpool_wlentime{zpool="poolz1"} 6.472105124093e+12
 # HELP node_zfs_zpool_writes kstat.zfs.misc.io.writes
 # TYPE node_zfs_zpool_writes untyped
 node_zfs_zpool_writes{zpool="pool1"} 132
+node_zfs_zpool_writes{zpool="pool3"} 132
 node_zfs_zpool_writes{zpool="poolz1"} 25294
 # HELP node_zfs_zpool_wtime kstat.zfs.misc.io.wtime
 # TYPE node_zfs_zpool_wtime untyped
 node_zfs_zpool_wtime{zpool="pool1"} 7.155162e+06
+node_zfs_zpool_wtime{zpool="pool3"} 7.155162e+06
 node_zfs_zpool_wtime{zpool="poolz1"} 9.673715628e+09
 # HELP node_zfs_zpool_wupdate kstat.zfs.misc.io.wupdate
 # TYPE node_zfs_zpool_wupdate untyped
 node_zfs_zpool_wupdate{zpool="pool1"} 7.9210489694949e+13
+node_zfs_zpool_wupdate{zpool="pool3"} 7.9210489694949e+13
 node_zfs_zpool_wupdate{zpool="poolz1"} 1.10734831833266e+14
 # HELP node_zoneinfo_high_pages Zone watermark pages_high
 # TYPE node_zoneinfo_high_pages gauge

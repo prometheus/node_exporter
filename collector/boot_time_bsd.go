@@ -18,9 +18,10 @@
 package collector
 
 import (
+	"log/slog"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
-	"log/slog"
 )
 
 type bootTimeCollector struct {

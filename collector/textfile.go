@@ -29,6 +29,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/common/model"
 )
 
 var (
@@ -253,10 +254,16 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 	}
 
+	mfHelp := make(map[string]*string)
 	for _, mf := range parsedFamilies {
 		if mf.Help == nil {
+			if help, ok := mfHelp[*mf.Name]; ok {
+				mf.Help = help
+				continue
+			}
 			help := fmt.Sprintf("Metric read from %s", strings.Join(metricsNamesToFiles[*mf.Name], ", "))
 			mf.Help = &help
+			mfHelp[*mf.Name] = &help
 		}
 	}
 
@@ -293,7 +300,7 @@ func (c *textFileCollector) processFile(dir, name string, ch chan<- prometheus.M
 	}
 	defer f.Close()
 
-	var parser expfmt.TextParser
+	parser := expfmt.NewTextParser(model.LegacyValidation)
 	families, err := parser.TextToMetricFamilies(f)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse textfile data from %q: %w", path, err)

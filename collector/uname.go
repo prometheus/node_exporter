@@ -18,8 +18,9 @@
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 var unameDesc = prometheus.NewDesc(
@@ -49,11 +50,11 @@ type uname struct {
 }
 
 func init() {
-	registerCollector("uname", defaultEnabled, newUnameCollector)
+	registerCollector("uname", defaultEnabled, NewUnameCollector)
 }
 
 // NewUnameCollector returns new unameCollector.
-func newUnameCollector(logger *slog.Logger) (Collector, error) {
+func NewUnameCollector(logger *slog.Logger) (Collector, error) {
 	return &unameCollector{logger}, nil
 }
 

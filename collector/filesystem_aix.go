@@ -32,12 +32,12 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		return nil, err
 	}
 	for _, stat := range fsStat {
-		if c.excludedMountPointsPattern.MatchString(stat.MountPoint) {
+		if c.mountPointFilter.ignored(stat.MountPoint) {
 			c.logger.Debug("Ignoring mount point", "mountpoint", stat.MountPoint)
 			continue
 		}
 		fstype := stat.TypeString()
-		if c.excludedFSTypesPattern.MatchString(fstype) {
+		if c.fsTypeFilter.ignored(fstype) {
 			c.logger.Debug("Ignoring fs type", "type", fstype)
 			continue
 		}
@@ -53,9 +53,9 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 				mountPoint: stat.MountPoint,
 				fsType:     fstype,
 			},
-			size:      float64(stat.TotalBlocks / 512.0),
-			free:      float64(stat.FreeBlocks / 512.0),
-			avail:     float64(stat.FreeBlocks / 512.0), // AIX doesn't distinguish between free and available blocks.
+			size:      float64(stat.TotalBlocks * 512.0),
+			free:      float64(stat.FreeBlocks * 512.0),
+			avail:     float64(stat.FreeBlocks * 512.0), // AIX doesn't distinguish between free and available blocks.
 			files:     float64(stat.TotalInodes),
 			filesFree: float64(stat.FreeInodes),
 			ro:        ro,

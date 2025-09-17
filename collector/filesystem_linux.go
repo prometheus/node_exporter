@@ -23,6 +23,8 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -33,7 +35,7 @@ import (
 
 const (
 	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)"
-	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$"
 )
 
 var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
@@ -73,12 +75,12 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 	go func() {
 		for _, labels := range mps {
-			if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
+			if c.mountPointFilter.ignored(labels.mountPoint) {
 				c.logger.Debug("Ignoring mount point", "mountpoint", labels.mountPoint)
 				continue
 			}
-			if c.excludedFSTypesPattern.MatchString(labels.fsType) {
-				c.logger.Debug("Ignoring fs", "type", labels.fsType)
+			if c.fsTypeFilter.ignored(labels.fsType) {
+				c.logger.Debug("Ignoring fs type", "type", labels.fsType)
 				continue
 			}
 
@@ -110,11 +112,8 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
 	var ro float64
-	for _, option := range strings.Split(labels.options, ",") {
-		if option == "ro" {
-			ro = 1
-			break
-		}
+	if isFilesystemReadOnly(labels) {
+		ro = 1
 	}
 
 	success := make(chan struct{})
@@ -198,7 +197,7 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
 
-		if len(parts) < 10 {
+		if len(parts) < 11 {
 			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
 		}
 
@@ -215,19 +214,30 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
-		parts[4] = strings.Replace(parts[4], "\\040", " ", -1)
-		parts[4] = strings.Replace(parts[4], "\\011", "\t", -1)
+		parts[4] = strings.ReplaceAll(parts[4], "\\040", " ")
+		parts[4] = strings.ReplaceAll(parts[4], "\\011", "\t")
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:      parts[m+3],
-			mountPoint:  rootfsStripPrefix(parts[4]),
-			fsType:      parts[m+2],
-			options:     parts[5],
-			major:       fmt.Sprint(major),
-			minor:       fmt.Sprint(minor),
-			deviceError: "",
+			device:       parts[m+3],
+			mountPoint:   rootfsStripPrefix(parts[4]),
+			fsType:       parts[m+2],
+			mountOptions: parts[5],
+			superOptions: parts[10],
+			major:        strconv.Itoa(major),
+			minor:        strconv.Itoa(minor),
+			deviceError:  "",
 		})
 	}
 
 	return filesystems, scanner.Err()
+}
+
+// see https://github.com/prometheus/node_exporter/issues/3157#issuecomment-2422761187
+// if either mount or super options contain "ro" the filesystem is read-only
+func isFilesystemReadOnly(labels filesystemLabels) bool {
+	if slices.Contains(strings.Split(labels.mountOptions, ","), "ro") || slices.Contains(strings.Split(labels.superOptions, ","), "ro") {
+		return true
+	}
+
+	return false
 }

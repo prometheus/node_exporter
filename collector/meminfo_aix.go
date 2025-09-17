@@ -40,8 +40,12 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	}
 
 	return map[string]float64{
-		"total_bytes":     float64(stats.RealTotal * 4096),
-		"free_bytes":      float64(stats.RealFree * 4096),
-		"available_bytes": float64(stats.RealAvailable * 4096),
+		"total_bytes":              float64(stats.RealTotal * 4096),
+		"free_bytes":               float64(stats.RealFree * 4096),
+		"available_bytes":          float64(stats.RealAvailable * 4096),
+		"process_bytes":            float64(stats.RealProcess * 4096),
+		"paging_space_total_bytes": float64(stats.PgSpTotal * 4096),
+		"paging_space_free_bytes":  float64(stats.PgSpFree * 4096),
+		"page_scans_total":         float64(stats.Scans),
 	}, nil
 }

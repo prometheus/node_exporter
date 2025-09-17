@@ -74,6 +74,7 @@ type systemdCollector struct {
 	socketCurrentConnectionsDesc  *prometheus.Desc
 	socketRefusedConnectionsDesc  *prometheus.Desc
 	systemdVersionDesc            *prometheus.Desc
+	virtualizationDesc            *prometheus.Desc
 	// Use regexps for more flexibility than device_filter.go allows
 	systemdUnitIncludePattern *regexp.Regexp
 	systemdUnitExcludePattern *regexp.Regexp
@@ -132,6 +133,9 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 	systemdVersionDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "version"),
 		"Detected systemd version", []string{"version"}, nil)
+	virtualizationDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "virtualization_info"),
+		"Detected virtualization technology", []string{"virtualization_type"}, nil)
 
 	if *oldSystemdUnitExclude != "" {
 		if !systemdUnitExcludeSet {
@@ -167,6 +171,7 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 		socketCurrentConnectionsDesc:  socketCurrentConnectionsDesc,
 		socketRefusedConnectionsDesc:  socketRefusedConnectionsDesc,
 		systemdVersionDesc:            systemdVersionDesc,
+		virtualizationDesc:            virtualizationDesc,
 		systemdUnitIncludePattern:     systemdUnitIncludePattern,
 		systemdUnitExcludePattern:     systemdUnitExcludePattern,
 		logger:                        logger,
@@ -194,6 +199,14 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		systemdVersionFull,
 	)
 
+	systemdVirtualization := c.getSystemdVirtualization(conn)
+	ch <- prometheus.MustNewConstMetric(
+		c.virtualizationDesc,
+		prometheus.GaugeValue,
+		1.0,
+		systemdVirtualization,
+	)
+
 	allUnits, err := c.getAllUnits(conn)
 	if err != nil {
 		return fmt.Errorf("couldn't get units: %w", err)
@@ -215,7 +228,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		begin = time.Now()
+		begin := time.Now()
 		c.collectUnitStatusMetrics(conn, ch, units)
 		c.logger.Debug("collectUnitStatusMetrics took", "duration_seconds", time.Since(begin).Seconds())
 	}()
@@ -224,7 +237,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			begin = time.Now()
+			begin := time.Now()
 			c.collectUnitStartTimeMetrics(conn, ch, units)
 			c.logger.Debug("collectUnitStartTimeMetrics took", "duration_seconds", time.Since(begin).Seconds())
 		}()
@@ -234,7 +247,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			begin = time.Now()
+			begin := time.Now()
 			c.collectUnitTasksMetrics(conn, ch, units)
 			c.logger.Debug("collectUnitTasksMetrics took", "duration_seconds", time.Since(begin).Seconds())
 		}()
@@ -244,7 +257,7 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			begin = time.Now()
+			begin := time.Now()
 			c.collectTimers(conn, ch, units)
 			c.logger.Debug("collectTimers took", "duration_seconds", time.Since(begin).Seconds())
 		}()
@@ -253,13 +266,13 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		begin = time.Now()
+		begin := time.Now()
 		c.collectSockets(conn, ch, units)
 		c.logger.Debug("collectSockets took", "duration_seconds", time.Since(begin).Seconds())
 	}()
 
 	if systemdVersion >= minSystemdVersionSystemState {
-		begin = time.Now()
+		begin := time.Now()
 		err = c.collectSystemState(conn, ch)
 		c.logger.Debug("collectSystemState took", "duration_seconds", time.Since(begin).Seconds())
 	}
@@ -504,4 +517,20 @@ func (c *systemdCollector) getSystemdVersion(conn *dbus.Conn) (float64, string) 
 		return 0, ""
 	}
 	return v, version
+}
+
+func (c *systemdCollector) getSystemdVirtualization(conn *dbus.Conn) string {
+	virt, err := conn.GetManagerProperty("Virtualization")
+	if err != nil {
+		c.logger.Debug("Could not get Virtualization property", "err", err)
+		return "unknown"
+	}
+
+	virtStr := strings.Trim(virt, `"`)
+	if virtStr == "" {
+		// If no virtualization type is returned, assume it's bare metal.
+		return "none"
+	}
+
+	return virtStr
 }
