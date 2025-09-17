@@ -2,15 +2,12 @@ module github.com/prometheus/node_exporter
 
 go 1.24.0
 
-toolchain go1.23.2
-
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/beevik/ntp v1.4.3
 	github.com/coreos/go-systemd/v22 v22.6.0
 	github.com/dennwc/btrfs v0.0.0-20240418142341-0167142bde7a
 	github.com/ema/qdisc v1.0.0
-	github.com/finomosec/procfs v0.15.4
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/hashicorp/go-envparse v0.1.0
 	github.com/hodgesds/perf-utils v0.7.0
