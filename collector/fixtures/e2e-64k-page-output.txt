@@ -3376,6 +3376,46 @@ node_wifi_station_transmit_failed_total{device="wlan0",mac_address="aa:bb:cc:dd:
 # TYPE node_wifi_station_transmit_retries_total counter
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="01:02:03:04:05:06"} 20
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 10
+# HELP node_wifi_survey_channel_time_active_seconds The time the radio spent on the channel while it was active in seconds.
+# TYPE node_wifi_survey_channel_time_active_seconds counter
+node_wifi_survey_channel_time_active_seconds{device="wlan0",frequency="2412"} 80
+node_wifi_survey_channel_time_active_seconds{device="wlan0",frequency="2437"} 40
+# HELP node_wifi_survey_channel_time_bss_rx_seconds The time the radio spent on the channel receiving data from a BSS in seconds.
+# TYPE node_wifi_survey_channel_time_bss_rx_seconds counter
+node_wifi_survey_channel_time_bss_rx_seconds{device="wlan0",frequency="2412"} 15
+node_wifi_survey_channel_time_bss_rx_seconds{device="wlan0",frequency="2437"} 8
+# HELP node_wifi_survey_channel_time_busy_seconds The time the radio spent on the channel while it was busy in seconds.
+# TYPE node_wifi_survey_channel_time_busy_seconds counter
+node_wifi_survey_channel_time_busy_seconds{device="wlan0",frequency="2412"} 30
+node_wifi_survey_channel_time_busy_seconds{device="wlan0",frequency="2437"} 15
+# HELP node_wifi_survey_channel_time_ext_busy_seconds The time the radio spent on the channel while it was busy with external traffic in seconds.
+# TYPE node_wifi_survey_channel_time_ext_busy_seconds counter
+node_wifi_survey_channel_time_ext_busy_seconds{device="wlan0",frequency="2412"} 5
+node_wifi_survey_channel_time_ext_busy_seconds{device="wlan0",frequency="2437"} 2
+# HELP node_wifi_survey_channel_time_rx_seconds The time the radio spent on the channel receiving data in seconds.
+# TYPE node_wifi_survey_channel_time_rx_seconds counter
+node_wifi_survey_channel_time_rx_seconds{device="wlan0",frequency="2412"} 20
+node_wifi_survey_channel_time_rx_seconds{device="wlan0",frequency="2437"} 10
+# HELP node_wifi_survey_channel_time_scan_seconds The time the radio spent on the channel while it was scanning in seconds.
+# TYPE node_wifi_survey_channel_time_scan_seconds counter
+node_wifi_survey_channel_time_scan_seconds{device="wlan0",frequency="2412"} 2
+node_wifi_survey_channel_time_scan_seconds{device="wlan0",frequency="2437"} 1
+# HELP node_wifi_survey_channel_time_seconds The time the radio spent on the channel in seconds.
+# TYPE node_wifi_survey_channel_time_seconds counter
+node_wifi_survey_channel_time_seconds{device="wlan0",frequency="2412"} 120
+node_wifi_survey_channel_time_seconds{device="wlan0",frequency="2437"} 60
+# HELP node_wifi_survey_channel_time_tx_seconds The time the radio spent on the channel transmitting data in seconds.
+# TYPE node_wifi_survey_channel_time_tx_seconds counter
+node_wifi_survey_channel_time_tx_seconds{device="wlan0",frequency="2412"} 10
+node_wifi_survey_channel_time_tx_seconds{device="wlan0",frequency="2437"} 5
+# HELP node_wifi_survey_in_use Indicates if the channel is currently in use (1 for in use, 0 for not in use).
+# TYPE node_wifi_survey_in_use gauge
+node_wifi_survey_in_use{device="wlan0",frequency="2412"} 1
+node_wifi_survey_in_use{device="wlan0",frequency="2437"} 0
+# HELP node_wifi_survey_noise_dbm The noise level in decibel-milliwatts (dBm).
+# TYPE node_wifi_survey_noise_dbm gauge
+node_wifi_survey_noise_dbm{device="wlan0",frequency="2412"} -95
+node_wifi_survey_noise_dbm{device="wlan0",frequency="2437"} -92
 # HELP node_xfrm_acquire_error_packets_total State hasn’t been fully acquired before use
 # TYPE node_xfrm_acquire_error_packets_total counter
 node_xfrm_acquire_error_packets_total 24532

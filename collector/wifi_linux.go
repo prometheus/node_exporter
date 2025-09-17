@@ -44,6 +44,17 @@ type wifiCollector struct {
 	stationTransmitFailedTotal   *prometheus.Desc
 	stationBeaconLossTotal       *prometheus.Desc
 
+	surveyNoiseDBM                  *prometheus.Desc
+	surveyChannelTimeSeconds        *prometheus.Desc
+	surveyChannelTimeActiveSeconds  *prometheus.Desc
+	surveyChannelTimeBusySeconds    *prometheus.Desc
+	surveyChannelTimeExtBusySeconds *prometheus.Desc
+	surveyChannelTimeBssRxSeconds   *prometheus.Desc
+	surveyChannelTimeRxSeconds      *prometheus.Desc
+	surveyChannelTimeTxSeconds      *prometheus.Desc
+	surveyChannelTimeScanSeconds    *prometheus.Desc
+	surveyInUse                     *prometheus.Desc
+
 	logger *slog.Logger
 }
 
@@ -63,6 +74,7 @@ type wifiStater interface {
 	Close() error
 	Interfaces() ([]*wifi.Interface, error)
 	StationInfo(ifi *wifi.Interface) ([]*wifi.StationInfo, error)
+	SurveyInfo(ifi *wifi.Interface) ([]*wifi.SurveyInfo, error)
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
@@ -159,6 +171,77 @@ func NewWifiCollector(logger *slog.Logger) (Collector, error) {
 			labels,
 			nil,
 		),
+
+		surveyNoiseDBM: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_noise_dbm"),
+			"The noise level in decibel-milliwatts (dBm).",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeSeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_seconds"),
+			"The time the radio spent on the channel in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeActiveSeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_active_seconds"),
+			"The time the radio spent on the channel while it was active in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeBusySeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_busy_seconds"),
+			"The time the radio spent on the channel while it was busy in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeExtBusySeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_ext_busy_seconds"),
+			"The time the radio spent on the channel while it was busy with external traffic in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeBssRxSeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_bss_rx_seconds"),
+			"The time the radio spent on the channel receiving data from a BSS in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeRxSeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_rx_seconds"),
+			"The time the radio spent on the channel receiving data in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeTxSeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_tx_seconds"),
+			"The time the radio spent on the channel transmitting data in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyChannelTimeScanSeconds: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_channel_time_scan_seconds"),
+			"The time the radio spent on the channel while it was scanning in seconds.",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
+		surveyInUse: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "survey_in_use"),
+			"Indicates if the channel is currently in use (1 for in use, 0 for not in use).",
+			[]string{"device", "frequency_mhz"},
+			nil,
+		),
+
 		logger: logger,
 	}, nil
 }
@@ -225,6 +308,19 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			c.logger.Debug("station information not found for wifi device", "name", ifi.Name)
 		default:
 			return fmt.Errorf("failed to retrieve station info for device %q: %v",
+				ifi.Name, err)
+		}
+
+		surveys, err := stat.SurveyInfo(ifi)
+		switch {
+		case err == nil:
+			for _, survey := range surveys {
+				c.updateSurveyStats(ch, ifi.Name, survey)
+			}
+		case errors.Is(err, os.ErrNotExist):
+			c.logger.Debug("survey information not found for wifi device", "name", ifi.Name)
+		default:
+			return fmt.Errorf("failed to retrieve survey info for device %q: %v",
 				ifi.Name, err)
 		}
 	}
@@ -327,6 +423,94 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 }
 
+func (c *wifiCollector) updateSurveyStats(ch chan<- prometheus.Metric, device string, info *wifi.SurveyInfo) {
+	frequencyMHz := fmt.Sprintf("%d", info.Frequency)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyNoiseDBM,
+		prometheus.GaugeValue,
+		float64(info.Noise),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeSeconds,
+		prometheus.CounterValue,
+		info.ChannelTime.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeActiveSeconds,
+		prometheus.CounterValue,
+		info.ChannelTimeActive.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeBusySeconds,
+		prometheus.CounterValue,
+		info.ChannelTimeBusy.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeExtBusySeconds,
+		prometheus.CounterValue,
+		info.ChannelTimeExtBusy.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeBssRxSeconds,
+		prometheus.CounterValue,
+		info.ChannelTimeBssRx.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeRxSeconds,
+		prometheus.CounterValue,
+		info.ChannelTimeRx.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeTxSeconds,
+		prometheus.CounterValue,
+		info.ChannelTimeTx.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyChannelTimeScanSeconds,
+		prometheus.CounterValue,
+		info.ChannelTimeScan.Seconds(),
+		device,
+		frequencyMHz,
+	)
+
+	var inUseValue float64
+	if info.InUse {
+		inUseValue = 1
+	}
+	ch <- prometheus.MustNewConstMetric(
+		c.surveyInUse,
+		prometheus.GaugeValue,
+		inUseValue,
+		device,
+		frequencyMHz,
+	)
+}
+
 func mHzToHz(mHz int) float64 {
 	return float64(mHz) * 1000 * 1000
 }
@@ -403,4 +587,15 @@ func (s *mockWifiStater) StationInfo(ifi *wifi.Interface) ([]*wifi.StationInfo, 
 	}
 
 	return stations, nil
+}
+
+func (s *mockWifiStater) SurveyInfo(ifi *wifi.Interface) ([]*wifi.SurveyInfo, error) {
+	p := filepath.Join(ifi.Name, "surveyinfo.json")
+
+	var surveyInfo []*wifi.SurveyInfo
+	if err := s.unmarshalJSONFile(p, &surveyInfo); err != nil {
+		return nil, err
+	}
+
+	return surveyInfo, nil
 }
