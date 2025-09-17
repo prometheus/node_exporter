@@ -1,0 +1,30 @@
+[
+	{
+		"interfaceindex": 3,
+		"frequency": 2412,
+		"noise": -95,
+		"channeltime": 120000000000,
+		"channeltimeactive": 80000000000,
+		"channeltimebusy": 30000000000,
+		"channeltimeextbusy": 5000000000,
+		"channeltimebssrx": 15000000000,
+		"channeltimerx": 20000000000,
+		"channeltimetx": 10000000000,
+		"channeltimescan": 2000000000,
+		"inuse": true
+	},
+	{
+		"interfaceindex": 3,
+		"frequency": 2437,
+		"noise": -92,
+		"channeltime": 60000000000,
+		"channeltimeactive": 40000000000,
+		"channeltimebusy": 15000000000,
+		"channeltimeextbusy": 2000000000,
+		"channeltimebssrx": 8000000000,
+		"channeltimerx": 10000000000,
+		"channeltimetx": 5000000000,
+		"channeltimescan": 1000000000,
+		"inuse": false
+	}
+]
