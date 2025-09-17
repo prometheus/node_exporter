@@ -63,6 +63,12 @@ var (
 		[]string{"device"},
 		prometheus.Labels{"state": "resync"},
 	)
+	reshapeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "reshaping"},
+	)
 	checkDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "state"),
 		"Indicates the state of md-device.",
@@ -166,7 +172,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
 			prometheus.GaugeValue,
-			float64(mdStat.DisksRecovering),
+			float64(mdStat.DisksReplacing),
 			mdStat.Name,
 			"replacing",
 		)
@@ -225,6 +231,14 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			stateVals["resyncing"],
 			mdStat.Name,
 		)
+
+		ch <- prometheus.MustNewConstMetric(
+			reshapeDesc,
+			prometheus.GaugeValue,
+			stateVals["reshaping"],
+			mdStat.Name,
+		)
+
 
 		ch <- prometheus.MustNewConstMetric(
 			checkDesc,
