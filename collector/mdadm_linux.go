@@ -22,9 +22,9 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 type mdadmCollector struct {
@@ -113,14 +113,14 @@ var (
 		nil,
 	)
 
-  syncTimeRemainingDesc = prometheus.NewDesc(
+	syncTimeRemainingDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "sync_time_remaining_seconds"),
 		"Estimated finishing time for current sync in seconds.",
 		[]string{"device"},
 		nil,
 	)
 
-  blockSyncedSpeedDesc = prometheus.NewDesc(
+	blockSyncedSpeedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "blocks_synced_speed"),
 		"current sync speed (in Kilobytes/sec)",
 		[]string{"device"},
@@ -240,7 +240,6 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			stateVals["reshaping"],
 			mdStat.Name,
 		)
-
 
 		ch <- prometheus.MustNewConstMetric(
 			checkDesc,
