@@ -17,11 +17,14 @@
 package collector
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -31,6 +34,13 @@ const (
 )
 
 var (
+	pciIdsPaths = []string{
+		"/usr/share/misc/pci.ids",
+		"/usr/share/hwdata/pci.ids",
+	}
+	pciIdsFile = kingpin.Flag("collector.pcidevice.idsfile", "Path to pci.ids file to use for PCI device identification.").String()
+	pciNames   = kingpin.Flag("collector.pcidevice.names", "Enable PCI device name resolution (requires pci.ids file).").Default("false").Bool()
+
 	pcideviceLabelNames = []string{"segment", "bus", "device", "function"}
 
 	pcideviceMaxLinkTSDesc = prometheus.NewDesc(
@@ -54,13 +64,56 @@ var (
 		"Value of current link's width (number of lanes)",
 		pcideviceLabelNames, nil,
 	)
+
+	pcidevicePowerStateDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "power_state"),
+		"PCIe device power state: 0 = D0 (fully powered), 1 = D1, 2 = D2, 3 = D3hot, 4 = D3cold (lowest power), -1 = Unknown, -2 = Error.",
+		pcideviceLabelNames, nil,
+	)
+
+	pcideviceD3coldAllowedDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "d3cold_allowed"),
+		"Whether the PCIe device supports D3cold power state (0/1).",
+		pcideviceLabelNames, nil,
+	)
+
+	pcideviceSriovDriversAutoprobeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_drivers_autoprobe"),
+		"Whether SR-IOV drivers autoprobe is enabled for the device (0/1).",
+		pcideviceLabelNames, nil,
+	)
+
+	pcideviceSriovNumvfsDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_numvfs"),
+		"Number of Virtual Functions (VFs) currently enabled for SR-IOV.",
+		pcideviceLabelNames, nil,
+	)
+
+	pcideviceSriovTotalvfsDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_totalvfs"),
+		"Total number of Virtual Functions (VFs) supported by the device.",
+		pcideviceLabelNames, nil,
+	)
+
+	pcideviceSriovVfTotalMsixDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_vf_total_msix"),
+		"Total number of MSI-X vectors for Virtual Functions.",
+		pcideviceLabelNames, nil,
+	)
 )
 
 type pcideviceCollector struct {
-	fs       sysfs.FS
-	infoDesc typedDesc
-	descs    []typedFactorDesc
-	logger   *slog.Logger
+	fs            sysfs.FS
+	infoDesc      typedDesc
+	descs         []typedFactorDesc
+	logger        *slog.Logger
+	pciVendors    map[string]string
+	pciDevices    map[string]map[string]string
+	pciSubsystems map[string]map[string]string
+	pciClasses    map[string]string
+	pciSubclasses map[string]string
+	pciProgIfs    map[string]string
+	pciNames      bool
 }
 
 func init() {
@@ -74,29 +127,48 @@ func NewPcideviceCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	c := pcideviceCollector{
-		fs:     fs,
-		logger: logger,
-		infoDesc: typedDesc{
-			desc: prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, pcideviceSubsystem, "info"),
-				"Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.",
-				append(pcideviceLabelNames,
-					[]string{"parent_segment", "parent_bus", "parent_device", "parent_function",
-						"class_id", "vendor_id", "subsystem_vendor_id", "subsystem_device_id", "revision"}...),
-				nil,
-			),
-			valueType: prometheus.GaugeValue,
-		},
-		descs: []typedFactorDesc{
-			{desc: pcideviceMaxLinkTSDesc, valueType: prometheus.GaugeValue},
-			{desc: pcideviceMaxLinkWidthDesc, valueType: prometheus.GaugeValue},
-			{desc: pcideviceCurrentLinkTSDesc, valueType: prometheus.GaugeValue},
-			{desc: pcideviceCurrentLinkWidthDesc, valueType: prometheus.GaugeValue},
-		},
+	// Initialize PCI ID maps
+	c := &pcideviceCollector{
+		fs:       fs,
+		logger:   logger,
+		pciNames: *pciNames,
 	}
 
-	return &c, nil
+	// Build label names based on whether name resolution is enabled
+	labelNames := append(pcideviceLabelNames,
+		[]string{"parent_segment", "parent_bus", "parent_device", "parent_function",
+			"class_id", "vendor_id", "device_id", "subsystem_vendor_id", "subsystem_device_id", "revision"}...)
+
+	if c.pciNames {
+		c.loadPCIIds()
+		// Add name labels when name resolution is enabled
+		labelNames = append(labelNames, "vendor_name", "device_name", "subsystem_vendor_name", "subsystem_device_name", "class_name")
+	}
+
+	c.infoDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "info"),
+			"Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.",
+			labelNames,
+			nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+
+	c.descs = []typedFactorDesc{
+		{desc: pcideviceMaxLinkTSDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceMaxLinkWidthDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceCurrentLinkTSDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceCurrentLinkWidthDesc, valueType: prometheus.GaugeValue},
+		{desc: pcidevicePowerStateDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceD3coldAllowedDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceSriovDriversAutoprobeDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceSriovNumvfsDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceSriovTotalvfsDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceSriovVfTotalMsixDesc, valueType: prometheus.GaugeValue},
+	}
+
+	return c, nil
 }
 
 func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
@@ -117,27 +189,399 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 		} else {
 			values = append(values, []string{"*", "*", "*", "*"}...)
 		}
-		values = append(values, fmt.Sprintf("0x%06x", device.Class))
-		values = append(values, fmt.Sprintf("0x%04x", device.Device))
-		values = append(values, fmt.Sprintf("0x%04x", device.SubsystemVendor))
-		values = append(values, fmt.Sprintf("0x%04x", device.SubsystemDevice))
-		values = append(values, fmt.Sprintf("0x%02x", device.Revision))
+
+		// Add basic device information
+		classID := fmt.Sprintf("0x%06x", device.Class)
+		vendorID := fmt.Sprintf("0x%04x", device.Vendor)
+		deviceID := fmt.Sprintf("0x%04x", device.Device)
+		subsysVendorID := fmt.Sprintf("0x%04x", device.SubsystemVendor)
+		subsysDeviceID := fmt.Sprintf("0x%04x", device.SubsystemDevice)
+
+		values = append(values, classID, vendorID, deviceID, subsysVendorID, subsysDeviceID, fmt.Sprintf("0x%02x", device.Revision))
+
+		// Add name values if name resolution is enabled
+		if c.pciNames {
+			vendorName := c.getPCIVendorName(vendorID)
+			deviceName := c.getPCIDeviceName(vendorID, deviceID)
+			subsysVendorName := c.getPCIVendorName(subsysVendorID)
+			subsysDeviceName := c.getPCISubsystemName(vendorID, deviceID, subsysVendorID, subsysDeviceID)
+			className := c.getPCIClassName(classID)
+
+			values = append(values, vendorName, deviceName, subsysVendorName, subsysDeviceName, className)
+		}
 
 		ch <- c.infoDesc.mustNewConstMetric(1.0, values...)
 
 		// MaxLinkSpeed and CurrentLinkSpeed are represented in GT/s
+<<<<<<< HEAD
 		maxLinkSpeedTS := float64(int64(*device.MaxLinkSpeed * 1e9))
 		currentLinkSpeedTS := float64(int64(*device.CurrentLinkSpeed * 1e9))
+=======
+		var maxLinkSpeedTS float64
+		if device.MaxLinkSpeed != nil {
+			maxLinkSpeedTS = (*device.MaxLinkSpeed) * 1e9
+		} else {
+			maxLinkSpeedTS = -1
+		}
+
+		var currentLinkSpeedTS float64
+		if device.CurrentLinkSpeed != nil {
+			currentLinkSpeedTS = (*device.CurrentLinkSpeed) * 1e9
+		} else {
+			currentLinkSpeedTS = -1
+		}
+
+		// Get power state information directly from device object
+		var powerState float64
+		if device.PowerState != nil {
+			powerState = parsePowerStateFromEnum(*device.PowerState)
+		}
+
+		var d3coldAllowed float64
+		if device.D3coldAllowed != nil {
+			if *device.D3coldAllowed {
+				d3coldAllowed = 1
+			} else {
+				d3coldAllowed = 0
+			}
+		}
+
+		// Get SR-IOV information directly from device object
+		var sriovDriversAutoprobe float64
+		if device.SriovDriversAutoprobe != nil {
+			if *device.SriovDriversAutoprobe {
+				sriovDriversAutoprobe = 1
+			} else {
+				sriovDriversAutoprobe = 0
+			}
+		}
+
+		var sriovNumvfs float64
+		if device.SriovNumvfs != nil {
+			sriovNumvfs = float64(*device.SriovNumvfs)
+		}
+
+		var sriovTotalvfs float64
+		if device.SriovTotalvfs != nil {
+			sriovTotalvfs = float64(*device.SriovTotalvfs)
+		}
+
+		var sriovVfTotalMsix float64
+		if device.SriovVfTotalMsix != nil {
+			sriovVfTotalMsix = float64(*device.SriovVfTotalMsix)
+		}
+
+		// Handle link width fields with nil safety
+		var maxLinkWidth float64
+		if device.MaxLinkWidth != nil {
+			maxLinkWidth = float64(*device.MaxLinkWidth)
+		} else {
+			maxLinkWidth = -1
+		}
+
+		var currentLinkWidth float64
+		if device.CurrentLinkWidth != nil {
+			currentLinkWidth = float64(*device.CurrentLinkWidth)
+		} else {
+			currentLinkWidth = -1
+		}
+>>>>>>> 752b2d8e (add sriov, power info support and pci id name resolution (#1))
 
 		for i, val := range []float64{
 			maxLinkSpeedTS,
-			float64(*device.MaxLinkWidth),
+			maxLinkWidth,
 			currentLinkSpeedTS,
-			float64(*device.CurrentLinkWidth),
+			currentLinkWidth,
+			powerState,
+			d3coldAllowed,
+			sriovDriversAutoprobe,
+			sriovNumvfs,
+			sriovTotalvfs,
+			sriovVfTotalMsix,
 		} {
 			ch <- c.descs[i].mustNewConstMetric(val, device.Location.Strings()...)
 		}
 	}
 
 	return nil
+}
+
+// parsePowerStateFromEnum converts PciPowerState enum to numeric value
+func parsePowerStateFromEnum(powerState sysfs.PciPowerState) float64 {
+	switch powerState {
+	case sysfs.PciPowerStateD0:
+		return 0
+	case sysfs.PciPowerStateD1:
+		return 1
+	case sysfs.PciPowerStateD2:
+		return 2
+	case sysfs.PciPowerStateD3Hot:
+		return 3
+	case sysfs.PciPowerStateD3Cold:
+		return 4
+	case sysfs.PciPowerStateUnknown:
+		return -1
+	case sysfs.PciPowerStateError:
+		return -2
+	default:
+		return -2
+	}
+}
+
+// loadPCIIds loads PCI device information from pci.ids file
+func (c *pcideviceCollector) loadPCIIds() {
+	var file *os.File
+	var err error
+
+	c.pciVendors = make(map[string]string)
+	c.pciDevices = make(map[string]map[string]string)
+	c.pciSubsystems = make(map[string]map[string]string)
+	c.pciClasses = make(map[string]string)
+	c.pciSubclasses = make(map[string]string)
+	c.pciProgIfs = make(map[string]string)
+
+	// Use custom pci.ids file if specified
+	if *pciIdsFile != "" {
+		file, err = os.Open(*pciIdsFile)
+		if err != nil {
+			c.logger.Debug("Failed to open PCI IDs file", "file", *pciIdsFile, "error", err)
+			return
+		}
+		c.logger.Debug("Loading PCI IDs from", "file", *pciIdsFile)
+	} else {
+		// Try each possible default path
+		for _, path := range pciIdsPaths {
+			file, err = os.Open(path)
+			if err == nil {
+				c.logger.Debug("Loading PCI IDs from default path", "path", path)
+				break
+			}
+		}
+		if err != nil {
+			c.logger.Debug("Failed to open any default PCI IDs file", "error", err)
+			return
+		}
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var currentVendor, currentDevice, currentBaseClass, currentSubclass string
+	var inClassContext bool
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		// Handle class lines (starts with 'C')
+		if strings.HasPrefix(line, "C ") {
+			parts := strings.SplitN(line, "  ", 2)
+			if len(parts) >= 2 {
+				classID := strings.TrimSpace(parts[0][1:]) // Remove 'C' prefix
+				className := strings.TrimSpace(parts[1])
+				c.pciClasses[classID] = className
+				currentBaseClass = classID
+				inClassContext = true
+			}
+			continue
+		}
+
+		// Handle subclass lines (single tab after class)
+		if strings.HasPrefix(line, "\t") && !strings.HasPrefix(line, "\t\t") && inClassContext {
+			line = strings.TrimPrefix(line, "\t")
+			parts := strings.SplitN(line, "  ", 2)
+			if len(parts) >= 2 && currentBaseClass != "" {
+				subclassID := strings.TrimSpace(parts[0])
+				subclassName := strings.TrimSpace(parts[1])
+				// Store as base class + subclass (e.g., "0100" for SCSI storage controller)
+				fullClassID := currentBaseClass + subclassID
+				c.pciSubclasses[fullClassID] = subclassName
+				currentSubclass = fullClassID
+			}
+			continue
+		}
+
+		// Handle programming interface lines (double tab after subclass)
+		if strings.HasPrefix(line, "\t\t") && !strings.HasPrefix(line, "\t\t\t") && inClassContext {
+			line = strings.TrimPrefix(line, "\t\t")
+			parts := strings.SplitN(line, "  ", 2)
+			if len(parts) >= 2 && currentSubclass != "" {
+				progIfID := strings.TrimSpace(parts[0])
+				progIfName := strings.TrimSpace(parts[1])
+				// Store as base class + subclass + programming interface (e.g., "010802" for NVM Express)
+				fullClassID := currentSubclass + progIfID
+				c.pciProgIfs[fullClassID] = progIfName
+			}
+			continue
+		}
+
+		// Handle vendor lines (no leading whitespace, not starting with 'C')
+		if !strings.HasPrefix(line, "\t") && !strings.HasPrefix(line, "C ") {
+			parts := strings.SplitN(line, "  ", 2)
+			if len(parts) >= 2 {
+				currentVendor = strings.TrimSpace(parts[0])
+				c.pciVendors[currentVendor] = strings.TrimSpace(parts[1])
+				currentDevice = ""
+				inClassContext = false
+			}
+			continue
+		}
+
+		// Handle device lines (single tab)
+		if strings.HasPrefix(line, "\t") && !strings.HasPrefix(line, "\t\t") {
+			line = strings.TrimPrefix(line, "\t")
+			parts := strings.SplitN(line, "  ", 2)
+			if len(parts) >= 2 && currentVendor != "" {
+				currentDevice = strings.TrimSpace(parts[0])
+				if c.pciDevices[currentVendor] == nil {
+					c.pciDevices[currentVendor] = make(map[string]string)
+				}
+				c.pciDevices[currentVendor][currentDevice] = strings.TrimSpace(parts[1])
+			}
+			continue
+		}
+
+		// Handle subsystem lines (double tab)
+		if strings.HasPrefix(line, "\t\t") {
+			line = strings.TrimPrefix(line, "\t\t")
+			parts := strings.SplitN(line, "  ", 2)
+			if len(parts) >= 2 && currentVendor != "" && currentDevice != "" {
+				subsysID := strings.TrimSpace(parts[0])
+				subsysName := strings.TrimSpace(parts[1])
+				key := fmt.Sprintf("%s:%s", currentVendor, currentDevice)
+				if c.pciSubsystems[key] == nil {
+					c.pciSubsystems[key] = make(map[string]string)
+				}
+				// Convert subsystem ID from "vendor device" format to "vendor:device" format
+				subsysParts := strings.Fields(subsysID)
+				if len(subsysParts) == 2 {
+					subsysKey := fmt.Sprintf("%s:%s", subsysParts[0], subsysParts[1])
+					c.pciSubsystems[key][subsysKey] = subsysName
+				}
+			}
+		}
+	}
+
+	// Debug summary
+	fmt.Printf("DEBUG: Loaded %d vendors, %d devices, %d subsystems, %d classes, %d subclasses, %d programming interfaces\n",
+		len(c.pciVendors),
+		func() int {
+			total := 0
+			for _, devices := range c.pciDevices {
+				total += len(devices)
+			}
+			return total
+		}(),
+		func() int {
+			total := 0
+			for _, subsystems := range c.pciSubsystems {
+				total += len(subsystems)
+			}
+			return total
+		}(),
+		len(c.pciClasses),
+		len(c.pciSubclasses),
+		len(c.pciProgIfs))
+}
+
+// getPCIVendorName converts PCI vendor ID to human-readable string using pci.ids
+func (c *pcideviceCollector) getPCIVendorName(vendorID string) string {
+	// Return original ID if name resolution is disabled
+	if !c.pciNames {
+		return vendorID
+	}
+
+	// Remove "0x" prefix if present
+	vendorID = strings.TrimPrefix(vendorID, "0x")
+	vendorID = strings.ToLower(vendorID)
+
+	if name, ok := c.pciVendors[vendorID]; ok {
+		return name
+	}
+	return vendorID // Return ID if name not found
+}
+
+// getPCIDeviceName converts PCI device ID to human-readable string using pci.ids
+func (c *pcideviceCollector) getPCIDeviceName(vendorID, deviceID string) string {
+	// Return original ID if name resolution is disabled
+	if !c.pciNames {
+		return deviceID
+	}
+
+	// Remove "0x" prefix if present
+	vendorID = strings.TrimPrefix(vendorID, "0x")
+	deviceID = strings.TrimPrefix(deviceID, "0x")
+	vendorID = strings.ToLower(vendorID)
+	deviceID = strings.ToLower(deviceID)
+
+	if devices, ok := c.pciDevices[vendorID]; ok {
+		if name, ok := devices[deviceID]; ok {
+			return name
+		}
+	}
+	return deviceID // Return ID if name not found
+}
+
+// getPCISubsystemName converts PCI subsystem ID to human-readable string using pci.ids
+func (c *pcideviceCollector) getPCISubsystemName(vendorID, deviceID, subsysVendorID, subsysDeviceID string) string {
+	// Return original ID if name resolution is disabled
+	if !c.pciNames {
+		return subsysDeviceID
+	}
+
+	// Normalize all IDs
+	vendorID = strings.TrimPrefix(vendorID, "0x")
+	deviceID = strings.TrimPrefix(deviceID, "0x")
+	subsysVendorID = strings.TrimPrefix(subsysVendorID, "0x")
+	subsysDeviceID = strings.TrimPrefix(subsysDeviceID, "0x")
+
+	key := fmt.Sprintf("%s:%s", vendorID, deviceID)
+	subsysKey := fmt.Sprintf("%s:%s", subsysVendorID, subsysDeviceID)
+
+	if subsystems, ok := c.pciSubsystems[key]; ok {
+		if name, ok := subsystems[subsysKey]; ok {
+			return name
+		}
+	}
+	return subsysDeviceID
+}
+
+// getPCIClassName converts PCI class ID to human-readable string using pci.ids
+func (c *pcideviceCollector) getPCIClassName(classID string) string {
+	// Return original ID if name resolution is disabled
+	if !c.pciNames {
+		return classID
+	}
+
+	// Remove "0x" prefix if present and normalize
+	classID = strings.TrimPrefix(classID, "0x")
+	classID = strings.ToLower(classID)
+
+	// Try to find the programming interface first (6 digits: base class + subclass + programming interface)
+	if len(classID) >= 6 {
+		progIf := classID[:6]
+		if className, exists := c.pciProgIfs[progIf]; exists {
+			return className
+		}
+	}
+
+	// Try to find the subclass (4 digits: base class + subclass)
+	if len(classID) >= 4 {
+		subclass := classID[:4]
+		if className, exists := c.pciSubclasses[subclass]; exists {
+			return className
+		}
+	}
+
+	// If not found, try with just the base class (first 2 digits)
+	if len(classID) >= 2 {
+		baseClass := classID[:2]
+		if className, exists := c.pciClasses[baseClass]; exists {
+			return className
+		}
+	}
+
+	// Return the original class ID if not found
+	return "Unknown class (" + classID + ")"
 }
