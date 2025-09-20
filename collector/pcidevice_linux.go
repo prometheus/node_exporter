@@ -475,25 +475,23 @@ func (c *pcideviceCollector) loadPCIIds() {
 	}
 
 	// Debug summary
-	fmt.Printf("DEBUG: Loaded %d vendors, %d devices, %d subsystems, %d classes, %d subclasses, %d programming interfaces\n",
-		len(c.pciVendors),
-		func() int {
-			total := 0
-			for _, devices := range c.pciDevices {
-				total += len(devices)
-			}
-			return total
-		}(),
-		func() int {
-			total := 0
-			for _, subsystems := range c.pciSubsystems {
-				total += len(subsystems)
-			}
-			return total
-		}(),
-		len(c.pciClasses),
-		len(c.pciSubclasses),
-		len(c.pciProgIfs))
+	totalDevices := 0
+	for _, devices := range c.pciDevices {
+		totalDevices += len(devices)
+	}
+	totalSubsystems := 0
+	for _, subsystems := range c.pciSubsystems {
+		totalSubsystems += len(subsystems)
+	}
+
+	c.logger.Debug("Loaded PCI device data",
+		"vendors", len(c.pciVendors),
+		"devices", totalDevices,
+		"subsystems", totalSubsystems,
+		"classes", len(c.pciClasses),
+		"subclasses", len(c.pciSubclasses),
+		"progIfs", len(c.pciProgIfs),
+	)
 }
 
 // getPCIVendorName converts PCI vendor ID to human-readable string using pci.ids
