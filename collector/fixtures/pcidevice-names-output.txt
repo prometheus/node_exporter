@@ -30,6 +30,12 @@ node_pcidevice_info{bus="01",class_id="0x010802",class_name="NVM Express",device
 # Example 3: Intel Network Controller
 node_pcidevice_info{bus="45",class_id="0x020000",class_name="Ethernet controller",device="00",device_id="0x1521",device_name="I350 Gigabit Network Connection",function="0",parent_bus="40",parent_device="01",parent_function="3",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x00a3",subsystem_device_name="Ethernet Network Adapter I350-T4 for OCP NIC 3.0",subsystem_vendor_id="0x8086",subsystem_vendor_name="Intel Corporation",vendor_id="0x8086",vendor_name="Intel Corporation"} 1
 
+# HELP node_pcidevice_numa_node NUMA node number for the PCI device. -1 indicates unknown or not available.
+# TYPE node_pcidevice_numa_node gauge
+node_pcidevice_numa_node{bus="00",device="02",function="1",segment="0000"} -1
+node_pcidevice_numa_node{bus="01",device="00",function="0",segment="0000"} -1
+node_pcidevice_numa_node{bus="45",device="00",function="0",segment="0000"} 0
+
 # HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
 # TYPE node_pcidevice_max_link_transfers_per_second gauge
 node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09

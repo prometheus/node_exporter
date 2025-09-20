@@ -100,6 +100,12 @@ var (
 		"Total number of MSI-X vectors for Virtual Functions.",
 		pcideviceLabelNames, nil,
 	)
+
+	pcideviceNumaNodeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, pcideviceSubsystem, "numa_node"),
+		"NUMA node number for the PCI device. -1 indicates unknown or not available.",
+		pcideviceLabelNames, nil,
+	)
 )
 
 type pcideviceCollector struct {
@@ -166,6 +172,7 @@ func NewPcideviceCollector(logger *slog.Logger) (Collector, error) {
 		{desc: pcideviceSriovNumvfsDesc, valueType: prometheus.GaugeValue},
 		{desc: pcideviceSriovTotalvfsDesc, valueType: prometheus.GaugeValue},
 		{desc: pcideviceSriovVfTotalMsixDesc, valueType: prometheus.GaugeValue},
+		{desc: pcideviceNumaNodeDesc, valueType: prometheus.GaugeValue},
 	}
 
 	return c, nil
@@ -267,6 +274,14 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 			sriovVfTotalMsix = float64(*device.SriovVfTotalMsix)
 		}
 
+		// Handle numa_node with nil safety
+		var numaNode float64
+		if device.NumaNode != nil {
+			numaNode = float64(*device.NumaNode)
+		} else {
+			numaNode = -1
+		}
+
 		// Handle link width fields with nil safety
 		var maxLinkWidth float64
 		if device.MaxLinkWidth != nil {
@@ -293,6 +308,7 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 			sriovNumvfs,
 			sriovTotalvfs,
 			sriovVfTotalMsix,
+			numaNode,
 		} {
 			ch <- c.descs[i].mustNewConstMetric(val, device.Location.Strings()...)
 		}
