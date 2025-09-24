@@ -34,7 +34,7 @@ type swapCollector struct {
 }
 
 func init() {
-	registerCollector("swap", defaultEnabled, NewSwapCollector)
+	registerCollector("swap", defaultDisabled, NewSwapCollector)
 }
 
 // NewSwapCollector returns a new Collector exposing swap device statistics.
