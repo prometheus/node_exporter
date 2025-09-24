@@ -50,21 +50,44 @@ func NewSwapCollector(logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
+type SwapsEntry struct {
+	Device   string
+	Type     string
+	Priority int
+	Size     int
+	Used     int
+}
+
+func (c *swapCollector) getSwapInfo() ([]SwapsEntry, error) {
 	swaps, err := c.fs.Swaps()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get proc/swap information: %w", err)
+	}
+
+	metrics := make([]SwapsEntry, 0)
+
+	for _, swap := range swaps {
+		metrics = append(metrics, SwapsEntry{swap.Filename, swap.Type, swap.Priority, swap.Size, swap.Used})
+	}
+
+	return metrics, nil
+}
+
+func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
+	swaps, err := c.getSwapInfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get swap information: %w", err)
 	}
 
 	for _, swap := range swaps {
-		labels := []string{swap.Filename, fmt.Sprintf("%d", swap.Priority)}
+		labels := []string{swap.Device, swap.Type, fmt.Sprintf("%d", swap.Priority)}
 
 		// Export swap size in bytes
 		ch <- prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, swapSubsystem, "size_bytes"),
 				"Swap device size in bytes.",
-				[]string{"device", "priority"}, nil,
+				[]string{"device", "type", "priority"}, nil,
 			),
 			prometheus.GaugeValue, float64(swap.Size*1024), labels...,
 		)
@@ -74,7 +97,7 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, swapSubsystem, "used_bytes"),
 				"Swap device used in bytes.",
-				[]string{"device", "priority"}, nil,
+				[]string{"device", "type", "priority"}, nil,
 			),
 			prometheus.GaugeValue, float64(swap.Used*1024), labels...,
 		)
