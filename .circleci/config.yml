@@ -7,10 +7,10 @@ executors:
   # should also be updated.
   golang:
     docker:
-      - image: cimg/go:1.24
+      - image: cimg/go:1.25
   arm:
     docker:
-      - image: cimg/go:1.24
+      - image: cimg/go:1.25
     resource_class: arm.medium
 
 jobs:
@@ -70,7 +70,7 @@ jobs:
     machine:
       image: ubuntu-2404:current
     environment:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.24-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.25-base
       REPO_PATH: github.com/prometheus/node_exporter
     steps:
       - prometheus/setup_environment

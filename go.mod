@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/beevik/ntp v1.4.3
 	github.com/coreos/go-systemd/v22 v22.6.0
-	github.com/dennwc/btrfs v0.0.0-20240418142341-0167142bde7a
+	github.com/dennwc/btrfs v0.0.0-20241002142654-12ae127e0bf6
 	github.com/ema/qdisc v1.0.0
 	github.com/godbus/dbus/v5 v5.1.0
 	github.com/hashicorp/go-envparse v0.1.0
@@ -27,7 +27,7 @@ require (
 	github.com/prometheus/exporter-toolkit v0.14.1
 	github.com/prometheus/procfs v0.17.0
 	github.com/safchain/ethtool v0.6.2
-	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
+	golang.org/x/exp v0.0.0-20250911091902-df9299821621
 	golang.org/x/sys v0.36.0
 	howett.net/plist v1.0.1
 )
@@ -53,7 +53,7 @@ require (
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 )
