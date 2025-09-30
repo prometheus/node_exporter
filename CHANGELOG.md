@@ -2,6 +2,7 @@
 
 * [CHANGE]
 * [FEATURE]
+* [FEATURE] swap: Add metrics for /proc/swaps #3428
 * [ENHANCEMENT]
 * [BUGFIX]
 
