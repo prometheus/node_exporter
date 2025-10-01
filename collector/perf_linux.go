@@ -366,7 +366,7 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	// Configure all profilers for the specified CPUs.
-	for _, cpu := range cpus {
+	for index, cpu := range cpus {
 		// Use -1 to profile all processes on the CPU, see:
 		// man perf_event_open
 		if !*perfNoHwProfiler {
@@ -377,6 +377,9 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 			)
 			if err != nil && !hwProf.HasProfilers() {
 				return nil, err
+			}
+			if err != nil && index == 0 { // Just print this on the first CPU.
+				logger.Warn("While setting up hardware profilers", "err", err)
 			}
 			if err := hwProf.Start(); err != nil {
 				return nil, err
@@ -389,6 +392,9 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 			swProf, err := perf.NewSoftwareProfiler(-1, cpu, softwareProfilers)
 			if err != nil && !swProf.HasProfilers() {
 				return nil, err
+			}
+			if err != nil && index == 0 { // Just print this on the first CPU.
+				logger.Warn("While setting up software profilers", "err", err)
 			}
 			if err := swProf.Start(); err != nil {
 				return nil, err
@@ -405,6 +411,9 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 			)
 			if err != nil && !cacheProf.HasProfilers() {
 				return nil, err
+			}
+			if err != nil && index == 0 { // Just print this on the first CPU.
+				logger.Warn("While setting up cache profilers", "err", err)
 			}
 			if err := cacheProf.Start(); err != nil {
 				return nil, err
