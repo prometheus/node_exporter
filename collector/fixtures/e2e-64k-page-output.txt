@@ -3356,6 +3356,10 @@ node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="aa:bb:cc:d
 # TYPE node_wifi_station_receive_bytes_total counter
 node_wifi_station_receive_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
 node_wifi_station_receive_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
+# HELP node_wifi_station_received_packets_total The total number of packets received by a station.
+# TYPE node_wifi_station_received_packets_total counter
+node_wifi_station_received_packets_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_received_packets_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_signal_dbm The current WiFi signal strength, in decibel-milliwatts (dBm).
 # TYPE node_wifi_station_signal_dbm gauge
 node_wifi_station_signal_dbm{device="wlan0",mac_address="01:02:03:04:05:06"} -26
@@ -3376,6 +3380,10 @@ node_wifi_station_transmit_failed_total{device="wlan0",mac_address="aa:bb:cc:dd:
 # TYPE node_wifi_station_transmit_retries_total counter
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="01:02:03:04:05:06"} 20
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 10
+# HELP node_wifi_station_transmitted_packets_total The total number of packets transmitted by a station.
+# TYPE node_wifi_station_transmitted_packets_total counter
+node_wifi_station_transmitted_packets_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_transmitted_packets_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_xfrm_acquire_error_packets_total State hasn’t been fully acquired before use
 # TYPE node_xfrm_acquire_error_packets_total counter
 node_xfrm_acquire_error_packets_total 24532
