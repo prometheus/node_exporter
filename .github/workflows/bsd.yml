@@ -13,11 +13,11 @@ permissions:
 
 env:
   GNU_TAR_VERSION: "1.35"
-  GO_VERSION_DRAGONFLY: "1.24.1"
-  GO_VERSION_FREEBSD: "123"
-  GO_VERSION_NETBSD: "1.24.1"
-  GO_VERSION_OPENBSD: "1.23.1"
-  GO_VERSION_SOLARIS: "1.24.1"
+  GO_VERSION_DRAGONFLY: "1.25.1"
+  GO_VERSION_FREEBSD: "125"
+  GO_VERSION_NETBSD: "1.25.1"
+  GO_VERSION_OPENBSD: "1.24.1"
+  GO_VERSION_SOLARIS: "1.25.1"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -26,10 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/freebsd-vm@8873d98fd1413b5977cb2f7348fe329775159892  # v1.1.9
+        uses: vmactions/freebsd-vm@487ce35b96fae3e60d45b521735f5aa436ecfade  # v1.2.4
         with:
+          release: "15.0"
           copyback: false
           envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
           usesh: true
@@ -73,9 +74,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/openbsd-vm@7ac70b6de6f33efc74a90c1964afa3bcf0ee4401  # v1.1.6
+        uses: vmactions/openbsd-vm@1e7cc4fa7727646d3cf5921289b1f5c9d1a88f3c  # v1.2.0
         with:
           copyback: false
           envs: 'GO_VERSION_OPENBSD GNU_TAR_VERSION'
@@ -119,16 +120,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/netbsd-vm@46a58bbf03682b4cb24142b97fa315ae52bed573  # v1.1.8
+        uses: vmactions/netbsd-vm@d0228be27fbaba19418cc1b332609a895cf16561  # v1.1.9
         with:
           copyback: false
           envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
           usesh: true
           prepare: |
-            /usr/sbin/pkg_add -u
-            /usr/sbin/pkg_add \
+            /usr/sbin/pkg_add -u \
               git \
               gmake \
               grep \
@@ -167,9 +167,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@e3c420e8a2362c2496fca6e76a291abd46f5d8e7  # v1.1.0
+        uses: vmactions/dragonflybsd-vm@ff1f01c32b9e82f2ba388d0ff270442bcd6ceddc  # v1.1.1
         with:
           copyback: false
           envs: 'GO_VERSION_DRAGONFLY'
@@ -217,15 +217,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/solaris-vm@cc8f82fa1a7cc746153ec3f71bf11f311f16e225  # v1.1.1
+        uses: vmactions/solaris-vm@58cbd70c6e051860f9b8f65908cc582938fbbdba  # v1.1.5
         with:
           copyback: false
           envs: 'GO_VERSION_SOLARIS'
           usesh: true
           prepare: |
-            pkg update
             pkg install \
               bash \
               curl \
@@ -276,7 +275,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: Install dependencies
         run: |
           brew install \

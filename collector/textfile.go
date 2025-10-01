@@ -29,6 +29,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/common/model"
 )
 
 var (
@@ -299,7 +300,7 @@ func (c *textFileCollector) processFile(dir, name string, ch chan<- prometheus.M
 	}
 	defer f.Close()
 
-	var parser expfmt.TextParser
+	parser := expfmt.NewTextParser(model.LegacyValidation)
 	families, err := parser.TextToMetricFamilies(f)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse textfile data from %q: %w", path, err)
