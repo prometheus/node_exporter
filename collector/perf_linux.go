@@ -343,6 +343,8 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 		for _, hf := range *perfHwProfilerFlag {
 			if v, ok := perfHardwareProfilerMap[hf]; ok {
 				hardwareProfilers |= v
+			} else {
+				return nil, fmt.Errorf("unknown hardware profiler: %q", hf)
 			}
 		}
 	}
@@ -352,6 +354,8 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 		for _, sf := range *perfSwProfilerFlag {
 			if v, ok := perfSoftwareProfilerMap[sf]; ok {
 				softwareProfilers |= v
+			} else {
+				return nil, fmt.Errorf("unknown software profiler: %q", sf)
 			}
 		}
 	}
@@ -361,6 +365,8 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 		for _, cf := range *perfCaProfilerFlag {
 			if v, ok := perfCacheProfilerMap[cf]; ok {
 				cacheProfilers |= v
+			} else {
+				return nil, fmt.Errorf("unknown cache profiler: %q", cf)
 			}
 		}
 	}
