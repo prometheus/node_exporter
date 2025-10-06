@@ -64,7 +64,7 @@ func (c *swapCollector) getSwapInfo() ([]SwapsEntry, error) {
 		return nil, fmt.Errorf("couldn't get proc/swap information: %w", err)
 	}
 
-	metrics := make([]SwapsEntry, 0)
+	metrics := make([]SwapsEntry, 0, len(swaps))
 
 	for _, swap := range swaps {
 		metrics = append(metrics, SwapsEntry{swap.Filename, swap.Type, swap.Priority, swap.Size, swap.Used})
