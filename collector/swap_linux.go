@@ -102,7 +102,7 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 				[]string{"device", "type"}, nil,
 			),
 			prometheus.GaugeValue,
-		  // Swap used is also provided in kbytes, translate to bytes
+			// Swap used is also provided in kbytes, translate to bytes
 			float64(swap.Used*1024),
 			labels...,
 		)
