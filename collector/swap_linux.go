@@ -91,6 +91,8 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 				[]string{"device", "type"}, nil,
 			),
 			prometheus.GaugeValue,
+			// Size is provided in kbytes (not bytes), translate to bytes
+			// see https://github.com/torvalds/linux/blob/fd94619c43360eb44d28bd3ef326a4f85c600a07/mm/swapfile.c#L3079-L3080
 			float64(swap.Size*1024),
 			labels...,
 		)
@@ -103,6 +105,7 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 				[]string{"device", "type"}, nil,
 			),
 			prometheus.GaugeValue,
+		  // Swap used is also provided in kbytes, translate to bytes
 			float64(swap.Used*1024),
 			labels...,
 		)
