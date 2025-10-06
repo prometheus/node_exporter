@@ -871,6 +871,9 @@ SymlinkTo: ../../../devices/pci0000:00/0000:00:02.1
 Path: sys/bus/pci/devices/0000:01:00.0
 SymlinkTo: ../../../devices/pci0000:00/0000:00:02.1/0000:01:00.0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/pci/devices/0000:45:00.0
+SymlinkTo: ../../../devices/pci0000:40/0000:40:01.3/0000:45:00.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5104,6 +5107,26 @@ Lines: 1
 0x01
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/sriov_drivers_autoprobe
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/sriov_numvfs
+Lines: 1
+4
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/sriov_totalvfs
+Lines: 1
+8
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/sriov_vf_total_msix
+Lines: 1
+16
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/subsystem
 SymlinkTo: ../../../../bus/pci
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -5461,6 +5484,26 @@ Path: sys/devices/pci0000:00/0000:00:02.1/secondary_bus_number
 Lines: 1
 1
 Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/sriov_drivers_autoprobe
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/sriov_numvfs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/sriov_totalvfs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:00/0000:00:02.1/sriov_vf_total_msix
+Lines: 1
+0
+Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/subordinate_bus_number
 Lines: 1
@@ -5889,6 +5932,2146 @@ Path: sys/devices/pci0000:00/0000:00:0d.0/ata5/host4/target4:0:0/4:0:0:0/block/s
 Lines: 1
 0
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/aer_dev_correctable
+Lines: 9
+RxErr 0
+BadTLP 0
+BadDLLP 0
+Rollover 0
+Timeout 0
+NonFatalErr 0
+CorrIntErr 0
+HeaderOF 0
+TOTAL_ERR_COR 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/aer_dev_fatal
+Lines: 19
+Undefined 0
+DLP 0
+SDES 0
+TLP 0
+FCP 0
+CmpltTO 0
+CmpltAbrt 0
+UnxCmplt 0
+RxOF 0
+MalfTLP 0
+ECRC 0
+UnsupReq 0
+ACSViol 0
+UncorrIntErr 0
+BlockedTLP 0
+AtomicOpBlocked 0
+TLPBlockedErr 0
+PoisonTLPBlocked 0
+TOTAL_ERR_FATAL 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/aer_dev_nonfatal
+Lines: 19
+Undefined 0
+DLP 0
+SDES 0
+TLP 0
+FCP 0
+CmpltTO 0
+CmpltAbrt 0
+UnxCmplt 0
+RxOF 0
+MalfTLP 0
+ECRC 0
+UnsupReq 0
+ACSViol 0
+UncorrIntErr 0
+BlockedTLP 0
+AtomicOpBlocked 0
+TLPBlockedErr 0
+PoisonTLPBlocked 0
+TOTAL_ERR_NONFATAL 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ari_enabled
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/broken_parity_status
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/class
+Lines: 1
+0x020000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/consistent_dma_mask_bits
+Lines: 1
+64
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/current_link_speed
+Lines: 1
+5.0 GT/s PCIe
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/current_link_width
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/d3cold_allowed
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/device
+Lines: 1
+0x1521
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/dma_mask_bits
+Lines: 1
+64
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/driver
+SymlinkTo: ../../../../bus/pci/drivers/igb
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/driver_override
+Lines: 1
+(null)
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/enable
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/firmware_node
+SymlinkTo: ../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:01/device:18/device:19
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/device
+SymlinkTo: ../../../0000:45:00.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/name
+Lines: 1
+i350bb
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/subsystem
+SymlinkTo: ../../../../../../class/hwmon
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/temp1_crit
+Lines: 1
+110000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/temp1_input
+Lines: 1
+50000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/temp1_label
+Lines: 1
+loc1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/temp1_max
+Lines: 1
+120000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/hwmon/hwmon0/uevent
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/modalias
+Lines: 1
+i2c:i350bb
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/name
+Lines: 1
+i350bb
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/async
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/subsystem
+SymlinkTo: ../../../../../../bus/i2c
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/3-007c/uevent
+Lines: 1
+MODALIAS=i2c:i350bb
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/dev
+Lines: 1
+89:3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/device
+SymlinkTo: ../../../i2c-3
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/name
+Lines: 1
+igb BB
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/subsystem
+SymlinkTo: ../../../../../../../class/i2c-dev
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/i2c-dev/i2c-3/uevent
+Lines: 3
+MAJOR=89
+MINOR=3
+DEVNAME=i2c-3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/name
+Lines: 1
+igb BB
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/power/async
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/power/runtime_enabled
+Lines: 1
+enabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/power/runtime_status
+Lines: 1
+suspended
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/subsystem
+SymlinkTo: ../../../../../bus/i2c
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/i2c-3/uevent
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/iommu
+SymlinkTo: ../../0000:40:00.2/iommu/ivhd1
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/iommu_group
+SymlinkTo: ../../../../kernel/iommu_groups/25
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/irq
+Lines: 1
+58
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/link
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/local_cpulist
+Lines: 1
+0-63,128-191
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/local_cpus
+Lines: 1
+00000000,00000000,ffffffff,ffffffff,00000000,00000000,ffffffff,ffffffff
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/max_link_speed
+Lines: 1
+5.0 GT/s PCIe
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/max_link_width
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/modalias
+Lines: 1
+pci:v00008086d00001521sv00008086sd000000A3bc02sc00i00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_bus
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/147
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/148
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/149
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/150
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/151
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/152
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/153
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/154
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/msi_irqs/155
+Lines: 1
+msix
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/addr_assign_type
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/addr_len
+Lines: 1
+6
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/address
+Lines: 1
+68:05:ca:f0:cb:12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/broadcast
+Lines: 1
+ff:ff:ff:ff:ff:ff
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/backup_port
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/bpdu_guard
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/bridge
+SymlinkTo: ../../../../../../virtual/net/vmbr0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/broadcast_flood
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/change_ack
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/config_pending
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/designated_bridge
+Lines: 1
+8000.6805caf0cb12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/designated_cost
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/designated_port
+Lines: 1
+32769
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/designated_root
+Lines: 1
+8000.6805caf0cb12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/forward_delay_timer
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/group_fwd_mask
+Lines: 1
+0x0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/hairpin_mode
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/hold_timer
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/isolated
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/learning
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/message_age_timer
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/multicast_fast_leave
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/multicast_flood
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/multicast_router
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/multicast_to_unicast
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/neigh_suppress
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/path_cost
+Lines: 1
+5
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/port_id
+Lines: 1
+0x8001
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/port_no
+Lines: 1
+0x1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/priority
+Lines: 1
+32
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/proxyarp
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/proxyarp_wifi
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/root_block
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/state
+Lines: 1
+3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/brport/unicast_flood
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/carrier
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/carrier_changes
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/carrier_down_count
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/carrier_up_count
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/dev_id
+Lines: 1
+0x0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/dev_port
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/device
+SymlinkTo: ../../../0000:45:00.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/dormant
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/duplex
+Lines: 1
+full
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/flags
+Lines: 1
+0x1303
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/gro_flush_timeout
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/ifalias
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/ifindex
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/iflink
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/link_mode
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/master
+SymlinkTo: ../../../../../virtual/net/vmbr0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/mtu
+Lines: 1
+1500
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/name_assign_type
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/napi_defer_hard_irqs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/netdev_group
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/operstate
+Lines: 1
+up
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/phys_port_id
+Lines: 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/phys_port_name
+Lines: 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/phys_switch_id
+Lines: 0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/proto_down
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-0/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-0/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-1/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-1/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-2/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-2/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-3/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-3/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-4
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-4/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-4/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-5
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-5/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-5/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-6
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-6/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-6/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-7
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-7/rps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/rx-7/rps_flow_cnt
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/limit
+Lines: 1
+67893
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-0/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/limit
+Lines: 1
+137370
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-1/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/limit
+Lines: 1
+137370
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-2/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/limit
+Lines: 1
+137370
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-3/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/limit
+Lines: 1
+68879
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-4/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/limit
+Lines: 1
+137370
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-5/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/limit
+Lines: 1
+54464
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-6/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/hold_time
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/inflight
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/limit
+Lines: 1
+71700
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/limit_max
+Lines: 1
+1879048192
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/limit_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/stall_cnt
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/stall_max
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/byte_queue_limits/stall_thrs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/traffic_class
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/tx_maxrate
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/tx_timeout
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/xps_cpus
+Lines: 1
+00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/queues/tx-7/xps_rxqs
+Lines: 1
+00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/speed
+Lines: 1
+1000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/collisions
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/multicast
+Lines: 1
+656633
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_bytes
+Lines: 1
+10013625365
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_compressed
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_crc_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_dropped
+Lines: 1
+29220
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_fifo_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_frame_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_length_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_missed_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_nohandler
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_over_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/rx_packets
+Lines: 1
+46422718
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_aborted_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_bytes
+Lines: 1
+10275718925
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_carrier_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_compressed
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_dropped
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_fifo_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_heartbeat_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_packets
+Lines: 1
+47308115
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/statistics/tx_window_errors
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/subsystem
+SymlinkTo: ../../../../../../class/net
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/testing
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/threaded
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/tx_queue_len
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/type
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/uevent
+Lines: 2
+INTERFACE=ens10f0
+IFINDEX=2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/net/ens10f0/upper_vmbr0
+SymlinkTo: ../../../../../virtual/net/vmbr0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/numa_node
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/async
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/control
+Lines: 1
+on
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/runtime_active_time
+Lines: 1
+862796974
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/runtime_enabled
+Lines: 1
+forbidden
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/runtime_status
+Lines: 1
+active
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/runtime_usage
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup
+Lines: 1
+enabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_abort_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_active
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_active_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_expire_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_last_time_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_max_time_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power/wakeup_total_time_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/power_state
+Lines: 1
+D0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/clock_name
+Lines: 1
+6805caf0cb12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/dev
+Lines: 1
+246:0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/device
+SymlinkTo: ../../../0000:45:00.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/fifo
+Lines: 1
+NULLBYTEEOF
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/max_adjustment
+Lines: 1
+62499999
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/max_vclocks
+Lines: 1
+20
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/n_alarms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/n_external_timestamps
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/n_periodic_outputs
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/n_programmable_pins
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/n_vclocks
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/pins
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/pins/SDP0
+Lines: 1
+0 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/pins/SDP1
+Lines: 1
+0 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/pins/SDP2
+Lines: 1
+0 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/pins/SDP3
+Lines: 1
+0 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/async
+Lines: 1
+disabled
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/autosuspend_delay_ms
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/control
+Lines: 1
+auto
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/runtime_active_kids
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/runtime_active_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/runtime_enabled
+Lines: 1
+disabled
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/runtime_status
+Lines: 1
+unsupported
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/runtime_suspended_time
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/power/runtime_usage
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/pps_available
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/subsystem
+SymlinkTo: ../../../../../../class/ptp
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/ptp/ptp0/uevent
+Lines: 3
+MAJOR=246
+MINOR=0
+DEVNAME=ptp0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/reset_method
+Lines: 1
+flr bus
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/resource
+Lines: 13
+0x0000000097100000 0x00000000971fffff 0x0000000000040200
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000003060 0x000000000000307f 0x0000000000040101
+0x000000009720c000 0x000000009720ffff 0x0000000000040200
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000097280000 0x00000000972fffff 0x0000000000046200
+0x000000f0a03e0000 0x000000f0a03fffff 0x000000000014220c
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x000000f0a03c0000 0x000000f0a03dffff 0x000000000014220c
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/resource0
+Lines: 0
+Mode: 600
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/resource2
+Lines: 0
+Mode: 600
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/resource3
+Lines: 0
+Mode: 600
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/revision
+Lines: 1
+0x01
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/rom
+Lines: 0
+Mode: 600
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/sriov_drivers_autoprobe
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/sriov_numvfs
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/sriov_offset
+Lines: 1
+128
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/sriov_stride
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/sriov_totalvfs
+Lines: 1
+7
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/sriov_vf_device
+Lines: 1
+1520
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/sriov_vf_total_msix
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/subsystem
+SymlinkTo: ../../../../bus/pci
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/subsystem_device
+Lines: 1
+0x00a3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/subsystem_vendor
+Lines: 1
+0x8086
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/uevent
+Lines: 6
+DRIVER=igb
+PCI_CLASS=20000
+PCI_ID=8086:1521
+PCI_SUBSYS_ID=8086:00A3
+PCI_SLOT_NAME=0000:45:00.0
+MODALIAS=pci:v00008086d00001521sv00008086sd000000A3bc02sc00i00
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/vendor
+Lines: 1
+0x8086
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/vpd
+Lines: 2
+Ç:NULLBYTEIntel (r) Ethernet Network Adapter I350-T4 for OCP NIC 3.0êdNULLBYTEV1:Intel (r) Ethernet Network Adapter I350-T4 for OCP NIC 3.0PN
+K53978-004SN6805CAF0CB12V24521RVÇxEOF
+Mode: 600
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/active_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/active_time_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/device
+SymlinkTo: ../../../0000:45:00.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/event_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/expire_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/last_change_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/max_time_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/name
+Lines: 1
+0000:45:00.0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/prevent_suspend_time_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/subsystem
+SymlinkTo: ../../../../../../class/wakeup
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/total_time_ms
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/uevent
+Lines: 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup/wakeup87/wakeup_count
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/class
+Lines: 1
+0x060400
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/d3cold_allowed
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/device
+Lines: 1
+0x1483
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/power_state
+Lines: 1
+D0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/revision
+Lines: 1
+0x00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/subsystem_device
+Lines: 1
+0x1453
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/subsystem_vendor
+Lines: 1
+0x1022
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/pci0000:40/0000:40:01.3/vendor
+Lines: 1
+0x1022
+Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/platform
 Mode: 755
