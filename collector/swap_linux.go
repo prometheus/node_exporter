@@ -67,7 +67,8 @@ func (c *swapCollector) getSwapInfo() ([]SwapsEntry, error) {
 	metrics := make([]SwapsEntry, 0, len(swaps))
 
 	for _, swap := range swaps {
-		metrics = append(metrics, SwapsEntry{swap.Filename, swap.Type, swap.Priority, swap.Size, swap.Used})
+		metrics = append(metrics, SwapsEntry{Device: swap.Filename, Type: swap.Type,
+			Priority: swap.Priority, Size: swap.Size, Used: swap.Used})
 	}
 
 	return metrics, nil
