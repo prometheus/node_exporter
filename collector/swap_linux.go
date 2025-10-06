@@ -27,6 +27,8 @@ const (
 	swapSubsystem = "swap"
 )
 
+var swapLabelNames = []string{"device", "swap_type"}
+
 type swapCollector struct {
 	fs     procfs.FS
 	logger *slog.Logger
@@ -80,8 +82,7 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, swap := range swaps {
-		label_names := []string{"device", "swap_type"}
-		label_values := []string{swap.Device, swap.Type}
+		swapLabelValues := []string{swap.Device, swap.Type}
 
 		// Export swap size in bytes
 		ch <- prometheus.MustNewConstMetric(
@@ -94,7 +95,7 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 			// Size is provided in kbytes (not bytes), translate to bytes
 			// see https://github.com/torvalds/linux/blob/fd94619c43360eb44d28bd3ef326a4f85c600a07/mm/swapfile.c#L3079-L3080
 			float64(swap.Size*1024),
-			label_values...,
+			swapLabelValues...,
 		)
 
 		// Export swap used in bytes
@@ -102,12 +103,12 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, swapSubsystem, "used_bytes"),
 				"Swap device used in bytes.",
-				label_names, nil,
+				swapLabelNames, nil,
 			),
 			prometheus.GaugeValue,
 			// Swap used is also provided in kbytes, translate to bytes
 			float64(swap.Used*1024),
-			label_values...,
+			swapLabelValues...,
 		)
 
 		// Export swap priority
@@ -115,11 +116,11 @@ func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 			prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, swapSubsystem, "priority"),
 				"Swap device priority.",
-				label_names, nil,
+				swapLabelNames, nil,
 			),
 			prometheus.GaugeValue,
 			float64(swap.Priority),
-			label_values...,
+			swapLabelValues...,
 		)
 
 	}
