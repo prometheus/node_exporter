@@ -198,7 +198,7 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			c.pushCounter(ch, "port_receive_switch_relay_errors_total", port.Counters.PortRcvSwitchRelayErrors, port.Name, portStr)
 			c.pushCounter(ch, "symbol_error_total", port.Counters.SymbolError, port.Name, portStr)
 			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr)
-			c.pushCounter(ch, "duplicate_request", port.HwCounters.DuplicateRequest, port.Name, portStr)                 
+			c.pushCounter(ch, "duplicate_request", port.HwCounters.DuplicateRequest, port.Name, portStr)
 			c.pushCounter(ch, "implied_nak_seq_err", port.HwCounters.ImpliedNakSeqErr, port.Name, portStr)
 			c.pushCounter(ch, "lifespan", port.HwCounters.Lifespan, port.Name, portStr)
 			c.pushCounter(ch, "local_ack_timeout_err", port.HwCounters.LocalAckTimeoutErr, port.Name, portStr)
