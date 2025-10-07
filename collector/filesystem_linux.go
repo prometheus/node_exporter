@@ -21,8 +21,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -81,6 +83,11 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 			}
 			if c.fsTypeFilter.ignored(labels.fsType) {
 				c.logger.Debug("Ignoring fs type", "type", labels.fsType)
+				continue
+			}
+
+			if c.fsUUIDFilter.ignored(labels.fsUUID) {
+				c.logger.Debug("Ignoring fs UUID", "uuid", labels.fsUUID)
 				continue
 			}
 
@@ -187,10 +194,47 @@ func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
 	}
 	defer file.Close()
 
-	return parseFilesystemLabels(file)
+	UUIDMap := buildUUIDMap(logger)
+
+	return parseFilesystemLabels(file, UUIDMap)
 }
 
-func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
+// buildUUIDMap builds a map of device major:minor numbers to their filesystem UUIDs.
+func buildUUIDMap(logger *slog.Logger) map[string]string {
+	UUIDMap := map[string]string{}
+	dir := devDiskFilePath("by-uuid")
+	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			logger.Debug("Skipping non-file entry", "path", path, "err", err)
+			return nil
+		}
+		uuid := d.Name()
+		target, err := os.Readlink(path)
+		if err != nil {
+			if t, err := filepath.EvalSymlinks(path); err == nil {
+				target = t
+			} else {
+				logger.Debug("Failed to read symlink", "path", path, "err", err)
+				return nil
+			}
+		}
+		if !filepath.IsAbs(target) {
+			target = filepath.Join(filepath.Dir(path), target)
+		}
+		var stat unix.Stat_t
+		if err := unix.Stat(target, &stat); err != nil {
+			logger.Debug("Failed to stat device", "path", path, "err", err)
+			return nil
+		}
+		maj := unix.Major(uint64(stat.Rdev))
+		min := unix.Minor(uint64(stat.Rdev))
+		UUIDMap[fmt.Sprintf("%d:%d", maj, min)] = uuid
+		return nil
+	})
+	return UUIDMap
+}
+
+func parseFilesystemLabels(r io.Reader, UUIDMap map[string]string) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
 	scanner := bufio.NewScanner(r)
@@ -212,6 +256,11 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 			m++
 		}
 
+		fsUUID, ok := UUIDMap[fmt.Sprintf("%d:%d", major, minor)]
+		if !ok {
+			fsUUID = ""
+		}
+
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
 		parts[4] = strings.ReplaceAll(parts[4], "\\040", " ")
@@ -221,6 +270,7 @@ func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
 			device:       parts[m+3],
 			mountPoint:   rootfsStripPrefix(parts[4]),
 			fsType:       parts[m+2],
+			fsUUID:       fsUUID,
 			mountOptions: parts[5],
 			superOptions: parts[10],
 			major:        strconv.Itoa(major),
