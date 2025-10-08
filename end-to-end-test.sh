@@ -50,6 +50,7 @@ enabled_collectors=$(cat << COLLECTORS
   drbd
   edac
   entropy
+  ext4
   fibrechannel
   filefd
   hwmon
