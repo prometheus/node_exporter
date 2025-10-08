@@ -363,7 +363,7 @@ type mockWifiStater struct {
 	fixtures string
 }
 
-func (s *mockWifiStater) unmarshalJSONFile(filename string, v interface{}) error {
+func (s *mockWifiStater) unmarshalJSONFile(filename string, v any) error {
 	b, err := os.ReadFile(filepath.Join(s.fixtures, filename))
 	if err != nil {
 		return err

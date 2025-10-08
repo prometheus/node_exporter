@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"slices"
 	"strconv"
 
 	"github.com/godbus/dbus/v5"
@@ -138,10 +139,8 @@ func collectMetrics(ch chan<- prometheus.Metric, c logindInterface) error {
 }
 
 func knownStringOrOther(value string, known []string) string {
-	for i := range known {
-		if value == known[i] {
-			return value
-		}
+	if slices.Contains(known, value) {
+		return value
 	}
 
 	return "other"
@@ -176,19 +175,19 @@ func newDbus() (*logindDbus, error) {
 }
 
 func (c *logindDbus) listSeats() ([]string, error) {
-	var result [][]interface{}
+	var result [][]any
 	err := c.object.Call(dbusObject+".Manager.ListSeats", 0).Store(&result)
 	if err != nil {
 		return nil, err
 	}
 
-	resultInterface := make([]interface{}, len(result))
+	resultInterface := make([]any, len(result))
 	for i := range result {
 		resultInterface[i] = result[i]
 	}
 
 	seats := make([]logindSeatEntry, len(result))
-	seatsInterface := make([]interface{}, len(seats))
+	seatsInterface := make([]any, len(seats))
 	for i := range seats {
 		seatsInterface[i] = &seats[i]
 	}
@@ -209,19 +208,19 @@ func (c *logindDbus) listSeats() ([]string, error) {
 }
 
 func (c *logindDbus) listSessions() ([]logindSessionEntry, error) {
-	var result [][]interface{}
+	var result [][]any
 	err := c.object.Call(dbusObject+".Manager.ListSessions", 0).Store(&result)
 	if err != nil {
 		return nil, err
 	}
 
-	resultInterface := make([]interface{}, len(result))
+	resultInterface := make([]any, len(result))
 	for i := range result {
 		resultInterface[i] = result[i]
 	}
 
 	sessions := make([]logindSessionEntry, len(result))
-	sessionsInterface := make([]interface{}, len(sessions))
+	sessionsInterface := make([]any, len(sessions))
 	for i := range sessions {
 		sessionsInterface[i] = &sessions[i]
 	}

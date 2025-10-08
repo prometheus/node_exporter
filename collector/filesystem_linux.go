@@ -58,10 +58,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
-	workerCount := *statWorkerCount
-	if workerCount < 1 {
-		workerCount = 1
-	}
+	workerCount := max(*statWorkerCount, 1)
 
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)

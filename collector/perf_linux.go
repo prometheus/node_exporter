@@ -118,7 +118,7 @@ func perfTracepointFlagToTracepoints(tracepointsFlag []string) ([]*perfTracepoin
 func perfCPUFlagToCPUs(cpuFlag string) ([]int, error) {
 	var err error
 	cpus := []int{}
-	for _, subset := range strings.Split(cpuFlag, ",") {
+	for subset := range strings.SplitSeq(cpuFlag, ",") {
 		// First parse a single CPU.
 		if !strings.Contains(subset, "-") {
 			cpu, err := strconv.Atoi(subset)

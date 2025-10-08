@@ -78,13 +78,13 @@ func readBondingStats(root string) (status map[string][2]int, err error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, master := range strings.Fields(string(masters)) {
+	for master := range strings.FieldsSeq(string(masters)) {
 		slaves, err := os.ReadFile(filepath.Join(root, master, "bonding", "slaves"))
 		if err != nil {
 			return nil, err
 		}
 		sstat := [2]int{0, 0}
-		for _, slave := range strings.Fields(string(slaves)) {
+		for slave := range strings.FieldsSeq(string(slaves)) {
 			state, err := os.ReadFile(filepath.Join(root, master, fmt.Sprintf("lower_%s", slave), "bonding_slave", "mii_status"))
 			if errors.Is(err, os.ErrNotExist) {
 				// some older? kernels use slave_ prefix

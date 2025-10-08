@@ -106,8 +106,8 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 			)
 		}
 		if stats.Governor != "" {
-			availableGovernors := strings.Split(stats.AvailableGovernors, " ")
-			for _, g := range availableGovernors {
+			availableGovernors := strings.SplitSeq(stats.AvailableGovernors, " ")
+			for g := range availableGovernors {
 				state := 0
 				if g == stats.Governor {
 					state = 1
