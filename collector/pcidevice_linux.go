@@ -126,17 +126,26 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.infoDesc.mustNewConstMetric(1.0, values...)
 
 		// MaxLinkSpeed and CurrentLinkSpeed are represnted in GT/s
-		maxLinkSpeedTS := float64(int64(*device.MaxLinkSpeed * 1e9))
-		currentLinkSpeedTS := float64(int64(*device.CurrentLinkSpeed * 1e9))
+		var maxLinkSpeedTS, currentLinkSpeedTS float64
+		var maxLinkWidth, currentLinkWidth float64
 
-		for i, val := range []float64{
-			maxLinkSpeedTS,
-			float64(*device.MaxLinkWidth),
-			currentLinkSpeedTS,
-			float64(*device.CurrentLinkWidth),
-		} {
-			ch <- c.descs[i].mustNewConstMetric(val, device.Location.Strings()...)
+		if device.MaxLinkSpeed != nil {
+			maxLinkSpeedTS = float64(int64(*device.MaxLinkSpeed * 1e9))
 		}
+		if device.CurrentLinkSpeed != nil {
+			currentLinkSpeedTS = float64(int64(*device.CurrentLinkSpeed * 1e9))
+		}
+		if device.MaxLinkWidth != nil {
+			maxLinkWidth = float64(*device.MaxLinkWidth)
+		}
+		if device.CurrentLinkWidth != nil {
+			currentLinkWidth = float64(*device.CurrentLinkWidth)
+		}
+
+		ch <- c.descs[0].mustNewConstMetric(maxLinkSpeedTS, device.Location.Strings()...)
+		ch <- c.descs[1].mustNewConstMetric(maxLinkWidth, device.Location.Strings()...)
+		ch <- c.descs[2].mustNewConstMetric(currentLinkSpeedTS, device.Location.Strings()...)
+		ch <- c.descs[3].mustNewConstMetric(currentLinkWidth, device.Location.Strings()...)
 	}
 
 	return nil
