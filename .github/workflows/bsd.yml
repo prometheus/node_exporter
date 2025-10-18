@@ -13,11 +13,11 @@ permissions:
 
 env:
   GNU_TAR_VERSION: "1.35"
-  GO_VERSION_DRAGONFLY: "1.24.1"
-  GO_VERSION_FREEBSD: "123"
-  GO_VERSION_NETBSD: "1.24.1"
+  GO_VERSION_DRAGONFLY: "1.25.1"
+  GO_VERSION_FREEBSD: "125"
+  GO_VERSION_NETBSD: "1.25.1"
   GO_VERSION_OPENBSD: "1.24.1"
-  GO_VERSION_SOLARIS: "1.24.1"
+  GO_VERSION_SOLARIS: "1.25.1"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -28,8 +28,9 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/freebsd-vm@05856381fab64eeee9b038a0818f6cec649ca17a  # v1.2.3
+        uses: vmactions/freebsd-vm@487ce35b96fae3e60d45b521735f5aa436ecfade  # v1.2.4
         with:
+          release: "15.0"
           copyback: false
           envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
           usesh: true
