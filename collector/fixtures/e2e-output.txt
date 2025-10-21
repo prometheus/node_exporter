@@ -2871,9 +2871,9 @@ node_pcidevice_d3cold_allowed{bus="01",device="00",function="0",segment="0000"} 
 node_pcidevice_d3cold_allowed{bus="45",device="00",function="0",segment="0000"} 1
 # HELP node_pcidevice_info Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.
 # TYPE node_pcidevice_info gauge
-+node_pcidevice_info{bus="00",class_id="0x060400",device="02",device_id="0x1634",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1022"} 1
-+node_pcidevice_info{bus="01",class_id="0x010802",device="00",device_id="0x540a",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0xc0a9"} 1
-+node_pcidevice_info{bus="45",class_id="0x020000",device="00",device_id="0x1521",function="0",parent_bus="40",parent_device="01",parent_function="3",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x00a3",subsystem_vendor_id="0x8086",vendor_id="0x8086"} 1
+node_pcidevice_info{bus="00",class_id="0x060400",device="02",device_id="0x1634",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1022"} 1
+node_pcidevice_info{bus="01",class_id="0x010802",device="00",device_id="0x540a",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0xc0a9"} 1
+node_pcidevice_info{bus="45",class_id="0x020000",device="00",device_id="0x1521",function="0",parent_bus="40",parent_device="01",parent_function="3",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x00a3",subsystem_vendor_id="0x8086",vendor_id="0x8086"} 1
 # HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
 # TYPE node_pcidevice_max_link_transfers_per_second gauge
 node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
