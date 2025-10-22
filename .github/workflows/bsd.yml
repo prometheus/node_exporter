@@ -30,7 +30,7 @@ jobs:
       - name: test-e2e
         uses: vmactions/freebsd-vm@487ce35b96fae3e60d45b521735f5aa436ecfade  # v1.2.4
         with:
-          release: "15.0"
+          release: "14.3"
           copyback: false
           envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
           usesh: true
