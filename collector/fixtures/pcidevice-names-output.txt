@@ -1,0 +1,95 @@
+# Test output for PCI device collector with name resolution enabled
+# This file demonstrates the --collector.pcidevice.names=true functionality
+
+# HELP node_pcidevice_current_link_transfers_per_second Value of current link's transfers per second (T/s)
+# TYPE node_pcidevice_current_link_transfers_per_second gauge
+node_pcidevice_current_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
+node_pcidevice_current_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 8e+09
+node_pcidevice_current_link_transfers_per_second{bus="45",device="00",function="0",segment="0000"} 5e+09
+
+# HELP node_pcidevice_current_link_width Value of current link's width (number of lanes)
+# TYPE node_pcidevice_current_link_width gauge
+node_pcidevice_current_link_width{bus="00",device="02",function="1",segment="0000"} 4
+node_pcidevice_current_link_width{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_current_link_width{bus="45",device="00",function="0",segment="0000"} 4
+
+# HELP node_pcidevice_d3cold_allowed Whether the PCIe device supports D3cold power state (0/1).
+# TYPE node_pcidevice_d3cold_allowed gauge
+node_pcidevice_d3cold_allowed{bus="00",device="02",function="1",segment="0000"} 1
+node_pcidevice_d3cold_allowed{bus="01",device="00",function="0",segment="0000"} 1
+node_pcidevice_d3cold_allowed{bus="45",device="00",function="0",segment="0000"} 1
+
+# HELP node_pcidevice_info Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.
+# TYPE node_pcidevice_info gauge
+# Example 1: AMD PCIe Bridge with Lenovo subsystem
+node_pcidevice_info{bus="00",class_id="0x060400",class_name="PCI bridge",device="02",device_id="0x1634",device_name="Renoir/Cezanne PCIe GPP Bridge",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_device_name="T540-5095 Unified Wire Ethernet Controller",subsystem_vendor_id="0x17aa",subsystem_vendor_name="Lenovo",vendor_id="0x1022",vendor_name="Advanced Micro Devices, Inc. [AMD]"} 1
+
+# Example 2: Micron/Crucial NVMe Controller
+node_pcidevice_info{bus="01",class_id="0x010802",class_name="NVM Express",device="00",device_id="0x540a",device_name="P2 [Nick P2] / P3 / P3 Plus NVMe PCIe SSD (DRAM-less)",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_device_name="PS5021-E21 PCIe4 NVMe Controller (DRAM-less)",subsystem_vendor_id="0xc0a9",subsystem_vendor_name="Micron/Crucial Technology",vendor_id="0xc0a9",vendor_name="Micron/Crucial Technology"} 1
+
+# Example 3: Intel Network Controller
+node_pcidevice_info{bus="45",class_id="0x020000",class_name="Ethernet controller",device="00",device_id="0x1521",device_name="I350 Gigabit Network Connection",function="0",parent_bus="40",parent_device="01",parent_function="3",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x00a3",subsystem_device_name="Ethernet Network Adapter I350-T4 for OCP NIC 3.0",subsystem_vendor_id="0x8086",subsystem_vendor_name="Intel Corporation",vendor_id="0x8086",vendor_name="Intel Corporation"} 1
+
+# HELP node_pcidevice_numa_node NUMA node number for the PCI device. -1 indicates unknown or not available.
+# TYPE node_pcidevice_numa_node gauge
+node_pcidevice_numa_node{bus="45",device="00",function="0",segment="0000"} 0
+
+# HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
+# TYPE node_pcidevice_max_link_transfers_per_second gauge
+node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
+node_pcidevice_max_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 1.6e+10
+node_pcidevice_max_link_transfers_per_second{bus="45",device="00",function="0",segment="0000"} 5e+09
+
+# HELP node_pcidevice_max_link_width Value of maximum link's width (number of lanes)
+# TYPE node_pcidevice_max_link_width gauge
+node_pcidevice_max_link_width{bus="00",device="02",function="1",segment="0000"} 8
+node_pcidevice_max_link_width{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_max_link_width{bus="45",device="00",function="0",segment="0000"} 4
+
+# HELP node_pcidevice_power_state PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.
+# TYPE node_pcidevice_power_state gauge
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="unknown"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="unknown"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="unknown"} 0
+
+# HELP node_pcidevice_sriov_drivers_autoprobe Whether SR-IOV drivers autoprobe is enabled for the device (0/1).
+# TYPE node_pcidevice_sriov_drivers_autoprobe gauge
+node_pcidevice_sriov_drivers_autoprobe{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_drivers_autoprobe{bus="01",device="00",function="0",segment="0000"} 1
+node_pcidevice_sriov_drivers_autoprobe{bus="45",device="00",function="0",segment="0000"} 1
+
+# HELP node_pcidevice_sriov_numvfs Number of Virtual Functions (VFs) currently enabled for SR-IOV.
+# TYPE node_pcidevice_sriov_numvfs gauge
+node_pcidevice_sriov_numvfs{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_numvfs{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_sriov_numvfs{bus="45",device="00",function="0",segment="0000"} 0
+
+# HELP node_pcidevice_sriov_totalvfs Total number of Virtual Functions (VFs) supported by the device.
+# TYPE node_pcidevice_sriov_totalvfs gauge
+node_pcidevice_sriov_totalvfs{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_totalvfs{bus="01",device="00",function="0",segment="0000"} 8
+node_pcidevice_sriov_totalvfs{bus="45",device="00",function="0",segment="0000"} 7
+
+# HELP node_pcidevice_sriov_vf_total_msix Total number of MSI-X vectors for Virtual Functions.
+# TYPE node_pcidevice_sriov_vf_total_msix gauge
+node_pcidevice_sriov_vf_total_msix{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_vf_total_msix{bus="01",device="00",function="0",segment="0000"} 16
+node_pcidevice_sriov_vf_total_msix{bus="45",device="00",function="0",segment="0000"} 0
