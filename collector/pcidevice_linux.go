@@ -125,7 +125,7 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- c.infoDesc.mustNewConstMetric(1.0, values...)
 
-		// MaxLinkSpeed and CurrentLinkSpeed are represnted in GT/s
+		// MaxLinkSpeed and CurrentLinkSpeed are represented in GT/s
 		maxLinkSpeedTS := float64(int64(*device.MaxLinkSpeed * 1e9))
 		currentLinkSpeedTS := float64(int64(*device.CurrentLinkSpeed * 1e9))
 
