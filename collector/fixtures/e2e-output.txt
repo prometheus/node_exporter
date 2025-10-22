@@ -311,6 +311,16 @@ node_cpu_flag_info{flag="aes"} 1
 node_cpu_flag_info{flag="avx"} 1
 node_cpu_flag_info{flag="avx2"} 1
 node_cpu_flag_info{flag="constant_tsc"} 1
+# HELP node_cpu_frequency_hertz CPU frequency in hertz from /proc/cpuinfo.
+# TYPE node_cpu_frequency_hertz gauge
+node_cpu_frequency_hertz{core="0",cpu="0",package="0"} 7.99998e+08
+node_cpu_frequency_hertz{core="0",cpu="4",package="0"} 7.99989e+08
+node_cpu_frequency_hertz{core="1",cpu="1",package="0"} 8.00037e+08
+node_cpu_frequency_hertz{core="1",cpu="5",package="0"} 8.00083e+08
+node_cpu_frequency_hertz{core="2",cpu="2",package="0"} 8.0001e+08
+node_cpu_frequency_hertz{core="2",cpu="6",package="0"} 8.00017e+08
+node_cpu_frequency_hertz{core="3",cpu="3",package="0"} 8.00028e+08
+node_cpu_frequency_hertz{core="3",cpu="7",package="0"} 8.0003e+08
 # HELP node_cpu_guest_seconds_total Seconds the CPUs spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
