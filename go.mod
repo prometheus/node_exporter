@@ -25,10 +25,10 @@ require (
 	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.66.1
 	github.com/prometheus/exporter-toolkit v0.14.1
-	github.com/prometheus/procfs v0.17.0
+	github.com/prometheus/procfs v0.18.0
 	github.com/safchain/ethtool v0.6.2
 	golang.org/x/exp v0.0.0-20250911091902-df9299821621
-	golang.org/x/sys v0.36.0
+	golang.org/x/sys v0.37.0
 	howett.net/plist v1.0.1
 )
 
