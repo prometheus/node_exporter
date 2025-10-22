@@ -2886,8 +2886,6 @@ node_pcidevice_max_link_width{bus="01",device="00",function="0",segment="0000"} 
 node_pcidevice_max_link_width{bus="45",device="00",function="0",segment="0000"} 4
 # HELP node_pcidevice_numa_node NUMA node number for the PCI device. -1 indicates unknown or not available.
 # TYPE node_pcidevice_numa_node gauge
-node_pcidevice_numa_node{bus="00",device="02",function="1",segment="0000"} -1
-node_pcidevice_numa_node{bus="01",device="00",function="0",segment="0000"} -1
 node_pcidevice_numa_node{bus="45",device="00",function="0",segment="0000"} 0
 # HELP node_pcidevice_power_state PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.
 # TYPE node_pcidevice_power_state gauge
