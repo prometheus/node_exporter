@@ -21,6 +21,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -91,14 +92,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 		}
 
 		for k := range allLabelNames {
-			present := false
-			for _, name := range names {
-				if k == name {
-					present = true
-					break
-				}
-			}
-			if !present {
+			if !slices.Contains(names, k) {
 				names = append(names, k)
 				values = append(values, "")
 			}
