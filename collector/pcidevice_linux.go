@@ -67,8 +67,8 @@ var (
 
 	pcidevicePowerStateDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, pcideviceSubsystem, "power_state"),
-		"PCIe device power state: 0 = D0 (fully powered), 1 = D1, 2 = D2, 3 = D3hot, 4 = D3cold (lowest power), -1 = Unknown, -2 = Error.",
-		pcideviceLabelNames, nil,
+		"PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.",
+		append(pcideviceLabelNames, "state"), nil,
 	)
 
 	pcideviceD3coldAllowedDesc = prometheus.NewDesc(
@@ -235,9 +235,11 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		// Get power state information directly from device object
-		var powerState float64
+		var currentPowerState string
+		var hasPowerState bool
 		if device.PowerState != nil {
-			powerState = parsePowerStateFromEnum(*device.PowerState)
+			currentPowerState = device.PowerState.String()
+			hasPowerState = true
 		}
 
 		var d3coldAllowed float64
@@ -297,46 +299,48 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 			currentLinkWidth = -1
 		}
 
-		for i, val := range []float64{
+		// Emit metrics for all fields except numa_node and power_state
+		metrics := []float64{
 			maxLinkSpeedTS,
 			maxLinkWidth,
 			currentLinkSpeedTS,
 			currentLinkWidth,
-			powerState,
 			d3coldAllowed,
 			sriovDriversAutoprobe,
 			sriovNumvfs,
 			sriovTotalvfs,
 			sriovVfTotalMsix,
-			numaNode,
-		} {
-			ch <- c.descs[i].mustNewConstMetric(val, device.Location.Strings()...)
+		}
+
+		// Emit regular metrics (excluding power_state which is at index 4)
+		metricIndices := []int{0, 1, 2, 3, 5, 6, 7, 8, 9} // Skip power_state (4) and numa_node (10)
+		for i, val := range metrics {
+			ch <- c.descs[metricIndices[i]].mustNewConstMetric(val, device.Location.Strings()...)
+		}
+
+		// Emit power state metrics with state labels only if power state is available
+		if hasPowerState {
+			powerStates := []string{"D0", "D1", "D2", "D3hot", "D3cold", "unknown", "error"}
+			deviceLabels := device.Location.Strings()
+			for _, state := range powerStates {
+				var value float64
+				if state == currentPowerState {
+					value = 1
+				} else {
+					value = 0
+				}
+				stateLabels := append(deviceLabels, state)
+				ch <- c.descs[4].mustNewConstMetric(value, stateLabels...)
+			}
+		}
+
+		// Only emit numa_node metric if the value is available (not -1)
+		if numaNode != -1 {
+			ch <- c.descs[10].mustNewConstMetric(numaNode, device.Location.Strings()...)
 		}
 	}
 
 	return nil
-}
-
-// parsePowerStateFromEnum converts PciPowerState enum to numeric value
-func parsePowerStateFromEnum(powerState sysfs.PciPowerState) float64 {
-	switch powerState {
-	case sysfs.PciPowerStateD0:
-		return 0
-	case sysfs.PciPowerStateD1:
-		return 1
-	case sysfs.PciPowerStateD2:
-		return 2
-	case sysfs.PciPowerStateD3Hot:
-		return 3
-	case sysfs.PciPowerStateD3Cold:
-		return 4
-	case sysfs.PciPowerStateUnknown:
-		return -1
-	case sysfs.PciPowerStateError:
-		return -2
-	default:
-		return -2
-	}
 }
 
 // loadPCIIds loads PCI device information from pci.ids file

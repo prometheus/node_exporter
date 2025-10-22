@@ -2867,11 +2867,11 @@ node_pcidevice_max_link_width{bus="45",device="00",function="0",segment="0000"} 
 node_pcidevice_numa_node{bus="00",device="02",function="1",segment="0000"} -1
 node_pcidevice_numa_node{bus="01",device="00",function="0",segment="0000"} -1
 node_pcidevice_numa_node{bus="45",device="00",function="0",segment="0000"} 0
-# HELP node_pcidevice_power_state PCIe device power state: 0 = D0 (fully powered), 1 = D1, 2 = D2, 3 = D3hot, 4 = D3cold (lowest power), -1 = Unknown, -2 = Error.
+# HELP node_pcidevice_power_state PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.
 # TYPE node_pcidevice_power_state gauge
-node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000"} 0
-node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000"} 0
-node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D0"} 1
 # HELP node_pcidevice_sriov_drivers_autoprobe Whether SR-IOV drivers autoprobe is enabled for the device (0/1).
 # TYPE node_pcidevice_sriov_drivers_autoprobe gauge
 node_pcidevice_sriov_drivers_autoprobe{bus="00",device="02",function="1",segment="0000"} 0
