@@ -220,10 +220,6 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.infoDesc.mustNewConstMetric(1.0, values...)
 
 		// MaxLinkSpeed and CurrentLinkSpeed are represented in GT/s
-<<<<<<< HEAD
-		maxLinkSpeedTS := float64(int64(*device.MaxLinkSpeed * 1e9))
-		currentLinkSpeedTS := float64(int64(*device.CurrentLinkSpeed * 1e9))
-=======
 		var maxLinkSpeedTS float64
 		if device.MaxLinkSpeed != nil {
 			maxLinkSpeedTS = (*device.MaxLinkSpeed) * 1e9
@@ -300,7 +296,6 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 		} else {
 			currentLinkWidth = -1
 		}
->>>>>>> 752b2d8e (add sriov, power info support and pci id name resolution (#1))
 
 		for i, val := range []float64{
 			maxLinkSpeedTS,
