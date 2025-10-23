@@ -43,75 +43,108 @@ var (
 
 	pcideviceLabelNames = []string{"segment", "bus", "device", "function"}
 
-	pcideviceMaxLinkTSDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "max_link_transfers_per_second"),
-		"Value of maximum link's transfers per second (T/s)",
-		pcideviceLabelNames, nil,
-	)
-	pcideviceMaxLinkWidthDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "max_link_width"),
-		"Value of maximum link's width (number of lanes)",
-		pcideviceLabelNames, nil,
-	)
+	pcideviceMaxLinkTSDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "max_link_transfers_per_second"),
+			"Value of maximum link's transfers per second (T/s)",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcideviceCurrentLinkTSDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "current_link_transfers_per_second"),
-		"Value of current link's transfers per second (T/s)",
-		pcideviceLabelNames, nil,
-	)
-	pcideviceCurrentLinkWidthDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "current_link_width"),
-		"Value of current link's width (number of lanes)",
-		pcideviceLabelNames, nil,
-	)
+	pcideviceMaxLinkWidthDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "max_link_width"),
+			"Value of maximum link's width (number of lanes)",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcidevicePowerStateDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "power_state"),
-		"PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.",
-		append(pcideviceLabelNames, "state"), nil,
-	)
+	pcideviceCurrentLinkTSDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "current_link_transfers_per_second"),
+			"Value of current link's transfers per second (T/s)",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+	pcideviceCurrentLinkWidthDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "current_link_width"),
+			"Value of current link's width (number of lanes)",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcideviceD3coldAllowedDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "d3cold_allowed"),
-		"Whether the PCIe device supports D3cold power state (0/1).",
-		pcideviceLabelNames, nil,
-	)
+	pcidevicePowerStateDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "power_state"),
+			"PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.",
+			append(pcideviceLabelNames, "state"), nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcideviceSriovDriversAutoprobeDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_drivers_autoprobe"),
-		"Whether SR-IOV drivers autoprobe is enabled for the device (0/1).",
-		pcideviceLabelNames, nil,
-	)
+	pcideviceD3coldAllowedDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "d3cold_allowed"),
+			"Whether the PCIe device supports D3cold power state (0/1).",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcideviceSriovNumvfsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_numvfs"),
-		"Number of Virtual Functions (VFs) currently enabled for SR-IOV.",
-		pcideviceLabelNames, nil,
-	)
+	pcideviceSriovDriversAutoprobeDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_drivers_autoprobe"),
+			"Whether SR-IOV drivers autoprobe is enabled for the device (0/1).",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcideviceSriovTotalvfsDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_totalvfs"),
-		"Total number of Virtual Functions (VFs) supported by the device.",
-		pcideviceLabelNames, nil,
-	)
+	pcideviceSriovNumvfsDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_numvfs"),
+			"Number of Virtual Functions (VFs) currently enabled for SR-IOV.",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcideviceSriovVfTotalMsixDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_vf_total_msix"),
-		"Total number of MSI-X vectors for Virtual Functions.",
-		pcideviceLabelNames, nil,
-	)
+	pcideviceSriovTotalvfsDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_totalvfs"),
+			"Total number of Virtual Functions (VFs) supported by the device.",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 
-	pcideviceNumaNodeDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, pcideviceSubsystem, "numa_node"),
-		"NUMA node number for the PCI device. -1 indicates unknown or not available.",
-		pcideviceLabelNames, nil,
-	)
+	pcideviceSriovVfTotalMsixDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "sriov_vf_total_msix"),
+			"Total number of MSI-X vectors for Virtual Functions.",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
+
+	pcideviceNumaNodeDesc = typedDesc{
+		desc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, pcideviceSubsystem, "numa_node"),
+			"NUMA node number for the PCI device. -1 indicates unknown or not available.",
+			pcideviceLabelNames, nil,
+		),
+		valueType: prometheus.GaugeValue,
+	}
 )
 
 type pcideviceCollector struct {
 	fs            sysfs.FS
 	infoDesc      typedDesc
-	descs         []typedFactorDesc
 	logger        *slog.Logger
 	pciVendors    map[string]string
 	pciDevices    map[string]map[string]string
@@ -159,20 +192,6 @@ func NewPcideviceCollector(logger *slog.Logger) (Collector, error) {
 			nil,
 		),
 		valueType: prometheus.GaugeValue,
-	}
-
-	c.descs = []typedFactorDesc{
-		{desc: pcideviceMaxLinkTSDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceMaxLinkWidthDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceCurrentLinkTSDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceCurrentLinkWidthDesc, valueType: prometheus.GaugeValue},
-		{desc: pcidevicePowerStateDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceD3coldAllowedDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceSriovDriversAutoprobeDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceSriovNumvfsDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceSriovTotalvfsDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceSriovVfTotalMsixDesc, valueType: prometheus.GaugeValue},
-		{desc: pcideviceNumaNodeDesc, valueType: prometheus.GaugeValue},
 	}
 
 	return c, nil
@@ -300,23 +319,15 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		// Emit metrics for all fields except numa_node and power_state
-		metrics := []float64{
-			maxLinkSpeedTS,
-			maxLinkWidth,
-			currentLinkSpeedTS,
-			currentLinkWidth,
-			d3coldAllowed,
-			sriovDriversAutoprobe,
-			sriovNumvfs,
-			sriovTotalvfs,
-			sriovVfTotalMsix,
-		}
-
-		// Emit regular metrics (excluding power_state which is at index 4)
-		metricIndices := []int{0, 1, 2, 3, 5, 6, 7, 8, 9} // Skip power_state (4) and numa_node (10)
-		for i, val := range metrics {
-			ch <- c.descs[metricIndices[i]].mustNewConstMetric(val, device.Location.Strings()...)
-		}
+		ch <- pcideviceMaxLinkTSDesc.mustNewConstMetric(maxLinkSpeedTS, device.Location.Strings()...)
+		ch <- pcideviceMaxLinkWidthDesc.mustNewConstMetric(maxLinkWidth, device.Location.Strings()...)
+		ch <- pcideviceCurrentLinkTSDesc.mustNewConstMetric(currentLinkSpeedTS, device.Location.Strings()...)
+		ch <- pcideviceCurrentLinkWidthDesc.mustNewConstMetric(currentLinkWidth, device.Location.Strings()...)
+		ch <- pcideviceD3coldAllowedDesc.mustNewConstMetric(d3coldAllowed, device.Location.Strings()...)
+		ch <- pcideviceSriovDriversAutoprobeDesc.mustNewConstMetric(sriovDriversAutoprobe, device.Location.Strings()...)
+		ch <- pcideviceSriovNumvfsDesc.mustNewConstMetric(sriovNumvfs, device.Location.Strings()...)
+		ch <- pcideviceSriovTotalvfsDesc.mustNewConstMetric(sriovTotalvfs, device.Location.Strings()...)
+		ch <- pcideviceSriovVfTotalMsixDesc.mustNewConstMetric(sriovVfTotalMsix, device.Location.Strings()...)
 
 		// Emit power state metrics with state labels only if power state is available
 		if hasPowerState {
@@ -330,13 +341,13 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 					value = 0
 				}
 				stateLabels := append(deviceLabels, state)
-				ch <- c.descs[4].mustNewConstMetric(value, stateLabels...)
+				ch <- pcidevicePowerStateDesc.mustNewConstMetric(value, stateLabels...)
 			}
 		}
 
 		// Only emit numa_node metric if the value is available (not -1)
 		if numaNode != -1 {
-			ch <- c.descs[10].mustNewConstMetric(numaNode, device.Location.Strings()...)
+			ch <- pcideviceNumaNodeDesc.mustNewConstMetric(numaNode, device.Location.Strings()...)
 		}
 	}
 
