@@ -128,6 +128,12 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	}
 	stuckMountsMtx.Unlock()
 
+	// Remove options from labels because options will not be used from this point forward
+	// and keeping them can lead to errors when the same device is mounted to the same mountpoint
+	// twice, with different options (metrics would be recorded multiple times).
+	labels.mountOptions = ""
+	labels.superOptions = ""
+
 	if err != nil {
 		labels.deviceError = err.Error()
 		c.logger.Debug("Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
