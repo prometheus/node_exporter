@@ -67,12 +67,26 @@ var (
 		"Regexp of filesystem types to exclude for filesystem collector. (mutually exclusive to fs-types-exclude)",
 	).String()
 
-	filesystemLabelNames = []string{"device", "mountpoint", "fstype", "device_error"}
+	fsUUIDsExcludeSet bool
+	fsUUIDsExclude    = kingpin.Flag(
+		"collector.filesystem.fs-uuids-exclude",
+		"Regexp of filesystem UUIDs to exclude for filesystem collector. (mutually exclusive to fs-uuids-include)",
+	).Default("").PreAction(func(c *kingpin.ParseContext) error {
+		fsUUIDsExcludeSet = true
+		return nil
+	}).String()
+	fsUUIDsInclude = kingpin.Flag(
+		"collector.filesystem.fs-uuids-include",
+		"Regexp of filesystem UUIDs to include for filesystem collector. (mutually exclusive to fs-uuids-exclude)",
+	).String()
+
+	filesystemLabelNames = []string{"device", "mountpoint", "fstype", "fsuuid", "device_error"}
 )
 
 type filesystemCollector struct {
 	mountPointFilter              deviceFilter
 	fsTypeFilter                  deviceFilter
+	fsUUIDFilter                  deviceFilter
 	sizeDesc, freeDesc, availDesc *prometheus.Desc
 	filesDesc, filesFreeDesc      *prometheus.Desc
 	purgeableDesc                 *prometheus.Desc
@@ -82,7 +96,7 @@ type filesystemCollector struct {
 }
 
 type filesystemLabels struct {
-	device, mountPoint, fsType, mountOptions, superOptions, deviceError, major, minor string
+	device, mountPoint, fsType, fsUUID, mountOptions, superOptions, deviceError, major, minor string
 }
 
 type filesystemStats struct {
@@ -166,9 +180,15 @@ func NewFilesystemCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("unable to parse fs types filter flags: %w", err)
 	}
 
+	fsUUIDFilter, err := newFSUUIDFilter(logger)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse fs UUIDs filter flags: %w", err)
+	}
+
 	return &filesystemCollector{
 		mountPointFilter: mountPointFilter,
 		fsTypeFilter:     fsTypeFilter,
+		fsUUIDFilter:     fsUUIDFilter,
 		sizeDesc:         sizeDesc,
 		freeDesc:         freeDesc,
 		availDesc:        availDesc,
@@ -197,11 +217,11 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(
 			c.deviceErrorDesc, prometheus.GaugeValue,
-			s.deviceError, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			s.deviceError, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.roDesc, prometheus.GaugeValue,
-			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 		)
 
 		if s.deviceError > 0 {
@@ -210,23 +230,23 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 
 		ch <- prometheus.MustNewConstMetric(
 			c.sizeDesc, prometheus.GaugeValue,
-			s.size, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			s.size, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.freeDesc, prometheus.GaugeValue,
-			s.free, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			s.free, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.availDesc, prometheus.GaugeValue,
-			s.avail, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			s.avail, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.filesDesc, prometheus.GaugeValue,
-			s.files, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			s.files, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.filesFreeDesc, prometheus.GaugeValue,
-			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.mountInfoDesc, prometheus.GaugeValue,
@@ -235,7 +255,7 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 		if s.purgeable >= 0 {
 			ch <- prometheus.MustNewConstMetric(
 				c.purgeableDesc, prometheus.GaugeValue,
-				s.purgeable, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+				s.purgeable, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.fsUUID, s.labels.deviceError,
 			)
 		}
 	}
@@ -298,4 +318,23 @@ func newFSTypeFilter(logger *slog.Logger) (deviceFilter, error) {
 	}
 
 	return newDeviceFilter(*fsTypesExclude, *fsTypesInclude), nil
+}
+
+func newFSUUIDFilter(logger *slog.Logger) (deviceFilter, error) {
+	if *fsUUIDsInclude != "" && !fsUUIDsExcludeSet {
+		logger.Debug("fs-uuids-exclude flag not set when fs-uuids-include flag is set, assuming include is desired")
+		*fsUUIDsExclude = ""
+	}
+	if *fsUUIDsExclude != "" && *fsUUIDsInclude != "" {
+		return deviceFilter{}, errors.New("--collector.filesystem.fs-uuids-exclude and --collector.filesystem.fs-uuids-include are mutually exclusive")
+	}
+
+	if *fsUUIDsExclude != "" {
+		logger.Info("Parsed flag --collector.filesystem.fs-uuids-exclude", "flag", *fsUUIDsExclude)
+	}
+	if *fsUUIDsInclude != "" {
+		logger.Info("Parsed flag --collector.filesystem.fs-uuids-include", "flag", *fsUUIDsInclude)
+	}
+
+	return newDeviceFilter(*fsUUIDsExclude, *fsUUIDsInclude), nil
 }
