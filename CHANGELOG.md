@@ -5,6 +5,10 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.10.2 / 2025-10-25
+
+* [BUGFIX] meminfo: Fix typo in Zswap metric name #3455
+
 ## 1.10.1 / 2025-10-25
 
 * [BUGFIX] filesystem: Fix mount points being collected multiple times #3376
