@@ -185,7 +185,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		metrics["WritebackTmp_bytes"] = float64(*meminfo.WritebackTmpBytes)
 	}
 	if meminfo.ZswapBytes != nil {
-		metrics["Zswap_ytes"] = float64(*meminfo.ZswapBytes)
+		metrics["Zswap_bytes"] = float64(*meminfo.ZswapBytes)
 	}
 	if meminfo.ZswappedBytes != nil {
 		metrics["Zswapped_bytes"] = float64(*meminfo.ZswappedBytes)
