@@ -1414,6 +1414,11 @@ Lines: 1
 N/A (no PMA)
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/i40iw0/ports/1/link_layer
+Lines: 1
+InfiniBand
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/i40iw0/ports/1/phys_state
 Lines: 1
 5: LinkUp
@@ -1579,6 +1584,11 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/1/link_layer
+Lines: 1
+InfiniBand
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/mlx4_0/ports/1/phys_state
 Lines: 1
 5: LinkUp
@@ -1682,6 +1692,11 @@ Path: sys/class/infiniband/mlx4_0/ports/2/counters_ext/port_xmit_packets_64
 Lines: 1
 0
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/infiniband/mlx4_0/ports/2/link_layer
+Lines: 1
+InfiniBand
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/mlx4_0/ports/2/phys_state
 Lines: 1
@@ -10295,9 +10310,5 @@ Mode: 644
 Path: sys/kernel/mm/ksm/sleep_millisecs
 Lines: 1
 20
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/.unpacked
-Lines: 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
