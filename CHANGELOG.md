@@ -5,6 +5,12 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.10.1 / 2025-10-25
+
+* [BUGFIX] filesystem: Fix mount points being collected multiple times #3376
+* [BUGFIX] filesystem: Refactor mountinfo parsing #3452
+* [BUGFIX] meminfo: Add Zswap/Zswapped metrics #3453
+
 ## 1.10.0 / 2025-10-24
 
 * [CHANGE] mdadm: Use sysfs for RAID metrics #3031
