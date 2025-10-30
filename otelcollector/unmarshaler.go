@@ -17,19 +17,8 @@ import "github.com/prometheus/exporter-toolkit/otlpreceiver"
 
 type ConfigUnmarshaler struct{}
 
-func (u *ConfigUnmarshaler) UnmarshalExporterConfig(data map[string]interface{}) (otlpreceiver.Config, error) {
-	cfg := &Config{}
-
-	if disableDefaults, ok := data["disable_defaults"].(bool); ok {
-		cfg.DisableDefaults = disableDefaults
-	}
-
-	if enabledCollector, ok := data["enable_collectors"].([]string); ok {
-		cfg.EnableCollectors = enabledCollector
-	}
-
-	if excludedCollectors, ok := data["exclude_collectors"].([]string); ok {
-		cfg.ExcludeCollectors = excludedCollectors
-	}
-	return cfg, nil
+// GetConfigStruct implements ConfigUnmarshaler interface
+// Returns a pointer to an empty Config struct for mapstructure to populate
+func (u *ConfigUnmarshaler) GetConfigStruct() otlpreceiver.Config {
+	return &Config{}
 }

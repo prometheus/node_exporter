@@ -16,9 +16,9 @@ package otelcollector
 import "fmt"
 
 type Config struct {
-	DisableDefaults   bool
-	EnableCollectors  []string
-	ExcludeCollectors []string
+	DisableDefaults   bool     `mapstructure:"disable_defaults"`
+	EnableCollectors  []string `mapstructure:"enable_collectors"`
+	ExcludeCollectors []string `mapstructure:"exclude_collectors"`
 }
 
 func (c Config) Validate() error {
