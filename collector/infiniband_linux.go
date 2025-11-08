@@ -84,6 +84,36 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 		"port_receive_switch_relay_errors_total":     "Number of packets that could not be forwarded by the switch.",
 		"symbol_error_total":                         "Number of minor link errors detected on one or more physical lanes.",
 		"vl15_dropped_total":                         "Number of incoming VL15 packets dropped due to resource limitations.",
+		"rx_write_requests":                          "Number of write Requests from hwcounters.",
+		"rx_read_requests":                           "Number of read Requests from hwcounters.",
+		"rx_icrc_encapsulated":                       "Number of RxIcrcEncapsulated packets from hwcounters",
+		"rx_dct_connect":                             "Number of DCT connect requests received from hwcounters",
+		"rx_atomic_requests":                         "Number of atomic requests received from hwcounters",
+		"rp_cnp_ignored":                             "Number of CNP packets ignored by rate limiter from hwcounters",
+		"rp_cnp_handled":                             "Number of CNP packets handled by rate limiter from hwcounters",
+		"roce_slow_restart":                          "Number of RoCE slow restart events from hwcounters",
+		"roce_slow_restart_cnps":                     "Number of RoCE slow restart CNP packets from hwcounters",
+		"roce_slow_restart_trans":                    "Number of RoCE slow restart transmissions from hwcounters",
+		"roce_adp_retrans_to":                        "Number of RoCE adaptive retransmission timeouts from hwcounters",
+		"roce_adp_retrans":                           "Number of RoCE adaptive retransmissions from hwcounters",
+		"duplicate_request":                          "Number of duplicate requests from hwcounters",
+		"implied_nak_seq_err":                        "Number of implied NAK sequence errors from hwcounters",
+		"lifespan":                                   "Packet lifespan counter from hwcounters",
+		"local_ack_timeout_err":                      "Number of local ACK timeout errors from hwcounters",
+		"np_cnp_sent":                                "Number of CNP packets sent by notification point from hwcounters",
+		"np_ecn_marked_roce_packets":                 "Number of ECN marked RoCE packets from hwcounters",
+		"out_of_buffer":                              "Number of out of buffer events from hwcounters",
+		"out_of_sequence":                            "Number of out of sequence packets from hwcounters",
+		"packet_seq_err":                             "Number of packet sequence errors from hwcounters",
+		"req_cqe_error":                              "Number of request completion queue errors from hwcounters",
+		"req_cqe_flush_error":                        "Number of request completion queue flush errors from hwcounters",
+		"req_remote_access_errors":                   "Number of request remote access errors from hwcounters",
+		"req_remote_invalid_request":                 "Number of request remote invalid requests from hwcounters",
+		"resp_cqe_error":                             "Number of response completion queue errors from hwcounters",
+		"resp_cqe_flush_error":                       "Number of response completion queue flush errors from hwcounters",
+		"resp_local_length_error":                    "Number of response local length errors from hwcounters",
+		"resp_remote_access_errors":                  "Number of response remote access errors from hwcounters",
+		"rnr_nak_retry_err":                          "Number of RNR NAK retry errors from hwcounters",
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)
@@ -168,6 +198,36 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			c.pushCounter(ch, "port_receive_switch_relay_errors_total", port.Counters.PortRcvSwitchRelayErrors, port.Name, portStr)
 			c.pushCounter(ch, "symbol_error_total", port.Counters.SymbolError, port.Name, portStr)
 			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr)
+			c.pushCounter(ch, "duplicate_request", port.HwCounters.DuplicateRequest, port.Name, portStr)
+			c.pushCounter(ch, "implied_nak_seq_err", port.HwCounters.ImpliedNakSeqErr, port.Name, portStr)
+			c.pushCounter(ch, "lifespan", port.HwCounters.Lifespan, port.Name, portStr)
+			c.pushCounter(ch, "local_ack_timeout_err", port.HwCounters.LocalAckTimeoutErr, port.Name, portStr)
+			c.pushCounter(ch, "np_cnp_sent", port.HwCounters.NpCnpSent, port.Name, portStr)
+			c.pushCounter(ch, "np_ecn_marked_roce_packets", port.HwCounters.NpEcnMarkedRocePackets, port.Name, portStr)
+			c.pushCounter(ch, "out_of_buffer", port.HwCounters.OutOfBuffer, port.Name, portStr)
+			c.pushCounter(ch, "out_of_sequence", port.HwCounters.OutOfSequence, port.Name, portStr)
+			c.pushCounter(ch, "packet_seq_err", port.HwCounters.PacketSeqErr, port.Name, portStr)
+			c.pushCounter(ch, "req_cqe_error", port.HwCounters.ReqCqeError, port.Name, portStr)
+			c.pushCounter(ch, "req_cqe_flush_error", port.HwCounters.ReqCqeFlushError, port.Name, portStr)
+			c.pushCounter(ch, "req_remote_access_errors", port.HwCounters.ReqRemoteAccessErrors, port.Name, portStr)
+			c.pushCounter(ch, "req_remote_invalid_request", port.HwCounters.ReqRemoteInvalidRequest, port.Name, portStr)
+			c.pushCounter(ch, "resp_cqe_error", port.HwCounters.RespCqeError, port.Name, portStr)
+			c.pushCounter(ch, "resp_cqe_flush_error", port.HwCounters.RespCqeFlushError, port.Name, portStr)
+			c.pushCounter(ch, "resp_local_length_error", port.HwCounters.RespLocalLengthError, port.Name, portStr)
+			c.pushCounter(ch, "resp_remote_access_errors", port.HwCounters.RespRemoteAccessErrors, port.Name, portStr)
+			c.pushCounter(ch, "rnr_nak_retry_err", port.HwCounters.RnrNakRetryErr, port.Name, portStr)
+			c.pushCounter(ch, "roce_adp_retrans", port.HwCounters.RoceAdpRetrans, port.Name, portStr)
+			c.pushCounter(ch, "roce_adp_retrans_to", port.HwCounters.RoceAdpRetransTo, port.Name, portStr)
+			c.pushCounter(ch, "roce_slow_restart", port.HwCounters.RoceSlowRestart, port.Name, portStr)
+			c.pushCounter(ch, "roce_slow_restart_cnps", port.HwCounters.RoceSlowRestartCnps, port.Name, portStr)
+			c.pushCounter(ch, "roce_slow_restart_trans", port.HwCounters.RoceSlowRestartTrans, port.Name, portStr)
+			c.pushCounter(ch, "rp_cnp_handled", port.HwCounters.RpCnpHandled, port.Name, portStr)
+			c.pushCounter(ch, "rp_cnp_ignored", port.HwCounters.RpCnpIgnored, port.Name, portStr)
+			c.pushCounter(ch, "rx_atomic_requests", port.HwCounters.RxAtomicRequests, port.Name, portStr)
+			c.pushCounter(ch, "rx_dct_connect", port.HwCounters.RxDctConnect, port.Name, portStr)
+			c.pushCounter(ch, "rx_icrc_encapsulated", port.HwCounters.RxIcrcEncapsulated, port.Name, portStr)
+			c.pushCounter(ch, "rx_write_requests", port.HwCounters.RxWriteRequests, port.Name, portStr)
+			c.pushCounter(ch, "rx_read_requests", port.HwCounters.RxReadRequests, port.Name, portStr)
 		}
 	}
 
