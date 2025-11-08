@@ -119,9 +119,9 @@ node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",
 node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
 node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",rotational="0",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
 node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",rotational="1",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
 node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",rotational="0",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1

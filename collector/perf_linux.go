@@ -86,10 +86,10 @@ var (
 		"BPUReadHit":       perf.BPUReadHitProfiler,
 		"BPUReadMiss":      perf.BPUReadMissProfiler,
 		// "L1InstrReadHit":     perf.L1InstrReadHitProfiler,
-		// "DataTLBReadHit":     perf.DataTLBReadHitProfiler,
-		// "DataTLBReadMiss":    perf.DataTLBReadMissProfiler,
-		// "DataTLBWriteHit":    perf.DataTLBWriteHitProfiler,
-		// "DataTLBWriteMiss":   perf.DataTLBWriteMissProfiler,
+		"DataTLBReadHit":   perf.DataTLBReadHitProfiler,
+		"DataTLBReadMiss":  perf.DataTLBReadMissProfiler,
+		"DataTLBWriteHit":  perf.DataTLBWriteHitProfiler,
+		"DataTLBWriteMiss": perf.DataTLBWriteMissProfiler,
 		// "NodeCacheReadHit":   perf.NodeCacheReadHitProfiler,
 		// "NodeCacheReadMiss":  perf.NodeCacheReadMissProfiler,
 		// "NodeCacheWriteHit":  perf.NodeCacheWriteHitProfiler,
@@ -118,7 +118,7 @@ func perfTracepointFlagToTracepoints(tracepointsFlag []string) ([]*perfTracepoin
 func perfCPUFlagToCPUs(cpuFlag string) ([]int, error) {
 	var err error
 	cpus := []int{}
-	for _, subset := range strings.Split(cpuFlag, ",") {
+	for subset := range strings.SplitSeq(cpuFlag, ",") {
 		// First parse a single CPU.
 		if !strings.Contains(subset, "-") {
 			cpu, err := strconv.Atoi(subset)
@@ -355,7 +355,7 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 			}
 		}
 	}
-	cacheProfilers := perf.L1DataReadHitProfiler | perf.L1DataReadMissProfiler | perf.L1DataWriteHitProfiler | perf.L1InstrReadMissProfiler | perf.InstrTLBReadHitProfiler | perf.InstrTLBReadMissProfiler | perf.LLReadHitProfiler | perf.LLReadMissProfiler | perf.LLWriteHitProfiler | perf.LLWriteMissProfiler | perf.BPUReadHitProfiler | perf.BPUReadMissProfiler
+	cacheProfilers := perf.L1DataReadHitProfiler | perf.L1DataReadMissProfiler | perf.L1DataWriteHitProfiler | perf.L1InstrReadMissProfiler | perf.InstrTLBReadHitProfiler | perf.InstrTLBReadMissProfiler | perf.DataTLBReadHitProfiler | perf.DataTLBReadMissProfiler | perf.DataTLBWriteHitProfiler | perf.DataTLBWriteMissProfiler | perf.LLReadHitProfiler | perf.LLReadMissProfiler | perf.LLWriteHitProfiler | perf.LLWriteMissProfiler | perf.BPUReadHitProfiler | perf.BPUReadMissProfiler
 	if *perfCaProfilerFlag != nil && len(*perfCaProfilerFlag) > 0 {
 		cacheProfilers = 0
 		for _, cf := range *perfCaProfilerFlag {
@@ -612,6 +612,46 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 				"cache_tlb_instr_read_misses_total",
 			),
 			"Number instruction TLB read misses",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_read_hits_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_read_hits_total",
+			),
+			"Number of data TLB read hits",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_read_misses_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_read_misses_total",
+			),
+			"Number of data TLB read misses",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_write_hits_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_write_hits_total",
+			),
+			"Number of data TLB write hits",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_write_misses_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_write_misses_total",
+			),
+			"Number of data TLB write misses",
 			[]string{"cpu"},
 			nil,
 		),
@@ -891,6 +931,38 @@ func (c *perfCollector) updateCacheStats(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(
 				c.desc["cache_tlb_instr_read_misses_total"],
 				prometheus.CounterValue, float64(*cacheProfile.InstrTLBReadMiss),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBReadHit != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_read_hits_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBReadHit),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBReadMiss != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_read_misses_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBReadMiss),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBWriteHit != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_write_hits_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBWriteHit),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBWriteMiss != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_write_misses_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBWriteMiss),
 				cpuid,
 			)
 		}

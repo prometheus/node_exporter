@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"maps"
 	"os"
 	"regexp"
 	"strconv"
@@ -73,12 +74,8 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	// Merge the results of snmpStats into netStats (collisions are possible, but
 	// we know that the keys are always unique for the given use case).
-	for k, v := range snmpStats {
-		netStats[k] = v
-	}
-	for k, v := range snmp6Stats {
-		netStats[k] = v
-	}
+	maps.Copy(netStats, snmpStats)
+	maps.Copy(netStats, snmp6Stats)
 	for protocol, protocolStats := range netStats {
 		for name, value := range protocolStats {
 			key := protocol + "_" + name

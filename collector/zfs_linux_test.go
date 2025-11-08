@@ -35,7 +35,7 @@ func TestArcstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(arcstatsFile, "arcstats", func(s zfsSysctl, v any) {
 
 		if s == zfsSysctl("kstat.zfs.misc.arcstats.hits") {
 			if v.(uint64) != 8772612 {
@@ -72,7 +72,7 @@ func TestZfetchstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(zfetchstatsFile, "zfetchstats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(zfetchstatsFile, "zfetchstats", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.zfetchstats.hits") {
 			return
@@ -108,7 +108,7 @@ func TestZilParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(zilFile, "zil", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(zilFile, "zil", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.zil.zil_commit_count") {
 			return
@@ -144,7 +144,7 @@ func TestVdevCacheStatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(vdevCacheStatsFile, "vdev_cache_stats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(vdevCacheStatsFile, "vdev_cache_stats", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.vdev_cache_stats.delegations") {
 			return
@@ -180,7 +180,7 @@ func TestXuioStatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(xuioStatsFile, "xuio_stats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(xuioStatsFile, "xuio_stats", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.xuio_stats.onloan_read_buf") {
 			return
@@ -216,7 +216,7 @@ func TestFmParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(fmFile, "fm", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(fmFile, "fm", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.fm.erpt-dropped") {
 			return
@@ -252,7 +252,7 @@ func TestDmuTxParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(dmuTxFile, "dmu_tx", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(dmuTxFile, "dmu_tx", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.dmu_tx.dmu_tx_assigned") {
 			return
@@ -417,7 +417,7 @@ func TestAbdstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(abdstatsFile, "abdstats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(abdstatsFile, "abdstats", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.abdstats.linear_data_size") {
 			return
@@ -453,7 +453,7 @@ func TestDbufstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(dbufstatsFile, "dbufstats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(dbufstatsFile, "dbufstats", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.dbufstats.hash_hits") {
 			return
@@ -489,7 +489,7 @@ func TestDnodestatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(dnodestatsFile, "dnodestats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(dnodestatsFile, "dnodestats", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.dnodestats.dnode_hold_alloc_hits") {
 			return
@@ -525,7 +525,7 @@ func TestVdevMirrorstatsParsing(t *testing.T) {
 	}
 
 	handlerCalled := false
-	err = c.parseProcfsFile(vdevMirrorStatsFile, "vdev_mirror_stats", func(s zfsSysctl, v interface{}) {
+	err = c.parseProcfsFile(vdevMirrorStatsFile, "vdev_mirror_stats", func(s zfsSysctl, v any) {
 
 		if s != zfsSysctl("kstat.zfs.misc.vdev_mirror_stats.preferred_not_found") {
 			return

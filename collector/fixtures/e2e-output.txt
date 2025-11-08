@@ -311,6 +311,16 @@ node_cpu_flag_info{flag="aes"} 1
 node_cpu_flag_info{flag="avx"} 1
 node_cpu_flag_info{flag="avx2"} 1
 node_cpu_flag_info{flag="constant_tsc"} 1
+# HELP node_cpu_frequency_hertz CPU frequency in hertz from /proc/cpuinfo.
+# TYPE node_cpu_frequency_hertz gauge
+node_cpu_frequency_hertz{core="0",cpu="0",package="0"} 7.99998e+08
+node_cpu_frequency_hertz{core="0",cpu="4",package="0"} 7.99989e+08
+node_cpu_frequency_hertz{core="1",cpu="1",package="0"} 8.00037e+08
+node_cpu_frequency_hertz{core="1",cpu="5",package="0"} 8.00083e+08
+node_cpu_frequency_hertz{core="2",cpu="2",package="0"} 8.0001e+08
+node_cpu_frequency_hertz{core="2",cpu="6",package="0"} 8.00017e+08
+node_cpu_frequency_hertz{core="3",cpu="3",package="0"} 8.00028e+08
+node_cpu_frequency_hertz{core="3",cpu="7",package="0"} 8.0003e+08
 # HELP node_cpu_guest_seconds_total Seconds the CPUs spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
@@ -516,9 +526,9 @@ node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",
 node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
 node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",rotational="0",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
 node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",rotational="1",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
 node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",rotational="0",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
@@ -2858,22 +2868,78 @@ node_os_version{id="ubuntu",id_like="debian",name="Ubuntu"} 20.04
 # TYPE node_pcidevice_current_link_transfers_per_second gauge
 node_pcidevice_current_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
 node_pcidevice_current_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 8e+09
+node_pcidevice_current_link_transfers_per_second{bus="45",device="00",function="0",segment="0000"} 5e+09
 # HELP node_pcidevice_current_link_width Value of current link's width (number of lanes)
 # TYPE node_pcidevice_current_link_width gauge
 node_pcidevice_current_link_width{bus="00",device="02",function="1",segment="0000"} 4
 node_pcidevice_current_link_width{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_current_link_width{bus="45",device="00",function="0",segment="0000"} 4
+# HELP node_pcidevice_d3cold_allowed Whether the PCIe device supports D3cold power state (0/1).
+# TYPE node_pcidevice_d3cold_allowed gauge
+node_pcidevice_d3cold_allowed{bus="00",device="02",function="1",segment="0000"} 1
+node_pcidevice_d3cold_allowed{bus="01",device="00",function="0",segment="0000"} 1
+node_pcidevice_d3cold_allowed{bus="45",device="00",function="0",segment="0000"} 1
 # HELP node_pcidevice_info Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.
 # TYPE node_pcidevice_info gauge
-node_pcidevice_info{bus="00",class_id="0x060400",device="02",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1634"} 1
-node_pcidevice_info{bus="01",class_id="0x010802",device="00",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0x540a"} 1
+node_pcidevice_info{bus="00",class_id="0x060400",device="02",device_id="0x1634",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1022"} 1
+node_pcidevice_info{bus="01",class_id="0x010802",device="00",device_id="0x540a",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0xc0a9"} 1
+node_pcidevice_info{bus="45",class_id="0x020000",device="00",device_id="0x1521",function="0",parent_bus="40",parent_device="01",parent_function="3",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x00a3",subsystem_vendor_id="0x8086",vendor_id="0x8086"} 1
 # HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
 # TYPE node_pcidevice_max_link_transfers_per_second gauge
 node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
 node_pcidevice_max_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 1.6e+10
+node_pcidevice_max_link_transfers_per_second{bus="45",device="00",function="0",segment="0000"} 5e+09
 # HELP node_pcidevice_max_link_width Value of maximum link's width (number of lanes)
 # TYPE node_pcidevice_max_link_width gauge
 node_pcidevice_max_link_width{bus="00",device="02",function="1",segment="0000"} 8
 node_pcidevice_max_link_width{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_max_link_width{bus="45",device="00",function="0",segment="0000"} 4
+# HELP node_pcidevice_numa_node NUMA node number for the PCI device. -1 indicates unknown or not available.
+# TYPE node_pcidevice_numa_node gauge
+node_pcidevice_numa_node{bus="45",device="00",function="0",segment="0000"} 0
+# HELP node_pcidevice_power_state PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.
+# TYPE node_pcidevice_power_state gauge
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="unknown"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="unknown"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="unknown"} 0
+# HELP node_pcidevice_sriov_drivers_autoprobe Whether SR-IOV drivers autoprobe is enabled for the device (0/1).
+# TYPE node_pcidevice_sriov_drivers_autoprobe gauge
+node_pcidevice_sriov_drivers_autoprobe{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_drivers_autoprobe{bus="01",device="00",function="0",segment="0000"} 1
+node_pcidevice_sriov_drivers_autoprobe{bus="45",device="00",function="0",segment="0000"} 1
+# HELP node_pcidevice_sriov_numvfs Number of Virtual Functions (VFs) currently enabled for SR-IOV.
+# TYPE node_pcidevice_sriov_numvfs gauge
+node_pcidevice_sriov_numvfs{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_numvfs{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_sriov_numvfs{bus="45",device="00",function="0",segment="0000"} 0
+# HELP node_pcidevice_sriov_totalvfs Total number of Virtual Functions (VFs) supported by the device.
+# TYPE node_pcidevice_sriov_totalvfs gauge
+node_pcidevice_sriov_totalvfs{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_totalvfs{bus="01",device="00",function="0",segment="0000"} 8
+node_pcidevice_sriov_totalvfs{bus="45",device="00",function="0",segment="0000"} 7
+# HELP node_pcidevice_sriov_vf_total_msix Total number of MSI-X vectors for Virtual Functions.
+# TYPE node_pcidevice_sriov_vf_total_msix gauge
+node_pcidevice_sriov_vf_total_msix{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_vf_total_msix{bus="01",device="00",function="0",segment="0000"} 16
+node_pcidevice_sriov_vf_total_msix{bus="45",device="00",function="0",segment="0000"} 0
 # HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_capacity gauge
 node_power_supply_capacity{power_supply="BAT0"} 81
@@ -3378,6 +3444,10 @@ node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="aa:bb:cc:d
 # TYPE node_wifi_station_receive_bytes_total counter
 node_wifi_station_receive_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
 node_wifi_station_receive_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
+# HELP node_wifi_station_received_packets_total The total number of packets received by a station.
+# TYPE node_wifi_station_received_packets_total counter
+node_wifi_station_received_packets_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_received_packets_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_signal_dbm The current WiFi signal strength, in decibel-milliwatts (dBm).
 # TYPE node_wifi_station_signal_dbm gauge
 node_wifi_station_signal_dbm{device="wlan0",mac_address="01:02:03:04:05:06"} -26
@@ -3398,6 +3468,10 @@ node_wifi_station_transmit_failed_total{device="wlan0",mac_address="aa:bb:cc:dd:
 # TYPE node_wifi_station_transmit_retries_total counter
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="01:02:03:04:05:06"} 20
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 10
+# HELP node_wifi_station_transmitted_packets_total The total number of packets transmitted by a station.
+# TYPE node_wifi_station_transmitted_packets_total counter
+node_wifi_station_transmitted_packets_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_transmitted_packets_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_xfrm_acquire_error_packets_total State hasn’t been fully acquired before use
 # TYPE node_xfrm_acquire_error_packets_total counter
 node_xfrm_acquire_error_packets_total 24532
