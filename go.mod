@@ -18,7 +18,7 @@ require (
 	github.com/mdlayher/ethtool v0.5.0
 	github.com/mdlayher/netlink v1.8.0
 	github.com/mdlayher/wifi v0.6.0
-	github.com/opencontainers/selinux v1.12.0
+	github.com/opencontainers/selinux v1.13.0
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55
 	github.com/prometheus-community/go-runit v0.1.0
 	github.com/prometheus/client_golang v1.23.2
@@ -33,9 +33,11 @@ require (
 )
 
 require (
+	cyphar.com/go-pathrs v0.2.1 // indirect
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/cyphar/filepath-securejoin v0.6.0 // indirect
 	github.com/dennwc/ioctl v1.0.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
