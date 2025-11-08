@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noslabinfo
-// +build !noslabinfo
 
 package collector
 

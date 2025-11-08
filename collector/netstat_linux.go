@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonetstat
-// +build !nonetstat
 
 package collector
 

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noethtool
-// +build !noethtool
 
 package collector
 

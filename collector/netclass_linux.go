@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonetclass && linux
-// +build !nonetclass,linux
 
 package collector
 

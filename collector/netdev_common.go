@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nonetdev && (linux || freebsd || openbsd || dragonfly || darwin || aix)
-// +build !nonetdev
-// +build linux freebsd openbsd dragonfly darwin aix
 
 package collector
 

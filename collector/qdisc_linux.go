@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noqdisc
-// +build !noqdisc
 
 package collector
 

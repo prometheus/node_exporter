@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noswap
-// +build !noswap
 
 package collector
 

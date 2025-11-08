@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nofilesystem && (linux || freebsd || netbsd || openbsd || darwin || dragonfly || aix)
-// +build !nofilesystem
-// +build linux freebsd netbsd openbsd darwin dragonfly aix
 
 package collector
 

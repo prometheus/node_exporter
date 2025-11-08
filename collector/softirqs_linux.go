@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nosoftirqs
-// +build !nosoftirqs
 
 package collector
 

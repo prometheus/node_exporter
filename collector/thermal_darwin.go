@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !notherm
-// +build !notherm
 
 package collector
 

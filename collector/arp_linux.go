@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noarp
-// +build !noarp
 
 package collector
 

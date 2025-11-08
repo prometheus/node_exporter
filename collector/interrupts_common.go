@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build (linux || openbsd) && !nointerrupts
-// +build linux openbsd
-// +build !nointerrupts
 
 package collector
 

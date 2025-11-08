@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noethtool
-// +build !noethtool
 
 // The hard work of collecting data from the kernel via the ethtool interfaces is done by
 // https://github.com/safchain/ethtool/

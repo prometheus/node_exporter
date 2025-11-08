@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build (freebsd || dragonfly || openbsd || netbsd || darwin) && !noboottime
-// +build freebsd dragonfly openbsd netbsd darwin
-// +build !noboottime
 
 package collector
 
