@@ -271,7 +271,7 @@ jobs:
             echo "::endgroup::"
 
   test_macos:
-    name: Run end-to-end tests on macOS
+    name: Run end-to-end tests on Darwin/MacOS
     runs-on: macos-latest
     steps:
       - name: Checkout the repository
@@ -308,5 +308,5 @@ jobs:
 
           echo "::group::Run End-to-End Tests"
           git config --global --add safe.directory $(pwd)
-          make test-e2e
+          make test-e2e E2E_EXTRA_FLAGS='--collector.diskstats.device-include=disk[04]'
           echo "::endgroup::"
