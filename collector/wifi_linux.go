@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nowifi
-// +build !nowifi
 
 package collector
 

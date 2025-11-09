@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nopcidevice
-// +build !nopcidevice
 
 package collector
 

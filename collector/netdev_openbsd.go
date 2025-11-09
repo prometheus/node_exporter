@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonetdev && !amd64
-// +build !nonetdev,!amd64
 
 package collector
 

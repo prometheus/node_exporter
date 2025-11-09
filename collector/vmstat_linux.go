@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !novmstat
-// +build !novmstat
 
 package collector
 

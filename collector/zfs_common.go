@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nozfs && (freebsd || linux || solaris)
-// +build !nozfs
-// +build freebsd linux solaris
 
 package collector
 

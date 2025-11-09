@@ -12,13 +12,13 @@
 // limitations under the License.
 
 //go:build !nomeminfo
-// +build !nomeminfo
 
 package collector
 
 import (
-	"golang.org/x/sys/unix"
 	"log/slog"
+
+	"golang.org/x/sys/unix"
 )
 
 type meminfoCollector struct {

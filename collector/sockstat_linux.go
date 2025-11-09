@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nosockstat
-// +build !nosockstat
 
 package collector
 

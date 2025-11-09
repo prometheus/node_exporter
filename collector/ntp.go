@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nontp
-// +build !nontp
 
 package collector
 

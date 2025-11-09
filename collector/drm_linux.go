@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nogpu
-// +build !nogpu
 
 package collector
 

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nolnstat
-// +build !nolnstat
 
 package collector
 

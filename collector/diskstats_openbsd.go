@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nodiskstats && !amd64
-// +build !nodiskstats,!amd64
 
 package collector
 

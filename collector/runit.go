@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !norunit
-// +build !norunit
 
 package collector
 

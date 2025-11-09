@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noinfiniband
-// +build !noinfiniband
 
 package collector
 
