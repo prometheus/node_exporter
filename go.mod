@@ -12,7 +12,7 @@ require (
 	github.com/hashicorp/go-envparse v0.1.0
 	github.com/hodgesds/perf-utils v0.7.0
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
-	github.com/jsimonetti/rtnetlink/v2 v2.0.5
+	github.com/jsimonetti/rtnetlink/v2 v2.1.0
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/ethtool v0.5.0
