@@ -16,7 +16,7 @@ env:
   GO_VERSION_DRAGONFLY: "1.25.1"
   GO_VERSION_FREEBSD: "125"
   GO_VERSION_NETBSD: "1.25.1"
-  GO_VERSION_OPENBSD: "1.24.1"
+  GO_VERSION_OPENBSD: "1.25.1"
   GO_VERSION_SOLARIS: "1.25.1"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
@@ -90,7 +90,7 @@ jobs:
               gmake \
               go-${GO_VERSION_OPENBSD} \
               gsed \
-              gtar-${GNU_TAR_VERSION}p0-static \
+              gtar-${GNU_TAR_VERSION}p1-static \
               python \
               wget
           run: |
