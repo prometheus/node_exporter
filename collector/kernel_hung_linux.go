@@ -44,17 +44,21 @@ func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
+var (
+	taskDetectCount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "kernel_hung", "task_detect_count"),
+		"Total number of interrupts serviced.",
+		nil, nil,
+	)
+)
+
 func (c *kernelHungCollector) Update(ch chan<- prometheus.Metric) error {
 	kernelHung, err := c.fs.KernelHung()
 	if err != nil {
 		return err
 	}
 
-	ch <- prometheus.MustNewConstMetric(prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "kernel_hung", "task_detect_count"),
-		"Total number of interrupts serviced.",
-		nil, nil,
-	), prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
+	ch <- prometheus.MustNewConstMetric(taskDetectCount, prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
 
 	return nil
 }
