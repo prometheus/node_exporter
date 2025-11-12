@@ -25,9 +25,8 @@ import (
 )
 
 type kernelHungCollector struct {
-	fs              procfs.FS
-	taskDetectCount *prometheus.Desc
-	logger          *slog.Logger
+	fs     procfs.FS
+	logger *slog.Logger
 }
 
 func init() {
@@ -40,12 +39,7 @@ func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 	return &kernelHungCollector{
-		fs: fs,
-		taskDetectCount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "kernel_hung", "task_detect_count"),
-			"Total number of interrupts serviced.",
-			nil, nil,
-		),
+		fs:     fs,
 		logger: logger,
 	}, nil
 }
@@ -56,7 +50,11 @@ func (c *kernelHungCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.taskDetectCount, prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
+	ch <- prometheus.MustNewConstMetric(prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "kernel_hung", "task_detect_count"),
+		"Total number of interrupts serviced.",
+		nil, nil,
+	), prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
 
 	return nil
 }
