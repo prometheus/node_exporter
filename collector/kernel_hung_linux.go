@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noprocesses
-// +build !noprocesses
 
 package collector
 
