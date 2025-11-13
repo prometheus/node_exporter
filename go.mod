@@ -1,6 +1,6 @@
 module github.com/prometheus/node_exporter
 
-go 1.24.0
+go 1.24.10
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -26,8 +26,8 @@ require (
 	github.com/prometheus/common v0.67.2
 	github.com/prometheus/exporter-toolkit v0.15.0
 	github.com/prometheus/procfs v0.19.2
-	github.com/safchain/ethtool v0.6.2
-	golang.org/x/exp v0.0.0-20250911091902-df9299821621
+	github.com/safchain/ethtool v0.7.0
+	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546
 	golang.org/x/sys v0.38.0
 	howett.net/plist v1.0.1
 )
