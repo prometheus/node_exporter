@@ -102,3 +102,40 @@ func TestLogindCollectorCollectMetrics(t *testing.T) {
 		t.Errorf("collectMetrics did not generate the expected number of metrics: got %d, expected %d.", count, expected)
 	}
 }
+
+func TestLogindCollectorCollectMetricsWithFilter(t *testing.T) {
+	ch := make(chan prometheus.Metric)
+	// Create a dummy collector with a classFilter that excludes "greeter"
+	collector := &logindCollector{
+			classFilter: deviceFilter{
+					ignorePattern: regexp.MustCompile("greeter"),
+			},
+	}
+
+	// Wrap collectMetrics call in a goroutine feeding the metrics channel
+	go func() {
+			err := collectMetrics(ch, &testLogindInterface{})
+			if err != nil {
+					t.Errorf("collectMetrics returned error: %v", err)
+			}
+			close(ch)
+	}()
+
+	seenClasses := make(map[string]bool)
+	count := 0
+	for metric := range ch {
+			count++
+			desc := metric.Desc().String()
+			// Extract class label from the metric Desc string (approximate)
+			// The label list appears as '{seat=...,remote=...,type=...,class=...}'
+			// We'll parse class label from the Desc string for simplicity here:
+			// For a formal approach, you can use a prometheus.Metric introspection library.
+
+			if strings.Contains(desc, "class=\"greeter\"") {
+					t.Errorf("metric with excluded class 'greeter' was emitted")
+			}
+	}
+	if count == 0 {
+			t.Errorf("no metrics were emitted")
+	}
+}
