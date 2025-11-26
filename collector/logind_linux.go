@@ -22,6 +22,7 @@ import (
 	"slices"
 	"strconv"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/godbus/dbus/v5"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -38,6 +39,8 @@ var (
 	attrRemoteValues = []string{"true", "false"}
 	attrTypeValues   = []string{"other", "unspecified", "tty", "x11", "wayland", "mir", "web"}
 	attrClassValues  = []string{"other", "user", "greeter", "lock-screen", "background"}
+	logindClassInclude = kingpin.Flag("collector.logind.class-include", "Regexp of logind session classes to include (mutually exclusive with class-exclude).").String()
+	logindClassExclude = kingpin.Flag("collector.logind.class-exclude", "Regexp of logind session classes to exclude (mutually exclusive with class-include).").String()
 
 	sessionsDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, logindSubsystem, "sessions"),
@@ -46,6 +49,7 @@ var (
 )
 
 type logindCollector struct {
+	classFilter deviceFilter
 	logger *slog.Logger
 }
 
@@ -87,7 +91,10 @@ func init() {
 
 // NewLogindCollector returns a new Collector exposing logind statistics.
 func NewLogindCollector(logger *slog.Logger) (Collector, error) {
-	return &logindCollector{logger}, nil
+    return &logindCollector{
+        logger:      logger,
+        classFilter: newDeviceFilter(*logindClassExclude, *logindClassInclude),
+    }, nil
 }
 
 func (lc *logindCollector) Update(ch chan<- prometheus.Metric) error {
@@ -97,10 +104,10 @@ func (lc *logindCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	defer c.conn.Close()
 
-	return collectMetrics(ch, c)
+	return collectMetrics(ch, c, lc)
 }
 
-func collectMetrics(ch chan<- prometheus.Metric, c logindInterface) error {
+func collectMetrics(ch chan<- prometheus.Metric, c logindInterface, lc *logindCollector) error {
 	seats, err := c.listSeats()
 	if err != nil {
 		return fmt.Errorf("unable to get seats: %w", err)
@@ -123,6 +130,9 @@ func collectMetrics(ch chan<- prometheus.Metric, c logindInterface) error {
 	for _, remote := range attrRemoteValues {
 		for _, sessionType := range attrTypeValues {
 			for _, class := range attrClassValues {
+				if lc.classFilter.ignored(class) {
+					continue
+				}
 				for _, seat := range seats {
 					count := sessions[logindSession{seat, remote, sessionType, class}]
 
