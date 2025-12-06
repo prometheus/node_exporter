@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !linux && !notime
-// +build !linux,!notime
 
 package collector
 

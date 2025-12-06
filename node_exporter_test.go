@@ -59,7 +59,7 @@ func TestFileDescriptorLeak(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			if err := queryExporter(address); err != nil {
 				return err
 			}
@@ -131,7 +131,7 @@ func runCommandAndTests(cmd *exec.Cmd, address string, fn func(pid int) error) e
 		return fmt.Errorf("failed to start command: %s", err)
 	}
 	time.Sleep(50 * time.Millisecond)
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		if err := queryExporter(address); err == nil {
 			break
 		}

@@ -16,7 +16,7 @@ env:
   GO_VERSION_DRAGONFLY: "1.25.1"
   GO_VERSION_FREEBSD: "125"
   GO_VERSION_NETBSD: "1.25.1"
-  GO_VERSION_OPENBSD: "1.24.1"
+  GO_VERSION_OPENBSD: "1.25.1"
   GO_VERSION_SOLARIS: "1.25.1"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
@@ -30,7 +30,7 @@ jobs:
       - name: test-e2e
         uses: vmactions/freebsd-vm@487ce35b96fae3e60d45b521735f5aa436ecfade  # v1.2.4
         with:
-          release: "15.0"
+          release: "14.3"
           copyback: false
           envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
           usesh: true
@@ -76,7 +76,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/openbsd-vm@1e7cc4fa7727646d3cf5921289b1f5c9d1a88f3c  # v1.2.0
+        uses: vmactions/openbsd-vm@a254d784d6fad46e22ef73c6ecbb1dc310b04777  # v1.2.3
         with:
           copyback: false
           envs: 'GO_VERSION_OPENBSD GNU_TAR_VERSION'
@@ -90,7 +90,7 @@ jobs:
               gmake \
               go-${GO_VERSION_OPENBSD} \
               gsed \
-              gtar-${GNU_TAR_VERSION}p0-static \
+              gtar-${GNU_TAR_VERSION}p1-static \
               python \
               wget
           run: |
@@ -122,7 +122,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/netbsd-vm@d0228be27fbaba19418cc1b332609a895cf16561  # v1.1.9
+        uses: vmactions/netbsd-vm@7aea50f9eb16df034be5d71eb81fea9804505c28  # v1.2.0
         with:
           copyback: false
           envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
@@ -271,7 +271,7 @@ jobs:
             echo "::endgroup::"
 
   test_macos:
-    name: Run end-to-end tests on macOS
+    name: Run end-to-end tests on Darwin/MacOS
     runs-on: macos-latest
     steps:
       - name: Checkout the repository
@@ -308,5 +308,5 @@ jobs:
 
           echo "::group::Run End-to-End Tests"
           git config --global --add safe.directory $(pwd)
-          make test-e2e
+          make test-e2e E2E_EXTRA_FLAGS='--collector.diskstats.device-include=disk[04]'
           echo "::endgroup::"

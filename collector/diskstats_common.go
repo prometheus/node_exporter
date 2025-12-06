@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nodiskstats && (openbsd || linux || darwin || aix)
-// +build !nodiskstats
-// +build openbsd linux darwin aix
 
 package collector
 

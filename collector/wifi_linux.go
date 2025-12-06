@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nowifi
-// +build !nowifi
 
 package collector
 
@@ -33,16 +32,18 @@ type wifiCollector struct {
 	interfaceFrequencyHertz *prometheus.Desc
 	stationInfo             *prometheus.Desc
 
-	stationConnectedSecondsTotal *prometheus.Desc
-	stationInactiveSeconds       *prometheus.Desc
-	stationReceiveBitsPerSecond  *prometheus.Desc
-	stationTransmitBitsPerSecond *prometheus.Desc
-	stationReceiveBytesTotal     *prometheus.Desc
-	stationTransmitBytesTotal    *prometheus.Desc
-	stationSignalDBM             *prometheus.Desc
-	stationTransmitRetriesTotal  *prometheus.Desc
-	stationTransmitFailedTotal   *prometheus.Desc
-	stationBeaconLossTotal       *prometheus.Desc
+	stationConnectedSecondsTotal   *prometheus.Desc
+	stationInactiveSeconds         *prometheus.Desc
+	stationReceiveBitsPerSecond    *prometheus.Desc
+	stationTransmitBitsPerSecond   *prometheus.Desc
+	stationReceiveBytesTotal       *prometheus.Desc
+	stationTransmitBytesTotal      *prometheus.Desc
+	stationSignalDBM               *prometheus.Desc
+	stationTransmitRetriesTotal    *prometheus.Desc
+	stationTransmitFailedTotal     *prometheus.Desc
+	stationBeaconLossTotal         *prometheus.Desc
+	stationTransmittedPacketsTotal *prometheus.Desc
+	stationReceivedPacketsTotal    *prometheus.Desc
 
 	logger *slog.Logger
 }
@@ -156,6 +157,20 @@ func NewWifiCollector(logger *slog.Logger) (Collector, error) {
 		stationBeaconLossTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "station_beacon_loss_total"),
 			"The total number of times a station has detected a beacon loss.",
+			labels,
+			nil,
+		),
+
+		stationTransmittedPacketsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_transmitted_packets_total"),
+			"The total number of packets transmitted by a station.",
+			labels,
+			nil,
+		),
+
+		stationReceivedPacketsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_received_packets_total"),
+			"The total number of packets received by a station.",
 			labels,
 			nil,
 		),
@@ -325,6 +340,22 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		device,
 		info.HardwareAddr.String(),
 	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationTransmittedPacketsTotal,
+		prometheus.CounterValue,
+		float64(info.TransmittedPackets),
+		device,
+		info.HardwareAddr.String(),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationReceivedPacketsTotal,
+		prometheus.CounterValue,
+		float64(info.ReceivedPackets),
+		device,
+		info.HardwareAddr.String(),
+	)
 }
 
 func mHzToHz(mHz int) float64 {
@@ -363,7 +394,7 @@ type mockWifiStater struct {
 	fixtures string
 }
 
-func (s *mockWifiStater) unmarshalJSONFile(filename string, v interface{}) error {
+func (s *mockWifiStater) unmarshalJSONFile(filename string, v any) error {
 	b, err := os.ReadFile(filepath.Join(s.fixtures, filename))
 	if err != nil {
 		return err

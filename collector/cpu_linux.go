@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nocpu
-// +build !nocpu
 
 package collector
 
@@ -224,7 +223,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 	cpuFreqEnabled, ok := collectorState["cpufreq"]
 	if !ok || cpuFreqEnabled == nil {
 		c.logger.Debug("cpufreq key missing or nil value in collectorState map")
-	} else if !*cpuFreqEnabled {
+	} else if *cpuFreqEnabled {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
 				prometheus.GaugeValue,

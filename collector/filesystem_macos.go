@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build darwin && !nofilesystem
-// +build darwin,!nofilesystem
 
 package collector
 

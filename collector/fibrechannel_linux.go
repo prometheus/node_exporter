@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nofibrechannel
-// +build !nofibrechannel
 
 package collector
 
@@ -22,8 +21,9 @@ import (
 	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/node_exporter/collector/utils"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/collector/utils"
 )
 
 const maxUint64 = ^uint64(0)

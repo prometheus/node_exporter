@@ -12,14 +12,14 @@
 // limitations under the License.
 
 //go:build !noboottime
-// +build !noboottime
 
 package collector
 
 import (
+	"log/slog"
+
 	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
-	"log/slog"
 )
 
 type bootTimeCollector struct {

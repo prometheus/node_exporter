@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build linux && !nodmi
-// +build linux,!nodmi
 
 package collector
 

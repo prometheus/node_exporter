@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonvme
-// +build !nonvme
 
 package collector
 

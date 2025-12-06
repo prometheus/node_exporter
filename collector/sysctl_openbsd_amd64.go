@@ -14,9 +14,10 @@
 package collector
 
 import (
-	"golang.org/x/sys/unix"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/unix"
 )
 
 func int8ToString(a []int8) string {

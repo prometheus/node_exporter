@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noethtool
-// +build !noethtool
 
 package collector
 
@@ -139,7 +138,7 @@ func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
 
 func readModes(modes string) uint32 {
 	var out uint32
-	for _, mode := range strings.Split(modes, " ") {
+	for mode := range strings.SplitSeq(modes, " ") {
 		switch mode {
 		case "10baseT/Half":
 			out |= (1 << unix.ETHTOOL_LINK_MODE_10baseT_Half_BIT)
@@ -162,7 +161,7 @@ func readModes(modes string) uint32 {
 
 func readPortTypes(portTypes string) uint32 {
 	var out uint32
-	for _, ptype := range strings.Split(portTypes, " ") {
+	for ptype := range strings.SplitSeq(portTypes, " ") {
 		ptype = strings.Trim(ptype, " \t")
 		if ptype == "TP" {
 			out |= (1 << unix.ETHTOOL_LINK_MODE_TP_BIT)

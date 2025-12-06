@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nokvm && (freebsd || dragonfly)
-// +build !nokvm
-// +build freebsd dragonfly
 
 package collector
 

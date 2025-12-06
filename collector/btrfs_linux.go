@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nobtrfs
-// +build !nobtrfs
 
 package collector
 

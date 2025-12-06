@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nohwmon
-// +build !nohwmon
 
 package collector
 
@@ -23,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -154,11 +154,8 @@ func collectSensorData(dir string, data map[string]map[string]string) error {
 			continue
 		}
 
-		for _, t := range hwmonSensorTypes {
-			if t == sensorType {
-				addValueFile(data, sensorType+strconv.Itoa(sensorNum), sensorProperty, filepath.Join(dir, file.Name()))
-				break
-			}
+		if slices.Contains(hwmonSensorTypes, sensorType) {
+			addValueFile(data, sensorType+strconv.Itoa(sensorNum), sensorProperty, filepath.Join(dir, file.Name()))
 		}
 	}
 	return nil
