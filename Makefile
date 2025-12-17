@@ -16,6 +16,7 @@ all::
 
 # Needs to be defined before including Makefile.common to auto-generate targets
 DOCKER_ARCHS ?= amd64 armv7 arm64 ppc64le s390x
+DOCKER_REPO  ?= reg.deeproute.ai/deeproute-public/zzh
 
 include Makefile.common
 
@@ -143,6 +144,14 @@ checkrules: $(PROMTOOL)
 test-docker:
 	@echo ">> testing docker image"
 	./test_image.sh "$(DOCKER_REPO)/$(DOCKER_IMAGE_NAME)-linux-amd64:$(DOCKER_IMAGE_TAG)" 9100
+
+.PHONY: crossbuild
+crossbuild: promu
+	@echo ">> crossbuilding binaries"
+	$(PROMU) crossbuild
+
+.PHONY: docker-all
+docker-all: crossbuild common-docker common-docker-publish common-docker-manifest
 
 .PHONY: promtool
 promtool: $(PROMTOOL)
