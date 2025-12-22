@@ -112,7 +112,7 @@ local diskSpaceUtilisation =
     )
     + (if $._config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
     + variable.query.refresh.onTime()
-    + variable.query.selectionOptions.withIncludeAll(false)
+    + variable.query.selectionOptions.withIncludeAll(true, '.*')
     + variable.query.withSort(asc=true),
 
   grafanaDashboards+:: {
@@ -133,7 +133,7 @@ local diskSpaceUtilisation =
                              + variable.query.withDatasourceFromVariable(datasource)
                              + variable.query.queryTypes.withLabelValues(
                                'instance',
-                               'node_exporter_build_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config,
+                               'node_exporter_build_info{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}' % $._config,
                              )
                              + variable.query.refresh.onTime()
                              + variable.query.withSort(asc=true),
@@ -142,29 +142,29 @@ local diskSpaceUtilisation =
                              grafana.util.grid.makeGrid([
                                row.new('CPU')
                                + row.withPanels([
-                                 CPUUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
-                                 CPUSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Saturation')]),
+                                 CPUUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
+                                 CPUSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Saturation')]),
                                ]),
                                row.new('Memory')
                                + row.withPanels([
-                                 memoryUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
-                                 memorySaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Major page Faults')]),
+                                 memoryUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Utilisation')]),
+                                 memorySaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Major page Faults')]),
                                ]),
                                row.new('Network')
                                + row.withPanels([
                                  networkUtilisation + tsQueryOptions.withTargets([
-                                   prometheus.new('$datasource', 'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
-                                   prometheus.new('$datasource', 'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
+                                   prometheus.new('$datasource', 'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
+                                   prometheus.new('$datasource', 'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
                                  ]),
                                  networkSaturation + tsQueryOptions.withTargets([
-                                   prometheus.new('$datasource', 'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
-                                   prometheus.new('$datasource', 'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
+                                   prometheus.new('$datasource', 'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
+                                   prometheus.new('$datasource', 'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
                                  ]),
                                ]),
                                row.new('Disk IO')
                                + row.withPanels([
-                                 diskIOUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
-                                 diskIOSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
+                                 diskIOUtilisation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
+                                 diskIOSaturation + tsQueryOptions.withTargets([prometheus.new('$datasource', 'instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('{{device}}')]),
                                ]),
                              ], panelWidth=12, panelHeight=7)
                              + grafana.util.grid.makeGrid([
@@ -176,9 +176,9 @@ local diskSpaceUtilisation =
                                      |||
                                        sort_desc(1 -
                                          (
-                                           max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
+                                           max without (mountpoint, fstype) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s=~"$cluster"})
                                            /
-                                           max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s="$cluster"})
+                                           max without (mountpoint, fstype) (node_filesystem_size_bytes{%(nodeExporterSelector)s, fstype!="", instance="$instance", %(clusterLabel)s=~"$cluster"})
                                          ) != 0
                                        )
                                      ||| % $._config
@@ -210,11 +210,11 @@ local diskSpaceUtilisation =
                                      '$datasource',
                                      |||
                                        ((
-                                         instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                         instance:node_cpu_utilisation:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}
                                          *
-                                         instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
+                                         instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}
                                        ) != 0 )
-                                       / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                       / scalar(sum(instance:node_num_cpu:sum{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}))
                                      ||| % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }}'),
                                  ]),
@@ -223,8 +223,8 @@ local diskSpaceUtilisation =
                                      '$datasource',
                                      |||
                                        (
-                                         instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                                         / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                         instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}
+                                         / scalar(count(instance:node_load1_per_cpu:ratio{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}))
                                        )  != 0
                                      ||| % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }}'),
@@ -237,8 +237,8 @@ local diskSpaceUtilisation =
                                      '$datasource',
                                      |||
                                        (
-                                         instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                                         / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                         instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}
+                                         / scalar(count(instance:node_memory_utilisation:ratio{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}))
                                        ) != 0
                                      ||| % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }}'),
@@ -246,7 +246,7 @@ local diskSpaceUtilisation =
                                  memorySaturation + tsQueryOptions.withTargets([
                                    prometheus.new(
                                      '$datasource',
-                                     'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}' % $._config
+                                     'instance:node_vmstat_pgmajfault:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}' % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }}'),
                                  ]),
                                ]),
@@ -255,21 +255,21 @@ local diskSpaceUtilisation =
                                  networkUtilisation + tsQueryOptions.withTargets([
                                    prometheus.new(
                                      '$datasource',
-                                     'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                     'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"} != 0' % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }} Receive'),
                                    prometheus.new(
                                      '$datasource',
-                                     'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                     'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"} != 0' % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }} Transmit'),
                                  ]),
                                  networkSaturation + tsQueryOptions.withTargets([
                                    prometheus.new(
                                      '$datasource',
-                                     'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                     'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"} != 0' % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }} Receive'),
                                    prometheus.new(
                                      '$datasource',
-                                     'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"} != 0' % $._config
+                                     'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"} != 0' % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }} Transmit'),
                                  ]),
                                ]),
@@ -279,16 +279,16 @@ local diskSpaceUtilisation =
                                    prometheus.new(
                                      '$datasource',
                                      |||
-                                       instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                                       / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                       instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}
+                                       / scalar(count(instance_device:node_disk_io_time_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}))
                                      ||| % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }} {{device}}'),
                                  ]),
                                  diskIOSaturation + tsQueryOptions.withTargets([prometheus.new(
                                    '$datasource',
                                    |||
-                                     instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}
-                                     / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster"}))
+                                     instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}
+                                     / scalar(count(instance_device:node_disk_io_time_weighted_seconds:rate%(rateInterval)s{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster"}))
                                    ||| % $._config
                                  ) + prometheus.withLegendFormat('{{ instance }} {{device}}')]),
                                ]),
@@ -302,12 +302,12 @@ local diskSpaceUtilisation =
                                      |||
                                        sum without (device) (
                                          max without (fstype, mountpoint) ((
-                                           node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"}
+                                           node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s=~"$cluster"}
                                            -
-                                           node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"}
+                                           node_filesystem_avail_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s=~"$cluster"}
                                          ) != 0)
                                        )
-                                       / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s="$cluster"})))
+                                       / scalar(sum(max without (fstype, mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, %(fsSelector)s, %(fsMountpointSelector)s, %(clusterLabel)s=~"$cluster"})))
                                      ||| % $._config
                                    ) + prometheus.withLegendFormat('{{ instance }}'),
                                  ]),
