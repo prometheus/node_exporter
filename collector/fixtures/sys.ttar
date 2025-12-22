@@ -1741,6 +1741,11 @@ Path: sys/class/net/bond0/bonding/slaves
 Lines: 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/net/bond0/bonding/miimon
+Lines: 1
+100
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/net/bond0/broadcast
 Lines: 1
 ff:ff:ff:ff:ff:ff
@@ -1881,6 +1886,11 @@ Mode: 755
 Path: sys/class/net/dmz/bonding/slaves
 Lines: 1
 eth0 eth4
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/net/dmz/bonding/miimon
+Lines: 1
+0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/net/dmz/broadcast
@@ -2053,6 +2063,11 @@ Mode: 755
 Path: sys/class/net/int/bonding/slaves
 Lines: 1
 eth5 eth1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/net/int/bonding/miimon
+Lines: 1
+200
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/net/int/broadcast
