@@ -31,7 +31,8 @@ local tableTransformation = table.queryOptions.transformation;
       + variable.query.withDatasourceFromVariable(prometheusDatasourceVariable)
       + (if config.showMultiCluster then variable.query.generalOptions.showOnDashboard.withLabelAndValue() else variable.query.generalOptions.showOnDashboard.withNothing())
       + variable.query.refresh.onTime()
-      + variable.query.generalOptions.withLabel('Cluster'),
+      + variable.query.generalOptions.withLabel('Cluster')
+      + variable.query.selectionOptions.withIncludeAll(true, '.*'),
 
     local clusterVariable =
       if platform == 'Darwin' then
@@ -58,13 +59,13 @@ local tableTransformation = table.queryOptions.transformation;
         instanceVariablePrototype
         + variable.query.queryTypes.withLabelValues(
           'instance',
-          'node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster", sysname="Darwin"}' % config,
+          'node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster", sysname="Darwin"}' % config,
         )
       else
         instanceVariablePrototype
         + variable.query.queryTypes.withLabelValues(
           'instance',
-          'node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s="$cluster", sysname!="Darwin"}' % config,
+          'node_uname_info{%(nodeExporterSelector)s, %(clusterLabel)s=~"$cluster", sysname!="Darwin"}' % config,
         ),
 
     local idleCPU =
@@ -82,9 +83,9 @@ local tableTransformation = table.queryOptions.transformation;
           '$datasource',
           |||
             (
-              (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance="$instance", %(clusterLabel)s="$cluster"}[$__rate_interval])))
+              (1 - sum without (mode) (rate(node_cpu_seconds_total{%(nodeExporterSelector)s, mode=~"idle|iowait|steal", instance="$instance", %(clusterLabel)s=~"$cluster"}[$__rate_interval])))
             / ignoring(cpu) group_left
-              count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance", %(clusterLabel)s="$cluster"})
+              count without (cpu, mode) (node_cpu_seconds_total{%(nodeExporterSelector)s, mode="idle", instance="$instance", %(clusterLabel)s=~"$cluster"})
             )
           ||| % config,
         )
@@ -101,10 +102,10 @@ local tableTransformation = table.queryOptions.transformation;
       + tsCustom.withShowPoints('never')
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
-        prometheus.new('$datasource', 'node_load1{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('1m load average'),
-        prometheus.new('$datasource', 'node_load5{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('5m load average'),
-        prometheus.new('$datasource', 'node_load15{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('15m load average'),
-        prometheus.new('$datasource', 'count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", mode="idle"})' % config) + prometheus.withLegendFormat('logical cores'),
+        prometheus.new('$datasource', 'node_load1{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('1m load average'),
+        prometheus.new('$datasource', 'node_load5{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('5m load average'),
+        prometheus.new('$datasource', 'node_load15{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('15m load average'),
+        prometheus.new('$datasource', 'count(node_cpu_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", mode="idle"})' % config) + prometheus.withLegendFormat('logical cores'),
       ]),
 
     local memoryGraphPanelPrototype =
@@ -125,34 +126,34 @@ local tableTransformation = table.queryOptions.transformation;
             '$datasource',
             |||
               (
-                node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+                node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}
               -
-                node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+                node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}
               -
-                node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+                node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}
               -
-                node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+                node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}
               )
             ||| % config,
           ) + prometheus.withLegendFormat('memory used'),
-          prometheus.new('$datasource', 'node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('memory buffers'),
-          prometheus.new('$datasource', 'node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('memory cached'),
-          prometheus.new('$datasource', 'node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('memory free'),
+          prometheus.new('$datasource', 'node_memory_Buffers_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('memory buffers'),
+          prometheus.new('$datasource', 'node_memory_Cached_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('memory cached'),
+          prometheus.new('$datasource', 'node_memory_MemFree_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('memory free'),
         ])
       else if platform == 'Darwin' then
         // not useful to stack
         memoryGraphPanelPrototype
         + tsCustom.stacking.withMode('none')
         + tsQueryOptions.withTargets([
-          prometheus.new('$datasource', 'node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Physical Memory'),
+          prometheus.new('$datasource', 'node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('Physical Memory'),
           prometheus.new(
             '$datasource',
             |||
               (
-                  node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
-                  node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} +
-                  node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} +
-                  node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+                  node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} -
+                  node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} +
+                  node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} +
+                  node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}
               )
             ||| % config
           ) + prometheus.withLegendFormat(
@@ -162,28 +163,28 @@ local tableTransformation = table.queryOptions.transformation;
             '$datasource',
             |||
               (
-                  node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
-                  node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+                  node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} -
+                  node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}
               )
             ||| % config
           ) + prometheus.withLegendFormat(
             'App Memory'
           ),
-          prometheus.new('$datasource', 'node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Wired Memory'),
-          prometheus.new('$datasource', 'node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Compressed'),
+          prometheus.new('$datasource', 'node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('Wired Memory'),
+          prometheus.new('$datasource', 'node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('Compressed'),
         ])
 
       else if platform == 'AIX' then
         memoryGraphPanelPrototype
         + tsCustom.stacking.withMode('none')
         + tsQueryOptions.withTargets([
-          prometheus.new('$datasource', 'node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}' % config) + prometheus.withLegendFormat('Physical Memory'),
+          prometheus.new('$datasource', 'node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}' % config) + prometheus.withLegendFormat('Physical Memory'),
           prometheus.new(
             '$datasource',
             |||
               (
-                  node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"} -
-                  node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}
+                  node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} -
+                  node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}
               )
             ||| % config
           ) + prometheus.withLegendFormat('Memory Used'),
@@ -212,8 +213,8 @@ local tableTransformation = table.queryOptions.transformation;
             |||
               100 -
               (
-                avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) /
-                avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+                avg(node_memory_MemAvailable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}) /
+                avg(node_memory_MemTotal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"})
               * 100
               )
             ||| % config,
@@ -228,12 +229,12 @@ local tableTransformation = table.queryOptions.transformation;
             |||
               (
                   (
-                    avg(node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) -
-                    avg(node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) +
-                    avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) +
-                    avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+                    avg(node_memory_internal_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}) -
+                    avg(node_memory_purgeable_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}) +
+                    avg(node_memory_wired_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}) +
+                    avg(node_memory_compressed_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"})
                   ) /
-                  avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+                  avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"})
               )
               *
               100
@@ -249,8 +250,8 @@ local tableTransformation = table.queryOptions.transformation;
             |||
               100 -
               (
-                avg(node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"}) /
-                avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster"})
+                avg(node_memory_available_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"}) /
+                avg(node_memory_total_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"})
                 * 100
               )
             ||| % config
@@ -267,13 +268,13 @@ local tableTransformation = table.queryOptions.transformation;
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
         // TODO: Does it make sense to have those three in the same panel?
-        prometheus.new('$datasource', 'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
+        prometheus.new('$datasource', 'rate(node_disk_read_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
         + prometheus.withLegendFormat('{{device}} read')
         + prometheus.withIntervalFactor(1),
-        prometheus.new('$datasource', 'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
+        prometheus.new('$datasource', 'rate(node_disk_written_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
         + prometheus.withLegendFormat('{{device}} written')
         + prometheus.withIntervalFactor(1),
-        prometheus.new('$datasource', 'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
+        prometheus.new('$datasource', 'rate(node_disk_io_time_seconds_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", %(diskDeviceSelector)s}[$__rate_interval])' % config)
         + prometheus.withLegendFormat('{{device}} io time')
         + prometheus.withIntervalFactor(1),
       ])
@@ -303,7 +304,7 @@ local tableTransformation = table.queryOptions.transformation;
         prometheus.new(
           '$datasource',
           |||
-            max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
+            max by (mountpoint) (node_filesystem_size_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
           ||| % config
         )
         + prometheus.withLegendFormat('')
@@ -312,7 +313,7 @@ local tableTransformation = table.queryOptions.transformation;
         prometheus.new(
           '$datasource',
           |||
-            max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
+            max by (mountpoint) (node_filesystem_avail_bytes{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", %(fsSelector)s, %(fsMountpointSelector)s})
           ||| % config
         )
         + prometheus.withLegendFormat('')
@@ -431,7 +432,7 @@ local tableTransformation = table.queryOptions.transformation;
       + tsCustom.withShowPoints('never')
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
-        prometheus.new('$datasource', 'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
+        prometheus.new('$datasource', 'rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
         + prometheus.withLegendFormat('{{device}}')
         + prometheus.withIntervalFactor(1),
       ]),
@@ -445,7 +446,7 @@ local tableTransformation = table.queryOptions.transformation;
       + tsCustom.withFillOpacity(0)
       + tsOptions.tooltip.withMode('multi')
       + tsQueryOptions.withTargets([
-        prometheus.new('$datasource', 'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s="$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
+        prometheus.new('$datasource', 'rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster", device!="lo"}[$__rate_interval]) * 8' % config)
         + prometheus.withLegendFormat('{{device}}')
         + prometheus.withIntervalFactor(1),
       ]),
