@@ -1585,6 +1585,44 @@ node_md_blocks_synced{device="md6"} 1.6775552e+07
 node_md_blocks_synced{device="md7"} 7.813735424e+09
 node_md_blocks_synced{device="md8"} 1.6775552e+07
 node_md_blocks_synced{device="md9"} 0
+# HELP node_md_blocks_synced_percent Percentage of blocks synced on device.
+# TYPE node_md_blocks_synced_percent gauge
+node_md_blocks_synced_percent{device="md0"} 0
+node_md_blocks_synced_percent{device="md00"} 0
+node_md_blocks_synced_percent{device="md10"} 0
+node_md_blocks_synced_percent{device="md101"} 0
+node_md_blocks_synced_percent{device="md11"} 0
+node_md_blocks_synced_percent{device="md12"} 0
+node_md_blocks_synced_percent{device="md120"} 0
+node_md_blocks_synced_percent{device="md126"} 0
+node_md_blocks_synced_percent{device="md127"} 0
+node_md_blocks_synced_percent{device="md201"} 5.7
+node_md_blocks_synced_percent{device="md219"} 0
+node_md_blocks_synced_percent{device="md3"} 0
+node_md_blocks_synced_percent{device="md4"} 0
+node_md_blocks_synced_percent{device="md6"} 8.5
+node_md_blocks_synced_percent{device="md7"} 0
+node_md_blocks_synced_percent{device="md8"} 8.5
+node_md_blocks_synced_percent{device="md9"} 0
+# HELP node_md_blocks_synced_speed current sync speed (in Kilobytes/sec)
+# TYPE node_md_blocks_synced_speed gauge
+node_md_blocks_synced_speed{device="md0"} 0
+node_md_blocks_synced_speed{device="md00"} 0
+node_md_blocks_synced_speed{device="md10"} 0
+node_md_blocks_synced_speed{device="md101"} 0
+node_md_blocks_synced_speed{device="md11"} 0
+node_md_blocks_synced_speed{device="md12"} 0
+node_md_blocks_synced_speed{device="md120"} 0
+node_md_blocks_synced_speed{device="md126"} 0
+node_md_blocks_synced_speed{device="md127"} 0
+node_md_blocks_synced_speed{device="md201"} 114176
+node_md_blocks_synced_speed{device="md219"} 0
+node_md_blocks_synced_speed{device="md3"} 0
+node_md_blocks_synced_speed{device="md4"} 0
+node_md_blocks_synced_speed{device="md6"} 259783
+node_md_blocks_synced_speed{device="md7"} 0
+node_md_blocks_synced_speed{device="md8"} 259783
+node_md_blocks_synced_speed{device="md9"} 0
 # HELP node_md_degraded Number of degraded disks on device.
 # TYPE node_md_degraded gauge
 node_md_degraded{device="md0"} 0
@@ -1596,54 +1634,71 @@ node_md_degraded{device="md6"} 1
 # HELP node_md_disks Number of active/failed/spare disks of device.
 # TYPE node_md_disks gauge
 node_md_disks{device="md0",state="active"} 2
+node_md_disks{device="md0",state="down"} 0
 node_md_disks{device="md0",state="failed"} 0
 node_md_disks{device="md0",state="spare"} 0
 node_md_disks{device="md00",state="active"} 1
+node_md_disks{device="md00",state="down"} 0
 node_md_disks{device="md00",state="failed"} 0
 node_md_disks{device="md00",state="spare"} 0
 node_md_disks{device="md10",state="active"} 2
+node_md_disks{device="md10",state="down"} 0
 node_md_disks{device="md10",state="failed"} 0
 node_md_disks{device="md10",state="spare"} 0
 node_md_disks{device="md101",state="active"} 3
+node_md_disks{device="md101",state="down"} 0
 node_md_disks{device="md101",state="failed"} 0
 node_md_disks{device="md101",state="spare"} 0
 node_md_disks{device="md11",state="active"} 2
+node_md_disks{device="md11",state="down"} 0
 node_md_disks{device="md11",state="failed"} 1
 node_md_disks{device="md11",state="spare"} 2
 node_md_disks{device="md12",state="active"} 2
+node_md_disks{device="md12",state="down"} 0
 node_md_disks{device="md12",state="failed"} 0
 node_md_disks{device="md12",state="spare"} 0
 node_md_disks{device="md120",state="active"} 2
+node_md_disks{device="md120",state="down"} 0
 node_md_disks{device="md120",state="failed"} 0
 node_md_disks{device="md120",state="spare"} 0
 node_md_disks{device="md126",state="active"} 2
+node_md_disks{device="md126",state="down"} 0
 node_md_disks{device="md126",state="failed"} 0
 node_md_disks{device="md126",state="spare"} 0
 node_md_disks{device="md127",state="active"} 2
+node_md_disks{device="md127",state="down"} 0
 node_md_disks{device="md127",state="failed"} 0
 node_md_disks{device="md127",state="spare"} 0
 node_md_disks{device="md201",state="active"} 2
+node_md_disks{device="md201",state="down"} 0
 node_md_disks{device="md201",state="failed"} 0
 node_md_disks{device="md201",state="spare"} 0
 node_md_disks{device="md219",state="active"} 0
+node_md_disks{device="md219",state="down"} 0
 node_md_disks{device="md219",state="failed"} 0
 node_md_disks{device="md219",state="spare"} 3
 node_md_disks{device="md3",state="active"} 8
+node_md_disks{device="md3",state="down"} 0
 node_md_disks{device="md3",state="failed"} 0
 node_md_disks{device="md3",state="spare"} 2
 node_md_disks{device="md4",state="active"} 0
+node_md_disks{device="md4",state="down"} 0
 node_md_disks{device="md4",state="failed"} 1
 node_md_disks{device="md4",state="spare"} 1
 node_md_disks{device="md6",state="active"} 1
+node_md_disks{device="md6",state="down"} 1
 node_md_disks{device="md6",state="failed"} 1
 node_md_disks{device="md6",state="spare"} 1
 node_md_disks{device="md7",state="active"} 3
+node_md_disks{device="md7",state="down"} 1
 node_md_disks{device="md7",state="failed"} 1
 node_md_disks{device="md7",state="spare"} 0
 node_md_disks{device="md8",state="active"} 2
+node_md_disks{device="md8",state="down"} 0
 node_md_disks{device="md8",state="failed"} 0
 node_md_disks{device="md8",state="spare"} 2
 node_md_disks{device="md9",state="active"} 4
+node_md_disks{device="md9",state="down"} 0
 node_md_disks{device="md9",state="failed"} 2
 node_md_disks{device="md9",state="spare"} 1
 # HELP node_md_disks_required Total number of disks of device.
@@ -1760,6 +1815,25 @@ node_md_state{device="md9",state="check"} 0
 node_md_state{device="md9",state="inactive"} 0
 node_md_state{device="md9",state="recovering"} 0
 node_md_state{device="md9",state="resync"} 1
+# HELP node_md_sync_time_remaining_seconds Estimated finishing time for current sync in seconds.
+# TYPE node_md_sync_time_remaining_seconds gauge
+node_md_sync_time_remaining_seconds{device="md0"} 0
+node_md_sync_time_remaining_seconds{device="md00"} 0
+node_md_sync_time_remaining_seconds{device="md10"} 0
+node_md_sync_time_remaining_seconds{device="md101"} 0
+node_md_sync_time_remaining_seconds{device="md11"} 0
+node_md_sync_time_remaining_seconds{device="md12"} 0
+node_md_sync_time_remaining_seconds{device="md120"} 0
+node_md_sync_time_remaining_seconds{device="md126"} 0
+node_md_sync_time_remaining_seconds{device="md127"} 0
+node_md_sync_time_remaining_seconds{device="md201"} 12
+node_md_sync_time_remaining_seconds{device="md219"} 0
+node_md_sync_time_remaining_seconds{device="md3"} 0
+node_md_sync_time_remaining_seconds{device="md4"} 0
+node_md_sync_time_remaining_seconds{device="md6"} 1020
+node_md_sync_time_remaining_seconds{device="md7"} 0
+node_md_sync_time_remaining_seconds{device="md8"} 1020
+node_md_sync_time_remaining_seconds{device="md9"} 0
 # HELP node_memory_Active_anon_bytes Memory information field Active_anon_bytes.
 # TYPE node_memory_Active_anon_bytes gauge
 node_memory_Active_anon_bytes 2.068484096e+09
