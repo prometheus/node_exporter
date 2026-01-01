@@ -122,7 +122,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/netbsd-vm@7aea50f9eb16df034be5d71eb81fea9804505c28  # v1.2.0
+        uses: vmactions/netbsd-vm@b24ed5f7a605362ab1226e73df291c8b01990c85  # v1.2.3
         with:
           copyback: false
           envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
