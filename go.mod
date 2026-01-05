@@ -18,15 +18,15 @@ require (
 	github.com/mdlayher/ethtool v0.5.0
 	github.com/mdlayher/netlink v1.8.0
 	github.com/mdlayher/wifi v0.7.2
-	github.com/opencontainers/selinux v1.13.0
+	github.com/opencontainers/selinux v1.13.1
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55
 	github.com/prometheus-community/go-runit v0.1.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/client_model v0.6.2
-	github.com/prometheus/common v0.67.2
+	github.com/prometheus/common v0.67.4
 	github.com/prometheus/exporter-toolkit v0.15.0
 	github.com/prometheus/procfs v0.19.2
-	github.com/safchain/ethtool v0.6.2
+	github.com/safchain/ethtool v0.7.0
 	golang.org/x/exp v0.0.0-20250911091902-df9299821621
 	golang.org/x/sys v0.39.0
 	howett.net/plist v1.0.1
@@ -39,7 +39,9 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.6.0 // indirect
 	github.com/dennwc/ioctl v1.0.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mdlayher/genetlink v1.3.2 // indirect
