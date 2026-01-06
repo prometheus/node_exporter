@@ -42,3 +42,11 @@ jobs:
             fi
           done
           docker stop ne
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: node-exporter-pr:${{ github.sha }}
+          format: "table"
+          scanners: "vuln"
+          exit-code: '0'
