@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	_ "net/http/pprof"
+	"net/http/pprof"
 	"os"
 	"os/user"
 	"runtime"
@@ -200,6 +200,10 @@ func main() {
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
+		enablePprof = kingpin.Flag(
+			"web.enable-pprof",
+			"Enable pprof profiling endpoints under /debug/pprof.",
+		).Default("true").Bool() // Default to true to avoid breaking changes.
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
 	)
 
@@ -222,7 +226,26 @@ func main() {
 	runtime.GOMAXPROCS(*maxProcs)
 	logger.Debug("Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 
-	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
+	// Use a dedicated ServeMux to have explicit control over exposed routes.
+	// Dependencies might register routes on DefaultServeMux. Be sure to check them.
+	// (e.g. [net/http/pprof](https://pkg.go.dev/net/http/pprof) registers debug endpoints there via init()).
+	// Avoids accidentally serving handlers that dependencies might register on DefaultServeMux.
+	mux := http.NewServeMux()
+
+	// Go runtime profiling endpoints for CPU, memory, and goroutine analysis.
+	// These would normally be registered on DefaultServeMux by importing net/http/pprof,
+	// but we register them explicitly on our mux for controlled exposure.
+	// See [net/http/pprof package docs](https://pkg.go.dev/net/http/pprof) for more details.
+	if *enablePprof {
+		mux.HandleFunc("/debug/pprof/", pprof.Index)
+		mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+		logger.Info("pprof endpoints enabled", "path", "/debug/pprof/")
+	}
+
+	mux.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
 	if *metricsPath != "/" {
 		landingConfig := web.LandingConfig{
 			Name:        "Node Exporter",
@@ -234,16 +257,19 @@ func main() {
 					Text:    "Metrics",
 				},
 			},
+			Profiling: fmt.Sprintf("%t", *enablePprof), // Display profiling links on landing page only if endpoint is enabled
 		}
 		landingPage, err := web.NewLandingPage(landingConfig)
 		if err != nil {
 			logger.Error(err.Error())
 			os.Exit(1)
 		}
-		http.Handle("/", landingPage)
+		mux.Handle("/", landingPage)
 	}
 
-	server := &http.Server{}
+	// Pass our own mux to the server to avoid exposing routes registered on DefaultServeMux.
+	// exporter-toolkit dependency will use DefaultServeMux if we don't pass our own here.
+	server := &http.Server{Handler: mux}
 	if err := web.ListenAndServe(server, toolkitFlags, logger); err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)

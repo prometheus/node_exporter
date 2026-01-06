@@ -396,6 +396,16 @@ The exporter supports TLS via a new web configuration file.
 
 See the [exporter-toolkit web-configuration](https://github.com/prometheus/exporter-toolkit/blob/master/docs/web-configuration.md) for more details.
 
+## `pprof` profiling endpoint
+
+`node_exporter` exposes Go runtime profiling endpoints at `/debug/pprof/` by default.
+These are useful for debugging performance issues but can reveal sensitive information about the running process.
+
+To disable the profiling endpoints:
+```bash
+./node_exporter --web.enable-pprof=false
+```
+
 [travis]: https://travis-ci.org/prometheus/node_exporter
 [hub]: https://hub.docker.com/r/prom/node-exporter/
 [circleci]: https://circleci.com/gh/prometheus/node_exporter
