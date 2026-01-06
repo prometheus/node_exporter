@@ -49,6 +49,7 @@ type Ethtool interface {
 	DriverInfo(string) (ethtool.DrvInfo, error)
 	Stats(string) (map[string]uint64, error)
 	LinkInfo(string) (ethtool.EthtoolCmd, error)
+	GetChannels(string) (ethtool.Channels, error)
 }
 
 type ethtoolLibrary struct {
@@ -67,6 +68,10 @@ func (e *ethtoolLibrary) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	var ethtoolCmd ethtool.EthtoolCmd
 	_, err := ethtoolCmd.CmdGet(intf)
 	return ethtoolCmd, err
+}
+
+func (e *ethtoolLibrary) GetChannels(intf string) (ethtool.Channels, error) {
+	return e.ethtool.GetChannels(intf)
 }
 
 type ethtoolCollector struct {
@@ -198,6 +203,21 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 				prometheus.BuildFQName(namespace, "network", "autonegotiate"),
 				"If this port is using autonegotiate",
 				[]string{"device"}, nil,
+			),
+
+			// channel info
+			//
+			// Each metric will have four instances differentiated by its type,
+			// with type being one of rx, tx, other, or combined.
+			"channels_max": prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, "ethtool", "channels_max"),
+				"Maximum supported network interface channels",
+				[]string{"device", "type"}, nil,
+			),
+			"channels_current": prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, "ethtool", "channels_current"),
+				"Currently configured network interface channels",
+				[]string{"device", "type"}, nil,
 			),
 		},
 		infoDesc: prometheus.NewDesc(
@@ -426,6 +446,29 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			} else {
 				c.logger.Error("ethtool driver info error", "err", err, "device", device)
+			}
+		}
+
+		channels, err := c.ethtool.GetChannels(device)
+		if err == nil {
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_max"), prometheus.GaugeValue, float64(channels.MaxRx), device, "rx")
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_max"), prometheus.GaugeValue, float64(channels.MaxTx), device, "tx")
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_max"), prometheus.GaugeValue, float64(channels.MaxOther), device, "other")
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_max"), prometheus.GaugeValue, float64(channels.MaxCombined), device, "combined")
+
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_current"), prometheus.GaugeValue, float64(channels.RxCount), device, "rx")
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_current"), prometheus.GaugeValue, float64(channels.TxCount), device, "tx")
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_current"), prometheus.GaugeValue, float64(channels.OtherCount), device, "other")
+			ch <- prometheus.MustNewConstMetric(c.entry("channels_current"), prometheus.GaugeValue, float64(channels.CombinedCount), device, "combined")
+		} else {
+			if errno, ok := err.(syscall.Errno); ok {
+				if err == unix.EOPNOTSUPP {
+					c.logger.Debug("ethtool driver info error", "err", err, "device", device, "errno", uint(errno))
+				} else if errno != 0 {
+					c.logger.Error("ethtool get channels error", "err", err, "device", device, "errno", uint(errno))
+				}
+			} else {
+				c.logger.Error("ethtool get channels error", "err", err, "device", device)
 			}
 		}
 
