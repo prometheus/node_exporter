@@ -46,7 +46,7 @@ func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
 var (
 	taskDetectCount = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "kernel_hung", "task_detect_count"),
-		"Total number of interrupts serviced.",
+		"Total number of tasks that have been detected as hung since the system booted.",
 		nil, nil,
 	)
 )
