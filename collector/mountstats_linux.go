@@ -63,6 +63,26 @@ type mountStatsCollector struct {
 	NFSTransportMaximumRPCSlots        *prometheus.Desc
 	NFSTransportSendingQueueTotal      *prometheus.Desc
 	NFSTransportPendingQueueTotal      *prometheus.Desc
+	// Transport over RDMA.
+	// Stats below only available with stat version 1.1.
+	NFSTransportReadChunkTotal         *prometheus.Desc
+	NFSTransportWriteChunkTotal        *prometheus.Desc
+	NFSTransportReplyChunkTotal        *prometheus.Desc
+	NFSTransportRdmaRequestTotal       *prometheus.Desc
+	NFSTransportPullupCopyTotal        *prometheus.Desc
+	NFSTransportHardwayRegisterTotal   *prometheus.Desc
+	NFSTransportFailedMarshalTotal     *prometheus.Desc
+	NFSTransportBadReplyTotal          *prometheus.Desc
+	NFSTransportMrsRecycledTotal       *prometheus.Desc
+	NFSTransportMrsOrphanedTotal       *prometheus.Desc
+	NFSTransportMrsAllocatedTotal      *prometheus.Desc
+	NFSTransportEmptySendctxQTotal     *prometheus.Desc
+	NFSTransportRdmaReplyTotal         *prometheus.Desc
+	NFSTransportFixupCopyTotal         *prometheus.Desc
+	NFSTransportReplyWaitsForSendTotal *prometheus.Desc
+	NFSTransportLocalInvNeededTotal    *prometheus.Desc
+	NFSTransportNomsgCallTotal         *prometheus.Desc
+	NFSTransportBcallCountTotal        *prometheus.Desc
 
 	// Event statistics
 	NFSEventInodeRevalidateTotal     *prometheus.Desc
@@ -260,6 +280,129 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		NFSTransportPendingQueueTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_pending_queue_total"),
 			"Total number of items added to the RPC transmission pending queue.",
+			labels,
+			nil,
+		),
+
+		NFSTransportReadChunkTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_read_chunks_total"),
+			"Total number of read chunk accessed when sending a call.",
+			labels,
+			nil,
+		),
+
+		NFSTransportWriteChunkTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_write_chunks_total"),
+			"Total number of write chunk accessed when sending a call.",
+			labels,
+			nil,
+		),
+
+		NFSTransportReplyChunkTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_reply_chunks_total"),
+			"Total number of reply chunk accessed when sending a call.",
+			labels,
+			nil,
+		),
+
+		NFSTransportRdmaRequestTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_requests_total"),
+			"Total number of rdma request accessed when sending a call.",
+			labels,
+			nil,
+		),
+
+		NFSTransportPullupCopyTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_pullup_copies_total"),
+			"Total number of pullup copy when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportHardwayRegisterTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_hardway_registrations_total"),
+			"Total number of hardway register when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportFailedMarshalTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_marshal_failures_total"),
+			"Total number of failed marshal when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportBadReplyTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_bad_replies_total"),
+			"Total number of bad reply when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportMrsRecycledTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_mrs_recycled_total"),
+			"Total number of mrs recycled when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportMrsOrphanedTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_mrs_orphaned_total"),
+			"Total number of mrs orphaned when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportMrsAllocatedTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_mrs_allocated_total"),
+			"Total number of mrs allocated when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportEmptySendctxQTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_empty_sendctx_q_total"),
+			"Total number of empty sendctx q when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+
+		NFSTransportRdmaReplyTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_rdma_reply_requests_total"),
+			"Total number of rdma reply accessed when receiving a reply.",
+			labels,
+			nil,
+		),
+
+		NFSTransportFixupCopyTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_fixup_copies_total"),
+			"Total number of fixup copy accessed when receiving a reply.",
+			labels,
+			nil,
+		),
+
+		NFSTransportReplyWaitsForSendTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_reply_waitsfor_send_total"),
+			"Total number of reply waits for send accessed when receiving a reply.",
+			labels,
+			nil,
+		),
+		NFSTransportLocalInvNeededTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_local_inv_requests_total"),
+			"Total number of local inv needed accessed when receiving a reply.",
+			labels,
+			nil,
+		),
+		NFSTransportNomsgCallTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_nomsg_call_requests_total"),
+			"Total number of nomsg call when rarely accessed error counters.",
+			labels,
+			nil,
+		),
+		NFSTransportBcallCountTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "transport_bcall_requests_total"),
+			"Total number of bcall when rarely accessed error counters.",
 			labels,
 			nil,
 		),
@@ -687,6 +830,132 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 			labelValues...,
 		)
 	}
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportReadChunkTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.ReadChunkCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportWriteChunkTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.WriteChunkCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportReplyChunkTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.ReplyChunkCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportRdmaRequestTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.TotalRdmaRequest),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportPullupCopyTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.PullupCopyCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportHardwayRegisterTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.HardwayRegisterCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportFailedMarshalTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.FailedMarshalCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportBadReplyTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.BadReplyCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportMrsRecycledTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.MrsRecovered),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportMrsOrphanedTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.MrsOrphaned),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportMrsAllocatedTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.MrsAllocated),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportEmptySendctxQTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.EmptySendctxQ),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportRdmaReplyTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.TotalRdmaReply),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportFixupCopyTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.FixupCopyCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportReplyWaitsForSendTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.ReplyWaitsForSend),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportLocalInvNeededTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.LocalInvNeeded),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportNomsgCallTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.NomsgCallCount),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportBcallCountTotal,
+		prometheus.CounterValue,
+		float64(s.Transport.BcallCount),
+		labelValues...,
+	)
 
 	for _, op := range s.Operations {
 		opLabelValues := []string{export, protocol, mountAddress, op.Operation}
