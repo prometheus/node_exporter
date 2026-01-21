@@ -76,7 +76,7 @@ On some systems, the `timex` collector requires an additional Docker flag,
 There is varying support for collectors on each operating system. The tables
 below list all existing collectors and the supported systems.
 
-For detailed per-collector documentation including metrics, labels, and configuration flags, see [docs/collectors/](./docs/collectors/). Currently documented: [cpu](./docs/collectors/cpu.md), [cpufreq](./docs/collectors/cpufreq.md), [diskstats](./docs/collectors/diskstats.md), [meminfo](./docs/collectors/meminfo.md), [netstat](./docs/collectors/netstat.md).
+For detailed per-collector documentation including metrics, labels, and configuration flags, see [docs/collectors/](./docs/collectors/).
 
 Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.

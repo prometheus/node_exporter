@@ -19,6 +19,33 @@ Default pattern:
 ^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts|TCPOFOQueue|TCPRcvQDrop)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$
 ```
 
+### Examples
+
+Expose all available metrics:
+```
+--collector.netstat.fields=".*"
+```
+
+TCP metrics only (basic and extended):
+```
+--collector.netstat.fields="^Tcp(Ext)?_.*"
+```
+
+Only error-related metrics:
+```
+--collector.netstat.fields=".*_(InErrors|InErrs|Drops|Timeouts|Retrans).*"
+```
+
+Minimal set (bytes in/out and established connections):
+```
+--collector.netstat.fields="^(IpExt_(InOctets|OutOctets)|Tcp_CurrEstab)$"
+```
+
+Add memory pressure metrics to the default set:
+```
+--collector.netstat.fields="^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts|TCPOFOQueue|TCPRcvQDrop|TCPMemoryPressures.*)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$"
+```
+
 ## Data Sources
 
 | Source | Description |

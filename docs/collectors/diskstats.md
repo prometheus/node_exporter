@@ -18,6 +18,33 @@ Status: enabled by default
 --collector.diskstats.device-exclude  Regexp of devices to exclude (default: ^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\d+n\d+p)\d+$)
 ```
 
+### Examples
+
+Monitor only physical disks (exclude partitions, loop, ram):
+```
+--collector.diskstats.device-exclude="^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\d+n\d+p)\d+$"
+```
+
+Monitor only NVMe devices:
+```
+--collector.diskstats.device-include="^nvme[0-9]+n[0-9]+$"
+```
+
+Monitor only SCSI/SATA disks (sd*):
+```
+--collector.diskstats.device-include="^sd[a-z]+$"
+```
+
+Exclude virtual and removable devices:
+```
+--collector.diskstats.device-exclude="^(z?ram|loop|fd|sr|cd)[0-9]*$"
+```
+
+Include partitions for a specific disk:
+```
+--collector.diskstats.device-include="^sda[0-9]*$"
+```
+
 ## Data Sources
 
 | Source | Description |

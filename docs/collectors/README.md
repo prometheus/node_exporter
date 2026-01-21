@@ -7,8 +7,12 @@ Per-collector metric documentation. Each file documents one collector.
 - [cpu](cpu.md) - CPU time statistics and metadata
 - [cpufreq](cpufreq.md) - CPU frequency scaling statistics
 - [diskstats](diskstats.md) - Disk I/O statistics
+- [filesystem](filesystem.md) - Filesystem space and inode statistics
+- [hwmon](hwmon.md) - Hardware monitoring sensors
 - [meminfo](meminfo.md) - Memory statistics
-- [netstat](netstat.md) - Network statistics
+- [netdev](netdev.md) - Network interface statistics
+- [netstat](netstat.md) - Network protocol statistics
+- [stat](stat.md) - Kernel/system statistics
 
 ## Structure
 
