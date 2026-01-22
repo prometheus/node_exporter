@@ -8,7 +8,7 @@ require (
 	github.com/coreos/go-systemd/v22 v22.6.0
 	github.com/dennwc/btrfs v0.0.0-20241002142654-12ae127e0bf6
 	github.com/ema/qdisc v1.0.0
-	github.com/godbus/dbus/v5 v5.1.0
+	github.com/godbus/dbus/v5 v5.2.0
 	github.com/hashicorp/go-envparse v0.1.0
 	github.com/hodgesds/perf-utils v0.7.0
 	github.com/illumos/go-kstat v0.0.0-20210513183136-173c9b0a9973
