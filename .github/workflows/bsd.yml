@@ -28,9 +28,9 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
       - name: test-e2e
-        uses: vmactions/freebsd-vm@0cd283ca698d48b59cda444a9948f48a30709627  # v1.2.8
+        uses: vmactions/freebsd-vm@a9c0dcaf5ed572d89ea1a59fe2217d3b3da4fd23  # v1.3.7
         with:
-          release: "14.3"
+          release: "15.0"
           copyback: false
           envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
           usesh: true
