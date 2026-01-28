@@ -112,6 +112,39 @@
               )
             ||| % $._config,
           },
+          {
+            record: 'instance:node_network_receive_bytes_physical:rate%(rateInterval)s' % $._config,
+            expr: |||
+              sum without (device) (
+                rate(node_network_receive_bytes_total{%(nodeExporterSelector)s, %(netDeviceSelector)s}[%(rateInterval)s])
+              )
+            ||| % $._config,
+          },
+          {
+            record: 'instance:node_network_transmit_bytes_physical:rate%(rateInterval)s' % $._config,
+            expr: |||
+              sum without (device) (
+                rate(node_network_transmit_bytes_total{%(nodeExporterSelector)s, %(netDeviceSelector)s}[%(rateInterval)s])
+              )
+            ||| % $._config,
+          },
+          // TODO: Find out if those drops ever happen on modern switched networks.
+          {
+            record: 'instance:node_network_receive_drop_physical:rate%(rateInterval)s' % $._config,
+            expr: |||
+              sum without (device) (
+                rate(node_network_receive_drop_total{%(nodeExporterSelector)s, %(netDeviceSelector)s}[%(rateInterval)s])
+              )
+            ||| % $._config,
+          },
+          {
+            record: 'instance:node_network_transmit_drop_physical:rate%(rateInterval)s' % $._config,
+            expr: |||
+              sum without (device) (
+                rate(node_network_transmit_drop_total{%(nodeExporterSelector)s, %(netDeviceSelector)s}[%(rateInterval)s])
+              )
+            ||| % $._config,
+          },
         ],
       },
     ],
