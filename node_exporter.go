@@ -16,6 +16,7 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -179,6 +180,34 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
+func socketListenAndServe(server *http.Server, unixSocketPath string, toolkitFlags *web.FlagConfig, logger *slog.Logger) error {
+	if unixSocketPath != "" {
+		// Use Unix domain socket
+		logger.Info("Listening on Unix socket", "path", unixSocketPath)
+
+		// Remove existing socket file if it exists
+		if err := os.Remove(unixSocketPath); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("failed to remove existing Unix socket: %w", err)
+		}
+
+		listener, err := net.Listen("unix", unixSocketPath)
+		if err != nil {
+			return fmt.Errorf("failed to create Unix socket listener: %w", err)
+		}
+		defer listener.Close()
+
+		// Set socket permissions
+		if err := os.Chmod(unixSocketPath, 0660); err != nil {
+			return fmt.Errorf("failed to set Unix socket permissions: %w", err)
+		}
+
+		return server.Serve(listener)
+	}
+
+	// Use TCP socket (default behavior)
+	return web.ListenAndServe(server, toolkitFlags, logger)
+}
+
 func main() {
 	var (
 		metricsPath = kingpin.Flag(
@@ -200,6 +229,10 @@ func main() {
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
+		unixSocketPath = kingpin.Flag(
+			"web.unix-socket",
+			"Path to Unix domain socket for HTTP server. If set, TCP listening is disabled.",
+		).Default("").String()
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
 	)
 
@@ -244,7 +277,7 @@ func main() {
 	}
 
 	server := &http.Server{}
-	if err := web.ListenAndServe(server, toolkitFlags, logger); err != nil {
+	if err := socketListenAndServe(server, *unixSocketPath, toolkitFlags, logger); err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
