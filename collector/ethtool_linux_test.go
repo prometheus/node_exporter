@@ -257,6 +257,81 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return res, err
 }
 
+func (e *EthtoolFixture) GetChannels(intf string) (ethtool.Channels, error) {
+	res := ethtool.Channels{}
+
+	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf, "channels"))
+	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
+		// The fixture for this interface doesn't exist. Translate that to unix.EOPNOTSUPP
+		// to replicate an interface that doesn't support ethtool driver info
+		return res, unix.EOPNOTSUPP
+	}
+	if err != nil {
+		return res, err
+	}
+	defer fixtureFile.Close()
+
+	scanner := bufio.NewScanner(fixtureFile)
+	currentConfig := false
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "Channel parameters for") || strings.HasPrefix(line, "Pre-set maximums") {
+			continue
+		}
+
+		line = strings.Trim(line, " ")
+		items := strings.Split(line, ":")
+		fmt.Printf("line: %s\n", line)
+		fmt.Printf("items: %s\n", strings.Join(items, ","))
+		switch items[0] {
+		case "Current hardware settings":
+			currentConfig = true
+		case "RX":
+			if currentConfig {
+				res.RxCount = readChannel(items[1])
+			} else {
+				res.MaxRx = readChannel(items[1])
+			}
+		case "TX":
+			if currentConfig {
+				res.TxCount = readChannel(items[1])
+			} else {
+				res.MaxTx = readChannel(items[1])
+			}
+		case "Other":
+			if currentConfig {
+				res.OtherCount = readChannel(items[1])
+			} else {
+				res.MaxOther = readChannel(items[1])
+			}
+		case "Combined":
+			if currentConfig {
+				res.CombinedCount = readChannel(items[1])
+			} else {
+				res.MaxCombined = readChannel(items[1])
+			}
+		}
+	}
+
+	return res, nil
+}
+
+func readChannel(val string) uint32 {
+	val = strings.TrimSpace(val)
+	if val == "n/a" {
+		return 0
+	}
+
+	intVal, err := strconv.ParseUint(val, 10, 32)
+	if err != nil {
+		return 0
+	}
+
+	return uint32(intVal)
+
+}
+
 func NewEthtoolTestCollector(logger *slog.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(logger)
 	if err != nil {
@@ -291,6 +366,18 @@ func TestEthToolCollector(t *testing.T) {
 	testcase := `# HELP node_ethtool_align_errors Network interface align_errors
 # TYPE node_ethtool_align_errors untyped
 node_ethtool_align_errors{device="eth0"} 0
+# HELP node_ethtool_channels_current Currently configured network interface channels
+# TYPE node_ethtool_channels_current gauge
+node_ethtool_channels_current{device="eth0",type="combined"} 128
+node_ethtool_channels_current{device="eth0",type="other"} 1
+node_ethtool_channels_current{device="eth0",type="rx"} 0
+node_ethtool_channels_current{device="eth0",type="tx"} 0
+# HELP node_ethtool_channels_max Maximum supported network interface channels
+# TYPE node_ethtool_channels_max gauge
+node_ethtool_channels_max{device="eth0",type="combined"} 252
+node_ethtool_channels_max{device="eth0",type="other"} 1
+node_ethtool_channels_max{device="eth0",type="rx"} 252
+node_ethtool_channels_max{device="eth0",type="tx"} 252
 # HELP node_ethtool_info A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.
 # TYPE node_ethtool_info gauge
 node_ethtool_info{bus_info="0000:00:1f.6",device="eth0",driver="e1000e",expansion_rom_version="",firmware_version="0.5-4",version="5.11.0-22-generic"} 1
