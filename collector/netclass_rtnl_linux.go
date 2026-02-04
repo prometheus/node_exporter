@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/jsimonetti/rtnetlink/v2"
@@ -93,7 +94,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		infoDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
 			"Non-numeric data of <iface>, value is always 1.",
-			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
+			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias", "altnames"},
 			nil,
 		)
 		infoValue := 1.0
@@ -111,7 +112,8 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 
 		ifaceInfo := sysfsAttrs[msg.Attributes.Name]
 
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, msg.Attributes.Address.String(), msg.Attributes.Broadcast.String(), duplex, operstateStr[int(msg.Attributes.OperationalState)], ifalias)
+		altnames := strings.Join(msg.Attributes.AltNames, ",")
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, msg.Attributes.Address.String(), msg.Attributes.Broadcast.String(), duplex, operstateStr[int(msg.Attributes.OperationalState)], ifalias, altnames)
 
 		pushMetric(ch, c.getFieldDesc("address_assign_type"), "address_assign_type", ifaceInfo.AddrAssignType, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier"), "carrier", msg.Attributes.Carrier, prometheus.GaugeValue, msg.Attributes.Name)
