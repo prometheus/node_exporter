@@ -36,7 +36,18 @@ type arpCollector struct {
 	fs           procfs.FS
 	deviceFilter deviceFilter
 	entries      *prometheus.Desc
+	states       *prometheus.Desc
 	logger       *slog.Logger
+}
+
+var neighborStatesMap = map[uint16]string{
+	unix.NUD_INCOMPLETE: "incomplete",
+	unix.NUD_REACHABLE:  "reachable",
+	unix.NUD_STALE:      "stale",
+	unix.NUD_DELAY:      "delay",
+	unix.NUD_PROBE:      "probe",
+	unix.NUD_FAILED:     "failed",
+	unix.NUD_PERMANENT:  "permanent",
 }
 
 func init() {
@@ -58,6 +69,11 @@ func NewARPCollector(logger *slog.Logger) (Collector, error) {
 			"ARP entries by device",
 			[]string{"device"}, nil,
 		),
+		states: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "arp", "states"),
+			"ARP states by device",
+			[]string{"device", "state"}, nil,
+		),
 		logger: logger,
 	}, nil
 }
@@ -72,10 +88,10 @@ func getTotalArpEntries(deviceEntries []procfs.ARPEntry) map[string]uint32 {
 	return entries
 }
 
-func getTotalArpEntriesRTNL() (map[string]uint32, error) {
+func getArpEntriesRTNL() (map[string]uint32, map[string]map[uint16]uint32, error) {
 	conn, err := rtnl.Dial(nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer conn.Close()
 
@@ -83,29 +99,42 @@ func getTotalArpEntriesRTNL() (map[string]uint32, error) {
 	// restrict to AF_INET.
 	neighbors, err := conn.Neighbours(nil, unix.AF_INET)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Map of interface name to ARP neighbor count.
 	entries := make(map[string]uint32)
+	// Map of map[InterfaceName]map[StateCode]CountOfTheState
+	states := make(map[string]map[uint16]uint32)
 
 	for _, n := range neighbors {
 		// Skip entries which have state NUD_NOARP to conform to output of /proc/net/arp.
-		if n.State&unix.NUD_NOARP == 0 {
-			entries[n.Interface.Name]++
+		if n.State&unix.NUD_NOARP == unix.NUD_NOARP {
+			continue
 		}
+
+		entries[n.Interface.Name]++
+
+		if _, ok := states[n.Interface.Name]; !ok {
+			states[n.Interface.Name] = make(map[uint16]uint32)
+		}
+
+		states[n.Interface.Name][n.State]++
 	}
 
-	return entries, nil
+	return entries, states, nil
 }
 
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
-	var enumeratedEntry map[string]uint32
+	var (
+		enumeratedEntry map[string]uint32
+		enumStates      map[string]map[uint16]uint32
+	)
 
 	if *arpNetlink {
 		var err error
 
-		enumeratedEntry, err = getTotalArpEntriesRTNL()
+		enumeratedEntry, enumStates, err = getArpEntriesRTNL()
 		if err != nil {
 			return fmt.Errorf("could not get ARP entries: %w", err)
 		}
@@ -124,6 +153,13 @@ func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		ch <- prometheus.MustNewConstMetric(
 			c.entries, prometheus.GaugeValue, float64(entryCount), device)
+
+		if *arpNetlink {
+			for state, count := range enumStates[device] {
+				ch <- prometheus.MustNewConstMetric(
+					c.states, prometheus.GaugeValue, float64(count), device, neighborStatesMap[state])
+			}
+		}
 	}
 
 	return nil
