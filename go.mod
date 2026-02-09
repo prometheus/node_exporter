@@ -46,6 +46,8 @@ require (
 	github.com/mdlayher/vsock v1.2.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
+	github.com/quic-go/quic-go v0.59.0 // indirect
 	github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect

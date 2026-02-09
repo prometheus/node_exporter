@@ -201,6 +201,10 @@ func main() {
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
+		enableHTTP3 = kingpin.Flag(
+			"web.enable-http3",
+			"Enable HTTP/3 (QUIC) listener. Requires TLS via --web.config.file.",
+		).Default("false").Bool()
 	)
 
 	promslogConfig := &promslog.Config{}
@@ -243,7 +247,57 @@ func main() {
 		http.Handle("/", landingPage)
 	}
 
+	var serverHandler http.Handler
+	if *enableHTTP3 {
+		configFile := *toolkitFlags.WebConfigFile
+		if configFile == "" {
+			logger.Error("HTTP/3 requires TLS: --web.config.file must be set when --web.enable-http3 is enabled")
+			os.Exit(1)
+		}
+
+		c, err := loadWebConfig(configFile)
+		if err != nil {
+			logger.Error("Failed to load web config for HTTP/3", "err", err)
+			os.Exit(1)
+		}
+		if !c.hasTLS() {
+			logger.Error("HTTP/3 requires TLS: tls_server_config must be configured in web config file")
+			os.Exit(1)
+		}
+
+		// Build the HTTP/3 handler with auth if users are configured.
+		var h3Handler http.Handler = http.DefaultServeMux
+		if len(c.Users) > 0 {
+			h3Handler = &http3AuthHandler{
+				inner:      http.DefaultServeMux,
+				configPath: configFile,
+				logger:     logger,
+			}
+		}
+
+		// Check for systemd socket activation.
+		if toolkitFlags.WebSystemdSocket != nil && *toolkitFlags.WebSystemdSocket {
+			logger.Warn("HTTP/3 is not supported with systemd socket activation, HTTP/3 listener will not start")
+		} else {
+			h3Server, cleanup, err := startHTTP3Server(*toolkitFlags.WebListenAddresses, configFile, h3Handler, logger)
+			if err != nil {
+				logger.Error("Failed to start HTTP/3 server", "err", err)
+				os.Exit(1)
+			}
+			defer cleanup()
+
+			// Wrap the default mux with Alt-Svc middleware for TCP responses.
+			serverHandler = &altSvcMiddleware{
+				inner:    http.DefaultServeMux,
+				h3Server: h3Server,
+			}
+		}
+	}
+
 	server := &http.Server{}
+	if serverHandler != nil {
+		server.Handler = serverHandler
+	}
 	if err := web.ListenAndServe(server, toolkitFlags, logger); err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
