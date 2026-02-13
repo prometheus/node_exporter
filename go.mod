@@ -28,6 +28,7 @@ require (
 	github.com/prometheus/procfs v0.19.2
 	github.com/safchain/ethtool v0.7.0
 	golang.org/x/sys v0.40.0
+	gopkg.in/yaml.v2 v2.4.0
 	howett.net/plist v1.0.1
 )
 
