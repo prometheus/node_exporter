@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"log/slog"
+	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
@@ -126,8 +127,9 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 	)
 
 	var (
-		labels   = []string{"export", "protocol", "mountaddr"}
-		opLabels = []string{"export", "protocol", "mountaddr", "operation"}
+		labels      = []string{"export", "protocol", "mountaddr"}
+		opLabels    = []string{"export", "protocol", "mountaddr", "operation"}
+		translabels = []string{"export", "protocol", "mountaddr", "transport"}
 	)
 
 	return &mountStatsCollector{
@@ -197,70 +199,70 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		NFSTransportBindTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_bind_total"),
 			"Number of times the client has had to establish a connection from scratch to the NFS server.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportConnectTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_connect_total"),
 			"Number of times the client has made a TCP connection to the NFS server.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportIdleTimeSeconds: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_idle_time_seconds"),
 			"Duration since the NFS mount last saw any RPC traffic, in seconds.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportSendsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_sends_total"),
 			"Number of RPC requests for this mount sent to the NFS server.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportReceivesTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_receives_total"),
 			"Number of RPC responses for this mount received from the NFS server.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportBadTransactionIDsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_bad_transaction_ids_total"),
 			"Number of times the NFS server sent a response with a transaction ID unknown to this client.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportBacklogQueueTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_backlog_queue_total"),
 			"Total number of items added to the RPC backlog queue.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportMaximumRPCSlots: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_maximum_rpc_slots"),
 			"Maximum number of simultaneously active RPC requests ever used.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportSendingQueueTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_sending_queue_total"),
 			"Total number of items added to the RPC transmission sending queue.",
-			labels,
+			translabels,
 			nil,
 		),
 
 		NFSTransportPendingQueueTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_pending_queue_total"),
 			"Total number of items added to the RPC transmission pending queue.",
-			labels,
+			translabels,
 			nil,
 		),
 
@@ -617,74 +619,76 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 	)
 
 	for i := range s.Transport {
+		translabelValues := []string{export, protocol, mountAddress, strconv.Itoa(i)}
+
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportBindTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].Bind),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportConnectTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].Connect),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportIdleTimeSeconds,
 			prometheus.GaugeValue,
 			float64(s.Transport[i].IdleTimeSeconds%float64Mantissa),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportSendsTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].Sends),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportReceivesTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].Receives),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportBadTransactionIDsTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].BadTransactionIDs),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportBacklogQueueTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].CumulativeBacklog),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportMaximumRPCSlots,
 			prometheus.GaugeValue,
 			float64(s.Transport[i].MaximumRPCSlotsUsed),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportSendingQueueTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].CumulativeSendingQueue),
-			labelValues...,
+			translabelValues...,
 		)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportPendingQueueTotal,
 			prometheus.CounterValue,
 			float64(s.Transport[i].CumulativePendingQueue),
-			labelValues...,
+			translabelValues...,
 		)
 	}
 
