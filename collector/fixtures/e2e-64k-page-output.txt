@@ -144,6 +144,69 @@ node_bcache_writeback_rate_proportional_term{backing_device="bdev0",uuid="deaddd
 # HELP node_bcache_written_bytes_total Sum of all data that has been written to the cache.
 # TYPE node_bcache_written_bytes_total counter
 node_bcache_written_bytes_total{cache_device="cache0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+# HELP node_bcachefs_btree_cache_size_bytes Btree cache memory usage in bytes.
+# TYPE node_bcachefs_btree_cache_size_bytes gauge
+node_bcachefs_btree_cache_size_bytes{uuid="12345678-1234-1234-1234-123456789abc"} 5.49453824e+08
+# HELP node_bcachefs_btree_node_read_total Bcachefs counter btree_node_read since filesystem creation.
+# TYPE node_bcachefs_btree_node_read_total counter
+node_bcachefs_btree_node_read_total{uuid="12345678-1234-1234-1234-123456789abc"} 67890
+# HELP node_bcachefs_btree_node_write_total Bcachefs counter btree_node_write since filesystem creation.
+# TYPE node_bcachefs_btree_node_write_total counter
+node_bcachefs_btree_node_write_total{uuid="12345678-1234-1234-1234-123456789abc"} 9876
+# HELP node_bcachefs_btree_write_average_size_bytes Average btree write size by type.
+# TYPE node_bcachefs_btree_write_average_size_bytes gauge
+node_bcachefs_btree_write_average_size_bytes{type="cache_reclaim",uuid="12345678-1234-1234-1234-123456789abc"} 0
+node_bcachefs_btree_write_average_size_bytes{type="init_next_bset",uuid="12345678-1234-1234-1234-123456789abc"} 24064
+node_bcachefs_btree_write_average_size_bytes{type="initial",uuid="12345678-1234-1234-1234-123456789abc"} 110592
+node_bcachefs_btree_write_average_size_bytes{type="interior",uuid="12345678-1234-1234-1234-123456789abc"} 354
+node_bcachefs_btree_write_average_size_bytes{type="journal_reclaim",uuid="12345678-1234-1234-1234-123456789abc"} 405
+# HELP node_bcachefs_btree_writes_total Number of btree writes by type.
+# TYPE node_bcachefs_btree_writes_total counter
+node_bcachefs_btree_writes_total{type="cache_reclaim",uuid="12345678-1234-1234-1234-123456789abc"} 0
+node_bcachefs_btree_writes_total{type="init_next_bset",uuid="12345678-1234-1234-1234-123456789abc"} 6647
+node_bcachefs_btree_writes_total{type="initial",uuid="12345678-1234-1234-1234-123456789abc"} 19088
+node_bcachefs_btree_writes_total{type="interior",uuid="12345678-1234-1234-1234-123456789abc"} 16788
+node_bcachefs_btree_writes_total{type="journal_reclaim",uuid="12345678-1234-1234-1234-123456789abc"} 541080
+# HELP node_bcachefs_compression_compressed_bytes Compressed size by algorithm.
+# TYPE node_bcachefs_compression_compressed_bytes gauge
+node_bcachefs_compression_compressed_bytes{algorithm="incompressible",uuid="12345678-1234-1234-1234-123456789abc"} 5.905580032e+09
+node_bcachefs_compression_compressed_bytes{algorithm="lz4",uuid="12345678-1234-1234-1234-123456789abc"} 2.07232172032e+10
+# HELP node_bcachefs_compression_uncompressed_bytes Uncompressed size by algorithm.
+# TYPE node_bcachefs_compression_uncompressed_bytes gauge
+node_bcachefs_compression_uncompressed_bytes{algorithm="incompressible",uuid="12345678-1234-1234-1234-123456789abc"} 5.905580032e+09
+node_bcachefs_compression_uncompressed_bytes{algorithm="lz4",uuid="12345678-1234-1234-1234-123456789abc"} 7.1940702208e+10
+# HELP node_bcachefs_device_bucket_size_bytes Bucket size in bytes.
+# TYPE node_bcachefs_device_bucket_size_bytes gauge
+node_bcachefs_device_bucket_size_bytes{device="0",uuid="12345678-1234-1234-1234-123456789abc"} 524288
+# HELP node_bcachefs_device_buckets Total number of buckets.
+# TYPE node_bcachefs_device_buckets gauge
+node_bcachefs_device_buckets{device="0",uuid="12345678-1234-1234-1234-123456789abc"} 524288
+# HELP node_bcachefs_device_durability Device durability setting.
+# TYPE node_bcachefs_device_durability gauge
+node_bcachefs_device_durability{device="0",uuid="12345678-1234-1234-1234-123456789abc"} 1
+# HELP node_bcachefs_device_info Device information.
+# TYPE node_bcachefs_device_info gauge
+node_bcachefs_device_info{device="0",label="ssd.ssd1",state="rw",uuid="12345678-1234-1234-1234-123456789abc"} 1
+# HELP node_bcachefs_device_io_done_bytes_total IO bytes by operation type and data type.
+# TYPE node_bcachefs_device_io_done_bytes_total counter
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="0",operation="read",uuid="12345678-1234-1234-1234-123456789abc"} 4.411097088e+09
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="0",operation="write",uuid="12345678-1234-1234-1234-123456789abc"} 1.171456e+06
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="0",operation="read",uuid="12345678-1234-1234-1234-123456789abc"} 3.989504e+06
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="0",operation="write",uuid="12345678-1234-1234-1234-123456789abc"} 3.1417344e+07
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="0",operation="read",uuid="12345678-1234-1234-1234-123456789abc"} 5.768222552064e+12
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="0",operation="write",uuid="12345678-1234-1234-1234-123456789abc"} 3.919681536e+10
+# HELP node_bcachefs_device_io_errors_total IO errors by error type.
+# TYPE node_bcachefs_device_io_errors_total counter
+node_bcachefs_device_io_errors_total{device="0",type="checksum",uuid="12345678-1234-1234-1234-123456789abc"} 0
+node_bcachefs_device_io_errors_total{device="0",type="read",uuid="12345678-1234-1234-1234-123456789abc"} 197346
+node_bcachefs_device_io_errors_total{device="0",type="write",uuid="12345678-1234-1234-1234-123456789abc"} 0
+# HELP node_bcachefs_errors_total Error count by error type.
+# TYPE node_bcachefs_errors_total counter
+node_bcachefs_errors_total{error_type="btree_node_read_err",uuid="12345678-1234-1234-1234-123456789abc"} 5
+node_bcachefs_errors_total{error_type="checksum_err",uuid="12345678-1234-1234-1234-123456789abc"} 2
+# HELP node_bcachefs_info Filesystem information.
+# TYPE node_bcachefs_info gauge
+node_bcachefs_info{uuid="12345678-1234-1234-1234-123456789abc"} 1
 # HELP node_bonding_active Number of active slaves per bonding interface.
 # TYPE node_bonding_active gauge
 node_bonding_active{master="bond0"} 0
@@ -3034,6 +3097,7 @@ node_schedstat_waiting_seconds_total{cpu="1"} 364107.263788241
 # TYPE node_scrape_collector_success gauge
 node_scrape_collector_success{collector="arp"} 1
 node_scrape_collector_success{collector="bcache"} 1
+node_scrape_collector_success{collector="bcachefs"} 1
 node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="btrfs"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
