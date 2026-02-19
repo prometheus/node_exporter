@@ -159,7 +159,7 @@ thermal | Exposes thermal statistics like `pmset -g therm`. | Darwin
 thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/class/thermal`. | Linux
 time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
-udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
+udp | Exposes UDP statistics from `/proc/net/udp` and `/proc/net/udp6`. | Linux
 uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 watchdog | Exposes statistics from `/sys/class/watchdog` | Linux
