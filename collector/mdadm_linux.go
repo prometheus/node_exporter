@@ -21,10 +21,9 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/prometheus/procfs/sysfs"
-
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+	"github.com/prometheus/procfs/sysfs"
 )
 
 type mdadmCollector struct {
@@ -65,6 +64,12 @@ var (
 		[]string{"device"},
 		prometheus.Labels{"state": "resync"},
 	)
+	reshapeDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "state"),
+		"Indicates the state of md-device.",
+		[]string{"device"},
+		prometheus.Labels{"state": "reshaping"},
+	)
 	checkDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "state"),
 		"Indicates the state of md-device.",
@@ -96,6 +101,27 @@ var (
 	blocksSyncedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "blocks_synced"),
 		"Number of blocks synced on device.",
+		[]string{"device"},
+		nil,
+	)
+
+	blocksSyncedPctDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "blocks_synced_percent"),
+		"Percentage of blocks synced on device.",
+		[]string{"device"},
+		nil,
+	)
+
+	syncTimeRemainingDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "sync_time_remaining_seconds"),
+		"Estimated finishing time for current sync in seconds.",
+		[]string{"device"},
+		nil,
+	)
+
+	blockSyncedSpeedDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "md", "blocks_synced_speed"),
+		"current sync speed (in Kilobytes/sec)",
 		[]string{"device"},
 		nil,
 	)
@@ -144,7 +170,20 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			float64(mdStat.DisksTotal),
 			mdStat.Name,
 		)
-
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.DisksReplacing),
+			mdStat.Name,
+			"replacing",
+		)
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.DisksDown),
+			mdStat.Name,
+			"down",
+		)
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
 			prometheus.GaugeValue,
@@ -195,6 +234,13 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 
 		ch <- prometheus.MustNewConstMetric(
+			reshapeDesc,
+			prometheus.GaugeValue,
+			stateVals["reshaping"],
+			mdStat.Name,
+		)
+
+		ch <- prometheus.MustNewConstMetric(
 			checkDesc,
 			prometheus.GaugeValue,
 			stateVals["checking"],
@@ -213,6 +259,25 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			float64(mdStat.BlocksSynced),
 			mdStat.Name,
 		)
+		ch <- prometheus.MustNewConstMetric(
+			blocksSyncedPctDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedPct),
+			mdStat.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			syncTimeRemainingDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedFinishTime*60),
+			mdStat.Name,
+		)
+		ch <- prometheus.MustNewConstMetric(
+			blockSyncedSpeedDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.BlocksSyncedSpeed),
+			mdStat.Name,
+		)
+
 	}
 
 	sysFS, err := sysfs.NewFS(*sysPath)
