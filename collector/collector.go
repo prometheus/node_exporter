@@ -23,6 +23,7 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
 // Namespace defines the common namespace to be used by all metrics.
@@ -53,7 +54,8 @@ var (
 	initiatedCollectorsMtx = sync.Mutex{}
 	initiatedCollectors    = make(map[string]Collector)
 	collectorState         = make(map[string]*bool)
-	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	forcedCollectors       = map[string]bool{}     // collectors which have been explicitly enabled or disabled
+	collectorDefaults      = make(map[string]bool) // tracks default enabled/disabled state for OTEL context
 )
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(logger *slog.Logger) (Collector, error)) {
@@ -63,6 +65,9 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func(log
 	} else {
 		helpDefaultState = "disabled"
 	}
+
+	// Store the default state for OTEL context initialization
+	collectorDefaults[collector] = isDefaultEnabled
 
 	flagName := fmt.Sprintf("collector.%s", collector)
 	flagHelp := fmt.Sprintf("Enable the %s collector (default: %s).", collector, helpDefaultState)
@@ -242,4 +247,44 @@ func pushMetric(ch chan<- prometheus.Metric, fieldDesc *prometheus.Desc, name st
 	}
 
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, fVal, labelValues...)
+}
+
+// InitializeCollectorStateForOTEL initializes the collector state for OTEL context
+// without relying on kingpin flag parsing. This should be called before creating
+// any NodeCollector instances in the OTEL context.
+func InitializeCollectorStateForOTEL() {
+	// Initialize collector enable/disable state from stored defaults
+	for collectorName, defaultEnabled := range collectorDefaults {
+		enabled := defaultEnabled
+		collectorState[collectorName] = &enabled
+	}
+
+	// Initialize collector-specific configuration flags with their defaults
+	initializeCollectorFlags()
+}
+
+// initializeCollectorFlags sets default values for collector-specific flags
+// that are normally initialized by kingpin parsing
+func initializeCollectorFlags() {
+	// Initialize path flags with their defaults (from paths.go)
+	if procPath == nil {
+		defaultProcPath := procfs.DefaultMountPoint
+		procPath = &defaultProcPath
+	}
+	if sysPath == nil {
+		defaultSysPath := "/sys"
+		sysPath = &defaultSysPath
+	}
+	if rootfsPath == nil {
+		defaultRootfsPath := "/"
+		rootfsPath = &defaultRootfsPath
+	}
+	if udevDataPath == nil {
+		defaultUdevDataPath := "/run/udev/data"
+		udevDataPath = &defaultUdevDataPath
+	}
+
+	// Initialize other collector-specific flags with empty/default values
+	// These will be nil pointers until kingpin.Parse() is called, but collectors
+	// should handle nil gracefully or we can initialize them as needed
 }
