@@ -30,6 +30,13 @@
     // them here, e.g. 'device!="tmpfs"'.
     diskDeviceSelector: 'device!=""',
 
+    // Select the devices for physical network related querier. If left
+    // empty the lo device and virtual device (starting with veth) are ignored.
+    // If you have bonded interfaces for example you might want to ignore those
+    // interfaces as well to avoid aggregating bandwith multiple times (once at
+    // the physical layer and on the bond layer). E.g.  // device!~"lo|veth.+|bond.+"'.
+    netDeviceSelector: 'device!~"lo|veth.+"',
+
     // Some of the alerts are meant to fire if a critical failure of a
     // node is imminent (e.g. the disk is about to run full). In a
     // true “cloud native” setup, failures of a single node should be
