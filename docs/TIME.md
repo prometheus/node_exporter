@@ -1,5 +1,21 @@
 # Monitoring time sync with node_exporter
 
+## `timex` collector
+
+This collector exports state of kernel time synchronization flag that should be
+maintained by time-keeping daemon and is eventually raised by Linux kernel if
+time-keeping daemon does not update it regularly.
+
+Unfortunately some daemons do not handle this flag properly, e.g. chrony-1.30
+from Debian/jessie clears `STA_UNSYNC` flag during daemon initialisation and
+does not indicate clock synchronization status using this flag. Modern chrony
+versions should work better. All chrony versions require `rtcsync` option to
+maintain this flag. OpenNTPD does not touch this flag at all till
+OpenNTPD-5.9p1.
+
+On the other hand combination of `sync_status` and `offset` exported by `timex`
+module is the way to monitor if systemd-timesyncd does its job.
+
 ## `ntp` collector
 
 NOTE: This collector is deprecated and will be removed in the next major version release.
@@ -64,18 +80,3 @@ being less than `collector.ntp.local-offset-tolerance`.
 Causality violation is lower bound estimate of clock error done using SNTP,
 it's calculated as positive portion of `abs(node_ntp_offset) - node_ntp_rtt / 2`.
 
-## `timex` collector
-
-This collector exports state of kernel time synchronization flag that should be
-maintained by time-keeping daemon and is eventually raised by Linux kernel if
-time-keeping daemon does not update it regularly.
-
-Unfortunately some daemons do not handle this flag properly, e.g. chrony-1.30
-from Debian/jessie clears `STA_UNSYNC` flag during daemon initialisation and
-does not indicate clock synchronization status using this flag. Modern chrony
-versions should work better. All chrony versions require `rtcsync` option to
-maintain this flag. OpenNTPD does not touch this flag at all till
-OpenNTPD-5.9p1.
-
-On the other hand combination of `sync_status` and `offset` exported by `timex`
-module is the way to monitor if systemd-timesyncd does its job.
