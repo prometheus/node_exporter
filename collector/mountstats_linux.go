@@ -103,6 +103,7 @@ type nfsDeviceIdentifier struct {
 	Device       string
 	Protocol     string
 	MountAddress string
+	MountPoint   string
 }
 
 func init() {
@@ -127,9 +128,9 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 	)
 
 	var (
-		labels      = []string{"export", "protocol", "mountaddr"}
-		opLabels    = []string{"export", "protocol", "mountaddr", "operation"}
-		translabels = []string{"export", "protocol", "mountaddr", "transport"}
+		labels      = []string{"export", "protocol", "mountaddr", "mountpoint"}
+		opLabels    = []string{"export", "protocol", "mountaddr", "mountpoint", "operation"}
+		translabels = []string{"export", "protocol", "mountaddr", "mountpoint", "transport"}
 	)
 
 	return &mountStatsCollector{
@@ -531,6 +532,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
+		mountPoint := m.Mount
 		var mountAddress string
 		if idx < len(mountsInfo) {
 			// The mount entry order in the /proc/self/mountstats and /proc/self/mountinfo is the same.
@@ -539,22 +541,22 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		for k := range stats.Transport {
-			deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport[k].Protocol, mountAddress}
+			deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport[k].Protocol, mountAddress, mountPoint}
 			i := deviceList[deviceIdentifier]
 			if i {
 				c.logger.Debug("Skipping duplicate device entry", "device", deviceIdentifier)
 				break
 			}
 			deviceList[deviceIdentifier] = true
-			c.updateNFSStats(ch, stats, m.Device, stats.Transport[k].Protocol, mountAddress)
+			c.updateNFSStats(ch, stats, m.Device, stats.Transport[k].Protocol, mountAddress, mountPoint)
 		}
 	}
 
 	return nil
 }
 
-func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *procfs.MountStatsNFS, export, protocol, mountAddress string) {
-	labelValues := []string{export, protocol, mountAddress}
+func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *procfs.MountStatsNFS, export, protocol, mountAddress, mountPoint string) {
+	labelValues := []string{export, protocol, mountAddress, mountPoint}
 	ch <- prometheus.MustNewConstMetric(
 		c.NFSAgeSecondsTotal,
 		prometheus.CounterValue,
@@ -619,7 +621,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 	)
 
 	for i := range s.Transport {
-		translabelValues := []string{export, protocol, mountAddress, strconv.Itoa(i)}
+		translabelValues := []string{export, protocol, mountAddress, mountPoint, strconv.Itoa(i)}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSTransportBindTotal,
@@ -693,7 +695,7 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 	}
 
 	for _, op := range s.Operations {
-		opLabelValues := []string{export, protocol, mountAddress, op.Operation}
+		opLabelValues := []string{export, protocol, mountAddress, mountPoint, op.Operation}
 
 		ch <- prometheus.MustNewConstMetric(
 			c.NFSOperationsRequestsTotal,
