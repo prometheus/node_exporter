@@ -3383,8 +3383,8 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/config
 Lines: 2
-©¿
-TNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÄ˝NULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTE©¿!PNULLBYTENULLBYTENULLBYTENULLBYTEÄNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEˇNULLBYTENULLBYTEEOF
+ÔøΩÔøΩ
+TNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÔøΩÔøΩNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÔøΩÔøΩ!PNULLBYTENULLBYTENULLBYTENULLBYTEÔøΩNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÔøΩNULLBYTENULLBYTEEOF
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/0000:01:00.0/consistent_dma_mask_bits
@@ -5187,7 +5187,7 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/config
 Lines: 1
-"4NULLBYTENULLBYTENULLBYTENULLBYTEÅNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÒNULLBYTENULLBYTEÄ˝Ä˝ÒˇNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEPNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEˇNULLBYTENULLBYTEEOF
+"4NULLBYTENULLBYTENULLBYTENULLBYTEÔøΩNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÔøΩNULLBYTENULLBYTEÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEPNULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTENULLBYTEÔøΩNULLBYTENULLBYTEEOF
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:02.1/consistent_dma_mask_bits
@@ -7978,8 +7978,8 @@ Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/vpd
 Lines: 2
-Ç:NULLBYTEIntel (r) Ethernet Network Adapter I350-T4 for OCP NIC 3.0êdNULLBYTEV1:Intel (r) Ethernet Network Adapter I350-T4 for OCP NIC 3.0PN
-K53978-004SN6805CAF0CB12V24521RVÇxEOF
+ÔøΩ:NULLBYTEIntel (r) Ethernet Network Adapter I350-T4 for OCP NIC 3.0ÔøΩdNULLBYTEV1:Intel (r) Ethernet Network Adapter I350-T4 for OCP NIC 3.0PN
+K53978-004SN6805CAF0CB12V24521RVÔøΩxEOF
 Mode: 600
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/pci0000:40/0000:40:01.3/0000:45:00.0/wakeup
@@ -9618,6 +9618,1172 @@ Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/btree_cache_size
+Lines: 1
+2.05G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/btree_write_stats
+Lines: 6
+                   nr        size
+initial:           3298401   100k
+init_next_bset:    4055926   28.2k
+cache_reclaim:     14401     720
+journal_reclaim:   66903805  697
+interior:          3035363   1.26k
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/compression_stats
+Lines: 6
+typetype          compressed    uncompressed     average extent size
+lz4_old                    0               0                       0
+gzip                       0               0                       0
+lz4                    48.9G           71.2G                   62.5k
+zstd                    226G            603G                    115k
+incompressible         10.8T           10.8T                   90.4k
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/accounting_key_to_wb_slowpath
+Lines: 2
+since mount:                   39816825
+since filesystem creation:     44105502
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bkey_pack_pos_fail
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_cache_cannibalize
+Lines: 2
+since mount:                   0
+since filesystem creation:     26587339
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_cache_cannibalize_lock
+Lines: 2
+since mount:                   3070115
+since filesystem creation:     62061408
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_cache_cannibalize_lock_fail
+Lines: 2
+since mount:                   2540
+since filesystem creation:     24213
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_cache_cannibalize_unlock
+Lines: 2
+since mount:                   3070115
+since filesystem creation:     36260384
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_cache_reap
+Lines: 2
+since mount:                   10555604
+since filesystem creation:     69068459
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_cache_scan
+Lines: 2
+since mount:                   137595
+since filesystem creation:     427545
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_key_cache_fill
+Lines: 2
+since mount:                   19814483
+since filesystem creation:     169308144
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_alloc
+Lines: 2
+since mount:                   3298401
+since filesystem creation:     8665587
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_compact
+Lines: 2
+since mount:                   2620840
+since filesystem creation:     5554425
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_free
+Lines: 2
+since mount:                   5926033
+since filesystem creation:     14112667
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_merge
+Lines: 2
+since mount:                   224564
+since filesystem creation:     559684
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_merge_attempt
+Lines: 2
+since mount:                   13549164
+since filesystem creation:     15868895
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_read
+Lines: 2
+since mount:                   10566234
+since filesystem creation:     70225874
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_rewrite
+Lines: 2
+since mount:                   8227
+since filesystem creation:     1130316
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_set_root
+Lines: 2
+since mount:                   7779
+since filesystem creation:     77958
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_split
+Lines: 2
+since mount:                   222385
+since filesystem creation:     710571
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_node_write
+Lines: 2
+since mount:                   77307915
+since filesystem creation:     147968490
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_path_relock_fail
+Lines: 2
+since mount:                   2972086
+since filesystem creation:     56213103
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_path_upgrade_fail
+Lines: 2
+since mount:                   683421
+since filesystem creation:     2103667
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/btree_reserve_get_fail
+Lines: 2
+since mount:                   71
+since filesystem creation:     11706
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_alloc
+Lines: 2
+since mount:                   7224514
+since filesystem creation:     37363674
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_alloc_fail
+Lines: 2
+since mount:                   0
+since filesystem creation:     11156091
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_alloc_from_stripe
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_discard
+Lines: 2
+since mount:                   5662938
+since filesystem creation:     24751388
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_discard_fast
+Lines: 2
+since mount:                   3812
+since filesystem creation:     10204
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_discard_fast_worker
+Lines: 2
+since mount:                   3812
+since filesystem creation:     4012
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_discard_worker
+Lines: 2
+since mount:                   2584384
+since filesystem creation:     7021501
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/bucket_invalidate
+Lines: 2
+since mount:                   23630
+since filesystem creation:     3483205
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/cached_ptr_drop
+Lines: 2
+since mount:                   0
+since filesystem creation:     2.05G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/copygc
+Lines: 2
+since mount:                   7
+since filesystem creation:     424790
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/copygc_wait_obsolete
+Lines: 2
+since mount:                   0
+since filesystem creation:     537321
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read
+Lines: 2
+since mount:                   475G
+since filesystem creation:     44.5T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_bounce
+Lines: 2
+since mount:                   1918904
+since filesystem creation:     250520580
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_fail_and_poison
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_hole
+Lines: 2
+since mount:                   7.04G
+since filesystem creation:     1.69T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_inline
+Lines: 2
+since mount:                   710M
+since filesystem creation:     14.9G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_narrow_crcs
+Lines: 2
+since mount:                   0
+since filesystem creation:     18529
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_narrow_crcs_fail
+Lines: 2
+since mount:                   0
+since filesystem creation:     1779
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_nopromote
+Lines: 2
+since mount:                   8963785
+since filesystem creation:     242468868
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_nopromote_already_promoted
+Lines: 2
+since mount:                   8890276
+since filesystem creation:     211037452
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_nopromote_congested
+Lines: 2
+since mount:                   64143
+since filesystem creation:     2913847
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_nopromote_may_not
+Lines: 2
+since mount:                   0
+since filesystem creation:     20206095
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_nopromote_unwritten
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_promote
+Lines: 2
+since mount:                   12.8G
+since filesystem creation:     391G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_retry
+Lines: 2
+since mount:                   183
+since filesystem creation:     22404675
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_reuse_race
+Lines: 2
+since mount:                   25
+since filesystem creation:     201095
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_read_split
+Lines: 2
+since mount:                   464596
+since filesystem creation:     218590695
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update
+Lines: 2
+since mount:                   61.8T
+since filesystem creation:     21.5P
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_fail
+Lines: 2
+since mount:                   2.44M
+since filesystem creation:     1.06G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_in_flight
+Lines: 2
+since mount:                   2532017
+since filesystem creation:     3978784
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_key
+Lines: 2
+since mount:                   61.8T
+since filesystem creation:     91.2T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_key_fail
+Lines: 2
+since mount:                   22.4G
+since filesystem creation:     22.7G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_no_io
+Lines: 2
+since mount:                   80.2G
+since filesystem creation:     93.9G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_noop_obsolete
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_pred
+Lines: 2
+since mount:                   8.64M
+since filesystem creation:     45.0T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_read
+Lines: 2
+since mount:                   6.94T
+since filesystem creation:     81.3T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_start_fail_obsolete
+Lines: 2
+since mount:                   0
+since filesystem creation:     314018822443
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_useless_write_fail
+Lines: 2
+since mount:                   4.87G
+since filesystem creation:     4.94G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_update_write
+Lines: 2
+since mount:                   6.96T
+since filesystem creation:     33.8T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/data_write
+Lines: 2
+since mount:                   346G
+since filesystem creation:     18.9T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/error_throw
+Lines: 2
+since mount:                   2252331183
+since filesystem creation:     4719910958
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/evacuate_bucket
+Lines: 2
+since mount:                   112
+since filesystem creation:     6735247
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/fsync
+Lines: 2
+since mount:                   302707
+since filesystem creation:     1515147
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/gc_gens_end
+Lines: 2
+since mount:                   0
+since filesystem creation:     3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/gc_gens_start
+Lines: 2
+since mount:                   0
+since filesystem creation:     3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/journal_full
+Lines: 2
+since mount:                   1459
+since filesystem creation:     94587
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/journal_reclaim_finish
+Lines: 2
+since mount:                   93364037
+since filesystem creation:     406994135
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/journal_reclaim_start
+Lines: 2
+since mount:                   93364037
+since filesystem creation:     406994135
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/journal_res_get_blocked
+Lines: 2
+since mount:                   27723
+since filesystem creation:     74696
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/journal_write
+Lines: 2
+since mount:                   5081352
+since filesystem creation:     15458801
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/open_bucket_alloc_fail
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_btree
+Lines: 2
+since mount:                   2.00G
+since filesystem creation:     2.01G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_clear_scan
+Lines: 2
+since mount:                   2
+since filesystem creation:     11
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_data
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_phys
+Lines: 2
+since mount:                   62.7T
+since filesystem creation:     63.6T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_scan_device
+Lines: 2
+since mount:                   1.03T
+since filesystem creation:     76.0T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_scan_fs
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_scan_inum
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_scan_metadata
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_scan_pending
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/reconcile_set_pending
+Lines: 2
+since mount:                   0
+since filesystem creation:     29.0G
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/sectors_alloc
+Lines: 2
+since mount:                   8.08T
+since filesystem creation:     11.4T
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_alloc
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_create
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_create_fail
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_delete
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_reuse
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_update_bucket
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_update_extent
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/stripe_update_extent_fail
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/sync_fs
+Lines: 2
+since mount:                   5732
+since filesystem creation:     42023
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_blocked_journal_reclaim
+Lines: 2
+since mount:                   13
+since filesystem creation:     78
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_btree_node_reused
+Lines: 2
+since mount:                   38290
+since filesystem creation:     53354
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_btree_node_split
+Lines: 2
+since mount:                   19007
+since filesystem creation:     100190
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_fault_inject
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_injected
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_iter_upgrade
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_journal_preres_get
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_journal_reclaim
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_journal_res_get
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_key_cache_key_realloced
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_key_cache_raced
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_key_cache_upgrade
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_mark_replicas
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_mem_realloced
+Lines: 2
+since mount:                   73
+since filesystem creation:     6111
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_memory_allocation_failure
+Lines: 2
+since mount:                   0
+since filesystem creation:     27513334
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_relock
+Lines: 2
+since mount:                   912579
+since filesystem creation:     2806875
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_relock_after_fill
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_relock_key_cache_fill_obsolete
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_relock_next_node
+Lines: 2
+since mount:                   0
+since filesystem creation:     22087
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_relock_parent_for_fill_obsolete
+Lines: 2
+since mount:                   0
+since filesystem creation:     2581
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_relock_path
+Lines: 2
+since mount:                   10664021
+since filesystem creation:     47527280
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_relock_path_intent
+Lines: 2
+since mount:                   0
+since filesystem creation:     298090
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_split_race
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_too_many_iters
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_traverse
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_upgrade
+Lines: 2
+since mount:                   200974
+since filesystem creation:     1055154
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_would_deadlock
+Lines: 2
+since mount:                   135555
+since filesystem creation:     1025983
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_would_deadlock_recursion_limit
+Lines: 2
+since mount:                   0
+since filesystem creation:     0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_would_deadlock_write
+Lines: 2
+since mount:                   2
+since filesystem creation:     2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_restart_write_buffer_flush
+Lines: 2
+since mount:                   47215660
+since filesystem creation:     51706894
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/trans_traverse_all
+Lines: 2
+since mount:                   17672014
+since filesystem creation:     78477746
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/transaction_commit
+Lines: 2
+since mount:                   1289297181
+since filesystem creation:     4338059022
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/write_buffer_flush
+Lines: 2
+since mount:                   47596631
+since filesystem creation:     48370568
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/write_buffer_flush_slowpath
+Lines: 2
+since mount:                   0
+since filesystem creation:     21031
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/write_buffer_flush_sync
+Lines: 2
+since mount:                   15
+since filesystem creation:     6024402
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/write_buffer_maybe_flush
+Lines: 2
+since mount:                   47215669
+since filesystem creation:     47412849
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/counters/write_super
+Lines: 2
+since mount:                   21
+since filesystem creation:     30277
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10/bucket_size
+Lines: 1
+512k
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10/durability
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10/io_done
+Lines: 22
+read:
+sb          :       86016
+journal     :           0
+btree       :     5242880
+user        :102313054208
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+write:
+sb          :      645120
+journal     :           0
+btree       :       16384
+user        :252377698304
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10/io_errors
+Lines: 8
+IO errors since filesystem creation
+  read:    0
+  write:   0
+  checksum:0
+IO errors since 8 y ago
+  read:    0
+  write:   0
+  checksum:0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10/label
+Lines: 1
+disk-10
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10/nbuckets
+Lines: 1
+953880
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-10/state
+Lines: 1
+[rw] ro evacuating spare 
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4/bucket_size
+Lines: 1
+2.00M
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4/durability
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4/io_done
+Lines: 22
+read:
+sb          :       86016
+journal     :           0
+btree       :  2193358848
+user        :3770452246528
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+write:
+sb          :      645120
+journal     :           0
+btree       :      589824
+user        :6258285805568
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4/io_errors
+Lines: 8
+IO errors since filesystem creation
+  read:    197416
+  write:   205
+  checksum:0
+IO errors since 8 y ago
+  read:    197416
+  write:   205
+  checksum:0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4/label
+Lines: 1
+disk-4
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4/nbuckets
+Lines: 1
+7629824
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-4/state
+Lines: 1
+[rw] ro evacuating spare 
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6/bucket_size
+Lines: 1
+2.00M
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6/durability
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6/io_done
+Lines: 22
+read:
+sb          :       86016
+journal     :           0
+btree       :     8912896
+user        :610019098624
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+write:
+sb          :      677376
+journal     :           0
+btree       :           0
+user        :562070339584
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6/io_errors
+Lines: 8
+IO errors since filesystem creation
+  read:    18828
+  write:   1
+  checksum:5
+IO errors since 8 y ago
+  read:    18828
+  write:   1
+  checksum:5
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6/label
+Lines: 1
+disk-6
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6/nbuckets
+Lines: 1
+953864
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-6/state
+Lines: 1
+[rw] ro evacuating spare 
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7/bucket_size
+Lines: 1
+2.00M
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7/durability
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7/io_done
+Lines: 22
+read:
+sb          :       86016
+journal     :           0
+btree       :2767671263232
+user        :553932742656
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+write:
+sb          :      645120
+journal     :2432028966912
+btree       :782753624064
+user        :383826411520
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7/io_errors
+Lines: 8
+IO errors since filesystem creation
+  read:    0
+  write:   0
+  checksum:18
+IO errors since 8 y ago
+  read:    0
+  write:   0
+  checksum:18
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7/label
+Lines: 1
+disk-7
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7/nbuckets
+Lines: 1
+1907723
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-7/state
+Lines: 1
+[rw] ro evacuating spare 
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8/bucket_size
+Lines: 1
+2.00M
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8/durability
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8/io_done
+Lines: 22
+read:
+sb          :       86016
+journal     :           0
+btree       :           0
+user        :3115020546048
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+write:
+sb          :      645120
+journal     :           0
+btree       :           0
+user        :6072510210048
+cached      :           0
+parity      :           0
+stripe      :           0
+need_gc_gens:           0
+need_discard:           0
+unstriped   :           0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8/io_errors
+Lines: 8
+IO errors since filesystem creation
+  read:    0
+  write:   0
+  checksum:0
+IO errors since 8 y ago
+  read:    0
+  write:   0
+  checksum:0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8/label
+Lines: 1
+disk-8
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8/nbuckets
+Lines: 1
+2384637
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/dev-8/state
+Lines: 1
+[rw] ro evacuating spare 
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/bcachefs/deadbeef-1234-5678-9012-abcdefabcdef/errors
+Lines: 18
+btree_node_data_missing                         2       1753593586
+bset_bad_csum                                   2       1767112063
+btree_node_topology_bad_max_key                 2       1767080711
+alloc_key_to_missing_lru_entry                  4517    1771754289
+alloc_key_data_type_wrong                       4415    1771753607
+alloc_key_dirty_sectors_wrong                   4538    1771753607
+alloc_key_cached_sectors_wrong                  4537    1771753607
+backpointer_to_missing_ptr                      45480   1771754172
+lru_entry_bad                                   4537    1771753700
+ptr_to_missing_backpointer                      44112   1771754284
+accounting_mismatch                             6       1771753608
+subvol_missing                                  194     1761076737
+reconcile_work_incorrectly_set                  113913  1771755828
+vfs_bad_inode_rm                                121     1758960176
+validate_error_in_commit                        2       1771750773
+extent_io_opts_not_set                          11299659571772285102
+extent_ptrs_all_invalid                         2       1771750773
+extent_ptrs_all_invalid_but_cached              44612   1771753458
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/fs/btrfs
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10310,5 +11476,9 @@ Mode: 644
 Path: sys/kernel/mm/ksm/sleep_millisecs
 Lines: 1
 20
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/.unpacked
+Lines: 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
