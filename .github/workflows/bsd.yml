@@ -13,11 +13,11 @@ permissions:
 
 env:
   GNU_TAR_VERSION: "1.35"
-  GO_VERSION_DRAGONFLY: "1.25.7"
-  GO_VERSION_FREEBSD: "125"
-  GO_VERSION_NETBSD: "1.25.7"
-  GO_VERSION_OPENBSD: "1.25.1"
-  GO_VERSION_SOLARIS: "1.25.7"
+  GO_VERSION_DRAGONFLY: "1.26.0"
+  GO_VERSION_FREEBSD: "126"
+  GO_VERSION_NETBSD: "1.26.0"
+  GO_VERSION_OPENBSD: "1.26.0"
+  GO_VERSION_SOLARIS: "1.26.0"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -88,7 +88,6 @@ jobs:
               ggrep \
               git \
               gmake \
-              go-${GO_VERSION_OPENBSD} \
               gsed \
               gtar-${GNU_TAR_VERSION}p1-static \
               python \
@@ -97,6 +96,10 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
+            GOGZ="go${GO_VERSION_OPENBSD}.openbsd-amd64.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
             ln -s $(which ggrep) $(pwd)/bin/grep
             ln -s $(which gmake) $(pwd)/bin/make
             ln -s $(which gsed) $(pwd)/bin/sed
