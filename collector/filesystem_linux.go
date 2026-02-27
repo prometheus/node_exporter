@@ -19,8 +19,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -78,6 +80,11 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 			}
 			if c.fsTypeFilter.ignored(labels.fsType) {
 				c.logger.Debug("Ignoring fs type", "type", labels.fsType)
+				continue
+			}
+
+			if c.fsUUIDFilter.ignored(labels.fsUUID) {
+				c.logger.Debug("Ignoring fs UUID", "uuid", labels.fsUUID)
 				continue
 			}
 
@@ -192,11 +199,47 @@ func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
 	if err != nil {
 		return nil, err
 	}
+	UUIDMap := buildUUIDMap(logger)
 
-	return parseFilesystemLabels(mountInfo)
+	return parseFilesystemLabels(mountInfo, UUIDMap)
 }
 
-func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, error) {
+// buildUUIDMap builds a map of device major:minor numbers to their filesystem UUIDs.
+func buildUUIDMap(logger *slog.Logger) map[string]string {
+	UUIDMap := map[string]string{}
+	dir := devDiskFilePath("by-uuid")
+	_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			logger.Debug("Skipping non-file entry", "path", path, "err", err)
+			return nil
+		}
+		uuid := d.Name()
+		target, err := os.Readlink(path)
+		if err != nil {
+			if t, err := filepath.EvalSymlinks(path); err == nil {
+				target = t
+			} else {
+				logger.Debug("Failed to read symlink", "path", path, "err", err)
+				return nil
+			}
+		}
+		if !filepath.IsAbs(target) {
+			target = filepath.Join(filepath.Dir(path), target)
+		}
+		var stat unix.Stat_t
+		if err := unix.Stat(target, &stat); err != nil {
+			logger.Debug("Failed to stat device", "path", path, "err", err)
+			return nil
+		}
+		maj := unix.Major(uint64(stat.Rdev))
+		min := unix.Minor(uint64(stat.Rdev))
+		UUIDMap[fmt.Sprintf("%d:%d", maj, min)] = uuid
+		return nil
+	})
+	return UUIDMap
+}
+
+func parseFilesystemLabels(mountInfo []*procfs.MountInfo, UUIDMap map[string]string) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
 	for _, mount := range mountInfo {
@@ -204,6 +247,11 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 		_, err := fmt.Sscanf(mount.MajorMinorVer, "%d:%d", &major, &minor)
 		if err != nil {
 			return nil, fmt.Errorf("malformed mount point MajorMinorVer: %q", mount.MajorMinorVer)
+		}
+
+		fsUUID, ok := UUIDMap[fmt.Sprintf("%d:%d", major, minor)]
+		if !ok {
+			fsUUID = ""
 		}
 
 		// Ensure we handle the translation of \040 and \011
@@ -217,6 +265,7 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 			fsType:       mount.FSType,
 			mountOptions: mountOptionsString(mount.Options),
 			superOptions: mountOptionsString(mount.SuperOptions),
+			fsUUID:       fsUUID,
 			major:        strconv.Itoa(major),
 			minor:        strconv.Itoa(minor),
 			deviceError:  "",
