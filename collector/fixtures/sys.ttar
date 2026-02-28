@@ -2229,6 +2229,32 @@ Lines: 1
 live
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme/nvme0/nvme0c0n0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/nvme0c0n0/ana_state
+Lines: 1
+optimized
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/nvme0c0n0/size
+Lines: 1
+3906250000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/nvme0c0n0/nuse
+Lines: 1
+488281250
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme/nvme0/nvme0c0n0/queue
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/nvme0c0n0/queue/logical_block_size
+Lines: 1
+4096
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/power_supply
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
