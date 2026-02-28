@@ -261,6 +261,18 @@ node_xfrm_out_state_proto_error_packets_total 4542
 # HELP node_xfrm_out_state_seq_error_packets_total Sequence error i.e. Sequence number overflow
 # TYPE node_xfrm_out_state_seq_error_packets_total counter
 node_xfrm_out_state_seq_error_packets_total 543
+# HELP node_zfs_arcstats_c_min_bytes ZFS ARC minimum size
+# TYPE node_zfs_arcstats_c_min_bytes gauge
+node_zfs_arcstats_c_min_bytes 1.99743232e+08
+# HELP node_zfs_arcstats_mfu_ghost_size ZFS ARC MFU ghost size
+# TYPE node_zfs_arcstats_mfu_ghost_size gauge
+node_zfs_arcstats_mfu_ghost_size 0
+# HELP node_zfs_arcstats_mru_ghost_hits_total ZFS ARC MRU ghost hits
+# TYPE node_zfs_arcstats_mru_ghost_hits_total counter
+node_zfs_arcstats_mru_ghost_hits_total 0
+# HELP node_zfs_arcstats_pm_bytes ZFS ARC meta MRU target frac
+# TYPE node_zfs_arcstats_pm_bytes gauge
+node_zfs_arcstats_pm_bytes 2.147483648e+09
 # HELP promhttp_metric_handler_errors_total Total number of internal errors encountered by the promhttp metric handler.
 # TYPE promhttp_metric_handler_errors_total counter
 promhttp_metric_handler_errors_total{cause="encoding"} 0

@@ -13,11 +13,11 @@ permissions:
 
 env:
   GNU_TAR_VERSION: "1.35"
-  GO_VERSION_DRAGONFLY: "1.25.1"
-  GO_VERSION_FREEBSD: "125"
-  GO_VERSION_NETBSD: "1.25.1"
-  GO_VERSION_OPENBSD: "1.25.1"
-  GO_VERSION_SOLARIS: "1.25.1"
+  GO_VERSION_DRAGONFLY: "1.26.0"
+  GO_VERSION_FREEBSD: "126"
+  GO_VERSION_NETBSD: "1.26.0"
+  GO_VERSION_OPENBSD: "1.26.0"
+  GO_VERSION_SOLARIS: "1.26.0"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -26,11 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/freebsd-vm@487ce35b96fae3e60d45b521735f5aa436ecfade  # v1.2.4
+        uses: vmactions/freebsd-vm@ba6bedee4a4884da2b782a41a64329a1c8e42ffb  # v1.3.8
         with:
-          release: "14.3"
+          release: "15.0"
           copyback: false
           envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
           usesh: true
@@ -74,9 +74,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/openbsd-vm@a254d784d6fad46e22ef73c6ecbb1dc310b04777  # v1.2.3
+        uses: vmactions/openbsd-vm@7fd5a3e251db9d8bdff2f34aae11a43b6be5ad60  # v1.2.4
         with:
           copyback: false
           envs: 'GO_VERSION_OPENBSD GNU_TAR_VERSION'
@@ -88,7 +88,6 @@ jobs:
               ggrep \
               git \
               gmake \
-              go-${GO_VERSION_OPENBSD} \
               gsed \
               gtar-${GNU_TAR_VERSION}p1-static \
               python \
@@ -97,6 +96,10 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
+            GOGZ="go${GO_VERSION_OPENBSD}.openbsd-amd64.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
             ln -s $(which ggrep) $(pwd)/bin/grep
             ln -s $(which gmake) $(pwd)/bin/make
             ln -s $(which gsed) $(pwd)/bin/sed
@@ -120,9 +123,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/netbsd-vm@7aea50f9eb16df034be5d71eb81fea9804505c28  # v1.2.0
+        uses: vmactions/netbsd-vm@88a20b128e1d7fa463bb361afe4167733c55b86a  # v1.3.5
         with:
           copyback: false
           envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
@@ -167,9 +170,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@ff1f01c32b9e82f2ba388d0ff270442bcd6ceddc  # v1.1.1
+        uses: vmactions/dragonflybsd-vm@00c5014f559e3d4dc2aca8c69d3d7e550db8bc36  # v1.2.2
         with:
           copyback: false
           envs: 'GO_VERSION_DRAGONFLY'
@@ -217,9 +220,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/solaris-vm@58cbd70c6e051860f9b8f65908cc582938fbbdba  # v1.1.5
+        uses: vmactions/solaris-vm@37d40b6627e80434541454b42841caa4cc77d0cf  # v1.2.7
         with:
           copyback: false
           envs: 'GO_VERSION_SOLARIS'
@@ -275,7 +278,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Install dependencies
         run: |
           brew install \
