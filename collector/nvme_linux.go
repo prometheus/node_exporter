@@ -20,9 +20,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
@@ -109,86 +106,65 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, device := range devices {
-		infoValue := 1.0
+		// Export device-level metrics
+		ch <- prometheus.MustNewConstMetric(
+			c.info,
+			prometheus.GaugeValue,
+			1.0,
+			device.Name,
+			device.FirmwareRevision,
+			device.Model,
+			device.Serial,
+			device.State,
+			device.ControllerID,
+		)
 
-		devicePath := filepath.Join(*sysPath, "class/nvme", device.Name)
-		ch <- prometheus.MustNewConstMetric(c.info, prometheus.GaugeValue, infoValue, device.Name, device.FirmwareRevision, device.Model, device.Serial, device.State, device.ControllerID)
-		// Find namespace directories.
-		namespacePaths, err := filepath.Glob(filepath.Join(devicePath, "nvme[0-9]*c[0-9]*n[0-9]*"))
-		if err != nil {
-			c.logger.Error("failed to list NVMe namespaces", "device", device.Name, "err", err)
-			continue
-		}
-		re := regexp.MustCompile(`nvme[0-9]+c[0-9]+n([0-9]+)`)
-
-		for _, namespacePath := range namespacePaths {
-
-			// Read namespace data.
-			match := re.FindStringSubmatch(filepath.Base(namespacePath))
-			if len(match) == 0 {
-				continue
-			}
-			nsid := match[1]
-			nuse, err := readUintFromFile(filepath.Join(namespacePath, "nuse"))
-			if err != nil {
-				c.logger.Debug("failed to read nuse", "device", device.Name, "namespace", match[0], "err", err)
-			}
-			nsze, err := readUintFromFile(filepath.Join(namespacePath, "size"))
-			if err != nil {
-				c.logger.Debug("failed to read size", "device", device.Name, "namespace", match[0], "err", err)
-			}
-			lbaSize, err := readUintFromFile(filepath.Join(namespacePath, "queue", "logical_block_size"))
-			if err != nil {
-				c.logger.Debug("failed to read queue/logical_block_size", "device", device.Name, "namespace", match[0], "err", err)
-			}
-			ncap := nsze * lbaSize
-			anaState := "unknown"
-			anaStateSysfs, err := os.ReadFile(filepath.Join(namespacePath, "ana_state"))
-			if err == nil {
-				anaState = strings.TrimSpace(string(anaStateSysfs))
-			} else {
-				c.logger.Debug("failed to read ana_state", "device", device.Name, "namespace", match[0], "err", err)
-			}
-
+		// Export namespace-level metrics
+		for _, namespace := range device.Namespaces {
+			// Namespace info metric
 			ch <- prometheus.MustNewConstMetric(
 				c.namespaceInfo,
 				prometheus.GaugeValue,
 				1.0,
 				device.Name,
-				nsid,
-				anaState,
+				namespace.ID,
+				namespace.ANAState,
 			)
 
+			// Namespace capacity in bytes
 			ch <- prometheus.MustNewConstMetric(
 				c.namespaceCapacityBytes,
 				prometheus.GaugeValue,
-				float64(ncap),
+				float64(namespace.CapacityBytes),
 				device.Name,
-				nsid,
+				namespace.ID,
 			)
 
+			// Namespace size in bytes
 			ch <- prometheus.MustNewConstMetric(
 				c.namespaceSizeBytes,
 				prometheus.GaugeValue,
-				float64(nsze),
+				float64(namespace.SizeBytes),
 				device.Name,
-				nsid,
+				namespace.ID,
 			)
 
+			// Namespace used space in bytes
 			ch <- prometheus.MustNewConstMetric(
 				c.namespaceUsedBytes,
 				prometheus.GaugeValue,
-				float64(nuse*lbaSize),
+				float64(namespace.UsedBytes),
 				device.Name,
-				nsid,
+				namespace.ID,
 			)
 
+			// Namespace logical block size in bytes
 			ch <- prometheus.MustNewConstMetric(
 				c.namespaceLogicalBlockSizeBytes,
 				prometheus.GaugeValue,
-				float64(lbaSize),
+				float64(namespace.LogicalBlockSize),
 				device.Name,
-				nsid,
+				namespace.ID,
 			)
 		}
 	}
