@@ -172,7 +172,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@00c5014f559e3d4dc2aca8c69d3d7e550db8bc36  # v1.2.2
+        uses: vmactions/dragonflybsd-vm@04601322b25fa8eb14f0394e46e1103084ea0199  # v1.2.6
         with:
           copyback: false
           envs: 'GO_VERSION_DRAGONFLY'
