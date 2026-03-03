@@ -2837,7 +2837,7 @@ node_nvme_namespace_info{ana_state="optimized",device="nvme0",nsid="0"} 1
 node_nvme_namespace_logical_block_size_bytes{device="nvme0",nsid="0"} 4096
 # HELP node_nvme_namespace_size_bytes Size of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/size
 # TYPE node_nvme_namespace_size_bytes gauge
-node_nvme_namespace_size_bytes{device="nvme0",nsid="0"} 1.6+e13
+node_nvme_namespace_size_bytes{device="nvme0",nsid="0"} 1.6e+13
 # HELP node_nvme_namespace_used_bytes Used space of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/nuse
 # TYPE node_nvme_namespace_used_bytes gauge
 node_nvme_namespace_used_bytes{device="nvme0",nsid="0"} 2e+12
