@@ -26,8 +26,14 @@ import (
 )
 
 type nvmeCollector struct {
-	fs     sysfs.FS
-	logger *slog.Logger
+	fs                             sysfs.FS
+	logger                         *slog.Logger
+	namespaceInfo                  *prometheus.Desc
+	namespaceCapacityBytes         *prometheus.Desc
+	namespaceSizeBytes             *prometheus.Desc
+	namespaceUsedBytes             *prometheus.Desc
+	namespaceLogicalBlockSizeBytes *prometheus.Desc
+	info                           *prometheus.Desc
 }
 
 func init() {
@@ -41,9 +47,51 @@ func NewNVMeCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
+	info := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "nvme", "info"),
+		"Non-numeric data from /sys/class/nvme/<device>, value is always 1.",
+		[]string{"device", "firmware_revision", "model", "serial", "state", "cntlid"},
+		nil,
+	)
+	namespaceInfo := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "nvme", "namespace_info"),
+		"Information about NVMe namespaces. Value is always 1",
+		[]string{"device", "nsid", "ana_state"}, nil,
+	)
+
+	namespaceCapacityBytes := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "nvme", "namespace_capacity_bytes"),
+		"Capacity of the NVMe namespace in bytes. Computed as namespace_size * namespace_logical_block_size",
+		[]string{"device", "nsid"}, nil,
+	)
+
+	namespaceSizeBytes := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "nvme", "namespace_size_bytes"),
+		"Size of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/size",
+		[]string{"device", "nsid"}, nil,
+	)
+
+	namespaceUsedBytes := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "nvme", "namespace_used_bytes"),
+		"Used space of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/nuse",
+		[]string{"device", "nsid"}, nil,
+	)
+
+	namespaceLogicalBlockSizeBytes := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "nvme", "namespace_logical_block_size_bytes"),
+		"Logical block size of the NVMe namespace in bytes. Usually 4Kb. Available in /sys/class/nvme/<device>/<namespace>/queue/logical_block_size",
+		[]string{"device", "nsid"}, nil,
+	)
+
 	return &nvmeCollector{
-		fs:     fs,
-		logger: logger,
+		fs:                             fs,
+		logger:                         logger,
+		namespaceInfo:                  namespaceInfo,
+		namespaceCapacityBytes:         namespaceCapacityBytes,
+		namespaceSizeBytes:             namespaceSizeBytes,
+		namespaceUsedBytes:             namespaceUsedBytes,
+		namespaceLogicalBlockSizeBytes: namespaceLogicalBlockSizeBytes,
+		info:                           info,
 	}, nil
 }
 
@@ -58,14 +106,67 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, device := range devices {
-		infoDesc := prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "nvme", "info"),
-			"Non-numeric data from /sys/class/nvme/<device>, value is always 1.",
-			[]string{"device", "firmware_revision", "model", "serial", "state"},
-			nil,
+		// Export device-level metrics
+		ch <- prometheus.MustNewConstMetric(
+			c.info,
+			prometheus.GaugeValue,
+			1.0,
+			device.Name,
+			device.FirmwareRevision,
+			device.Model,
+			device.Serial,
+			device.State,
+			device.ControllerID,
 		)
-		infoValue := 1.0
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, device.Name, device.FirmwareRevision, device.Model, device.Serial, device.State)
+
+		// Export namespace-level metrics
+		for _, namespace := range device.Namespaces {
+			// Namespace info metric
+			ch <- prometheus.MustNewConstMetric(
+				c.namespaceInfo,
+				prometheus.GaugeValue,
+				1.0,
+				device.Name,
+				namespace.ID,
+				namespace.ANAState,
+			)
+
+			// Namespace capacity in bytes
+			ch <- prometheus.MustNewConstMetric(
+				c.namespaceCapacityBytes,
+				prometheus.GaugeValue,
+				float64(namespace.CapacityBytes),
+				device.Name,
+				namespace.ID,
+			)
+
+			// Namespace size in bytes
+			ch <- prometheus.MustNewConstMetric(
+				c.namespaceSizeBytes,
+				prometheus.GaugeValue,
+				float64(namespace.SizeBytes),
+				device.Name,
+				namespace.ID,
+			)
+
+			// Namespace used space in bytes
+			ch <- prometheus.MustNewConstMetric(
+				c.namespaceUsedBytes,
+				prometheus.GaugeValue,
+				float64(namespace.UsedBytes),
+				device.Name,
+				namespace.ID,
+			)
+
+			// Namespace logical block size in bytes
+			ch <- prometheus.MustNewConstMetric(
+				c.namespaceLogicalBlockSizeBytes,
+				prometheus.GaugeValue,
+				float64(namespace.LogicalBlockSize),
+				device.Name,
+				namespace.ID,
+			)
+		}
 	}
 
 	return nil
