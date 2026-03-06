@@ -45,7 +45,7 @@ func NewTestMountStatsCollector(logger *slog.Logger) (prometheus.Collector, erro
 	return testMountStatsCollector{c: c}, nil
 }
 
-func TestMountStatsMountPointLabel(t *testing.T) {
+func TestMountStatsMountPointInfo(t *testing.T) {
 	*procPath = "fixtures/proc"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -59,12 +59,21 @@ func TestMountStatsMountPointLabel(t *testing.T) {
 
 	expected := `# HELP node_mountstats_nfs_age_seconds_total The age of the NFS mount in seconds.
 # TYPE node_mountstats_nfs_age_seconds_total counter
-node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test",protocol="tcp"} 13968
-node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test-dupe",protocol="tcp"} 13968
-node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test-dupe",protocol="udp"} 13968
+node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 13968
+node_mountstats_nfs_age_seconds_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 13968
+# HELP node_mountstats_nfs_mountpoint_info Info metric for an NFS mountpoint.
+# TYPE node_mountstats_nfs_mountpoint_info gauge
+node_mountstats_nfs_mountpoint_info{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test",protocol="tcp"} 1
+node_mountstats_nfs_mountpoint_info{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test-dupe",protocol="tcp"} 1
+node_mountstats_nfs_mountpoint_info{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test-dupe",protocol="udp"} 1
 `
 
-	if err := testutil.GatherAndCompare(reg, strings.NewReader(expected), "node_mountstats_nfs_age_seconds_total"); err != nil {
+	if err := testutil.GatherAndCompare(
+		reg,
+		strings.NewReader(expected),
+		"node_mountstats_nfs_age_seconds_total",
+		"node_mountstats_nfs_mountpoint_info",
+	); err != nil {
 		t.Fatal(err)
 	}
 }
