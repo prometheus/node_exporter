@@ -75,6 +75,8 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedDesc
 	deviceMapperInfoDesc    typedDesc
 	ataDescs                map[string]typedDesc
+	ioErrDesc               typedDesc
+	ioDoneDesc              typedDesc
 	logger                  *slog.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -247,14 +249,14 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
-		ioErrDesc: typedFactorDesc{
+		ioErrDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ioerr_total"),
 				"Number of IO commands that completed with an error.",
 				[]string{"device"},
 				nil,
 			), valueType: prometheus.CounterValue,
 		},
-		ioDoneDesc: typedFactorDesc{
+		ioDoneDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "iodone_total"),
 				"Number of completed or rejected IO commands.",
 				[]string{"device"},
