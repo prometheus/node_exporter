@@ -24,15 +24,26 @@ import (
 )
 
 type entropyCollector struct {
-	fs              procfs.FS
-	entropyAvail    *prometheus.Desc
-	entropyPoolSize *prometheus.Desc
-	logger          *slog.Logger
+	fs     procfs.FS
+	logger *slog.Logger
 }
 
 func init() {
 	registerCollector("entropy", defaultEnabled, NewEntropyCollector)
 }
+
+var (
+	entropyAvail = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "entropy_available_bits"),
+		"Bits of available entropy.",
+		nil, nil,
+	)
+	entropyPoolSize = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "entropy_pool_size_bits"),
+		"Bits of entropy pool.",
+		nil, nil,
+	)
+)
 
 // NewEntropyCollector returns a new Collector exposing entropy stats.
 func NewEntropyCollector(logger *slog.Logger) (Collector, error) {
@@ -42,17 +53,7 @@ func NewEntropyCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	return &entropyCollector{
-		fs: fs,
-		entropyAvail: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "entropy_available_bits"),
-			"Bits of available entropy.",
-			nil, nil,
-		),
-		entropyPoolSize: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "entropy_pool_size_bits"),
-			"Bits of entropy pool.",
-			nil, nil,
-		),
+		fs:     fs,
 		logger: logger,
 	}, nil
 }
@@ -67,13 +68,13 @@ func (c *entropyCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get entropy_avail")
 	}
 	ch <- prometheus.MustNewConstMetric(
-		c.entropyAvail, prometheus.GaugeValue, float64(*stats.EntropyAvaliable))
+		entropyAvail, prometheus.GaugeValue, float64(*stats.EntropyAvaliable))
 
 	if stats.PoolSize == nil {
 		return fmt.Errorf("couldn't get entropy poolsize")
 	}
 	ch <- prometheus.MustNewConstMetric(
-		c.entropyPoolSize, prometheus.GaugeValue, float64(*stats.PoolSize))
+		entropyPoolSize, prometheus.GaugeValue, float64(*stats.PoolSize))
 
 	return nil
 }
