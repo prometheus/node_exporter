@@ -61,6 +61,32 @@ func (c *ext4Collector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
+type ext4Metric struct {
+	name  string
+	desc  string
+	value float64
+}
+
+func (c *ext4Collector) getMetrics(s *ext4.Stats) []ext4Metric {
+	return []ext4Metric{
+		{
+			name:  "errors_total",
+			desc:  "Number of ext4 filesystem errors.",
+			value: float64(s.Errors),
+		},
+		{
+			name:  "warnings_total",
+			desc:  "Number of ext4 filesystem warnings.",
+			value: float64(s.Warnings),
+		},
+		{
+			name:  "messages_total",
+			desc:  "Number of ext4 filesystem log messages.",
+			value: float64(s.Messages),
+		},
+	}
+}
+
 // updateExt4Stats collects statistics for a single ext4 filesystem.
 func (c *ext4Collector) updateExt4Stats(ch chan<- prometheus.Metric, s *ext4.Stats) {
 	const (
@@ -70,28 +96,7 @@ func (c *ext4Collector) updateExt4Stats(ch chan<- prometheus.Metric, s *ext4.Sta
 		labels = []string{"device"}
 	)
 
-	metrics := []struct {
-		name  string
-		desc  string
-		value float64
-	}{
-		{
-			name:  "errors",
-			desc:  "Number of ext4 filesystem errors.",
-			value: float64(s.Errors),
-		},
-		{
-			name:  "warnings",
-			desc:  "Number of ext4 filesystem warnings.",
-			value: float64(s.Warnings),
-		},
-		{
-			name:  "messages",
-			desc:  "Number of ext4 filesystem log messages.",
-			value: float64(s.Messages),
-		},
-	}
-
+	metrics := c.getMetrics(s)
 	for _, m := range metrics {
 		desc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, m.name),

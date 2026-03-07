@@ -385,12 +385,13 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 		}
 
-		ioDeviceStats, err := c.fs.SysBlockDeviceIOStat(dev)
-		if err != nil && !os.IsNotExist(err) {
-			c.logger.Debug("Failed to get block device io stats", "device", dev, "err", err)
+		ioDeviceStats, ioErr := c.fs.SysBlockDeviceIOStat(dev)
+		if ioErr == nil {
+			ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDeviceStats.IOErrCount), dev)
+			ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDeviceStats.IODoneCount), dev)
+		} else if !os.IsNotExist(ioErr) {
+			c.logger.Info("Failed to get block device io stats", "device", dev, "err", ioErr)
 		}
-		ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDeviceStats.IOErrCount), dev)
-		ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDeviceStats.IODoneCount), dev)
 
 	}
 	return nil

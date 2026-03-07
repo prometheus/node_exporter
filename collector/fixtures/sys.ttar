@@ -595,6 +595,19 @@ Mode: 644
 Directory: sys/block/sda
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/block/sda/device
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/device/iodone_cnt
+Lines: 1
+307
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sda/device/ioerr_cnt
+Lines: 1
+3
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/block/sda/queue
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -825,6 +838,22 @@ Path: sys/block/sda/queue/zoned
 Lines: 1
 none
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/block/sr0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/block/sr0/device
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sr0/device/iodone_cnt
+Lines: 1
+2767
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/block/sr0/device/ioerr_cnt
+Lines: 1
+29
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/bus
 Mode: 755
@@ -2219,27 +2248,12 @@ Lines: 1
 Samsung SSD 970 PRO 512GB
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/nvme/nvme0/serial
-Lines: 1
-S680HF8N190894I
-Mode: 444
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/nvme/nvme0/state
-Lines: 1
-live
-Mode: 444
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/nvme/nvme0/nvme0c0n0
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/nvme0c0n0/ana_state
 Lines: 1
 optimized
-Mode: 444
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/class/nvme/nvme0/nvme0c0n0/size
-Lines: 1
-3906250000
 Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/nvme/nvme0/nvme0c0n0/nuse
@@ -2254,6 +2268,21 @@ Path: sys/class/nvme/nvme0/nvme0c0n0/queue/logical_block_size
 Lines: 1
 4096
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/nvme0c0n0/size
+Lines: 1
+3906250000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/serial
+Lines: 1
+S680HF8N190894I
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme/nvme0/state
+Lines: 1
+live
+Mode: 444
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/power_supply
 Mode: 755
@@ -11412,6 +11441,27 @@ Path: sys/fs/btrfs/7f07c59f-6136-449c-ab87-e1cf2328731b/sectorsize
 Lines: 1
 4096
 Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/ext4
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/fs/ext4/sdb1
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/ext4/sdb1/errors_count
+Lines: 1
+12
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/ext4/sdb1/msg_count
+Lines: 1
+567
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/fs/ext4/sdb1/warning_count
+Lines: 1
+34
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/fs/xfs
 Mode: 755
