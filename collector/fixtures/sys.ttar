@@ -600,12 +600,12 @@ Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/block/sda/device/iodone_cnt
 Lines: 1
-307
+0x307
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/block/sda/device/ioerr_cnt
 Lines: 1
-3
+0xb
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/block/sda/queue
@@ -847,12 +847,12 @@ Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/block/sr0/device/iodone_cnt
 Lines: 1
-2767
+0x7b6ffad
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/block/sr0/device/ioerr_cnt
 Lines: 1
-29
+0x29
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/bus
