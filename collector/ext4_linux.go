@@ -17,33 +17,70 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/ext4"
 )
 
+var (
+	ext4DeviceExclude = kingpin.Flag(
+		"collector.ext4.device-exclude",
+		"Regexp of ext4 devices to exclude (mutually exclusive to device-include).",
+	).String()
+
+	ext4DeviceInclude = kingpin.Flag(
+		"collector.ext4.device-include",
+		"Regexp of ext4 devices to include (mutually exclusive to device-exclude).",
+	).String()
+)
+
 // An ext4Collector is a Collector which gathers metrics from ext4 filesystems.
 type ext4Collector struct {
-	fs     ext4.FS
-	logger *slog.Logger
+	deviceFilter deviceFilter
+	fs           ext4.FS
+	logger       *slog.Logger
 }
 
 func init() {
 	registerCollector("ext4", defaultEnabled, NewExt4Collector)
 }
 
+func newExt4DeviceFilter(logger *slog.Logger) (deviceFilter, error) {
+	if *ext4DeviceExclude != "" && *ext4DeviceInclude != "" {
+		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+	}
+
+	if *ext4DeviceExclude != "" {
+		logger.Info("Parsed flag --collector.ext4.device-exclude", "flag", *ext4DeviceExclude)
+	}
+
+	if *ext4DeviceInclude != "" {
+		logger.Info("Parsed Flag --collector.ext4.device-include", "flag", *ext4DeviceInclude)
+	}
+
+	return newDeviceFilter(*ext4DeviceExclude, *ext4DeviceInclude), nil
+}
+
 // NewExt4Collector returns a new Collector exposing ext4 statistics.
 func NewExt4Collector(logger *slog.Logger) (Collector, error) {
+	ext4DeviceFilter, err := newExt4DeviceFilter(logger)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
+	}
+
 	fs, err := ext4.NewFS(*procPath, *sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &ext4Collector{
-		fs:     fs,
-		logger: logger,
+		deviceFilter: ext4DeviceFilter,
+		fs:           fs,
+		logger:       logger,
 	}, nil
 }
 
@@ -55,6 +92,9 @@ func (c *ext4Collector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, s := range stats {
+		if c.deviceFilter.ignored(s.Name) {
+			continue
+		}
 		c.updateExt4Stats(ch, s)
 	}
 

@@ -390,7 +390,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDeviceStats.IOErrCount), dev)
 			ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDeviceStats.IODoneCount), dev)
 		} else if !os.IsNotExist(ioErr) {
-			c.logger.Info("Failed to get block device io stats", "device", dev, "err", ioErr)
+			c.logger.Debug("Failed to get block device io stats", "device", dev, "err", ioErr)
 		}
 
 	}
