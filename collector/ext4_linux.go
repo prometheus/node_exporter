@@ -26,11 +26,15 @@ import (
 	"github.com/prometheus/procfs/ext4"
 )
 
+const (
+	ext4DefaultIgnoredDevices = "^features$"
+)
+
 var (
 	ext4DeviceExclude = kingpin.Flag(
 		"collector.ext4.device-exclude",
 		"Regexp of ext4 devices to exclude (mutually exclusive to device-include).",
-	).String()
+	).Default(ext4DefaultIgnoredDevices).String()
 
 	ext4DeviceInclude = kingpin.Flag(
 		"collector.ext4.device-include",
