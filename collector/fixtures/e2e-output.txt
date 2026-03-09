@@ -804,13 +804,13 @@ node_entropy_pool_size_bits 4096
 # TYPE node_exporter_build_info gauge
 # HELP node_ext4_errors_total Number of ext4 filesystem errors.
 # TYPE node_ext4_errors_total counter
-node_ext4_errors_total{device="sdb1"} 12
+node_ext4_errors_total{partition="sdb1"} 12
 # HELP node_ext4_messages_total Number of ext4 filesystem log messages.
 # TYPE node_ext4_messages_total counter
-node_ext4_messages_total{device="sdb1"} 567
+node_ext4_messages_total{partition="sdb1"} 567
 # HELP node_ext4_warnings_total Number of ext4 filesystem warnings.
 # TYPE node_ext4_warnings_total counter
-node_ext4_warnings_total{device="sdb1"} 34
+node_ext4_warnings_total{partition="sdb1"} 34
 # HELP node_fibrechannel_dumped_frames_total Number of dumped frames
 # TYPE node_fibrechannel_dumped_frames_total counter
 node_fibrechannel_dumped_frames_total{fc_host="host1"} 0
