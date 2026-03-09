@@ -27,53 +27,53 @@ import (
 )
 
 const (
-	ext4DefaultIgnoredDevices = "^features$"
+	ext4DefaultIgnoredPartitions = "^features$"
 )
 
 var (
-	ext4DeviceExclude = kingpin.Flag(
-		"collector.ext4.device-exclude",
-		"Regexp of ext4 devices to exclude (mutually exclusive to device-include).",
-	).Default(ext4DefaultIgnoredDevices).String()
+	ext4PartitionExclude = kingpin.Flag(
+		"collector.ext4.partition-exclude",
+		"Regexp of ext4 partitions to exclude (mutually exclusive to partition-include).",
+	).Default(ext4DefaultIgnoredPartitions).String()
 
-	ext4DeviceInclude = kingpin.Flag(
-		"collector.ext4.device-include",
-		"Regexp of ext4 devices to include (mutually exclusive to device-exclude).",
+	ext4PartitionInclude = kingpin.Flag(
+		"collector.ext4.partition-include",
+		"Regexp of ext4 partitions to include (mutually exclusive to partition-exclude).",
 	).String()
 )
 
 // An ext4Collector is a Collector which gathers metrics from ext4 filesystems.
 type ext4Collector struct {
-	deviceFilter deviceFilter
-	fs           ext4.FS
-	logger       *slog.Logger
+	partitionFilter deviceFilter
+	fs              ext4.FS
+	logger          *slog.Logger
 }
 
 func init() {
 	registerCollector("ext4", defaultEnabled, NewExt4Collector)
 }
 
-func newExt4DeviceFilter(logger *slog.Logger) (deviceFilter, error) {
-	if *ext4DeviceExclude != "" && *ext4DeviceInclude != "" {
-		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+func newExt4PartitionFilter(logger *slog.Logger) (deviceFilter, error) {
+	if *ext4PartitionExclude != "" && *ext4PartitionInclude != "" {
+		return deviceFilter{}, errors.New("partition-exclude & partition-include are mutually exclusive")
 	}
 
-	if *ext4DeviceExclude != "" {
-		logger.Info("Parsed flag --collector.ext4.device-exclude", "flag", *ext4DeviceExclude)
+	if *ext4PartitionExclude != "" {
+		logger.Info("Parsed flag --collector.ext4.partition-exclude", "flag", *ext4PartitionExclude)
 	}
 
-	if *ext4DeviceInclude != "" {
-		logger.Info("Parsed Flag --collector.ext4.device-include", "flag", *ext4DeviceInclude)
+	if *ext4PartitionInclude != "" {
+		logger.Info("Parsed Flag --collector.ext4.partition-include", "flag", *ext4PartitionInclude)
 	}
 
-	return newDeviceFilter(*ext4DeviceExclude, *ext4DeviceInclude), nil
+	return newDeviceFilter(*ext4PartitionExclude, *ext4PartitionInclude), nil
 }
 
 // NewExt4Collector returns a new Collector exposing ext4 statistics.
 func NewExt4Collector(logger *slog.Logger) (Collector, error) {
-	ext4DeviceFilter, err := newExt4DeviceFilter(logger)
+	ext4PartitionFilter, err := newExt4PartitionFilter(logger)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
+		return nil, fmt.Errorf("failed to parse partition filter flags: %w", err)
 	}
 
 	fs, err := ext4.NewFS(*procPath, *sysPath)
@@ -82,9 +82,9 @@ func NewExt4Collector(logger *slog.Logger) (Collector, error) {
 	}
 
 	return &ext4Collector{
-		deviceFilter: ext4DeviceFilter,
-		fs:           fs,
-		logger:       logger,
+		partitionFilter: ext4PartitionFilter,
+		fs:              fs,
+		logger:          logger,
 	}, nil
 }
 
@@ -96,7 +96,7 @@ func (c *ext4Collector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, s := range stats {
-		if c.deviceFilter.ignored(s.Name) {
+		if c.partitionFilter.ignored(s.Name) {
 			continue
 		}
 		c.updateExt4Stats(ch, s)
@@ -137,7 +137,7 @@ func (c *ext4Collector) updateExt4Stats(ch chan<- prometheus.Metric, s *ext4.Sta
 		subsystem = "ext4"
 	)
 	var (
-		labels = []string{"device"}
+		labels = []string{"partition"}
 	)
 
 	metrics := c.getMetrics(s)
