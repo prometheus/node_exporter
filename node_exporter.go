@@ -179,6 +179,19 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
+func Slog() []string {
+	return []string{
+		"version", version.Version,
+		"revision", version.Revision,
+		"branch", version.Branch,
+		"builduser", version.BuildUser,
+		"builddate", version.BuildDate,
+		"goversion", version.GoVersion,
+		"goos", version.GoOS,
+		"goarch", version.GoArch,
+	}
+}
+
 func main() {
 	var (
 		metricsPath = kingpin.Flag(
@@ -214,7 +227,8 @@ func main() {
 	if *disableDefaultCollectors {
 		collector.DisableDefaultCollectors()
 	}
-	logger.Info("Starting node_exporter", "version", version.Info())
+	versionInfo := Slog()
+	logger.Info("Starting node_exporter", versionInfo...)
 	logger.Info("Build context", "build_context", version.BuildContext())
 	if user, err := user.Current(); err == nil && user.Uid == "0" {
 		logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")
