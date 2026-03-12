@@ -2255,6 +2255,104 @@ Lines: 1
 4096
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme-subsystem
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme-subsystem/nvme-subsys0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/iopolicy
+Lines: 1
+round-robinEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/model
+Lines: 1
+Dell PowerStoreEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme-subsystem/nvme-subsys0/nvme0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme0/address
+Lines: 1
+nn-0x200000109b123456:pn-0x100000109b123456EOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme0/state
+Lines: 1
+liveEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme0/transport
+Lines: 1
+fcEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme-subsystem/nvme-subsys0/nvme1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme1/address
+Lines: 1
+nn-0x200000109b123457:pn-0x100000109b123457EOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme1/state
+Lines: 1
+liveEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme1/transport
+Lines: 1
+fcEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme-subsystem/nvme-subsys0/nvme2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme2/address
+Lines: 1
+nn-0x200000109b123458:pn-0x100000109b123458EOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme2/state
+Lines: 1
+liveEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme2/transport
+Lines: 1
+fcEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/class/nvme-subsystem/nvme-subsys0/nvme3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme3/address
+Lines: 1
+nn-0x200000109b123459:pn-0x100000109b123459EOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme3/state
+Lines: 1
+deadEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/nvme3/transport
+Lines: 1
+fcEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/serial
+Lines: 1
+SN12345678EOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/nvme-subsystem/nvme-subsys0/subsysnqn
+Lines: 1
+nqn.2014-08.org.nvmexpress:uuid:a34c4f3a-0d6f-5cec-dead-beefcafebabeEOF
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/power_supply
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
