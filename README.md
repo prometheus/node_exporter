@@ -203,6 +203,7 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+nvmesubsystem | Exposes NVMe-oF subsystem path health from `/sys/class/nvme-subsystem/`. | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
@@ -365,6 +366,25 @@ Enable it with `--collector.dmmultipath`.
 | `node_dmmultipath_path_state` | Gauge | Reports the underlying device state for each path. Labels: `device`, `path`, `state`. |
 
 The `sysfs_name` label (e.g. `dm-0`) matches the `device` label in `node_disk_*` metrics, enabling direct correlation between multipath health and I/O statistics without recording rules.
+
+### NVMe Subsystem Collector
+
+The `nvmesubsystem` collector exposes NVMe-oF (NVMe over Fabrics) subsystem
+path health by reading `/sys/class/nvme-subsystem/`. It complements the
+existing `nvme` collector (which reports per-controller hardware stats) by
+monitoring the **connectivity layer** — how many controller paths are live,
+connecting, or dead for each NVMe subsystem.
+
+Enable it with `--collector.nvmesubsystem`.
+
+#### Exposed metrics
+
+| Metric | Description |
+|--------|-------------|
+| `node_nvmesubsystem_info` | Info metric with subsystem NQN, model, serial and I/O policy as labels. |
+| `node_nvmesubsystem_paths` | Number of controller paths for the subsystem. |
+| `node_nvmesubsystem_paths_live` | Number of controller paths currently in `live` state. |
+| `node_nvmesubsystem_path_state` | Per-controller path state (1 for the current state, 0 for others). |
 
 ### Filtering enabled collectors
 
