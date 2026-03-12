@@ -1,0 +1,175 @@
+{
+   "major_version": 0,
+   "minor_version": 1,
+   "maps": [
+      {
+         "name" : "mpathA",
+         "uuid" : "36001405d27e278d2c1e4938a3b4a8bb9",
+         "sysfs" : "dm-0",
+         "failback" : "immediate",
+         "queueing" : "off",
+         "paths" : 4,
+         "write_prot" : "rw",
+         "dm_st" : "active",
+         "features" : "0",
+         "hwhandler" : "1 alua",
+         "action" : "",
+         "path_faults" : 2,
+         "vend" : "LIO-ORG",
+         "prod" : "disk1",
+         "rev" : "4.0",
+         "switch_grp" : 1,
+         "map_loads" : 3,
+         "total_q_time" : 0,
+         "q_timeouts" : 0,
+         "path_groups": [
+            {
+               "selector" : "service-time 0",
+               "pri" : 50,
+               "dm_st" : "active",
+               "marginal_st" : "normal",
+               "group" : 1,
+               "paths": [
+                  {
+                     "dev" : "sda",
+                     "dev_t" : "8:0",
+                     "dm_st" : "active",
+                     "dev_st" : "running",
+                     "chk_st" : "ready",
+                     "checker" : "tur",
+                     "pri" : 50,
+                     "host_wwnn" : "0x200100015b4a6702",
+                     "target_wwnn" : "0x200300015b4a6702",
+                     "host_wwpn" : "0x200200015b4a6702",
+                     "target_wwpn" : "0x200400015b4a6702",
+                     "host_adapter" : "0000:03:00.0",
+                     "lun_hex" : "0x0000000000000000",
+                     "marginal_st" : "normal"
+                  },
+                  {
+                     "dev" : "sdb",
+                     "dev_t" : "8:16",
+                     "dm_st" : "active",
+                     "dev_st" : "running",
+                     "chk_st" : "ready",
+                     "checker" : "tur",
+                     "pri" : 50,
+                     "host_wwnn" : "0x200100015b4a6702",
+                     "target_wwnn" : "0x200300015b4a6702",
+                     "host_wwpn" : "0x200200015b4a6702",
+                     "target_wwpn" : "0x200500015b4a6702",
+                     "host_adapter" : "0000:03:00.0",
+                     "lun_hex" : "0x0000000000000000",
+                     "marginal_st" : "normal"
+                  }
+               ]
+            },
+            {
+               "selector" : "service-time 0",
+               "pri" : 10,
+               "dm_st" : "enabled",
+               "marginal_st" : "normal",
+               "group" : 2,
+               "paths": [
+                  {
+                     "dev" : "sdc",
+                     "dev_t" : "8:32",
+                     "dm_st" : "active",
+                     "dev_st" : "running",
+                     "chk_st" : "ghost",
+                     "checker" : "tur",
+                     "pri" : 10,
+                     "host_wwnn" : "0x200100015b4a6703",
+                     "target_wwnn" : "0x200300015b4a6703",
+                     "host_wwpn" : "0x200200015b4a6703",
+                     "target_wwpn" : "0x200400015b4a6703",
+                     "host_adapter" : "0000:05:00.0",
+                     "lun_hex" : "0x0000000000000000",
+                     "marginal_st" : "normal"
+                  },
+                  {
+                     "dev" : "sdd",
+                     "dev_t" : "8:48",
+                     "dm_st" : "failed",
+                     "dev_st" : "running",
+                     "chk_st" : "faulty",
+                     "checker" : "tur",
+                     "pri" : 0,
+                     "host_wwnn" : "0x200100015b4a6703",
+                     "target_wwnn" : "0x200300015b4a6703",
+                     "host_wwpn" : "0x200200015b4a6703",
+                     "target_wwpn" : "0x200500015b4a6703",
+                     "host_adapter" : "0000:05:00.0",
+                     "lun_hex" : "0x0000000000000000",
+                     "marginal_st" : "normal"
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "name" : "mpathB",
+         "uuid" : "36001405e4ec3a15c6724bb2aa3ecf54a",
+         "sysfs" : "dm-1",
+         "failback" : "immediate",
+         "queueing" : "off",
+         "paths" : 2,
+         "write_prot" : "rw",
+         "dm_st" : "active",
+         "features" : "0",
+         "hwhandler" : "1 alua",
+         "action" : "",
+         "path_faults" : 0,
+         "vend" : "LIO-ORG",
+         "prod" : "disk2",
+         "rev" : "4.0",
+         "switch_grp" : 0,
+         "map_loads" : 1,
+         "total_q_time" : 0,
+         "q_timeouts" : 0,
+         "path_groups": [
+            {
+               "selector" : "service-time 0",
+               "pri" : 50,
+               "dm_st" : "active",
+               "marginal_st" : "normal",
+               "group" : 1,
+               "paths": [
+                  {
+                     "dev" : "sde",
+                     "dev_t" : "8:64",
+                     "dm_st" : "active",
+                     "dev_st" : "running",
+                     "chk_st" : "ready",
+                     "checker" : "tur",
+                     "pri" : 50,
+                     "host_wwnn" : "0x200100015b4a6702",
+                     "target_wwnn" : "0x200300015b4a6702",
+                     "host_wwpn" : "0x200200015b4a6702",
+                     "target_wwpn" : "0x200400015b4a6702",
+                     "host_adapter" : "0000:03:00.0",
+                     "lun_hex" : "0x0001000000000000",
+                     "marginal_st" : "normal"
+                  },
+                  {
+                     "dev" : "sdf",
+                     "dev_t" : "8:80",
+                     "dm_st" : "active",
+                     "dev_st" : "running",
+                     "chk_st" : "ready",
+                     "checker" : "tur",
+                     "pri" : 50,
+                     "host_wwnn" : "0x200100015b4a6702",
+                     "target_wwnn" : "0x200300015b4a6702",
+                     "host_wwpn" : "0x200200015b4a6702",
+                     "target_wwpn" : "0x200500015b4a6702",
+                     "host_adapter" : "0000:03:00.0",
+                     "lun_hex" : "0x0001000000000000",
+                     "marginal_st" : "normal"
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}

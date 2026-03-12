@@ -201,6 +201,7 @@ lnstat | Exposes stats from `/proc/net/stat/`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
+multipath | Exposes DM-multipath and NVMe-oF path health from `multipathd` and `/sys/class/nvme-subsystem/`. | Linux
 network_route | Exposes the routing table as metrics | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
@@ -338,6 +339,36 @@ To statically set roles for a machine using labels:
 echo 'role{role="application_server"} 1' > /path/to/directory/role.prom.$$
 mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 ```
+
+### Multipath Collector
+
+The `multipath` collector exposes storage path health and redundancy from two
+independent data sources:
+
+- **DM-Multipath** — queries `multipathd` over its Unix socket for device-mapper
+  multipath maps, path groups, and individual path states.
+- **NVMe-oF Native Multipath** — reads `/sys/class/nvme-subsystem/` for NVMe
+  subsystem controller states, providing connectivity-layer visibility that the
+  standard `nvme` collector does not cover.
+
+Either data source may be absent; the collector reports whatever is available.
+
+#### Flags
+
+Flag | Default | Description
+-----|---------|------------
+`--collector.multipath.socket-path` | `/run/multipathd.socket` | Path to the `multipathd` Unix socket.
+`--collector.multipath.timeout` | `5s` | Timeout for `multipathd` socket communication.
+
+#### Permissions
+
+The DM-Multipath portion requires read access to the `multipathd` Unix socket.
+Depending on the system, this may require running `node_exporter` as root or
+adding it to the appropriate group (commonly `disk` or the group owning
+`/run/multipathd.socket`).
+
+The NVMe subsystem portion only requires read access to sysfs, which is
+available to all users by default.
 
 ### Filtering enabled collectors
 
