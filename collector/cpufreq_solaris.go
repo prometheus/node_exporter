@@ -12,15 +12,14 @@
 // limitations under the License.
 
 //go:build !nocpu
-// +build !nocpu
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 
-	"github.com/go-kit/log"
 	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -29,14 +28,14 @@ import (
 import "C"
 
 type cpuFreqCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
 	registerCollector("cpufreq", defaultEnabled, NewCpuFreqCollector)
 }
 
-func NewCpuFreqCollector(logger log.Logger) (Collector, error) {
+func NewCpuFreqCollector(logger *slog.Logger) (Collector, error) {
 	return &cpuFreqCollector{
 		logger: logger,
 	}, nil

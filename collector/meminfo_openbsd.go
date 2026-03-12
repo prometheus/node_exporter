@@ -12,12 +12,12 @@
 // limitations under the License.
 
 //go:build !nomeminfo && !amd64
-// +build !nomeminfo,!amd64
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 )
 
 /*
@@ -52,6 +52,17 @@ sysctl_bcstats(struct bcachestats *bcstats)
 
 */
 import "C"
+
+type meminfoCollector struct {
+	logger *slog.Logger
+}
+
+// NewMeminfoCollector returns a new Collector exposing memory stats.
+func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
+	return &meminfoCollector{
+		logger: logger,
+	}, nil
+}
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	var uvmexp C.struct_uvmexp

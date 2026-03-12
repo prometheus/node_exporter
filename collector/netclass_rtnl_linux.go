@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonetclass && linux
-// +build !nonetclass,linux
 
 package collector
 
@@ -21,10 +20,10 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log/level"
-	"github.com/jsimonetti/rtnetlink"
+	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/mdlayher/ethtool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
@@ -45,7 +44,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		if !errors.Is(errors.Unwrap(err), fs.ErrNotExist) {
 			return fmt.Errorf("could not get link modes: %w", err)
 		}
-		level.Info(c.logger).Log("msg", "ETHTOOL netlink interface unavailable, duplex and linkspeed are not scraped.")
+		c.logger.Info("ETHTOOL netlink interface unavailable, duplex and linkspeed are not scraped.")
 	} else {
 		for _, lm := range lms {
 			if c.ignoredDevicesPattern.MatchString(lm.Interface.Name) {
@@ -98,6 +97,12 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 			[]string{"device", "address", "broadcast", "duplex", "operstate", "ifalias"},
 			nil,
 		)
+		altnameDesc := prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, c.subsystem, "altnames_info"),
+			"Non-numeric data of <iface> altname, value is always 1.",
+			[]string{"altname", "device"},
+			nil,
+		)
 		infoValue := 1.0
 
 		var ifalias = ""
@@ -115,6 +120,14 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 
 		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, msg.Attributes.Address.String(), msg.Attributes.Broadcast.String(), duplex, operstateStr[int(msg.Attributes.OperationalState)], ifalias)
 
+		if len(msg.Attributes.AltNames) > 0 {
+			for _, altname := range msg.Attributes.AltNames {
+				if altname == "" {
+					continue
+				}
+				ch <- prometheus.MustNewConstMetric(altnameDesc, prometheus.GaugeValue, infoValue, strings.ToValidUTF8(altname, "\uFFFD"), msg.Attributes.Name)
+			}
+		}
 		pushMetric(ch, c.getFieldDesc("address_assign_type"), "address_assign_type", ifaceInfo.AddrAssignType, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier"), "carrier", msg.Attributes.Carrier, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier_changes_total"), "carrier_changes_total", msg.Attributes.CarrierChanges, prometheus.CounterValue, msg.Attributes.Name)

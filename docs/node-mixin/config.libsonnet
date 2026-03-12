@@ -30,6 +30,13 @@
     // them here, e.g. 'device!="tmpfs"'.
     diskDeviceSelector: 'device!=""',
 
+    // Select the devices for physical network related querier. If left
+    // empty the lo device and virtual device (starting with veth) are ignored.
+    // If you have bonded interfaces for example you might want to ignore those
+    // interfaces as well to avoid aggregating bandwith multiple times (once at
+    // the physical layer and on the bond layer). E.g.  // device!~"lo|veth.+|bond.+"'.
+    netDeviceSelector: 'device!~"lo|veth.+"',
+
     // Some of the alerts are meant to fire if a critical failure of a
     // node is imminent (e.g. the disk is about to run full). In a
     // true “cloud native” setup, failures of a single node should be
@@ -49,6 +56,16 @@
     // Load average 1m (per core) on which to trigger the
     // 'NodeSystemSaturation' alert.
     systemSaturationPerCoreThreshold: 2,
+
+    // Some of the alerts use predict_linear() to fire alerts ahead of time to
+    // prevent unrecoverable situations (eg. no more disk space). However, the
+    // node may have automatic processes (cronjobs) in place to prevent that
+    // within a certain time window, this may not align with the default time
+    // window of these alerts. This can cause these alerts to start flapping.
+    // By reducing the time window, the system gets more time to
+    // resolve this before problems occur.
+    nodeWarningWindowHours: '24',
+    nodeCriticalWindowHours: '4',
 
     // Available disk space (%) thresholds on which to trigger the
     // 'NodeFilesystemSpaceFillingUp' alerts. These alerts fire if the disk

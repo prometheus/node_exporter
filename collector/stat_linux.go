@@ -12,15 +12,14 @@
 // limitations under the License.
 
 //go:build !nostat
-// +build !nostat
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -34,7 +33,7 @@ type statCollector struct {
 	procsRunning *prometheus.Desc
 	procsBlocked *prometheus.Desc
 	softIRQ      *prometheus.Desc
-	logger       log.Logger
+	logger       *slog.Logger
 }
 
 var statSoftirqFlag = kingpin.Flag("collector.stat.softirq", "Export softirq calls per vector").Default("false").Bool()
@@ -44,7 +43,7 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector(logger log.Logger) (Collector, error) {
+func NewStatCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

@@ -1,7 +1,8 @@
 # Node exporter
 
 [![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
-[![Buildkite status](https://badge.buildkite.com/94a0c1fb00b1f46883219c256efe9ce01d63b6505f3a942f9b.svg)](https://buildkite.com/prometheus/node-exporter)
+![bsd workflow](https://github.com/prometheus/node_exporter/actions/workflows/bsd.yml/badge.svg)
+![golangci-lint workflow](https://github.com/prometheus/node_exporter/actions/workflows/golangci-lint.yml/badge.svg)
 [![Docker Repository on Quay](https://quay.io/repository/prometheus/node-exporter/status)][quay]
 [![Docker Pulls](https://img.shields.io/docker/pulls/prom/node-exporter.svg?maxAge=604800)][hub]
 [![Go Report Card](https://goreportcard.com/badge/github.com/prometheus/node_exporter)][goreportcard]
@@ -99,9 +100,11 @@ cpu | flags | --collector.cpu.info.flags-include | N/A
 diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
 ethtool | device | --collector.ethtool.device-include | --collector.ethtool.device-exclude
 ethtool | metrics | --collector.ethtool.metrics-include | N/A
-filesystem | fs-types | N/A | --collector.filesystem.fs-types-exclude
-filesystem | mount-points | N/A | --collector.filesystem.mount-points-exclude
+filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.filesystem.fs-types-exclude
+filesystem | mount-points | --collector.filesystem.mount-points-include | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
+hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exclude
+interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
 qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
@@ -192,18 +195,21 @@ drm | Expose GPU metrics using sysfs / DRM, `amdgpu` is the only driver which ex
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
+kernel_hung | Exposes number of tasks that have been detected as hung from `/proc/sys/kernel/hung_task_detect_count`. | Linux
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 lnstat | Exposes stats from `/proc/net/stat/`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
 softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
+swap | Expose swap information from `/proc/swaps`. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
@@ -337,13 +343,21 @@ mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 
 The `node_exporter` will expose all metrics from enabled collectors by default.  This is the recommended way to collect metrics to avoid errors when comparing metrics of different families.
 
-For advanced use the `node_exporter` can be passed an optional list of collectors to filter metrics. The `collect[]` parameter may be used multiple times.  In Prometheus configuration you can use this syntax under the [scrape config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<scrape_config>).
+For advanced use the `node_exporter` can be passed an optional list of collectors to filter metrics. The parameters `collect[]` and `exclude[]` can be used multiple times (but cannot be combined).  In Prometheus configuration you can use this syntax under the [scrape config](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#<scrape_config>).
 
+Collect only `cpu` and `meminfo` collector metrics:
 ```
   params:
     collect[]:
-      - foo
-      - bar
+      - cpu
+      - meminfo
+```
+
+Collect all enabled collector metrics but exclude `netdev`:
+```
+  params:
+    exclude[]:
+      - netdev
 ```
 
 This can be useful for having different Prometheus servers collect specific metrics from nodes.
@@ -372,7 +386,7 @@ To see all available configuration flags:
 
 ## TLS endpoint
 
-** EXPERIMENTAL **
+**EXPERIMENTAL**
 
 The exporter supports TLS via a new web configuration file.
 

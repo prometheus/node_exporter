@@ -12,26 +12,26 @@
 // limitations under the License.
 
 //go:build !noboottime
-// +build !noboottime
 
 package collector
 
 import (
-	"github.com/go-kit/log"
+	"log/slog"
+
 	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type bootTimeCollector struct {
 	boottime typedDesc
-	logger   log.Logger
+	logger   *slog.Logger
 }
 
 func init() {
 	registerCollector("boottime", defaultEnabled, newBootTimeCollector)
 }
 
-func newBootTimeCollector(logger log.Logger) (Collector, error) {
+func newBootTimeCollector(logger *slog.Logger) (Collector, error) {
 	return &bootTimeCollector{
 		boottime: typedDesc{
 			prometheus.NewDesc(

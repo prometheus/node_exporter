@@ -4,6 +4,7 @@ NIC statistics:
      rx_packets: 1260062
      tx_errors: 0
      rx_errors: 0
+     port.rx_dropped: 12028
      rx_missed: 401
      align_errors: 0
      tx_single_collisions: 0

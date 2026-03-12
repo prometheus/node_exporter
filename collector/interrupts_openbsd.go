@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nointerrupts && !amd64
-// +build !nointerrupts,!amd64
 
 package collector
 
@@ -106,10 +105,20 @@ func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	for dev, interrupt := range interrupts {
 		for cpuNo, value := range interrupt.values {
+			interruptType := fmt.Sprintf("%d", interrupt.vector)
+			filterName := interruptType + ";" + dev
+			if c.nameFilter.ignored(filterName) {
+				c.logger.Debug("ignoring interrupt name", "filter_name", filterName)
+				continue
+			}
+			if !c.includeZeros && value == 0.0 {
+				c.logger.Debug("ignoring interrupt with zero value", "filter_name", filterName, "cpu", cpuNo)
+				continue
+			}
 			ch <- c.desc.mustNewConstMetric(
 				value,
 				strconv.Itoa(cpuNo),
-				strconv.Itoa(interrupt.vector),
+				interruptType,
 				dev,
 			)
 		}

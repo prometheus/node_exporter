@@ -27,6 +27,8 @@ dependencies-stamp
 /.release
 /.tarballs
 
+tools/tools
+
 # Intellij
 
 /.idea

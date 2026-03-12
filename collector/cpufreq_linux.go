@@ -12,21 +12,21 @@
 // limitations under the License.
 
 //go:build !nocpu
-// +build !nocpu
 
 package collector
 
 import (
 	"fmt"
-	"github.com/go-kit/log"
+	"log/slog"
+	"strings"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-	"strings"
 )
 
 type cpuFreqCollector struct {
 	fs     sysfs.FS
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -34,7 +34,7 @@ func init() {
 }
 
 // NewCPUFreqCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUFreqCollector(logger log.Logger) (Collector, error) {
+func NewCPUFreqCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -105,8 +105,8 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 			)
 		}
 		if stats.Governor != "" {
-			availableGovernors := strings.Split(stats.AvailableGovernors, " ")
-			for _, g := range availableGovernors {
+			availableGovernors := strings.SplitSeq(stats.AvailableGovernors, " ")
+			for g := range availableGovernors {
 				state := 0
 				if g == stats.Governor {
 					state = 1

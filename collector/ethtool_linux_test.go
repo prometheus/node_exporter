@@ -12,13 +12,14 @@
 // limitations under the License.
 
 //go:build !noethtool
-// +build !noethtool
 
 package collector
 
 import (
 	"bufio"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -26,7 +27,6 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/safchain/ethtool"
@@ -49,7 +49,7 @@ func (c testEthtoolCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func NewTestEthtoolCollector(logger log.Logger) (prometheus.Collector, error) {
+func NewTestEthtoolCollector(logger *slog.Logger) (prometheus.Collector, error) {
 	dsc, err := NewEthtoolTestCollector(logger)
 	if err != nil {
 		return testEthtoolCollector{}, err
@@ -138,7 +138,7 @@ func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
 
 func readModes(modes string) uint32 {
 	var out uint32
-	for _, mode := range strings.Split(modes, " ") {
+	for mode := range strings.SplitSeq(modes, " ") {
 		switch mode {
 		case "10baseT/Half":
 			out |= (1 << unix.ETHTOOL_LINK_MODE_10baseT_Half_BIT)
@@ -161,7 +161,7 @@ func readModes(modes string) uint32 {
 
 func readPortTypes(portTypes string) uint32 {
 	var out uint32
-	for _, ptype := range strings.Split(portTypes, " ") {
+	for ptype := range strings.SplitSeq(portTypes, " ") {
 		ptype = strings.Trim(ptype, " \t")
 		if ptype == "TP" {
 			out |= (1 << unix.ETHTOOL_LINK_MODE_TP_BIT)
@@ -211,16 +211,18 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 
 		items := strings.Split(line, ": ")
 		if items[0] == "Supported pause frame use" {
-			if items[1] == "Symmetric" {
+			switch items[1] {
+			case "Symmetric":
 				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
-			} else if items[1] == "Receive-only" {
+			case "Receive-only":
 				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
 			}
 		}
 		if items[0] == "Advertised pause frame use" {
-			if items[1] == "Symmetric" {
+			switch items[1] {
+			case "Symmetric":
 				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
-			} else if items[1] == "Receive-only" {
+			case "Receive-only":
 				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
 			}
 		}
@@ -255,7 +257,7 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return res, err
 }
 
-func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
+func NewEthtoolTestCollector(logger *slog.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(logger)
 	if err != nil {
 		return nil, err
@@ -268,6 +270,7 @@ func NewEthtoolTestCollector(logger log.Logger) (Collector, error) {
 
 func TestBuildEthtoolFQName(t *testing.T) {
 	testcases := map[string]string{
+		"port.rx_errors":               "node_ethtool_port_received_errors",
 		"rx_errors":                    "node_ethtool_received_errors",
 		"Queue[0] AllocFails":          "node_ethtool_queue_0_allocfails",
 		"Tx LPI entry count":           "node_ethtool_transmitted_lpi_entry_count",
@@ -291,6 +294,9 @@ node_ethtool_align_errors{device="eth0"} 0
 # HELP node_ethtool_info A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.
 # TYPE node_ethtool_info gauge
 node_ethtool_info{bus_info="0000:00:1f.6",device="eth0",driver="e1000e",expansion_rom_version="",firmware_version="0.5-4",version="5.11.0-22-generic"} 1
+# HELP node_ethtool_port_received_dropped Network interface port_rx_dropped
+# TYPE node_ethtool_port_received_dropped untyped
+node_ethtool_port_received_dropped{device="eth0"} 12028
 # HELP node_ethtool_received_broadcast Network interface rx_broadcast
 # TYPE node_ethtool_received_broadcast untyped
 node_ethtool_received_broadcast{device="eth0"} 5792
@@ -370,7 +376,7 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 `
 	*sysPath = "fixtures/sys"
 
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	collector, err := NewEthtoolTestCollector(logger)
 	if err != nil {
 		t.Fatal(err)

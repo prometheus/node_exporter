@@ -12,29 +12,30 @@
 // limitations under the License.
 
 //go:build !nofilesystem
-// +build !nofilesystem
 
 package collector
 
 import (
-	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
-	"io"
+	"log/slog"
 	"os"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/procfs"
 )
 
 const (
 	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)"
-	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$"
 )
 
 var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
@@ -57,10 +58,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
-	workerCount := *statWorkerCount
-	if workerCount < 1 {
-		workerCount = 1
-	}
+	workerCount := max(*statWorkerCount, 1)
 
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)
@@ -74,12 +72,12 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 	go func() {
 		for _, labels := range mps {
-			if c.excludedMountPointsPattern.MatchString(labels.mountPoint) {
-				level.Debug(c.logger).Log("msg", "Ignoring mount point", "mountpoint", labels.mountPoint)
+			if c.mountPointFilter.ignored(labels.mountPoint) {
+				c.logger.Debug("Ignoring mount point", "mountpoint", labels.mountPoint)
 				continue
 			}
-			if c.excludedFSTypesPattern.MatchString(labels.fsType) {
-				level.Debug(c.logger).Log("msg", "Ignoring fs", "type", labels.fsType)
+			if c.fsTypeFilter.ignored(labels.fsType) {
+				c.logger.Debug("Ignoring fs type", "type", labels.fsType)
 				continue
 			}
 
@@ -90,7 +88,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 					labels:      labels,
 					deviceError: 1,
 				})
-				level.Debug(c.logger).Log("msg", "Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
+				c.logger.Debug("Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
 				stuckMountsMtx.Unlock()
 				continue
 			}
@@ -111,11 +109,8 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
 	var ro float64
-	for _, option := range strings.Split(labels.options, ",") {
-		if option == "ro" {
-			ro = 1
-			break
-		}
+	if isFilesystemReadOnly(labels) {
+		ro = 1
 	}
 
 	success := make(chan struct{})
@@ -128,14 +123,20 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 
 	// If the mount has been marked as stuck, unmark it and log it's recovery.
 	if _, ok := stuckMounts[labels.mountPoint]; ok {
-		level.Debug(c.logger).Log("msg", "Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
+		c.logger.Debug("Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
 		delete(stuckMounts, labels.mountPoint)
 	}
 	stuckMountsMtx.Unlock()
 
+	// Remove options from labels because options will not be used from this point forward
+	// and keeping them can lead to errors when the same device is mounted to the same mountpoint
+	// twice, with different options (metrics would be recorded multiple times).
+	labels.mountOptions = ""
+	labels.superOptions = ""
+
 	if err != nil {
 		labels.deviceError = err.Error()
-		level.Debug(c.logger).Log("msg", "Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+		c.logger.Debug("Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
@@ -157,7 +158,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logger) {
+func stuckMountWatcher(mountPoint string, success chan struct{}, logger *slog.Logger) {
 	mountCheckTimer := time.NewTimer(*mountTimeout)
 	defer mountCheckTimer.Stop()
 	select {
@@ -170,52 +171,79 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, logger log.Logg
 		case <-success:
 			// Success came in just after the timeout was reached, don't label the mount as stuck
 		default:
-			level.Debug(logger).Log("msg", "Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
+			logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
 			stuckMounts[mountPoint] = struct{}{}
 		}
 		stuckMountsMtx.Unlock()
 	}
 }
 
-func mountPointDetails(logger log.Logger) ([]filesystemLabels, error) {
-	file, err := os.Open(procFilePath("1/mounts"))
+func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
+	mountInfo, err := fs.GetProcMounts(1)
 	if errors.Is(err, os.ErrNotExist) {
-		// Fallback to `/proc/mounts` if `/proc/1/mounts` is missing due hidepid.
-		level.Debug(logger).Log("msg", "Reading root mounts failed, falling back to system mounts", "err", err)
-		file, err = os.Open(procFilePath("mounts"))
+		// Fallback to `/proc/self/mountinfo` if `/proc/1/mountinfo` is missing due hidepid.
+		logger.Debug("Reading root mounts failed, falling back to self mounts", "err", err)
+		mountInfo, err = fs.GetMounts()
 	}
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
 
-	return parseFilesystemLabels(file)
+	return parseFilesystemLabels(mountInfo)
 }
 
-func parseFilesystemLabels(r io.Reader) ([]filesystemLabels, error) {
+func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
-
-		if len(parts) < 4 {
-			return nil, fmt.Errorf("malformed mount point information: %q", scanner.Text())
+	for _, mount := range mountInfo {
+		major, minor := 0, 0
+		_, err := fmt.Sscanf(mount.MajorMinorVer, "%d:%d", &major, &minor)
+		if err != nil {
+			return nil, fmt.Errorf("malformed mount point MajorMinorVer: %q", mount.MajorMinorVer)
 		}
 
 		// Ensure we handle the translation of \040 and \011
 		// as per fstab(5).
-		parts[1] = strings.Replace(parts[1], "\\040", " ", -1)
-		parts[1] = strings.Replace(parts[1], "\\011", "\t", -1)
+		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\040", " ")
+		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\011", "\t")
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:      parts[0],
-			mountPoint:  rootfsStripPrefix(parts[1]),
-			fsType:      parts[2],
-			options:     parts[3],
-			deviceError: "",
+			device:       mount.Source,
+			mountPoint:   rootfsStripPrefix(mount.MountPoint),
+			fsType:       mount.FSType,
+			mountOptions: mountOptionsString(mount.Options),
+			superOptions: mountOptionsString(mount.SuperOptions),
+			major:        strconv.Itoa(major),
+			minor:        strconv.Itoa(minor),
+			deviceError:  "",
 		})
 	}
 
-	return filesystems, scanner.Err()
+	return filesystems, nil
+}
+
+// see https://github.com/prometheus/node_exporter/issues/3157#issuecomment-2422761187
+// if either mount or super options contain "ro" the filesystem is read-only
+func isFilesystemReadOnly(labels filesystemLabels) bool {
+	if slices.Contains(strings.Split(labels.mountOptions, ","), "ro") || slices.Contains(strings.Split(labels.superOptions, ","), "ro") {
+		return true
+	}
+
+	return false
+}
+
+func mountOptionsString(m map[string]string) string {
+	b := new(bytes.Buffer)
+	for key, value := range m {
+		if value == "" {
+			fmt.Fprintf(b, "%s", key)
+		} else {
+			fmt.Fprintf(b, "%s=%s", key, value)
+		}
+	}
+	return b.String()
 }

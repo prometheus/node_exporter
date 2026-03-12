@@ -12,17 +12,15 @@
 // limitations under the License.
 
 //go:build !noconntrack
-// +build !noconntrack
 
 package collector
 
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -38,7 +36,7 @@ type conntrackCollector struct {
 	drop          *prometheus.Desc
 	earlyDrop     *prometheus.Desc
 	searchRestart *prometheus.Desc
-	logger        log.Logger
+	logger        *slog.Logger
 }
 
 type conntrackStatistics struct {
@@ -57,7 +55,7 @@ func init() {
 }
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(logger log.Logger) (Collector, error) {
+func NewConntrackCollector(logger *slog.Logger) (Collector, error) {
 	return &conntrackCollector{
 		current: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "", "nf_conntrack_entries"),
@@ -154,7 +152,7 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 
 func (c *conntrackCollector) handleErr(err error) error {
 	if errors.Is(err, os.ErrNotExist) {
-		level.Debug(c.logger).Log("msg", "conntrack probably not loaded")
+		c.logger.Debug("conntrack probably not loaded")
 		return ErrNoData
 	}
 	return fmt.Errorf("failed to retrieve conntrack stats: %w", err)

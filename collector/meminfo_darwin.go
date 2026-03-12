@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nomeminfo
-// +build !nomeminfo
 
 package collector
 
@@ -24,10 +23,22 @@ import "C"
 import (
 	"encoding/binary"
 	"fmt"
+	"log/slog"
 	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
+
+type meminfoCollector struct {
+	logger *slog.Logger
+}
+
+// NewMeminfoCollector returns a new Collector exposing memory stats.
+func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
+	return &meminfoCollector{
+		logger: logger,
+	}, nil
+}
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	host := C.mach_host_self()
@@ -40,7 +51,7 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 		&infoCount,
 	)
 	if ret != C.KERN_SUCCESS {
-		return nil, fmt.Errorf("Couldn't get memory statistics, host_statistics returned %d", ret)
+		return nil, fmt.Errorf("couldn't get memory statistics, host_statistics returned %d", ret)
 	}
 	totalb, err := unix.Sysctl("hw.memsize")
 	if err != nil {

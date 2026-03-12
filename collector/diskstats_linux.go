@@ -12,19 +12,17 @@
 // limitations under the License.
 
 //go:build !nodiskstats
-// +build !nodiskstats
 
 package collector
 
 import (
 	"bufio"
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
 )
@@ -61,31 +59,23 @@ const (
 	udevIDModel                 = "ID_MODEL"
 	udevIDPath                  = "ID_PATH"
 	udevIDRevision              = "ID_REVISION"
+	udevIDSerial                = "ID_SERIAL"
 	udevIDSerialShort           = "ID_SERIAL_SHORT"
 	udevIDWWN                   = "ID_WWN"
 	udevSCSIIdentSerial         = "SCSI_IDENT_SERIAL"
 )
 
-type typedFactorDesc struct {
-	desc      *prometheus.Desc
-	valueType prometheus.ValueType
-}
-
 type udevInfo map[string]string
-
-func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
-	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
-}
 
 type diskstatsCollector struct {
 	deviceFilter            deviceFilter
 	fs                      blockdevice.FS
-	infoDesc                typedFactorDesc
-	descs                   []typedFactorDesc
-	filesystemInfoDesc      typedFactorDesc
-	deviceMapperInfoDesc    typedFactorDesc
-	ataDescs                map[string]typedFactorDesc
-	logger                  log.Logger
+	infoDesc                typedDesc
+	descs                   []typedDesc
+	filesystemInfoDesc      typedDesc
+	deviceMapperInfoDesc    typedDesc
+	ataDescs                map[string]typedDesc
+	logger                  *slog.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
 
@@ -95,7 +85,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
+func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 	var diskLabelNames = []string{"device"}
 	fs, err := blockdevice.NewFS(*procPath, *sysPath)
 	if err != nil {
@@ -110,14 +100,14 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 	collector := diskstatsCollector{
 		deviceFilter: deviceFilter,
 		fs:           fs,
-		infoDesc: typedFactorDesc{
+		infoDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
 				"Info of /sys/block/<block_device>.",
-				[]string{"device", "major", "minor", "path", "wwn", "model", "serial", "revision"},
+				[]string{"device", "major", "minor", "path", "wwn", "model", "serial", "revision", "rotational"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
-		descs: []typedFactorDesc{
+		descs: []typedDesc{
 			{
 				desc: readsCompletedDesc, valueType: prometheus.CounterValue,
 			},
@@ -220,21 +210,21 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 				), valueType: prometheus.CounterValue,
 			},
 		},
-		filesystemInfoDesc: typedFactorDesc{
+		filesystemInfoDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "filesystem_info"),
 				"Info about disk filesystem.",
 				[]string{"device", "type", "usage", "uuid", "version"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
-		deviceMapperInfoDesc: typedFactorDesc{
+		deviceMapperInfoDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "device_mapper_info"),
 				"Info about disk device mapper.",
 				[]string{"device", "name", "uuid", "vg_name", "lv_name", "lv_layer"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
-		ataDescs: map[string]typedFactorDesc{
+		ataDescs: map[string]typedDesc{
 			udevIDATAWriteCache: {
 				desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ata_write_cache"),
 					"ATA disk has a write cache.",
@@ -262,7 +252,7 @@ func NewDiskstatsCollector(logger log.Logger) (Collector, error) {
 
 	// Only enable getting device properties from udev if the directory is readable.
 	if stat, err := os.Stat(*udevDataPath); err != nil || !stat.IsDir() {
-		level.Error(logger).Log("msg", "Failed to open directory, disabling udev device properties", "path", *udevDataPath)
+		logger.Error("Failed to open directory, disabling udev device properties", "path", *udevDataPath)
 	} else {
 		collector.getUdevDeviceProperties = getUdevDeviceProperties
 	}
@@ -284,7 +274,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
 		if err != nil {
-			level.Debug(c.logger).Log("msg", "Failed to parse udev info", "err", err)
+			c.logger.Debug("Failed to parse udev info", "err", err)
 		}
 
 		// This is usually the serial printed on the disk label.
@@ -295,6 +285,17 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			serial = info[udevIDSerialShort]
 		}
 
+		// If still undefined, fallback to ID_SERIAL (used by virtio devices).
+		if serial == "" {
+			serial = info[udevIDSerial]
+		}
+
+		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
+		// Block Device Queue stats may not exist for all devices.
+		if err != nil && !os.IsNotExist(err) {
+			c.logger.Debug("Failed to get block device queue stats", "device", dev, "err", err)
+		}
+
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev,
 			fmt.Sprint(stats.MajorNumber),
 			fmt.Sprint(stats.MinorNumber),
@@ -303,6 +304,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			info[udevIDModel],
 			serial,
 			info[udevIDRevision],
+			strconv.FormatUint(queueStats.Rotational, 2),
 		)
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
@@ -355,14 +357,14 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			for attr, desc := range c.ataDescs {
 				str, ok := info[attr]
 				if !ok {
-					level.Debug(c.logger).Log("msg", "Udev attribute does not exist", "attribute", attr)
+					c.logger.Debug("Udev attribute does not exist", "attribute", attr)
 					continue
 				}
 
 				if value, err := strconv.ParseFloat(str, 64); err == nil {
 					ch <- desc.mustNewConstMetric(value, dev)
 				} else {
-					level.Error(c.logger).Log("msg", "Failed to parse ATA value", "err", err)
+					c.logger.Error("Failed to parse ATA value", "err", err)
 				}
 			}
 		}
@@ -392,14 +394,8 @@ func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 
 		line = strings.TrimPrefix(line, udevDevicePropertyPrefix)
 
-		/* TODO: After we drop support for Go 1.17, the condition below can be simplified to:
-
 		if name, value, found := strings.Cut(line, "="); found {
 			info[name] = value
-		}
-		*/
-		if fields := strings.SplitN(line, "=", 2); len(fields) == 2 {
-			info[fields[0]] = fields[1]
 		}
 	}
 

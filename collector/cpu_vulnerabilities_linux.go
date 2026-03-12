@@ -15,19 +15,19 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
 
 const (
-	cpuVulerabilitiesCollector = "cpu_vulnerabilities"
+	cpuVulnerabilitiesCollectorSubsystem = "cpu_vulnerabilities"
 )
 
 var (
 	vulnerabilityDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuVulerabilitiesCollector, "info"),
+		prometheus.BuildFQName(namespace, cpuVulnerabilitiesCollectorSubsystem, "info"),
 		"Details of each CPU vulnerability reported by sysfs. The value of the series is an int encoded state of the vulnerability. The same state is stored as a string in the label",
 		[]string{"codename", "state", "mitigation"},
 		nil,
@@ -37,10 +37,10 @@ var (
 type cpuVulnerabilitiesCollector struct{}
 
 func init() {
-	registerCollector(cpuVulerabilitiesCollector, defaultDisabled, NewVulnerabilitySysfsCollector)
+	registerCollector(cpuVulnerabilitiesCollectorSubsystem, defaultDisabled, NewVulnerabilitySysfsCollector)
 }
 
-func NewVulnerabilitySysfsCollector(logger log.Logger) (Collector, error) {
+func NewVulnerabilitySysfsCollector(logger *slog.Logger) (Collector, error) {
 	return &cpuVulnerabilitiesCollector{}, nil
 }
 

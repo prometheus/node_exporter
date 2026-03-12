@@ -12,19 +12,18 @@
 // limitations under the License.
 
 //go:build (freebsd || dragonfly || openbsd || netbsd || darwin) && !noboottime
-// +build freebsd dragonfly openbsd netbsd darwin
-// +build !noboottime
 
 package collector
 
 import (
-	"github.com/go-kit/log"
+	"log/slog"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
 )
 
 type bootTimeCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -32,7 +31,7 @@ func init() {
 }
 
 // newBootTimeCollector returns a new Collector exposing system boot time on BSD systems.
-func newBootTimeCollector(logger log.Logger) (Collector, error) {
+func newBootTimeCollector(logger *slog.Logger) (Collector, error) {
 	return &bootTimeCollector{
 		logger: logger,
 	}, nil

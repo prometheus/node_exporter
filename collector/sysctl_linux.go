@@ -15,11 +15,11 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -33,7 +33,7 @@ var (
 
 type sysctlCollector struct {
 	fs      procfs.FS
-	logger  log.Logger
+	logger  *slog.Logger
 	sysctls []*sysctl
 }
 
@@ -41,7 +41,7 @@ func init() {
 	registerCollector("sysctl", defaultDisabled, NewSysctlCollector)
 }
 
-func NewSysctlCollector(logger log.Logger) (Collector, error) {
+func NewSysctlCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -86,7 +86,7 @@ func (c *sysctlCollector) Update(ch chan<- prometheus.Metric) error {
 
 func (c *sysctlCollector) newMetrics(s *sysctl) ([]prometheus.Metric, error) {
 	var (
-		values interface{}
+		values any
 		length int
 		err    error
 	)
@@ -151,7 +151,7 @@ func (s *sysctl) metricName() string {
 	return SanitizeMetricName(s.name)
 }
 
-func (s *sysctl) newConstMetric(v interface{}) prometheus.Metric {
+func (s *sysctl) newConstMetric(v any) prometheus.Metric {
 	if s.numeric {
 		return prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
@@ -171,7 +171,7 @@ func (s *sysctl) newConstMetric(v interface{}) prometheus.Metric {
 	)
 }
 
-func (s *sysctl) newIndexedMetrics(v interface{}) []prometheus.Metric {
+func (s *sysctl) newIndexedMetrics(v any) []prometheus.Metric {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "sysctl", s.metricName()),
 		fmt.Sprintf("sysctl %s", s.name),
@@ -195,7 +195,7 @@ func (s *sysctl) newIndexedMetrics(v interface{}) []prometheus.Metric {
 	}
 }
 
-func (s *sysctl) newMappedMetrics(v interface{}) ([]prometheus.Metric, error) {
+func (s *sysctl) newMappedMetrics(v any) ([]prometheus.Metric, error) {
 	switch values := v.(type) {
 	case []int:
 		metrics := make([]prometheus.Metric, len(values))

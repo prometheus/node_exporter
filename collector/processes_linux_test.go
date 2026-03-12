@@ -12,15 +12,15 @@
 // limitations under the License.
 
 //go:build !noprocesses
-// +build !noprocesses
 
 package collector
 
 import (
+	"io"
+	"log/slog"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
 	"github.com/prometheus/procfs"
 )
 
@@ -33,7 +33,7 @@ func TestReadProcessStatus(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to open procfs: %v", err)
 	}
-	c := processCollector{fs: fs, logger: log.NewNopLogger()}
+	c := processCollector{fs: fs, logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
 	pids, states, threads, _, err := c.getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
@@ -47,7 +47,7 @@ func TestReadProcessStatus(t *testing.T) {
 	}
 	maxPid, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
 	if err != nil {
-		t.Fatalf("Unable to retrieve limit number of maximum pids alloved %v\n", err)
+		t.Fatalf("Unable to retrieve limit number of maximum pids allowed %v\n", err)
 	}
 	if uint64(pids) > maxPid || pids == 0 {
 		t.Fatalf("Total running pids cannot be greater than %d or equals to 0", maxPid)

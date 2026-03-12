@@ -12,17 +12,16 @@
 // limitations under the License.
 
 //go:build !noxfrm
-// +build !noxfrm
 
 package collector
 
 import (
 	"fmt"
-	"os"
+	"io"
+	"log/slog"
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )
@@ -127,7 +126,7 @@ func TestXfrmStats(t *testing.T) {
 	`
 	*procPath = "fixtures/proc"
 
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	c, err := NewXfrmCollector(logger)
 	if err != nil {
 		t.Fatal(err)

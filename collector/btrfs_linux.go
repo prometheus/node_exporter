@@ -12,19 +12,17 @@
 // limitations under the License.
 
 //go:build !nobtrfs
-// +build !nobtrfs
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"path"
 	"strings"
 	"syscall"
 
 	dennwc "github.com/dennwc/btrfs"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/btrfs"
 )
@@ -32,7 +30,7 @@ import (
 // A btrfsCollector is a Collector which gathers metrics from Btrfs filesystems.
 type btrfsCollector struct {
 	fs     btrfs.FS
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -40,7 +38,7 @@ func init() {
 }
 
 // NewBtrfsCollector returns a new Collector exposing Btrfs statistics.
-func NewBtrfsCollector(logger log.Logger) (Collector, error) {
+func NewBtrfsCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := btrfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -62,15 +60,15 @@ func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	ioctlStatsMap, err := c.getIoctlStats()
 	if err != nil {
-		level.Debug(c.logger).Log(
-			"msg", "Error querying btrfs device stats with ioctl",
+		c.logger.Debug(
+			"Error querying btrfs device stats with ioctl",
 			"err", err)
 		ioctlStatsMap = make(map[string]*btrfsIoctlFsStats)
 	}
 
 	for _, s := range stats {
 		// match up procfs and ioctl info by filesystem UUID (without dashes)
-		var fsUUID = strings.Replace(s.UUID, "-", "", -1)
+		var fsUUID = strings.ReplaceAll(s.UUID, "-", "")
 		ioctlStats := ioctlStatsMap[fsUUID]
 		c.updateBtrfsStats(ch, s, ioctlStats)
 	}
@@ -129,8 +127,8 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 		if err != nil {
 			// Failed to open this mount point, maybe we didn't have permission
 			// maybe we'll find another mount point for this FS later.
-			level.Debug(c.logger).Log(
-				"msg", "Error inspecting btrfs mountpoint",
+			c.logger.Debug(
+				"Error inspecting btrfs mountpoint",
 				"mountPoint", mountPath,
 				"err", err)
 			continue
@@ -141,8 +139,8 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 		if err != nil {
 			// Failed to get the FS info for some reason,
 			// perhaps it'll work with a different mount point
-			level.Debug(c.logger).Log(
-				"msg", "Error querying btrfs filesystem",
+			c.logger.Debug(
+				"Error querying btrfs filesystem",
 				"mountPoint", mountPath,
 				"err", err)
 			continue
@@ -156,8 +154,8 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 
 		deviceStats, err := c.getIoctlDeviceStats(fs, &fsInfo)
 		if err != nil {
-			level.Debug(c.logger).Log(
-				"msg", "Error querying btrfs device stats",
+			c.logger.Debug(
+				"Error querying btrfs device stats",
 				"mountPoint", mountPath,
 				"err", err)
 			continue
@@ -274,6 +272,30 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, ioctlStats *btrfsIoctlFsStat
 			desc:       "Size of global reserve.",
 			metricType: prometheus.GaugeValue,
 			value:      float64(s.Allocation.GlobalRsvSize),
+		},
+		{
+			name:       "commits_total",
+			desc:       "The total number of commits that have occurred.",
+			metricType: prometheus.CounterValue,
+			value:      float64(s.CommitStats.Commits),
+		},
+		{
+			name:       "last_commit_seconds",
+			desc:       "Duration of the most recent commit, in seconds.",
+			metricType: prometheus.GaugeValue,
+			value:      float64(s.CommitStats.LastCommitMs) / 1000,
+		},
+		{
+			name:       "max_commit_seconds",
+			desc:       "Duration of the slowest commit, in seconds.",
+			metricType: prometheus.GaugeValue,
+			value:      float64(s.CommitStats.MaxCommitMs) / 1000,
+		},
+		{
+			name:       "commit_seconds_total",
+			desc:       "Sum of the duration of all commits, in seconds.",
+			metricType: prometheus.CounterValue,
+			value:      float64(s.CommitStats.TotalCommitMs) / 1000,
 		},
 	}
 

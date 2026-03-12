@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !notime
-// +build !notime
 
 package collector
 
@@ -20,7 +19,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
@@ -35,7 +33,7 @@ func (c *timeCollector) update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get clocksources: %w", err)
 	}
-	level.Debug(c.logger).Log("msg", "in Update", "clocksources", fmt.Sprintf("%v", clocksources))
+	c.logger.Debug("in Update", "clocksources", fmt.Sprintf("%v", clocksources))
 
 	for i, clocksource := range clocksources {
 		is := strconv.Itoa(i)

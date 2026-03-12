@@ -12,18 +12,18 @@
 // limitations under the License.
 
 //go:build !noperf
-// +build !noperf
 
 package collector
 
 import (
+	"io"
+	"log/slog"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
 	"testing"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -32,10 +32,10 @@ func canTestPerf(t *testing.T) {
 	if err != nil {
 		t.Skip("Procfs not mounted, skipping perf tests")
 	}
-	paranoidStr := strings.Replace(string(paranoidBytes), "\n", "", -1)
+	paranoidStr := strings.ReplaceAll(string(paranoidBytes), "\n", "")
 	paranoid, err := strconv.Atoi(paranoidStr)
 	if err != nil {
-		t.Fatalf("Expected perf_event_paranoid to be an int, got: %s", paranoidStr)
+		t.Fatalf("expected perf_event_paranoid to be an int, got: %s", paranoidStr)
 	}
 	if paranoid >= 1 {
 		t.Skip("Skipping perf tests, set perf_event_paranoid to 0")
@@ -44,7 +44,7 @@ func canTestPerf(t *testing.T) {
 
 func TestPerfCollector(t *testing.T) {
 	canTestPerf(t)
-	collector, err := NewPerfCollector(log.NewNopLogger())
+	collector, err := NewPerfCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +97,7 @@ func TestPerfCollectorStride(t *testing.T) {
 				}
 			}
 			perfCPUsFlag = &test.flag
-			collector, err := NewPerfCollector(log.NewNopLogger())
+			collector, err := NewPerfCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
 			if err != nil {
 				t.Fatal(err)
 			}

@@ -12,16 +12,14 @@
 // limitations under the License.
 
 //go:build !nobuddyinfo && !netbsd
-// +build !nobuddyinfo,!netbsd
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -33,7 +31,7 @@ const (
 type buddyinfoCollector struct {
 	fs     procfs.FS
 	desc   *prometheus.Desc
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -41,7 +39,7 @@ func init() {
 }
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
-func NewBuddyinfoCollector(logger log.Logger) (Collector, error) {
+func NewBuddyinfoCollector(logger *slog.Logger) (Collector, error) {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
 		"Count of free blocks according to size.",
@@ -62,7 +60,7 @@ func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get buddyinfo: %w", err)
 	}
 
-	level.Debug(c.logger).Log("msg", "Set node_buddy", "buddyInfo", buddyInfo)
+	c.logger.Debug("Set node_buddy", "buddyInfo", buddyInfo)
 	for _, entry := range buddyInfo {
 		for size, value := range entry.Sizes {
 			ch <- prometheus.MustNewConstMetric(

@@ -12,20 +12,19 @@
 // limitations under the License.
 
 //go:build !nonetisr
-// +build !nonetisr
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type netisrCollector struct {
 	sysctls []bsdSysctl
-	logger  log.Logger
+	logger  *slog.Logger
 }
 
 const (
@@ -36,7 +35,7 @@ func init() {
 	registerCollector("netisr", defaultEnabled, NewNetisrCollector)
 }
 
-func NewNetisrCollector(logger log.Logger) (Collector, error) {
+func NewNetisrCollector(logger *slog.Logger) (Collector, error) {
 	return &netisrCollector{
 		sysctls: []bsdSysctl{
 			{

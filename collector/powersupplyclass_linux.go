@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nopowersupplyclass
-// +build !nopowersupplyclass
 
 package collector
 

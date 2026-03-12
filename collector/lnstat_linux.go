@@ -12,28 +12,27 @@
 // limitations under the License.
 
 //go:build !nolnstat
-// +build !nolnstat
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"strconv"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
 type lnstatCollector struct {
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
 	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
-func NewLnstatCollector(logger log.Logger) (Collector, error) {
+func NewLnstatCollector(logger *slog.Logger) (Collector, error) {
 	return &lnstatCollector{logger}, nil
 }
 

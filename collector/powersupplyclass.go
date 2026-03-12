@@ -12,16 +12,14 @@
 // limitations under the License.
 
 //go:build !nopowersupplyclass && (linux || darwin)
-// +build !nopowersupplyclass
-// +build linux darwin
 
 package collector
 
 import (
+	"log/slog"
 	"regexp"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -33,14 +31,14 @@ type powerSupplyClassCollector struct {
 	subsystem      string
 	ignoredPattern *regexp.Regexp
 	metricDescs    map[string]*prometheus.Desc
-	logger         log.Logger
+	logger         *slog.Logger
 }
 
 func init() {
 	registerCollector("powersupplyclass", defaultEnabled, NewPowerSupplyClassCollector)
 }
 
-func NewPowerSupplyClassCollector(logger log.Logger) (Collector, error) {
+func NewPowerSupplyClassCollector(logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*powerSupplyClassIgnoredPowerSupplies)
 	return &powerSupplyClassCollector{
 		subsystem:      "power_supply",

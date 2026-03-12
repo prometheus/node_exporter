@@ -12,13 +12,25 @@
 // limitations under the License.
 
 //go:build !nomeminfo
-// +build !nomeminfo
 
 package collector
 
 import (
+	"log/slog"
+
 	"golang.org/x/sys/unix"
 )
+
+type meminfoCollector struct {
+	logger *slog.Logger
+}
+
+// NewMeminfoCollector returns a new Collector exposing memory stats.
+func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
+	return &meminfoCollector{
+		logger: logger,
+	}, nil
+}
 
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	uvmexp, err := unix.SysctlUvmexp("vm.uvmexp2")

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noloadavg
-// +build !noloadavg
 
 package collector
 

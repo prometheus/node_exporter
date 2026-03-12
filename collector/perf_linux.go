@@ -12,19 +12,17 @@
 // limitations under the License.
 
 //go:build !noperf
-// +build !noperf
 
 package collector
 
 import (
 	"fmt"
+	"log/slog"
 	"runtime"
 	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/hodgesds/perf-utils"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
@@ -87,10 +85,10 @@ var (
 		"BPUReadHit":       perf.BPUReadHitProfiler,
 		"BPUReadMiss":      perf.BPUReadMissProfiler,
 		// "L1InstrReadHit":     perf.L1InstrReadHitProfiler,
-		// "DataTLBReadHit":     perf.DataTLBReadHitProfiler,
-		// "DataTLBReadMiss":    perf.DataTLBReadMissProfiler,
-		// "DataTLBWriteHit":    perf.DataTLBWriteHitProfiler,
-		// "DataTLBWriteMiss":   perf.DataTLBWriteMissProfiler,
+		"DataTLBReadHit":   perf.DataTLBReadHitProfiler,
+		"DataTLBReadMiss":  perf.DataTLBReadMissProfiler,
+		"DataTLBWriteHit":  perf.DataTLBWriteHitProfiler,
+		"DataTLBWriteMiss": perf.DataTLBWriteMissProfiler,
 		// "NodeCacheReadHit":   perf.NodeCacheReadHitProfiler,
 		// "NodeCacheReadMiss":  perf.NodeCacheReadMissProfiler,
 		// "NodeCacheWriteHit":  perf.NodeCacheWriteHitProfiler,
@@ -119,7 +117,7 @@ func perfTracepointFlagToTracepoints(tracepointsFlag []string) ([]*perfTracepoin
 func perfCPUFlagToCPUs(cpuFlag string) ([]int, error) {
 	var err error
 	cpus := []int{}
-	for _, subset := range strings.Split(cpuFlag, ",") {
+	for subset := range strings.SplitSeq(cpuFlag, ",") {
 		// First parse a single CPU.
 		if !strings.Contains(subset, "-") {
 			cpu, err := strconv.Atoi(subset)
@@ -189,7 +187,7 @@ type perfCollector struct {
 	perfSwProfilers     map[int]*perf.SoftwareProfiler
 	perfCacheProfilers  map[int]*perf.CacheProfiler
 	desc                map[string]*prometheus.Desc
-	logger              log.Logger
+	logger              *slog.Logger
 	tracepointCollector *perfTracepointCollector
 }
 
@@ -199,7 +197,7 @@ type perfTracepointCollector struct {
 	// collection order is the sorted configured collection order of the profiler.
 	collectionOrder []string
 
-	logger    log.Logger
+	logger    *slog.Logger
 	profilers map[int]perf.GroupProfiler
 }
 
@@ -218,7 +216,7 @@ func (c *perfTracepointCollector) updateCPU(cpu int, ch chan<- prometheus.Metric
 	profiler := c.profilers[cpu]
 	p := &perf.GroupProfileValue{}
 	if err := profiler.Profile(p); err != nil {
-		level.Error(c.logger).Log("msg", "Failed to collect tracepoint profile", "err", err)
+		c.logger.Error("Failed to collect tracepoint profile", "err", err)
 		return err
 	}
 
@@ -240,7 +238,7 @@ func (c *perfTracepointCollector) updateCPU(cpu int, ch chan<- prometheus.Metric
 
 // newPerfTracepointCollector returns a configured perfTracepointCollector.
 func newPerfTracepointCollector(
-	logger log.Logger,
+	logger *slog.Logger,
 	tracepointsFlag []string,
 	cpus []int,
 ) (*perfTracepointCollector, error) {
@@ -301,7 +299,7 @@ func newPerfTracepointCollector(
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
 // per CPU.
-func NewPerfCollector(logger log.Logger) (Collector, error) {
+func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 	collector := &perfCollector{
 		perfHwProfilers:     map[int]*perf.HardwareProfiler{},
 		perfSwProfilers:     map[int]*perf.SoftwareProfiler{},
@@ -329,7 +327,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 	}
 
 	// First configure any tracepoints.
-	if *perfTracepointFlag != nil && len(*perfTracepointFlag) > 0 {
+	if len(*perfTracepointFlag) > 0 {
 		tracepointCollector, err := newPerfTracepointCollector(logger, *perfTracepointFlag, cpus)
 		if err != nil {
 			return nil, err
@@ -339,7 +337,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 
 	// Configure perf profilers
 	hardwareProfilers := perf.AllHardwareProfilers
-	if *perfHwProfilerFlag != nil && len(*perfHwProfilerFlag) > 0 {
+	if len(*perfHwProfilerFlag) > 0 {
 		// hardwareProfilers = 0
 		for _, hf := range *perfHwProfilerFlag {
 			if v, ok := perfHardwareProfilerMap[hf]; ok {
@@ -348,7 +346,7 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 		}
 	}
 	softwareProfilers := perf.AllSoftwareProfilers
-	if *perfSwProfilerFlag != nil && len(*perfSwProfilerFlag) > 0 {
+	if len(*perfSwProfilerFlag) > 0 {
 		// softwareProfilers = 0
 		for _, sf := range *perfSwProfilerFlag {
 			if v, ok := perfSoftwareProfilerMap[sf]; ok {
@@ -356,8 +354,8 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 			}
 		}
 	}
-	cacheProfilers := perf.L1DataReadHitProfiler | perf.L1DataReadMissProfiler | perf.L1DataWriteHitProfiler | perf.L1InstrReadMissProfiler | perf.InstrTLBReadHitProfiler | perf.InstrTLBReadMissProfiler | perf.LLReadHitProfiler | perf.LLReadMissProfiler | perf.LLWriteHitProfiler | perf.LLWriteMissProfiler | perf.BPUReadHitProfiler | perf.BPUReadMissProfiler
-	if *perfCaProfilerFlag != nil && len(*perfCaProfilerFlag) > 0 {
+	cacheProfilers := perf.L1DataReadHitProfiler | perf.L1DataReadMissProfiler | perf.L1DataWriteHitProfiler | perf.L1InstrReadMissProfiler | perf.InstrTLBReadHitProfiler | perf.InstrTLBReadMissProfiler | perf.DataTLBReadHitProfiler | perf.DataTLBReadMissProfiler | perf.DataTLBWriteHitProfiler | perf.DataTLBWriteMissProfiler | perf.LLReadHitProfiler | perf.LLReadMissProfiler | perf.LLWriteHitProfiler | perf.LLWriteMissProfiler | perf.BPUReadHitProfiler | perf.BPUReadMissProfiler
+	if len(*perfCaProfilerFlag) > 0 {
 		cacheProfilers = 0
 		for _, cf := range *perfCaProfilerFlag {
 			if v, ok := perfCacheProfilerMap[cf]; ok {
@@ -613,6 +611,46 @@ func NewPerfCollector(logger log.Logger) (Collector, error) {
 				"cache_tlb_instr_read_misses_total",
 			),
 			"Number instruction TLB read misses",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_read_hits_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_read_hits_total",
+			),
+			"Number of data TLB read hits",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_read_misses_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_read_misses_total",
+			),
+			"Number of data TLB read misses",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_write_hits_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_write_hits_total",
+			),
+			"Number of data TLB write hits",
+			[]string{"cpu"},
+			nil,
+		),
+		"cache_tlb_data_write_misses_total": prometheus.NewDesc(
+			prometheus.BuildFQName(
+				namespace,
+				perfSubsystem,
+				"cache_tlb_data_write_misses_total",
+			),
+			"Number of data TLB write misses",
 			[]string{"cpu"},
 			nil,
 		),
@@ -892,6 +930,38 @@ func (c *perfCollector) updateCacheStats(ch chan<- prometheus.Metric) error {
 			ch <- prometheus.MustNewConstMetric(
 				c.desc["cache_tlb_instr_read_misses_total"],
 				prometheus.CounterValue, float64(*cacheProfile.InstrTLBReadMiss),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBReadHit != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_read_hits_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBReadHit),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBReadMiss != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_read_misses_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBReadMiss),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBWriteHit != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_write_hits_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBWriteHit),
+				cpuid,
+			)
+		}
+
+		if cacheProfile.DataTLBWriteMiss != nil {
+			ch <- prometheus.MustNewConstMetric(
+				c.desc["cache_tlb_data_write_misses_total"],
+				prometheus.CounterValue, float64(*cacheProfile.DataTLBWriteMiss),
 				cpuid,
 			)
 		}

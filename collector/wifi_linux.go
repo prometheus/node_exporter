@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nowifi
-// +build !nowifi
 
 package collector
 
@@ -20,12 +19,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/mdlayher/wifi"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -34,18 +32,20 @@ type wifiCollector struct {
 	interfaceFrequencyHertz *prometheus.Desc
 	stationInfo             *prometheus.Desc
 
-	stationConnectedSecondsTotal *prometheus.Desc
-	stationInactiveSeconds       *prometheus.Desc
-	stationReceiveBitsPerSecond  *prometheus.Desc
-	stationTransmitBitsPerSecond *prometheus.Desc
-	stationReceiveBytesTotal     *prometheus.Desc
-	stationTransmitBytesTotal    *prometheus.Desc
-	stationSignalDBM             *prometheus.Desc
-	stationTransmitRetriesTotal  *prometheus.Desc
-	stationTransmitFailedTotal   *prometheus.Desc
-	stationBeaconLossTotal       *prometheus.Desc
+	stationConnectedSecondsTotal   *prometheus.Desc
+	stationInactiveSeconds         *prometheus.Desc
+	stationReceiveBitsPerSecond    *prometheus.Desc
+	stationTransmitBitsPerSecond   *prometheus.Desc
+	stationReceiveBytesTotal       *prometheus.Desc
+	stationTransmitBytesTotal      *prometheus.Desc
+	stationSignalDBM               *prometheus.Desc
+	stationTransmitRetriesTotal    *prometheus.Desc
+	stationTransmitFailedTotal     *prometheus.Desc
+	stationBeaconLossTotal         *prometheus.Desc
+	stationTransmittedPacketsTotal *prometheus.Desc
+	stationReceivedPacketsTotal    *prometheus.Desc
 
-	logger log.Logger
+	logger *slog.Logger
 }
 
 var (
@@ -67,7 +67,7 @@ type wifiStater interface {
 }
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector(logger log.Logger) (Collector, error) {
+func NewWifiCollector(logger *slog.Logger) (Collector, error) {
 	const (
 		subsystem = "wifi"
 	)
@@ -160,6 +160,20 @@ func NewWifiCollector(logger log.Logger) (Collector, error) {
 			labels,
 			nil,
 		),
+
+		stationTransmittedPacketsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_transmitted_packets_total"),
+			"The total number of packets transmitted by a station.",
+			labels,
+			nil,
+		),
+
+		stationReceivedPacketsTotal: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "station_received_packets_total"),
+			"The total number of packets received by a station.",
+			labels,
+			nil,
+		),
 		logger: logger,
 	}, nil
 }
@@ -169,11 +183,11 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		// Cannot access wifi metrics, report no error.
 		if errors.Is(err, os.ErrNotExist) {
-			level.Debug(c.logger).Log("msg", "wifi collector metrics are not available for this system")
+			c.logger.Debug("wifi collector metrics are not available for this system")
 			return ErrNoData
 		}
 		if errors.Is(err, os.ErrPermission) {
-			level.Debug(c.logger).Log("msg", "wifi collector got permission denied when accessing metrics")
+			c.logger.Debug("wifi collector got permission denied when accessing metrics")
 			return ErrNoData
 		}
 
@@ -192,7 +206,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		level.Debug(c.logger).Log("msg", "probing wifi device with type", "wifi", ifi.Name, "type", ifi.Type)
+		c.logger.Debug("probing wifi device with type", "wifi", ifi.Name, "type", ifi.Type)
 
 		ch <- prometheus.MustNewConstMetric(
 			c.interfaceFrequencyHertz,
@@ -210,7 +224,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 		case err == nil:
 			c.updateBSSStats(ch, ifi.Name, bss)
 		case errors.Is(err, os.ErrNotExist):
-			level.Debug(c.logger).Log("msg", "BSS information not found for wifi device", "name", ifi.Name)
+			c.logger.Debug("BSS information not found for wifi device", "name", ifi.Name)
 		default:
 			return fmt.Errorf("failed to retrieve BSS for device %s: %v",
 				ifi.Name, err)
@@ -223,7 +237,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 				c.updateStationStats(ch, ifi.Name, station)
 			}
 		case errors.Is(err, os.ErrNotExist):
-			level.Debug(c.logger).Log("msg", "station information not found for wifi device", "name", ifi.Name)
+			c.logger.Debug("station information not found for wifi device", "name", ifi.Name)
 		default:
 			return fmt.Errorf("failed to retrieve station info for device %q: %v",
 				ifi.Name, err)
@@ -326,6 +340,22 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 		device,
 		info.HardwareAddr.String(),
 	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationTransmittedPacketsTotal,
+		prometheus.CounterValue,
+		float64(info.TransmittedPackets),
+		device,
+		info.HardwareAddr.String(),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.stationReceivedPacketsTotal,
+		prometheus.CounterValue,
+		float64(info.ReceivedPackets),
+		device,
+		info.HardwareAddr.String(),
+	)
 }
 
 func mHzToHz(mHz int) float64 {
@@ -364,7 +394,7 @@ type mockWifiStater struct {
 	fixtures string
 }
 
-func (s *mockWifiStater) unmarshalJSONFile(filename string, v interface{}) error {
+func (s *mockWifiStater) unmarshalJSONFile(filename string, v any) error {
 	b, err := os.ReadFile(filepath.Join(s.fixtures, filename))
 	if err != nil {
 		return err

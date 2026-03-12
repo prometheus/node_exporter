@@ -12,30 +12,25 @@
 // limitations under the License.
 
 //go:build !nozfs
-// +build !nozfs
 
 package collector
 
 import (
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
+	"log/slog"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type zfsCollector struct {
 	sysctls []bsdSysctl
-	logger  log.Logger
+	logger  *slog.Logger
 }
 
 const (
 	zfsCollectorSubsystem = "zfs"
 )
 
-func init() {
-	registerCollector("zfs", defaultEnabled, NewZfsCollector)
-}
-
-func NewZfsCollector(logger log.Logger) (Collector, error) {
+func NewZFSCollector(logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
 		sysctls: []bsdSysctl{
 			{
@@ -273,7 +268,7 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 		v, err := m.Value()
 		if err != nil {
 			// debug logging
-			level.Debug(c.logger).Log("name", m.name, "mib", m.mib, "couldn't get sysctl:", err)
+			c.logger.Debug(m.name, "mib", m.mib, "couldn't get sysctl:", err)
 			continue
 		}
 
