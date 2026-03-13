@@ -25,15 +25,8 @@ import (
 )
 
 type statCollector struct {
-	fs           procfs.FS
-	intr         *prometheus.Desc
-	ctxt         *prometheus.Desc
-	forks        *prometheus.Desc
-	btime        *prometheus.Desc
-	procsRunning *prometheus.Desc
-	procsBlocked *prometheus.Desc
-	softIRQ      *prometheus.Desc
-	logger       *slog.Logger
+	fs     procfs.FS
+	logger *slog.Logger
 }
 
 var statSoftirqFlag = kingpin.Flag("collector.stat.softirq", "Export softirq calls per vector").Default("false").Bool()
@@ -42,6 +35,44 @@ func init() {
 	registerCollector("stat", defaultEnabled, NewStatCollector)
 }
 
+var (
+	statIntr = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "intr_total"),
+		"Total number of interrupts serviced.",
+		nil, nil,
+	)
+	statCtxt = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "context_switches_total"),
+		"Total number of context switches.",
+		nil, nil,
+	)
+	statForks = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "forks_total"),
+		"Total number of forks.",
+		nil, nil,
+	)
+	statBtime = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "boot_time_seconds"),
+		"Node boot time, in unixtime.",
+		nil, nil,
+	)
+	statProcsRunning = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "procs_running"),
+		"Number of processes in runnable state.",
+		nil, nil,
+	)
+	statProcsBlocked = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "procs_blocked"),
+		"Number of processes blocked waiting for I/O to complete.",
+		nil, nil,
+	)
+	statSoftIRQ = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "", "softirqs_total"),
+		"Number of softirq calls.",
+		[]string{"vector"}, nil,
+	)
+)
+
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
 func NewStatCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
@@ -49,42 +80,7 @@ func NewStatCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 	return &statCollector{
-		fs: fs,
-		intr: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "intr_total"),
-			"Total number of interrupts serviced.",
-			nil, nil,
-		),
-		ctxt: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "context_switches_total"),
-			"Total number of context switches.",
-			nil, nil,
-		),
-		forks: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "forks_total"),
-			"Total number of forks.",
-			nil, nil,
-		),
-		btime: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "boot_time_seconds"),
-			"Node boot time, in unixtime.",
-			nil, nil,
-		),
-		procsRunning: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "procs_running"),
-			"Number of processes in runnable state.",
-			nil, nil,
-		),
-		procsBlocked: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "procs_blocked"),
-			"Number of processes blocked waiting for I/O to complete.",
-			nil, nil,
-		),
-		softIRQ: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "", "softirqs_total"),
-			"Number of softirq calls.",
-			[]string{"vector"}, nil,
-		),
+		fs:     fs,
 		logger: logger,
 	}, nil
 }
@@ -96,14 +92,14 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.intr, prometheus.CounterValue, float64(stats.IRQTotal))
-	ch <- prometheus.MustNewConstMetric(c.ctxt, prometheus.CounterValue, float64(stats.ContextSwitches))
-	ch <- prometheus.MustNewConstMetric(c.forks, prometheus.CounterValue, float64(stats.ProcessCreated))
+	ch <- prometheus.MustNewConstMetric(statIntr, prometheus.CounterValue, float64(stats.IRQTotal))
+	ch <- prometheus.MustNewConstMetric(statCtxt, prometheus.CounterValue, float64(stats.ContextSwitches))
+	ch <- prometheus.MustNewConstMetric(statForks, prometheus.CounterValue, float64(stats.ProcessCreated))
 
-	ch <- prometheus.MustNewConstMetric(c.btime, prometheus.GaugeValue, float64(stats.BootTime))
+	ch <- prometheus.MustNewConstMetric(statBtime, prometheus.GaugeValue, float64(stats.BootTime))
 
-	ch <- prometheus.MustNewConstMetric(c.procsRunning, prometheus.GaugeValue, float64(stats.ProcessesRunning))
-	ch <- prometheus.MustNewConstMetric(c.procsBlocked, prometheus.GaugeValue, float64(stats.ProcessesBlocked))
+	ch <- prometheus.MustNewConstMetric(statProcsRunning, prometheus.GaugeValue, float64(stats.ProcessesRunning))
+	ch <- prometheus.MustNewConstMetric(statProcsBlocked, prometheus.GaugeValue, float64(stats.ProcessesBlocked))
 
 	if *statSoftirqFlag {
 		si := stats.SoftIRQ
@@ -123,7 +119,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 			{name: "hrtimer", value: si.Hrtimer},
 			{name: "rcu", value: si.Rcu},
 		} {
-			ch <- prometheus.MustNewConstMetric(c.softIRQ, prometheus.CounterValue, float64(vec.value), vec.name)
+			ch <- prometheus.MustNewConstMetric(statSoftIRQ, prometheus.CounterValue, float64(vec.value), vec.name)
 		}
 	}
 
