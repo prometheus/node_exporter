@@ -1145,6 +1145,14 @@ node_disk_io_time_weighted_seconds_total{device="sdb"} 67.07000000000001
 node_disk_io_time_weighted_seconds_total{device="sdc"} 17.07
 node_disk_io_time_weighted_seconds_total{device="sr0"} 0
 node_disk_io_time_weighted_seconds_total{device="vda"} 2.0778722280000001e+06
+# HELP node_disk_iodone_total Number of completed or rejected IO commands.
+# TYPE node_disk_iodone_total counter
+node_disk_iodone_total{device="sda"} 775
+node_disk_iodone_total{device="sr0"} 1.29433517e+08
+# HELP node_disk_ioerr_total Number of IO commands that completed with an error.
+# TYPE node_disk_ioerr_total counter
+node_disk_ioerr_total{device="sda"} 11
+node_disk_ioerr_total{device="sr0"} 41
 # HELP node_disk_read_bytes_total The total number of bytes read successfully.
 # TYPE node_disk_read_bytes_total counter
 node_disk_read_bytes_total{device="dm-0"} 5.13708655616e+11
@@ -1353,6 +1361,15 @@ node_entropy_available_bits 1337
 node_entropy_pool_size_bits 4096
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
+# HELP node_ext4_errors_total Number of ext4 filesystem errors.
+# TYPE node_ext4_errors_total counter
+node_ext4_errors_total{partition="sdb1"} 12
+# HELP node_ext4_messages_total Number of ext4 filesystem log messages.
+# TYPE node_ext4_messages_total counter
+node_ext4_messages_total{partition="sdb1"} 567
+# HELP node_ext4_warnings_total Number of ext4 filesystem warnings.
+# TYPE node_ext4_warnings_total counter
+node_ext4_warnings_total{partition="sdb1"} 34
 # HELP node_fibrechannel_dumped_frames_total Number of dumped frames
 # TYPE node_fibrechannel_dumped_frames_total counter
 node_fibrechannel_dumped_frames_total{fc_host="host1"} 0
@@ -3654,6 +3671,7 @@ node_scrape_collector_success{collector="dmi"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1
 node_scrape_collector_success{collector="entropy"} 1
+node_scrape_collector_success{collector="ext4"} 1
 node_scrape_collector_success{collector="fibrechannel"} 1
 node_scrape_collector_success{collector="filefd"} 1
 node_scrape_collector_success{collector="hwmon"} 1
