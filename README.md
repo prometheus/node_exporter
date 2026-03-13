@@ -191,6 +191,7 @@ buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinf
 cgroups | A summary of the number of active and enabled cgroups | Linux
 cpu\_vulnerabilities | Exposes CPU vulnerability information from sysfs. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
+dmmultipath | Exposes DM-multipath device and path metrics from `/sys/block/dm-*`. | Linux
 drm | Expose GPU metrics using sysfs / DRM, `amdgpu` is the only driver which exposes this information through DRM | Linux
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
@@ -338,6 +339,30 @@ To statically set roles for a machine using labels:
 echo 'role{role="application_server"} 1' > /path/to/directory/role.prom.$$
 mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 ```
+
+### DM-Multipath Collector
+
+The `dmmultipath` collector reads `/sys/block/dm-*` to discover Device Mapper
+multipath devices and expose path health metrics. It identifies multipath
+devices by checking that `dm/uuid` starts with `mpath-`, which distinguishes
+them from LVM or other DM device types.
+
+No special permissions are required — the collector reads only world-readable
+sysfs attributes.
+
+Enable it with `--collector.dmmultipath`.
+
+#### Exposed metrics
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `node_dmmultipath_device_info` | Gauge | Info metric with device name, sysfs name, and UUID (contains WWID for PV correlation). |
+| `node_dmmultipath_device_active` | Gauge | Whether the DM device is active (1) or suspended (0). |
+| `node_dmmultipath_device_size_bytes` | Gauge | Size of the DM device in bytes. |
+| `node_dmmultipath_device_paths_total` | Gauge | Total number of paths. |
+| `node_dmmultipath_device_paths_active` | Gauge | Number of paths in running state. |
+| `node_dmmultipath_device_paths_failed` | Gauge | Number of paths in non-running state. |
+| `node_dmmultipath_path_state` | Gauge | Per-path SCSI device state (1 for the current state, 0 for others). |
 
 ### Filtering enabled collectors
 
