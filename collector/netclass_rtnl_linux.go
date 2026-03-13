@@ -148,8 +148,11 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 			pushMetric(ch, c.getFieldDesc("iface_link"), "iface_link", msg.Index, prometheus.GaugeValue, msg.Attributes.Name)
 		}
 
+		if ifaceInfo.NameAssignType != nil {
+			pushMetric(ch, c.getFieldDesc("name_assign_type"), "name_assign_type", ifaceInfo.NameAssignType, prometheus.GaugeValue, msg.Attributes.Name)
+		}
+
 		pushMetric(ch, c.getFieldDesc("mtu_bytes"), "mtu_bytes", msg.Attributes.MTU, prometheus.GaugeValue, msg.Attributes.Name)
-		pushMetric(ch, c.getFieldDesc("name_assign_type"), "name_assign_type", ifaceInfo.NameAssignType, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("net_dev_group"), "net_dev_group", msg.Attributes.NetDevGroup, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("transmit_queue_length"), "transmit_queue_length", msg.Attributes.TxQueueLen, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("protocol_type"), "protocol_type", msg.Type, prometheus.GaugeValue, msg.Attributes.Name)
