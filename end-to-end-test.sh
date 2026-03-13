@@ -37,6 +37,7 @@ supported_collectors() {
 enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
+  bcachefs
   bonding
   btrfs
   buddyinfo
