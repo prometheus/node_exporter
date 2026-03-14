@@ -47,6 +47,9 @@ var (
 		"collector.filesystem.mount-points-include",
 		"Regexp of mount points to include for filesystem collector. (mutually exclusive to mount-points-exclude)",
 	).String()
+	mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
+		"how long to wait for a mount to respond before marking it as stale").
+		Hidden().Default("5s").Duration()
 
 	fsTypesExcludeSet bool
 	fsTypesExclude    = kingpin.Flag(

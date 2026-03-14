@@ -38,14 +38,11 @@ const (
 	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$"
 )
 
-var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
-	"how long to wait for a mount to respond before marking it as stale").
-	Hidden().Default("5s").Duration()
 var statWorkerCount = kingpin.Flag("collector.filesystem.stat-workers",
 	"how many stat calls to process simultaneously").
 	Hidden().Default("4").Int()
-var stuckMounts = make(map[string]struct{})
-var stuckMountsMtx = &sync.Mutex{}
+var stuckMountsMap = make(map[string]struct{})
+var stuckMountsMutex = &sync.Mutex{}
 
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
@@ -53,14 +50,14 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	if err != nil {
 		return nil, err
 	}
-	stats := []filesystemStats{}
+	var stats []filesystemStats
 	labelChan := make(chan filesystemLabels)
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
 	workerCount := max(*statWorkerCount, 1)
 
-	for i := 0; i < workerCount; i++ {
+	for range workerCount {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -80,20 +77,6 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				c.logger.Debug("Ignoring fs type", "type", labels.fsType)
 				continue
 			}
-
-			stuckMountsMtx.Lock()
-			if _, ok := stuckMounts[labels.mountPoint]; ok {
-				labels.deviceError = "mountpoint timeout"
-				stats = append(stats, filesystemStats{
-					labels:      labels,
-					deviceError: 1,
-				})
-				c.logger.Debug("Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
-				stuckMountsMtx.Unlock()
-				continue
-			}
-
-			stuckMountsMtx.Unlock()
 			labelChan <- labels
 		}
 		close(labelChan)
@@ -101,8 +84,8 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 		close(statChan)
 	}()
 
-	for stat := range statChan {
-		stats = append(stats, stat)
+	for fsStat := range statChan {
+		stats = append(stats, fsStat)
 	}
 	return stats, nil
 }
@@ -113,20 +96,31 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 		ro = 1
 	}
 
-	success := make(chan struct{})
-	go stuckMountWatcher(labels.mountPoint, success, c.logger)
-
+	// If the mount point is stuck, mark it as such and return early.
+	// This is done to avoid blocking the stat call indefinitely.
+	// NOTE: For instance, this can happen when an NFS mount is unreachable.
 	buf := new(unix.Statfs_t)
-	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
-	stuckMountsMtx.Lock()
-	close(success)
+	statFsErrChan := make(chan error, 1)
+	go func(buf *unix.Statfs_t) {
+		statFsErrChan <- unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
+		close(statFsErrChan)
+	}(buf)
 
-	// If the mount has been marked as stuck, unmark it and log it's recovery.
-	if _, ok := stuckMounts[labels.mountPoint]; ok {
-		c.logger.Debug("Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
-		delete(stuckMounts, labels.mountPoint)
+	select {
+	case err := <-statFsErrChan:
+		if err != nil {
+			c.logger.Debug("Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+			labels.deviceError = err.Error()
+		}
+	case <-time.After(*mountTimeout):
+		stuckMountsMutex.Lock()
+		if _, ok := stuckMountsMap[labels.mountPoint]; ok {
+			c.logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", labels.mountPoint)
+			stuckMountsMap[labels.mountPoint] = struct{}{}
+			labels.deviceError = "mountpoint timeout"
+		}
+		stuckMountsMutex.Unlock()
 	}
-	stuckMountsMtx.Unlock()
 
 	// Remove options from labels because options will not be used from this point forward
 	// and keeping them can lead to errors when the same device is mounted to the same mountpoint
@@ -134,9 +128,18 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	labels.mountOptions = ""
 	labels.superOptions = ""
 
-	if err != nil {
-		labels.deviceError = err.Error()
-		c.logger.Debug("Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+	// Check if the mount point has recovered and remove it from the stuck map.
+	if _, isOpen := <-statFsErrChan; !isOpen {
+		stuckMountsMutex.Lock()
+		if _, ok := stuckMountsMap[labels.mountPoint]; ok {
+			c.logger.Debug("Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
+			delete(stuckMountsMap, labels.mountPoint)
+		}
+		stuckMountsMutex.Unlock()
+	}
+
+	// If the mount point is stuck or statfs errored, mark it as such and return.
+	if labels.deviceError != "" {
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
@@ -152,29 +155,6 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 		files:     float64(buf.Files),
 		filesFree: float64(buf.Ffree),
 		ro:        ro,
-	}
-}
-
-// stuckMountWatcher listens on the given success channel and if the channel closes
-// then the watcher does nothing. If instead the timeout is reached, the
-// mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger *slog.Logger) {
-	mountCheckTimer := time.NewTimer(*mountTimeout)
-	defer mountCheckTimer.Stop()
-	select {
-	case <-success:
-		// Success
-	case <-mountCheckTimer.C:
-		// Timed out, mark mount as stuck
-		stuckMountsMtx.Lock()
-		select {
-		case <-success:
-			// Success came in just after the timeout was reached, don't label the mount as stuck
-		default:
-			logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
-			stuckMounts[mountPoint] = struct{}{}
-		}
-		stuckMountsMtx.Unlock()
 	}
 }
 
