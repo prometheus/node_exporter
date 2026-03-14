@@ -16,8 +16,11 @@
 package collector
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"log/slog"
+	"os"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -166,6 +169,60 @@ func TestMountsFallback(t *testing.T) {
 			t.Errorf("Got unexpected %s", fs.mountPoint)
 		}
 	}
+}
+
+func TestGetMountInfoWithRetry(t *testing.T) {
+	t.Run("retries parse errors", func(t *testing.T) {
+		attempts := 0
+		expected := []*procfs.MountInfo{{MountPoint: "/"}}
+
+		got, err := getMountInfoWithRetry(slog.New(slog.NewTextHandler(io.Discard, nil)), func() ([]*procfs.MountInfo, error) {
+			attempts++
+			if attempts < mountInfoParseRetries {
+				return nil, fmt.Errorf("%w: Too few fields in mount string: truncated", procfs.ErrFileParse)
+			}
+			return expected, nil
+		})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if attempts != mountInfoParseRetries {
+			t.Fatalf("expected %d attempts, got %d", mountInfoParseRetries, attempts)
+		}
+		if len(got) != len(expected) || got[0].MountPoint != expected[0].MountPoint {
+			t.Fatalf("unexpected mountinfo: %+v", got)
+		}
+	})
+
+	t.Run("does not retry non parse errors", func(t *testing.T) {
+		attempts := 0
+
+		_, err := getMountInfoWithRetry(slog.New(slog.NewTextHandler(io.Discard, nil)), func() ([]*procfs.MountInfo, error) {
+			attempts++
+			return nil, os.ErrNotExist
+		})
+		if !errors.Is(err, os.ErrNotExist) {
+			t.Fatalf("expected os.ErrNotExist, got %v", err)
+		}
+		if attempts != 1 {
+			t.Fatalf("expected 1 attempt, got %d", attempts)
+		}
+	})
+
+	t.Run("returns parse error after max retries", func(t *testing.T) {
+		attempts := 0
+
+		_, err := getMountInfoWithRetry(slog.New(slog.NewTextHandler(io.Discard, nil)), func() ([]*procfs.MountInfo, error) {
+			attempts++
+			return nil, fmt.Errorf("%w: Too few fields in mount string: truncated", procfs.ErrFileParse)
+		})
+		if !errors.Is(err, procfs.ErrFileParse) {
+			t.Fatalf("expected procfs.ErrFileParse, got %v", err)
+		}
+		if attempts != mountInfoParseRetries {
+			t.Fatalf("expected %d attempts, got %d", mountInfoParseRetries, attempts)
+		}
+	})
 }
 
 func TestPathRootfs(t *testing.T) {
