@@ -25,9 +25,9 @@ require (
 	github.com/prometheus/client_model v0.6.2
 	github.com/prometheus/common v0.68.1
 	github.com/prometheus/exporter-toolkit v0.16.0
-	github.com/prometheus/procfs v0.20.1
+	github.com/prometheus/procfs v0.20.2-0.20260623192058-68b70b4733ed
 	github.com/safchain/ethtool v0.7.0
-	golang.org/x/sys v0.45.0
+	golang.org/x/sys v0.46.0
 	howett.net/plist v1.0.1
 )
 
@@ -56,7 +56,7 @@ require (
 	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
