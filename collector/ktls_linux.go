@@ -24,6 +24,10 @@ import (
 	"github.com/prometheus/procfs"
 )
 
+const (
+	ktlsSubsystem = "ktls"
+)
+
 type ktlsCollector struct {
 	fs     procfs.FS
 	logger log.Logger
@@ -53,62 +57,62 @@ func (c *ktlsCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	ktlsCurrTxSwDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_curr_tx_sw"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "transmit_sessions_software_current"),
 		"number of TX sessions currently installed where host handles cryptography",
 		nil, nil,
 	)
 	ktlsCurrRxSwDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_curr_rx_sw"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "receive_sessions_software_current"),
 		"number of RX sessions currently installed where host handles cryptography",
 		nil, nil,
 	)
 	ktlsCurrTxDeviceDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_curr_tx_device"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "transmit_sessions_device_current"),
 		"number of TX sessions currently installed where NIC handles cryptography",
 		nil, nil,
 	)
 	ktlsCurrRxDeviceDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_curr_rx_device"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "receive_sessions_device_current"),
 		"number of RX sessions currently installed where NIC handles cryptography",
 		nil, nil,
 	)
 	ktlsTxDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_tx_sw_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "transmit_sessions_software_total"),
 		"number of TX sessions opened with host cryptography",
 		nil, nil,
 	)
 	ktlsRxDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_rx_sw_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "receive_sessions_software_total"),
 		"number of RX sessions opened with host cryptography",
 		nil, nil,
 	)
 	ktlsTxDeviceDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_tx_device_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "transmit_sessions_device_total"),
 		"number of TX sessions opened with NIC cryptograph",
 		nil, nil,
 	)
 	ktlsRxDeviceDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_rx_device_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "receive_sessions_device_total"),
 		"number of RX sessions opened with NIC cryptograph",
 		nil, nil,
 	)
 	ktlsDecryptErrorDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_decrypt_error_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "decrypt_error_total"),
 		"record decryption failed (e.g. due to incorrect authentication tag)",
 		nil, nil,
 	)
 	ktlsRxDeviceResyncDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_rx_device_resync_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "rx_device_resync_total"),
 		"number of RX resyncs sent to NICs handling cryptography",
 		nil, nil,
 	)
 	ktlsDecryptRetryDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_decrypt_retry_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "decrypt_retry_total"),
 		"number of RX records which had to be re-decrypted due to TLS_RX_EXPECT_NO_PAD mis-prediction",
 		nil, nil,
 	)
 	ktlsRxNoPadViolationDesc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "ktls", "tls_no_pad_violation_total"),
+		prometheus.BuildFQName(namespace, ktlsSubsystem, "no_pad_violation_total"),
 		"number of data RX records which had to be re-decrypted due to TLS_RX_EXPECT_NO_PAD mis-prediction",
 		nil, nil,
 	)

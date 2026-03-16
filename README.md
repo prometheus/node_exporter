@@ -197,6 +197,7 @@ ethtool | Exposes network interface information and network driver statistics eq
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 kernel_hung | Exposes number of tasks that have been detected as hung from `/proc/sys/kernel/hung_task_detect_count`. | Linux
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
+ktls | Exposes Linux kTLS statistics. | Linux
 lnstat | Exposes stats from `/proc/net/stat/`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
