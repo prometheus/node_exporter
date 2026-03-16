@@ -18,8 +18,8 @@ package collector
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/go-kit/log"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -30,7 +30,7 @@ const (
 
 type ktlsCollector struct {
 	fs     procfs.FS
-	logger log.Logger
+	logger *slog.Logger
 }
 
 func init() {
@@ -38,7 +38,7 @@ func init() {
 }
 
 // NewKTLSCollector returns a new Collector exposing kTLS stats.
-func NewKTLSCollector(logger log.Logger) (Collector, error) {
+func NewKTLSCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
