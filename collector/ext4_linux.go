@@ -92,6 +92,8 @@ func NewExt4Collector(logger *slog.Logger) (Collector, error) {
 func (c *ext4Collector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.ProcStat()
 	if err != nil {
+		// ProcStat() returns an empty slice and nil error if no /sys/fs/ext4, not os.ErrNotExist.
+		// Therefore return any non-nil error
 		return fmt.Errorf("failed to retrieve ext4 stats: %w", err)
 	}
 
