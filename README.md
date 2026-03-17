@@ -100,7 +100,7 @@ cpu | flags | --collector.cpu.info.flags-include | N/A
 diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
 ethtool | device | --collector.ethtool.device-include | --collector.ethtool.device-exclude
 ethtool | metrics | --collector.ethtool.metrics-include | N/A
-ext4 | partitions | --collector.ext4.partition-include | --collector.ext4.partition-exclude
+ext4 | partition | --collector.ext4.partition-include | --collector.ext4.partition-exclude
 filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.filesystem.fs-types-exclude
 filesystem | mount-points | --collector.filesystem.mount-points-include | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
