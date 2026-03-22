@@ -139,6 +139,11 @@ checkrules: $(PROMTOOL)
 	@echo ">> checking rules for correctness"
 	find . -name "*rules*.yml" | xargs -I {} $(PROMTOOL) check rules {}
 
+.PHONY: generate-metrics-doc
+generate-metrics-doc:
+	@echo ">> generating metrics documentation"
+	$(GO) run tools/doc_generator/main.go > docs/METRICS.md
+
 .PHONY: test-docker
 test-docker:
 	@echo ">> testing docker image"

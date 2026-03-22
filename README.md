@@ -75,6 +75,7 @@ On some systems, the `timex` collector requires an additional Docker flag,
 
 There is varying support for collectors on each operating system. The tables
 below list all existing collectors and the supported systems.
+For a complete list of all metrics exposed by these collectors, see [METRICS.md](docs/METRICS.md).
 
 Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
