@@ -210,7 +210,7 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 		for _, dimm := range dimms {
 
 			dimmMatch := edacMemDimmRE.FindStringSubmatch(dimm)
-			if dimmMatch == nil || len(dimmMatch) < 2 {
+			if len(dimmMatch) < 2 {
 				continue
 			}
 
