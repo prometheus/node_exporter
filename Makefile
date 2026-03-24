@@ -116,8 +116,8 @@ update_fixtures:
 
 .PHONY: tools
 tools:
-	@rm ./tools/tools >/dev/null 2>&1 || true
-	@$(GO) build -o tools ./tools/...
+	@rm -f ./tools/tools
+	@$(GO) build -o tools/tools ./tools/main.go
 
 .PHONY: test-e2e
 test-e2e: build collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked tools
