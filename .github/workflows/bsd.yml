@@ -13,11 +13,7 @@ permissions:
 
 env:
   GNU_TAR_VERSION: "1.35"
-  GO_VERSION_DRAGONFLY: "1.26.0"
-  GO_VERSION_FREEBSD: "126"
-  GO_VERSION_NETBSD: "1.26.0"
-  GO_VERSION_OPENBSD: "1.26.0"
-  GO_VERSION_SOLARIS: "1.26.0"
+  GO_VERSION: "1.26.0"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -28,11 +24,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/freebsd-vm@ba6bedee4a4884da2b782a41a64329a1c8e42ffb  # v1.3.8
+        uses: vmactions/freebsd-vm@c9f815bc7aa0d34c9fdd0619b034a32d6ca7b57e  # v1.4.2
         with:
           release: "15.0"
           copyback: false
-          envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
+          envs: 'GO_VERSION GNU_TAR_VERSION'
           usesh: true
           prepare: |
             pkg update -f
@@ -41,7 +37,6 @@ jobs:
               git \
               gmake \
               gnugrep \
-              go${GO_VERSION_FREEBSD} \
               gsed \
               gtar \
               python \
@@ -50,7 +45,12 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            ln -s $(which go${GO_VERSION_FREEBSD}) $(pwd)/bin/go
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.freebsd-${GOARCH}.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
             ln -s $(which ggrep) $(pwd)/bin/grep
             ln -s $(which gmake) $(pwd)/bin/make
             ln -s $(which gsed) $(pwd)/bin/sed
@@ -79,7 +79,7 @@ jobs:
         uses: vmactions/openbsd-vm@7fd5a3e251db9d8bdff2f34aae11a43b6be5ad60  # v1.2.4
         with:
           copyback: false
-          envs: 'GO_VERSION_OPENBSD GNU_TAR_VERSION'
+          envs: 'GO_VERSION GNU_TAR_VERSION'
           usesh: true
           prepare: |
             pkg_add -u
@@ -96,7 +96,9 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            GOGZ="go${GO_VERSION_OPENBSD}.openbsd-amd64.tar.gz"
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.openbsd-${GOARCH}.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
@@ -125,10 +127,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/netbsd-vm@88a20b128e1d7fa463bb361afe4167733c55b86a  # v1.3.5
+        uses: vmactions/netbsd-vm@e04aec09540429f9cebb0e7941f7cd0c0fc3b44f  # v1.3.6
         with:
           copyback: false
-          envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
+          envs: 'GO_VERSION GNU_TAR_VERSION'
           usesh: true
           prepare: |
             /usr/sbin/pkg_add -u \
@@ -143,7 +145,9 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            GOGZ="go${GO_VERSION_NETBSD}.netbsd-amd64.tar.gz"
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.netbsd-${GOARCH}.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
@@ -172,10 +176,10 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@00c5014f559e3d4dc2aca8c69d3d7e550db8bc36  # v1.2.2
+        uses: vmactions/dragonflybsd-vm@04601322b25fa8eb14f0394e46e1103084ea0199  # v1.2.6
         with:
           copyback: false
-          envs: 'GO_VERSION_DRAGONFLY'
+          envs: 'GO_VERSION'
           usesh: true
           prepare: |
             pkg update && pkg upgrade -y
@@ -192,7 +196,9 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            GOGZ="go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz"
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.dragonfly-${GOARCH}.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
@@ -225,7 +231,7 @@ jobs:
         uses: vmactions/solaris-vm@69d382b4a775b25ea5955e6c1730e9d05047ca0d  # v1.3.1
         with:
           copyback: false
-          envs: 'GO_VERSION_SOLARIS'
+          envs: 'GO_VERSION'
           usesh: true
           prepare: |
             pkg install \
@@ -241,7 +247,9 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            GOGZ="go${GO_VERSION_SOLARIS}.solaris-amd64.tar.gz"
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "i86pc" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.solaris-${GOARCH}.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
@@ -289,13 +297,18 @@ jobs:
             make \
             gnu-sed \
             gnu-tar \
-            go \
             python3
       - name: test-e2e
         run: |
           echo "::group::Setup prerequisites"
           set -eu
           mkdir bin
+          GOARCH=$(uname -m)
+          if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+          GOGZ="go${GO_VERSION}.darwin-${GOARCH}.tar.gz"
+          wget https://go.dev/dl/${GOGZ}
+          gtar xzf ${GOGZ}
+          ln -s $(pwd)/go/bin/go $(pwd)/bin/go
           ln -s $(which ggrep) $(pwd)/bin/grep
           ln -s $(which gmake) $(pwd)/bin/make
           ln -s $(which gsed) $(pwd)/bin/sed
