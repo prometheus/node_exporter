@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonfsd
-// +build !nonfsd
 
 package collector
 

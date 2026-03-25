@@ -37,6 +37,7 @@ supported_collectors() {
 enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
+  bcachefs
   bonding
   btrfs
   buddyinfo
@@ -127,10 +128,13 @@ case "${arch}" in
     ;;
 esac
 
-keep=0; update=0; verbose=0
-while getopts 'hkuv' opt
+extra_flags=""; keep=0; update=0; verbose=0
+while getopts 'e:hkuv' opt
 do
   case "$opt" in
+    e)
+      extra_flags="${OPTARG}"
+      ;;
     k)
       keep=1
       ;;
@@ -158,6 +162,7 @@ then
 fi
 
 collector_flags=$(cat << FLAGS
+  ${extra_flags}
   ${cpu_info_collector}
   --collector.arp.device-exclude=nope
   --collector.bcache.priorityStats
@@ -365,6 +370,33 @@ non_deterministic_metrics=$(cat << METRICS
   node_network_receive_bytes_total
   node_network_receive_multicast_total
   node_network_transmit_multicast_total
+  node_zfs_abdstats_linear_count_total
+  node_zfs_abdstats_linear_data_bytes
+  node_zfs_abdstats_scatter_chunk_waste_bytes
+  node_zfs_abdstats_scatter_count_total
+  node_zfs_abdstats_scatter_data_bytes
+  node_zfs_abdstats_struct_bytes
+  node_zfs_arcstats_anon_bytes
+  node_zfs_arcstats_c_bytes
+  node_zfs_arcstats_c_max_bytes
+  node_zfs_arcstats_data_bytes
+  node_zfs_arcstats_demand_data_hits_total
+  node_zfs_arcstats_demand_data_misses_total
+  node_zfs_arcstats_demand_metadata_hits_total
+  node_zfs_arcstats_demand_metadata_misses_total
+  node_zfs_arcstats_hdr_bytes
+  node_zfs_arcstats_hits_total
+  node_zfs_arcstats_meta_bytes
+  node_zfs_arcstats_mfu_bytes
+  node_zfs_arcstats_mfu_ghost_hits_total
+  node_zfs_arcstats_misses_total
+  node_zfs_arcstats_mru_bytes
+  node_zfs_arcstats_mru_ghost_bytes
+  node_zfs_arcstats_other_bytes
+  node_zfs_arcstats_pd_bytes
+  node_zfs_arcstats_size_bytes
+  node_zfs_zfetchstats_hits_total
+  node_zfs_zfetchstats_misses_total
 METRICS
 )
 

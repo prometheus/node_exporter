@@ -22,6 +22,7 @@ include Makefile.common
 PROMTOOL_VERSION ?= 2.30.0
 PROMTOOL_URL     ?= https://github.com/prometheus/prometheus/releases/download/v$(PROMTOOL_VERSION)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM).tar.gz
 PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
+E2E_EXTRA_FLAGS  ?=
 
 DOCKER_IMAGE_NAME       ?= node-exporter
 MACH                    ?= $(shell uname -m)
@@ -121,7 +122,7 @@ tools:
 .PHONY: test-e2e
 test-e2e: build collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked tools
 	@echo ">> running end-to-end tests"
-	./end-to-end-test.sh
+	./end-to-end-test.sh -e "$(E2E_EXTRA_FLAGS)"
 
 .PHONY: skip-test-e2e
 skip-test-e2e:

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nopartition
-// +build !nopartition
 
 package collector
 

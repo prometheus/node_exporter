@@ -35,6 +35,7 @@ import (
 	"github.com/prometheus/common/version"
 	"github.com/prometheus/exporter-toolkit/web"
 	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
+
 	"github.com/prometheus/node_exporter/collector"
 )
 

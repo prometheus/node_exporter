@@ -199,7 +199,7 @@ func IsNoDataError(err error) bool {
 }
 
 // pushMetric helps construct and convert a variety of value types into Prometheus float64 metrics.
-func pushMetric(ch chan<- prometheus.Metric, fieldDesc *prometheus.Desc, name string, value interface{}, valueType prometheus.ValueType, labelValues ...string) {
+func pushMetric(ch chan<- prometheus.Metric, fieldDesc *prometheus.Desc, name string, value any, valueType prometheus.ValueType, labelValues ...string) {
 	var fVal float64
 	switch val := value.(type) {
 	case uint8:

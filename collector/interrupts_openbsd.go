@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nointerrupts && !amd64
-// +build !nointerrupts,!amd64
 
 package collector
 

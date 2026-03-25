@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noxfs
-// +build !noxfs
 
 package collector
 

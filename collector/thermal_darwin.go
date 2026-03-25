@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !notherm
-// +build !notherm
 
 package collector
 
@@ -59,6 +58,7 @@ type thermCollector struct {
 	cpuSchedulerLimit typedDesc
 	cpuAvailableCPU   typedDesc
 	cpuSpeedLimit     typedDesc
+	temperature       typedDesc
 	logger            *slog.Logger
 }
 
@@ -97,6 +97,15 @@ func NewThermCollector(logger *slog.Logger) (Collector, error) {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		temperature: typedDesc{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, thermal, "temperature_celsius"),
+				"Temperature of the thermal sensor in Celsius.",
+				[]string{"sensor"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
 		logger: logger,
 	}, nil
 }
@@ -115,7 +124,8 @@ func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
 	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorSpeedKey))]; ok {
 		ch <- c.cpuSpeedLimit.mustNewConstMetric(float64(value) / 100.0)
 	}
-	return nil
+
+	return c.updateTemperatures(ch)
 }
 
 func fetchCPUPowerStatus() (map[string]int, error) {

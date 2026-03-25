@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build (darwin || linux || openbsd || netbsd || aix) && !nomeminfo
-// +build darwin linux openbsd netbsd aix
-// +build !nomeminfo
 
 package collector
 

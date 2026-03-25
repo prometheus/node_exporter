@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nopowersupplyclass && (linux || darwin)
-// +build !nopowersupplyclass
-// +build linux darwin
 
 package collector
 

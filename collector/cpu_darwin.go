@@ -15,7 +15,6 @@
 // BSD. See https://github.com/shirou/gopsutil/blob/master/LICENSE for details.
 
 //go:build !nocpu
-// +build !nocpu
 
 package collector
 

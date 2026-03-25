@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nozfs
-// +build !nozfs
 
 package collector
 
@@ -124,7 +123,7 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 	}
 	defer file.Close()
 
-	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v interface{}) {
+	return c.parseProcfsFile(file, c.linuxPathMap[subsystem], func(s zfsSysctl, v any) {
 		var valueAsFloat64 float64
 		switch value := v.(type) {
 		case int64:
@@ -212,7 +211,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, interface{})) error {
+func (c *zfsCollector) parseProcfsFile(reader io.Reader, fmtExt string, handler func(zfsSysctl, any)) error {
 	scanner := bufio.NewScanner(reader)
 
 	parseLine := false

@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nonetdev && (freebsd || dragonfly)
-// +build !nonetdev
-// +build freebsd dragonfly
 
 package collector
 

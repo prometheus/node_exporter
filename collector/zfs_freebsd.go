@@ -12,13 +12,13 @@
 // limitations under the License.
 
 //go:build !nozfs
-// +build !nozfs
 
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type zfsCollector struct {

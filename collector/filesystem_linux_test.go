@@ -12,36 +12,79 @@
 // limitations under the License.
 
 //go:build !nofilesystem
-// +build !nofilesystem
 
 package collector
 
 import (
 	"io"
 	"log/slog"
-	"strings"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
+
+	"github.com/prometheus/procfs"
 )
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
 	tests := []struct {
 		name string
-		in   string
+		in   []*procfs.MountInfo
 	}{
 		{
-			name: "too few fields",
-			in:   "hello world",
+			name: "malformed Major:Minor",
+			in: []*procfs.MountInfo{
+				{
+					MajorMinorVer: "nope",
+				},
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := parseFilesystemLabels(strings.NewReader(tt.in)); err == nil {
+			if _, err := parseFilesystemLabels(tt.in); err == nil {
 				t.Fatal("expected an error, but none occurred")
 			}
 		})
+	}
+}
+
+func Test_isFilesystemReadOnly(t *testing.T) {
+	tests := map[string]struct {
+		labels   filesystemLabels
+		expected bool
+	}{
+		"/media/volume1": {
+			labels: filesystemLabels{
+				mountOptions: "rw,nosuid,nodev,noexec,relatime",
+				superOptions: "rw,devices",
+			},
+			expected: false,
+		},
+		"/media/volume2": {
+			labels: filesystemLabels{
+				mountOptions: "ro,relatime",
+				superOptions: "rw,fd=22,pgrp=1,timeout=300,minproto=5,maxproto=5,direct",
+			}, expected: true,
+		},
+		"/media/volume3": {
+			labels: filesystemLabels{
+				mountOptions: "rw,user_id=1000,group_id=1000",
+				superOptions: "ro",
+			}, expected: true,
+		},
+		"/media/volume4": {
+			labels: filesystemLabels{
+				mountOptions: "ro,nosuid,noexec",
+				superOptions: "ro,nodev",
+			}, expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		if got := isFilesystemReadOnly(tt.labels); got != tt.expected {
+			t.Errorf("Expected %t, got %t", tt.expected, got)
+		}
 	}
 }
 
@@ -81,6 +124,7 @@ func TestMountPointDetails(t *testing.T) {
 		"/run/user/1000/gvfs":             "",
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore] bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
+		"/var/lib/containers/storage/overlay": "",
 	}
 
 	filesystems, err := mountPointDetails(slog.New(slog.NewTextHandler(io.Discard, nil)))

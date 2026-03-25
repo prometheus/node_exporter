@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noshedstat
-// +build !noshedstat
 
 package collector
 

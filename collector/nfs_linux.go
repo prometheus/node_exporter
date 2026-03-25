@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonfs
-// +build !nonfs
 
 package collector
 

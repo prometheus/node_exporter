@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nomeminfo && !amd64
-// +build !nomeminfo,!amd64
 
 package collector
 

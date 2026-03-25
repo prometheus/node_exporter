@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nobuddyinfo && !netbsd
-// +build !nobuddyinfo,!netbsd
 
 package collector
 

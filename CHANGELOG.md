@@ -5,6 +5,44 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.10.2 / 2025-10-25
+
+* [BUGFIX] meminfo: Fix typo in Zswap metric name #3455
+
+## 1.10.1 / 2025-10-25
+
+* [BUGFIX] filesystem: Fix mount points being collected multiple times #3376
+* [BUGFIX] filesystem: Refactor mountinfo parsing #3452
+* [BUGFIX] meminfo: Add Zswap/Zswapped metrics #3453
+
+## 1.10.0 / 2025-10-24
+
+* [CHANGE] mdadm: Use sysfs for RAID metrics #3031
+* [CHANGE] filesystem: Add erofs in default excluded fs #3313
+* [CHANGE] tcpstat: Use std lib binary.NativeEndian #3386
+* [FEATURE] pcidevice: Add new collector for PCIe devices #3339
+* [FEATURE] AIX: Add more metrics #3338
+* [FEATURE] systemd: Add Virtualization metrics #3254
+* [FEATURE] swaps: Add new collector #3428
+* [ENHANCEMENT] wifi: Add packet received and transmitted metrics #3382
+* [ENHANCEMENT] filesystem: Take super options into account for read-only #3387
+* [ENHANCEMENT] pcidevice: Add additional metrics #3425
+* [ENHANCEMENT] perf: Add `tlb_data` metrics #3436
+* [BUGFIX] interrupts: Fix OpenBSD interrupt device parsing #3288
+* [BUGFIX] diskstats: Simplify condition #3290
+* [BUGFIX] thermal: Sanitize darwin thermal strings #3294
+* [BUGFIX] filesystem: Fix Darwin collector cgo memory leak #3315
+* [BUGFIX] cpufreq: Fix: collector enable #3318
+* [BUGFIX] ethtool: Fix returning 0 for sanitized metrics #3335
+* [BUGFIX] netdev: Fix Darwin netdev i/o bytes metric #3336
+* [BUGFIX] systemd: Fix logging race #3364
+* [BUGFIX] filesystem: Fix duplicate Darwin CGO import #3391
+
+## 1.9.1 / 2025-04-01
+
+* [BUGFIX] pressure: Fix missing IRQ on older kernels #3263
+* [BUGFIX] Fix Darwin memory leak #3277
+
 ## 1.9.0 / 2025-02-17
 
 * [CHANGE] meminfo: Convert linux implementation to use procfs lib #3049

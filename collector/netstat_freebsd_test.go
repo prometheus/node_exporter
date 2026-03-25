@@ -12,15 +12,15 @@
 // limitations under the License.
 
 //go:build freebsd
-// +build freebsd
 
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/sys/unix"
 	"testing"
 	"unsafe"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sys/unix"
 )
 
 func TestNetStatCollectorDescribe(t *testing.T) {

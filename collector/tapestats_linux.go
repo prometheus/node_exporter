@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !notapestats
-// +build !notapestats
 
 package collector
 

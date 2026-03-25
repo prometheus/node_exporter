@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nobcache
-// +build !nobcache
 
 package collector
 

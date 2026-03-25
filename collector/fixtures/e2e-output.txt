@@ -144,6 +144,597 @@ node_bcache_writeback_rate_proportional_term{backing_device="bdev0",uuid="deaddd
 # HELP node_bcache_written_bytes_total Sum of all data that has been written to the cache.
 # TYPE node_bcache_written_bytes_total counter
 node_bcache_written_bytes_total{cache_device="cache0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
+# HELP node_bcachefs_accounting_key_to_wb_slowpath_total Bcachefs counter accounting_key_to_wb_slowpath since filesystem creation.
+# TYPE node_bcachefs_accounting_key_to_wb_slowpath_total counter
+node_bcachefs_accounting_key_to_wb_slowpath_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.4105502e+07
+# HELP node_bcachefs_bkey_pack_pos_fail_total Bcachefs counter bkey_pack_pos_fail since filesystem creation.
+# TYPE node_bcachefs_bkey_pack_pos_fail_total counter
+node_bcachefs_bkey_pack_pos_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_btree_cache_cannibalize_lock_fail_total Bcachefs counter btree_cache_cannibalize_lock_fail since filesystem creation.
+# TYPE node_bcachefs_btree_cache_cannibalize_lock_fail_total counter
+node_bcachefs_btree_cache_cannibalize_lock_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 24213
+# HELP node_bcachefs_btree_cache_cannibalize_lock_total Bcachefs counter btree_cache_cannibalize_lock since filesystem creation.
+# TYPE node_bcachefs_btree_cache_cannibalize_lock_total counter
+node_bcachefs_btree_cache_cannibalize_lock_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.2061408e+07
+# HELP node_bcachefs_btree_cache_cannibalize_total Bcachefs counter btree_cache_cannibalize since filesystem creation.
+# TYPE node_bcachefs_btree_cache_cannibalize_total counter
+node_bcachefs_btree_cache_cannibalize_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.6587339e+07
+# HELP node_bcachefs_btree_cache_cannibalize_unlock_total Bcachefs counter btree_cache_cannibalize_unlock since filesystem creation.
+# TYPE node_bcachefs_btree_cache_cannibalize_unlock_total counter
+node_bcachefs_btree_cache_cannibalize_unlock_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.6260384e+07
+# HELP node_bcachefs_btree_cache_reap_total Bcachefs counter btree_cache_reap since filesystem creation.
+# TYPE node_bcachefs_btree_cache_reap_total counter
+node_bcachefs_btree_cache_reap_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.9068459e+07
+# HELP node_bcachefs_btree_cache_scan_total Bcachefs counter btree_cache_scan since filesystem creation.
+# TYPE node_bcachefs_btree_cache_scan_total counter
+node_bcachefs_btree_cache_scan_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 427545
+# HELP node_bcachefs_btree_cache_size_bytes Btree cache memory usage in bytes.
+# TYPE node_bcachefs_btree_cache_size_bytes gauge
+node_bcachefs_btree_cache_size_bytes{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.201170739e+09
+# HELP node_bcachefs_btree_key_cache_fill_total Bcachefs counter btree_key_cache_fill since filesystem creation.
+# TYPE node_bcachefs_btree_key_cache_fill_total counter
+node_bcachefs_btree_key_cache_fill_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.69308144e+08
+# HELP node_bcachefs_btree_node_alloc_total Bcachefs counter btree_node_alloc since filesystem creation.
+# TYPE node_bcachefs_btree_node_alloc_total counter
+node_bcachefs_btree_node_alloc_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 8.665587e+06
+# HELP node_bcachefs_btree_node_compact_total Bcachefs counter btree_node_compact since filesystem creation.
+# TYPE node_bcachefs_btree_node_compact_total counter
+node_bcachefs_btree_node_compact_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.554425e+06
+# HELP node_bcachefs_btree_node_free_total Bcachefs counter btree_node_free since filesystem creation.
+# TYPE node_bcachefs_btree_node_free_total counter
+node_bcachefs_btree_node_free_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.4112667e+07
+# HELP node_bcachefs_btree_node_merge_attempt_total Bcachefs counter btree_node_merge_attempt since filesystem creation.
+# TYPE node_bcachefs_btree_node_merge_attempt_total counter
+node_bcachefs_btree_node_merge_attempt_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.5868895e+07
+# HELP node_bcachefs_btree_node_merge_total Bcachefs counter btree_node_merge since filesystem creation.
+# TYPE node_bcachefs_btree_node_merge_total counter
+node_bcachefs_btree_node_merge_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 559684
+# HELP node_bcachefs_btree_node_read_total Bcachefs counter btree_node_read since filesystem creation.
+# TYPE node_bcachefs_btree_node_read_total counter
+node_bcachefs_btree_node_read_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 7.0225874e+07
+# HELP node_bcachefs_btree_node_rewrite_total Bcachefs counter btree_node_rewrite since filesystem creation.
+# TYPE node_bcachefs_btree_node_rewrite_total counter
+node_bcachefs_btree_node_rewrite_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.130316e+06
+# HELP node_bcachefs_btree_node_set_root_total Bcachefs counter btree_node_set_root since filesystem creation.
+# TYPE node_bcachefs_btree_node_set_root_total counter
+node_bcachefs_btree_node_set_root_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 77958
+# HELP node_bcachefs_btree_node_split_total Bcachefs counter btree_node_split since filesystem creation.
+# TYPE node_bcachefs_btree_node_split_total counter
+node_bcachefs_btree_node_split_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 710571
+# HELP node_bcachefs_btree_node_write_total Bcachefs counter btree_node_write since filesystem creation.
+# TYPE node_bcachefs_btree_node_write_total counter
+node_bcachefs_btree_node_write_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.4796849e+08
+# HELP node_bcachefs_btree_path_relock_fail_total Bcachefs counter btree_path_relock_fail since filesystem creation.
+# TYPE node_bcachefs_btree_path_relock_fail_total counter
+node_bcachefs_btree_path_relock_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.6213103e+07
+# HELP node_bcachefs_btree_path_upgrade_fail_total Bcachefs counter btree_path_upgrade_fail since filesystem creation.
+# TYPE node_bcachefs_btree_path_upgrade_fail_total counter
+node_bcachefs_btree_path_upgrade_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.103667e+06
+# HELP node_bcachefs_btree_reserve_get_fail_total Bcachefs counter btree_reserve_get_fail since filesystem creation.
+# TYPE node_bcachefs_btree_reserve_get_fail_total counter
+node_bcachefs_btree_reserve_get_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 11706
+# HELP node_bcachefs_btree_write_average_size_bytes Average btree write size by type.
+# TYPE node_bcachefs_btree_write_average_size_bytes gauge
+node_bcachefs_btree_write_average_size_bytes{type="cache_reclaim",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 720
+node_bcachefs_btree_write_average_size_bytes{type="init_next_bset",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 28876
+node_bcachefs_btree_write_average_size_bytes{type="initial",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 102400
+node_bcachefs_btree_write_average_size_bytes{type="interior",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1290
+node_bcachefs_btree_write_average_size_bytes{type="journal_reclaim",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 697
+# HELP node_bcachefs_btree_writes_total Number of btree writes by type.
+# TYPE node_bcachefs_btree_writes_total counter
+node_bcachefs_btree_writes_total{type="cache_reclaim",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 14401
+node_bcachefs_btree_writes_total{type="init_next_bset",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.055926e+06
+node_bcachefs_btree_writes_total{type="initial",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.298401e+06
+node_bcachefs_btree_writes_total{type="interior",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.035363e+06
+node_bcachefs_btree_writes_total{type="journal_reclaim",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.6903805e+07
+# HELP node_bcachefs_bucket_alloc_fail_total Bcachefs counter bucket_alloc_fail since filesystem creation.
+# TYPE node_bcachefs_bucket_alloc_fail_total counter
+node_bcachefs_bucket_alloc_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.1156091e+07
+# HELP node_bcachefs_bucket_alloc_from_stripe_total Bcachefs counter bucket_alloc_from_stripe since filesystem creation.
+# TYPE node_bcachefs_bucket_alloc_from_stripe_total counter
+node_bcachefs_bucket_alloc_from_stripe_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_bucket_alloc_total Bcachefs counter bucket_alloc since filesystem creation.
+# TYPE node_bcachefs_bucket_alloc_total counter
+node_bcachefs_bucket_alloc_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.7363674e+07
+# HELP node_bcachefs_bucket_discard_fast_total Bcachefs counter bucket_discard_fast since filesystem creation.
+# TYPE node_bcachefs_bucket_discard_fast_total counter
+node_bcachefs_bucket_discard_fast_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 10204
+# HELP node_bcachefs_bucket_discard_fast_worker_total Bcachefs counter bucket_discard_fast_worker since filesystem creation.
+# TYPE node_bcachefs_bucket_discard_fast_worker_total counter
+node_bcachefs_bucket_discard_fast_worker_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4012
+# HELP node_bcachefs_bucket_discard_total Bcachefs counter bucket_discard since filesystem creation.
+# TYPE node_bcachefs_bucket_discard_total counter
+node_bcachefs_bucket_discard_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.4751388e+07
+# HELP node_bcachefs_bucket_discard_worker_total Bcachefs counter bucket_discard_worker since filesystem creation.
+# TYPE node_bcachefs_bucket_discard_worker_total counter
+node_bcachefs_bucket_discard_worker_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 7.021501e+06
+# HELP node_bcachefs_bucket_invalidate_total Bcachefs counter bucket_invalidate since filesystem creation.
+# TYPE node_bcachefs_bucket_invalidate_total counter
+node_bcachefs_bucket_invalidate_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.483205e+06
+# HELP node_bcachefs_cached_ptr_drop_total Bcachefs counter cached_ptr_drop since filesystem creation.
+# TYPE node_bcachefs_cached_ptr_drop_total counter
+node_bcachefs_cached_ptr_drop_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.201170739e+09
+# HELP node_bcachefs_compression_compressed_bytes Compressed size by algorithm.
+# TYPE node_bcachefs_compression_compressed_bytes gauge
+node_bcachefs_compression_compressed_bytes{algorithm="gzip",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_compression_compressed_bytes{algorithm="incompressible",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.187472557998e+13
+node_bcachefs_compression_compressed_bytes{algorithm="lz4",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.2505975193e+10
+node_bcachefs_compression_compressed_bytes{algorithm="lz4_old",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_compression_compressed_bytes{algorithm="zstd",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.42665652224e+11
+# HELP node_bcachefs_compression_uncompressed_bytes Uncompressed size by algorithm.
+# TYPE node_bcachefs_compression_uncompressed_bytes gauge
+node_bcachefs_compression_uncompressed_bytes{algorithm="gzip",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_compression_uncompressed_bytes{algorithm="incompressible",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.187472557998e+13
+node_bcachefs_compression_uncompressed_bytes{algorithm="lz4",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 7.6450417868e+10
+node_bcachefs_compression_uncompressed_bytes{algorithm="lz4_old",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_compression_uncompressed_bytes{algorithm="zstd",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.47466319872e+11
+# HELP node_bcachefs_copygc_total Bcachefs counter copygc since filesystem creation.
+# TYPE node_bcachefs_copygc_total counter
+node_bcachefs_copygc_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 424790
+# HELP node_bcachefs_copygc_wait_obsolete_total Bcachefs counter copygc_wait_obsolete since filesystem creation.
+# TYPE node_bcachefs_copygc_wait_obsolete_total counter
+node_bcachefs_copygc_wait_obsolete_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 537321
+# HELP node_bcachefs_data_read_bounce_total Bcachefs counter data_read_bounce since filesystem creation.
+# TYPE node_bcachefs_data_read_bounce_total counter
+node_bcachefs_data_read_bounce_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.5052058e+08
+# HELP node_bcachefs_data_read_fail_and_poison_total Bcachefs counter data_read_fail_and_poison since filesystem creation.
+# TYPE node_bcachefs_data_read_fail_and_poison_total counter
+node_bcachefs_data_read_fail_and_poison_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_data_read_hole_total Bcachefs counter data_read_hole since filesystem creation.
+# TYPE node_bcachefs_data_read_hole_total counter
+node_bcachefs_data_read_hole_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.858174650941e+12
+# HELP node_bcachefs_data_read_inline_total Bcachefs counter data_read_inline since filesystem creation.
+# TYPE node_bcachefs_data_read_inline_total counter
+node_bcachefs_data_read_inline_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.5998753177e+10
+# HELP node_bcachefs_data_read_narrow_crcs_fail_total Bcachefs counter data_read_narrow_crcs_fail since filesystem creation.
+# TYPE node_bcachefs_data_read_narrow_crcs_fail_total counter
+node_bcachefs_data_read_narrow_crcs_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1779
+# HELP node_bcachefs_data_read_narrow_crcs_total Bcachefs counter data_read_narrow_crcs since filesystem creation.
+# TYPE node_bcachefs_data_read_narrow_crcs_total counter
+node_bcachefs_data_read_narrow_crcs_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 18529
+# HELP node_bcachefs_data_read_nopromote_already_promoted_total Bcachefs counter data_read_nopromote_already_promoted since filesystem creation.
+# TYPE node_bcachefs_data_read_nopromote_already_promoted_total counter
+node_bcachefs_data_read_nopromote_already_promoted_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.11037452e+08
+# HELP node_bcachefs_data_read_nopromote_congested_total Bcachefs counter data_read_nopromote_congested since filesystem creation.
+# TYPE node_bcachefs_data_read_nopromote_congested_total counter
+node_bcachefs_data_read_nopromote_congested_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.913847e+06
+# HELP node_bcachefs_data_read_nopromote_may_not_total Bcachefs counter data_read_nopromote_may_not since filesystem creation.
+# TYPE node_bcachefs_data_read_nopromote_may_not_total counter
+node_bcachefs_data_read_nopromote_may_not_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.0206095e+07
+# HELP node_bcachefs_data_read_nopromote_total Bcachefs counter data_read_nopromote since filesystem creation.
+# TYPE node_bcachefs_data_read_nopromote_total counter
+node_bcachefs_data_read_nopromote_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.42468868e+08
+# HELP node_bcachefs_data_read_nopromote_unwritten_total Bcachefs counter data_read_nopromote_unwritten since filesystem creation.
+# TYPE node_bcachefs_data_read_nopromote_unwritten_total counter
+node_bcachefs_data_read_nopromote_unwritten_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_data_read_promote_total Bcachefs counter data_read_promote since filesystem creation.
+# TYPE node_bcachefs_data_read_promote_total counter
+node_bcachefs_data_read_promote_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.19833053184e+11
+# HELP node_bcachefs_data_read_retry_total Bcachefs counter data_read_retry since filesystem creation.
+# TYPE node_bcachefs_data_read_retry_total counter
+node_bcachefs_data_read_retry_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.2404675e+07
+# HELP node_bcachefs_data_read_reuse_race_total Bcachefs counter data_read_reuse_race since filesystem creation.
+# TYPE node_bcachefs_data_read_reuse_race_total counter
+node_bcachefs_data_read_reuse_race_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 201095
+# HELP node_bcachefs_data_read_split_total Bcachefs counter data_read_split since filesystem creation.
+# TYPE node_bcachefs_data_read_split_total counter
+node_bcachefs_data_read_split_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.18590695e+08
+# HELP node_bcachefs_data_read_total Bcachefs counter data_read since filesystem creation.
+# TYPE node_bcachefs_data_read_total counter
+node_bcachefs_data_read_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.8928267436032e+13
+# HELP node_bcachefs_data_update_fail_total Bcachefs counter data_update_fail since filesystem creation.
+# TYPE node_bcachefs_data_update_fail_total counter
+node_bcachefs_data_update_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.138166333e+09
+# HELP node_bcachefs_data_update_in_flight_total Bcachefs counter data_update_in_flight since filesystem creation.
+# TYPE node_bcachefs_data_update_in_flight_total counter
+node_bcachefs_data_update_in_flight_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.978784e+06
+# HELP node_bcachefs_data_update_key_fail_total Bcachefs counter data_update_key_fail since filesystem creation.
+# TYPE node_bcachefs_data_update_key_fail_total counter
+node_bcachefs_data_update_key_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.4373939404e+10
+# HELP node_bcachefs_data_update_key_total Bcachefs counter data_update_key since filesystem creation.
+# TYPE node_bcachefs_data_update_key_total counter
+node_bcachefs_data_update_key_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.00275460453171e+14
+# HELP node_bcachefs_data_update_no_io_total Bcachefs counter data_update_no_io since filesystem creation.
+# TYPE node_bcachefs_data_update_no_io_total counter
+node_bcachefs_data_update_no_io_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.00824357273e+11
+# HELP node_bcachefs_data_update_noop_obsolete_total Bcachefs counter data_update_noop_obsolete since filesystem creation.
+# TYPE node_bcachefs_data_update_noop_obsolete_total counter
+node_bcachefs_data_update_noop_obsolete_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_data_update_pred_total Bcachefs counter data_update_pred since filesystem creation.
+# TYPE node_bcachefs_data_update_pred_total counter
+node_bcachefs_data_update_pred_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.947802324992e+13
+# HELP node_bcachefs_data_update_read_total Bcachefs counter data_update_read since filesystem creation.
+# TYPE node_bcachefs_data_update_read_total counter
+node_bcachefs_data_update_read_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 8.9390295338188e+13
+# HELP node_bcachefs_data_update_start_fail_obsolete_total Bcachefs counter data_update_start_fail_obsolete since filesystem creation.
+# TYPE node_bcachefs_data_update_start_fail_obsolete_total counter
+node_bcachefs_data_update_start_fail_obsolete_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.14018822443e+11
+# HELP node_bcachefs_data_update_total Bcachefs counter data_update since filesystem creation.
+# TYPE node_bcachefs_data_update_total counter
+node_bcachefs_data_update_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.4206847997116416e+16
+# HELP node_bcachefs_data_update_useless_write_fail_total Bcachefs counter data_update_useless_write_fail since filesystem creation.
+# TYPE node_bcachefs_data_update_useless_write_fail_total counter
+node_bcachefs_data_update_useless_write_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.30428461e+09
+# HELP node_bcachefs_data_update_write_total Bcachefs counter data_update_write since filesystem creation.
+# TYPE node_bcachefs_data_update_write_total counter
+node_bcachefs_data_update_write_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.7163493018828e+13
+# HELP node_bcachefs_data_write_total Bcachefs counter data_write since filesystem creation.
+# TYPE node_bcachefs_data_write_total counter
+node_bcachefs_data_write_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.0780769764966e+13
+# HELP node_bcachefs_device_bucket_size_bytes Bucket size in bytes.
+# TYPE node_bcachefs_device_bucket_size_bytes gauge
+node_bcachefs_device_bucket_size_bytes{device="10",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 524288
+node_bcachefs_device_bucket_size_bytes{device="4",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.097152e+06
+node_bcachefs_device_bucket_size_bytes{device="6",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.097152e+06
+node_bcachefs_device_bucket_size_bytes{device="7",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.097152e+06
+node_bcachefs_device_bucket_size_bytes{device="8",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.097152e+06
+# HELP node_bcachefs_device_buckets Total number of buckets.
+# TYPE node_bcachefs_device_buckets gauge
+node_bcachefs_device_buckets{device="10",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 953880
+node_bcachefs_device_buckets{device="4",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 7.629824e+06
+node_bcachefs_device_buckets{device="6",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 953864
+node_bcachefs_device_buckets{device="7",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.907723e+06
+node_bcachefs_device_buckets{device="8",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.384637e+06
+# HELP node_bcachefs_device_durability Device durability setting.
+# TYPE node_bcachefs_device_durability gauge
+node_bcachefs_device_durability{device="10",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_durability{device="4",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_durability{device="6",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_durability{device="7",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_durability{device="8",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+# HELP node_bcachefs_device_info Device information.
+# TYPE node_bcachefs_device_info gauge
+node_bcachefs_device_info{device="10",label="disk-10",state="[rw] ro evacuating spare",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_info{device="4",label="disk-4",state="[rw] ro evacuating spare",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_info{device="6",label="disk-6",state="[rw] ro evacuating spare",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_info{device="7",label="disk-7",state="[rw] ro evacuating spare",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_info{device="8",label="disk-8",state="[rw] ro evacuating spare",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+# HELP node_bcachefs_device_io_done_bytes_total IO bytes by operation type and data type.
+# TYPE node_bcachefs_device_io_done_bytes_total counter
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.24288e+06
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 16384
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.193358848e+09
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 589824
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 8.912896e+06
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.767671263232e+12
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 7.82753624064e+11
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="btree",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="cached",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.432028966912e+12
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="journal",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_discard",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="need_gc_gens",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="parity",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 86016
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 645120
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 86016
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 645120
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 86016
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 677376
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 86016
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 645120
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 86016
+node_bcachefs_device_io_done_bytes_total{data_type="sb",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 645120
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="stripe",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="unstriped",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="10",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.02313054208e+11
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="10",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.52377698304e+11
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="4",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.770452246528e+12
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="4",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.258285805568e+12
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="6",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.10019098624e+11
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="6",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.62070339584e+11
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="7",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.53932742656e+11
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="7",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.8382641152e+11
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="8",operation="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.115020546048e+12
+node_bcachefs_device_io_done_bytes_total{data_type="user",device="8",operation="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.072510210048e+12
+# HELP node_bcachefs_device_io_errors_total IO errors by error type.
+# TYPE node_bcachefs_device_io_errors_total counter
+node_bcachefs_device_io_errors_total{device="10",type="checksum",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="10",type="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="10",type="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="4",type="checksum",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="4",type="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 197416
+node_bcachefs_device_io_errors_total{device="4",type="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 205
+node_bcachefs_device_io_errors_total{device="6",type="checksum",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5
+node_bcachefs_device_io_errors_total{device="6",type="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 18828
+node_bcachefs_device_io_errors_total{device="6",type="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+node_bcachefs_device_io_errors_total{device="7",type="checksum",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 18
+node_bcachefs_device_io_errors_total{device="7",type="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="7",type="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="8",type="checksum",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="8",type="read",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+node_bcachefs_device_io_errors_total{device="8",type="write",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_error_throw_total Bcachefs counter error_throw since filesystem creation.
+# TYPE node_bcachefs_error_throw_total counter
+node_bcachefs_error_throw_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.719910958e+09
+# HELP node_bcachefs_errors_total Error count by error type.
+# TYPE node_bcachefs_errors_total counter
+node_bcachefs_errors_total{error_type="accounting_mismatch",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6
+node_bcachefs_errors_total{error_type="alloc_key_cached_sectors_wrong",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4537
+node_bcachefs_errors_total{error_type="alloc_key_data_type_wrong",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4415
+node_bcachefs_errors_total{error_type="alloc_key_dirty_sectors_wrong",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4538
+node_bcachefs_errors_total{error_type="alloc_key_to_missing_lru_entry",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4517
+node_bcachefs_errors_total{error_type="backpointer_to_missing_ptr",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 45480
+node_bcachefs_errors_total{error_type="bset_bad_csum",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2
+node_bcachefs_errors_total{error_type="btree_node_data_missing",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2
+node_bcachefs_errors_total{error_type="btree_node_topology_bad_max_key",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2
+node_bcachefs_errors_total{error_type="extent_io_opts_not_set",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.1299659571772285e+19
+node_bcachefs_errors_total{error_type="extent_ptrs_all_invalid",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2
+node_bcachefs_errors_total{error_type="extent_ptrs_all_invalid_but_cached",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 44612
+node_bcachefs_errors_total{error_type="lru_entry_bad",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4537
+node_bcachefs_errors_total{error_type="ptr_to_missing_backpointer",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 44112
+node_bcachefs_errors_total{error_type="reconcile_work_incorrectly_set",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 113913
+node_bcachefs_errors_total{error_type="subvol_missing",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 194
+node_bcachefs_errors_total{error_type="validate_error_in_commit",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2
+node_bcachefs_errors_total{error_type="vfs_bad_inode_rm",uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 121
+# HELP node_bcachefs_evacuate_bucket_total Bcachefs counter evacuate_bucket since filesystem creation.
+# TYPE node_bcachefs_evacuate_bucket_total counter
+node_bcachefs_evacuate_bucket_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.735247e+06
+# HELP node_bcachefs_fsync_total Bcachefs counter fsync since filesystem creation.
+# TYPE node_bcachefs_fsync_total counter
+node_bcachefs_fsync_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.515147e+06
+# HELP node_bcachefs_gc_gens_end_total Bcachefs counter gc_gens_end since filesystem creation.
+# TYPE node_bcachefs_gc_gens_end_total counter
+node_bcachefs_gc_gens_end_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3
+# HELP node_bcachefs_gc_gens_start_total Bcachefs counter gc_gens_start since filesystem creation.
+# TYPE node_bcachefs_gc_gens_start_total counter
+node_bcachefs_gc_gens_start_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3
+# HELP node_bcachefs_info Filesystem information.
+# TYPE node_bcachefs_info gauge
+node_bcachefs_info{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1
+# HELP node_bcachefs_journal_full_total Bcachefs counter journal_full since filesystem creation.
+# TYPE node_bcachefs_journal_full_total counter
+node_bcachefs_journal_full_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 94587
+# HELP node_bcachefs_journal_reclaim_finish_total Bcachefs counter journal_reclaim_finish since filesystem creation.
+# TYPE node_bcachefs_journal_reclaim_finish_total counter
+node_bcachefs_journal_reclaim_finish_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.06994135e+08
+# HELP node_bcachefs_journal_reclaim_start_total Bcachefs counter journal_reclaim_start since filesystem creation.
+# TYPE node_bcachefs_journal_reclaim_start_total counter
+node_bcachefs_journal_reclaim_start_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.06994135e+08
+# HELP node_bcachefs_journal_res_get_blocked_total Bcachefs counter journal_res_get_blocked since filesystem creation.
+# TYPE node_bcachefs_journal_res_get_blocked_total counter
+node_bcachefs_journal_res_get_blocked_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 74696
+# HELP node_bcachefs_journal_write_total Bcachefs counter journal_write since filesystem creation.
+# TYPE node_bcachefs_journal_write_total counter
+node_bcachefs_journal_write_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.5458801e+07
+# HELP node_bcachefs_open_bucket_alloc_fail_total Bcachefs counter open_bucket_alloc_fail since filesystem creation.
+# TYPE node_bcachefs_open_bucket_alloc_fail_total counter
+node_bcachefs_open_bucket_alloc_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_reconcile_btree_total Bcachefs counter reconcile_btree since filesystem creation.
+# TYPE node_bcachefs_reconcile_btree_total counter
+node_bcachefs_reconcile_btree_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.158221066e+09
+# HELP node_bcachefs_reconcile_clear_scan_total Bcachefs counter reconcile_clear_scan since filesystem creation.
+# TYPE node_bcachefs_reconcile_clear_scan_total counter
+node_bcachefs_reconcile_clear_scan_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 11
+# HELP node_bcachefs_reconcile_data_total Bcachefs counter reconcile_data since filesystem creation.
+# TYPE node_bcachefs_reconcile_data_total counter
+node_bcachefs_reconcile_data_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_reconcile_phys_total Bcachefs counter reconcile_phys since filesystem creation.
+# TYPE node_bcachefs_reconcile_phys_total counter
+node_bcachefs_reconcile_phys_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.9928939526553e+13
+# HELP node_bcachefs_reconcile_scan_device_total Bcachefs counter reconcile_scan_device since filesystem creation.
+# TYPE node_bcachefs_reconcile_scan_device_total counter
+node_bcachefs_reconcile_scan_device_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 8.3562883710976e+13
+# HELP node_bcachefs_reconcile_scan_fs_total Bcachefs counter reconcile_scan_fs since filesystem creation.
+# TYPE node_bcachefs_reconcile_scan_fs_total counter
+node_bcachefs_reconcile_scan_fs_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_reconcile_scan_inum_total Bcachefs counter reconcile_scan_inum since filesystem creation.
+# TYPE node_bcachefs_reconcile_scan_inum_total counter
+node_bcachefs_reconcile_scan_inum_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_reconcile_scan_metadata_total Bcachefs counter reconcile_scan_metadata since filesystem creation.
+# TYPE node_bcachefs_reconcile_scan_metadata_total counter
+node_bcachefs_reconcile_scan_metadata_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_reconcile_scan_pending_total Bcachefs counter reconcile_scan_pending since filesystem creation.
+# TYPE node_bcachefs_reconcile_scan_pending_total counter
+node_bcachefs_reconcile_scan_pending_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_reconcile_set_pending_total Bcachefs counter reconcile_set_pending since filesystem creation.
+# TYPE node_bcachefs_reconcile_set_pending_total counter
+node_bcachefs_reconcile_set_pending_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 3.1138512896e+10
+# HELP node_bcachefs_sectors_alloc_total Bcachefs counter sectors_alloc since filesystem creation.
+# TYPE node_bcachefs_sectors_alloc_total counter
+node_bcachefs_sectors_alloc_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.2534432556646e+13
+# HELP node_bcachefs_stripe_alloc_total Bcachefs counter stripe_alloc since filesystem creation.
+# TYPE node_bcachefs_stripe_alloc_total counter
+node_bcachefs_stripe_alloc_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_stripe_create_fail_total Bcachefs counter stripe_create_fail since filesystem creation.
+# TYPE node_bcachefs_stripe_create_fail_total counter
+node_bcachefs_stripe_create_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_stripe_create_total Bcachefs counter stripe_create since filesystem creation.
+# TYPE node_bcachefs_stripe_create_total counter
+node_bcachefs_stripe_create_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_stripe_delete_total Bcachefs counter stripe_delete since filesystem creation.
+# TYPE node_bcachefs_stripe_delete_total counter
+node_bcachefs_stripe_delete_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_stripe_reuse_total Bcachefs counter stripe_reuse since filesystem creation.
+# TYPE node_bcachefs_stripe_reuse_total counter
+node_bcachefs_stripe_reuse_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_stripe_update_bucket_total Bcachefs counter stripe_update_bucket since filesystem creation.
+# TYPE node_bcachefs_stripe_update_bucket_total counter
+node_bcachefs_stripe_update_bucket_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_stripe_update_extent_fail_total Bcachefs counter stripe_update_extent_fail since filesystem creation.
+# TYPE node_bcachefs_stripe_update_extent_fail_total counter
+node_bcachefs_stripe_update_extent_fail_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_stripe_update_extent_total Bcachefs counter stripe_update_extent since filesystem creation.
+# TYPE node_bcachefs_stripe_update_extent_total counter
+node_bcachefs_stripe_update_extent_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_sync_fs_total Bcachefs counter sync_fs since filesystem creation.
+# TYPE node_bcachefs_sync_fs_total counter
+node_bcachefs_sync_fs_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 42023
+# HELP node_bcachefs_trans_blocked_journal_reclaim_total Bcachefs counter trans_blocked_journal_reclaim since filesystem creation.
+# TYPE node_bcachefs_trans_blocked_journal_reclaim_total counter
+node_bcachefs_trans_blocked_journal_reclaim_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 78
+# HELP node_bcachefs_trans_restart_btree_node_reused_total Bcachefs counter trans_restart_btree_node_reused since filesystem creation.
+# TYPE node_bcachefs_trans_restart_btree_node_reused_total counter
+node_bcachefs_trans_restart_btree_node_reused_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 53354
+# HELP node_bcachefs_trans_restart_btree_node_split_total Bcachefs counter trans_restart_btree_node_split since filesystem creation.
+# TYPE node_bcachefs_trans_restart_btree_node_split_total counter
+node_bcachefs_trans_restart_btree_node_split_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 100190
+# HELP node_bcachefs_trans_restart_fault_inject_total Bcachefs counter trans_restart_fault_inject since filesystem creation.
+# TYPE node_bcachefs_trans_restart_fault_inject_total counter
+node_bcachefs_trans_restart_fault_inject_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_injected_total Bcachefs counter trans_restart_injected since filesystem creation.
+# TYPE node_bcachefs_trans_restart_injected_total counter
+node_bcachefs_trans_restart_injected_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_iter_upgrade_total Bcachefs counter trans_restart_iter_upgrade since filesystem creation.
+# TYPE node_bcachefs_trans_restart_iter_upgrade_total counter
+node_bcachefs_trans_restart_iter_upgrade_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_journal_preres_get_total Bcachefs counter trans_restart_journal_preres_get since filesystem creation.
+# TYPE node_bcachefs_trans_restart_journal_preres_get_total counter
+node_bcachefs_trans_restart_journal_preres_get_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_journal_reclaim_total Bcachefs counter trans_restart_journal_reclaim since filesystem creation.
+# TYPE node_bcachefs_trans_restart_journal_reclaim_total counter
+node_bcachefs_trans_restart_journal_reclaim_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_journal_res_get_total Bcachefs counter trans_restart_journal_res_get since filesystem creation.
+# TYPE node_bcachefs_trans_restart_journal_res_get_total counter
+node_bcachefs_trans_restart_journal_res_get_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_key_cache_key_realloced_total Bcachefs counter trans_restart_key_cache_key_realloced since filesystem creation.
+# TYPE node_bcachefs_trans_restart_key_cache_key_realloced_total counter
+node_bcachefs_trans_restart_key_cache_key_realloced_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_key_cache_raced_total Bcachefs counter trans_restart_key_cache_raced since filesystem creation.
+# TYPE node_bcachefs_trans_restart_key_cache_raced_total counter
+node_bcachefs_trans_restart_key_cache_raced_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_key_cache_upgrade_total Bcachefs counter trans_restart_key_cache_upgrade since filesystem creation.
+# TYPE node_bcachefs_trans_restart_key_cache_upgrade_total counter
+node_bcachefs_trans_restart_key_cache_upgrade_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_mark_replicas_total Bcachefs counter trans_restart_mark_replicas since filesystem creation.
+# TYPE node_bcachefs_trans_restart_mark_replicas_total counter
+node_bcachefs_trans_restart_mark_replicas_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_mem_realloced_total Bcachefs counter trans_restart_mem_realloced since filesystem creation.
+# TYPE node_bcachefs_trans_restart_mem_realloced_total counter
+node_bcachefs_trans_restart_mem_realloced_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6111
+# HELP node_bcachefs_trans_restart_memory_allocation_failure_total Bcachefs counter trans_restart_memory_allocation_failure since filesystem creation.
+# TYPE node_bcachefs_trans_restart_memory_allocation_failure_total counter
+node_bcachefs_trans_restart_memory_allocation_failure_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.7513334e+07
+# HELP node_bcachefs_trans_restart_relock_after_fill_total Bcachefs counter trans_restart_relock_after_fill since filesystem creation.
+# TYPE node_bcachefs_trans_restart_relock_after_fill_total counter
+node_bcachefs_trans_restart_relock_after_fill_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_relock_key_cache_fill_obsolete_total Bcachefs counter trans_restart_relock_key_cache_fill_obsolete since filesystem creation.
+# TYPE node_bcachefs_trans_restart_relock_key_cache_fill_obsolete_total counter
+node_bcachefs_trans_restart_relock_key_cache_fill_obsolete_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_relock_next_node_total Bcachefs counter trans_restart_relock_next_node since filesystem creation.
+# TYPE node_bcachefs_trans_restart_relock_next_node_total counter
+node_bcachefs_trans_restart_relock_next_node_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 22087
+# HELP node_bcachefs_trans_restart_relock_parent_for_fill_obsolete_total Bcachefs counter trans_restart_relock_parent_for_fill_obsolete since filesystem creation.
+# TYPE node_bcachefs_trans_restart_relock_parent_for_fill_obsolete_total counter
+node_bcachefs_trans_restart_relock_parent_for_fill_obsolete_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2581
+# HELP node_bcachefs_trans_restart_relock_path_intent_total Bcachefs counter trans_restart_relock_path_intent since filesystem creation.
+# TYPE node_bcachefs_trans_restart_relock_path_intent_total counter
+node_bcachefs_trans_restart_relock_path_intent_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 298090
+# HELP node_bcachefs_trans_restart_relock_path_total Bcachefs counter trans_restart_relock_path since filesystem creation.
+# TYPE node_bcachefs_trans_restart_relock_path_total counter
+node_bcachefs_trans_restart_relock_path_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.752728e+07
+# HELP node_bcachefs_trans_restart_relock_total Bcachefs counter trans_restart_relock since filesystem creation.
+# TYPE node_bcachefs_trans_restart_relock_total counter
+node_bcachefs_trans_restart_relock_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2.806875e+06
+# HELP node_bcachefs_trans_restart_split_race_total Bcachefs counter trans_restart_split_race since filesystem creation.
+# TYPE node_bcachefs_trans_restart_split_race_total counter
+node_bcachefs_trans_restart_split_race_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_too_many_iters_total Bcachefs counter trans_restart_too_many_iters since filesystem creation.
+# TYPE node_bcachefs_trans_restart_too_many_iters_total counter
+node_bcachefs_trans_restart_too_many_iters_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_traverse_total Bcachefs counter trans_restart_traverse since filesystem creation.
+# TYPE node_bcachefs_trans_restart_traverse_total counter
+node_bcachefs_trans_restart_traverse_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_upgrade_total Bcachefs counter trans_restart_upgrade since filesystem creation.
+# TYPE node_bcachefs_trans_restart_upgrade_total counter
+node_bcachefs_trans_restart_upgrade_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.055154e+06
+# HELP node_bcachefs_trans_restart_would_deadlock_recursion_limit_total Bcachefs counter trans_restart_would_deadlock_recursion_limit since filesystem creation.
+# TYPE node_bcachefs_trans_restart_would_deadlock_recursion_limit_total counter
+node_bcachefs_trans_restart_would_deadlock_recursion_limit_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 0
+# HELP node_bcachefs_trans_restart_would_deadlock_total Bcachefs counter trans_restart_would_deadlock since filesystem creation.
+# TYPE node_bcachefs_trans_restart_would_deadlock_total counter
+node_bcachefs_trans_restart_would_deadlock_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 1.025983e+06
+# HELP node_bcachefs_trans_restart_would_deadlock_write_total Bcachefs counter trans_restart_would_deadlock_write since filesystem creation.
+# TYPE node_bcachefs_trans_restart_would_deadlock_write_total counter
+node_bcachefs_trans_restart_would_deadlock_write_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 2
+# HELP node_bcachefs_trans_restart_write_buffer_flush_total Bcachefs counter trans_restart_write_buffer_flush since filesystem creation.
+# TYPE node_bcachefs_trans_restart_write_buffer_flush_total counter
+node_bcachefs_trans_restart_write_buffer_flush_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 5.1706894e+07
+# HELP node_bcachefs_trans_traverse_all_total Bcachefs counter trans_traverse_all since filesystem creation.
+# TYPE node_bcachefs_trans_traverse_all_total counter
+node_bcachefs_trans_traverse_all_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 7.8477746e+07
+# HELP node_bcachefs_transaction_commit_total Bcachefs counter transaction_commit since filesystem creation.
+# TYPE node_bcachefs_transaction_commit_total counter
+node_bcachefs_transaction_commit_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.338059022e+09
+# HELP node_bcachefs_write_buffer_flush_slowpath_total Bcachefs counter write_buffer_flush_slowpath since filesystem creation.
+# TYPE node_bcachefs_write_buffer_flush_slowpath_total counter
+node_bcachefs_write_buffer_flush_slowpath_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 21031
+# HELP node_bcachefs_write_buffer_flush_sync_total Bcachefs counter write_buffer_flush_sync since filesystem creation.
+# TYPE node_bcachefs_write_buffer_flush_sync_total counter
+node_bcachefs_write_buffer_flush_sync_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 6.024402e+06
+# HELP node_bcachefs_write_buffer_flush_total Bcachefs counter write_buffer_flush since filesystem creation.
+# TYPE node_bcachefs_write_buffer_flush_total counter
+node_bcachefs_write_buffer_flush_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.8370568e+07
+# HELP node_bcachefs_write_buffer_maybe_flush_total Bcachefs counter write_buffer_maybe_flush since filesystem creation.
+# TYPE node_bcachefs_write_buffer_maybe_flush_total counter
+node_bcachefs_write_buffer_maybe_flush_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 4.7412849e+07
+# HELP node_bcachefs_write_super_total Bcachefs counter write_super since filesystem creation.
+# TYPE node_bcachefs_write_super_total counter
+node_bcachefs_write_super_total{uuid="deadbeef-1234-5678-9012-abcdefabcdef"} 30277
 # HELP node_bonding_active Number of active slaves per bonding interface.
 # TYPE node_bonding_active gauge
 node_bonding_active{master="bond0"} 0
@@ -311,6 +902,16 @@ node_cpu_flag_info{flag="aes"} 1
 node_cpu_flag_info{flag="avx"} 1
 node_cpu_flag_info{flag="avx2"} 1
 node_cpu_flag_info{flag="constant_tsc"} 1
+# HELP node_cpu_frequency_hertz CPU frequency in hertz from /proc/cpuinfo.
+# TYPE node_cpu_frequency_hertz gauge
+node_cpu_frequency_hertz{core="0",cpu="0",package="0"} 7.99998e+08
+node_cpu_frequency_hertz{core="0",cpu="4",package="0"} 7.99989e+08
+node_cpu_frequency_hertz{core="1",cpu="1",package="0"} 8.00037e+08
+node_cpu_frequency_hertz{core="1",cpu="5",package="0"} 8.00083e+08
+node_cpu_frequency_hertz{core="2",cpu="2",package="0"} 8.0001e+08
+node_cpu_frequency_hertz{core="2",cpu="6",package="0"} 8.00017e+08
+node_cpu_frequency_hertz{core="3",cpu="3",package="0"} 8.00028e+08
+node_cpu_frequency_hertz{core="3",cpu="7",package="0"} 8.0003e+08
 # HELP node_cpu_guest_seconds_total Seconds the CPUs spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
@@ -516,9 +1117,9 @@ node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",
 node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
 node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",rotational="0",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
 node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",rotational="1",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
 node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",rotational="0",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
@@ -2289,44 +2890,44 @@ node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",mount
 node_mountstats_nfs_total_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
 # HELP node_mountstats_nfs_transport_backlog_queue_total Total number of items added to the RPC backlog queue.
 # TYPE node_mountstats_nfs_transport_backlog_queue_total counter
-node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 0
+node_mountstats_nfs_transport_backlog_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 0
 # HELP node_mountstats_nfs_transport_bad_transaction_ids_total Number of times the NFS server sent a response with a transaction ID unknown to this client.
 # TYPE node_mountstats_nfs_transport_bad_transaction_ids_total counter
-node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 0
+node_mountstats_nfs_transport_bad_transaction_ids_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 0
 # HELP node_mountstats_nfs_transport_bind_total Number of times the client has had to establish a connection from scratch to the NFS server.
 # TYPE node_mountstats_nfs_transport_bind_total counter
-node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
-node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 0
+node_mountstats_nfs_transport_bind_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 0
 # HELP node_mountstats_nfs_transport_connect_total Number of times the client has made a TCP connection to the NFS server.
 # TYPE node_mountstats_nfs_transport_connect_total counter
-node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 1
-node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 1
+node_mountstats_nfs_transport_connect_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 0
 # HELP node_mountstats_nfs_transport_idle_time_seconds Duration since the NFS mount last saw any RPC traffic, in seconds.
 # TYPE node_mountstats_nfs_transport_idle_time_seconds gauge
-node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 11
-node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 11
+node_mountstats_nfs_transport_idle_time_seconds{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 0
 # HELP node_mountstats_nfs_transport_maximum_rpc_slots Maximum number of simultaneously active RPC requests ever used.
 # TYPE node_mountstats_nfs_transport_maximum_rpc_slots gauge
-node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 24
-node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 24
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 24
+node_mountstats_nfs_transport_maximum_rpc_slots{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 24
 # HELP node_mountstats_nfs_transport_pending_queue_total Total number of items added to the RPC transmission pending queue.
 # TYPE node_mountstats_nfs_transport_pending_queue_total counter
-node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 5726
-node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 5726
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 5726
+node_mountstats_nfs_transport_pending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 5726
 # HELP node_mountstats_nfs_transport_receives_total Number of RPC responses for this mount received from the NFS server.
 # TYPE node_mountstats_nfs_transport_receives_total counter
-node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
-node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 6428
+node_mountstats_nfs_transport_receives_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 6428
 # HELP node_mountstats_nfs_transport_sending_queue_total Total number of items added to the RPC transmission sending queue.
 # TYPE node_mountstats_nfs_transport_sending_queue_total counter
-node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 26
-node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 26
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 26
+node_mountstats_nfs_transport_sending_queue_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 26
 # HELP node_mountstats_nfs_transport_sends_total Number of RPC requests for this mount sent to the NFS server.
 # TYPE node_mountstats_nfs_transport_sends_total counter
-node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 6428
-node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 6428
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp",transport="0"} 6428
+node_mountstats_nfs_transport_sends_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp",transport="0"} 6428
 # HELP node_mountstats_nfs_write_bytes_total Number of bytes written using the write() syscall.
 # TYPE node_mountstats_nfs_write_bytes_total counter
 node_mountstats_nfs_write_bytes_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
@@ -2847,7 +3448,22 @@ node_nfsd_server_rpcs_total 18628
 node_nfsd_server_threads 8
 # HELP node_nvme_info Non-numeric data from /sys/class/nvme/<device>, value is always 1.
 # TYPE node_nvme_info gauge
-node_nvme_info{device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live"} 1
+node_nvme_info{cntlid="1997",device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live"} 1
+# HELP node_nvme_namespace_capacity_bytes Capacity of the NVMe namespace in bytes. Computed as namespace_size * namespace_logical_block_size
+# TYPE node_nvme_namespace_capacity_bytes gauge
+node_nvme_namespace_capacity_bytes{device="nvme0",nsid="0"} 1.6e+13
+# HELP node_nvme_namespace_info Information about NVMe namespaces. Value is always 1
+# TYPE node_nvme_namespace_info gauge
+node_nvme_namespace_info{ana_state="optimized",device="nvme0",nsid="0"} 1
+# HELP node_nvme_namespace_logical_block_size_bytes Logical block size of the NVMe namespace in bytes. Usually 4Kb. Available in /sys/class/nvme/<device>/<namespace>/queue/logical_block_size
+# TYPE node_nvme_namespace_logical_block_size_bytes gauge
+node_nvme_namespace_logical_block_size_bytes{device="nvme0",nsid="0"} 4096
+# HELP node_nvme_namespace_size_bytes Size of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/size
+# TYPE node_nvme_namespace_size_bytes gauge
+node_nvme_namespace_size_bytes{device="nvme0",nsid="0"} 1.6e+13
+# HELP node_nvme_namespace_used_bytes Used space of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/nuse
+# TYPE node_nvme_namespace_used_bytes gauge
+node_nvme_namespace_used_bytes{device="nvme0",nsid="0"} 2e+12
 # HELP node_os_info A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, name, pretty_name, variant, variant_id, version, version_codename, version_id.
 # TYPE node_os_info gauge
 node_os_info{build_id="",id="ubuntu",id_like="debian",image_id="",image_version="",name="Ubuntu",pretty_name="Ubuntu 20.04.2 LTS",variant="",variant_id="",version="20.04.2 LTS (Focal Fossa)",version_codename="focal",version_id="20.04"} 1
@@ -2858,22 +3474,78 @@ node_os_version{id="ubuntu",id_like="debian",name="Ubuntu"} 20.04
 # TYPE node_pcidevice_current_link_transfers_per_second gauge
 node_pcidevice_current_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
 node_pcidevice_current_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 8e+09
+node_pcidevice_current_link_transfers_per_second{bus="45",device="00",function="0",segment="0000"} 5e+09
 # HELP node_pcidevice_current_link_width Value of current link's width (number of lanes)
 # TYPE node_pcidevice_current_link_width gauge
 node_pcidevice_current_link_width{bus="00",device="02",function="1",segment="0000"} 4
 node_pcidevice_current_link_width{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_current_link_width{bus="45",device="00",function="0",segment="0000"} 4
+# HELP node_pcidevice_d3cold_allowed Whether the PCIe device supports D3cold power state (0/1).
+# TYPE node_pcidevice_d3cold_allowed gauge
+node_pcidevice_d3cold_allowed{bus="00",device="02",function="1",segment="0000"} 1
+node_pcidevice_d3cold_allowed{bus="01",device="00",function="0",segment="0000"} 1
+node_pcidevice_d3cold_allowed{bus="45",device="00",function="0",segment="0000"} 1
 # HELP node_pcidevice_info Non-numeric data from /sys/bus/pci/devices/<location>, value is always 1.
 # TYPE node_pcidevice_info gauge
-node_pcidevice_info{bus="00",class_id="0x060400",device="02",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1634"} 1
-node_pcidevice_info{bus="01",class_id="0x010802",device="00",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0x540a"} 1
+node_pcidevice_info{bus="00",class_id="0x060400",device="02",device_id="0x1634",function="1",parent_bus="*",parent_device="*",parent_function="*",parent_segment="*",revision="0x00",segment="0000",subsystem_device_id="0x5095",subsystem_vendor_id="0x17aa",vendor_id="0x1022"} 1
+node_pcidevice_info{bus="01",class_id="0x010802",device="00",device_id="0x540a",function="0",parent_bus="00",parent_device="02",parent_function="1",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x5021",subsystem_vendor_id="0xc0a9",vendor_id="0xc0a9"} 1
+node_pcidevice_info{bus="45",class_id="0x020000",device="00",device_id="0x1521",function="0",parent_bus="40",parent_device="01",parent_function="3",parent_segment="0000",revision="0x01",segment="0000",subsystem_device_id="0x00a3",subsystem_vendor_id="0x8086",vendor_id="0x8086"} 1
 # HELP node_pcidevice_max_link_transfers_per_second Value of maximum link's transfers per second (T/s)
 # TYPE node_pcidevice_max_link_transfers_per_second gauge
 node_pcidevice_max_link_transfers_per_second{bus="00",device="02",function="1",segment="0000"} 8e+09
 node_pcidevice_max_link_transfers_per_second{bus="01",device="00",function="0",segment="0000"} 1.6e+10
+node_pcidevice_max_link_transfers_per_second{bus="45",device="00",function="0",segment="0000"} 5e+09
 # HELP node_pcidevice_max_link_width Value of maximum link's width (number of lanes)
 # TYPE node_pcidevice_max_link_width gauge
 node_pcidevice_max_link_width{bus="00",device="02",function="1",segment="0000"} 8
 node_pcidevice_max_link_width{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_max_link_width{bus="45",device="00",function="0",segment="0000"} 4
+# HELP node_pcidevice_numa_node NUMA node number for the PCI device. -1 indicates unknown or not available.
+# TYPE node_pcidevice_numa_node gauge
+node_pcidevice_numa_node{bus="45",device="00",function="0",segment="0000"} 0
+# HELP node_pcidevice_power_state PCIe device power state, one of: D0, D1, D2, D3hot, D3cold, unknown or error.
+# TYPE node_pcidevice_power_state gauge
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="00",device="02",function="1",segment="0000",state="unknown"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="01",device="00",function="0",segment="0000",state="unknown"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D0"} 1
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D1"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D2"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D3cold"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="D3hot"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="error"} 0
+node_pcidevice_power_state{bus="45",device="00",function="0",segment="0000",state="unknown"} 0
+# HELP node_pcidevice_sriov_drivers_autoprobe Whether SR-IOV drivers autoprobe is enabled for the device (0/1).
+# TYPE node_pcidevice_sriov_drivers_autoprobe gauge
+node_pcidevice_sriov_drivers_autoprobe{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_drivers_autoprobe{bus="01",device="00",function="0",segment="0000"} 1
+node_pcidevice_sriov_drivers_autoprobe{bus="45",device="00",function="0",segment="0000"} 1
+# HELP node_pcidevice_sriov_numvfs Number of Virtual Functions (VFs) currently enabled for SR-IOV.
+# TYPE node_pcidevice_sriov_numvfs gauge
+node_pcidevice_sriov_numvfs{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_numvfs{bus="01",device="00",function="0",segment="0000"} 4
+node_pcidevice_sriov_numvfs{bus="45",device="00",function="0",segment="0000"} 0
+# HELP node_pcidevice_sriov_totalvfs Total number of Virtual Functions (VFs) supported by the device.
+# TYPE node_pcidevice_sriov_totalvfs gauge
+node_pcidevice_sriov_totalvfs{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_totalvfs{bus="01",device="00",function="0",segment="0000"} 8
+node_pcidevice_sriov_totalvfs{bus="45",device="00",function="0",segment="0000"} 7
+# HELP node_pcidevice_sriov_vf_total_msix Total number of MSI-X vectors for Virtual Functions.
+# TYPE node_pcidevice_sriov_vf_total_msix gauge
+node_pcidevice_sriov_vf_total_msix{bus="00",device="02",function="1",segment="0000"} 0
+node_pcidevice_sriov_vf_total_msix{bus="01",device="00",function="0",segment="0000"} 16
+node_pcidevice_sriov_vf_total_msix{bus="45",device="00",function="0",segment="0000"} 0
 # HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_capacity gauge
 node_power_supply_capacity{power_supply="BAT0"} 81
@@ -3000,6 +3672,7 @@ node_schedstat_waiting_seconds_total{cpu="1"} 364107.263788241
 # TYPE node_scrape_collector_success gauge
 node_scrape_collector_success{collector="arp"} 1
 node_scrape_collector_success{collector="bcache"} 1
+node_scrape_collector_success{collector="bcachefs"} 1
 node_scrape_collector_success{collector="bonding"} 1
 node_scrape_collector_success{collector="btrfs"} 1
 node_scrape_collector_success{collector="buddyinfo"} 1
@@ -3378,6 +4051,10 @@ node_wifi_station_receive_bits_per_second{device="wlan0",mac_address="aa:bb:cc:d
 # TYPE node_wifi_station_receive_bytes_total counter
 node_wifi_station_receive_bytes_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
 node_wifi_station_receive_bytes_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
+# HELP node_wifi_station_received_packets_total The total number of packets received by a station.
+# TYPE node_wifi_station_received_packets_total counter
+node_wifi_station_received_packets_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_received_packets_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_wifi_station_signal_dbm The current WiFi signal strength, in decibel-milliwatts (dBm).
 # TYPE node_wifi_station_signal_dbm gauge
 node_wifi_station_signal_dbm{device="wlan0",mac_address="01:02:03:04:05:06"} -26
@@ -3398,6 +4075,10 @@ node_wifi_station_transmit_failed_total{device="wlan0",mac_address="aa:bb:cc:dd:
 # TYPE node_wifi_station_transmit_retries_total counter
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="01:02:03:04:05:06"} 20
 node_wifi_station_transmit_retries_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 10
+# HELP node_wifi_station_transmitted_packets_total The total number of packets transmitted by a station.
+# TYPE node_wifi_station_transmitted_packets_total counter
+node_wifi_station_transmitted_packets_total{device="wlan0",mac_address="01:02:03:04:05:06"} 0
+node_wifi_station_transmitted_packets_total{device="wlan0",mac_address="aa:bb:cc:dd:ee:ff"} 0
 # HELP node_xfrm_acquire_error_packets_total State hasn’t been fully acquired before use
 # TYPE node_xfrm_acquire_error_packets_total counter
 node_xfrm_acquire_error_packets_total 24532

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nosupervisord
-// +build !nosupervisord
 
 package collector
 

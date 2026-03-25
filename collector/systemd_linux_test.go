@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nosystemd
-// +build !nosystemd
 
 package collector
 

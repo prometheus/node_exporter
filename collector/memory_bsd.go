@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build (freebsd || dragonfly) && !nomeminfo
-// +build freebsd dragonfly
-// +build !nomeminfo
 
 package collector
 

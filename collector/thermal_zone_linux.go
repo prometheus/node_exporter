@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nothermalzone
-// +build !nothermalzone
 
 package collector
 

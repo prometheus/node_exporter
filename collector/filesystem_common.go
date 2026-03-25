@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nofilesystem && (linux || freebsd || netbsd || openbsd || darwin || dragonfly || aix)
-// +build !nofilesystem
-// +build linux freebsd netbsd openbsd darwin dragonfly aix
 
 package collector
 
@@ -82,7 +80,7 @@ type filesystemCollector struct {
 }
 
 type filesystemLabels struct {
-	device, mountPoint, fsType, options, deviceError, major, minor string
+	device, mountPoint, fsType, mountOptions, superOptions, deviceError, major, minor string
 }
 
 type filesystemStats struct {

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nodrbd
-// +build !nodrbd
 
 package collector
 
