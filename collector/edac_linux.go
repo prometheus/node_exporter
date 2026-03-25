@@ -40,8 +40,6 @@ type edacCollector struct {
 	ueCount        *prometheus.Desc
 	channelCECount *prometheus.Desc
 	channelUECount *prometheus.Desc
-	dimmCECount    *prometheus.Desc
-	dimmUECount    *prometheus.Desc
 	logger         *slog.Logger
 }
 
@@ -78,20 +76,6 @@ func NewEdacCollector(logger *slog.Logger) (Collector, error) {
 			prometheus.BuildFQName(namespace, edacSubsystem, "channel_uncorrectable_errors_total"),
 			"Total uncorrectable memory errors for this channel.",
 			[]string{"controller", "csrow", "channel", "dimm_label"},
-			nil,
-		),
-
-		dimmCECount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, edacSubsystem, "dimm_correctable_errors_total"),
-			"Total correctable memory errors for this dimm.",
-			[]string{"controller", "dimm"},
-			nil,
-		),
-
-		dimmUECount: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, edacSubsystem, "dimm_uncorrectable_errors_total"),
-			"Total uncorrectable memory errors for this dimm.",
-			[]string{"controller", "dimm"},
 			nil,
 		),
 
@@ -199,43 +183,6 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 						label,
 					)
 				}
-			}
-		}
-
-		dimms, err := filepath.Glob(controller + "/dimm[0-9]*")
-		if err != nil {
-			return err
-		}
-
-		for _, dimm := range dimms {
-
-			dimmMatch := edacMemDimmRE.FindStringSubmatch(dimm)
-			if len(dimmMatch) < 2 {
-				continue
-			}
-
-			dimmNumber := dimmMatch[1]
-
-			value, err := readUintFromFile(filepath.Join(dimm, "dimm_ce_count"))
-			if err == nil {
-				ch <- prometheus.MustNewConstMetric(
-					c.dimmCECount,
-					prometheus.CounterValue,
-					float64(value),
-					controllerNumber,
-					dimmNumber,
-				)
-			}
-
-			value, err = readUintFromFile(filepath.Join(dimm, "dimm_ue_count"))
-			if err == nil {
-				ch <- prometheus.MustNewConstMetric(
-					c.dimmUECount,
-					prometheus.CounterValue,
-					float64(value),
-					controllerNumber,
-					dimmNumber,
-				)
 			}
 		}
 	}
