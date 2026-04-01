@@ -106,6 +106,7 @@ hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
 hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exclude
 interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
+netvf | device | --collector.netvf.device-include | --collector.netvf.device-exclude
 qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
 sysctl | all | --collector.sysctl.include | N/A
@@ -202,6 +203,7 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+netvf | Exposes SR-IOV Virtual Function statistics and configuration from netlink. | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
