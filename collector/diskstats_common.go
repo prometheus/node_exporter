@@ -99,9 +99,11 @@ func newDiskstatsDeviceFilter(logger *slog.Logger) (deviceFilter, error) {
 			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
 		}
 	}
-
-	if *diskstatsDeviceExclude != "" && *diskstatsDeviceInclude != "" {
-		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+	if *diskstatsDeviceInclude != "" {
+		if diskstatsDeviceExcludeSet {
+			return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+		}
+		*diskstatsDeviceExclude = ""
 	}
 
 	if *diskstatsDeviceExclude != "" {
