@@ -258,13 +258,13 @@ jobs:
             ln -s $(which gsed) $(pwd)/bin/sed
             ln -s $(which gtar) $(pwd)/bin/tar
             export PATH=$(pwd)/bin:$PATH
-            
+
             echo ">> building promu as it is not shipped for Solaris"
             git clone https://github.com/prometheus/promu.git
             cd promu
             go build .
             cd -
-            
+
             mkdir -p $(go env GOPATH)/bin
             ln -s $(pwd)/promu/promu $(go env GOPATH)/bin/promu
             export PATH=$(go env GOPATH)/bin:$PATH
