@@ -76,7 +76,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/openbsd-vm@7fd5a3e251db9d8bdff2f34aae11a43b6be5ad60  # v1.2.4
+        uses: vmactions/openbsd-vm@9004791062e748d95cc87e499e77485f91888ce1  # v1.3.8
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
