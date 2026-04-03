@@ -87,7 +87,7 @@ jobs:
   test_docker:
     name: Test docker image
     runs-on: ubuntu-latest
-    needs: [test_go, build_all]
+    needs: [test_go, build]
     env:
       DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.26-base
       REPO_PATH: github.com/prometheus/node_exporter
@@ -116,7 +116,7 @@ jobs:
   publish_main:
     name: Publish main branch artifacts
     runs-on: ubuntu-latest
-    needs: [test_go, test_go_arm, build_all]
+    needs: [test_go, test_go_arm, build]
     if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -132,7 +132,7 @@ jobs:
   publish_release:
     name: Publish release artifacts
     runs-on: ubuntu-latest
-    needs: [test_go, test_go_arm, build_all]
+    needs: [test_go, test_go_arm, build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

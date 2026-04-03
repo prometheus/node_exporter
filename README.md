@@ -1,6 +1,6 @@
 # Node exporter
 
-[![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
+[![Build Status](https://github.com/prometheus/node_exporter/actions/workflows/ci.yml/badge.svg)](https://github.com/prometheus/node_exporter/actions/workflows/ci.yml)
 ![bsd workflow](https://github.com/prometheus/node_exporter/actions/workflows/bsd.yml/badge.svg)
 ![golangci-lint workflow](https://github.com/prometheus/node_exporter/actions/workflows/golangci-lint.yml/badge.svg)
 [![Docker Repository on Quay](https://quay.io/repository/prometheus/node-exporter/status)][quay]
