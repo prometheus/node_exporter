@@ -57,6 +57,7 @@ enabled_collectors=$(cat << COLLECTORS
   infiniband
   interrupts
   ipvs
+  kernel_hung
   ksmd
   lnstat
   loadavg
