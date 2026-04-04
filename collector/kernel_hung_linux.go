@@ -29,7 +29,7 @@ type kernelHungCollector struct {
 }
 
 func init() {
-	registerCollector("kernel_hung", defaultDisabled, NewKernelHungCollector)
+	registerCollector("kernel_hung", defaultEnabled, NewKernelHungCollector)
 }
 
 func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
@@ -44,8 +44,8 @@ func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
 }
 
 var (
-	taskDetectCount = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "kernel_hung", "task_detect_count"),
+	kernelHungTasks = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "kernel_hung", "tasks_total"),
 		"Total number of tasks that have been detected as hung since the system booted.",
 		nil, nil,
 	)
@@ -57,7 +57,7 @@ func (c *kernelHungCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	ch <- prometheus.MustNewConstMetric(taskDetectCount, prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
+	ch <- prometheus.MustNewConstMetric(kernelHungTasks, prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
 
 	return nil
 }

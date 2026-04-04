@@ -1924,6 +1924,9 @@ node_ipvs_outgoing_bytes_total 0
 # HELP node_ipvs_outgoing_packets_total The total number of outgoing packets.
 # TYPE node_ipvs_outgoing_packets_total counter
 node_ipvs_outgoing_packets_total 0
+# HELP node_kernel_hung_tasks_total Total number of tasks that have been detected as hung since the system booted.
+# TYPE node_kernel_hung_tasks_total counter
+node_kernel_hung_tasks_total 42
 # HELP node_ksmd_full_scans_total ksmd 'full_scans' file.
 # TYPE node_ksmd_full_scans_total counter
 node_ksmd_full_scans_total 323
@@ -3660,6 +3663,7 @@ node_scrape_collector_success{collector="hwmon"} 1
 node_scrape_collector_success{collector="infiniband"} 1
 node_scrape_collector_success{collector="interrupts"} 1
 node_scrape_collector_success{collector="ipvs"} 1
+node_scrape_collector_success{collector="kernel_hung"} 1
 node_scrape_collector_success{collector="ksmd"} 1
 node_scrape_collector_success{collector="lnstat"} 1
 node_scrape_collector_success{collector="loadavg"} 1
