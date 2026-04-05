@@ -214,6 +214,48 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 				),
 				prometheus.GaugeValue, *value, powerSupplyName,
 			)
+
+			if c.useNewNames {
+				newValue := *value
+				newName := name
+				switch {
+				case name == "voltage_volt":
+					newName = "voltage_volts"
+				case name == "current_ampere":
+					newName = "current_amperes"
+				case strings.HasSuffix(name, "_capacity"):
+					newName = strings.TrimSuffix(name, "_capacity") + "_capacity_coulombs"
+					newValue *= 3.6 // 1 mAh = 3.6 Coulombs
+				case name == "charging":
+				}
+
+				if newName != name {
+					ch <- prometheus.MustNewConstMetric(
+						prometheus.NewDesc(
+							prometheus.BuildFQName(namespace, c.subsystem, newName),
+							fmt.Sprintf("IOKit Power Source information field %s for <power_supply>.", newName),
+							[]string{"power_supply"}, nil,
+						),
+						prometheus.GaugeValue, newValue, powerSupplyName,
+					)
+				}
+			}
+		}
+
+		if c.useNewNames {
+			// Add capacity_ratio for consistency with Linux
+			data := getPowerSourceDescriptorMap(info)
+			if data["current_capacity"] != nil && data["max_capacity"] != nil && *data["max_capacity"] > 0 {
+				ratio := *data["current_capacity"] / *data["max_capacity"]
+				ch <- prometheus.MustNewConstMetric(
+					prometheus.NewDesc(
+						prometheus.BuildFQName(namespace, c.subsystem, "capacity_ratio"),
+						"IOKit Power Source capacity ratio for <power_supply>.",
+						[]string{"power_supply"}, nil,
+					),
+					prometheus.GaugeValue, ratio, powerSupplyName,
+				)
+			}
 		}
 
 		pushEnumMetric(

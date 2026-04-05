@@ -50,6 +50,24 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 		} {
 			if value != nil {
 				pushPowerSupplyMetric(ch, c.subsystem, name, float64(*value), powerSupply.Name, prometheus.GaugeValue)
+				if c.useNewNames {
+					newValue := float64(*value)
+					newName := name
+					switch name {
+					case "capacity":
+						newName = "capacity_ratio"
+						newValue /= 100
+					case "capacity_alert_max":
+						newName = "capacity_alert_max_ratio"
+						newValue /= 100
+					case "capacity_alert_min":
+						newName = "capacity_alert_min_ratio"
+						newValue /= 100
+					}
+					if newName != name {
+						pushPowerSupplyMetric(ch, c.subsystem, newName, newValue, powerSupply.Name, prometheus.GaugeValue)
+					}
+				}
 			}
 		}
 
@@ -88,6 +106,37 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 		} {
 			if value != nil {
 				pushPowerSupplyMetric(ch, c.subsystem, name, float64(*value)/1e6, powerSupply.Name, prometheus.GaugeValue)
+				if c.useNewNames {
+					newValue := float64(*value) / 1e6
+					newName := name
+					switch {
+					case strings.Contains(name, "current"):
+						if !strings.HasSuffix(name, "_amperes") {
+							newName = strings.TrimSuffix(name, "_ampere") + "_amperes"
+						}
+					case strings.Contains(name, "voltage"):
+						if !strings.HasSuffix(name, "_volts") {
+							newName = strings.TrimSuffix(name, "_volt") + "_volts"
+						}
+					case strings.Contains(name, "energy"):
+						if !strings.HasSuffix(name, "_joules") {
+							newName = strings.TrimSuffix(name, "_watthour") + "_joules"
+							newValue *= 3600
+						}
+					case strings.Contains(name, "charge"):
+						if !strings.HasSuffix(name, "_coulombs") {
+							newName = strings.TrimSuffix(name, "_ampere") + "_coulombs"
+							newValue *= 3600
+						}
+					case strings.Contains(name, "power"):
+						if !strings.HasSuffix(name, "_watts") {
+							newName = strings.TrimSuffix(name, "_watt") + "_watts"
+						}
+					}
+					if newName != name {
+						pushPowerSupplyMetric(ch, c.subsystem, newName, newValue, powerSupply.Name, prometheus.GaugeValue)
+					}
+				}
 			}
 		}
 
@@ -132,7 +181,7 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 
 		fieldDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
-			"info of /sys/class/power_supply/<power_supply>.",
+			"Power supply information from /sys/class/power_supply.",
 			keys,
 			nil,
 		)
@@ -146,7 +195,7 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 func pushPowerSupplyMetric(ch chan<- prometheus.Metric, subsystem string, name string, value float64, powerSupplyName string, valueType prometheus.ValueType) {
 	fieldDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
-		fmt.Sprintf("%s value of /sys/class/power_supply/<power_supply>.", name),
+		fmt.Sprintf("The %s value of /sys/class/power_supply/<power_supply>.", name),
 		[]string{"power_supply"},
 		nil,
 	)
