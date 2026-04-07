@@ -16,8 +16,10 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
@@ -54,6 +56,10 @@ var (
 func (c *kernelHungCollector) Update(ch chan<- prometheus.Metric) error {
 	kernelHung, err := c.fs.KernelHung()
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.logger.Debug("hung_task_detect_count does not exist")
+			return ErrNoData
+		}
 		return err
 	}
 
