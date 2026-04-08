@@ -100,7 +100,7 @@ func newDiskstatsDeviceFilter(logger *slog.Logger) (deviceFilter, error) {
 		}
 	}
 	if *diskstatsDeviceInclude != "" {
-		if diskstatsDeviceExcludeSet {
+		if diskstatsDeviceExcludeSet && *diskstatsDeviceExclude != "" {
 			return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
 		}
 		*diskstatsDeviceExclude = ""
