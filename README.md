@@ -100,6 +100,7 @@ cpu | flags | --collector.cpu.info.flags-include | N/A
 diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
 ethtool | device | --collector.ethtool.device-include | --collector.ethtool.device-exclude
 ethtool | metrics | --collector.ethtool.metrics-include | N/A
+ext4 | partition | --collector.ext4.partition-include | --collector.ext4.partition-exclude
 filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.filesystem.fs-types-exclude
 filesystem | mount-points | --collector.filesystem.mount-points-include | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
@@ -128,6 +129,7 @@ dmi | Expose Desktop Management Interface (DMI) info from `/sys/class/dmi/id/` |
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
+ext4 | Exposes ext4 statistics by partition from `/sys/fs/ext4/` | Linux
 fibrechannel | Exposes fibre channel information and statistics from `/sys/class/fc_host/`. | Linux
 filefd | Exposes file descriptor statistics from `/proc/sys/fs/file-nr`. | Linux
 filesystem | Exposes filesystem statistics, such as disk space used. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD

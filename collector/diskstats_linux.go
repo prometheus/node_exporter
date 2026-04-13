@@ -75,6 +75,8 @@ type diskstatsCollector struct {
 	filesystemInfoDesc      typedDesc
 	deviceMapperInfoDesc    typedDesc
 	ataDescs                map[string]typedDesc
+	ioErrDesc               typedDesc
+	ioDoneDesc              typedDesc
 	logger                  *slog.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -247,6 +249,20 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				), valueType: prometheus.GaugeValue,
 			},
 		},
+		ioErrDesc: typedDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ioerr_total"),
+				"Number of IO commands that completed with an error.",
+				[]string{"device"},
+				nil,
+			), valueType: prometheus.CounterValue,
+		},
+		ioDoneDesc: typedDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "iodone_total"),
+				"Number of completed or rejected IO commands.",
+				[]string{"device"},
+				nil,
+			), valueType: prometheus.CounterValue,
+		},
 		logger: logger,
 	}
 
@@ -368,6 +384,15 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				}
 			}
 		}
+
+		ioDeviceStats, ioErr := c.fs.SysBlockDeviceIOStat(dev)
+		if ioErr == nil {
+			ch <- c.ioErrDesc.mustNewConstMetric(float64(ioDeviceStats.IOErrCount), dev)
+			ch <- c.ioDoneDesc.mustNewConstMetric(float64(ioDeviceStats.IODoneCount), dev)
+		} else if !os.IsNotExist(ioErr) {
+			c.logger.Debug("Failed to get block device io stats", "device", dev, "err", ioErr)
+		}
+
 	}
 	return nil
 }
