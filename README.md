@@ -75,6 +75,7 @@ On some systems, the `timex` collector requires an additional Docker flag,
 
 There is varying support for collectors on each operating system. The tables
 below list all existing collectors and the supported systems.
+For a complete list of all metrics exposed by these collectors, see [METRICS.md](docs/METRICS.md).
 
 Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
@@ -190,6 +191,7 @@ Name     | Description | OS
 ---------|-------------|----
 buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinfo. | Linux
 cgroups | A summary of the number of active and enabled cgroups | Linux
+cifs | Exposes CIFS client statistics from `/proc/fs/cifs/Stats`. | Linux
 cpu\_vulnerabilities | Exposes CPU vulnerability information from sysfs. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drm | Expose GPU metrics using sysfs / DRM, `amdgpu` is the only driver which exposes this information through DRM | Linux

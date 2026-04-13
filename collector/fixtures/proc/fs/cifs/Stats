@@ -1,0 +1,19 @@
+Resources in use
+CIFS Session: 2
+Share (unique mount targets): 3
+SMB Request/Response Buffer: 1 Pool size: 5
+SMB Small Req/Resp Buffer: 1 Pool size: 30
+Operations (MIDs): 0
+
+3 session 5 share reconnects
+Total vfs operations: 67 maximum at one time: 2
+
+1) \\server1\share1
+SMBs: 1234
+Bytes read: 123456
+Bytes written: 654321
+
+2) \\server2\share2
+SMBs: 5678
+Bytes read: 789012
+Bytes written: 210987
