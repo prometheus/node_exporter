@@ -16,19 +16,14 @@
 package collector
 
 import (
-	"bufio"
-	"errors"
 	"fmt"
-	"io"
 	"log/slog"
-	"maps"
-	"os"
+	"reflect"
 	"regexp"
-	"strconv"
-	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
 const (
@@ -40,6 +35,7 @@ var (
 )
 
 type netStatCollector struct {
+	fs           procfs.FS
 	fieldPattern *regexp.Regexp
 	logger       *slog.Logger
 }
@@ -51,37 +47,27 @@ func init() {
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
 func NewNetStatCollector(logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
 	pattern := regexp.MustCompile(*netStatFields)
 	return &netStatCollector{
+		fs:           fs,
 		fieldPattern: pattern,
 		logger:       logger,
 	}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
-	netStats, err := getNetStats(procFilePath("net/netstat"))
+	netStats, err := c.getNetStats()
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
-	snmpStats, err := getNetStats(procFilePath("net/snmp"))
-	if err != nil {
-		return fmt.Errorf("couldn't get SNMP stats: %w", err)
-	}
-	snmp6Stats, err := getSNMP6Stats(procFilePath("net/snmp6"))
-	if err != nil {
-		return fmt.Errorf("couldn't get SNMP6 stats: %w", err)
-	}
-	// Merge the results of snmpStats into netStats (collisions are possible, but
-	// we know that the keys are always unique for the given use case).
-	maps.Copy(netStats, snmpStats)
-	maps.Copy(netStats, snmp6Stats)
+
 	for protocol, protocolStats := range netStats {
 		for name, value := range protocolStats {
 			key := protocol + "_" + name
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return fmt.Errorf("invalid value %s in netstats: %w", value, err)
-			}
 			if !c.fieldPattern.MatchString(key) {
 				continue
 			}
@@ -91,85 +77,86 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 					fmt.Sprintf("Statistic %s.", protocol+name),
 					nil, nil,
 				),
-				prometheus.UntypedValue, v,
+				prometheus.UntypedValue, value,
 			)
 		}
 	}
 	return nil
 }
 
-func getNetStats(fileName string) (map[string]map[string]string, error) {
-	file, err := os.Open(fileName)
+// getNetStats reads network statistics from the procfs using typed structs
+// (procfs.ProcNetstat, procfs.ProcSnmp, procfs.ProcSnmp6) and returns a
+// unified map of protocol → field → float64 value.
+//
+// On Linux /proc/net/netstat, /proc/net/snmp, and /proc/net/snmp6 are
+// namespaced: they present the same data as /proc/1/net/... for the global
+// (init) network namespace. The procfs library reads these via the
+// per-process path; using PID 1 (init/systemd) is the standard way to
+// access global network namespace statistics.
+func (c *netStatCollector) getNetStats() (map[string]map[string]float64, error) {
+	result := make(map[string]map[string]float64)
+
+	proc, err := c.fs.Proc(1)
 	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseNetStats(file, fileName)
-}
-
-func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, error) {
-	var (
-		netStats = map[string]map[string]string{}
-		scanner  = bufio.NewScanner(r)
-	)
-
-	for scanner.Scan() {
-		nameParts := strings.Split(scanner.Text(), " ")
-		scanner.Scan()
-		valueParts := strings.Split(scanner.Text(), " ")
-		// Remove trailing :.
-		protocol := nameParts[0][:len(nameParts[0])-1]
-		netStats[protocol] = map[string]string{}
-		if len(nameParts) != len(valueParts) {
-			return nil, fmt.Errorf("mismatch field count mismatch in %s: %s",
-				fileName, protocol)
-		}
-		for i := 1; i < len(nameParts); i++ {
-			netStats[protocol][nameParts[i]] = valueParts[i]
-		}
+		return nil, fmt.Errorf("failed to open proc(1): %w", err)
 	}
 
-	return netStats, scanner.Err()
-}
-
-func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
-	file, err := os.Open(fileName)
+	// /proc/1/net/netstat → TcpExt and IpExt sections.
+	netstat, err := proc.Netstat()
 	if err != nil {
-		// On systems with IPv6 disabled, this file won't exist.
-		// Do nothing.
-		if errors.Is(err, os.ErrNotExist) {
-			return nil, nil
-		}
-
-		return nil, err
+		return nil, fmt.Errorf("couldn't read netstat: %w", err)
 	}
-	defer file.Close()
+	addStructFields(result, "TcpExt", netstat.TcpExt)
+	addStructFields(result, "IpExt", netstat.IpExt)
 
-	return parseSNMP6Stats(file)
+	// /proc/1/net/snmp → Ip, Icmp, IcmpMsg, Tcp, Udp, UdpLite sections.
+	snmp, err := proc.Snmp()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't read snmp: %w", err)
+	}
+	addStructFields(result, "Ip", snmp.Ip)
+	addStructFields(result, "Icmp", snmp.Icmp)
+	addStructFields(result, "IcmpMsg", snmp.IcmpMsg)
+	addStructFields(result, "Tcp", snmp.Tcp)
+	addStructFields(result, "Udp", snmp.Udp)
+	addStructFields(result, "UdpLite", snmp.UdpLite)
+
+	// /proc/1/net/snmp6 → Ip6, Icmp6, Udp6, UdpLite6 sections.
+	// This file may not exist on systems with IPv6 disabled; absence is
+	// treated as an empty result rather than an error (matching the prior
+	// getSNMP6Stats behaviour).
+	snmp6, err := proc.Snmp6()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't read snmp6: %w", err)
+	}
+	addStructFields(result, "Ip6", snmp6.Ip6)
+	addStructFields(result, "Icmp6", snmp6.Icmp6)
+	addStructFields(result, "Udp6", snmp6.Udp6)
+	addStructFields(result, "UdpLite6", snmp6.UdpLite6)
+
+	return result, nil
 }
 
-func parseSNMP6Stats(r io.Reader) (map[string]map[string]string, error) {
-	var (
-		netStats = map[string]map[string]string{}
-		scanner  = bufio.NewScanner(r)
-	)
+// addStructFields uses reflection to iterate the exported *float64 fields of
+// a procfs typed struct (e.g. procfs.TcpExt, procfs.Ip, procfs.Ip6) and
+// stores non-nil values in result[protocol].
+func addStructFields(result map[string]map[string]float64, protocol string, s interface{}) {
+	if _, ok := result[protocol]; !ok {
+		result[protocol] = make(map[string]float64)
+	}
 
-	for scanner.Scan() {
-		stat := strings.Fields(scanner.Text())
-		if len(stat) < 2 {
+	v := reflect.ValueOf(s)
+	t := v.Type()
+
+	for i := range t.NumField() {
+		field := t.Field(i)
+		if !field.IsExported() {
 			continue
 		}
-		// Expect to have "6" in metric name, skip line otherwise
-		if sixIndex := strings.Index(stat[0], "6"); sixIndex != -1 {
-			protocol := stat[0][:sixIndex+1]
-			name := stat[0][sixIndex+1:]
-			if _, present := netStats[protocol]; !present {
-				netStats[protocol] = map[string]string{}
-			}
-			netStats[protocol][name] = stat[1]
+		fv := v.Field(i)
+		// All stat fields in procfs network structs are *float64 pointers.
+		if fv.Kind() == reflect.Ptr && !fv.IsNil() {
+			result[protocol][field.Name] = fv.Elem().Float()
 		}
 	}
-
-	return netStats, scanner.Err()
 }
