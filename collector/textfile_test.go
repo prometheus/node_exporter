@@ -27,6 +27,7 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/promslog"
 	"github.com/prometheus/common/promslog/flag"
 )
@@ -154,5 +155,83 @@ func TestTextfileCollector(t *testing.T) {
 		if string(want) != got {
 			t.Fatalf("%d.%q want:\n\n%s\n\ngot:\n\n%s", i, test.paths, string(want), got)
 		}
+	}
+}
+
+func TestMetricFamilyLabelNames(t *testing.T) {
+	tests := []struct {
+		name             string
+		metricFamily     *dto.MetricFamily
+		wantLabelNames   []string
+		wantLabelIndexes map[string]int
+	}{
+		{
+			name:             "empty metric family",
+			metricFamily:     &dto.MetricFamily{},
+			wantLabelIndexes: map[string]int{},
+		},
+		{
+			name: "preserves first-seen order across sparse labels",
+			metricFamily: &dto.MetricFamily{
+				Metric: []*dto.Metric{
+					{
+						Label: []*dto.LabelPair{
+							dtoLabelPair("code", "200"),
+							dtoLabelPair("method", "get"),
+						},
+					},
+					{
+						Label: []*dto.LabelPair{
+							dtoLabelPair("handler", "query"),
+							dtoLabelPair("code", "500"),
+						},
+					},
+					{
+						Label: []*dto.LabelPair{
+							dtoLabelPair("method", "post"),
+							dtoLabelPair("tenant", "prod"),
+						},
+					},
+				},
+			},
+			wantLabelNames: []string{"code", "method", "handler", "tenant"},
+			wantLabelIndexes: map[string]int{
+				"code":    0,
+				"method":  1,
+				"handler": 2,
+				"tenant":  3,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			gotLabelNames, gotLabelIndexes := metricFamilyLabelNames(test.metricFamily)
+
+			if len(gotLabelNames) != len(test.wantLabelNames) {
+				t.Fatalf("got %d label names, want %d", len(gotLabelNames), len(test.wantLabelNames))
+			}
+			for i, want := range test.wantLabelNames {
+				if gotLabelNames[i] != want {
+					t.Fatalf("labelNames[%d] = %q, want %q", i, gotLabelNames[i], want)
+				}
+			}
+
+			if len(gotLabelIndexes) != len(test.wantLabelIndexes) {
+				t.Fatalf("got %d label indexes, want %d", len(gotLabelIndexes), len(test.wantLabelIndexes))
+			}
+			for name, want := range test.wantLabelIndexes {
+				if gotLabelIndexes[name] != want {
+					t.Fatalf("labelIndexes[%q] = %d, want %d", name, gotLabelIndexes[name], want)
+				}
+			}
+		})
+	}
+}
+
+func dtoLabelPair(name, value string) *dto.LabelPair {
+	return &dto.LabelPair{
+		Name:  &name,
+		Value: &value,
 	}
 }
