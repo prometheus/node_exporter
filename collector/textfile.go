@@ -175,7 +175,7 @@ func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- 
 		if c.mtime != nil {
 			mtime = *c.mtime
 		}
-		ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, path)
+		ch <- prometheus.MustNewConstMetric(mtimeDesc, prometheus.GaugeValue, mtime, filepath.ToSlash(path))
 	}
 }
 
@@ -208,12 +208,11 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		for _, f := range files {
-			metricsFilePath := filepath.Join(path, f.Name())
 			if !strings.HasSuffix(f.Name(), ".prom") {
 				continue
 			}
-
-			mtime, families, err := c.processFile(path, f.Name(), ch)
+			mtime, families, err := c.processFile(path, f.Name())
+			metricsFilePath := filepath.ToSlash(filepath.Join(path, f.Name()))
 
 			for _, mf := range families {
 				// Check for metrics with inconsistent help texts and take the first help text occurrence.
@@ -285,7 +284,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 // processFile processes a single file, returning its modification time on success.
-func (c *textFileCollector) processFile(dir, name string, ch chan<- prometheus.Metric) (*time.Time, map[string]*dto.MetricFamily, error) {
+func (c *textFileCollector) processFile(dir, name string) (*time.Time, map[string]*dto.MetricFamily, error) {
 	path := filepath.Join(dir, name)
 	f, err := os.Open(path)
 	if err != nil {
