@@ -16,7 +16,7 @@ require (
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mdlayher/ethtool v0.6.0
-	github.com/mdlayher/netlink v1.10.0
+	github.com/mdlayher/netlink v1.11.1
 	github.com/mdlayher/wifi v0.7.2
 	github.com/opencontainers/selinux v1.13.1
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55
@@ -44,7 +44,7 @@ require (
 	github.com/jpillora/backoff v1.0.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mdlayher/genetlink v1.3.2 // indirect
-	github.com/mdlayher/socket v0.5.1 // indirect
+	github.com/mdlayher/socket v0.6.0 // indirect
 	github.com/mdlayher/vsock v1.2.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
