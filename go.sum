@@ -56,10 +56,10 @@ github.com/mdlayher/ethtool v0.6.0 h1:w2VJlyAxXajaLxIBOEviIlR+QcRjGO6onVIzrGt5Zs
 github.com/mdlayher/ethtool v0.6.0/go.mod h1:AQayR0oe0+6wqogmFO7X9GmmbuXChIme2EF7dxvHy/A=
 github.com/mdlayher/genetlink v1.3.2 h1:KdrNKe+CTu+IbZnm/GVUMXSqBBLqcGpRDa0xkQy56gw=
 github.com/mdlayher/genetlink v1.3.2/go.mod h1:tcC3pkCrPUGIKKsCsp0B3AdaaKuHtaxoJRz3cc+528o=
-github.com/mdlayher/netlink v1.10.0 h1:K7NHm0iQh2nOtfsj/YNNSN1s7T5JGtNCNwP66OKNiEw=
-github.com/mdlayher/netlink v1.10.0/go.mod h1:YBnl5BXsCoRuwBjKKlZ+aYmEoq0r12FDA/3JC+94KDg=
-github.com/mdlayher/socket v0.5.1 h1:VZaqt6RkGkt2OE9l3GcC6nZkqD3xKeQLyfleW/uBcos=
-github.com/mdlayher/socket v0.5.1/go.mod h1:TjPLHI1UgwEv5J1B5q0zTZq12A/6H7nKmtTanQE37IQ=
+github.com/mdlayher/netlink v1.11.1 h1:T136gDS6Gkt+hLncaBwKdW5GpEC8Z0ykqimOebVoal0=
+github.com/mdlayher/netlink v1.11.1/go.mod h1:ao4LjamyK4Uq9L8+fQzqFYpAncbeCdwbvd9Edv/pYnc=
+github.com/mdlayher/socket v0.6.0 h1:ScZPaAGyO1icQnbFrhPM8mnXyMu9qukC1K4ZoM2IQKU=
+github.com/mdlayher/socket v0.6.0/go.mod h1:q7vozUAnxSqnjHc12Fik5yUKIzfZ8ITCfMkhOtE9z18=
 github.com/mdlayher/vsock v1.2.1 h1:pC1mTJTvjo1r9n9fbm7S1j04rCgCzhCOS5DY0zqHlnQ=
 github.com/mdlayher/vsock v1.2.1/go.mod h1:NRfCibel++DgeMD8z/hP+PPTjlNJsdPOmxcnENvE+SE=
 github.com/mdlayher/wifi v0.7.2 h1:5yBq4nTm2HIYarKpJHrHU8q2BuxlX/BEfPa8kVKeOYU=
