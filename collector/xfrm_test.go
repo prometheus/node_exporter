@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"fmt"
 	"io"
 	"log/slog"
 	"strings"
@@ -133,15 +132,6 @@ func TestXfrmStats(t *testing.T) {
 	}
 	reg := prometheus.NewRegistry()
 	reg.MustRegister(&testXfrmCollector{xc: c})
-
-	sink := make(chan prometheus.Metric)
-	go func() {
-		err = c.Update(sink)
-		if err != nil {
-			panic(fmt.Errorf("failed to update collector: %s", err))
-		}
-		close(sink)
-	}()
 
 	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
