@@ -24,6 +24,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -128,11 +129,15 @@ func TestIPVSCollector(t *testing.T) {
 			}
 
 			sink := make(chan prometheus.Metric)
+			var wg sync.WaitGroup
+			wg.Add(1)
 			go func() {
+				defer wg.Done()
 				err = collector.Update(sink)
 				if err != nil {
 					panic(fmt.Sprintf("failed to update collector: %v", err))
 				}
+				close(sink)
 			}()
 			for _, expected := range test.expects {
 				got := (<-sink).Desc().String()
@@ -140,6 +145,12 @@ func TestIPVSCollector(t *testing.T) {
 					t.Fatalf("Expected '%s' but got '%s'", expected, got)
 				}
 			}
+			// Drain remaining metrics so the goroutine can finish.
+			go func() {
+				for range sink {
+				}
+			}()
+			wg.Wait()
 		})
 	}
 }
