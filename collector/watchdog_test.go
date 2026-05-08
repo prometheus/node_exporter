@@ -20,6 +20,7 @@ import (
 	"io"
 	"log/slog"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -76,7 +77,10 @@ func TestWatchdogStats(t *testing.T) {
 	reg.MustRegister(&testWatchdogCollector{wc: c})
 
 	sink := make(chan prometheus.Metric)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		err = c.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
@@ -88,4 +92,5 @@ func TestWatchdogStats(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	wg.Wait()
 }
