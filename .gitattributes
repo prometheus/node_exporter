@@ -1,0 +1,12 @@
+* text=auto eol=lf
+*.go text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.prom text eol=lf
+*.out text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+Makefile text eol=lf
+VERSION text eol=lf
+ttar text eol=lf
