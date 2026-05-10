@@ -116,8 +116,8 @@ update_fixtures:
 
 .PHONY: tools
 tools:
-	@rm ./tools/tools >/dev/null 2>&1 || true
-	@$(GO) build -o tools ./tools/...
+	@rm -f ./tools/tools
+	@$(GO) build -o tools/tools ./tools/main.go
 
 .PHONY: test-e2e
 test-e2e: build collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked tools
@@ -138,6 +138,11 @@ checkmetrics: $(PROMTOOL)
 checkrules: $(PROMTOOL)
 	@echo ">> checking rules for correctness"
 	find . -name "*rules*.yml" | xargs -I {} $(PROMTOOL) check rules {}
+
+.PHONY: generate-metrics-doc
+generate-metrics-doc:
+	@echo ">> generating metrics documentation"
+	$(GO) run tools/doc_generator/main.go > docs/METRICS.md
 
 .PHONY: test-docker
 test-docker:
