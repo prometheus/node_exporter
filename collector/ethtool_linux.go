@@ -26,6 +26,7 @@ import (
 	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -49,6 +50,7 @@ type Ethtool interface {
 	DriverInfo(string) (ethtool.DrvInfo, error)
 	Stats(string) (map[string]uint64, error)
 	LinkInfo(string) (ethtool.EthtoolCmd, error)
+	ModuleEeprom(string) ([]byte, error)
 }
 
 type ethtoolLibrary struct {
@@ -69,15 +71,24 @@ func (e *ethtoolLibrary) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return ethtoolCmd, err
 }
 
+func (e *ethtoolLibrary) ModuleEeprom(intf string) ([]byte, error) {
+	return e.ethtool.ModuleEeprom(intf)
+}
+
 type ethtoolCollector struct {
-	fs             sysfs.FS
-	entries        map[string]*prometheus.Desc
-	entriesMutex   sync.Mutex
-	ethtool        Ethtool
-	deviceFilter   deviceFilter
-	infoDesc       *prometheus.Desc
-	metricsPattern *regexp.Regexp
-	logger         *slog.Logger
+	fs                    sysfs.FS
+	entries               map[string]*prometheus.Desc
+	entriesMutex          sync.Mutex
+	ethtool               Ethtool
+	deviceFilter          deviceFilter
+	infoDesc              *prometheus.Desc
+	moduleTemperatureDesc *prometheus.Desc
+	moduleVoltageDesc     *prometheus.Desc
+	moduleTxBiasDesc      *prometheus.Desc
+	moduleTxPowerDesc     *prometheus.Desc
+	moduleRxPowerDesc     *prometheus.Desc
+	metricsPattern        *regexp.Regexp
+	logger                *slog.Logger
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
@@ -111,6 +122,31 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 		deviceFilter:   newDeviceFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
 		metricsPattern: regexp.MustCompile(*ethtoolIncludedMetrics),
 		logger:         logger,
+		moduleTemperatureDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "ethtool", "module_temperature_celsius"),
+			"Module temperature in degrees Celsius",
+			[]string{"device"}, nil,
+		),
+		moduleVoltageDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "ethtool", "module_voltage_volts"),
+			"Module supply voltage in volts",
+			[]string{"device"}, nil,
+		),
+		moduleTxBiasDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "ethtool", "module_tx_bias_milliamperes"),
+			"Module TX laser bias current in milliamperes",
+			[]string{"device", "lane"}, nil,
+		),
+		moduleTxPowerDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "ethtool", "module_tx_power_milliwatts"),
+			"Module TX optical power in milliwatts",
+			[]string{"device", "lane"}, nil,
+		),
+		moduleRxPowerDesc: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "ethtool", "module_rx_power_milliwatts"),
+			"Module RX optical power in milliwatts",
+			[]string{"device", "lane"}, nil,
+		),
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "received_bytes_total"),
@@ -443,6 +479,27 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			} else {
 				c.logger.Error("ethtool stats error", "err", err, "device", device)
 			}
+		}
+
+		eepromData, err := c.ethtool.ModuleEeprom(device)
+		if err == nil {
+			modMetrics, parseErr := parseModuleEeprom(eepromData)
+			if parseErr == nil {
+				ch <- prometheus.MustNewConstMetric(c.moduleTemperatureDesc, prometheus.GaugeValue, modMetrics.temperature, device)
+				ch <- prometheus.MustNewConstMetric(c.moduleVoltageDesc, prometheus.GaugeValue, modMetrics.voltage, device)
+				for i, lane := range modMetrics.lanes {
+					laneStr := strconv.Itoa(i + 1)
+					ch <- prometheus.MustNewConstMetric(c.moduleTxBiasDesc, prometheus.GaugeValue, lane.txBias, device, laneStr)
+					ch <- prometheus.MustNewConstMetric(c.moduleTxPowerDesc, prometheus.GaugeValue, lane.txPower, device, laneStr)
+					ch <- prometheus.MustNewConstMetric(c.moduleRxPowerDesc, prometheus.GaugeValue, lane.rxPower, device, laneStr)
+				}
+			} else {
+				c.logger.Debug("ethtool module EEPROM parse error", "err", parseErr, "device", device)
+			}
+		} else if err != unix.EOPNOTSUPP {
+			c.logger.Error("ethtool module EEPROM error", "err", err, "device", device)
+		} else {
+			c.logger.Debug("ethtool module EEPROM error", "err", err, "device", device)
 		}
 
 		if len(stats) == 0 {
