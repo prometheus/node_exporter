@@ -247,7 +247,7 @@ perf_event_open`](http://man7.org/linux/man-pages/man2/perf_event_open.2.html).
 
 By default, the `perf` collector will only collect metrics of the CPUs that
 `node_exporter` is running on (ie
-[`runtime.NumCPU`](https://golang.org/pkg/runtime/#NumCPU). If this is
+[`runtime.NumCPU`](https://pkg.go.dev/runtime#NumCPU). If this is
 insufficient (e.g. if you run `node_exporter` with its CPU affinity set to
 specific CPUs), you can specify a list of alternate CPUs by using the
 `--collector.perf.cpus` flag. For example, to collect metrics on CPUs 2-6, you
@@ -366,7 +366,7 @@ This can be useful for having different Prometheus servers collect specific metr
 
 Prerequisites:
 
-* [Go compiler](https://golang.org/dl/)
+* [Go compiler](https://go.dev/dl/)
 * RHEL/CentOS: `glibc-static` package.
 
 Building:
