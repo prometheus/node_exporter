@@ -47,6 +47,9 @@ var statWorkerCount = kingpin.Flag("collector.filesystem.stat-workers",
 var stuckMounts = make(map[string]struct{})
 var stuckMountsMtx = &sync.Mutex{}
 
+// /proc/*/mountinfo can be observed mid-update under heavy mount churn.
+const mountInfoParseRetries = 3
+
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	mps, err := mountPointDetails(c.logger)
@@ -183,17 +186,41 @@ func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
-	mountInfo, err := fs.GetProcMounts(1)
+	mountInfo, err := getMountInfoWithRetry(logger, func() ([]*procfs.MountInfo, error) {
+		return fs.GetProcMounts(1)
+	})
 	if errors.Is(err, os.ErrNotExist) {
 		// Fallback to `/proc/self/mountinfo` if `/proc/1/mountinfo` is missing due hidepid.
 		logger.Debug("Reading root mounts failed, falling back to self mounts", "err", err)
-		mountInfo, err = fs.GetMounts()
+		mountInfo, err = getMountInfoWithRetry(logger, func() ([]*procfs.MountInfo, error) {
+			return fs.GetMounts()
+		})
 	}
 	if err != nil {
 		return nil, err
 	}
 
 	return parseFilesystemLabels(mountInfo)
+}
+
+func getMountInfoWithRetry(logger *slog.Logger, readMountInfo func() ([]*procfs.MountInfo, error)) ([]*procfs.MountInfo, error) {
+	var (
+		mountInfo []*procfs.MountInfo
+		err       error
+	)
+
+	for attempt := 1; attempt <= mountInfoParseRetries; attempt++ {
+		mountInfo, err = readMountInfo()
+		if !errors.Is(err, procfs.ErrFileParse) {
+			return mountInfo, err
+		}
+		if attempt == mountInfoParseRetries {
+			break
+		}
+		logger.Debug("Parsing mountinfo failed, retrying", "attempt", attempt, "err", err)
+	}
+
+	return mountInfo, err
 }
 
 func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, error) {
