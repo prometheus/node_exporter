@@ -27,8 +27,9 @@ import (
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
 	tests := []struct {
-		name string
-		in   []*procfs.MountInfo
+		name  string
+		in    []*procfs.MountInfo
+		uuids map[string]string
 	}{
 		{
 			name: "malformed Major:Minor",
@@ -37,12 +38,13 @@ func Test_parseFilesystemLabelsError(t *testing.T) {
 					MajorMinorVer: "nope",
 				},
 			},
+			uuids: map[string]string{},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := parseFilesystemLabels(tt.in); err == nil {
+			if _, err := parseFilesystemLabels(tt.in, tt.uuids); err == nil {
 				t.Fatal("expected an error, but none occurred")
 			}
 		})

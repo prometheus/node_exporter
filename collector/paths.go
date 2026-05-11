@@ -27,6 +27,7 @@ var (
 	sysPath      = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
 	rootfsPath   = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
 	udevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
+	devDiskPath  = kingpin.Flag("path.dev.disk", "path to /dev/disk").Default("/dev/disk").String()
 )
 
 func procFilePath(name string) string {
@@ -43,6 +44,10 @@ func rootfsFilePath(name string) string {
 
 func udevDataFilePath(name string) string {
 	return filepath.Join(*udevDataPath, name)
+}
+
+func devDiskFilePath(name string) string {
+	return filepath.Join(*devDiskPath, name)
 }
 
 func rootfsStripPrefix(path string) string {
