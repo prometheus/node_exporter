@@ -66,6 +66,7 @@ type systemdCollector struct {
 	unitTasksCurrentDesc          *prometheus.Desc
 	unitTasksMaxDesc              *prometheus.Desc
 	systemRunningDesc             *prometheus.Desc
+	systemShutdownDesc            *prometheus.Desc
 	summaryDesc                   *prometheus.Desc
 	nRestartsDesc                 *prometheus.Desc
 	timerLastTriggerDesc          *prometheus.Desc
@@ -109,6 +110,11 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 	systemRunningDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, "system_running"),
 		"Whether the system is operational (see 'systemctl is-system-running')",
+		nil, nil,
+	)
+	systemShutdownDesc := prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, subsystem, "system_shutdown_timestamp_seconds"),
+		"The scheduled shutdown timestamp')",
 		nil, nil,
 	)
 	summaryDesc := prometheus.NewDesc(
@@ -163,6 +169,7 @@ func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
 		unitTasksCurrentDesc:          unitTasksCurrentDesc,
 		unitTasksMaxDesc:              unitTasksMaxDesc,
 		systemRunningDesc:             systemRunningDesc,
+		systemShutdownDesc:            systemShutdownDesc,
 		summaryDesc:                   summaryDesc,
 		nRestartsDesc:                 nRestartsDesc,
 		timerLastTriggerDesc:          timerLastTriggerDesc,
@@ -274,7 +281,14 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 		begin := time.Now()
 		err = c.collectSystemState(conn, ch)
 		c.logger.Debug("collectSystemState took", "duration_seconds", time.Since(begin).Seconds())
+		if err != nil {
+			return err
+		}
 	}
+
+	begin = time.Now()
+	err = c.collectScheduledShutdownMetrics(conn, ch)
+	c.logger.Debug("collectScheduledShutdownMetrics took", "duration_seconds", time.Since(begin).Seconds())
 
 	return err
 }
@@ -352,6 +366,26 @@ func (c *systemdCollector) collectSockets(conn *dbus.Conn, ch chan<- prometheus.
 				float64(refusedConnectionCount.Value.Value().(uint32)), unit.Name)
 		}
 	}
+}
+
+func (c *systemdCollector) collectScheduledShutdownMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric) error {
+	// var shutdownTimeUsec uint64
+
+	// timestampValue, err := conn.GetServicePropertyContext(context.TODO(), "org.freedesktop.login1.Manager", "ScheduledShutdown")
+	shutdownValue, err := conn.GetManagerProperty("ScheduledShutdown")
+	c.logger.Info("got ScheduledShutdown", "value", shutdownValue)
+	return nil
+	if err != nil {
+		c.logger.Debug("couldn't get ScheduledShutdown", "err", err)
+		return errors.New("Couldn't get ScheduledShutdown property")
+	}
+	// shutdownTimeUsec = timestampValue.Value.Value().(uint64)
+
+	// ch <- prometheus.MustNewConstMetric(
+	// 	c.systemShutdownDesc, prometheus.GaugeValue,
+	// 	float64(shutdownTimeUsec)/1e6,
+	// )
+	return nil
 }
 
 func (c *systemdCollector) collectUnitStartTimeMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
