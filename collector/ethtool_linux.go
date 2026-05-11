@@ -41,6 +41,7 @@ var (
 	ethtoolDeviceInclude   = kingpin.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
 	ethtoolDeviceExclude   = kingpin.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
 	ethtoolIncludedMetrics = kingpin.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(".*").String()
+	ethtoolAddIfAliasLabel = kingpin.Flag("collector.ethtool.label-ifalias", "Add ifalias label").Default("false").Bool()
 	ethtoolReceivedRegex   = regexp.MustCompile(`(^|_)rx(_|$)`)
 	ethtoolTransmitRegex   = regexp.MustCompile(`(^|_)tx(_|$)`)
 )
@@ -78,6 +79,7 @@ type ethtoolCollector struct {
 	infoDesc       *prometheus.Desc
 	metricsPattern *regexp.Regexp
 	logger         *slog.Logger
+	ifAliasEnabled bool
 }
 
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
@@ -94,6 +96,9 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 		return nil, fmt.Errorf("failed to initialize ethtool library: %w", err)
 	}
 
+	deviceLabels := []string{"device"}
+	infoDescHelp := "A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version."
+
 	if *ethtoolDeviceInclude != "" {
 		logger.Info("Parsed flag --collector.ethtool.device-include", "flag", *ethtoolDeviceInclude)
 	}
@@ -102,6 +107,11 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 	}
 	if *ethtoolIncludedMetrics != "" {
 		logger.Info("Parsed flag --collector.ethtool.metrics-include", "flag", *ethtoolIncludedMetrics)
+	}
+	if *ethtoolAddIfAliasLabel {
+		logger.Info("Parsed flag --collector.ethtool.label-ifalias", "flag", *ethtoolAddIfAliasLabel)
+		deviceLabels = []string{"device", "ifalias"}
+		infoDescHelp = "A metric with a constant '1' value labeled by bus_info, device, ifalias, driver, expansion_rom_version, firmware_version, version."
 	}
 
 	// Pre-populate some common ethtool metrics.
@@ -115,96 +125,96 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 			"rx_bytes": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "received_bytes_total"),
 				"Network interface bytes received",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"rx_dropped": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "received_dropped_total"),
 				"Number of received frames dropped",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"rx_errors": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "received_errors_total"),
 				"Number of received frames with errors",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"rx_packets": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "received_packets_total"),
 				"Network interface packets received",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"tx_bytes": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "transmitted_bytes_total"),
 				"Network interface bytes sent",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"tx_errors": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "transmitted_errors_total"),
 				"Number of sent frames with errors",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"tx_packets": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "ethtool", "transmitted_packets_total"),
 				"Network interface packets sent",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 
 			// link info
 			"supported_port": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "supported_port_info"),
 				"Type of ports or PHYs supported by network device",
-				[]string{"device", "type"}, nil,
+				append(deviceLabels, "type"), nil,
 			),
 			"supported_speed": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "supported_speed_bytes"),
 				"Combination of speeds and features supported by network device",
-				[]string{"device", "duplex", "mode"}, nil,
+				append(deviceLabels, "duplex", "mode"), nil,
 			),
 			"supported_autonegotiate": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "autonegotiate_supported"),
 				"If this port device supports autonegotiate",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"supported_pause": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "pause_supported"),
 				"If this port device supports pause frames",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"supported_asymmetricpause": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "asymmetricpause_supported"),
 				"If this port device supports asymmetric pause frames",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"advertised_speed": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "advertised_speed_bytes"),
 				"Combination of speeds and features offered by network device",
-				[]string{"device", "duplex", "mode"}, nil,
+				append(deviceLabels, "duplex", "mode"), nil,
 			),
 			"advertised_autonegotiate": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "autonegotiate_advertised"),
 				"If this port device offers autonegotiate",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"advertised_pause": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "pause_advertised"),
 				"If this port device offers pause capability",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"advertised_asymmetricpause": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "asymmetricpause_advertised"),
 				"If this port device offers asymmetric pause capability",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 			"autonegotiate": prometheus.NewDesc(
 				prometheus.BuildFQName(namespace, "network", "autonegotiate"),
 				"If this port is using autonegotiate",
-				[]string{"device"}, nil,
+				deviceLabels, nil,
 			),
 		},
 		infoDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "ethtool", "info"),
-			"A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.",
-			[]string{"bus_info", "device", "driver", "expansion_rom_version", "firmware_version", "version"}, nil,
+			prometheus.BuildFQName(namespace, "ethtool", "info"), infoDescHelp,
+			append(append([]string{"bus_info"}, deviceLabels...), "driver", "expansion_rom_version", "firmware_version", "version"), nil,
 		),
+		ifAliasEnabled: *ethtoolAddIfAliasLabel,
 	}, nil
 }
 
@@ -225,10 +235,24 @@ func NewEthtoolCollector(logger *slog.Logger) (Collector, error) {
 	return makeEthtoolCollector(logger)
 }
 
+func (c *ethtoolCollector) deviceLabelValues(device, ifAlias string) []string {
+	if c.ifAliasEnabled {
+		return []string{device, ifAlias}
+	}
+	return []string{device}
+}
+
+func (c *ethtoolCollector) deviceLabelNames() []string {
+	if c.ifAliasEnabled {
+		return []string{"device", "ifalias"}
+	}
+	return []string{"device"}
+}
+
 // updatePortCapabilities generates metrics for autonegotiate, pause and asymmetricpause.
 // The bit offsets here correspond to ethtool_link_mode_bit_indices in linux/include/uapi/linux/ethtool.h
 // https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/ethtool.h
-func (c *ethtoolCollector) updatePortCapabilities(ch chan<- prometheus.Metric, prefix string, device string, linkModes uint32) {
+func (c *ethtoolCollector) updatePortCapabilities(ch chan<- prometheus.Metric, prefix string, device string, ifAlias string, linkModes uint32) {
 	var (
 		autonegotiate   = 0.0
 		pause           = 0.0
@@ -243,15 +267,15 @@ func (c *ethtoolCollector) updatePortCapabilities(ch chan<- prometheus.Metric, p
 	if linkModes&(1<<unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT) != 0 {
 		asymmetricPause = 1.0
 	}
-	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_autonegotiate", prefix)), prometheus.GaugeValue, autonegotiate, device)
-	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_pause", prefix)), prometheus.GaugeValue, pause, device)
-	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_asymmetricpause", prefix)), prometheus.GaugeValue, asymmetricPause, device)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_autonegotiate", prefix)), prometheus.GaugeValue, autonegotiate, c.deviceLabelValues(device, ifAlias)...)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_pause", prefix)), prometheus.GaugeValue, pause, c.deviceLabelValues(device, ifAlias)...)
+	ch <- prometheus.MustNewConstMetric(c.entry(fmt.Sprintf("%s_asymmetricpause", prefix)), prometheus.GaugeValue, asymmetricPause, c.deviceLabelValues(device, ifAlias)...)
 }
 
 // updatePortInfo generates port type metrics to indicate if the network devices supports Twisted Pair, optical fiber, etc.
 // The bit offsets here correspond to ethtool_link_mode_bit_indices in linux/include/uapi/linux/ethtool.h
 // https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/ethtool.h
-func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device string, linkModes uint32) {
+func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device string, ifAlias string, linkModes uint32) {
 	for name, bit := range map[string]int{
 		"TP":        unix.ETHTOOL_LINK_MODE_TP_BIT,
 		"AUI":       unix.ETHTOOL_LINK_MODE_AUI_BIT,
@@ -261,7 +285,7 @@ func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device st
 		"Backplane": unix.ETHTOOL_LINK_MODE_Backplane_BIT,
 	} {
 		if linkModes&(1<<bit) != 0 {
-			ch <- prometheus.MustNewConstMetric(c.entry("supported_port"), prometheus.GaugeValue, 1.0, device, name)
+			ch <- prometheus.MustNewConstMetric(c.entry("supported_port"), prometheus.GaugeValue, 1.0, append(c.deviceLabelValues(device, ifAlias), name)...)
 		}
 
 	}
@@ -270,7 +294,7 @@ func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device st
 // updateSpeeds generates metrics corresponding to the speeds and duplex modes supported or advertised by the network device.
 // The bit offsets here correspond to ethtool_link_mode_bit_indices in linux/include/uapi/linux/ethtool.h
 // https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/ethtool.h
-func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix string, device string, linkModes uint32) {
+func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix string, device string, ifAlias string, linkModes uint32) {
 	linkMode := fmt.Sprintf("%s_speed", prefix)
 	const (
 		full = "full"
@@ -365,13 +389,13 @@ func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix stri
 	} {
 		if linkModes&(1<<bit) != 0 {
 			ch <- prometheus.MustNewConstMetric(c.entry(linkMode), prometheus.GaugeValue,
-				float64(labels.speed)*Mbps, device, labels.duplex, fmt.Sprintf("%dbase%s", labels.speed, labels.phy))
+				float64(labels.speed)*Mbps, append(c.deviceLabelValues(device, ifAlias), labels.duplex, fmt.Sprintf("%dbase%s", labels.speed, labels.phy))...)
 		}
 	}
 }
 
 func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
-	netClass, err := c.fs.NetClassDevices()
+	netClass, err := c.fs.NetClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
 			c.logger.Debug("Could not read netclass file", "err", err)
@@ -384,7 +408,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("no network devices found")
 	}
 
-	for _, device := range netClass {
+	for device, params := range netClass {
 		var stats map[string]uint64
 		var err error
 
@@ -394,12 +418,13 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 
 		linkInfo, err := c.ethtool.LinkInfo(device)
 		if err == nil {
-			c.updateSpeeds(ch, "supported", device, linkInfo.Supported)
-			c.updatePortInfo(ch, device, linkInfo.Supported)
-			c.updatePortCapabilities(ch, "supported", device, linkInfo.Supported)
-			c.updateSpeeds(ch, "advertised", device, linkInfo.Advertising)
-			c.updatePortCapabilities(ch, "advertised", device, linkInfo.Advertising)
-			ch <- prometheus.MustNewConstMetric(c.entry("autonegotiate"), prometheus.GaugeValue, float64(linkInfo.Autoneg), device)
+			c.updateSpeeds(ch, "supported", device, params.IfAlias, linkInfo.Supported)
+			c.updatePortInfo(ch, device, params.IfAlias, linkInfo.Supported)
+			c.updatePortCapabilities(ch, "supported", device, params.IfAlias, linkInfo.Supported)
+			c.updateSpeeds(ch, "advertised", device, params.IfAlias, linkInfo.Advertising)
+			c.updatePortCapabilities(ch, "advertised", device, params.IfAlias, linkInfo.Advertising)
+			ch <- prometheus.MustNewConstMetric(c.entry("autonegotiate"), prometheus.GaugeValue, float64(linkInfo.Autoneg),
+				c.deviceLabelValues(device, params.IfAlias)...)
 		} else {
 			if errno, ok := err.(syscall.Errno); ok {
 				if err == unix.EOPNOTSUPP {
@@ -416,7 +441,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 
 		if err == nil {
 			ch <- prometheus.MustNewConstMetric(c.infoDesc, prometheus.GaugeValue, 1.0,
-				drvInfo.BusInfo, device, drvInfo.Driver, drvInfo.EromVersion, drvInfo.FwVersion, drvInfo.Version)
+				append(append([]string{drvInfo.BusInfo}, c.deviceLabelValues(device, params.IfAlias)...), drvInfo.Driver, drvInfo.EromVersion, drvInfo.FwVersion, drvInfo.Version)...)
 		} else {
 			if errno, ok := err.(syscall.Errno); ok {
 				if err == unix.EOPNOTSUPP {
@@ -491,7 +516,7 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 			// Check to see if this metric exists; if not then create it and store it in c.entries.
 			entry := c.entryWithCreate(metric, metricFQName)
 			ch <- prometheus.MustNewConstMetric(
-				entry, prometheus.UntypedValue, float64(val), device)
+				entry, prometheus.UntypedValue, float64(val), c.deviceLabelValues(device, params.IfAlias)...)
 		}
 	}
 
@@ -506,7 +531,7 @@ func (c *ethtoolCollector) entryWithCreate(key, metricFQName string) *prometheus
 		c.entries[key] = prometheus.NewDesc(
 			metricFQName,
 			fmt.Sprintf("Network interface %s", key),
-			[]string{"device"}, nil,
+			c.deviceLabelNames(), nil,
 		)
 	}
 
