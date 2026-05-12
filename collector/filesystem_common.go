@@ -62,7 +62,7 @@ var (
 	).Hidden().String()
 	fsTypesInclude = kingpin.Flag(
 		"collector.filesystem.fs-types-include",
-		"Regexp of filesystem types to exclude for filesystem collector. (mutually exclusive to fs-types-exclude)",
+		"Regexp of filesystem types to include for filesystem collector. (mutually exclusive to fs-types-exclude)",
 	).String()
 
 	filesystemLabelNames = []string{"device", "mountpoint", "fstype", "device_error"}
