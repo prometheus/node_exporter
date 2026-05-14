@@ -2,7 +2,7 @@
 
 * [CHANGE]
 * [FEATURE]
-* [ENHANCEMENT]
+* [ENHANCEMENT] mountstats: Add `--collector.mountstats.nfs.aggregate-transports` flag to sum NFS transport metrics across connections and reduce cardinality from `nconnect`
 * [BUGFIX]
 
 ## 1.11.1 / 2026-04-07
