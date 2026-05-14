@@ -76,7 +76,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/openbsd-vm@9004791062e748d95cc87e499e77485f91888ce1  # v1.3.8
+        uses: vmactions/openbsd-vm@d7d892b7b9ba97ed2747b0fc201be65037d64c3e  # v1.4.0
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
@@ -127,7 +127,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/netbsd-vm@ca7ff0556959998c82761c34ea0c3c99fa084c48  # v1.3.7
+        uses: vmactions/netbsd-vm@eb3ba840926911ccf17dc9de235335cb27a02ba0  # v1.3.8
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
@@ -176,7 +176,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@323497fa680c1856dd1ba5c4fd89182a9194f649  # v1.2.7
+        uses: vmactions/dragonflybsd-vm@17fba5ae01ae16ac714dead56eed198c3b2e210e  # v1.2.8
         with:
           copyback: false
           envs: 'GO_VERSION'
@@ -228,7 +228,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: test-e2e
-        uses: vmactions/solaris-vm@0a231b94365d1911cf62097ef342f6b30d95598f  # v1.3.2
+        uses: vmactions/solaris-vm@c20562b2c69737b06be9e828915761703e487373  # v1.3.3
         with:
           copyback: false
           envs: 'GO_VERSION'
