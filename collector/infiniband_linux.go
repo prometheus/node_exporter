@@ -165,6 +165,14 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
 
+			portInfoDesc := prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, c.subsystem, "port_info"),
+				"Non-numeric per-port data from /sys/class/infiniband/<device>/ports/<port>, value is always 1.",
+				[]string{"device", "port", "link_layer"},
+				nil,
+			)
+			ch <- prometheus.MustNewConstMetric(portInfoDesc, prometheus.GaugeValue, 1.0, port.Name, portStr, port.LinkLayer)
+
 			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, prometheus.GaugeValue)
 			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, prometheus.GaugeValue)
 			c.pushMetric(ch, "rate_bytes_per_second", port.Rate, port.Name, portStr, prometheus.GaugeValue)

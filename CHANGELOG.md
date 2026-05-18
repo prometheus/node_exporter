@@ -1,7 +1,7 @@
 ## master / unreleased
 
 * [CHANGE]
-* [FEATURE]
+* [FEATURE] infiniband: Add `port_info` metric with `link_layer` label
 * [ENHANCEMENT]
 * [BUGFIX]
 
