@@ -124,7 +124,7 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 		i.metricDescs[metricName] = prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, i.subsystem, metricName),
 			description,
-			[]string{"device", "port"},
+			[]string{"device", "port", "link_layer"},
 			nil,
 		)
 	}
@@ -132,13 +132,13 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 	return &i, nil
 }
 
-func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName string, port string, valueType prometheus.ValueType) {
-	ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, float64(value), deviceName, port)
+func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName string, port string, linkLayer string, valueType prometheus.ValueType) {
+	ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, float64(value), deviceName, port, linkLayer)
 }
 
-func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName string, port string) {
+func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName string, port string, linkLayer string) {
 	if value != nil {
-		c.pushMetric(ch, name, *value, deviceName, port, prometheus.CounterValue)
+		c.pushMetric(ch, name, *value, deviceName, port, linkLayer, prometheus.CounterValue)
 	}
 }
 
@@ -165,75 +165,75 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
 
-			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, prometheus.GaugeValue)
-			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, prometheus.GaugeValue)
-			c.pushMetric(ch, "rate_bytes_per_second", port.Rate, port.Name, portStr, prometheus.GaugeValue)
+			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, port.LinkLayer, prometheus.GaugeValue)
+			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, port.LinkLayer, prometheus.GaugeValue)
+			c.pushMetric(ch, "rate_bytes_per_second", port.Rate, port.Name, portStr, port.LinkLayer, prometheus.GaugeValue)
 
-			c.pushCounter(ch, "legacy_multicast_packets_received_total", port.Counters.LegacyPortMulticastRcvPackets, port.Name, portStr)
-			c.pushCounter(ch, "legacy_multicast_packets_transmitted_total", port.Counters.LegacyPortMulticastXmitPackets, port.Name, portStr)
-			c.pushCounter(ch, "legacy_data_received_bytes_total", port.Counters.LegacyPortRcvData64, port.Name, portStr)
-			c.pushCounter(ch, "legacy_packets_received_total", port.Counters.LegacyPortRcvPackets64, port.Name, portStr)
-			c.pushCounter(ch, "legacy_unicast_packets_received_total", port.Counters.LegacyPortUnicastRcvPackets, port.Name, portStr)
-			c.pushCounter(ch, "legacy_unicast_packets_transmitted_total", port.Counters.LegacyPortUnicastXmitPackets, port.Name, portStr)
-			c.pushCounter(ch, "legacy_data_transmitted_bytes_total", port.Counters.LegacyPortXmitData64, port.Name, portStr)
-			c.pushCounter(ch, "legacy_packets_transmitted_total", port.Counters.LegacyPortXmitPackets64, port.Name, portStr)
-			c.pushCounter(ch, "excessive_buffer_overrun_errors_total", port.Counters.ExcessiveBufferOverrunErrors, port.Name, portStr)
-			c.pushCounter(ch, "link_downed_total", port.Counters.LinkDowned, port.Name, portStr)
-			c.pushCounter(ch, "link_error_recovery_total", port.Counters.LinkErrorRecovery, port.Name, portStr)
-			c.pushCounter(ch, "local_link_integrity_errors_total", port.Counters.LocalLinkIntegrityErrors, port.Name, portStr)
-			c.pushCounter(ch, "multicast_packets_received_total", port.Counters.MulticastRcvPackets, port.Name, portStr)
-			c.pushCounter(ch, "multicast_packets_transmitted_total", port.Counters.MulticastXmitPackets, port.Name, portStr)
-			c.pushCounter(ch, "port_constraint_errors_received_total", port.Counters.PortRcvConstraintErrors, port.Name, portStr)
-			c.pushCounter(ch, "port_constraint_errors_transmitted_total", port.Counters.PortXmitConstraintErrors, port.Name, portStr)
-			c.pushCounter(ch, "port_data_received_bytes_total", port.Counters.PortRcvData, port.Name, portStr)
-			c.pushCounter(ch, "port_data_transmitted_bytes_total", port.Counters.PortXmitData, port.Name, portStr)
-			c.pushCounter(ch, "port_discards_received_total", port.Counters.PortRcvDiscards, port.Name, portStr)
-			c.pushCounter(ch, "port_discards_transmitted_total", port.Counters.PortXmitDiscards, port.Name, portStr)
-			c.pushCounter(ch, "port_errors_received_total", port.Counters.PortRcvErrors, port.Name, portStr)
-			c.pushCounter(ch, "port_packets_received_total", port.Counters.PortRcvPackets, port.Name, portStr)
-			c.pushCounter(ch, "port_packets_transmitted_total", port.Counters.PortXmitPackets, port.Name, portStr)
-			c.pushCounter(ch, "port_transmit_wait_total", port.Counters.PortXmitWait, port.Name, portStr)
-			c.pushCounter(ch, "unicast_packets_received_total", port.Counters.UnicastRcvPackets, port.Name, portStr)
-			c.pushCounter(ch, "unicast_packets_transmitted_total", port.Counters.UnicastXmitPackets, port.Name, portStr)
-			c.pushCounter(ch, "port_receive_remote_physical_errors_total", port.Counters.PortRcvRemotePhysicalErrors, port.Name, portStr)
-			c.pushCounter(ch, "port_receive_switch_relay_errors_total", port.Counters.PortRcvSwitchRelayErrors, port.Name, portStr)
-			c.pushCounter(ch, "symbol_error_total", port.Counters.SymbolError, port.Name, portStr)
-			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr)
+			c.pushCounter(ch, "legacy_multicast_packets_received_total", port.Counters.LegacyPortMulticastRcvPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "legacy_multicast_packets_transmitted_total", port.Counters.LegacyPortMulticastXmitPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "legacy_data_received_bytes_total", port.Counters.LegacyPortRcvData64, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "legacy_packets_received_total", port.Counters.LegacyPortRcvPackets64, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "legacy_unicast_packets_received_total", port.Counters.LegacyPortUnicastRcvPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "legacy_unicast_packets_transmitted_total", port.Counters.LegacyPortUnicastXmitPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "legacy_data_transmitted_bytes_total", port.Counters.LegacyPortXmitData64, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "legacy_packets_transmitted_total", port.Counters.LegacyPortXmitPackets64, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "excessive_buffer_overrun_errors_total", port.Counters.ExcessiveBufferOverrunErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "link_downed_total", port.Counters.LinkDowned, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "link_error_recovery_total", port.Counters.LinkErrorRecovery, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "local_link_integrity_errors_total", port.Counters.LocalLinkIntegrityErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "multicast_packets_received_total", port.Counters.MulticastRcvPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "multicast_packets_transmitted_total", port.Counters.MulticastXmitPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_constraint_errors_received_total", port.Counters.PortRcvConstraintErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_constraint_errors_transmitted_total", port.Counters.PortXmitConstraintErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_data_received_bytes_total", port.Counters.PortRcvData, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_data_transmitted_bytes_total", port.Counters.PortXmitData, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_discards_received_total", port.Counters.PortRcvDiscards, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_discards_transmitted_total", port.Counters.PortXmitDiscards, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_errors_received_total", port.Counters.PortRcvErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_packets_received_total", port.Counters.PortRcvPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_packets_transmitted_total", port.Counters.PortXmitPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_transmit_wait_total", port.Counters.PortXmitWait, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "unicast_packets_received_total", port.Counters.UnicastRcvPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "unicast_packets_transmitted_total", port.Counters.UnicastXmitPackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_receive_remote_physical_errors_total", port.Counters.PortRcvRemotePhysicalErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "port_receive_switch_relay_errors_total", port.Counters.PortRcvSwitchRelayErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "symbol_error_total", port.Counters.SymbolError, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "vl15_dropped_total", port.Counters.VL15Dropped, port.Name, portStr, port.LinkLayer)
 
 			// port.HwCounters
 			if port.HwCounters.Lifespan != nil {
-				c.pushMetric(ch, "lifespan_seconds", *(port.HwCounters.Lifespan)/1000, port.Name, portStr, prometheus.GaugeValue)
+				c.pushMetric(ch, "lifespan_seconds", *(port.HwCounters.Lifespan)/1000, port.Name, portStr, port.LinkLayer, prometheus.GaugeValue)
 			}
 
-			c.pushCounter(ch, "duplicate_requests_packets_total", port.HwCounters.DuplicateRequest, port.Name, portStr)
-			c.pushCounter(ch, "implied_nak_seq_errors_total", port.HwCounters.ImpliedNakSeqErr, port.Name, portStr)
-			c.pushCounter(ch, "local_ack_timeout_errors_total", port.HwCounters.LocalAckTimeoutErr, port.Name, portStr)
-			c.pushCounter(ch, "np_cnp_packets_sent_total", port.HwCounters.NpCnpSent, port.Name, portStr)
-			c.pushCounter(ch, "np_ecn_marked_roce_packets_received_total", port.HwCounters.NpEcnMarkedRocePackets, port.Name, portStr)
-			c.pushCounter(ch, "out_of_buffer_drops_total", port.HwCounters.OutOfBuffer, port.Name, portStr)
-			c.pushCounter(ch, "out_of_sequence_packets_received_total", port.HwCounters.OutOfSequence, port.Name, portStr)
-			c.pushCounter(ch, "packet_sequence_errors_total", port.HwCounters.PacketSeqErr, port.Name, portStr)
-			c.pushCounter(ch, "req_cqes_errors_total", port.HwCounters.ReqCqeError, port.Name, portStr)
-			c.pushCounter(ch, "req_cqes_flush_errors_total", port.HwCounters.ReqCqeFlushError, port.Name, portStr)
-			c.pushCounter(ch, "req_remote_access_errors_total", port.HwCounters.ReqRemoteAccessErrors, port.Name, portStr)
-			c.pushCounter(ch, "req_remote_invalid_request_errors_total", port.HwCounters.ReqRemoteInvalidRequest, port.Name, portStr)
-			c.pushCounter(ch, "resp_cqes_errors_total", port.HwCounters.RespCqeError, port.Name, portStr)
-			c.pushCounter(ch, "resp_cqes_flush_errors_total", port.HwCounters.RespCqeFlushError, port.Name, portStr)
-			c.pushCounter(ch, "resp_local_length_errors_total", port.HwCounters.RespLocalLengthError, port.Name, portStr)
-			c.pushCounter(ch, "resp_remote_access_errors_total", port.HwCounters.RespRemoteAccessErrors, port.Name, portStr)
-			c.pushCounter(ch, "rnr_nak_retry_packets_received_total", port.HwCounters.RnrNakRetryErr, port.Name, portStr)
-			c.pushCounter(ch, "roce_adp_retransmits_total", port.HwCounters.RoceAdpRetrans, port.Name, portStr)
-			c.pushCounter(ch, "roce_adp_retransmits_timeout_total", port.HwCounters.RoceAdpRetransTo, port.Name, portStr)
-			c.pushCounter(ch, "roce_slow_restart_used_total", port.HwCounters.RoceSlowRestart, port.Name, portStr)
-			c.pushCounter(ch, "roce_slow_restart_cnps_total", port.HwCounters.RoceSlowRestartCnps, port.Name, portStr)
-			c.pushCounter(ch, "roce_slow_restart_total", port.HwCounters.RoceSlowRestartTrans, port.Name, portStr)
-			c.pushCounter(ch, "rp_cnp_packets_handled_total", port.HwCounters.RpCnpHandled, port.Name, portStr)
-			c.pushCounter(ch, "rp_cnp_ignored_packets_received_total", port.HwCounters.RpCnpIgnored, port.Name, portStr)
-			c.pushCounter(ch, "rx_atomic_requests_total", port.HwCounters.RxAtomicRequests, port.Name, portStr)
-			c.pushCounter(ch, "rx_dct_connect_requests_total", port.HwCounters.RxDctConnect, port.Name, portStr)
-			c.pushCounter(ch, "rx_read_requests_total", port.HwCounters.RxReadRequests, port.Name, portStr)
-			c.pushCounter(ch, "rx_write_requests_total", port.HwCounters.RxWriteRequests, port.Name, portStr)
-			c.pushCounter(ch, "rx_icrc_encapsulated_errors_total", port.HwCounters.RxIcrcEncapsulated, port.Name, portStr)
+			c.pushCounter(ch, "duplicate_requests_packets_total", port.HwCounters.DuplicateRequest, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "implied_nak_seq_errors_total", port.HwCounters.ImpliedNakSeqErr, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "local_ack_timeout_errors_total", port.HwCounters.LocalAckTimeoutErr, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "np_cnp_packets_sent_total", port.HwCounters.NpCnpSent, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "np_ecn_marked_roce_packets_received_total", port.HwCounters.NpEcnMarkedRocePackets, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "out_of_buffer_drops_total", port.HwCounters.OutOfBuffer, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "out_of_sequence_packets_received_total", port.HwCounters.OutOfSequence, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "packet_sequence_errors_total", port.HwCounters.PacketSeqErr, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "req_cqes_errors_total", port.HwCounters.ReqCqeError, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "req_cqes_flush_errors_total", port.HwCounters.ReqCqeFlushError, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "req_remote_access_errors_total", port.HwCounters.ReqRemoteAccessErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "req_remote_invalid_request_errors_total", port.HwCounters.ReqRemoteInvalidRequest, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "resp_cqes_errors_total", port.HwCounters.RespCqeError, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "resp_cqes_flush_errors_total", port.HwCounters.RespCqeFlushError, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "resp_local_length_errors_total", port.HwCounters.RespLocalLengthError, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "resp_remote_access_errors_total", port.HwCounters.RespRemoteAccessErrors, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rnr_nak_retry_packets_received_total", port.HwCounters.RnrNakRetryErr, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "roce_adp_retransmits_total", port.HwCounters.RoceAdpRetrans, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "roce_adp_retransmits_timeout_total", port.HwCounters.RoceAdpRetransTo, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "roce_slow_restart_used_total", port.HwCounters.RoceSlowRestart, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "roce_slow_restart_cnps_total", port.HwCounters.RoceSlowRestartCnps, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "roce_slow_restart_total", port.HwCounters.RoceSlowRestartTrans, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rp_cnp_packets_handled_total", port.HwCounters.RpCnpHandled, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rp_cnp_ignored_packets_received_total", port.HwCounters.RpCnpIgnored, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rx_atomic_requests_total", port.HwCounters.RxAtomicRequests, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rx_dct_connect_requests_total", port.HwCounters.RxDctConnect, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rx_read_requests_total", port.HwCounters.RxReadRequests, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rx_write_requests_total", port.HwCounters.RxWriteRequests, port.Name, portStr, port.LinkLayer)
+			c.pushCounter(ch, "rx_icrc_encapsulated_errors_total", port.HwCounters.RxIcrcEncapsulated, port.Name, portStr, port.LinkLayer)
 		}
 	}
 
