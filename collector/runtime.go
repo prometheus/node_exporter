@@ -25,7 +25,9 @@ import (
 // Runtime represents a single exporter runtime instance built from a reusable
 // Config.
 type Runtime struct {
+	state     *collectorRuntimeState
 	collector *NodeCollector
+	logger    *slog.Logger
 }
 
 func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
@@ -33,16 +35,27 @@ func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
 		return nil, err
 	}
 
-	if cfg.CollectorDisableDefaults {
-		DisableDefaultCollectors()
-	}
+	state := newCollectorRuntimeState(cfg.CollectorDisableDefaults)
 
-	nodeCollector, err := NewNodeCollector(logger, cfg.EnabledCollectors...)
+	return newRuntime(state, logger, cfg.EnabledCollectors)
+}
+
+func newRuntime(state *collectorRuntimeState, logger *slog.Logger, enabledCollectors []string) (*Runtime, error) {
+	nodeCollector, err := state.NewNodeCollector(logger, enabledCollectors...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Runtime{collector: nodeCollector}, nil
+	return &Runtime{state: state, collector: nodeCollector, logger: logger}, nil
+}
+
+func (r *Runtime) Filtered(enabledCollectors ...string) (*Runtime, error) {
+	filtered, err := newRuntime(r.state, r.logger, enabledCollectors)
+	if err != nil {
+		return nil, err
+	}
+
+	return filtered, nil
 }
 
 func (r *Runtime) Collectors() []prometheus.Collector {
