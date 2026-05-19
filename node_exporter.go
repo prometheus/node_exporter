@@ -137,9 +137,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	runtime := h.runtime
 	if len(filters) > 0 {
-		cfg := h.cfg
-		cfg.EnabledCollectors = filters
-		r, err := collector.NewRuntime(cfg, h.logger)
+		r, err := h.runtime.Filtered(filters...)
 		if err != nil {
 			return nil, fmt.Errorf("couldn't create collector runtime: %w", err)
 		}
