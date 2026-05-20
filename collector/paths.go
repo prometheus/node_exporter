@@ -29,6 +29,15 @@ var (
 	udevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
 )
 
+func newCollectorPathConfig() collectorPathConfig {
+	return collectorPathConfig{
+		procMountPoint: *procPath,
+		sysMountPoint:  *sysPath,
+		rootfsPath:     *rootfsPath,
+		udevDataPath:   *udevDataPath,
+	}
+}
+
 func procFilePath(name string) string {
 	return filepath.Join(*procPath, name)
 }
