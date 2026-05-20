@@ -56,13 +56,38 @@ var (
 )
 
 type collectorRuntimeState struct {
+	config     collectorConfig
 	enabled    map[string]bool
 	collectors map[string]Collector
 	mtx        sync.Mutex
 }
 
 type runtimeConfiguredCollector interface {
-	configureRuntimeState(*collectorRuntimeState)
+	configureRuntimeState(*collectorRuntimeState) error
+}
+
+type collectorConfig struct {
+	paths    collectorPathConfig
+	cpu      cpuCollectorConfig
+	textfile textFileCollectorConfig
+}
+
+type collectorPathConfig struct {
+	procMountPoint string
+	sysMountPoint  string
+	rootfsPath     string
+	udevDataPath   string
+}
+
+type cpuCollectorConfig struct {
+	guestEnabled bool
+	infoEnabled  bool
+	flagsInclude string
+	bugsInclude  string
+}
+
+type textFileCollectorConfig struct {
+	directories []string
 }
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(logger *slog.Logger) (Collector, error)) {
@@ -106,8 +131,17 @@ func newCollectorRuntimeState(disableDefaultCollectors bool) *collectorRuntimeSt
 	}
 
 	return &collectorRuntimeState{
+		config:     newCollectorConfig(),
 		enabled:    enabled,
 		collectors: make(map[string]Collector),
+	}
+}
+
+func newCollectorConfig() collectorConfig {
+	return collectorConfig{
+		paths:    newCollectorPathConfig(),
+		cpu:      newCPUCollectorConfig(),
+		textfile: newTextFileCollectorConfig(),
 	}
 }
 
@@ -150,7 +184,9 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 			if err != nil {
 				return nil, err
 			}
-			s.configureCollector(collector)
+			if err := s.configureCollector(collector); err != nil {
+				return nil, err
+			}
 			collectors[key] = collector
 			s.collectors[key] = collector
 		}
@@ -187,10 +223,12 @@ func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, e
 	return legacyState.NewNodeCollector(logger, filters...)
 }
 
-func (s *collectorRuntimeState) configureCollector(collector Collector) {
+func (s *collectorRuntimeState) configureCollector(collector Collector) error {
 	if configuredCollector, ok := collector.(runtimeConfiguredCollector); ok {
-		configuredCollector.configureRuntimeState(s)
+		return configuredCollector.configureRuntimeState(s)
 	}
+
+	return nil
 }
 
 // Describe implements the prometheus.Collector interface.
