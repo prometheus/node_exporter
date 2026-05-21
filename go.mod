@@ -31,6 +31,8 @@ require (
 	howett.net/plist v1.0.1
 )
 
+replace github.com/prometheus/exporter-toolkit => /Users/nicolastakashi/workspace/github.com/nicolastakashi/prometheus/exporter-toolkit
+
 require (
 	cyphar.com/go-pathrs v0.2.2 // indirect
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b // indirect
