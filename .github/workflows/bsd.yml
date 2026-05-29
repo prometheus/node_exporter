@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
       - name: test-e2e
         uses: vmactions/freebsd-vm@7ca82f79fe3078fecded6d3a2bff094995447bbd  # v1.4.4
         with:
@@ -75,6 +77,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
       - name: test-e2e
         uses: vmactions/openbsd-vm@d7d892b7b9ba97ed2747b0fc201be65037d64c3e  # v1.4.0
         with:
@@ -126,6 +130,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
       - name: test-e2e
         uses: vmactions/netbsd-vm@eb3ba840926911ccf17dc9de235335cb27a02ba0  # v1.3.8
         with:
@@ -175,6 +181,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
       - name: test-e2e
         uses: vmactions/dragonflybsd-vm@17fba5ae01ae16ac714dead56eed198c3b2e210e  # v1.2.8
         with:
@@ -227,6 +235,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
       - name: test-e2e
         uses: vmactions/solaris-vm@c20562b2c69737b06be9e828915761703e487373  # v1.3.3
         with:
@@ -287,6 +297,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: |
           brew install \
