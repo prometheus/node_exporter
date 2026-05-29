@@ -1130,6 +1130,11 @@ Mode: 644
 Directory: sys/class/fc_host/host1
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/fc_host/host1/port_state
+Lines: 1
+Online
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/fc_host/host1/speed
 Lines: 1
 8 Gbit
