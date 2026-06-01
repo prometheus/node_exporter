@@ -81,6 +81,7 @@ type filesystemCollector struct {
 
 type filesystemLabels struct {
 	device, mountPoint, fsType, mountOptions, superOptions, deviceError, major, minor string
+	readOnly                                                                          bool
 }
 
 type filesystemStats struct {

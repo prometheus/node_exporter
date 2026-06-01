@@ -16,12 +16,10 @@
 package collector
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"log/slog"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -109,7 +107,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemStats {
 	var ro float64
-	if isFilesystemReadOnly(labels) {
+	if labels.readOnly {
 		ro = 1
 	}
 
@@ -212,38 +210,41 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\011", "\t")
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:       mount.Source,
-			mountPoint:   rootfsStripPrefix(mount.MountPoint),
-			fsType:       mount.FSType,
-			mountOptions: mountOptionsString(mount.Options),
-			superOptions: mountOptionsString(mount.SuperOptions),
-			major:        strconv.Itoa(major),
-			minor:        strconv.Itoa(minor),
-			deviceError:  "",
+			device:      mount.Source,
+			mountPoint:  rootfsStripPrefix(mount.MountPoint),
+			fsType:      mount.FSType,
+			readOnly:    hasMountOption(mount.Options, "ro") || hasMountOption(mount.SuperOptions, "ro"),
+			major:       strconv.Itoa(major),
+			minor:       strconv.Itoa(minor),
+			deviceError: "",
 		})
 	}
 
 	return filesystems, nil
 }
 
+func hasMountOption(options map[string]string, key string) bool {
+	_, ok := options[key]
+	return ok
+}
+
 // see https://github.com/prometheus/node_exporter/issues/3157#issuecomment-2422761187
 // if either mount or super options contain "ro" the filesystem is read-only
 func isFilesystemReadOnly(labels filesystemLabels) bool {
-	if slices.Contains(strings.Split(labels.mountOptions, ","), "ro") || slices.Contains(strings.Split(labels.superOptions, ","), "ro") {
+	if labels.readOnly {
+		return true
+	}
+	if strings.Contains(labels.mountOptions, "ro") || strings.Contains(labels.superOptions, "ro") {
+		// Test-only fallback for labels synthesized without the parsed readOnly bit.
+		for _, options := range []string{labels.mountOptions, labels.superOptions} {
+			for _, option := range strings.Split(options, ",") {
+				if option == "ro" {
+					return true
+				}
+			}
+		}
 		return true
 	}
 
 	return false
-}
-
-func mountOptionsString(m map[string]string) string {
-	b := new(bytes.Buffer)
-	for key, value := range m {
-		if value == "" {
-			fmt.Fprintf(b, "%s", key)
-		} else {
-			fmt.Fprintf(b, "%s=%s", key, value)
-		}
-	}
-	return b.String()
 }

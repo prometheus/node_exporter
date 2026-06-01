@@ -20,7 +20,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -39,6 +38,11 @@ var (
 		"Unixtime mtime of textfiles successfully read.",
 		[]string{"file"},
 		nil,
+	)
+	textFileScrapeErrorDesc = prometheus.NewDesc(
+		"node_textfile_scrape_error",
+		"1 if there was an error opening or reading a file, 0 otherwise",
+		nil, nil,
 	)
 )
 
@@ -64,37 +68,23 @@ func NewTextFileCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Metric, logger *slog.Logger) {
+	labelNames, labelIndexes := metricFamilyLabelNames(metricFamily)
+	desc := prometheus.NewDesc(
+		*metricFamily.Name,
+		metricFamily.GetHelp(),
+		labelNames, nil,
+	)
 	var valType prometheus.ValueType
 	var val float64
-
-	allLabelNames := map[string]struct{}{}
-	for _, metric := range metricFamily.Metric {
-		labels := metric.GetLabel()
-		for _, label := range labels {
-			if _, ok := allLabelNames[label.GetName()]; !ok {
-				allLabelNames[label.GetName()] = struct{}{}
-			}
-		}
-	}
 
 	for _, metric := range metricFamily.Metric {
 		if metric.TimestampMs != nil {
 			logger.Warn("Ignoring unsupported custom timestamp on textfile collector metric", "metric", metric)
 		}
 
-		labels := metric.GetLabel()
-		var names []string
-		var values []string
-		for _, label := range labels {
-			names = append(names, label.GetName())
-			values = append(values, label.GetValue())
-		}
-
-		for k := range allLabelNames {
-			if !slices.Contains(names, k) {
-				names = append(names, k)
-				values = append(values, "")
-			}
+		values := make([]string, len(labelNames))
+		for _, label := range metric.GetLabel() {
+			values[labelIndexes[label.GetName()]] = label.GetValue()
 		}
 
 		metricType := metricFamily.GetType()
@@ -117,11 +107,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 				quantiles[q.GetQuantile()] = q.GetValue()
 			}
 			ch <- prometheus.MustNewConstSummary(
-				prometheus.NewDesc(
-					*metricFamily.Name,
-					metricFamily.GetHelp(),
-					names, nil,
-				),
+				desc,
 				metric.Summary.GetSampleCount(),
 				metric.Summary.GetSampleSum(),
 				quantiles, values...,
@@ -132,11 +118,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 				buckets[b.GetUpperBound()] = b.GetCumulativeCount()
 			}
 			ch <- prometheus.MustNewConstHistogram(
-				prometheus.NewDesc(
-					*metricFamily.Name,
-					metricFamily.GetHelp(),
-					names, nil,
-				),
+				desc,
 				metric.Histogram.GetSampleCount(),
 				metric.Histogram.GetSampleSum(),
 				buckets, values...,
@@ -146,15 +128,27 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 		}
 		if metricType == dto.MetricType_GAUGE || metricType == dto.MetricType_COUNTER || metricType == dto.MetricType_UNTYPED {
 			ch <- prometheus.MustNewConstMetric(
-				prometheus.NewDesc(
-					*metricFamily.Name,
-					metricFamily.GetHelp(),
-					names, nil,
-				),
+				desc,
 				valType, val, values...,
 			)
 		}
 	}
+}
+
+func metricFamilyLabelNames(metricFamily *dto.MetricFamily) ([]string, map[string]int) {
+	labelIndexes := make(map[string]int)
+	labelNames := make([]string, 0)
+	for _, metric := range metricFamily.Metric {
+		for _, label := range metric.GetLabel() {
+			if _, ok := labelIndexes[label.GetName()]; ok {
+				continue
+			}
+			labelIndexes[label.GetName()] = len(labelNames)
+			labelNames = append(labelNames, label.GetName())
+		}
+	}
+
+	return labelNames, labelIndexes
 }
 
 func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- prometheus.Metric) {
@@ -188,7 +182,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	metricsNamesToFiles := map[string][]string{}
 	metricsNamesToHelpTexts := map[string][2]string{}
 
-	paths := []string{}
+	paths := make([]string, 0, len(c.paths))
 	for _, glob := range c.paths {
 		ps, err := filepath.Glob(glob)
 		if err != nil || len(ps) == 0 {
@@ -272,14 +266,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		errVal = 1.0
 	}
 
-	ch <- prometheus.MustNewConstMetric(
-		prometheus.NewDesc(
-			"node_textfile_scrape_error",
-			"1 if there was an error opening or reading a file, 0 otherwise",
-			nil, nil,
-		),
-		prometheus.GaugeValue, errVal,
-	)
+	ch <- prometheus.MustNewConstMetric(textFileScrapeErrorDesc, prometheus.GaugeValue, errVal)
 
 	return nil
 }
