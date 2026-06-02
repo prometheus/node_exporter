@@ -71,6 +71,14 @@ node_disk_ata_write_cache{device="sdc"} 1
 node_disk_ata_write_cache_enabled{device="sda"} 0
 node_disk_ata_write_cache_enabled{device="sdb"} 1
 node_disk_ata_write_cache_enabled{device="sdc"} 0
+# HELP node_disk_device_mapper_backing_device_info Info about the underlying block devices of a device mapper device.
+# TYPE node_disk_device_mapper_backing_device_info gauge
+node_disk_device_mapper_backing_device_info{backing_device="nvme0n1p3",device="dm-0"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-1"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-2"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-3"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-4"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-5"} 1
 # HELP node_disk_device_mapper_info Info about disk device mapper.
 # TYPE node_disk_device_mapper_info gauge
 node_disk_device_mapper_info{device="dm-0",lv_layer="",lv_name="",name="nvme0n1_crypt",uuid="CRYPT-LUKS2-jolaulot80fy9zsiobkxyxo7y2dqeho2-nvme0n1_crypt",vg_name=""} 1
