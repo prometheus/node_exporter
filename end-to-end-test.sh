@@ -169,7 +169,7 @@ collector_flags=$(cat << FLAGS
   --collector.bcache.priorityStats
   --collector.cpu.info.bugs-include=${cpu_info_bugs}
   --collector.cpu.info.flags-include=${cpu_info_flags}
-  --collector.hwmon.chip-include=(applesmc|asus_nb_wmi|coretemp|hwmon4|nct6779)
+  --collector.hwmon.chip-include=(applesmc|asus_nb_wmi|coretemp|hwmon4|ieee80211|nct6779)
   --collector.netclass.ignore-invalid-speed
   --collector.netclass.ignored-devices=(dmz|int)
   --collector.netdev.device-include=lo

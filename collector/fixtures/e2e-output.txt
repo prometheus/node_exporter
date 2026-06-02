@@ -1454,6 +1454,9 @@ node_filefd_maximum 1.631329e+06
 node_forks_total 26442
 # HELP node_hwmon_chip_names Annotation metric for human-readable chip names
 # TYPE node_hwmon_chip_names gauge
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_0",chip_name="mt7996_phy0_0"} 1
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_1",chip_name="mt7996_phy0_1"} 1
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_2",chip_name="mt7996_phy0_2"} 1
 node_hwmon_chip_names{chip="nct6779",chip_name="nct6779"} 1
 node_hwmon_chip_names{chip="platform_asus_nb_wmi_asus",chip_name="asus"} 1
 node_hwmon_chip_names{chip="platform_asus_nb_wmi_asus_wmi_sensors",chip_name="asus_wmi_sensors"} 1
@@ -1633,6 +1636,9 @@ node_hwmon_sensor_label{chip="platform_coretemp_1",label="Physical id 0",sensor=
 # TYPE node_hwmon_temp_celsius gauge
 node_hwmon_temp_celsius{chip="hwmon4",sensor="temp1"} 55
 node_hwmon_temp_celsius{chip="hwmon4",sensor="temp2"} 54
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_0",sensor="temp1"} 55
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_1",sensor="temp1"} 56
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_2",sensor="temp1"} 57
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp1"} 55
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp2"} 54
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp3"} 52
