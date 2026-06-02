@@ -80,7 +80,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/openbsd-vm@d7d892b7b9ba97ed2747b0fc201be65037d64c3e  # v1.4.0
+        uses: vmactions/openbsd-vm@6fac4962055fe9952d29930942445739e509fecd  # v1.4.2
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
