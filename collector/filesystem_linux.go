@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -237,13 +236,13 @@ func isFilesystemReadOnly(labels filesystemLabels) bool {
 }
 
 func mountOptionsString(m map[string]string) string {
-	b := new(bytes.Buffer)
+	var parts []string
 	for key, value := range m {
 		if value == "" {
-			fmt.Fprintf(b, "%s", key)
+			parts = append(parts, key)
 		} else {
-			fmt.Fprintf(b, "%s=%s", key, value)
+			parts = append(parts, key+"="+value)
 		}
 	}
-	return b.String()
+	return strings.Join(parts, ",")
 }
