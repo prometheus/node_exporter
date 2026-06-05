@@ -18,12 +18,132 @@ package collector
 import (
 	"io"
 	"log/slog"
+	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/alecthomas/kingpin/v2"
 
 	"github.com/prometheus/procfs"
 )
+
+func Test_parseFilesystemLabelsNonUTF8(t *testing.T) {
+	tests := []struct {
+		name           string
+		in             []*procfs.MountInfo
+		wantMountPoint string
+		wantDevice     string
+	}{
+		{
+			name: "non-utf8 mount point is sanitized",
+			in: []*procfs.MountInfo{
+				{
+					MajorMinorVer: "8:1",
+					MountPoint:    "/mnt/cass\xe9",
+					Source:        "/dev/sda1",
+					FSType:        "ext4",
+					Options:       map[string]string{},
+					SuperOptions:  map[string]string{},
+				},
+			},
+			wantMountPoint: "/mnt/cass\ufffd",
+			wantDevice:     "/dev/sda1",
+		},
+		{
+			name: "non-utf8 device is sanitized",
+			in: []*procfs.MountInfo{
+				{
+					MajorMinorVer: "8:1",
+					MountPoint:    "/mnt/data",
+					Source:        "/dev/sd\xe9",
+					FSType:        "ext4",
+					Options:       map[string]string{},
+					SuperOptions:  map[string]string{},
+				},
+			},
+			wantMountPoint: "/mnt/data",
+			wantDevice:     "/dev/sd\ufffd",
+		},
+		{
+			name: "valid utf8 is preserved",
+			in: []*procfs.MountInfo{
+				{
+					MajorMinorVer: "8:1",
+					MountPoint:    "/mnt/caf\u00e9",
+					Source:        "/dev/sda1",
+					FSType:        "ext4",
+					Options:       map[string]string{},
+					SuperOptions:  map[string]string{},
+				},
+			},
+			wantMountPoint: "/mnt/caf\u00e9",
+			wantDevice:     "/dev/sda1",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			filesystems, err := parseFilesystemLabels(tt.in)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if len(filesystems) != 1 {
+				t.Fatalf("expected 1 filesystem, got %d", len(filesystems))
+			}
+			fs := filesystems[0]
+			if fs.mountPoint != tt.wantMountPoint {
+				t.Errorf("mountPoint = %q, want %q", fs.mountPoint, tt.wantMountPoint)
+			}
+			if fs.device != tt.wantDevice {
+				t.Errorf("device = %q, want %q", fs.device, tt.wantDevice)
+			}
+			// Verify all label values are valid UTF-8.
+			for _, v := range []string{fs.device, fs.mountPoint, fs.fsType} {
+				if !utf8.ValidString(v) {
+					t.Errorf("label value %q is not valid UTF-8", v)
+				}
+			}
+		})
+	}
+}
+
+func Test_parseFilesystemLabelsNonUTF8DoesNotPanic(t *testing.T) {
+	// Verify that non-UTF-8 data does not cause a panic when
+	// constructing Prometheus metrics (the root cause of #3662).
+	input := []*procfs.MountInfo{
+		{
+			MajorMinorVer: "8:1",
+			MountPoint:    "/mnt/bad\xffpath",
+			Source:        "/dev/sd\x00a1",
+			FSType:        "ext\xfe4",
+			Options:       map[string]string{},
+			SuperOptions:  map[string]string{},
+		},
+	}
+
+	filesystems, err := parseFilesystemLabels(input)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(filesystems) != 1 {
+		t.Fatalf("expected 1 filesystem, got %d", len(filesystems))
+	}
+
+	// All label values must be valid UTF-8.
+	for _, v := range []string{
+		filesystems[0].device,
+		filesystems[0].mountPoint,
+		filesystems[0].fsType,
+	} {
+		if !utf8.ValidString(v) {
+			t.Errorf("label value %q is not valid UTF-8", v)
+		}
+		// Must not contain any raw invalid bytes (replacement char is OK).
+		if strings.ContainsRune(v, 0xFFFD) {
+			t.Logf("label value contains replacement character (expected for invalid input): %q", v)
+		}
+	}
+}
 
 func Test_parseFilesystemLabelsError(t *testing.T) {
 	tests := []struct {
@@ -123,7 +243,7 @@ func TestMountPointDetails(t *testing.T) {
 		"/run/user/1000":                  "",
 		"/run/user/1000/gvfs":             "",
 		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore] bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
-		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]	bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
+		"/var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]\tbafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk": "",
 		"/var/lib/containers/storage/overlay": "",
 	}
 

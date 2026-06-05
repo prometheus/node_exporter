@@ -211,10 +211,17 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\040", " ")
 		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\011", "\t")
 
+		// Ensure label values are valid UTF-8 to avoid panics in
+		// prometheus.MustNewConstMetric. Linux paths are byte strings
+		// and can contain non-UTF-8 sequences.
+		mountPoint := strings.ToValidUTF8(rootfsStripPrefix(mount.MountPoint), "\uFFFD")
+		device := strings.ToValidUTF8(mount.Source, "\uFFFD")
+		fsType := strings.ToValidUTF8(mount.FSType, "\uFFFD")
+
 		filesystems = append(filesystems, filesystemLabels{
-			device:       mount.Source,
-			mountPoint:   rootfsStripPrefix(mount.MountPoint),
-			fsType:       mount.FSType,
+			device:       device,
+			mountPoint:   mountPoint,
+			fsType:       fsType,
 			mountOptions: mountOptionsString(mount.Options),
 			superOptions: mountOptionsString(mount.SuperOptions),
 			major:        strconv.Itoa(major),
