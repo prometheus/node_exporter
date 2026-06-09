@@ -468,8 +468,8 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	entries := make([]hwmonEntry, 0, len(hwmonFiles))
-	chipCounts := make(map[string]int)
-	nameCounts := make(map[string]int)
+	chipCounts := make(map[string]int, len(hwmonFiles))
+	nameCounts := make(map[string]int, len(hwmonFiles))
 	for _, hwDir := range hwmonFiles {
 		hwmonXPathName := filepath.Join(hwmonPathName, hwDir.Name())
 		fileInfo, err := os.Lstat(hwmonXPathName)
