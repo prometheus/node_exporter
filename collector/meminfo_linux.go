@@ -11,7 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//go:build !nomeminfo
+// Data Sources: /proc/meminfo
+// Platforms: Linux
+// Metric: node_memory_Active_bytes - Memory information field Active_bytes.
+// Metric: node_memory_MemTotal_bytes - Memory information field MemTotal_bytes.
+// Metric: node_memory_MemFree_bytes - Memory information field MemFree_bytes.
 
 package collector
 
