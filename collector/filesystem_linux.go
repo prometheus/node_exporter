@@ -212,9 +212,9 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\011", "\t")
 
 		filesystems = append(filesystems, filesystemLabels{
-			device:       mount.Source,
-			mountPoint:   rootfsStripPrefix(mount.MountPoint),
-			fsType:       mount.FSType,
+			device:       strings.ToValidUTF8(mount.Source, "�"),
+			mountPoint:   strings.ToValidUTF8(rootfsStripPrefix(mount.MountPoint), "�"),
+			fsType:       strings.ToValidUTF8(mount.FSType, "�"),
 			mountOptions: mountOptionsString(mount.Options),
 			superOptions: mountOptionsString(mount.SuperOptions),
 			major:        strconv.Itoa(major),
