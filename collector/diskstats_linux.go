@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -410,7 +411,7 @@ func rotationalLabel(fs blockdevice.FS, dev string) string {
 func (c *diskstatsCollector) updateDeviceMapperBackingDevices(ch chan<- prometheus.Metric, dev string) {
 	underlying, err := c.fs.SysBlockDeviceUnderlyingDevices(dev)
 	if err != nil {
-		if !os.IsNotExist(err) {
+		if errors.Is(err, os.ErrNotExist) {
 			c.logger.Debug("Failed to get device mapper backing devices", "device", dev, "err", err)
 		}
 		return
