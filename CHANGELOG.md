@@ -3,7 +3,7 @@
 * [CHANGE]
 * [FEATURE]
 * [ENHANCEMENT]
-* [BUGFIX]
+* [BUGFIX] filesystem: Prevent panic on mount points with non-UTF-8 names #3
 
 ## 1.10.2 / 2025-10-25
 
