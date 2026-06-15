@@ -22,7 +22,7 @@ import (
 	"os/user"
 	"runtime"
 	"slices"
-	"sort"
+	"strconv"
 
 	"github.com/prometheus/common/promslog"
 	"github.com/prometheus/common/promslog/flag"
@@ -37,6 +37,7 @@ import (
 	"github.com/prometheus/exporter-toolkit/web/kingpinflag"
 
 	"github.com/prometheus/node_exporter/collector"
+	"github.com/prometheus/node_exporter/config"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -44,6 +45,8 @@ import (
 // newHandler.
 type handler struct {
 	unfilteredHandler http.Handler
+	cfg               config.Config
+	runtime           *collector.Runtime
 	// enabledCollectors list is used for logging and filtering
 	enabledCollectors []string
 	// exporterMetricsRegistry is a separate registry for the metrics about
@@ -54,11 +57,18 @@ type handler struct {
 	logger                  *slog.Logger
 }
 
-func newHandler(includeExporterMetrics bool, maxRequests int, logger *slog.Logger) *handler {
+func newHandler(cfg config.Config, logger *slog.Logger) (*handler, error) {
+	runtime, err := collector.NewRuntime(cfg, logger)
+	if err != nil {
+		return nil, err
+	}
+
 	h := &handler{
+		cfg:                     cfg,
+		runtime:                 runtime,
 		exporterMetricsRegistry: prometheus.NewRegistry(),
-		includeExporterMetrics:  includeExporterMetrics,
-		maxRequests:             maxRequests,
+		includeExporterMetrics:  !cfg.WebDisableExporterMetrics,
+		maxRequests:             cfg.WebMaxRequests,
 		logger:                  logger,
 	}
 	if h.includeExporterMetrics {
@@ -67,12 +77,12 @@ func newHandler(includeExporterMetrics bool, maxRequests int, logger *slog.Logge
 			promcollectors.NewGoCollector(),
 		)
 	}
-	if innerHandler, err := h.innerHandler(); err != nil {
-		panic(fmt.Sprintf("Couldn't create metrics handler: %s", err))
-	} else {
-		h.unfilteredHandler = innerHandler
+	innerHandler, err := h.innerHandler()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't create metrics handler: %w", err)
 	}
-	return h
+	h.unfilteredHandler = innerHandler
+	return h, nil
 }
 
 // ServeHTTP implements http.Handler.
@@ -125,29 +135,32 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // (in which case it will log all the collectors enabled via command-line
 // flags).
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
-	nc, err := collector.NewNodeCollector(h.logger, filters...)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't create collector: %s", err)
+	runtime := h.runtime
+	if len(filters) > 0 {
+		cfg := h.cfg
+		cfg.EnabledCollectors = filters
+		r, err := collector.NewRuntime(cfg, h.logger)
+		if err != nil {
+			return nil, fmt.Errorf("couldn't create collector runtime: %w", err)
+		}
+		runtime = r
 	}
 
 	// Only log the creation of an unfiltered handler, which should happen
 	// only once upon startup.
 	if len(filters) == 0 {
 		h.logger.Info("Enabled collectors")
-		for n := range nc.Collectors {
-			h.enabledCollectors = append(h.enabledCollectors, n)
-		}
-		sort.Strings(h.enabledCollectors)
+		h.enabledCollectors = runtime.EnabledCollectors()
 		for _, c := range h.enabledCollectors {
 			h.logger.Info(c)
 		}
 	}
 
-	r := prometheus.NewRegistry()
-	r.MustRegister(versioncollector.NewCollector("node_exporter"))
-	if err := r.Register(nc); err != nil {
-		return nil, fmt.Errorf("couldn't register node collector: %s", err)
+	r, err := runtime.Registry()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't create collector registry: %w", err)
 	}
+	r.MustRegister(versioncollector.NewCollector("node_exporter"))
 
 	var handler http.Handler
 	if h.includeExporterMetrics {
@@ -184,7 +197,7 @@ func main() {
 		metricsPath = kingpin.Flag(
 			"web.telemetry-path",
 			"Path under which to expose metrics.",
-		).Default("/metrics").String()
+		).Default(config.DefaultWebTelemetryPath).String()
 		disableExporterMetrics = kingpin.Flag(
 			"web.disable-exporter-metrics",
 			"Exclude metrics about the exporter itself (promhttp_*, process_*, go_*).",
@@ -192,14 +205,14 @@ func main() {
 		maxRequests = kingpin.Flag(
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
-		).Default("40").Int()
+		).Default(strconv.Itoa(config.DefaultWebMaxRequests)).Int()
 		disableDefaultCollectors = kingpin.Flag(
 			"collector.disable-defaults",
 			"Set all collectors to disabled by default.",
 		).Default("false").Bool()
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
-		).Envar("GOMAXPROCS").Default("1").Int()
+		).Envar("GOMAXPROCS").Default(strconv.Itoa(config.DefaultRuntimeGoMaxProcs)).Int()
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
 	)
 
@@ -211,26 +224,40 @@ func main() {
 	kingpin.Parse()
 	logger := promslog.New(promslogConfig)
 
-	if *disableDefaultCollectors {
-		collector.DisableDefaultCollectors()
+	cfg := config.NewConfigWithDefaults()
+	cfg.WebTelemetryPath = *metricsPath
+	cfg.WebDisableExporterMetrics = *disableExporterMetrics
+	cfg.WebMaxRequests = *maxRequests
+	cfg.CollectorDisableDefaults = *disableDefaultCollectors
+	cfg.RuntimeGoMaxProcs = *maxProcs
+	if err := cfg.Validate(); err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
 	}
+
 	logger.Info("Starting node_exporter", "version", version.Info())
 	logger.Info("Build context", "build_context", version.BuildContext())
 	if user, err := user.Current(); err == nil && user.Uid == "0" {
 		logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")
 	}
-	runtime.GOMAXPROCS(*maxProcs)
+	runtime.GOMAXPROCS(cfg.RuntimeGoMaxProcs)
 	logger.Debug("Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 
-	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
-	if *metricsPath != "/" {
+	handler, err := newHandler(cfg, logger)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	http.Handle(cfg.WebTelemetryPath, handler)
+	if cfg.WebTelemetryPath != "/" {
 		landingConfig := web.LandingConfig{
 			Name:        "Node Exporter",
 			Description: "Prometheus Node Exporter",
 			Version:     version.Info(),
 			Links: []web.LandingLinks{
 				{
-					Address: *metricsPath,
+					Address: cfg.WebTelemetryPath,
 					Text:    "Metrics",
 				},
 			},
