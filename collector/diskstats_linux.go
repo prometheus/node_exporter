@@ -272,9 +272,19 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
-		if err != nil {
-			c.logger.Debug("Failed to parse udev info", "err", err)
+		// Only fetch udev device properties when udev is available. The
+		// getUdevDeviceProperties field is set to nil in NewDiskstatsCollector
+		// when the udev data directory is not accessible, so calling the bare
+		// package-level function directly (as was done before this fix) would
+		// bypass that guard and cause unnecessary file I/O on every scrape for
+		// every device, even on systems that do not have udev.
+		var info udevInfo
+		if c.getUdevDeviceProperties != nil {
+			var err error
+			info, err = c.getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
+			if err != nil {
+				c.logger.Debug("Failed to parse udev info", "err", err)
+			}
 		}
 
 		// This is usually the serial printed on the disk label.
@@ -290,12 +300,6 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			serial = info[udevIDSerial]
 		}
 
-		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
-		// Block Device Queue stats may not exist for all devices.
-		if err != nil && !os.IsNotExist(err) {
-			c.logger.Debug("Failed to get block device queue stats", "device", dev, "err", err)
-		}
-
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev,
 			fmt.Sprint(stats.MajorNumber),
 			fmt.Sprint(stats.MinorNumber),
@@ -304,7 +308,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			info[udevIDModel],
 			serial,
 			info[udevIDRevision],
-			strconv.FormatUint(queueStats.Rotational, 2),
+			rotationalLabel(c.fs, dev),
 		)
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
@@ -370,6 +374,31 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 	}
 	return nil
+}
+
+// rotationalLabel returns "1" for a rotational block device (HDD) or "0" for
+// a non-rotational device (SSD/NVMe) by reading
+// /sys/block/<dev>/queue/rotational via blockdevice.FS.
+// On any error — for example when the device has no queue directory — it
+// returns "0", preserving the backward-compatible behaviour of the previous
+// code that zero-initialised BlockQueueStats on error (Rotational uint64
+// default is 0).
+//
+// SysBlockDeviceRotational reads exactly 1 sysfs file per device, reducing
+// per-device sysfs I/O from ~30 reads (SysBlockDeviceQueueStats) to 1 and
+// fixing the 10× scrape regression on systems with many block devices (#3282).
+func rotationalLabel(fs blockdevice.FS, dev string) string {
+	rot, err := fs.SysBlockDeviceRotational(dev)
+	if err != nil {
+		// Default to "0" (non-rotational) on error to preserve backward
+		// compatibility: the previous code zero-initialised the struct on
+		// error, which also produced rotational="0".
+		return "0"
+	}
+	if rot == 1 {
+		return "1"
+	}
+	return "0"
 }
 
 func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
