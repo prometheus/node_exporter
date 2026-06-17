@@ -5652,7 +5652,8 @@ Lines: 1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:03.0/0000:03:00.0/net/eth0/ifalias
-Lines: 0
+Lines: 1
+alias
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/pci0000:00/0000:00:03.0/0000:03:00.0/net/eth0/ifindex
