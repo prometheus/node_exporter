@@ -80,6 +80,11 @@ func (c *thermalZoneCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, stats := range thermalZones {
+		if stats.ReadErrors != nil {
+			c.logger.Debug("Could not read thermal zone", "zone", stats.Name, "err", stats.ReadErrors)
+			continue
+		}
+
 		ch <- prometheus.MustNewConstMetric(
 			c.zoneTemp,
 			prometheus.GaugeValue,
