@@ -36,7 +36,7 @@ the `node_exporter` access to the host namespaces.
 Be aware that any non-root mount points you want to monitor will need to be bind-mounted
 into the container.
 
-If you start container for host monitoring, specify `path.rootfs` argument.
+If you start a container for host monitoring, specify the `path.rootfs` argument.
 This argument must match path in bind-mount of host root. The node\_exporter will use
 `path.rootfs` as prefix to access host filesystem.
 
