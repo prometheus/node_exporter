@@ -18,7 +18,7 @@ jobs:
       # should also be updated.
       image: quay.io/prometheus/golang-builder:1.26-base
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - run: go mod download
@@ -28,7 +28,7 @@ jobs:
     name: Go ARM tests
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
@@ -45,7 +45,7 @@ jobs:
       # should also be updated.
       image: quay.io/prometheus/golang-builder:1.26-base
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - run: go install github.com/google/go-jsonnet/cmd/jsonnet@latest
@@ -64,7 +64,7 @@ jobs:
       matrix:
         thread: [ 0, 1, 2 ]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - uses: prometheus/promci-setup@5af30ba8c199a91d6c04ebdc3c48e630e355f62d # v0.1.0
@@ -92,7 +92,7 @@ jobs:
       DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.26-base
       REPO_PATH: github.com/prometheus/node_exporter
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - uses: prometheus/promci-artifacts/restore@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
@@ -116,32 +116,33 @@ jobs:
   publish_main:
     name: Publish main branch artifacts
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     needs: [test_go, test_go_arm, build]
     if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: prometheus/promci/publish_main@42c3c84c865e5c1ab78543b929f7341eb2ef6123 # v0.6.1
+      - uses: prometheus/promci/publish_main@d9d4f5688814f0b77bf003d07fb8c00507390634 # v0.8.2
         with:
           docker_hub_login: ${{ secrets.docker_hub_login }}
           docker_hub_password: ${{ secrets.docker_hub_password }}
+          ghcr_io_password: ${{ github.token }}
           quay_io_login: ${{ secrets.quay_io_login }}
           quay_io_password: ${{ secrets.quay_io_password }}
 
   publish_release:
     name: Publish release artifacts
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     needs: [test_go, test_go_arm, build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: prometheus/promci/publish_release@42c3c84c865e5c1ab78543b929f7341eb2ef6123 # v0.6.1
+      - uses: prometheus/promci/publish_release@d9d4f5688814f0b77bf003d07fb8c00507390634 # v0.8.2
         with:
           docker_hub_login: ${{ secrets.docker_hub_login }}
           docker_hub_password: ${{ secrets.docker_hub_password }}
+          ghcr_io_password: ${{ github.token }}
           quay_io_login: ${{ secrets.quay_io_login }}
           quay_io_password: ${{ secrets.quay_io_password }}
-          github_token: ${{ secrets.PROMBOT_GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
