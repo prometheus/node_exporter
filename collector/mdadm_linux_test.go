@@ -19,6 +19,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -278,7 +279,10 @@ func TestMdadmStats(t *testing.T) {
 	reg.MustRegister(c)
 
 	sink := make(chan prometheus.Metric)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		err := collector.Update(sink)
 		if err != nil {
 			panic(err)
@@ -290,4 +294,5 @@ func TestMdadmStats(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	wg.Wait()
 }

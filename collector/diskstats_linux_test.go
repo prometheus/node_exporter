@@ -20,6 +20,7 @@ import (
 	"io"
 	"log/slog"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -329,7 +330,10 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 	reg.MustRegister(c)
 
 	sink := make(chan prometheus.Metric)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		err = collector.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
@@ -341,4 +345,5 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 	if err != nil {
 		t.Fatal(err)
 	}
+	wg.Wait()
 }

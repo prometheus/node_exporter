@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"testing"
 
@@ -389,7 +390,10 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 	reg.MustRegister(c)
 
 	sink := make(chan prometheus.Metric)
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		err = collector.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
@@ -401,4 +405,5 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 	if err != nil {
 		t.Fatal(err)
 	}
+	wg.Wait()
 }
