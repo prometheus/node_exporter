@@ -35,6 +35,11 @@
 // The collector reads NVMe log page 0xD0 from each EBS-backed NVMe device via
 // an ioctl, parses the binary EBS statistics structure, and exposes the values
 // as Prometheus metrics labelled by volume_id, device, and mount_path.
+//
+// Privileges: opening the NVMe character device and issuing the admin
+// passthru ioctl requires CAP_SYS_ADMIN (in practice, running as root). When
+// node_exporter runs as an unprivileged user, the device cannot be opened and
+// the collector returns no metrics.
 
 package collector
 

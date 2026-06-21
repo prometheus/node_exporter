@@ -194,7 +194,7 @@ cpu\_vulnerabilities | Exposes CPU vulnerability information from sysfs. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
 drm | Expose GPU metrics using sysfs / DRM, `amdgpu` is the only driver which exposes this information through DRM | Linux
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
-ebsnvme | Exposes [Amazon EBS detailed performance statistics](https://docs.aws.amazon.com/ebs/latest/userguide/nvme-detailed-performance-stats.html) read from the EBS NVMe device log page (IOPS, throughput, latency histograms, queue length), labelled by `volume_id`, `device`, and `mount_path`. Requires running on a Nitro-based EC2 instance. | Linux
+ebsnvme | Exposes [Amazon EBS detailed performance statistics](https://docs.aws.amazon.com/ebs/latest/userguide/nvme-detailed-performance-stats.html) read from the EBS NVMe device log page (IOPS, throughput, latency histograms, queue length), labelled by `volume_id`, `device`, and `mount_path`. Requires running on a Nitro-based EC2 instance with `CAP_SYS_ADMIN` (typically as root) to issue the NVMe admin ioctl. | Linux
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
 interrupts | Exposes detailed interrupts statistics. | Linux, OpenBSD
 ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
