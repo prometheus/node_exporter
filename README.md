@@ -192,6 +192,7 @@ buddyinfo | Exposes statistics of memory fragments as reported by /proc/buddyinf
 cgroups | A summary of the number of active and enabled cgroups | Linux
 cpu\_vulnerabilities | Exposes CPU vulnerability information from sysfs. | Linux
 devstat | Exposes device statistics | Dragonfly, FreeBSD
+dmmultipath | Exposes DM-multipath device and path metrics from `/sys/block/dm-*`. | Linux
 drm | Expose GPU metrics using sysfs / DRM, `amdgpu` is the only driver which exposes this information through DRM | Linux
 drbd | Exposes Distributed Replicated Block Device statistics (to version 8.4) | Linux
 ethtool | Exposes network interface information and network driver statistics equivalent to `ethtool`, `ethtool -S`, and `ethtool -i`. | Linux
@@ -202,6 +203,7 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+nvmesubsystem | Exposes NVMe-oF subsystem path health from `/sys/class/nvme-subsystem/`. | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
@@ -338,6 +340,51 @@ To statically set roles for a machine using labels:
 echo 'role{role="application_server"} 1' > /path/to/directory/role.prom.$$
 mv /path/to/directory/role.prom.$$ /path/to/directory/role.prom
 ```
+
+### DM-Multipath Collector
+
+The `dmmultipath` collector reads `/sys/block/dm-*` to discover Device Mapper
+multipath devices and expose path health metrics. It identifies multipath
+devices by checking that `dm/uuid` starts with `mpath-`, which distinguishes
+them from LVM or other DM device types.
+
+No special permissions are required — the collector reads only world-readable
+sysfs attributes.
+
+Enable it with `--collector.dmmultipath`.
+
+#### Exposed metrics
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `node_dmmultipath_device_info` | Gauge | Info metric with `device`, `sysfs_name`, and `uuid` (contains WWID for PV correlation). |
+| `node_dmmultipath_device_active` | Gauge | Whether the DM device is active (1) or suspended (0). Labels: `device`, `sysfs_name`. |
+| `node_dmmultipath_device_size_bytes` | Gauge | Size of the DM device in bytes. Labels: `device`, `sysfs_name`. |
+| `node_dmmultipath_device_paths` | Gauge | Number of paths. Labels: `device`, `sysfs_name`. |
+| `node_dmmultipath_device_paths_active` | Gauge | Number of paths in active state (SCSI `running` or NVMe `live`). Labels: `device`, `sysfs_name`. |
+| `node_dmmultipath_device_paths_failed` | Gauge | Number of paths not in active state. Labels: `device`, `sysfs_name`. |
+| `node_dmmultipath_path_state` | Gauge | Reports the underlying device state for each path. Labels: `device`, `path`, `state`. |
+
+The `sysfs_name` label (e.g. `dm-0`) matches the `device` label in `node_disk_*` metrics, enabling direct correlation between multipath health and I/O statistics without recording rules.
+
+### NVMe Subsystem Collector
+
+The `nvmesubsystem` collector exposes NVMe-oF (NVMe over Fabrics) subsystem
+path health by reading `/sys/class/nvme-subsystem/`. It complements the
+existing `nvme` collector (which reports per-controller hardware stats) by
+monitoring the **connectivity layer** — how many controller paths are live,
+connecting, or dead for each NVMe subsystem.
+
+Enable it with `--collector.nvmesubsystem`.
+
+#### Exposed metrics
+
+| Metric | Description |
+|--------|-------------|
+| `node_nvmesubsystem_info` | Info metric with subsystem NQN, model, serial and I/O policy as labels. |
+| `node_nvmesubsystem_paths` | Number of controller paths for the subsystem. |
+| `node_nvmesubsystem_paths_live` | Number of controller paths currently in `live` state. |
+| `node_nvmesubsystem_path_state` | Per-controller path state (1 for the current state, 0 for others). |
 
 ### Filtering enabled collectors
 
