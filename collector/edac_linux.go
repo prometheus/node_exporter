@@ -30,7 +30,7 @@ const (
 
 var (
 	edacMemControllerRE = regexp.MustCompile(`.*devices/system/edac/mc/mc([0-9]*)`)
-	edacMemCsrowRE      = regexp.MustCompile(`.*devices/system/edac/mc/mc[0-9]*/csrow([0-9]*)`)
+	edacMemCsrowRE      = regexp.MustCompile(`.*devices/system/edac/mc/mc([0-9]*)/csrow([0-9]*)`)
 )
 
 type edacCollector struct {
@@ -47,24 +47,26 @@ var (
 		"Total correctable memory errors.",
 		[]string{"controller"}, nil,
 	)
+
 	edacUeCount = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, edacSubsystem, "uncorrectable_errors_total"),
 		"Total uncorrectable memory errors.",
 		[]string{"controller"}, nil,
 	)
-	edacCsRowCECount = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, edacSubsystem, "csrow_correctable_errors_total"),
-		"Total correctable memory errors for this csrow.",
-		[]string{"controller", "csrow"}, nil,
+
+	edacChannelCECount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, edacSubsystem, "channel_correctable_errors_total"),
+		"Total correctable memory errors for this channel.",
+		[]string{"controller", "csrow", "channel", "dimm_label"}, nil,
 	)
-	edacCsRowUECount = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, edacSubsystem, "csrow_uncorrectable_errors_total"),
-		"Total uncorrectable memory errors for this csrow.",
-		[]string{"controller", "csrow"}, nil,
+
+	edacChannelUECount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, edacSubsystem, "channel_uncorrectable_errors_total"),
+		"Total uncorrectable memory errors for this channel.",
+		[]string{"controller", "csrow", "channel", "dimm_label"}, nil,
 	)
 )
 
-// NewEdacCollector returns a new Collector exposing edac stats.
 func NewEdacCollector(logger *slog.Logger) (Collector, error) {
 	return &edacCollector{
 		logger: logger,
@@ -76,68 +78,107 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return err
 	}
+
 	for _, controller := range memControllers {
 		controllerMatch := edacMemControllerRE.FindStringSubmatch(controller)
 		if controllerMatch == nil {
 			return fmt.Errorf("controller string didn't match regexp: %s", controller)
 		}
+
 		controllerNumber := controllerMatch[1]
 
+		// Controller CE count
 		value, err := readUintFromFile(filepath.Join(controller, "ce_count"))
 		if err != nil {
 			return fmt.Errorf("couldn't get ce_count for controller %s: %w", controllerNumber, err)
 		}
-		ch <- prometheus.MustNewConstMetric(
-			edacCeCount, prometheus.CounterValue, float64(value), controllerNumber)
 
-		value, err = readUintFromFile(filepath.Join(controller, "ce_noinfo_count"))
-		if err != nil {
-			return fmt.Errorf("couldn't get ce_noinfo_count for controller %s: %w", controllerNumber, err)
-		}
 		ch <- prometheus.MustNewConstMetric(
-			edacCsRowCECount, prometheus.CounterValue, float64(value), controllerNumber, "unknown")
+			edacCeCount,
+			prometheus.CounterValue,
+			float64(value),
+			controllerNumber,
+		)
 
+		// Controller UE count
 		value, err = readUintFromFile(filepath.Join(controller, "ue_count"))
 		if err != nil {
 			return fmt.Errorf("couldn't get ue_count for controller %s: %w", controllerNumber, err)
 		}
-		ch <- prometheus.MustNewConstMetric(
-			edacUeCount, prometheus.CounterValue, float64(value), controllerNumber)
 
-		value, err = readUintFromFile(filepath.Join(controller, "ue_noinfo_count"))
-		if err != nil {
-			return fmt.Errorf("couldn't get ue_noinfo_count for controller %s: %w", controllerNumber, err)
-		}
 		ch <- prometheus.MustNewConstMetric(
-			edacCsRowUECount, prometheus.CounterValue, float64(value), controllerNumber, "unknown")
+			edacUeCount,
+			prometheus.CounterValue,
+			float64(value),
+			controllerNumber,
+		)
 
-		// For each controller, walk the csrow directories.
 		csrows, err := filepath.Glob(controller + "/csrow[0-9]*")
 		if err != nil {
 			return err
 		}
+
 		for _, csrow := range csrows {
 			csrowMatch := edacMemCsrowRE.FindStringSubmatch(csrow)
 			if csrowMatch == nil {
 				return fmt.Errorf("csrow string didn't match regexp: %s", csrow)
 			}
-			csrowNumber := csrowMatch[1]
 
-			value, err = readUintFromFile(filepath.Join(csrow, "ce_count"))
-			if err != nil {
-				return fmt.Errorf("couldn't get ce_count for controller/csrow %s/%s: %w", controllerNumber, csrowNumber, err)
-			}
-			ch <- prometheus.MustNewConstMetric(
-				edacCsRowCECount, prometheus.CounterValue, float64(value), controllerNumber, csrowNumber)
+			csrowNumber := csrowMatch[2]
 
-			value, err = readUintFromFile(filepath.Join(csrow, "ue_count"))
+			channelFiles, err := filepath.Glob(csrow + "/ch[0-9]*_ce_count")
 			if err != nil {
-				return fmt.Errorf("couldn't get ue_count for controller/csrow %s/%s: %w", controllerNumber, csrowNumber, err)
+				return err
 			}
-			ch <- prometheus.MustNewConstMetric(
-				edacCsRowUECount, prometheus.CounterValue, float64(value), controllerNumber, csrowNumber)
+
+			for _, chFile := range channelFiles {
+				match := regexp.MustCompile(`ch([0-9]+)_ce_count`).FindStringSubmatch(filepath.Base(chFile))
+				if match == nil {
+					continue
+				}
+
+				channelNumber := match[1]
+
+				label := fmt.Sprintf(
+					"mc%s_csrow%s_channel%s",
+					controllerNumber,
+					csrowNumber,
+					channelNumber,
+				)
+
+				value, err := readUintFromFile(chFile)
+				if err == nil {
+					ch <- prometheus.MustNewConstMetric(
+						edacChannelCECount,
+						prometheus.CounterValue,
+						float64(value),
+						controllerNumber,
+						csrowNumber,
+						channelNumber,
+						label,
+					)
+				}
+
+				ueFile := filepath.Join(
+					csrow,
+					fmt.Sprintf("ch%s_ue_count", channelNumber),
+				)
+
+				value, err = readUintFromFile(ueFile)
+				if err == nil {
+					ch <- prometheus.MustNewConstMetric(
+						edacChannelUECount,
+						prometheus.CounterValue,
+						float64(value),
+						controllerNumber,
+						csrowNumber,
+						channelNumber,
+						label,
+					)
+				}
+			}
 		}
 	}
 
-	return err
+	return nil
 }
