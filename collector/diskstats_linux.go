@@ -272,12 +272,8 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		// Only fetch udev device properties when udev is available. The
-		// getUdevDeviceProperties field is set to nil in NewDiskstatsCollector
-		// when the udev data directory is not accessible, so calling the bare
-		// package-level function directly (as was done before this fix) would
-		// bypass that guard and cause unnecessary file I/O on every scrape for
-		// every device, even on systems that do not have udev.
+		// Only fetch udev device properties when udev is available
+		// to avoid unnecessary file I/O.
 		var info udevInfo
 		if c.getUdevDeviceProperties != nil {
 			var err error
