@@ -1,6 +1,6 @@
 ## master / unreleased
 
-* [CHANGE]
+* [CHANGE] infiniband: Add `link_layer` label to all per-port metrics
 * [FEATURE]
 * [ENHANCEMENT]
 * [BUGFIX]
