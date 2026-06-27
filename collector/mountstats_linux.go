@@ -20,6 +20,7 @@ import (
 	"log/slog"
 	"strconv"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
@@ -27,6 +28,11 @@ import (
 var (
 	// 64-bit float mantissa: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
 	float64Mantissa uint64 = 9007199254740992
+
+	mountStatsNFSAggregateTransports = kingpin.Flag(
+		"collector.mountstats.nfs.aggregate-transports",
+		"Sum NFS transport statistics across all connections (e.g. nconnect) and emit a single value per mount, instead of one series per transport index.",
+	).Default("false").Bool()
 )
 
 type mountStatsCollector struct {
@@ -131,6 +137,12 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		opLabels    = []string{"export", "protocol", "mountaddr", "operation"}
 		translabels = []string{"export", "protocol", "mountaddr", "transport"}
 	)
+
+	// When aggregating transports (e.g. NFS nconnect) into a single series per
+	// mount, drop the per-transport index label to avoid cardinality explosion.
+	if *mountStatsNFSAggregateTransports {
+		translabels = labels
+	}
 
 	return &mountStatsCollector{
 		NFSAgeSecondsTotal: prometheus.NewDesc(
@@ -618,78 +630,13 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 		labelValues...,
 	)
 
-	for i := range s.Transport {
-		translabelValues := []string{export, protocol, mountAddress, strconv.Itoa(i)}
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportBindTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].Bind),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportConnectTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].Connect),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportIdleTimeSeconds,
-			prometheus.GaugeValue,
-			float64(s.Transport[i].IdleTimeSeconds%float64Mantissa),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportSendsTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].Sends),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportReceivesTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].Receives),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportBadTransactionIDsTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].BadTransactionIDs),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportBacklogQueueTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].CumulativeBacklog),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportMaximumRPCSlots,
-			prometheus.GaugeValue,
-			float64(s.Transport[i].MaximumRPCSlotsUsed),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportSendingQueueTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].CumulativeSendingQueue),
-			translabelValues...,
-		)
-
-		ch <- prometheus.MustNewConstMetric(
-			c.NFSTransportPendingQueueTotal,
-			prometheus.CounterValue,
-			float64(s.Transport[i].CumulativePendingQueue),
-			translabelValues...,
-		)
+	if *mountStatsNFSAggregateTransports {
+		c.emitAggregatedTransportStats(ch, s.Transport, labelValues)
+	} else {
+		for i := range s.Transport {
+			translabelValues := []string{export, protocol, mountAddress, strconv.Itoa(i)}
+			c.emitTransportStats(ch, &s.Transport[i], translabelValues)
+		}
 	}
 
 	for _, op := range s.Operations {
@@ -933,4 +880,104 @@ func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *pro
 		float64(s.Events.PNFSWrite),
 		labelValues...,
 	)
+}
+
+func (c *mountStatsCollector) emitTransportStats(ch chan<- prometheus.Metric, t *procfs.NFSTransportStats, labelValues []string) {
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportBindTotal,
+		prometheus.CounterValue,
+		float64(t.Bind),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportConnectTotal,
+		prometheus.CounterValue,
+		float64(t.Connect),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportIdleTimeSeconds,
+		prometheus.GaugeValue,
+		float64(t.IdleTimeSeconds%float64Mantissa),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportSendsTotal,
+		prometheus.CounterValue,
+		float64(t.Sends),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportReceivesTotal,
+		prometheus.CounterValue,
+		float64(t.Receives),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportBadTransactionIDsTotal,
+		prometheus.CounterValue,
+		float64(t.BadTransactionIDs),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportBacklogQueueTotal,
+		prometheus.CounterValue,
+		float64(t.CumulativeBacklog),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportMaximumRPCSlots,
+		prometheus.GaugeValue,
+		float64(t.MaximumRPCSlotsUsed),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportSendingQueueTotal,
+		prometheus.CounterValue,
+		float64(t.CumulativeSendingQueue),
+		labelValues...,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSTransportPendingQueueTotal,
+		prometheus.CounterValue,
+		float64(t.CumulativePendingQueue),
+		labelValues...,
+	)
+}
+
+func (c *mountStatsCollector) emitAggregatedTransportStats(ch chan<- prometheus.Metric, transports []procfs.NFSTransportStats, labelValues []string) {
+	if len(transports) == 0 {
+		return
+	}
+	agg := procfs.NFSTransportStats{
+		// Gauge: time since the mount last saw any RPC traffic on *any*
+		// transport — the minimum across all transports.
+		IdleTimeSeconds: transports[0].IdleTimeSeconds,
+	}
+	for i := range transports {
+		agg.Bind += transports[i].Bind
+		agg.Connect += transports[i].Connect
+		agg.Sends += transports[i].Sends
+		agg.Receives += transports[i].Receives
+		agg.BadTransactionIDs += transports[i].BadTransactionIDs
+		agg.CumulativeBacklog += transports[i].CumulativeBacklog
+		agg.CumulativeSendingQueue += transports[i].CumulativeSendingQueue
+		agg.CumulativePendingQueue += transports[i].CumulativePendingQueue
+		if transports[i].IdleTimeSeconds < agg.IdleTimeSeconds {
+			agg.IdleTimeSeconds = transports[i].IdleTimeSeconds
+		}
+		if transports[i].MaximumRPCSlotsUsed > agg.MaximumRPCSlotsUsed {
+			agg.MaximumRPCSlotsUsed = transports[i].MaximumRPCSlotsUsed
+		}
+	}
+	c.emitTransportStats(ch, &agg, labelValues)
 }
