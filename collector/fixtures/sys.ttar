@@ -1299,6 +1299,21 @@ Mode: 644
 Path: sys/class/hwmon/hwmon5
 SymlinkTo: ../../devices/platform/bogus.0/hwmon/hwmon5/
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon6
+SymlinkTo: ../../devices/platform/asus-nb-wmi/hwmon/hwmon6
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon7
+SymlinkTo: ../../devices/platform/asus-nb-wmi/hwmon/hwmon7
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon8
+SymlinkTo: ../../devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon8
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon9
+SymlinkTo: ../../devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon9
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/class/hwmon/hwmon10
+SymlinkTo: ../../devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon10
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class/infiniband
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -8200,6 +8215,107 @@ SymlinkTo: ../../../applesmc.768
 Path: sys/devices/platform/applesmc.768/name
 Lines: 1
 applesmc
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/asus-nb-wmi
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/asus-nb-wmi/hwmon
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/asus-nb-wmi/hwmon/hwmon6
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/asus-nb-wmi/hwmon/hwmon6/device
+SymlinkTo: ../../../asus-nb-wmi
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/asus-nb-wmi/hwmon/hwmon6/name
+Lines: 1
+asus
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/asus-nb-wmi/hwmon/hwmon6/pwm1_enable
+Lines: 1
+2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/asus-nb-wmi/hwmon/hwmon7
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/asus-nb-wmi/hwmon/hwmon7/device
+SymlinkTo: ../../../asus-nb-wmi
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/asus-nb-wmi/hwmon/hwmon7/name
+Lines: 1
+asus_wmi_sensors
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/asus-nb-wmi/hwmon/hwmon7/pwm1_enable
+Lines: 1
+2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc/18000000.wifi
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc/18000000.wifi/ieee80211
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon8
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon8/device
+SymlinkTo: ../..
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon8/name
+Lines: 1
+mt7996_phy0_0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon8/temp1_input
+Lines: 1
+55000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon9
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon9/device
+SymlinkTo: ../..
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon9/name
+Lines: 1
+mt7996_phy0_1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon9/temp1_input
+Lines: 1
+56000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon10
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon10/device
+SymlinkTo: ../..
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon10/name
+Lines: 1
+mt7996_phy0_2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/platform/soc/18000000.wifi/ieee80211/phy0/hwmon/hwmon10/temp1_input
+Lines: 1
+57000
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/platform/bogus.0
