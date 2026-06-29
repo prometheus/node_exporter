@@ -17,9 +17,11 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -74,6 +76,7 @@ type diskstatsCollector struct {
 	descs                   []typedDesc
 	filesystemInfoDesc      typedDesc
 	deviceMapperInfoDesc    typedDesc
+	deviceMapperBackingDesc typedDesc
 	ataDescs                map[string]typedDesc
 	logger                  *slog.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
@@ -224,6 +227,13 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
+		deviceMapperBackingDesc: typedDesc{
+			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "device_mapper_backing_device_info"),
+				"Info about the underlying block devices of a device mapper device.",
+				[]string{"device", "backing_device"},
+				nil,
+			), valueType: prometheus.GaugeValue,
+		},
 		ataDescs: map[string]typedDesc{
 			udevIDATAWriteCache: {
 				desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ata_write_cache"),
@@ -351,6 +361,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 				info[udevDMLVName],
 				info[udevDMLVLayer],
 			)
+			c.updateDeviceMapperBackingDevices(ch, dev)
 		}
 
 		if ata := info[udevIDATA]; ata != "" {
@@ -395,6 +406,23 @@ func rotationalLabel(fs blockdevice.FS, dev string) string {
 		return "1"
 	}
 	return "0"
+}
+
+func (c *diskstatsCollector) updateDeviceMapperBackingDevices(ch chan<- prometheus.Metric, dev string) {
+	underlying, err := c.fs.SysBlockDeviceUnderlyingDevices(dev)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.logger.Debug("Failed to get device mapper backing devices", "device", dev, "err", err)
+		}
+		return
+	}
+
+	sort.Strings(underlying.DeviceNames)
+	for _, backingDevice := range underlying.DeviceNames {
+		ch <- c.deviceMapperBackingDesc.mustNewConstMetric(1.0, dev,
+			backingDevice,
+		)
+	}
 }
 
 func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
