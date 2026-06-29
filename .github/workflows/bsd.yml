@@ -26,7 +26,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/freebsd-vm@7ca82f79fe3078fecded6d3a2bff094995447bbd  # v1.4.4
+        uses: vmactions/freebsd-vm@a6de9343ef5747433d9c25784c90e84998b9d69a  # v1.4.6
         with:
           release: "15.0"
           copyback: false
@@ -80,7 +80,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/openbsd-vm@d7d892b7b9ba97ed2747b0fc201be65037d64c3e  # v1.4.0
+        uses: vmactions/openbsd-vm@6fac4962055fe9952d29930942445739e509fecd  # v1.4.2
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
@@ -184,7 +184,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@17fba5ae01ae16ac714dead56eed198c3b2e210e  # v1.2.8
+        uses: vmactions/dragonflybsd-vm@b4468429bb9ab60b14600c6eeeb6464427f29391  # v1.2.9
         with:
           copyback: false
           envs: 'GO_VERSION'
@@ -238,7 +238,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/solaris-vm@c20562b2c69737b06be9e828915761703e487373  # v1.3.3
+        uses: vmactions/solaris-vm@3702ccf20b84c7f7c0a9bb68894aba7623f8301d  # v1.3.6
         with:
           copyback: false
           envs: 'GO_VERSION'
