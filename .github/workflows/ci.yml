@@ -121,7 +121,7 @@ jobs:
     needs: [test_go, test_go_arm, build]
     if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
     steps:
-      - uses: prometheus/promci/publish_main@d9d4f5688814f0b77bf003d07fb8c00507390634 # v0.8.2
+      - uses: prometheus/promci/publish_main@13941414d409d227afd67544e5d306827db5a1a2 # v0.8.5
         with:
           docker_hub_login: ${{ secrets.docker_hub_login }}
           docker_hub_password: ${{ secrets.docker_hub_password }}
