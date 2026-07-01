@@ -27,7 +27,7 @@ require (
 	github.com/prometheus/exporter-toolkit v0.16.0
 	github.com/prometheus/procfs v0.20.2-0.20260618104242-66a9e6ebfb87
 	github.com/safchain/ethtool v0.7.0
-	golang.org/x/sys v0.45.0
+	golang.org/x/sys v0.46.0
 	howett.net/plist v1.0.1
 )
 
