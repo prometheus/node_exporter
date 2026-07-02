@@ -58,15 +58,12 @@ type osRelease struct {
 }
 
 type osReleaseCollector struct {
-	infoDesc           *prometheus.Desc
 	logger             *slog.Logger
 	os                 *osRelease
 	osMutex            sync.RWMutex
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
-	versionDesc        *prometheus.Desc
 	supportEnd         time.Time
-	supportEndDesc     *prometheus.Desc
 }
 
 type Plist struct {
@@ -82,28 +79,31 @@ func init() {
 	registerCollector("os", defaultEnabled, NewOSCollector)
 }
 
+var (
+	osInfoDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "os", "info"),
+		"A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, "+
+			"name, pretty_name, variant, variant_id, version, version_codename, version_id.",
+		[]string{"build_id", "id", "id_like", "image_id", "image_version", "name", "pretty_name",
+			"variant", "variant_id", "version", "version_codename", "version_id"}, nil,
+	)
+	osVersionDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "os", "version"),
+		"Metric containing the major.minor part of the OS version.",
+		[]string{"id", "id_like", "name"}, nil,
+	)
+	osSupportEndDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "os", "support_end_timestamp_seconds"),
+		"Metric containing the end-of-life date timestamp of the OS.",
+		nil, nil,
+	)
+)
+
 // NewOSCollector returns a new Collector exposing os-release information.
 func NewOSCollector(logger *slog.Logger) (Collector, error) {
 	return &osReleaseCollector{
-		logger: logger,
-		infoDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "os", "info"),
-			"A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, "+
-				"name, pretty_name, variant, variant_id, version, version_codename, version_id.",
-			[]string{"build_id", "id", "id_like", "image_id", "image_version", "name", "pretty_name",
-				"variant", "variant_id", "version", "version_codename", "version_id"}, nil,
-		),
+		logger:             logger,
 		osReleaseFilenames: []string{etcOSRelease, usrLibOSRelease, systemVersionPlist},
-		versionDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "os", "version"),
-			"Metric containing the major.minor part of the OS version.",
-			[]string{"id", "id_like", "name"}, nil,
-		),
-		supportEndDesc: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "os", "support_end_timestamp_seconds"),
-			"Metric containing the end-of-life date timestamp of the OS.",
-			nil, nil,
-		),
 	}, nil
 }
 
@@ -187,16 +187,16 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	ch <- prometheus.MustNewConstMetric(c.infoDesc, prometheus.GaugeValue, 1.0,
+	ch <- prometheus.MustNewConstMetric(osInfoDesc, prometheus.GaugeValue, 1.0,
 		c.os.BuildID, c.os.ID, c.os.IDLike, c.os.ImageID, c.os.ImageVersion, c.os.Name, c.os.PrettyName,
 		c.os.Variant, c.os.VariantID, c.os.Version, c.os.VersionCodename, c.os.VersionID)
 	if c.version > 0 {
-		ch <- prometheus.MustNewConstMetric(c.versionDesc, prometheus.GaugeValue, c.version,
+		ch <- prometheus.MustNewConstMetric(osVersionDesc, prometheus.GaugeValue, c.version,
 			c.os.ID, c.os.IDLike, c.os.Name)
 	}
 
 	if c.os.SupportEnd != "" {
-		ch <- prometheus.MustNewConstMetric(c.supportEndDesc, prometheus.GaugeValue, float64(c.supportEnd.Unix()))
+		ch <- prometheus.MustNewConstMetric(osSupportEndDesc, prometheus.GaugeValue, float64(c.supportEnd.Unix()))
 	}
 
 	return nil

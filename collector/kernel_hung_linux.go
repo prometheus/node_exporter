@@ -16,8 +16,10 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
@@ -29,7 +31,7 @@ type kernelHungCollector struct {
 }
 
 func init() {
-	registerCollector("kernel_hung", defaultDisabled, NewKernelHungCollector)
+	registerCollector("kernel_hung", defaultEnabled, NewKernelHungCollector)
 }
 
 func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
@@ -44,8 +46,8 @@ func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
 }
 
 var (
-	taskDetectCount = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "kernel_hung", "task_detect_count"),
+	kernelHungTasks = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "kernel_hung", "tasks_total"),
 		"Total number of tasks that have been detected as hung since the system booted.",
 		nil, nil,
 	)
@@ -54,10 +56,14 @@ var (
 func (c *kernelHungCollector) Update(ch chan<- prometheus.Metric) error {
 	kernelHung, err := c.fs.KernelHung()
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.logger.Debug("hung_task_detect_count does not exist")
+			return ErrNoData
+		}
 		return err
 	}
 
-	ch <- prometheus.MustNewConstMetric(taskDetectCount, prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
+	ch <- prometheus.MustNewConstMetric(kernelHungTasks, prometheus.CounterValue, float64(*kernelHung.HungTaskDetectCount))
 
 	return nil
 }

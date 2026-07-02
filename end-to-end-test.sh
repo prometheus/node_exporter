@@ -37,6 +37,7 @@ supported_collectors() {
 enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
+  bcachefs
   bonding
   btrfs
   buddyinfo
@@ -56,6 +57,7 @@ enabled_collectors=$(cat << COLLECTORS
   infiniband
   interrupts
   ipvs
+  kernel_hung
   ksmd
   lnstat
   loadavg

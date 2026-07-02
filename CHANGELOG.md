@@ -5,6 +5,25 @@
 * [ENHANCEMENT]
 * [BUGFIX]
 
+## 1.11.1 / 2026-04-07
+
+* [BUGFIX] Fix kernel_hung for no data #3613
+
+## 1.11.0 / 2026-04-04
+
+* [CHANGE] Adds distroless container image. #3592
+* [FEATURE] infiniband: Add `hw_counters` metrics #2827
+* [FEATURE] kernel_hung: Add collector for kernel hung tasks #3470
+* [FEATURE] mixin: Add "All" option to cluster variable in dashboards #3509
+* [FEATURE] netlink: Add node_network_altnames_info metric #3541
+* [FEATURE] thermal: Add support for CPU temperature metrics on Apple Silicon #3547
+* [FEATURE] bcachefs: Add new collector for bcachefs #3523
+* [ENHANCEMENT] mixin: Make devices in network graphs configurable #3525
+* [ENHANCEMENT] nvme: Add namespace parameters #3360
+* [BUGFIX] netdev: Respect deviceFilter for `node_network_address_info` metric #3340
+* [BUGFIX] mountstats: Fix multiple transports statistics labeling #3358
+* [BUGFIX] diskstats: Fix panic when using device-include flag only #3603
+
 ## 1.10.2 / 2025-10-25
 
 * [BUGFIX] meminfo: Fix typo in Zswap metric name #3455

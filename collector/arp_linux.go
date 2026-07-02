@@ -35,13 +35,20 @@ var (
 type arpCollector struct {
 	fs           procfs.FS
 	deviceFilter deviceFilter
-	entries      *prometheus.Desc
 	logger       *slog.Logger
 }
 
 func init() {
 	registerCollector("arp", defaultEnabled, NewARPCollector)
 }
+
+var (
+	arpEntries = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "arp", "entries"),
+		"ARP entries by device",
+		[]string{"device"}, nil,
+	)
+)
 
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector(logger *slog.Logger) (Collector, error) {
@@ -53,12 +60,7 @@ func NewARPCollector(logger *slog.Logger) (Collector, error) {
 	return &arpCollector{
 		fs:           fs,
 		deviceFilter: newDeviceFilter(*arpDeviceExclude, *arpDeviceInclude),
-		entries: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "arp", "entries"),
-			"ARP entries by device",
-			[]string{"device"}, nil,
-		),
-		logger: logger,
+		logger:       logger,
 	}, nil
 }
 
@@ -123,7 +125,7 @@ func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 		ch <- prometheus.MustNewConstMetric(
-			c.entries, prometheus.GaugeValue, float64(entryCount), device)
+			arpEntries, prometheus.GaugeValue, float64(entryCount), device)
 	}
 
 	return nil

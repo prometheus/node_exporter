@@ -153,12 +153,12 @@ local diskSpaceUtilisation =
                                row.new('Network')
                                + row.withPanels([
                                  networkUtilisation + tsQueryOptions.withTargets([
-                                   prometheus.new('$datasource', 'instance:node_network_receive_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
-                                   prometheus.new('$datasource', 'instance:node_network_transmit_bytes_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
+                                   prometheus.new('$datasource', 'instance:node_network_receive_bytes_physical:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
+                                   prometheus.new('$datasource', 'instance:node_network_transmit_bytes_physical:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
                                  ]),
                                  networkSaturation + tsQueryOptions.withTargets([
-                                   prometheus.new('$datasource', 'instance:node_network_receive_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
-                                   prometheus.new('$datasource', 'instance:node_network_transmit_drop_excluding_lo:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
+                                   prometheus.new('$datasource', 'instance:node_network_receive_drop_physical:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Receive'),
+                                   prometheus.new('$datasource', 'instance:node_network_transmit_drop_physical:rate%(rateInterval)s{%(nodeExporterSelector)s, instance="$instance", %(clusterLabel)s=~"$cluster"} != 0' % $._config) + prometheus.withLegendFormat('Transmit'),
                                  ]),
                                ]),
                                row.new('Disk IO')
