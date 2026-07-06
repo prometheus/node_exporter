@@ -201,7 +201,7 @@ ksmd | Exposes kernel and system statistics from `/sys/kernel/mm/ksm`. | Linux
 lnstat | Exposes stats from `/proc/net/stat/`. | Linux
 logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/Software/systemd/logind/). | Linux
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
-mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
+mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. Use `--collector.mountstats.nfs.aggregate-transports` to sum NFS transport metrics across connections (e.g. `nconnect`) and emit a single series per mount instead of one per transport. | Linux
 network_route | Exposes the routing table as metrics | Linux
 nvmesubsystem | Exposes NVMe over Fabrics subsystem path health metrics from `/sys/class/nvme-subsystem/`. | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
