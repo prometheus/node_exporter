@@ -238,7 +238,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/solaris-vm@3702ccf20b84c7f7c0a9bb68894aba7623f8301d  # v1.3.6
+        uses: vmactions/solaris-vm@d30dd6c228c8661ade859e36ead7660b9a62efcc  # v1.3.7
         with:
           copyback: false
           envs: 'GO_VERSION'
