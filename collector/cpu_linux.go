@@ -50,6 +50,7 @@ type cpuCollector struct {
 	cpuStats           map[int64]procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
 	isolatedCpus       []uint16
+	cpuFreqEnabled     bool
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
@@ -150,6 +151,10 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 	return c, nil
 }
 
+func (c *cpuCollector) configureRuntimeState(state *collectorRuntimeState) {
+	c.cpuFreqEnabled = state.enabled["cpufreq"]
+}
+
 func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *string) error {
 	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*enableCPUInfo {
 		*enableCPUInfo = true
@@ -219,10 +224,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.CacheSize)
 	}
 
-	cpuFreqEnabled, ok := collectorState["cpufreq"]
-	if !ok || cpuFreqEnabled == nil {
-		c.logger.Debug("cpufreq key missing or nil value in collectorState map")
-	} else if *cpuFreqEnabled {
+	if c.cpuFreqEnabled {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
 				prometheus.GaugeValue,
