@@ -81,6 +81,12 @@ func Test_isFilesystemReadOnly(t *testing.T) {
 				superOptions: "ro,nodev",
 			}, expected: true,
 		},
+		"/media/volume5": {
+			labels: filesystemLabels{
+				mountOptions: "rw,user_id=1000,group_id=1000",
+				superOptions: "emergency_ro",
+			}, expected: true,
+		},
 	}
 
 	for _, tt := range tests {

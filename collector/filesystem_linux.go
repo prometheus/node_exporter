@@ -226,9 +226,13 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 }
 
 // see https://github.com/prometheus/node_exporter/issues/3157#issuecomment-2422761187
-// if either mount or super options contain "ro" the filesystem is read-only
+// if either mount or super options contain "ro" or the superblock contains "emergency_ro",
+// the filesystem is read-only
 func isFilesystemReadOnly(labels filesystemLabels) bool {
-	if slices.Contains(strings.Split(labels.mountOptions, ","), "ro") || slices.Contains(strings.Split(labels.superOptions, ","), "ro") {
+	mountOptions := strings.Split(labels.mountOptions, ",")
+	superOptions := strings.Split(labels.superOptions, ",")
+
+	if slices.Contains(mountOptions, "ro") || slices.Contains(superOptions, "ro") || slices.Contains(superOptions, "emergency_ro") {
 		return true
 	}
 
