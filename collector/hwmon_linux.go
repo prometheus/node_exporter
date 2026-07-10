@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nohwmon
-// +build !nohwmon
 
 package collector
 
@@ -23,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -154,29 +154,16 @@ func collectSensorData(dir string, data map[string]map[string]string) error {
 			continue
 		}
 
-		for _, t := range hwmonSensorTypes {
-			if t == sensorType {
-				addValueFile(data, sensorType+strconv.Itoa(sensorNum), sensorProperty, filepath.Join(dir, file.Name()))
-				break
-			}
+		if slices.Contains(hwmonSensorTypes, sensorType) {
+			addValueFile(data, sensorType+strconv.Itoa(sensorNum), sensorProperty, filepath.Join(dir, file.Name()))
 		}
 	}
 	return nil
 }
 
-func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir string) error {
-	hwmonName, err := c.hwmonName(dir)
-	if err != nil {
-		return err
-	}
-
-	if c.deviceFilter.ignored(hwmonName) {
-		c.logger.Debug("ignoring hwmon chip", "chip", hwmonName)
-		return nil
-	}
-
+func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir, hwmonName string) error {
 	data := make(map[string]map[string]string)
-	err = collectSensorData(dir, data)
+	err := collectSensorData(dir, data)
 	if err != nil {
 		return err
 	}
@@ -455,7 +442,7 @@ func (c *hwMonCollector) hwmonHumanReadableChipName(dir string) (string, error) 
 
 func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
-	//         updatesHwmon for each folder
+	//         updateHwmon for each folder.
 
 	hwmonPathName := filepath.Join(sysFilePath("class"), "hwmon")
 
@@ -469,7 +456,20 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	var lastErr error
+	// Pass 1: enumerate hwmon directories and pre-compute the device-derived
+	// chip name. Multiple hwmon nodes can share a single parent device (for
+	// example, asus-nb-wmi exposes one hwmon for fan control and another for
+	// WMI sensors), which makes hwmonName collide and triggers the "metric
+	// collected before with the same name and label values" registry error.
+	type hwmonEntry struct {
+		dir      string
+		baseName string
+		nameFile string
+	}
+
+	entries := make([]hwmonEntry, 0, len(hwmonFiles))
+	chipCounts := make(map[string]int, len(hwmonFiles))
+	nameCounts := make(map[string]int, len(hwmonFiles))
 	for _, hwDir := range hwmonFiles {
 		hwmonXPathName := filepath.Join(hwmonPathName, hwDir.Name())
 		fileInfo, err := os.Lstat(hwmonXPathName)
@@ -488,7 +488,48 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		if err = c.updateHwmon(ch, hwmonXPathName); err != nil {
+		baseName, err := c.hwmonName(hwmonXPathName)
+		if err != nil {
+			c.logger.Debug("failed to derive hwmon chip name", "dir", hwmonXPathName, "err", err)
+			continue
+		}
+
+		nameFile := ""
+		if raw, err := os.ReadFile(filepath.Join(hwmonXPathName, "name")); err == nil {
+			nameFile = strings.TrimSpace(string(raw))
+		}
+
+		entries = append(entries, hwmonEntry{
+			dir:      hwmonXPathName,
+			baseName: baseName,
+			nameFile: nameFile,
+		})
+		chipCounts[baseName]++
+		nameCounts[baseName+"\x00"+nameFile]++
+	}
+
+	// Pass 2: emit metrics. For each entry, resolve a unique chip label
+	// (disambiguating colliding base names with the chip's `name` file
+	// content when distinct, else with the hwmonX basename) and only then
+	// apply the include/exclude filter so user regexes match the label
+	// that ends up in the metrics.
+	var lastErr error
+	for _, e := range entries {
+		chipName := e.baseName
+		if chipCounts[e.baseName] > 1 {
+			suffix := cleanMetricName(e.nameFile)
+			if suffix == "" || nameCounts[e.baseName+"\x00"+e.nameFile] > 1 {
+				suffix = cleanMetricName(filepath.Base(e.dir))
+			}
+			chipName = e.baseName + "_" + suffix
+		}
+
+		if c.deviceFilter.ignored(chipName) {
+			c.logger.Debug("ignoring hwmon chip", "chip", chipName)
+			continue
+		}
+
+		if err := c.updateHwmon(ch, e.dir, chipName); err != nil {
 			lastErr = err
 		}
 	}

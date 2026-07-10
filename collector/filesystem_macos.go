@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build darwin && !nofilesystem
-// +build darwin,!nofilesystem
 
 package collector
 
@@ -20,8 +19,13 @@ package collector
 #cgo CFLAGS: -x objective-c
 #cgo LDFLAGS: -framework Foundation
 #import <Foundation/Foundation.h>
-Float64 purgeable(char *path) {
-  Float64 value = -1.0f;
+#include <sys/param.h>
+#include <sys/ucred.h>
+#include <sys/mount.h>
+#include <stdio.h>
+
+double purgeable(char *path) {
+  double value = -1.0f;
 
   @autoreleasepool {
     NSError *error = nil;
@@ -48,14 +52,6 @@ import (
 	"errors"
 	"unsafe"
 )
-
-/*
-#include <sys/param.h>
-#include <sys/ucred.h>
-#include <sys/mount.h>
-#include <stdio.h>
-*/
-import "C"
 
 const (
 	defMountPointsExcluded = "^/(dev)($|/)"

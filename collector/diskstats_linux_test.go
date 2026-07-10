@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nodiskstats
-// +build !nodiskstats
 
 package collector
 
@@ -20,11 +19,14 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/prometheus/procfs/blockdevice"
 )
 
 type testDiskStatsCollector struct {
@@ -119,9 +121,9 @@ node_disk_info{device="dm-2",major="252",minor="2",model="",path="",revision="",
 node_disk_info{device="dm-3",major="252",minor="3",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-4",major="252",minor="4",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
 node_disk_info{device="dm-5",major="252",minor="5",model="",path="",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
-node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="",wwn=""} 1
+node_disk_info{device="mmcblk0",major="179",minor="0",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p1",major="179",minor="1",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
+node_disk_info{device="mmcblk0p2",major="179",minor="2",model="",path="platform-df2969f3.mmc",revision="",rotational="0",serial="0x83e36d93",wwn=""} 1
 node_disk_info{device="nvme0n1",major="259",minor="0",model="SAMSUNG EHFTF55LURSY-000Y9",path="pci-0000:02:00.0-nvme-1",revision="4NBTUY95",rotational="0",serial="S252B6CU1HG3M1",wwn="eui.p3vbbiejx5aae2r3"} 1
 node_disk_info{device="sda",major="8",minor="0",model="TOSHIBA_KSDB4U86",path="pci-0000:3b:00.0-sas-phy7-lun-0",revision="0102",rotational="1",serial="2160A0D5FVGG",wwn="0x7c72382b8de36a64"} 1
 node_disk_info{device="sdb",major="8",minor="16",model="SuperMicro_SSD",path="pci-0000:00:1f.2-ata-1",revision="0R",rotational="0",serial="SMC0E1B87ABBB16BD84E",wwn="0xe1b87abbb16bd84e"} 1
@@ -341,5 +343,100 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+// TestRotationalLabel verifies that rotationalLabel returns the correct string
+// value from the sysfs file via blockdevice.FS.SysBlockDeviceRotational,
+// fails closed to "0" for missing files, and returns "0" when the file does
+// not exist (preserving backward compatibility with the previous
+// SysBlockDeviceQueueStats zero-value behaviour, issue #3282).
+func TestRotationalLabel(t *testing.T) {
+	tempProc := t.TempDir()
+	tempSys := t.TempDir()
+
+	// Create a valid rotational=1 file (HDD).
+	err := os.MkdirAll(filepath.Join(tempSys, "block/sda/queue"), 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = os.WriteFile(filepath.Join(tempSys, "block/sda/queue/rotational"), []byte("1\n"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a rotational=0 file (SSD).
+	err = os.MkdirAll(filepath.Join(tempSys, "block/sdb/queue"), 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = os.WriteFile(filepath.Join(tempSys, "block/sdb/queue/rotational"), []byte("0\n"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fs, err := blockdevice.NewFS(tempProc, tempSys)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cases := []struct {
+		dev      string
+		expected string
+		desc     string
+	}{
+		{
+			dev:      "sda",
+			expected: "1",
+			desc:     "rotational HDD: file contains '1'",
+		},
+		{
+			dev:      "sdb",
+			expected: "0",
+			desc:     "non-rotational SSD: file contains '0'",
+		},
+		{
+			dev:      "nonexistent_device_xyz",
+			expected: "0",
+			desc:     "missing rotational file: defaults to '0' for backward compat",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.dev, func(t *testing.T) {
+			got := rotationalLabel(fs, tc.dev)
+			if got != tc.expected {
+				t.Errorf("rotationalLabel(%q): got %q, want %q (%s)",
+					tc.dev, got, tc.expected, tc.desc)
+			}
+		})
+	}
+}
+
+// BenchmarkDiskstatsUpdate measures the full Update() call so that future PRs
+// introducing per-device sysfs I/O regressions are detectable before merge.
+// Run with: go test -bench=BenchmarkDiskstatsUpdate -benchtime=5s ./collector/
+func BenchmarkDiskstatsUpdate(b *testing.B) {
+	*sysPath = "fixtures/sys"
+	*procPath = "fixtures/proc"
+	*udevDataPath = "fixtures/udev/data"
+	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	collector, err := NewDiskstatsCollector(logger)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+	for b.Loop() {
+		ch := make(chan prometheus.Metric, 512)
+		if err := collector.Update(ch); err != nil {
+			b.Fatal(err)
+		}
+		// Drain channel so goroutine doesn't block.
+		for len(ch) > 0 {
+			<-ch
+		}
 	}
 }

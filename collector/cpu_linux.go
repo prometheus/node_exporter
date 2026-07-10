@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nocpu
-// +build !nocpu
 
 package collector
 
@@ -20,14 +19,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
 	"sync"
-
-	"golang.org/x/exp/maps"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -89,7 +87,7 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 		if !os.IsNotExist(err) {
 			return nil, fmt.Errorf("unable to get isolated cpus: %w", err)
 		}
-		logger.Debug("Could not open isolated file", "error", err)
+		logger.Debug("couldn't open isolated file", "error", err)
 	}
 
 	c := &cpuCollector{
@@ -224,7 +222,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 	cpuFreqEnabled, ok := collectorState["cpufreq"]
 	if !ok || cpuFreqEnabled == nil {
 		c.logger.Debug("cpufreq key missing or nil value in collectorState map")
-	} else if !*cpuFreqEnabled {
+	} else if *cpuFreqEnabled {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
 				prometheus.GaugeValue,
@@ -489,7 +487,7 @@ func (c *cpuCollector) updateCPUStats(newStats map[int64]procfs.CPUStat) {
 
 	// Remove offline CPUs.
 	if len(newStats) != len(c.cpuStats) {
-		onlineCPUIds := maps.Keys(newStats)
+		onlineCPUIds := slices.Collect(maps.Keys(newStats))
 		maps.DeleteFunc(c.cpuStats, func(key int64, item procfs.CPUStat) bool {
 			return !slices.Contains(onlineCPUIds, key)
 		})

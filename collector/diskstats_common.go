@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nodiskstats && (openbsd || linux || darwin || aix)
-// +build !nodiskstats
-// +build openbsd linux darwin aix
 
 package collector
 
@@ -101,9 +99,11 @@ func newDiskstatsDeviceFilter(logger *slog.Logger) (deviceFilter, error) {
 			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
 		}
 	}
-
-	if *diskstatsDeviceExclude != "" && *diskstatsDeviceInclude != "" {
-		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+	if *diskstatsDeviceInclude != "" {
+		if diskstatsDeviceExcludeSet && *diskstatsDeviceExclude != "" {
+			return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+		}
+		*diskstatsDeviceExclude = ""
 	}
 
 	if *diskstatsDeviceExclude != "" {

@@ -13,11 +13,7 @@ permissions:
 
 env:
   GNU_TAR_VERSION: "1.35"
-  GO_VERSION_DRAGONFLY: "1.24.1"
-  GO_VERSION_FREEBSD: "123"
-  GO_VERSION_NETBSD: "1.24.1"
-  GO_VERSION_OPENBSD: "1.23.1"
-  GO_VERSION_SOLARIS: "1.24.1"
+  GO_VERSION: "1.26.0"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -26,12 +22,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
-      - name: test-e2e
-        uses: vmactions/freebsd-vm@8873d98fd1413b5977cb2f7348fe329775159892  # v1.1.9
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
         with:
+          persist-credentials: false
+      - name: test-e2e
+        uses: vmactions/freebsd-vm@5a72679103d223925653750faa878a143340fbd0  # v1.5.0
+        with:
+          release: "15.0"
           copyback: false
-          envs: 'GO_VERSION_FREEBSD GNU_TAR_VERSION'
+          envs: 'GO_VERSION GNU_TAR_VERSION'
           usesh: true
           prepare: |
             pkg update -f
@@ -40,7 +39,6 @@ jobs:
               git \
               gmake \
               gnugrep \
-              go${GO_VERSION_FREEBSD} \
               gsed \
               gtar \
               python \
@@ -49,7 +47,12 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            ln -s $(which go${GO_VERSION_FREEBSD}) $(pwd)/bin/go
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.freebsd-${GOARCH}.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
             ln -s $(which ggrep) $(pwd)/bin/grep
             ln -s $(which gmake) $(pwd)/bin/make
             ln -s $(which gsed) $(pwd)/bin/sed
@@ -73,12 +76,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/openbsd-vm@7ac70b6de6f33efc74a90c1964afa3bcf0ee4401  # v1.1.6
+        uses: vmactions/openbsd-vm@18edb32f4e48dae5865d7b8b3a9587bc01218a20  # v1.4.4
         with:
           copyback: false
-          envs: 'GO_VERSION_OPENBSD GNU_TAR_VERSION'
+          envs: 'GO_VERSION GNU_TAR_VERSION'
           usesh: true
           prepare: |
             pkg_add -u
@@ -87,15 +92,20 @@ jobs:
               ggrep \
               git \
               gmake \
-              go-${GO_VERSION_OPENBSD} \
               gsed \
-              gtar-${GNU_TAR_VERSION}p0-static \
+              gtar-${GNU_TAR_VERSION}p1-static \
               python \
               wget
           run: |
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.openbsd-${GOARCH}.tar.gz"
+            wget https://go.dev/dl/${GOGZ}
+            gtar xzf ${GOGZ}
+            ln -s $(pwd)/go/bin/go $(pwd)/bin/go
             ln -s $(which ggrep) $(pwd)/bin/grep
             ln -s $(which gmake) $(pwd)/bin/make
             ln -s $(which gsed) $(pwd)/bin/sed
@@ -119,16 +129,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/netbsd-vm@46a58bbf03682b4cb24142b97fa315ae52bed573  # v1.1.8
+        uses: vmactions/netbsd-vm@1d9767765fd3f986e6de3aff4b1148f0c3a45f01  # v1.4.1
         with:
           copyback: false
-          envs: 'GO_VERSION_NETBSD GNU_TAR_VERSION'
+          envs: 'GO_VERSION GNU_TAR_VERSION'
           usesh: true
           prepare: |
-            /usr/sbin/pkg_add -u
-            /usr/sbin/pkg_add \
+            /usr/sbin/pkg_add -u \
               git \
               gmake \
               grep \
@@ -140,7 +151,9 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            GOGZ="go${GO_VERSION_NETBSD}.netbsd-amd64.tar.gz"
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.netbsd-${GOARCH}.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
@@ -167,12 +180,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@e3c420e8a2362c2496fca6e76a291abd46f5d8e7  # v1.1.0
+        uses: vmactions/dragonflybsd-vm@b4468429bb9ab60b14600c6eeeb6464427f29391  # v1.2.9
         with:
           copyback: false
-          envs: 'GO_VERSION_DRAGONFLY'
+          envs: 'GO_VERSION'
           usesh: true
           prepare: |
             pkg update && pkg upgrade -y
@@ -189,7 +204,9 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            GOGZ="go${GO_VERSION_DRAGONFLY}.dragonfly-amd64.tar.gz"
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.dragonfly-${GOARCH}.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
@@ -217,15 +234,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/solaris-vm@cc8f82fa1a7cc746153ec3f71bf11f311f16e225  # v1.1.1
+        uses: vmactions/solaris-vm@d30dd6c228c8661ade859e36ead7660b9a62efcc  # v1.3.7
         with:
           copyback: false
-          envs: 'GO_VERSION_SOLARIS'
+          envs: 'GO_VERSION'
           usesh: true
           prepare: |
-            pkg update
             pkg install \
               bash \
               curl \
@@ -239,7 +257,9 @@ jobs:
             echo "::group::Setup prerequisites"
             set -eu
             mkdir bin
-            GOGZ="go${GO_VERSION_SOLARIS}.solaris-amd64.tar.gz"
+            GOARCH=$(uname -m)
+            if [ "${GOARCH}" = "i86pc" ] ; then GOARCH="amd64" ; fi
+            GOGZ="go${GO_VERSION}.solaris-${GOARCH}.tar.gz"
             wget https://go.dev/dl/${GOGZ}
             gtar xzf ${GOGZ}
             ln -s $(pwd)/go/bin/go $(pwd)/bin/go
@@ -248,13 +268,13 @@ jobs:
             ln -s $(which gsed) $(pwd)/bin/sed
             ln -s $(which gtar) $(pwd)/bin/tar
             export PATH=$(pwd)/bin:$PATH
-            
+
             echo ">> building promu as it is not shipped for Solaris"
             git clone https://github.com/prometheus/promu.git
             cd promu
             go build .
             cd -
-            
+
             mkdir -p $(go env GOPATH)/bin
             ln -s $(pwd)/promu/promu $(go env GOPATH)/bin/promu
             export PATH=$(go env GOPATH)/bin:$PATH
@@ -272,11 +292,13 @@ jobs:
             echo "::endgroup::"
 
   test_macos:
-    name: Run end-to-end tests on macOS
+    name: Run end-to-end tests on Darwin/MacOS
     runs-on: macos-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: |
           brew install \
@@ -287,13 +309,18 @@ jobs:
             make \
             gnu-sed \
             gnu-tar \
-            go \
             python3
       - name: test-e2e
         run: |
           echo "::group::Setup prerequisites"
           set -eu
           mkdir bin
+          GOARCH=$(uname -m)
+          if [ "${GOARCH}" = "x86_64" ] ; then GOARCH="amd64" ; fi
+          GOGZ="go${GO_VERSION}.darwin-${GOARCH}.tar.gz"
+          wget https://go.dev/dl/${GOGZ}
+          gtar xzf ${GOGZ}
+          ln -s $(pwd)/go/bin/go $(pwd)/bin/go
           ln -s $(which ggrep) $(pwd)/bin/grep
           ln -s $(which gmake) $(pwd)/bin/make
           ln -s $(which gsed) $(pwd)/bin/sed
@@ -309,5 +336,5 @@ jobs:
 
           echo "::group::Run End-to-End Tests"
           git config --global --add safe.directory $(pwd)
-          make test-e2e
+          make test-e2e E2E_EXTRA_FLAGS='--collector.diskstats.device-include=disk[04]'
           echo "::endgroup::"

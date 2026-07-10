@@ -86,7 +86,7 @@ func (c *sysctlCollector) Update(ch chan<- prometheus.Metric) error {
 
 func (c *sysctlCollector) newMetrics(s *sysctl) ([]prometheus.Metric, error) {
 	var (
-		values interface{}
+		values any
 		length int
 		err    error
 	)
@@ -151,7 +151,7 @@ func (s *sysctl) metricName() string {
 	return SanitizeMetricName(s.name)
 }
 
-func (s *sysctl) newConstMetric(v interface{}) prometheus.Metric {
+func (s *sysctl) newConstMetric(v any) prometheus.Metric {
 	if s.numeric {
 		return prometheus.MustNewConstMetric(
 			prometheus.NewDesc(
@@ -171,7 +171,7 @@ func (s *sysctl) newConstMetric(v interface{}) prometheus.Metric {
 	)
 }
 
-func (s *sysctl) newIndexedMetrics(v interface{}) []prometheus.Metric {
+func (s *sysctl) newIndexedMetrics(v any) []prometheus.Metric {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "sysctl", s.metricName()),
 		fmt.Sprintf("sysctl %s", s.name),
@@ -195,7 +195,7 @@ func (s *sysctl) newIndexedMetrics(v interface{}) []prometheus.Metric {
 	}
 }
 
-func (s *sysctl) newMappedMetrics(v interface{}) ([]prometheus.Metric, error) {
+func (s *sysctl) newMappedMetrics(v any) ([]prometheus.Metric, error) {
 	switch values := v.(type) {
 	case []int:
 		metrics := make([]prometheus.Metric, len(values))

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !notextfile
-// +build !notextfile
 
 package collector
 
@@ -21,6 +20,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -29,6 +29,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
+	"github.com/prometheus/common/model"
 )
 
 var (
@@ -90,14 +91,7 @@ func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Me
 		}
 
 		for k := range allLabelNames {
-			present := false
-			for _, name := range names {
-				if k == name {
-					present = true
-					break
-				}
-			}
-			if !present {
+			if !slices.Contains(names, k) {
 				names = append(names, k)
 				values = append(values, "")
 			}
@@ -299,7 +293,7 @@ func (c *textFileCollector) processFile(dir, name string, ch chan<- prometheus.M
 	}
 	defer f.Close()
 
-	var parser expfmt.TextParser
+	parser := expfmt.NewTextParser(model.LegacyValidation)
 	families, err := parser.TextToMetricFamilies(f)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse textfile data from %q: %w", path, err)

@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build (darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris || aix) && !noloadavg
-// +build darwin dragonfly freebsd linux netbsd openbsd solaris aix
-// +build !noloadavg
 
 package collector
 

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nosoftnet
-// +build !nosoftnet
 
 package collector
 

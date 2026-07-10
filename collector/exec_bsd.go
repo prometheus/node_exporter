@@ -12,14 +12,13 @@
 // limitations under the License.
 
 //go:build (freebsd || dragonfly) && !noexec
-// +build freebsd dragonfly
-// +build !noexec
 
 package collector
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"log/slog"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type execCollector struct {

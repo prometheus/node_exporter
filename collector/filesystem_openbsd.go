@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nofilesystem
-// +build !nofilesystem
 
 package collector
 
