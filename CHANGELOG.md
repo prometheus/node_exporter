@@ -1,9 +1,9 @@
 ## master / unreleased
 
 * [CHANGE]
-* [FEATURE]
+* [FEATURE] Add device filtering to the infiniband collector #3694
 * [ENHANCEMENT]
-* [BUGFIX]
+* [BUGFIX] filesystem: Prevent panic on mount points with non-UTF-8 names #3
 
 ## 1.11.1 / 2026-04-07
 
