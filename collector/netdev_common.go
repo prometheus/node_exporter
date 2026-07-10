@@ -146,7 +146,7 @@ func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
 			"info"), "node network address by device",
 			[]string{"device", "address", "netmask", "scope"}, nil)
 
-		for _, addr := range getAddrsInfo(interfaces) {
+		for _, addr := range getAddrsInfo(interfaces, &c.deviceFilter, c.logger) {
 			ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 1,
 				addr.device, addr.addr, addr.netmask, addr.scope)
 		}
@@ -178,10 +178,14 @@ func scope(ip net.IP) string {
 }
 
 // getAddrsInfo returns interface name, address, scope and netmask for all interfaces.
-func getAddrsInfo(interfaces []net.Interface) []addrInfo {
+func getAddrsInfo(interfaces []net.Interface, filter *deviceFilter, logger *slog.Logger) []addrInfo {
 	var res []addrInfo
 
 	for _, ifs := range interfaces {
+		if filter.ignored(ifs.Name) {
+			logger.Debug("Ignoring device", "device", ifs.Name)
+			continue
+		}
 		addrs, _ := ifs.Addrs()
 		for _, addr := range addrs {
 			ip, ipNet, err := net.ParseCIDR(addr.String())

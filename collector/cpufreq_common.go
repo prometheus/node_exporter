@@ -25,6 +25,11 @@ var (
 		"Current CPU thread frequency in hertz.",
 		[]string{"cpu"}, nil,
 	)
+	cpuFreqAvgDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_avg_hertz"),
+		"Average CPU thread frequency in hertz.",
+		[]string{"cpu"}, nil,
+	)
 	cpuFreqMinDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_min_hertz"),
 		"Minimum CPU thread frequency in hertz.",

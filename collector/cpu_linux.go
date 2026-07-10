@@ -19,14 +19,13 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
 	"sync"
-
-	"golang.org/x/exp/maps"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -488,7 +487,7 @@ func (c *cpuCollector) updateCPUStats(newStats map[int64]procfs.CPUStat) {
 
 	// Remove offline CPUs.
 	if len(newStats) != len(c.cpuStats) {
-		onlineCPUIds := maps.Keys(newStats)
+		onlineCPUIds := slices.Collect(maps.Keys(newStats))
 		maps.DeleteFunc(c.cpuStats, func(key int64, item procfs.CPUStat) bool {
 			return !slices.Contains(onlineCPUIds, key)
 		})

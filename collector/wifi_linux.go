@@ -29,22 +29,6 @@ import (
 )
 
 type wifiCollector struct {
-	interfaceFrequencyHertz *prometheus.Desc
-	stationInfo             *prometheus.Desc
-
-	stationConnectedSecondsTotal   *prometheus.Desc
-	stationInactiveSeconds         *prometheus.Desc
-	stationReceiveBitsPerSecond    *prometheus.Desc
-	stationTransmitBitsPerSecond   *prometheus.Desc
-	stationReceiveBytesTotal       *prometheus.Desc
-	stationTransmitBytesTotal      *prometheus.Desc
-	stationSignalDBM               *prometheus.Desc
-	stationTransmitRetriesTotal    *prometheus.Desc
-	stationTransmitFailedTotal     *prometheus.Desc
-	stationBeaconLossTotal         *prometheus.Desc
-	stationTransmittedPacketsTotal *prometheus.Desc
-	stationReceivedPacketsTotal    *prometheus.Desc
-
 	logger *slog.Logger
 }
 
@@ -66,114 +50,102 @@ type wifiStater interface {
 	StationInfo(ifi *wifi.Interface) ([]*wifi.StationInfo, error)
 }
 
+const (
+	wifiSubsystem = "wifi"
+)
+
+var (
+	wifiLabels = []string{"device", "mac_address"}
+
+	wifiInterfaceFrequencyHertz = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "interface_frequency_hertz"),
+		"The current frequency a WiFi interface is operating at, in hertz.",
+		[]string{"device"},
+		nil,
+	)
+	wifiStationInfo = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_info"),
+		"Labeled WiFi interface station information as provided by the operating system.",
+		[]string{"device", "bssid", "ssid", "mode"},
+		nil,
+	)
+	wifiStationConnectedSecondsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_connected_seconds_total"),
+		"The total number of seconds a station has been connected to an access point.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationInactiveSeconds = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_inactive_seconds"),
+		"The number of seconds since any wireless activity has occurred on a station.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationReceiveBitsPerSecond = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_receive_bits_per_second"),
+		"The current WiFi receive bitrate of a station, in bits per second.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationTransmitBitsPerSecond = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_transmit_bits_per_second"),
+		"The current WiFi transmit bitrate of a station, in bits per second.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationReceiveBytesTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_receive_bytes_total"),
+		"The total number of bytes received by a WiFi station.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationTransmitBytesTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_transmit_bytes_total"),
+		"The total number of bytes transmitted by a WiFi station.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationSignalDBM = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_signal_dbm"),
+		"The current WiFi signal strength, in decibel-milliwatts (dBm).",
+		wifiLabels,
+		nil,
+	)
+	wifiStationTransmitRetriesTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_transmit_retries_total"),
+		"The total number of times a station has had to retry while sending a packet.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationTransmitFailedTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_transmit_failed_total"),
+		"The total number of times a station has failed to send a packet.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationBeaconLossTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_beacon_loss_total"),
+		"The total number of times a station has detected a beacon loss.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationTransmittedPacketsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_transmitted_packets_total"),
+		"The total number of packets transmitted by a station.",
+		wifiLabels,
+		nil,
+	)
+	wifiStationReceivedPacketsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, wifiSubsystem, "station_received_packets_total"),
+		"The total number of packets received by a station.",
+		wifiLabels,
+		nil,
+	)
+)
+
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
 func NewWifiCollector(logger *slog.Logger) (Collector, error) {
-	const (
-		subsystem = "wifi"
-	)
-
-	var (
-		labels = []string{"device", "mac_address"}
-	)
-
 	return &wifiCollector{
-		interfaceFrequencyHertz: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "interface_frequency_hertz"),
-			"The current frequency a WiFi interface is operating at, in hertz.",
-			[]string{"device"},
-			nil,
-		),
-
-		stationInfo: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_info"),
-			"Labeled WiFi interface station information as provided by the operating system.",
-			[]string{"device", "bssid", "ssid", "mode"},
-			nil,
-		),
-
-		stationConnectedSecondsTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_connected_seconds_total"),
-			"The total number of seconds a station has been connected to an access point.",
-			labels,
-			nil,
-		),
-
-		stationInactiveSeconds: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_inactive_seconds"),
-			"The number of seconds since any wireless activity has occurred on a station.",
-			labels,
-			nil,
-		),
-
-		stationReceiveBitsPerSecond: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_receive_bits_per_second"),
-			"The current WiFi receive bitrate of a station, in bits per second.",
-			labels,
-			nil,
-		),
-
-		stationTransmitBitsPerSecond: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_transmit_bits_per_second"),
-			"The current WiFi transmit bitrate of a station, in bits per second.",
-			labels,
-			nil,
-		),
-
-		stationReceiveBytesTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_receive_bytes_total"),
-			"The total number of bytes received by a WiFi station.",
-			labels,
-			nil,
-		),
-
-		stationTransmitBytesTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_transmit_bytes_total"),
-			"The total number of bytes transmitted by a WiFi station.",
-			labels,
-			nil,
-		),
-
-		stationSignalDBM: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_signal_dbm"),
-			"The current WiFi signal strength, in decibel-milliwatts (dBm).",
-			labels,
-			nil,
-		),
-
-		stationTransmitRetriesTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_transmit_retries_total"),
-			"The total number of times a station has had to retry while sending a packet.",
-			labels,
-			nil,
-		),
-
-		stationTransmitFailedTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_transmit_failed_total"),
-			"The total number of times a station has failed to send a packet.",
-			labels,
-			nil,
-		),
-
-		stationBeaconLossTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_beacon_loss_total"),
-			"The total number of times a station has detected a beacon loss.",
-			labels,
-			nil,
-		),
-
-		stationTransmittedPacketsTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_transmitted_packets_total"),
-			"The total number of packets transmitted by a station.",
-			labels,
-			nil,
-		),
-
-		stationReceivedPacketsTotal: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, subsystem, "station_received_packets_total"),
-			"The total number of packets received by a station.",
-			labels,
-			nil,
-		),
 		logger: logger,
 	}, nil
 }
@@ -209,7 +181,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 		c.logger.Debug("probing wifi device with type", "wifi", ifi.Name, "type", ifi.Type)
 
 		ch <- prometheus.MustNewConstMetric(
-			c.interfaceFrequencyHertz,
+			wifiInterfaceFrequencyHertz,
 			prometheus.GaugeValue,
 			mHzToHz(ifi.Frequency),
 			ifi.Name,
@@ -250,7 +222,7 @@ func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 func (c *wifiCollector) updateBSSStats(ch chan<- prometheus.Metric, device string, bss *wifi.BSS) {
 	// Synthetic metric which provides wifi station info, such as SSID, BSSID, etc.
 	ch <- prometheus.MustNewConstMetric(
-		c.stationInfo,
+		wifiStationInfo,
 		prometheus.GaugeValue,
 		1,
 		device,
@@ -262,7 +234,7 @@ func (c *wifiCollector) updateBSSStats(ch chan<- prometheus.Metric, device strin
 
 func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device string, info *wifi.StationInfo) {
 	ch <- prometheus.MustNewConstMetric(
-		c.stationConnectedSecondsTotal,
+		wifiStationConnectedSecondsTotal,
 		prometheus.CounterValue,
 		info.Connected.Seconds(),
 		device,
@@ -270,7 +242,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationInactiveSeconds,
+		wifiStationInactiveSeconds,
 		prometheus.GaugeValue,
 		info.Inactive.Seconds(),
 		device,
@@ -278,7 +250,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationReceiveBitsPerSecond,
+		wifiStationReceiveBitsPerSecond,
 		prometheus.GaugeValue,
 		float64(info.ReceiveBitrate),
 		device,
@@ -286,7 +258,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationTransmitBitsPerSecond,
+		wifiStationTransmitBitsPerSecond,
 		prometheus.GaugeValue,
 		float64(info.TransmitBitrate),
 		device,
@@ -294,7 +266,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationReceiveBytesTotal,
+		wifiStationReceiveBytesTotal,
 		prometheus.CounterValue,
 		float64(info.ReceivedBytes),
 		device,
@@ -302,7 +274,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationTransmitBytesTotal,
+		wifiStationTransmitBytesTotal,
 		prometheus.CounterValue,
 		float64(info.TransmittedBytes),
 		device,
@@ -310,7 +282,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationSignalDBM,
+		wifiStationSignalDBM,
 		prometheus.GaugeValue,
 		float64(info.Signal),
 		device,
@@ -318,7 +290,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationTransmitRetriesTotal,
+		wifiStationTransmitRetriesTotal,
 		prometheus.CounterValue,
 		float64(info.TransmitRetries),
 		device,
@@ -326,7 +298,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationTransmitFailedTotal,
+		wifiStationTransmitFailedTotal,
 		prometheus.CounterValue,
 		float64(info.TransmitFailed),
 		device,
@@ -334,7 +306,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationBeaconLossTotal,
+		wifiStationBeaconLossTotal,
 		prometheus.CounterValue,
 		float64(info.BeaconLoss),
 		device,
@@ -342,7 +314,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationTransmittedPacketsTotal,
+		wifiStationTransmittedPacketsTotal,
 		prometheus.CounterValue,
 		float64(info.TransmittedPackets),
 		device,
@@ -350,7 +322,7 @@ func (c *wifiCollector) updateStationStats(ch chan<- prometheus.Metric, device s
 	)
 
 	ch <- prometheus.MustNewConstMetric(
-		c.stationReceivedPacketsTotal,
+		wifiStationReceivedPacketsTotal,
 		prometheus.CounterValue,
 		float64(info.ReceivedPackets),
 		device,

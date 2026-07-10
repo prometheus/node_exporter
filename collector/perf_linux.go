@@ -327,7 +327,7 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	// First configure any tracepoints.
-	if *perfTracepointFlag != nil && len(*perfTracepointFlag) > 0 {
+	if len(*perfTracepointFlag) > 0 {
 		tracepointCollector, err := newPerfTracepointCollector(logger, *perfTracepointFlag, cpus)
 		if err != nil {
 			return nil, err
@@ -337,7 +337,7 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 
 	// Configure perf profilers
 	hardwareProfilers := perf.AllHardwareProfilers
-	if *perfHwProfilerFlag != nil && len(*perfHwProfilerFlag) > 0 {
+	if len(*perfHwProfilerFlag) > 0 {
 		// hardwareProfilers = 0
 		for _, hf := range *perfHwProfilerFlag {
 			if v, ok := perfHardwareProfilerMap[hf]; ok {
@@ -346,7 +346,7 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 		}
 	}
 	softwareProfilers := perf.AllSoftwareProfilers
-	if *perfSwProfilerFlag != nil && len(*perfSwProfilerFlag) > 0 {
+	if len(*perfSwProfilerFlag) > 0 {
 		// softwareProfilers = 0
 		for _, sf := range *perfSwProfilerFlag {
 			if v, ok := perfSoftwareProfilerMap[sf]; ok {
@@ -355,7 +355,7 @@ func NewPerfCollector(logger *slog.Logger) (Collector, error) {
 		}
 	}
 	cacheProfilers := perf.L1DataReadHitProfiler | perf.L1DataReadMissProfiler | perf.L1DataWriteHitProfiler | perf.L1InstrReadMissProfiler | perf.InstrTLBReadHitProfiler | perf.InstrTLBReadMissProfiler | perf.DataTLBReadHitProfiler | perf.DataTLBReadMissProfiler | perf.DataTLBWriteHitProfiler | perf.DataTLBWriteMissProfiler | perf.LLReadHitProfiler | perf.LLReadMissProfiler | perf.LLWriteHitProfiler | perf.LLWriteMissProfiler | perf.BPUReadHitProfiler | perf.BPUReadMissProfiler
-	if *perfCaProfilerFlag != nil && len(*perfCaProfilerFlag) > 0 {
+	if len(*perfCaProfilerFlag) > 0 {
 		cacheProfilers = 0
 		for _, cf := range *perfCaProfilerFlag {
 			if v, ok := perfCacheProfilerMap[cf]; ok {

@@ -30,7 +30,6 @@ const (
 
 type buddyinfoCollector struct {
 	fs     procfs.FS
-	desc   *prometheus.Desc
 	logger *slog.Logger
 }
 
@@ -38,18 +37,21 @@ func init() {
 	registerCollector("buddyinfo", defaultDisabled, NewBuddyinfoCollector)
 }
 
-// NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
-func NewBuddyinfoCollector(logger *slog.Logger) (Collector, error) {
-	desc := prometheus.NewDesc(
+var (
+	buddyinfoBlocks = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
 		"Count of free blocks according to size.",
 		[]string{"node", "zone", "size"}, nil,
 	)
+)
+
+// NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
+func NewBuddyinfoCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
-	return &buddyinfoCollector{fs, desc, logger}, nil
+	return &buddyinfoCollector{fs, logger}, nil
 }
 
 // Update calls (*buddyinfoCollector).getBuddyInfo to get the platform specific
@@ -64,7 +66,7 @@ func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, entry := range buddyInfo {
 		for size, value := range entry.Sizes {
 			ch <- prometheus.MustNewConstMetric(
-				c.desc,
+				buddyinfoBlocks,
 				prometheus.GaugeValue, value,
 				entry.Node, entry.Zone, strconv.Itoa(size),
 			)
