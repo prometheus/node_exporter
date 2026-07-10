@@ -9,6 +9,10 @@
 
 * [BUGFIX] Fix kernel_hung for no data #3613
 
+## 1.11.1 / 2026-04-07
+
+* [BUGFIX] Fix kernel_hung for no data #3613
+
 ## 1.11.0 / 2026-04-04
 
 * [CHANGE] Adds distroless container image. #3592
