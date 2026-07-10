@@ -19,11 +19,14 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/prometheus/procfs/blockdevice"
 )
 
 type testDiskStatsCollector struct {
@@ -340,5 +343,100 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+// TestRotationalLabel verifies that rotationalLabel returns the correct string
+// value from the sysfs file via blockdevice.FS.SysBlockDeviceRotational,
+// fails closed to "0" for missing files, and returns "0" when the file does
+// not exist (preserving backward compatibility with the previous
+// SysBlockDeviceQueueStats zero-value behaviour, issue #3282).
+func TestRotationalLabel(t *testing.T) {
+	tempProc := t.TempDir()
+	tempSys := t.TempDir()
+
+	// Create a valid rotational=1 file (HDD).
+	err := os.MkdirAll(filepath.Join(tempSys, "block/sda/queue"), 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = os.WriteFile(filepath.Join(tempSys, "block/sda/queue/rotational"), []byte("1\n"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Create a rotational=0 file (SSD).
+	err = os.MkdirAll(filepath.Join(tempSys, "block/sdb/queue"), 0755)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = os.WriteFile(filepath.Join(tempSys, "block/sdb/queue/rotational"), []byte("0\n"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fs, err := blockdevice.NewFS(tempProc, tempSys)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cases := []struct {
+		dev      string
+		expected string
+		desc     string
+	}{
+		{
+			dev:      "sda",
+			expected: "1",
+			desc:     "rotational HDD: file contains '1'",
+		},
+		{
+			dev:      "sdb",
+			expected: "0",
+			desc:     "non-rotational SSD: file contains '0'",
+		},
+		{
+			dev:      "nonexistent_device_xyz",
+			expected: "0",
+			desc:     "missing rotational file: defaults to '0' for backward compat",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.dev, func(t *testing.T) {
+			got := rotationalLabel(fs, tc.dev)
+			if got != tc.expected {
+				t.Errorf("rotationalLabel(%q): got %q, want %q (%s)",
+					tc.dev, got, tc.expected, tc.desc)
+			}
+		})
+	}
+}
+
+// BenchmarkDiskstatsUpdate measures the full Update() call so that future PRs
+// introducing per-device sysfs I/O regressions are detectable before merge.
+// Run with: go test -bench=BenchmarkDiskstatsUpdate -benchtime=5s ./collector/
+func BenchmarkDiskstatsUpdate(b *testing.B) {
+	*sysPath = "fixtures/sys"
+	*procPath = "fixtures/proc"
+	*udevDataPath = "fixtures/udev/data"
+	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	collector, err := NewDiskstatsCollector(logger)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+	for b.Loop() {
+		ch := make(chan prometheus.Metric, 512)
+		if err := collector.Update(ch); err != nil {
+			b.Fatal(err)
+		}
+		// Drain channel so goroutine doesn't block.
+		for len(ch) > 0 {
+			<-ch
+		}
 	}
 }

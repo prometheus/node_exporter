@@ -22,9 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/freebsd-vm@7ca82f79fe3078fecded6d3a2bff094995447bbd  # v1.4.4
+        uses: vmactions/freebsd-vm@5a72679103d223925653750faa878a143340fbd0  # v1.5.0
         with:
           release: "15.0"
           copyback: false
@@ -74,9 +76,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/openbsd-vm@d7d892b7b9ba97ed2747b0fc201be65037d64c3e  # v1.4.0
+        uses: vmactions/openbsd-vm@18edb32f4e48dae5865d7b8b3a9587bc01218a20  # v1.4.4
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
@@ -125,9 +129,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/netbsd-vm@eb3ba840926911ccf17dc9de235335cb27a02ba0  # v1.3.8
+        uses: vmactions/netbsd-vm@1d9767765fd3f986e6de3aff4b1148f0c3a45f01  # v1.4.1
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
@@ -174,9 +180,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@17fba5ae01ae16ac714dead56eed198c3b2e210e  # v1.2.8
+        uses: vmactions/dragonflybsd-vm@b4468429bb9ab60b14600c6eeeb6464427f29391  # v1.2.9
         with:
           copyback: false
           envs: 'GO_VERSION'
@@ -226,9 +234,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: test-e2e
-        uses: vmactions/solaris-vm@c20562b2c69737b06be9e828915761703e487373  # v1.3.3
+        uses: vmactions/solaris-vm@d30dd6c228c8661ade859e36ead7660b9a62efcc  # v1.3.7
         with:
           copyback: false
           envs: 'GO_VERSION'
@@ -286,7 +296,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: |
           brew install \
