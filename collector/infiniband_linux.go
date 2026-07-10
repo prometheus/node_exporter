@@ -20,14 +20,23 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
 
+// efaVendorID is the PCI vendor ID for AWS Elastic Fabric Adapter.
+// EFA devices register under /sys/class/infiniband but do NOT populate the
+// IB-spec port_xmit_data / port_rcv_data counters. Bytes/packets live in
+// hw_counters/{tx,rx}_{bytes,pkts} as raw values (no IB 4-octet scaling).
+const efaVendorID = "0x1d0f"
+
 type infinibandCollector struct {
 	fs          sysfs.FS
+	sysPath     string
 	metricDescs map[string]*prometheus.Desc
 	logger      *slog.Logger
 	subsystem   string
@@ -46,6 +55,7 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
+	i.sysPath = *sysPath
 	i.logger = logger
 
 	// Detailed description for all metrics.
@@ -115,6 +125,21 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 		"rx_read_requests_total":                    "The number of received READ requests for the associated QPs.",
 		"rx_write_requests_total":                   "The number of received WRITE requests for the associated QPs.",
 		"rx_icrc_encapsulated_errors_total":         "The number of RoCE packets with ICRC errors. This counter was added in MLNX_OFED 4.4 and kernel 4.19",
+
+		// EFA-specific hw_counters (vendor 0x1d0f). EFA NICs do not follow the
+		// IB spec for port_xmit_data / port_rcv_data, so the IB code path leaves
+		// port_data_*_bytes_total empty. The EFA branch in Update() fills those
+		// from hw_counters/{tx,rx}_bytes and additionally emits the diagnostic
+		// counters listed here under the efa_ prefix to avoid clashing with the
+		// Mellanox-specific hw_counters above.
+		"efa_rx_drops_total":                    "EFA: packets dropped on receive (hw_counters/rx_drops).",
+		"efa_retrans_packets_total":             "EFA: retransmitted packets (hw_counters/retrans_pkts).",
+		"efa_retrans_bytes_total":               "EFA: retransmitted bytes (hw_counters/retrans_bytes).",
+		"efa_retrans_timeout_events_total":      "EFA: retransmit timeout events (hw_counters/retrans_timeout_events).",
+		"efa_unresponsive_remote_events_total":  "EFA: unresponsive remote events (hw_counters/unresponsive_remote_events).",
+		"efa_impaired_remote_conn_events_total": "EFA: impaired remote connection events (hw_counters/impaired_remote_conn_events).",
+		"efa_rdma_read_bytes_total":             "EFA: RDMA read bytes (hw_counters/rdma_read_bytes).",
+		"efa_rdma_write_bytes_total":            "EFA: RDMA write bytes (hw_counters/rdma_write_bytes).",
 	}
 
 	i.metricDescs = make(map[string]*prometheus.Desc)
@@ -142,6 +167,45 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 	}
 }
 
+// isEFADevice reports whether the InfiniBand-class device is an AWS EFA NIC
+// by checking its PCI vendor ID (0x1d0f). EFA NICs register under
+// /sys/class/infiniband but do not follow the IB spec for byte/packet
+// counters, so they need a different read path (hw_counters/).
+func (c *infinibandCollector) isEFADevice(deviceName string) bool {
+	path := filepath.Join(c.sysPath, "class", "infiniband", deviceName, "device", "vendor")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return false
+	}
+	return strings.TrimSpace(string(data)) == efaVendorID
+}
+
+// readEFAHWCounter reads a single uint64 counter from
+// /sys/class/infiniband/<device>/ports/<port>/hw_counters/<counter>.
+// Returns nil if the file is missing or unparseable, so pushCounter can skip
+// emitting absent series.
+func (c *infinibandCollector) readEFAHWCounter(deviceName string, port uint, counter string) *uint64 {
+	path := filepath.Join(c.sysPath, "class", "infiniband", deviceName,
+		"ports", strconv.FormatUint(uint64(port), 10), "hw_counters", counter)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil
+	}
+	v, err := strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64)
+	if err != nil {
+		c.logger.Debug("failed to parse EFA hw_counter",
+			"path", path, "err", err)
+		return nil
+	}
+	return &v
+}
+
+// pushEFACounter is a convenience wrapper that reads a single hw_counter and
+// pushes it as a Prometheus counter if present.
+func (c *infinibandCollector) pushEFACounter(ch chan<- prometheus.Metric, metricName, counterFile, deviceName string, port uint, portStr string) {
+	c.pushCounter(ch, metricName, c.readEFAHWCounter(deviceName, port, counterFile), deviceName, portStr)
+}
+
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.InfiniBandClass()
 	if err != nil {
@@ -162,12 +226,41 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 		infoValue := 1.0
 		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, device.Name, device.BoardID, device.FirmwareVersion, device.HCAType)
 
+		// EFA NICs share /sys/class/infiniband layout with IB but use
+		// hw_counters/ for byte/packet stats (raw values, no IB ×4 scaling).
+		// Detect once per device to avoid stat'ing /sys repeatedly per port.
+		isEFA := c.isEFADevice(device.Name)
+
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
 
 			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, prometheus.GaugeValue)
 			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, prometheus.GaugeValue)
 			c.pushMetric(ch, "rate_bytes_per_second", port.Rate, port.Name, portStr, prometheus.GaugeValue)
+
+			if isEFA {
+				// EFA path: port.Counters (from procfs/sysfs IB-spec parser)
+				// is empty/zero, so we read hw_counters/ directly and emit
+				// under the existing port_data_* / port_packets_* metric
+				// names so existing IB dashboards transparently see EFA data.
+				c.pushEFACounter(ch, "port_data_transmitted_bytes_total", "tx_bytes", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "port_data_received_bytes_total", "rx_bytes", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "port_packets_transmitted_total", "tx_pkts", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "port_packets_received_total", "rx_pkts", port.Name, port.Port, portStr)
+
+				// EFA-only diagnostic counters — emitted under efa_* names to
+				// avoid colliding with IB-spec semantics. Useful for tracking
+				// fabric retransmissions and unresponsive peers.
+				c.pushEFACounter(ch, "efa_rx_drops_total", "rx_drops", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "efa_retrans_packets_total", "retrans_pkts", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "efa_retrans_bytes_total", "retrans_bytes", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "efa_retrans_timeout_events_total", "retrans_timeout_events", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "efa_unresponsive_remote_events_total", "unresponsive_remote_events", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "efa_impaired_remote_conn_events_total", "impaired_remote_conn_events", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "efa_rdma_read_bytes_total", "rdma_read_bytes", port.Name, port.Port, portStr)
+				c.pushEFACounter(ch, "efa_rdma_write_bytes_total", "rdma_write_bytes", port.Name, port.Port, portStr)
+				continue
+			}
 
 			c.pushCounter(ch, "legacy_multicast_packets_received_total", port.Counters.LegacyPortMulticastRcvPackets, port.Name, portStr)
 			c.pushCounter(ch, "legacy_multicast_packets_transmitted_total", port.Counters.LegacyPortMulticastXmitPackets, port.Name, portStr)
