@@ -18,7 +18,10 @@ package collector
 import (
 	"io"
 	"log/slog"
+	"sort"
+	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/alecthomas/kingpin/v2"
 
@@ -46,6 +49,35 @@ func Test_parseFilesystemLabelsError(t *testing.T) {
 				t.Fatal("expected an error, but none occurred")
 			}
 		})
+	}
+}
+
+func Test_parseFilesystemLabelsSanitizesInvalidUTF8(t *testing.T) {
+	in := []*procfs.MountInfo{
+		{
+			MajorMinorVer: "0:0",
+			Source:        "/dev/sd\xe9",
+			MountPoint:    "/mnt/cass\xe9",
+			FSType:        "ext\xe9",
+		},
+	}
+
+	got, err := parseFilesystemLabels(in)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("expected 1 filesystem, got %d", len(got))
+	}
+
+	for name, value := range map[string]string{
+		"device":     got[0].device,
+		"mountPoint": got[0].mountPoint,
+		"fsType":     got[0].fsType,
+	} {
+		if !utf8.ValidString(value) {
+			t.Errorf("expected %s to be valid UTF-8, got %q", name, value)
+		}
 	}
 }
 
@@ -77,6 +109,12 @@ func Test_isFilesystemReadOnly(t *testing.T) {
 			labels: filesystemLabels{
 				mountOptions: "ro,nosuid,noexec",
 				superOptions: "ro,nodev",
+			}, expected: true,
+		},
+		"/media/volume5": {
+			labels: filesystemLabels{
+				mountOptions: "rw,user_id=1000,group_id=1000",
+				superOptions: "emergency_ro",
 			}, expected: true,
 		},
 	}
@@ -165,6 +203,88 @@ func TestMountsFallback(t *testing.T) {
 		if _, ok := expected[fs.mountPoint]; !ok {
 			t.Errorf("Got unexpected %s", fs.mountPoint)
 		}
+	}
+}
+
+func TestMountOptionsString(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     map[string]string
+		wantParts []string
+	}{
+		{
+			name:      "single flag option",
+			input:     map[string]string{"ro": ""},
+			wantParts: []string{"ro"},
+		},
+		{
+			name:      "single key=value option",
+			input:     map[string]string{"errors": "remount-ro"},
+			wantParts: []string{"errors=remount-ro"},
+		},
+		{
+			name:      "multiple options including ro",
+			input:     map[string]string{"ro": "", "relatime": "", "errors": "remount-ro"},
+			wantParts: []string{"errors=remount-ro", "relatime", "ro"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := mountOptionsString(tt.input)
+			parts := strings.Split(result, ",")
+			sort.Strings(parts)
+			sort.Strings(tt.wantParts)
+			if len(parts) != len(tt.wantParts) {
+				t.Fatalf("mountOptionsString(%v) = %q, got %d parts, want %d", tt.input, result, len(parts), len(tt.wantParts))
+			}
+			for i := range parts {
+				if parts[i] != tt.wantParts[i] {
+					t.Errorf("mountOptionsString(%v) = %q, sorted part[%d] = %q, want %q", tt.input, result, i, parts[i], tt.wantParts[i])
+				}
+			}
+		})
+	}
+}
+
+func TestMountOptionsStringReadOnlyDetection(t *testing.T) {
+	tests := []struct {
+		name         string
+		mountOptions map[string]string
+		superOptions map[string]string
+		wantReadOnly bool
+	}{
+		{
+			name:         "ro among multiple mount options (ZFS / remount-ro scenario)",
+			mountOptions: map[string]string{"ro": "", "relatime": "", "errors": "remount-ro"},
+			superOptions: map[string]string{"rw": ""},
+			wantReadOnly: true,
+		},
+		{
+			name:         "ro in super options only",
+			mountOptions: map[string]string{"rw": "", "relatime": ""},
+			superOptions: map[string]string{"ro": "", "user_id": "1000"},
+			wantReadOnly: true,
+		},
+		{
+			name:         "no ro anywhere",
+			mountOptions: map[string]string{"rw": "", "nosuid": "", "nodev": ""},
+			superOptions: map[string]string{"rw": ""},
+			wantReadOnly: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			labels := filesystemLabels{
+				mountOptions: mountOptionsString(tt.mountOptions),
+				superOptions: mountOptionsString(tt.superOptions),
+			}
+			if got := isFilesystemReadOnly(labels); got != tt.wantReadOnly {
+				t.Errorf("isFilesystemReadOnly(%+v) = %v, want %v (mountOptions=%q superOptions=%q)",
+					tt, got, tt.wantReadOnly, labels.mountOptions, labels.superOptions)
+			}
+		})
 	}
 }
 
