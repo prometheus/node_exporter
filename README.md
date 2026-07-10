@@ -24,6 +24,7 @@ The `node_exporter` listens on HTTP port 9100 by default. See the `--help` outpu
 ### Linux distribution packages
 
 On Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, AlmaLinux) and Fedora, `node_exporter` is packaged in [EPEL](https://docs.fedoraproject.org/en-US/epel/) as `golang-github-prometheus-node-exporter` (available for EPEL 7, 8 and 9):
+
 ### Ansible
 
 For automated installs with [Ansible](https://www.ansible.com/), there is the [Prometheus Community role](https://github.com/prometheus-community/ansible).
