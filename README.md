@@ -108,9 +108,10 @@ filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.fi
 filesystem | mount-points | --collector.filesystem.mount-points-include | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
 hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exclude
+infiniband | device | --collector.infiniband.device-include | --collector.infiniband.device-exclude
 interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
-qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
+qdisc | device | --collector.qdisc.device-include | --collector.qdisc.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
 sysctl | all | --collector.sysctl.include | N/A
 systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
@@ -129,6 +130,7 @@ cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris, OpenB
 cpufreq | Exposes CPU frequency statistics | Linux, Solaris
 diskstats | Exposes disk I/O statistics. | Darwin, Linux, OpenBSD
 dmi | Expose Desktop Management Interface (DMI) info from `/sys/class/dmi/id/` | Linux
+dmmultipath | Exposes DM-multipath device and path metrics from `/sys/block/dm-*`. | Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
@@ -206,6 +208,7 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+nvmesubsystem | Exposes NVMe over Fabrics subsystem path health metrics from `/sys/class/nvme-subsystem/`. | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux

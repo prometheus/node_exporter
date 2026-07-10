@@ -365,6 +365,7 @@ non_deterministic_metrics=$(cat << METRICS
   node_memory_size_bytes
   node_memory_swapped_in_bytes_total
   node_memory_swapped_out_bytes_total
+  node_memory_swap_size_bytes
   node_memory_wired_bytes
   node_netstat_tcp_receive_packets_total
   node_netstat_tcp_transmit_packets_total

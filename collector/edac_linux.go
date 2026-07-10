@@ -18,8 +18,10 @@ package collector
 import (
 	"fmt"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -31,6 +33,7 @@ const (
 var (
 	edacMemControllerRE = regexp.MustCompile(`.*devices/system/edac/mc/mc([0-9]*)`)
 	edacMemCsrowRE      = regexp.MustCompile(`.*devices/system/edac/mc/mc[0-9]*/csrow([0-9]*)`)
+	edacMemChannelRE    = regexp.MustCompile(`ch([0-9]+)_ce_count`)
 )
 
 type edacCollector struct {
@@ -62,6 +65,16 @@ var (
 		"Total uncorrectable memory errors for this csrow.",
 		[]string{"controller", "csrow"}, nil,
 	)
+	edacChannelCECount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, edacSubsystem, "channel_correctable_errors_total"),
+		"Total correctable memory errors for this channel.",
+		[]string{"controller", "csrow", "channel", "dimm_label"}, nil,
+	)
+	edacChannelUECount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, edacSubsystem, "channel_uncorrectable_errors_total"),
+		"Total uncorrectable memory errors for this channel.",
+		[]string{"controller", "csrow", "channel", "dimm_label"}, nil,
+	)
 )
 
 // NewEdacCollector returns a new Collector exposing edac stats.
@@ -69,6 +82,19 @@ func NewEdacCollector(logger *slog.Logger) (Collector, error) {
 	return &edacCollector{
 		logger: logger,
 	}, nil
+}
+
+func edacDimmLabel(csrow, channel string) string {
+	label := "unknown"
+	labelBytes, err := os.ReadFile(filepath.Join(csrow, "ch"+channel+"_dimm_label"))
+	if err != nil {
+		return label
+	}
+	label = strings.TrimSpace(string(labelBytes))
+	label = strings.ReplaceAll(label, "#", "")
+	label = strings.ReplaceAll(label, "csrow", "_csrow")
+	label = strings.ReplaceAll(label, "channel", "_channel")
+	return label
 }
 
 func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
@@ -136,8 +162,49 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 			}
 			ch <- prometheus.MustNewConstMetric(
 				edacCsRowUECount, prometheus.CounterValue, float64(value), controllerNumber, csrowNumber)
+
+			channelFiles, err := filepath.Glob(csrow + "/ch*_ce_count")
+			if err != nil {
+				return err
+			}
+			for _, chFile := range channelFiles {
+				match := edacMemChannelRE.FindStringSubmatch(filepath.Base(chFile))
+				if match == nil {
+					continue
+				}
+				channelNumber := match[1]
+				label := edacDimmLabel(csrow, channelNumber)
+
+				value, err = readUintFromFile(chFile)
+				if err != nil {
+					return fmt.Errorf("couldn't get ce_count for controller/csrow/channel %s/%s/%s: %w", controllerNumber, csrowNumber, channelNumber, err)
+				}
+				ch <- prometheus.MustNewConstMetric(
+					edacChannelCECount,
+					prometheus.CounterValue,
+					float64(value),
+					controllerNumber,
+					csrowNumber,
+					channelNumber,
+					label,
+				)
+
+				value, err = readUintFromFile(filepath.Join(csrow, "ch"+channelNumber+"_ue_count"))
+				if err != nil {
+					return fmt.Errorf("couldn't get ue_count for controller/csrow/channel %s/%s/%s: %w", controllerNumber, csrowNumber, channelNumber, err)
+				}
+				ch <- prometheus.MustNewConstMetric(
+					edacChannelUECount,
+					prometheus.CounterValue,
+					float64(value),
+					controllerNumber,
+					csrowNumber,
+					channelNumber,
+					label,
+				)
+			}
 		}
 	}
 
-	return err
+	return nil
 }
