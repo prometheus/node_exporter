@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nofilefd
-// +build !nofilefd
 
 package collector
 

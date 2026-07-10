@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build !nofilesystem && (linux || freebsd || netbsd || openbsd || darwin || dragonfly || aix)
-// +build !nofilesystem
-// +build linux freebsd netbsd openbsd darwin dragonfly aix
 
 package collector
 
@@ -64,7 +62,7 @@ var (
 	).Hidden().String()
 	fsTypesInclude = kingpin.Flag(
 		"collector.filesystem.fs-types-include",
-		"Regexp of filesystem types to exclude for filesystem collector. (mutually exclusive to fs-types-exclude)",
+		"Regexp of filesystem types to include for filesystem collector. (mutually exclusive to fs-types-exclude)",
 	).String()
 
 	filesystemLabelNames = []string{"device", "mountpoint", "fstype", "device_error"}
@@ -82,14 +80,14 @@ type filesystemCollector struct {
 }
 
 type filesystemLabels struct {
-	device, mountPoint, fsType, options, deviceError, major, minor string
+	device, mountPoint, fsType, mountOptions, superOptions, deviceError, major, minor string
 }
 
 type filesystemStats struct {
 	labels            filesystemLabels
 	size, free, avail float64
 	files, filesFree  float64
-	purgeable         *float64
+	purgeable         float64
 	ro, deviceError   float64
 }
 
@@ -232,11 +230,10 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 			c.mountInfoDesc, prometheus.GaugeValue,
 			1.0, s.labels.device, s.labels.major, s.labels.minor, s.labels.mountPoint,
 		)
-		if s.purgeable != nil {
+		if s.purgeable >= 0 {
 			ch <- prometheus.MustNewConstMetric(
 				c.purgeableDesc, prometheus.GaugeValue,
-				*s.purgeable, s.labels.device, s.labels.mountPoint,
-				s.labels.fsType, s.labels.deviceError,
+				s.purgeable, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 			)
 		}
 	}

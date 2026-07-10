@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !notherm
-// +build !notherm
 
 package collector
 
@@ -50,6 +49,8 @@ import (
 	"log/slog"
 	"unsafe"
 
+	"github.com/prometheus/node_exporter/collector/utils"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -57,6 +58,7 @@ type thermCollector struct {
 	cpuSchedulerLimit typedDesc
 	cpuAvailableCPU   typedDesc
 	cpuSpeedLimit     typedDesc
+	temperature       typedDesc
 	logger            *slog.Logger
 }
 
@@ -95,6 +97,15 @@ func NewThermCollector(logger *slog.Logger) (Collector, error) {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		temperature: typedDesc{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, thermal, "temperature_celsius"),
+				"Temperature of the thermal sensor in Celsius.",
+				[]string{"sensor"},
+				nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
 		logger: logger,
 	}, nil
 }
@@ -113,7 +124,8 @@ func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
 	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorSpeedKey))]; ok {
 		ch <- c.cpuSpeedLimit.mustNewConstMetric(float64(value) / 100.0)
 	}
-	return nil
+
+	return c.updateTemperatures(ch)
 }
 
 func fetchCPUPowerStatus() (map[string]int, error) {
@@ -176,7 +188,7 @@ func mappingCFStringToString(s C.CFStringRef) string {
 	buf := make([]byte, maxBufLen)
 	var usedBufLen C.CFIndex
 	_ = C.CFStringGetBytes(s, C.CFRange{0, length}, C.kCFStringEncodingUTF8, C.UInt8(0), C.false, (*C.UInt8)(&buf[0]), maxBufLen, &usedBufLen)
-	return string(buf[:usedBufLen])
+	return utils.SafeBytesToString(buf[:usedBufLen])
 }
 
 func mappingCFNumberLongToInt(n C.CFNumberRef) int {

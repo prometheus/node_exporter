@@ -29,3 +29,4 @@
 3147 3002 0:81 / /run/user/1000/gvfs rw,nosuid,nodev,relatime shared:1290 - fuse.gvfsd-fuse gvfsd-fuse rw,user_id=1000,group_id=1000
 3148 3003 260:0 / /var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]\040bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk rw,relatime shared:31 - ext4 /dev/sda rw,data=ordered
 3149 3004 260:0 / /var/lib/kubelet/plugins/kubernetes.io/vsphere-volume/mounts/[vsanDatastore]\011bafb9e5a-8856-7e6c-699c-801844e77a4a/kubernetes-dynamic-pvc-3eba5bba-48a3-11e8-89ab-005056b92113.vmdk rw,relatime shared:32 - ext4 /dev/sda rw,data=ordered
+1128 67 253:0 /var/lib/containers/storage/overlay /var/lib/containers/storage/overlay rw,relatime - xfs /dev/mapper/rhel-root rw,seclabel,attr2,inode64,logbufs=8,logbsize=32k,noquota

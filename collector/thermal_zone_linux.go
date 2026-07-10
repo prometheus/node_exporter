@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nothermalzone
-// +build !nothermalzone
 
 package collector
 
@@ -21,6 +20,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
@@ -72,7 +72,7 @@ func NewThermalZoneCollector(logger *slog.Logger) (Collector, error) {
 func (c *thermalZoneCollector) Update(ch chan<- prometheus.Metric) error {
 	thermalZones, err := c.fs.ClassThermalZoneStats()
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) || errors.Is(err, os.ErrInvalid) {
+		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) || errors.Is(err, os.ErrInvalid) || errors.Is(err, syscall.EINVAL) {
 			c.logger.Debug("Could not read thermal zone stats", "err", err)
 			return ErrNoData
 		}

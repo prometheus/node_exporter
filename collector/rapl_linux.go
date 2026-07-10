@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !norapl
-// +build !norapl
 
 package collector
 

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nobonding
-// +build !nobonding
 
 package collector
 

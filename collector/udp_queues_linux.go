@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !noudp_queues
-// +build !noudp_queues
 
 package collector
 

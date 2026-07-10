@@ -1,8 +1,8 @@
 # HELP go_gc_duration_seconds A summary of the wall-time pause (stop-the-world) duration in garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
-# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent
+# HELP go_gc_gogc_percent Heap size target percentage configured by the user, otherwise 100. This value is set by the GOGC environment variable, and the runtime/debug.SetGCPercent function. Sourced from /gc/gogc:percent.
 # TYPE go_gc_gogc_percent gauge
-# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes
+# HELP go_gc_gomemlimit_bytes Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable, and the runtime/debug.SetMemoryLimit function. Sourced from /gc/gomemlimit:bytes.
 # TYPE go_gc_gomemlimit_bytes gauge
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
@@ -52,7 +52,7 @@
 # TYPE go_memstats_stack_sys_bytes gauge
 # HELP go_memstats_sys_bytes Number of bytes obtained from system. Equals to /memory/classes/total:byte.
 # TYPE go_memstats_sys_bytes gauge
-# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads
+# HELP go_sched_gomaxprocs_threads The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously. Sourced from /sched/gomaxprocs:threads.
 # TYPE go_sched_gomaxprocs_threads gauge
 # HELP go_threads Number of OS threads created.
 # TYPE go_threads gauge
@@ -99,9 +99,6 @@ node_memory_swap_in_bytes_total 0
 # HELP node_memory_swap_out_bytes_total Bytes paged out to swap devices
 # TYPE node_memory_swap_out_bytes_total counter
 node_memory_swap_out_bytes_total 0
-# HELP node_memory_swap_size_bytes Total swap memory size
-# TYPE node_memory_swap_size_bytes gauge
-node_memory_swap_size_bytes 1.073741824e+09
 # HELP node_memory_swap_used_bytes Currently allocated swap
 # TYPE node_memory_swap_used_bytes gauge
 node_memory_swap_used_bytes 0
@@ -261,6 +258,18 @@ node_xfrm_out_state_proto_error_packets_total 4542
 # HELP node_xfrm_out_state_seq_error_packets_total Sequence error i.e. Sequence number overflow
 # TYPE node_xfrm_out_state_seq_error_packets_total counter
 node_xfrm_out_state_seq_error_packets_total 543
+# HELP node_zfs_arcstats_c_min_bytes ZFS ARC minimum size
+# TYPE node_zfs_arcstats_c_min_bytes gauge
+node_zfs_arcstats_c_min_bytes 1.99743232e+08
+# HELP node_zfs_arcstats_mfu_ghost_size ZFS ARC MFU ghost size
+# TYPE node_zfs_arcstats_mfu_ghost_size gauge
+node_zfs_arcstats_mfu_ghost_size 0
+# HELP node_zfs_arcstats_mru_ghost_hits_total ZFS ARC MRU ghost hits
+# TYPE node_zfs_arcstats_mru_ghost_hits_total counter
+node_zfs_arcstats_mru_ghost_hits_total 0
+# HELP node_zfs_arcstats_pm_bytes ZFS ARC meta MRU target frac
+# TYPE node_zfs_arcstats_pm_bytes gauge
+node_zfs_arcstats_pm_bytes 2.147483648e+09
 # HELP promhttp_metric_handler_errors_total Total number of internal errors encountered by the promhttp metric handler.
 # TYPE promhttp_metric_handler_errors_total counter
 promhttp_metric_handler_errors_total{cause="encoding"} 0

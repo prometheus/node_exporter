@@ -1,8 +1,8 @@
 # Node exporter
 
-[![CircleCI](https://circleci.com/gh/prometheus/node_exporter/tree/master.svg?style=shield)][circleci]
-[![bsd workflow](https://github.com/prometheus/node_exporter/actions/workflows/bsd.yml/badge.svg)][actions]
-[![golangci-lint workflow](https://github.com/prometheus/node_exporter/actions/workflows/golangci-lint.yml/badge.svg)][actions]
+[![Build Status](https://github.com/prometheus/node_exporter/actions/workflows/ci.yml/badge.svg)](https://github.com/prometheus/node_exporter/actions/workflows/ci.yml)
+![bsd workflow](https://github.com/prometheus/node_exporter/actions/workflows/bsd.yml/badge.svg)
+![golangci-lint workflow](https://github.com/prometheus/node_exporter/actions/workflows/golangci-lint.yml/badge.svg)
 [![Docker Repository on Quay](https://quay.io/repository/prometheus/node-exporter/status)][quay]
 [![Docker Pulls](https://img.shields.io/docker/pulls/prom/node-exporter.svg?maxAge=604800)][hub]
 [![Go Report Card](https://goreportcard.com/badge/github.com/prometheus/node_exporter)][goreportcard]
@@ -20,6 +20,10 @@ can be used.
 If you are new to Prometheus and `node_exporter` there is a [simple step-by-step guide](https://prometheus.io/docs/guides/node-exporter/).
 
 The `node_exporter` listens on HTTP port 9100 by default. See the `--help` output for more options.
+
+### Linux distribution packages
+
+On Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, AlmaLinux) and Fedora, `node_exporter` is packaged in [EPEL](https://docs.fedoraproject.org/en-US/epel/) as `golang-github-prometheus-node-exporter` (available for EPEL 7, 8 and 9):
 
 ### Ansible
 
@@ -104,9 +108,10 @@ filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.fi
 filesystem | mount-points | --collector.filesystem.mount-points-include | --collector.filesystem.mount-points-exclude
 hwmon | chip | --collector.hwmon.chip-include | --collector.hwmon.chip-exclude
 hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exclude
+infiniband | device | --collector.infiniband.device-include | --collector.infiniband.device-exclude
 interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
-qdisk | device | --collector.qdisk.device-include | --collector.qdisk.device-exclude
+qdisc | device | --collector.qdisc.device-include | --collector.qdisc.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
 sysctl | all | --collector.sysctl.include | N/A
 systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
@@ -125,6 +130,7 @@ cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris, OpenB
 cpufreq | Exposes CPU frequency statistics | Linux, Solaris
 diskstats | Exposes disk I/O statistics. | Darwin, Linux, OpenBSD
 dmi | Expose Desktop Management Interface (DMI) info from `/sys/class/dmi/id/` | Linux
+dmmultipath | Exposes DM-multipath device and path metrics from `/sys/block/dm-*`. | Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
@@ -134,6 +140,7 @@ filesystem | Exposes filesystem statistics, such as disk space used. | Darwin, D
 hwmon | Expose hardware monitoring and sensor data from `/sys/class/hwmon/`. | Linux
 infiniband | Exposes network statistics specific to InfiniBand and Intel OmniPath configurations. | Linux
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
+kernel_hung | Exposes number of tasks that have been detected as hung from `/proc/sys/kernel/hung_task_detect_count`. | Linux
 loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
 meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
@@ -201,12 +208,15 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+nvmesubsystem | Exposes NVMe over Fabrics subsystem path health metrics from `/sys/class/nvme-subsystem/`. | Linux
+pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
 softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
+swap | Expose swap information from `/proc/swaps`. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
@@ -244,7 +254,7 @@ perf_event_open`](http://man7.org/linux/man-pages/man2/perf_event_open.2.html).
 
 By default, the `perf` collector will only collect metrics of the CPUs that
 `node_exporter` is running on (ie
-[`runtime.NumCPU`](https://golang.org/pkg/runtime/#NumCPU). If this is
+[`runtime.NumCPU`](https://pkg.go.dev/runtime#NumCPU). If this is
 insufficient (e.g. if you run `node_exporter` with its CPU affinity set to
 specific CPUs), you can specify a list of alternate CPUs by using the
 `--collector.perf.cpus` flag. For example, to collect metrics on CPUs 2-6, you
@@ -363,7 +373,7 @@ This can be useful for having different Prometheus servers collect specific metr
 
 Prerequisites:
 
-* [Go compiler](https://golang.org/dl/)
+* [Go compiler](https://go.dev/dl/)
 * RHEL/CentOS: `glibc-static` package.
 
 Building:

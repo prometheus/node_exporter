@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nocpu
-// +build !nocpu
 
 package collector
 
@@ -24,6 +23,11 @@ var (
 	cpuFreqHertzDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
 		"Current CPU thread frequency in hertz.",
+		[]string{"cpu"}, nil,
+	)
+	cpuFreqAvgDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_avg_hertz"),
+		"Average CPU thread frequency in hertz.",
 		[]string{"cpu"}, nil,
 	)
 	cpuFreqMinDesc = prometheus.NewDesc(

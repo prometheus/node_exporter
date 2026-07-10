@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nocpu
-// +build !nocpu
 
 package collector
 
@@ -155,7 +154,7 @@ func getCPUTemperatures() (map[int]float64, error) {
 	}
 
 	keys := sortFilterSysmonProperties(props, "coretemp")
-	for idx, _ := range keys {
+	for idx := range keys {
 		convertTemperatures(props[keys[idx]], res)
 	}
 
