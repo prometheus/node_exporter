@@ -125,6 +125,7 @@ cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris, OpenB
 cpufreq | Exposes CPU frequency statistics | Linux, Solaris
 diskstats | Exposes disk I/O statistics. | Darwin, Linux, OpenBSD
 dmi | Expose Desktop Management Interface (DMI) info from `/sys/class/dmi/id/` | Linux
+dmmultipath | Exposes DM-multipath device and path metrics from `/sys/block/dm-*`. | Linux
 edac | Exposes error detection and correction statistics. | Linux
 entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
@@ -202,6 +203,7 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+nvmesubsystem | Exposes NVMe over Fabrics subsystem path health metrics from `/sys/class/nvme-subsystem/`. | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
