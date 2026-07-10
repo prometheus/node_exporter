@@ -1284,6 +1284,38 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 # HELP node_dmi_info A metric with a constant '1' value labeled by bios_date, bios_release, bios_vendor, bios_version, board_asset_tag, board_name, board_serial, board_vendor, board_version, chassis_asset_tag, chassis_serial, chassis_vendor, chassis_version, product_family, product_name, product_serial, product_sku, product_uuid, product_version, system_vendor if provided by DMI.
 # TYPE node_dmi_info gauge
 node_dmi_info{bios_date="04/12/2021",bios_release="2.2",bios_vendor="Dell Inc.",bios_version="2.2.4",board_name="07PXPY",board_serial=".7N62AI2.GRTCL6944100GP.",board_vendor="Dell Inc.",board_version="A01",chassis_asset_tag="",chassis_serial="7N62AI2",chassis_vendor="Dell Inc.",chassis_version="",product_family="PowerEdge",product_name="PowerEdge R6515",product_serial="7N62AI2",product_sku="SKU=NotProvided;ModelName=PowerEdge R6515",product_uuid="83340ca8-cb49-4474-8c29-d2088ca84dd9",product_version="�[�",system_vendor="Dell Inc."} 1
+# HELP node_dmmultipath_device_active Whether the multipath device-mapper device is active (1) or suspended (0).
+# TYPE node_dmmultipath_device_active gauge
+node_dmmultipath_device_active{device="mpathA",sysfs_name="dm-5"} 1
+node_dmmultipath_device_active{device="mpathB",sysfs_name="dm-6"} 1
+# HELP node_dmmultipath_device_info Non-numeric information about a DM-multipath device.
+# TYPE node_dmmultipath_device_info gauge
+node_dmmultipath_device_info{device="mpathA",sysfs_name="dm-5",uuid="mpath-3600508b1001c1234567890abcdef1234"} 1
+node_dmmultipath_device_info{device="mpathB",sysfs_name="dm-6",uuid="mpath-3600508b1001cabcdef4567890123456"} 1
+# HELP node_dmmultipath_device_paths Number of paths for a multipath device.
+# TYPE node_dmmultipath_device_paths gauge
+node_dmmultipath_device_paths{device="mpathA",sysfs_name="dm-5"} 4
+node_dmmultipath_device_paths{device="mpathB",sysfs_name="dm-6"} 2
+# HELP node_dmmultipath_device_paths_active Number of paths in active state (SCSI running or NVMe live) for a multipath device.
+# TYPE node_dmmultipath_device_paths_active gauge
+node_dmmultipath_device_paths_active{device="mpathA",sysfs_name="dm-5"} 3
+node_dmmultipath_device_paths_active{device="mpathB",sysfs_name="dm-6"} 2
+# HELP node_dmmultipath_device_paths_failed Number of paths not in active state for a multipath device.
+# TYPE node_dmmultipath_device_paths_failed gauge
+node_dmmultipath_device_paths_failed{device="mpathA",sysfs_name="dm-5"} 1
+node_dmmultipath_device_paths_failed{device="mpathB",sysfs_name="dm-6"} 0
+# HELP node_dmmultipath_device_size_bytes Size of the multipath device in bytes, read from /sys/block/<dm>/size.
+# TYPE node_dmmultipath_device_size_bytes gauge
+node_dmmultipath_device_size_bytes{device="mpathA",sysfs_name="dm-5"} 5.36870912e+10
+node_dmmultipath_device_size_bytes{device="mpathB",sysfs_name="dm-6"} 1.073741824e+11
+# HELP node_dmmultipath_path_state Reports the underlying device state for a multipath path, as read from /sys/block/<dev>/device/state.
+# TYPE node_dmmultipath_path_state gauge
+node_dmmultipath_path_state{device="mpathA",path="sdi",state="running"} 1
+node_dmmultipath_path_state{device="mpathA",path="sdj",state="running"} 1
+node_dmmultipath_path_state{device="mpathA",path="sdk",state="running"} 1
+node_dmmultipath_path_state{device="mpathA",path="sdl",state="offline"} 1
+node_dmmultipath_path_state{device="mpathB",path="sdm",state="running"} 1
+node_dmmultipath_path_state{device="mpathB",path="sdn",state="running"} 1
 # HELP node_drbd_activitylog_writes_total Number of updates of the activity log area of the meta data.
 # TYPE node_drbd_activitylog_writes_total counter
 node_drbd_activitylog_writes_total{device="drbd1"} 1100
@@ -1331,16 +1363,30 @@ node_drbd_remote_pending{device="drbd1"} 12346
 # HELP node_drbd_remote_unacknowledged Number of requests received by the peer via the network connection, but that have not yet been answered.
 # TYPE node_drbd_remote_unacknowledged gauge
 node_drbd_remote_unacknowledged{device="drbd1"} 12347
+# HELP node_edac_channel_correctable_errors_total Total correctable memory errors for this channel.
+# TYPE node_edac_channel_correctable_errors_total counter
+node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="0",dimm_label="mc0_csrow0_channel0"} 0
+node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="1",dimm_label="mc0_csrow1_channel0"} 0
+node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="0",dimm_label="mc0_csrow0_channel1"} 0
+node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="1",dimm_label="mc0_csrow1_channel1"} 0
+# HELP node_edac_channel_uncorrectable_errors_total Total uncorrectable memory errors for this channel.
+# TYPE node_edac_channel_uncorrectable_errors_total counter
+node_edac_channel_uncorrectable_errors_total{channel="0",controller="0",csrow="0",dimm_label="mc0_csrow0_channel0"} 2
+node_edac_channel_uncorrectable_errors_total{channel="0",controller="0",csrow="1",dimm_label="mc0_csrow1_channel0"} 2
+node_edac_channel_uncorrectable_errors_total{channel="1",controller="0",csrow="0",dimm_label="mc0_csrow0_channel1"} 2
+node_edac_channel_uncorrectable_errors_total{channel="1",controller="0",csrow="1",dimm_label="mc0_csrow1_channel1"} 2
 # HELP node_edac_correctable_errors_total Total correctable memory errors.
 # TYPE node_edac_correctable_errors_total counter
 node_edac_correctable_errors_total{controller="0"} 1
 # HELP node_edac_csrow_correctable_errors_total Total correctable memory errors for this csrow.
 # TYPE node_edac_csrow_correctable_errors_total counter
 node_edac_csrow_correctable_errors_total{controller="0",csrow="0"} 3
+node_edac_csrow_correctable_errors_total{controller="0",csrow="1"} 0
 node_edac_csrow_correctable_errors_total{controller="0",csrow="unknown"} 2
 # HELP node_edac_csrow_uncorrectable_errors_total Total uncorrectable memory errors for this csrow.
 # TYPE node_edac_csrow_uncorrectable_errors_total counter
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="0"} 4
+node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="1"} 4
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="unknown"} 6
 # HELP node_edac_uncorrectable_errors_total Total uncorrectable memory errors.
 # TYPE node_edac_uncorrectable_errors_total counter
@@ -1422,7 +1468,12 @@ node_filefd_maximum 1.631329e+06
 node_forks_total 26442
 # HELP node_hwmon_chip_names Annotation metric for human-readable chip names
 # TYPE node_hwmon_chip_names gauge
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_0",chip_name="mt7996_phy0_0"} 1
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_1",chip_name="mt7996_phy0_1"} 1
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_2",chip_name="mt7996_phy0_2"} 1
 node_hwmon_chip_names{chip="nct6779",chip_name="nct6779"} 1
+node_hwmon_chip_names{chip="platform_asus_nb_wmi_asus",chip_name="asus"} 1
+node_hwmon_chip_names{chip="platform_asus_nb_wmi_asus_wmi_sensors",chip_name="asus_wmi_sensors"} 1
 node_hwmon_chip_names{chip="platform_coretemp_0",chip_name="coretemp"} 1
 node_hwmon_chip_names{chip="platform_coretemp_1",chip_name="coretemp"} 1
 # HELP node_hwmon_fan_alarm Hardware sensor alarm status (fan)
@@ -1530,6 +1581,8 @@ node_hwmon_pwm_crit_temp_tolerance{chip="nct6779",sensor="pwm1"} 2000
 # HELP node_hwmon_pwm_enable Hardware monitor pwm element enable
 # TYPE node_hwmon_pwm_enable gauge
 node_hwmon_pwm_enable{chip="nct6779",sensor="pwm1"} 5
+node_hwmon_pwm_enable{chip="platform_asus_nb_wmi_asus",sensor="pwm1"} 2
+node_hwmon_pwm_enable{chip="platform_asus_nb_wmi_asus_wmi_sensors",sensor="pwm1"} 2
 # HELP node_hwmon_pwm_floor Hardware monitor pwm element floor
 # TYPE node_hwmon_pwm_floor gauge
 node_hwmon_pwm_floor{chip="nct6779",sensor="pwm1"} 1
@@ -1597,6 +1650,9 @@ node_hwmon_sensor_label{chip="platform_coretemp_1",label="Physical id 0",sensor=
 # TYPE node_hwmon_temp_celsius gauge
 node_hwmon_temp_celsius{chip="hwmon4",sensor="temp1"} 55
 node_hwmon_temp_celsius{chip="hwmon4",sensor="temp2"} 54
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_0",sensor="temp1"} 55
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_1",sensor="temp1"} 56
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_2",sensor="temp1"} 57
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp1"} 55
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp2"} 54
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp3"} 52
@@ -2771,6 +2827,11 @@ node_mountstats_nfs_event_vfs_write_pages_total{export="192.168.1.1:/srv/test",m
 # TYPE node_mountstats_nfs_event_write_extension_total counter
 node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="tcp"} 0
 node_mountstats_nfs_event_write_extension_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",protocol="udp"} 0
+# HELP node_mountstats_nfs_mountpoint_info Info metric for an NFS mountpoint.
+# TYPE node_mountstats_nfs_mountpoint_info gauge
+node_mountstats_nfs_mountpoint_info{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test",protocol="tcp"} 1
+node_mountstats_nfs_mountpoint_info{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test-dupe",protocol="tcp"} 1
+node_mountstats_nfs_mountpoint_info{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",mountpoint="/mnt/nfs/test-dupe",protocol="udp"} 1
 # HELP node_mountstats_nfs_operations_major_timeouts_total Number of times a request has had a major timeout for a given operation.
 # TYPE node_mountstats_nfs_operations_major_timeouts_total counter
 node_mountstats_nfs_operations_major_timeouts_total{export="192.168.1.1:/srv/test",mountaddr="192.168.1.1",operation="ACCESS",protocol="udp"} 0
@@ -3422,19 +3483,19 @@ node_nfsd_server_threads 8
 node_nvme_info{cntlid="1997",device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live"} 1
 # HELP node_nvme_namespace_capacity_bytes Capacity of the NVMe namespace in bytes. Computed as namespace_size * namespace_logical_block_size
 # TYPE node_nvme_namespace_capacity_bytes gauge
-node_nvme_namespace_capacity_bytes{device="nvme0",nsid="0"} 1.6e+13
+node_nvme_namespace_capacity_bytes{device="nvme0",nsid="1"} 1.6e+13
 # HELP node_nvme_namespace_info Information about NVMe namespaces. Value is always 1
 # TYPE node_nvme_namespace_info gauge
-node_nvme_namespace_info{ana_state="optimized",device="nvme0",nsid="0"} 1
+node_nvme_namespace_info{ana_state="optimized",device="nvme0",nsid="1"} 1
 # HELP node_nvme_namespace_logical_block_size_bytes Logical block size of the NVMe namespace in bytes. Usually 4Kb. Available in /sys/class/nvme/<device>/<namespace>/queue/logical_block_size
 # TYPE node_nvme_namespace_logical_block_size_bytes gauge
-node_nvme_namespace_logical_block_size_bytes{device="nvme0",nsid="0"} 4096
+node_nvme_namespace_logical_block_size_bytes{device="nvme0",nsid="1"} 4096
 # HELP node_nvme_namespace_size_bytes Size of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/size
 # TYPE node_nvme_namespace_size_bytes gauge
-node_nvme_namespace_size_bytes{device="nvme0",nsid="0"} 1.6e+13
+node_nvme_namespace_size_bytes{device="nvme0",nsid="1"} 1.6e+13
 # HELP node_nvme_namespace_used_bytes Used space of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/nuse
 # TYPE node_nvme_namespace_used_bytes gauge
-node_nvme_namespace_used_bytes{device="nvme0",nsid="0"} 2e+12
+node_nvme_namespace_used_bytes{device="nvme0",nsid="1"} 2e+12
 # HELP node_os_info A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, name, pretty_name, variant, variant_id, version, version_codename, version_id.
 # TYPE node_os_info gauge
 node_os_info{build_id="",id="ubuntu",id_like="debian",image_id="",image_version="",name="Ubuntu",pretty_name="Ubuntu 20.04.2 LTS",variant="",variant_id="",version="20.04.2 LTS (Focal Fossa)",version_codename="focal",version_id="20.04"} 1
@@ -3654,6 +3715,7 @@ node_scrape_collector_success{collector="cpu_vulnerabilities"} 1
 node_scrape_collector_success{collector="cpufreq"} 1
 node_scrape_collector_success{collector="diskstats"} 1
 node_scrape_collector_success{collector="dmi"} 1
+node_scrape_collector_success{collector="dmmultipath"} 1
 node_scrape_collector_success{collector="drbd"} 1
 node_scrape_collector_success{collector="edac"} 1
 node_scrape_collector_success{collector="entropy"} 1
