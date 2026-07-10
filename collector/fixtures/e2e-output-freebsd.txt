@@ -99,9 +99,6 @@ node_memory_swap_in_bytes_total 0
 # HELP node_memory_swap_out_bytes_total Bytes paged out to swap devices
 # TYPE node_memory_swap_out_bytes_total counter
 node_memory_swap_out_bytes_total 0
-# HELP node_memory_swap_size_bytes Total swap memory size
-# TYPE node_memory_swap_size_bytes gauge
-node_memory_swap_size_bytes 1.073741824e+09
 # HELP node_memory_swap_used_bytes Currently allocated swap
 # TYPE node_memory_swap_used_bytes gauge
 node_memory_swap_used_bytes 0
