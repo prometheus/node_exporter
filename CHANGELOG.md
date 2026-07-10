@@ -1,7 +1,7 @@
 ## master / unreleased
 
 * [CHANGE]
-* [FEATURE]
+* [FEATURE] Add device filtering to the infiniband collector #3694
 * [ENHANCEMENT]
 * [BUGFIX]
 
