@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build (freebsd || dragonfly || openbsd || netbsd || darwin) && cgo
-// +build freebsd dragonfly openbsd netbsd darwin
-// +build cgo
 
 package collector
 

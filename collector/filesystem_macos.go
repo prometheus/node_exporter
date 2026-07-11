@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build darwin && !nofilesystem
-// +build darwin,!nofilesystem
 
 package collector
 
@@ -20,22 +19,31 @@ package collector
 #cgo CFLAGS: -x objective-c
 #cgo LDFLAGS: -framework Foundation
 #import <Foundation/Foundation.h>
-Float64 purgeable(char *path) {
-  CFNumberRef tmp;
-  NSError *error = nil;
-  NSString *str = [NSString stringWithUTF8String:path];
-  NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:str];
-  NSDictionary *results = [fileURL resourceValuesForKeys:@[NSURLVolumeAvailableCapacityForImportantUsageKey] error:&error];
-  if (results) {
-    if ((tmp = CFDictionaryGetValue((CFDictionaryRef)results, NSURLVolumeAvailableCapacityForImportantUsageKey)) == NULL) {
-      return -1.0f;
+#include <sys/param.h>
+#include <sys/ucred.h>
+#include <sys/mount.h>
+#include <stdio.h>
+
+double purgeable(char *path) {
+  double value = -1.0f;
+
+  @autoreleasepool {
+    NSError *error = nil;
+    NSString *str = [NSString stringWithUTF8String:path];
+    NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:str];
+
+    NSDictionary *results = [fileURL resourceValuesForKeys:@[NSURLVolumeAvailableCapacityForImportantUsageKey] error:&error];
+    if (results) {
+      CFNumberRef tmp = CFDictionaryGetValue((CFDictionaryRef)results, NSURLVolumeAvailableCapacityForImportantUsageKey);
+      if (tmp != NULL) {
+        CFNumberGetValue(tmp, kCFNumberFloat64Type, &value);
+      }
     }
-    Float64 value;
-    if (CFNumberGetValue(tmp, kCFNumberFloat64Type, &value)) {
-      return value;
-    }
+
+    [fileURL release];
   }
-  return -1.0f;
+
+  return value;
 }
 */
 import "C"
@@ -44,14 +52,6 @@ import (
 	"errors"
 	"unsafe"
 )
-
-/*
-#include <sys/param.h>
-#include <sys/ucred.h>
-#include <sys/mount.h>
-#include <stdio.h>
-*/
-import "C"
 
 const (
 	defMountPointsExcluded = "^/(dev)($|/)"
@@ -88,6 +88,9 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			ro = 1
 		}
 
+		mountpointCString := C.CString(mountpoint)
+		defer C.free(unsafe.Pointer(mountpointCString))
+
 		stats = append(stats, filesystemStats{
 			labels: filesystemLabels{
 				device:     device,
@@ -99,7 +102,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 			avail:     float64(mnt[i].f_bavail) * float64(mnt[i].f_bsize),
 			files:     float64(mnt[i].f_files),
 			filesFree: float64(mnt[i].f_ffree),
-			purgeable: float64(C.purgeable(C.CString(mountpoint))),
+			purgeable: float64(C.purgeable(mountpointCString)),
 			ro:        ro,
 		})
 	}

@@ -1,9 +1,77 @@
 ## master / unreleased
 
-* [CHANGE]
-* [FEATURE]
-* [ENHANCEMENT]
-* [BUGFIX]
+## 1.12.0 / 2026-07-10
+
+* [FEATURE] mountstats: Add NFS mountpoint info metric #3554
+* [FEATURE] nvmesubsystem: Add new collector #3579
+* [FEATURE] dmmultipath: Add new collector #3581
+* [FEATURE] infiniband: Add device filtering option #3694
+* [ENHANCEMENT] hwmon: disambiguate colliding chip labels #3646
+* [ENHANCEMENT] cpufreq: Add support for cpuinfo_avg_freq #3712
+* [ENHANCEMENT] filesystem: Support ext4 super block emergency_ro flag #3717
+* [ENHANCEMENT] edac: Add per-channel error metrics with DIMM labels #3720
+* [BUGFIX] diskstats: Only enforce mutual exclusivity for non-empty values #3617
+* [BUGFIX] thermal_zone: Handle EINVAL errors gracefully #3657
+* [BUGFIX] filesystem: Add comma separator in mount options #3659
+* [BUGFIX] diskstats: Fix rotational queue stats scrape regression #3686
+* [BUGFIX] filesystem: Prevent panic on mount points with non-UTF-8 names #3687
+
+## 1.11.1 / 2026-04-07
+
+* [BUGFIX] Fix kernel_hung for no data #3613
+
+## 1.11.0 / 2026-04-04
+
+* [CHANGE] Adds distroless container image. #3592
+* [FEATURE] infiniband: Add `hw_counters` metrics #2827
+* [FEATURE] kernel_hung: Add collector for kernel hung tasks #3470
+* [FEATURE] mixin: Add "All" option to cluster variable in dashboards #3509
+* [FEATURE] netlink: Add node_network_altnames_info metric #3541
+* [FEATURE] thermal: Add support for CPU temperature metrics on Apple Silicon #3547
+* [FEATURE] bcachefs: Add new collector for bcachefs #3523
+* [ENHANCEMENT] mixin: Make devices in network graphs configurable #3525
+* [ENHANCEMENT] nvme: Add namespace parameters #3360
+* [BUGFIX] netdev: Respect deviceFilter for `node_network_address_info` metric #3340
+* [BUGFIX] mountstats: Fix multiple transports statistics labeling #3358
+* [BUGFIX] diskstats: Fix panic when using device-include flag only #3603
+
+## 1.10.2 / 2025-10-25
+
+* [BUGFIX] meminfo: Fix typo in Zswap metric name #3455
+
+## 1.10.1 / 2025-10-25
+
+* [BUGFIX] filesystem: Fix mount points being collected multiple times #3376
+* [BUGFIX] filesystem: Refactor mountinfo parsing #3452
+* [BUGFIX] meminfo: Add Zswap/Zswapped metrics #3453
+
+## 1.10.0 / 2025-10-24
+
+* [CHANGE] mdadm: Use sysfs for RAID metrics #3031
+* [CHANGE] filesystem: Add erofs in default excluded fs #3313
+* [CHANGE] tcpstat: Use std lib binary.NativeEndian #3386
+* [FEATURE] pcidevice: Add new collector for PCIe devices #3339
+* [FEATURE] AIX: Add more metrics #3338
+* [FEATURE] systemd: Add Virtualization metrics #3254
+* [FEATURE] swaps: Add new collector #3428
+* [ENHANCEMENT] wifi: Add packet received and transmitted metrics #3382
+* [ENHANCEMENT] filesystem: Take super options into account for read-only #3387
+* [ENHANCEMENT] pcidevice: Add additional metrics #3425
+* [ENHANCEMENT] perf: Add `tlb_data` metrics #3436
+* [BUGFIX] interrupts: Fix OpenBSD interrupt device parsing #3288
+* [BUGFIX] diskstats: Simplify condition #3290
+* [BUGFIX] thermal: Sanitize darwin thermal strings #3294
+* [BUGFIX] filesystem: Fix Darwin collector cgo memory leak #3315
+* [BUGFIX] cpufreq: Fix: collector enable #3318
+* [BUGFIX] ethtool: Fix returning 0 for sanitized metrics #3335
+* [BUGFIX] netdev: Fix Darwin netdev i/o bytes metric #3336
+* [BUGFIX] systemd: Fix logging race #3364
+* [BUGFIX] filesystem: Fix duplicate Darwin CGO import #3391
+
+## 1.9.1 / 2025-04-01
+
+* [BUGFIX] pressure: Fix missing IRQ on older kernels #3263
+* [BUGFIX] Fix Darwin memory leak #3277
 
 ## 1.9.0 / 2025-02-17
 

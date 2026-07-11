@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nomdadm
-// +build !nomdadm
 
 package collector
 

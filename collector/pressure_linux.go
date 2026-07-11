@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nopressure
-// +build !nopressure
 
 package collector
 

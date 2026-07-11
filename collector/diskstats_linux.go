@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nodiskstats
-// +build !nodiskstats
 
 package collector
 
@@ -60,30 +59,22 @@ const (
 	udevIDModel                 = "ID_MODEL"
 	udevIDPath                  = "ID_PATH"
 	udevIDRevision              = "ID_REVISION"
+	udevIDSerial                = "ID_SERIAL"
 	udevIDSerialShort           = "ID_SERIAL_SHORT"
 	udevIDWWN                   = "ID_WWN"
 	udevSCSIIdentSerial         = "SCSI_IDENT_SERIAL"
 )
 
-type typedFactorDesc struct {
-	desc      *prometheus.Desc
-	valueType prometheus.ValueType
-}
-
 type udevInfo map[string]string
-
-func (d *typedFactorDesc) mustNewConstMetric(value float64, labels ...string) prometheus.Metric {
-	return prometheus.MustNewConstMetric(d.desc, d.valueType, value, labels...)
-}
 
 type diskstatsCollector struct {
 	deviceFilter            deviceFilter
 	fs                      blockdevice.FS
-	infoDesc                typedFactorDesc
-	descs                   []typedFactorDesc
-	filesystemInfoDesc      typedFactorDesc
-	deviceMapperInfoDesc    typedFactorDesc
-	ataDescs                map[string]typedFactorDesc
+	infoDesc                typedDesc
+	descs                   []typedDesc
+	filesystemInfoDesc      typedDesc
+	deviceMapperInfoDesc    typedDesc
+	ataDescs                map[string]typedDesc
 	logger                  *slog.Logger
 	getUdevDeviceProperties func(uint32, uint32) (udevInfo, error)
 }
@@ -109,14 +100,14 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 	collector := diskstatsCollector{
 		deviceFilter: deviceFilter,
 		fs:           fs,
-		infoDesc: typedFactorDesc{
+		infoDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
 				"Info of /sys/block/<block_device>.",
 				[]string{"device", "major", "minor", "path", "wwn", "model", "serial", "revision", "rotational"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
-		descs: []typedFactorDesc{
+		descs: []typedDesc{
 			{
 				desc: readsCompletedDesc, valueType: prometheus.CounterValue,
 			},
@@ -219,21 +210,21 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				), valueType: prometheus.CounterValue,
 			},
 		},
-		filesystemInfoDesc: typedFactorDesc{
+		filesystemInfoDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "filesystem_info"),
 				"Info about disk filesystem.",
 				[]string{"device", "type", "usage", "uuid", "version"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
-		deviceMapperInfoDesc: typedFactorDesc{
+		deviceMapperInfoDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "device_mapper_info"),
 				"Info about disk device mapper.",
 				[]string{"device", "name", "uuid", "vg_name", "lv_name", "lv_layer"},
 				nil,
 			), valueType: prometheus.GaugeValue,
 		},
-		ataDescs: map[string]typedFactorDesc{
+		ataDescs: map[string]typedDesc{
 			udevIDATAWriteCache: {
 				desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "ata_write_cache"),
 					"ATA disk has a write cache.",
@@ -281,9 +272,15 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		info, err := getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
-		if err != nil {
-			c.logger.Debug("Failed to parse udev info", "err", err)
+		// Only fetch udev device properties when udev is available
+		// to avoid unnecessary file I/O.
+		var info udevInfo
+		if c.getUdevDeviceProperties != nil {
+			var err error
+			info, err = c.getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
+			if err != nil {
+				c.logger.Debug("Failed to parse udev info", "err", err)
+			}
 		}
 
 		// This is usually the serial printed on the disk label.
@@ -294,10 +291,9 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			serial = info[udevIDSerialShort]
 		}
 
-		queueStats, err := c.fs.SysBlockDeviceQueueStats(dev)
-		// Block Device Queue stats may not exist for all devices.
-		if err != nil && !os.IsNotExist(err) {
-			c.logger.Debug("Failed to get block device queue stats", "device", dev, "err", err)
+		// If still undefined, fallback to ID_SERIAL (used by virtio devices).
+		if serial == "" {
+			serial = info[udevIDSerial]
 		}
 
 		ch <- c.infoDesc.mustNewConstMetric(1.0, dev,
@@ -308,7 +304,7 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			info[udevIDModel],
 			serial,
 			info[udevIDRevision],
-			strconv.FormatUint(queueStats.Rotational, 2),
+			rotationalLabel(c.fs, dev),
 		)
 
 		statCount := stats.IoStatsCount - 3 // Total diskstats record count, less MajorNumber, MinorNumber and DeviceName
@@ -374,6 +370,31 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 	}
 	return nil
+}
+
+// rotationalLabel returns "1" for a rotational block device (HDD) or "0" for
+// a non-rotational device (SSD/NVMe) by reading
+// /sys/block/<dev>/queue/rotational via blockdevice.FS.
+// On any error — for example when the device has no queue directory — it
+// returns "0", preserving the backward-compatible behaviour of the previous
+// code that zero-initialised BlockQueueStats on error (Rotational uint64
+// default is 0).
+//
+// SysBlockDeviceRotational reads exactly 1 sysfs file per device, reducing
+// per-device sysfs I/O from ~30 reads (SysBlockDeviceQueueStats) to 1 and
+// fixing the 10× scrape regression on systems with many block devices (#3282).
+func rotationalLabel(fs blockdevice.FS, dev string) string {
+	rot, err := fs.SysBlockDeviceRotational(dev)
+	if err != nil {
+		// Default to "0" (non-rotational) on error to preserve backward
+		// compatibility: the previous code zero-initialised the struct on
+		// error, which also produced rotational="0".
+		return "0"
+	}
+	if rot == 1 {
+		return "1"
+	}
+	return "0"
 }
 
 func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {

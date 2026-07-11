@@ -1,0 +1,26 @@
+# Test PCI IDs file for node_exporter testing
+# This file contains sample entries for testing PCI name resolution
+
+# Classes
+C 06  Bridge device
+	04  PCI bridge
+C 01  Mass storage controller
+	08  Non-Volatile memory controller
+		02  NVM Express
+C 02  Network controller
+	00  Ethernet controller
+
+# Vendors
+1022  Advanced Micro Devices, Inc. [AMD]
+	1634  Renoir/Cezanne PCIe GPP Bridge
+		17aa 5095  T540-5095 Unified Wire Ethernet Controller
+
+c0a9  Micron/Crucial Technology
+	540a  P2 [Nick P2] / P3 / P3 Plus NVMe PCIe SSD (DRAM-less)
+		c0a9 5021  PS5021-E21 PCIe4 NVMe Controller (DRAM-less)
+
+8086  Intel Corporation
+	1521  I350 Gigabit Network Connection
+		8086 00a3  Ethernet Network Adapter I350-T4 for OCP NIC 3.0
+
+17aa  Lenovo

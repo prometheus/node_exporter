@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nonetisr
-// +build !nonetisr
 
 package collector
 

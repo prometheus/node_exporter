@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build linux && !nowatchdog
-// +build linux,!nowatchdog
 
 package collector
 

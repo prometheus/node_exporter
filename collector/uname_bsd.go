@@ -12,8 +12,6 @@
 // limitations under the License.
 
 //go:build (darwin || freebsd || openbsd || netbsd || aix) && !nouname
-// +build darwin freebsd openbsd netbsd aix
-// +build !nouname
 
 package collector
 

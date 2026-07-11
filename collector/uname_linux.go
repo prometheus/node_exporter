@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nouname
-// +build !nouname
 
 package collector
 

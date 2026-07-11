@@ -37,6 +37,7 @@ supported_collectors() {
 enabled_collectors=$(cat << COLLECTORS
   arp
   bcache
+  bcachefs
   bonding
   btrfs
   buddyinfo
@@ -56,6 +57,7 @@ enabled_collectors=$(cat << COLLECTORS
   infiniband
   interrupts
   ipvs
+  kernel_hung
   ksmd
   lnstat
   loadavg
@@ -67,6 +69,7 @@ enabled_collectors=$(cat << COLLECTORS
   netstat
   nfs
   nfsd
+  pcidevice
   pressure
   processes
   qdisc
@@ -126,10 +129,13 @@ case "${arch}" in
     ;;
 esac
 
-keep=0; update=0; verbose=0
-while getopts 'hkuv' opt
+extra_flags=""; keep=0; update=0; verbose=0
+while getopts 'e:hkuv' opt
 do
   case "$opt" in
+    e)
+      extra_flags="${OPTARG}"
+      ;;
     k)
       keep=1
       ;;
@@ -157,12 +163,13 @@ then
 fi
 
 collector_flags=$(cat << FLAGS
+  ${extra_flags}
   ${cpu_info_collector}
   --collector.arp.device-exclude=nope
   --collector.bcache.priorityStats
   --collector.cpu.info.bugs-include=${cpu_info_bugs}
   --collector.cpu.info.flags-include=${cpu_info_flags}
-  --collector.hwmon.chip-include=(applesmc|coretemp|hwmon4|nct6779)
+  --collector.hwmon.chip-include=(applesmc|asus_nb_wmi|coretemp|hwmon4|ieee80211|nct6779)
   --collector.netclass.ignore-invalid-speed
   --collector.netclass.ignored-devices=(dmz|int)
   --collector.netdev.device-include=lo
@@ -358,12 +365,40 @@ non_deterministic_metrics=$(cat << METRICS
   node_memory_size_bytes
   node_memory_swapped_in_bytes_total
   node_memory_swapped_out_bytes_total
+  node_memory_swap_size_bytes
   node_memory_wired_bytes
   node_netstat_tcp_receive_packets_total
   node_netstat_tcp_transmit_packets_total
   node_network_receive_bytes_total
   node_network_receive_multicast_total
   node_network_transmit_multicast_total
+  node_zfs_abdstats_linear_count_total
+  node_zfs_abdstats_linear_data_bytes
+  node_zfs_abdstats_scatter_chunk_waste_bytes
+  node_zfs_abdstats_scatter_count_total
+  node_zfs_abdstats_scatter_data_bytes
+  node_zfs_abdstats_struct_bytes
+  node_zfs_arcstats_anon_bytes
+  node_zfs_arcstats_c_bytes
+  node_zfs_arcstats_c_max_bytes
+  node_zfs_arcstats_data_bytes
+  node_zfs_arcstats_demand_data_hits_total
+  node_zfs_arcstats_demand_data_misses_total
+  node_zfs_arcstats_demand_metadata_hits_total
+  node_zfs_arcstats_demand_metadata_misses_total
+  node_zfs_arcstats_hdr_bytes
+  node_zfs_arcstats_hits_total
+  node_zfs_arcstats_meta_bytes
+  node_zfs_arcstats_mfu_bytes
+  node_zfs_arcstats_mfu_ghost_hits_total
+  node_zfs_arcstats_misses_total
+  node_zfs_arcstats_mru_bytes
+  node_zfs_arcstats_mru_ghost_bytes
+  node_zfs_arcstats_other_bytes
+  node_zfs_arcstats_pd_bytes
+  node_zfs_arcstats_size_bytes
+  node_zfs_zfetchstats_hits_total
+  node_zfs_zfetchstats_misses_total
 METRICS
 )
 

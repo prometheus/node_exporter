@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nomeminfo
-// +build !nomeminfo
 
 package collector
 
@@ -44,7 +43,7 @@ func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
 func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	meminfo, err := c.fs.Meminfo()
 	if err != nil {
-		return nil, fmt.Errorf("Failed to get memory info: %s", err)
+		return nil, fmt.Errorf("failed to get memory info: %w", err)
 	}
 
 	metrics := make(map[string]float64)
@@ -183,6 +182,12 @@ func (c *meminfoCollector) getMemInfo() (map[string]float64, error) {
 	}
 	if meminfo.WritebackTmpBytes != nil {
 		metrics["WritebackTmp_bytes"] = float64(*meminfo.WritebackTmpBytes)
+	}
+	if meminfo.ZswapBytes != nil {
+		metrics["Zswap_bytes"] = float64(*meminfo.ZswapBytes)
+	}
+	if meminfo.ZswappedBytes != nil {
+		metrics["Zswapped_bytes"] = float64(*meminfo.ZswappedBytes)
 	}
 
 	// These fields are always in bytes and do not have `Bytes`

@@ -12,7 +12,6 @@
 // limitations under the License.
 
 //go:build !nomdadm
-// +build !nomdadm
 
 package collector
 
@@ -231,12 +230,14 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, mdraid := range mdraids {
-		ch <- prometheus.MustNewConstMetric(
-			mdraidDisks,
-			prometheus.GaugeValue,
-			float64(mdraid.Disks),
-			mdraid.Device,
-		)
+		if mdraid.Disks != nil {
+			ch <- prometheus.MustNewConstMetric(
+				mdraidDisks,
+				prometheus.GaugeValue,
+				float64(*mdraid.Disks),
+				mdraid.Device,
+			)
+		}
 		ch <- prometheus.MustNewConstMetric(
 			mdraidDegradedDisksDesc,
 			prometheus.GaugeValue,
