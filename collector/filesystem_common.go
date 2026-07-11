@@ -35,7 +35,7 @@ var (
 	mountPointsExclude    = kingpin.Flag(
 		"collector.filesystem.mount-points-exclude",
 		"Regexp of mount points to exclude for filesystem collector. (mutually exclusive to mount-points-include)",
-	).Default(defMountPointsExcluded).PreAction(func(c *kingpin.ParseContext) error {
+	).Default(defMountPointsExcluded).PreAction(func(_ *kingpin.ParseContext) error {
 		mountPointsExcludeSet = true
 		return nil
 	}).String()
@@ -52,7 +52,7 @@ var (
 	fsTypesExclude    = kingpin.Flag(
 		"collector.filesystem.fs-types-exclude",
 		"Regexp of filesystem types to exclude for filesystem collector. (mutually exclusive to fs-types-include)",
-	).Default(defFSTypesExcluded).PreAction(func(c *kingpin.ParseContext) error {
+	).Default(defFSTypesExcluded).PreAction(func(_ *kingpin.ParseContext) error {
 		fsTypesExcludeSet = true
 		return nil
 	}).String()

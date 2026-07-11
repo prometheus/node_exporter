@@ -22,8 +22,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-
-	"github.com/prometheus/node_exporter/collector/utils"
 )
 
 const maxUint64 = ^uint64(0)
@@ -114,7 +112,7 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		infoValue := 1.0
 
 		// First push the Host values
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, utils.SafeDereference(
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, SafeDereference(
 			host.Name,
 			host.Speed,
 			host.PortState,

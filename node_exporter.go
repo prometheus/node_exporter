@@ -67,11 +67,11 @@ func newHandler(includeExporterMetrics bool, maxRequests int, logger *slog.Logge
 			promcollectors.NewGoCollector(),
 		)
 	}
-	if innerHandler, err := h.innerHandler(); err != nil {
+	innerHandler, err := h.innerHandler()
+	if err != nil {
 		panic(fmt.Sprintf("Couldn't create metrics handler: %s", err))
-	} else {
-		h.unfilteredHandler = innerHandler
 	}
+	h.unfilteredHandler = innerHandler
 	return h
 }
 

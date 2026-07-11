@@ -131,8 +131,8 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func networkRouteIPWithPrefixToString(ip net.IP, len uint8) string {
-	if len == 0 {
+func networkRouteIPWithPrefixToString(ip net.IP, length uint8) string {
+	if length == 0 {
 		return "default"
 	}
 	iplen := net.IPv4len
@@ -141,7 +141,7 @@ func networkRouteIPWithPrefixToString(ip net.IP, len uint8) string {
 	}
 	network := &net.IPNet{
 		IP:   ip,
-		Mask: net.CIDRMask(int(len), iplen*8),
+		Mask: net.CIDRMask(int(length), iplen*8),
 	}
 	return network.String()
 }
