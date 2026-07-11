@@ -22,21 +22,23 @@ import (
 	"testing"
 
 	"github.com/mdlayher/netlink"
+	"github.com/prometheus/client_golang/prometheus"
+	dto "github.com/prometheus/client_model/go"
 )
 
-func Test_parseTCPStats(t *testing.T) {
-	encode := func(m InetDiagMsg) []byte {
-		var buf bytes.Buffer
-		err := binary.Write(&buf, binary.NativeEndian, m)
-		if err != nil {
-			panic(err)
-		}
-		return buf.Bytes()
+func encodeDiagMsg(m InetDiagMsg) []byte {
+	var buf bytes.Buffer
+	if err := binary.Write(&buf, binary.NativeEndian, m); err != nil {
+		panic(err)
 	}
 
+	return buf.Bytes()
+}
+
+func Test_parseTCPStats(t *testing.T) {
 	msg := []netlink.Message{
 		{
-			Data: encode(InetDiagMsg{
+			Data: encodeDiagMsg(InetDiagMsg{
 				Family:  syscall.AF_INET,
 				State:   uint8(tcpEstablished),
 				Timer:   0,
@@ -50,7 +52,7 @@ func Test_parseTCPStats(t *testing.T) {
 			}),
 		},
 		{
-			Data: encode(InetDiagMsg{
+			Data: encodeDiagMsg(InetDiagMsg{
 				Family:  syscall.AF_INET,
 				State:   uint8(tcpListen),
 				Timer:   0,
@@ -65,24 +67,96 @@ func Test_parseTCPStats(t *testing.T) {
 		},
 	}
 
-	tcpStats, err := parseTCPStats(msg)
+	stats, err := parseTCPStats(msg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if want, got := 1, int(tcpStats[tcpEstablished]); want != got {
-		t.Errorf("want tcpstat number of established state %d, got %d", want, got)
+	assertStat(t, stats, tcpEstablished, 1)
+	assertStat(t, stats, tcpListen, 1)
+	assertStat(t, stats, tcpTxQueuedBytes, 42)
+	assertStat(t, stats, tcpRxQueuedBytes, 22)
+}
+
+func assertStat(t *testing.T, stats map[tcpConnectionState]float64, state tcpConnectionState, expected int) {
+	t.Helper()
+	if got := int(stats[state]); got != expected {
+		t.Errorf("expected %s = %d, got %d", state.String(), expected, got)
+	}
+}
+
+func Test_emitTCPStatsPerPort(t *testing.T) {
+	msg := []netlink.Message{
+		{
+			Data: encodeDiagMsg(InetDiagMsg{
+				State: uint8(tcpEstablished),
+				ID:    InetDiagSockID{SourcePort: [2]byte{0, 80}},
+			}),
+		},
+		{
+			Data: encodeDiagMsg(InetDiagMsg{
+				State: uint8(tcpListen),
+				ID:    InetDiagSockID{DestPort: [2]byte{0, 123}},
+			}),
+		},
+		{
+			Data: encodeDiagMsg(InetDiagMsg{
+				State: uint8(tcpTimeWait),
+				ID:    InetDiagSockID{DestPort: [2]byte{0, 123}},
+			}),
+		},
 	}
 
-	if want, got := 1, int(tcpStats[tcpListen]); want != got {
-		t.Errorf("want tcpstat number of listen state %d, got %d", want, got)
+	var metrics []string
+
+	collector := &tcpStatCollector{
+		desc: typedDesc{
+			desc:      prometheus.NewDesc("test_tcp_stat", "Test metric", []string{"state", "port", "direction"}, nil),
+			valueType: prometheus.GaugeValue,
+		},
 	}
 
-	if want, got := 42, int(tcpStats[tcpTxQueuedBytes]); want != got {
-		t.Errorf("want tcpstat number of bytes in tx queue %d, got %d", want, got)
-	}
-	if want, got := 22, int(tcpStats[tcpRxQueuedBytes]); want != got {
-		t.Errorf("want tcpstat number of bytes in rx queue %d, got %d", want, got)
+	ch := make(chan prometheus.Metric, 10)
+
+	emitTCPStatsPerPort(collector, ch, msg, []string{"80"}, "source", true)
+	emitTCPStatsPerPort(collector, ch, msg, []string{"123"}, "dest", false)
+
+	close(ch)
+	for m := range ch {
+		d := &dto.Metric{}
+		if err := m.Write(d); err != nil {
+			t.Fatalf("failed to write metric: %v", err)
+		}
+
+		var state, port, direction string
+		for _, label := range d.Label {
+			switch label.GetName() {
+			case "state":
+				state = label.GetValue()
+			case "port":
+				port = label.GetValue()
+			case "direction":
+				direction = label.GetValue()
+			}
+		}
+
+		metrics = append(metrics, state+"_"+port+"_"+direction)
 	}
 
+	expected := map[string]bool{
+		"established_80_source": true,
+		"listen_123_dest":       true,
+		"time_wait_123_dest":    true,
+	}
+
+	for _, metric := range metrics {
+		if !expected[metric] {
+			t.Errorf("unexpected metric emitted: %s", metric)
+		}
+		delete(expected, metric)
+	}
+
+	for k := range expected {
+		t.Errorf("expected metric missing: %s", k)
+	}
 }
