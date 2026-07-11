@@ -150,6 +150,11 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 
 		// Active(anon) -> Active_anon
 		metric = re.ReplaceAllString(metric, "_${1}")
+
+		// Append _bytes suffix for kB fields, matching the meminfo collector convention.
+		if len(parts) == 5 {
+			metric += "_bytes"
+		}
 		memInfo = append(memInfo, meminfoMetric{metric, prometheus.GaugeValue, parts[1], fv})
 	}
 
