@@ -59,14 +59,12 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 
 	workerCount := max(*statWorkerCount, 1)
 
-	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for range workerCount {
+		wg.Go(func() {
 			for labels := range labelChan {
 				statChan <- c.processStat(labels)
 			}
-		}()
+		})
 	}
 
 	go func() {

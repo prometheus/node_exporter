@@ -213,7 +213,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				continue
 			}
 
-			mtime, families, err := c.processFile(path, f.Name(), ch)
+			mtime, families, err := c.processFile(path, f.Name())
 
 			for _, mf := range families {
 				// Check for metrics with inconsistent help texts and take the first help text occurrence.
@@ -285,7 +285,7 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 // processFile processes a single file, returning its modification time on success.
-func (c *textFileCollector) processFile(dir, name string, ch chan<- prometheus.Metric) (*time.Time, map[string]*dto.MetricFamily, error) {
+func (c *textFileCollector) processFile(dir, name string) (*time.Time, map[string]*dto.MetricFamily, error) {
 	path := filepath.Join(dir, name)
 	f, err := os.Open(path)
 	if err != nil {

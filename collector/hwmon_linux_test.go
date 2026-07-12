@@ -20,6 +20,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -133,15 +134,6 @@ func newTestHwmonCollector() *hwMonCollector {
 	return &hwMonCollector{logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
 }
 
-func contains(haystack []string, needle string) bool {
-	for _, h := range haystack {
-		if h == needle {
-			return true
-		}
-	}
-	return false
-}
-
 // Two hwmon entries sharing the same parent device — the configuration
 // that triggered #3637 on ASUS WMI laptops — must produce distinct chip
 // labels and not error during gather.
@@ -177,10 +169,10 @@ func TestHwmonDuplicateChipNamesAreDisambiguated(t *testing.T) {
 		t.Fatalf("gather: %v", err)
 	}
 
-	if !contains(chips, "platform_asus_nb_wmi_asus") {
+	if !slices.Contains(chips, "platform_asus_nb_wmi_asus") {
 		t.Errorf("expected disambiguated chip 'platform_asus_nb_wmi_asus', got %v", uniq(chips))
 	}
-	if !contains(chips, "platform_asus_nb_wmi_asus_wmi_sensors") {
+	if !slices.Contains(chips, "platform_asus_nb_wmi_asus_wmi_sensors") {
 		t.Errorf("expected disambiguated chip 'platform_asus_nb_wmi_asus_wmi_sensors', got %v", uniq(chips))
 	}
 	for _, chip := range chips {
@@ -217,10 +209,10 @@ func TestHwmonUniqueChipNamesAreUnchanged(t *testing.T) {
 	if err != nil {
 		t.Fatalf("gather: %v", err)
 	}
-	if !contains(chips, "platform_coretemp_0") {
+	if !slices.Contains(chips, "platform_coretemp_0") {
 		t.Errorf("expected platform_coretemp_0, got %v", uniq(chips))
 	}
-	if !contains(chips, "platform_coretemp_1") {
+	if !slices.Contains(chips, "platform_coretemp_1") {
 		t.Errorf("expected platform_coretemp_1, got %v", uniq(chips))
 	}
 }
@@ -253,10 +245,10 @@ func TestHwmonDuplicateChipNamesWithSameNameFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("gather: %v", err)
 	}
-	if !contains(chips, "platform_asus_nb_wmi_hwmon3") {
+	if !slices.Contains(chips, "platform_asus_nb_wmi_hwmon3") {
 		t.Errorf("expected platform_asus_nb_wmi_hwmon3, got %v", uniq(chips))
 	}
-	if !contains(chips, "platform_asus_nb_wmi_hwmon4") {
+	if !slices.Contains(chips, "platform_asus_nb_wmi_hwmon4") {
 		t.Errorf("expected platform_asus_nb_wmi_hwmon4, got %v", uniq(chips))
 	}
 }

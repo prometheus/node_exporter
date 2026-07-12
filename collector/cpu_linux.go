@@ -488,7 +488,7 @@ func (c *cpuCollector) updateCPUStats(newStats map[int64]procfs.CPUStat) {
 	// Remove offline CPUs.
 	if len(newStats) != len(c.cpuStats) {
 		onlineCPUIds := slices.Collect(maps.Keys(newStats))
-		maps.DeleteFunc(c.cpuStats, func(key int64, item procfs.CPUStat) bool {
+		maps.DeleteFunc(c.cpuStats, func(key int64, _ procfs.CPUStat) bool {
 			return !slices.Contains(onlineCPUIds, key)
 		})
 	}
