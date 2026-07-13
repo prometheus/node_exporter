@@ -1,5 +1,9 @@
 ## master / unreleased
 
+## 1.12.1 / 2026-07.13
+
+* [BUGFIX] perf: Fix perf profiler flag handling #3731
+
 ## 1.12.0 / 2026-07-10
 
 * [FEATURE] mountstats: Add NFS mountpoint info metric #3554
