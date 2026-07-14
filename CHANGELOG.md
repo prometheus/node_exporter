@@ -1,8 +1,9 @@
 ## master / unreleased
 
-## 1.12.1 / 2026-07.13
+## 1.12.1 / 2026-07.14
 
 * [BUGFIX] perf: Fix perf profiler flag handling #3731
+* [BUGFIX] edac: Fix optional csrow ue_count collection #3734
 
 ## 1.12.0 / 2026-07-10
 
