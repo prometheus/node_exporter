@@ -190,18 +190,19 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 				)
 
 				value, err = readUintFromFile(filepath.Join(csrow, "ch"+channelNumber+"_ue_count"))
-				if err != nil {
-					return fmt.Errorf("couldn't get ue_count for controller/csrow/channel %s/%s/%s: %w", controllerNumber, csrowNumber, channelNumber, err)
+				if err == nil {
+					ch <- prometheus.MustNewConstMetric(
+						edacChannelUECount,
+						prometheus.CounterValue,
+						float64(value),
+						controllerNumber,
+						csrowNumber,
+						channelNumber,
+						label,
+					)
+				} else {
+					c.logger.Debug("couldn't get ue_count for controller/csrow/channel %s/%s/%s: %w", controllerNumber, csrowNumber, channelNumber, err)
 				}
-				ch <- prometheus.MustNewConstMetric(
-					edacChannelUECount,
-					prometheus.CounterValue,
-					float64(value),
-					controllerNumber,
-					csrowNumber,
-					channelNumber,
-					label,
-				)
 			}
 		}
 	}
