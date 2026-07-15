@@ -1711,8 +1711,8 @@ node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp4"} 84
 node_hwmon_temp_max_celsius{chip="platform_coretemp_1",sensor="temp5"} 84
 # HELP node_infiniband_info Non-numeric data from /sys/class/infiniband/<device>, value is always 1.
 # TYPE node_infiniband_info gauge
-node_infiniband_info{board_id="I40IW Board ID",device="i40iw0",firmware_version="0.2",hca_type="I40IW"} 1
-node_infiniband_info{board_id="SM_1141000001000",device="mlx4_0",firmware_version="2.31.5050",hca_type="MT4099"} 1
+node_infiniband_info{board_id="I40IW Board ID",device="i40iw0",firmware_version="0.2",hca_type="I40IW",sysfs_device=""} 1
+node_infiniband_info{board_id="SM_1141000001000",device="mlx4_0",firmware_version="2.31.5050",hca_type="MT4099",sysfs_device=""} 1
 # HELP node_infiniband_legacy_data_received_bytes_total Number of data octets received on all links
 # TYPE node_infiniband_legacy_data_received_bytes_total counter
 node_infiniband_legacy_data_received_bytes_total{device="mlx4_0",port="1"} 1.8527668e+07
@@ -3141,8 +3141,8 @@ node_network_iface_link_mode{device="bond0"} 1
 node_network_iface_link_mode{device="eth0"} 1
 # HELP node_network_info Non-numeric data from /sys/class/net/<iface>, value is always 1.
 # TYPE node_network_info gauge
-node_network_info{address="01:01:01:01:01:01",adminstate="up",broadcast="ff:ff:ff:ff:ff:ff",device="bond0",duplex="full",ifalias="",operstate="up"} 1
-node_network_info{address="01:01:01:01:01:01",adminstate="up",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up"} 1
+node_network_info{address="01:01:01:01:01:01",adminstate="up",broadcast="ff:ff:ff:ff:ff:ff",device="bond0",duplex="full",ifalias="",operstate="up",sysfs_device=""} 1
+node_network_info{address="01:01:01:01:01:01",adminstate="up",broadcast="ff:ff:ff:ff:ff:ff",device="eth0",duplex="full",ifalias="",operstate="up",sysfs_device=""} 1
 # HELP node_network_mtu_bytes Network device property: mtu_bytes
 # TYPE node_network_mtu_bytes gauge
 node_network_mtu_bytes{device="bond0"} 1500
@@ -3484,7 +3484,7 @@ node_nfsd_server_rpcs_total 18628
 node_nfsd_server_threads 8
 # HELP node_nvme_info Non-numeric data from /sys/class/nvme/<device>, value is always 1.
 # TYPE node_nvme_info gauge
-node_nvme_info{cntlid="1997",device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live"} 1
+node_nvme_info{cntlid="1997",device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live",sysfs_device=""} 1
 # HELP node_nvme_namespace_capacity_bytes Capacity of the NVMe namespace in bytes. Computed as namespace_size * namespace_logical_block_size
 # TYPE node_nvme_namespace_capacity_bytes gauge
 node_nvme_namespace_capacity_bytes{device="nvme0",nsid="1"} 1.6e+13

@@ -38,7 +38,7 @@ var (
 	nvmeInfo = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "nvme", "info"),
 		"Non-numeric data from /sys/class/nvme/<device>, value is always 1.",
-		[]string{"device", "firmware_revision", "model", "serial", "state", "cntlid"},
+		[]string{"device", "firmware_revision", "model", "serial", "state", "cntlid", "sysfs_device"},
 		nil,
 	)
 	nvmeNamespaceInfo = prometheus.NewDesc(
@@ -106,6 +106,7 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 			device.Serial,
 			device.State,
 			device.ControllerID,
+			sysfsDevice("nvme", device.Name),
 		)
 
 		// Export namespace-level metrics
