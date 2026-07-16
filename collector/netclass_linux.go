@@ -104,31 +104,31 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 
 		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, getAdminState(ifaceInfo.Flags), ifaceInfo.IfAlias)
 
-		pushMetric(ch, c.getFieldDesc("address_assign_type"), "address_assign_type", ifaceInfo.AddrAssignType, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("carrier"), "carrier", ifaceInfo.Carrier, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("carrier_changes_total"), "carrier_changes_total", ifaceInfo.CarrierChanges, prometheus.CounterValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("carrier_up_changes_total"), "carrier_up_changes_total", ifaceInfo.CarrierUpCount, prometheus.CounterValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("carrier_down_changes_total"), "carrier_down_changes_total", ifaceInfo.CarrierDownCount, prometheus.CounterValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("device_id"), "device_id", ifaceInfo.DevID, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("dormant"), "dormant", ifaceInfo.Dormant, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("flags"), "flags", ifaceInfo.Flags, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("iface_id"), "iface_id", ifaceInfo.IfIndex, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("iface_link"), "iface_link", ifaceInfo.IfLink, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("iface_link_mode"), "iface_link_mode", ifaceInfo.LinkMode, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("mtu_bytes"), "mtu_bytes", ifaceInfo.MTU, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("name_assign_type"), "name_assign_type", ifaceInfo.NameAssignType, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("net_dev_group"), "net_dev_group", ifaceInfo.NetDevGroup, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("address_assign_type"), ifaceInfo.AddrAssignType, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier"), ifaceInfo.Carrier, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier_changes_total"), ifaceInfo.CarrierChanges, prometheus.CounterValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier_up_changes_total"), ifaceInfo.CarrierUpCount, prometheus.CounterValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("carrier_down_changes_total"), ifaceInfo.CarrierDownCount, prometheus.CounterValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("device_id"), ifaceInfo.DevID, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("dormant"), ifaceInfo.Dormant, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("flags"), ifaceInfo.Flags, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("iface_id"), ifaceInfo.IfIndex, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("iface_link"), ifaceInfo.IfLink, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("iface_link_mode"), ifaceInfo.LinkMode, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("mtu_bytes"), ifaceInfo.MTU, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("name_assign_type"), ifaceInfo.NameAssignType, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("net_dev_group"), ifaceInfo.NetDevGroup, prometheus.GaugeValue, ifaceInfo.Name)
 
 		if ifaceInfo.Speed != nil {
 			// Some devices return -1 if the speed is unknown.
 			if *ifaceInfo.Speed >= 0 || !*netclassInvalidSpeed {
 				speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
-				pushMetric(ch, c.getFieldDesc("speed_bytes"), "speed_bytes", speedBytes, prometheus.GaugeValue, ifaceInfo.Name)
+				pushMetric(ch, c.getFieldDesc("speed_bytes"), speedBytes, prometheus.GaugeValue, ifaceInfo.Name)
 			}
 		}
 
-		pushMetric(ch, c.getFieldDesc("transmit_queue_length"), "transmit_queue_length", ifaceInfo.TxQueueLen, prometheus.GaugeValue, ifaceInfo.Name)
-		pushMetric(ch, c.getFieldDesc("protocol_type"), "protocol_type", ifaceInfo.Type, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("transmit_queue_length"), ifaceInfo.TxQueueLen, prometheus.GaugeValue, ifaceInfo.Name)
+		pushMetric(ch, c.getFieldDesc("protocol_type"), ifaceInfo.Type, prometheus.GaugeValue, ifaceInfo.Name)
 
 	}
 

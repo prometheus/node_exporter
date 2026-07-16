@@ -22,8 +22,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
-
-	"github.com/prometheus/node_exporter/collector/utils"
 )
 
 const maxUint64 = ^uint64(0)
@@ -114,7 +112,7 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		infoValue := 1.0
 
 		// First push the Host values
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, utils.SafeDereference(
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, SafeDereference(
 			host.Name,
 			host.Speed,
 			host.PortState,
@@ -129,7 +127,24 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		)...)
 
 		// Then the counters
-		// Note: `procfs` guarantees these a safe dereference for these counters.
+		// Note: `procfs` does not guarantee a safe dereference for these counters.
+		//       A disabled host returns no statistics counters.
+		if host.PortState == nil || *host.PortState == "Unknown" {
+			host.Counters.DumpedFrames = new(uint64)
+			host.Counters.ErrorFrames = new(uint64)
+			host.Counters.InvalidCRCCount = new(uint64)
+			host.Counters.RXFrames = new(uint64)
+			host.Counters.RXWords = new(uint64)
+			host.Counters.TXFrames = new(uint64)
+			host.Counters.TXWords = new(uint64)
+			host.Counters.SecondsSinceLastReset = new(uint64)
+			host.Counters.InvalidTXWordCount = new(uint64)
+			host.Counters.LinkFailureCount = new(uint64)
+			host.Counters.LossOfSyncCount = new(uint64)
+			host.Counters.LossOfSignalCount = new(uint64)
+			host.Counters.NosCount = new(uint64)
+			host.Counters.FCPPacketAborts = new(uint64)
+		}
 		c.pushCounter(ch, "dumped_frames_total", *host.Counters.DumpedFrames, *host.Name)
 		c.pushCounter(ch, "error_frames_total", *host.Counters.ErrorFrames, *host.Name)
 		c.pushCounter(ch, "invalid_crc_total", *host.Counters.InvalidCRCCount, *host.Name)

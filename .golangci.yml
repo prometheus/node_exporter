@@ -3,6 +3,7 @@ linters:
   enable:
     - depguard
     - misspell
+    - modernize
     - revive
   settings:
     depguard:
@@ -17,11 +18,6 @@ linters:
       # Used in HTTP handlers, any error is handled by the server itself.
       exclude-functions:
         - (net/http.ResponseWriter).Write
-    revive:
-      rules:
-        - name: unused-parameter
-          severity: warning
-          disabled: true
   exclusions:
     generated: lax
     presets:
