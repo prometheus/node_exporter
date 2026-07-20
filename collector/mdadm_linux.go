@@ -74,7 +74,7 @@ var (
 
 	disksDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "md", "disks"),
-		"Number of active/failed/spare disks of device.",
+		"Number of active/failed/spare/removed disks of device.",
 		[]string{"device", "state"},
 		nil,
 	)
@@ -158,6 +158,14 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 			float64(mdStat.DisksFailed),
 			mdStat.Name,
 			"failed",
+		)
+		// DisksDown is the count of '_' slots in mdstat (no device / removed).
+		ch <- prometheus.MustNewConstMetric(
+			disksDesc,
+			prometheus.GaugeValue,
+			float64(mdStat.DisksDown),
+			mdStat.Name,
+			"removed",
 		)
 		ch <- prometheus.MustNewConstMetric(
 			disksDesc,
