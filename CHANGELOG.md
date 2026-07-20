@@ -1,5 +1,10 @@
 ## master / unreleased
 
+* [CHANGE] infiniband: Add `link_layer` label to all per-port metrics
+* [FEATURE]
+* [ENHANCEMENT]
+* [BUGFIX]
+
 ## 1.12.1 / 2026-07-14
 
 * [BUGFIX] perf: Fix perf profiler flag handling #3731
