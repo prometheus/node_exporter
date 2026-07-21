@@ -219,10 +219,13 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 			cpu.CacheSize)
 	}
 
+	// Avoid clashing with the cpufreq collector, which exports the same
+	// metric name with a different help string and label set. Only use
+	// /proc/cpuinfo when cpufreq is disabled.
 	cpuFreqEnabled, ok := collectorState["cpufreq"]
 	if !ok || cpuFreqEnabled == nil {
 		c.logger.Debug("cpufreq key missing or nil value in collectorState map")
-	} else if *cpuFreqEnabled {
+	} else if !*cpuFreqEnabled {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
 				prometheus.GaugeValue,
