@@ -39,3 +39,6 @@ collector/fixtures/sys/
 collector/fixtures/udev/
 
 /vendor
+.DS_Store
+FIELDS.md
+node_exporter-asset

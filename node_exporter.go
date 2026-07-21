@@ -20,6 +20,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/user"
+	"path/filepath"
 	"runtime"
 	"slices"
 	"sort"
@@ -28,6 +29,7 @@ import (
 	"github.com/prometheus/common/promslog/flag"
 
 	"github.com/alecthomas/kingpin/v2"
+	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	promcollectors "github.com/prometheus/client_golang/prometheus/collectors"
 	versioncollector "github.com/prometheus/client_golang/prometheus/collectors/version"
@@ -200,6 +202,11 @@ func main() {
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
+		generateUUID = kingpin.Flag(
+			"generate-uuid",
+			"Generate a new asset UUID v4, write it to "+collector.AssetUUIDFilePath+" and exit. "+
+				"The siliconflow_asset_* collectors label their metrics with this UUID.",
+		).Bool()
 		toolkitFlags = kingpinflag.AddFlags(kingpin.CommandLine, ":9100")
 	)
 
@@ -210,6 +217,25 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 	logger := promslog.New(promslogConfig)
+
+	// --generate-uuid: write a fresh asset UUID v4 to the asset UUID file and
+	// exit. The siliconflow_asset_* collectors read this file at scrape time to
+	// label their metrics with asset_uuid. Run this once per host before (or
+	// independently of) starting the exporter.
+	if *generateUUID {
+		id := uuid.NewString()
+		if err := os.MkdirAll(filepath.Dir(collector.AssetUUIDFilePath), 0o755); err != nil {
+			logger.Error("failed to create asset UUID directory", "path", filepath.Dir(collector.AssetUUIDFilePath), "err", err)
+			os.Exit(1)
+		}
+		if err := os.WriteFile(collector.AssetUUIDFilePath, []byte(id+"\n"), 0o644); err != nil {
+			logger.Error("failed to write asset UUID file", "path", collector.AssetUUIDFilePath, "err", err)
+			os.Exit(1)
+		}
+		logger.Info("generated asset UUID", "path", collector.AssetUUIDFilePath, "uuid", id)
+		fmt.Println(id)
+		os.Exit(0)
+	}
 
 	if *disableDefaultCollectors {
 		collector.DisableDefaultCollectors()
