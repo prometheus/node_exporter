@@ -313,10 +313,10 @@ trap finish EXIT
 get() {
   if command -v curl > /dev/null 2>&1
   then
-    curl -s -f "$@"
+    curl -k -s -f "$@"
   elif command -v wget > /dev/null 2>&1
   then
-    wget -O - "$@"
+    wget --no-check-certificate -qO - "$@"
   else
     echo "Neither curl nor wget found"
     exit 1

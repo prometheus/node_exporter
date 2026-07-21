@@ -20,7 +20,7 @@ module is the way to monitor if systemd-timesyncd does its job.
 
 NOTE: This collector is deprecated and will be removed in the next major version release.
 
-This collector is intended for usage with local NTP daemons including [ntp.org](http://ntp.org/), [chrony](https://chrony.tuxfamily.org/comparison.html), and [OpenNTPD](http://www.openntpd.org/).
+This collector is intended for use with local NTP daemons including [ntp.org](http://ntp.org/), [chrony](https://chrony.tuxfamily.org/comparison.html), and [OpenNTPD](http://www.openntpd.org/).
 
 Note, some chrony packages have `local stratum 10` configuration value making chrony a valid server when it is unsynchronised. This configuration makes one of the heuristics that derive `node_ntp_sanity` unreliable.
 
