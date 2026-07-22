@@ -497,7 +497,7 @@ local tableTransformation = table.queryOptions.transformation;
 
     dashboard: if platform == 'Linux' then
       dashboard.new(
-        '%sNodes' % config.dashboardNamePrefix,
+        '%sNode' % config.dashboardNamePrefix,
       )
       + dashboard.time.withFrom('now-1h')
       + dashboard.withTags(config.dashboardTags)
