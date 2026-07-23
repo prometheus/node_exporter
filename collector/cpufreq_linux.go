@@ -53,10 +53,21 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	// The current frequency metric is also provided by the cpuinfo-based collector.
+	// If that collector is enabled and set to provide frequency information,
+	// we skip this metric here (otherwise the two collectors would race for it)
+	cpuCollectorEnabled, ok := collectorState["cpu"]
+	skipCurrentFreq := false
+	if !ok || cpuCollectorEnabled == nil {
+		c.logger.Debug("cpu key missing or nil value in collectorState map")
+	} else {
+		skipCurrentFreq = *cpuCollectorEnabled && *enableCPUInfo
+	}
+
 	// sysfs cpufreq values are kHz, thus multiply by 1000 to export base units (hz).
 	// See https://www.kernel.org/doc/Documentation/cpu-freq/user-guide.txt
 	for _, stats := range cpuFreqs {
-		if stats.CpuinfoCurrentFrequency != nil {
+		if stats.CpuinfoCurrentFrequency != nil && !skipCurrentFreq {
 			ch <- prometheus.MustNewConstMetric(
 				cpuFreqHertzDesc,
 				prometheus.GaugeValue,
