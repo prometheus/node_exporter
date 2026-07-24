@@ -20,12 +20,15 @@
 package collector
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -42,6 +45,7 @@ var (
 	ethtoolDeviceExclude   = kingpin.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
 	ethtoolIncludedMetrics = kingpin.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(".*").String()
 	ethtoolAddIfAliasLabel = kingpin.Flag("collector.ethtool.label-ifalias", "Add ifalias label").Default("false").Bool()
+	ethtoolFixtures        = kingpin.Flag("collector.ethtool.fixtures", "Test fixtures to use for ethtool collector end-to-end testing").Default("").String()
 	ethtoolReceivedRegex   = regexp.MustCompile(`(^|_)rx(_|$)`)
 	ethtoolTransmitRegex   = regexp.MustCompile(`(^|_)tx(_|$)`)
 )
@@ -70,6 +74,212 @@ func (e *ethtoolLibrary) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return ethtoolCmd, err
 }
 
+// EthtoolFixture is an implementation of Ethtool which uses static fixtures
+// rather than interfacing with the kernel live. It reads the information needed
+// for the Ethtool unit tests and for E2E tests from fixturePath,
+// passed with --collector.ethtool.fixtures flag
+type EthtoolFixture struct {
+	fixturePath string
+}
+
+func (e *EthtoolFixture) DriverInfo(intf string) (ethtool.DrvInfo, error) {
+	res := ethtool.DrvInfo{}
+
+	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf, "driver"))
+	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
+		// The fixture for this interface doesn't exist. Translate that to unix.EOPNOTSUPP
+		// to replicate an interface that doesn't support ethtool driver info
+		return res, unix.EOPNOTSUPP
+	}
+	if err != nil {
+		return res, err
+	}
+	defer fixtureFile.Close()
+
+	scanner := bufio.NewScanner(fixtureFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		line = strings.Trim(line, " ")
+		items := strings.Split(line, ": ")
+		switch items[0] {
+		case "driver":
+			res.Driver = items[1]
+		case "version":
+			res.Version = items[1]
+		case "firmware-version":
+			res.FwVersion = items[1]
+		case "bus-info":
+			res.BusInfo = items[1]
+		case "expansion-rom-version":
+			res.EromVersion = items[1]
+		}
+	}
+
+	return res, err
+}
+
+func (e *EthtoolFixture) Stats(intf string) (map[string]uint64, error) {
+	res := make(map[string]uint64)
+
+	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf, "statistics"))
+	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
+		// The fixture for this interface doesn't exist. Translate that to unix.EOPNOTSUPP
+		// to replicate an interface that doesn't support ethtool stats
+		return res, unix.EOPNOTSUPP
+	}
+	if err != nil {
+		return res, err
+	}
+	defer fixtureFile.Close()
+
+	scanner := bufio.NewScanner(fixtureFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if strings.HasPrefix(line, "NIC statistics:") {
+			continue
+		}
+		line = strings.Trim(line, " ")
+		items := strings.Split(line, ": ")
+		val, err := strconv.ParseUint(items[1], 10, 64)
+		if err != nil {
+			return res, err
+		}
+		if items[0] == "ERROR" {
+			return res, unix.Errno(val)
+		}
+		res[items[0]] = val
+	}
+
+	return res, err
+}
+
+func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
+	var res ethtool.EthtoolCmd
+	fixtureFile, err := os.Open(filepath.Join(e.fixturePath, intf, "settings"))
+	if e, ok := err.(*os.PathError); ok && e.Err == syscall.ENOENT {
+		// The fixture for this interface doesn't exist. Translate that to unix.EOPNOTSUPP
+		// to replicate an interface that doesn't support ethtool stats
+		return res, unix.EOPNOTSUPP
+	}
+	if err != nil {
+		return res, err
+	}
+	defer fixtureFile.Close()
+
+	scanner := bufio.NewScanner(fixtureFile)
+	readingSupportedLinkModes := false
+	readingAdvertisedLinkModes := false
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "Settings for") {
+			continue
+		}
+		line = strings.Trim(line, " \t")
+
+		if (readingAdvertisedLinkModes || readingSupportedLinkModes) && strings.Contains(line, ":") {
+			readingAdvertisedLinkModes = false
+			readingSupportedLinkModes = false
+		}
+
+		if readingAdvertisedLinkModes {
+			res.Advertising |= readModes(line)
+			continue
+		} else if readingSupportedLinkModes {
+			res.Supported |= readModes(line)
+			continue
+		}
+
+		items := strings.Split(line, ": ")
+		if items[0] == "Supported pause frame use" {
+			switch items[1] {
+			case "Symmetric":
+				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
+			case "Receive-only":
+				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
+			}
+		}
+		if items[0] == "Advertised pause frame use" {
+			switch items[1] {
+			case "Symmetric":
+				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Pause_BIT)
+			case "Receive-only":
+				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Asym_Pause_BIT)
+			}
+		}
+		if items[0] == "Supported ports" {
+			res.Supported |= readPortTypes(items[1])
+		}
+		if items[0] == "Supported link modes" {
+			res.Supported |= readModes(items[1])
+			readingSupportedLinkModes = true
+		}
+		if items[0] == "Advertised link modes" {
+			res.Advertising |= readModes(items[1])
+			readingAdvertisedLinkModes = true
+		}
+		if items[0] == "Supports auto-negotiation" {
+			if items[1] == "Yes" {
+				res.Supported |= (1 << unix.ETHTOOL_LINK_MODE_Autoneg_BIT)
+			}
+		}
+		if items[0] == "Advertised auto-negotiation" {
+			if items[1] == "Yes" {
+				res.Advertising |= (1 << unix.ETHTOOL_LINK_MODE_Autoneg_BIT)
+			}
+		}
+		if items[0] == "Auto-negotiation" {
+			if items[1] == "on" {
+				res.Autoneg = 1
+			}
+		}
+	}
+
+	return res, err
+}
+
+func readModes(modes string) uint32 {
+	var out uint32
+	for mode := range strings.SplitSeq(modes, " ") {
+		switch mode {
+		case "10baseT/Half":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_10baseT_Half_BIT)
+		case "10baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_10baseT_Full_BIT)
+		case "100baseT/Half":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_100baseT_Half_BIT)
+		case "100baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_100baseT_Full_BIT)
+		case "1000baseT/Half":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_1000baseT_Half_BIT)
+		case "1000baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_1000baseT_Full_BIT)
+		case "10000baseT/Full":
+			out |= (1 << unix.ETHTOOL_LINK_MODE_10000baseT_Full_BIT)
+		}
+	}
+	return out
+}
+
+func readPortTypes(portTypes string) uint32 {
+	var out uint32
+	for ptype := range strings.SplitSeq(portTypes, " ") {
+		ptype = strings.Trim(ptype, " \t")
+		if ptype == "TP" {
+			out |= (1 << unix.ETHTOOL_LINK_MODE_TP_BIT)
+		}
+		if ptype == "MII" {
+			out |= (1 << unix.ETHTOOL_LINK_MODE_MII_BIT)
+		}
+	}
+	return out
+}
+
 type ethtoolCollector struct {
 	fs             sysfs.FS
 	entries        map[string]*prometheus.Desc
@@ -91,9 +301,15 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	e, err := ethtool.NewEthtool()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize ethtool library: %w", err)
+	var e Ethtool
+	if *ethtoolFixtures != "" {
+		e = &EthtoolFixture{fixturePath: *ethtoolFixtures}
+	} else {
+		lib, err := ethtool.NewEthtool()
+		if err != nil {
+			return nil, fmt.Errorf("failed to initialize ethtool library: %w", err)
+		}
+		e = &ethtoolLibrary{lib}
 	}
 
 	deviceLabels := []string{"device"}
@@ -117,7 +333,7 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 	// Pre-populate some common ethtool metrics.
 	return &ethtoolCollector{
 		fs:             fs,
-		ethtool:        &ethtoolLibrary{e},
+		ethtool:        e,
 		deviceFilter:   newDeviceFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
 		metricsPattern: regexp.MustCompile(*ethtoolIncludedMetrics),
 		logger:         logger,
