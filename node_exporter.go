@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	_ "net/http/pprof"
+	"net/http/pprof"
 	"os"
 	"os/user"
 	"runtime"
@@ -193,6 +193,10 @@ func main() {
 			"web.max-requests",
 			"Maximum number of parallel scrape requests. Use 0 to disable.",
 		).Default("40").Int()
+		disableProfiling = kingpin.Flag(
+			"web.disable-profiling",
+			"Disable profiling via /debug/pprof/ endpoints.",
+		).Bool()
 		disableDefaultCollectors = kingpin.Flag(
 			"collector.disable-defaults",
 			"Set all collectors to disabled by default.",
@@ -222,7 +226,8 @@ func main() {
 	runtime.GOMAXPROCS(*maxProcs)
 	logger.Debug("Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 
-	http.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
+	mux := http.NewServeMux()
+	mux.Handle(*metricsPath, newHandler(!*disableExporterMetrics, *maxRequests, logger))
 	if *metricsPath != "/" {
 		landingConfig := web.LandingConfig{
 			Name:        "Node Exporter",
@@ -240,10 +245,19 @@ func main() {
 			logger.Error(err.Error())
 			os.Exit(1)
 		}
-		http.Handle("/", landingPage)
+		mux.Handle("/", landingPage)
 	}
 
-	server := &http.Server{}
+	if !*disableProfiling {
+		mux.HandleFunc("/debug/pprof/", pprof.Index)
+		mux.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+		mux.HandleFunc("/debug/pprof/profile", pprof.Profile)
+		mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+		mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
+		logger.Info("Pprof server is enabled", "path", "/debug/pprof")
+	}
+
+	server := &http.Server{Handler: mux}
 	if err := web.ListenAndServe(server, toolkitFlags, logger); err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
