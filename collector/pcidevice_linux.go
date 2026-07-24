@@ -33,11 +33,11 @@ const (
 )
 
 var (
-	pciIdsPaths = []string{
+	pciIDsPaths = []string{
 		"/usr/share/misc/pci.ids",
 		"/usr/share/hwdata/pci.ids",
 	}
-	pciIdsFile = kingpin.Flag("collector.pcidevice.idsfile", "Path to pci.ids file to use for PCI device identification.").String()
+	pciIDsFile = kingpin.Flag("collector.pcidevice.idsfile", "Path to pci.ids file to use for PCI device identification.").String()
 	pciNames   = kingpin.Flag("collector.pcidevice.names", "Enable PCI device name resolution (requires pci.ids file).").Default("false").Bool()
 
 	pcideviceLabelNames = []string{"segment", "bus", "device", "function"}
@@ -366,16 +366,16 @@ func (c *pcideviceCollector) loadPCIIds() {
 	c.pciProgIfs = make(map[string]string)
 
 	// Use custom pci.ids file if specified
-	if *pciIdsFile != "" {
-		file, err = os.Open(*pciIdsFile)
+	if *pciIDsFile != "" {
+		file, err = os.Open(*pciIDsFile)
 		if err != nil {
-			c.logger.Debug("Failed to open PCI IDs file", "file", *pciIdsFile, "error", err)
+			c.logger.Debug("Failed to open PCI IDs file", "file", *pciIDsFile, "error", err)
 			return
 		}
-		c.logger.Debug("Loading PCI IDs from", "file", *pciIdsFile)
+		c.logger.Debug("Loading PCI IDs from", "file", *pciIDsFile)
 	} else {
 		// Try each possible default path
-		for _, path := range pciIdsPaths {
+		for _, path := range pciIDsPaths {
 			file, err = os.Open(path)
 			if err == nil {
 				c.logger.Debug("Loading PCI IDs from default path", "path", path)
@@ -468,8 +468,8 @@ func (c *pcideviceCollector) loadPCIIds() {
 		}
 
 		// Handle subsystem lines (double tab)
-		if strings.HasPrefix(line, "\t\t") {
-			line = strings.TrimPrefix(line, "\t\t")
+		if after, ok := strings.CutPrefix(line, "\t\t"); ok {
+			line = after
 			parts := strings.SplitN(line, "  ", 2)
 			if len(parts) >= 2 && currentVendor != "" && currentDevice != "" {
 				subsysID := strings.TrimSpace(parts[0])

@@ -46,7 +46,6 @@ import (
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/node_exporter/collector/utils"
 )
 
 const absoluteZeroCelsius = -273.15
@@ -150,5 +149,5 @@ func cfStringToString(s C.CFStringRef) string {
 	buf := make([]byte, maxBufLen)
 	var usedBufLen C.CFIndex
 	_ = C.CFStringGetBytes(s, C.CFRange{0, length}, C.kCFStringEncodingUTF8, C.UInt8(0), C.false, (*C.UInt8)(&buf[0]), maxBufLen, &usedBufLen)
-	return utils.SafeBytesToString(buf[:usedBufLen])
+	return SafeBytesToString(buf[:usedBufLen])
 }

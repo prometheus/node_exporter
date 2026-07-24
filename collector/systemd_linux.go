@@ -41,13 +41,13 @@ const (
 
 var (
 	systemdUnitIncludeSet bool
-	systemdUnitInclude    = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(c *kingpin.ParseContext) error {
+	systemdUnitInclude    = kingpin.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(".+").PreAction(func(_ *kingpin.ParseContext) error {
 		systemdUnitIncludeSet = true
 		return nil
 	}).String()
 	oldSystemdUnitInclude = kingpin.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
 	systemdUnitExcludeSet bool
-	systemdUnitExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(c *kingpin.ParseContext) error {
+	systemdUnitExclude    = kingpin.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(".+\\.(automount|device|mount|scope|slice)").PreAction(func(_ *kingpin.ParseContext) error {
 		systemdUnitExcludeSet = true
 		return nil
 	}).String()
@@ -224,51 +224,41 @@ func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		begin := time.Now()
 		c.collectUnitStatusMetrics(conn, ch, units)
 		c.logger.Debug("collectUnitStatusMetrics took", "duration_seconds", time.Since(begin).Seconds())
-	}()
+	})
 
 	if *enableStartTimeMetrics {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			begin := time.Now()
 			c.collectUnitStartTimeMetrics(conn, ch, units)
 			c.logger.Debug("collectUnitStartTimeMetrics took", "duration_seconds", time.Since(begin).Seconds())
-		}()
+		})
 	}
 
 	if *enableTaskMetrics {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			begin := time.Now()
 			c.collectUnitTasksMetrics(conn, ch, units)
 			c.logger.Debug("collectUnitTasksMetrics took", "duration_seconds", time.Since(begin).Seconds())
-		}()
+		})
 	}
 
 	if systemdVersion >= minSystemdVersionSystemState {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			begin := time.Now()
 			c.collectTimers(conn, ch, units)
 			c.logger.Debug("collectTimers took", "duration_seconds", time.Since(begin).Seconds())
-		}()
+		})
 	}
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		begin := time.Now()
 		c.collectSockets(conn, ch, units)
 		c.logger.Debug("collectSockets took", "duration_seconds", time.Since(begin).Seconds())
-	}()
+	})
 
 	if systemdVersion >= minSystemdVersionSystemState {
 		begin := time.Now()

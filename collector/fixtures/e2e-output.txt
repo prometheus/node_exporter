@@ -1399,8 +1399,10 @@ node_drbd_remote_unacknowledged{device="drbd1"} 12347
 # TYPE node_edac_channel_correctable_errors_total counter
 node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="0",dimm_label="mc0_csrow0_channel0"} 0
 node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="1",dimm_label="mc0_csrow1_channel0"} 0
+node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="2",dimm_label="mc0_csrow2_channel0"} 0
 node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="0",dimm_label="mc0_csrow0_channel1"} 0
 node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="1",dimm_label="mc0_csrow1_channel1"} 0
+node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="2",dimm_label="mc0_csrow2_channel1"} 0
 # HELP node_edac_channel_uncorrectable_errors_total Total uncorrectable memory errors for this channel.
 # TYPE node_edac_channel_uncorrectable_errors_total counter
 node_edac_channel_uncorrectable_errors_total{channel="0",controller="0",csrow="0",dimm_label="mc0_csrow0_channel0"} 2
@@ -1414,11 +1416,13 @@ node_edac_correctable_errors_total{controller="0"} 1
 # TYPE node_edac_csrow_correctable_errors_total counter
 node_edac_csrow_correctable_errors_total{controller="0",csrow="0"} 3
 node_edac_csrow_correctable_errors_total{controller="0",csrow="1"} 0
+node_edac_csrow_correctable_errors_total{controller="0",csrow="2"} 0
 node_edac_csrow_correctable_errors_total{controller="0",csrow="unknown"} 2
 # HELP node_edac_csrow_uncorrectable_errors_total Total uncorrectable memory errors for this csrow.
 # TYPE node_edac_csrow_uncorrectable_errors_total counter
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="0"} 4
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="1"} 4
+node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="2"} 5
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="unknown"} 6
 # HELP node_edac_uncorrectable_errors_total Total uncorrectable memory errors.
 # TYPE node_edac_uncorrectable_errors_total counter
@@ -1443,7 +1447,7 @@ node_fibrechannel_error_frames_total{fc_host="host1"} 19
 node_fibrechannel_fcp_packet_aborts_total{fc_host="host0"} 19
 # HELP node_fibrechannel_info Non-numeric data from /sys/class/fc_host/<host>, value is always 1.
 # TYPE node_fibrechannel_info gauge
-node_fibrechannel_info{dev_loss_tmo="",fabric_name="",fc_host="host1",port_id="",port_name="",port_state="",port_type="",speed="8 Gbit",supported_classes="",supported_speeds="",symbolic_name=""} 1
+node_fibrechannel_info{dev_loss_tmo="",fabric_name="",fc_host="host1",port_id="",port_name="",port_state="Online",port_type="",speed="8 Gbit",supported_classes="",supported_speeds="",symbolic_name=""} 1
 node_fibrechannel_info{dev_loss_tmo="30",fabric_name="0",fc_host="host0",port_id="000002",port_name="1000e0071bce95f2",port_state="Online",port_type="Point-To-Point (direct nport connection)",speed="16 Gbit",supported_classes="Class 3",supported_speeds="4 Gbit, 8 Gbit, 16 Gbit",symbolic_name="Emulex SN1100E2P FV12.4.270.3 DV12.4.0.0. HN:gotest. OS:Linux"} 1
 # HELP node_fibrechannel_invalid_crc_total Invalid Cyclic Redundancy Check count
 # TYPE node_fibrechannel_invalid_crc_total counter
@@ -1500,7 +1504,12 @@ node_filefd_maximum 1.631329e+06
 node_forks_total 26442
 # HELP node_hwmon_chip_names Annotation metric for human-readable chip names
 # TYPE node_hwmon_chip_names gauge
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_0",chip_name="mt7996_phy0_0"} 1
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_1",chip_name="mt7996_phy0_1"} 1
+node_hwmon_chip_names{chip="ieee80211_phy0_mt7996_phy0_2",chip_name="mt7996_phy0_2"} 1
 node_hwmon_chip_names{chip="nct6779",chip_name="nct6779"} 1
+node_hwmon_chip_names{chip="platform_asus_nb_wmi_asus",chip_name="asus"} 1
+node_hwmon_chip_names{chip="platform_asus_nb_wmi_asus_wmi_sensors",chip_name="asus_wmi_sensors"} 1
 node_hwmon_chip_names{chip="platform_coretemp_0",chip_name="coretemp"} 1
 node_hwmon_chip_names{chip="platform_coretemp_1",chip_name="coretemp"} 1
 # HELP node_hwmon_fan_alarm Hardware sensor alarm status (fan)
@@ -1608,6 +1617,8 @@ node_hwmon_pwm_crit_temp_tolerance{chip="nct6779",sensor="pwm1"} 2000
 # HELP node_hwmon_pwm_enable Hardware monitor pwm element enable
 # TYPE node_hwmon_pwm_enable gauge
 node_hwmon_pwm_enable{chip="nct6779",sensor="pwm1"} 5
+node_hwmon_pwm_enable{chip="platform_asus_nb_wmi_asus",sensor="pwm1"} 2
+node_hwmon_pwm_enable{chip="platform_asus_nb_wmi_asus_wmi_sensors",sensor="pwm1"} 2
 # HELP node_hwmon_pwm_floor Hardware monitor pwm element floor
 # TYPE node_hwmon_pwm_floor gauge
 node_hwmon_pwm_floor{chip="nct6779",sensor="pwm1"} 1
@@ -1675,6 +1686,9 @@ node_hwmon_sensor_label{chip="platform_coretemp_1",label="Physical id 0",sensor=
 # TYPE node_hwmon_temp_celsius gauge
 node_hwmon_temp_celsius{chip="hwmon4",sensor="temp1"} 55
 node_hwmon_temp_celsius{chip="hwmon4",sensor="temp2"} 54
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_0",sensor="temp1"} 55
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_1",sensor="temp1"} 56
+node_hwmon_temp_celsius{chip="ieee80211_phy0_mt7996_phy0_2",sensor="temp1"} 57
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp1"} 55
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp2"} 54
 node_hwmon_temp_celsius{chip="platform_coretemp_0",sensor="temp3"} 52

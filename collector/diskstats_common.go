@@ -34,7 +34,7 @@ var (
 	diskstatsDeviceExclude    = kingpin.Flag(
 		"collector.diskstats.device-exclude",
 		"Regexp of diskstats devices to exclude (mutually exclusive to device-include).",
-	).Default(diskstatsDefaultIgnoredDevices).PreAction(func(c *kingpin.ParseContext) error {
+	).Default(diskstatsDefaultIgnoredDevices).PreAction(func(_ *kingpin.ParseContext) error {
 		diskstatsDeviceExcludeSet = true
 		return nil
 	}).String()

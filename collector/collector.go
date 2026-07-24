@@ -96,7 +96,7 @@ func DisableDefaultCollectors() {
 // does not contain information about which flag called the action.
 // See: https://github.com/alecthomas/kingpin/issues/294
 func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error {
-	return func(ctx *kingpin.ParseContext) error {
+	return func(_ *kingpin.ParseContext) error {
 		forcedCollectors[collector] = true
 		return nil
 	}
@@ -199,7 +199,7 @@ func IsNoDataError(err error) bool {
 }
 
 // pushMetric helps construct and convert a variety of value types into Prometheus float64 metrics.
-func pushMetric(ch chan<- prometheus.Metric, fieldDesc *prometheus.Desc, name string, value any, valueType prometheus.ValueType, labelValues ...string) {
+func pushMetric(ch chan<- prometheus.Metric, fieldDesc *prometheus.Desc, value any, valueType prometheus.ValueType, labelValues ...string) {
 	var fVal float64
 	switch val := value.(type) {
 	case uint8:
