@@ -64,6 +64,14 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 				stats.Name,
 			)
 		}
+		if stats.CpuinfoAverageFrequency != nil {
+			ch <- prometheus.MustNewConstMetric(
+				cpuFreqAvgDesc,
+				prometheus.GaugeValue,
+				float64(*stats.CpuinfoAverageFrequency)*1000.0,
+				stats.Name,
+			)
+		}
 		if stats.CpuinfoMinimumFrequency != nil {
 			ch <- prometheus.MustNewConstMetric(
 				cpuFreqMinDesc,

@@ -93,9 +93,6 @@ node_buddyinfo_blocks{node="0",size="9",zone="DMA32"} 0
 node_buddyinfo_blocks{node="0",size="9",zone="Normal"} 0
 # HELP node_exporter_build_info A metric with a constant '1' value labeled by version, revision, branch, goversion from which node_exporter was built, and the goos and goarch for the build.
 # TYPE node_exporter_build_info gauge
-# HELP node_memory_swap_size_bytes Memory information field swap_size_bytes.
-# TYPE node_memory_swap_size_bytes gauge
-node_memory_swap_size_bytes 6.693941248e+09
 # HELP node_memory_swap_used_bytes Memory information field swap_used_bytes.
 # TYPE node_memory_swap_used_bytes gauge
 node_memory_swap_used_bytes 0

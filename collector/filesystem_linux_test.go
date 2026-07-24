@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/alecthomas/kingpin/v2"
 
@@ -48,6 +49,35 @@ func Test_parseFilesystemLabelsError(t *testing.T) {
 				t.Fatal("expected an error, but none occurred")
 			}
 		})
+	}
+}
+
+func Test_parseFilesystemLabelsSanitizesInvalidUTF8(t *testing.T) {
+	in := []*procfs.MountInfo{
+		{
+			MajorMinorVer: "0:0",
+			Source:        "/dev/sd\xe9",
+			MountPoint:    "/mnt/cass\xe9",
+			FSType:        "ext\xe9",
+		},
+	}
+
+	got, err := parseFilesystemLabels(in)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("expected 1 filesystem, got %d", len(got))
+	}
+
+	for name, value := range map[string]string{
+		"device":     got[0].device,
+		"mountPoint": got[0].mountPoint,
+		"fsType":     got[0].fsType,
+	} {
+		if !utf8.ValidString(value) {
+			t.Errorf("expected %s to be valid UTF-8, got %q", name, value)
+		}
 	}
 }
 
@@ -79,6 +109,12 @@ func Test_isFilesystemReadOnly(t *testing.T) {
 			labels: filesystemLabels{
 				mountOptions: "ro,nosuid,noexec",
 				superOptions: "ro,nodev",
+			}, expected: true,
+		},
+		"/media/volume5": {
+			labels: filesystemLabels{
+				mountOptions: "rw,user_id=1000,group_id=1000",
+				superOptions: "emergency_ro",
 			}, expected: true,
 		},
 	}

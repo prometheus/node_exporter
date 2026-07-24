@@ -1,4 +1,4 @@
-// Copyright 2024 The Prometheus Authors
+// Copyright The Prometheus Authors
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package utils
+package collector
 
 import (
 	"bytes"
@@ -37,11 +37,11 @@ func SafeDereference[T any](s ...*T) []T {
 // * Convert any invalid UTF-8 to "�".
 func SafeBytesToString(b []byte) string {
 	var s string
-	zeroIndex := bytes.IndexByte(b, 0)
-	if zeroIndex == -1 {
+	before, _, ok := bytes.Cut(b, []byte{0})
+	if !ok {
 		s = string(b)
 	} else {
-		s = string(b[:zeroIndex])
+		s = string(before)
 	}
 	return strings.ToValidUTF8(s, "�")
 }

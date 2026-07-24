@@ -169,7 +169,7 @@ collector_flags=$(cat << FLAGS
   --collector.bcache.priorityStats
   --collector.cpu.info.bugs-include=${cpu_info_bugs}
   --collector.cpu.info.flags-include=${cpu_info_flags}
-  --collector.hwmon.chip-include=(applesmc|coretemp|hwmon4|nct6779)
+  --collector.hwmon.chip-include=(applesmc|asus_nb_wmi|coretemp|hwmon4|ieee80211|nct6779)
   --collector.netclass.ignore-invalid-speed
   --collector.netclass.ignored-devices=(dmz|int)
   --collector.netdev.device-include=lo
@@ -365,9 +365,28 @@ non_deterministic_metrics=$(cat << METRICS
   node_memory_size_bytes
   node_memory_swapped_in_bytes_total
   node_memory_swapped_out_bytes_total
+  node_memory_swap_size_bytes
   node_memory_wired_bytes
   node_netstat_tcp_receive_packets_total
   node_netstat_tcp_transmit_packets_total
+  node_netstat_ip4_delivered_total
+  node_netstat_ip4_fast_forward_total
+  node_netstat_ip4_forward_total
+  node_netstat_ip4_receive_fragments_total
+  node_netstat_ip4_receive_packets_total
+  node_netstat_ip4_transmit_packets_total
+  node_netstat_ip4_transmit_raw_packets_total
+  node_netstat_ip6_delivered_total
+  node_netstat_ip6_forward_total
+  node_netstat_ip6_receive_fragments_total
+  node_netstat_ip6_receive_packets_total
+  node_netstat_ip6_transmit_packets_total
+  node_netstat_ip6_transmit_raw_packets_total
+  node_netstat_tcp_connections
+  node_netstat_tcp_receive_packets_total
+  node_netstat_tcp_transmit_packets_total
+  node_netstat_udp_receive_packets_total
+  node_netstat_udp_transmit_packets_total
   node_network_receive_bytes_total
   node_network_receive_multicast_total
   node_network_transmit_multicast_total

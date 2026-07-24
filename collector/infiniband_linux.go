@@ -22,15 +22,22 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
 
+var (
+	infinibandDeviceInclude = kingpin.Flag("collector.infiniband.device-include", "Regexp of infiniband devices to include (mutually exclusive to device-exclude).").String()
+	infinibandDeviceExclude = kingpin.Flag("collector.infiniband.device-exclude", "Regexp of infiniband devices to exclude (mutually exclusive to device-include).").String()
+)
+
 type infinibandCollector struct {
-	fs          sysfs.FS
-	metricDescs map[string]*prometheus.Desc
-	logger      *slog.Logger
-	subsystem   string
+	fs           sysfs.FS
+	metricDescs  map[string]*prometheus.Desc
+	logger       *slog.Logger
+	subsystem    string
+	deviceFilter deviceFilter
 }
 
 func init() {
@@ -129,6 +136,14 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 		)
 	}
 
+	if *infinibandDeviceInclude != "" {
+		i.logger.Info("Parsed flag --collector.infiniband.device-include", "flag", *infinibandDeviceInclude)
+	}
+	if *infinibandDeviceExclude != "" {
+		i.logger.Info("Parsed flag --collector.infiniband.device-exclude", "flag", *infinibandDeviceExclude)
+	}
+	i.deviceFilter = newDeviceFilter(*infinibandDeviceExclude, *infinibandDeviceInclude)
+
 	return &i, nil
 }
 
@@ -153,6 +168,10 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, device := range devices {
+		if c.deviceFilter.ignored(device.Name) {
+			continue
+		}
+
 		infoDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
 			"Non-numeric data from /sys/class/infiniband/<device>, value is always 1.",

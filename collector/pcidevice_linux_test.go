@@ -83,6 +83,6 @@ func (tc *testPCICollector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (tc *testPCICollector) Describe(ch chan<- *prometheus.Desc) {
+func (tc *testPCICollector) Describe(_ chan<- *prometheus.Desc) {
 	// No-op for testing
 }

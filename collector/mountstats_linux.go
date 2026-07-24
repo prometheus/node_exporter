@@ -32,6 +32,7 @@ var (
 type mountStatsCollector struct {
 	// General statistics
 	NFSAgeSecondsTotal *prometheus.Desc
+	NFSMountpointInfo  *prometheus.Desc
 
 	// Byte statistics
 	NFSReadBytesTotal        *prometheus.Desc
@@ -105,6 +106,13 @@ type nfsDeviceIdentifier struct {
 	MountAddress string
 }
 
+type nfsMountpointIdentifier struct {
+	Device       string
+	Protocol     string
+	MountAddress string
+	MountPoint   string
+}
+
 func init() {
 	registerCollector("mountstats", defaultDisabled, NewMountStatsCollector)
 }
@@ -127,9 +135,10 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 	)
 
 	var (
-		labels      = []string{"export", "protocol", "mountaddr"}
-		opLabels    = []string{"export", "protocol", "mountaddr", "operation"}
-		translabels = []string{"export", "protocol", "mountaddr", "transport"}
+		labels          = []string{"export", "protocol", "mountaddr"}
+		infoLabels      = []string{"export", "protocol", "mountaddr", "mountpoint"}
+		opLabels        = []string{"export", "protocol", "mountaddr", "operation"}
+		transportLabels = []string{"export", "protocol", "mountaddr", "transport"}
 	)
 
 	return &mountStatsCollector{
@@ -137,6 +146,13 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 			prometheus.BuildFQName(namespace, subsystem, "age_seconds_total"),
 			"The age of the NFS mount in seconds.",
 			labels,
+			nil,
+		),
+
+		NFSMountpointInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "mountpoint_info"),
+			"Info metric for an NFS mountpoint.",
+			infoLabels,
 			nil,
 		),
 
@@ -199,70 +215,70 @@ func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
 		NFSTransportBindTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_bind_total"),
 			"Number of times the client has had to establish a connection from scratch to the NFS server.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportConnectTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_connect_total"),
 			"Number of times the client has made a TCP connection to the NFS server.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportIdleTimeSeconds: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_idle_time_seconds"),
 			"Duration since the NFS mount last saw any RPC traffic, in seconds.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportSendsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_sends_total"),
 			"Number of RPC requests for this mount sent to the NFS server.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportReceivesTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_receives_total"),
 			"Number of RPC responses for this mount received from the NFS server.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportBadTransactionIDsTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_bad_transaction_ids_total"),
 			"Number of times the NFS server sent a response with a transaction ID unknown to this client.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportBacklogQueueTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_backlog_queue_total"),
 			"Total number of items added to the RPC backlog queue.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportMaximumRPCSlots: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_maximum_rpc_slots"),
 			"Maximum number of simultaneously active RPC requests ever used.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportSendingQueueTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_sending_queue_total"),
 			"Total number of items added to the RPC transmission sending queue.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
 		NFSTransportPendingQueueTotal: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, subsystem, "transport_pending_queue_total"),
 			"Total number of items added to the RPC transmission pending queue.",
-			translabels,
+			transportLabels,
 			nil,
 		),
 
@@ -522,6 +538,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	// store all seen nfsDeviceIdentifiers for deduplication
 	deviceList := make(map[nfsDeviceIdentifier]bool)
+	mountpointList := make(map[nfsMountpointIdentifier]bool)
 
 	for idx, m := range mounts {
 		// For the time being, only NFS statistics are available via this mechanism
@@ -531,6 +548,7 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
+		mountPoint := m.Mount
 		var mountAddress string
 		if idx < len(mountsInfo) {
 			// The mount entry order in the /proc/self/mountstats and /proc/self/mountinfo is the same.
@@ -539,6 +557,14 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		for k := range stats.Transport {
+			mountpointIdentifier := nfsMountpointIdentifier{m.Device, stats.Transport[k].Protocol, mountAddress, mountPoint}
+			if mountpointList[mountpointIdentifier] {
+				c.logger.Debug("Skipping duplicate mountpoint info entry", "device", mountpointIdentifier)
+			} else {
+				mountpointList[mountpointIdentifier] = true
+				c.updateNFSMountpointInfo(ch, m.Device, stats.Transport[k].Protocol, mountAddress, mountPoint)
+			}
+
 			deviceIdentifier := nfsDeviceIdentifier{m.Device, stats.Transport[k].Protocol, mountAddress}
 			i := deviceList[deviceIdentifier]
 			if i {
@@ -551,6 +577,15 @@ func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	return nil
+}
+
+func (c *mountStatsCollector) updateNFSMountpointInfo(ch chan<- prometheus.Metric, export, protocol, mountAddress, mountPoint string) {
+	ch <- prometheus.MustNewConstMetric(
+		c.NFSMountpointInfo,
+		prometheus.GaugeValue,
+		1,
+		export, protocol, mountAddress, mountPoint,
+	)
 }
 
 func (c *mountStatsCollector) updateNFSStats(ch chan<- prometheus.Metric, s *procfs.MountStatsNFS, export, protocol, mountAddress string) {
