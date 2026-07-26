@@ -34,6 +34,7 @@ var (
 	edacMemControllerRE = regexp.MustCompile(`.*devices/system/edac/mc/mc([0-9]*)`)
 	edacMemCsrowRE      = regexp.MustCompile(`.*devices/system/edac/mc/mc[0-9]*/csrow([0-9]*)`)
 	edacMemChannelRE    = regexp.MustCompile(`ch([0-9]+)_ce_count`)
+	edacMemDimmRE       = regexp.MustCompile(`^(?:dimm|rank)([0-9]+)$`)
 )
 
 type edacCollector struct {
@@ -74,6 +75,17 @@ var (
 		prometheus.BuildFQName(namespace, edacSubsystem, "channel_uncorrectable_errors_total"),
 		"Total uncorrectable memory errors for this channel.",
 		[]string{"controller", "csrow", "channel", "dimm_label"}, nil,
+	)
+	edacDimmCECount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, edacSubsystem, "dimm_correctable_errors_total"),
+		"Total correctable memory errors for this DIMM.",
+		[]string{"controller", "dimm", "dimm_label"}, nil,
+	)
+	edacDimmUECount = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, edacSubsystem, "dimm_uncorrectable_errors_total"),
+		"Total uncorrectable memory errors for this DIMM. Best effort: errors the "+
+			"controller cannot localize to a slot are counted in ue_noinfo_count instead.",
+		[]string{"controller", "dimm", "dimm_label"}, nil,
 	)
 )
 
@@ -137,10 +149,18 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(
 			edacCsRowUECount, prometheus.CounterValue, float64(value), controllerNumber, "unknown")
 
-		// For each controller, walk the csrow directories.
+		// Controllers with no csrow* keep their per-location counters in the DIMM
+		// layer instead. csrow* wins where both exist: amd64_edac_mod repeats the
+		// same counts under rank*, so reading both would double-count.
 		csrows, err := filepath.Glob(controller + "/csrow[0-9]*")
 		if err != nil {
 			return err
+		}
+		if len(csrows) == 0 {
+			if err := c.updateDimms(ch, controller, controllerNumber); err != nil {
+				return err
+			}
+			continue
 		}
 		for _, csrow := range csrows {
 			csrowMatch := edacMemCsrowRE.FindStringSubmatch(csrow)
@@ -208,4 +228,67 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	return nil
+}
+
+// updateDimms reads the DIMM/MEM layer, spelled dimm* or rank* depending on the
+// driver. Only populated slots are registered, so the indices are sparse.
+func (c *edacCollector) updateDimms(ch chan<- prometheus.Metric, controller, controllerNumber string) error {
+	var dimms []string
+	for _, pattern := range []string{"/dimm[0-9]*", "/rank[0-9]*"} {
+		matches, err := filepath.Glob(controller + pattern)
+		if err != nil {
+			return err
+		}
+		dimms = append(dimms, matches...)
+	}
+
+	for _, dimm := range dimms {
+		match := edacMemDimmRE.FindStringSubmatch(filepath.Base(dimm))
+		if match == nil {
+			continue
+		}
+		dimmNumber := match[1]
+		label := edacDimmLabelFromDir(dimm)
+
+		value, err := readUintFromFile(filepath.Join(dimm, "dimm_ce_count"))
+		if err != nil {
+			c.logger.Debug("couldn't get dimm_ce_count", "controller", controllerNumber, "dimm", dimmNumber, "err", err)
+			continue
+		}
+		ch <- prometheus.MustNewConstMetric(
+			edacDimmCECount,
+			prometheus.CounterValue,
+			float64(value),
+			controllerNumber,
+			dimmNumber,
+			label,
+		)
+
+		value, err = readUintFromFile(filepath.Join(dimm, "dimm_ue_count"))
+		if err != nil {
+			c.logger.Debug("couldn't get dimm_ue_count", "controller", controllerNumber, "dimm", dimmNumber, "err", err)
+			continue
+		}
+		ch <- prometheus.MustNewConstMetric(
+			edacDimmUECount,
+			prometheus.CounterValue,
+			float64(value),
+			controllerNumber,
+			dimmNumber,
+			label,
+		)
+	}
+
+	return nil
+}
+
+// edacDimmLabelFromDir returns dimm_label verbatim. Unlike the csrow layer's
+// generated ch*_dimm_label, this one is supplied by the platform and names a
+// physical slot, so it is kept byte-identical to what dmidecode reports.
+func edacDimmLabelFromDir(dimm string) string {
+	labelBytes, err := os.ReadFile(filepath.Join(dimm, "dimm_label"))
+	if err != nil {
+		return "unknown"
+	}
+	return strings.TrimSpace(string(labelBytes))
 }
