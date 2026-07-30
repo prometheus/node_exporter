@@ -144,12 +144,25 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	return filesystemStats{
 		labels:    labels,
 		size:      float64(buf.Blocks) * float64(buf.Bsize),
-		free:      float64(buf.Bfree) * float64(buf.Bsize),
-		avail:     float64(buf.Bavail) * float64(buf.Bsize),
+		free:      blocksToBytes(buf.Bfree, buf.Bsize),
+		avail:     blocksToBytes(buf.Bavail, buf.Bsize),
 		files:     float64(buf.Files),
 		filesFree: float64(buf.Ffree),
 		ro:        ro,
 	}
+}
+
+// blocksToBytes converts a block count reported by statfs(2) to bytes.
+// Some filesystems (e.g. ext3/ext4 when reserved blocks are exhausted) can
+// report a negative free/available block count that overflows the kernel's
+// unsigned f_bfree/f_bavail fields, wrapping to a value near 2^64. Treat any
+// block count whose sign bit is set as a wrapped negative value and report
+// zero instead of an enormous, misleading byte count.
+func blocksToBytes(blocks uint64, bsize int64) float64 {
+	if int64(blocks) < 0 {
+		return 0
+	}
+	return float64(blocks) * float64(bsize)
 }
 
 // stuckMountWatcher listens on the given success channel and if the channel closes
