@@ -185,8 +185,15 @@ func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 		divisor = microSeconds
 	}
 
+	offsetSec := float64(timex.Offset) / divisor
+	if offsetSec > 1.0 || offsetSec < -1.0 {
+		c.logger.Warn("Discarding unreasonable timex offset value",
+			"offset_seconds", offsetSec, "status", status)
+		offsetSec = 0
+	}
+
 	ch <- c.syncStatus.mustNewConstMetric(syncStatus)
-	ch <- c.offset.mustNewConstMetric(float64(timex.Offset) / divisor)
+	ch <- c.offset.mustNewConstMetric(offsetSec)
 	ch <- c.freq.mustNewConstMetric(1 + float64(timex.Freq)/ppm16frac)
 	ch <- c.maxerror.mustNewConstMetric(float64(timex.Maxerror) / microSeconds)
 	ch <- c.esterror.mustNewConstMetric(float64(timex.Esterror) / microSeconds)

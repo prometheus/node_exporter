@@ -216,11 +216,15 @@
               (
                 node_timex_offset_seconds{%(nodeExporterSelector)s} > 0.05
               and
+                node_timex_offset_seconds{%(nodeExporterSelector)s} < 1.0
+              and
                 deriv(node_timex_offset_seconds{%(nodeExporterSelector)s}[5m]) >= 0
               )
               or
               (
                 node_timex_offset_seconds{%(nodeExporterSelector)s} < -0.05
+              and
+                node_timex_offset_seconds{%(nodeExporterSelector)s} > -1.0
               and
                 deriv(node_timex_offset_seconds{%(nodeExporterSelector)s}[5m]) <= 0
               )
