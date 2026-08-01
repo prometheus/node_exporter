@@ -127,22 +127,47 @@ func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 		)...)
 
 		// Then the counters
-		// Note: `procfs` does not guarantee a safe dereference for these counters.
-		//       A disabled host returns no statistics counters.
-		if host.PortState == nil || *host.PortState == "Unknown" {
+		// Note: These are not guaranteed to exist in the filesystem
+		if host.Counters.DumpedFrames == nil {
 			host.Counters.DumpedFrames = new(uint64)
+		}
+		if host.Counters.ErrorFrames == nil {
 			host.Counters.ErrorFrames = new(uint64)
+		}
+		if host.Counters.InvalidCRCCount == nil {
 			host.Counters.InvalidCRCCount = new(uint64)
+		}
+		if host.Counters.RXFrames == nil {
 			host.Counters.RXFrames = new(uint64)
+		}
+		if host.Counters.RXWords == nil {
 			host.Counters.RXWords = new(uint64)
+		}
+		if host.Counters.TXFrames == nil {
 			host.Counters.TXFrames = new(uint64)
+		}
+		if host.Counters.TXWords == nil {
 			host.Counters.TXWords = new(uint64)
+		}
+		if host.Counters.SecondsSinceLastReset == nil {
 			host.Counters.SecondsSinceLastReset = new(uint64)
+		}
+		if host.Counters.InvalidTXWordCount == nil {
 			host.Counters.InvalidTXWordCount = new(uint64)
+		}
+		if host.Counters.LinkFailureCount == nil {
 			host.Counters.LinkFailureCount = new(uint64)
+		}
+		if host.Counters.LossOfSyncCount == nil {
 			host.Counters.LossOfSyncCount = new(uint64)
+		}
+		if host.Counters.LossOfSignalCount == nil {
 			host.Counters.LossOfSignalCount = new(uint64)
+		}
+		if host.Counters.NosCount == nil {
 			host.Counters.NosCount = new(uint64)
+		}
+		if host.Counters.FCPPacketAborts == nil {
 			host.Counters.FCPPacketAborts = new(uint64)
 		}
 		c.pushCounter(ch, "dumped_frames_total", *host.Counters.DumpedFrames, *host.Name)
