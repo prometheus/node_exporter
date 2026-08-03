@@ -16,16 +16,19 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"path/filepath"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
-	ksmdFiles = []string{"full_scans", "merge_across_nodes", "pages_shared", "pages_sharing",
-		"pages_to_scan", "pages_unshared", "pages_volatile", "run", "sleep_millisecs"}
+	ksmdFiles = []string{"full_scans", "general_profit", "merge_across_nodes", "pages_shared",
+		"pages_sharing", "pages_to_scan", "pages_unshared", "pages_volatile", "run",
+		"sleep_millisecs"}
 )
 
 type ksmdCollector struct {
@@ -41,6 +44,8 @@ func getCanonicalMetricName(filename string) string {
 	switch filename {
 	case "full_scans":
 		return filename + "_total"
+	case "general_profit":
+		return "general_profit_bytes"
 	case "sleep_millisecs":
 		return "sleep_seconds"
 	default:
@@ -66,6 +71,10 @@ func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
 		val, err := readUintFromFile(sysFilePath(filepath.Join("kernel/mm/ksm", n)))
 		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				c.logger.Debug("ksmd file not found, skipping", "file", n)
+				continue
+			}
 			return err
 		}
 
