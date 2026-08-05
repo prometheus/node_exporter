@@ -1604,7 +1604,7 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/i40iw0/ports/1/link_layer
 Lines: 1
-InfiniBand
+Ethernet
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/class/infiniband/i40iw0/ports/1/phys_state
