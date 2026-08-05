@@ -1990,6 +1990,9 @@ node_kernel_hung_tasks_total 42
 # HELP node_ksmd_full_scans_total ksmd 'full_scans' file.
 # TYPE node_ksmd_full_scans_total counter
 node_ksmd_full_scans_total 323
+# HELP node_ksmd_general_profit_bytes ksmd 'general_profit' file.
+# TYPE node_ksmd_general_profit_bytes gauge
+node_ksmd_general_profit_bytes 1.04448e+06
 # HELP node_ksmd_merge_across_nodes ksmd 'merge_across_nodes' file.
 # TYPE node_ksmd_merge_across_nodes gauge
 node_ksmd_merge_across_nodes 1
