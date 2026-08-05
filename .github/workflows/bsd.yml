@@ -133,7 +133,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/netbsd-vm@0c26a4c4a5e234038862a4a53a00c905b8a107c9  # v1.4.2
+        uses: vmactions/netbsd-vm@e7ac71b97abbe8437cec8859a5acf72dfa6a8be0  # v1.4.5
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
