@@ -7,7 +7,8 @@
 ## Rules
 - Use `kingpin.Flag()`, never `kingpin.Flag().Envar()`: the project has a "one-way-to-configure" policy of CLI flags only. Runtime env vars (`GOMAXPROCS`) and deprecated collectors are the only historical exceptions; maintainers have rejected env var flags for new code.
 - Collector code must not shell out: `.golangci.yml` denies `os/exec` outside tests, and `CONTRIBUTING.md` says collectors may read `/proc`, `/sys`, use syscalls, or local sockets only.
-- Keep metrics in the `node` namespace and update README collector tables when adding, removing, enabling, disabling, or changing collector flags.
+- Keep metrics in the `node` namespace, follow the [Prometheus metric naming conventions](https://prometheus.io/docs/practices/naming/), and update README collector tables when adding, removing, enabling, disabling, or changing collector flags.
+- Parse `/proc` files via the [`procfs`](https://github.com/prometheus/procfs) dependency rather than adding ad-hoc parsing in a collector; extend `procfs` upstream if a needed file isn't covered yet.
 
 ## Project Map
 - `node_exporter.go`: binary entrypoint, HTTP handler, collector filtering, and exporter bootstrap.
