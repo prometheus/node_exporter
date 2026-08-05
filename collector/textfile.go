@@ -293,7 +293,7 @@ func (c *textFileCollector) processFile(dir, name string) (*time.Time, map[strin
 	}
 	defer f.Close()
 
-	parser := expfmt.NewTextParser(model.LegacyValidation)
+	parser := expfmt.NewTextParser(model.UTF8Validation)
 	families, err := parser.TextToMetricFamilies(f)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to parse textfile data from %q: %w", path, err)
