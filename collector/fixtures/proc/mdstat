@@ -57,4 +57,7 @@ md120 : active linear sda1[1] sdb1[0]
 md101 : active (read-only) raid0 sdb[2] sdd[1] sdc[0]
       322560 blocks super 1.2 512k chunks
 
+md125 : active raid1 sdb2[1]
+      614336 blocks super 1.0 [2/1] [U_]
+
 unused devices: <none>
