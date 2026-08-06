@@ -14,7 +14,7 @@ We have provided a [sample recording rule set that translates old metrics to new
 
 ## Run both old and new versions simultaneously.
 
-It's possible to run both the old and new exporter on different ports, and include an additional scrape job in Prometheus.  It's recommended to enable only the collectors that have name changes that you care about.
+It's possible to run both the old and new exporter on different ports, and include an additional scrape job in Prometheus. We recommend enabling only the collectors whose name changes matter to you.
 
 [naming best practices]: https://prometheus.io/docs/practices/naming/
 [sample recording rule set that translates old metrics to new ones]: example-16-compatibility-rules.yml
