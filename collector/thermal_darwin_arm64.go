@@ -101,6 +101,16 @@ func (c *thermCollector) updateTemperatures(ch chan<- prometheus.Metric) error {
 	cfProdKey := C.CFStringCreateWithCString(C.kCFAllocatorDefault, prodKey, C.kCFStringEncodingUTF8)
 	defer C.CFRelease(C.CFTypeRef(cfProdKey))
 
+	// A sensor is identified only by its product name. Several services report
+	// the same name, either because the same sensor is listed more than once or
+	// because two distinct sensors share a name, and the services carry no
+	// property that tells them apart: RegistryID, UniqueID and SerialNumber are
+	// all unset here. Emitting the same label set twice makes the registry
+	// reject those samples and fail the whole scrape, so only the first reading
+	// for a name is reported.
+	seen := make(map[string]struct{}, int(count))
+	skipped := 0
+
 	for i := 0; i < int(count); i++ {
 		service := C.CFArrayGetValueAtIndex(services, C.CFIndex(i))
 
@@ -125,8 +135,19 @@ func (c *thermCollector) updateTemperatures(ch chan<- prometheus.Metric) error {
 			C.CFRelease(C.CFTypeRef(nameRef))
 		}
 
+		if _, duplicate := seen[name]; duplicate {
+			skipped++
+			continue
+		}
+		seen[name] = struct{}{}
+
 		ch <- c.temperature.mustNewConstMetric(float64(temp), name)
 	}
+
+	if skipped > 0 {
+		c.logger.Debug("Skipped thermal sensors reporting a duplicate name", "skipped", skipped, "reported", len(seen))
+	}
+
 	return nil
 }
 
