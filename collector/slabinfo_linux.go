@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"log/slog"
+	"strconv"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -50,7 +51,7 @@ func NewSlabinfoCollector(logger *slog.Logger) (Collector, error) {
 	return &slabinfoCollector{logger: logger,
 		fs:             fs,
 		subsystem:      "slabinfo",
-		labels:         []string{"slab"},
+		labels:         []string{"slab", "index"},
 		slabNameFilter: newDeviceFilter(*slabNameExclude, *slabNameInclude),
 	}, nil
 }
@@ -61,71 +62,84 @@ func (c *slabinfoCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get %s: %w", c.subsystem, err)
 	}
 
+	// /proc/slabinfo can list the same slab name more than once, for example one
+	// cache per device instance. The kernel permits this: the duplicate-name check
+	// in kmem_cache_sanity_check() only WARNs, and is compiled out unless
+	// CONFIG_DEBUG_VM is set. Labelling by name alone therefore produces duplicate
+	// label sets, which fails the entire scrape.
+	//
+	// Each entry is given its position among the entries sharing its name, so every
+	// cache keeps its own series and its own geometry. The ordinal reflects the
+	// order of /proc/slabinfo and is not a stable identity: if a cache is created
+	// or destroyed, subsequent entries shift.
+	seen := make(map[string]int, len(slabinfo.Slabs))
 	for _, slab := range slabinfo.Slabs {
 		if c.slabNameFilter.ignored(slab.Name) {
 			continue
 		}
-		ch <- c.activeObjects(slab.Name, slab.ObjActive)
-		ch <- c.objects(slab.Name, slab.ObjNum)
-		ch <- c.objectSizeBytes(slab.Name, slab.ObjSize)
-		ch <- c.objectsPerSlab(slab.Name, slab.ObjPerSlab)
-		ch <- c.pagesPerSlab(slab.Name, slab.PagesPerSlab)
+		index := strconv.Itoa(seen[slab.Name])
+		seen[slab.Name]++
+		ch <- c.activeObjects(slab.Name, index, slab.ObjActive)
+		ch <- c.objects(slab.Name, index, slab.ObjNum)
+		ch <- c.objectSizeBytes(slab.Name, index, slab.ObjSize)
+		ch <- c.objectsPerSlab(slab.Name, index, slab.ObjPerSlab)
+		ch <- c.pagesPerSlab(slab.Name, index, slab.PagesPerSlab)
 	}
 
 	return nil
 }
 
-func (c *slabinfoCollector) activeObjects(label string, val int64) prometheus.Metric {
+func (c *slabinfoCollector) activeObjects(label, index string, val int64) prometheus.Metric {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, c.subsystem, "active_objects"),
 		"The number of objects that are currently active (i.e., in use).",
 		c.labels, nil)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), label, index,
 	)
 }
 
-func (c *slabinfoCollector) objects(label string, val int64) prometheus.Metric {
+func (c *slabinfoCollector) objects(label, index string, val int64) prometheus.Metric {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, c.subsystem, "objects"),
 		"The total number of allocated objects (i.e., objects that are both in use and not in use).",
 		c.labels, nil)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), label, index,
 	)
 }
 
-func (c *slabinfoCollector) objectSizeBytes(label string, val int64) prometheus.Metric {
+func (c *slabinfoCollector) objectSizeBytes(label, index string, val int64) prometheus.Metric {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, c.subsystem, "object_size_bytes"),
 		"The size of objects in this slab, in bytes.",
 		c.labels, nil)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), label, index,
 	)
 }
 
-func (c *slabinfoCollector) objectsPerSlab(label string, val int64) prometheus.Metric {
+func (c *slabinfoCollector) objectsPerSlab(label, index string, val int64) prometheus.Metric {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, c.subsystem, "objects_per_slab"),
 		"The number of objects stored in each slab.",
 		c.labels, nil)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), label, index,
 	)
 }
 
-func (c *slabinfoCollector) pagesPerSlab(label string, val int64) prometheus.Metric {
+func (c *slabinfoCollector) pagesPerSlab(label, index string, val int64) prometheus.Metric {
 	desc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, c.subsystem, "pages_per_slab"),
 		"The number of pages allocated for each slab.",
 		c.labels, nil)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), label, index,
 	)
 }
