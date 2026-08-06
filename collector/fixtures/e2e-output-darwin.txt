@@ -159,7 +159,7 @@ node_scrape_collector_success{collector="netdev"} 1
 node_scrape_collector_success{collector="os"} 1
 node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="textfile"} 1
-node_scrape_collector_success{collector="thermal"} 0
+node_scrape_collector_success{collector="thermal"} 1
 node_scrape_collector_success{collector="time"} 1
 node_scrape_collector_success{collector="xfrm"} 1
 # HELP node_textfile_mtime_seconds Unixtime mtime of textfiles successfully read.

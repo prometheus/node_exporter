@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
+	dto "github.com/prometheus/client_model/go"
 )
 
 // Apple Silicon does not implement IOPMCopyCPUPowerStatus, so fetchCPUPowerStatus
@@ -48,5 +49,41 @@ func TestThermalUpdateWithoutCPUPowerStatus(t *testing.T) {
 	}
 
 	for range ch {
+	}
+}
+
+// Several IOHID services report the same sensor name and carry no property that
+// tells them apart, so the collector must report each name once. Duplicate label
+// sets are rejected by the registry and fail the whole scrape.
+func TestThermalTemperaturesAreUnique(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+
+	c, err := NewThermCollector(logger)
+	if err != nil {
+		t.Fatalf("failed to create collector: %v", err)
+	}
+
+	ch := make(chan prometheus.Metric, 4096)
+	if err := c.Update(ch); err != nil {
+		t.Fatalf("Update failed: %v", err)
+	}
+	close(ch)
+
+	seen := make(map[string]struct{})
+	for m := range ch {
+		var pb dto.Metric
+		if err := m.Write(&pb); err != nil {
+			t.Fatalf("cannot read metric: %v", err)
+		}
+
+		key := m.Desc().String()
+		for _, l := range pb.GetLabel() {
+			key += "," + l.GetName() + "=" + l.GetValue()
+		}
+
+		if _, duplicate := seen[key]; duplicate {
+			t.Errorf("duplicate metric collected: %s", key)
+		}
+		seen[key] = struct{}{}
 	}
 }
