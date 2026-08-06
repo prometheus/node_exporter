@@ -12,8 +12,6 @@ LABEL org.opencontainers.image.documentation="https://github.com/prometheus/node
 LABEL org.opencontainers.image.licenses="Apache License 2.0"
 LABEL io.prometheus.image.variant="busybox"
 
-ARG ARCH="amd64"
-ARG OS="linux"
 COPY .build/${OS}-${ARCH}/node_exporter /bin/node_exporter
 
 EXPOSE      9100
