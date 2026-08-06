@@ -39,7 +39,7 @@
 
     // Some of the alerts are meant to fire if a critical failure of a
     // node is imminent (e.g. the disk is about to run full). In a
-    // true “cloud native” setup, failures of a single node should be
+    // true “cloud native” deployment, failures of a single node should be
     // tolerated. Hence, even imminent failure of a single node is no
     // reason to create a paging alert. However, in practice there are
     // still many situations where operators like to get paged in time
