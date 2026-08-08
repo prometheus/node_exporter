@@ -18,6 +18,7 @@ package collector
 import (
 	"io"
 	"log/slog"
+	"math"
 	"sort"
 	"strings"
 	"testing"
@@ -283,6 +284,54 @@ func TestMountOptionsStringReadOnlyDetection(t *testing.T) {
 			if got := isFilesystemReadOnly(labels); got != tt.wantReadOnly {
 				t.Errorf("isFilesystemReadOnly(%+v) = %v, want %v (mountOptions=%q superOptions=%q)",
 					tt, got, tt.wantReadOnly, labels.mountOptions, labels.superOptions)
+			}
+		})
+	}
+}
+
+func TestBlocksToBytes(t *testing.T) {
+	tests := []struct {
+		name   string
+		blocks uint64
+		bsize  int64
+		want   float64
+	}{
+		{
+			name:   "normal value",
+			blocks: 1000,
+			bsize:  4096,
+			want:   1000 * 4096,
+		},
+		{
+			name:   "zero blocks",
+			blocks: 0,
+			bsize:  4096,
+			want:   0,
+		},
+		{
+			name:   "negative block count wrapped into uint64 clamps to zero",
+			blocks: math.MaxUint64, // two's complement of -1, as reported when reserved blocks exceed free blocks
+			bsize:  4096,
+			want:   0,
+		},
+		{
+			name:   "smallest block count with sign bit set clamps to zero",
+			blocks: 1 << 63,
+			bsize:  4096,
+			want:   0,
+		},
+		{
+			name:   "largest block count without sign bit set is not clamped",
+			blocks: 1<<63 - 1,
+			bsize:  4096,
+			want:   float64(1<<63-1) * 4096,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := blocksToBytes(tt.blocks, tt.bsize); got != tt.want {
+				t.Errorf("blocksToBytes(%d, %d) = %v, want %v", tt.blocks, tt.bsize, got, tt.want)
 			}
 		})
 	}
