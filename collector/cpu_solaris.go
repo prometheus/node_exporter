@@ -60,9 +60,9 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 
 		for k, v := range map[string]string{
 			"idle":   "cpu_nsec_idle",
+			"intr":   "cpu_nsec_intr",
 			"kernel": "cpu_nsec_kernel",
 			"user":   "cpu_nsec_user",
-			"wait":   "cpu_nsec_wait",
 		} {
 			kstatValue, err := ksCPU.GetNamed(v)
 			if err != nil {
