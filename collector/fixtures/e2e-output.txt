@@ -2019,31 +2019,34 @@ node_ipvs_outgoing_packets_total 0
 # HELP node_kernel_hung_tasks_total Total number of tasks that have been detected as hung since the system booted.
 # TYPE node_kernel_hung_tasks_total counter
 node_kernel_hung_tasks_total 42
-# HELP node_ksmd_full_scans_total ksmd 'full_scans' file.
+# HELP node_ksmd_full_scans_total How many times all mergeable areas have been scanned.
 # TYPE node_ksmd_full_scans_total counter
 node_ksmd_full_scans_total 323
-# HELP node_ksmd_merge_across_nodes ksmd 'merge_across_nodes' file.
+# HELP node_ksmd_general_profit_bytes How effective is KSM. ksm_saved_pages * sizeof(page) - (all_rmap_items) * sizeof(rmap_item)
+# TYPE node_ksmd_general_profit_bytes gauge
+node_ksmd_general_profit_bytes 1.04448e+06
+# HELP node_ksmd_merge_across_nodes Specifies if pages from different NUMA nodes can be merged.
 # TYPE node_ksmd_merge_across_nodes gauge
 node_ksmd_merge_across_nodes 1
-# HELP node_ksmd_pages_shared ksmd 'pages_shared' file.
+# HELP node_ksmd_pages_shared How many shared pages are being used.
 # TYPE node_ksmd_pages_shared gauge
 node_ksmd_pages_shared 1
-# HELP node_ksmd_pages_sharing ksmd 'pages_sharing' file.
+# HELP node_ksmd_pages_sharing How many more sites are sharing them i.e. how much saved.
 # TYPE node_ksmd_pages_sharing gauge
 node_ksmd_pages_sharing 255
-# HELP node_ksmd_pages_to_scan ksmd 'pages_to_scan' file.
+# HELP node_ksmd_pages_to_scan How many pages to scan before ksmd goes to sleep.
 # TYPE node_ksmd_pages_to_scan gauge
 node_ksmd_pages_to_scan 100
-# HELP node_ksmd_pages_unshared ksmd 'pages_unshared' file.
+# HELP node_ksmd_pages_unshared How many pages unique but repeatedly checked for merging.
 # TYPE node_ksmd_pages_unshared gauge
 node_ksmd_pages_unshared 0
-# HELP node_ksmd_pages_volatile ksmd 'pages_volatile' file.
+# HELP node_ksmd_pages_volatile How many pages changing too fast to be placed in a tree.
 # TYPE node_ksmd_pages_volatile gauge
 node_ksmd_pages_volatile 0
-# HELP node_ksmd_run ksmd 'run' file.
+# HELP node_ksmd_run The status of ksmd. stopped = 0, running = 1
 # TYPE node_ksmd_run gauge
 node_ksmd_run 1
-# HELP node_ksmd_sleep_seconds ksmd 'sleep_millisecs' file.
+# HELP node_ksmd_sleep_seconds How many seconds ksmd should sleep before next scan.
 # TYPE node_ksmd_sleep_seconds gauge
 node_ksmd_sleep_seconds 0.02
 # HELP node_lnstat_allocs_total linux network cache stats
