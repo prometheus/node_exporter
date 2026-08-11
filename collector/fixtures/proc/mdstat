@@ -57,4 +57,8 @@ md120 : active linear sda1[1] sdb1[0]
 md101 : active (read-only) raid0 sdb[2] sdd[1] sdc[0]
       322560 blocks super 1.2 512k chunks
 
+md42 : active raid1 sdb2[2](R) sdc[1] sda2[0]
+      195310144 blocks [2/2] [UU]
+      [=>...................]  recovery =  8.5% (16775552/195310144) finish=17.0min speed=259783K/sec
+
 unused devices: <none>
