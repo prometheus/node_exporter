@@ -91,11 +91,23 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 					fmt.Sprintf("Statistic %s.", protocol+name),
 					nil, nil,
 				),
-				prometheus.UntypedValue, v,
+				netstatValueType(key), v,
 			)
 		}
 	}
 	return nil
+}
+
+// netstatValueType maps /proc/net/{netstat,snmp,snmp6} fields to Prometheus types.
+// Most SNMP/netstat fields are cumulative counters; a few are instantaneous gauges.
+func netstatValueType(key string) prometheus.ValueType {
+	switch key {
+	case "Tcp_CurrEstab", "Ip_Forwarding", "Ip6_Forwarding", "Tcp_MaxConn",
+		"Ip_DefaultTTL", "Tcp_RtoAlgorithm", "Tcp_RtoMin", "Tcp_RtoMax":
+		return prometheus.GaugeValue
+	default:
+		return prometheus.CounterValue
+	}
 }
 
 func getNetStats(fileName string) (map[string]map[string]string, error) {
