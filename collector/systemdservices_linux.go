@@ -24,18 +24,34 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type systemdServicesCollector struct {
-	serviceInfo         *prometheus.Desc
-	serviceState        *prometheus.Desc
-	serviceSubState     *prometheus.Desc
-	serviceLoadState    *prometheus.Desc
-	serviceRestartTotal *prometheus.Desc
-	logger              *slog.Logger
-	conn                *dbus.Conn
-}
-
 func init() {
 	registerCollector("systemdservices", defaultDisabled, NewSystemdServicesCollector)
+	registerCollector("systemdinfo", defaultDisabled, NewSystemdInfoCollector)
+}
+
+func listSystemdUnits(conn *dbus.Conn) ([]dbus.UnitStatus, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	return conn.ListUnitsContext(ctx)
+}
+
+func closeSystemdConn(conn **dbus.Conn) error {
+	if conn != nil && *conn != nil {
+		(*conn).Close()
+		*conn = nil
+	}
+	return nil
+}
+
+func isServiceUnit(name string) bool {
+	return strings.HasSuffix(name, ".service")
+}
+
+// systemdServicesCollector is health: ActiveState only (failed at 15s).
+type systemdServicesCollector struct {
+	serviceState *prometheus.Desc
+	logger       *slog.Logger
+	conn         *dbus.Conn
 }
 
 func NewSystemdServicesCollector(logger *slog.Logger) (Collector, error) {
@@ -45,16 +61,60 @@ func NewSystemdServicesCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	return &systemdServicesCollector{
-		serviceInfo: prometheus.NewDesc(
-			prometheus.BuildFQName(namespace, "systemd_service", "info"),
-			"Static systemd service information via D-Bus API. Value is always 1.",
-			[]string{"name", "type"},
-			nil,
-		),
 		serviceState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "systemd_service", "state"),
 			"Systemd service state: 0 = unknown, 1 = active, 2 = reloading, 3 = inactive, 4 = failed, 5 = activating, 6 = deactivating.",
 			[]string{"name"},
+			nil,
+		),
+		logger: logger,
+		conn:   conn,
+	}, nil
+}
+
+func (c *systemdServicesCollector) Update(ch chan<- prometheus.Metric) error {
+	units, err := listSystemdUnits(c.conn)
+	if err != nil {
+		return fmt.Errorf("couldn't get units: %w", err)
+	}
+	for _, unit := range units {
+		if !isServiceUnit(unit.Name) {
+			continue
+		}
+		ch <- prometheus.MustNewConstMetric(
+			c.serviceState,
+			prometheus.GaugeValue,
+			parseSystemdState(unit.ActiveState),
+			unit.Name,
+		)
+	}
+	return nil
+}
+
+func (c *systemdServicesCollector) Close() error {
+	return closeSystemdConn(&c.conn)
+}
+
+// systemdInfoCollector is analysis: Type, load/sub state, and NRestarts.
+type systemdInfoCollector struct {
+	serviceInfo         *prometheus.Desc
+	serviceSubState     *prometheus.Desc
+	serviceLoadState    *prometheus.Desc
+	serviceRestartTotal *prometheus.Desc
+	logger              *slog.Logger
+	conn                *dbus.Conn
+}
+
+func NewSystemdInfoCollector(logger *slog.Logger) (Collector, error) {
+	conn, err := newSystemdDbusConn()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get dbus connection: %w", err)
+	}
+	return &systemdInfoCollector{
+		serviceInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "systemd_service", "info"),
+			"Static systemd service information via D-Bus API. Value is always 1.",
+			[]string{"name", "type"},
 			nil,
 		),
 		serviceSubState: prometheus.NewDesc(
@@ -80,104 +140,55 @@ func NewSystemdServicesCollector(logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *systemdServicesCollector) Update(ch chan<- prometheus.Metric) error {
-	units, err := c.getAllUnits(c.conn)
+func (c *systemdInfoCollector) Update(ch chan<- prometheus.Metric) error {
+	units, err := listSystemdUnits(c.conn)
 	if err != nil {
 		return fmt.Errorf("couldn't get units: %w", err)
 	}
-
 	for _, unit := range units {
-		if !strings.HasSuffix(unit.Name, ".service") {
+		if !isServiceUnit(unit.Name) {
 			continue
 		}
-
-		if err := c.collectServiceMetrics(c.conn, ch, unit); err != nil {
-			c.logger.Debug("failed to collect metrics for unit", "unit", unit.Name, "error", err)
-			continue
-		}
+		c.collectAnalysisMetrics(ch, unit)
 	}
-
 	return nil
 }
 
-func (c *systemdServicesCollector) getAllUnits(conn *dbus.Conn) ([]dbus.UnitStatus, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	units, err := conn.ListUnitsContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return units, nil
-}
-
-func (c *systemdServicesCollector) collectServiceMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, unit dbus.UnitStatus) error {
+func (c *systemdInfoCollector) collectAnalysisMetrics(ch chan<- prometheus.Metric, unit dbus.UnitStatus) {
 	serviceType := "unknown"
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	typeProperty, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Service", "Type")
+	typeProperty, err := c.conn.GetUnitTypePropertyContext(ctx, unit.Name, "Service", "Type")
+	cancel()
 	if err == nil {
 		if v, ok := typeProperty.Value.Value().(string); ok && v != "" {
 			serviceType = v
 		}
 	}
-
-	// Info metric (static information, always 1)
-	ch <- prometheus.MustNewConstMetric(
-		c.serviceInfo,
-		prometheus.GaugeValue,
-		1,
-		unit.Name,
-		serviceType,
-	)
-
-	// State metric (numeric value)
-	stateValue := parseSystemdState(unit.ActiveState)
-	ch <- prometheus.MustNewConstMetric(
-		c.serviceState,
-		prometheus.GaugeValue,
-		stateValue,
-		unit.Name,
-	)
-
-	// Sub-state metric (numeric value)
-	subStateValue := parseSystemdSubState(unit.SubState)
-	ch <- prometheus.MustNewConstMetric(
-		c.serviceSubState,
-		prometheus.GaugeValue,
-		subStateValue,
-		unit.Name,
-	)
-
-	// Load state metric (numeric value)
-	loadStateValue := parseSystemdLoadState(unit.LoadState)
-	ch <- prometheus.MustNewConstMetric(
-		c.serviceLoadState,
-		prometheus.GaugeValue,
-		loadStateValue,
-		unit.Name,
-	)
+	ch <- prometheus.MustNewConstMetric(c.serviceInfo, prometheus.GaugeValue, 1, unit.Name, serviceType)
+	ch <- prometheus.MustNewConstMetric(c.serviceSubState, prometheus.GaugeValue, parseSystemdSubState(unit.SubState), unit.Name)
+	ch <- prometheus.MustNewConstMetric(c.serviceLoadState, prometheus.GaugeValue, parseSystemdLoadState(unit.LoadState), unit.Name)
 
 	// NRestarts wasn't added until systemd 235; older versions return an error (logged at Debug).
 	restartCtx, restartCancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer restartCancel()
-	restartsCount, err := conn.GetUnitTypePropertyContext(restartCtx, unit.Name, "Service", "NRestarts")
+	restartsCount, err := c.conn.GetUnitTypePropertyContext(restartCtx, unit.Name, "Service", "NRestarts")
 	if err != nil {
 		c.logger.Debug("couldn't get unit NRestarts", "unit", unit.Name, "err", err)
-	} else {
-		raw := restartsCount.Value.Value()
-		if fv, ok := dbusNumericToFloat64(raw); ok {
-			ch <- prometheus.MustNewConstMetric(
-				c.serviceRestartTotal, prometheus.CounterValue,
-				fv, unit.Name)
-		} else {
-			c.logger.Debug("unexpected NRestarts value type", "unit", unit.Name, "type", fmt.Sprintf("%T", raw))
-		}
+		return
 	}
-
-	return nil
+	raw := restartsCount.Value.Value()
+	fv, ok := dbusNumericToFloat64(raw)
+	if !ok {
+		c.logger.Debug("unexpected NRestarts value type", "unit", unit.Name, "type", fmt.Sprintf("%T", raw))
+		return
+	}
+	ch <- prometheus.MustNewConstMetric(c.serviceRestartTotal, prometheus.CounterValue, fv, unit.Name)
 }
 
-// parseSystemdState converts systemd state string to numeric value
+func (c *systemdInfoCollector) Close() error {
+	return closeSystemdConn(&c.conn)
+}
+
 func parseSystemdState(state string) float64 {
 	switch strings.ToLower(state) {
 	case "active":
@@ -193,11 +204,10 @@ func parseSystemdState(state string) float64 {
 	case "deactivating":
 		return 6
 	default:
-		return 0 // unknown
+		return 0
 	}
 }
 
-// parseSystemdSubState converts systemd sub-state string to numeric value
 func parseSystemdSubState(subState string) float64 {
 	switch strings.ToLower(subState) {
 	case "running":
@@ -217,11 +227,10 @@ func parseSystemdSubState(subState string) float64 {
 	case "auto-restart":
 		return 8
 	default:
-		return 0 // unknown
+		return 0
 	}
 }
 
-// dbusNumericToFloat64 converts D-Bus variant numeric values for Prometheus samples.
 func dbusNumericToFloat64(v any) (float64, bool) {
 	switch n := v.(type) {
 	case uint32:
@@ -241,7 +250,6 @@ func dbusNumericToFloat64(v any) (float64, bool) {
 	}
 }
 
-// parseSystemdLoadState converts systemd load state string to numeric value
 func parseSystemdLoadState(loadState string) float64 {
 	switch strings.ToLower(loadState) {
 	case "loaded":
@@ -253,14 +261,6 @@ func parseSystemdLoadState(loadState string) float64 {
 	case "not-found":
 		return 4
 	default:
-		return 0 // unknown
+		return 0
 	}
-}
-
-func (c *systemdServicesCollector) Close() error {
-	if c.conn != nil {
-		c.conn.Close()
-		c.conn = nil
-	}
-	return nil
 }

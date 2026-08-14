@@ -77,7 +77,7 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
 				prometheus.BuildFQName(namespace, vmStatSubsystem, parts[0]),
 				fmt.Sprintf("/proc/vmstat information field %s.", parts[0]),
 				nil, nil),
-			prometheus.UntypedValue,
+			prometheus.CounterValue,
 			value,
 		)
 	}

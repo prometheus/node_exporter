@@ -18,6 +18,8 @@ package collector
 import (
 	"os"
 	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func TestNetStats(t *testing.T) {
@@ -94,5 +96,17 @@ func testSNMP6Stats(t *testing.T, fileName string) {
 
 	if want, got := "8", snmp6Stats["Udp6"]["SndbufErrors"]; want != got {
 		t.Errorf("want netstat Udp6 SndbufErrors %s, got %s", want, got)
+	}
+}
+
+func TestNetstatValueType(t *testing.T) {
+	if got := netstatValueType("Tcp_CurrEstab"); got != prometheus.GaugeValue {
+		t.Fatalf("Tcp_CurrEstab: got %v want gauge", got)
+	}
+	if got := netstatValueType("Ip_Forwarding"); got != prometheus.GaugeValue {
+		t.Fatalf("Ip_Forwarding: got %v want gauge", got)
+	}
+	if got := netstatValueType("TcpExt_ListenDrops"); got != prometheus.CounterValue {
+		t.Fatalf("TcpExt_ListenDrops: got %v want counter", got)
 	}
 }
