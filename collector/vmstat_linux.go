@@ -77,9 +77,26 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
 				prometheus.BuildFQName(namespace, vmStatSubsystem, parts[0]),
 				fmt.Sprintf("/proc/vmstat information field %s.", parts[0]),
 				nil, nil),
-			prometheus.CounterValue,
+			vmstatValueType(parts[0]),
 			value,
 		)
 	}
 	return scanner.Err()
+}
+
+// vmstatValueType maps /proc/vmstat fields to Prometheus types.
+// Instantaneous page/state counts are gauges; cumulative events are counters;
+// anything else (including custom --collector.vmstat.fields matches) is untyped.
+func vmstatValueType(name string) prometheus.ValueType {
+	switch name {
+	case "nr_dirtied", "nr_written", "nr_vmscan_write", "nr_vmscan_immediate_reclaim", "nr_pages_scanned":
+		return prometheus.CounterValue
+	}
+	if strings.HasPrefix(name, "nr_") {
+		return prometheus.GaugeValue
+	}
+	if name == "oom_kill" || strings.HasPrefix(name, "pg") || strings.HasPrefix(name, "pswp") {
+		return prometheus.CounterValue
+	}
+	return prometheus.UntypedValue
 }

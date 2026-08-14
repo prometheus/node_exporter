@@ -100,13 +100,23 @@ func testSNMP6Stats(t *testing.T, fileName string) {
 }
 
 func TestNetstatValueType(t *testing.T) {
-	if got := netstatValueType("Tcp_CurrEstab"); got != prometheus.GaugeValue {
-		t.Fatalf("Tcp_CurrEstab: got %v want gauge", got)
+	tests := []struct {
+		key  string
+		want prometheus.ValueType
+	}{
+		{"Tcp_CurrEstab", prometheus.GaugeValue},
+		{"Ip_Forwarding", prometheus.GaugeValue},
+		{"Ip6_Forwarding", prometheus.GaugeValue},
+		{"Tcp_MaxConn", prometheus.GaugeValue},
+		{"Ip_DefaultTTL", prometheus.GaugeValue},
+		{"Tcp_RtoAlgorithm", prometheus.GaugeValue},
+		{"Tcp_RtoMin", prometheus.GaugeValue},
+		{"Tcp_RtoMax", prometheus.GaugeValue},
+		{"TcpExt_ListenDrops", prometheus.CounterValue},
 	}
-	if got := netstatValueType("Ip_Forwarding"); got != prometheus.GaugeValue {
-		t.Fatalf("Ip_Forwarding: got %v want gauge", got)
-	}
-	if got := netstatValueType("TcpExt_ListenDrops"); got != prometheus.CounterValue {
-		t.Fatalf("TcpExt_ListenDrops: got %v want counter", got)
+	for _, tt := range tests {
+		if got := netstatValueType(tt.key); got != tt.want {
+			t.Fatalf("%s: got %v want %v", tt.key, got, tt.want)
+		}
 	}
 }

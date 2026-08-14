@@ -102,7 +102,8 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 // Most SNMP/netstat fields are cumulative counters; a few are instantaneous gauges.
 func netstatValueType(key string) prometheus.ValueType {
 	switch key {
-	case "Tcp_CurrEstab", "Ip_Forwarding", "Ip6_Forwarding", "Tcp_MaxConn":
+	case "Tcp_CurrEstab", "Ip_Forwarding", "Ip6_Forwarding", "Tcp_MaxConn",
+		"Ip_DefaultTTL", "Tcp_RtoAlgorithm", "Tcp_RtoMin", "Tcp_RtoMax":
 		return prometheus.GaugeValue
 	default:
 		return prometheus.CounterValue

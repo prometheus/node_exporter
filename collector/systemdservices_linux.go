@@ -15,9 +15,11 @@ package collector
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/coreos/go-systemd/v22/dbus"
@@ -29,18 +31,89 @@ func init() {
 	registerCollector("systemdinfo", defaultDisabled, NewSystemdInfoCollector)
 }
 
+var errSystemdConnClosed = errors.New("systemd dbus connection closed")
+
+const systemdInfoUnitDeadline = 10 * time.Second
+
+// systemdConn serializes get/close of a long-lived dbus connection.
+type systemdConn struct {
+	mu     sync.Mutex
+	conn   *dbus.Conn
+	closed bool
+	dial   func() (*dbus.Conn, error)
+}
+
+func (s *systemdConn) get() (*dbus.Conn, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return nil, errSystemdConnClosed
+	}
+	if s.conn != nil {
+		return s.conn, nil
+	}
+	dial := s.dial
+	if dial == nil {
+		dial = newSystemdDbusConn
+	}
+	conn, err := dial()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't get dbus connection: %w", err)
+	}
+	s.conn = conn
+	return conn, nil
+}
+
+func (s *systemdConn) drop() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.conn == nil {
+		return
+	}
+	s.conn.Close()
+	s.conn = nil
+}
+
+func (s *systemdConn) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.closed = true
+	if s.conn == nil {
+		return nil
+	}
+	s.conn.Close()
+	s.conn = nil
+	return nil
+}
+
+func (s *systemdConn) connAndUnits() (*dbus.Conn, []dbus.UnitStatus, error) {
+	conn, err := s.get()
+	if err != nil {
+		return nil, nil, err
+	}
+	units, err := listSystemdUnits(conn)
+	if err == nil {
+		return conn, units, nil
+	}
+	s.drop()
+	conn, err2 := s.get()
+	if err2 != nil {
+		return nil, nil, err2
+	}
+	units, err = listSystemdUnits(conn)
+	if err != nil {
+		return nil, nil, fmt.Errorf("couldn't get units: %w", err)
+	}
+	return conn, units, nil
+}
+
 func listSystemdUnits(conn *dbus.Conn) ([]dbus.UnitStatus, error) {
+	if conn == nil {
+		return nil, errSystemdConnClosed
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	return conn.ListUnitsContext(ctx)
-}
-
-func closeSystemdConn(conn **dbus.Conn) error {
-	if conn != nil && *conn != nil {
-		(*conn).Close()
-		*conn = nil
-	}
-	return nil
 }
 
 func isServiceUnit(name string) bool {
@@ -51,15 +124,10 @@ func isServiceUnit(name string) bool {
 type systemdServicesCollector struct {
 	serviceState *prometheus.Desc
 	logger       *slog.Logger
-	conn         *dbus.Conn
+	sc           systemdConn
 }
 
 func NewSystemdServicesCollector(logger *slog.Logger) (Collector, error) {
-	conn, err := newSystemdDbusConn()
-	if err != nil {
-		return nil, fmt.Errorf("couldn't get dbus connection: %w", err)
-	}
-
 	return &systemdServicesCollector{
 		serviceState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "systemd_service", "state"),
@@ -68,14 +136,13 @@ func NewSystemdServicesCollector(logger *slog.Logger) (Collector, error) {
 			nil,
 		),
 		logger: logger,
-		conn:   conn,
 	}, nil
 }
 
 func (c *systemdServicesCollector) Update(ch chan<- prometheus.Metric) error {
-	units, err := listSystemdUnits(c.conn)
+	_, units, err := c.sc.connAndUnits()
 	if err != nil {
-		return fmt.Errorf("couldn't get units: %w", err)
+		return err
 	}
 	for _, unit := range units {
 		if !isServiceUnit(unit.Name) {
@@ -92,7 +159,7 @@ func (c *systemdServicesCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func (c *systemdServicesCollector) Close() error {
-	return closeSystemdConn(&c.conn)
+	return c.sc.Close()
 }
 
 // systemdInfoCollector is analysis: Type, load/sub state, and NRestarts.
@@ -102,14 +169,10 @@ type systemdInfoCollector struct {
 	serviceLoadState    *prometheus.Desc
 	serviceRestartTotal *prometheus.Desc
 	logger              *slog.Logger
-	conn                *dbus.Conn
+	sc                  systemdConn
 }
 
 func NewSystemdInfoCollector(logger *slog.Logger) (Collector, error) {
-	conn, err := newSystemdDbusConn()
-	if err != nil {
-		return nil, fmt.Errorf("couldn't get dbus connection: %w", err)
-	}
 	return &systemdInfoCollector{
 		serviceInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "systemd_service", "info"),
@@ -136,57 +199,74 @@ func NewSystemdInfoCollector(logger *slog.Logger) (Collector, error) {
 			nil,
 		),
 		logger: logger,
-		conn:   conn,
 	}, nil
 }
 
 func (c *systemdInfoCollector) Update(ch chan<- prometheus.Metric) error {
-	units, err := listSystemdUnits(c.conn)
+	conn, units, err := c.sc.connAndUnits()
 	if err != nil {
-		return fmt.Errorf("couldn't get units: %w", err)
+		return err
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), systemdInfoUnitDeadline)
+	defer cancel()
 	for _, unit := range units {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
 		if !isServiceUnit(unit.Name) {
 			continue
 		}
-		c.collectAnalysisMetrics(ch, unit)
+		c.collectAnalysisMetrics(ctx, ch, conn, unit)
 	}
 	return nil
 }
 
-func (c *systemdInfoCollector) collectAnalysisMetrics(ch chan<- prometheus.Metric, unit dbus.UnitStatus) {
+func (c *systemdInfoCollector) collectAnalysisMetrics(ctx context.Context, ch chan<- prometheus.Metric, conn *dbus.Conn, unit dbus.UnitStatus) {
 	serviceType := "unknown"
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	typeProperty, err := c.conn.GetUnitTypePropertyContext(ctx, unit.Name, "Service", "Type")
-	cancel()
-	if err == nil {
-		if v, ok := typeProperty.Value.Value().(string); ok && v != "" {
-			serviceType = v
+	props, err := conn.GetUnitTypePropertiesContext(ctx, unit.Name, "Service")
+	if err != nil {
+		if ctx.Err() == nil {
+			c.logger.Debug("couldn't get unit service properties", "unit", unit.Name, "err", err)
 		}
+	} else if t := serviceTypeFromProps(props); t != "" {
+		serviceType = t
 	}
 	ch <- prometheus.MustNewConstMetric(c.serviceInfo, prometheus.GaugeValue, 1, unit.Name, serviceType)
 	ch <- prometheus.MustNewConstMetric(c.serviceSubState, prometheus.GaugeValue, parseSystemdSubState(unit.SubState), unit.Name)
 	ch <- prometheus.MustNewConstMetric(c.serviceLoadState, prometheus.GaugeValue, parseSystemdLoadState(unit.LoadState), unit.Name)
 
-	// NRestarts wasn't added until systemd 235; older versions return an error (logged at Debug).
-	restartCtx, restartCancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer restartCancel()
-	restartsCount, err := c.conn.GetUnitTypePropertyContext(restartCtx, unit.Name, "Service", "NRestarts")
 	if err != nil {
-		c.logger.Debug("couldn't get unit NRestarts", "unit", unit.Name, "err", err)
 		return
 	}
-	raw := restartsCount.Value.Value()
-	fv, ok := dbusNumericToFloat64(raw)
+	// NRestarts wasn't added until systemd 235; absence is expected on older versions.
+	fv, ok := nRestartsFromProps(props)
 	if !ok {
-		c.logger.Debug("unexpected NRestarts value type", "unit", unit.Name, "type", fmt.Sprintf("%T", raw))
+		if raw, exists := props["NRestarts"]; exists {
+			c.logger.Debug("unexpected NRestarts value type", "unit", unit.Name, "type", fmt.Sprintf("%T", raw))
+		}
 		return
 	}
 	ch <- prometheus.MustNewConstMetric(c.serviceRestartTotal, prometheus.CounterValue, fv, unit.Name)
 }
 
+func serviceTypeFromProps(props map[string]any) string {
+	v, ok := props["Type"].(string)
+	if !ok {
+		return ""
+	}
+	return v
+}
+
+func nRestartsFromProps(props map[string]any) (float64, bool) {
+	raw, ok := props["NRestarts"]
+	if !ok {
+		return 0, false
+	}
+	return dbusNumericToFloat64(raw)
+}
+
 func (c *systemdInfoCollector) Close() error {
-	return closeSystemdConn(&c.conn)
+	return c.sc.Close()
 }
 
 func parseSystemdState(state string) float64 {
