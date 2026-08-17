@@ -120,32 +120,52 @@ func isServiceUnit(name string) bool {
 	return strings.HasSuffix(name, ".service")
 }
 
-// systemdServicesCollector is health: ActiveState only (failed at 15s).
+func skipInactiveOneshot(activeState, serviceType string) bool {
+	return strings.EqualFold(activeState, "inactive") && strings.EqualFold(serviceType, "oneshot")
+}
+
+func skipInactiveNotFound(activeState, loadState string) bool {
+	return strings.EqualFold(activeState, "inactive") && strings.EqualFold(loadState, "not-found")
+}
+
+// systemdServicesCollector is health: ActiveState only. Inactive Type=oneshot and
+// inactive LoadState=not-found are omitted.
 type systemdServicesCollector struct {
 	serviceState *prometheus.Desc
 	logger       *slog.Logger
 	sc           systemdConn
+	typeMu       sync.Mutex
+	unitType     map[string]string
 }
 
 func NewSystemdServicesCollector(logger *slog.Logger) (Collector, error) {
 	return &systemdServicesCollector{
 		serviceState: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "systemd_service", "state"),
-			"Systemd service state: 0 = unknown, 1 = active, 2 = reloading, 3 = inactive, 4 = failed, 5 = activating, 6 = deactivating.",
+			"Systemd service state: 0 = unknown, 1 = active, 2 = reloading, 3 = inactive, 4 = failed, 5 = activating, 6 = deactivating. Inactive Type=oneshot and inactive LoadState=not-found are not emitted.",
 			[]string{"name"},
 			nil,
 		),
-		logger: logger,
+		logger:   logger,
+		unitType: make(map[string]string),
 	}, nil
 }
 
 func (c *systemdServicesCollector) Update(ch chan<- prometheus.Metric) error {
-	_, units, err := c.sc.connAndUnits()
+	conn, units, err := c.sc.connAndUnits()
 	if err != nil {
 		return err
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), systemdInfoUnitDeadline)
+	defer cancel()
 	for _, unit := range units {
 		if !isServiceUnit(unit.Name) {
+			continue
+		}
+		if skipInactiveNotFound(unit.ActiveState, unit.LoadState) {
+			continue
+		}
+		if skipInactiveOneshot(unit.ActiveState, c.serviceType(ctx, conn, unit.Name)) {
 			continue
 		}
 		ch <- prometheus.MustNewConstMetric(
@@ -156,6 +176,33 @@ func (c *systemdServicesCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 	}
 	return nil
+}
+
+func (c *systemdServicesCollector) serviceType(ctx context.Context, conn *dbus.Conn, name string) string {
+	c.typeMu.Lock()
+	if t, ok := c.unitType[name]; ok {
+		c.typeMu.Unlock()
+		return t
+	}
+	c.typeMu.Unlock()
+	if ctx.Err() != nil || conn == nil {
+		return ""
+	}
+	props, err := conn.GetUnitTypePropertiesContext(ctx, name, "Service")
+	if err != nil {
+		return ""
+	}
+	t := serviceTypeFromProps(props)
+	if t == "" {
+		return ""
+	}
+	c.typeMu.Lock()
+	if c.unitType == nil {
+		c.unitType = make(map[string]string)
+	}
+	c.unitType[name] = t
+	c.typeMu.Unlock()
+	return t
 }
 
 func (c *systemdServicesCollector) Close() error {
