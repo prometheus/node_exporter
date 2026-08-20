@@ -42,6 +42,10 @@ func rootfsFilePath(name string) string {
 }
 
 func udevDataFilePath(name string) string {
+	// If rootfsPath flag is set, prepend to the udev data path
+	if *rootfsPath != "/" {
+		return filepath.Join(*rootfsPath, *udevDataPath, name)
+	}
 	return filepath.Join(*udevDataPath, name)
 }
 
