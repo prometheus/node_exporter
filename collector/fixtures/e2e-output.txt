@@ -3734,6 +3734,10 @@ node_qdisc_packets_total{device="wlan0",kind="fq"} 42
 # TYPE node_qdisc_requeues_total counter
 node_qdisc_requeues_total{device="eth0",kind="pfifo_fast"} 2
 node_qdisc_requeues_total{device="wlan0",kind="fq"} 1
+# HELP node_qdisc_throttled_total Number of times the qdisc has been throttled to enforce pacing (fq).
+# TYPE node_qdisc_throttled_total counter
+node_qdisc_throttled_total{device="eth0",kind="pfifo_fast"} 0
+node_qdisc_throttled_total{device="wlan0",kind="fq"} 3
 # HELP node_rapl_core_joules_total Current RAPL core value in joules
 # TYPE node_rapl_core_joules_total counter
 node_rapl_core_joules_total{index="0",path="collector/fixtures/sys/class/powercap/intel-rapl:0:0"} 118821.284256
