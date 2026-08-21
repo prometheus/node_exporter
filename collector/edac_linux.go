@@ -201,7 +201,7 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 						label,
 					)
 				} else {
-					c.logger.Debug("couldn't get ue_count for controller/csrow/channel %s/%s/%s: %w", controllerNumber, csrowNumber, channelNumber, err)
+					c.logger.Debug("couldn't get ue_count", "controller", controllerNumber, "csrow", csrowNumber, "channel", channelNumber, "err", err)
 				}
 			}
 		}
