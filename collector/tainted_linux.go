@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//go:build !notainted
+
 package collector
 
 import (
@@ -23,6 +25,7 @@ import (
 )
 
 type taintedCollector struct {
+	fs     procfs.FS
 	logger *slog.Logger
 	desc   *prometheus.Desc
 }
@@ -35,7 +38,12 @@ func init() {
 // /proc/sys/kernel/tainted as a labelled gauge.
 // See https://www.kernel.org/doc/html/latest/admin-guide/tainted-kernels.html
 func NewTaintedCollector(logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
 	return &taintedCollector{
+		fs:     fs,
 		logger: logger,
 		desc: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "kernel", "tainted"),
@@ -49,12 +57,7 @@ func NewTaintedCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func (c *taintedCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %w", err)
-	}
-
-	tainted, err := fs.KernelTainted()
+	tainted, err := c.fs.KernelTainted()
 	if err != nil {
 		return fmt.Errorf("couldn't read kernel tainted state: %w", err)
 	}
