@@ -322,35 +322,6 @@ node_sysctl_info{key="kernel.seccomp.actions_avail", index="1", value="kill_thre
 ...
 ```
 
-### Tainted Collector
-
-The `tainted` collector can be enabled with `--collector.tainted`. It reads the
-integer bitmask from `/proc/sys/kernel/tainted` and exposes each known [kernel
-taint flag](https://www.kernel.org/doc/html/latest/admin-guide/tainted-kernels.html)
-as a separate gauge. The raw bitmask is not exported; each series indicates
-whether a single flag is active.
-
-Metric: `node_kernel_tainted{bit="N", flag="X"}` — value `1` if the flag is
-set, `0` otherwise. Labels:
-
-* `bit` — zero-based bit position in the taint bitmask (0–19).
-* `flag` — kernel letter code for the taint (e.g. `O` for an out-of-tree module,
-  `E` for an unsigned module).
-
-All 20 defined taint flags are reported on every scrape, even when clear.
-
-#### Example
-
-If `/proc/sys/kernel/tainted` is `12288` (out-of-tree and unsigned modules
-loaded), the collector exposes:
-
-```
-node_kernel_tainted{bit="12",flag="O"} 1
-node_kernel_tainted{bit="13",flag="E"} 1
-node_kernel_tainted{bit="0",flag="P"} 0
-...
-```
-
 ### Textfile Collector
 
 The `textfile` collector is similar to the [Pushgateway](https://github.com/prometheus/pushgateway),
