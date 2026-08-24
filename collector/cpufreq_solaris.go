@@ -28,6 +28,7 @@ import (
 import "C"
 
 type cpuFreqCollector struct {
+	descs  cpuFreqDescs
 	logger *slog.Logger
 }
 
@@ -37,6 +38,7 @@ func init() {
 
 func NewCpuFreqCollector(logger *slog.Logger) (Collector, error) {
 	return &cpuFreqCollector{
+		descs:  newCPUFreqDescs(),
 		logger: logger,
 	}, nil
 }
@@ -68,14 +70,14 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 
 		lcpu := strconv.Itoa(cpu)
 		ch <- prometheus.MustNewConstMetric(
-			cpuFreqHertzDesc,
+			c.descs.hertz,
 			prometheus.GaugeValue,
 			float64(cpuFreqV.UintVal),
 			lcpu,
 		)
 		// Multiply by 1e+6 to convert MHz to Hz.
 		ch <- prometheus.MustNewConstMetric(
-			cpuFreqMaxDesc,
+			c.descs.maxHertz,
 			prometheus.GaugeValue,
 			float64(cpuFreqMaxV.IntVal)*1e+6,
 			lcpu,
