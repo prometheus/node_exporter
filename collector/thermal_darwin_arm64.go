@@ -39,16 +39,30 @@ CFArrayRef IOHIDEventSystemClientCopyServices(IOHIDEventSystemClientRef client);
 IOHIDEventRef IOHIDServiceClientCopyEvent(IOHIDServiceClientRef service, int64_t type, int32_t options, int64_t timestamp);
 double IOHIDEventGetFloatValue(IOHIDEventRef event, int32_t field);
 CFTypeRef IOHIDServiceClientCopyProperty(IOHIDServiceClientRef service, CFStringRef key);
+uint64_t IOHIDServiceClientGetRegistryID(IOHIDServiceClientRef service);
 */
 import "C"
 
 import (
+	"strconv"
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 const absoluteZeroCelsius = -273.15
+
+// A thermal sensor is labelled with its IOHID "Product" property, which is not
+// unique. Apple Silicon reports several services under one product name: some
+// are distinct sensors that only share the name and can be told apart by their
+// location, while others share the location too and differ only by the registry
+// ID of the service.
+type thermalSensor struct {
+	name       string
+	location   string
+	registryID string
+	temp       float64
+}
 
 func (c *thermCollector) updateTemperatures(ch chan<- prometheus.Metric) error {
 	client := C.IOHIDEventSystemClientCreate(C.kCFAllocatorDefault)
@@ -101,10 +115,18 @@ func (c *thermCollector) updateTemperatures(ch chan<- prometheus.Metric) error {
 	cfProdKey := C.CFStringCreateWithCString(C.kCFAllocatorDefault, prodKey, C.kCFStringEncodingUTF8)
 	defer C.CFRelease(C.CFTypeRef(cfProdKey))
 
-	for i := 0; i < int(count); i++ {
-		service := C.CFArrayGetValueAtIndex(services, C.CFIndex(i))
+	locKey := C.CString("LocationID")
+	defer C.free(unsafe.Pointer(locKey))
+	cfLocKey := C.CFStringCreateWithCString(C.kCFAllocatorDefault, locKey, C.kCFStringEncodingUTF8)
+	defer C.CFRelease(C.CFTypeRef(cfLocKey))
 
-		event := C.IOHIDServiceClientCopyEvent((C.IOHIDServiceClientRef)(service), C.kIOHIDEventTypeTemperature, 0, 0)
+	// Read every sensor first, so that colliding product names can be detected
+	// before any metric is emitted.
+	sensors := make([]thermalSensor, 0, int(count))
+	for i := 0; i < int(count); i++ {
+		service := (C.IOHIDServiceClientRef)(C.CFArrayGetValueAtIndex(services, C.CFIndex(i)))
+
+		event := C.IOHIDServiceClientCopyEvent(service, C.kIOHIDEventTypeTemperature, 0, 0)
 		if event == nil {
 			continue
 		}
@@ -118,16 +140,78 @@ func (c *thermCollector) updateTemperatures(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		nameRef := C.IOHIDServiceClientCopyProperty((C.IOHIDServiceClientRef)(service), cfProdKey)
+		nameRef := C.IOHIDServiceClientCopyProperty(service, cfProdKey)
 		name := "Unknown"
 		if nameRef != 0 {
 			name = cfStringToString((C.CFStringRef)(nameRef))
 			C.CFRelease(C.CFTypeRef(nameRef))
 		}
 
-		ch <- c.temperature.mustNewConstMetric(float64(temp), name)
+		sensors = append(sensors, thermalSensor{
+			name:       name,
+			location:   serviceNumberProperty(service, cfLocKey),
+			registryID: strconv.FormatUint(uint64(C.IOHIDServiceClientGetRegistryID(service)), 10),
+			temp:       float64(temp),
+		})
 	}
+
+	for i, label := range resolveSensorNames(sensors) {
+		ch <- c.temperature.mustNewConstMetric(sensors[i].temp, label)
+	}
+
 	return nil
+}
+
+// resolveSensorNames returns the sensor label to report for each sensor, in the
+// order the sensors were given.
+//
+// Emitting the same label set twice makes the registry reject the samples and
+// fail the whole scrape. A product name shared by several services is therefore
+// qualified with the service location, falling back to the registry ID, which is
+// unique per service, when the location does not tell them apart either.
+func resolveSensorNames(sensors []thermalSensor) []string {
+	nameCount := make(map[string]int, len(sensors))
+	nameLocationCount := make(map[string]int, len(sensors))
+	for _, s := range sensors {
+		nameCount[s.name]++
+		nameLocationCount[s.name+"\x00"+s.location]++
+	}
+
+	labels := make([]string, 0, len(sensors))
+	for _, s := range sensors {
+		label := s.name
+		if nameCount[s.name] > 1 {
+			suffix := s.location
+			if suffix == "" || nameLocationCount[s.name+"\x00"+s.location] > 1 {
+				suffix = s.registryID
+			}
+			label = s.name + "_" + suffix
+		}
+		labels = append(labels, label)
+	}
+
+	return labels
+}
+
+// serviceNumberProperty reads a numeric IOHID service property, returning an
+// empty string when it is absent or not a number.
+func serviceNumberProperty(service C.IOHIDServiceClientRef, key C.CFStringRef) string {
+	ref := C.IOHIDServiceClientCopyProperty(service, key)
+	if ref == 0 {
+		return ""
+	}
+	defer C.CFRelease(ref)
+
+	if C.CFGetTypeID(ref) != C.CFNumberGetTypeID() {
+		return ""
+	}
+
+	var value C.longlong
+	if C.CFNumberGetValue(C.CFNumberRef(ref), C.kCFNumberLongLongType, unsafe.Pointer(&value)) == 0 {
+		return ""
+	}
+
+	return strconv.FormatInt(int64(value), 10)
 }
 
 func cfStringToString(s C.CFStringRef) string {
