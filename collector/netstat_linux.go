@@ -32,6 +32,11 @@ const (
 
 var (
 	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts|TCPOFOQueue|TCPRcvQDrop)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$").String()
+
+	// netStatDescs holds the explicit metric descriptors, allocated once at
+	// package init (see netstat_descs_linux.go) so collection never calls
+	// prometheus.NewDesc per scrape.
+	netStatDescs = netStatMetricDescs()
 )
 
 type netStatCollector struct {
@@ -99,7 +104,8 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 // emitStruct emits one metric per non-nil field of a procfs netstat/snmp
-// statistics struct, using the struct's type name as the protocol name.
+// statistics struct, using the struct's type name as the protocol name and
+// looking up the pre-built descriptor by "<protocol>_<field>".
 func (c *netStatCollector) emitStruct(ch chan<- prometheus.Metric, stats any) {
 	v := reflect.ValueOf(stats)
 	protocol := v.Type().Name()
@@ -112,17 +118,14 @@ func (c *netStatCollector) emitStruct(ch chan<- prometheus.Metric, stats any) {
 
 		name := v.Type().Field(i).Name
 		key := protocol + "_" + name
+		desc, ok := netStatDescs[key]
+		if !ok {
+			continue
+		}
 		if !c.fieldPattern.MatchString(key) {
 			continue
 		}
 
-		ch <- prometheus.MustNewConstMetric(
-			prometheus.NewDesc(
-				prometheus.BuildFQName(namespace, netStatsSubsystem, key),
-				fmt.Sprintf("Statistic %s.", protocol+name),
-				nil, nil,
-			),
-			prometheus.UntypedValue, *value,
-		)
+		ch <- prometheus.MustNewConstMetric(desc, prometheus.UntypedValue, *value)
 	}
 }
