@@ -50,15 +50,6 @@ Mode: 755
 Path: sys/block/dm-4/slaves/dm-0
 SymlinkTo: ../dm-0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: sys/block/dm-5
-Mode: 755
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: sys/block/dm-5/slaves
-Mode: 755
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/block/dm-5/slaves/dm-0
-SymlinkTo: ../dm-0
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/block/md0
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
