@@ -16,48 +16,74 @@
 package collector
 
 import (
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var (
-	cpuFreqHertzDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_hertz"),
-		"Current CPU thread frequency in hertz.",
-		[]string{"cpu"}, nil,
-	)
-	cpuFreqAvgDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_avg_hertz"),
-		"Average CPU thread frequency in hertz.",
-		[]string{"cpu"}, nil,
-	)
-	cpuFreqMinDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_min_hertz"),
-		"Minimum CPU thread frequency in hertz.",
-		[]string{"cpu"}, nil,
-	)
-	cpuFreqMaxDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "frequency_max_hertz"),
-		"Maximum CPU thread frequency in hertz.",
-		[]string{"cpu"}, nil,
-	)
-	cpuFreqScalingFreqDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_hertz"),
-		"Current scaled CPU thread frequency in hertz.",
-		[]string{"cpu"}, nil,
-	)
-	cpuFreqScalingFreqMinDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_min_hertz"),
-		"Minimum scaled CPU thread frequency in hertz.",
-		[]string{"cpu"}, nil,
-	)
-	cpuFreqScalingFreqMaxDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_frequency_max_hertz"),
-		"Maximum scaled CPU thread frequency in hertz.",
-		[]string{"cpu"}, nil,
-	)
-	cpuFreqScalingGovernorDesc = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "scaling_governor"),
-		"Current enabled CPU frequency governor.",
-		[]string{"cpu", "governor"}, nil,
-	)
-)
+const cpuFreqCollectorSubsystem = "cpufreq"
+
+var useCPUFreqPrefix = kingpin.Flag("collector.cpufreq.enable-cpufreq-prefix",
+	"Expose cpufreq metrics with the node_cpufreq_ prefix instead of node_cpu_. This avoids a metric name collision with the cpu collector and will be the default behavior in 2.x.").Bool()
+
+type cpuFreqDescs struct {
+	hertz           *prometheus.Desc
+	avgHertz        *prometheus.Desc
+	minHertz        *prometheus.Desc
+	maxHertz        *prometheus.Desc
+	scalingHertz    *prometheus.Desc
+	scalingMinHertz *prometheus.Desc
+	scalingMaxHertz *prometheus.Desc
+	scalingGovernor *prometheus.Desc
+}
+
+// newCPUFreqDescs builds the cpufreq metric descriptions. It must run after
+// flag parsing because the metric prefix depends on
+// --collector.cpufreq.enable-cpufreq-prefix.
+func newCPUFreqDescs() cpuFreqDescs {
+	subsystem := cpuCollectorSubsystem
+	if *useCPUFreqPrefix {
+		subsystem = cpuFreqCollectorSubsystem
+	}
+	return cpuFreqDescs{
+		hertz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "frequency_hertz"),
+			"Current CPU thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		avgHertz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "frequency_avg_hertz"),
+			"Average CPU thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		minHertz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "frequency_min_hertz"),
+			"Minimum CPU thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		maxHertz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "frequency_max_hertz"),
+			"Maximum CPU thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		scalingHertz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "scaling_frequency_hertz"),
+			"Current scaled CPU thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		scalingMinHertz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "scaling_frequency_min_hertz"),
+			"Minimum scaled CPU thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		scalingMaxHertz: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "scaling_frequency_max_hertz"),
+			"Maximum scaled CPU thread frequency in hertz.",
+			[]string{"cpu"}, nil,
+		),
+		scalingGovernor: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "scaling_governor"),
+			"Current enabled CPU frequency governor.",
+			[]string{"cpu", "governor"}, nil,
+		),
+	}
+}
