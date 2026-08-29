@@ -13,6 +13,9 @@
 
 //go:build !nonetstat
 
+// Regenerate the explicit descriptor table after a procfs upgrade:
+//go:generate go run netstat_descs_gen.go
+
 package collector
 
 import (
