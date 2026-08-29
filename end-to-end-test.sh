@@ -74,6 +74,7 @@ enabled_collectors=$(cat << COLLECTORS
   processes
   qdisc
   rapl
+  resctrl
   schedstat
   slabinfo
   sockstat
@@ -175,6 +176,7 @@ collector_flags=$(cat << FLAGS
   --collector.netdev.device-include=lo
   --collector.qdisc.device-include=(wlan0|eth0)
   --collector.qdisc.fixtures=collector/fixtures/qdisc/
+  --collector.resctrl.path=collector/fixtures/resctrl
   --collector.stat.softirq
   --collector.sysctl.include-info=kernel.seccomp.actions_avail
   --collector.sysctl.include=fs.file-nr
