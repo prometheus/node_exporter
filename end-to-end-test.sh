@@ -279,7 +279,7 @@ generated_metrics="${tmpdir}/e2e-output.txt"
 for os in freebsd openbsd netbsd solaris dragonfly darwin; do
   if [ "${GOHOSTOS}" = "${os}" ]; then
     generated_metrics="${tmpdir}/e2e-output-${GOHOSTOS}.txt"
-    fixture_metrics="${fixture_metrics::-4}-${GOHOSTOS}.txt"
+    fixture_metrics="${fixture_metrics%.txt}-${GOHOSTOS}.txt"
   fi
 done
 
@@ -390,6 +390,7 @@ non_deterministic_metrics=$(cat << METRICS
   node_network_receive_bytes_total
   node_network_receive_multicast_total
   node_network_transmit_multicast_total
+  node_thermal_temperature_celsius
   node_zfs_abdstats_linear_count_total
   node_zfs_abdstats_linear_data_bytes
   node_zfs_abdstats_scatter_chunk_waste_bytes
