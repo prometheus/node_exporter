@@ -279,9 +279,6 @@ generated_metrics="${tmpdir}/e2e-output.txt"
 for os in freebsd openbsd netbsd solaris dragonfly darwin; do
   if [ "${GOHOSTOS}" = "${os}" ]; then
     generated_metrics="${tmpdir}/e2e-output-${GOHOSTOS}.txt"
-    # Not "${fixture_metrics::-4}": a negative length needs bash 4.2, and macOS
-    # still ships bash 3.2, where the expansion fails and the Linux fixture is
-    # used instead.
     fixture_metrics="${fixture_metrics%.txt}-${GOHOSTOS}.txt"
   fi
 done
