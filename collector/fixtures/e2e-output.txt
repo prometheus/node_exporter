@@ -902,16 +902,6 @@ node_cpu_flag_info{flag="aes"} 1
 node_cpu_flag_info{flag="avx"} 1
 node_cpu_flag_info{flag="avx2"} 1
 node_cpu_flag_info{flag="constant_tsc"} 1
-# HELP node_cpu_frequency_hertz CPU frequency in hertz from /proc/cpuinfo.
-# TYPE node_cpu_frequency_hertz gauge
-node_cpu_frequency_hertz{core="0",cpu="0",package="0"} 7.99998e+08
-node_cpu_frequency_hertz{core="0",cpu="4",package="0"} 7.99989e+08
-node_cpu_frequency_hertz{core="1",cpu="1",package="0"} 8.00037e+08
-node_cpu_frequency_hertz{core="1",cpu="5",package="0"} 8.00083e+08
-node_cpu_frequency_hertz{core="2",cpu="2",package="0"} 8.0001e+08
-node_cpu_frequency_hertz{core="2",cpu="6",package="0"} 8.00017e+08
-node_cpu_frequency_hertz{core="3",cpu="3",package="0"} 8.00028e+08
-node_cpu_frequency_hertz{core="3",cpu="7",package="0"} 8.0003e+08
 # HELP node_cpu_guest_seconds_total Seconds the CPUs spent in guests (VMs) for each mode.
 # TYPE node_cpu_guest_seconds_total counter
 node_cpu_guest_seconds_total{cpu="0",mode="nice"} 0.01
@@ -1438,61 +1428,76 @@ node_entropy_pool_size_bits 4096
 # HELP node_fibrechannel_dumped_frames_total Number of dumped frames
 # TYPE node_fibrechannel_dumped_frames_total counter
 node_fibrechannel_dumped_frames_total{fc_host="host1"} 0
+node_fibrechannel_dumped_frames_total{fc_host="host2"} 0
 # HELP node_fibrechannel_error_frames_total Number of errors in frames
 # TYPE node_fibrechannel_error_frames_total counter
 node_fibrechannel_error_frames_total{fc_host="host0"} 0
 node_fibrechannel_error_frames_total{fc_host="host1"} 19
+node_fibrechannel_error_frames_total{fc_host="host2"} 0
 # HELP node_fibrechannel_fcp_packet_aborts_total Number of aborted packets
 # TYPE node_fibrechannel_fcp_packet_aborts_total counter
 node_fibrechannel_fcp_packet_aborts_total{fc_host="host0"} 19
+node_fibrechannel_fcp_packet_aborts_total{fc_host="host2"} 0
 # HELP node_fibrechannel_info Non-numeric data from /sys/class/fc_host/<host>, value is always 1.
 # TYPE node_fibrechannel_info gauge
 node_fibrechannel_info{dev_loss_tmo="",fabric_name="",fc_host="host1",port_id="",port_name="",port_state="Online",port_type="",speed="8 Gbit",supported_classes="",supported_speeds="",symbolic_name=""} 1
 node_fibrechannel_info{dev_loss_tmo="30",fabric_name="0",fc_host="host0",port_id="000002",port_name="1000e0071bce95f2",port_state="Online",port_type="Point-To-Point (direct nport connection)",speed="16 Gbit",supported_classes="Class 3",supported_speeds="4 Gbit, 8 Gbit, 16 Gbit",symbolic_name="Emulex SN1100E2P FV12.4.270.3 DV12.4.0.0. HN:gotest. OS:Linux"} 1
+node_fibrechannel_info{dev_loss_tmo="300",fabric_name="c050760aab8f2cff",fc_host="host2",port_id="0b19e2",port_name="c050760aab8f2cff",port_state="Online",port_type="NPIV VPORT",speed="unknown",supported_classes="Class 3",supported_speeds="",symbolic_name=""} 1
 # HELP node_fibrechannel_invalid_crc_total Invalid Cyclic Redundancy Check count
 # TYPE node_fibrechannel_invalid_crc_total counter
 node_fibrechannel_invalid_crc_total{fc_host="host0"} 2
 node_fibrechannel_invalid_crc_total{fc_host="host1"} 32
+node_fibrechannel_invalid_crc_total{fc_host="host2"} 0
 # HELP node_fibrechannel_invalid_tx_words_total Number of invalid words transmitted by host port
 # TYPE node_fibrechannel_invalid_tx_words_total counter
 node_fibrechannel_invalid_tx_words_total{fc_host="host0"} 8
 node_fibrechannel_invalid_tx_words_total{fc_host="host1"} 128
+node_fibrechannel_invalid_tx_words_total{fc_host="host2"} 0
 # HELP node_fibrechannel_link_failure_total Number of times the host port link has failed
 # TYPE node_fibrechannel_link_failure_total counter
 node_fibrechannel_link_failure_total{fc_host="host0"} 9
 node_fibrechannel_link_failure_total{fc_host="host1"} 144
+node_fibrechannel_link_failure_total{fc_host="host2"} 0
 # HELP node_fibrechannel_loss_of_signal_total Number of times signal has been lost
 # TYPE node_fibrechannel_loss_of_signal_total counter
 node_fibrechannel_loss_of_signal_total{fc_host="host0"} 17
 node_fibrechannel_loss_of_signal_total{fc_host="host1"} 272
+node_fibrechannel_loss_of_signal_total{fc_host="host2"} 0
 # HELP node_fibrechannel_loss_of_sync_total Number of failures on either bit or transmission word boundaries
 # TYPE node_fibrechannel_loss_of_sync_total counter
 node_fibrechannel_loss_of_sync_total{fc_host="host0"} 16
 node_fibrechannel_loss_of_sync_total{fc_host="host1"} 256
+node_fibrechannel_loss_of_sync_total{fc_host="host2"} 0
 # HELP node_fibrechannel_nos_total Number Not_Operational Primitive Sequence received by host port
 # TYPE node_fibrechannel_nos_total counter
 node_fibrechannel_nos_total{fc_host="host0"} 18
 node_fibrechannel_nos_total{fc_host="host1"} 288
+node_fibrechannel_nos_total{fc_host="host2"} 0
 # HELP node_fibrechannel_rx_frames_total Number of frames received
 # TYPE node_fibrechannel_rx_frames_total counter
 node_fibrechannel_rx_frames_total{fc_host="host0"} 3
 node_fibrechannel_rx_frames_total{fc_host="host1"} 48
+node_fibrechannel_rx_frames_total{fc_host="host2"} 0
 # HELP node_fibrechannel_rx_words_total Number of words received by host port
 # TYPE node_fibrechannel_rx_words_total counter
 node_fibrechannel_rx_words_total{fc_host="host0"} 4
 node_fibrechannel_rx_words_total{fc_host="host1"} 64
+node_fibrechannel_rx_words_total{fc_host="host2"} 0
 # HELP node_fibrechannel_seconds_since_last_reset_total Number of seconds since last host port reset
 # TYPE node_fibrechannel_seconds_since_last_reset_total counter
 node_fibrechannel_seconds_since_last_reset_total{fc_host="host0"} 7
 node_fibrechannel_seconds_since_last_reset_total{fc_host="host1"} 112
+node_fibrechannel_seconds_since_last_reset_total{fc_host="host2"} 0
 # HELP node_fibrechannel_tx_frames_total Number of frames transmitted by host port
 # TYPE node_fibrechannel_tx_frames_total counter
 node_fibrechannel_tx_frames_total{fc_host="host0"} 5
 node_fibrechannel_tx_frames_total{fc_host="host1"} 80
+node_fibrechannel_tx_frames_total{fc_host="host2"} 0
 # HELP node_fibrechannel_tx_words_total Number of words transmitted by host port
 # TYPE node_fibrechannel_tx_words_total counter
 node_fibrechannel_tx_words_total{fc_host="host0"} 6
 node_fibrechannel_tx_words_total{fc_host="host1"} 96
+node_fibrechannel_tx_words_total{fc_host="host2"} 0
 # HELP node_filefd_allocated File descriptor statistics: allocated.
 # TYPE node_filefd_allocated gauge
 node_filefd_allocated 1024
@@ -2019,31 +2024,34 @@ node_ipvs_outgoing_packets_total 0
 # HELP node_kernel_hung_tasks_total Total number of tasks that have been detected as hung since the system booted.
 # TYPE node_kernel_hung_tasks_total counter
 node_kernel_hung_tasks_total 42
-# HELP node_ksmd_full_scans_total ksmd 'full_scans' file.
+# HELP node_ksmd_full_scans_total How many times all mergeable areas have been scanned.
 # TYPE node_ksmd_full_scans_total counter
 node_ksmd_full_scans_total 323
-# HELP node_ksmd_merge_across_nodes ksmd 'merge_across_nodes' file.
+# HELP node_ksmd_general_profit_bytes How effective is KSM. ksm_saved_pages * sizeof(page) - (all_rmap_items) * sizeof(rmap_item)
+# TYPE node_ksmd_general_profit_bytes gauge
+node_ksmd_general_profit_bytes 1.04448e+06
+# HELP node_ksmd_merge_across_nodes Specifies if pages from different NUMA nodes can be merged.
 # TYPE node_ksmd_merge_across_nodes gauge
 node_ksmd_merge_across_nodes 1
-# HELP node_ksmd_pages_shared ksmd 'pages_shared' file.
+# HELP node_ksmd_pages_shared How many shared pages are being used.
 # TYPE node_ksmd_pages_shared gauge
 node_ksmd_pages_shared 1
-# HELP node_ksmd_pages_sharing ksmd 'pages_sharing' file.
+# HELP node_ksmd_pages_sharing How many more sites are sharing them i.e. how much saved.
 # TYPE node_ksmd_pages_sharing gauge
 node_ksmd_pages_sharing 255
-# HELP node_ksmd_pages_to_scan ksmd 'pages_to_scan' file.
+# HELP node_ksmd_pages_to_scan How many pages to scan before ksmd goes to sleep.
 # TYPE node_ksmd_pages_to_scan gauge
 node_ksmd_pages_to_scan 100
-# HELP node_ksmd_pages_unshared ksmd 'pages_unshared' file.
+# HELP node_ksmd_pages_unshared How many pages unique but repeatedly checked for merging.
 # TYPE node_ksmd_pages_unshared gauge
 node_ksmd_pages_unshared 0
-# HELP node_ksmd_pages_volatile ksmd 'pages_volatile' file.
+# HELP node_ksmd_pages_volatile How many pages changing too fast to be placed in a tree.
 # TYPE node_ksmd_pages_volatile gauge
 node_ksmd_pages_volatile 0
-# HELP node_ksmd_run ksmd 'run' file.
+# HELP node_ksmd_run The status of ksmd. stopped = 0, running = 1
 # TYPE node_ksmd_run gauge
 node_ksmd_run 1
-# HELP node_ksmd_sleep_seconds ksmd 'sleep_millisecs' file.
+# HELP node_ksmd_sleep_seconds How many seconds ksmd should sleep before next scan.
 # TYPE node_ksmd_sleep_seconds gauge
 node_ksmd_sleep_seconds 0.02
 # HELP node_lnstat_allocs_total linux network cache stats

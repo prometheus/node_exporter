@@ -13,22 +13,20 @@
 
 //go:build !nonetstat
 
+// Regenerate the explicit descriptor table after a procfs upgrade:
+//go:generate go run netstat_descs_gen.go
+
 package collector
 
 import (
-	"bufio"
-	"errors"
 	"fmt"
-	"io"
 	"log/slog"
-	"maps"
-	"os"
+	"reflect"
 	"regexp"
-	"strconv"
-	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/procfs"
 )
 
 const (
@@ -37,9 +35,15 @@ const (
 
 var (
 	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts|TCPOFOQueue|TCPRcvQDrop)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$").String()
+
+	// netStatDescs holds the explicit metric descriptors, allocated once at
+	// package init (see netstat_descs_linux.go) so collection never calls
+	// prometheus.NewDesc per scrape.
+	netStatDescs = netStatMetricDescs()
 )
 
 type netStatCollector struct {
+	proc         procfs.Proc
 	fieldPattern *regexp.Regexp
 	logger       *slog.Logger
 }
@@ -52,124 +56,79 @@ func init() {
 // a new Collector exposing network stats.
 func NewNetStatCollector(logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*netStatFields)
+	fs, err := procfs.NewFS(*procPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
+
+	// Network statistics in /proc/net are network namespace local. Reading
+	// them via the current process' /proc/self/net keeps the same semantics
+	// while allowing the use of the procfs parsers.
+	proc, err := fs.Self()
+	if err != nil {
+		return nil, fmt.Errorf("failed to open /proc/self: %w", err)
+	}
+
 	return &netStatCollector{
+		proc:         proc,
 		fieldPattern: pattern,
 		logger:       logger,
 	}, nil
 }
 
 func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
-	netStats, err := getNetStats(procFilePath("net/netstat"))
+	netStats, err := c.proc.Netstat()
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
-	snmpStats, err := getNetStats(procFilePath("net/snmp"))
+	snmpStats, err := c.proc.Snmp()
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP stats: %w", err)
 	}
-	snmp6Stats, err := getSNMP6Stats(procFilePath("net/snmp6"))
+	snmp6Stats, err := c.proc.Snmp6()
 	if err != nil {
 		return fmt.Errorf("couldn't get SNMP6 stats: %w", err)
 	}
-	// Merge the results of snmpStats into netStats (collisions are possible, but
-	// we know that the keys are always unique for the given use case).
-	maps.Copy(netStats, snmpStats)
-	maps.Copy(netStats, snmp6Stats)
-	for protocol, protocolStats := range netStats {
-		for name, value := range protocolStats {
-			key := protocol + "_" + name
-			v, err := strconv.ParseFloat(value, 64)
-			if err != nil {
-				return fmt.Errorf("invalid value %s in netstats: %w", value, err)
-			}
-			if !c.fieldPattern.MatchString(key) {
-				continue
-			}
-			ch <- prometheus.MustNewConstMetric(
-				prometheus.NewDesc(
-					prometheus.BuildFQName(namespace, netStatsSubsystem, key),
-					fmt.Sprintf("Statistic %s.", protocol+name),
-					nil, nil,
-				),
-				prometheus.UntypedValue, v,
-			)
-		}
-	}
+
+	c.emitStruct(ch, netStats.TcpExt)
+	c.emitStruct(ch, netStats.IpExt)
+	c.emitStruct(ch, snmpStats.Ip)
+	c.emitStruct(ch, snmpStats.Icmp)
+	c.emitStruct(ch, snmpStats.IcmpMsg)
+	c.emitStruct(ch, snmpStats.Tcp)
+	c.emitStruct(ch, snmpStats.Udp)
+	c.emitStruct(ch, snmpStats.UdpLite)
+	c.emitStruct(ch, snmp6Stats.Ip6)
+	c.emitStruct(ch, snmp6Stats.Icmp6)
+	c.emitStruct(ch, snmp6Stats.Udp6)
+	c.emitStruct(ch, snmp6Stats.UdpLite6)
+
 	return nil
 }
 
-func getNetStats(fileName string) (map[string]map[string]string, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
+// emitStruct emits one metric per non-nil field of a procfs netstat/snmp
+// statistics struct, using the struct's type name as the protocol name and
+// looking up the pre-built descriptor by "<protocol>_<field>".
+func (c *netStatCollector) emitStruct(ch chan<- prometheus.Metric, stats any) {
+	v := reflect.ValueOf(stats)
+	protocol := v.Type().Name()
 
-	return parseNetStats(file, fileName)
-}
-
-func parseNetStats(r io.Reader, fileName string) (map[string]map[string]string, error) {
-	var (
-		netStats = map[string]map[string]string{}
-		scanner  = bufio.NewScanner(r)
-	)
-
-	for scanner.Scan() {
-		nameParts := strings.Split(scanner.Text(), " ")
-		scanner.Scan()
-		valueParts := strings.Split(scanner.Text(), " ")
-		// Remove trailing :.
-		protocol := nameParts[0][:len(nameParts[0])-1]
-		netStats[protocol] = map[string]string{}
-		if len(nameParts) != len(valueParts) {
-			return nil, fmt.Errorf("mismatch field count mismatch in %s: %s",
-				fileName, protocol)
-		}
-		for i := 1; i < len(nameParts); i++ {
-			netStats[protocol][nameParts[i]] = valueParts[i]
-		}
-	}
-
-	return netStats, scanner.Err()
-}
-
-func getSNMP6Stats(fileName string) (map[string]map[string]string, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		// On systems with IPv6 disabled, this file won't exist.
-		// Do nothing.
-		if errors.Is(err, os.ErrNotExist) {
-			return nil, nil
-		}
-
-		return nil, err
-	}
-	defer file.Close()
-
-	return parseSNMP6Stats(file)
-}
-
-func parseSNMP6Stats(r io.Reader) (map[string]map[string]string, error) {
-	var (
-		netStats = map[string]map[string]string{}
-		scanner  = bufio.NewScanner(r)
-	)
-
-	for scanner.Scan() {
-		stat := strings.Fields(scanner.Text())
-		if len(stat) < 2 {
+	for i := 0; i < v.NumField(); i++ {
+		value, ok := v.Field(i).Interface().(*float64)
+		if !ok || value == nil {
 			continue
 		}
-		// Expect to have "6" in metric name, skip line otherwise
-		if sixIndex := strings.Index(stat[0], "6"); sixIndex != -1 {
-			protocol := stat[0][:sixIndex+1]
-			name := stat[0][sixIndex+1:]
-			if _, present := netStats[protocol]; !present {
-				netStats[protocol] = map[string]string{}
-			}
-			netStats[protocol][name] = stat[1]
-		}
-	}
 
-	return netStats, scanner.Err()
+		name := v.Type().Field(i).Name
+		key := protocol + "_" + name
+		desc, ok := netStatDescs[key]
+		if !ok {
+			continue
+		}
+		if !c.fieldPattern.MatchString(key) {
+			continue
+		}
+
+		ch <- prometheus.MustNewConstMetric(desc, prometheus.UntypedValue, *value)
+	}
 }

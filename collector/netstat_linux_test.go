@@ -16,83 +16,174 @@
 package collector
 
 import (
-	"os"
+	"io"
+	"log/slog"
+	"strings"
 	"testing"
+
+	"github.com/alecthomas/kingpin/v2"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 )
 
+type testNetStatCollector struct {
+	c Collector
+}
+
+func (c testNetStatCollector) Collect(ch chan<- prometheus.Metric) {
+	c.c.Update(ch)
+}
+
+func (c testNetStatCollector) Describe(ch chan<- *prometheus.Desc) {
+	prometheus.DescribeByCollect(c, ch)
+}
+
+func NewTestNetStatCollector(t *testing.T, logger *slog.Logger) prometheus.Collector {
+	t.Helper()
+
+	c, err := NewNetStatCollector(logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return testNetStatCollector{c: c}
+}
+
 func TestNetStats(t *testing.T) {
-	testNetStats(t, "fixtures/proc/net/netstat")
-	testSNMPStats(t, "fixtures/proc/net/snmp")
-	testSNMP6Stats(t, "fixtures/proc/net/snmp6")
-}
-
-func testNetStats(t *testing.T, fileName string) {
-	file, err := os.Open(fileName)
-	if err != nil {
+	if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
 		t.Fatal(err)
 	}
-	defer file.Close()
+	*procPath = "fixtures/proc"
 
-	netStats, err := parseNetStats(file, fileName)
-	if err != nil {
-		t.Fatal(err)
-	}
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	c := NewTestNetStatCollector(t, logger)
 
-	if want, got := "102471", netStats["TcpExt"]["DelayedACKs"]; want != got {
-		t.Errorf("want netstat TCP DelayedACKs %s, got %s", want, got)
-	}
+	expected := `
+# HELP node_netstat_Icmp6_InErrors Statistic Icmp6InErrors.
+# TYPE node_netstat_Icmp6_InErrors untyped
+node_netstat_Icmp6_InErrors 0
+# HELP node_netstat_Icmp6_InMsgs Statistic Icmp6InMsgs.
+# TYPE node_netstat_Icmp6_InMsgs untyped
+node_netstat_Icmp6_InMsgs 0
+# HELP node_netstat_Icmp6_OutMsgs Statistic Icmp6OutMsgs.
+# TYPE node_netstat_Icmp6_OutMsgs untyped
+node_netstat_Icmp6_OutMsgs 8
+# HELP node_netstat_Icmp_InErrors Statistic IcmpInErrors.
+# TYPE node_netstat_Icmp_InErrors untyped
+node_netstat_Icmp_InErrors 0
+# HELP node_netstat_Icmp_InMsgs Statistic IcmpInMsgs.
+# TYPE node_netstat_Icmp_InMsgs untyped
+node_netstat_Icmp_InMsgs 104
+# HELP node_netstat_Icmp_OutMsgs Statistic IcmpOutMsgs.
+# TYPE node_netstat_Icmp_OutMsgs untyped
+node_netstat_Icmp_OutMsgs 120
+# HELP node_netstat_Ip6_InOctets Statistic Ip6InOctets.
+# TYPE node_netstat_Ip6_InOctets untyped
+node_netstat_Ip6_InOctets 460
+# HELP node_netstat_Ip6_OutOctets Statistic Ip6OutOctets.
+# TYPE node_netstat_Ip6_OutOctets untyped
+node_netstat_Ip6_OutOctets 536
+# HELP node_netstat_IpExt_InOctets Statistic IpExtInOctets.
+# TYPE node_netstat_IpExt_InOctets untyped
+node_netstat_IpExt_InOctets 6.28639697e+09
+# HELP node_netstat_IpExt_OutOctets Statistic IpExtOutOctets.
+# TYPE node_netstat_IpExt_OutOctets untyped
+node_netstat_IpExt_OutOctets 2.786264347e+09
+# HELP node_netstat_Ip_Forwarding Statistic IpForwarding.
+# TYPE node_netstat_Ip_Forwarding untyped
+node_netstat_Ip_Forwarding 1
+# HELP node_netstat_TcpExt_ListenDrops Statistic TcpExtListenDrops.
+# TYPE node_netstat_TcpExt_ListenDrops untyped
+node_netstat_TcpExt_ListenDrops 0
+# HELP node_netstat_TcpExt_ListenOverflows Statistic TcpExtListenOverflows.
+# TYPE node_netstat_TcpExt_ListenOverflows untyped
+node_netstat_TcpExt_ListenOverflows 0
+# HELP node_netstat_TcpExt_SyncookiesFailed Statistic TcpExtSyncookiesFailed.
+# TYPE node_netstat_TcpExt_SyncookiesFailed untyped
+node_netstat_TcpExt_SyncookiesFailed 2
+# HELP node_netstat_TcpExt_SyncookiesRecv Statistic TcpExtSyncookiesRecv.
+# TYPE node_netstat_TcpExt_SyncookiesRecv untyped
+node_netstat_TcpExt_SyncookiesRecv 0
+# HELP node_netstat_TcpExt_SyncookiesSent Statistic TcpExtSyncookiesSent.
+# TYPE node_netstat_TcpExt_SyncookiesSent untyped
+node_netstat_TcpExt_SyncookiesSent 0
+# HELP node_netstat_TcpExt_TCPOFOQueue Statistic TcpExtTCPOFOQueue.
+# TYPE node_netstat_TcpExt_TCPOFOQueue untyped
+node_netstat_TcpExt_TCPOFOQueue 42
+# HELP node_netstat_TcpExt_TCPRcvQDrop Statistic TcpExtTCPRcvQDrop.
+# TYPE node_netstat_TcpExt_TCPRcvQDrop untyped
+node_netstat_TcpExt_TCPRcvQDrop 131
+# HELP node_netstat_TcpExt_TCPTimeouts Statistic TcpExtTCPTimeouts.
+# TYPE node_netstat_TcpExt_TCPTimeouts untyped
+node_netstat_TcpExt_TCPTimeouts 115
+# HELP node_netstat_Tcp_ActiveOpens Statistic TcpActiveOpens.
+# TYPE node_netstat_Tcp_ActiveOpens untyped
+node_netstat_Tcp_ActiveOpens 3556
+# HELP node_netstat_Tcp_CurrEstab Statistic TcpCurrEstab.
+# TYPE node_netstat_Tcp_CurrEstab untyped
+node_netstat_Tcp_CurrEstab 0
+# HELP node_netstat_Tcp_InErrs Statistic TcpInErrs.
+# TYPE node_netstat_Tcp_InErrs untyped
+node_netstat_Tcp_InErrs 5
+# HELP node_netstat_Tcp_InSegs Statistic TcpInSegs.
+# TYPE node_netstat_Tcp_InSegs untyped
+node_netstat_Tcp_InSegs 5.7252008e+07
+# HELP node_netstat_Tcp_OutRsts Statistic TcpOutRsts.
+# TYPE node_netstat_Tcp_OutRsts untyped
+node_netstat_Tcp_OutRsts 1003
+# HELP node_netstat_Tcp_OutSegs Statistic TcpOutSegs.
+# TYPE node_netstat_Tcp_OutSegs untyped
+node_netstat_Tcp_OutSegs 5.4915039e+07
+# HELP node_netstat_Tcp_PassiveOpens Statistic TcpPassiveOpens.
+# TYPE node_netstat_Tcp_PassiveOpens untyped
+node_netstat_Tcp_PassiveOpens 230
+# HELP node_netstat_Tcp_RetransSegs Statistic TcpRetransSegs.
+# TYPE node_netstat_Tcp_RetransSegs untyped
+node_netstat_Tcp_RetransSegs 227
+# HELP node_netstat_Udp6_InDatagrams Statistic Udp6InDatagrams.
+# TYPE node_netstat_Udp6_InDatagrams untyped
+node_netstat_Udp6_InDatagrams 0
+# HELP node_netstat_Udp6_InErrors Statistic Udp6InErrors.
+# TYPE node_netstat_Udp6_InErrors untyped
+node_netstat_Udp6_InErrors 0
+# HELP node_netstat_Udp6_NoPorts Statistic Udp6NoPorts.
+# TYPE node_netstat_Udp6_NoPorts untyped
+node_netstat_Udp6_NoPorts 0
+# HELP node_netstat_Udp6_OutDatagrams Statistic Udp6OutDatagrams.
+# TYPE node_netstat_Udp6_OutDatagrams untyped
+node_netstat_Udp6_OutDatagrams 0
+# HELP node_netstat_Udp6_RcvbufErrors Statistic Udp6RcvbufErrors.
+# TYPE node_netstat_Udp6_RcvbufErrors untyped
+node_netstat_Udp6_RcvbufErrors 9
+# HELP node_netstat_Udp6_SndbufErrors Statistic Udp6SndbufErrors.
+# TYPE node_netstat_Udp6_SndbufErrors untyped
+node_netstat_Udp6_SndbufErrors 8
+# HELP node_netstat_UdpLite6_InErrors Statistic UdpLite6InErrors.
+# TYPE node_netstat_UdpLite6_InErrors untyped
+node_netstat_UdpLite6_InErrors 0
+# HELP node_netstat_UdpLite_InErrors Statistic UdpLiteInErrors.
+# TYPE node_netstat_UdpLite_InErrors untyped
+node_netstat_UdpLite_InErrors 0
+# HELP node_netstat_Udp_InDatagrams Statistic UdpInDatagrams.
+# TYPE node_netstat_Udp_InDatagrams untyped
+node_netstat_Udp_InDatagrams 88542
+# HELP node_netstat_Udp_InErrors Statistic UdpInErrors.
+# TYPE node_netstat_Udp_InErrors untyped
+node_netstat_Udp_InErrors 0
+# HELP node_netstat_Udp_NoPorts Statistic UdpNoPorts.
+# TYPE node_netstat_Udp_NoPorts untyped
+node_netstat_Udp_NoPorts 120
+# HELP node_netstat_Udp_OutDatagrams Statistic UdpOutDatagrams.
+# TYPE node_netstat_Udp_OutDatagrams untyped
+node_netstat_Udp_OutDatagrams 53028
+# HELP node_netstat_Udp_RcvbufErrors Statistic UdpRcvbufErrors.
+# TYPE node_netstat_Udp_RcvbufErrors untyped
+node_netstat_Udp_RcvbufErrors 9
+# HELP node_netstat_Udp_SndbufErrors Statistic UdpSndbufErrors.
+# TYPE node_netstat_Udp_SndbufErrors untyped
+node_netstat_Udp_SndbufErrors 8
+`
 
-	if want, got := "2786264347", netStats["IpExt"]["OutOctets"]; want != got {
-		t.Errorf("want netstat IP OutOctets %s, got %s", want, got)
-	}
-}
-
-func testSNMPStats(t *testing.T, fileName string) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer file.Close()
-
-	snmpStats, err := parseNetStats(file, fileName)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if want, got := "9", snmpStats["Udp"]["RcvbufErrors"]; want != got {
-		t.Errorf("want netstat Udp RcvbufErrors %s, got %s", want, got)
-	}
-
-	if want, got := "8", snmpStats["Udp"]["SndbufErrors"]; want != got {
-		t.Errorf("want netstat Udp SndbufErrors %s, got %s", want, got)
-	}
-}
-
-func testSNMP6Stats(t *testing.T, fileName string) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer file.Close()
-
-	snmp6Stats, err := parseSNMP6Stats(file)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if want, got := "460", snmp6Stats["Ip6"]["InOctets"]; want != got {
-		t.Errorf("want netstat IPv6 InOctets %s, got %s", want, got)
-	}
-
-	if want, got := "8", snmp6Stats["Icmp6"]["OutMsgs"]; want != got {
-		t.Errorf("want netstat ICPM6 OutMsgs %s, got %s", want, got)
-	}
-
-	if want, got := "9", snmp6Stats["Udp6"]["RcvbufErrors"]; want != got {
-		t.Errorf("want netstat Udp6 RcvbufErrors %s, got %s", want, got)
-	}
-
-	if want, got := "8", snmp6Stats["Udp6"]["SndbufErrors"]; want != got {
-		t.Errorf("want netstat Udp6 SndbufErrors %s, got %s", want, got)
+	if err := testutil.CollectAndCompare(c, strings.NewReader(expected)); err != nil {
+		t.Errorf("unexpected collecting result:\n%s", err)
 	}
 }
