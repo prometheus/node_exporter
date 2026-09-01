@@ -26,7 +26,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/freebsd-vm@5a72679103d223925653750faa878a143340fbd0  # v1.5.0
+        uses: vmactions/freebsd-vm@f0552d3b69211736abd97f02ff3d4674c56b73b1  # v1.5.5
         with:
           release: "15.0"
           copyback: false
