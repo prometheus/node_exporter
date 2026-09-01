@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: prometheus/promci-setup@3e5cd31b34b8ae19efa8f071c5e3cdb44884a7f8 # v0.2.1
+      - uses: prometheus/promci-setup@55bd31fe92710532260eb57c554f2697363285c5 # v0.2.2
       - name: Crossbuild
         run: ~/go/bin/promu crossbuild -v --parallelism 3 --parallelism-thread ${{ matrix.thread }}
       - name: CGO crossbuild
@@ -80,7 +80,7 @@ jobs:
           if [[ -f "$(pwd)/.build/darwin-amd64/node_exporter" ]]; then
               ~/go/bin/promu codesign "$(pwd)/.build/darwin-amd64/node_exporter"
           fi
-      - uses: prometheus/promci-artifacts/save@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
+      - uses: prometheus/promci-artifacts/save@9ca3252d07f230d5f923452b4df5697eba4a5bee # v0.1.1
         with:
           directory: .build
 
@@ -95,7 +95,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: prometheus/promci-artifacts/restore@f9a587dbc0b2c78a0c54f8ad1cde71ea29a4b76f # v0.1.0
+      - uses: prometheus/promci-artifacts/restore@9ca3252d07f230d5f923452b4df5697eba4a5bee # v0.1.1
       - name: Build docker image
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
