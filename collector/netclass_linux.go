@@ -97,12 +97,12 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 		infoDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
 			"Non-numeric data from /sys/class/net/<iface>, value is always 1.",
-			[]string{"device", "address", "broadcast", "duplex", "operstate", "adminstate", "ifalias"},
+			[]string{"device", "address", "broadcast", "duplex", "operstate", "adminstate", "ifalias", "sysfs_device"},
 			nil,
 		)
 		infoValue := 1.0
 
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, getAdminState(ifaceInfo.Flags), ifaceInfo.IfAlias)
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, ifaceInfo.Name, ifaceInfo.Address, ifaceInfo.Broadcast, ifaceInfo.Duplex, ifaceInfo.OperState, getAdminState(ifaceInfo.Flags), ifaceInfo.IfAlias, sysfsDevice("net", ifaceInfo.Name))
 
 		pushMetric(ch, c.getFieldDesc("address_assign_type"), ifaceInfo.AddrAssignType, prometheus.GaugeValue, ifaceInfo.Name)
 		pushMetric(ch, c.getFieldDesc("carrier"), ifaceInfo.Carrier, prometheus.GaugeValue, ifaceInfo.Name)
