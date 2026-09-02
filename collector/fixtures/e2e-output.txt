@@ -3622,6 +3622,52 @@ node_pcidevice_sriov_totalvfs{bus="45",device="00",function="0",segment="0000"} 
 node_pcidevice_sriov_vf_total_msix{bus="00",device="02",function="1",segment="0000"} 0
 node_pcidevice_sriov_vf_total_msix{bus="01",device="00",function="0",segment="0000"} 16
 node_pcidevice_sriov_vf_total_msix{bus="45",device="00",function="0",segment="0000"} 0
+# HELP node_power_meter_accuracy_percent ACPI power meter accuracy_percent value.
+# TYPE node_power_meter_accuracy_percent gauge
+node_power_meter_accuracy_percent{meter="ACPI000D:00"} 1.5
+# HELP node_power_meter_alarm ACPI power meter alarm value.
+# TYPE node_power_meter_alarm gauge
+node_power_meter_alarm{meter="ACPI000D:00"} 0
+# HELP node_power_meter_average_interval_max_seconds ACPI power meter average_interval_max_seconds value.
+# TYPE node_power_meter_average_interval_max_seconds gauge
+node_power_meter_average_interval_max_seconds{meter="ACPI000D:00"} 10
+# HELP node_power_meter_average_interval_min_seconds ACPI power meter average_interval_min_seconds value.
+# TYPE node_power_meter_average_interval_min_seconds gauge
+node_power_meter_average_interval_min_seconds{meter="ACPI000D:00"} 0.1
+# HELP node_power_meter_average_interval_seconds ACPI power meter average_interval_seconds value.
+# TYPE node_power_meter_average_interval_seconds gauge
+node_power_meter_average_interval_seconds{meter="ACPI000D:00"} 1
+# HELP node_power_meter_average_max_watts ACPI power meter average_max_watts value.
+# TYPE node_power_meter_average_max_watts gauge
+node_power_meter_average_max_watts{meter="ACPI000D:00"} 60
+# HELP node_power_meter_average_min_watts ACPI power meter average_min_watts value.
+# TYPE node_power_meter_average_min_watts gauge
+node_power_meter_average_min_watts{meter="ACPI000D:00"} 0
+# HELP node_power_meter_average_watts ACPI power meter average_watts value.
+# TYPE node_power_meter_average_watts gauge
+node_power_meter_average_watts{meter="ACPI000D:00"} 15
+# HELP node_power_meter_cap_hysteresis_watts ACPI power meter cap_hysteresis_watts value.
+# TYPE node_power_meter_cap_hysteresis_watts gauge
+node_power_meter_cap_hysteresis_watts{meter="ACPI000D:00"} 0.5
+# HELP node_power_meter_cap_max_watts ACPI power meter cap_max_watts value.
+# TYPE node_power_meter_cap_max_watts gauge
+node_power_meter_cap_max_watts{meter="ACPI000D:00"} 100
+# HELP node_power_meter_cap_min_watts ACPI power meter cap_min_watts value.
+# TYPE node_power_meter_cap_min_watts gauge
+node_power_meter_cap_min_watts{meter="ACPI000D:00"} 1
+# HELP node_power_meter_cap_watts ACPI power meter cap_watts value.
+# TYPE node_power_meter_cap_watts gauge
+node_power_meter_cap_watts{meter="ACPI000D:00"} 25
+# HELP node_power_meter_info ACPI power meter metadata.
+# TYPE node_power_meter_info gauge
+node_power_meter_info{meter="ACPI000D:00",model_number="ACME PM01",oem_info="ACME Corp",serial_number="SN12345"} 1
+# HELP node_power_meter_is_battery ACPI power meter is_battery value.
+# TYPE node_power_meter_is_battery gauge
+node_power_meter_is_battery{meter="ACPI000D:00"} 0
+# HELP node_power_meter_measures_info Device measured by this ACPI power meter.
+# TYPE node_power_meter_measures_info gauge
+node_power_meter_measures_info{device="LNXCPU:00",meter="ACPI000D:00"} 1
+node_power_meter_measures_info{device="LNXMEM:00",meter="ACPI000D:00"} 1
 # HELP node_power_supply_capacity capacity value of /sys/class/power_supply/<power_supply>.
 # TYPE node_power_supply_capacity gauge
 node_power_supply_capacity{power_supply="BAT0"} 81
@@ -3785,6 +3831,7 @@ node_scrape_collector_success{collector="nfsd"} 1
 node_scrape_collector_success{collector="nvme"} 1
 node_scrape_collector_success{collector="os"} 1
 node_scrape_collector_success{collector="pcidevice"} 1
+node_scrape_collector_success{collector="power_meter"} 1
 node_scrape_collector_success{collector="powersupplyclass"} 1
 node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
