@@ -3815,30 +3815,40 @@ node_slabinfo_active_objects{slab="dmaengine-unmap-128"} 1206
 node_slabinfo_active_objects{slab="kmalloc-8192"} 132
 node_slabinfo_active_objects{slab="kmem_cache"} 320
 node_slabinfo_active_objects{slab="tw_sock_TCP"} 704
+node_slabinfo_active_objects{index="0",slab="mlx5_fs_ftes"} 44
+node_slabinfo_active_objects{index="1",slab="mlx5_fs_ftes"} 396
 # HELP node_slabinfo_object_size_bytes The size of objects in this slab, in bytes.
 # TYPE node_slabinfo_object_size_bytes gauge
 node_slabinfo_object_size_bytes{slab="dmaengine-unmap-128"} 1088
 node_slabinfo_object_size_bytes{slab="kmalloc-8192"} 8192
 node_slabinfo_object_size_bytes{slab="kmem_cache"} 256
 node_slabinfo_object_size_bytes{slab="tw_sock_TCP"} 256
+node_slabinfo_object_size_bytes{index="0",slab="mlx5_fs_ftes"} 736
+node_slabinfo_object_size_bytes{index="1",slab="mlx5_fs_ftes"} 736
 # HELP node_slabinfo_objects The total number of allocated objects (i.e., objects that are both in use and not in use).
 # TYPE node_slabinfo_objects gauge
 node_slabinfo_objects{slab="dmaengine-unmap-128"} 1320
 node_slabinfo_objects{slab="kmalloc-8192"} 148
 node_slabinfo_objects{slab="kmem_cache"} 320
 node_slabinfo_objects{slab="tw_sock_TCP"} 864
+node_slabinfo_objects{index="0",slab="mlx5_fs_ftes"} 44
+node_slabinfo_objects{index="1",slab="mlx5_fs_ftes"} 396
 # HELP node_slabinfo_objects_per_slab The number of objects stored in each slab.
 # TYPE node_slabinfo_objects_per_slab gauge
 node_slabinfo_objects_per_slab{slab="dmaengine-unmap-128"} 30
 node_slabinfo_objects_per_slab{slab="kmalloc-8192"} 4
 node_slabinfo_objects_per_slab{slab="kmem_cache"} 32
 node_slabinfo_objects_per_slab{slab="tw_sock_TCP"} 32
+node_slabinfo_objects_per_slab{index="0",slab="mlx5_fs_ftes"} 44
+node_slabinfo_objects_per_slab{index="1",slab="mlx5_fs_ftes"} 44
 # HELP node_slabinfo_pages_per_slab The number of pages allocated for each slab.
 # TYPE node_slabinfo_pages_per_slab gauge
 node_slabinfo_pages_per_slab{slab="dmaengine-unmap-128"} 8
 node_slabinfo_pages_per_slab{slab="kmalloc-8192"} 8
 node_slabinfo_pages_per_slab{slab="kmem_cache"} 2
 node_slabinfo_pages_per_slab{slab="tw_sock_TCP"} 2
+node_slabinfo_pages_per_slab{index="0",slab="mlx5_fs_ftes"} 8
+node_slabinfo_pages_per_slab{index="1",slab="mlx5_fs_ftes"} 8
 # HELP node_sockstat_FRAG6_inuse Number of FRAG6 sockets in state inuse.
 # TYPE node_sockstat_FRAG6_inuse gauge
 node_sockstat_FRAG6_inuse 0
