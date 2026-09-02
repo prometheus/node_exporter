@@ -997,6 +997,107 @@ Mode: 644
 Directory: sys/bus
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/acpi
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/acpi/drivers
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/acpi/drivers/power_meter
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/acpi/drivers/power_meter/ACPI000D:00
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/acpi/drivers/power_meter/ACPI000D:00/measures
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/measures/cpu0
+SymlinkTo: ../../../../devices/LNXSYSTM:00/LNXCPU:00
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/measures/mem0
+SymlinkTo: ../../../../devices/LNXSYSTM:00/LNXMEM:00
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_accuracy
+Lines: 1
+1.50%
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_alarm
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_average
+Lines: 1
+15000000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_average_interval
+Lines: 1
+1000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_average_interval_max
+Lines: 1
+10000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_average_interval_min
+Lines: 1
+100
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_average_max
+Lines: 1
+60000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_average_min
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_cap
+Lines: 1
+25000000
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_cap_hyst
+Lines: 1
+500000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_cap_max
+Lines: 1
+100000000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_cap_min
+Lines: 1
+1000000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_is_battery
+Lines: 1
+0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_model_number
+Lines: 1
+ACME PM01
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_oem_info
+Lines: 1
+ACME Corp
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/acpi/drivers/power_meter/ACPI000D:00/power1_serial_number
+Lines: 1
+SN12345
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/bus/cpu
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3128,6 +3229,15 @@ Directory: sys/class/watchdog/watchdog1
 Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/LNXSYSTM:00
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/LNXSYSTM:00/LNXCPU:00
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/LNXSYSTM:00/LNXMEM:00
+Mode: 755
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/pci0000:00
