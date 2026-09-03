@@ -59,6 +59,7 @@ enabled_collectors=$(cat << COLLECTORS
   ipvs
   kernel_hung
   ksmd
+  ktls
   lnstat
   loadavg
   mdadm
