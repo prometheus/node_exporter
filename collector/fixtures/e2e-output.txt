@@ -1390,6 +1390,7 @@ node_drbd_remote_unacknowledged{device="drbd1"} 12347
 node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="0",dimm_label="mc0_csrow0_channel0"} 0
 node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="1",dimm_label="mc0_csrow1_channel0"} 0
 node_edac_channel_correctable_errors_total{channel="0",controller="0",csrow="2",dimm_label="mc0_csrow2_channel0"} 0
+node_edac_channel_correctable_errors_total{channel="0",controller="3",csrow="0",dimm_label="mc3_csrow0_channel0"} 3
 node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="0",dimm_label="mc0_csrow0_channel1"} 0
 node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="1",dimm_label="mc0_csrow1_channel1"} 0
 node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="2",dimm_label="mc0_csrow2_channel1"} 0
@@ -1397,26 +1398,54 @@ node_edac_channel_correctable_errors_total{channel="1",controller="0",csrow="2",
 # TYPE node_edac_channel_uncorrectable_errors_total counter
 node_edac_channel_uncorrectable_errors_total{channel="0",controller="0",csrow="0",dimm_label="mc0_csrow0_channel0"} 2
 node_edac_channel_uncorrectable_errors_total{channel="0",controller="0",csrow="1",dimm_label="mc0_csrow1_channel0"} 2
+node_edac_channel_uncorrectable_errors_total{channel="0",controller="3",csrow="0",dimm_label="mc3_csrow0_channel0"} 0
 node_edac_channel_uncorrectable_errors_total{channel="1",controller="0",csrow="0",dimm_label="mc0_csrow0_channel1"} 2
 node_edac_channel_uncorrectable_errors_total{channel="1",controller="0",csrow="1",dimm_label="mc0_csrow1_channel1"} 2
 # HELP node_edac_correctable_errors_total Total correctable memory errors.
 # TYPE node_edac_correctable_errors_total counter
 node_edac_correctable_errors_total{controller="0"} 1
+node_edac_correctable_errors_total{controller="1"} 10
+node_edac_correctable_errors_total{controller="2"} 5
+node_edac_correctable_errors_total{controller="3"} 3
 # HELP node_edac_csrow_correctable_errors_total Total correctable memory errors for this csrow.
 # TYPE node_edac_csrow_correctable_errors_total counter
 node_edac_csrow_correctable_errors_total{controller="0",csrow="0"} 3
 node_edac_csrow_correctable_errors_total{controller="0",csrow="1"} 0
 node_edac_csrow_correctable_errors_total{controller="0",csrow="2"} 0
 node_edac_csrow_correctable_errors_total{controller="0",csrow="unknown"} 2
+node_edac_csrow_correctable_errors_total{controller="1",csrow="unknown"} 1
+node_edac_csrow_correctable_errors_total{controller="2",csrow="unknown"} 0
+node_edac_csrow_correctable_errors_total{controller="3",csrow="0"} 3
+node_edac_csrow_correctable_errors_total{controller="3",csrow="unknown"} 0
 # HELP node_edac_csrow_uncorrectable_errors_total Total uncorrectable memory errors for this csrow.
 # TYPE node_edac_csrow_uncorrectable_errors_total counter
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="0"} 4
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="1"} 4
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="2"} 5
 node_edac_csrow_uncorrectable_errors_total{controller="0",csrow="unknown"} 6
+node_edac_csrow_uncorrectable_errors_total{controller="1",csrow="unknown"} 1
+node_edac_csrow_uncorrectable_errors_total{controller="2",csrow="unknown"} 0
+node_edac_csrow_uncorrectable_errors_total{controller="3",csrow="0"} 0
+node_edac_csrow_uncorrectable_errors_total{controller="3",csrow="unknown"} 0
+# HELP node_edac_dimm_correctable_errors_total Total correctable memory errors for this DIMM.
+# TYPE node_edac_dimm_correctable_errors_total counter
+node_edac_dimm_correctable_errors_total{controller="1",dimm="0",dimm_label="CPU_SrcID#0_MC#1_Chan#0_DIMM#0"} 100
+node_edac_dimm_correctable_errors_total{controller="1",dimm="1",dimm_label="CPU_SrcID#0_MC#1_Chan#1_DIMM#0"} 200
+node_edac_dimm_correctable_errors_total{controller="1",dimm="3",dimm_label="CPU_SrcID#0_MC#1_Chan#3_DIMM#0"} 300
+node_edac_dimm_correctable_errors_total{controller="2",dimm="0",dimm_label="PROC 1 DIMM 8"} 7
+node_edac_dimm_correctable_errors_total{controller="2",dimm="1",dimm_label="PROC 2 DIMM 10"} 9
+# HELP node_edac_dimm_uncorrectable_errors_total Total uncorrectable memory errors for this DIMM. Best effort: errors the controller cannot localize to a slot are counted in ue_noinfo_count instead.
+# TYPE node_edac_dimm_uncorrectable_errors_total counter
+node_edac_dimm_uncorrectable_errors_total{controller="1",dimm="0",dimm_label="CPU_SrcID#0_MC#1_Chan#0_DIMM#0"} 0
+node_edac_dimm_uncorrectable_errors_total{controller="1",dimm="1",dimm_label="CPU_SrcID#0_MC#1_Chan#1_DIMM#0"} 0
+node_edac_dimm_uncorrectable_errors_total{controller="1",dimm="3",dimm_label="CPU_SrcID#0_MC#1_Chan#3_DIMM#0"} 1
+node_edac_dimm_uncorrectable_errors_total{controller="2",dimm="0",dimm_label="PROC 1 DIMM 8"} 0
 # HELP node_edac_uncorrectable_errors_total Total uncorrectable memory errors.
 # TYPE node_edac_uncorrectable_errors_total counter
 node_edac_uncorrectable_errors_total{controller="0"} 5
+node_edac_uncorrectable_errors_total{controller="1"} 2
+node_edac_uncorrectable_errors_total{controller="2"} 0
+node_edac_uncorrectable_errors_total{controller="3"} 0
 # HELP node_entropy_available_bits Bits of available entropy.
 # TYPE node_entropy_available_bits gauge
 node_entropy_available_bits 1337
