@@ -330,11 +330,15 @@ jobs:
 
           echo "::group::Print environment information"
           uname -a
+          sw_vers
+          sysctl hw.memsize hw.ncpu
+          diskutil list
+          ifconfig -l
           echo "GOOS: $(go env GOOS)"
           echo "GOARCH: $(go env GOARCH)"
           echo "::endgroup::"
 
           echo "::group::Run End-to-End Tests"
           git config --global --add safe.directory $(pwd)
-          make test-e2e E2E_EXTRA_FLAGS='--collector.diskstats.device-include=disk[04]'
+          make test-e2e E2E_EXTRA_FLAGS='--collector.diskstats.device-include=disk0'
           echo "::endgroup::"
