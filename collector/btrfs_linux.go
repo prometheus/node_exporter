@@ -340,12 +340,15 @@ func (c *btrfsCollector) getMetrics(s *btrfs.Stats, ioctlStats *btrfsIoctlFsStat
 			// A bytes available metric is probably more useful than a
 			// bytes used metric, because large numbers of bytes will
 			// suffer from floating point representation issues
-			// and we probably care more about the number when it's low anyway
+			// and we probably care more about the number when it's low anyway.
+			// While a device is being shrunk, its size is already reduced but
+			// the extents beyond it are still allocated, so bytesUsed can exceed
+			// totalBytes and the unsigned subtraction would wrap around.
 			btrfsMetric{
 				name:            "device_unused_bytes",
 				desc:            "Unused bytes unused on a device that is part of the filesystem.",
 				metricType:      prometheus.GaugeValue,
-				value:           float64(dev.totalBytes - dev.bytesUsed),
+				value:           float64(int64(dev.totalBytes) - int64(dev.bytesUsed)),
 				extraLabel:      extraLabels,
 				extraLabelValue: extraLabelValues,
 			})

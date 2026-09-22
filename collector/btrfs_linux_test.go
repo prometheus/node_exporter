@@ -127,3 +127,33 @@ func TestBtrfs(t *testing.T) {
 		}
 	}
 }
+
+func TestBtrfsDeviceUnusedBytesDuringShrink(t *testing.T) {
+	fs, err := btrfs.NewFS("fixtures/sys")
+	if err != nil {
+		t.Fatal(err)
+	}
+	collector := &btrfsCollector{fs: fs}
+
+	stats, err := collector.fs.Stats()
+	if err != nil {
+		t.Fatalf("Failed to retrieve Btrfs stats: %v", err)
+	}
+
+	ioctlStats := &btrfsIoctlFsStats{
+		devices: []btrfsIoctlFsDevStats{
+			{path: "/dev/sda", uuid: "dev-uuid", totalBytes: 10 << 30, bytesUsed: 12 << 30},
+		},
+	}
+
+	for _, m := range collector.getMetrics(stats[0], ioctlStats) {
+		if m.name != "device_unused_bytes" {
+			continue
+		}
+		if want := -float64(2 << 30); m.value != want {
+			t.Errorf("Incorrect device_unused_bytes: expected %v, got %v", want, m.value)
+		}
+		return
+	}
+	t.Error("device_unused_bytes metric not found")
+}
