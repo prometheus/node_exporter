@@ -214,10 +214,12 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			value:      float64(s.Bcache.Internal.BtreeNodes),
 			metricType: prometheus.GaugeValue,
 		},
+		// procfs names the field NanoSeconds, but it holds the raw value of
+		// btree_read_average_duration_us, which the kernel reports in microseconds.
 		{
 			name:       "btree_read_average_duration_seconds",
 			desc:       "Average btree read duration.",
-			value:      float64(s.Bcache.Internal.BtreeReadAverageDurationNanoSeconds) * 1e-9,
+			value:      float64(s.Bcache.Internal.BtreeReadAverageDurationNanoSeconds) * 1e-6,
 			metricType: prometheus.GaugeValue,
 		},
 		{
