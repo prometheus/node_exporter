@@ -20,13 +20,20 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"sync"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 )
 
+var conntrackStats = kingpin.Flag("collector.conntrack.stats", "Collect conntrack statistics from /proc/net/stat/nf_conntrack, which requires a kernel built with CONFIG_NF_CONNTRACK_PROCFS.").Default("true").Bool()
+
 type conntrackCollector struct {
 	logger *slog.Logger
+	// warnOnce keeps the missing procfs interface from being logged on
+	// every scrape.
+	warnOnce sync.Once
 }
 
 type conntrackStatistics struct {
@@ -119,30 +126,48 @@ func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	ch <- prometheus.MustNewConstMetric(
 		conntrackLimit, prometheus.GaugeValue, float64(value))
 
-	conntrackStats, err := getConntrackStatistics()
+	// The statistics below come from /proc/net/stat/nf_conntrack, which only
+	// exists on kernels built with CONFIG_NF_CONNTRACK_PROCFS. The two
+	// metrics above are read from sysctl and stay available either way.
+	if !*conntrackStats {
+		return nil
+	}
+
+	stats, err := getConntrackStatistics()
 	if err != nil {
-		return c.handleErr(err)
+		if errors.Is(err, os.ErrNotExist) {
+			c.warnOnce.Do(func() {
+				c.logger.Warn("conntrack statistics unavailable",
+					"file", procFilePath("net/stat/nf_conntrack"),
+					"reason", "kernel built without CONFIG_NF_CONNTRACK_PROCFS",
+					"hint", "pass --no-collector.conntrack.stats to stop collecting them")
+			})
+			return ErrNoData
+		}
+		return fmt.Errorf("failed to retrieve conntrack stats: %w", err)
 	}
 
 	ch <- prometheus.MustNewConstMetric(
-		conntrackFound, prometheus.GaugeValue, float64(conntrackStats.found))
+		conntrackFound, prometheus.GaugeValue, float64(stats.found))
 	ch <- prometheus.MustNewConstMetric(
-		conntrackInvalid, prometheus.GaugeValue, float64(conntrackStats.invalid))
+		conntrackInvalid, prometheus.GaugeValue, float64(stats.invalid))
 	ch <- prometheus.MustNewConstMetric(
-		conntrackIgnore, prometheus.GaugeValue, float64(conntrackStats.ignore))
+		conntrackIgnore, prometheus.GaugeValue, float64(stats.ignore))
 	ch <- prometheus.MustNewConstMetric(
-		conntrackInsert, prometheus.GaugeValue, float64(conntrackStats.insert))
+		conntrackInsert, prometheus.GaugeValue, float64(stats.insert))
 	ch <- prometheus.MustNewConstMetric(
-		conntrackInsertFailed, prometheus.GaugeValue, float64(conntrackStats.insertFailed))
+		conntrackInsertFailed, prometheus.GaugeValue, float64(stats.insertFailed))
 	ch <- prometheus.MustNewConstMetric(
-		conntrackDrop, prometheus.GaugeValue, float64(conntrackStats.drop))
+		conntrackDrop, prometheus.GaugeValue, float64(stats.drop))
 	ch <- prometheus.MustNewConstMetric(
-		conntrackEarlyDrop, prometheus.GaugeValue, float64(conntrackStats.earlyDrop))
+		conntrackEarlyDrop, prometheus.GaugeValue, float64(stats.earlyDrop))
 	ch <- prometheus.MustNewConstMetric(
-		conntrackSearchRestart, prometheus.GaugeValue, float64(conntrackStats.searchRestart))
+		conntrackSearchRestart, prometheus.GaugeValue, float64(stats.searchRestart))
 	return nil
 }
 
+// handleErr covers the sysctl entries, which are absent when the nf_conntrack
+// module is not loaded.
 func (c *conntrackCollector) handleErr(err error) error {
 	if errors.Is(err, os.ErrNotExist) {
 		c.logger.Debug("conntrack probably not loaded")

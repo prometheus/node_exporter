@@ -125,7 +125,7 @@ bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 btrfs | Exposes btrfs statistics | Linux
 boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD, Solaris
-conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
+conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). The `nf_conntrack_stat_*` metrics additionally need a kernel built with `CONFIG_NF_CONNTRACK_PROCFS`, which recent kernels no longer enable by default; use `--no-collector.conntrack.stats` to skip them. | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris, OpenBSD
 cpufreq | Exposes CPU frequency statistics | Linux, Solaris
 diskstats | Exposes disk I/O statistics. | Darwin, Linux, OpenBSD
