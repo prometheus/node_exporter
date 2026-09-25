@@ -80,6 +80,13 @@ func (c *thermalZoneCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, stats := range thermalZones {
+		// procfs returns zones whose sysfs reads failed with a non-nil
+		// ReadErrors and an invalid Temp of 0. Skip them rather than report a
+		// bogus 0°C; ReadErrors exists so callers can drop affected zones.
+		if stats.ReadErrors != nil {
+			c.logger.Debug("Skipping thermal zone with read errors", "zone", stats.Name, "type", stats.Type, "err", stats.ReadErrors)
+			continue
+		}
 		ch <- prometheus.MustNewConstMetric(
 			c.zoneTemp,
 			prometheus.GaugeValue,
