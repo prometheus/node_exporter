@@ -15,10 +15,21 @@ package collector
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 )
+
+// sysfsDevice returns the base name of the symlink target of /sys/class/<class>/<device>/device
+func sysfsDevice(class, device string) string {
+	path := sysFilePath(filepath.Join("class", class, device, "device"))
+	symlink, err := os.Readlink(path)
+	if err != nil {
+		return ""
+	}
+	return filepath.Base(symlink)
+}
 
 func readUintFromFile(path string) (uint64, error) {
 	data, err := os.ReadFile(path)
