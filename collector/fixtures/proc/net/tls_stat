@@ -1,0 +1,12 @@
+TlsCurrTxSw                     	1
+TlsCurrRxSw                     	2
+TlsCurrTxDevice                 	3
+TlsCurrRxDevice                 	4
+TlsTxSw                         	5
+TlsRxSw                         	6
+TlsTxDevice                     	7
+TlsRxDevice                     	8
+TlsDecryptError                 	9
+TlsRxDeviceResync               	10
+TlsDecryptRetry                 	11
+TlsRxNoPadViolation             	12
