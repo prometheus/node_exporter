@@ -118,7 +118,7 @@ local diskSpaceUtilisation =
   grafanaDashboards+:: {
                          'node-rsrc-use.json':
                            dashboard.new(
-                             '%sUSE Method / Node' % $._config.dashboardNamePrefix,
+                             '%sUtilization and Saturation / Node' % $._config.dashboardNamePrefix,
                            )
                            + dashboard.time.withFrom('now-1h')
                            + dashboard.withTags($._config.dashboardTags)
@@ -189,7 +189,7 @@ local diskSpaceUtilisation =
                            ),
                          'node-cluster-rsrc-use.json':
                            dashboard.new(
-                             '%sUSE Method / Cluster' % $._config.dashboardNamePrefix,
+                             '%sUtilization and Saturation / Cluster' % $._config.dashboardNamePrefix,
                            )
                            + dashboard.time.withFrom('now-1h')
                            + dashboard.withTags($._config.dashboardTags)
@@ -318,7 +318,7 @@ local diskSpaceUtilisation =
                        if $._config.showMultiCluster then {
                          'node-multicluster-rsrc-use.json':
                            dashboard.new(
-                             '%sUSE Method / Multi-cluster' % $._config.dashboardNamePrefix,
+                             '%sUtilization and Saturation / Multi-cluster' % $._config.dashboardNamePrefix,
                            )
                            + dashboard.time.withFrom('now-1h')
                            + dashboard.withTags($._config.dashboardTags)
