@@ -36,7 +36,7 @@ func TestMemInfoNuma(t *testing.T) {
 		t.Errorf("want memory Active(anon) value %f, got %f", want, got)
 	}
 
-	if want, got := "Active_anon", memInfo[5].metricName; want != got {
+	if want, got := "Active_anon_bytes", memInfo[5].metricName; want != got {
 		t.Errorf("want metric Active(anon) metricName %s, got %s", want, got)
 	}
 
