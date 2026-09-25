@@ -51,6 +51,7 @@ enabled_collectors=$(cat << COLLECTORS
   drbd
   edac
   entropy
+  ethtool
   fibrechannel
   filefd
   hwmon
@@ -169,6 +170,8 @@ collector_flags=$(cat << FLAGS
   --collector.bcache.priorityStats
   --collector.cpu.info.bugs-include=${cpu_info_bugs}
   --collector.cpu.info.flags-include=${cpu_info_flags}
+  --collector.ethtool.fixtures=collector/fixtures/ethtool/
+  --collector.ethtool.label-ifalias
   --collector.hwmon.chip-include=(applesmc|asus_nb_wmi|coretemp|hwmon4|ieee80211|nct6779)
   --collector.netclass.ignore-invalid-speed
   --collector.netclass.ignored-devices=(dmz|int)
