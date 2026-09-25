@@ -18,6 +18,7 @@ package collector
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -360,6 +361,22 @@ func TestZpoolObjsetParsingWithSpace(t *testing.T) {
 		if !handlerCalled {
 			t.Fatalf("Zpool parsing handler was not called for '%s'", test.path)
 		}
+	}
+}
+
+func TestZpoolObjsetParsingDatasetInFieldName(t *testing.T) {
+	const input = "name type data\ndataset_name 7 data\nnwritten 4 1\n"
+
+	c := zfsCollector{}
+	var datasetName string
+	err := c.parsePoolObjsetFile(strings.NewReader(input), "/proc/spl/kstat/zfs/data/objset-1", func(_ string, dataset string, _ zfsSysctl, _ uint64) {
+		datasetName = dataset
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if datasetName != "data" {
+		t.Fatalf("Incorrectly parsed dataset name: expected: %q, got: %q", "data", datasetName)
 	}
 }
 
