@@ -130,6 +130,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	// twice, with different options (metrics would be recorded multiple times).
 	labels.mountOptions = ""
 	labels.superOptions = ""
+	labels.hostMount = false
 
 	if err != nil {
 		labels.deviceError = err.Error()
@@ -208,15 +209,18 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\040", " ")
 		mount.MountPoint = strings.ReplaceAll(mount.MountPoint, "\\011", "\t")
 
+		mountPoint := rootfsStripPrefix(mount.MountPoint)
+
 		filesystems = append(filesystems, filesystemLabels{
 			device:       strings.ToValidUTF8(mount.Source, "�"),
-			mountPoint:   strings.ToValidUTF8(rootfsStripPrefix(mount.MountPoint), "�"),
+			mountPoint:   strings.ToValidUTF8(mountPoint, "�"),
 			fsType:       strings.ToValidUTF8(mount.FSType, "�"),
 			mountOptions: mountOptionsString(mount.Options),
 			superOptions: mountOptionsString(mount.SuperOptions),
 			major:        strconv.Itoa(major),
 			minor:        strconv.Itoa(minor),
 			deviceError:  "",
+			hostMount:    mountPoint != mount.MountPoint,
 		})
 	}
 
@@ -227,14 +231,26 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 // if either mount or super options contain "ro" or the superblock contains "emergency_ro",
 // the filesystem is read-only
 func isFilesystemReadOnly(labels filesystemLabels) bool {
-	mountOptions := strings.Split(labels.mountOptions, ",")
 	superOptions := strings.Split(labels.superOptions, ",")
 
-	if slices.Contains(mountOptions, "ro") || slices.Contains(superOptions, "ro") || slices.Contains(superOptions, "emergency_ro") {
+	// Super options are shared across mount namespaces: "ro" or
+	// "emergency_ro" there means the filesystem itself is read-only.
+	if slices.Contains(superOptions, "ro") || slices.Contains(superOptions, "emergency_ro") {
 		return true
 	}
 
-	return false
+	// For mount points below --path.rootfs the per-mount options describe the
+	// exporter's own view of the host mounts. With the recommended
+	// containerized deployment the host root is bind-mounted read-only into
+	// the container (`-v /:/host:ro,rslave`), so every host mount carries a
+	// per-mount "ro" flag in the exporter's mount namespace even though the
+	// filesystem is writable on the host. Ignore per-mount options for those
+	// mount points to avoid false positives (issue #3755).
+	if labels.hostMount {
+		return false
+	}
+
+	return slices.Contains(strings.Split(labels.mountOptions, ","), "ro")
 }
 
 func mountOptionsString(m map[string]string) string {

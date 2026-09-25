@@ -81,6 +81,10 @@ type filesystemCollector struct {
 
 type filesystemLabels struct {
 	device, mountPoint, fsType, mountOptions, superOptions, deviceError, major, minor string
+	// hostMount is true when the mount point was found below the configured
+	// --path.rootfs prefix, i.e. it is a host mount observed from within a
+	// container through a bind mount of the host root.
+	hostMount bool
 }
 
 type filesystemStats struct {
