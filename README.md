@@ -113,6 +113,7 @@ interrupts | name | --collector.interrupts.name-include | --collector.interrupts
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
 qdisc | device | --collector.qdisc.device-include | --collector.qdisc.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
+slingshot | telemetry metrics | --collector.slingshot.telemetry-metrics-include | --collector.slingshot.telemetry-metrics-exclude
 sysctl | all | --collector.sysctl.include | N/A
 systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
 
@@ -214,6 +215,9 @@ perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel conf
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
+slingshot | Exposes HPE Slingshot CXI NIC metadata and telemetry from `/sys/class/cxi/*/device/`. | Linux
+slingshot_info | Exposes only HPE Slingshot CXI NIC metadata from `/sys/class/cxi/*/device/`. | Linux
+slingshot_metrics | Exposes only HPE Slingshot CXI telemetry metrics from `/sys/class/cxi/*/device/telemetry/`. | Linux
 softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
 swap | Expose swap information from `/proc/swaps`. | Linux
