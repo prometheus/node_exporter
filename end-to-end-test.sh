@@ -115,20 +115,6 @@ case "${arch}" in
   *) fixture_metrics='collector/fixtures/e2e-output.txt' ;;
 esac
 
-# Only test CPU info collection on x86_64.
-case "${arch}" in
-  x86_64)
-    cpu_info_collector='--collector.cpu.info'
-    cpu_info_bugs='^(cpu_meltdown|spectre_.*|mds)$'
-    cpu_info_flags='^(aes|avx.?|constant_tsc)$'
-    ;;
-  *)
-    cpu_info_collector='--no-collector.cpu.info'
-    cpu_info_bugs=''
-    cpu_info_flags=''
-    ;;
-esac
-
 extra_flags=""; keep=0; update=0; verbose=0
 while getopts 'e:hkuv' opt
 do
@@ -162,13 +148,11 @@ then
     exit 1
 fi
 
+# CPU info uses an architecture-specific fixture; see collector/cpu_linux_amd64_test.go.
 collector_flags=$(cat << FLAGS
   ${extra_flags}
-  ${cpu_info_collector}
   --collector.arp.device-exclude=nope
   --collector.bcache.priorityStats
-  --collector.cpu.info.bugs-include=${cpu_info_bugs}
-  --collector.cpu.info.flags-include=${cpu_info_flags}
   --collector.hwmon.chip-include=(applesmc|asus_nb_wmi|coretemp|hwmon4|ieee80211|nct6779)
   --collector.netclass.ignore-invalid-speed
   --collector.netclass.ignored-devices=(dmz|int)
