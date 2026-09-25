@@ -25,11 +25,13 @@ import (
 
 var (
 	powerSupplyClassIgnoredPowerSupplies = kingpin.Flag("collector.powersupply.ignored-supplies", "Regexp of power supplies to ignore for powersupplyclass collector.").Default("^$").String()
+	powerSupplyClassUseNewNames          = kingpin.Flag("collector.powersupply.use-new-names", "Use new metric names for powersupplyclass collector.").Bool()
 )
 
 type powerSupplyClassCollector struct {
 	subsystem      string
 	ignoredPattern *regexp.Regexp
+	useNewNames    bool
 	metricDescs    map[string]*prometheus.Desc
 	logger         *slog.Logger
 }
@@ -43,6 +45,7 @@ func NewPowerSupplyClassCollector(logger *slog.Logger) (Collector, error) {
 	return &powerSupplyClassCollector{
 		subsystem:      "power_supply",
 		ignoredPattern: pattern,
+		useNewNames:    *powerSupplyClassUseNewNames,
 		metricDescs:    map[string]*prometheus.Desc{},
 		logger:         logger,
 	}, nil
