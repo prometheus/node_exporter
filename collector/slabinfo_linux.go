@@ -18,6 +18,7 @@ package collector
 import (
 	"fmt"
 	"log/slog"
+	"strconv"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -34,6 +35,7 @@ type slabinfoCollector struct {
 	logger         *slog.Logger
 	subsystem      string
 	labels         []string
+	indexedLabels  []string
 	slabNameFilter deviceFilter
 }
 
@@ -51,6 +53,7 @@ func NewSlabinfoCollector(logger *slog.Logger) (Collector, error) {
 		fs:             fs,
 		subsystem:      "slabinfo",
 		labels:         []string{"slab"},
+		indexedLabels:  []string{"slab", "index"},
 		slabNameFilter: newDeviceFilter(*slabNameExclude, *slabNameInclude),
 	}, nil
 }
@@ -61,71 +64,107 @@ func (c *slabinfoCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("couldn't get %s: %w", c.subsystem, err)
 	}
 
+	// /proc/slabinfo can list the same slab name more than once, for example one
+	// cache per device instance. The kernel permits this: the duplicate-name check
+	// in kmem_cache_sanity_check() only WARNs, and is compiled out unless
+	// CONFIG_DEBUG_VM is set. Labelling by name alone therefore produces duplicate
+	// label sets, which fails the entire scrape.
+	//
+	// Pass 1: count the entries sharing each name. The filter matches on name, so
+	// every entry with a given name is kept or dropped together and counting ahead
+	// of it gives the same answer.
+	counts := make(map[string]int, len(slabinfo.Slabs))
+	for _, slab := range slabinfo.Slabs {
+		counts[slab.Name]++
+	}
+
+	// Pass 2: emit. Only names that actually collide are disambiguated, so a host
+	// whose slab names are all unique keeps exactly the series it had before. Where
+	// a name does repeat, each entry is given its position among the entries
+	// sharing that name, so every cache keeps its own series and its own geometry.
+	// The ordinal reflects the order of /proc/slabinfo and is not a stable
+	// identity: if a cache is created or destroyed, subsequent entries shift.
+	seen := make(map[string]int, len(counts))
 	for _, slab := range slabinfo.Slabs {
 		if c.slabNameFilter.ignored(slab.Name) {
 			continue
 		}
-		ch <- c.activeObjects(slab.Name, slab.ObjActive)
-		ch <- c.objects(slab.Name, slab.ObjNum)
-		ch <- c.objectSizeBytes(slab.Name, slab.ObjSize)
-		ch <- c.objectsPerSlab(slab.Name, slab.ObjPerSlab)
-		ch <- c.pagesPerSlab(slab.Name, slab.PagesPerSlab)
+		labelValues := []string{slab.Name}
+		if counts[slab.Name] > 1 {
+			labelValues = append(labelValues, strconv.Itoa(seen[slab.Name]))
+			seen[slab.Name]++
+		}
+		ch <- c.activeObjects(labelValues, slab.ObjActive)
+		ch <- c.objects(labelValues, slab.ObjNum)
+		ch <- c.objectSizeBytes(labelValues, slab.ObjSize)
+		ch <- c.objectsPerSlab(labelValues, slab.ObjPerSlab)
+		ch <- c.pagesPerSlab(labelValues, slab.PagesPerSlab)
 	}
 
 	return nil
 }
 
-func (c *slabinfoCollector) activeObjects(label string, val int64) prometheus.Metric {
-	desc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, c.subsystem, "active_objects"),
+// desc builds the descriptor for one slabinfo column. Entries whose name is
+// unique are described by {slab}, the label set this collector has always used;
+// only entries carrying an ordinal are described by {slab,index}.
+func (c *slabinfoCollector) desc(name, help string, labelValues []string) *prometheus.Desc {
+	labels := c.labels
+	if len(labelValues) > len(c.labels) {
+		labels = c.indexedLabels
+	}
+
+	return prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, c.subsystem, name),
+		help,
+		labels, nil)
+}
+
+func (c *slabinfoCollector) activeObjects(labelValues []string, val int64) prometheus.Metric {
+	desc := c.desc("active_objects",
 		"The number of objects that are currently active (i.e., in use).",
-		c.labels, nil)
+		labelValues)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), labelValues...,
 	)
 }
 
-func (c *slabinfoCollector) objects(label string, val int64) prometheus.Metric {
-	desc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, c.subsystem, "objects"),
+func (c *slabinfoCollector) objects(labelValues []string, val int64) prometheus.Metric {
+	desc := c.desc("objects",
 		"The total number of allocated objects (i.e., objects that are both in use and not in use).",
-		c.labels, nil)
+		labelValues)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), labelValues...,
 	)
 }
 
-func (c *slabinfoCollector) objectSizeBytes(label string, val int64) prometheus.Metric {
-	desc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, c.subsystem, "object_size_bytes"),
+func (c *slabinfoCollector) objectSizeBytes(labelValues []string, val int64) prometheus.Metric {
+	desc := c.desc("object_size_bytes",
 		"The size of objects in this slab, in bytes.",
-		c.labels, nil)
+		labelValues)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), labelValues...,
 	)
 }
 
-func (c *slabinfoCollector) objectsPerSlab(label string, val int64) prometheus.Metric {
-	desc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, c.subsystem, "objects_per_slab"),
+func (c *slabinfoCollector) objectsPerSlab(labelValues []string, val int64) prometheus.Metric {
+	desc := c.desc("objects_per_slab",
 		"The number of objects stored in each slab.",
-		c.labels, nil)
+		labelValues)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), labelValues...,
 	)
 }
 
-func (c *slabinfoCollector) pagesPerSlab(label string, val int64) prometheus.Metric {
-	desc := prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, c.subsystem, "pages_per_slab"),
+func (c *slabinfoCollector) pagesPerSlab(labelValues []string, val int64) prometheus.Metric {
+	desc := c.desc("pages_per_slab",
 		"The number of pages allocated for each slab.",
-		c.labels, nil)
+		labelValues)
 
 	return prometheus.MustNewConstMetric(
-		desc, prometheus.GaugeValue, float64(val), label,
+		desc, prometheus.GaugeValue, float64(val), labelValues...,
 	)
 }
