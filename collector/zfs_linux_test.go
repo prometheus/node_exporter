@@ -335,6 +335,14 @@ func TestZpoolObjsetParsingWithSpace(t *testing.T) {
 			path:            "fixtures/proc/spl/kstat/zfs/pool3/objset-2",
 			expectedDataset: "pool3/dataset with  space",
 		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/data/objset-1",
+			expectedDataset: "data",
+		},
+		{
+			path:            "fixtures/proc/spl/kstat/zfs/data/objset-2",
+			expectedDataset: "data/vm-1101-disk-0",
+		},
 	}
 
 	c := zfsCollector{}
