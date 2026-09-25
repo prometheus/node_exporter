@@ -208,6 +208,7 @@ logind | Exposes session counts from [logind](http://www.freedesktop.org/wiki/So
 meminfo\_numa | Exposes memory statistics from `/sys/devices/system/node/node[0-9]*/meminfo`, `/sys/devices/system/node/node[0-9]*/numastat`. | Linux
 mountstats | Exposes filesystem statistics from `/proc/self/mountstats`. Exposes detailed NFS client statistics. | Linux
 network_route | Exposes the routing table as metrics | Linux
+numatopology | Exposes per-NUMA-node CPU and memory capacity from `/sys/devices/system/node/node[0-9]*` and per-VM NUMA assignment parsed from libvirt domain XML files in `/run/libvirt/qemu` (configurable via `--collector.numatopology.libvirt-xml-dir`). Per-VM metrics scale with VM count per host and can be disabled via `--no-collector.numatopology.vm-metrics`. | Linux
 nvmesubsystem | Exposes NVMe over Fabrics subsystem path health metrics from `/sys/class/nvme-subsystem/`. | Linux
 pcidevice | Exposes pci devices' information including their link status and parent devices. | Linux
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
