@@ -35,6 +35,7 @@ type qdiscStatCollector struct {
 	drops        typedDesc
 	requeues     typedDesc
 	overlimits   typedDesc
+	throttled    typedDesc
 	qlength      typedDesc
 	backlog      typedDesc
 }
@@ -101,6 +102,11 @@ func NewQdiscStatCollector(logger *slog.Logger) (Collector, error) {
 			"Number of overlimit packets.",
 			[]string{"device", "kind"}, nil,
 		), prometheus.CounterValue},
+		throttled: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "qdisc", "throttled_total"),
+			"Number of times the qdisc has been throttled to enforce pacing (fq).",
+			[]string{"device", "kind"}, nil,
+		), prometheus.CounterValue},
 		qlength: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "current_queue_length"),
 			"Number of packets currently in queue to be sent.",
@@ -159,6 +165,7 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 		ch <- c.drops.mustNewConstMetric(float64(msg.Drops), msg.IfaceName, msg.Kind)
 		ch <- c.requeues.mustNewConstMetric(float64(msg.Requeues), msg.IfaceName, msg.Kind)
 		ch <- c.overlimits.mustNewConstMetric(float64(msg.Overlimits), msg.IfaceName, msg.Kind)
+		ch <- c.throttled.mustNewConstMetric(float64(msg.Throttled), msg.IfaceName, msg.Kind)
 		ch <- c.qlength.mustNewConstMetric(float64(msg.Qlen), msg.IfaceName, msg.Kind)
 		ch <- c.backlog.mustNewConstMetric(float64(msg.Backlog), msg.IfaceName, msg.Kind)
 	}
