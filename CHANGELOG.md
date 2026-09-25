@@ -1,5 +1,7 @@
 ## master / unreleased
 
+* [ENHANCEMENT] mountstats: Add `--collector.mountstats.nfs.aggregate-transports` flag to sum NFS transport metrics across connections and reduce cardinality from `nconnect`
+
 ## 1.12.1 / 2026-07-14
 
 * [BUGFIX] perf: Fix perf profiler flag handling #3731
