@@ -62,6 +62,11 @@ type thermCollector struct {
 
 const thermal = "thermal"
 
+// errNoCPUPowerStatus is returned when the system does not report any CPU power
+// status. Apple Silicon does not implement IOPMCopyCPUPowerStatus, so this is an
+// expected condition on those systems rather than a failure.
+var errNoCPUPowerStatus = errors.New("no CPU power status has been recorded")
+
 func init() {
 	registerCollector(thermal, defaultEnabled, NewThermCollector)
 }
@@ -110,17 +115,24 @@ func NewThermCollector(logger *slog.Logger) (Collector, error) {
 
 func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
 	cpuPowerStatus, err := fetchCPUPowerStatus()
-	if err != nil {
+	switch {
+	case err == nil:
+		if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitSchedulerTimeKey))]; ok {
+			ch <- c.cpuSchedulerLimit.mustNewConstMetric(float64(value) / 100.0)
+		}
+		if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorCountKey))]; ok {
+			ch <- c.cpuAvailableCPU.mustNewConstMetric(float64(value))
+		}
+		if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorSpeedKey))]; ok {
+			ch <- c.cpuSpeedLimit.mustNewConstMetric(float64(value) / 100.0)
+		}
+	case errors.Is(err, errNoCPUPowerStatus):
+		// Apple Silicon does not report CPU power status. The temperature
+		// sensors collected below are still available, so this must not abort
+		// the collector.
+		c.logger.Debug("No CPU power status reported by the system, skipping CPU power metrics")
+	default:
 		return err
-	}
-	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitSchedulerTimeKey))]; ok {
-		ch <- c.cpuSchedulerLimit.mustNewConstMetric(float64(value) / 100.0)
-	}
-	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorCountKey))]; ok {
-		ch <- c.cpuAvailableCPU.mustNewConstMetric(float64(value))
-	}
-	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorSpeedKey))]; ok {
-		ch <- c.cpuSpeedLimit.mustNewConstMetric(float64(value) / 100.0)
 	}
 
 	return c.updateTemperatures(ch)
@@ -135,7 +147,7 @@ func fetchCPUPowerStatus() (map[string]int, error) {
 	}()
 
 	if C.kIOReturnNotFound == cfDictRef.ret {
-		return nil, errors.New("no CPU power status has been recorded")
+		return nil, errNoCPUPowerStatus
 	}
 
 	if C.kIOReturnSuccess != cfDictRef.ret {
