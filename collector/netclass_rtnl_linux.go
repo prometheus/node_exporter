@@ -20,13 +20,16 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/mdlayher/ethtool"
+	"github.com/mdlayher/netlink"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+	"golang.org/x/sys/unix"
 )
 
 var (
@@ -35,6 +38,19 @@ var (
 		"unknown", "notpresent", "down", "lowerlayerdown", "testing",
 		"dormant", "up",
 	}
+
+	netclassMasterDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "network", "master_info"),
+		"Direct master device of <iface> and the master's kind (bridge, bond, vrf), value is always 1.",
+		[]string{"device", "master", "master_kind"},
+		nil,
+	)
+	netclassVRFDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "network", "vrf_info"),
+		"Routing table ID of a VRF device, value is always 1.",
+		[]string{"device", "table"},
+		nil,
+	)
 )
 
 func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) error {
@@ -64,8 +80,13 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		return fmt.Errorf("could not get net class info: %w", err)
 	}
 
+	// ifNames maps every interface index to its name, so that master devices
+	// can be resolved by name. Ignored devices are kept, because an ignored
+	// device may be the master of a device that is not ignored.
+	ifNames := make(map[uint32]string, len(lMsgs))
 	relevantLinks := make([]rtnetlink.LinkMessage, 0, len(lMsgs))
 	for _, msg := range lMsgs {
+		ifNames[msg.Index] = msg.Attributes.Name
 		if !c.ignoredDevicesPattern.MatchString(msg.Attributes.Name) {
 			relevantLinks = append(relevantLinks, msg)
 		}
@@ -128,6 +149,32 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 				ch <- prometheus.MustNewConstMetric(altnameDesc, prometheus.GaugeValue, infoValue, strings.ToValidUTF8(altname, "\uFFFD"), msg.Attributes.Name)
 			}
 		}
+
+		// Only the direct master is reported. An interface enslaved to a
+		// bridge that is itself enslaved to a VRF has master_kind="bridge".
+		if msg.Attributes.Master != nil {
+			if master, ok := ifNames[*msg.Attributes.Master]; ok {
+				// IFLA_INFO_SLAVE_KIND holds the master's kind as
+				// reported by the kernel. It may be absent, in which
+				// case the master is still reported with an empty kind.
+				masterKind := ""
+				if msg.Attributes.Info != nil {
+					masterKind = msg.Attributes.Info.SlaveKind
+				}
+				ch <- prometheus.MustNewConstMetric(netclassMasterDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, master, masterKind)
+			}
+		}
+
+		if msg.Attributes.Info != nil && msg.Attributes.Info.Kind == "vrf" {
+			// rtnetlink has no vrf driver, so IFLA_INFO_DATA is left as
+			// raw nested attributes.
+			if data, ok := msg.Attributes.Info.Data.(*rtnetlink.LinkData); ok {
+				if table, ok := vrfTable(data.Data); ok {
+					ch <- prometheus.MustNewConstMetric(netclassVRFDesc, prometheus.GaugeValue, infoValue, msg.Attributes.Name, strconv.FormatUint(uint64(table), 10))
+				}
+			}
+		}
+
 		pushMetric(ch, c.getFieldDesc("address_assign_type"), ifaceInfo.AddrAssignType, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier"), msg.Attributes.Carrier, prometheus.GaugeValue, msg.Attributes.Name)
 		pushMetric(ch, c.getFieldDesc("carrier_changes_total"), msg.Attributes.CarrierChanges, prometheus.CounterValue, msg.Attributes.Name)
@@ -218,6 +265,24 @@ func (c *netClassCollector) getLinkModes() ([]*ethtool.LinkMode, error) {
 	lms, err := conn.LinkModes()
 
 	return lms, err
+}
+
+// vrfTable decodes the routing table ID from the raw IFLA_INFO_DATA payload of
+// a vrf link. It reports false if the attribute is absent or malformed.
+func vrfTable(data []byte) (uint32, bool) {
+	// The attribute decoder defaults to native byte order, which is what
+	// rtnetlink uses.
+	ad, err := netlink.NewAttributeDecoder(data)
+	if err != nil {
+		return 0, false
+	}
+	for ad.Next() {
+		if ad.Type() == unix.IFLA_VRF_TABLE {
+			table := ad.Uint32()
+			return table, ad.Err() == nil
+		}
+	}
+	return 0, false
 }
 
 // getSysfsAttributes reads attributes that are absent from netlink but provided
