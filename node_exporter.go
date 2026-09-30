@@ -198,6 +198,7 @@ func main() {
 			if user, err := user.Current(); err == nil && user.Uid == "0" {
 				b.Logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")
 			}
+			collector.WarnUnusablePaths(b.Logger)
 			runtime.GOMAXPROCS(*maxProcs)
 			b.Logger.Debug("Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 			b.Handle("/debug/pprof/", http.DefaultServeMux)
