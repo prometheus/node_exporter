@@ -184,7 +184,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@7cd7c9b7f2b06e8e03d2337a9476995f3c112acf  # v1.3.3
+        uses: vmactions/dragonflybsd-vm@4ab776fa9f914fbea72f13715b451e77e7ef5c41  # v1.3.4
         with:
           copyback: false
           envs: 'GO_VERSION'
