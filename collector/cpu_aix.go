@@ -20,6 +20,7 @@ package collector
 #include <errno.h>   // For errno
 */
 import "C"
+
 import (
 	"fmt"
 	"log/slog"
@@ -82,7 +83,6 @@ func NewCpuCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	pconfig, err := perfstat.PartitionStat()
-
 	if err != nil {
 		return nil, err
 	}

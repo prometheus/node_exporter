@@ -45,12 +45,10 @@ func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-var (
-	kernelHungTasks = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "kernel_hung", "tasks_total"),
-		"Total number of tasks that have been detected as hung since the system booted.",
-		nil, nil,
-	)
+var kernelHungTasks = prometheus.NewDesc(
+	prometheus.BuildFQName(namespace, "kernel_hung", "tasks_total"),
+	"Total number of tasks that have been detected as hung since the system booted.",
+	nil, nil,
 )
 
 func (c *kernelHungCollector) Update(ch chan<- prometheus.Metric) error {

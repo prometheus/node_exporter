@@ -147,11 +147,11 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 	return &i, nil
 }
 
-func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName string, port string, valueType prometheus.ValueType) {
+func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName, port string, valueType prometheus.ValueType) {
 	ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, float64(value), deviceName, port)
 }
 
-func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName string, port string) {
+func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName, port string) {
 	if value != nil {
 		c.pushMetric(ch, name, *value, deviceName, port, prometheus.CounterValue)
 	}
@@ -221,7 +221,7 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 
 			// port.HwCounters
 			if port.HwCounters.Lifespan != nil {
-				c.pushMetric(ch, "lifespan_seconds", *(port.HwCounters.Lifespan)/1000, port.Name, portStr, prometheus.GaugeValue)
+				c.pushMetric(ch, "lifespan_seconds", *port.HwCounters.Lifespan/1000, port.Name, portStr, prometheus.GaugeValue)
 			}
 
 			c.pushCounter(ch, "duplicate_requests_packets_total", port.HwCounters.DuplicateRequest, port.Name, portStr)

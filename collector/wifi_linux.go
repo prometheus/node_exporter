@@ -32,9 +32,7 @@ type wifiCollector struct {
 	logger *slog.Logger
 }
 
-var (
-	collectorWifi = kingpin.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
-)
+var collectorWifi = kingpin.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
 
 func init() {
 	registerCollector("wifi", defaultDisabled, NewWifiCollector)

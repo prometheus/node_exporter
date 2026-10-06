@@ -23,9 +23,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var (
-	powerSupplyClassIgnoredPowerSupplies = kingpin.Flag("collector.powersupply.ignored-supplies", "Regexp of power supplies to ignore for powersupplyclass collector.").Default("^$").String()
-)
+var powerSupplyClassIgnoredPowerSupplies = kingpin.Flag("collector.powersupply.ignored-supplies", "Regexp of power supplies to ignore for powersupplyclass collector.").Default("^$").String()
 
 type powerSupplyClassCollector struct {
 	subsystem      string

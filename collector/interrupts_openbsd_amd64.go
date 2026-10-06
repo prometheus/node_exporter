@@ -104,7 +104,7 @@ type interrupt struct {
 }
 
 func getInterrupts() (map[string]interrupt, error) {
-	var interrupts = map[string]interrupt{}
+	interrupts := map[string]interrupt{}
 	n := nintr()
 
 	for i := _C_int(0); i < n; i++ {

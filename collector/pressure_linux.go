@@ -33,9 +33,7 @@ const (
 	psiResourceIRQ    = "irq"
 )
 
-var (
-	psiResources = []string{psiResourceCPU, psiResourceIO, psiResourceMemory, psiResourceIRQ}
-)
+var psiResources = []string{psiResourceCPU, psiResourceIO, psiResourceMemory, psiResourceIRQ}
 
 type pressureStatsCollector struct {
 	cpu     *prometheus.Desc

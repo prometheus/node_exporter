@@ -105,7 +105,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		)
 		infoValue := 1.0
 
-		var ifalias = ""
+		ifalias := ""
 		if msg.Attributes.Alias != nil {
 			ifalias = *msg.Attributes.Alias
 		}
@@ -205,7 +205,6 @@ func (c *netClassCollector) getNetClassInfoRTNL() ([]rtnetlink.LinkMessage, erro
 	lMsgs, err := conn.Link.List()
 
 	return lMsgs, err
-
 }
 
 func (c *netClassCollector) getLinkModes() ([]*ethtool.LinkMode, error) {

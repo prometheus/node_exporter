@@ -228,7 +228,7 @@ func NewEthtoolCollector(logger *slog.Logger) (Collector, error) {
 // updatePortCapabilities generates metrics for autonegotiate, pause and asymmetricpause.
 // The bit offsets here correspond to ethtool_link_mode_bit_indices in linux/include/uapi/linux/ethtool.h
 // https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/ethtool.h
-func (c *ethtoolCollector) updatePortCapabilities(ch chan<- prometheus.Metric, prefix string, device string, linkModes uint32) {
+func (c *ethtoolCollector) updatePortCapabilities(ch chan<- prometheus.Metric, prefix, device string, linkModes uint32) {
 	var (
 		autonegotiate   = 0.0
 		pause           = 0.0
@@ -263,14 +263,13 @@ func (c *ethtoolCollector) updatePortInfo(ch chan<- prometheus.Metric, device st
 		if linkModes&(1<<bit) != 0 {
 			ch <- prometheus.MustNewConstMetric(c.entry("supported_port"), prometheus.GaugeValue, 1.0, device, name)
 		}
-
 	}
 }
 
 // updateSpeeds generates metrics corresponding to the speeds and duplex modes supported or advertised by the network device.
 // The bit offsets here correspond to ethtool_link_mode_bit_indices in linux/include/uapi/linux/ethtool.h
 // https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/ethtool.h
-func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix string, device string, linkModes uint32) {
+func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix, device string, linkModes uint32) {
 	linkMode := fmt.Sprintf("%s_speed", prefix)
 	const (
 		full = "full"
@@ -430,7 +429,6 @@ func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		stats, err = c.ethtool.Stats(device)
-
 		// If Stats() returns EOPNOTSUPP it doesn't support ethtool stats. Log that only at Debug level.
 		// Otherwise log it at Error level.
 		if err != nil {
