@@ -21,8 +21,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: go mod download
-      - run: make
+      - run: make GO_ONLY=1 SKIP_GOLANGCI_LINT=1
+      - run: git diff --exit-code
 
   test_go_arm:
     name: Go ARM tests
