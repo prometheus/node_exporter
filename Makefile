@@ -14,9 +14,6 @@
 # Ensure that 'all' is the default target otherwise it will be the first target from Makefile.common.
 all::
 
-# Needs to be defined before including Makefile.common to auto-generate targets
-DOCKER_ARCHS ?= amd64 arm64 armv7 ppc64le riscv64 s390x
-
 include Makefile.common
 
 PROMTOOL_VERSION ?= 2.30.0
