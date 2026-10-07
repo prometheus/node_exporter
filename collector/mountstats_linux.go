@@ -24,10 +24,8 @@ import (
 	"github.com/prometheus/procfs"
 )
 
-var (
-	// 64-bit float mantissa: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
-	float64Mantissa uint64 = 9007199254740992
-)
+// 64-bit float mantissa: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
+var float64Mantissa uint64 = 9007199254740992
 
 type mountStatsCollector struct {
 	// General statistics

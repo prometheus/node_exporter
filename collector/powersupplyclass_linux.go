@@ -143,7 +143,7 @@ func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func pushPowerSupplyMetric(ch chan<- prometheus.Metric, subsystem string, name string, value float64, powerSupplyName string, valueType prometheus.ValueType) {
+func pushPowerSupplyMetric(ch chan<- prometheus.Metric, subsystem, name string, value float64, powerSupplyName string, valueType prometheus.ValueType) {
 	fieldDesc := prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, subsystem, name),
 		fmt.Sprintf("%s value of /sys/class/power_supply/<power_supply>.", name),
@@ -160,7 +160,6 @@ func getPowerSupplyClassInfo(ignore *regexp.Regexp) (sysfs.PowerSupplyClass, err
 		return nil, err
 	}
 	powerSupplyClass, err := fs.PowerSupplyClass()
-
 	if err != nil {
 		return powerSupplyClass, fmt.Errorf("error obtaining power_supply class info: %w", err)
 	}

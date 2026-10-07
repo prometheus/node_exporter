@@ -37,9 +37,7 @@ const (
 	systemVersionPlist = "/System/Library/CoreServices/SystemVersion.plist"
 )
 
-var (
-	versionRegex = regexp.MustCompile(`^[0-9]+\.?[0-9]*`)
-)
+var versionRegex = regexp.MustCompile(`^[0-9]+\.?[0-9]*`)
 
 type osRelease struct {
 	Name            string
@@ -84,8 +82,20 @@ var (
 		prometheus.BuildFQName(namespace, "os", "info"),
 		"A metric with a constant '1' value labeled by build_id, id, id_like, image_id, image_version, "+
 			"name, pretty_name, variant, variant_id, version, version_codename, version_id.",
-		[]string{"build_id", "id", "id_like", "image_id", "image_version", "name", "pretty_name",
-			"variant", "variant_id", "version", "version_codename", "version_id"}, nil,
+		[]string{
+			"build_id",
+			"id",
+			"id_like",
+			"image_id",
+			"image_version",
+			"name",
+			"pretty_name",
+			"variant",
+			"variant_id",
+			"version",
+			"version_codename",
+			"version_id",
+		}, nil,
 	)
 	osVersionDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "os", "version"),
@@ -162,7 +172,6 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 
 	if c.os.SupportEnd != "" {
 		c.supportEnd, err = time.Parse(time.DateOnly, c.os.SupportEnd)
-
 		if err != nil {
 			return err
 		}

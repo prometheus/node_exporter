@@ -24,9 +24,7 @@ import (
 	"github.com/prometheus/procfs/bcache"
 )
 
-var (
-	priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
-)
+var priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
 
 func init() {
 	registerCollector("bcache", defaultEnabled, NewBcacheCollector)
@@ -152,7 +150,6 @@ func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, labelValue string) []bcac
 
 // UpdateBcacheStats collects statistics for one bcache ID.
 func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcache.Stats) {
-
 	const (
 		subsystem = "bcache"
 	)

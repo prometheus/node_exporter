@@ -38,7 +38,8 @@ func newBootTimeCollector(logger *slog.Logger) (Collector, error) {
 				prometheus.BuildFQName(namespace, "", "boot_time_seconds"),
 				"Unix time of last boot, including microseconds.",
 				nil, nil,
-			), prometheus.GaugeValue},
+			), prometheus.GaugeValue,
+		},
 		logger: logger,
 	}, nil
 }

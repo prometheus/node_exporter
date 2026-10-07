@@ -66,9 +66,7 @@ func (c *xfsCollector) updateXFSStats(ch chan<- prometheus.Metric, s *xfs.Stats)
 		subsystem = "xfs"
 	)
 
-	var (
-		labels = []string{"device"}
-	)
+	labels := []string{"device"}
 
 	// Metric names and descriptions are sourced from:
 	// http://xfs.org/index.php/Runtime_Stats.

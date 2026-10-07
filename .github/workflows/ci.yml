@@ -16,7 +16,7 @@ jobs:
     container:
       # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
       # should also be updated.
-      image: quay.io/prometheus/golang-builder:1.26-base
+      image: quay.io/prometheus/golang-builder:1.27-base
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -33,7 +33,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: 1.26.x
+          go-version: 1.27.x
       - run: uname -a
       - run: make test-e2e
 
@@ -43,7 +43,7 @@ jobs:
     container:
       # Whenever the Go version is updated here, .promu.yml and .promu-cgo.yml
       # should also be updated.
-      image: quay.io/prometheus/golang-builder:1.26-base
+      image: quay.io/prometheus/golang-builder:1.27-base
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test_go, build]
     env:
-      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.26-base
+      DOCKER_TEST_IMAGE_NAME: quay.io/prometheus/golang-builder:1.27-base
       REPO_PATH: github.com/prometheus/node_exporter
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

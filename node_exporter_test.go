@@ -26,9 +26,7 @@ import (
 	"github.com/prometheus/procfs"
 )
 
-var (
-	binary = filepath.Join(os.Getenv("GOPATH"), "bin/node_exporter")
-)
+var binary = filepath.Join(os.Getenv("GOPATH"), "bin/node_exporter")
 
 const (
 	address = "localhost:19100"
@@ -91,10 +89,10 @@ func TestHandlingOfDuplicatedMetrics(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	content := []byte("dummy_metric 1\n")
-	if err := os.WriteFile(filepath.Join(dir, "a.prom"), content, 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "a.prom"), content, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "b.prom"), content, 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "b.prom"), content, 0o600); err != nil {
 		t.Fatal(err)
 	}
 

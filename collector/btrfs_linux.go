@@ -68,7 +68,7 @@ func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 
 	for _, s := range stats {
 		// match up procfs and ioctl info by filesystem UUID (without dashes)
-		var fsUUID = strings.ReplaceAll(s.UUID, "-", "")
+		fsUUID := strings.ReplaceAll(s.UUID, "-", "")
 		ioctlStats := ioctlStatsMap[fsUUID]
 		c.updateBtrfsStats(ch, s, ioctlStats)
 	}
@@ -176,7 +176,6 @@ func (c *btrfsCollector) getIoctlDeviceStats(fs *dennwc.FS, fsInfo *dennwc.Info)
 
 	for i := uint64(0); i <= fsInfo.MaxID; i++ {
 		deviceInfo, err := fs.GetDevInfo(i)
-
 		if err != nil {
 			if errno, ok := err.(syscall.Errno); ok && errno == syscall.ENODEV {
 				// Device IDs do not consistently start at 0, nor are ranges contiguous, so we expect this.

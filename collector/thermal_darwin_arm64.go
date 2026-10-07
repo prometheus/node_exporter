@@ -104,7 +104,7 @@ func (c *thermCollector) updateTemperatures(ch chan<- prometheus.Metric) error {
 	for i := 0; i < int(count); i++ {
 		service := C.CFArrayGetValueAtIndex(services, C.CFIndex(i))
 
-		event := C.IOHIDServiceClientCopyEvent((C.IOHIDServiceClientRef)(service), C.kIOHIDEventTypeTemperature, 0, 0)
+		event := C.IOHIDServiceClientCopyEvent(C.IOHIDServiceClientRef(service), C.kIOHIDEventTypeTemperature, 0, 0)
 		if event == nil {
 			continue
 		}
@@ -118,10 +118,10 @@ func (c *thermCollector) updateTemperatures(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		nameRef := C.IOHIDServiceClientCopyProperty((C.IOHIDServiceClientRef)(service), cfProdKey)
+		nameRef := C.IOHIDServiceClientCopyProperty(C.IOHIDServiceClientRef(service), cfProdKey)
 		name := "Unknown"
 		if nameRef != 0 {
-			name = cfStringToString((C.CFStringRef)(nameRef))
+			name = cfStringToString(C.CFStringRef(nameRef))
 			C.CFRelease(C.CFTypeRef(nameRef))
 		}
 

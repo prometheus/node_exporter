@@ -113,13 +113,13 @@ func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return err
 	}
-	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitSchedulerTimeKey))]; ok {
+	if value, ok := cpuPowerStatus[string(C.kIOPMCPUPowerLimitSchedulerTimeKey)]; ok {
 		ch <- c.cpuSchedulerLimit.mustNewConstMetric(float64(value) / 100.0)
 	}
-	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorCountKey))]; ok {
+	if value, ok := cpuPowerStatus[string(C.kIOPMCPUPowerLimitProcessorCountKey)]; ok {
 		ch <- c.cpuAvailableCPU.mustNewConstMetric(float64(value))
 	}
-	if value, ok := cpuPowerStatus[(string(C.kIOPMCPUPowerLimitProcessorSpeedKey))]; ok {
+	if value, ok := cpuPowerStatus[string(C.kIOPMCPUPowerLimitProcessorSpeedKey)]; ok {
 		ch <- c.cpuSpeedLimit.mustNewConstMetric(float64(value) / 100.0)
 	}
 
