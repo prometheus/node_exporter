@@ -49,8 +49,7 @@ func TestNetStatDescsInSync(t *testing.T) {
 		s6.Ip6, s6.Icmp6, s6.Udp6, s6.UdpLite6,
 	} {
 		tt := reflect.TypeOf(v)
-		for i := 0; i < tt.NumField(); i++ {
-			f := tt.Field(i)
+		for f := range tt.Fields() {
 			if f.Type != reflect.TypeFor[*float64]() {
 				continue
 			}
