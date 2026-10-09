@@ -19,6 +19,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"strings"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -47,9 +48,6 @@ func TestThermalUpdateWithoutCPUPowerStatus(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Update failed: %v", err)
 	}
-
-	for range ch {
-	}
 }
 
 // Several IOHID services report the same product name, so the collector must
@@ -76,14 +74,16 @@ func TestThermalTemperaturesAreUnique(t *testing.T) {
 			t.Fatalf("cannot read metric: %v", err)
 		}
 
-		key := m.Desc().String()
+		var key strings.Builder
+		key.WriteString(m.Desc().String())
 		for _, l := range pb.GetLabel() {
-			key += "," + l.GetName() + "=" + l.GetValue()
+			key.WriteString("," + l.GetName() + "=" + l.GetValue())
 		}
 
-		if _, duplicate := seen[key]; duplicate {
-			t.Errorf("duplicate metric collected: %s", key)
+		id := key.String()
+		if _, duplicate := seen[id]; duplicate {
+			t.Errorf("duplicate metric collected: %s", id)
 		}
-		seen[key] = struct{}{}
+		seen[id] = struct{}{}
 	}
 }
