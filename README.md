@@ -111,6 +111,7 @@ hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exc
 infiniband | device | --collector.infiniband.device-include | --collector.infiniband.device-exclude
 interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
+ndisc | device | --collector.ndisc.device-include | --collector.ndisc.device-exclude
 qdisc | device | --collector.qdisc.device-include | --collector.qdisc.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
 sysctl | all | --collector.sysctl.include | N/A
@@ -150,6 +151,7 @@ netisr | Exposes netisr statistics | FreeBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
+ndisc | Exposes NDISC neighbor statistics. | Linux
 nvme | Exposes NVMe info from `/sys/class/nvme/` | Linux
 os | Expose OS release info from `/etc/os-release` or `/usr/lib/os-release` | _any_
 powersupplyclass | Exposes Power Supply statistics from `/sys/class/power_supply` | Linux
