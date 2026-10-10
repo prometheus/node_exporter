@@ -83,6 +83,24 @@ type filesystemLabels struct {
 	device, mountPoint, fsType, mountOptions, superOptions, deviceError, major, minor string
 }
 
+// filesystemMetricKey holds the labels carried by every filesystem metric
+// except node_filesystem_mount_info. filesystemLabels is wider than any label
+// set actually emitted: it also carries the device numbers, which only
+// node_filesystem_mount_info exposes, and the mount options, which no metric
+// exposes. Deduplicating on the wider struct lets two mount table entries for
+// the same filesystem through, and the identical series they emit are rejected
+// by client_golang, which fails the whole scrape.
+type filesystemMetricKey struct {
+	device, mountPoint, fsType, deviceError string
+}
+
+// mountInfoKey holds the labels carried by node_filesystem_mount_info. They are
+// not a subset of filesystemMetricKey: mount_info reports the device numbers
+// instead of the filesystem type, so it needs a key of its own.
+type mountInfoKey struct {
+	device, major, minor, mountPoint string
+}
+
 type filesystemStats struct {
 	labels            filesystemLabels
 	size, free, avail float64
@@ -185,59 +203,87 @@ func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return err
 	}
-	// Make sure we expose a metric once, even if there are multiple mounts
-	seen := map[filesystemLabels]bool{}
+	c.collectStats(ch, stats)
+	return nil
+}
+
+// collectStats emits the filesystem metrics for stats. The same filesystem can
+// appear more than once in the mount table, so each metric is emitted once per
+// distinct set of labels it actually carries.
+func (c *filesystemCollector) collectStats(ch chan<- prometheus.Metric, stats []filesystemStats) {
+	seenMetric := map[filesystemMetricKey]bool{}
+	seenMountInfo := map[mountInfoKey]bool{}
 	for _, s := range stats {
-		if seen[s.labels] {
+		metricKey := filesystemMetricKey{
+			device:      s.labels.device,
+			mountPoint:  s.labels.mountPoint,
+			fsType:      s.labels.fsType,
+			deviceError: s.labels.deviceError,
+		}
+		infoKey := mountInfoKey{
+			device:     s.labels.device,
+			major:      s.labels.major,
+			minor:      s.labels.minor,
+			mountPoint: s.labels.mountPoint,
+		}
+		firstMetric := !seenMetric[metricKey]
+		firstMountInfo := !seenMountInfo[infoKey]
+		if !firstMetric && !firstMountInfo {
 			continue
 		}
-		seen[s.labels] = true
+		seenMetric[metricKey] = true
+		seenMountInfo[infoKey] = true
 
-		ch <- prometheus.MustNewConstMetric(
-			c.deviceErrorDesc, prometheus.GaugeValue,
-			s.deviceError, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.roDesc, prometheus.GaugeValue,
-			s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-		)
+		if firstMetric {
+			ch <- prometheus.MustNewConstMetric(
+				c.deviceErrorDesc, prometheus.GaugeValue,
+				s.deviceError, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.roDesc, prometheus.GaugeValue,
+				s.ro, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			)
+		}
 
 		if s.deviceError > 0 {
 			continue
 		}
 
-		ch <- prometheus.MustNewConstMetric(
-			c.sizeDesc, prometheus.GaugeValue,
-			s.size, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.freeDesc, prometheus.GaugeValue,
-			s.free, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.availDesc, prometheus.GaugeValue,
-			s.avail, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.filesDesc, prometheus.GaugeValue,
-			s.files, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.filesFreeDesc, prometheus.GaugeValue,
-			s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
-		)
-		ch <- prometheus.MustNewConstMetric(
-			c.mountInfoDesc, prometheus.GaugeValue,
-			1.0, s.labels.device, s.labels.major, s.labels.minor, s.labels.mountPoint,
-		)
-		if s.purgeable >= 0 {
+		if firstMetric {
+			ch <- prometheus.MustNewConstMetric(
+				c.sizeDesc, prometheus.GaugeValue,
+				s.size, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.freeDesc, prometheus.GaugeValue,
+				s.free, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.availDesc, prometheus.GaugeValue,
+				s.avail, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.filesDesc, prometheus.GaugeValue,
+				s.files, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			)
+			ch <- prometheus.MustNewConstMetric(
+				c.filesFreeDesc, prometheus.GaugeValue,
+				s.filesFree, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
+			)
+		}
+		if firstMountInfo {
+			ch <- prometheus.MustNewConstMetric(
+				c.mountInfoDesc, prometheus.GaugeValue,
+				1.0, s.labels.device, s.labels.major, s.labels.minor, s.labels.mountPoint,
+			)
+		}
+		if firstMetric && s.purgeable >= 0 {
 			ch <- prometheus.MustNewConstMetric(
 				c.purgeableDesc, prometheus.GaugeValue,
 				s.purgeable, s.labels.device, s.labels.mountPoint, s.labels.fsType, s.labels.deviceError,
 			)
 		}
 	}
-	return nil
 }
 
 func newMountPointsFilter(logger *slog.Logger) (deviceFilter, error) {
