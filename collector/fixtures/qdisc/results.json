@@ -13,5 +13,13 @@
         "Packets": 83,
         "Requeues": 2,
         "Kind": "pfifo_fast"
+    },
+    {
+        "IfaceName": "wlan0",
+        "Parent": 65537,
+        "Handle": 1048576,
+        "Bytes": 42,
+        "Packets": 42,
+        "Kind": "fq"
     }
 ]
