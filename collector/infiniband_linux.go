@@ -158,18 +158,23 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 }
 
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
-	devices, err := c.fs.InfiniBandClass()
+	deviceNames, err := c.fs.InfiniBandClassDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			c.logger.Debug("infiniband statistics not found, skipping")
 			return ErrNoData
 		}
-		return fmt.Errorf("error obtaining InfiniBand class info: %w", err)
+		return fmt.Errorf("error obtaining InfiniBand device list: %w", err)
 	}
 
-	for _, device := range devices {
-		if c.deviceFilter.ignored(device.Name) {
+	for _, name := range deviceNames {
+		if c.deviceFilter.ignored(name) {
 			continue
+		}
+
+		device, err := c.fs.InfiniBandDevice(name)
+		if err != nil {
+			return fmt.Errorf("error obtaining InfiniBand device %q info: %w", name, err)
 		}
 
 		infoDesc := prometheus.NewDesc(
