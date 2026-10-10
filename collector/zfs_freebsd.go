@@ -31,7 +31,8 @@ const (
 )
 
 func NewZFSCollector(logger *slog.Logger) (Collector, error) {
-	return &zfsCollector{
+	c := &zfsCollector{
+		// Common ZFS sysctl metrics
 		sysctls: []bsdSysctl{
 			{
 				name:        "abdstats_linear_count_total",
@@ -208,35 +209,6 @@ func NewZFSCollector(logger *slog.Logger) (Collector, error) {
 				dataType:    bsdSysctlTypeUint64,
 				valueType:   prometheus.GaugeValue,
 			},
-			// when FreeBSD 14.0+, `meta/pm/pd` install of `p`.
-			{
-				name:        "arcstats_p_bytes",
-				description: "ZFS ARC MRU target size",
-				mib:         "kstat.zfs.misc.arcstats.p",
-				dataType:    bsdSysctlTypeUint64,
-				valueType:   prometheus.GaugeValue,
-			},
-			{
-				name:        "arcstats_meta_bytes",
-				description: "ZFS ARC metadata target frac ",
-				mib:         "kstat.zfs.misc.arcstats.meta",
-				dataType:    bsdSysctlTypeUint64,
-				valueType:   prometheus.GaugeValue,
-			},
-			{
-				name:        "arcstats_pd_bytes",
-				description: "ZFS ARC data MRU target frac",
-				mib:         "kstat.zfs.misc.arcstats.pd",
-				dataType:    bsdSysctlTypeUint64,
-				valueType:   prometheus.GaugeValue,
-			},
-			{
-				name:        "arcstats_pm_bytes",
-				description: "ZFS ARC meta MRU target frac",
-				mib:         "kstat.zfs.misc.arcstats.pm",
-				dataType:    bsdSysctlTypeUint64,
-				valueType:   prometheus.GaugeValue,
-			},
 			{
 				name:        "arcstats_size_bytes",
 				description: "ZFS ARC size",
@@ -260,7 +232,50 @@ func NewZFSCollector(logger *slog.Logger) (Collector, error) {
 			},
 		},
 		logger: logger,
-	}, nil
+	}
+
+	v, err := getOSReleaseMajorMinor()
+	if err != nil {
+		c.logger.Warn("unable to determine OS release, zfs arcstats metrics may be missing or unsupported", "error", err)
+		return c, nil
+	}
+	// when FreeBSD 14.0+, use `meta/pm/pd` instead of `p`.
+	if v >= 14.0 {
+		c.sysctls = append(c.sysctls,
+			bsdSysctl{
+				name:        "arcstats_meta_bytes",
+				description: "ZFS ARC metadata target frac ",
+				mib:         "kstat.zfs.misc.arcstats.meta",
+				dataType:    bsdSysctlTypeUint64,
+				valueType:   prometheus.GaugeValue,
+			},
+			bsdSysctl{
+				name:        "arcstats_pd_bytes",
+				description: "ZFS ARC data MRU target frac",
+				mib:         "kstat.zfs.misc.arcstats.pd",
+				dataType:    bsdSysctlTypeUint64,
+				valueType:   prometheus.GaugeValue,
+			},
+			bsdSysctl{
+				name:        "arcstats_pm_bytes",
+				description: "ZFS ARC meta MRU target frac",
+				mib:         "kstat.zfs.misc.arcstats.pm",
+				dataType:    bsdSysctlTypeUint64,
+				valueType:   prometheus.GaugeValue,
+			},
+		)
+	} else {
+		c.sysctls = append(c.sysctls,
+			bsdSysctl{
+				name:        "arcstats_p_bytes",
+				description: "ZFS ARC MRU target size",
+				mib:         "kstat.zfs.misc.arcstats.p",
+				dataType:    bsdSysctlTypeUint64,
+				valueType:   prometheus.GaugeValue,
+			},
+		)
+	}
+	return c, nil
 }
 
 func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
