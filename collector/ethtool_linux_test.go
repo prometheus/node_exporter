@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -257,6 +258,14 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 	return res, err
 }
 
+func (e *EthtoolFixture) ModuleEeprom(intf string) ([]byte, error) {
+	data, err := os.ReadFile(filepath.Join(e.fixturePath, intf, "module_eeprom"))
+	if errors.Is(err, os.ErrNotExist) {
+		return nil, unix.EOPNOTSUPP
+	}
+	return data, err
+}
+
 func NewEthtoolTestCollector(logger *slog.Logger) (Collector, error) {
 	collector, err := makeEthtoolCollector(logger)
 	if err != nil {
@@ -288,7 +297,22 @@ func TestBuildEthtoolFQName(t *testing.T) {
 }
 
 func TestEthToolCollector(t *testing.T) {
-	testcase := `# HELP node_ethtool_align_errors Network interface align_errors
+	testcase := `# HELP node_ethtool_module_rx_power_milliwatts Module RX optical power in milliwatts
+# TYPE node_ethtool_module_rx_power_milliwatts gauge
+node_ethtool_module_rx_power_milliwatts{device="eth0",lane="1"} 0.5
+# HELP node_ethtool_module_temperature_celsius Module temperature in degrees Celsius
+# TYPE node_ethtool_module_temperature_celsius gauge
+node_ethtool_module_temperature_celsius{device="eth0"} 25
+# HELP node_ethtool_module_tx_bias_milliamperes Module TX laser bias current in milliamperes
+# TYPE node_ethtool_module_tx_bias_milliamperes gauge
+node_ethtool_module_tx_bias_milliamperes{device="eth0",lane="1"} 20
+# HELP node_ethtool_module_tx_power_milliwatts Module TX optical power in milliwatts
+# TYPE node_ethtool_module_tx_power_milliwatts gauge
+node_ethtool_module_tx_power_milliwatts{device="eth0",lane="1"} 1
+# HELP node_ethtool_module_voltage_volts Module supply voltage in volts
+# TYPE node_ethtool_module_voltage_volts gauge
+node_ethtool_module_voltage_volts{device="eth0"} 3.2976
+# HELP node_ethtool_align_errors Network interface align_errors
 # TYPE node_ethtool_align_errors untyped
 node_ethtool_align_errors{device="eth0"} 0
 # HELP node_ethtool_info A metric with a constant '1' value labeled by bus_info, device, driver, expansion_rom_version, firmware_version, version.
