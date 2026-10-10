@@ -158,7 +158,7 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 }
 
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
-	devices, err := c.fs.InfiniBandClass()
+	deviceNames, err := c.fs.InfiniBandClassDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			c.logger.Debug("infiniband statistics not found, skipping")
@@ -167,9 +167,18 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("error obtaining InfiniBand class info: %w", err)
 	}
 
-	for _, device := range devices {
-		if c.deviceFilter.ignored(device.Name) {
+	for _, name := range deviceNames {
+		if c.deviceFilter.ignored(name) {
 			continue
+		}
+
+		// Only read the device's attributes and port counters from sysfs once we
+		// know it is not excluded: on some hardware (e.g. firmware-managed
+		// restricted ports), reading these counters triggers a firmware command
+		// that fails and floods the kernel log.
+		device, err := c.fs.InfiniBandDevice(name)
+		if err != nil {
+			return fmt.Errorf("error obtaining InfiniBand device info: %w", err)
 		}
 
 		infoDesc := prometheus.NewDesc(
