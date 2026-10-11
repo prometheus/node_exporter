@@ -16,14 +16,17 @@
 package collector
 
 import (
+	"errors"
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	dto "github.com/prometheus/client_model/go"
 )
 
 type testNVMeSubsystemCollector struct {
@@ -110,7 +113,9 @@ node_nvmesubsystem_paths_live{subsystem="nvme-subsys0"} 3
 }
 
 func TestNVMeSubsystemNoDevices(t *testing.T) {
+	oldSysPath := *sysPath
 	*sysPath = t.TempDir()
+	t.Cleanup(func() { *sysPath = oldSysPath })
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	coll, err := NewNVMeSubsystemCollector(logger)
@@ -120,12 +125,46 @@ func TestNVMeSubsystemNoDevices(t *testing.T) {
 
 	c := coll.(*nvmeSubsystemCollector)
 
-	ch := make(chan prometheus.Metric, 200)
-	err = c.Update(ch)
+	ch := make(chan prometheus.Metric, 2)
+	execute("nvmesubsystem", c, ch, logger)
 	close(ch)
 
-	if err != ErrNoData {
-		t.Fatalf("expected ErrNoData, got %v", err)
+	for metric := range ch {
+		if !strings.Contains(metric.Desc().String(), `fqName: "node_scrape_collector_success"`) {
+			continue
+		}
+
+		var value dto.Metric
+		if err := metric.Write(&value); err != nil {
+			t.Fatalf("write scrape-success metric: %v", err)
+		}
+		if got := value.GetGauge().GetValue(); got != 1 {
+			t.Fatalf("expected scrape success value 1, got %v", got)
+		}
+		return
+	}
+
+	t.Fatal("scrape success metric was not emitted")
+}
+
+func TestNVMeSubsystemIncompleteSysfsFails(t *testing.T) {
+	oldSysPath := *sysPath
+	*sysPath = t.TempDir()
+	t.Cleanup(func() { *sysPath = oldSysPath })
+
+	if err := os.MkdirAll(filepath.Join(*sysPath, nvmeSubsystemClassPath, "nvme-subsys0"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	coll, err := NewNVMeSubsystemCollector(logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = coll.(*nvmeSubsystemCollector).Update(make(chan prometheus.Metric))
+	if !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("expected missing subsystem attribute error, got %v", err)
 	}
 }
 

@@ -92,6 +92,8 @@ var (
 	)
 )
 
+const nvmeSubsystemClassPath = "class/nvme-subsystem"
+
 type nvmeSubsystemCollector struct {
 	fs     sysfs.FS
 	logger *slog.Logger
@@ -112,9 +114,21 @@ func NewNVMeSubsystemCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func (c *nvmeSubsystemCollector) Update(ch chan<- prometheus.Metric) error {
+	if _, err := os.Stat(sysFilePath(nvmeSubsystemClassPath)); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.logger.Debug("NVMe subsystem class not found, skipping", "err", err)
+			return nil
+		}
+		if errors.Is(err, os.ErrPermission) {
+			c.logger.Debug("Could not read NVMe subsystem info", "err", err)
+			return ErrNoData
+		}
+		return fmt.Errorf("failed to stat NVMe subsystem class: %w", err)
+	}
+
 	subsystems, err := c.fs.NVMeSubsystemClass()
 	if err != nil {
-		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
+		if errors.Is(err, os.ErrPermission) {
 			c.logger.Debug("Could not read NVMe subsystem info", "err", err)
 			return ErrNoData
 		}
