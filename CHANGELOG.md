@@ -1,5 +1,7 @@
 ## master / unreleased
 
+* [CHANGE] diskstats: Remove legacy Darwin read and written sector metrics; use the byte counters instead.
+
 ## 1.12.1 / 2026-07-14
 
 * [BUGFIX] perf: Fix perf profiler flag handling #3731
