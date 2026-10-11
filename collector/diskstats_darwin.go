@@ -63,20 +63,6 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 			},
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "read_sectors_total"),
-						"The total number of sectors read successfully.",
-						diskLabelNames,
-						nil,
-					),
-					valueType: prometheus.CounterValue,
-				},
-				value: func(stat *iostat.DriveStats) float64 {
-					return float64(stat.NumRead) / float64(stat.BlockSize)
-				},
-			},
-			{
-				typedDesc: typedDesc{
 					desc:      readTimeSecondsDesc,
 					valueType: prometheus.CounterValue,
 				},
@@ -91,20 +77,6 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				},
 				value: func(stat *iostat.DriveStats) float64 {
 					return float64(stat.NumWrite)
-				},
-			},
-			{
-				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "written_sectors_total"),
-						"The total number of sectors written successfully.",
-						diskLabelNames,
-						nil,
-					),
-					valueType: prometheus.CounterValue,
-				},
-				value: func(stat *iostat.DriveStats) float64 {
-					return float64(stat.NumWrite) / float64(stat.BlockSize)
 				},
 			},
 			{
