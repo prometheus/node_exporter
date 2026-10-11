@@ -96,7 +96,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// In exclude mode, filtered collectors = enabled - excludeed.
 		f := []string{}
 		for _, c := range h.enabledCollectors {
-			if (slices.Index(excludes, c)) == -1 {
+			if slices.Index(excludes, c) == -1 {
 				f = append(f, c)
 			}
 		}

@@ -79,9 +79,7 @@ func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func getMemInfoNuma() ([]meminfoMetric, error) {
-	var (
-		metrics []meminfoMetric
-	)
+	var metrics []meminfoMetric
 
 	nodes, err := filepath.Glob(sysFilePath("devices/system/node/node[0-9]*"))
 	if err != nil {

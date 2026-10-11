@@ -13,7 +13,7 @@ permissions:
 
 env:
   GNU_TAR_VERSION: "1.35"
-  GO_VERSION: "1.26.0"
+  GO_VERSION: "1.27.1"
 
 # To spin up one of the VMs below, see the "Debug Shell" section here: https://github.com/vmactions
 jobs:
@@ -26,9 +26,9 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/freebsd-vm@f0552d3b69211736abd97f02ff3d4674c56b73b1  # v1.5.5
+        uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff  # v1.5.8
         with:
-          release: "15.0"
+          release: "15"
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
           usesh: true
@@ -133,7 +133,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/netbsd-vm@e7ac71b97abbe8437cec8859a5acf72dfa6a8be0  # v1.4.5
+        uses: vmactions/netbsd-vm@c8a0d7ddb84619a7a8cc4e652efa7950b3fd9f92  # v1.5.2
         with:
           copyback: false
           envs: 'GO_VERSION GNU_TAR_VERSION'
@@ -184,7 +184,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/dragonflybsd-vm@7cd7c9b7f2b06e8e03d2337a9476995f3c112acf  # v1.3.3
+        uses: vmactions/dragonflybsd-vm@4ab776fa9f914fbea72f13715b451e77e7ef5c41  # v1.3.4
         with:
           copyback: false
           envs: 'GO_VERSION'
@@ -238,7 +238,7 @@ jobs:
         with:
           persist-credentials: false
       - name: test-e2e
-        uses: vmactions/solaris-vm@96d8d976f9e67d82ec6c7e8ce9c1060731f9e21c  # v1.3.9
+        uses: vmactions/solaris-vm@87d3c436511cef802cd1637f86f73b1a97715c8c  # v1.4.1
         with:
           copyback: false
           envs: 'GO_VERSION'
@@ -330,11 +330,15 @@ jobs:
 
           echo "::group::Print environment information"
           uname -a
+          sw_vers
+          sysctl hw.memsize hw.ncpu
+          diskutil list
+          ifconfig -l
           echo "GOOS: $(go env GOOS)"
           echo "GOARCH: $(go env GOARCH)"
           echo "::endgroup::"
 
           echo "::group::Run End-to-End Tests"
           git config --global --add safe.directory $(pwd)
-          make test-e2e E2E_EXTRA_FLAGS='--collector.diskstats.device-include=disk[04]'
+          make test-e2e E2E_EXTRA_FLAGS='--collector.diskstats.device-include=disk0'
           echo "::endgroup::"

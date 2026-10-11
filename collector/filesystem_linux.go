@@ -40,11 +40,15 @@ const (
 var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
 	"how long to wait for a mount to respond before marking it as stale").
 	Hidden().Default("5s").Duration()
+
 var statWorkerCount = kingpin.Flag("collector.filesystem.stat-workers",
 	"how many stat calls to process simultaneously").
 	Hidden().Default("4").Int()
-var stuckMounts = make(map[string]struct{})
-var stuckMountsMtx = &sync.Mutex{}
+
+var (
+	stuckMounts    = make(map[string]struct{})
+	stuckMountsMtx = &sync.Mutex{}
+)
 
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
