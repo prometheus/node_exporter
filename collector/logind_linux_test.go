@@ -82,7 +82,6 @@ func TestLogindCollectorKnownStringOrOther(t *testing.T) {
 	if actual != expected {
 		t.Errorf("knownStringOrOther failed: got %q, expected %q.", actual, expected)
 	}
-
 }
 
 func TestLogindCollectorCollectMetrics(t *testing.T) {

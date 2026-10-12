@@ -367,21 +367,21 @@ func TestRotationalLabel(t *testing.T) {
 	tempSys := t.TempDir()
 
 	// Create a valid rotational=1 file (HDD).
-	err := os.MkdirAll(filepath.Join(tempSys, "block/sda/queue"), 0755)
+	err := os.MkdirAll(filepath.Join(tempSys, "block/sda/queue"), 0o755)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.WriteFile(filepath.Join(tempSys, "block/sda/queue/rotational"), []byte("1\n"), 0644)
+	err = os.WriteFile(filepath.Join(tempSys, "block/sda/queue/rotational"), []byte("1\n"), 0o644)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create a rotational=0 file (SSD).
-	err = os.MkdirAll(filepath.Join(tempSys, "block/sdb/queue"), 0755)
+	err = os.MkdirAll(filepath.Join(tempSys, "block/sdb/queue"), 0o755)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.WriteFile(filepath.Join(tempSys, "block/sdb/queue/rotational"), []byte("0\n"), 0644)
+	err = os.WriteFile(filepath.Join(tempSys, "block/sdb/queue/rotational"), []byte("0\n"), 0o644)
 	if err != nil {
 		t.Fatal(err)
 	}

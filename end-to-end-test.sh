@@ -400,6 +400,7 @@ non_deterministic_metrics=$(cat << METRICS
   node_zfs_arcstats_anon_bytes
   node_zfs_arcstats_c_bytes
   node_zfs_arcstats_c_max_bytes
+  node_zfs_arcstats_c_min_bytes
   node_zfs_arcstats_data_bytes
   node_zfs_arcstats_demand_data_hits_total
   node_zfs_arcstats_demand_data_misses_total

@@ -37,12 +37,10 @@ func init() {
 	registerCollector("buddyinfo", defaultDisabled, NewBuddyinfoCollector)
 }
 
-var (
-	buddyinfoBlocks = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
-		"Count of free blocks according to size.",
-		[]string{"node", "zone", "size"}, nil,
-	)
+var buddyinfoBlocks = prometheus.NewDesc(
+	prometheus.BuildFQName(namespace, buddyInfoSubsystem, "blocks"),
+	"Count of free blocks according to size.",
+	[]string{"node", "zone", "size"}, nil,
 )
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.

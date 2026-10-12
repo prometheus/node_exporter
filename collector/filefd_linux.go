@@ -81,7 +81,7 @@ func parseFileFDStats(filename string) (map[string]string, error) {
 		return nil, fmt.Errorf("unexpected number of file stats in %q", filename)
 	}
 
-	var fileFDStat = map[string]string{}
+	fileFDStat := map[string]string{}
 	// The file-nr proc is only 1 line with 3 values.
 	fileFDStat["allocated"] = string(parts[0])
 	// The second value is skipped as it will always be zero in linux 2.6.

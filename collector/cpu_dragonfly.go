@@ -122,7 +122,7 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 
 // Expose CPU stats using sysctl.
 func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
-	var fieldsCount = 5
+	fieldsCount := 5
 	cpuTimes, err := getDragonFlyCPUTimes()
 	if err != nil {
 		return err

@@ -253,10 +253,8 @@ func getData(queryString string, expectedSize int) ([]byte, error) {
 }
 
 func getTCPStates() ([]uint64, error) {
-
 	// This sysctl returns an array of uint64
 	data, err := sysctlRaw("net.inet.tcp.states")
-
 	if err != nil {
 		return nil, err
 	}
@@ -344,7 +342,6 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	tcpConnsPerStates, err := getTCPStates()
-
 	if err != nil {
 		return err
 	}
@@ -357,7 +354,6 @@ func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 
 // Used by tests to mock unix.SysctlRaw
 func getFreeBSDDataMock(sysctl string) []byte {
-
 	if sysctl == "net.inet.tcp.stats" {
 		tcpStats := C.struct_tcpstat{
 			tcps_sndtotal: 1234,

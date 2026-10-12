@@ -26,8 +26,10 @@ import (
 	"github.com/prometheus/procfs/sysfs"
 )
 
-const coolingDevice = "cooling_device"
-const thermalZone = "thermal_zone"
+const (
+	coolingDevice = "cooling_device"
+	thermalZone   = "thermal_zone"
+)
 
 type thermalZoneCollector struct {
 	fs                    sysfs.FS

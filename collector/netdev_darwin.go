@@ -84,7 +84,7 @@ func getIfaceData(index int) (*ifMsghdr2, error) {
 		unix.CTL_NET,
 		unix.AF_LINK,
 		0, // NETLINK_GENERIC: functions not specific to a type of iface
-		2, //IFMIB_IFDATA: per-interface data table
+		2, // IFMIB_IFDATA: per-interface data table
 		int32(index),
 		1, // IFDATA_GENERAL: generic stats for all kinds of ifaces
 	}

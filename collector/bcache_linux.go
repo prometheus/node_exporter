@@ -24,9 +24,7 @@ import (
 	"github.com/prometheus/procfs/bcache"
 )
 
-var (
-	priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
-)
+var priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
 
 func init() {
 	registerCollector("bcache", defaultEnabled, NewBcacheCollector)
@@ -152,7 +150,6 @@ func bcachePeriodStatsToMetric(ps *bcache.PeriodStats, labelValue string) []bcac
 
 // UpdateBcacheStats collects statistics for one bcache ID.
 func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcache.Stats) {
-
 	const (
 		subsystem = "bcache"
 	)
@@ -214,10 +211,12 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 			value:      float64(s.Bcache.Internal.BtreeNodes),
 			metricType: prometheus.GaugeValue,
 		},
+		// procfs names the field NanoSeconds, but it holds the raw value of
+		// btree_read_average_duration_us, which the kernel reports in microseconds.
 		{
 			name:       "btree_read_average_duration_seconds",
 			desc:       "Average btree read duration.",
-			value:      float64(s.Bcache.Internal.BtreeReadAverageDurationNanoSeconds) * 1e-9,
+			value:      float64(s.Bcache.Internal.BtreeReadAverageDurationNanoSeconds) * 1e-6,
 			metricType: prometheus.GaugeValue,
 		},
 		{

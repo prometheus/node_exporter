@@ -74,7 +74,7 @@ node_bcache_btree_cache_size_bytes{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 
 node_bcache_btree_nodes{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_btree_read_average_duration_seconds Average btree read duration.
 # TYPE node_bcache_btree_read_average_duration_seconds gauge
-node_bcache_btree_read_average_duration_seconds{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 1.305e-06
+node_bcache_btree_read_average_duration_seconds{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0.001305
 # HELP node_bcache_bypassed_bytes_total Amount of IO (both reads and writes) that has bypassed the cache.
 # TYPE node_bcache_bypassed_bytes_total counter
 node_bcache_bypassed_bytes_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0

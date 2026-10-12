@@ -73,7 +73,7 @@ type sysmonProperty []sysmonValues
 type sysmonProperties map[string]sysmonProperty
 
 func _IOC(inout uint, group byte, num uint, len uintptr) uint {
-	return ((inout) | ((uint(len) & _IOCPARM_MASK) << _IOCPARM_SHIFT) | (uint(group) << _IOCGROUP_SHIFT) | (num))
+	return (inout | ((uint(len) & _IOCPARM_MASK) << _IOCPARM_SHIFT) | (uint(group) << _IOCGROUP_SHIFT) | num)
 }
 
 func _IOWR(group byte, num uint, len uintptr) uint {
@@ -128,7 +128,6 @@ func sortFilterSysmonProperties(props sysmonProperties, prefix string) []string 
 }
 
 func convertTemperatures(prop sysmonProperty, res map[int]float64) error {
-
 	for _, val := range prop {
 		if val.State == "invalid" || val.State == "unknown" || val.State == "" {
 			continue
@@ -137,14 +136,13 @@ func convertTemperatures(prop sysmonProperty, res map[int]float64) error {
 		re := regexp.MustCompile("^cpu([0-9]+) temperature$")
 		core := re.FindStringSubmatch(val.Description)[1]
 		ncore, _ := strconv.Atoi(core)
-		temperature := ((float64(uint64(val.CurValue))) / 1000000) - 273.15
+		temperature := (float64(uint64(val.CurValue)) / 1000000) - 273.15
 		res[ncore] = temperature
 	}
 	return nil
 }
 
 func getCPUTemperatures() (map[int]float64, error) {
-
 	res := make(map[int]float64)
 
 	// Read all properties

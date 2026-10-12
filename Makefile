@@ -14,12 +14,9 @@
 # Ensure that 'all' is the default target otherwise it will be the first target from Makefile.common.
 all::
 
-# Needs to be defined before including Makefile.common to auto-generate targets
-DOCKER_ARCHS ?= amd64 arm64 armv7 ppc64le riscv64 s390x
-
 include Makefile.common
 
-PROMTOOL_VERSION ?= 2.30.0
+PROMTOOL_VERSION ?= 3.15.0
 PROMTOOL_URL     ?= https://github.com/prometheus/prometheus/releases/download/v$(PROMTOOL_VERSION)/prometheus-$(PROMTOOL_VERSION).$(GO_BUILD_PLATFORM).tar.gz
 PROMTOOL         ?= $(FIRST_GOPATH)/bin/promtool
 E2E_EXTRA_FLAGS  ?=
