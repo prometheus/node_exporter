@@ -213,6 +213,7 @@ pcidevice | Exposes pci devices' information including their link status and par
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
+resctrl | Exposes Intel RDT / AMD PQoS / ARM MPAM memory bandwidth and cache occupancy monitoring counters from the resctrl filesystem (must be mounted). | Linux
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
 softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
