@@ -175,11 +175,11 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 		infoDesc := prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, c.subsystem, "info"),
 			"Non-numeric data from /sys/class/infiniband/<device>, value is always 1.",
-			[]string{"device", "board_id", "firmware_version", "hca_type"},
+			[]string{"device", "board_id", "firmware_version", "hca_type", "sysfs_device"},
 			nil,
 		)
 		infoValue := 1.0
-		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, device.Name, device.BoardID, device.FirmwareVersion, device.HCAType)
+		ch <- prometheus.MustNewConstMetric(infoDesc, prometheus.GaugeValue, infoValue, device.Name, device.BoardID, device.FirmwareVersion, device.HCAType, sysfsDevice("infiniband", device.Name))
 
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
