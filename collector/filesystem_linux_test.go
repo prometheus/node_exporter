@@ -117,6 +117,32 @@ func Test_isFilesystemReadOnly(t *testing.T) {
 				superOptions: "emergency_ro",
 			}, expected: true,
 		},
+		// Host mount observed through a read-only bind mount of the host
+		// root (`-v /:/host:ro,rslave`): the per-mount "ro" belongs to the
+		// exporter's mount namespace, the filesystem itself is writable.
+		"/host/volume6": {
+			labels: filesystemLabels{
+				mountOptions: "ro,relatime",
+				superOptions: "rw,errors=remount-ro",
+				hostMount:    true,
+			}, expected: false,
+		},
+		// Host filesystem that really is read-only on the superblock level.
+		"/host/volume7": {
+			labels: filesystemLabels{
+				mountOptions: "ro,relatime",
+				superOptions: "ro",
+				hostMount:    true,
+			}, expected: true,
+		},
+		// Host ext4 filesystem after an emergency remount-ro (Linux 6.15+).
+		"/host/volume8": {
+			labels: filesystemLabels{
+				mountOptions: "ro,relatime",
+				superOptions: "rw,emergency_ro",
+				hostMount:    true,
+			}, expected: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -285,6 +311,49 @@ func TestMountOptionsStringReadOnlyDetection(t *testing.T) {
 					tt, got, tt.wantReadOnly, labels.mountOptions, labels.superOptions)
 			}
 		})
+	}
+}
+
+func TestPathRootfsReadOnly(t *testing.T) {
+	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_bindmount_ro/proc", "--path.rootfs", "/host"}); err != nil {
+		t.Fatal(err)
+	}
+
+	// The fixture mimics the recommended containerized deployment with the
+	// host root bind-mounted read-only (`-v /:/host:ro,rslave`): every mount
+	// below /host carries a per-mount "ro" flag in the exporter's mount
+	// namespace, regardless of the state of the host filesystem (issue #3755).
+	expected := map[string]bool{
+		// Writable on the host, per-mount "ro" only comes from the bind mount.
+		"/":         false,
+		"/var/data": false,
+		// Read-only on the superblock level, must still be reported.
+		"/mnt/backup": true,
+		// ext4 emergency remount-ro (Linux 6.15+), must still be reported.
+		"/mnt/flaky": true,
+		// Mounts of the exporter's own container keep the per-mount semantics.
+		"/run/lock":           false,
+		"/textfile_collector": true,
+	}
+
+	filesystems, err := mountPointDetails(slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(filesystems) != len(expected) {
+		t.Errorf("Expected %d mount points, got %d", len(expected), len(filesystems))
+	}
+
+	for _, fs := range filesystems {
+		want, ok := expected[fs.mountPoint]
+		if !ok {
+			t.Errorf("Got unexpected mount point %s", fs.mountPoint)
+			continue
+		}
+		if got := isFilesystemReadOnly(fs); got != want {
+			t.Errorf("Expected readonly=%t for mount point %s, got %t", want, fs.mountPoint, got)
+		}
 	}
 }
 

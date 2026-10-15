@@ -1,0 +1,6 @@
+29 1 259:0 / /host ro,relatime shared:1 - ext4 /dev/nvme1n0 rw
+30 1 260:0 / /host/var/data ro,relatime shared:2 - ext4 /dev/mapper/data--vg0-data--lv--0 rw
+31 1 261:0 / /host/mnt/backup ro,relatime shared:3 - ext4 /dev/sdb1 ro
+32 1 262:0 / /host/mnt/flaky ro,relatime shared:4 - ext4 /dev/sdc1 rw,emergency_ro
+33 28 0:27 / /run/lock rw,nosuid,nodev,noexec,relatime shared:6 - tmpfs tmpfs rw,size=5120k,inode64
+34 1 263:0 / /textfile_collector ro,relatime shared:7 - ext4 /dev/sdd1 rw
