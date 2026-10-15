@@ -9675,45 +9675,19 @@ Mode: 644
 Directory: sys/devices/system/edac/mc/mc0/csrow0
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow0/ce_count
+Lines: 1
+3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/csrow0/ch0_ce_count
 Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: sys/devices/system/edac/mc/mc0/csrow1
-Mode: 755
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow1/ch0_ce_count
+Path: sys/devices/system/edac/mc/mc0/csrow0/ch0_dimm_label
 Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: sys/devices/system/edac/mc/mc0/csrow2
-Mode: 755
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow2/ch0_ce_count
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow0/ch1_ce_count
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow1/ch1_ce_count
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow2/ch1_ce_count
-Lines: 1
-0
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow0/ce_count
-Lines: 1
-3
+mc0csrow0channel0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/csrow0/ch0_ue_count
@@ -9721,9 +9695,14 @@ Lines: 1
 2
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow1/ch0_ue_count
+Path: sys/devices/system/edac/mc/mc0/csrow0/ch1_ce_count
 Lines: 1
-2
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow0/ch1_dimm_label
+Lines: 1
+mc0csrow0channel1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/csrow0/ch1_ue_count
@@ -9731,14 +9710,47 @@ Lines: 1
 2
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow1/ch1_ue_count
+Path: sys/devices/system/edac/mc/mc0/csrow0/ue_count
 Lines: 1
-2
+4
 Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc0/csrow1
+Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/csrow1/ce_count
 Lines: 1
 0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow1/ch0_ce_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow1/ch0_dimm_label
+Lines: 1
+mc0csrow1channel0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow1/ch0_ue_count
+Lines: 1
+2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow1/ch1_ce_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow1/ch1_dimm_label
+Lines: 1
+mc0csrow1channel1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow1/ch1_ue_count
+Lines: 1
+2
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/csrow1/ue_count
@@ -9746,19 +9758,37 @@ Lines: 1
 4
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc0/csrow2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/csrow2/ce_count
 Lines: 1
 0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow2/ch0_ce_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow2/ch0_dimm_label
+Lines: 1
+mc0csrow2channel0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow2/ch1_ce_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc0/csrow2/ch1_dimm_label
+Lines: 1
+mc0csrow2channel1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/csrow2/ue_count
 Lines: 1
 5
-Mode: 644
-# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow0/ue_count
-Lines: 1
-4
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/edac/mc/mc0/ue_count
@@ -9771,34 +9801,222 @@ Lines: 1
 6
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow0/ch0_dimm_label
+Directory: sys/devices/system/edac/mc/mc1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/ce_count
 Lines: 1
-mc0csrow0channel0
+10
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow0/ch1_dimm_label
+Path: sys/devices/system/edac/mc/mc1/ce_noinfo_count
 Lines: 1
-mc0csrow0channel1
+1
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow1/ch0_dimm_label
+Directory: sys/devices/system/edac/mc/mc1/dimm0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/dimm0/dimm_ce_count
 Lines: 1
-mc0csrow1channel0
+100
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow1/ch1_dimm_label
+Path: sys/devices/system/edac/mc/mc1/dimm0/dimm_label
 Lines: 1
-mc0csrow1channel1
+CPU_SrcID#0_MC#1_Chan#0_DIMM#0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow2/ch0_dimm_label
+Path: sys/devices/system/edac/mc/mc1/dimm0/dimm_ue_count
 Lines: 1
-mc0csrow2channel0
+0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: sys/devices/system/edac/mc/mc0/csrow2/ch1_dimm_label
+Directory: sys/devices/system/edac/mc/mc1/dimm1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/dimm1/dimm_ce_count
 Lines: 1
-mc0csrow2channel1
+200
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/dimm1/dimm_label
+Lines: 1
+CPU_SrcID#0_MC#1_Chan#1_DIMM#0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/dimm1/dimm_ue_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc1/dimm3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/dimm3/dimm_ce_count
+Lines: 1
+300
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/dimm3/dimm_label
+Lines: 1
+CPU_SrcID#0_MC#1_Chan#3_DIMM#0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/dimm3/dimm_ue_count
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/ue_count
+Lines: 1
+2
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc1/ue_noinfo_count
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/ce_count
+Lines: 1
+5
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/ce_noinfo_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc2/rank0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/rank0/dimm_ce_count
+Lines: 1
+7
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/rank0/dimm_label
+Lines: 1
+PROC 1 DIMM 8
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/rank0/dimm_ue_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc2/rank1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/rank1/dimm_ce_count
+Lines: 1
+9
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/rank1/dimm_label
+Lines: 1
+PROC 2 DIMM 10
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/ue_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc2/ue_noinfo_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/ce_count
+Lines: 1
+3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/ce_noinfo_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc3/csrow0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/csrow0/ce_count
+Lines: 1
+3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/csrow0/ch0_ce_count
+Lines: 1
+3
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/csrow0/ch0_dimm_label
+Lines: 1
+mc#3csrow#0channel#0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/csrow0/ch0_ue_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/csrow0/ue_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc3/rank0
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/rank0/dimm_ce_count
+Lines: 1
+999
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/rank0/dimm_label
+Lines: 1
+mc#3csrow#0channel#0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/rank0/dimm_ue_count
+Lines: 1
+999
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/devices/system/edac/mc/mc3/rank1
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/rank1/dimm_ce_count
+Lines: 1
+999
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/rank1/dimm_label
+Lines: 1
+mc#3csrow#0channel#1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/rank1/dimm_ue_count
+Lines: 1
+999
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/ue_count
+Lines: 1
+0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/edac/mc/mc3/ue_noinfo_count
+Lines: 1
+0
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/devices/system/node
