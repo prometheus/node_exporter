@@ -111,6 +111,7 @@ hwmon | sensor | --collector.hwmon.sensor-include | --collector.hwmon.sensor-exc
 infiniband | device | --collector.infiniband.device-include | --collector.infiniband.device-exclude
 interrupts | name | --collector.interrupts.name-include | --collector.interrupts.name-exclude
 netdev | device | --collector.netdev.device-include | --collector.netdev.device-exclude
+pcidevice | class ID | --collector.pcidevice.class-include | N/A
 qdisc | device | --collector.qdisc.device-include | --collector.qdisc.device-exclude
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
 sysctl | all | --collector.sysctl.include | N/A
@@ -223,6 +224,31 @@ tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/p
 wifi | Exposes WiFi device and station statistics. | Linux
 xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
+
+### PCI device collector
+
+The Linux `pcidevice` collector is disabled by default. Enable it with
+`--collector.pcidevice`. The optional `--collector.pcidevice.class-include`
+flag accepts a Go regular expression matching the exported `class_id` value
+(lowercase hexadecimal with a `0x` prefix and six digits). An empty value, the
+default, includes all devices. Invalid expressions cause an initialization error.
+
+For example, include only display controllers (VGA, 3D, and other display
+subclasses):
+
+```sh
+./node_exporter --collector.pcidevice \
+  '--collector.pcidevice.class-include=^0x03[0-9a-f]{4}$'
+```
+
+The filter applies to every per-device `node_pcidevice_*` metric, reducing
+exported samples and ingestion volume. All PCI devices are still enumerated
+and read from sysfs before filtering; it does not reduce sysfs enumeration cost.
+Matching uses class IDs independently of `--collector.pcidevice.names` and
+the availability of `pci.ids`. Name resolution can be enabled with
+`--collector.pcidevice.names` and an optional `--collector.pcidevice.idsfile`.
+If no classes match, the collector succeeds without emitting per-device metrics.
+Use `^` and `$` to match the entire class ID; patterns are not implicitly anchored.
 
 ### Deprecated
 

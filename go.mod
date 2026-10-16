@@ -28,6 +28,7 @@ require (
 	github.com/prometheus/procfs v0.22.0
 	github.com/safchain/ethtool v0.7.0
 	golang.org/x/sys v0.49.0
+	google.golang.org/protobuf v1.36.12
 	howett.net/plist v1.0.1
 )
 
@@ -59,5 +60,4 @@ require (
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	google.golang.org/protobuf v1.36.12 // indirect
 )

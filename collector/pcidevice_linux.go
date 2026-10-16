@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -37,8 +38,9 @@ var (
 		"/usr/share/misc/pci.ids",
 		"/usr/share/hwdata/pci.ids",
 	}
-	pciIDsFile = kingpin.Flag("collector.pcidevice.idsfile", "Path to pci.ids file to use for PCI device identification.").String()
-	pciNames   = kingpin.Flag("collector.pcidevice.names", "Enable PCI device name resolution (requires pci.ids file).").Default("false").Bool()
+	pciIDsFile      = kingpin.Flag("collector.pcidevice.idsfile", "Path to pci.ids file to use for PCI device identification.").String()
+	pciNames        = kingpin.Flag("collector.pcidevice.names", "Enable PCI device name resolution (requires pci.ids file).").Default("false").Bool()
+	pciClassInclude = kingpin.Flag("collector.pcidevice.class-include", "Regexp of PCI class IDs to include (e.g. ^0x03[0-9a-f]{4}$ for display controllers).").Default("").String()
 
 	pcideviceLabelNames = []string{"segment", "bus", "device", "function"}
 
@@ -152,6 +154,7 @@ type pcideviceCollector struct {
 	pciSubclasses map[string]string
 	pciProgIfs    map[string]string
 	pciNames      bool
+	classFilter   deviceFilter
 }
 
 func init() {
@@ -160,6 +163,15 @@ func init() {
 
 // NewPcideviceCollector returns a new Collector exposing PCI devices stats.
 func NewPcideviceCollector(logger *slog.Logger) (Collector, error) {
+	var classFilter deviceFilter
+	if *pciClassInclude != "" {
+		pattern, err := regexp.Compile(*pciClassInclude)
+		if err != nil {
+			return nil, fmt.Errorf("invalid --collector.pcidevice.class-include: %w", err)
+		}
+		classFilter.acceptPattern = pattern
+	}
+
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -167,9 +179,10 @@ func NewPcideviceCollector(logger *slog.Logger) (Collector, error) {
 
 	// Initialize PCI ID maps
 	c := &pcideviceCollector{
-		fs:       fs,
-		logger:   logger,
-		pciNames: *pciNames,
+		fs:          fs,
+		logger:      logger,
+		pciNames:    *pciNames,
+		classFilter: classFilter,
 	}
 
 	// Build label names based on whether name resolution is enabled
@@ -217,6 +230,11 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, device := range devices {
+		classID := fmt.Sprintf("0x%06x", device.Class)
+		if c.classFilter.ignored(classID) {
+			continue
+		}
+
 		// The device location is represented in separated format.
 		values := device.Location.Strings()
 		if device.ParentLocation != nil {
@@ -226,7 +244,6 @@ func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 
 		// Add basic device information
-		classID := fmt.Sprintf("0x%06x", device.Class)
 		vendorID := fmt.Sprintf("0x%04x", device.Vendor)
 		deviceID := fmt.Sprintf("0x%04x", device.Device)
 		subsysVendorID := fmt.Sprintf("0x%04x", device.SubsystemVendor)
