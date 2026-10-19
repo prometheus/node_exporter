@@ -213,7 +213,7 @@ pcidevice | Exposes pci devices' information including their link status and par
 perf | Exposes perf based metrics (Warning: Metrics are dependent on kernel configuration and settings). | Linux
 processes | Exposes aggregate process statistics from `/proc`. | Linux
 qdisc | Exposes [queuing discipline](https://en.wikipedia.org/wiki/Network_scheduler#Linux_kernel) statistics | Linux
-resctrl | Exposes Intel RDT / AMD PQoS / ARM MPAM memory bandwidth and cache occupancy monitoring counters from the resctrl filesystem (must be mounted, see [below](#resctrl-collector)). | Linux
+resctrl | Exposes Intel RDT / AMD PQoS / ARM MPAM memory bandwidth and cache occupancy monitoring counters from the resctrl filesystem root group (must be mounted, see [below](#resctrl-collector)). | Linux
 slabinfo | Exposes slab statistics from `/proc/slabinfo`. Note that permission of `/proc/slabinfo` is usually 0400, so set it appropriately. | Linux
 softirqs | Exposes detailed softirq statistics from `/proc/softirqs`. | Linux
 sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(-info)` to configure. | Linux
@@ -273,61 +273,21 @@ from debugfs. And example usage of this would be
 
 ### Resctrl Collector
 
-The `resctrl` collector is disabled by default because the filesystem it reads
-is usually not mounted.
+The `resctrl` collector is disabled by default because the filesystem it reads is usually not mounted.
 To enable it, first mount the filesystem and then start `node_exporter` with the collector enabled:
 ```
 mount -t resctrl resctrl /sys/fs/resctrl
 node_exporter --collector.resctrl
 ```
 
-Use `--collector.resctrl.path` if the filesystem is mounted elsewhere. The
-collector reports no data, rather than an error, when the path does not exist,
-so it is safe to enable on a fleet where only some nodes have it.
-
-**The hardware has to support monitoring.** Intel RDT, AMD PQoS and ARM MPAM
-all expose their counters here, but the set of events varies by CPU:
-
-```
-cat /sys/fs/resctrl/info/L3_MON/mon_features
-```
-
-`mbm_total_bytes` and `mbm_local_bytes` back
-`node_resctrl_memory_bandwidth_bytes_total`, `llc_occupancy` backs
-`node_resctrl_llc_occupancy_bytes`. The collector exports whichever are
-present. Only L3 domains are exported, since the metrics describe the last
-level cache. Most hypervisors do not pass the monitoring hardware through, so
-in a virtual machine the files are usually absent entirely.
-
-**The counter mode matters on newer kernels.** From Linux 6.19 a CPU with
-assignable bandwidth monitoring counters comes up in `mbm_event` mode, where
-each monitoring group has to be bound to a hardware counter. On an AMD Zen 5
-part in that mode the root group recorded a value at mount time and then never
-advanced, so the collector exports a constant and `rate()` of it is zero. The
-classic mode, used by every kernel before 6.19, can be enabled with:
+From Linux 6.19 a CPU with assignable bandwidth monitoring counters comes up in `mbm_event` mode.
+The classic mode (required by this collector) can be enabled with:
 
 ```
 echo default > /sys/fs/resctrl/info/L3_MON/mbm_assign_mode   # fails harmlessly on older kernels
 ```
 
-Check which mode is active with `cat /sys/fs/resctrl/info/L3_MON/mbm_assign_mode`;
-the active one is in brackets.
-
-**Only the root group is counted.** The collector reads `mon_data` of the root
-group. A task that moves into a control group, created with
-`mkdir /sys/fs/resctrl/<name>`, is counted there instead and drops out of these
-metrics with no sign that it did. If a container runtime or an RDT orchestrator
-manages groups on the node, treat the values as a lower bound. Monitoring
-groups below `mon_groups` still roll up into the root and are fine.
-
-Where the CPU supports Bandwidth Monitoring Event
-Configuration, `mbm_total_bytes_config` and `mbm_local_bytes_config` select
-which memory transactions each event counts; at anything other than the
-defaults the two series stop matching their help text. And the counters are
-hardware registers that wrap at a certain value, so query them with `rate()`.
-
-See the [kernel documentation](https://docs.kernel.org/filesystems/resctrl.html)
-for the full picture.
+See the [kernel documentation](https://docs.kernel.org/filesystems/resctrl.html) for more details.
 
 ### Sysctl Collector
 
