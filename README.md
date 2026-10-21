@@ -84,6 +84,15 @@ Collectors are enabled by providing a `--collector.<name>` flag.
 Collectors that are enabled by default can be disabled by providing a `--no-collector.<name>` flag.
 To enable only some specific collector(s), use `--collector.disable-defaults --collector.<name> ...`.
 
+There are two meta-monitoring metrics available for checking the status of collectors.
+
+    node_scrape_collector_success
+    node_scrape_collector_duration_seconds
+
+Note that if a configured collector reads no data because it can't find a file in `/proc` or `/sys`,
+the success status will be 0. This is intentional to provide a way to detect faild drivers and similar
+problems.
+
 ### Include & Exclude flags
 
 A few collectors can be configured to include or exclude certain patterns using dedicated flags. The exclude flags are used to indicate "all except", while the include flags are used to say "none except". Note that these flags are mutually exclusive on collectors that support both.
