@@ -16,12 +16,15 @@
 package collector
 
 import (
+	"encoding/binary"
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 	"syscall"
 	"unsafe"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/mdlayher/netlink"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -57,9 +60,30 @@ const (
 	tcpTxQueuedBytes
 )
 
+var (
+	tcpstatSourcePorts = kingpin.Flag("collector.tcpstat.port.source", "Source port to break down connection states by, adds a source_port label (repeatable).").Strings()
+	tcpstatDestPorts   = kingpin.Flag("collector.tcpstat.port.dest", "Destination port to break down connection states by, adds a dest_port label (repeatable).").Strings()
+)
+
 type tcpStatCollector struct {
 	desc   typedDesc
+	ports  tcpPortFilter
 	logger *slog.Logger
+}
+
+// tcpPortFilter holds the ports to break down connection states by. A nil
+// set means the corresponding label is not exposed.
+type tcpPortFilter struct {
+	source map[uint16]struct{}
+	dest   map[uint16]struct{}
+}
+
+// tcpStatKey identifies a single series. Ports not present in the filter are
+// left empty, so every socket is counted exactly once.
+type tcpStatKey struct {
+	state      tcpConnectionState
+	sourcePort string
+	destPort   string
 }
 
 func init() {
@@ -68,14 +92,47 @@ func init() {
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
 func NewTCPStatCollector(logger *slog.Logger) (Collector, error) {
+	var (
+		ports tcpPortFilter
+		err   error
+	)
+	labels := []string{"state"}
+
+	if len(*tcpstatSourcePorts) > 0 {
+		if ports.source, err = parsePortSet(*tcpstatSourcePorts); err != nil {
+			return nil, fmt.Errorf("invalid --collector.tcpstat.port.source: %w", err)
+		}
+		labels = append(labels, "source_port")
+	}
+
+	if len(*tcpstatDestPorts) > 0 {
+		if ports.dest, err = parsePortSet(*tcpstatDestPorts); err != nil {
+			return nil, fmt.Errorf("invalid --collector.tcpstat.port.dest: %w", err)
+		}
+		labels = append(labels, "dest_port")
+	}
+
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
-			[]string{"state"}, nil,
+			labels, nil,
 		), prometheus.GaugeValue},
+		ports:  ports,
 		logger: logger,
 	}, nil
+}
+
+func parsePortSet(ports []string) (map[uint16]struct{}, error) {
+	set := make(map[uint16]struct{}, len(ports))
+	for _, p := range ports {
+		port, err := strconv.ParseUint(p, 10, 16)
+		if err != nil {
+			return nil, fmt.Errorf("port %q: %w", p, err)
+		}
+		set[uint16(port)] = struct{}{}
+	}
+	return set, nil
 }
 
 // InetDiagSockID (inet_diag_sockid) contains the socket identity.
@@ -128,31 +185,42 @@ func parseInetDiagMsg(b []byte) *InetDiagMsg {
 }
 
 func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
-	tcpStats, err := getTCPStats(syscall.AF_INET)
+	tcpStats, err := getTCPStats(syscall.AF_INET, c.ports)
 	if err != nil {
 		return fmt.Errorf("couldn't get tcpstats: %w", err)
 	}
 
 	// if enabled ipv6 system
 	if _, hasIPv6 := os.Stat(procFilePath("net/tcp6")); hasIPv6 == nil {
-		tcp6Stats, err := getTCPStats(syscall.AF_INET6)
+		tcp6Stats, err := getTCPStats(syscall.AF_INET6, c.ports)
 		if err != nil {
 			return fmt.Errorf("couldn't get tcp6stats: %w", err)
 		}
 
-		for st, value := range tcp6Stats {
-			tcpStats[st] += value
+		for key, value := range tcp6Stats {
+			tcpStats[key] += value
 		}
 	}
 
-	for st, value := range tcpStats {
-		ch <- c.desc.mustNewConstMetric(value, st.String())
+	for key, value := range tcpStats {
+		ch <- c.desc.mustNewConstMetric(value, c.labelValues(key)...)
 	}
 
 	return nil
 }
 
-func getTCPStats(family uint8) (map[tcpConnectionState]float64, error) {
+func (c *tcpStatCollector) labelValues(key tcpStatKey) []string {
+	values := []string{key.state.String()}
+	if c.ports.source != nil {
+		values = append(values, key.sourcePort)
+	}
+	if c.ports.dest != nil {
+		values = append(values, key.destPort)
+	}
+	return values
+}
+
+func getTCPStats(family uint8, ports tcpPortFilter) (map[tcpStatKey]float64, error) {
 	const TCPFAll = 0xFFF
 	const InetDiagInfo = 2
 	const SockDiagByFamily = 20
@@ -181,21 +249,34 @@ func getTCPStats(family uint8) (map[tcpConnectionState]float64, error) {
 		return nil, err
 	}
 
-	return parseTCPStats(messages)
+	return parseTCPStats(messages, ports)
 }
 
-func parseTCPStats(msgs []netlink.Message) (map[tcpConnectionState]float64, error) {
-	tcpStats := map[tcpConnectionState]float64{}
+func parseTCPStats(msgs []netlink.Message, ports tcpPortFilter) (map[tcpStatKey]float64, error) {
+	tcpStats := map[tcpStatKey]float64{}
 
 	for _, m := range msgs {
 		msg := parseInetDiagMsg(m.Data)
 
-		tcpStats[tcpTxQueuedBytes] += float64(msg.WQueue)
-		tcpStats[tcpRxQueuedBytes] += float64(msg.RQueue)
-		tcpStats[tcpConnectionState(msg.State)]++
+		sourcePort := matchPort(ports.source, msg.ID.SourcePort)
+		destPort := matchPort(ports.dest, msg.ID.DestPort)
+
+		tcpStats[tcpStatKey{tcpTxQueuedBytes, sourcePort, destPort}] += float64(msg.WQueue)
+		tcpStats[tcpStatKey{tcpRxQueuedBytes, sourcePort, destPort}] += float64(msg.RQueue)
+		tcpStats[tcpStatKey{tcpConnectionState(msg.State), sourcePort, destPort}]++
 	}
 
 	return tcpStats, nil
+}
+
+// matchPort returns the port as a label value if it is in the set, or an
+// empty string otherwise.
+func matchPort(set map[uint16]struct{}, raw [2]byte) string {
+	port := binary.BigEndian.Uint16(raw[:])
+	if _, ok := set[port]; !ok {
+		return ""
+	}
+	return strconv.FormatUint(uint64(port), 10)
 }
 
 func (st tcpConnectionState) String() string {
