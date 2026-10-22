@@ -46,3 +46,8 @@ dedicated exporter instead or gather the metrics via the textfile collector.
 
 The Node Exporter tries to support the most common machine metrics. For more
 exotic metrics, use the textfile collector or a dedicated Exporter.
+
+Collectors should return `ErrNoData` when they can not find any metrics to collect.
+This is intentional as it provides a means for users to differentiate between
+the desired system configuration and the running configuration. For example if
+a system has a piece of hardware but the driver fails to load.
