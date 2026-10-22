@@ -5,7 +5,8 @@
         "Packets": 42,
         "Requeues": 1,
         "Kind": "fq",
-        "Drops": 1
+        "Drops": 1,
+        "Throttled": 3
     },
     {
         "IfaceName": "eth0",
