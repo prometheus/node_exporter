@@ -40,7 +40,7 @@ func init() {
 	registerCollector(raplCollectorSubsystem, defaultEnabled, NewRaplCollector)
 }
 
-var raplZoneLabel = kingpin.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
+var raplZoneLabel = kingpin.Flag("collector.rapl.enable-zone-label", "Enables RAPL metric node_rapl_joules_total with a rapl_zone label instead of one metric per zone").Bool()
 
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
 func NewRaplCollector(logger *slog.Logger) (Collector, error) {
