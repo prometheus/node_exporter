@@ -52,7 +52,7 @@ var (
 
 	nvmeNamespaceCapacityBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "nvme", "namespace_capacity_bytes"),
-		"Capacity of the NVMe namespace in bytes. Computed as namespace_size * namespace_logical_block_size",
+		"Capacity of the NVMe namespace in bytes.",
 		[]string{"device", "nsid"}, nil,
 	)
 
