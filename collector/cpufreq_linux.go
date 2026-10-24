@@ -16,8 +16,11 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -130,6 +133,56 @@ func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
 				)
 			}
 		}
+		c.updateEnergyPerformancePreference(ch, stats.Name)
 	}
 	return nil
+}
+
+func (c *cpuFreqCollector) updateEnergyPerformancePreference(ch chan<- prometheus.Metric, cpu string) {
+	cpufreqPath := filepath.Join("devices/system/cpu", "cpu"+cpu, "cpufreq")
+	currentPath := sysFilePath(filepath.Join(cpufreqPath, "energy_performance_preference"))
+	current, err := os.ReadFile(currentPath)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) && !errors.Is(err, os.ErrPermission) {
+			c.logger.Debug("Unable to read CPU energy performance preference", "file", currentPath, "err", err)
+		}
+		return
+	}
+
+	currentPreference := strings.TrimSpace(string(current))
+	if currentPreference == "" {
+		return
+	}
+
+	availablePath := sysFilePath(filepath.Join(cpufreqPath, "energy_performance_available_preferences"))
+	available, err := os.ReadFile(availablePath)
+	preferences := strings.Fields(string(available))
+	if err != nil && !errors.Is(err, os.ErrNotExist) && !errors.Is(err, os.ErrPermission) {
+		c.logger.Debug("Unable to read available CPU energy performance preferences", "file", availablePath, "err", err)
+	}
+
+	foundCurrent := false
+	for _, preference := range preferences {
+		if preference == currentPreference {
+			foundCurrent = true
+			break
+		}
+	}
+	if !foundCurrent {
+		preferences = append(preferences, currentPreference)
+	}
+
+	for _, preference := range preferences {
+		value := 0.0
+		if preference == currentPreference {
+			value = 1
+		}
+		ch <- prometheus.MustNewConstMetric(
+			c.descs.energyPerformancePreference,
+			prometheus.GaugeValue,
+			value,
+			cpu,
+			preference,
+		)
+	}
 }
