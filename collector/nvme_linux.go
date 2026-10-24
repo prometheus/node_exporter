@@ -21,9 +21,12 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
+
+var nvmeNamespaceUsage = kingpin.Flag("collector.nvme.namespace-usage", "Expose namespace used bytes (reads nuse, which makes the kernel query the controller).").Default("true").Bool()
 
 type nvmeCollector struct {
 	fs     sysfs.FS
@@ -49,7 +52,7 @@ var (
 
 	nvmeNamespaceCapacityBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "nvme", "namespace_capacity_bytes"),
-		"Capacity of the NVMe namespace in bytes. Computed as namespace_size * namespace_logical_block_size",
+		"Capacity of the NVMe namespace in bytes.",
 		[]string{"device", "nsid"}, nil,
 	)
 
@@ -139,13 +142,26 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 			)
 
 			// Namespace used space in bytes
-			ch <- prometheus.MustNewConstMetric(
-				nvmeNamespaceUsedBytes,
-				prometheus.GaugeValue,
-				float64(namespace.UsedBytes),
-				device.Name,
-				namespace.ID,
-			)
+			if *nvmeNamespaceUsage {
+				usedBlocks, err := namespace.UsedBlocks()
+				if err != nil {
+					// The kernel queries the controller on read, so this can
+					// fail, e.g. with EIO if the controller is not live.
+					// Keep collecting the other namespaces.
+					c.logger.Warn("Could not read NVMe namespace usage", "device", device.Name, "namespace", namespace.Name, "err", err)
+				} else if usedBlocks == nil {
+					c.logger.Debug("NVMe namespace nuse file not present, skipping", "device", device.Name, "namespace", namespace.Name)
+				} else {
+					usedBytes := *usedBlocks * namespace.LogicalBlockSize
+					ch <- prometheus.MustNewConstMetric(
+						nvmeNamespaceUsedBytes,
+						prometheus.GaugeValue,
+						float64(usedBytes),
+						device.Name,
+						namespace.ID,
+					)
+				}
+			}
 
 			// Namespace logical block size in bytes
 			ch <- prometheus.MustNewConstMetric(
