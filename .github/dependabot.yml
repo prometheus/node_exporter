@@ -23,6 +23,8 @@ updates:
       prometheus:
         patterns:
           - "github.com/prometheus/*"
+    cooldown:
+      default-days: 7
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -42,3 +44,5 @@ updates:
       - .github/workflows/govulncheck.yml
       - .github/workflows/scorecards.yml
       - .github/workflows/stale.yml
+    cooldown:
+      default-days: 7
