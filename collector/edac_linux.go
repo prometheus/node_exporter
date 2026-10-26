@@ -102,6 +102,10 @@ func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return err
 	}
+	if len(memControllers) == 0 {
+		c.logger.Debug("edac collector metrics are not available for this system")
+		return ErrNoData
+	}
 	for _, controller := range memControllers {
 		controllerMatch := edacMemControllerRE.FindStringSubmatch(controller)
 		if controllerMatch == nil {
