@@ -93,7 +93,7 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 					ifName, // if
 					networkRouteIPToString(route.Attributes.Src),                            // src
 					networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
-					networkRouteIPToString(nextHop.Gateway),                                 // gw
+					networkRouteGateway(nextHop.Gateway, nextHop.Via),                       // gw
 					strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
 					networkRouteProtocolToString(route.Protocol),                            // proto
 					strconv.Itoa(int(nextHop.Hop.Hops) + 1),                                 // weight
@@ -114,7 +114,7 @@ func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
 				ifName, // if
 				networkRouteIPToString(route.Attributes.Src),                            // src
 				networkRouteIPWithPrefixToString(route.Attributes.Dst, route.DstLength), // dest
-				networkRouteIPToString(route.Attributes.Gateway),                        // gw
+				networkRouteGateway(route.Attributes.Gateway, route.Attributes.Via),     // gw
 				strconv.FormatUint(uint64(route.Attributes.Priority), 10),               // priority(metrics)
 				networkRouteProtocolToString(route.Protocol),                            // proto
 				"", // weight
@@ -151,6 +151,18 @@ func networkRouteIPToString(ip net.IP) string {
 		return ""
 	}
 	return ip.String()
+}
+
+// networkRouteGateway returns the route's next-hop address, falling back to
+// RTA_VIA for cross-family next-hops (RFC 5549) where RTA_GATEWAY is empty.
+func networkRouteGateway(gateway net.IP, via *rtnetlink.RouteVia) string {
+	if len(gateway) != 0 {
+		return networkRouteIPToString(gateway)
+	}
+	if via != nil {
+		return networkRouteIPToString(via.Addr)
+	}
+	return ""
 }
 
 func networkRouteProtocolToString(protocol uint8) string {
