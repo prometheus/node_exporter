@@ -178,8 +178,12 @@ node_xfrm_out_state_proto_error_packets_total 4542
 # HELP node_xfrm_out_state_seq_error_packets_total Sequence error i.e. Sequence number overflow
 # TYPE node_xfrm_out_state_seq_error_packets_total counter
 node_xfrm_out_state_seq_error_packets_total 543
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
 # HELP process_open_fds Number of open file descriptors.
 # TYPE process_open_fds gauge
+# HELP process_virtual_memory_max_bytes Maximum amount of virtual memory available in bytes.
+# TYPE process_virtual_memory_max_bytes gauge
 # HELP promhttp_metric_handler_errors_total Total number of internal errors encountered by the promhttp metric handler.
 # TYPE promhttp_metric_handler_errors_total counter
 promhttp_metric_handler_errors_total{cause="encoding"} 0

@@ -47,7 +47,8 @@ func NewSlabinfoCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
-	return &slabinfoCollector{logger: logger,
+	return &slabinfoCollector{
+		logger:         logger,
 		fs:             fs,
 		subsystem:      "slabinfo",
 		labels:         []string{"slab"},

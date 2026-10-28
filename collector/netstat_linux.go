@@ -114,7 +114,7 @@ func (c *netStatCollector) emitStruct(ch chan<- prometheus.Metric, stats any) {
 	protocol := v.Type().Name()
 
 	for i := 0; i < v.NumField(); i++ {
-		value, ok := v.Field(i).Interface().(*float64)
+		value, ok := reflect.TypeAssert[*float64](v.Field(i))
 		if !ok || value == nil {
 			continue
 		}

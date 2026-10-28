@@ -43,7 +43,7 @@ func getUname() (uname, error) {
 
 // parseHostNameAndDomainName for FreeBSD,OpenBSD,Darwin.
 // Attempts to emulate what happens in the Linux uname calls since these OS doesn't have a Domainname.
-func parseHostNameAndDomainName(utsname unix.Utsname) (hostname string, domainname string) {
+func parseHostNameAndDomainName(utsname unix.Utsname) (hostname, domainname string) {
 	nodename := unix.ByteSliceToString(utsname.Nodename[:])
 	split := strings.SplitN(nodename, ".", 2)
 

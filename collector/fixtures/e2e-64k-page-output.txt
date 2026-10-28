@@ -74,7 +74,7 @@ node_bcache_btree_cache_size_bytes{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 
 node_bcache_btree_nodes{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
 # HELP node_bcache_btree_read_average_duration_seconds Average btree read duration.
 # TYPE node_bcache_btree_read_average_duration_seconds gauge
-node_bcache_btree_read_average_duration_seconds{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 1.305e-06
+node_bcache_btree_read_average_duration_seconds{uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0.001305
 # HELP node_bcache_bypassed_bytes_total Amount of IO (both reads and writes) that has bypassed the cache.
 # TYPE node_bcache_bypassed_bytes_total counter
 node_bcache_bypassed_bytes_total{backing_device="bdev0",uuid="deaddd54-c735-46d5-868e-f331c5fd7c74"} 0
@@ -1035,6 +1035,17 @@ node_disk_ata_write_cache{device="sdc"} 1
 node_disk_ata_write_cache_enabled{device="sda"} 0
 node_disk_ata_write_cache_enabled{device="sdb"} 1
 node_disk_ata_write_cache_enabled{device="sdc"} 0
+# HELP node_disk_device_mapper_backing_device_info Info about the underlying block devices of a device mapper device.
+# TYPE node_disk_device_mapper_backing_device_info gauge
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-1"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-2"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-3"} 1
+node_disk_device_mapper_backing_device_info{backing_device="dm-0",device="dm-4"} 1
+node_disk_device_mapper_backing_device_info{backing_device="nvme0n1p3",device="dm-0"} 1
+node_disk_device_mapper_backing_device_info{backing_device="sdi",device="dm-5"} 1
+node_disk_device_mapper_backing_device_info{backing_device="sdj",device="dm-5"} 1
+node_disk_device_mapper_backing_device_info{backing_device="sdk",device="dm-5"} 1
+node_disk_device_mapper_backing_device_info{backing_device="sdl",device="dm-5"} 1
 # HELP node_disk_device_mapper_info Info about disk device mapper.
 # TYPE node_disk_device_mapper_info gauge
 node_disk_device_mapper_info{device="dm-0",lv_layer="",lv_name="",name="nvme0n1_crypt",uuid="CRYPT-LUKS2-jolaulot80fy9zsiobkxyxo7y2dqeho2-nvme0n1_crypt",vg_name=""} 1
@@ -3503,9 +3514,9 @@ node_nfsd_server_threads 8
 # HELP node_nvme_info Non-numeric data from /sys/class/nvme/<device>, value is always 1.
 # TYPE node_nvme_info gauge
 node_nvme_info{cntlid="1997",device="nvme0",firmware_revision="1B2QEXP7",model="Samsung SSD 970 PRO 512GB",serial="S680HF8N190894I",state="live"} 1
-# HELP node_nvme_namespace_capacity_bytes Capacity of the NVMe namespace in bytes. Computed as namespace_size * namespace_logical_block_size
+# HELP node_nvme_namespace_capacity_bytes Capacity of the NVMe namespace in bytes.
 # TYPE node_nvme_namespace_capacity_bytes gauge
-node_nvme_namespace_capacity_bytes{device="nvme0",nsid="1"} 1.6e+13
+node_nvme_namespace_capacity_bytes{device="nvme0",nsid="1"} 2e+12
 # HELP node_nvme_namespace_info Information about NVMe namespaces. Value is always 1
 # TYPE node_nvme_namespace_info gauge
 node_nvme_namespace_info{ana_state="optimized",device="nvme0",nsid="1"} 1
@@ -3514,7 +3525,7 @@ node_nvme_namespace_info{ana_state="optimized",device="nvme0",nsid="1"} 1
 node_nvme_namespace_logical_block_size_bytes{device="nvme0",nsid="1"} 4096
 # HELP node_nvme_namespace_size_bytes Size of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/size
 # TYPE node_nvme_namespace_size_bytes gauge
-node_nvme_namespace_size_bytes{device="nvme0",nsid="1"} 1.6e+13
+node_nvme_namespace_size_bytes{device="nvme0",nsid="1"} 2e+12
 # HELP node_nvme_namespace_used_bytes Used space of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/nuse
 # TYPE node_nvme_namespace_used_bytes gauge
 node_nvme_namespace_used_bytes{device="nvme0",nsid="1"} 2e+12
@@ -3708,6 +3719,15 @@ node_rapl_core_joules_total{index="0",path="collector/fixtures/sys/class/powerca
 # HELP node_rapl_package_joules_total Current RAPL package value in joules
 # TYPE node_rapl_package_joules_total counter
 node_rapl_package_joules_total{index="0",path="collector/fixtures/sys/class/powercap/intel-rapl:0"} 240422.366267
+# HELP node_resctrl_llc_occupancy_bytes Last level cache bytes occupied in this domain.
+# TYPE node_resctrl_llc_occupancy_bytes gauge
+node_resctrl_llc_occupancy_bytes{domain="0"} 4.4040192e+07
+node_resctrl_llc_occupancy_bytes{domain="1"} 8.388608e+06
+# HELP node_resctrl_memory_bandwidth_bytes_total Bytes moved between the last level cache and memory. scope=total includes remote sockets, scope=local is memory attached to this domain.
+# TYPE node_resctrl_memory_bandwidth_bytes_total counter
+node_resctrl_memory_bandwidth_bytes_total{domain="0",scope="local"} 2.10196273664e+11
+node_resctrl_memory_bandwidth_bytes_total{domain="0",scope="total"} 3.15294410752e+11
+node_resctrl_memory_bandwidth_bytes_total{domain="1",scope="total"} 1.05098136832e+11
 # HELP node_schedstat_running_seconds_total Number of seconds CPU spent running a process.
 # TYPE node_schedstat_running_seconds_total counter
 node_schedstat_running_seconds_total{cpu="0"} 2.045936778163039e+06
@@ -3768,6 +3788,7 @@ node_scrape_collector_success{collector="pressure"} 1
 node_scrape_collector_success{collector="processes"} 1
 node_scrape_collector_success{collector="qdisc"} 1
 node_scrape_collector_success{collector="rapl"} 1
+node_scrape_collector_success{collector="resctrl"} 1
 node_scrape_collector_success{collector="schedstat"} 1
 node_scrape_collector_success{collector="slabinfo"} 1
 node_scrape_collector_success{collector="sockstat"} 1

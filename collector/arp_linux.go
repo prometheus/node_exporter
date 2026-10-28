@@ -42,12 +42,10 @@ func init() {
 	registerCollector("arp", defaultEnabled, NewARPCollector)
 }
 
-var (
-	arpEntries = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "arp", "entries"),
-		"ARP entries by device",
-		[]string{"device"}, nil,
-	)
+var arpEntries = prometheus.NewDesc(
+	prometheus.BuildFQName(namespace, "arp", "entries"),
+	"ARP entries by device",
+	[]string{"device"}, nil,
 )
 
 // NewARPCollector returns a new Collector exposing ARP stats.

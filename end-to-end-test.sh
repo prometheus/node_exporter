@@ -74,6 +74,7 @@ enabled_collectors=$(cat << COLLECTORS
   processes
   qdisc
   rapl
+  resctrl
   schedstat
   slabinfo
   sockstat
@@ -175,6 +176,7 @@ collector_flags=$(cat << FLAGS
   --collector.netdev.device-include=lo
   --collector.qdisc.device-include=(wlan0|eth0)
   --collector.qdisc.fixtures=collector/fixtures/qdisc/
+  --collector.resctrl.path=collector/fixtures/resctrl
   --collector.stat.softirq
   --collector.sysctl.include-info=kernel.seccomp.actions_avail
   --collector.sysctl.include=fs.file-nr
@@ -400,6 +402,7 @@ non_deterministic_metrics=$(cat << METRICS
   node_zfs_arcstats_anon_bytes
   node_zfs_arcstats_c_bytes
   node_zfs_arcstats_c_max_bytes
+  node_zfs_arcstats_c_min_bytes
   node_zfs_arcstats_data_bytes
   node_zfs_arcstats_demand_data_hits_total
   node_zfs_arcstats_demand_data_misses_total
