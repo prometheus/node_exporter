@@ -93,7 +93,7 @@ test: collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked
 .PHONY: test-32bit
 test-32bit: collector/fixtures/sys/.unpacked collector/fixtures/udev/.unpacked
 	@echo ">> running tests in 32-bit mode"
-	@env GOARCH=$(GOARCH_CROSS) $(GO) test $(pkgs)
+	@env GOARCH=$(GOARCH_CROSS) $(GO) test -tags noethtool $(pkgs)
 
 .PHONY: skip-test-32bit
 skip-test-32bit:
