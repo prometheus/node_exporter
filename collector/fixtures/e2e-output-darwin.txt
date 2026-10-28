@@ -111,9 +111,6 @@ node_memory_swap_total_bytes 0
 # HELP node_memory_swap_used_bytes Memory information field swap_used_bytes.
 # TYPE node_memory_swap_used_bytes gauge
 node_memory_swap_used_bytes 0
-# HELP node_memory_total_bytes Memory information field total_bytes.
-# TYPE node_memory_total_bytes gauge
-node_memory_total_bytes 7.516192768e+09
 # HELP node_network_noproto_total Network device statistic noproto.
 # TYPE node_network_noproto_total counter
 node_network_noproto_total{device="lo0"} 0
