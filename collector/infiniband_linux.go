@@ -172,10 +172,6 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		// Only read the device's attributes and port counters from sysfs once we
-		// know it is not excluded: on some hardware (e.g. firmware-managed
-		// restricted ports), reading these counters triggers a firmware command
-		// that fails and floods the kernel log.
 		device, err := c.fs.InfiniBandDevice(name)
 		if err != nil {
 			return fmt.Errorf("error obtaining InfiniBand device info: %w", err)
