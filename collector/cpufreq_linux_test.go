@@ -74,6 +74,17 @@ node_%[1]s_scaling_governor{cpu="2",governor="performance"} 0
 node_%[1]s_scaling_governor{cpu="2",governor="powersave"} 1
 node_%[1]s_scaling_governor{cpu="3",governor="performance"} 0
 node_%[1]s_scaling_governor{cpu="3",governor="powersave"} 1
+# HELP node_%[1]s_energy_performance_preference Current CPU energy performance preference.
+# TYPE node_%[1]s_energy_performance_preference gauge
+node_%[1]s_energy_performance_preference{cpu="0",preference="balance_performance"} 0
+node_%[1]s_energy_performance_preference{cpu="0",preference="balance_power"} 1
+node_%[1]s_energy_performance_preference{cpu="0",preference="performance"} 0
+node_%[1]s_energy_performance_preference{cpu="0",preference="power"} 0
+node_%[1]s_energy_performance_preference{cpu="1",preference="balance_performance"} 0
+node_%[1]s_energy_performance_preference{cpu="1",preference="balance_power"} 0
+node_%[1]s_energy_performance_preference{cpu="1",preference="performance"} 1
+node_%[1]s_energy_performance_preference{cpu="1",preference="power"} 0
+node_%[1]s_energy_performance_preference{cpu="2",preference="balance_performance"} 1
 `
 
 func TestCPUFreqMetrics(t *testing.T) {

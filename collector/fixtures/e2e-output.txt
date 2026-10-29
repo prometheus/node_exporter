@@ -959,6 +959,17 @@ node_cpu_scaling_frequency_min_hertz{cpu="0"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="1"} 8e+08
 node_cpu_scaling_frequency_min_hertz{cpu="2"} 1e+06
 node_cpu_scaling_frequency_min_hertz{cpu="3"} 1e+06
+# HELP node_cpu_energy_performance_preference Current CPU energy performance preference.
+# TYPE node_cpu_energy_performance_preference gauge
+node_cpu_energy_performance_preference{cpu="0",preference="balance_performance"} 0
+node_cpu_energy_performance_preference{cpu="0",preference="balance_power"} 1
+node_cpu_energy_performance_preference{cpu="0",preference="performance"} 0
+node_cpu_energy_performance_preference{cpu="0",preference="power"} 0
+node_cpu_energy_performance_preference{cpu="1",preference="balance_performance"} 0
+node_cpu_energy_performance_preference{cpu="1",preference="balance_power"} 0
+node_cpu_energy_performance_preference{cpu="1",preference="performance"} 1
+node_cpu_energy_performance_preference{cpu="1",preference="power"} 0
+node_cpu_energy_performance_preference{cpu="2",preference="balance_performance"} 1
 # HELP node_cpu_scaling_governor Current enabled CPU frequency governor.
 # TYPE node_cpu_scaling_governor gauge
 node_cpu_scaling_governor{cpu="0",governor="performance"} 0
