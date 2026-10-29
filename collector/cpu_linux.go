@@ -25,6 +25,7 @@ import (
 	"regexp"
 	"slices"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -49,7 +50,7 @@ type cpuCollector struct {
 	cpuOnline          *prometheus.Desc
 	cpuStats           map[int64]procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
-	isolatedCpus       []uint16
+	isolatedCpus       []uint64
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
@@ -82,7 +83,7 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	isolcpus, err := sfs.IsolatedCPUs()
+	isolcpus, err := getIsolatedCPUs()
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, fmt.Errorf("unable to get isolated cpus: %w", err)
@@ -345,10 +346,62 @@ func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error 
 	return nil
 }
 
+// getIsolatedCPUs reads /sys/devices/system/cpu/isolated and returns isolated CPU IDs.
+func getIsolatedCPUs() ([]uint64, error) {
+	data, err := os.ReadFile(sysFilePath("devices/system/cpu/isolated"))
+	if err != nil {
+		return nil, err
+	}
+	return parseCPUList(string(data))
+}
+
+func parseCPUList(content string) ([]uint64, error) {
+	trimmed := strings.TrimSpace(content)
+	if trimmed == "" || trimmed == "(null)" || strings.Contains(trimmed, "(null)") || strings.HasPrefix(trimmed, "(null)") || strings.HasSuffix(trimmed, "(null)") {
+		return []uint64{}, nil
+	}
+
+	var cpus []uint64
+	for _, item := range strings.Split(trimmed, ",") {
+		item = strings.TrimSpace(item)
+		if item == "" {
+			continue
+		}
+		if strings.Contains(item, "-") {
+			ranges := strings.Split(item, "-")
+			if len(ranges) != 2 {
+				return nil, fmt.Errorf("invalid cpu range: %s", item)
+			}
+			startRange, err := strconv.ParseUint(strings.TrimSpace(ranges[0]), 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid cpu start range: %w", err)
+			}
+			endRange, err := strconv.ParseUint(strings.TrimSpace(ranges[1]), 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid cpu end range: %w", err)
+			}
+			if startRange > endRange {
+				return nil, fmt.Errorf("invalid cpu range: %s", item)
+			}
+			for i := startRange; i <= endRange; i++ {
+				cpus = append(cpus, i)
+			}
+			continue
+		}
+
+		cpuN, err := strconv.ParseUint(item, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		cpus = append(cpus, cpuN)
+	}
+	return cpus, nil
+}
+
 // updateIsolated reads /sys/devices/system/cpu/isolated through sysfs and exports isolation level metrics.
 func (c *cpuCollector) updateIsolated(ch chan<- prometheus.Metric) {
 	for _, cpu := range c.isolatedCpus {
-		cpuNum := strconv.Itoa(int(cpu))
+		cpuNum := strconv.FormatUint(cpu, 10)
 		ch <- prometheus.MustNewConstMetric(c.cpuIsolated, prometheus.GaugeValue, 1.0, cpuNum)
 	}
 }
