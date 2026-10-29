@@ -50,6 +50,7 @@ type cpuCollector struct {
 	cpuStats           map[int64]procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
 	isolatedCpus       []uint16
+	cpuFreqEnabled     bool
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
@@ -150,6 +151,10 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 	return c, nil
 }
 
+func (c *cpuCollector) configureRuntimeState(state *collectorRuntimeState) {
+	c.cpuFreqEnabled = state.enabled["cpufreq"]
+}
+
 func (c *cpuCollector) compileIncludeFlags(flagsIncludeFlag, bugsIncludeFlag *string) error {
 	if (*flagsIncludeFlag != "" || *bugsIncludeFlag != "") && !*enableCPUInfo {
 		*enableCPUInfo = true
@@ -222,10 +227,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 	// The cpufreq collector exports the same metric name with a different
 	// help string and label set. Only export the /proc/cpuinfo frequency
 	// when cpufreq is disabled or uses its own metric prefix.
-	cpuFreqEnabled, ok := collectorState["cpufreq"]
-	if !ok || cpuFreqEnabled == nil {
-		c.logger.Debug("cpufreq key missing or nil value in collectorState map")
-	} else if !*cpuFreqEnabled || *useCPUFreqPrefix {
+	if !c.cpuFreqEnabled || *useCPUFreqPrefix {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
 				prometheus.GaugeValue,
