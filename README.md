@@ -229,7 +229,7 @@ sysctl | Expose sysctl values from `/proc/sys`. Use `--collector.sysctl.include(
 swap | Expose swap information from `/proc/swaps`. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tainted | Exposes kernel taint flags from `/proc/sys/kernel/tainted`. | Linux
-tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
+tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. Use `--collector.tcpstat.port.(source\|dest)` to break down by port. (Warning: the current version has potential performance issues in high load situations.) | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
@@ -348,6 +348,20 @@ Setting `--collector.sysctl.include-info=kernel.seccomp.actions_avail` will yiel
 node_sysctl_info{key="kernel.seccomp.actions_avail", index="0", value="kill_process"} 1
 node_sysctl_info{key="kernel.seccomp.actions_avail", index="1", value="kill_thread"} 1
 ...
+```
+
+### Tcpstat Collector
+
+The `tcpstat` collector can break down `node_tcp_connection_states` by port using the
+`--collector.tcpstat.port.source` and `--collector.tcpstat.port.dest` flags. The flags can be repeated.
+Each flag adds a `source_port` or `dest_port` label. Every socket is counted exactly once: sockets on
+ports not in the list are reported with an empty label value, so `sum(node_tcp_connection_states)` still
+equals the total. Without the flags the metric only has the `state` label.
+
+Using `--collector.tcpstat.port.dest=443`:
+```
+node_tcp_connection_states{dest_port="443",state="established"} 15
+node_tcp_connection_states{dest_port="",state="established"} 85
 ```
 
 ### Textfile Collector
