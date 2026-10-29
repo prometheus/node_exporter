@@ -122,6 +122,10 @@ func TestTextfileCollector(t *testing.T) {
 			paths: []string{"fixtures/textfile/metrics_merge_different_help"},
 			out:   "fixtures/textfile/metrics_merge_different_help.out",
 		},
+		{
+			paths: []string{"fixtures/textfile/metrics_merge_inconsistent_then_no_help"},
+			out:   "fixtures/textfile/metrics_merge_inconsistent_then_no_help.out",
+		},
 	}
 
 	for i, test := range tests {

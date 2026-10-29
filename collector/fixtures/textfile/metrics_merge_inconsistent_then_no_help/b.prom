@@ -1,0 +1,3 @@
+# HELP foo Second help text.
+# TYPE foo gauge
+foo{file="b"} 2
