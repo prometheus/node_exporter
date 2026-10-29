@@ -19,8 +19,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -363,30 +361,7 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 // not exist (preserving backward compatibility with the previous
 // SysBlockDeviceQueueStats zero-value behaviour, issue #3282).
 func TestRotationalLabel(t *testing.T) {
-	tempProc := t.TempDir()
-	tempSys := t.TempDir()
-
-	// Create a valid rotational=1 file (HDD).
-	err := os.MkdirAll(filepath.Join(tempSys, "block/sda/queue"), 0o755)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = os.WriteFile(filepath.Join(tempSys, "block/sda/queue/rotational"), []byte("1\n"), 0o644)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Create a rotational=0 file (SSD).
-	err = os.MkdirAll(filepath.Join(tempSys, "block/sdb/queue"), 0o755)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = os.WriteFile(filepath.Join(tempSys, "block/sdb/queue/rotational"), []byte("0\n"), 0o644)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fs, err := blockdevice.NewFS(tempProc, tempSys)
+	fs, err := blockdevice.NewFS("fixtures/proc", "fixtures/sys/diskstats")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -82,21 +82,7 @@ func TestHandlingOfDuplicatedMetrics(t *testing.T) {
 		t.Skipf("node_exporter binary not available, try to run `make build` first: %s", err)
 	}
 
-	dir, err := os.MkdirTemp("", "node-exporter")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(dir)
-
-	content := []byte("dummy_metric 1\n")
-	if err := os.WriteFile(filepath.Join(dir, "a.prom"), content, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "b.prom"), content, 0o600); err != nil {
-		t.Fatal(err)
-	}
-
-	exporter := exec.Command(binary, "--web.listen-address", address, "--collector.textfile.directory", dir)
+	exporter := exec.Command(binary, "--web.listen-address", address, "--collector.textfile.directory", "collector/fixtures/textfile/duplicate_metrics")
 	test := func(_ int) error {
 		return queryExporter(address)
 	}
