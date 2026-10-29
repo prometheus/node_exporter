@@ -34,6 +34,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: 1.27.x
+          cache: false
       - run: uname -a
       - run: make test-e2e
 
@@ -98,8 +99,8 @@ jobs:
       - uses: prometheus/promci-artifacts/restore@9ca3252d07f230d5f923452b4df5697eba4a5bee # v0.1.1
       - name: Build docker image
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            make docker DOCKER_IMAGE_TAG=${{ github.ref_name }}
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            make docker DOCKER_IMAGE_TAG="${GITHUB_REF_NAME}"
           else
             make docker
           fi
@@ -107,8 +108,8 @@ jobs:
       - run: docker run --rm -t -v "$(pwd):/app" "${DOCKER_TEST_IMAGE_NAME}" -i "${REPO_PATH}" -T
       - name: Test docker image
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            make test-docker DOCKER_IMAGE_TAG=${{ github.ref_name }}
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            make test-docker DOCKER_IMAGE_TAG="${GITHUB_REF_NAME}"
           else
             make test-docker
           fi
