@@ -22,7 +22,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -159,17 +158,8 @@ func TestTextfileCollector(t *testing.T) {
 }
 
 func TestTextfileCollectorSupportsUTF8Names(t *testing.T) {
-	dir := t.TempDir()
-	const input = `# HELP "my.dotted.metric" A metric with UTF-8 compatible names.
-# TYPE "my.dotted.metric" gauge
-{"my.dotted.metric", "error.message"="Not Found"} 1
-`
-	if err := os.WriteFile(filepath.Join(dir, "test.prom"), []byte(input), 0o600); err != nil {
-		t.Fatal(err)
-	}
-
 	c := &textFileCollector{
-		paths:  []string{dir},
+		paths:  []string{"fixtures/textfile/utf8_names"},
 		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}
 	registry := prometheus.NewRegistry()
