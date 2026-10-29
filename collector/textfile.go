@@ -219,8 +219,6 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 				// Check for metrics with inconsistent help texts and take the first help text occurrence.
 				if helpTexts, seen := metricsNamesToHelpTexts[*mf.Name]; seen {
 					if mf.Help != nil && helpTexts[0] != *mf.Help || helpTexts[1] != "" {
-						// A family without a help text can still land here once
-						// the metric has been marked as inconsistent.
 						if mf.Help != nil {
 							metricsNamesToHelpTexts[*mf.Name] = [2]string{helpTexts[0], *mf.Help}
 						}

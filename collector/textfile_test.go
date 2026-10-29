@@ -122,6 +122,10 @@ func TestTextfileCollector(t *testing.T) {
 			paths: []string{"fixtures/textfile/metrics_merge_different_help"},
 			out:   "fixtures/textfile/metrics_merge_different_help.out",
 		},
+		{
+			paths: []string{"fixtures/textfile/metrics_merge_inconsistent_then_no_help"},
+			out:   "fixtures/textfile/metrics_merge_inconsistent_then_no_help.out",
+		},
 	}
 
 	for i, test := range tests {
@@ -190,54 +194,4 @@ func TestTextfileCollectorSupportsUTF8Names(t *testing.T) {
 		return
 	}
 	t.Fatalf("expected dotted metric name, got %v", families)
-}
-
-func TestTextfileCollectorInconsistentHelpThenNoHelp(t *testing.T) {
-	dir := t.TempDir()
-	files := map[string]string{
-		// Files are read in lexical order.
-		"a.prom": "# HELP foo First help text.\n# TYPE foo gauge\nfoo{file=\"a\"} 1\n",
-		"b.prom": "# HELP foo Second help text.\n# TYPE foo gauge\nfoo{file=\"b\"} 2\n",
-		"c.prom": "# TYPE foo gauge\nfoo{file=\"c\"} 3\n",
-		"d.prom": "# HELP foo First help text.\n# TYPE foo gauge\nfoo{file=\"d\"} 4\n",
-	}
-	for name, content := range files {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(content), 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	c := &textFileCollector{
-		paths:  []string{dir},
-		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
-	}
-	registry := prometheus.NewRegistry()
-	registry.MustRegister(collectorAdapter{c})
-
-	families, err := registry.Gather()
-	if err != nil {
-		t.Fatalf("failed to gather textfile metrics: %v", err)
-	}
-
-	var scrapeError float64 = -1
-	var fooFiles []string
-	for _, family := range families {
-		switch family.GetName() {
-		case "node_textfile_scrape_error":
-			scrapeError = family.Metric[0].GetGauge().GetValue()
-		case "foo":
-			if got := family.GetHelp(); got != "First help text." {
-				t.Errorf("expected help text of the first file, got %q", got)
-			}
-			for _, m := range family.Metric {
-				fooFiles = append(fooFiles, m.Label[0].GetValue())
-			}
-		}
-	}
-	if scrapeError != 1 {
-		t.Errorf("expected node_textfile_scrape_error to be 1, got %v", scrapeError)
-	}
-	if len(fooFiles) != 1 || fooFiles[0] != "a" {
-		t.Errorf("expected only the metric from a.prom, got %v", fooFiles)
-	}
 }
