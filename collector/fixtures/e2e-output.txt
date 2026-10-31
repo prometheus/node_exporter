@@ -3823,6 +3823,7 @@ node_scrape_collector_success{collector="textfile"} 1
 node_scrape_collector_success{collector="thermal_zone"} 1
 node_scrape_collector_success{collector="time"} 1
 node_scrape_collector_success{collector="udp_queues"} 1
+node_scrape_collector_success{collector="usb"} 1
 node_scrape_collector_success{collector="vmstat"} 1
 node_scrape_collector_success{collector="watchdog"} 1
 node_scrape_collector_success{collector="wifi"} 1
@@ -4077,6 +4078,121 @@ node_time_clocksource_current_info{clocksource="tsc",device="0"} 1
 # TYPE node_udp_queues gauge
 node_udp_queues{ip="v4",queue="rx"} 0
 node_udp_queues{ip="v4",queue="tx"} 21
+# HELP node_usb_autosuspend_delay_seconds USB device autosuspend delay in seconds.
+# TYPE node_usb_autosuspend_delay_seconds gauge
+node_usb_autosuspend_delay_seconds{devpath="1-2",serial=""} 2
+node_usb_autosuspend_delay_seconds{devpath="1-3",serial=""} 2
+node_usb_autosuspend_delay_seconds{devpath="4-2",serial=""} 2
+node_usb_autosuspend_delay_seconds{devpath="4-3",serial="7ba268d87336"} 2
+node_usb_autosuspend_delay_seconds{devpath="4-4",serial=""} 2
+node_usb_autosuspend_delay_seconds{devpath="6-2",serial="0001"} 2
+# HELP node_usb_controller_info Info about USB controllers.
+# TYPE node_usb_controller_info gauge
+node_usb_controller_info{bus="1",version="2.00"} 1
+node_usb_controller_info{bus="2",version="3.10"} 1
+node_usb_controller_info{bus="3",version="2.00"} 1
+node_usb_controller_info{bus="4",version="2.00"} 1
+node_usb_controller_info{bus="5",version="3.10"} 1
+node_usb_controller_info{bus="6",version="2.00"} 1
+node_usb_controller_info{bus="7",version="3.00"} 1
+# HELP node_usb_controller_maxchild USB controller maximum number of child ports.
+# TYPE node_usb_controller_maxchild gauge
+node_usb_controller_maxchild{bus="1"} 4
+node_usb_controller_maxchild{bus="2"} 2
+node_usb_controller_maxchild{bus="3"} 1
+node_usb_controller_maxchild{bus="4"} 4
+node_usb_controller_maxchild{bus="5"} 2
+node_usb_controller_maxchild{bus="6"} 2
+node_usb_controller_maxchild{bus="7"} 2
+# HELP node_usb_controller_speed_bytes USB controller speed in bytes per second.
+# TYPE node_usb_controller_speed_bytes gauge
+node_usb_controller_speed_bytes{bus="1"} 6e+07
+node_usb_controller_speed_bytes{bus="2"} 1.25e+09
+node_usb_controller_speed_bytes{bus="3"} 6e+07
+node_usb_controller_speed_bytes{bus="4"} 6e+07
+node_usb_controller_speed_bytes{bus="5"} 1.25e+09
+node_usb_controller_speed_bytes{bus="6"} 6e+07
+node_usb_controller_speed_bytes{bus="7"} 6.25e+08
+# HELP node_usb_info Info about USB devices.
+# TYPE node_usb_info gauge
+node_usb_info{bcd_device="0000",device_class="02",device_protocol="00",device_subclass="00",devpath="1-2",id_product="0200",id_vendor="0658",manufacturer="",product="",serial="",version="2.00"} 1
+node_usb_info{bcd_device="0000",device_class="ff",device_protocol="ff",device_subclass="10",devpath="4-3",id_product="00bd",id_vendor="06cb",manufacturer="",product="",serial="7ba268d87336",version="2.00"} 1
+node_usb_info{bcd_device="0001",device_class="e0",device_protocol="01",device_subclass="01",devpath="4-4",id_product="0029",id_vendor="8087",manufacturer="",product="",serial="",version="2.01"} 1
+node_usb_info{bcd_device="0120",device_class="00",device_protocol="00",device_subclass="00",devpath="1-3",id_product="9540",id_vendor="058f",manufacturer="Generic",product="EMV Smartcard Reader",serial="",version="2.01"} 1
+node_usb_info{bcd_device="0426",device_class="00",device_protocol="00",device_subclass="00",devpath="4-2",id_product="0407",id_vendor="1050",manufacturer="Yubico",product="Yubikey 4 OTP+U2F+CCID",serial="",version="2.00"} 1
+node_usb_info{bcd_device="5818",device_class="ef",device_protocol="01",device_subclass="02",devpath="6-2",id_product="b6cb",id_vendor="04f2",manufacturer="Chicony Electronics Co.,Ltd.",product="Integrated Camera",serial="0001",version="2.01"} 1
+# HELP node_usb_interface_info Info about USB interfaces.
+# TYPE node_usb_interface_info gauge
+node_usb_interface_info{binterface_class="02",binterface_protocol="01",binterface_subclass="02",configuration="1",devpath="1-2",driver="cdc_acm",interface="0",serial=""} 1
+node_usb_interface_info{binterface_class="03",binterface_protocol="00",binterface_subclass="00",configuration="1",devpath="4-2",driver="usbhid",interface="1",serial=""} 1
+node_usb_interface_info{binterface_class="03",binterface_protocol="01",binterface_subclass="01",configuration="1",devpath="4-2",driver="usbhid",interface="0",serial=""} 1
+node_usb_interface_info{binterface_class="0a",binterface_protocol="00",binterface_subclass="00",configuration="1",devpath="1-2",driver="cdc_acm",interface="1",serial=""} 1
+node_usb_interface_info{binterface_class="0b",binterface_protocol="00",binterface_subclass="00",configuration="1",devpath="1-3",driver="",interface="0",serial=""} 1
+node_usb_interface_info{binterface_class="0b",binterface_protocol="00",binterface_subclass="00",configuration="1",devpath="4-2",driver="usbfs",interface="2",serial=""} 1
+node_usb_interface_info{binterface_class="0e",binterface_protocol="00",binterface_subclass="01",configuration="1",devpath="6-2",driver="uvcvideo",interface="0",serial="0001"} 1
+node_usb_interface_info{binterface_class="0e",binterface_protocol="00",binterface_subclass="02",configuration="1",devpath="6-2",driver="uvcvideo",interface="1",serial="0001"} 1
+node_usb_interface_info{binterface_class="0e",binterface_protocol="01",binterface_subclass="01",configuration="1",devpath="6-2",driver="uvcvideo",interface="2",serial="0001"} 1
+node_usb_interface_info{binterface_class="0e",binterface_protocol="01",binterface_subclass="02",configuration="1",devpath="6-2",driver="uvcvideo",interface="3",serial="0001"} 1
+node_usb_interface_info{binterface_class="e0",binterface_protocol="01",binterface_subclass="01",configuration="1",devpath="4-4",driver="btusb",interface="0",serial=""} 1
+node_usb_interface_info{binterface_class="e0",binterface_protocol="01",binterface_subclass="01",configuration="1",devpath="4-4",driver="btusb",interface="1",serial=""} 1
+node_usb_interface_info{binterface_class="fe",binterface_protocol="01",binterface_subclass="01",configuration="1",devpath="6-2",driver="",interface="4",serial="0001"} 1
+node_usb_interface_info{binterface_class="ff",binterface_protocol="00",binterface_subclass="00",configuration="1",devpath="4-3",driver="",interface="0",serial="7ba268d87336"} 1
+# HELP node_usb_max_current_milliamps USB device maximum current in milliamps.
+# TYPE node_usb_max_current_milliamps gauge
+node_usb_max_current_milliamps{devpath="1-2",serial=""} 100
+node_usb_max_current_milliamps{devpath="1-3",serial=""} 50
+node_usb_max_current_milliamps{devpath="4-2",serial=""} 30
+node_usb_max_current_milliamps{devpath="4-3",serial="7ba268d87336"} 100
+node_usb_max_current_milliamps{devpath="4-4",serial=""} 100
+node_usb_max_current_milliamps{devpath="6-2",serial="0001"} 500
+# HELP node_usb_num_configurations Number of USB configurations.
+# TYPE node_usb_num_configurations gauge
+node_usb_num_configurations{devpath="1-2",serial=""} 1
+node_usb_num_configurations{devpath="1-3",serial=""} 1
+node_usb_num_configurations{devpath="4-2",serial=""} 1
+node_usb_num_configurations{devpath="4-3",serial="7ba268d87336"} 1
+node_usb_num_configurations{devpath="4-4",serial=""} 1
+node_usb_num_configurations{devpath="6-2",serial="0001"} 1
+# HELP node_usb_num_interfaces Number of USB interfaces.
+# TYPE node_usb_num_interfaces gauge
+node_usb_num_interfaces{devpath="1-2",serial=""} 2
+node_usb_num_interfaces{devpath="1-3",serial=""} 1
+node_usb_num_interfaces{devpath="4-2",serial=""} 3
+node_usb_num_interfaces{devpath="4-3",serial="7ba268d87336"} 1
+node_usb_num_interfaces{devpath="4-4",serial=""} 2
+node_usb_num_interfaces{devpath="6-2",serial="0001"} 5
+# HELP node_usb_power_info USB device power information.
+# TYPE node_usb_power_info gauge
+node_usb_power_info{control="auto",devpath="1-3",runtime_status="suspended",serial=""} 1
+node_usb_power_info{control="auto",devpath="4-2",runtime_status="active",serial=""} 1
+node_usb_power_info{control="auto",devpath="4-3",runtime_status="suspended",serial="7ba268d87336"} 1
+node_usb_power_info{control="auto",devpath="4-4",runtime_status="suspended",serial=""} 1
+node_usb_power_info{control="auto",devpath="6-2",runtime_status="suspended",serial="0001"} 1
+node_usb_power_info{control="on",devpath="1-2",runtime_status="active",serial=""} 1
+# HELP node_usb_removable USB device removable state (1 = removable).
+# TYPE node_usb_removable gauge
+node_usb_removable{devpath="1-2",serial=""} 1
+node_usb_removable{devpath="1-3",serial=""} 0
+node_usb_removable{devpath="4-2",serial=""} 1
+node_usb_removable{devpath="4-3",serial="7ba268d87336"} 0
+node_usb_removable{devpath="4-4",serial=""} 0
+node_usb_removable{devpath="6-2",serial="0001"} 0
+# HELP node_usb_speed_bytes USB device speed in bytes per second.
+# TYPE node_usb_speed_bytes gauge
+node_usb_speed_bytes{devpath="1-2",serial=""} 1.5e+06
+node_usb_speed_bytes{devpath="1-3",serial=""} 1.5e+06
+node_usb_speed_bytes{devpath="4-2",serial=""} 1.5e+06
+node_usb_speed_bytes{devpath="4-3",serial="7ba268d87336"} 1.5e+06
+node_usb_speed_bytes{devpath="4-4",serial=""} 1.5e+06
+node_usb_speed_bytes{devpath="6-2",serial="0001"} 6e+07
+# HELP node_usb_urbnum_total Total number of USB request blocks.
+# TYPE node_usb_urbnum_total counter
+node_usb_urbnum_total{devpath="1-2",serial=""} 9
+node_usb_urbnum_total{devpath="1-3",serial=""} 2977
+node_usb_urbnum_total{devpath="4-2",serial=""} 13724
+node_usb_urbnum_total{devpath="4-3",serial="7ba268d87336"} 35
+node_usb_urbnum_total{devpath="4-4",serial=""} 33505
+node_usb_urbnum_total{devpath="6-2",serial="0001"} 804
 # HELP node_vmstat_oom_kill /proc/vmstat information field oom_kill.
 # TYPE node_vmstat_oom_kill untyped
 node_vmstat_oom_kill 0

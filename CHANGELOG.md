@@ -1,6 +1,7 @@
 ## master / unreleased
 
 * [CHANGE] edac: Fix no data results #3863
+* [FEATURE] usb: Add new collector for USB devices and controllers #3881
 
 ## 1.12.1 / 2026-07-14
 
