@@ -230,6 +230,7 @@ swap | Expose swap information from `/proc/swaps`. | Linux
 systemd | Exposes service and system status from [systemd](http://www.freedesktop.org/wiki/Software/systemd/). | Linux
 tainted | Exposes kernel taint flags from `/proc/sys/kernel/tainted`. | Linux
 tcpstat | Exposes TCP connection status information from `/proc/net/tcp` and `/proc/net/tcp6`. (Warning: the current version has potential performance issues in high load situations.) | Linux
+usb | Exposes USB device and controller information from `/sys/bus/usb/devices`, including interface drivers (e.g. `usb-storage` vs `uas`) and power management state. | Linux
 wifi | Exposes WiFi device and station statistics. | Linux
 xfrm | Exposes statistics from `/proc/net/xfrm_stat` | Linux
 zoneinfo | Exposes NUMA memory zone metrics. | Linux
