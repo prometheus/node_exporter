@@ -217,8 +217,9 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 
 			for _, mf := range families {
 				// Check for metrics with inconsistent help texts and take the first help text occurrence.
-				if helpTexts, seen := metricsNamesToHelpTexts[*mf.Name]; seen {
-					if mf.Help != nil && helpTexts[0] != *mf.Help || helpTexts[1] != "" {
+				// Families without a help text can't conflict; they inherit one below.
+				if mf.Help != nil {
+					if helpTexts, seen := metricsNamesToHelpTexts[*mf.Name]; seen && (helpTexts[0] != *mf.Help || helpTexts[1] != "") {
 						metricsNamesToHelpTexts[*mf.Name] = [2]string{helpTexts[0], *mf.Help}
 						errored = true
 						c.logger.Error("inconsistent metric help text",
@@ -229,8 +230,6 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 							"file", metricsNamesToFiles[*mf.Name][0])
 						continue
 					}
-				}
-				if mf.Help != nil {
 					metricsNamesToHelpTexts[*mf.Name] = [2]string{*mf.Help}
 				}
 				metricsNamesToFiles[*mf.Name] = append(metricsNamesToFiles[*mf.Name], metricsFilePath)
@@ -247,7 +246,12 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 	}
 
-	mfHelp := make(map[string]*string)
+	// Families without a help text take the one another file gave for the same metric,
+	// so that all families of a metric share the same help text when they are merged.
+	mfHelp := make(map[string]*string, len(metricsNamesToHelpTexts))
+	for name, helpTexts := range metricsNamesToHelpTexts {
+		mfHelp[name] = &helpTexts[0]
+	}
 	for _, mf := range parsedFamilies {
 		if mf.Help == nil {
 			if help, ok := mfHelp[*mf.Name]; ok {

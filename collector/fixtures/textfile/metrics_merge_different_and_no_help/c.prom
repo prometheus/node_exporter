@@ -1,0 +1,3 @@
+# TYPE events_total counter
+events_total{foo="bar",file="c"} 50
+events_total{foo="baz",file="c"} 60

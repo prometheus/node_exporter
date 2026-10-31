@@ -1,0 +1,5 @@
+# HELP events_total A nice help message.
+# TYPE events_total counter
+events_total{foo="bar",file="a"} 10
+events_total{foo="baz",file="a"} 20
+
