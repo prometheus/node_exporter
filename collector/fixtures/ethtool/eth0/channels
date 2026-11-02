@@ -1,0 +1,13 @@
+# ethtool --show-channels eth0
+Channel parameters for eth0:
+Pre-set maximums:
+RX:		252
+TX:		252
+Other:		1
+Combined:	252
+Current hardware settings:
+# Testing n/a (which will be translated into 0)
+RX:		n/a
+TX:		0
+Other:		1
+Combined:	128
