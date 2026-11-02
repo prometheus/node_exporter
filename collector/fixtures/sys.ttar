@@ -1087,6 +1087,1208 @@ SymlinkTo: ../../../devices/pci0000:00/0000:00:02.1/0000:01:00.0
 Path: sys/bus/pci/devices/0000:45:00.0
 SymlinkTo: ../../../devices/pci0000:40/0000:40:01.3/0000:45:00.0
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/1-2
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/1-2/1-2:1.0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.0/bInterfaceClass
+Lines: 1
+02
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.0/bInterfaceNumber
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.0/bInterfaceProtocol
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.0/bInterfaceSubClass
+Lines: 1
+02
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.0/bNumEndpoints
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.0/driver
+SymlinkTo: ../drivers/cdc_acm
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/1-2/1-2:1.1
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.1/bInterfaceClass
+Lines: 1
+0a
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.1/bInterfaceNumber
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.1/bInterfaceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.1/bInterfaceSubClass
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.1/bNumEndpoints
+Lines: 1
+02
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/1-2:1.1/driver
+SymlinkTo: ../drivers/cdc_acm
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/authorized
+Lines: 1
+1
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/bDeviceClass
+Lines: 1
+02
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/bDeviceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/bDeviceSubClass
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/bMaxPower
+Lines: 1
+100mA
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/bNumConfigurations
+Lines: 1
+1
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/bNumInterfaces
+Lines: 1
+ 2
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/bcdDevice
+Lines: 1
+0000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/busnum
+Lines: 1
+1
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/devnum
+Lines: 1
+14
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/devpath
+Lines: 1
+2
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/idProduct
+Lines: 1
+0200
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/idVendor
+Lines: 1
+0658
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/1-2/power
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/power/autosuspend_delay_ms
+Lines: 1
+2000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/power/control
+Lines: 1
+on
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/power/runtime_status
+Lines: 1
+active
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/removable
+Lines: 1
+removable
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/speed
+Lines: 1
+12
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/urbnum
+Lines: 1
+9
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2/version
+Lines: 1
+ 2.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-2:1.0
+SymlinkTo: 1-2/1-2:1.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/1-3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/1-3/1-3:1.0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/1-3:1.0/bInterfaceClass
+Lines: 1
+0b
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/1-3:1.0/bInterfaceNumber
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/1-3:1.0/bInterfaceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/1-3:1.0/bInterfaceSubClass
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/authorized
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/bDeviceClass
+Lines: 1
+00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/bDeviceProtocol
+Lines: 1
+00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/bDeviceSubClass
+Lines: 1
+00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/bMaxPower
+Lines: 1
+50mA
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/bNumConfigurations
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/bNumInterfaces
+Lines: 1
+ 1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/bcdDevice
+Lines: 1
+0120
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/busnum
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/devnum
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/devpath
+Lines: 1
+3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/idProduct
+Lines: 1
+9540
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/idVendor
+Lines: 1
+058f
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/manufacturer
+Lines: 1
+Generic
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/1-3/power
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/power/autosuspend_delay_ms
+Lines: 1
+2000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/power/control
+Lines: 1
+auto
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/power/runtime_status
+Lines: 1
+suspended
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/product
+Lines: 1
+EMV Smartcard Reader
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/removable
+Lines: 1
+fixed
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/speed
+Lines: 1
+12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/urbnum
+Lines: 1
+2977
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3/version
+Lines: 1
+ 2.01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/1-3:1.0
+SymlinkTo: 1-3/1-3:1.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-2/4-2:1.0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.0/bInterfaceClass
+Lines: 1
+03
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.0/bInterfaceProtocol
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.0/bInterfaceSubClass
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.0/driver
+SymlinkTo: ../drivers/usbhid
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-2/4-2:1.1
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.1/bInterfaceClass
+Lines: 1
+03
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.1/bInterfaceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.1/bInterfaceSubClass
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.1/driver
+SymlinkTo: ../drivers/usbhid
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-2/4-2:1.2
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.2/bInterfaceClass
+Lines: 1
+0b
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.2/bInterfaceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.2/bInterfaceSubClass
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/4-2:1.2/driver
+SymlinkTo: ../drivers/usbfs
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/authorized
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/bDeviceClass
+Lines: 1
+00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/bDeviceProtocol
+Lines: 1
+00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/bDeviceSubClass
+Lines: 1
+00
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/bMaxPower
+Lines: 1
+30mA
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/bNumConfigurations
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/bNumInterfaces
+Lines: 1
+ 3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/bcdDevice
+Lines: 1
+0426
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/busnum
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/devnum
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/devpath
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/idProduct
+Lines: 1
+0407
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/idVendor
+Lines: 1
+1050
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/manufacturer
+Lines: 1
+Yubico
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-2/power
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/power/autosuspend_delay_ms
+Lines: 1
+2000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/power/control
+Lines: 1
+auto
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/power/runtime_status
+Lines: 1
+active
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/product
+Lines: 1
+Yubikey 4 OTP+U2F+CCID
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/removable
+Lines: 1
+removable
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/speed
+Lines: 1
+12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/urbnum
+Lines: 1
+13724
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2/version
+Lines: 1
+ 2.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2:1.0
+SymlinkTo: 4-2/4-2:1.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2:1.1
+SymlinkTo: 4-2/4-2:1.1
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-2:1.2
+SymlinkTo: 4-2/4-2:1.2
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-3
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-3/4-3:1.0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/4-3:1.0/bInterfaceClass
+Lines: 1
+ff
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/4-3:1.0/bInterfaceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/4-3:1.0/bInterfaceSubClass
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/authorized
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/bDeviceClass
+Lines: 1
+ff
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/bDeviceProtocol
+Lines: 1
+ff
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/bDeviceSubClass
+Lines: 1
+10
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/bMaxPower
+Lines: 1
+100mA
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/bNumConfigurations
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/bNumInterfaces
+Lines: 1
+ 1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/bcdDevice
+Lines: 1
+0000
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/busnum
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/devnum
+Lines: 1
+3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/devpath
+Lines: 1
+3
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/idProduct
+Lines: 1
+00bd
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/idVendor
+Lines: 1
+06cb
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-3/power
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/power/autosuspend_delay_ms
+Lines: 1
+2000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/power/control
+Lines: 1
+auto
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/power/runtime_status
+Lines: 1
+suspended
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/removable
+Lines: 1
+fixed
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/serial
+Lines: 1
+7ba268d87336
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/speed
+Lines: 1
+12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/urbnum
+Lines: 1
+35
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3/version
+Lines: 1
+ 2.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-3:1.0
+SymlinkTo: 4-3/4-3:1.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-4
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-4/4-4:1.0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.0/bInterfaceClass
+Lines: 1
+e0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.0/bInterfaceProtocol
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.0/bInterfaceSubClass
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.0/driver
+SymlinkTo: ../drivers/btusb
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-4/4-4:1.1
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.1/bInterfaceClass
+Lines: 1
+e0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.1/bInterfaceProtocol
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.1/bInterfaceSubClass
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/4-4:1.1/driver
+SymlinkTo: ../drivers/btusb
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/authorized
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/bDeviceClass
+Lines: 1
+e0
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/bDeviceProtocol
+Lines: 1
+01
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/bDeviceSubClass
+Lines: 1
+01
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/bMaxPower
+Lines: 1
+100mA
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/bNumConfigurations
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/bNumInterfaces
+Lines: 1
+ 2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/bcdDevice
+Lines: 1
+0001
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/busnum
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/devnum
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/devpath
+Lines: 1
+4
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/idProduct
+Lines: 1
+0029
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/idVendor
+Lines: 1
+8087
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/4-4/power
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/power/autosuspend_delay_ms
+Lines: 1
+2000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/power/control
+Lines: 1
+auto
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/power/runtime_status
+Lines: 1
+suspended
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/removable
+Lines: 1
+fixed
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/speed
+Lines: 1
+12
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/urbnum
+Lines: 1
+33505
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4/version
+Lines: 1
+ 2.01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4:1.0
+SymlinkTo: 4-4/4-4:1.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/4-4:1.1
+SymlinkTo: 4-4/4-4:1.1
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/6-2
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/6-2/6-2:1.0
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.0/bInterfaceClass
+Lines: 1
+0e
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.0/bInterfaceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.0/bInterfaceSubClass
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.0/driver
+SymlinkTo: ../drivers/uvcvideo
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/6-2/6-2:1.1
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.1/bInterfaceClass
+Lines: 1
+0e
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.1/bInterfaceProtocol
+Lines: 1
+00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.1/bInterfaceSubClass
+Lines: 1
+02
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.1/driver
+SymlinkTo: ../drivers/uvcvideo
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/6-2/6-2:1.2
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.2/bInterfaceClass
+Lines: 1
+0e
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.2/bInterfaceProtocol
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.2/bInterfaceSubClass
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.2/driver
+SymlinkTo: ../drivers/uvcvideo
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/6-2/6-2:1.3
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.3/bInterfaceClass
+Lines: 1
+0e
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.3/bInterfaceProtocol
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.3/bInterfaceSubClass
+Lines: 1
+02
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.3/driver
+SymlinkTo: ../drivers/uvcvideo
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/6-2/6-2:1.4
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.4/bInterfaceClass
+Lines: 1
+fe
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.4/bInterfaceProtocol
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/6-2:1.4/bInterfaceSubClass
+Lines: 1
+01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/authorized
+Lines: 1
+1
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/bDeviceClass
+Lines: 1
+ef
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/bDeviceProtocol
+Lines: 1
+01
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/bDeviceSubClass
+Lines: 1
+02
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/bMaxPower
+Lines: 1
+500mA
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/bNumConfigurations
+Lines: 1
+1
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/bNumInterfaces
+Lines: 1
+ 5
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/bcdDevice
+Lines: 1
+5818
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/busnum
+Lines: 1
+6
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/devnum
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/devpath
+Lines: 1
+2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/idProduct
+Lines: 1
+b6cb
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/idVendor
+Lines: 1
+04f2
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/manufacturer
+Lines: 1
+Chicony Electronics Co.,Ltd.
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/6-2/power
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/power/autosuspend_delay_ms
+Lines: 1
+2000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/power/control
+Lines: 1
+auto
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/power/runtime_status
+Lines: 1
+suspended
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/product
+Lines: 1
+Integrated Camera
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/removable
+Lines: 1
+fixed
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/serial
+Lines: 1
+0001
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/speed
+Lines: 1
+480
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/urbnum
+Lines: 1
+804
+Mode: 444
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2/version
+Lines: 1
+ 2.01
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2:1.0
+SymlinkTo: 6-2/6-2:1.0
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2:1.1
+SymlinkTo: 6-2/6-2:1.1
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2:1.2
+SymlinkTo: 6-2/6-2:1.2
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2:1.3
+SymlinkTo: 6-2/6-2:1.3
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/6-2:1.4
+SymlinkTo: 6-2/6-2:1.4
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/usb1
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb1/busnum
+Lines: 1
+1
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb1/devnum
+Lines: 1
+1
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb1/devpath
+Lines: 1
+0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb1/maxchild
+Lines: 1
+4
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb1/speed
+Lines: 1
+480
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb1/version
+Lines: 1
+ 2.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/usb2
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb2/busnum
+Lines: 1
+2
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb2/maxchild
+Lines: 1
+2
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb2/speed
+Lines: 1
+10000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb2/version
+Lines: 1
+ 3.10
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/usb3
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb3/busnum
+Lines: 1
+3
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb3/maxchild
+Lines: 1
+1
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb3/speed
+Lines: 1
+480
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb3/version
+Lines: 1
+ 2.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/usb4
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb4/busnum
+Lines: 1
+4
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb4/maxchild
+Lines: 1
+4
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb4/speed
+Lines: 1
+480
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb4/version
+Lines: 1
+ 2.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/usb5
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb5/busnum
+Lines: 1
+5
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb5/maxchild
+Lines: 1
+2
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb5/speed
+Lines: 1
+10000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb5/version
+Lines: 1
+ 3.10
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/usb6
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb6/busnum
+Lines: 1
+6
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb6/maxchild
+Lines: 1
+2
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb6/speed
+Lines: 1
+480
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb6/version
+Lines: 1
+ 2.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: sys/bus/usb/devices/usb7
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb7/busnum
+Lines: 1
+7
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb7/maxchild
+Lines: 1
+2
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb7/speed
+Lines: 1
+5000
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/bus/usb/devices/usb7/version
+Lines: 1
+ 3.00
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: sys/class
 Mode: 755
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
