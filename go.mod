@@ -2,6 +2,8 @@ module github.com/prometheus/node_exporter
 
 go 1.26.0
 
+godebug multipathtcp=0
+
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/beevik/ntp v1.6.0
