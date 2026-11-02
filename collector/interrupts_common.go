@@ -36,7 +36,7 @@ func init() {
 var (
 	interruptsInclude      = kingpin.Flag("collector.interrupts.name-include", "Regexp of interrupts name to include (mutually exclusive to --collector.interrupts.name-exclude).").String()
 	interruptsExclude      = kingpin.Flag("collector.interrupts.name-exclude", "Regexp of interrupts name to exclude (mutually exclusive to --collector.interrupts.name-include).").String()
-	interruptsIncludeZeros = kingpin.Flag("collector.interrupts.include-zeros", "Include interrupts that have a zero value").Default("true").Bool()
+	interruptsIncludeZeros = kingpin.Flag("collector.interrupts.include-zeros", "Include interrupts that have a zero value").Default("false").Bool()
 )
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
