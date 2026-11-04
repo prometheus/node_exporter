@@ -158,6 +158,38 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 	return &NodeCollector{Collectors: collectors, logger: logger}, nil
 }
 
+var (
+	legacyStateMtx sync.Mutex
+	legacyState    = &collectorRuntimeState{collectors: make(map[string]Collector)}
+)
+
+// DisableDefaultCollectors sets the collector flags to disabled, except the
+// flags set on the command line.
+//
+// Deprecated: Use NewRuntime with config.Config.CollectorDisableDefaults.
+func DisableDefaultCollectors() {
+	for c := range collectorState {
+		if _, ok := forcedCollectors[c]; !ok {
+			*collectorState[c] = false
+		}
+	}
+}
+
+// NewNodeCollector creates a NodeCollector from the collector flags. All
+// callers share one set of collector instances.
+//
+// Deprecated: Use NewRuntime.
+func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
+	legacyStateMtx.Lock()
+	defer legacyStateMtx.Unlock()
+	enabled := make(map[string]bool, len(collectorState))
+	for c, state := range collectorState {
+		enabled[c] = *state
+	}
+	legacyState.enabled = enabled
+	return legacyState.NewNodeCollector(logger, filters...)
+}
+
 func (s *collectorRuntimeState) configureCollector(collector Collector) {
 	if configuredCollector, ok := collector.(runtimeConfiguredCollector); ok {
 		configuredCollector.configureRuntimeState(s)
