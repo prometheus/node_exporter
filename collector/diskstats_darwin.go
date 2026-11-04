@@ -63,20 +63,6 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 			},
 			{
 				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "read_sectors_total"),
-						"The total number of sectors read successfully.",
-						diskLabelNames,
-						nil,
-					),
-					valueType: prometheus.CounterValue,
-				},
-				value: func(stat *iostat.DriveStats) float64 {
-					return float64(stat.NumRead) / float64(stat.BlockSize)
-				},
-			},
-			{
-				typedDesc: typedDesc{
 					desc:      readTimeSecondsDesc,
 					valueType: prometheus.CounterValue,
 				},
@@ -91,20 +77,6 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				},
 				value: func(stat *iostat.DriveStats) float64 {
 					return float64(stat.NumWrite)
-				},
-			},
-			{
-				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "written_sectors_total"),
-						"The total number of sectors written successfully.",
-						diskLabelNames,
-						nil,
-					),
-					valueType: prometheus.CounterValue,
-				},
-				value: func(stat *iostat.DriveStats) float64 {
-					return float64(stat.NumWrite) / float64(stat.BlockSize)
 				},
 			},
 			{
@@ -202,7 +174,11 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %w", err)
 	}
+	c.updateFromStats(ch, diskStats)
+	return nil
+}
 
+func (c *diskstatsCollector) updateFromStats(ch chan<- prometheus.Metric, diskStats []*iostat.DriveStats) {
 	for _, stats := range diskStats {
 		if c.deviceFilter.ignored(stats.Name) {
 			continue
@@ -212,5 +188,4 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			ch <- desc.mustNewConstMetric(v, stats.Name)
 		}
 	}
-	return nil
 }
