@@ -16,6 +16,7 @@ package collector
 import (
 	"io"
 	"log/slog"
+	"sync"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -41,7 +42,11 @@ func TestNewRuntimeCollectors(t *testing.T) {
 
 func TestRuntimeRegistry(t *testing.T) {
 	parseCollectorFlags(t)
-	runtime, err := NewRuntime(config.NewConfigWithDefaults(), slog.New(slog.NewTextHandler(io.Discard, nil)))
+	// Gather only textfile. Collectors such as filesystem leave goroutines
+	// that race with later tests that parse flags.
+	cfg := config.NewConfigWithDefaults()
+	cfg.EnabledCollectors = []string{"textfile"}
+	runtime, err := NewRuntime(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
@@ -130,11 +135,17 @@ func TestRuntimeFilteredRejectsCollectorOutsideRuntime(t *testing.T) {
 	}
 }
 
-// parseCollectorFlags applies the kingpin defaults, so the collector flags
-// hold their default values when a test runs on its own.
+var parseCollectorFlagsOnce sync.Once
+
+// parseCollectorFlags applies the kingpin defaults once, so the collector
+// flags hold their default values when a test runs on its own.
 func parseCollectorFlags(t *testing.T) {
 	t.Helper()
-	if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
+	var err error
+	parseCollectorFlagsOnce.Do(func() {
+		_, err = kingpin.CommandLine.Parse([]string{})
+	})
+	if err != nil {
 		t.Fatal(err)
 	}
 }
@@ -148,5 +159,40 @@ func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
 	state := newCollectorRuntimeState(false)
 	if !state.enabled["textfile"] {
 		t.Fatal("expected textfile to use its default-enabled state")
+	}
+}
+
+func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
+	parseCollectorFlags(t)
+	original := make(map[string]bool, len(collectorState))
+	for c, state := range collectorState {
+		original[c] = *state
+	}
+	t.Cleanup(func() {
+		for c, state := range collectorState {
+			*state = original[c]
+		}
+	})
+
+	*collectorState["textfile"] = true
+	forcedCollectors["textfile"] = true
+	t.Cleanup(func() { delete(forcedCollectors, "textfile") })
+	DisableDefaultCollectors()
+
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	first, err := NewNodeCollector(logger)
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if got := len(first.Collectors); got != 1 {
+		t.Fatalf("expected only the forced textfile collector, got %d", got)
+	}
+
+	second, err := NewNodeCollector(logger)
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if first.Collectors["textfile"] != second.Collectors["textfile"] {
+		t.Fatal("expected callers to share collector instances")
 	}
 }
