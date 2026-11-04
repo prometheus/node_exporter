@@ -21,14 +21,20 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type bondingCollector struct {
-	slaves, active typedDesc
-	logger         *slog.Logger
+	slaves, active, miimon typedDesc
+	logger                 *slog.Logger
+}
+
+type bondingStats struct {
+	name                   string
+	slaves, active, miimon int
 }
 
 func init() {
@@ -49,6 +55,11 @@ func NewBondingCollector(logger *slog.Logger) (Collector, error) {
 			"Number of active slaves per bonding interface.",
 			[]string{"master"}, nil,
 		), prometheus.GaugeValue},
+		miimon: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, "bonding", "miimon"),
+			"MII link monitoring frequency in milliseconds.",
+			[]string{"master"}, nil,
+		), prometheus.GaugeValue},
 		logger: logger,
 	}, nil
 }
@@ -64,15 +75,16 @@ func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
 		}
 		return err
 	}
-	for master, status := range bondingStats {
-		ch <- c.slaves.mustNewConstMetric(float64(status[0]), master)
-		ch <- c.active.mustNewConstMetric(float64(status[1]), master)
+	for _, bond := range bondingStats {
+		ch <- c.slaves.mustNewConstMetric(float64(bond.slaves), bond.name)
+		ch <- c.active.mustNewConstMetric(float64(bond.active), bond.name)
+		ch <- c.miimon.mustNewConstMetric(float64(bond.miimon), bond.name)
 	}
 	return nil
 }
 
-func readBondingStats(root string) (status map[string][2]int, err error) {
-	status = map[string][2]int{}
+func readBondingStats(root string) (status []bondingStats, err error) {
+	status = []bondingStats{}
 	masters, err := os.ReadFile(filepath.Join(root, "bonding_masters"))
 	if err != nil {
 		return nil, err
@@ -97,7 +109,22 @@ func readBondingStats(root string) (status map[string][2]int, err error) {
 				sstat[1]++
 			}
 		}
-		status[master] = sstat
+
+		miimon, err := os.ReadFile(filepath.Join(root, master, "bonding", "miimon"))
+		if err != nil {
+			return nil, err
+		}
+		intMiimon, err := strconv.Atoi(strings.TrimSpace(string(miimon)))
+		if err != nil {
+			return nil, err
+		}
+
+		status = append(status, bondingStats{
+			name:   master,
+			slaves: sstat[0],
+			active: sstat[1],
+			miimon: intMiimon,
+		})
 	}
 	return status, err
 }
