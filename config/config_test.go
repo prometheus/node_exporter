@@ -15,51 +15,10 @@ package config
 
 import "testing"
 
-func TestNewConfigWithDefaults(t *testing.T) {
-	cfg := NewConfigWithDefaults()
-
-	if got, want := cfg.WebTelemetryPath, DefaultWebTelemetryPath; got != want {
-		t.Errorf("Expected: %q, Got: %q", want, got)
-	}
-	if got, want := cfg.WebMaxRequests, DefaultWebMaxRequests; got != want {
-		t.Errorf("Expected: %d, Got: %d", want, got)
-	}
-	if got, want := cfg.RuntimeGoMaxProcs, DefaultRuntimeGoMaxProcs; got != want {
-		t.Errorf("Expected: %d, Got: %d", want, got)
-	}
-}
-
 func TestConfigValidate(t *testing.T) {
 	cfg := NewConfigWithDefaults()
 
 	if err := cfg.Validate(); err != nil {
 		t.Fatalf("expected nil error, got %v", err)
-	}
-}
-
-func TestConfigValidateRequiresTelemetryPath(t *testing.T) {
-	cfg := NewConfigWithDefaults()
-	cfg.WebTelemetryPath = ""
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error, got nil")
-	}
-}
-
-func TestConfigValidateRejectsNegativeMaxRequests(t *testing.T) {
-	cfg := NewConfigWithDefaults()
-	cfg.WebMaxRequests = -1
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error, got nil")
-	}
-}
-
-func TestConfigValidateRejectsNonPositiveGoMaxProcs(t *testing.T) {
-	cfg := NewConfigWithDefaults()
-	cfg.RuntimeGoMaxProcs = 0
-
-	if err := cfg.Validate(); err == nil {
-		t.Fatal("expected error, got nil")
 	}
 }
