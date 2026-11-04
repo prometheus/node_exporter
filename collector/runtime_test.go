@@ -18,10 +18,13 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/alecthomas/kingpin/v2"
+
 	"github.com/prometheus/node_exporter/config"
 )
 
 func TestNewRuntimeCollectors(t *testing.T) {
+	parseCollectorFlags(t)
 	runtime, err := NewRuntime(config.NewConfigWithDefaults(), slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
@@ -37,6 +40,7 @@ func TestNewRuntimeCollectors(t *testing.T) {
 }
 
 func TestRuntimeRegistry(t *testing.T) {
+	parseCollectorFlags(t)
 	runtime, err := NewRuntime(config.NewConfigWithDefaults(), slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
@@ -57,6 +61,7 @@ func TestRuntimeRegistry(t *testing.T) {
 }
 
 func TestNewRuntimeDisableDefaultsDoesNotMutateGlobalCollectorState(t *testing.T) {
+	parseCollectorFlags(t)
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
 	disabledDefaultsCfg := config.NewConfigWithDefaults()
@@ -77,6 +82,7 @@ func TestNewRuntimeDisableDefaultsDoesNotMutateGlobalCollectorState(t *testing.T
 }
 
 func TestRuntimeFilteredUsesBaseCollectorState(t *testing.T) {
+	parseCollectorFlags(t)
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	originalCPUEnabled := *collectorState["cpu"]
 	_, originalCPUForced := forcedCollectors["cpu"]
@@ -106,5 +112,29 @@ func TestRuntimeFilteredUsesBaseCollectorState(t *testing.T) {
 
 	if _, err := runtime.Filtered("meminfo"); err == nil {
 		t.Fatal("expected error for collector disabled in base runtime")
+	}
+}
+
+func TestRuntimeFilteredRejectsCollectorOutsideRuntime(t *testing.T) {
+	parseCollectorFlags(t)
+	cfg := config.NewConfigWithDefaults()
+	cfg.EnabledCollectors = []string{"cpu"}
+
+	runtime, err := NewRuntime(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+
+	if _, err := runtime.Filtered("meminfo"); err == nil {
+		t.Fatal("expected error for collector outside the runtime")
+	}
+}
+
+// parseCollectorFlags applies the kingpin defaults, so the collector flags
+// hold their default values when a test runs on its own.
+func parseCollectorFlags(t *testing.T) {
+	t.Helper()
+	if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
+		t.Fatal(err)
 	}
 }
