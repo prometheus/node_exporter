@@ -315,7 +315,8 @@ func (c *zfsCollector) parsePoolObjsetFile(reader io.Reader, zpoolPath string, h
 			zpoolPathElements := strings.Split(zpoolPath, "/")
 			pathLen := len(zpoolPathElements)
 			zpoolName = zpoolPathElements[pathLen-2]
-			datasetName = line[strings.Index(line, parts[2]):]
+			dataStart := strings.Index(line, parts[1]) + len(parts[1])
+			datasetName = strings.TrimSpace(line[dataStart:])
 			continue
 		}
 
