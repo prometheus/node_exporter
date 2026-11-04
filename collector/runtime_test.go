@@ -138,3 +138,15 @@ func parseCollectorFlags(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
+	// Before kingpin.Parse, every collector flag still holds false.
+	original := *collectorState["textfile"]
+	*collectorState["textfile"] = false
+	t.Cleanup(func() { *collectorState["textfile"] = original })
+
+	state := newCollectorRuntimeState(false)
+	if !state.enabled["textfile"] {
+		t.Fatal("expected textfile to use its default-enabled state")
+	}
+}
