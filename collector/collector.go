@@ -51,6 +51,7 @@ const (
 var (
 	factories        = make(map[string]func(logger *slog.Logger) (Collector, error))
 	collectorState   = make(map[string]*bool)
+	defaultState     = make(map[string]bool)
 	forcedCollectors = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
@@ -78,6 +79,7 @@ func registerCollector(collector string, isDefaultEnabled bool, factory func(log
 
 	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Action(collectorFlagAction(collector)).Bool()
 	collectorState[collector] = flag
+	defaultState[collector] = isDefaultEnabled
 
 	factories[collector] = factory
 }
@@ -91,11 +93,15 @@ type NodeCollector struct {
 func newCollectorRuntimeState(disableDefaultCollectors bool) *collectorRuntimeState {
 	enabled := make(map[string]bool, len(collectorState))
 	for collector, state := range collectorState {
-		enabled[collector] = *state
-		if disableDefaultCollectors {
-			if _, ok := forcedCollectors[collector]; !ok {
-				enabled[collector] = false
-			}
+		// Use the flag value only when the flag was set on the command line,
+		// so a runtime built without kingpin.Parse still gets the defaults.
+		switch {
+		case forcedCollectors[collector]:
+			enabled[collector] = *state
+		case disableDefaultCollectors:
+			enabled[collector] = false
+		default:
+			enabled[collector] = defaultState[collector]
 		}
 	}
 
