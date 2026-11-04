@@ -39,7 +39,6 @@ import (
 // newHandler.
 type handler struct {
 	unfilteredHandler http.Handler
-	cfg               config.Config
 	runtime           *collector.Runtime
 	// enabledCollectors list is used for logging and filtering
 	enabledCollectors []string
@@ -58,7 +57,6 @@ func newHandler(cfg config.Config, includeExporterMetrics bool, maxRequests int,
 	}
 
 	h := &handler{
-		cfg:                     cfg,
 		runtime:                 runtime,
 		exporterMetricsRegistry: prometheus.NewRegistry(),
 		includeExporterMetrics:  includeExporterMetrics,
@@ -204,9 +202,6 @@ func main() {
 		MetricsHandlerFactory: func(b *bootstrap.Bootstrap) (http.Handler, error) {
 			cfg := config.NewConfigWithDefaults()
 			cfg.CollectorDisableDefaults = *disableDefaultCollectors
-			if err := cfg.Validate(); err != nil {
-				return nil, err
-			}
 
 			if user, err := user.Current(); err == nil && user.Uid == "0" {
 				b.Logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")

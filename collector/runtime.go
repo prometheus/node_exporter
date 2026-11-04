@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"fmt"
 	"log/slog"
 	"sort"
 
@@ -50,12 +51,12 @@ func newRuntime(state *collectorRuntimeState, logger *slog.Logger, enabledCollec
 }
 
 func (r *Runtime) Filtered(enabledCollectors ...string) (*Runtime, error) {
-	filtered, err := newRuntime(r.state, r.logger, enabledCollectors)
-	if err != nil {
-		return nil, err
+	for _, name := range enabledCollectors {
+		if _, ok := r.collector.Collectors[name]; !ok {
+			return nil, fmt.Errorf("collector not enabled in this runtime: %s", name)
+		}
 	}
-
-	return filtered, nil
+	return newRuntime(r.state, r.logger, enabledCollectors)
 }
 
 func (r *Runtime) Collectors() []prometheus.Collector {
