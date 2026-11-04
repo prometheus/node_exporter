@@ -22,7 +22,6 @@ import (
 	"os/user"
 	"runtime"
 	"slices"
-	"strconv"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -52,7 +51,7 @@ type handler struct {
 	logger                  *slog.Logger
 }
 
-func newHandler(cfg config.Config, logger *slog.Logger) (*handler, error) {
+func newHandler(cfg config.Config, includeExporterMetrics bool, maxRequests int, logger *slog.Logger) (*handler, error) {
 	runtime, err := collector.NewRuntime(cfg, logger)
 	if err != nil {
 		return nil, err
@@ -62,8 +61,8 @@ func newHandler(cfg config.Config, logger *slog.Logger) (*handler, error) {
 		cfg:                     cfg,
 		runtime:                 runtime,
 		exporterMetricsRegistry: prometheus.NewRegistry(),
-		includeExporterMetrics:  !cfg.WebDisableExporterMetrics,
-		maxRequests:             cfg.WebMaxRequests,
+		includeExporterMetrics:  includeExporterMetrics,
+		maxRequests:             maxRequests,
 		logger:                  logger,
 	}
 	if h.includeExporterMetrics {
@@ -193,7 +192,7 @@ func main() {
 		).Default("false").Bool()
 		maxProcs = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
-		).Envar("GOMAXPROCS").Default(strconv.Itoa(config.DefaultRuntimeGoMaxProcs)).Int()
+		).Envar("GOMAXPROCS").Default("1").Int()
 	)
 
 	kingpin.CommandLine.UsageWriter(os.Stdout)
@@ -204,11 +203,7 @@ func main() {
 		DefaultAddress: ":9100",
 		MetricsHandlerFactory: func(b *bootstrap.Bootstrap) (http.Handler, error) {
 			cfg := config.NewConfigWithDefaults()
-			cfg.WebTelemetryPath = b.MetricsPath
-			cfg.WebDisableExporterMetrics = b.DisableExporterMetrics
-			cfg.WebMaxRequests = b.MaxRequests
 			cfg.CollectorDisableDefaults = *disableDefaultCollectors
-			cfg.RuntimeGoMaxProcs = *maxProcs
 			if err := cfg.Validate(); err != nil {
 				return nil, err
 			}
@@ -216,10 +211,10 @@ func main() {
 			if user, err := user.Current(); err == nil && user.Uid == "0" {
 				b.Logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")
 			}
-			runtime.GOMAXPROCS(cfg.RuntimeGoMaxProcs)
+			runtime.GOMAXPROCS(*maxProcs)
 			b.Logger.Debug("Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 			b.Handle("/debug/pprof/", http.DefaultServeMux)
-			return newHandler(cfg, b.Logger)
+			return newHandler(cfg, !b.DisableExporterMetrics, b.MaxRequests, b.Logger)
 		},
 	})
 

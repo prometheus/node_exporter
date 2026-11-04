@@ -36,15 +36,6 @@ func TestNewRuntimeCollectors(t *testing.T) {
 	}
 }
 
-func TestNewRuntimeValidateConfig(t *testing.T) {
-	cfg := config.NewConfigWithDefaults()
-	cfg.RuntimeGoMaxProcs = 0
-
-	if _, err := NewRuntime(cfg, slog.New(slog.NewTextHandler(io.Discard, nil))); err == nil {
-		t.Fatal("expected error, got nil")
-	}
-}
-
 func TestRuntimeRegistry(t *testing.T) {
 	runtime, err := NewRuntime(config.NewConfigWithDefaults(), slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {

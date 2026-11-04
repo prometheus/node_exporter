@@ -13,42 +13,19 @@
 
 package config
 
-import "fmt"
-
-const (
-	DefaultWebTelemetryPath  = "/metrics"
-	DefaultWebMaxRequests    = 40
-	DefaultRuntimeGoMaxProcs = 1
-)
-
-// Config contains the user-facing configuration currently adapted by the
-// node_exporter binary into the reusable runtime and HTTP handler layers.
+// Config contains the options that control which collectors a runtime
+// enables.
 type Config struct {
-	WebTelemetryPath          string
-	WebDisableExporterMetrics bool
-	WebMaxRequests            int
-	CollectorDisableDefaults  bool
-	RuntimeGoMaxProcs         int
-	EnabledCollectors         []string
+	CollectorDisableDefaults bool
+	EnabledCollectors        []string
 }
 
+// NewConfigWithDefaults returns a Config with the node_exporter defaults.
 func NewConfigWithDefaults() Config {
-	return Config{
-		WebTelemetryPath:  DefaultWebTelemetryPath,
-		WebMaxRequests:    DefaultWebMaxRequests,
-		RuntimeGoMaxProcs: DefaultRuntimeGoMaxProcs,
-	}
+	return Config{}
 }
 
+// Validate returns an error if the Config is invalid.
 func (c Config) Validate() error {
-	if c.WebTelemetryPath == "" {
-		return fmt.Errorf("web telemetry path must not be empty")
-	}
-	if c.WebMaxRequests < 0 {
-		return fmt.Errorf("web max requests must be greater than or equal to zero")
-	}
-	if c.RuntimeGoMaxProcs <= 0 {
-		return fmt.Errorf("runtime gomaxprocs must be greater than zero")
-	}
 	return nil
 }
