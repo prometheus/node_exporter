@@ -20,45 +20,54 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus/testutil"
+
 	"github.com/prometheus/node_exporter/config"
 )
 
-func TestRuntimeSnapshotsTextfileCollectorConfig(t *testing.T) {
+func TestRuntimeKeepsTextfileDirectoriesFromCreation(t *testing.T) {
 	parseCollectorFlags(t)
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	originalDirectories := append([]string(nil), (*textFileDirectories)...)
-	t.Cleanup(func() {
-		*textFileDirectories = originalDirectories
-	})
+	original := *textFileDirectories
+	t.Cleanup(func() { *textFileDirectories = original })
 
-	*textFileDirectories = []string{"fixtures/textfile/first"}
 	cfg := config.NewConfigWithDefaults()
 	cfg.EnabledCollectors = []string{"textfile"}
 
+	*textFileDirectories = []string{"fixtures/textfile/two_metric_files"}
 	runtime, err := NewRuntime(cfg, logger)
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
 
-	*textFileDirectories = []string{"fixtures/textfile/second"}
-
+	*textFileDirectories = []string{"fixtures/textfile/no_metric_files"}
 	filtered, err := runtime.Filtered("textfile")
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
-
-	collector := filtered.collector.Collectors["textfile"].(*textFileCollector)
-	if got, want := collector.paths, []string{"fixtures/textfile/first"}; len(got) != len(want) || got[0] != want[0] {
-		t.Fatalf("expected filtered runtime to keep initial textfile paths, got %v", got)
-	}
-
-	runtime2, err := NewRuntime(cfg, logger)
+	later, err := NewRuntime(cfg, logger)
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
 
-	collector2 := runtime2.collector.Collectors["textfile"].(*textFileCollector)
-	if got, want := collector2.paths, []string{"fixtures/textfile/second"}; len(got) != len(want) || got[0] != want[0] {
-		t.Fatalf("expected new runtime to use updated textfile paths, got %v", got)
+	for _, test := range []struct {
+		name    string
+		runtime *Runtime
+		want    int
+	}{
+		{name: "filtered runtime reads the directory set at creation", runtime: filtered, want: 1},
+		{name: "new runtime reads the current directory", runtime: later, want: 0},
+	} {
+		registry, err := test.runtime.Registry()
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := testutil.GatherAndCount(registry, "testmetric1_1")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != test.want {
+			t.Errorf("%s: want %d testmetric1_1 series, got %d", test.name, test.want, got)
+		}
 	}
 }
