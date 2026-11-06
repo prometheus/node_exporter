@@ -16,123 +16,185 @@ package collector
 import (
 	"io"
 	"log/slog"
+	"maps"
+	"slices"
+	"strings"
 	"sync"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 
 	"github.com/prometheus/node_exporter/config"
 )
 
-func TestNewRuntimeCollectors(t *testing.T) {
+// The tests use textfile because it is enabled by default and builds on every
+// OS. Collectors such as filesystem leave goroutines that race with later
+// tests that parse flags.
+
+func TestNewRuntimeEnabledCollectors(t *testing.T) {
 	parseCollectorFlags(t)
-	runtime, err := NewRuntime(config.NewConfigWithDefaults(), slog.New(slog.NewTextHandler(io.Discard, nil)))
-	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+	tests := []struct {
+		name            string
+		disableDefaults bool
+		wantTextfile    bool
+	}{
+		{name: "defaults", wantTextfile: true},
+		{name: "disable defaults", disableDefaults: true, wantTextfile: false},
 	}
 
-	if got, want := len(runtime.Collectors()), 1; got != want {
-		t.Errorf("Expected: %d, Got: %d", want, got)
-	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cfg := config.NewConfigWithDefaults()
+			cfg.CollectorDisableDefaults = test.disableDefaults
 
-	if got := len(runtime.EnabledCollectors()); got == 0 {
-		t.Fatal("expected at least one enabled collector")
+			runtime, err := NewRuntime(cfg, testLogger())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := slices.Contains(runtime.EnabledCollectors(), "textfile"); got != test.wantTextfile {
+				t.Fatalf("textfile enabled: want %t, got %t (%v)", test.wantTextfile, got, runtime.EnabledCollectors())
+			}
+		})
 	}
 }
 
-func TestRuntimeRegistry(t *testing.T) {
+func TestNewRuntimeEnabledListLimitsCollectors(t *testing.T) {
 	parseCollectorFlags(t)
-	// Gather only textfile. Collectors such as filesystem leave goroutines
-	// that race with later tests that parse flags.
 	cfg := config.NewConfigWithDefaults()
 	cfg.EnabledCollectors = []string{"textfile"}
-	runtime, err := NewRuntime(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
-	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
 
-	registry, err := runtime.Registry()
+	runtime, err := NewRuntime(cfg, testLogger())
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
-
-	metrics, err := registry.Gather()
-	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
-	if got := len(metrics); got == 0 {
-		t.Fatal("expected gathered metrics, got none")
+	if got, want := runtime.EnabledCollectors(), []string{"textfile"}; !slices.Equal(got, want) {
+		t.Fatalf("want %v, got %v", want, got)
 	}
 }
 
-func TestNewRuntimeDisableDefaultsDoesNotMutateGlobalCollectorState(t *testing.T) {
+func TestNewRuntimeDisableDefaultsDoesNotAffectOtherRuntimes(t *testing.T) {
 	parseCollectorFlags(t)
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-
-	disabledDefaultsCfg := config.NewConfigWithDefaults()
-	disabledDefaultsCfg.CollectorDisableDefaults = true
-
-	if _, err := NewRuntime(disabledDefaultsCfg, logger); err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
-
-	runtime, err := NewRuntime(config.NewConfigWithDefaults(), logger)
-	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
-
-	if got := len(runtime.EnabledCollectors()); got == 0 {
-		t.Fatal("expected enabled collectors after constructing runtime with defaults")
-	}
-}
-
-func TestRuntimeFilteredUsesBaseCollectorState(t *testing.T) {
-	parseCollectorFlags(t)
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	originalCPUEnabled := *collectorState["cpu"]
-	_, originalCPUForced := forcedCollectors["cpu"]
-	*collectorState["cpu"] = true
-	forcedCollectors["cpu"] = true
-	t.Cleanup(func() {
-		*collectorState["cpu"] = originalCPUEnabled
-		if originalCPUForced {
-			forcedCollectors["cpu"] = true
-		} else {
-			delete(forcedCollectors, "cpu")
-		}
-	})
-
 	cfg := config.NewConfigWithDefaults()
 	cfg.CollectorDisableDefaults = true
-	cfg.EnabledCollectors = []string{"cpu"}
+	if _, err := NewRuntime(cfg, testLogger()); err != nil {
+		t.Fatal(err)
+	}
 
-	runtime, err := NewRuntime(cfg, logger)
+	runtime, err := NewRuntime(config.NewConfigWithDefaults(), testLogger())
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
-
-	if _, err := runtime.Filtered("cpu"); err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
-
-	if _, err := runtime.Filtered("meminfo"); err == nil {
-		t.Fatal("expected error for collector disabled in base runtime")
+	if !slices.Contains(runtime.EnabledCollectors(), "textfile") {
+		t.Fatalf("want textfile enabled, got %v", runtime.EnabledCollectors())
 	}
 }
 
-func TestRuntimeFilteredRejectsCollectorOutsideRuntime(t *testing.T) {
+func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
+	// Before kingpin.Parse, every collector flag holds false.
+	original := *collectorState["textfile"]
+	*collectorState["textfile"] = false
+	t.Cleanup(func() { *collectorState["textfile"] = original })
+
+	runtime, err := NewRuntime(config.NewConfigWithDefaults(), testLogger())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Contains(runtime.EnabledCollectors(), "textfile") {
+		t.Fatalf("want textfile enabled, got %v", runtime.EnabledCollectors())
+	}
+}
+
+func TestRuntimeExposesCollectorMetrics(t *testing.T) {
 	parseCollectorFlags(t)
 	cfg := config.NewConfigWithDefaults()
-	cfg.EnabledCollectors = []string{"cpu"}
-
-	runtime, err := NewRuntime(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	cfg.EnabledCollectors = []string{"textfile"}
+	runtime, err := NewRuntime(cfg, testLogger())
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
 
-	if _, err := runtime.Filtered("meminfo"); err == nil {
-		t.Fatal("expected error for collector outside the runtime")
+	collectorsRegistry := prometheus.NewRegistry()
+	collectorsRegistry.MustRegister(runtime.Collectors()...)
+	runtimeRegistry, err := runtime.Registry()
+	if err != nil {
+		t.Fatal(err)
 	}
+
+	want := `# HELP node_scrape_collector_success node_exporter: Whether a collector succeeded.
+# TYPE node_scrape_collector_success gauge
+node_scrape_collector_success{collector="textfile"} 1
+`
+	for name, registry := range map[string]*prometheus.Registry{
+		"Collectors": collectorsRegistry,
+		"Registry":   runtimeRegistry,
+	} {
+		if err := testutil.GatherAndCompare(registry, strings.NewReader(want), "node_scrape_collector_success"); err != nil {
+			t.Errorf("%s: %s", name, err)
+		}
+	}
+}
+
+func TestRuntimeFiltered(t *testing.T) {
+	parseCollectorFlags(t)
+	cfg := config.NewConfigWithDefaults()
+	cfg.EnabledCollectors = []string{"textfile"}
+	runtime, err := NewRuntime(cfg, testLogger())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	filtered, err := runtime.Filtered("textfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := filtered.EnabledCollectors(), []string{"textfile"}; !slices.Equal(got, want) {
+		t.Fatalf("want %v, got %v", want, got)
+	}
+
+	// meminfo is enabled by default, but not in this runtime.
+	if _, err := runtime.Filtered("meminfo"); err == nil {
+		t.Fatal("want error for a collector outside the runtime, got nil")
+	}
+}
+
+func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
+	parseCollectorFlags(t)
+	original := make(map[string]bool, len(collectorState))
+	for c, state := range collectorState {
+		original[c] = *state
+	}
+	t.Cleanup(func() {
+		for c, state := range collectorState {
+			*state = original[c]
+		}
+		delete(forcedCollectors, "textfile")
+	})
+
+	*collectorState["textfile"] = true
+	forcedCollectors["textfile"] = true
+	DisableDefaultCollectors()
+
+	first, err := NewNodeCollector(testLogger())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := slices.Sorted(maps.Keys(first.Collectors)), []string{"textfile"}; !slices.Equal(got, want) {
+		t.Fatalf("want %v, got %v", want, got)
+	}
+
+	second, err := NewNodeCollector(testLogger())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Collectors["textfile"] != second.Collectors["textfile"] {
+		t.Fatal("want callers to share collector instances")
+	}
+}
+
+func testLogger() *slog.Logger {
+	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
 var parseCollectorFlagsOnce sync.Once
@@ -147,52 +209,5 @@ func parseCollectorFlags(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
-	}
-}
-
-func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
-	// Before kingpin.Parse, every collector flag still holds false.
-	original := *collectorState["textfile"]
-	*collectorState["textfile"] = false
-	t.Cleanup(func() { *collectorState["textfile"] = original })
-
-	state := newCollectorRuntimeState(false)
-	if !state.enabled["textfile"] {
-		t.Fatal("expected textfile to use its default-enabled state")
-	}
-}
-
-func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
-	parseCollectorFlags(t)
-	original := make(map[string]bool, len(collectorState))
-	for c, state := range collectorState {
-		original[c] = *state
-	}
-	t.Cleanup(func() {
-		for c, state := range collectorState {
-			*state = original[c]
-		}
-	})
-
-	*collectorState["textfile"] = true
-	forcedCollectors["textfile"] = true
-	t.Cleanup(func() { delete(forcedCollectors, "textfile") })
-	DisableDefaultCollectors()
-
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	first, err := NewNodeCollector(logger)
-	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
-	if got := len(first.Collectors); got != 1 {
-		t.Fatalf("expected only the forced textfile collector, got %d", got)
-	}
-
-	second, err := NewNodeCollector(logger)
-	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
-	}
-	if first.Collectors["textfile"] != second.Collectors["textfile"] {
-		t.Fatal("expected callers to share collector instances")
 	}
 }
