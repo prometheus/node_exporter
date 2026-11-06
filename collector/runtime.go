@@ -16,7 +16,8 @@ package collector
 import (
 	"fmt"
 	"log/slog"
-	"sort"
+	"maps"
+	"slices"
 
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -65,19 +66,12 @@ func (r *Runtime) Collectors() []prometheus.Collector {
 
 func (r *Runtime) Registry() (*prometheus.Registry, error) {
 	registry := prometheus.NewRegistry()
-	for _, c := range r.Collectors() {
-		if err := registry.Register(c); err != nil {
-			return nil, err
-		}
+	if err := registry.Register(r.collector); err != nil {
+		return nil, err
 	}
 	return registry, nil
 }
 
 func (r *Runtime) EnabledCollectors() []string {
-	enabled := make([]string, 0, len(r.collector.Collectors))
-	for name := range r.collector.Collectors {
-		enabled = append(enabled, name)
-	}
-	sort.Strings(enabled)
-	return enabled
+	return slices.Sorted(maps.Keys(r.collector.Collectors))
 }

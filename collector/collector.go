@@ -125,6 +125,8 @@ func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error
 
 // NewNodeCollector creates a new NodeCollector.
 func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
 	f := make(map[string]bool)
 	for _, filter := range filters {
 		enabled, exist := s.enabled[filter]
@@ -137,8 +139,6 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 		f[filter] = true
 	}
 	collectors := make(map[string]Collector)
-	s.mtx.Lock()
-	defer s.mtx.Unlock()
 	for key, enabled := range s.enabled {
 		if !enabled || (len(f) > 0 && !f[key]) {
 			continue
@@ -158,10 +158,7 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 	return &NodeCollector{Collectors: collectors, logger: logger}, nil
 }
 
-var (
-	legacyStateMtx sync.Mutex
-	legacyState    = &collectorRuntimeState{collectors: make(map[string]Collector)}
-)
+var legacyState = &collectorRuntimeState{collectors: make(map[string]Collector)}
 
 // DisableDefaultCollectors sets the collector flags to disabled, except the
 // flags set on the command line.
@@ -180,13 +177,13 @@ func DisableDefaultCollectors() {
 //
 // Deprecated: Use NewRuntime.
 func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
-	legacyStateMtx.Lock()
-	defer legacyStateMtx.Unlock()
 	enabled := make(map[string]bool, len(collectorState))
 	for c, state := range collectorState {
 		enabled[c] = *state
 	}
+	legacyState.mtx.Lock()
 	legacyState.enabled = enabled
+	legacyState.mtx.Unlock()
 	return legacyState.NewNodeCollector(logger, filters...)
 }
 

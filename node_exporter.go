@@ -40,8 +40,6 @@ import (
 type handler struct {
 	unfilteredHandler http.Handler
 	runtime           *collector.Runtime
-	// enabledCollectors list is used for logging and filtering
-	enabledCollectors []string
 	// exporterMetricsRegistry is a separate registry for the metrics about
 	// the exporter itself.
 	exporterMetricsRegistry *prometheus.Registry
@@ -102,7 +100,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if len(excludes) > 0 {
 		// In exclude mode, filtered collectors = enabled - excludeed.
 		f := []string{}
-		for _, c := range h.enabledCollectors {
+		for _, c := range h.runtime.EnabledCollectors() {
 			if slices.Index(excludes, c) == -1 {
 				f = append(f, c)
 			}
@@ -128,22 +126,18 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // flags).
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	runtime := h.runtime
-	if len(filters) > 0 {
+	if len(filters) == 0 {
+		// Only the unfiltered handler logs, and it is built once at startup.
+		h.logger.Info("Enabled collectors")
+		for _, c := range runtime.EnabledCollectors() {
+			h.logger.Info(c)
+		}
+	} else {
 		r, err := h.runtime.Filtered(filters...)
 		if err != nil {
 			return nil, fmt.Errorf("couldn't create collector runtime: %w", err)
 		}
 		runtime = r
-	}
-
-	// Only log the creation of an unfiltered handler, which should happen
-	// only once upon startup.
-	if len(filters) == 0 {
-		h.logger.Info("Enabled collectors")
-		h.enabledCollectors = runtime.EnabledCollectors()
-		for _, c := range h.enabledCollectors {
-			h.logger.Info(c)
-		}
 	}
 
 	r, err := runtime.Registry()
