@@ -22,7 +22,6 @@ import (
 	"os/user"
 	"runtime"
 	"slices"
-	"sort"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -32,6 +31,7 @@ import (
 	"github.com/prometheus/exporter-toolkit/bootstrap"
 
 	"github.com/prometheus/node_exporter/collector"
+	"github.com/prometheus/node_exporter/config"
 )
 
 // handler wraps an unfiltered http.Handler but uses a filtered handler,
@@ -39,8 +39,7 @@ import (
 // newHandler.
 type handler struct {
 	unfilteredHandler http.Handler
-	// enabledCollectors list is used for logging and filtering
-	enabledCollectors []string
+	runtime           *collector.Runtime
 	// exporterMetricsRegistry is a separate registry for the metrics about
 	// the exporter itself.
 	exporterMetricsRegistry *prometheus.Registry
@@ -49,8 +48,14 @@ type handler struct {
 	logger                  *slog.Logger
 }
 
-func newHandler(includeExporterMetrics bool, maxRequests int, logger *slog.Logger) *handler {
+func newHandler(cfg config.Config, includeExporterMetrics bool, maxRequests int, logger *slog.Logger) (*handler, error) {
+	runtime, err := collector.NewRuntime(cfg, logger)
+	if err != nil {
+		return nil, err
+	}
+
 	h := &handler{
+		runtime:                 runtime,
 		exporterMetricsRegistry: prometheus.NewRegistry(),
 		includeExporterMetrics:  includeExporterMetrics,
 		maxRequests:             maxRequests,
@@ -64,10 +69,10 @@ func newHandler(includeExporterMetrics bool, maxRequests int, logger *slog.Logge
 	}
 	innerHandler, err := h.innerHandler()
 	if err != nil {
-		panic(fmt.Sprintf("Couldn't create metrics handler: %s", err))
+		return nil, fmt.Errorf("couldn't create metrics handler: %w", err)
 	}
 	h.unfilteredHandler = innerHandler
-	return h
+	return h, nil
 }
 
 // ServeHTTP implements http.Handler.
@@ -95,7 +100,7 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if len(excludes) > 0 {
 		// In exclude mode, filtered collectors = enabled - excludeed.
 		f := []string{}
-		for _, c := range h.enabledCollectors {
+		for _, c := range h.runtime.EnabledCollectors() {
 			if slices.Index(excludes, c) == -1 {
 				f = append(f, c)
 			}
@@ -120,29 +125,26 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // (in which case it will log all the collectors enabled via command-line
 // flags).
 func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
-	nc, err := collector.NewNodeCollector(h.logger, filters...)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't create collector: %s", err)
-	}
-
-	// Only log the creation of an unfiltered handler, which should happen
-	// only once upon startup.
+	runtime := h.runtime
 	if len(filters) == 0 {
+		// Only the unfiltered handler logs, and it is built once at startup.
 		h.logger.Info("Enabled collectors")
-		for n := range nc.Collectors {
-			h.enabledCollectors = append(h.enabledCollectors, n)
-		}
-		sort.Strings(h.enabledCollectors)
-		for _, c := range h.enabledCollectors {
+		for _, c := range runtime.EnabledCollectors() {
 			h.logger.Info(c)
 		}
+	} else {
+		r, err := h.runtime.Filtered(filters...)
+		if err != nil {
+			return nil, fmt.Errorf("couldn't create collector runtime: %w", err)
+		}
+		runtime = r
 	}
 
-	r := prometheus.NewRegistry()
-	r.MustRegister(versioncollector.NewCollector("node_exporter"))
-	if err := r.Register(nc); err != nil {
-		return nil, fmt.Errorf("couldn't register node collector: %s", err)
+	r, err := runtime.Registry()
+	if err != nil {
+		return nil, fmt.Errorf("couldn't create collector registry: %w", err)
 	}
+	r.MustRegister(versioncollector.NewCollector("node_exporter"))
 
 	var handler http.Handler
 	if h.includeExporterMetrics {
@@ -192,16 +194,16 @@ func main() {
 		Description:    "Prometheus Node Exporter",
 		DefaultAddress: ":9100",
 		MetricsHandlerFactory: func(b *bootstrap.Bootstrap) (http.Handler, error) {
-			if *disableDefaultCollectors {
-				collector.DisableDefaultCollectors()
-			}
+			cfg := config.NewConfigWithDefaults()
+			cfg.CollectorDisableDefaults = *disableDefaultCollectors
+
 			if user, err := user.Current(); err == nil && user.Uid == "0" {
 				b.Logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")
 			}
 			runtime.GOMAXPROCS(*maxProcs)
 			b.Logger.Debug("Go MAXPROCS", "procs", runtime.GOMAXPROCS(0))
 			b.Handle("/debug/pprof/", http.DefaultServeMux)
-			return newHandler(!b.DisableExporterMetrics, b.MaxRequests, b.Logger), nil
+			return newHandler(cfg, !b.DisableExporterMetrics, b.MaxRequests, b.Logger)
 		},
 	})
 
