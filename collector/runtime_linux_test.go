@@ -20,66 +20,70 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus/testutil"
+
 	"github.com/prometheus/node_exporter/config"
 )
 
-func TestRuntimeSnapshotsCPUCollectorConfig(t *testing.T) {
+func TestRuntimeKeepsCPUConfigFromCreation(t *testing.T) {
 	parseCollectorFlags(t)
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	originalGuestEnabled := *enableCPUGuest
-	originalInfoEnabled := *enableCPUInfo
-	originalFlagsInclude := *flagsInclude
-	originalBugsInclude := *bugsInclude
+	originalProc, originalSys := *procPath, *sysPath
+	originalGuest, originalInfo := *enableCPUGuest, *enableCPUInfo
+	originalFlags, originalBugs := *flagsInclude, *bugsInclude
 	t.Cleanup(func() {
-		*enableCPUGuest = originalGuestEnabled
-		*enableCPUInfo = originalInfoEnabled
-		*flagsInclude = originalFlagsInclude
-		*bugsInclude = originalBugsInclude
+		*procPath, *sysPath = originalProc, originalSys
+		*enableCPUGuest, *enableCPUInfo = originalGuest, originalInfo
+		*flagsInclude, *bugsInclude = originalFlags, originalBugs
 	})
-
-	*enableCPUGuest = false
-	*enableCPUInfo = false
-	*flagsInclude = "foo"
-	*bugsInclude = ""
 
 	cfg := config.NewConfigWithDefaults()
 	cfg.EnabledCollectors = []string{"cpu"}
 
+	*procPath, *sysPath = "fixtures/proc", "fixtures/sys"
+	*enableCPUGuest, *enableCPUInfo = false, false
+	*flagsInclude, *bugsInclude = "", ""
 	runtime, err := NewRuntime(cfg, logger)
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
 
-	*enableCPUGuest = true
-	*enableCPUInfo = true
-	*flagsInclude = "bar"
-
+	*enableCPUGuest, *enableCPUInfo = true, true
 	filtered, err := runtime.Filtered("cpu")
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
-
-	collector := filtered.collector.Collectors["cpu"].(*cpuCollector)
-	if collector.guestEnabled {
-		t.Fatal("expected filtered runtime to keep initial cpu guest setting")
-	}
-	if !collector.infoEnabled {
-		t.Fatal("expected flags include to enable cpu info in filtered runtime")
-	}
-	if collector.cpuFlagsIncludeRegexp == nil || !collector.cpuFlagsIncludeRegexp.MatchString("foo") || collector.cpuFlagsIncludeRegexp.MatchString("bar") {
-		t.Fatalf("expected filtered runtime to keep initial cpu flags include regexp, got %v", collector.cpuFlagsIncludeRegexp)
-	}
-
-	runtime2, err := NewRuntime(cfg, logger)
+	later, err := NewRuntime(cfg, logger)
 	if err != nil {
-		t.Fatalf("expected nil error, got %v", err)
+		t.Fatal(err)
 	}
 
-	collector2 := runtime2.collector.Collectors["cpu"].(*cpuCollector)
-	if !collector2.guestEnabled {
-		t.Fatal("expected new runtime to use updated cpu guest setting")
-	}
-	if collector2.cpuFlagsIncludeRegexp == nil || !collector2.cpuFlagsIncludeRegexp.MatchString("bar") || collector2.cpuFlagsIncludeRegexp.MatchString("foo") {
-		t.Fatalf("expected new runtime to use updated cpu flags include regexp, got %v", collector2.cpuFlagsIncludeRegexp)
+	for _, test := range []struct {
+		name      string
+		runtime   *Runtime
+		wantGuest bool
+		wantInfo  bool
+	}{
+		{name: "filtered runtime keeps the config set at creation", runtime: filtered, wantGuest: false, wantInfo: false},
+		{name: "new runtime uses the current config", runtime: later, wantGuest: true, wantInfo: true},
+	} {
+		registry, err := test.runtime.Registry()
+		if err != nil {
+			t.Fatal(err)
+		}
+		guest, err := testutil.GatherAndCount(registry, "node_cpu_guest_seconds_total")
+		if err != nil {
+			t.Fatal(err)
+		}
+		info, err := testutil.GatherAndCount(registry, "node_cpu_info")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := guest > 0; got != test.wantGuest {
+			t.Errorf("%s: want guest metrics %t, got %d series", test.name, test.wantGuest, guest)
+		}
+		if got := info > 0; got != test.wantInfo {
+			t.Errorf("%s: want cpu info metrics %t, got %d series", test.name, test.wantInfo, info)
+		}
 	}
 }
