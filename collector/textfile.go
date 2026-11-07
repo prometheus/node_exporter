@@ -250,6 +250,10 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 	mfHelp := make(map[string]*string)
 	for _, mf := range parsedFamilies {
 		if mf.Help == nil {
+			if helpTexts, ok := metricsNamesToHelpTexts[*mf.Name]; ok {
+				mf.Help = &helpTexts[0]
+				continue
+			}
 			if help, ok := mfHelp[*mf.Name]; ok {
 				mf.Help = help
 				continue
