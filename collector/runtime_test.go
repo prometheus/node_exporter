@@ -99,14 +99,7 @@ func TestNewRuntimeCollectorsOverrideDefaults(t *testing.T) {
 }
 
 func TestNewRuntimeCollectorsTakePrecedenceOverFlags(t *testing.T) {
-	parseCollectorFlags(t)
-	original := *collectorState["textfile"]
-	*collectorState["textfile"] = false
-	forcedCollectors["textfile"] = true
-	t.Cleanup(func() {
-		*collectorState["textfile"] = original
-		delete(forcedCollectors, "textfile")
-	})
+	parseFlags(t, "--no-collector.textfile")
 
 	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
@@ -121,8 +114,9 @@ func TestNewRuntimeRejectsUnknownCollector(t *testing.T) {
 	cfg := config.NewConfigWithDefaults()
 	cfg.Collectors = map[string]bool{"doesnotexist": true}
 
-	if _, err := NewRuntime(cfg, testLogger()); err == nil {
-		t.Fatal("want error for an unknown collector, got nil")
+	_, err := NewRuntime(cfg, testLogger())
+	if err == nil || !strings.Contains(err.Error(), "doesnotexist") {
+		t.Fatalf("want error naming the unknown collector, got %v", err)
 	}
 }
 
@@ -202,26 +196,13 @@ func TestRuntimeFiltered(t *testing.T) {
 	}
 
 	// meminfo is enabled by default, but not in this runtime.
-	if _, err := runtime.Filtered("meminfo"); err == nil {
-		t.Fatal("want error for a collector outside the runtime, got nil")
+	if _, err := runtime.Filtered("meminfo"); err == nil || !strings.Contains(err.Error(), "meminfo") {
+		t.Fatalf("want error naming meminfo, got %v", err)
 	}
 }
 
 func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
-	parseCollectorFlags(t)
-	original := make(map[string]bool, len(collectorState))
-	for c, state := range collectorState {
-		original[c] = *state
-	}
-	t.Cleanup(func() {
-		for c, state := range collectorState {
-			*state = original[c]
-		}
-		delete(forcedCollectors, "textfile")
-	})
-
-	*collectorState["textfile"] = true
-	forcedCollectors["textfile"] = true
+	parseFlags(t, "--collector.textfile")
 	DisableDefaultCollectors()
 
 	first, err := NewNodeCollector(testLogger())
@@ -254,6 +235,22 @@ func testLogger() *slog.Logger {
 }
 
 var parseCollectorFlagsOnce sync.Once
+
+// parseFlags parses args as command-line flags, and restores the flag
+// defaults when the test ends.
+func parseFlags(t *testing.T, args ...string) {
+	t.Helper()
+	parseCollectorFlags(t)
+	t.Cleanup(func() {
+		clear(forcedCollectors)
+		if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
+			t.Fatal(err)
+		}
+	})
+	if _, err := kingpin.CommandLine.Parse(args); err != nil {
+		t.Fatal(err)
+	}
+}
 
 // parseCollectorFlags applies the kingpin defaults once, so the collector
 // flags hold their default values when a test runs on its own.
