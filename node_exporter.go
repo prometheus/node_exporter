@@ -180,7 +180,7 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 
 // addFlags adds the collector flags to app. The returned function builds a
 // Config from them after app parses the command line.
-func addFlags(app *kingpin.Application) func() config.Config {
+func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error) {
 	disableDefaults := app.Flag("collector.disable-defaults", "Set all collectors to disabled by default.").Default("false").Bool()
 
 	type collectorFlag struct {
@@ -217,8 +217,52 @@ func addFlags(app *kingpin.Application) func() config.Config {
 	bcachePriorityStats := app.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
 	nvmeNamespaceUsage := app.Flag("collector.nvme.namespace-usage", "Expose namespace used bytes (reads nuse, which makes the kernel query the controller).").Default(strconv.FormatBool(config.DefaultNVMeNamespaceUsage)).Bool()
 	raplZoneLabel := app.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
+	arpDeviceInclude := app.Flag("collector.arp.device-include", "Regexp of arp devices to include (mutually exclusive to device-exclude).").String()
+	arpDeviceExclude := app.Flag("collector.arp.device-exclude", "Regexp of arp devices to exclude (mutually exclusive to device-include).").String()
+	arpNetlink := app.Flag("collector.arp.netlink", "Use netlink to gather stats instead of /proc/net/arp.").Default(strconv.FormatBool(config.DefaultARPNetlink)).Bool()
+	ethtoolDeviceInclude := app.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
+	ethtoolDeviceExclude := app.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
+	ethtoolMetricsInclude := app.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(config.DefaultEthtoolMetricsInclude).String()
+	infinibandDeviceInclude := app.Flag("collector.infiniband.device-include", "Regexp of infiniband devices to include (mutually exclusive to device-exclude).").String()
+	infinibandDeviceExclude := app.Flag("collector.infiniband.device-exclude", "Regexp of infiniband devices to exclude (mutually exclusive to device-include).").String()
+	netclassIgnoredDevices := app.Flag("collector.netclass.ignored-devices", "Regexp of net devices to ignore for netclass collector.").Default(config.DefaultNetClassIgnoredDevices).String()
+	netclassInvalidSpeed := app.Flag("collector.netclass.ignore-invalid-speed", "Ignore devices where the speed is invalid. This will be the default behavior in 2.x.").Bool()
+	netclassNetlink := app.Flag("collector.netclass.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("false").Bool()
+	netclassRTNLWithStats := app.Flag("collector.netclass_rtnl.with-stats", "Expose the statistics for each network device, replacing netdev collector.").Bool()
+	netdevDeviceInclude := app.Flag("collector.netdev.device-include", "Regexp of net devices to include (mutually exclusive to device-exclude).").String()
+	oldNetdevDeviceInclude := app.Flag("collector.netdev.device-whitelist", "DEPRECATED: Use collector.netdev.device-include").Hidden().String()
+	netdevDeviceExclude := app.Flag("collector.netdev.device-exclude", "Regexp of net devices to exclude (mutually exclusive to device-include).").String()
+	oldNetdevDeviceExclude := app.Flag("collector.netdev.device-blacklist", "DEPRECATED: Use collector.netdev.device-exclude").Hidden().String()
+	netdevAddressInfo := app.Flag("collector.netdev.address-info", "Collect address-info for every device").Bool()
+	netdevDetailedMetrics := app.Flag("collector.netdev.enable-detailed-metrics", "Use (incompatible) metric names that provide more detailed stats on Linux").Bool()
+	netdevNetlink := app.Flag("collector.netdev.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default(strconv.FormatBool(config.DefaultNetDevNetlink)).Bool()
+	netdevLabelIfAlias := app.Flag("collector.netdev.label-ifalias", "Add ifAlias label").Default("false").Bool()
+	qdiscFixtures := app.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
+	qdiscDeviceInclude := app.Flag("collector.qdisc.device-include", "Regexp of qdisc devices to include (mutually exclusive to device-exclude).").String()
+	oldQdiscDeviceInclude := app.Flag("collector.qdisk.device-include", "DEPRECATED: Use collector.qdisc.device-include").Hidden().String()
+	qdiscDeviceExclude := app.Flag("collector.qdisc.device-exclude", "Regexp of qdisc devices to exclude (mutually exclusive to device-include).").String()
+	oldQdiscDeviceExclude := app.Flag("collector.qdisk.device-exclude", "DEPRECATED: Use collector.qdisc.device-exclude").Hidden().String()
+	ipvsBackendLabels := app.Flag("collector.ipvs.backend-labels", "Comma separated list for IPVS backend stats labels.").Default(config.DefaultIPVSBackendLabels).String()
+	wifiFixtures := app.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
 
-	return func() config.Config {
+	return func(logger *slog.Logger) (config.Config, error) {
+		netdevInclude, err := deprecatedFlag(logger, "collector.netdev.device-whitelist", *oldNetdevDeviceInclude, "collector.netdev.device-include", *netdevDeviceInclude)
+		if err != nil {
+			return config.Config{}, err
+		}
+		netdevExclude, err := deprecatedFlag(logger, "collector.netdev.device-blacklist", *oldNetdevDeviceExclude, "collector.netdev.device-exclude", *netdevDeviceExclude)
+		if err != nil {
+			return config.Config{}, err
+		}
+		qdiscInclude, err := deprecatedFlag(logger, "collector.qdisk.device-include", *oldQdiscDeviceInclude, "collector.qdisc.device-include", *qdiscDeviceInclude)
+		if err != nil {
+			return config.Config{}, err
+		}
+		qdiscExclude, err := deprecatedFlag(logger, "collector.qdisk.device-exclude", *oldQdiscDeviceExclude, "collector.qdisc.device-exclude", *qdiscDeviceExclude)
+		if err != nil {
+			return config.Config{}, err
+		}
+
 		cfg := collector.ConfigFromFlags(config.NewConfigWithDefaults())
 		cfg.CollectorDisableDefaults = *disableDefaults
 		for name, f := range collectorFlags {
@@ -251,8 +295,56 @@ func addFlags(app *kingpin.Application) func() config.Config {
 		cfg.Bcache = config.BcacheConfig{PriorityStats: *bcachePriorityStats}
 		cfg.NVMe = config.NVMeConfig{NamespaceUsage: *nvmeNamespaceUsage}
 		cfg.RAPL = config.RAPLConfig{EnableZoneLabel: *raplZoneLabel}
-		return cfg
+		cfg.ARP = config.ARPConfig{
+			DeviceInclude: *arpDeviceInclude,
+			DeviceExclude: *arpDeviceExclude,
+			Netlink:       *arpNetlink,
+		}
+		cfg.Ethtool = config.EthtoolConfig{
+			DeviceInclude:  *ethtoolDeviceInclude,
+			DeviceExclude:  *ethtoolDeviceExclude,
+			MetricsInclude: *ethtoolMetricsInclude,
+		}
+		cfg.Infiniband = config.InfinibandConfig{
+			DeviceInclude: *infinibandDeviceInclude,
+			DeviceExclude: *infinibandDeviceExclude,
+		}
+		cfg.NetClass = config.NetClassConfig{
+			IgnoredDevices:     *netclassIgnoredDevices,
+			IgnoreInvalidSpeed: *netclassInvalidSpeed,
+			Netlink:            *netclassNetlink,
+			RTNLWithStats:      *netclassRTNLWithStats,
+		}
+		cfg.NetDev = config.NetDevConfig{
+			DeviceInclude:   netdevInclude,
+			DeviceExclude:   netdevExclude,
+			AddressInfo:     *netdevAddressInfo,
+			DetailedMetrics: *netdevDetailedMetrics,
+			Netlink:         *netdevNetlink,
+			LabelIfAlias:    *netdevLabelIfAlias,
+		}
+		cfg.Qdisc = config.QdiscConfig{
+			Fixtures:      *qdiscFixtures,
+			DeviceInclude: qdiscInclude,
+			DeviceExclude: qdiscExclude,
+		}
+		cfg.IPVS = config.IPVSConfig{BackendLabels: *ipvsBackendLabels}
+		cfg.Wifi = config.WifiConfig{Fixtures: *wifiFixtures}
+		return cfg, nil
 	}
+}
+
+// deprecatedFlag returns the value of the flag newName, or the value of the
+// deprecated flag oldName when only that one is set.
+func deprecatedFlag(logger *slog.Logger, oldName, oldValue, newName, value string) (string, error) {
+	if oldValue == "" {
+		return value, nil
+	}
+	if value != "" {
+		return "", fmt.Errorf("--%s and --%s are mutually exclusive", oldName, newName)
+	}
+	logger.Warn(fmt.Sprintf("--%s is DEPRECATED and will be removed in 2.0.0, use --%s", oldName, newName))
+	return oldValue, nil
 }
 
 func main() {
@@ -270,7 +362,10 @@ func main() {
 		Description:    "Prometheus Node Exporter",
 		DefaultAddress: ":9100",
 		MetricsHandlerFactory: func(b *bootstrap.Bootstrap) (http.Handler, error) {
-			cfg := configFromFlags()
+			cfg, err := configFromFlags(b.Logger)
+			if err != nil {
+				return nil, err
+			}
 
 			if user, err := user.Current(); err == nil && user.Uid == "0" {
 				b.Logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")

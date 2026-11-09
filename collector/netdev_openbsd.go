@@ -18,6 +18,8 @@ package collector
 import (
 	"errors"
 	"log/slog"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 /*
@@ -28,7 +30,7 @@ import (
 */
 import "C"
 
-func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
+func getNetDevStats(_ config.NetDevConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	var ifap, ifa *C.struct_ifaddrs
@@ -70,7 +72,7 @@ func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, err
 	return netDev, nil
 }
 
-func getNetDevLabels() (map[string]map[string]string, error) {
+func getNetDevLabels(_ config.NetDevConfig) (map[string]map[string]string, error) {
 	// to be implemented if needed
 	return nil, nil
 }

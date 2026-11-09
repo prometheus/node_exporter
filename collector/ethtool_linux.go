@@ -30,7 +30,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 	"github.com/safchain/ethtool"
@@ -40,11 +39,8 @@ import (
 )
 
 var (
-	ethtoolDeviceInclude   = kingpin.Flag("collector.ethtool.device-include", "Regexp of ethtool devices to include (mutually exclusive to device-exclude).").String()
-	ethtoolDeviceExclude   = kingpin.Flag("collector.ethtool.device-exclude", "Regexp of ethtool devices to exclude (mutually exclusive to device-include).").String()
-	ethtoolIncludedMetrics = kingpin.Flag("collector.ethtool.metrics-include", "Regexp of ethtool stats to include.").Default(".*").String()
-	ethtoolReceivedRegex   = regexp.MustCompile(`(^|_)rx(_|$)`)
-	ethtoolTransmitRegex   = regexp.MustCompile(`(^|_)tx(_|$)`)
+	ethtoolReceivedRegex = regexp.MustCompile(`(^|_)rx(_|$)`)
+	ethtoolTransmitRegex = regexp.MustCompile(`(^|_)tx(_|$)`)
 )
 
 type Ethtool interface {
@@ -85,7 +81,7 @@ type ethtoolCollector struct {
 // makeEthtoolCollector is the internal constructor for EthtoolCollector.
 // This allows NewEthtoolTestCollector to override its .ethtool interface
 // for testing.
-func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
+func makeEthtoolCollector(cfg config.Config, logger *slog.Logger) (*ethtoolCollector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -96,22 +92,22 @@ func makeEthtoolCollector(logger *slog.Logger) (*ethtoolCollector, error) {
 		return nil, fmt.Errorf("failed to initialize ethtool library: %w", err)
 	}
 
-	if *ethtoolDeviceInclude != "" {
-		logger.Info("Parsed flag --collector.ethtool.device-include", "flag", *ethtoolDeviceInclude)
+	if cfg.Ethtool.DeviceInclude != "" {
+		logger.Info("Parsed flag --collector.ethtool.device-include", "flag", cfg.Ethtool.DeviceInclude)
 	}
-	if *ethtoolDeviceExclude != "" {
-		logger.Info("Parsed flag --collector.ethtool.device-exclude", "flag", *ethtoolDeviceExclude)
+	if cfg.Ethtool.DeviceExclude != "" {
+		logger.Info("Parsed flag --collector.ethtool.device-exclude", "flag", cfg.Ethtool.DeviceExclude)
 	}
-	if *ethtoolIncludedMetrics != "" {
-		logger.Info("Parsed flag --collector.ethtool.metrics-include", "flag", *ethtoolIncludedMetrics)
+	if cfg.Ethtool.MetricsInclude != "" {
+		logger.Info("Parsed flag --collector.ethtool.metrics-include", "flag", cfg.Ethtool.MetricsInclude)
 	}
 
 	// Pre-populate some common ethtool metrics.
 	return &ethtoolCollector{
 		fs:             fs,
 		ethtool:        &ethtoolLibrary{e},
-		deviceFilter:   newDeviceFilter(*ethtoolDeviceExclude, *ethtoolDeviceInclude),
-		metricsPattern: regexp.MustCompile(*ethtoolIncludedMetrics),
+		deviceFilter:   newDeviceFilter(cfg.Ethtool.DeviceExclude, cfg.Ethtool.DeviceInclude),
+		metricsPattern: regexp.MustCompile(cfg.Ethtool.MetricsInclude),
 		logger:         logger,
 		entries: map[string]*prometheus.Desc{
 			"rx_bytes": prometheus.NewDesc(
@@ -223,8 +219,8 @@ func buildEthtoolFQName(metric string) string {
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
-func NewEthtoolCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	return makeEthtoolCollector(logger)
+func NewEthtoolCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	return makeEthtoolCollector(cfg, logger)
 }
 
 // updatePortCapabilities generates metrics for autonegotiate, pause and asymmetricpause.

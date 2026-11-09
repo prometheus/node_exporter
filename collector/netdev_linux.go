@@ -19,19 +19,15 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
-var (
-	netDevNetlink      = kingpin.Flag("collector.netdev.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("true").Bool()
-	netdevLabelIfAlias = kingpin.Flag("collector.netdev.label-ifalias", "Add ifAlias label").Default("false").Bool()
-)
-
-func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
-	if *netDevNetlink {
+func getNetDevStats(cfg config.NetDevConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
+	if cfg.Netlink {
 		return netlinkStats(filter, logger)
 	}
 	return procNetDevStats(filter, logger)
@@ -185,8 +181,8 @@ func procNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, er
 	return metrics, nil
 }
 
-func getNetDevLabels() (map[string]map[string]string, error) {
-	if !*netdevLabelIfAlias {
+func getNetDevLabels(cfg config.NetDevConfig) (map[string]map[string]string, error) {
+	if !cfg.LabelIfAlias {
 		return nil, nil
 	}
 

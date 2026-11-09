@@ -16,6 +16,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/exec"
@@ -36,18 +37,27 @@ const (
 	address = "localhost:19100"
 )
 
-// parseConfigFlags parses args with a new kingpin app that has only the
+// configFromArgs parses args with a new kingpin app that has only the
 // collector flags, and returns the Config they describe.
-func parseConfigFlags(t *testing.T, args ...string) config.Config {
+func configFromArgs(t *testing.T, args ...string) (config.Config, error) {
 	t.Helper()
 	app := kingpin.New("node_exporter", "")
 	configFromFlags := addFlags(app)
 	if _, err := app.Parse(args); err != nil {
 		t.Fatal(err)
 	}
-	cfg := configFromFlags()
+	cfg, err := configFromFlags(slog.New(slog.DiscardHandler))
 	// The path flags are still in the collector package.
 	cfg.Path = config.NewConfigWithDefaults().Path
+	return cfg, err
+}
+
+func parseConfigFlags(t *testing.T, args ...string) config.Config {
+	t.Helper()
+	cfg, err := configFromArgs(t, args...)
+	if err != nil {
+		t.Fatal(err)
+	}
 	return cfg
 }
 
@@ -81,6 +91,27 @@ func TestFlagsSetConfig(t *testing.T) {
 		"--collector.bcache.priorityStats",
 		"--no-collector.nvme.namespace-usage",
 		"--collector.rapl.enable-zone-label",
+		"--collector.arp.device-include=^eth",
+		"--collector.arp.device-exclude=^lo$",
+		"--no-collector.arp.netlink",
+		"--collector.ethtool.device-include=^eth0$",
+		"--collector.ethtool.device-exclude=^eth1$",
+		"--collector.ethtool.metrics-include=^rx_",
+		"--collector.infiniband.device-include=^mlx",
+		"--collector.infiniband.device-exclude=^ib1$",
+		"--collector.netclass.ignored-devices=^veth",
+		"--collector.netclass.ignore-invalid-speed",
+		"--collector.netclass.netlink",
+		"--collector.netclass_rtnl.with-stats",
+		"--collector.netdev.device-include=^en",
+		"--collector.netdev.address-info",
+		"--collector.netdev.enable-detailed-metrics",
+		"--no-collector.netdev.netlink",
+		"--collector.netdev.label-ifalias",
+		"--collector.qdisc.fixtures=qdisc/",
+		"--collector.qdisc.device-exclude=^lo$",
+		"--collector.ipvs.backend-labels=local_port",
+		"--collector.wifi.fixtures=wifi/",
 	)
 
 	want := config.NewConfigWithDefaults()
@@ -104,9 +135,68 @@ func TestFlagsSetConfig(t *testing.T) {
 	want.Bcache = config.BcacheConfig{PriorityStats: true}
 	want.NVMe = config.NVMeConfig{NamespaceUsage: false}
 	want.RAPL = config.RAPLConfig{EnableZoneLabel: true}
+	want.ARP = config.ARPConfig{DeviceInclude: "^eth", DeviceExclude: "^lo$", Netlink: false}
+	want.Ethtool = config.EthtoolConfig{DeviceInclude: "^eth0$", DeviceExclude: "^eth1$", MetricsInclude: "^rx_"}
+	want.Infiniband = config.InfinibandConfig{DeviceInclude: "^mlx", DeviceExclude: "^ib1$"}
+	want.NetClass = config.NetClassConfig{IgnoredDevices: "^veth", IgnoreInvalidSpeed: true, Netlink: true, RTNLWithStats: true}
+	want.NetDev = config.NetDevConfig{DeviceInclude: "^en", AddressInfo: true, DetailedMetrics: true, Netlink: false, LabelIfAlias: true}
+	want.Qdisc = config.QdiscConfig{Fixtures: "qdisc/", DeviceExclude: "^lo$"}
+	want.IPVS = config.IPVSConfig{BackendLabels: "local_port"}
+	want.Wifi = config.WifiConfig{Fixtures: "wifi/"}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got:  %+v\nwant: %+v", got, want)
+	}
+}
+
+func TestDeprecatedFlags(t *testing.T) {
+	for _, test := range []struct {
+		args    []string
+		want    func(*config.Config)
+		wantErr string
+	}{
+		{
+			args: []string{"--collector.netdev.device-whitelist=^en"},
+			want: func(c *config.Config) { c.NetDev.DeviceInclude = "^en" },
+		},
+		{
+			args: []string{"--collector.netdev.device-blacklist=^lo$"},
+			want: func(c *config.Config) { c.NetDev.DeviceExclude = "^lo$" },
+		},
+		{
+			args: []string{"--collector.qdisk.device-include=^eth"},
+			want: func(c *config.Config) { c.Qdisc.DeviceInclude = "^eth" },
+		},
+		{
+			args: []string{"--collector.qdisk.device-exclude=^lo$"},
+			want: func(c *config.Config) { c.Qdisc.DeviceExclude = "^lo$" },
+		},
+		{
+			args:    []string{"--collector.netdev.device-whitelist=^en", "--collector.netdev.device-include=^eth"},
+			wantErr: "--collector.netdev.device-whitelist and --collector.netdev.device-include are mutually exclusive",
+		},
+		{
+			args:    []string{"--collector.qdisk.device-exclude=^lo$", "--collector.qdisc.device-exclude=^eth"},
+			wantErr: "--collector.qdisk.device-exclude and --collector.qdisc.device-exclude are mutually exclusive",
+		},
+	} {
+		t.Run(test.args[0], func(t *testing.T) {
+			got, err := configFromArgs(t, test.args...)
+			if test.wantErr != "" {
+				if err == nil || err.Error() != test.wantErr {
+					t.Fatalf("want error %q, got %v", test.wantErr, err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := config.NewConfigWithDefaults()
+			test.want(&want)
+			if !reflect.DeepEqual(got, want) {
+				t.Fatalf("got:  %+v\nwant: %+v", got, want)
+			}
+		})
 	}
 }
 

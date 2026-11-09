@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/mdlayher/wifi"
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -32,9 +31,8 @@ import (
 
 type wifiCollector struct {
 	logger *slog.Logger
+	config config.WifiConfig
 }
-
-var collectorWifi = kingpin.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
 
 func init() {
 	registerCollector("wifi", defaultDisabled, NewWifiCollector)
@@ -144,14 +142,15 @@ var (
 )
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewWifiCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &wifiCollector{
 		logger: logger,
+		config: cfg.Wifi,
 	}, nil
 }
 
 func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
-	stat, err := newWifiStater(*collectorWifi)
+	stat, err := newWifiStater(c.config.Fixtures)
 	if err != nil {
 		// Cannot access wifi metrics, report no error.
 		if errors.Is(err, os.ErrNotExist) {

@@ -22,16 +22,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 
 	"github.com/prometheus/node_exporter/config"
-)
-
-var (
-	infinibandDeviceInclude = kingpin.Flag("collector.infiniband.device-include", "Regexp of infiniband devices to include (mutually exclusive to device-exclude).").String()
-	infinibandDeviceExclude = kingpin.Flag("collector.infiniband.device-exclude", "Regexp of infiniband devices to exclude (mutually exclusive to device-include).").String()
 )
 
 type infinibandCollector struct {
@@ -47,7 +41,7 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewInfiniBandCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 
@@ -138,13 +132,13 @@ func NewInfiniBandCollector(_ config.Config, logger *slog.Logger) (Collector, er
 		)
 	}
 
-	if *infinibandDeviceInclude != "" {
-		i.logger.Info("Parsed flag --collector.infiniband.device-include", "flag", *infinibandDeviceInclude)
+	if cfg.Infiniband.DeviceInclude != "" {
+		i.logger.Info("Parsed flag --collector.infiniband.device-include", "flag", cfg.Infiniband.DeviceInclude)
 	}
-	if *infinibandDeviceExclude != "" {
-		i.logger.Info("Parsed flag --collector.infiniband.device-exclude", "flag", *infinibandDeviceExclude)
+	if cfg.Infiniband.DeviceExclude != "" {
+		i.logger.Info("Parsed flag --collector.infiniband.device-exclude", "flag", cfg.Infiniband.DeviceExclude)
 	}
-	i.deviceFilter = newDeviceFilter(*infinibandDeviceExclude, *infinibandDeviceInclude)
+	i.deviceFilter = newDeviceFilter(cfg.Infiniband.DeviceExclude, cfg.Infiniband.DeviceInclude)
 
 	return &i, nil
 }

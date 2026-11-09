@@ -28,6 +28,18 @@ func TestValidateRejectsInvalidRegexps(t *testing.T) {
 		{name: "cpu bugs include", modify: func(c *Config) { c.CPU.BugsInclude = "(" }, wantField: "CPU.BugsInclude"},
 		{name: "vmstat fields", modify: func(c *Config) { c.VMStat.Fields = "(" }, wantField: "VMStat.Fields"},
 		{name: "netstat fields", modify: func(c *Config) { c.Netstat.Fields = "(" }, wantField: "Netstat.Fields"},
+		{name: "arp deviceinclude", modify: func(c *Config) { c.ARP.DeviceInclude = "(" }, wantField: "ARP.DeviceInclude"},
+		{name: "arp deviceexclude", modify: func(c *Config) { c.ARP.DeviceExclude = "(" }, wantField: "ARP.DeviceExclude"},
+		{name: "ethtool deviceinclude", modify: func(c *Config) { c.Ethtool.DeviceInclude = "(" }, wantField: "Ethtool.DeviceInclude"},
+		{name: "ethtool deviceexclude", modify: func(c *Config) { c.Ethtool.DeviceExclude = "(" }, wantField: "Ethtool.DeviceExclude"},
+		{name: "ethtool metricsinclude", modify: func(c *Config) { c.Ethtool.MetricsInclude = "(" }, wantField: "Ethtool.MetricsInclude"},
+		{name: "infiniband deviceinclude", modify: func(c *Config) { c.Infiniband.DeviceInclude = "(" }, wantField: "Infiniband.DeviceInclude"},
+		{name: "infiniband deviceexclude", modify: func(c *Config) { c.Infiniband.DeviceExclude = "(" }, wantField: "Infiniband.DeviceExclude"},
+		{name: "netclass ignoreddevices", modify: func(c *Config) { c.NetClass.IgnoredDevices = "(" }, wantField: "NetClass.IgnoredDevices"},
+		{name: "netdev deviceinclude", modify: func(c *Config) { c.NetDev.DeviceInclude = "(" }, wantField: "NetDev.DeviceInclude"},
+		{name: "netdev deviceexclude", modify: func(c *Config) { c.NetDev.DeviceExclude = "(" }, wantField: "NetDev.DeviceExclude"},
+		{name: "qdisc deviceinclude", modify: func(c *Config) { c.Qdisc.DeviceInclude = "(" }, wantField: "Qdisc.DeviceInclude"},
+		{name: "qdisc deviceexclude", modify: func(c *Config) { c.Qdisc.DeviceExclude = "(" }, wantField: "Qdisc.DeviceExclude"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			cfg := NewConfigWithDefaults()

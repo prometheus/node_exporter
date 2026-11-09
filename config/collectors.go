@@ -115,3 +115,101 @@ type RAPLConfig struct {
 	// EnableZoneLabel is --collector.rapl.enable-zone-label: Enables service unit metric unit_start_time_seconds.
 	EnableZoneLabel bool
 }
+
+const (
+	DefaultARPNetlink = true
+)
+
+// ARPConfig contains the options for the arp collector.
+type ARPConfig struct {
+	// DeviceInclude is --collector.arp.device-include: Regexp of arp devices to include (mutually exclusive to device-exclude).
+	DeviceInclude string
+	// DeviceExclude is --collector.arp.device-exclude: Regexp of arp devices to exclude (mutually exclusive to device-include).
+	DeviceExclude string
+	// Netlink is --collector.arp.netlink: Use netlink to gather stats instead of /proc/net/arp.
+	Netlink bool
+}
+
+const (
+	DefaultEthtoolMetricsInclude = ".*"
+)
+
+// EthtoolConfig contains the options for the ethtool collector.
+type EthtoolConfig struct {
+	// DeviceInclude is --collector.ethtool.device-include: Regexp of ethtool devices to include (mutually exclusive to device-exclude).
+	DeviceInclude string
+	// DeviceExclude is --collector.ethtool.device-exclude: Regexp of ethtool devices to exclude (mutually exclusive to device-include).
+	DeviceExclude string
+	// MetricsInclude is --collector.ethtool.metrics-include: Regexp of ethtool stats to include.
+	MetricsInclude string
+}
+
+// InfinibandConfig contains the options for the infiniband collector.
+type InfinibandConfig struct {
+	// DeviceInclude is --collector.infiniband.device-include: Regexp of infiniband devices to include (mutually exclusive to device-exclude).
+	DeviceInclude string
+	// DeviceExclude is --collector.infiniband.device-exclude: Regexp of infiniband devices to exclude (mutually exclusive to device-include).
+	DeviceExclude string
+}
+
+const (
+	DefaultNetClassIgnoredDevices = "^$"
+)
+
+// NetClassConfig contains the options for the netclass collector.
+type NetClassConfig struct {
+	// IgnoredDevices is --collector.netclass.ignored-devices: Regexp of net devices to ignore for netclass collector.
+	IgnoredDevices string
+	// IgnoreInvalidSpeed is --collector.netclass.ignore-invalid-speed: Ignore devices where the speed is invalid.
+	IgnoreInvalidSpeed bool
+	// Netlink is --collector.netclass.netlink: Use netlink to gather stats instead of /proc/net/dev.
+	Netlink bool
+	// RTNLWithStats is --collector.netclass_rtnl.with-stats: Expose the statistics for each network device, replacing netdev collector.
+	RTNLWithStats bool
+}
+
+const (
+	DefaultNetDevNetlink = true
+)
+
+// NetDevConfig contains the options for the netdev collector.
+type NetDevConfig struct {
+	// DeviceInclude is --collector.netdev.device-include: Regexp of net devices to include (mutually exclusive to device-exclude).
+	DeviceInclude string
+	// DeviceExclude is --collector.netdev.device-exclude: Regexp of net devices to exclude (mutually exclusive to device-include).
+	DeviceExclude string
+	// AddressInfo is --collector.netdev.address-info: Collect address-info for every device.
+	AddressInfo bool
+	// DetailedMetrics is --collector.netdev.enable-detailed-metrics: Use (incompatible) metric names that provide more detailed stats on Linux.
+	DetailedMetrics bool
+	// Netlink is --collector.netdev.netlink: Use netlink to gather stats instead of /proc/net/dev.
+	Netlink bool
+	// LabelIfAlias is --collector.netdev.label-ifalias: Add ifAlias label.
+	LabelIfAlias bool
+}
+
+// QdiscConfig contains the options for the qdisc collector.
+type QdiscConfig struct {
+	// Fixtures is --collector.qdisc.fixtures: test fixtures to use for qdisc collector end-to-end testing.
+	Fixtures string
+	// DeviceInclude is --collector.qdisc.device-include: Regexp of qdisc devices to include (mutually exclusive to device-exclude).
+	DeviceInclude string
+	// DeviceExclude is --collector.qdisc.device-exclude: Regexp of qdisc devices to exclude (mutually exclusive to device-include).
+	DeviceExclude string
+}
+
+const (
+	DefaultIPVSBackendLabels = "local_address,local_port,remote_address,remote_port,proto,local_mark"
+)
+
+// IPVSConfig contains the options for the ipvs collector.
+type IPVSConfig struct {
+	// BackendLabels is --collector.ipvs.backend-labels: Comma separated list for IPVS backend stats labels.
+	BackendLabels string
+}
+
+// WifiConfig contains the options for the wifi collector.
+type WifiConfig struct {
+	// Fixtures is --collector.wifi.fixtures: test fixtures to use for wifi collector metrics.
+	Fixtures string
+}

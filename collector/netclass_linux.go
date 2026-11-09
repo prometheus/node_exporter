@@ -24,17 +24,10 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 
 	"github.com/prometheus/node_exporter/config"
-)
-
-var (
-	netclassIgnoredDevices = kingpin.Flag("collector.netclass.ignored-devices", "Regexp of net devices to ignore for netclass collector.").Default("^$").String()
-	netclassInvalidSpeed   = kingpin.Flag("collector.netclass.ignore-invalid-speed", "Ignore devices where the speed is invalid. This will be the default behavior in 2.x.").Bool()
-	netclassNetlink        = kingpin.Flag("collector.netclass.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("false").Bool()
 )
 
 type netClassCollector struct {
@@ -44,6 +37,7 @@ type netClassCollector struct {
 	metricDescs           map[string]*prometheus.Desc
 	metricDescsMu         sync.Mutex
 	logger                *slog.Logger
+	config                config.NetClassConfig
 }
 
 func init() {
@@ -51,23 +45,24 @@ func init() {
 }
 
 // NewNetClassCollector returns a new Collector exposing network class stats.
-func NewNetClassCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewNetClassCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
-	pattern := regexp.MustCompile(*netclassIgnoredDevices)
+	pattern := regexp.MustCompile(cfg.NetClass.IgnoredDevices)
 	return &netClassCollector{
 		fs:                    fs,
 		subsystem:             "network",
 		ignoredDevicesPattern: pattern,
 		metricDescs:           map[string]*prometheus.Desc{},
 		logger:                logger,
+		config:                cfg.NetClass,
 	}, nil
 }
 
 func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
-	if *netclassNetlink {
+	if c.config.Netlink {
 		return c.netClassRTNLUpdate(ch)
 	}
 	return c.netClassSysfsUpdate(ch)
@@ -123,7 +118,7 @@ func (c *netClassCollector) netClassSysfsUpdate(ch chan<- prometheus.Metric) err
 
 		if ifaceInfo.Speed != nil {
 			// Some devices return -1 if the speed is unknown.
-			if *ifaceInfo.Speed >= 0 || !*netclassInvalidSpeed {
+			if *ifaceInfo.Speed >= 0 || !c.config.IgnoreInvalidSpeed {
 				speedBytes := int64(*ifaceInfo.Speed * 1000 * 1000 / 8)
 				pushMetric(ch, c.getFieldDesc("speed_bytes"), speedBytes, prometheus.GaugeValue, ifaceInfo.Name)
 			}

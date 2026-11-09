@@ -258,7 +258,7 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 }
 
 func NewEthtoolTestCollector(logger *slog.Logger) (Collector, error) {
-	collector, err := makeEthtoolCollector(logger)
+	collector, err := makeEthtoolCollector(flagConfig(), logger)
 	if err != nil {
 		return nil, err
 	}

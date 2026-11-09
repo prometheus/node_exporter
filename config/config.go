@@ -31,15 +31,23 @@ type Config struct {
 
 	Path PathConfig
 
-	CPU      CPUConfig
-	Textfile TextfileConfig
-	NTP      NTPConfig
-	Stat     StatConfig
-	VMStat   VMStatConfig
-	Netstat  NetstatConfig
-	Bcache   BcacheConfig
-	NVMe     NVMeConfig
-	RAPL     RAPLConfig
+	CPU        CPUConfig
+	Textfile   TextfileConfig
+	NTP        NTPConfig
+	Stat       StatConfig
+	VMStat     VMStatConfig
+	Netstat    NetstatConfig
+	Bcache     BcacheConfig
+	NVMe       NVMeConfig
+	RAPL       RAPLConfig
+	ARP        ARPConfig
+	Ethtool    EthtoolConfig
+	Infiniband InfinibandConfig
+	NetClass   NetClassConfig
+	NetDev     NetDevConfig
+	Qdisc      QdiscConfig
+	IPVS       IPVSConfig
+	Wifi       WifiConfig
 	// END COLLECTORS
 }
 
@@ -91,6 +99,21 @@ func NewConfigWithDefaults() Config {
 		NVMe: NVMeConfig{
 			NamespaceUsage: DefaultNVMeNamespaceUsage,
 		},
+		ARP: ARPConfig{
+			Netlink: DefaultARPNetlink,
+		},
+		Ethtool: EthtoolConfig{
+			MetricsInclude: DefaultEthtoolMetricsInclude,
+		},
+		NetClass: NetClassConfig{
+			IgnoredDevices: DefaultNetClassIgnoredDevices,
+		},
+		NetDev: NetDevConfig{
+			Netlink: DefaultNetDevNetlink,
+		},
+		IPVS: IPVSConfig{
+			BackendLabels: DefaultIPVSBackendLabels,
+		},
 		// END DEFAULTS
 	}
 }
@@ -102,6 +125,18 @@ func (c Config) Validate() error {
 		{"CPU.BugsInclude", c.CPU.BugsInclude},
 		{"VMStat.Fields", c.VMStat.Fields},
 		{"Netstat.Fields", c.Netstat.Fields},
+		{"ARP.DeviceInclude", c.ARP.DeviceInclude},
+		{"ARP.DeviceExclude", c.ARP.DeviceExclude},
+		{"Ethtool.DeviceInclude", c.Ethtool.DeviceInclude},
+		{"Ethtool.DeviceExclude", c.Ethtool.DeviceExclude},
+		{"Ethtool.MetricsInclude", c.Ethtool.MetricsInclude},
+		{"Infiniband.DeviceInclude", c.Infiniband.DeviceInclude},
+		{"Infiniband.DeviceExclude", c.Infiniband.DeviceExclude},
+		{"NetClass.IgnoredDevices", c.NetClass.IgnoredDevices},
+		{"NetDev.DeviceInclude", c.NetDev.DeviceInclude},
+		{"NetDev.DeviceExclude", c.NetDev.DeviceExclude},
+		{"Qdisc.DeviceInclude", c.Qdisc.DeviceInclude},
+		{"Qdisc.DeviceExclude", c.Qdisc.DeviceExclude},
 		// END REGEXPS
 	} {
 		if _, err := regexp.Compile(r.expr); err != nil {

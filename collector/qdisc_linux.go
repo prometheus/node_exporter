@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/ema/qdisc"
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -30,6 +29,7 @@ import (
 )
 
 type qdiscStatCollector struct {
+	config       config.QdiscConfig
 	logger       *slog.Logger
 	deviceFilter deviceFilter
 	bytes        typedDesc
@@ -41,39 +41,13 @@ type qdiscStatCollector struct {
 	backlog      typedDesc
 }
 
-var (
-	collectorQdisc                 = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
-	collectorQdiscDeviceInclude    = kingpin.Flag("collector.qdisc.device-include", "Regexp of qdisc devices to include (mutually exclusive to device-exclude).").String()
-	oldCollectorQdiskDeviceInclude = kingpin.Flag("collector.qdisk.device-include", "DEPRECATED: Use collector.qdisc.device-include").Hidden().String()
-	collectorQdiscDeviceExclude    = kingpin.Flag("collector.qdisc.device-exclude", "Regexp of qdisc devices to exclude (mutually exclusive to device-include).").String()
-	oldCollectorQdiskDeviceExclude = kingpin.Flag("collector.qdisk.device-exclude", "DEPRECATED: Use collector.qdisc.device-exclude").Hidden().String()
-)
-
 func init() {
 	registerCollector("qdisc", defaultDisabled, NewQdiscStatCollector)
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
-func NewQdiscStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	if *oldCollectorQdiskDeviceInclude != "" {
-		if *collectorQdiscDeviceInclude == "" {
-			logger.Warn("--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")
-			*collectorQdiscDeviceInclude = *oldCollectorQdiskDeviceInclude
-		} else {
-			return nil, fmt.Errorf("--collector.qdisk.device-include and --collector.qdisc.device-include are mutually exclusive")
-		}
-	}
-
-	if *oldCollectorQdiskDeviceExclude != "" {
-		if *collectorQdiscDeviceExclude == "" {
-			logger.Warn("--collector.qdisk.device-exclude is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-exclude")
-			*collectorQdiscDeviceExclude = *oldCollectorQdiskDeviceExclude
-		} else {
-			return nil, fmt.Errorf("--collector.qdisk.device-exclude and --collector.qdisc.device-exclude are mutually exclusive")
-		}
-	}
-
-	if *collectorQdiscDeviceExclude != "" && *collectorQdiscDeviceInclude != "" {
+func NewQdiscStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	if cfg.Qdisc.DeviceExclude != "" && cfg.Qdisc.DeviceInclude != "" {
 		return nil, fmt.Errorf("collector.qdisc.device-include and collector.qdisc.device-exclude are mutaly exclusive")
 	}
 
@@ -113,8 +87,9 @@ func NewQdiscStatCollector(_ config.Config, logger *slog.Logger) (Collector, err
 			"Number of bytes currently in queue to be sent.",
 			[]string{"device", "kind"}, nil,
 		), prometheus.GaugeValue},
+		config:       cfg.Qdisc,
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorQdiscDeviceExclude, *collectorQdiscDeviceInclude),
+		deviceFilter: newDeviceFilter(cfg.Qdisc.DeviceExclude, cfg.Qdisc.DeviceInclude),
 	}, nil
 }
 
@@ -134,7 +109,7 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 	var msgs []qdisc.QdiscInfo
 	var err error
 
-	fixtures := *collectorQdisc
+	fixtures := c.config.Fixtures
 
 	if fixtures == "" {
 		msgs, err = qdisc.Get()

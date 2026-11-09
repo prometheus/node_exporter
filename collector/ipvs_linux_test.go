@@ -106,14 +106,14 @@ func TestIPVSCollector(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			args := []string{"--path.procfs", "fixtures/proc"}
-			if test.labels != "<none>" {
-				args = append(args, "--collector.ipvs.backend-labels="+test.labels)
-			}
-			if _, err := kingpin.CommandLine.Parse(args); err != nil {
+			if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 				t.Fatal(err)
 			}
-			collector, err := newIPVSCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
+			cfg := flagConfig()
+			if test.labels != "<none>" {
+				cfg.IPVS.BackendLabels = test.labels
+			}
+			collector, err := newIPVSCollector(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
 			if err != nil {
 				if test.err == nil {
 					t.Fatal(err)
@@ -174,14 +174,14 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			args := []string{"--path.procfs", "fixtures/proc"}
-			if test.labels != "<none>" {
-				args = append(args, "--collector.ipvs.backend-labels="+test.labels)
-			}
-			if _, err := kingpin.CommandLine.Parse(args); err != nil {
+			if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
 				t.Fatal(err)
 			}
-			collector, err := NewIPVSCollector(flagConfig(), slog.New(slog.NewTextHandler(io.Discard, nil)))
+			cfg := flagConfig()
+			if test.labels != "<none>" {
+				cfg.IPVS.BackendLabels = test.labels
+			}
+			collector, err := NewIPVSCollector(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
 			if err != nil {
 				t.Fatal(err)
 			}
