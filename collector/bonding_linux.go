@@ -24,6 +24,8 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type bondingCollector struct {
@@ -37,7 +39,7 @@ func init() {
 
 // NewBondingCollector returns a newly allocated bondingCollector.
 // It exposes the number of configured and active slave of linux bonding interfaces.
-func NewBondingCollector(logger *slog.Logger) (Collector, error) {
+func NewBondingCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &bondingCollector{
 		slaves: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "bonding", "slaves"),

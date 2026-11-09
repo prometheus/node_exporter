@@ -27,6 +27,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type ipvsCollector struct {
@@ -71,7 +73,7 @@ func init() {
 
 // NewIPVSCollector sets up a new collector for IPVS metrics. It accepts the
 // "procfs" config parameter to override the default proc location (/proc).
-func NewIPVSCollector(logger *slog.Logger) (Collector, error) {
+func NewIPVSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return newIPVSCollector(logger)
 }
 

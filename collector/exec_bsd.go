@@ -19,6 +19,8 @@ import (
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type execCollector struct {
@@ -31,7 +33,7 @@ func init() {
 }
 
 // NewExecCollector returns a new Collector exposing system execution statistics.
-func NewExecCollector(logger *slog.Logger) (Collector, error) {
+func NewExecCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	// From sys/vm/vm_meter.c:
 	// All are of type CTLTYPE_UINT.
 	//

@@ -19,6 +19,8 @@ import (
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var unameDesc = prometheus.NewDesc(
@@ -52,7 +54,7 @@ func init() {
 }
 
 // NewUnameCollector returns new unameCollector.
-func NewUnameCollector(logger *slog.Logger) (Collector, error) {
+func NewUnameCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &unameCollector{logger}, nil
 }
 

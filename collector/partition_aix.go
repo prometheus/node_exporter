@@ -20,6 +20,8 @@ import (
 
 	"github.com/power-devops/perfstat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type partitionCollector struct {
@@ -42,7 +44,7 @@ func init() {
 	registerCollector("partition", defaultEnabled, NewPartitionCollector)
 }
 
-func NewPartitionCollector(logger *slog.Logger) (Collector, error) {
+func NewPartitionCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &partitionCollector{
 		logger: logger,
 		entitledCapacity: prometheus.NewDesc(

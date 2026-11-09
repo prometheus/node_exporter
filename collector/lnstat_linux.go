@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type lnstatCollector struct {
@@ -32,7 +34,7 @@ func init() {
 	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
-func NewLnstatCollector(logger *slog.Logger) (Collector, error) {
+func NewLnstatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &lnstatCollector{logger}, nil
 }
 

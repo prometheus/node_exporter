@@ -23,6 +23,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type conntrackCollector struct {
@@ -98,7 +100,7 @@ var (
 )
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(logger *slog.Logger) (Collector, error) {
+func NewConntrackCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &conntrackCollector{
 		logger: logger,
 	}, nil

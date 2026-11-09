@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -44,7 +46,7 @@ var buddyinfoBlocks = prometheus.NewDesc(
 )
 
 // NewBuddyinfoCollector returns a new Collector exposing buddyinfo stats.
-func NewBuddyinfoCollector(logger *slog.Logger) (Collector, error) {
+func NewBuddyinfoCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

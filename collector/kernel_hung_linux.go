@@ -23,6 +23,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type kernelHungCollector struct {
@@ -34,7 +36,7 @@ func init() {
 	registerCollector("kernel_hung", defaultEnabled, NewKernelHungCollector)
 }
 
-func NewKernelHungCollector(logger *slog.Logger) (Collector, error) {
+func NewKernelHungCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

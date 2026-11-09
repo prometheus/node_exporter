@@ -25,6 +25,8 @@ import (
 	dennwc "github.com/dennwc/btrfs"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/btrfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // A btrfsCollector is a Collector which gathers metrics from Btrfs filesystems.
@@ -38,7 +40,7 @@ func init() {
 }
 
 // NewBtrfsCollector returns a new Collector exposing Btrfs statistics.
-func NewBtrfsCollector(logger *slog.Logger) (Collector, error) {
+func NewBtrfsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := btrfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

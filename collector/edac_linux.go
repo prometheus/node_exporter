@@ -24,6 +24,8 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -78,7 +80,7 @@ var (
 )
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector(logger *slog.Logger) (Collector, error) {
+func NewEdacCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &edacCollector{
 		logger: logger,
 	}, nil

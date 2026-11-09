@@ -24,6 +24,8 @@ import (
 	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type networkRouteCollector struct {
@@ -37,7 +39,7 @@ func init() {
 }
 
 // NewNetworkRouteCollector returns a new Collector exposing systemd statistics.
-func NewNetworkRouteCollector(logger *slog.Logger) (Collector, error) {
+func NewNetworkRouteCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	const subsystem = "network"
 
 	routeInfoDesc := prometheus.NewDesc(

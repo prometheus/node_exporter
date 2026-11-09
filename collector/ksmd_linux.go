@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const ksmdCollectorSubsystem = "ksmd"
@@ -102,7 +104,7 @@ func init() {
 }
 
 // NewKsmdCollector returns a new Collector exposing kernel/system statistics.
-func NewKsmdCollector(logger *slog.Logger) (Collector, error) {
+func NewKsmdCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &ksmdCollector{logger: logger}, nil
 }
 

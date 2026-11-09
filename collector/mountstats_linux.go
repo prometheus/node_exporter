@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // 64-bit float mantissa: https://en.wikipedia.org/wiki/Double-precision_floating-point_format
@@ -116,7 +118,7 @@ func init() {
 }
 
 // NewMountStatsCollector returns a new Collector exposing NFS statistics.
-func NewMountStatsCollector(logger *slog.Logger) (Collector, error) {
+func NewMountStatsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

@@ -43,7 +43,7 @@ func TestPCICollectorWithNameResolution(t *testing.T) {
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewPcideviceCollector(logger)
+	c, err := NewPcideviceCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -39,7 +39,7 @@ func (c testCPUFreqCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestCPUFreqCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewCPUFreqCollector(logger)
+	mc, err := NewCPUFreqCollector(flagConfig(), logger)
 	if err != nil {
 		return testCPUFreqCollector{}, err
 	}

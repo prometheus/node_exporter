@@ -25,6 +25,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/beevik/ntp"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -60,7 +62,7 @@ func init() {
 // Default definition of "local" is:
 // - collector.ntp.server address is a loopback address (or collector.ntp.server-is-mine flag is turned on)
 // - the server is reachable with outgoing IP_TTL = 1
-func NewNtpCollector(logger *slog.Logger) (Collector, error) {
+func NewNtpCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	ipaddr := net.ParseIP(*ntpServer)
 	if !*ntpServerIsLocal && (ipaddr == nil || !ipaddr.IsLoopback()) {
 		return nil, fmt.Errorf("only IP address of local NTP server is valid for --collector.ntp.server")

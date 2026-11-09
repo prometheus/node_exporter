@@ -21,6 +21,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type softirqsCollector struct {
@@ -34,7 +36,7 @@ func init() {
 }
 
 // NewSoftirqsCollector returns a new Collector exposing softirq stats.
-func NewSoftirqsCollector(logger *slog.Logger) (Collector, error) {
+func NewSoftirqsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	desc := typedDesc{prometheus.NewDesc(
 		namespace+"_softirqs_functions_total",
 		"Softirq counts per CPU.",

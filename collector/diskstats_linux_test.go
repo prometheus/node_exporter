@@ -40,7 +40,7 @@ func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func NewTestDiskStatsCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	dsc, err := NewDiskstatsCollector(logger)
+	dsc, err := NewDiskstatsCollector(flagConfig(), logger)
 	if err != nil {
 		return testDiskStatsCollector{}, err
 	}
@@ -329,7 +329,7 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	collector, err := NewDiskstatsCollector(logger)
+	collector, err := NewDiskstatsCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -409,7 +409,7 @@ func BenchmarkDiskstatsUpdate(b *testing.B) {
 	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	collector, err := NewDiskstatsCollector(logger)
+	collector, err := NewDiskstatsCollector(flagConfig(), logger)
 	if err != nil {
 		b.Fatal(err)
 	}

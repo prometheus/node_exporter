@@ -29,6 +29,8 @@ import (
 
 	envparse "github.com/hashicorp/go-envparse"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -110,7 +112,7 @@ var (
 )
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(logger *slog.Logger) (Collector, error) {
+func NewOSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &osReleaseCollector{
 		logger:             logger,
 		osReleaseFilenames: []string{etcOSRelease, usrLibOSRelease, systemVersionPlist},

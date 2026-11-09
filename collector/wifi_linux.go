@@ -26,6 +26,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/mdlayher/wifi"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type wifiCollector struct {
@@ -142,7 +144,7 @@ var (
 )
 
 // NewWifiCollector returns a new Collector exposing Wifi statistics.
-func NewWifiCollector(logger *slog.Logger) (Collector, error) {
+func NewWifiCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &wifiCollector{
 		logger: logger,
 	}, nil

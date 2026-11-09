@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 /*
@@ -48,7 +50,7 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
+func NewDiskstatsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	deviceFilter, err := newDiskstatsDeviceFilter(logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)

@@ -24,6 +24,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var nvmeNamespaceUsage = kingpin.Flag("collector.nvme.namespace-usage", "Expose namespace used bytes (reads nuse, which makes the kernel query the controller).").Default("true").Bool()
@@ -76,7 +78,7 @@ var (
 )
 
 // NewNVMeCollector returns a new Collector exposing NVMe stats.
-func NewNVMeCollector(logger *slog.Logger) (Collector, error) {
+func NewNVMeCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

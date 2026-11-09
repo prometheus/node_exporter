@@ -21,6 +21,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus-community/go-runit/runit"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var runitServiceDir = kingpin.Flag("collector.runit.servicedir", "Path to runit service directory.").Default("/etc/service").String()
@@ -38,7 +40,7 @@ func init() {
 }
 
 // NewRunitCollector returns a new Collector exposing runit statistics.
-func NewRunitCollector(logger *slog.Logger) (Collector, error) {
+func NewRunitCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	var (
 		subsystem   = "service"
 		constLabels = prometheus.Labels{"supervisor": "runit"}

@@ -181,7 +181,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 			if _, err := kingpin.CommandLine.Parse(args); err != nil {
 				t.Fatal(err)
 			}
-			collector, err := NewIPVSCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
+			collector, err := NewIPVSCollector(flagConfig(), slog.New(slog.NewTextHandler(io.Discard, nil)))
 			if err != nil {
 				t.Fatal(err)
 			}

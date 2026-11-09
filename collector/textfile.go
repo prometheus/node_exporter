@@ -44,10 +44,6 @@ var (
 	)
 )
 
-func textfileConfigFromFlags(config.TextfileConfig) config.TextfileConfig {
-	return config.TextfileConfig{Directories: append([]string(nil), (*textFileDirectories)...)}
-}
-
 type textFileCollector struct {
 	paths []string
 	// Only set for testing to get predictable output.
@@ -57,20 +53,19 @@ type textFileCollector struct {
 
 func init() {
 	registerCollector("textfile", defaultEnabled, NewTextFileCollector)
+	registerFlagConfig(func(cfg *config.Config) {
+		cfg.Textfile.Directories = append([]string(nil), (*textFileDirectories)...)
+	})
 }
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files
 // in the given textfile directory.
-func NewTextFileCollector(logger *slog.Logger) (Collector, error) {
+func NewTextFileCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	c := &textFileCollector{
+		paths:  append([]string(nil), cfg.Textfile.Directories...),
 		logger: logger,
 	}
 	return c, nil
-}
-
-func (c *textFileCollector) configureRuntimeState(state *collectorRuntimeState) error {
-	c.paths = append([]string(nil), state.config.textfile.Directories...)
-	return nil
 }
 
 func convertMetricFamily(metricFamily *dto.MetricFamily, ch chan<- prometheus.Metric, logger *slog.Logger) {

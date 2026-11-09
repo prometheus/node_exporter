@@ -27,6 +27,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -54,7 +56,7 @@ func init() {
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(logger *slog.Logger) (Collector, error) {
+func NewNetStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*netStatFields)
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {

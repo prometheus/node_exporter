@@ -41,7 +41,7 @@ func (c testNetStatCollector) Describe(ch chan<- *prometheus.Desc) {
 func NewTestNetStatCollector(t *testing.T, logger *slog.Logger) prometheus.Collector {
 	t.Helper()
 
-	c, err := NewNetStatCollector(logger)
+	c, err := NewNetStatCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

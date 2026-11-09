@@ -25,6 +25,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/ema/qdisc"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type qdiscStatCollector struct {
@@ -52,7 +54,7 @@ func init() {
 }
 
 // NewQdiscStatCollector returns a new Collector exposing queuing discipline statistics.
-func NewQdiscStatCollector(logger *slog.Logger) (Collector, error) {
+func NewQdiscStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	if *oldCollectorQdiskDeviceInclude != "" {
 		if *collectorQdiscDeviceInclude == "" {
 			logger.Warn("--collector.qdisk.device-include is DEPRECATED and will be removed in 2.0.0, use --collector.qdisc.device-include")

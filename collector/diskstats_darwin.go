@@ -21,6 +21,8 @@ import (
 
 	"github.com/lufia/iostat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const diskstatsDefaultIgnoredDevices = ""
@@ -42,7 +44,7 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
+func NewDiskstatsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	diskLabelNames := []string{"device"}
 
 	deviceFilter, err := newDiskstatsDeviceFilter(logger)

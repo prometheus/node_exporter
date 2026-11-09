@@ -25,6 +25,8 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -51,7 +53,7 @@ func init() {
 }
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
-func NewNetDevCollector(logger *slog.Logger) (Collector, error) {
+func NewNetDevCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	if *oldNetdevDeviceInclude != "" {
 		if *netdevDeviceInclude == "" {
 			logger.Warn("--collector.netdev.device-whitelist is DEPRECATED and will be removed in 2.0.0, use --collector.netdev.device-include")

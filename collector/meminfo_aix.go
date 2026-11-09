@@ -19,6 +19,8 @@ import (
 	"log/slog"
 
 	"github.com/power-devops/perfstat"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type meminfoCollector struct {
@@ -26,7 +28,7 @@ type meminfoCollector struct {
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
+func NewMeminfoCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &meminfoCollector{
 		logger: logger,
 	}, nil

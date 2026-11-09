@@ -22,6 +22,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type statCollector struct {
@@ -74,7 +76,7 @@ var (
 )
 
 // NewStatCollector returns a new Collector exposing kernel/system statistics.
-func NewStatCollector(logger *slog.Logger) (Collector, error) {
+func NewStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

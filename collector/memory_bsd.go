@@ -21,6 +21,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -39,7 +41,7 @@ func init() {
 }
 
 // NewMemoryCollector returns a new Collector exposing memory stats.
-func NewMemoryCollector(logger *slog.Logger) (Collector, error) {
+func NewMemoryCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	tmp32, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
 	if err != nil {
 		return nil, fmt.Errorf("sysctl(vm.stats.vm.v_page_size) failed: %w", err)

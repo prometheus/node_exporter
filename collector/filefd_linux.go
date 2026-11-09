@@ -24,6 +24,8 @@ import (
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -39,7 +41,7 @@ func init() {
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
-func NewFileFDStatCollector(logger *slog.Logger) (Collector, error) {
+func NewFileFDStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &fileFDStatCollector{logger}, nil
 }
 

@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type timeCollector struct {
@@ -36,7 +38,7 @@ func init() {
 
 // NewTimeCollector returns a new Collector exposing the current system time in
 // seconds since epoch.
-func NewTimeCollector(logger *slog.Logger) (Collector, error) {
+func NewTimeCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	const subsystem = "time"
 	return &timeCollector{
 		now: typedDesc{prometheus.NewDesc(

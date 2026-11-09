@@ -129,7 +129,7 @@ func TestUpdateStruct(t *testing.T) {
 	}
 	wantedVersion := 20.04
 
-	collector, err := NewOSCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
+	collector, err := NewOSCollector(flagConfig(), slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatal(err)
 	}

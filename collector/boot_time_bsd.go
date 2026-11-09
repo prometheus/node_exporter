@@ -20,6 +20,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type bootTimeCollector struct {
@@ -31,7 +33,7 @@ func init() {
 }
 
 // newBootTimeCollector returns a new Collector exposing system boot time on BSD systems.
-func newBootTimeCollector(logger *slog.Logger) (Collector, error) {
+func newBootTimeCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &bootTimeCollector{
 		logger: logger,
 	}, nil

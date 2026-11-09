@@ -23,6 +23,8 @@ import (
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // #cgo LDFLAGS: -ldevstat -lkvm -lelf
@@ -50,7 +52,7 @@ func init() {
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector(logger *slog.Logger) (Collector, error) {
+func NewDevstatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &devstatCollector{
 		devinfo: &C.struct_devinfo{},
 		bytes: typedDesc{prometheus.NewDesc(

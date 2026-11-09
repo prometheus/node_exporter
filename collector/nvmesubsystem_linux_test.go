@@ -39,7 +39,7 @@ func (c testNVMeSubsystemCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestNVMeSubsystemCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewNVMeSubsystemCollector(logger)
+	mc, err := NewNVMeSubsystemCollector(flagConfig(), logger)
 	if err != nil {
 		return testNVMeSubsystemCollector{}, err
 	}
@@ -113,7 +113,7 @@ func TestNVMeSubsystemNoDevices(t *testing.T) {
 	*sysPath = t.TempDir()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	coll, err := NewNVMeSubsystemCollector(logger)
+	coll, err := NewNVMeSubsystemCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

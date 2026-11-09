@@ -24,6 +24,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // nvmeControllerStateMap maps each kernel-reported controller state to
@@ -99,7 +101,7 @@ type nvmeSubsystemCollector struct {
 
 // NewNVMeSubsystemCollector returns a new Collector exposing NVMe-oF subsystem
 // path health from /sys/class/nvme-subsystem/.
-func NewNVMeSubsystemCollector(logger *slog.Logger) (Collector, error) {
+func NewNVMeSubsystemCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

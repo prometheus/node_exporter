@@ -22,6 +22,8 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // Arch-dependent implementation must define:
@@ -96,7 +98,7 @@ func init() {
 }
 
 // NewFilesystemCollector returns a new Collector exposing filesystems stats.
-func NewFilesystemCollector(logger *slog.Logger) (Collector, error) {
+func NewFilesystemCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	const subsystem = "filesystem"
 
 	sizeDesc := prometheus.NewDesc(

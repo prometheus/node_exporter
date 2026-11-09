@@ -22,6 +22,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
@@ -38,7 +40,7 @@ type bcacheCollector struct {
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
-func NewBcacheCollector(logger *slog.Logger) (Collector, error) {
+func NewBcacheCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := bcache.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

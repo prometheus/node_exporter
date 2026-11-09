@@ -68,7 +68,7 @@ func TestWatchdogStats(t *testing.T) {
 	*sysPath = "fixtures/sys"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewWatchdogCollector(logger)
+	c, err := NewWatchdogCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

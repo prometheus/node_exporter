@@ -28,6 +28,8 @@ import (
 
 	"github.com/power-devops/perfstat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -76,7 +78,7 @@ func tickPerSecond() (float64, error) {
 	return float64(ticks), nil
 }
 
-func NewCpuCollector(logger *slog.Logger) (Collector, error) {
+func NewCpuCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	ticks, err := tickPerSecond()
 	if err != nil {
 		return nil, err

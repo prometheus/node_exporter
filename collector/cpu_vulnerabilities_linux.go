@@ -19,6 +19,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -38,7 +40,7 @@ func init() {
 	registerCollector(cpuVulnerabilitiesCollectorSubsystem, defaultDisabled, NewVulnerabilitySysfsCollector)
 }
 
-func NewVulnerabilitySysfsCollector(_ *slog.Logger) (Collector, error) {
+func NewVulnerabilitySysfsCollector(_ config.Config, _ *slog.Logger) (Collector, error) {
 	return &cpuVulnerabilitiesCollector{}, nil
 }
 

@@ -20,6 +20,8 @@ import (
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type loadavgCollector struct {
@@ -32,7 +34,7 @@ func init() {
 }
 
 // NewLoadavgCollector returns a new Collector exposing load average stats.
-func NewLoadavgCollector(logger *slog.Logger) (Collector, error) {
+func NewLoadavgCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &loadavgCollector{
 		metric: []typedDesc{
 			{prometheus.NewDesc(namespace+"_load1", "1m load average.", nil, nil), prometheus.GaugeValue},

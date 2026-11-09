@@ -24,6 +24,8 @@ import (
 
 	"github.com/mdlayher/netlink"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type tcpConnectionState int
@@ -67,7 +69,7 @@ func init() {
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
-func NewTCPStatCollector(logger *slog.Logger) (Collector, error) {
+func NewTCPStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &tcpStatCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),

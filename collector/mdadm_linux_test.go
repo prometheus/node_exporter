@@ -38,7 +38,7 @@ func (c testMdadmCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func NewTestMdadmCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewMdadmCollector(logger)
+	mc, err := NewMdadmCollector(flagConfig(), logger)
 	if err != nil {
 		return testMdadmCollector{}, err
 	}
@@ -266,7 +266,7 @@ func TestMdadmStats(t *testing.T) {
 		Level:     slog.LevelError,
 		AddSource: true,
 	}))
-	collector, err := NewMdadmCollector(logger)
+	collector, err := NewMdadmCollector(flagConfig(), logger)
 	if err != nil {
 		panic(err)
 	}

@@ -38,7 +38,6 @@ import (
 type cpuCollector struct {
 	procfs             procfs.FS
 	sysfs              sysfs.FS
-	sysMountPoint      string
 	cpu                *prometheus.Desc
 	cpuInfo            *prometheus.Desc
 	cpuFrequencyHz     *prometheus.Desc
@@ -54,8 +53,7 @@ type cpuCollector struct {
 	cpuStatsMutex      sync.Mutex
 	isolatedCpus       []uint16
 	cpuFreqEnabled     bool
-	guestEnabled       bool
-	infoEnabled        bool
+	config             config.CPUConfig
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
@@ -65,30 +63,49 @@ type cpuCollector struct {
 const jumpBackSeconds = 3.0
 
 var (
-	enableCPUGuest       = kingpin.Flag("collector.cpu.guest", "Enables metric node_cpu_guest_seconds_total").Default("true").Bool()
+	enableCPUGuest       = kingpin.Flag("collector.cpu.guest", "Enables metric node_cpu_guest_seconds_total").Default(strconv.FormatBool(config.DefaultCPUEnableGuest)).Bool()
 	enableCPUInfo        = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
 	flagsInclude         = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
 	bugsInclude          = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
 	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
 )
 
-func cpuConfigFromFlags(config.CPUConfig) config.CPUConfig {
-	return config.CPUConfig{
-		EnableGuest:  *enableCPUGuest,
-		EnableInfo:   *enableCPUInfo,
-		FlagsInclude: *flagsInclude,
-		BugsInclude:  *bugsInclude,
-	}
-}
-
 func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
+	registerFlagConfig(func(cfg *config.Config) {
+		cfg.CPU = config.CPUConfig{
+			EnableGuest:  *enableCPUGuest,
+			EnableInfo:   *enableCPUInfo,
+			FlagsInclude: *flagsInclude,
+			BugsInclude:  *bugsInclude,
+		}
+	})
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUCollector(logger *slog.Logger) (Collector, error) {
+func NewCPUCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	pfs, err := procfs.NewFS(cfg.Path.ProcFS)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open procfs: %w", err)
+	}
+
+	sfs, err := sysfs.NewFS(cfg.Path.SysFS)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
+
+	isolcpus, err := sfs.IsolatedCPUs()
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return nil, fmt.Errorf("unable to get isolated cpus: %w", err)
+		}
+		logger.Debug("couldn't open isolated file", "error", err)
+	}
+
 	c := &cpuCollector{
-		cpu: nodeCPUSecondsDesc,
+		procfs: pfs,
+		sysfs:  sfs,
+		cpu:    nodeCPUSecondsDesc,
 		cpuInfo: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "info"),
 			"CPU information from /proc/cpuinfo.",
@@ -134,61 +151,37 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 			"CPUs that are online and being scheduled.",
 			[]string{"cpu"}, nil,
 		),
-		logger:   logger,
-		cpuStats: make(map[int64]procfs.CPUStat),
+		logger:       logger,
+		isolatedCpus: isolcpus,
+		cpuStats:     make(map[int64]procfs.CPUStat),
+		config:       cfg.CPU,
+	}
+	err = c.compileIncludeFlags()
+	if err != nil {
+		return nil, fmt.Errorf("fail to compile --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include, the values of them must be regular expressions: %w", err)
 	}
 	return c, nil
 }
 
-func (c *cpuCollector) configureRuntimeState(state *collectorRuntimeState) error {
-	pfs, err := procfs.NewFS(state.config.paths.procMountPoint)
-	if err != nil {
-		return fmt.Errorf("failed to open procfs: %w", err)
-	}
-
-	sfs, err := sysfs.NewFS(state.config.paths.sysMountPoint)
-	if err != nil {
-		return fmt.Errorf("failed to open sysfs: %w", err)
-	}
-
-	isolcpus, err := sfs.IsolatedCPUs()
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return fmt.Errorf("unable to get isolated cpus: %w", err)
-		}
-		c.logger.Debug("couldn't open isolated file", "error", err)
-	}
-
-	c.procfs = pfs
-	c.sysfs = sfs
-	c.sysMountPoint = state.config.paths.sysMountPoint
-	c.isolatedCpus = isolcpus
+func (c *cpuCollector) configureRuntimeState(state *collectorRuntimeState) {
 	c.cpuFreqEnabled = state.enabled["cpufreq"]
-	c.guestEnabled = state.config.cpu.EnableGuest
-	c.infoEnabled = state.config.cpu.EnableInfo
-
-	if err := c.compileIncludeFlags(state.config.cpu); err != nil {
-		return fmt.Errorf("fail to compile --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include, the values of them must be regular expressions: %w", err)
-	}
-
-	return nil
 }
 
-func (c *cpuCollector) compileIncludeFlags(cfg config.CPUConfig) error {
-	if (cfg.FlagsInclude != "" || cfg.BugsInclude != "") && !c.infoEnabled {
-		c.infoEnabled = true
+func (c *cpuCollector) compileIncludeFlags() error {
+	if (c.config.FlagsInclude != "" || c.config.BugsInclude != "") && !c.config.EnableInfo {
+		c.config.EnableInfo = true
 		c.logger.Info("--collector.cpu.info has been set to `true` because you set the following flags, like --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include")
 	}
 
 	var err error
-	if cfg.FlagsInclude != "" {
-		c.cpuFlagsIncludeRegexp, err = regexp.Compile(cfg.FlagsInclude)
+	if c.config.FlagsInclude != "" {
+		c.cpuFlagsIncludeRegexp, err = regexp.Compile(c.config.FlagsInclude)
 		if err != nil {
 			return err
 		}
 	}
-	if cfg.BugsInclude != "" {
-		c.cpuBugsIncludeRegexp, err = regexp.Compile(cfg.BugsInclude)
+	if c.config.BugsInclude != "" {
+		c.cpuBugsIncludeRegexp, err = regexp.Compile(c.config.BugsInclude)
 		if err != nil {
 			return err
 		}
@@ -198,7 +191,7 @@ func (c *cpuCollector) compileIncludeFlags(cfg config.CPUConfig) error {
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
 func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
-	if c.infoEnabled {
+	if c.config.EnableInfo {
 		if err := c.updateInfo(ch); err != nil {
 			return err
 		}
@@ -290,7 +283,7 @@ func updateFieldInfo(valueList []string, filter *regexp.Regexp, desc *prometheus
 
 // updateThermalThrottle reads /sys/devices/system/cpu/cpu* and expose thermal throttle statistics.
 func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error {
-	cpus, err := filepath.Glob(filepath.Join(c.sysMountPoint, "devices/system/cpu/cpu[0-9]*"))
+	cpus, err := filepath.Glob(sysFilePath("devices/system/cpu/cpu[0-9]*"))
 	if err != nil {
 		return err
 	}
@@ -419,7 +412,7 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.SoftIRQ, cpuNum, "softirq")
 		ch <- prometheus.MustNewConstMetric(c.cpu, prometheus.CounterValue, cpuStat.Steal, cpuNum, "steal")
 
-		if c.guestEnabled {
+		if c.config.EnableGuest {
 			// Guest CPU is also accounted for in cpuStat.User and cpuStat.Nice, expose these as separate metrics.
 			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.Guest, cpuNum, "user")
 			ch <- prometheus.MustNewConstMetric(c.cpuGuest, prometheus.CounterValue, cpuStat.GuestNice, cpuNum, "nice")

@@ -29,6 +29,8 @@ import (
 	"golang.org/x/sys/unix"
 
 	"howett.net/plist"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -221,7 +223,7 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(logger *slog.Logger) (Collector, error) {
+func NewStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &statCollector{
 		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		temp: typedDesc{prometheus.NewDesc(

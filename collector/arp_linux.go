@@ -24,6 +24,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -49,7 +51,7 @@ var arpEntries = prometheus.NewDesc(
 )
 
 // NewARPCollector returns a new Collector exposing ARP stats.
-func NewARPCollector(logger *slog.Logger) (Collector, error) {
+func NewARPCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

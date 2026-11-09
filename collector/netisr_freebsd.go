@@ -20,6 +20,8 @@ import (
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type netisrCollector struct {
@@ -35,7 +37,7 @@ func init() {
 	registerCollector("netisr", defaultEnabled, NewNetisrCollector)
 }
 
-func NewNetisrCollector(logger *slog.Logger) (Collector, error) {
+func NewNetisrCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &netisrCollector{
 		sysctls: []bsdSysctl{
 			{

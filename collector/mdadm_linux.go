@@ -25,6 +25,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type mdadmCollector struct {
@@ -36,7 +38,7 @@ func init() {
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
-func NewMdadmCollector(logger *slog.Logger) (Collector, error) {
+func NewMdadmCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &mdadmCollector{logger}, nil
 }
 

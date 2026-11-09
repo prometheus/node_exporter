@@ -38,7 +38,7 @@ func (c testResctrlCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestResctrlCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	rc, err := NewResctrlCollector(logger)
+	rc, err := NewResctrlCollector(flagConfig(), logger)
 	if err != nil {
 		return testResctrlCollector{}, err
 	}
@@ -76,7 +76,7 @@ func TestResctrlNotMounted(t *testing.T) {
 	*resctrlPath = t.TempDir()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewResctrlCollector(logger)
+	c, err := NewResctrlCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

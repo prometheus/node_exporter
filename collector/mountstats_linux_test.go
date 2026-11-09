@@ -38,7 +38,7 @@ func (c testMountStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func NewTestMountStatsCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	c, err := NewMountStatsCollector(logger)
+	c, err := NewMountStatsCollector(flagConfig(), logger)
 	if err != nil {
 		return testMountStatsCollector{}, err
 	}

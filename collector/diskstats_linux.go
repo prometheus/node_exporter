@@ -27,6 +27,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -88,7 +90,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
+func NewDiskstatsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	diskLabelNames := []string{"device"}
 	fs, err := blockdevice.NewFS(*procPath, *sysPath)
 	if err != nil {

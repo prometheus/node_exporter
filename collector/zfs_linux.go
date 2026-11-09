@@ -27,6 +27,8 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // constants from https://github.com/zfsonlinux/zfs/blob/master/lib/libspl/include/sys/kstat.h
@@ -58,7 +60,7 @@ type zfsCollector struct {
 }
 
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
-func NewZFSCollector(logger *slog.Logger) (Collector, error) {
+func NewZFSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
 		linuxProcpathBase:    "spl/kstat/zfs",
 		linuxZpoolIoPath:     "/*/io",

@@ -18,8 +18,8 @@ import (
 	"regexp"
 )
 
-// Config contains the options that control which collectors a runtime
-// enables.
+// Config contains every option of a node_exporter runtime. Each field has a
+// command-line flag of the same meaning, named in its comment.
 type Config struct {
 	// CollectorDisableDefaults turns off every collector that Collectors
 	// does not name, like --collector.disable-defaults.
@@ -29,36 +29,43 @@ type Config struct {
 	// over the command-line flags.
 	Collectors map[string]bool
 
+	Path PathConfig
+
 	CPU      CPUConfig
 	Textfile TextfileConfig
 }
 
-// CPUConfig contains the options for the cpu collector.
-type CPUConfig struct {
-	// EnableGuest exposes node_cpu_guest_seconds_total, like
-	// --collector.cpu.guest.
-	EnableGuest bool
-	// EnableInfo exposes node_cpu_info, like --collector.cpu.info.
-	EnableInfo bool
-	// FlagsInclude and BugsInclude are regular expressions that filter the
-	// flags and bugs fields of node_cpu_info, like
-	// --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include.
-	// Setting either one also enables node_cpu_info.
-	FlagsInclude string
-	BugsInclude  string
-}
+const (
+	DefaultPathProcFS   = "/proc"
+	DefaultPathSysFS    = "/sys"
+	DefaultPathRootFS   = "/"
+	DefaultPathUdevData = "/run/udev/data"
+)
 
-// TextfileConfig contains the options for the textfile collector.
-type TextfileConfig struct {
-	// Directories to read text files with metrics from, like
-	// --collector.textfile.directory. Glob patterns are supported.
-	Directories []string
+// PathConfig contains the mount points the collectors read from.
+type PathConfig struct {
+	// ProcFS is the procfs mount point, like --path.procfs.
+	ProcFS string
+	// SysFS is the sysfs mount point, like --path.sysfs.
+	SysFS string
+	// RootFS is the rootfs mount point, like --path.rootfs.
+	RootFS string
+	// UdevData is the udev data path, like --path.udev.data.
+	UdevData string
 }
 
 // NewConfigWithDefaults returns a Config with the node_exporter defaults.
 func NewConfigWithDefaults() Config {
 	return Config{
-		CPU: CPUConfig{EnableGuest: true},
+		Path: PathConfig{
+			ProcFS:   DefaultPathProcFS,
+			SysFS:    DefaultPathSysFS,
+			RootFS:   DefaultPathRootFS,
+			UdevData: DefaultPathUdevData,
+		},
+		CPU: CPUConfig{
+			EnableGuest: DefaultCPUEnableGuest,
+		},
 	}
 }
 

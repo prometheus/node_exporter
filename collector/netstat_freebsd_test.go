@@ -183,7 +183,7 @@ func TestNetStatCollectorUpdate(t *testing.T) {
 }
 
 func TestNewNetStatCollector(t *testing.T) {
-	collector, err := NewNetStatCollector(nil)
+	collector, err := NewNetStatCollector(flagConfig(), nil)
 	if err != nil {
 		t.Fatal("unexpected error:", err)
 	}

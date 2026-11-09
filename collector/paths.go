@@ -18,24 +18,27 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
 	// The path of the proc filesystem.
-	procPath     = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
-	sysPath      = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
-	rootfsPath   = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
-	udevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
+	procPath     = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(config.DefaultPathProcFS).String()
+	sysPath      = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default(config.DefaultPathSysFS).String()
+	rootfsPath   = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default(config.DefaultPathRootFS).String()
+	udevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default(config.DefaultPathUdevData).String()
 )
 
-func newCollectorPathConfig() collectorPathConfig {
-	return collectorPathConfig{
-		procMountPoint: *procPath,
-		sysMountPoint:  *sysPath,
-		rootfsPath:     *rootfsPath,
-		udevDataPath:   *udevDataPath,
-	}
+func init() {
+	registerFlagConfig(func(cfg *config.Config) {
+		cfg.Path = config.PathConfig{
+			ProcFS:   *procPath,
+			SysFS:    *sysPath,
+			RootFS:   *rootfsPath,
+			UdevData: *udevDataPath,
+		}
+	})
 }
 
 func procFilePath(name string) string {

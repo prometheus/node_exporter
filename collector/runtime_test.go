@@ -234,6 +234,11 @@ func textfileOnlyConfig() config.Config {
 	return cfg
 }
 
+// flagConfig returns the Config that the parsed command-line flags describe.
+func flagConfig() config.Config {
+	return ConfigFromFlags(config.NewConfigWithDefaults())
+}
+
 func testLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }

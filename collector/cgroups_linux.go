@@ -21,6 +21,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const cgroupsCollectorSubsystem = "cgroups"
@@ -48,7 +50,7 @@ var (
 )
 
 // NewCgroupSummaryCollector returns a new Collector exposing a summary of cgroups.
-func NewCgroupSummaryCollector(logger *slog.Logger) (Collector, error) {
+func NewCgroupSummaryCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

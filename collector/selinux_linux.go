@@ -20,6 +20,8 @@ import (
 
 	"github.com/opencontainers/selinux/go-selinux"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type selinuxCollector struct {
@@ -34,7 +36,7 @@ func init() {
 }
 
 // NewSelinuxCollector returns a new Collector exposing SELinux statistics.
-func NewSelinuxCollector(logger *slog.Logger) (Collector, error) {
+func NewSelinuxCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	const subsystem = "selinux"
 
 	return &selinuxCollector{

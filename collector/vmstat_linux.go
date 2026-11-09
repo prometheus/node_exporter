@@ -26,6 +26,8 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -44,7 +46,7 @@ func init() {
 }
 
 // NewvmStatCollector returns a new Collector exposing vmstat stats.
-func NewvmStatCollector(logger *slog.Logger) (Collector, error) {
+func NewvmStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(*vmStatFields)
 	return &vmStatCollector{
 		fieldPattern: pattern,

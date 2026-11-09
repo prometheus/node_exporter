@@ -39,7 +39,7 @@ func (c testDMMultipathCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestDMMultipathCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewDMMultipathCollector(logger)
+	mc, err := NewDMMultipathCollector(flagConfig(), logger)
 	if err != nil {
 		return testDMMultipathCollector{}, err
 	}
@@ -105,7 +105,7 @@ func TestDMMultipathNoDevices(t *testing.T) {
 	*sysPath = t.TempDir()
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	coll, err := NewDMMultipathCollector(logger)
+	coll, err := NewDMMultipathCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

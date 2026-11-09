@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcachefs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const subsystem = "bcachefs"
@@ -118,7 +120,7 @@ type bcachefsCollector struct {
 }
 
 // NewBcachefsCollector returns a new Collector exposing bcachefs statistics.
-func NewBcachefsCollector(logger *slog.Logger) (Collector, error) {
+func NewBcachefsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := bcachefs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

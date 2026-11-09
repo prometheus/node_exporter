@@ -51,37 +51,24 @@ const (
 )
 
 var (
-	factories        = make(map[string]func(logger *slog.Logger) (Collector, error))
+	factories        = make(map[string]func(cfg config.Config, logger *slog.Logger) (Collector, error))
 	collectorState   = make(map[string]*bool)
 	defaultState     = make(map[string]bool)
 	forcedCollectors = map[string]bool{} // collectors which have been explicitly enabled or disabled
 )
 
 type collectorRuntimeState struct {
-	config     collectorConfig
+	config     config.Config
 	enabled    map[string]bool
 	collectors map[string]Collector
 	mtx        sync.Mutex
 }
 
 type runtimeConfiguredCollector interface {
-	configureRuntimeState(*collectorRuntimeState) error
+	configureRuntimeState(*collectorRuntimeState)
 }
 
-type collectorConfig struct {
-	paths    collectorPathConfig
-	cpu      config.CPUConfig
-	textfile config.TextfileConfig
-}
-
-type collectorPathConfig struct {
-	procMountPoint string
-	sysMountPoint  string
-	rootfsPath     string
-	udevDataPath   string
-}
-
-func registerCollector(collector string, isDefaultEnabled bool, factory func(logger *slog.Logger) (Collector, error)) {
+func registerCollector(collector string, isDefaultEnabled bool, factory func(cfg config.Config, logger *slog.Logger) (Collector, error)) {
 	var helpDefaultState string
 	if isDefaultEnabled {
 		helpDefaultState = "enabled"
@@ -132,25 +119,27 @@ func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error)
 	}
 
 	return &collectorRuntimeState{
-		config:     newCollectorConfig(cfg),
+		config:     cfg,
 		enabled:    enabled,
 		collectors: make(map[string]Collector),
 	}, nil
 }
 
-func newCollectorConfig(cfg config.Config) collectorConfig {
-	return collectorConfig{
-		paths:    newCollectorPathConfig(),
-		cpu:      cfg.CPU,
-		textfile: cfg.Textfile,
-	}
+// flagConfigs copy the parsed command-line flags into a Config. Each file
+// that defines collector flags registers one, so a build that leaves out a
+// collector also leaves out its flags.
+var flagConfigs []func(*config.Config)
+
+func registerFlagConfig(f func(*config.Config)) {
+	flagConfigs = append(flagConfigs, f)
 }
 
-// ConfigFromFlags returns cfg with the collector options set from the parsed
+// ConfigFromFlags returns cfg with the options set from the parsed
 // command-line flags.
 func ConfigFromFlags(cfg config.Config) config.Config {
-	cfg.CPU = cpuConfigFromFlags(cfg.CPU)
-	cfg.Textfile = textfileConfigFromFlags(cfg.Textfile)
+	for _, f := range flagConfigs {
+		f(&cfg)
+	}
 	return cfg
 }
 
@@ -189,13 +178,11 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 		if collector, ok := s.collectors[key]; ok {
 			collectors[key] = collector
 		} else {
-			collector, err := factories[key](logger.With("collector", key))
+			collector, err := factories[key](s.config, logger.With("collector", key))
 			if err != nil {
 				return nil, err
 			}
-			if err := s.configureCollector(collector); err != nil {
-				return nil, err
-			}
+			s.configureCollector(collector)
 			collectors[key] = collector
 			s.collectors[key] = collector
 		}
@@ -228,17 +215,15 @@ func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, e
 	}
 	legacyState.mtx.Lock()
 	legacyState.enabled = enabled
-	legacyState.config = newCollectorConfig(ConfigFromFlags(config.NewConfigWithDefaults()))
+	legacyState.config = ConfigFromFlags(config.NewConfigWithDefaults())
 	legacyState.mtx.Unlock()
 	return legacyState.NewNodeCollector(logger, filters...)
 }
 
-func (s *collectorRuntimeState) configureCollector(collector Collector) error {
+func (s *collectorRuntimeState) configureCollector(collector Collector) {
 	if configuredCollector, ok := collector.(runtimeConfiguredCollector); ok {
-		return configuredCollector.configureRuntimeState(s)
+		configuredCollector.configureRuntimeState(s)
 	}
-
-	return nil
 }
 
 // Describe implements the prometheus.Collector interface.

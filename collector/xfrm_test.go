@@ -127,7 +127,7 @@ func TestXfrmStats(t *testing.T) {
 	*procPath = "fixtures/proc"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewXfrmCollector(logger)
+	c, err := NewXfrmCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

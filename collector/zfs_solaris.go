@@ -21,6 +21,8 @@ import (
 
 	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type zfsCollector struct {
@@ -60,7 +62,7 @@ const (
 	zfsCollectorSubsystem = "zfs"
 )
 
-func NewZFSCollector(logger *slog.Logger) (Collector, error) {
+func NewZFSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
 		abdstatsLinearCount: prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, zfsCollectorSubsystem, "abdstats_linear_count_total"),

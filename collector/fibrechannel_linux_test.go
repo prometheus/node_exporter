@@ -37,7 +37,7 @@ func TestFibreChannelCollector(t *testing.T) {
 	*sysPath = testSysPath
 	defer func() { *sysPath = oldSysPath }()
 
-	collector, err := NewFibreChannelCollector(logger)
+	collector, err := NewFibreChannelCollector(flagConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

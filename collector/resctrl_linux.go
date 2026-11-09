@@ -23,6 +23,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/resctrlfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const resctrlSubsystem = "resctrl"
@@ -58,7 +60,7 @@ var (
 )
 
 // NewResctrlCollector returns a new Collector exposing resctrl monitoring counters.
-func NewResctrlCollector(_ *slog.Logger) (Collector, error) {
+func NewResctrlCollector(_ config.Config, _ *slog.Logger) (Collector, error) {
 	return &resctrlCollector{}, nil
 }
 

@@ -23,6 +23,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -41,7 +43,7 @@ func init() {
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector(logger *slog.Logger) (Collector, error) {
+func NewSockStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &sockStatCollector{logger}, nil
 }
 

@@ -35,6 +35,8 @@ import (
 	"github.com/prometheus/procfs/sysfs"
 	"github.com/safchain/ethtool"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -221,7 +223,7 @@ func buildEthtoolFQName(metric string) string {
 }
 
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
-func NewEthtoolCollector(logger *slog.Logger) (Collector, error) {
+func NewEthtoolCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return makeEthtoolCollector(logger)
 }
 

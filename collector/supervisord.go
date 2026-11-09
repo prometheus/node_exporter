@@ -27,6 +27,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/mattn/go-xmlrpc"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -47,7 +49,7 @@ func init() {
 }
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
-func NewSupervisordCollector(logger *slog.Logger) (Collector, error) {
+func NewSupervisordCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}

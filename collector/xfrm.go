@@ -21,6 +21,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type xfrmCollector struct {
@@ -33,7 +35,7 @@ func init() {
 }
 
 // NewXfrmCollector returns a new Collector exposing XFRM stats.
-func NewXfrmCollector(logger *slog.Logger) (Collector, error) {
+func NewXfrmCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

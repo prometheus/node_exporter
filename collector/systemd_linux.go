@@ -30,6 +30,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/coreos/go-systemd/v22/dbus"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -87,7 +89,7 @@ func init() {
 }
 
 // NewSystemdCollector returns a new Collector exposing systemd statistics.
-func NewSystemdCollector(logger *slog.Logger) (Collector, error) {
+func NewSystemdCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	const subsystem = "systemd"
 
 	unitDesc := prometheus.NewDesc(

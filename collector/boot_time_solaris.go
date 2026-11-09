@@ -20,6 +20,8 @@ import (
 
 	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type bootTimeCollector struct {
@@ -31,7 +33,7 @@ func init() {
 	registerCollector("boottime", defaultEnabled, newBootTimeCollector)
 }
 
-func newBootTimeCollector(logger *slog.Logger) (Collector, error) {
+func newBootTimeCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &bootTimeCollector{
 		boottime: typedDesc{
 			prometheus.NewDesc(

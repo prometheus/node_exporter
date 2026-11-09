@@ -27,6 +27,8 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -52,7 +54,7 @@ func init() {
 }
 
 // NewMeminfoNumaCollector returns a new Collector exposing memory stats.
-func NewMeminfoNumaCollector(logger *slog.Logger) (Collector, error) {
+func NewMeminfoNumaCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &meminfoNumaCollector{
 		metricDescs: map[string]*prometheus.Desc{},
 		logger:      logger,

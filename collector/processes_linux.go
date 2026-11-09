@@ -27,6 +27,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type processCollector struct {
@@ -45,7 +47,7 @@ func init() {
 }
 
 // NewProcessStatCollector returns a new Collector exposing process data read from the proc filesystem.
-func NewProcessStatCollector(logger *slog.Logger) (Collector, error) {
+func NewProcessStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

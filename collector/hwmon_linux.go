@@ -29,6 +29,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -59,7 +61,7 @@ type hwMonCollector struct {
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(logger *slog.Logger) (Collector, error) {
+func NewHwMonCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &hwMonCollector{
 		logger:       logger,
 		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipInclude),

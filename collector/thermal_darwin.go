@@ -50,6 +50,8 @@ import (
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type thermCollector struct {
@@ -72,7 +74,7 @@ func init() {
 }
 
 // NewThermCollector returns a new Collector exposing current CPU power levels.
-func NewThermCollector(logger *slog.Logger) (Collector, error) {
+func NewThermCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &thermCollector{
 		cpuSchedulerLimit: typedDesc{
 			desc: prometheus.NewDesc(

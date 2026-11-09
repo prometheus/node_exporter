@@ -25,6 +25,8 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -45,7 +47,7 @@ func init() {
 }
 
 // NewInfiniBandCollector returns a new Collector exposing InfiniBand stats.
-func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
+func NewInfiniBandCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	var i infinibandCollector
 	var err error
 

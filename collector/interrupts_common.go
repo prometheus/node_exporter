@@ -20,6 +20,8 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type interruptsCollector struct {
@@ -40,7 +42,7 @@ var (
 )
 
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
-func NewInterruptsCollector(logger *slog.Logger) (Collector, error) {
+func NewInterruptsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &interruptsCollector{
 		desc: typedDesc{prometheus.NewDesc(
 			namespace+"_interrupts_total",

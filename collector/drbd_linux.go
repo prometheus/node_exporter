@@ -25,6 +25,8 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // Numerical metric provided by /proc/drbd.
@@ -84,7 +86,7 @@ func init() {
 	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
-func newDRBDCollector(logger *slog.Logger) (Collector, error) {
+func newDRBDCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &drbdCollector{
 		numerical: map[string]drbdNumericalMetric{
 			"ns": newDRBDNumericalMetric(
