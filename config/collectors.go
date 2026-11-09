@@ -282,3 +282,64 @@ type FilesystemConfig struct {
 	// StatWorkerCount is --collector.filesystem.stat-workers: how many stat calls to process simultaneously.
 	StatWorkerCount int
 }
+
+const (
+	DefaultSystemdUnitInclude = ".+"
+	DefaultSystemdUnitExclude = ".+\\.(automount|device|mount|scope|slice)"
+)
+
+// SystemdConfig contains the options for the systemd collector.
+type SystemdConfig struct {
+	// UnitInclude is --collector.systemd.unit-include: Regexp of systemd units to include. Units must both match include and not match exclude to be included.
+	UnitInclude string
+	// UnitExclude is --collector.systemd.unit-exclude: Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.
+	UnitExclude string
+	// Private is --collector.systemd.private: Establish a private, direct connection to systemd without dbus.
+	Private bool
+	// EnableTaskMetrics is --collector.systemd.enable-task-metrics: Enables service unit tasks metrics unit_tasks_current and unit_tasks_max.
+	EnableTaskMetrics bool
+	// EnableRestartsMetrics is --collector.systemd.enable-restarts-metrics: Enables service unit metric service_restart_total.
+	EnableRestartsMetrics bool
+	// EnableStartTimeMetrics is --collector.systemd.enable-start-time-metrics: Enables service unit metric unit_start_time_seconds.
+	EnableStartTimeMetrics bool
+}
+
+// PerfConfig contains the options for the perf collector.
+type PerfConfig struct {
+	// CPUs is --collector.perf.cpus: List of CPUs from which perf metrics should be collected.
+	CPUs string
+	// Tracepoints is --collector.perf.tracepoint: perf tracepoint that should be collected.
+	Tracepoints []string
+	// DisableHardwareProfilers is --collector.perf.disable-hardware-profilers: disable perf hardware profilers.
+	DisableHardwareProfilers bool
+	// HardwareProfilers is --collector.perf.hardware-profilers: perf hardware profilers that should be collected.
+	HardwareProfilers []string
+	// DisableSoftwareProfilers is --collector.perf.disable-software-profilers: disable perf software profilers.
+	DisableSoftwareProfilers bool
+	// SoftwareProfilers is --collector.perf.software-profilers: perf software profilers that should be collected.
+	SoftwareProfilers []string
+	// DisableCacheProfilers is --collector.perf.disable-cache-profilers: disable perf cache profilers.
+	DisableCacheProfilers bool
+	// CacheProfilers is --collector.perf.cache-profilers: perf cache profilers that should be collected.
+	CacheProfilers []string
+}
+
+// SysctlConfig contains the options for the sysctl collector.
+type SysctlConfig struct {
+	// Include is --collector.sysctl.include: Select sysctl metrics to include.
+	Include []string
+	// IncludeInfo is --collector.sysctl.include-info: Select sysctl metrics to include as info metrics.
+	IncludeInfo []string
+}
+
+// HwmonConfig contains the options for the hwmon collector.
+type HwmonConfig struct {
+	// ChipInclude is --collector.hwmon.chip-include: Regexp of hwmon chip to include (mutually exclusive to device-exclude).
+	ChipInclude string
+	// ChipExclude is --collector.hwmon.chip-exclude: Regexp of hwmon chip to exclude (mutually exclusive to device-include).
+	ChipExclude string
+	// SensorInclude is --collector.hwmon.sensor-include: Regexp of hwmon sensor to include (mutually exclusive to sensor-exclude).
+	SensorInclude string
+	// SensorExclude is --collector.hwmon.sensor-exclude: Regexp of hwmon sensor to exclude (mutually exclusive to sensor-include).
+	SensorExclude string
+}

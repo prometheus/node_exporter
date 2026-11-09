@@ -255,6 +255,29 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 	fsTypesInclude := app.Flag("collector.filesystem.fs-types-include", "Regexp of filesystem types to include for filesystem collector. (mutually exclusive to fs-types-exclude)").String()
 	mountTimeout := app.Flag("collector.filesystem.mount-timeout", "how long to wait for a mount to respond before marking it as stale").Hidden().Default(config.DefaultFilesystemMountTimeout.String()).Duration()
 	statWorkerCount := app.Flag("collector.filesystem.stat-workers", "how many stat calls to process simultaneously").Hidden().Default(strconv.Itoa(config.DefaultFilesystemStatWorkerCount)).Int()
+	var systemdIncludeSet, systemdExcludeSet bool
+	systemdUnitInclude := app.Flag("collector.systemd.unit-include", "Regexp of systemd units to include. Units must both match include and not match exclude to be included.").Default(config.DefaultSystemdUnitInclude).IsSetByUser(&systemdIncludeSet).String()
+	oldSystemdUnitInclude := app.Flag("collector.systemd.unit-whitelist", "DEPRECATED: Use --collector.systemd.unit-include").Hidden().String()
+	systemdUnitExclude := app.Flag("collector.systemd.unit-exclude", "Regexp of systemd units to exclude. Units must both match include and not match exclude to be included.").Default(config.DefaultSystemdUnitExclude).IsSetByUser(&systemdExcludeSet).String()
+	oldSystemdUnitExclude := app.Flag("collector.systemd.unit-blacklist", "DEPRECATED: Use collector.systemd.unit-exclude").Hidden().String()
+	systemdPrivate := app.Flag("collector.systemd.private", "Establish a private, direct connection to systemd without dbus (Strongly discouraged since it requires root. For testing purposes only).").Hidden().Bool()
+	systemdTaskMetrics := app.Flag("collector.systemd.enable-task-metrics", "Enables service unit tasks metrics unit_tasks_current and unit_tasks_max").Bool()
+	systemdRestartsMetrics := app.Flag("collector.systemd.enable-restarts-metrics", "Enables service unit metric service_restart_total").Bool()
+	systemdStartTimeMetrics := app.Flag("collector.systemd.enable-start-time-metrics", "Enables service unit metric unit_start_time_seconds").Bool()
+	perfCPUs := app.Flag("collector.perf.cpus", "List of CPUs from which perf metrics should be collected").Default("").String()
+	perfTracepoints := app.Flag("collector.perf.tracepoint", "perf tracepoint that should be collected").Strings()
+	perfNoHwProfiler := app.Flag("collector.perf.disable-hardware-profilers", "disable perf hardware profilers").Default("false").Bool()
+	perfHwProfilers := app.Flag("collector.perf.hardware-profilers", "perf hardware profilers that should be collected").Strings()
+	perfNoSwProfiler := app.Flag("collector.perf.disable-software-profilers", "disable perf software profilers").Default("false").Bool()
+	perfSwProfilers := app.Flag("collector.perf.software-profilers", "perf software profilers that should be collected").Strings()
+	perfNoCaProfiler := app.Flag("collector.perf.disable-cache-profilers", "disable perf cache profilers").Default("false").Bool()
+	perfCaProfilers := app.Flag("collector.perf.cache-profilers", "perf cache profilers that should be collected").Strings()
+	sysctlInclude := app.Flag("collector.sysctl.include", "Select sysctl metrics to include").Strings()
+	sysctlIncludeInfo := app.Flag("collector.sysctl.include-info", "Select sysctl metrics to include as info metrics").Strings()
+	hwmonChipInclude := app.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
+	hwmonChipExclude := app.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
+	hwmonSensorInclude := app.Flag("collector.hwmon.sensor-include", "Regexp of hwmon sensor to include (mutually exclusive to sensor-exclude).").String()
+	hwmonSensorExclude := app.Flag("collector.hwmon.sensor-exclude", "Regexp of hwmon sensor to exclude (mutually exclusive to sensor-include).").String()
 	wifiFixtures := app.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
 
 	return func(logger *slog.Logger) (config.Config, error) {
@@ -284,6 +307,15 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 			return config.Config{}, err
 		}
 		fsTypesExcl, err := deprecatedFlag(logger, "collector.filesystem.ignored-fs-types", *oldFSTypesExclude, "collector.filesystem.fs-types-exclude", *fsTypesExclude, fsTypesExcludeSet)
+		if err != nil {
+			return config.Config{}, err
+		}
+
+		systemdExclude, err := deprecatedFlag(logger, "collector.systemd.unit-blacklist", *oldSystemdUnitExclude, "collector.systemd.unit-exclude", *systemdUnitExclude, systemdExcludeSet)
+		if err != nil {
+			return config.Config{}, err
+		}
+		systemdInclude, err := deprecatedFlag(logger, "collector.systemd.unit-whitelist", *oldSystemdUnitInclude, "collector.systemd.unit-include", *systemdUnitInclude, systemdIncludeSet)
 		if err != nil {
 			return config.Config{}, err
 		}
@@ -355,6 +387,31 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 		}
 		cfg.IPVS = config.IPVSConfig{BackendLabels: *ipvsBackendLabels}
 		cfg.Wifi = config.WifiConfig{Fixtures: *wifiFixtures}
+		cfg.Systemd = config.SystemdConfig{
+			UnitInclude:            systemdInclude,
+			UnitExclude:            systemdExclude,
+			Private:                *systemdPrivate,
+			EnableTaskMetrics:      *systemdTaskMetrics,
+			EnableRestartsMetrics:  *systemdRestartsMetrics,
+			EnableStartTimeMetrics: *systemdStartTimeMetrics,
+		}
+		cfg.Perf = config.PerfConfig{
+			CPUs:                     *perfCPUs,
+			Tracepoints:              *perfTracepoints,
+			DisableHardwareProfilers: *perfNoHwProfiler,
+			HardwareProfilers:        *perfHwProfilers,
+			DisableSoftwareProfilers: *perfNoSwProfiler,
+			SoftwareProfilers:        *perfSwProfilers,
+			DisableCacheProfilers:    *perfNoCaProfiler,
+			CacheProfilers:           *perfCaProfilers,
+		}
+		cfg.Sysctl = config.SysctlConfig{Include: *sysctlInclude, IncludeInfo: *sysctlIncludeInfo}
+		cfg.Hwmon = config.HwmonConfig{
+			ChipInclude:   *hwmonChipInclude,
+			ChipExclude:   *hwmonChipExclude,
+			SensorInclude: *hwmonSensorInclude,
+			SensorExclude: *hwmonSensorExclude,
+		}
 		cfg.Diskstats = config.DiskstatsConfig{
 			DeviceExclude: excludeFlag(diskstatsExclude, diskstatsExcludeSet, *diskstatsDeviceInclude),
 			DeviceInclude: *diskstatsDeviceInclude,

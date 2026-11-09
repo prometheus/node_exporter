@@ -117,6 +117,26 @@ func TestFlagsSetConfig(t *testing.T) {
 		"--collector.filesystem.fs-types-exclude=^tmpfs$",
 		"--collector.filesystem.mount-timeout=7s",
 		"--collector.filesystem.stat-workers=2",
+		"--collector.systemd.unit-include=^ssh",
+		"--collector.systemd.unit-exclude=^user",
+		"--collector.systemd.private",
+		"--collector.systemd.enable-task-metrics",
+		"--collector.systemd.enable-restarts-metrics",
+		"--collector.systemd.enable-start-time-metrics",
+		"--collector.perf.cpus=1-2",
+		"--collector.perf.tracepoint=sched:sched_switch",
+		"--collector.perf.disable-hardware-profilers",
+		"--collector.perf.hardware-profilers=CpuCycles",
+		"--collector.perf.disable-software-profilers",
+		"--collector.perf.software-profilers=PageFault",
+		"--collector.perf.disable-cache-profilers",
+		"--collector.perf.cache-profilers=L1DataReadHit",
+		"--collector.sysctl.include=fs.file-nr",
+		"--collector.sysctl.include-info=kernel.seccomp.actions_avail",
+		"--collector.hwmon.chip-include=^coretemp",
+		"--collector.hwmon.chip-exclude=^acpi",
+		"--collector.hwmon.sensor-include=^temp1",
+		"--collector.hwmon.sensor-exclude=^fan",
 	)
 
 	want := config.NewConfigWithDefaults()
@@ -148,6 +168,26 @@ func TestFlagsSetConfig(t *testing.T) {
 	want.Qdisc = config.QdiscConfig{Fixtures: "qdisc/", DeviceExclude: "^lo$"}
 	want.IPVS = config.IPVSConfig{BackendLabels: "local_port"}
 	want.Wifi = config.WifiConfig{Fixtures: "wifi/"}
+	want.Systemd = config.SystemdConfig{
+		UnitInclude:            "^ssh",
+		UnitExclude:            "^user",
+		Private:                true,
+		EnableTaskMetrics:      true,
+		EnableRestartsMetrics:  true,
+		EnableStartTimeMetrics: true,
+	}
+	want.Perf = config.PerfConfig{
+		CPUs:                     "1-2",
+		Tracepoints:              []string{"sched:sched_switch"},
+		DisableHardwareProfilers: true,
+		HardwareProfilers:        []string{"CpuCycles"},
+		DisableSoftwareProfilers: true,
+		SoftwareProfilers:        []string{"PageFault"},
+		DisableCacheProfilers:    true,
+		CacheProfilers:           []string{"L1DataReadHit"},
+	}
+	want.Sysctl = config.SysctlConfig{Include: []string{"fs.file-nr"}, IncludeInfo: []string{"kernel.seccomp.actions_avail"}}
+	want.Hwmon = config.HwmonConfig{ChipInclude: "^coretemp", ChipExclude: "^acpi", SensorInclude: "^temp1", SensorExclude: "^fan"}
 	want.Diskstats = config.DiskstatsConfig{DeviceExclude: "^loop"}
 	want.Filesystem = config.FilesystemConfig{
 		MountPointsExclude: "^/boot",
@@ -194,6 +234,18 @@ func TestDeprecatedFlags(t *testing.T) {
 		{
 			args: []string{"--collector.filesystem.ignored-fs-types=^tmpfs$"},
 			want: func(c *config.Config) { c.Filesystem.FSTypesExclude = "^tmpfs$" },
+		},
+		{
+			args: []string{"--collector.systemd.unit-whitelist=^ssh"},
+			want: func(c *config.Config) { c.Systemd.UnitInclude = "^ssh" },
+		},
+		{
+			args: []string{"--collector.systemd.unit-blacklist=^user"},
+			want: func(c *config.Config) { c.Systemd.UnitExclude = "^user" },
+		},
+		{
+			args:    []string{"--collector.systemd.unit-blacklist=^user", "--collector.systemd.unit-exclude=^dev"},
+			wantErr: "--collector.systemd.unit-blacklist and --collector.systemd.unit-exclude are mutually exclusive",
 		},
 		{
 			args:    []string{"--collector.diskstats.ignored-devices=^loop", "--collector.diskstats.device-exclude=^ram"},

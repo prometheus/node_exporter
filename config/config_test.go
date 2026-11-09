@@ -46,6 +46,12 @@ func TestValidateRejectsInvalidRegexps(t *testing.T) {
 		{name: "filesystem mountpointsinclude", modify: func(c *Config) { c.Filesystem.MountPointsInclude = "(" }, wantField: "Filesystem.MountPointsInclude"},
 		{name: "filesystem fstypesexclude", modify: func(c *Config) { c.Filesystem.FSTypesExclude = "(" }, wantField: "Filesystem.FSTypesExclude"},
 		{name: "filesystem fstypesinclude", modify: func(c *Config) { c.Filesystem.FSTypesInclude = "(" }, wantField: "Filesystem.FSTypesInclude"},
+		{name: "systemd unitinclude", modify: func(c *Config) { c.Systemd.UnitInclude = "(" }, wantField: "Systemd.UnitInclude"},
+		{name: "systemd unitexclude", modify: func(c *Config) { c.Systemd.UnitExclude = "(" }, wantField: "Systemd.UnitExclude"},
+		{name: "hwmon chipinclude", modify: func(c *Config) { c.Hwmon.ChipInclude = "(" }, wantField: "Hwmon.ChipInclude"},
+		{name: "hwmon chipexclude", modify: func(c *Config) { c.Hwmon.ChipExclude = "(" }, wantField: "Hwmon.ChipExclude"},
+		{name: "hwmon sensorinclude", modify: func(c *Config) { c.Hwmon.SensorInclude = "(" }, wantField: "Hwmon.SensorInclude"},
+		{name: "hwmon sensorexclude", modify: func(c *Config) { c.Hwmon.SensorExclude = "(" }, wantField: "Hwmon.SensorExclude"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			cfg := NewConfigWithDefaults()

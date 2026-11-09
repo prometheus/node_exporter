@@ -50,6 +50,10 @@ type Config struct {
 	Wifi       WifiConfig
 	Diskstats  DiskstatsConfig
 	Filesystem FilesystemConfig
+	Systemd    SystemdConfig
+	Perf       PerfConfig
+	Sysctl     SysctlConfig
+	Hwmon      HwmonConfig
 	// END COLLECTORS
 }
 
@@ -125,6 +129,10 @@ func NewConfigWithDefaults() Config {
 			MountTimeout:       DefaultFilesystemMountTimeout,
 			StatWorkerCount:    DefaultFilesystemStatWorkerCount,
 		},
+		Systemd: SystemdConfig{
+			UnitInclude: DefaultSystemdUnitInclude,
+			UnitExclude: DefaultSystemdUnitExclude,
+		},
 		// END DEFAULTS
 	}
 }
@@ -154,6 +162,12 @@ func (c Config) Validate() error {
 		{"Filesystem.MountPointsInclude", c.Filesystem.MountPointsInclude},
 		{"Filesystem.FSTypesExclude", c.Filesystem.FSTypesExclude},
 		{"Filesystem.FSTypesInclude", c.Filesystem.FSTypesInclude},
+		{"Systemd.UnitInclude", c.Systemd.UnitInclude},
+		{"Systemd.UnitExclude", c.Systemd.UnitExclude},
+		{"Hwmon.ChipInclude", c.Hwmon.ChipInclude},
+		{"Hwmon.ChipExclude", c.Hwmon.ChipExclude},
+		{"Hwmon.SensorInclude", c.Hwmon.SensorInclude},
+		{"Hwmon.SensorExclude", c.Hwmon.SensorExclude},
 		// END REGEXPS
 	} {
 		if _, err := regexp.Compile(r.expr); err != nil {

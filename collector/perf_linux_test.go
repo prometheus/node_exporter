@@ -96,8 +96,9 @@ func TestPerfCollectorStride(t *testing.T) {
 					t.Skipf("Skipping test because runtime.NumCPU < %d", cpu)
 				}
 			}
-			perfCPUsFlag = &test.flag
-			collector, err := NewPerfCollector(flagConfig(), slog.New(slog.NewTextHandler(io.Discard, nil)))
+			cfg := flagConfig()
+			cfg.Perf.CPUs = test.flag
+			collector, err := NewPerfCollector(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
 			if err != nil {
 				t.Fatal(err)
 			}
