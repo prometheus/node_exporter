@@ -16,12 +16,14 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"maps"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
 	"os/user"
 	"runtime"
 	"slices"
+	"strconv"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
@@ -176,13 +178,87 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 	return handler, nil
 }
 
+// addFlags adds the collector flags to app. The returned function builds a
+// Config from them after app parses the command line.
+func addFlags(app *kingpin.Application) func() config.Config {
+	disableDefaults := app.Flag("collector.disable-defaults", "Set all collectors to disabled by default.").Default("false").Bool()
+
+	type collectorFlag struct {
+		enabled, setByUser bool
+	}
+	collectors := collector.AvailableCollectors()
+	collectorFlags := make(map[string]*collectorFlag, len(collectors))
+	for _, name := range slices.Sorted(maps.Keys(collectors)) {
+		state := "disabled"
+		if collectors[name] {
+			state = "enabled"
+		}
+		f := &collectorFlag{}
+		app.Flag("collector."+name, fmt.Sprintf("Enable the %s collector (default: %s).", name, state)).
+			Default(strconv.FormatBool(collectors[name])).IsSetByUser(&f.setByUser).BoolVar(&f.enabled)
+		collectorFlags[name] = f
+	}
+
+	cpuGuest := app.Flag("collector.cpu.guest", "Enables metric node_cpu_guest_seconds_total").Default(strconv.FormatBool(config.DefaultCPUEnableGuest)).Bool()
+	cpuInfo := app.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
+	cpuFlagsInclude := app.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
+	cpuBugsInclude := app.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
+	textfileDirectories := app.Flag("collector.textfile.directory", "Directory to read text files with metrics from, supports glob matching. (repeatable)").Strings()
+	ntpServer := app.Flag("collector.ntp.server", "NTP server to use for ntp collector").Default(config.DefaultNTPServer).String()
+	ntpServerPort := app.Flag("collector.ntp.server-port", "UDP port number to connect to on NTP server").Default(strconv.Itoa(config.DefaultNTPServerPort)).Int()
+	ntpProtocolVersion := app.Flag("collector.ntp.protocol-version", "NTP protocol version").Default(strconv.Itoa(config.DefaultNTPProtocolVersion)).Int()
+	ntpServerIsLocal := app.Flag("collector.ntp.server-is-local", "Certify that collector.ntp.server address is not a public ntp server").Default("false").Bool()
+	ntpIPTTL := app.Flag("collector.ntp.ip-ttl", "IP TTL to use while sending NTP query").Default(strconv.Itoa(config.DefaultNTPIPTTL)).Int()
+	ntpMaxDistance := app.Flag("collector.ntp.max-distance", "Max accumulated distance to the root").Default(config.DefaultNTPMaxDistance.String()).Duration()
+	ntpOffsetTolerance := app.Flag("collector.ntp.local-offset-tolerance", "Offset between local clock and local ntpd time to tolerate").Default(config.DefaultNTPLocalOffsetTolerance.String()).Duration()
+	statSoftirq := app.Flag("collector.stat.softirq", "Export softirq calls per vector").Default("false").Bool()
+	vmstatFields := app.Flag("collector.vmstat.fields", "Regexp of fields to return for vmstat collector.").Default(config.DefaultVMStatFields).String()
+	netstatFields := app.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default(config.DefaultNetstatFields).String()
+	bcachePriorityStats := app.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
+	nvmeNamespaceUsage := app.Flag("collector.nvme.namespace-usage", "Expose namespace used bytes (reads nuse, which makes the kernel query the controller).").Default(strconv.FormatBool(config.DefaultNVMeNamespaceUsage)).Bool()
+	raplZoneLabel := app.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
+
+	return func() config.Config {
+		cfg := collector.ConfigFromFlags(config.NewConfigWithDefaults())
+		cfg.CollectorDisableDefaults = *disableDefaults
+		for name, f := range collectorFlags {
+			if f.setByUser {
+				if cfg.Collectors == nil {
+					cfg.Collectors = map[string]bool{}
+				}
+				cfg.Collectors[name] = f.enabled
+			}
+		}
+		cfg.CPU = config.CPUConfig{
+			EnableGuest:  *cpuGuest,
+			EnableInfo:   *cpuInfo,
+			FlagsInclude: *cpuFlagsInclude,
+			BugsInclude:  *cpuBugsInclude,
+		}
+		cfg.Textfile = config.TextfileConfig{Directories: *textfileDirectories}
+		cfg.NTP = config.NTPConfig{
+			Server:               *ntpServer,
+			ServerPort:           *ntpServerPort,
+			ProtocolVersion:      *ntpProtocolVersion,
+			ServerIsLocal:        *ntpServerIsLocal,
+			IPTTL:                *ntpIPTTL,
+			MaxDistance:          *ntpMaxDistance,
+			LocalOffsetTolerance: *ntpOffsetTolerance,
+		}
+		cfg.Stat = config.StatConfig{Softirq: *statSoftirq}
+		cfg.VMStat = config.VMStatConfig{Fields: *vmstatFields}
+		cfg.Netstat = config.NetstatConfig{Fields: *netstatFields}
+		cfg.Bcache = config.BcacheConfig{PriorityStats: *bcachePriorityStats}
+		cfg.NVMe = config.NVMeConfig{NamespaceUsage: *nvmeNamespaceUsage}
+		cfg.RAPL = config.RAPLConfig{EnableZoneLabel: *raplZoneLabel}
+		return cfg
+	}
+}
+
 func main() {
 	var (
-		disableDefaultCollectors = kingpin.Flag(
-			"collector.disable-defaults",
-			"Set all collectors to disabled by default.",
-		).Default("false").Bool()
-		maxProcs = kingpin.Flag(
+		configFromFlags = addFlags(kingpin.CommandLine)
+		maxProcs        = kingpin.Flag(
 			"runtime.gomaxprocs", "The target number of CPUs Go will run on (GOMAXPROCS)",
 		).Envar("GOMAXPROCS").Default("1").Int()
 	)
@@ -194,8 +270,7 @@ func main() {
 		Description:    "Prometheus Node Exporter",
 		DefaultAddress: ":9100",
 		MetricsHandlerFactory: func(b *bootstrap.Bootstrap) (http.Handler, error) {
-			cfg := collector.ConfigFromFlags(config.NewConfigWithDefaults())
-			cfg.CollectorDisableDefaults = *disableDefaultCollectors
+			cfg := configFromFlags()
 
 			if user, err := user.Current(); err == nil && user.Uid == "0" {
 				b.Logger.Warn("Node Exporter is running as root user. This exporter is designed to run as unprivileged user, root is not required.")

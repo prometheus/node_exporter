@@ -22,9 +22,6 @@ import (
 )
 
 func TestRuntimeReadsTextfileDirectoriesFromConfig(t *testing.T) {
-	// The flag points elsewhere, so a runtime that reads it finds no metrics.
-	parseFlags(t, "--collector.textfile.directory=fixtures/textfile/no_metric_files")
-
 	for _, test := range []struct {
 		name      string
 		directory string

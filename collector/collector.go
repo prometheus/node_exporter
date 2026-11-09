@@ -18,10 +18,10 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"maps"
 	"sync"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/prometheus/node_exporter/config"
@@ -51,10 +51,8 @@ const (
 )
 
 var (
-	factories        = make(map[string]func(cfg config.Config, logger *slog.Logger) (Collector, error))
-	collectorState   = make(map[string]*bool)
-	defaultState     = make(map[string]bool)
-	forcedCollectors = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	factories    = make(map[string]func(cfg config.Config, logger *slog.Logger) (Collector, error))
+	defaultState = make(map[string]bool)
 )
 
 type collectorRuntimeState struct {
@@ -69,22 +67,14 @@ type runtimeConfiguredCollector interface {
 }
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(cfg config.Config, logger *slog.Logger) (Collector, error)) {
-	var helpDefaultState string
-	if isDefaultEnabled {
-		helpDefaultState = "enabled"
-	} else {
-		helpDefaultState = "disabled"
-	}
-
-	flagName := fmt.Sprintf("collector.%s", collector)
-	flagHelp := fmt.Sprintf("Enable the %s collector (default: %s).", collector, helpDefaultState)
-	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
-
-	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Action(collectorFlagAction(collector)).Bool()
-	collectorState[collector] = flag
 	defaultState[collector] = isDefaultEnabled
-
 	factories[collector] = factory
+}
+
+// AvailableCollectors returns the name of every collector in this build and
+// whether it is enabled by default.
+func AvailableCollectors() map[string]bool {
+	return maps.Clone(defaultState)
 }
 
 // NodeCollector implements the prometheus.Collector interface.
@@ -94,27 +84,22 @@ type NodeCollector struct {
 }
 
 func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error) {
-	overrides := cfg.Collectors
-	for collector := range overrides {
-		if _, ok := collectorState[collector]; !ok {
+	for collector := range cfg.Collectors {
+		if _, ok := defaultState[collector]; !ok {
 			return nil, fmt.Errorf("unknown collector: %s", collector)
 		}
 	}
 
-	enabled := make(map[string]bool, len(collectorState))
-	for collector, state := range collectorState {
-		// Use the flag value only when the flag was set on the command line,
-		// so a runtime built without kingpin.Parse still gets the defaults.
-		override, overridden := overrides[collector]
+	enabled := make(map[string]bool, len(defaultState))
+	for collector, isDefaultEnabled := range defaultState {
+		override, overridden := cfg.Collectors[collector]
 		switch {
 		case overridden:
 			enabled[collector] = override
-		case forcedCollectors[collector]:
-			enabled[collector] = *state
 		case cfg.CollectorDisableDefaults:
 			enabled[collector] = false
 		default:
-			enabled[collector] = defaultState[collector]
+			enabled[collector] = isDefaultEnabled
 		}
 	}
 
@@ -141,18 +126,6 @@ func ConfigFromFlags(cfg config.Config) config.Config {
 		f(&cfg)
 	}
 	return cfg
-}
-
-// collectorFlagAction generates a new action function for the given collector
-// to track whether it has been explicitly enabled or disabled from the command line.
-// A new action function is needed for each collector flag because the ParseContext
-// does not contain information about which flag called the action.
-// See: https://github.com/alecthomas/kingpin/issues/294
-func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error {
-	return func(_ *kingpin.ParseContext) error {
-		forcedCollectors[collector] = true
-		return nil
-	}
 }
 
 // NewNodeCollector creates a new NodeCollector.
@@ -188,36 +161,6 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 		}
 	}
 	return &NodeCollector{Collectors: collectors, logger: logger}, nil
-}
-
-var legacyState = &collectorRuntimeState{collectors: make(map[string]Collector)}
-
-// DisableDefaultCollectors sets the collector flags to disabled, except the
-// flags set on the command line.
-//
-// Deprecated: Use NewRuntime with config.Config.CollectorDisableDefaults.
-func DisableDefaultCollectors() {
-	for c := range collectorState {
-		if _, ok := forcedCollectors[c]; !ok {
-			*collectorState[c] = false
-		}
-	}
-}
-
-// NewNodeCollector creates a NodeCollector from the collector flags. All
-// callers share one set of collector instances.
-//
-// Deprecated: Use NewRuntime.
-func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
-	enabled := make(map[string]bool, len(collectorState))
-	for c, state := range collectorState {
-		enabled[c] = *state
-	}
-	legacyState.mtx.Lock()
-	legacyState.enabled = enabled
-	legacyState.config = ConfigFromFlags(config.NewConfigWithDefaults())
-	legacyState.mtx.Unlock()
-	return legacyState.NewNodeCollector(logger, filters...)
 }
 
 func (s *collectorRuntimeState) configureCollector(collector Collector) {

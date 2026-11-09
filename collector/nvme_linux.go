@@ -21,18 +21,16 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 
 	"github.com/prometheus/node_exporter/config"
 )
 
-var nvmeNamespaceUsage = kingpin.Flag("collector.nvme.namespace-usage", "Expose namespace used bytes (reads nuse, which makes the kernel query the controller).").Default("true").Bool()
-
 type nvmeCollector struct {
 	fs     sysfs.FS
 	logger *slog.Logger
+	config config.NVMeConfig
 }
 
 func init() {
@@ -78,12 +76,13 @@ var (
 )
 
 // NewNVMeCollector returns a new Collector exposing NVMe stats.
-func NewNVMeCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewNVMeCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 	return &nvmeCollector{
+		config: cfg.NVMe,
 		fs:     fs,
 		logger: logger,
 	}, nil
@@ -144,7 +143,7 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 			)
 
 			// Namespace used space in bytes
-			if *nvmeNamespaceUsage {
+			if c.config.NamespaceUsage {
 				usedBlocks, err := namespace.UsedBlocks()
 				if err != nil {
 					// The kernel queries the controller on read, so this can

@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
@@ -34,14 +33,11 @@ import (
 	"github.com/prometheus/node_exporter/config"
 )
 
-var (
-	textFileDirectories = kingpin.Flag("collector.textfile.directory", "Directory to read text files with metrics from, supports glob matching. (repeatable)").Default("").Strings()
-	mtimeDesc           = prometheus.NewDesc(
-		"node_textfile_mtime_seconds",
-		"Unixtime mtime of textfiles successfully read.",
-		[]string{"file"},
-		nil,
-	)
+var mtimeDesc = prometheus.NewDesc(
+	"node_textfile_mtime_seconds",
+	"Unixtime mtime of textfiles successfully read.",
+	[]string{"file"},
+	nil,
 )
 
 type textFileCollector struct {
@@ -53,9 +49,6 @@ type textFileCollector struct {
 
 func init() {
 	registerCollector("textfile", defaultEnabled, NewTextFileCollector)
-	registerFlagConfig(func(cfg *config.Config) {
-		cfg.Textfile.Directories = append([]string(nil), (*textFileDirectories)...)
-	})
 }
 
 // NewTextFileCollector returns a new Collector exposing metrics read from files

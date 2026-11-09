@@ -225,13 +225,14 @@ for flag in ${_filtered_collector_flags}; do
     fi
     # Flag has the format: --[no-]collector.<name>.<collector>.
     if [ -n "$(echo ${flag} | cut -d"." -f3)" ]; then
-      # Check if the flag is used in the file.
+      # Check if the flag is defined in the file or in node_exporter.go.
       trimmed_flag=$(echo "${flag}" | tr -d "\"' " | cut -d"=" -f1 | cut -c 3-)
       if [[ $trimmed_flag =~ ^no- ]]; then
         trimmed_flag=$(echo $trimmed_flag | cut -c 4-)
       fi
-      if grep -h -E -o -- "kingpin.Flag\(\"${trimmed_flag}" ${file} > /dev/null 2>&1; then
+      if grep -h -E -o -- "(kingpin|app).Flag\(\"${trimmed_flag}\"" ${file} node_exporter.go > /dev/null 2>&1; then
         filtered_collector_flags="${filtered_collector_flags} ${flag}"
+        break
       else
        continue
       fi

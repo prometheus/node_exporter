@@ -24,9 +24,7 @@ import (
 )
 
 func TestRuntimeReadsCPUConfigFromConfig(t *testing.T) {
-	// The cpu flags hold the opposite of the non-default cases, so a runtime
-	// that reads them fails the test.
-	parseFlags(t, "--path.procfs=fixtures/proc", "--path.sysfs=fixtures/sys", "--collector.cpu.guest", "--no-collector.cpu.info")
+	parseFlags(t, "--path.procfs=fixtures/proc", "--path.sysfs=fixtures/sys")
 
 	for _, test := range []struct {
 		name      string
@@ -42,6 +40,8 @@ func TestRuntimeReadsCPUConfigFromConfig(t *testing.T) {
 			cfg := config.NewConfigWithDefaults()
 			cfg.CollectorDisableDefaults = true
 			cfg.Collectors = map[string]bool{"cpu": true}
+			cfg.Path.ProcFS = "fixtures/proc"
+			cfg.Path.SysFS = "fixtures/sys"
 			cfg.CPU = test.cpu
 			runtime, err := NewRuntime(cfg, testLogger())
 			if err != nil {

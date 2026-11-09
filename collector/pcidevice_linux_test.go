@@ -34,7 +34,6 @@ func TestPCICollectorWithNameResolution(t *testing.T) {
 		"--path.sysfs", "fixtures/sys",
 		"--path.procfs", "fixtures/proc",
 		"--path.rootfs", "fixtures",
-		"--collector.pcidevice",
 		"--collector.pcidevice.names",
 		//	"--collector.pcidevice.idsfile", "/usr/share/misc/pci.ids",
 		"--collector.pcidevice.idsfile", "fixtures/pci.ids",

@@ -33,6 +33,14 @@ type Config struct {
 
 	CPU      CPUConfig
 	Textfile TextfileConfig
+	NTP      NTPConfig
+	Stat     StatConfig
+	VMStat   VMStatConfig
+	Netstat  NetstatConfig
+	Bcache   BcacheConfig
+	NVMe     NVMeConfig
+	RAPL     RAPLConfig
+	// END COLLECTORS
 }
 
 const (
@@ -66,16 +74,39 @@ func NewConfigWithDefaults() Config {
 		CPU: CPUConfig{
 			EnableGuest: DefaultCPUEnableGuest,
 		},
+		NTP: NTPConfig{
+			Server:               DefaultNTPServer,
+			ServerPort:           DefaultNTPServerPort,
+			ProtocolVersion:      DefaultNTPProtocolVersion,
+			IPTTL:                DefaultNTPIPTTL,
+			MaxDistance:          DefaultNTPMaxDistance,
+			LocalOffsetTolerance: DefaultNTPLocalOffsetTolerance,
+		},
+		VMStat: VMStatConfig{
+			Fields: DefaultVMStatFields,
+		},
+		Netstat: NetstatConfig{
+			Fields: DefaultNetstatFields,
+		},
+		NVMe: NVMeConfig{
+			NamespaceUsage: DefaultNVMeNamespaceUsage,
+		},
+		// END DEFAULTS
 	}
 }
 
 // Validate returns an error if the Config is invalid.
 func (c Config) Validate() error {
-	if _, err := regexp.Compile(c.CPU.FlagsInclude); err != nil {
-		return fmt.Errorf("invalid CPU.FlagsInclude: %w", err)
-	}
-	if _, err := regexp.Compile(c.CPU.BugsInclude); err != nil {
-		return fmt.Errorf("invalid CPU.BugsInclude: %w", err)
+	for _, r := range []struct{ name, expr string }{
+		{"CPU.FlagsInclude", c.CPU.FlagsInclude},
+		{"CPU.BugsInclude", c.CPU.BugsInclude},
+		{"VMStat.Fields", c.VMStat.Fields},
+		{"Netstat.Fields", c.Netstat.Fields},
+		// END REGEXPS
+	} {
+		if _, err := regexp.Compile(r.expr); err != nil {
+			return fmt.Errorf("invalid %s: %w", r.name, err)
+		}
 	}
 	return nil
 }

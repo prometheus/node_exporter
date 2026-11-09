@@ -18,18 +18,20 @@ import (
 	"testing"
 )
 
-func TestValidateRejectsInvalidCPUInfoFilters(t *testing.T) {
+func TestValidateRejectsInvalidRegexps(t *testing.T) {
 	for _, test := range []struct {
 		name      string
-		cpu       CPUConfig
+		modify    func(*Config)
 		wantField string
 	}{
-		{name: "flags include", cpu: CPUConfig{FlagsInclude: "("}, wantField: "CPU.FlagsInclude"},
-		{name: "bugs include", cpu: CPUConfig{BugsInclude: "("}, wantField: "CPU.BugsInclude"},
+		{name: "cpu flags include", modify: func(c *Config) { c.CPU.FlagsInclude = "(" }, wantField: "CPU.FlagsInclude"},
+		{name: "cpu bugs include", modify: func(c *Config) { c.CPU.BugsInclude = "(" }, wantField: "CPU.BugsInclude"},
+		{name: "vmstat fields", modify: func(c *Config) { c.VMStat.Fields = "(" }, wantField: "VMStat.Fields"},
+		{name: "netstat fields", modify: func(c *Config) { c.Netstat.Fields = "(" }, wantField: "Netstat.Fields"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			cfg := NewConfigWithDefaults()
-			cfg.CPU = test.cpu
+			test.modify(&cfg)
 			if err := cfg.Validate(); err == nil || !strings.Contains(err.Error(), test.wantField) {
 				t.Fatalf("want error naming %s, got %v", test.wantField, err)
 			}

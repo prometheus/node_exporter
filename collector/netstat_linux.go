@@ -24,7 +24,6 @@ import (
 	"reflect"
 	"regexp"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 
@@ -35,14 +34,10 @@ const (
 	netStatsSubsystem = "netstat"
 )
 
-var (
-	netStatFields = kingpin.Flag("collector.netstat.fields", "Regexp of fields to return for netstat collector.").Default("^(.*_(InErrors|InErrs)|Ip_Forwarding|Ip(6|Ext)_(InOctets|OutOctets)|Icmp6?_(InMsgs|OutMsgs)|TcpExt_(Listen.*|Syncookies.*|TCPSynRetrans|TCPTimeouts|TCPOFOQueue|TCPRcvQDrop)|Tcp_(ActiveOpens|InSegs|OutSegs|OutRsts|PassiveOpens|RetransSegs|CurrEstab)|Udp6?_(InDatagrams|OutDatagrams|NoPorts|RcvbufErrors|SndbufErrors))$").String()
-
-	// netStatDescs holds the explicit metric descriptors, allocated once at
-	// package init (see netstat_descs_linux.go) so collection never calls
-	// prometheus.NewDesc per scrape.
-	netStatDescs = netStatMetricDescs()
-)
+// netStatDescs holds the explicit metric descriptors, allocated once at
+// package init (see netstat_descs_linux.go) so collection never calls
+// prometheus.NewDesc per scrape.
+var netStatDescs = netStatMetricDescs()
 
 type netStatCollector struct {
 	proc         procfs.Proc
@@ -56,8 +51,8 @@ func init() {
 
 // NewNetStatCollector takes and returns
 // a new Collector exposing network stats.
-func NewNetStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	pattern := regexp.MustCompile(*netStatFields)
+func NewNetStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	pattern := regexp.MustCompile(cfg.Netstat.Fields)
 	fs, err := procfs.NewFS(*procPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)

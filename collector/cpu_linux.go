@@ -27,7 +27,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
@@ -62,24 +61,10 @@ type cpuCollector struct {
 // Idle jump back limit in seconds.
 const jumpBackSeconds = 3.0
 
-var (
-	enableCPUGuest       = kingpin.Flag("collector.cpu.guest", "Enables metric node_cpu_guest_seconds_total").Default(strconv.FormatBool(config.DefaultCPUEnableGuest)).Bool()
-	enableCPUInfo        = kingpin.Flag("collector.cpu.info", "Enables metric cpu_info").Bool()
-	flagsInclude         = kingpin.Flag("collector.cpu.info.flags-include", "Filter the `flags` field in cpuInfo with a value that must be a regular expression").String()
-	bugsInclude          = kingpin.Flag("collector.cpu.info.bugs-include", "Filter the `bugs` field in cpuInfo with a value that must be a regular expression").String()
-	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
-)
+var jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
 
 func init() {
 	registerCollector("cpu", defaultEnabled, NewCPUCollector)
-	registerFlagConfig(func(cfg *config.Config) {
-		cfg.CPU = config.CPUConfig{
-			EnableGuest:  *enableCPUGuest,
-			EnableInfo:   *enableCPUInfo,
-			FlagsInclude: *flagsInclude,
-			BugsInclude:  *bugsInclude,
-		}
-	})
 }
 
 // NewCPUCollector returns a new Collector exposing kernel/system statistics.

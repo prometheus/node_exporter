@@ -20,10 +20,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var binary = filepath.Join(os.Getenv("GOPATH"), "bin/node_exporter")
@@ -31,6 +35,80 @@ var binary = filepath.Join(os.Getenv("GOPATH"), "bin/node_exporter")
 const (
 	address = "localhost:19100"
 )
+
+// parseConfigFlags parses args with a new kingpin app that has only the
+// collector flags, and returns the Config they describe.
+func parseConfigFlags(t *testing.T, args ...string) config.Config {
+	t.Helper()
+	app := kingpin.New("node_exporter", "")
+	configFromFlags := addFlags(app)
+	if _, err := app.Parse(args); err != nil {
+		t.Fatal(err)
+	}
+	cfg := configFromFlags()
+	// The path flags are still in the collector package.
+	cfg.Path = config.NewConfigWithDefaults().Path
+	return cfg
+}
+
+func TestFlagDefaultsMatchConfigDefaults(t *testing.T) {
+	if got, want := parseConfigFlags(t), config.NewConfigWithDefaults(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("flag defaults differ from config defaults:\nflags:  %+v\nconfig: %+v", got, want)
+	}
+}
+
+func TestFlagsSetConfig(t *testing.T) {
+	got := parseConfigFlags(t,
+		"--collector.disable-defaults",
+		"--collector.ntp",
+		"--no-collector.textfile",
+		"--collector.cpu.info",
+		"--no-collector.cpu.guest",
+		"--collector.cpu.info.flags-include=^fpu$",
+		"--collector.cpu.info.bugs-include=^spectre",
+		"--collector.textfile.directory=a",
+		"--collector.textfile.directory=b",
+		"--collector.ntp.server=192.0.2.1",
+		"--collector.ntp.server-port=1123",
+		"--collector.ntp.protocol-version=3",
+		"--collector.ntp.server-is-local",
+		"--collector.ntp.ip-ttl=2",
+		"--collector.ntp.max-distance=2s",
+		"--collector.ntp.local-offset-tolerance=5ms",
+		"--collector.stat.softirq",
+		"--collector.vmstat.fields=^pg",
+		"--collector.netstat.fields=^Tcp_",
+		"--collector.bcache.priorityStats",
+		"--no-collector.nvme.namespace-usage",
+		"--collector.rapl.enable-zone-label",
+	)
+
+	want := config.NewConfigWithDefaults()
+	want.CollectorDisableDefaults = true
+	// Collectors has only the collector flags that the command line sets.
+	want.Collectors = map[string]bool{"ntp": true, "textfile": false}
+	want.CPU = config.CPUConfig{EnableInfo: true, FlagsInclude: "^fpu$", BugsInclude: "^spectre"}
+	want.Textfile = config.TextfileConfig{Directories: []string{"a", "b"}}
+	want.NTP = config.NTPConfig{
+		Server:               "192.0.2.1",
+		ServerPort:           1123,
+		ProtocolVersion:      3,
+		ServerIsLocal:        true,
+		IPTTL:                2,
+		MaxDistance:          2 * time.Second,
+		LocalOffsetTolerance: 5 * time.Millisecond,
+	}
+	want.Stat = config.StatConfig{Softirq: true}
+	want.VMStat = config.VMStatConfig{Fields: "^pg"}
+	want.Netstat = config.NetstatConfig{Fields: "^Tcp_"}
+	want.Bcache = config.BcacheConfig{PriorityStats: true}
+	want.NVMe = config.NVMeConfig{NamespaceUsage: false}
+	want.RAPL = config.RAPLConfig{EnableZoneLabel: true}
+
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got:  %+v\nwant: %+v", got, want)
+	}
+}
 
 func TestFileDescriptorLeak(t *testing.T) {
 	if _, err := os.Stat(binary); err != nil {

@@ -16,7 +16,6 @@ package collector
 import (
 	"io"
 	"log/slog"
-	"maps"
 	"slices"
 	"strings"
 	"testing"
@@ -29,8 +28,7 @@ import (
 )
 
 // The tests use textfile because it is enabled by default and builds on every
-// OS. Collectors such as filesystem leave goroutines that race with later
-// tests that parse flags.
+// OS.
 
 func TestNewRuntimeEnabledCollectors(t *testing.T) {
 	parseFlags(t)
@@ -97,18 +95,6 @@ func TestNewRuntimeCollectorsOverrideDefaults(t *testing.T) {
 	}
 }
 
-func TestNewRuntimeCollectorsTakePrecedenceOverFlags(t *testing.T) {
-	parseFlags(t, "--no-collector.textfile")
-
-	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := runtime.EnabledCollectors(), []string{"textfile"}; !slices.Equal(got, want) {
-		t.Fatalf("want %v, got %v", want, got)
-	}
-}
-
 func TestNewRuntimeRejectsUnknownCollector(t *testing.T) {
 	parseFlags(t)
 	cfg := config.NewConfigWithDefaults()
@@ -127,20 +113,6 @@ func TestNewRuntimeDisableDefaultsDoesNotAffectOtherRuntimes(t *testing.T) {
 	if _, err := NewRuntime(cfg, testLogger()); err != nil {
 		t.Fatal(err)
 	}
-
-	runtime, err := NewRuntime(config.NewConfigWithDefaults(), testLogger())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !slices.Contains(runtime.EnabledCollectors(), "textfile") {
-		t.Fatalf("want textfile enabled, got %v", runtime.EnabledCollectors())
-	}
-}
-
-func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
-	parseFlags(t)
-	// Before kingpin.Parse, every collector flag holds false.
-	*collectorState["textfile"] = false
 
 	runtime, err := NewRuntime(config.NewConfigWithDefaults(), testLogger())
 	if err != nil {
@@ -200,32 +172,6 @@ func TestRuntimeFiltered(t *testing.T) {
 	}
 }
 
-func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
-	parseFlags(t, "--collector.textfile", "--collector.textfile.directory=fixtures/textfile/two_metric_files")
-	DisableDefaultCollectors()
-
-	first, err := NewNodeCollector(testLogger())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got, want := slices.Sorted(maps.Keys(first.Collectors)), []string{"textfile"}; !slices.Equal(got, want) {
-		t.Fatalf("want %v, got %v", want, got)
-	}
-	registry := prometheus.NewRegistry()
-	registry.MustRegister(first)
-	if got, err := testutil.GatherAndCount(registry, "testmetric1_1"); err != nil || got != 1 {
-		t.Fatalf("want 1 testmetric1_1 series from the flag directory, got %d (err: %v)", got, err)
-	}
-
-	second, err := NewNodeCollector(testLogger())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if first.Collectors["textfile"] != second.Collectors["textfile"] {
-		t.Fatal("want callers to share collector instances")
-	}
-}
-
 // textfileOnlyConfig returns a Config that enables only the textfile collector.
 func textfileOnlyConfig() config.Config {
 	cfg := config.NewConfigWithDefaults()
@@ -244,12 +190,11 @@ func testLogger() *slog.Logger {
 }
 
 // parseFlags sets every command-line flag to its default, then parses args.
-// Other tests in this package change flags without restoring them, so each
-// runtime test starts from the defaults and restores them when it ends.
+// It restores the defaults when the test ends. The path flags are still
+// package state, and other tests in this package change them.
 func parseFlags(t *testing.T, args ...string) {
 	t.Helper()
 	reset := func() {
-		clear(forcedCollectors)
 		if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
 			t.Fatal(err)
 		}
