@@ -19,7 +19,6 @@ import (
 	"maps"
 	"slices"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/alecthomas/kingpin/v2"
@@ -34,7 +33,7 @@ import (
 // tests that parse flags.
 
 func TestNewRuntimeEnabledCollectors(t *testing.T) {
-	parseCollectorFlags(t)
+	parseFlags(t)
 	tests := []struct {
 		name            string
 		disableDefaults bool
@@ -61,7 +60,7 @@ func TestNewRuntimeEnabledCollectors(t *testing.T) {
 }
 
 func TestNewRuntimeCollectorsOverrideDefaults(t *testing.T) {
-	parseCollectorFlags(t)
+	parseFlags(t)
 	tests := []struct {
 		name            string
 		disableDefaults bool
@@ -111,6 +110,7 @@ func TestNewRuntimeCollectorsTakePrecedenceOverFlags(t *testing.T) {
 }
 
 func TestNewRuntimeRejectsUnknownCollector(t *testing.T) {
+	parseFlags(t)
 	cfg := config.NewConfigWithDefaults()
 	cfg.Collectors = map[string]bool{"doesnotexist": true}
 
@@ -121,7 +121,7 @@ func TestNewRuntimeRejectsUnknownCollector(t *testing.T) {
 }
 
 func TestNewRuntimeDisableDefaultsDoesNotAffectOtherRuntimes(t *testing.T) {
-	parseCollectorFlags(t)
+	parseFlags(t)
 	cfg := config.NewConfigWithDefaults()
 	cfg.CollectorDisableDefaults = true
 	if _, err := NewRuntime(cfg, testLogger()); err != nil {
@@ -138,10 +138,9 @@ func TestNewRuntimeDisableDefaultsDoesNotAffectOtherRuntimes(t *testing.T) {
 }
 
 func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
+	parseFlags(t)
 	// Before kingpin.Parse, every collector flag holds false.
-	original := *collectorState["textfile"]
 	*collectorState["textfile"] = false
-	t.Cleanup(func() { *collectorState["textfile"] = original })
 
 	runtime, err := NewRuntime(config.NewConfigWithDefaults(), testLogger())
 	if err != nil {
@@ -153,7 +152,7 @@ func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
 }
 
 func TestRuntimeExposesCollectorMetrics(t *testing.T) {
-	parseCollectorFlags(t)
+	parseFlags(t)
 	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
 		t.Fatal(err)
@@ -181,7 +180,7 @@ node_scrape_collector_success{collector="textfile"} 1
 }
 
 func TestRuntimeFiltered(t *testing.T) {
-	parseCollectorFlags(t)
+	parseFlags(t)
 	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
 		t.Fatal(err)
@@ -234,33 +233,20 @@ func testLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
-var parseCollectorFlagsOnce sync.Once
-
-// parseFlags parses args as command-line flags, and restores the flag
-// defaults when the test ends.
+// parseFlags sets every command-line flag to its default, then parses args.
+// Other tests in this package change flags without restoring them, so each
+// runtime test starts from the defaults and restores them when it ends.
 func parseFlags(t *testing.T, args ...string) {
 	t.Helper()
-	parseCollectorFlags(t)
-	t.Cleanup(func() {
+	reset := func() {
 		clear(forcedCollectors)
 		if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
 			t.Fatal(err)
 		}
-	})
-	if _, err := kingpin.CommandLine.Parse(args); err != nil {
-		t.Fatal(err)
 	}
-}
-
-// parseCollectorFlags applies the kingpin defaults once, so the collector
-// flags hold their default values when a test runs on its own.
-func parseCollectorFlags(t *testing.T) {
-	t.Helper()
-	var err error
-	parseCollectorFlagsOnce.Do(func() {
-		_, err = kingpin.CommandLine.Parse([]string{})
-	})
-	if err != nil {
+	reset()
+	t.Cleanup(reset)
+	if _, err := kingpin.CommandLine.Parse(args); err != nil {
 		t.Fatal(err)
 	}
 }
