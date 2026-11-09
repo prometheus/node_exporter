@@ -31,6 +31,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type cpuCollector struct {
@@ -70,12 +72,12 @@ var (
 	jumpBackDebugMessage = fmt.Sprintf("CPU Idle counter jumped backwards more than %f seconds, possible hotplug event, resetting CPU stats", jumpBackSeconds)
 )
 
-func newCPUCollectorConfig() cpuCollectorConfig {
-	return cpuCollectorConfig{
-		guestEnabled: *enableCPUGuest,
-		infoEnabled:  *enableCPUInfo,
-		flagsInclude: *flagsInclude,
-		bugsInclude:  *bugsInclude,
+func cpuConfigFromFlags(config.CPUConfig) config.CPUConfig {
+	return config.CPUConfig{
+		EnableGuest:  *enableCPUGuest,
+		EnableInfo:   *enableCPUInfo,
+		FlagsInclude: *flagsInclude,
+		BugsInclude:  *bugsInclude,
 	}
 }
 
@@ -162,8 +164,8 @@ func (c *cpuCollector) configureRuntimeState(state *collectorRuntimeState) error
 	c.sysMountPoint = state.config.paths.sysMountPoint
 	c.isolatedCpus = isolcpus
 	c.cpuFreqEnabled = state.enabled["cpufreq"]
-	c.guestEnabled = state.config.cpu.guestEnabled
-	c.infoEnabled = state.config.cpu.infoEnabled
+	c.guestEnabled = state.config.cpu.EnableGuest
+	c.infoEnabled = state.config.cpu.EnableInfo
 
 	if err := c.compileIncludeFlags(state.config.cpu); err != nil {
 		return fmt.Errorf("fail to compile --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include, the values of them must be regular expressions: %w", err)
@@ -172,21 +174,21 @@ func (c *cpuCollector) configureRuntimeState(state *collectorRuntimeState) error
 	return nil
 }
 
-func (c *cpuCollector) compileIncludeFlags(cfg cpuCollectorConfig) error {
-	if (cfg.flagsInclude != "" || cfg.bugsInclude != "") && !c.infoEnabled {
+func (c *cpuCollector) compileIncludeFlags(cfg config.CPUConfig) error {
+	if (cfg.FlagsInclude != "" || cfg.BugsInclude != "") && !c.infoEnabled {
 		c.infoEnabled = true
 		c.logger.Info("--collector.cpu.info has been set to `true` because you set the following flags, like --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include")
 	}
 
 	var err error
-	if cfg.flagsInclude != "" {
-		c.cpuFlagsIncludeRegexp, err = regexp.Compile(cfg.flagsInclude)
+	if cfg.FlagsInclude != "" {
+		c.cpuFlagsIncludeRegexp, err = regexp.Compile(cfg.FlagsInclude)
 		if err != nil {
 			return err
 		}
 	}
-	if cfg.bugsInclude != "" {
-		c.cpuBugsIncludeRegexp, err = regexp.Compile(cfg.bugsInclude)
+	if cfg.BugsInclude != "" {
+		c.cpuBugsIncludeRegexp, err = regexp.Compile(cfg.BugsInclude)
 		if err != nil {
 			return err
 		}

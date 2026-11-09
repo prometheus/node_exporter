@@ -23,6 +23,8 @@ import (
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // Namespace defines the common namespace to be used by all metrics.
@@ -68,8 +70,8 @@ type runtimeConfiguredCollector interface {
 
 type collectorConfig struct {
 	paths    collectorPathConfig
-	cpu      cpuCollectorConfig
-	textfile textFileCollectorConfig
+	cpu      config.CPUConfig
+	textfile config.TextfileConfig
 }
 
 type collectorPathConfig struct {
@@ -77,17 +79,6 @@ type collectorPathConfig struct {
 	sysMountPoint  string
 	rootfsPath     string
 	udevDataPath   string
-}
-
-type cpuCollectorConfig struct {
-	guestEnabled bool
-	infoEnabled  bool
-	flagsInclude string
-	bugsInclude  string
-}
-
-type textFileCollectorConfig struct {
-	directories []string
 }
 
 func registerCollector(collector string, isDefaultEnabled bool, factory func(logger *slog.Logger) (Collector, error)) {
@@ -115,7 +106,8 @@ type NodeCollector struct {
 	logger     *slog.Logger
 }
 
-func newCollectorRuntimeState(disableDefaultCollectors bool, overrides map[string]bool) (*collectorRuntimeState, error) {
+func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error) {
+	overrides := cfg.Collectors
 	for collector := range overrides {
 		if _, ok := collectorState[collector]; !ok {
 			return nil, fmt.Errorf("unknown collector: %s", collector)
@@ -132,7 +124,7 @@ func newCollectorRuntimeState(disableDefaultCollectors bool, overrides map[strin
 			enabled[collector] = override
 		case forcedCollectors[collector]:
 			enabled[collector] = *state
-		case disableDefaultCollectors:
+		case cfg.CollectorDisableDefaults:
 			enabled[collector] = false
 		default:
 			enabled[collector] = defaultState[collector]
@@ -140,18 +132,26 @@ func newCollectorRuntimeState(disableDefaultCollectors bool, overrides map[strin
 	}
 
 	return &collectorRuntimeState{
-		config:     newCollectorConfig(),
+		config:     newCollectorConfig(cfg),
 		enabled:    enabled,
 		collectors: make(map[string]Collector),
 	}, nil
 }
 
-func newCollectorConfig() collectorConfig {
+func newCollectorConfig(cfg config.Config) collectorConfig {
 	return collectorConfig{
 		paths:    newCollectorPathConfig(),
-		cpu:      newCPUCollectorConfig(),
-		textfile: newTextFileCollectorConfig(),
+		cpu:      cfg.CPU,
+		textfile: cfg.Textfile,
 	}
+}
+
+// ConfigFromFlags returns cfg with the collector options set from the parsed
+// command-line flags.
+func ConfigFromFlags(cfg config.Config) config.Config {
+	cfg.CPU = cpuConfigFromFlags(cfg.CPU)
+	cfg.Textfile = textfileConfigFromFlags(cfg.Textfile)
+	return cfg
 }
 
 // collectorFlagAction generates a new action function for the given collector
@@ -228,6 +228,7 @@ func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, e
 	}
 	legacyState.mtx.Lock()
 	legacyState.enabled = enabled
+	legacyState.config = newCollectorConfig(ConfigFromFlags(config.NewConfigWithDefaults()))
 	legacyState.mtx.Unlock()
 	return legacyState.NewNodeCollector(logger, filters...)
 }

@@ -16,58 +16,41 @@
 package collector
 
 import (
-	"io"
-	"log/slog"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus/testutil"
-
-	"github.com/prometheus/node_exporter/config"
 )
 
-func TestRuntimeKeepsTextfileDirectoriesFromCreation(t *testing.T) {
-	parseCollectorFlags(t)
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	original := *textFileDirectories
-	t.Cleanup(func() { *textFileDirectories = original })
-
-	cfg := config.NewConfigWithDefaults()
-	cfg.EnabledCollectors = []string{"textfile"}
-
-	*textFileDirectories = []string{"fixtures/textfile/two_metric_files"}
-	runtime, err := NewRuntime(cfg, logger)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	*textFileDirectories = []string{"fixtures/textfile/no_metric_files"}
-	filtered, err := runtime.Filtered("textfile")
-	if err != nil {
-		t.Fatal(err)
-	}
-	later, err := NewRuntime(cfg, logger)
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestRuntimeReadsTextfileDirectoriesFromConfig(t *testing.T) {
+	// The flag points elsewhere, so a runtime that reads it finds no metrics.
+	parseFlags(t, "--collector.textfile.directory=fixtures/textfile/no_metric_files")
 
 	for _, test := range []struct {
-		name    string
-		runtime *Runtime
-		want    int
+		name      string
+		directory string
+		want      int
 	}{
-		{name: "filtered runtime reads the directory set at creation", runtime: filtered, want: 1},
-		{name: "new runtime reads the current directory", runtime: later, want: 0},
+		{name: "directory with metrics", directory: "fixtures/textfile/two_metric_files", want: 1},
+		{name: "directory without metrics", directory: "fixtures/textfile/no_metric_files", want: 0},
 	} {
-		registry, err := test.runtime.Registry()
-		if err != nil {
-			t.Fatal(err)
-		}
-		got, err := testutil.GatherAndCount(registry, "testmetric1_1")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if got != test.want {
-			t.Errorf("%s: want %d testmetric1_1 series, got %d", test.name, test.want, got)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			cfg := textfileOnlyConfig()
+			cfg.Textfile.Directories = []string{test.directory}
+			runtime, err := NewRuntime(cfg, testLogger())
+			if err != nil {
+				t.Fatal(err)
+			}
+			registry, err := runtime.Registry()
+			if err != nil {
+				t.Fatal(err)
+			}
+			got, err := testutil.GatherAndCount(registry, "testmetric1_1")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got != test.want {
+				t.Errorf("want %d testmetric1_1 series, got %d", test.want, got)
+			}
+		})
 	}
 }

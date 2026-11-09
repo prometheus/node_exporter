@@ -13,6 +13,11 @@
 
 package config
 
+import (
+	"fmt"
+	"regexp"
+)
+
 // Config contains the options that control which collectors a runtime
 // enables.
 type Config struct {
@@ -23,14 +28,47 @@ type Config struct {
 	// --collector.<name> and --no-collector.<name>. It takes precedence
 	// over the command-line flags.
 	Collectors map[string]bool
+
+	CPU      CPUConfig
+	Textfile TextfileConfig
+}
+
+// CPUConfig contains the options for the cpu collector.
+type CPUConfig struct {
+	// EnableGuest exposes node_cpu_guest_seconds_total, like
+	// --collector.cpu.guest.
+	EnableGuest bool
+	// EnableInfo exposes node_cpu_info, like --collector.cpu.info.
+	EnableInfo bool
+	// FlagsInclude and BugsInclude are regular expressions that filter the
+	// flags and bugs fields of node_cpu_info, like
+	// --collector.cpu.info.flags-include and --collector.cpu.info.bugs-include.
+	// Setting either one also enables node_cpu_info.
+	FlagsInclude string
+	BugsInclude  string
+}
+
+// TextfileConfig contains the options for the textfile collector.
+type TextfileConfig struct {
+	// Directories to read text files with metrics from, like
+	// --collector.textfile.directory. Glob patterns are supported.
+	Directories []string
 }
 
 // NewConfigWithDefaults returns a Config with the node_exporter defaults.
 func NewConfigWithDefaults() Config {
-	return Config{}
+	return Config{
+		CPU: CPUConfig{EnableGuest: true},
+	}
 }
 
 // Validate returns an error if the Config is invalid.
 func (c Config) Validate() error {
+	if _, err := regexp.Compile(c.CPU.FlagsInclude); err != nil {
+		return fmt.Errorf("invalid CPU.FlagsInclude: %w", err)
+	}
+	if _, err := regexp.Compile(c.CPU.BugsInclude); err != nil {
+		return fmt.Errorf("invalid CPU.BugsInclude: %w", err)
+	}
 	return nil
 }

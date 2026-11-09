@@ -201,7 +201,7 @@ func TestRuntimeFiltered(t *testing.T) {
 }
 
 func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
-	parseFlags(t, "--collector.textfile")
+	parseFlags(t, "--collector.textfile", "--collector.textfile.directory=fixtures/textfile/two_metric_files")
 	DisableDefaultCollectors()
 
 	first, err := NewNodeCollector(testLogger())
@@ -210,6 +210,11 @@ func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
 	}
 	if got, want := slices.Sorted(maps.Keys(first.Collectors)), []string{"textfile"}; !slices.Equal(got, want) {
 		t.Fatalf("want %v, got %v", want, got)
+	}
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(first)
+	if got, err := testutil.GatherAndCount(registry, "testmetric1_1"); err != nil || got != 1 {
+		t.Fatalf("want 1 testmetric1_1 series from the flag directory, got %d (err: %v)", got, err)
 	}
 
 	second, err := NewNodeCollector(testLogger())

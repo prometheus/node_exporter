@@ -37,7 +37,7 @@ func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
 		return nil, err
 	}
 
-	state, err := newCollectorRuntimeState(cfg.CollectorDisableDefaults, cfg.Collectors)
+	state, err := newCollectorRuntimeState(cfg)
 	if err != nil {
 		return nil, err
 	}

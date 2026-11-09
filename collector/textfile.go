@@ -30,6 +30,8 @@ import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/model"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
@@ -42,8 +44,8 @@ var (
 	)
 )
 
-func newTextFileCollectorConfig() textFileCollectorConfig {
-	return textFileCollectorConfig{directories: append([]string(nil), (*textFileDirectories)...)}
+func textfileConfigFromFlags(config.TextfileConfig) config.TextfileConfig {
+	return config.TextfileConfig{Directories: append([]string(nil), (*textFileDirectories)...)}
 }
 
 type textFileCollector struct {
@@ -67,7 +69,7 @@ func NewTextFileCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func (c *textFileCollector) configureRuntimeState(state *collectorRuntimeState) error {
-	c.paths = append([]string(nil), state.config.textfile.directories...)
+	c.paths = append([]string(nil), state.config.textfile.Directories...)
 	return nil
 }
 

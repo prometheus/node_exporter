@@ -194,7 +194,7 @@ func main() {
 		Description:    "Prometheus Node Exporter",
 		DefaultAddress: ":9100",
 		MetricsHandlerFactory: func(b *bootstrap.Bootstrap) (http.Handler, error) {
-			cfg := config.NewConfigWithDefaults()
+			cfg := collector.ConfigFromFlags(config.NewConfigWithDefaults())
 			cfg.CollectorDisableDefaults = *disableDefaultCollectors
 
 			if user, err := user.Current(); err == nil && user.Uid == "0" {

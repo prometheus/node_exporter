@@ -15,6 +15,9 @@
 
 package collector
 
-func newTextFileCollectorConfig() textFileCollectorConfig {
-	return textFileCollectorConfig{}
+import "github.com/prometheus/node_exporter/config"
+
+// textfileConfigFromFlags keeps cfg, because this build has no textfile flags.
+func textfileConfigFromFlags(cfg config.TextfileConfig) config.TextfileConfig {
+	return cfg
 }

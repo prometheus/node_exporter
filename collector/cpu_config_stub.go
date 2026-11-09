@@ -15,6 +15,9 @@
 
 package collector
 
-func newCPUCollectorConfig() cpuCollectorConfig {
-	return cpuCollectorConfig{}
+import "github.com/prometheus/node_exporter/config"
+
+// cpuConfigFromFlags keeps cfg, because this build has no cpu info flags.
+func cpuConfigFromFlags(cfg config.CPUConfig) config.CPUConfig {
+	return cfg
 }
