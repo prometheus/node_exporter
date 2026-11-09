@@ -60,17 +60,69 @@ func TestNewRuntimeEnabledCollectors(t *testing.T) {
 	}
 }
 
-func TestNewRuntimeEnabledListLimitsCollectors(t *testing.T) {
+func TestNewRuntimeCollectorsOverrideDefaults(t *testing.T) {
 	parseCollectorFlags(t)
-	cfg := config.NewConfigWithDefaults()
-	cfg.EnabledCollectors = []string{"textfile"}
+	tests := []struct {
+		name            string
+		disableDefaults bool
+		collectors      map[string]bool
+		wantTextfile    bool
+	}{
+		{
+			name:            "enable with defaults disabled",
+			disableDefaults: true,
+			collectors:      map[string]bool{"textfile": true},
+			wantTextfile:    true,
+		},
+		{
+			name:         "disable a default collector",
+			collectors:   map[string]bool{"textfile": false},
+			wantTextfile: false,
+		},
+	}
 
-	runtime, err := NewRuntime(cfg, testLogger())
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cfg := config.NewConfigWithDefaults()
+			cfg.CollectorDisableDefaults = test.disableDefaults
+			cfg.Collectors = test.collectors
+
+			runtime, err := NewRuntime(cfg, testLogger())
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := slices.Contains(runtime.EnabledCollectors(), "textfile"); got != test.wantTextfile {
+				t.Fatalf("textfile enabled: want %t, got %t (%v)", test.wantTextfile, got, runtime.EnabledCollectors())
+			}
+		})
+	}
+}
+
+func TestNewRuntimeCollectorsTakePrecedenceOverFlags(t *testing.T) {
+	parseCollectorFlags(t)
+	original := *collectorState["textfile"]
+	*collectorState["textfile"] = false
+	forcedCollectors["textfile"] = true
+	t.Cleanup(func() {
+		*collectorState["textfile"] = original
+		delete(forcedCollectors, "textfile")
+	})
+
+	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got, want := runtime.EnabledCollectors(), []string{"textfile"}; !slices.Equal(got, want) {
 		t.Fatalf("want %v, got %v", want, got)
+	}
+}
+
+func TestNewRuntimeRejectsUnknownCollector(t *testing.T) {
+	cfg := config.NewConfigWithDefaults()
+	cfg.Collectors = map[string]bool{"doesnotexist": true}
+
+	if _, err := NewRuntime(cfg, testLogger()); err == nil {
+		t.Fatal("want error for an unknown collector, got nil")
 	}
 }
 
@@ -108,9 +160,7 @@ func TestNewRuntimeUsesDefaultsWithoutParsedFlags(t *testing.T) {
 
 func TestRuntimeExposesCollectorMetrics(t *testing.T) {
 	parseCollectorFlags(t)
-	cfg := config.NewConfigWithDefaults()
-	cfg.EnabledCollectors = []string{"textfile"}
-	runtime, err := NewRuntime(cfg, testLogger())
+	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,9 +188,7 @@ node_scrape_collector_success{collector="textfile"} 1
 
 func TestRuntimeFiltered(t *testing.T) {
 	parseCollectorFlags(t)
-	cfg := config.NewConfigWithDefaults()
-	cfg.EnabledCollectors = []string{"textfile"}
-	runtime, err := NewRuntime(cfg, testLogger())
+	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,6 +239,14 @@ func TestDeprecatedNodeCollectorWrappers(t *testing.T) {
 	if first.Collectors["textfile"] != second.Collectors["textfile"] {
 		t.Fatal("want callers to share collector instances")
 	}
+}
+
+// textfileOnlyConfig returns a Config that enables only the textfile collector.
+func textfileOnlyConfig() config.Config {
+	cfg := config.NewConfigWithDefaults()
+	cfg.CollectorDisableDefaults = true
+	cfg.Collectors = map[string]bool{"textfile": true}
+	return cfg
 }
 
 func testLogger() *slog.Logger {

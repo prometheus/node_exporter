@@ -90,12 +90,21 @@ type NodeCollector struct {
 	logger     *slog.Logger
 }
 
-func newCollectorRuntimeState(disableDefaultCollectors bool) *collectorRuntimeState {
+func newCollectorRuntimeState(disableDefaultCollectors bool, overrides map[string]bool) (*collectorRuntimeState, error) {
+	for collector := range overrides {
+		if _, ok := collectorState[collector]; !ok {
+			return nil, fmt.Errorf("unknown collector: %s", collector)
+		}
+	}
+
 	enabled := make(map[string]bool, len(collectorState))
 	for collector, state := range collectorState {
 		// Use the flag value only when the flag was set on the command line,
 		// so a runtime built without kingpin.Parse still gets the defaults.
+		override, overridden := overrides[collector]
 		switch {
+		case overridden:
+			enabled[collector] = override
 		case forcedCollectors[collector]:
 			enabled[collector] = *state
 		case disableDefaultCollectors:
@@ -108,7 +117,7 @@ func newCollectorRuntimeState(disableDefaultCollectors bool) *collectorRuntimeSt
 	return &collectorRuntimeState{
 		enabled:    enabled,
 		collectors: make(map[string]Collector),
-	}
+	}, nil
 }
 
 // collectorFlagAction generates a new action function for the given collector

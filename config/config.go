@@ -16,8 +16,13 @@ package config
 // Config contains the options that control which collectors a runtime
 // enables.
 type Config struct {
+	// CollectorDisableDefaults turns off every collector that Collectors
+	// does not name, like --collector.disable-defaults.
 	CollectorDisableDefaults bool
-	EnabledCollectors        []string
+	// Collectors enables or disables collectors by name, like
+	// --collector.<name> and --no-collector.<name>. It takes precedence
+	// over the command-line flags.
+	Collectors map[string]bool
 }
 
 // NewConfigWithDefaults returns a Config with the node_exporter defaults.

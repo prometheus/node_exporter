@@ -37,13 +37,16 @@ func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
 		return nil, err
 	}
 
-	state := newCollectorRuntimeState(cfg.CollectorDisableDefaults)
+	state, err := newCollectorRuntimeState(cfg.CollectorDisableDefaults, cfg.Collectors)
+	if err != nil {
+		return nil, err
+	}
 
-	return newRuntime(state, logger, cfg.EnabledCollectors)
+	return newRuntime(state, logger)
 }
 
-func newRuntime(state *collectorRuntimeState, logger *slog.Logger, enabledCollectors []string) (*Runtime, error) {
-	nodeCollector, err := state.NewNodeCollector(logger, enabledCollectors...)
+func newRuntime(state *collectorRuntimeState, logger *slog.Logger, filters ...string) (*Runtime, error) {
+	nodeCollector, err := state.NewNodeCollector(logger, filters...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +60,7 @@ func (r *Runtime) Filtered(enabledCollectors ...string) (*Runtime, error) {
 			return nil, fmt.Errorf("collector not enabled in this runtime: %s", name)
 		}
 	}
-	return newRuntime(r.state, r.logger, enabledCollectors)
+	return newRuntime(r.state, r.logger, enabledCollectors...)
 }
 
 func (r *Runtime) Collectors() []prometheus.Collector {
