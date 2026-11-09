@@ -218,13 +218,17 @@ func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
 			for _, mf := range families {
 				// Check for metrics with inconsistent help texts and take the first help text occurrence.
 				if helpTexts, seen := metricsNamesToHelpTexts[*mf.Name]; seen {
-					if mf.Help != nil && helpTexts[0] != *mf.Help || helpTexts[1] != "" {
-						metricsNamesToHelpTexts[*mf.Name] = [2]string{helpTexts[0], *mf.Help}
+					// mf.Help is nil when the file has no HELP line, so use GetHelp().
+					newHelp := mf.GetHelp()
+					if (mf.Help != nil && helpTexts[0] != newHelp) || helpTexts[1] != "" {
+						if mf.Help != nil {
+							metricsNamesToHelpTexts[*mf.Name] = [2]string{helpTexts[0], newHelp}
+						}
 						errored = true
 						c.logger.Error("inconsistent metric help text",
 							"metric", *mf.Name,
 							"original_help_text", helpTexts[0],
-							"new_help_text", *mf.Help,
+							"new_help_text", newHelp,
 							// Only the first file path will be recorded in case of two or more inconsistent help texts.
 							"file", metricsNamesToFiles[*mf.Name][0])
 						continue

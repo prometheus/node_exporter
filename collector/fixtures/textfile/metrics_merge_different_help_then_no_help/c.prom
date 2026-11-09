@@ -1,0 +1,2 @@
+# TYPE events_total counter
+events_total{file="c"} 30
