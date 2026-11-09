@@ -19,8 +19,9 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -29,21 +30,6 @@ const (
 
 var (
 	diskLabelNames = []string{"device"}
-
-	diskstatsDeviceExcludeSet bool
-	diskstatsDeviceExclude    = kingpin.Flag(
-		"collector.diskstats.device-exclude",
-		"Regexp of diskstats devices to exclude (mutually exclusive to device-include).",
-	).Default(diskstatsDefaultIgnoredDevices).PreAction(func(_ *kingpin.ParseContext) error {
-		diskstatsDeviceExcludeSet = true
-		return nil
-	}).String()
-	oldDiskstatsDeviceExclude = kingpin.Flag(
-		"collector.diskstats.ignored-devices",
-		"DEPRECATED: Use collector.diskstats.device-exclude",
-	).Hidden().String()
-
-	diskstatsDeviceInclude = kingpin.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
 
 	readsCompletedDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, diskSubsystem, "reads_completed_total"),
@@ -90,29 +76,18 @@ var (
 	)
 )
 
-func newDiskstatsDeviceFilter(logger *slog.Logger) (deviceFilter, error) {
-	if *oldDiskstatsDeviceExclude != "" {
-		if !diskstatsDeviceExcludeSet {
-			logger.Warn("--collector.diskstats.ignored-devices is DEPRECATED and will be removed in 2.0.0, use --collector.diskstats.device-exclude")
-			*diskstatsDeviceExclude = *oldDiskstatsDeviceExclude
-		} else {
-			return deviceFilter{}, errors.New("--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive")
-		}
-	}
-	if *diskstatsDeviceInclude != "" {
-		if diskstatsDeviceExcludeSet && *diskstatsDeviceExclude != "" {
-			return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
-		}
-		*diskstatsDeviceExclude = ""
+func newDiskstatsDeviceFilter(cfg config.DiskstatsConfig, logger *slog.Logger) (deviceFilter, error) {
+	if cfg.DeviceExclude != "" && cfg.DeviceInclude != "" {
+		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
 	}
 
-	if *diskstatsDeviceExclude != "" {
-		logger.Info("Parsed flag --collector.diskstats.device-exclude", "flag", *diskstatsDeviceExclude)
+	if cfg.DeviceExclude != "" {
+		logger.Info("Parsed flag --collector.diskstats.device-exclude", "flag", cfg.DeviceExclude)
 	}
 
-	if *diskstatsDeviceInclude != "" {
-		logger.Info("Parsed Flag --collector.diskstats.device-include", "flag", *diskstatsDeviceInclude)
+	if cfg.DeviceInclude != "" {
+		logger.Info("Parsed Flag --collector.diskstats.device-include", "flag", cfg.DeviceInclude)
 	}
 
-	return newDeviceFilter(*diskstatsDeviceExclude, *diskstatsDeviceInclude), nil
+	return newDeviceFilter(cfg.DeviceExclude, cfg.DeviceInclude), nil
 }

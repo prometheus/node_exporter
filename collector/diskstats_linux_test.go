@@ -53,7 +53,6 @@ func TestDiskStats(t *testing.T) {
 	*sysPath = "fixtures/sys"
 	*procPath = "fixtures/proc"
 	*udevDataPath = "fixtures/udev/data"
-	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 	testcase := `# HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200
@@ -406,7 +405,6 @@ func BenchmarkDiskstatsUpdate(b *testing.B) {
 	*sysPath = "fixtures/sys"
 	*procPath = "fixtures/proc"
 	*udevDataPath = "fixtures/udev/data"
-	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	collector, err := NewDiskstatsCollector(flagConfig(), logger)

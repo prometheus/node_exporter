@@ -243,22 +243,47 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 	qdiscDeviceExclude := app.Flag("collector.qdisc.device-exclude", "Regexp of qdisc devices to exclude (mutually exclusive to device-include).").String()
 	oldQdiscDeviceExclude := app.Flag("collector.qdisk.device-exclude", "DEPRECATED: Use collector.qdisc.device-exclude").Hidden().String()
 	ipvsBackendLabels := app.Flag("collector.ipvs.backend-labels", "Comma separated list for IPVS backend stats labels.").Default(config.DefaultIPVSBackendLabels).String()
+	var diskstatsExcludeSet, mountPointsExcludeSet, fsTypesExcludeSet bool
+	diskstatsDeviceExclude := app.Flag("collector.diskstats.device-exclude", "Regexp of diskstats devices to exclude (mutually exclusive to device-include).").Default(config.DefaultDiskstatsDeviceExclude).IsSetByUser(&diskstatsExcludeSet).String()
+	oldDiskstatsDeviceExclude := app.Flag("collector.diskstats.ignored-devices", "DEPRECATED: Use collector.diskstats.device-exclude").Hidden().String()
+	diskstatsDeviceInclude := app.Flag("collector.diskstats.device-include", "Regexp of diskstats devices to include (mutually exclusive to device-exclude).").String()
+	mountPointsExclude := app.Flag("collector.filesystem.mount-points-exclude", "Regexp of mount points to exclude for filesystem collector. (mutually exclusive to mount-points-include)").Default(config.DefaultFilesystemMountPointsExclude).IsSetByUser(&mountPointsExcludeSet).String()
+	oldMountPointsExclude := app.Flag("collector.filesystem.ignored-mount-points", "Regexp of mount points to ignore for filesystem collector.").Hidden().String()
+	mountPointsInclude := app.Flag("collector.filesystem.mount-points-include", "Regexp of mount points to include for filesystem collector. (mutually exclusive to mount-points-exclude)").String()
+	fsTypesExclude := app.Flag("collector.filesystem.fs-types-exclude", "Regexp of filesystem types to exclude for filesystem collector. (mutually exclusive to fs-types-include)").Default(config.DefaultFilesystemFSTypesExclude).IsSetByUser(&fsTypesExcludeSet).String()
+	oldFSTypesExclude := app.Flag("collector.filesystem.ignored-fs-types", "Regexp of filesystem types to ignore for filesystem collector.").Hidden().String()
+	fsTypesInclude := app.Flag("collector.filesystem.fs-types-include", "Regexp of filesystem types to include for filesystem collector. (mutually exclusive to fs-types-exclude)").String()
+	mountTimeout := app.Flag("collector.filesystem.mount-timeout", "how long to wait for a mount to respond before marking it as stale").Hidden().Default(config.DefaultFilesystemMountTimeout.String()).Duration()
+	statWorkerCount := app.Flag("collector.filesystem.stat-workers", "how many stat calls to process simultaneously").Hidden().Default(strconv.Itoa(config.DefaultFilesystemStatWorkerCount)).Int()
 	wifiFixtures := app.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
 
 	return func(logger *slog.Logger) (config.Config, error) {
-		netdevInclude, err := deprecatedFlag(logger, "collector.netdev.device-whitelist", *oldNetdevDeviceInclude, "collector.netdev.device-include", *netdevDeviceInclude)
+		netdevInclude, err := deprecatedFlag(logger, "collector.netdev.device-whitelist", *oldNetdevDeviceInclude, "collector.netdev.device-include", *netdevDeviceInclude, *netdevDeviceInclude != "")
 		if err != nil {
 			return config.Config{}, err
 		}
-		netdevExclude, err := deprecatedFlag(logger, "collector.netdev.device-blacklist", *oldNetdevDeviceExclude, "collector.netdev.device-exclude", *netdevDeviceExclude)
+		netdevExclude, err := deprecatedFlag(logger, "collector.netdev.device-blacklist", *oldNetdevDeviceExclude, "collector.netdev.device-exclude", *netdevDeviceExclude, *netdevDeviceExclude != "")
 		if err != nil {
 			return config.Config{}, err
 		}
-		qdiscInclude, err := deprecatedFlag(logger, "collector.qdisk.device-include", *oldQdiscDeviceInclude, "collector.qdisc.device-include", *qdiscDeviceInclude)
+		qdiscInclude, err := deprecatedFlag(logger, "collector.qdisk.device-include", *oldQdiscDeviceInclude, "collector.qdisc.device-include", *qdiscDeviceInclude, *qdiscDeviceInclude != "")
 		if err != nil {
 			return config.Config{}, err
 		}
-		qdiscExclude, err := deprecatedFlag(logger, "collector.qdisk.device-exclude", *oldQdiscDeviceExclude, "collector.qdisc.device-exclude", *qdiscDeviceExclude)
+		qdiscExclude, err := deprecatedFlag(logger, "collector.qdisk.device-exclude", *oldQdiscDeviceExclude, "collector.qdisc.device-exclude", *qdiscDeviceExclude, *qdiscDeviceExclude != "")
+		if err != nil {
+			return config.Config{}, err
+		}
+
+		diskstatsExclude, err := deprecatedFlag(logger, "collector.diskstats.ignored-devices", *oldDiskstatsDeviceExclude, "collector.diskstats.device-exclude", *diskstatsDeviceExclude, diskstatsExcludeSet)
+		if err != nil {
+			return config.Config{}, err
+		}
+		mountPointsExcl, err := deprecatedFlag(logger, "collector.filesystem.ignored-mount-points", *oldMountPointsExclude, "collector.filesystem.mount-points-exclude", *mountPointsExclude, mountPointsExcludeSet)
+		if err != nil {
+			return config.Config{}, err
+		}
+		fsTypesExcl, err := deprecatedFlag(logger, "collector.filesystem.ignored-fs-types", *oldFSTypesExclude, "collector.filesystem.fs-types-exclude", *fsTypesExclude, fsTypesExcludeSet)
 		if err != nil {
 			return config.Config{}, err
 		}
@@ -330,17 +355,39 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 		}
 		cfg.IPVS = config.IPVSConfig{BackendLabels: *ipvsBackendLabels}
 		cfg.Wifi = config.WifiConfig{Fixtures: *wifiFixtures}
+		cfg.Diskstats = config.DiskstatsConfig{
+			DeviceExclude: excludeFlag(diskstatsExclude, diskstatsExcludeSet, *diskstatsDeviceInclude),
+			DeviceInclude: *diskstatsDeviceInclude,
+		}
+		cfg.Filesystem = config.FilesystemConfig{
+			MountPointsExclude: excludeFlag(mountPointsExcl, mountPointsExcludeSet, *mountPointsInclude),
+			MountPointsInclude: *mountPointsInclude,
+			FSTypesExclude:     excludeFlag(fsTypesExcl, fsTypesExcludeSet, *fsTypesInclude),
+			FSTypesInclude:     *fsTypesInclude,
+			MountTimeout:       *mountTimeout,
+			StatWorkerCount:    *statWorkerCount,
+		}
 		return cfg, nil
 	}
 }
 
+// excludeFlag returns the value of an exclude flag that has a default. An
+// include flag replaces that default, unless the command line also sets the
+// exclude flag.
+func excludeFlag(exclude string, set bool, include string) string {
+	if include != "" && !set {
+		return ""
+	}
+	return exclude
+}
+
 // deprecatedFlag returns the value of the flag newName, or the value of the
-// deprecated flag oldName when only that one is set.
-func deprecatedFlag(logger *slog.Logger, oldName, oldValue, newName, value string) (string, error) {
+// deprecated flag oldName when the command line sets only that one.
+func deprecatedFlag(logger *slog.Logger, oldName, oldValue, newName, value string, set bool) (string, error) {
 	if oldValue == "" {
 		return value, nil
 	}
-	if value != "" {
+	if set {
 		return "", fmt.Errorf("--%s and --%s are mutually exclusive", oldName, newName)
 	}
 	logger.Warn(fmt.Sprintf("--%s is DEPRECATED and will be removed in 2.0.0, use --%s", oldName, newName))

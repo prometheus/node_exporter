@@ -26,24 +26,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"golang.org/x/sys/unix"
 
 	"github.com/prometheus/procfs"
 )
-
-const (
-	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)"
-	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$"
-)
-
-var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
-	"how long to wait for a mount to respond before marking it as stale").
-	Hidden().Default("5s").Duration()
-
-var statWorkerCount = kingpin.Flag("collector.filesystem.stat-workers",
-	"how many stat calls to process simultaneously").
-	Hidden().Default("4").Int()
 
 var (
 	stuckMounts    = make(map[string]struct{})
@@ -61,7 +47,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
-	workerCount := max(*statWorkerCount, 1)
+	workerCount := max(c.config.StatWorkerCount, 1)
 
 	for range workerCount {
 		wg.Go(func() {
@@ -115,7 +101,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	}
 
 	success := make(chan struct{})
-	go stuckMountWatcher(labels.mountPoint, success, c.logger)
+	go stuckMountWatcher(labels.mountPoint, success, c.config.MountTimeout, c.logger)
 
 	buf := new(unix.Statfs_t)
 	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
@@ -159,8 +145,8 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger *slog.Logger) {
-	mountCheckTimer := time.NewTimer(*mountTimeout)
+func stuckMountWatcher(mountPoint string, success chan struct{}, timeout time.Duration, logger *slog.Logger) {
+	mountCheckTimer := time.NewTimer(timeout)
 	defer mountCheckTimer.Stop()
 	select {
 	case <-success:

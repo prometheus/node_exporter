@@ -25,8 +25,6 @@ import (
 	"github.com/prometheus/node_exporter/config"
 )
 
-const diskstatsDefaultIgnoredDevices = ""
-
 type typedDescFunc struct {
 	typedDesc
 	value func(stat *iostat.DriveStats) float64
@@ -44,10 +42,10 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	diskLabelNames := []string{"device"}
 
-	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+	deviceFilter, err := newDiskstatsDeviceFilter(cfg.Diskstats, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}

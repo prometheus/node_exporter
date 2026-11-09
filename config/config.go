@@ -48,6 +48,8 @@ type Config struct {
 	Qdisc      QdiscConfig
 	IPVS       IPVSConfig
 	Wifi       WifiConfig
+	Diskstats  DiskstatsConfig
+	Filesystem FilesystemConfig
 	// END COLLECTORS
 }
 
@@ -114,6 +116,15 @@ func NewConfigWithDefaults() Config {
 		IPVS: IPVSConfig{
 			BackendLabels: DefaultIPVSBackendLabels,
 		},
+		Diskstats: DiskstatsConfig{
+			DeviceExclude: DefaultDiskstatsDeviceExclude,
+		},
+		Filesystem: FilesystemConfig{
+			MountPointsExclude: DefaultFilesystemMountPointsExclude,
+			FSTypesExclude:     DefaultFilesystemFSTypesExclude,
+			MountTimeout:       DefaultFilesystemMountTimeout,
+			StatWorkerCount:    DefaultFilesystemStatWorkerCount,
+		},
 		// END DEFAULTS
 	}
 }
@@ -137,6 +148,12 @@ func (c Config) Validate() error {
 		{"NetDev.DeviceExclude", c.NetDev.DeviceExclude},
 		{"Qdisc.DeviceInclude", c.Qdisc.DeviceInclude},
 		{"Qdisc.DeviceExclude", c.Qdisc.DeviceExclude},
+		{"Diskstats.DeviceExclude", c.Diskstats.DeviceExclude},
+		{"Diskstats.DeviceInclude", c.Diskstats.DeviceInclude},
+		{"Filesystem.MountPointsExclude", c.Filesystem.MountPointsExclude},
+		{"Filesystem.MountPointsInclude", c.Filesystem.MountPointsInclude},
+		{"Filesystem.FSTypesExclude", c.Filesystem.FSTypesExclude},
+		{"Filesystem.FSTypesInclude", c.Filesystem.FSTypesInclude},
 		// END REGEXPS
 	} {
 		if _, err := regexp.Compile(r.expr); err != nil {

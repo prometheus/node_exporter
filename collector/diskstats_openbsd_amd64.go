@@ -28,8 +28,6 @@ import (
 
 const (
 	DS_DISKNAMELEN = 16
-
-	diskstatsDefaultIgnoredDevices = ""
 )
 
 type DiskStats struct {
@@ -61,8 +59,8 @@ func init() {
 }
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
-func NewDiskstatsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	deviceFilter, err := newDiskstatsDeviceFilter(cfg.Diskstats, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}

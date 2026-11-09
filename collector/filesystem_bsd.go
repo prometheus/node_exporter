@@ -29,9 +29,7 @@ import (
 import "C"
 
 const (
-	defMountPointsExcluded = "^/(dev)($|/)"
-	defFSTypesExcluded     = "^devfs$"
-	readOnly               = 0x1 // MNT_RDONLY
+	readOnly = 0x1 // MNT_RDONLY
 )
 
 // Expose filesystem fullness.

@@ -40,6 +40,12 @@ func TestValidateRejectsInvalidRegexps(t *testing.T) {
 		{name: "netdev deviceexclude", modify: func(c *Config) { c.NetDev.DeviceExclude = "(" }, wantField: "NetDev.DeviceExclude"},
 		{name: "qdisc deviceinclude", modify: func(c *Config) { c.Qdisc.DeviceInclude = "(" }, wantField: "Qdisc.DeviceInclude"},
 		{name: "qdisc deviceexclude", modify: func(c *Config) { c.Qdisc.DeviceExclude = "(" }, wantField: "Qdisc.DeviceExclude"},
+		{name: "diskstats deviceexclude", modify: func(c *Config) { c.Diskstats.DeviceExclude = "(" }, wantField: "Diskstats.DeviceExclude"},
+		{name: "diskstats deviceinclude", modify: func(c *Config) { c.Diskstats.DeviceInclude = "(" }, wantField: "Diskstats.DeviceInclude"},
+		{name: "filesystem mountpointsexclude", modify: func(c *Config) { c.Filesystem.MountPointsExclude = "(" }, wantField: "Filesystem.MountPointsExclude"},
+		{name: "filesystem mountpointsinclude", modify: func(c *Config) { c.Filesystem.MountPointsInclude = "(" }, wantField: "Filesystem.MountPointsInclude"},
+		{name: "filesystem fstypesexclude", modify: func(c *Config) { c.Filesystem.FSTypesExclude = "(" }, wantField: "Filesystem.FSTypesExclude"},
+		{name: "filesystem fstypesinclude", modify: func(c *Config) { c.Filesystem.FSTypesInclude = "(" }, wantField: "Filesystem.FSTypesInclude"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			cfg := NewConfigWithDefaults()

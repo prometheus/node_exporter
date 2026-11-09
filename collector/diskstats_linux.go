@@ -38,8 +38,6 @@ const (
 	// See also https://www.kernel.org/doc/Documentation/block/stat.txt
 	unixSectorSize = 512.0
 
-	diskstatsDefaultIgnoredDevices = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
-
 	// See udevadm(8).
 	udevDevicePropertyPrefix = "E:"
 
@@ -90,14 +88,14 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	diskLabelNames := []string{"device"}
 	fs, err := blockdevice.NewFS(*procPath, *sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+	deviceFilter, err := newDiskstatsDeviceFilter(cfg.Diskstats, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}

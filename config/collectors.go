@@ -13,7 +13,10 @@
 
 package config
 
-import "time"
+import (
+	"runtime"
+	"time"
+)
 
 const (
 	DefaultCPUEnableGuest = true
@@ -212,4 +215,70 @@ type IPVSConfig struct {
 type WifiConfig struct {
 	// Fixtures is --collector.wifi.fixtures: test fixtures to use for wifi collector metrics.
 	Fixtures string
+}
+
+// DefaultDiskstatsDeviceExclude depends on the operating system.
+var DefaultDiskstatsDeviceExclude = func() string {
+	if runtime.GOOS == "linux" {
+		return "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
+	}
+	return ""
+}()
+
+// DiskstatsConfig contains the options for the diskstats collector.
+type DiskstatsConfig struct {
+	// DeviceExclude is --collector.diskstats.device-exclude: Regexp of diskstats devices to exclude (mutually exclusive to device-include).
+	// Set it to "" to use DeviceInclude.
+	DeviceExclude string
+	// DeviceInclude is --collector.diskstats.device-include: Regexp of diskstats devices to include (mutually exclusive to device-exclude).
+	DeviceInclude string
+}
+
+var (
+	// DefaultFilesystemMountPointsExclude depends on the operating system.
+	DefaultFilesystemMountPointsExclude = defaultFilesystemExcludes[0]
+	// DefaultFilesystemFSTypesExclude depends on the operating system.
+	DefaultFilesystemFSTypesExclude = defaultFilesystemExcludes[1]
+)
+
+// defaultFilesystemExcludes holds the mount point and filesystem type
+// excludes for the operating system.
+var defaultFilesystemExcludes = func() [2]string {
+	switch runtime.GOOS {
+	case "linux":
+		return [2]string{
+			"^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)",
+			"^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$",
+		}
+	case "aix":
+		return [2]string{"^/(dev|aha)($|/)", "^procfs$"}
+	case "netbsd":
+		return [2]string{"^/(dev)($|/)", "^(kernfs|procfs|ptyfs|fdesc)$"}
+	case "darwin", "dragonfly", "freebsd", "openbsd":
+		return [2]string{"^/(dev)($|/)", "^devfs$"}
+	}
+	return [2]string{}
+}()
+
+const (
+	DefaultFilesystemMountTimeout    = 5 * time.Second
+	DefaultFilesystemStatWorkerCount = 4
+)
+
+// FilesystemConfig contains the options for the filesystem collector.
+type FilesystemConfig struct {
+	// MountPointsExclude is --collector.filesystem.mount-points-exclude: Regexp of mount points to exclude for filesystem collector. (mutually exclusive to mount-points-include)
+	// Set it to "" to use MountPointsInclude.
+	MountPointsExclude string
+	// MountPointsInclude is --collector.filesystem.mount-points-include: Regexp of mount points to include for filesystem collector. (mutually exclusive to mount-points-exclude)
+	MountPointsInclude string
+	// FSTypesExclude is --collector.filesystem.fs-types-exclude: Regexp of filesystem types to exclude for filesystem collector. (mutually exclusive to fs-types-include)
+	// Set it to "" to use FSTypesInclude.
+	FSTypesExclude string
+	// FSTypesInclude is --collector.filesystem.fs-types-include: Regexp of filesystem types to include for filesystem collector. (mutually exclusive to fs-types-exclude)
+	FSTypesInclude string
+	// MountTimeout is --collector.filesystem.mount-timeout: how long to wait for a mount to respond before marking it as stale.
+	MountTimeout time.Duration
+	// StatWorkerCount is --collector.filesystem.stat-workers: how many stat calls to process simultaneously.
+	StatWorkerCount int
 }

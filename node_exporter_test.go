@@ -112,6 +112,11 @@ func TestFlagsSetConfig(t *testing.T) {
 		"--collector.qdisc.device-exclude=^lo$",
 		"--collector.ipvs.backend-labels=local_port",
 		"--collector.wifi.fixtures=wifi/",
+		"--collector.diskstats.device-exclude=^loop",
+		"--collector.filesystem.mount-points-exclude=^/boot",
+		"--collector.filesystem.fs-types-exclude=^tmpfs$",
+		"--collector.filesystem.mount-timeout=7s",
+		"--collector.filesystem.stat-workers=2",
 	)
 
 	want := config.NewConfigWithDefaults()
@@ -143,6 +148,13 @@ func TestFlagsSetConfig(t *testing.T) {
 	want.Qdisc = config.QdiscConfig{Fixtures: "qdisc/", DeviceExclude: "^lo$"}
 	want.IPVS = config.IPVSConfig{BackendLabels: "local_port"}
 	want.Wifi = config.WifiConfig{Fixtures: "wifi/"}
+	want.Diskstats = config.DiskstatsConfig{DeviceExclude: "^loop"}
+	want.Filesystem = config.FilesystemConfig{
+		MountPointsExclude: "^/boot",
+		FSTypesExclude:     "^tmpfs$",
+		MountTimeout:       7 * time.Second,
+		StatWorkerCount:    2,
+	}
 
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got:  %+v\nwant: %+v", got, want)
@@ -172,6 +184,22 @@ func TestDeprecatedFlags(t *testing.T) {
 			want: func(c *config.Config) { c.Qdisc.DeviceExclude = "^lo$" },
 		},
 		{
+			args: []string{"--collector.diskstats.ignored-devices=^loop"},
+			want: func(c *config.Config) { c.Diskstats.DeviceExclude = "^loop" },
+		},
+		{
+			args: []string{"--collector.filesystem.ignored-mount-points=^/boot"},
+			want: func(c *config.Config) { c.Filesystem.MountPointsExclude = "^/boot" },
+		},
+		{
+			args: []string{"--collector.filesystem.ignored-fs-types=^tmpfs$"},
+			want: func(c *config.Config) { c.Filesystem.FSTypesExclude = "^tmpfs$" },
+		},
+		{
+			args:    []string{"--collector.diskstats.ignored-devices=^loop", "--collector.diskstats.device-exclude=^ram"},
+			wantErr: "--collector.diskstats.ignored-devices and --collector.diskstats.device-exclude are mutually exclusive",
+		},
+		{
 			args:    []string{"--collector.netdev.device-whitelist=^en", "--collector.netdev.device-include=^eth"},
 			wantErr: "--collector.netdev.device-whitelist and --collector.netdev.device-include are mutually exclusive",
 		},
@@ -194,6 +222,43 @@ func TestDeprecatedFlags(t *testing.T) {
 			want := config.NewConfigWithDefaults()
 			test.want(&want)
 			if !reflect.DeepEqual(got, want) {
+				t.Fatalf("got:  %+v\nwant: %+v", got, want)
+			}
+		})
+	}
+}
+
+func TestIncludeFlagReplacesDefaultExclude(t *testing.T) {
+	for _, test := range []struct {
+		args []string
+		want func(*config.Config)
+	}{
+		{
+			args: []string{"--collector.diskstats.device-include=^sd"},
+			want: func(c *config.Config) { c.Diskstats = config.DiskstatsConfig{DeviceInclude: "^sd"} },
+		},
+		{
+			args: []string{"--collector.filesystem.mount-points-include=^/data"},
+			want: func(c *config.Config) {
+				c.Filesystem.MountPointsExclude, c.Filesystem.MountPointsInclude = "", "^/data"
+			},
+		},
+		{
+			args: []string{"--collector.filesystem.fs-types-include=^ext4$"},
+			want: func(c *config.Config) { c.Filesystem.FSTypesExclude, c.Filesystem.FSTypesInclude = "", "^ext4$" },
+		},
+		{
+			// Both flags on the command line: the collector rejects the pair.
+			args: []string{"--collector.diskstats.device-include=^sd", "--collector.diskstats.device-exclude=^sdb"},
+			want: func(c *config.Config) {
+				c.Diskstats = config.DiskstatsConfig{DeviceInclude: "^sd", DeviceExclude: "^sdb"}
+			},
+		},
+	} {
+		t.Run(test.args[0], func(t *testing.T) {
+			want := config.NewConfigWithDefaults()
+			test.want(&want)
+			if got := parseConfigFlags(t, test.args...); !reflect.DeepEqual(got, want) {
 				t.Fatalf("got:  %+v\nwant: %+v", got, want)
 			}
 		})
