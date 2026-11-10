@@ -62,3 +62,5 @@ require (
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
+
+replace github.com/prometheus/procfs => github.com/baozhuoran/procfs v0.23.1-0.20261110194208-36d5d5d3a556
