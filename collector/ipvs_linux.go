@@ -85,7 +85,7 @@ func newIPVSCollector(cfg config.Config, logger *slog.Logger) (*ipvsCollector, e
 	}
 
 	c.logger = logger
-	c.fs, err = procfs.NewFS(*procPath)
+	c.fs, err = procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

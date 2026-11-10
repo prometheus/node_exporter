@@ -63,7 +63,6 @@ type Config struct {
 	Supervisord SupervisordConfig
 	Slabinfo    SlabinfoConfig
 	Tapestats   TapestatsConfig
-	// END COLLECTORS
 }
 
 const (
@@ -163,7 +162,6 @@ func NewConfigWithDefaults() Config {
 		Tapestats: TapestatsConfig{
 			IgnoredDevices: DefaultTapestatsIgnoredDevices,
 		},
-		// END DEFAULTS
 	}
 }
 
@@ -204,7 +202,6 @@ func (c Config) Validate() error {
 		{"Slabinfo.SlabsInclude", c.Slabinfo.SlabsInclude},
 		{"Slabinfo.SlabsExclude", c.Slabinfo.SlabsExclude},
 		{"Tapestats.IgnoredDevices", c.Tapestats.IgnoredDevices},
-		// END REGEXPS
 	} {
 		if _, err := regexp.Compile(r.expr); err != nil {
 			return fmt.Errorf("invalid %s: %w", r.name, err)

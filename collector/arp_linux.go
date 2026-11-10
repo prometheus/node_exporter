@@ -46,7 +46,7 @@ var arpEntries = prometheus.NewDesc(
 
 // NewARPCollector returns a new Collector exposing ARP stats.
 func NewARPCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

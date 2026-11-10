@@ -36,6 +36,7 @@ const (
 type vmStatCollector struct {
 	fieldPattern *regexp.Regexp
 	logger       *slog.Logger
+	paths        pathConfig
 }
 
 func init() {
@@ -46,13 +47,14 @@ func init() {
 func NewvmStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(cfg.VMStat.Fields)
 	return &vmStatCollector{
+		paths:        pathConfig(cfg.Path),
 		fieldPattern: pattern,
 		logger:       logger,
 	}, nil
 }
 
 func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
-	file, err := os.Open(procFilePath("vmstat"))
+	file, err := os.Open(c.paths.procFilePath("vmstat"))
 	if err != nil {
 		return err
 	}

@@ -35,8 +35,8 @@ func init() {
 }
 
 // NewXfrmCollector returns a new Collector exposing XFRM stats.
-func NewXfrmCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewXfrmCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

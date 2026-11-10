@@ -181,6 +181,10 @@ func (h *handler) innerHandler(filters ...string) (http.Handler, error) {
 // addFlags adds the collector flags to app. The returned function builds a
 // Config from them after app parses the command line.
 func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error) {
+	procFS := app.Flag("path.procfs", "procfs mountpoint.").Default(config.DefaultPathProcFS).String()
+	sysFS := app.Flag("path.sysfs", "sysfs mountpoint.").Default(config.DefaultPathSysFS).String()
+	rootFS := app.Flag("path.rootfs", "rootfs mountpoint.").Default(config.DefaultPathRootFS).String()
+	udevData := app.Flag("path.udev.data", "udev data path.").Default(config.DefaultPathUdevData).String()
 	disableDefaults := app.Flag("collector.disable-defaults", "Set all collectors to disabled by default.").Default("false").Bool()
 
 	type collectorFlag struct {
@@ -333,7 +337,8 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 			return config.Config{}, err
 		}
 
-		cfg := collector.ConfigFromFlags(config.NewConfigWithDefaults())
+		cfg := config.NewConfigWithDefaults()
+		cfg.Path = config.PathConfig{ProcFS: *procFS, SysFS: *sysFS, RootFS: *rootFS, UdevData: *udevData}
 		cfg.CollectorDisableDefaults = *disableDefaults
 		for name, f := range collectorFlags {
 			if f.setByUser {

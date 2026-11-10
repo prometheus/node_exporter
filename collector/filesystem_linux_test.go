@@ -23,8 +23,6 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/alecthomas/kingpin/v2"
-
 	"github.com/prometheus/procfs"
 )
 
@@ -45,7 +43,7 @@ func Test_parseFilesystemLabelsError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if _, err := parseFilesystemLabels(tt.in); err == nil {
+			if _, err := parseFilesystemLabels(pathConfig{RootFS: "/"}, tt.in); err == nil {
 				t.Fatal("expected an error, but none occurred")
 			}
 		})
@@ -62,7 +60,7 @@ func Test_parseFilesystemLabelsSanitizesInvalidUTF8(t *testing.T) {
 		},
 	}
 
-	got, err := parseFilesystemLabels(in)
+	got, err := parseFilesystemLabels(pathConfig{RootFS: "/"}, in)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -127,9 +125,7 @@ func Test_isFilesystemReadOnly(t *testing.T) {
 }
 
 func TestMountPointDetails(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures/proc"}); err != nil {
-		t.Fatal(err)
-	}
+	paths := pathConfig{ProcFS: "./fixtures/proc", RootFS: "/"}
 
 	expected := map[string]string{
 		"/":                               "",
@@ -165,7 +161,7 @@ func TestMountPointDetails(t *testing.T) {
 		"/var/lib/containers/storage/overlay": "",
 	}
 
-	filesystems, err := mountPointDetails(slog.New(slog.NewTextHandler(io.Discard, nil)))
+	filesystems, err := mountPointDetails(paths, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Log(err)
 	}
@@ -186,15 +182,13 @@ func TestMountPointDetails(t *testing.T) {
 }
 
 func TestMountsFallback(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_hidepid/proc"}); err != nil {
-		t.Fatal(err)
-	}
+	paths := pathConfig{ProcFS: "./fixtures_hidepid/proc", RootFS: "/"}
 
 	expected := map[string]string{
 		"/": "",
 	}
 
-	filesystems, err := mountPointDetails(slog.New(slog.NewTextHandler(io.Discard, nil)))
+	filesystems, err := mountPointDetails(paths, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Log(err)
 	}
@@ -289,9 +283,7 @@ func TestMountOptionsStringReadOnlyDetection(t *testing.T) {
 }
 
 func TestPathRootfs(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "./fixtures_bindmount/proc", "--path.rootfs", "/host"}); err != nil {
-		t.Fatal(err)
-	}
+	paths := pathConfig{ProcFS: "./fixtures_bindmount/proc", RootFS: "/host"}
 
 	expected := map[string]string{
 		// should modify these mountpoints (removes /host, see fixture proc file)
@@ -304,7 +296,7 @@ func TestPathRootfs(t *testing.T) {
 		"/sys/fs/cgroup": "",
 	}
 
-	filesystems, err := mountPointDetails(slog.New(slog.NewTextHandler(io.Discard, nil)))
+	filesystems, err := mountPointDetails(paths, slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Log(err)
 	}

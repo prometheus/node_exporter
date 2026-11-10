@@ -97,7 +97,7 @@ import "C"
 var interruptLabelNames = []string{"cpu", "type", "devices"}
 
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
-	interrupts, err := getInterrupts()
+	interrupts, err := getInterrupts(c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get interrupts: %w", err)
 	}
@@ -130,7 +130,7 @@ type interrupt struct {
 	values []float64
 }
 
-func getInterrupts() (map[string]interrupt, error) {
+func getInterrupts(_ pathConfig) (map[string]interrupt, error) {
 	var (
 		cintr      C.struct_intr
 		interrupts = map[string]interrupt{}

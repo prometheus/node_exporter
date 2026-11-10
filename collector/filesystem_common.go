@@ -41,6 +41,7 @@ type filesystemCollector struct {
 	mountInfoDesc                 *prometheus.Desc
 	logger                        *slog.Logger
 	config                        config.FilesystemConfig
+	paths                         pathConfig
 }
 
 type filesystemLabels struct {
@@ -129,6 +130,7 @@ func NewFilesystemCollector(cfg config.Config, logger *slog.Logger) (Collector, 
 	}
 
 	return &filesystemCollector{
+		paths:            pathConfig(cfg.Path),
 		mountPointFilter: mountPointFilter,
 		fsTypeFilter:     fsTypeFilter,
 		sizeDesc:         sizeDesc,

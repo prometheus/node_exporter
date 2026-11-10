@@ -38,7 +38,7 @@ var (
 
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	mps, err := mountPointDetails(c.logger)
+	mps, err := mountPointDetails(c.paths, c.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	go stuckMountWatcher(labels.mountPoint, success, c.config.MountTimeout, c.logger)
 
 	buf := new(unix.Statfs_t)
-	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
+	err := unix.Statfs(c.paths.rootfsFilePath(labels.mountPoint), buf)
 	stuckMountsMtx.Lock()
 	close(success)
 
@@ -123,7 +123,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 
 	if err != nil {
 		labels.deviceError = err.Error()
-		c.logger.Debug("Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+		c.logger.Debug("Error on statfs() system call", "rootfs", c.paths.rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
@@ -165,8 +165,8 @@ func stuckMountWatcher(mountPoint string, success chan struct{}, timeout time.Du
 	}
 }
 
-func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
-	fs, err := procfs.NewFS(*procPath)
+func mountPointDetails(paths pathConfig, logger *slog.Logger) ([]filesystemLabels, error) {
+	fs, err := procfs.NewFS(paths.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
@@ -180,10 +180,10 @@ func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
 		return nil, err
 	}
 
-	return parseFilesystemLabels(mountInfo)
+	return parseFilesystemLabels(paths, mountInfo)
 }
 
-func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, error) {
+func parseFilesystemLabels(paths pathConfig, mountInfo []*procfs.MountInfo) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
 	for _, mount := range mountInfo {
@@ -200,7 +200,7 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:       strings.ToValidUTF8(mount.Source, "�"),
-			mountPoint:   strings.ToValidUTF8(rootfsStripPrefix(mount.MountPoint), "�"),
+			mountPoint:   strings.ToValidUTF8(paths.rootfsStripPrefix(mount.MountPoint), "�"),
 			fsType:       strings.ToValidUTF8(mount.FSType, "�"),
 			mountOptions: mountOptionsString(mount.Options),
 			superOptions: mountOptionsString(mount.SuperOptions),

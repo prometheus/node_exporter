@@ -45,7 +45,7 @@ func NewInfiniBandCollector(cfg config.Config, logger *slog.Logger) (Collector, 
 	var i infinibandCollector
 	var err error
 
-	i.fs, err = sysfs.NewFS(*sysPath)
+	i.fs, err = sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

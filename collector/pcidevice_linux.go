@@ -160,7 +160,7 @@ func init() {
 
 // NewPcideviceCollector returns a new Collector exposing PCI devices stats.
 func NewPcideviceCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

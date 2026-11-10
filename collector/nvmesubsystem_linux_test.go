@@ -39,7 +39,7 @@ func (c testNVMeSubsystemCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestNVMeSubsystemCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewNVMeSubsystemCollector(flagConfig(), logger)
+	mc, err := NewNVMeSubsystemCollector(fixtureConfig(), logger)
 	if err != nil {
 		return testNVMeSubsystemCollector{}, err
 	}
@@ -47,8 +47,6 @@ func newTestNVMeSubsystemCollector(logger *slog.Logger) (prometheus.Collector, e
 }
 
 func TestNVMeSubsystemMetrics(t *testing.T) {
-	*sysPath = "fixtures/sys"
-
 	testcase := `# HELP node_nvmesubsystem_info Non-numeric information about an NVMe subsystem.
 # TYPE node_nvmesubsystem_info gauge
 node_nvmesubsystem_info{iopolicy="round-robin",model="Dell PowerStore",nqn="nqn.2014-08.org.nvmexpress:uuid:a34c4f3a-0d6f-5cec-dead-beefcafebabe",serial="SN12345678",subsystem="nvme-subsys0"} 1
@@ -110,10 +108,10 @@ node_nvmesubsystem_paths_live{subsystem="nvme-subsys0"} 3
 }
 
 func TestNVMeSubsystemNoDevices(t *testing.T) {
-	*sysPath = t.TempDir()
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	coll, err := NewNVMeSubsystemCollector(flagConfig(), logger)
+	cfg := fixtureConfig()
+	cfg.Path.SysFS = t.TempDir()
+	coll, err := NewNVMeSubsystemCollector(cfg, logger)
 	if err != nil {
 		t.Fatal(err)
 	}

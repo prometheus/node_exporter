@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -23,8 +24,8 @@ import (
 )
 
 // Read loadavg from /proc.
-func getLoad() (loads []float64, err error) {
-	data, err := os.ReadFile(procFilePath("loadavg"))
+func getLoad(paths pathConfig) (loads []float64, err error) {
+	data, err := os.ReadFile(paths.procFilePath("loadavg"))
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +41,7 @@ func parseLoad(data string) (loads []float64, err error) {
 	loads = make([]float64, 3)
 	parts := strings.Fields(data)
 	if len(parts) < 3 {
-		return nil, fmt.Errorf("unexpected content in %s", procFilePath("loadavg"))
+		return nil, errors.New("unexpected content in loadavg")
 	}
 	for i, load := range parts[0:3] {
 		loads[i], err = strconv.ParseFloat(load, 64)

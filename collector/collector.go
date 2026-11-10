@@ -110,24 +110,6 @@ func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error)
 	}, nil
 }
 
-// flagConfigs copy the parsed command-line flags into a Config. Each file
-// that defines collector flags registers one, so a build that leaves out a
-// collector also leaves out its flags.
-var flagConfigs []func(*config.Config)
-
-func registerFlagConfig(f func(*config.Config)) {
-	flagConfigs = append(flagConfigs, f)
-}
-
-// ConfigFromFlags returns cfg with the options set from the parsed
-// command-line flags.
-func ConfigFromFlags(cfg config.Config) config.Config {
-	for _, f := range flagConfigs {
-		f(&cfg)
-	}
-	return cfg
-}
-
 // NewNodeCollector creates a new NodeCollector.
 func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
 	s.mtx.Lock()

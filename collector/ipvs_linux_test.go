@@ -26,7 +26,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -106,10 +105,7 @@ func TestIPVSCollector(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
-				t.Fatal(err)
-			}
-			cfg := flagConfig()
+			cfg := fixtureConfig()
 			if test.labels != "<none>" {
 				cfg.IPVS.BackendLabels = test.labels
 			}
@@ -174,10 +170,7 @@ func TestIPVSCollectorResponse(t *testing.T) {
 	}
 	for _, test := range testcases {
 		t.Run(test.labels, func(t *testing.T) {
-			if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
-				t.Fatal(err)
-			}
-			cfg := flagConfig()
+			cfg := fixtureConfig()
 			if test.labels != "<none>" {
 				cfg.IPVS.BackendLabels = test.labels
 			}

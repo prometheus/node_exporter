@@ -20,7 +20,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
@@ -31,7 +30,6 @@ import (
 // OS.
 
 func TestNewRuntimeEnabledCollectors(t *testing.T) {
-	parseFlags(t)
 	tests := []struct {
 		name            string
 		disableDefaults bool
@@ -58,7 +56,6 @@ func TestNewRuntimeEnabledCollectors(t *testing.T) {
 }
 
 func TestNewRuntimeCollectorsOverrideDefaults(t *testing.T) {
-	parseFlags(t)
 	tests := []struct {
 		name            string
 		disableDefaults bool
@@ -96,7 +93,6 @@ func TestNewRuntimeCollectorsOverrideDefaults(t *testing.T) {
 }
 
 func TestNewRuntimeRejectsUnknownCollector(t *testing.T) {
-	parseFlags(t)
 	cfg := config.NewConfigWithDefaults()
 	cfg.Collectors = map[string]bool{"doesnotexist": true}
 
@@ -107,7 +103,6 @@ func TestNewRuntimeRejectsUnknownCollector(t *testing.T) {
 }
 
 func TestNewRuntimeDisableDefaultsDoesNotAffectOtherRuntimes(t *testing.T) {
-	parseFlags(t)
 	cfg := config.NewConfigWithDefaults()
 	cfg.CollectorDisableDefaults = true
 	if _, err := NewRuntime(cfg, testLogger()); err != nil {
@@ -124,7 +119,6 @@ func TestNewRuntimeDisableDefaultsDoesNotAffectOtherRuntimes(t *testing.T) {
 }
 
 func TestRuntimeExposesCollectorMetrics(t *testing.T) {
-	parseFlags(t)
 	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
 		t.Fatal(err)
@@ -152,7 +146,6 @@ node_scrape_collector_success{collector="textfile"} 1
 }
 
 func TestRuntimeFiltered(t *testing.T) {
-	parseFlags(t)
 	runtime, err := NewRuntime(textfileOnlyConfig(), testLogger())
 	if err != nil {
 		t.Fatal(err)
@@ -180,28 +173,19 @@ func textfileOnlyConfig() config.Config {
 	return cfg
 }
 
-// flagConfig returns the Config that the parsed command-line flags describe.
-func flagConfig() config.Config {
-	return ConfigFromFlags(config.NewConfigWithDefaults())
+// fixtureConfig returns the default Config with the paths set to the
+// checked-in fixtures.
+func fixtureConfig() config.Config {
+	cfg := config.NewConfigWithDefaults()
+	cfg.Path = config.PathConfig{
+		ProcFS:   "fixtures/proc",
+		SysFS:    "fixtures/sys",
+		RootFS:   "/",
+		UdevData: "fixtures/udev/data",
+	}
+	return cfg
 }
 
 func testLogger() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
-}
-
-// parseFlags sets every command-line flag to its default, then parses args.
-// It restores the defaults when the test ends. The path flags are still
-// package state, and other tests in this package change them.
-func parseFlags(t *testing.T, args ...string) {
-	t.Helper()
-	reset := func() {
-		if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
-			t.Fatal(err)
-		}
-	}
-	reset()
-	t.Cleanup(reset)
-	if _, err := kingpin.CommandLine.Parse(args); err != nil {
-		t.Fatal(err)
-	}
 }

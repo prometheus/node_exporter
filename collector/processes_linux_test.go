@@ -20,20 +20,17 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/procfs"
 )
 
 func TestReadProcessStatus(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{"--path.procfs", "fixtures/proc"}); err != nil {
-		t.Fatal(err)
-	}
+	paths := pathConfig{ProcFS: "fixtures/proc"}
 	want := 1
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(paths.ProcFS)
 	if err != nil {
 		t.Errorf("failed to open procfs: %v", err)
 	}
-	c := processCollector{fs: fs, logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	c := processCollector{fs: fs, paths: paths, logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
 	pids, states, threads, _, err := c.getAllocatedThreads()
 	if err != nil {
 		t.Fatalf("Cannot retrieve data from procfs getAllocatedThreads function: %v ", err)
@@ -44,7 +41,7 @@ func TestReadProcessStatus(t *testing.T) {
 	if states == nil {
 		t.Fatalf("Process states cannot be nil %v:", states)
 	}
-	maxPid, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))
+	maxPid, err := readUintFromFile(paths.procFilePath("sys/kernel/pid_max"))
 	if err != nil {
 		t.Fatalf("Unable to retrieve limit number of maximum pids allowed %v\n", err)
 	}

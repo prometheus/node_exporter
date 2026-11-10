@@ -24,8 +24,6 @@ import (
 )
 
 func TestRuntimeReadsCPUConfigFromConfig(t *testing.T) {
-	parseFlags(t, "--path.procfs=fixtures/proc", "--path.sysfs=fixtures/sys")
-
 	for _, test := range []struct {
 		name      string
 		cpu       config.CPUConfig

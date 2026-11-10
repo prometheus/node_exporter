@@ -101,8 +101,8 @@ type nvmeSubsystemCollector struct {
 
 // NewNVMeSubsystemCollector returns a new Collector exposing NVMe-oF subsystem
 // path health from /sys/class/nvme-subsystem/.
-func NewNVMeSubsystemCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewNVMeSubsystemCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

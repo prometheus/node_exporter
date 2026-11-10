@@ -39,7 +39,7 @@ func (c testDMMultipathCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestDMMultipathCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewDMMultipathCollector(flagConfig(), logger)
+	mc, err := NewDMMultipathCollector(fixtureConfig(), logger)
 	if err != nil {
 		return testDMMultipathCollector{}, err
 	}
@@ -47,9 +47,6 @@ func newTestDMMultipathCollector(logger *slog.Logger) (prometheus.Collector, err
 }
 
 func TestDMMultipathMetrics(t *testing.T) {
-	*procPath = "fixtures/proc"
-	*sysPath = "fixtures/sys"
-
 	testcase := `# HELP node_dmmultipath_device_active Whether the multipath device-mapper device is active (1) or suspended (0).
 # TYPE node_dmmultipath_device_active gauge
 node_dmmultipath_device_active{device="mpathA",sysfs_name="dm-5"} 1
@@ -101,11 +98,10 @@ node_dmmultipath_path_state{device="mpathB",path="sdn",state="running"} 1
 }
 
 func TestDMMultipathNoDevices(t *testing.T) {
-	*procPath = "fixtures/proc"
-	*sysPath = t.TempDir()
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	coll, err := NewDMMultipathCollector(flagConfig(), logger)
+	cfg := fixtureConfig()
+	cfg.Path.SysFS = t.TempDir()
+	coll, err := NewDMMultipathCollector(cfg, logger)
 	if err != nil {
 		t.Fatal(err)
 	}

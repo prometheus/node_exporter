@@ -57,11 +57,13 @@ type zfsCollector struct {
 	linuxZpoolStatePath  string
 	linuxPathMap         map[string]string
 	logger               *slog.Logger
+	paths                pathConfig
 }
 
 // NewZFSCollector returns a new Collector exposing ZFS statistics.
-func NewZFSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewZFSCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
+		paths:                pathConfig(cfg.Path),
 		linuxProcpathBase:    "spl/kstat/zfs",
 		linuxZpoolIoPath:     "/*/io",
 		linuxZpoolObjsetPath: "/*/objset-*",
@@ -107,12 +109,12 @@ func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 }
 
 func (c *zfsCollector) openProcFile(path string) (*os.File, error) {
-	file, err := os.Open(procFilePath(path))
+	file, err := os.Open(c.paths.procFilePath(path))
 	if err != nil {
 		// file not found error can occur if:
 		// 1. zfs module is not loaded
 		// 2. zfs version does not have the feature with metrics -- ok to ignore
-		c.logger.Debug("Cannot open file for reading", "path", procFilePath(path))
+		c.logger.Debug("Cannot open file for reading", "path", c.paths.procFilePath(path))
 		return nil, errZFSNotAvailable
 	}
 	return file, nil
@@ -138,7 +140,7 @@ func (c *zfsCollector) updateZfsStats(subsystem string, ch chan<- prometheus.Met
 }
 
 func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
-	zpoolPaths, err := filepath.Glob(procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolIoPath)))
+	zpoolPaths, err := filepath.Glob(c.paths.procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolIoPath)))
 	if err != nil {
 		return err
 	}
@@ -160,7 +162,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		}
 	}
 
-	zpoolObjsetPaths, err := filepath.Glob(procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolObjsetPath)))
+	zpoolObjsetPaths, err := filepath.Glob(c.paths.procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolObjsetPath)))
 	if err != nil {
 		return err
 	}
@@ -182,7 +184,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 		}
 	}
 
-	zpoolStatePaths, err := filepath.Glob(procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolStatePath)))
+	zpoolStatePaths, err := filepath.Glob(c.paths.procFilePath(filepath.Join(c.linuxProcpathBase, c.linuxZpoolStatePath)))
 	if err != nil {
 		return err
 	}

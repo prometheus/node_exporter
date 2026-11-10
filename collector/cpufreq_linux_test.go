@@ -39,7 +39,7 @@ func (c testCPUFreqCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestCPUFreqCollector(prefix bool, logger *slog.Logger) (prometheus.Collector, error) {
-	cfg := flagConfig()
+	cfg := fixtureConfig()
 	cfg.CPUFreq.EnablePrefix = prefix
 	mc, err := NewCPUFreqCollector(cfg, logger)
 	if err != nil {
@@ -79,8 +79,6 @@ node_%[1]s_scaling_governor{cpu="3",governor="powersave"} 1
 `
 
 func TestCPUFreqMetrics(t *testing.T) {
-	*sysPath = "fixtures/sys"
-
 	for _, tc := range []struct {
 		name          string
 		cpufreqPrefix bool

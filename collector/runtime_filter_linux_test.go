@@ -23,7 +23,6 @@ import (
 )
 
 func TestNewRuntimeIncludeAndExcludeFilters(t *testing.T) {
-	parseFlags(t)
 	for _, test := range []struct {
 		name      string
 		collector string

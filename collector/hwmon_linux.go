@@ -51,12 +51,14 @@ type hwMonCollector struct {
 	deviceFilter deviceFilter
 	sensorFilter deviceFilter
 	logger       *slog.Logger
+	paths        pathConfig
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
 func NewHwMonCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &hwMonCollector{
+		paths:        pathConfig(cfg.Path),
 		logger:       logger,
 		deviceFilter: newDeviceFilter(cfg.Hwmon.ChipExclude, cfg.Hwmon.ChipInclude),
 		sensorFilter: newDeviceFilter(cfg.Hwmon.SensorExclude, cfg.Hwmon.SensorInclude),
@@ -431,7 +433,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updateHwmon for each folder.
 
-	hwmonPathName := filepath.Join(sysFilePath("class"), "hwmon")
+	hwmonPathName := filepath.Join(c.paths.sysFilePath("class"), "hwmon")
 
 	hwmonFiles, err := os.ReadDir(hwmonPathName)
 	if err != nil {

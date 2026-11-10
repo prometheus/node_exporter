@@ -39,7 +39,7 @@ type bcacheCollector struct {
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
 func NewBcacheCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := bcache.NewFS(*sysPath)
+	fs, err := bcache.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

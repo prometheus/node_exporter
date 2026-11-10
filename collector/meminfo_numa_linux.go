@@ -47,6 +47,7 @@ type meminfoMetric struct {
 type meminfoNumaCollector struct {
 	metricDescs map[string]*prometheus.Desc
 	logger      *slog.Logger
+	paths       pathConfig
 }
 
 func init() {
@@ -54,15 +55,16 @@ func init() {
 }
 
 // NewMeminfoNumaCollector returns a new Collector exposing memory stats.
-func NewMeminfoNumaCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewMeminfoNumaCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &meminfoNumaCollector{
+		paths:       pathConfig(cfg.Path),
 		metricDescs: map[string]*prometheus.Desc{},
 		logger:      logger,
 	}, nil
 }
 
 func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
-	metrics, err := getMemInfoNuma()
+	metrics, err := getMemInfoNuma(c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get NUMA meminfo: %w", err)
 	}
@@ -80,10 +82,10 @@ func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func getMemInfoNuma() ([]meminfoMetric, error) {
+func getMemInfoNuma(paths pathConfig) ([]meminfoMetric, error) {
 	var metrics []meminfoMetric
 
-	nodes, err := filepath.Glob(sysFilePath("devices/system/node/node[0-9]*"))
+	nodes, err := filepath.Glob(paths.sysFilePath("devices/system/node/node[0-9]*"))
 	if err != nil {
 		return nil, err
 	}

@@ -27,6 +27,7 @@ import (
 type loadavgCollector struct {
 	metric []typedDesc
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -34,8 +35,9 @@ func init() {
 }
 
 // NewLoadavgCollector returns a new Collector exposing load average stats.
-func NewLoadavgCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewLoadavgCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &loadavgCollector{
+		paths: pathConfig(cfg.Path),
 		metric: []typedDesc{
 			{prometheus.NewDesc(namespace+"_load1", "1m load average.", nil, nil), prometheus.GaugeValue},
 			{prometheus.NewDesc(namespace+"_load5", "5m load average.", nil, nil), prometheus.GaugeValue},
@@ -46,7 +48,7 @@ func NewLoadavgCollector(_ config.Config, logger *slog.Logger) (Collector, error
 }
 
 func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) error {
-	loads, err := getLoad()
+	loads, err := getLoad(c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get load: %w", err)
 	}

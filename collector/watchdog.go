@@ -37,8 +37,8 @@ func init() {
 }
 
 // NewWatchdogCollector returns a new Collector exposing watchdog stats.
-func NewWatchdogCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewWatchdogCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

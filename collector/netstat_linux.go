@@ -53,7 +53,7 @@ func init() {
 // a new Collector exposing network stats.
 func NewNetStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(cfg.Netstat.Fields)
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

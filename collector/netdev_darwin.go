@@ -28,7 +28,7 @@ import (
 	"github.com/prometheus/node_exporter/config"
 )
 
-func getNetDevStats(_ config.NetDevConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
+func getNetDevStats(_ config.NetDevConfig, _ pathConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	ifs, err := net.Interfaces()
@@ -176,7 +176,7 @@ type ifMibData struct {
 	Data          [128]byte // generic information and statistics
 }
 
-func getNetDevLabels(_ config.NetDevConfig) (map[string]map[string]string, error) {
+func getNetDevLabels(_ config.NetDevConfig, _ pathConfig) (map[string]map[string]string, error) {
 	// to be implemented if needed
 	return nil, nil
 }

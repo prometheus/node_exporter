@@ -29,6 +29,7 @@ type powerSupplyClassCollector struct {
 	ignoredPattern *regexp.Regexp
 	metricDescs    map[string]*prometheus.Desc
 	logger         *slog.Logger
+	paths          pathConfig
 }
 
 func init() {
@@ -38,6 +39,7 @@ func init() {
 func NewPowerSupplyClassCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	pattern := regexp.MustCompile(cfg.PowerSupply.IgnoredSupplies)
 	return &powerSupplyClassCollector{
+		paths:          pathConfig(cfg.Path),
 		subsystem:      "power_supply",
 		ignoredPattern: pattern,
 		metricDescs:    map[string]*prometheus.Desc{},

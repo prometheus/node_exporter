@@ -36,8 +36,8 @@ func init() {
 	registerCollector("kernel_hung", defaultEnabled, NewKernelHungCollector)
 }
 
-func NewKernelHungCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewKernelHungCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

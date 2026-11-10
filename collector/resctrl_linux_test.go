@@ -41,7 +41,7 @@ func (c testResctrlCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func newTestResctrlCollector(path string, logger *slog.Logger) (prometheus.Collector, error) {
-	cfg := flagConfig()
+	cfg := fixtureConfig()
 	cfg.Resctrl.Path = path
 	rc, err := NewResctrlCollector(cfg, logger)
 	if err != nil {
@@ -77,7 +77,7 @@ node_resctrl_memory_bandwidth_bytes_total{domain="1",scope="total"} 1.0509813683
 
 func TestResctrlNotMounted(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	cfg := flagConfig()
+	cfg := fixtureConfig()
 	cfg.Resctrl.Path = t.TempDir()
 	c, err := NewResctrlCollector(cfg, logger)
 	if err != nil {

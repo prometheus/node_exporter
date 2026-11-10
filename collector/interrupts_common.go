@@ -28,6 +28,7 @@ type interruptsCollector struct {
 	logger       *slog.Logger
 	nameFilter   deviceFilter
 	includeZeros bool
+	paths        pathConfig
 }
 
 func init() {
@@ -37,6 +38,7 @@ func init() {
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
 func NewInterruptsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &interruptsCollector{
+		paths: pathConfig(cfg.Path),
 		desc: typedDesc{prometheus.NewDesc(
 			namespace+"_interrupts_total",
 			"Interrupt details.",

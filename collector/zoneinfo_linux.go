@@ -38,8 +38,8 @@ func init() {
 }
 
 // NewZoneinfoCollector returns a new Collector exposing zone stats.
-func NewZoneinfoCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewZoneinfoCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

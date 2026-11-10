@@ -46,10 +46,7 @@ func configFromArgs(t *testing.T, args ...string) (config.Config, error) {
 	if _, err := app.Parse(args); err != nil {
 		t.Fatal(err)
 	}
-	cfg, err := configFromFlags(slog.New(slog.DiscardHandler))
-	// The path flags are still in the collector package.
-	cfg.Path = config.NewConfigWithDefaults().Path
-	return cfg, err
+	return configFromFlags(slog.New(slog.DiscardHandler))
 }
 
 func parseConfigFlags(t *testing.T, args ...string) config.Config {
@@ -69,6 +66,10 @@ func TestFlagDefaultsMatchConfigDefaults(t *testing.T) {
 
 func TestFlagsSetConfig(t *testing.T) {
 	got := parseConfigFlags(t,
+		"--path.procfs=/host/proc",
+		"--path.sysfs=/host/sys",
+		"--path.rootfs=/host",
+		"--path.udev.data=/host/run/udev/data",
 		"--collector.disable-defaults",
 		"--collector.ntp",
 		"--no-collector.textfile",
@@ -153,6 +154,7 @@ func TestFlagsSetConfig(t *testing.T) {
 	)
 
 	want := config.NewConfigWithDefaults()
+	want.Path = config.PathConfig{ProcFS: "/host/proc", SysFS: "/host/sys", RootFS: "/host", UdevData: "/host/run/udev/data"}
 	want.CollectorDisableDefaults = true
 	// Collectors has only the collector flags that the command line sets.
 	want.Collectors = map[string]bool{"ntp": true, "textfile": false}

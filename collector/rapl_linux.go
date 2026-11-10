@@ -44,7 +44,7 @@ func init() {
 
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
 func NewRaplCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, err
 	}

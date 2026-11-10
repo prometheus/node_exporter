@@ -35,6 +35,7 @@ type netDevCollector struct {
 	metricDescs      map[string]*prometheus.Desc
 	logger           *slog.Logger
 	config           config.NetDevConfig
+	paths            pathConfig
 }
 
 type netDevStats map[string]map[string]uint64
@@ -58,6 +59,7 @@ func NewNetDevCollector(cfg config.Config, logger *slog.Logger) (Collector, erro
 	}
 
 	return &netDevCollector{
+		paths:        pathConfig(cfg.Path),
 		subsystem:    "network",
 		deviceFilter: newDeviceFilter(cfg.NetDev.DeviceExclude, cfg.NetDev.DeviceInclude),
 		metricDescs:  map[string]*prometheus.Desc{},
@@ -83,12 +85,12 @@ func (c *netDevCollector) metricDesc(key string, labels []string) *prometheus.De
 }
 
 func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
-	netDev, err := getNetDevStats(c.config, &c.deviceFilter, c.logger)
+	netDev, err := getNetDevStats(c.config, c.paths, &c.deviceFilter, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)
 	}
 
-	netDevLabels, err := getNetDevLabels(c.config)
+	netDevLabels, err := getNetDevLabels(c.config, c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get netdev labels: %w", err)
 	}

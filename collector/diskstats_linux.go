@@ -90,7 +90,7 @@ func init() {
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	diskLabelNames := []string{"device"}
-	fs, err := blockdevice.NewFS(*procPath, *sysPath)
+	fs, err := blockdevice.NewFS(cfg.Path.ProcFS, cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
@@ -261,10 +261,12 @@ func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	}
 
 	// Only enable getting device properties from udev if the directory is readable.
-	if stat, err := os.Stat(*udevDataPath); err != nil || !stat.IsDir() {
-		logger.Error("Failed to open directory, disabling udev device properties", "path", *udevDataPath)
+	if stat, err := os.Stat(cfg.Path.UdevData); err != nil || !stat.IsDir() {
+		logger.Error("Failed to open directory, disabling udev device properties", "path", cfg.Path.UdevData)
 	} else {
-		collector.getUdevDeviceProperties = getUdevDeviceProperties
+		collector.getUdevDeviceProperties = func(major, minor uint32) (udevInfo, error) {
+			return getUdevDeviceProperties(pathConfig(cfg.Path), major, minor)
+		}
 	}
 
 	return &collector, nil
@@ -425,8 +427,8 @@ func (c *diskstatsCollector) updateDeviceMapperBackingDevices(ch chan<- promethe
 	}
 }
 
-func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
-	filename := udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
+func getUdevDeviceProperties(paths pathConfig, major, minor uint32) (udevInfo, error) {
+	filename := paths.udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
 
 	data, err := os.Open(filename)
 	if err != nil {

@@ -24,7 +24,7 @@ import (
 )
 
 func (c *timeCollector) update(ch chan<- prometheus.Metric) error {
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(c.paths.SysFS)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}

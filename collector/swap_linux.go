@@ -41,8 +41,8 @@ func init() {
 }
 
 // NewSwapCollector returns a new Collector exposing swap device statistics.
-func NewSwapCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewSwapCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

@@ -64,6 +64,7 @@ type osReleaseCollector struct {
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	supportEnd         time.Time
+	paths              pathConfig
 }
 
 type Plist struct {
@@ -112,8 +113,9 @@ var (
 )
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewOSCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &osReleaseCollector{
+		paths:              pathConfig(cfg.Path),
 		logger:             logger,
 		osReleaseFilenames: []string{etcOSRelease, usrLibOSRelease, systemVersionPlist},
 	}, nil
@@ -184,7 +186,7 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 
 func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 	for i, path := range c.osReleaseFilenames {
-		err := c.UpdateStruct(*rootfsPath + path)
+		err := c.UpdateStruct(c.paths.RootFS + path)
 		if err == nil {
 			break
 		}

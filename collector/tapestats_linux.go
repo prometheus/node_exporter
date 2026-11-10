@@ -52,7 +52,7 @@ func init() {
 func NewTapestatsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	tapeLabelNames := []string{"device"}
 
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

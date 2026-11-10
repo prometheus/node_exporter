@@ -17,51 +17,33 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
-
 	"github.com/prometheus/node_exporter/config"
 )
 
-var (
-	// The path of the proc filesystem.
-	procPath     = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(config.DefaultPathProcFS).String()
-	sysPath      = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default(config.DefaultPathSysFS).String()
-	rootfsPath   = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default(config.DefaultPathRootFS).String()
-	udevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default(config.DefaultPathUdevData).String()
-)
+// pathConfig adds file path helpers to config.PathConfig.
+type pathConfig config.PathConfig
 
-func init() {
-	registerFlagConfig(func(cfg *config.Config) {
-		cfg.Path = config.PathConfig{
-			ProcFS:   *procPath,
-			SysFS:    *sysPath,
-			RootFS:   *rootfsPath,
-			UdevData: *udevDataPath,
-		}
-	})
+func (p pathConfig) procFilePath(name string) string {
+	return filepath.Join(p.ProcFS, name)
 }
 
-func procFilePath(name string) string {
-	return filepath.Join(*procPath, name)
+func (p pathConfig) sysFilePath(name string) string {
+	return filepath.Join(p.SysFS, name)
 }
 
-func sysFilePath(name string) string {
-	return filepath.Join(*sysPath, name)
+func (p pathConfig) rootfsFilePath(name string) string {
+	return filepath.Join(p.RootFS, name)
 }
 
-func rootfsFilePath(name string) string {
-	return filepath.Join(*rootfsPath, name)
+func (p pathConfig) udevDataFilePath(name string) string {
+	return filepath.Join(p.UdevData, name)
 }
 
-func udevDataFilePath(name string) string {
-	return filepath.Join(*udevDataPath, name)
-}
-
-func rootfsStripPrefix(path string) string {
-	if *rootfsPath == "/" {
+func (p pathConfig) rootfsStripPrefix(path string) string {
+	if p.RootFS == "/" {
 		return path
 	}
-	stripped := strings.TrimPrefix(path, *rootfsPath)
+	stripped := strings.TrimPrefix(path, p.RootFS)
 	if stripped == "" {
 		return "/"
 	}

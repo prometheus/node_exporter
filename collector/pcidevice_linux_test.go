@@ -23,7 +23,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
@@ -32,16 +31,8 @@ import (
 
 func TestPCICollectorWithNameResolution(t *testing.T) {
 	// Test the PCI collector with name resolution enabled and compare against expected output
-	if _, err := kingpin.CommandLine.Parse([]string{
-		"--path.sysfs", "fixtures/sys",
-		"--path.procfs", "fixtures/proc",
-		"--path.rootfs", "fixtures",
-	}); err != nil {
-		t.Fatal(err)
-	}
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	cfg := flagConfig()
+	cfg := fixtureConfig()
 	cfg.PCIDevice = config.PCIDeviceConfig{Names: true, IDsFile: "fixtures/pci.ids"}
 	c, err := NewPcideviceCollector(cfg, logger)
 	if err != nil {

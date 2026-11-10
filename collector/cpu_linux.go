@@ -57,6 +57,7 @@ type cpuCollector struct {
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
 	cpuBugsIncludeRegexp  *regexp.Regexp
+	paths                 pathConfig
 }
 
 // Idle jump back limit in seconds.
@@ -89,6 +90,7 @@ func NewCPUCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 	}
 
 	c := &cpuCollector{
+		paths:  pathConfig(cfg.Path),
 		procfs: pfs,
 		sysfs:  sfs,
 		cpu:    nodeCPUSecondsDesc,
@@ -270,7 +272,7 @@ func updateFieldInfo(valueList []string, filter *regexp.Regexp, desc *prometheus
 
 // updateThermalThrottle reads /sys/devices/system/cpu/cpu* and expose thermal throttle statistics.
 func (c *cpuCollector) updateThermalThrottle(ch chan<- prometheus.Metric) error {
-	cpus, err := filepath.Glob(sysFilePath("devices/system/cpu/cpu[0-9]*"))
+	cpus, err := filepath.Glob(c.paths.sysFilePath("devices/system/cpu/cpu[0-9]*"))
 	if err != nil {
 		return err
 	}

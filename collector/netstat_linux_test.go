@@ -21,7 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 )
@@ -41,7 +40,7 @@ func (c testNetStatCollector) Describe(ch chan<- *prometheus.Desc) {
 func NewTestNetStatCollector(t *testing.T, logger *slog.Logger) prometheus.Collector {
 	t.Helper()
 
-	c, err := NewNetStatCollector(flagConfig(), logger)
+	c, err := NewNetStatCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,11 +48,6 @@ func NewTestNetStatCollector(t *testing.T, logger *slog.Logger) prometheus.Colle
 }
 
 func TestNetStats(t *testing.T) {
-	if _, err := kingpin.CommandLine.Parse([]string{}); err != nil {
-		t.Fatal(err)
-	}
-	*procPath = "fixtures/proc"
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	c := NewTestNetStatCollector(t, logger)
 

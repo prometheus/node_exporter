@@ -39,8 +39,8 @@ func init() {
 // NewTaintedCollector returns a Collector exposing kernel taint flags from
 // /proc/sys/kernel/tainted as a labelled gauge.
 // See https://www.kernel.org/doc/html/latest/admin-guide/tainted-kernels.html
-func NewTaintedCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewTaintedCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

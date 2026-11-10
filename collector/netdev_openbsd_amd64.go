@@ -24,7 +24,7 @@ import (
 	"github.com/prometheus/node_exporter/config"
 )
 
-func getNetDevStats(_ config.NetDevConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
+func getNetDevStats(_ config.NetDevConfig, _ pathConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	mib := [6]_C_int{unix.CTL_NET, unix.AF_ROUTE, 0, 0, unix.NET_RT_IFLIST, 0}
@@ -77,7 +77,7 @@ func getNetDevStats(_ config.NetDevConfig, filter *deviceFilter, logger *slog.Lo
 	return netDev, nil
 }
 
-func getNetDevLabels(_ config.NetDevConfig) (map[string]map[string]string, error) {
+func getNetDevLabels(_ config.NetDevConfig, _ pathConfig) (map[string]map[string]string, error) {
 	// to be implemented if needed
 	return nil, nil
 }
