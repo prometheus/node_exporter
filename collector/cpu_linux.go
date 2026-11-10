@@ -52,6 +52,7 @@ type cpuCollector struct {
 	cpuStatsMutex      sync.Mutex
 	isolatedCpus       []uint16
 	cpuFreqEnabled     bool
+	cpuFreqPrefix      bool
 	config             config.CPUConfig
 
 	cpuFlagsIncludeRegexp *regexp.Regexp
@@ -136,10 +137,11 @@ func NewCPUCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 			"CPUs that are online and being scheduled.",
 			[]string{"cpu"}, nil,
 		),
-		logger:       logger,
-		isolatedCpus: isolcpus,
-		cpuStats:     make(map[int64]procfs.CPUStat),
-		config:       cfg.CPU,
+		logger:        logger,
+		isolatedCpus:  isolcpus,
+		cpuStats:      make(map[int64]procfs.CPUStat),
+		config:        cfg.CPU,
+		cpuFreqPrefix: cfg.CPUFreq.EnablePrefix,
 	}
 	err = c.compileIncludeFlags()
 	if err != nil {
@@ -224,7 +226,7 @@ func (c *cpuCollector) updateInfo(ch chan<- prometheus.Metric) error {
 	// The cpufreq collector exports the same metric name with a different
 	// help string and label set. Only export the /proc/cpuinfo frequency
 	// when cpufreq is disabled or uses its own metric prefix.
-	if !c.cpuFreqEnabled || *useCPUFreqPrefix {
+	if !c.cpuFreqEnabled || c.cpuFreqPrefix {
 		for _, cpu := range info {
 			ch <- prometheus.MustNewConstMetric(c.cpuFrequencyHz,
 				prometheus.GaugeValue,

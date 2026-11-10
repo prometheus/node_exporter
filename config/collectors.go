@@ -343,3 +343,95 @@ type HwmonConfig struct {
 	// SensorExclude is --collector.hwmon.sensor-exclude: Regexp of hwmon sensor to exclude (mutually exclusive to sensor-include).
 	SensorExclude string
 }
+
+// CPUFreqConfig contains the options for the cpufreq collector.
+type CPUFreqConfig struct {
+	// EnablePrefix is --collector.cpufreq.enable-cpufreq-prefix: Expose cpufreq metrics with the node_cpufreq_ prefix instead of node_cpu_.
+	EnablePrefix bool
+}
+
+const (
+	DefaultInterruptsIncludeZeros = true
+)
+
+// InterruptsConfig contains the options for the interrupts collector.
+type InterruptsConfig struct {
+	// NameInclude is --collector.interrupts.name-include: Regexp of interrupts name to include (mutually exclusive to --collector.interrupts.name-exclude).
+	NameInclude string
+	// NameExclude is --collector.interrupts.name-exclude: Regexp of interrupts name to exclude (mutually exclusive to --collector.interrupts.name-include).
+	NameExclude string
+	// IncludeZeros is --collector.interrupts.include-zeros: Include interrupts that have a zero value.
+	IncludeZeros bool
+}
+
+// PCIDeviceConfig contains the options for the pcidevice collector.
+type PCIDeviceConfig struct {
+	// IDsFile is --collector.pcidevice.idsfile: Path to pci.ids file to use for PCI device identification.
+	IDsFile string
+	// Names is --collector.pcidevice.names: Enable PCI device name resolution (requires pci.ids file).
+	Names bool
+}
+
+const (
+	DefaultPowerSupplyIgnoredSupplies = "^$"
+)
+
+// PowerSupplyConfig contains the options for the powersupplyclass collector.
+type PowerSupplyConfig struct {
+	// IgnoredSupplies is --collector.powersupply.ignored-supplies: Regexp of power supplies to ignore for powersupplyclass collector.
+	IgnoredSupplies string
+}
+
+const (
+	// DefaultResctrlPath matches resctrlfs.DefaultMountPoint, which only
+	// builds on Linux.
+	DefaultResctrlPath = "/sys/fs/resctrl"
+)
+
+// ResctrlConfig contains the options for the resctrl collector.
+type ResctrlConfig struct {
+	// Path is --collector.resctrl.path: resctrl filesystem mountpoint.
+	Path string
+}
+
+const (
+	DefaultRunitServiceDir = "/etc/service"
+)
+
+// RunitConfig contains the options for the runit collector.
+type RunitConfig struct {
+	// ServiceDir is --collector.runit.servicedir: Path to runit service directory.
+	ServiceDir string
+}
+
+const (
+	DefaultSupervisordURL = "http://localhost:9001/RPC2"
+)
+
+// SupervisordConfig contains the options for the supervisord collector.
+type SupervisordConfig struct {
+	// URL is --collector.supervisord.url: XML RPC endpoint.
+	URL string
+}
+
+const (
+	DefaultSlabinfoSlabsInclude = ".*"
+)
+
+// SlabinfoConfig contains the options for the slabinfo collector.
+type SlabinfoConfig struct {
+	// SlabsInclude is --collector.slabinfo.slabs-include: Regexp of slabs to include in slabinfo collector.
+	SlabsInclude string
+	// SlabsExclude is --collector.slabinfo.slabs-exclude: Regexp of slabs to exclude in slabinfo collector.
+	SlabsExclude string
+}
+
+const (
+	DefaultTapestatsIgnoredDevices = "^$"
+)
+
+// TapestatsConfig contains the options for the tapestats collector.
+type TapestatsConfig struct {
+	// IgnoredDevices is --collector.tapestats.ignored-devices: Regexp of devices to ignore for tapestats.
+	IgnoredDevices string
+}

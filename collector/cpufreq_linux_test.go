@@ -38,8 +38,10 @@ func (c testCPUFreqCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func newTestCPUFreqCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewCPUFreqCollector(flagConfig(), logger)
+func newTestCPUFreqCollector(prefix bool, logger *slog.Logger) (prometheus.Collector, error) {
+	cfg := flagConfig()
+	cfg.CPUFreq.EnablePrefix = prefix
+	mc, err := NewCPUFreqCollector(cfg, logger)
 	if err != nil {
 		return testCPUFreqCollector{}, err
 	}
@@ -88,11 +90,8 @@ func TestCPUFreqMetrics(t *testing.T) {
 		{name: "cpufreq prefix", cpufreqPrefix: true, subsystem: "cpufreq"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			*useCPUFreqPrefix = tc.cpufreqPrefix
-			defer func() { *useCPUFreqPrefix = false }()
-
 			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-			collector, err := newTestCPUFreqCollector(logger)
+			collector, err := newTestCPUFreqCollector(tc.cpufreqPrefix, logger)
 			if err != nil {
 				t.Fatal(err)
 			}

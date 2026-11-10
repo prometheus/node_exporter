@@ -31,29 +31,38 @@ type Config struct {
 
 	Path PathConfig
 
-	CPU        CPUConfig
-	Textfile   TextfileConfig
-	NTP        NTPConfig
-	Stat       StatConfig
-	VMStat     VMStatConfig
-	Netstat    NetstatConfig
-	Bcache     BcacheConfig
-	NVMe       NVMeConfig
-	RAPL       RAPLConfig
-	ARP        ARPConfig
-	Ethtool    EthtoolConfig
-	Infiniband InfinibandConfig
-	NetClass   NetClassConfig
-	NetDev     NetDevConfig
-	Qdisc      QdiscConfig
-	IPVS       IPVSConfig
-	Wifi       WifiConfig
-	Diskstats  DiskstatsConfig
-	Filesystem FilesystemConfig
-	Systemd    SystemdConfig
-	Perf       PerfConfig
-	Sysctl     SysctlConfig
-	Hwmon      HwmonConfig
+	CPU         CPUConfig
+	Textfile    TextfileConfig
+	NTP         NTPConfig
+	Stat        StatConfig
+	VMStat      VMStatConfig
+	Netstat     NetstatConfig
+	Bcache      BcacheConfig
+	NVMe        NVMeConfig
+	RAPL        RAPLConfig
+	ARP         ARPConfig
+	Ethtool     EthtoolConfig
+	Infiniband  InfinibandConfig
+	NetClass    NetClassConfig
+	NetDev      NetDevConfig
+	Qdisc       QdiscConfig
+	IPVS        IPVSConfig
+	Wifi        WifiConfig
+	Diskstats   DiskstatsConfig
+	Filesystem  FilesystemConfig
+	Systemd     SystemdConfig
+	Perf        PerfConfig
+	Sysctl      SysctlConfig
+	Hwmon       HwmonConfig
+	CPUFreq     CPUFreqConfig
+	Interrupts  InterruptsConfig
+	PCIDevice   PCIDeviceConfig
+	PowerSupply PowerSupplyConfig
+	Resctrl     ResctrlConfig
+	Runit       RunitConfig
+	Supervisord SupervisordConfig
+	Slabinfo    SlabinfoConfig
+	Tapestats   TapestatsConfig
 	// END COLLECTORS
 }
 
@@ -133,6 +142,27 @@ func NewConfigWithDefaults() Config {
 			UnitInclude: DefaultSystemdUnitInclude,
 			UnitExclude: DefaultSystemdUnitExclude,
 		},
+		Interrupts: InterruptsConfig{
+			IncludeZeros: DefaultInterruptsIncludeZeros,
+		},
+		PowerSupply: PowerSupplyConfig{
+			IgnoredSupplies: DefaultPowerSupplyIgnoredSupplies,
+		},
+		Resctrl: ResctrlConfig{
+			Path: DefaultResctrlPath,
+		},
+		Runit: RunitConfig{
+			ServiceDir: DefaultRunitServiceDir,
+		},
+		Supervisord: SupervisordConfig{
+			URL: DefaultSupervisordURL,
+		},
+		Slabinfo: SlabinfoConfig{
+			SlabsInclude: DefaultSlabinfoSlabsInclude,
+		},
+		Tapestats: TapestatsConfig{
+			IgnoredDevices: DefaultTapestatsIgnoredDevices,
+		},
 		// END DEFAULTS
 	}
 }
@@ -168,6 +198,12 @@ func (c Config) Validate() error {
 		{"Hwmon.ChipExclude", c.Hwmon.ChipExclude},
 		{"Hwmon.SensorInclude", c.Hwmon.SensorInclude},
 		{"Hwmon.SensorExclude", c.Hwmon.SensorExclude},
+		{"Interrupts.NameInclude", c.Interrupts.NameInclude},
+		{"Interrupts.NameExclude", c.Interrupts.NameExclude},
+		{"PowerSupply.IgnoredSupplies", c.PowerSupply.IgnoredSupplies},
+		{"Slabinfo.SlabsInclude", c.Slabinfo.SlabsInclude},
+		{"Slabinfo.SlabsExclude", c.Slabinfo.SlabsExclude},
+		{"Tapestats.IgnoredDevices", c.Tapestats.IgnoredDevices},
 		// END REGEXPS
 	} {
 		if _, err := regexp.Compile(r.expr); err != nil {

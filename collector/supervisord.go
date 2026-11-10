@@ -24,17 +24,13 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/mattn/go-xmlrpc"
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/prometheus/node_exporter/config"
 )
 
-var (
-	supervisordURL = kingpin.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").Envar("SUPERVISORD_URL").String()
-	xrpc           *xmlrpc.Client
-)
+var xrpc *xmlrpc.Client
 
 type supervisordCollector struct {
 	upDesc         *prometheus.Desc
@@ -49,13 +45,13 @@ func init() {
 }
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
-func NewSupervisordCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewSupervisordCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
 	)
 
-	if u, err := url.Parse(*supervisordURL); err == nil && u.Scheme == "unix" {
+	if u, err := url.Parse(cfg.Supervisord.URL); err == nil && u.Scheme == "unix" {
 		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
 		// about a non-http(s) transport.
 		xrpc = xmlrpc.NewClient("http://unix/RPC2")
@@ -66,7 +62,7 @@ func NewSupervisordCollector(_ config.Config, logger *slog.Logger) (Collector, e
 			},
 		}
 	} else {
-		xrpc = xmlrpc.NewClient(*supervisordURL)
+		xrpc = xmlrpc.NewClient(cfg.Supervisord.URL)
 	}
 
 	logger.Warn("This collector is deprecated and will be removed in the next major version release.")

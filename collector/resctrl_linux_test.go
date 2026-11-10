@@ -23,6 +23,9 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	"github.com/prometheus/procfs/resctrlfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type testResctrlCollector struct {
@@ -37,8 +40,10 @@ func (c testResctrlCollector) Describe(ch chan<- *prometheus.Desc) {
 	prometheus.DescribeByCollect(c, ch)
 }
 
-func newTestResctrlCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	rc, err := NewResctrlCollector(flagConfig(), logger)
+func newTestResctrlCollector(path string, logger *slog.Logger) (prometheus.Collector, error) {
+	cfg := flagConfig()
+	cfg.Resctrl.Path = path
+	rc, err := NewResctrlCollector(cfg, logger)
 	if err != nil {
 		return testResctrlCollector{}, err
 	}
@@ -46,8 +51,6 @@ func newTestResctrlCollector(logger *slog.Logger) (prometheus.Collector, error) 
 }
 
 func TestResctrlMetrics(t *testing.T) {
-	*resctrlPath = "fixtures/resctrl"
-
 	// Domain 1 reports "Unavailable" for mbm_local_bytes, so that sample is
 	// absent.
 	testcase := `# HELP node_resctrl_llc_occupancy_bytes Last level cache bytes occupied in this domain.
@@ -62,7 +65,7 @@ node_resctrl_memory_bandwidth_bytes_total{domain="1",scope="total"} 1.0509813683
 `
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := newTestResctrlCollector(logger)
+	c, err := newTestResctrlCollector("fixtures/resctrl", logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,10 +76,10 @@ node_resctrl_memory_bandwidth_bytes_total{domain="1",scope="total"} 1.0509813683
 }
 
 func TestResctrlNotMounted(t *testing.T) {
-	*resctrlPath = t.TempDir()
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewResctrlCollector(flagConfig(), logger)
+	cfg := flagConfig()
+	cfg.Resctrl.Path = t.TempDir()
+	c, err := NewResctrlCollector(cfg, logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -87,5 +90,11 @@ func TestResctrlNotMounted(t *testing.T) {
 
 	if err != ErrNoData {
 		t.Fatalf("expected ErrNoData, got %v", err)
+	}
+}
+
+func TestDefaultResctrlPathMatchesResctrlfs(t *testing.T) {
+	if config.DefaultResctrlPath != resctrlfs.DefaultMountPoint {
+		t.Fatalf("config.DefaultResctrlPath is %q, resctrlfs.DefaultMountPoint is %q", config.DefaultResctrlPath, resctrlfs.DefaultMountPoint)
 	}
 }

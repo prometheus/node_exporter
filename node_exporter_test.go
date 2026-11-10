@@ -137,6 +137,19 @@ func TestFlagsSetConfig(t *testing.T) {
 		"--collector.hwmon.chip-exclude=^acpi",
 		"--collector.hwmon.sensor-include=^temp1",
 		"--collector.hwmon.sensor-exclude=^fan",
+		"--collector.cpufreq.enable-cpufreq-prefix",
+		"--collector.interrupts.name-include=^eth",
+		"--collector.interrupts.name-exclude=^LOC$",
+		"--no-collector.interrupts.include-zeros",
+		"--collector.pcidevice.idsfile=pci.ids",
+		"--collector.pcidevice.names",
+		"--collector.powersupply.ignored-supplies=^AC$",
+		"--collector.resctrl.path=resctrl/",
+		"--collector.runit.servicedir=/run/service",
+		"--collector.supervisord.url=unix:///run/supervisord.sock",
+		"--collector.slabinfo.slabs-include=^dentry$",
+		"--collector.slabinfo.slabs-exclude=^kmalloc",
+		"--collector.tapestats.ignored-devices=^st1$",
 	)
 
 	want := config.NewConfigWithDefaults()
@@ -188,6 +201,15 @@ func TestFlagsSetConfig(t *testing.T) {
 	}
 	want.Sysctl = config.SysctlConfig{Include: []string{"fs.file-nr"}, IncludeInfo: []string{"kernel.seccomp.actions_avail"}}
 	want.Hwmon = config.HwmonConfig{ChipInclude: "^coretemp", ChipExclude: "^acpi", SensorInclude: "^temp1", SensorExclude: "^fan"}
+	want.CPUFreq = config.CPUFreqConfig{EnablePrefix: true}
+	want.Interrupts = config.InterruptsConfig{NameInclude: "^eth", NameExclude: "^LOC$", IncludeZeros: false}
+	want.PCIDevice = config.PCIDeviceConfig{IDsFile: "pci.ids", Names: true}
+	want.PowerSupply = config.PowerSupplyConfig{IgnoredSupplies: "^AC$"}
+	want.Resctrl = config.ResctrlConfig{Path: "resctrl/"}
+	want.Runit = config.RunitConfig{ServiceDir: "/run/service"}
+	want.Supervisord = config.SupervisordConfig{URL: "unix:///run/supervisord.sock"}
+	want.Slabinfo = config.SlabinfoConfig{SlabsInclude: "^dentry$", SlabsExclude: "^kmalloc"}
+	want.Tapestats = config.TapestatsConfig{IgnoredDevices: "^st1$"}
 	want.Diskstats = config.DiskstatsConfig{DeviceExclude: "^loop"}
 	want.Filesystem = config.FilesystemConfig{
 		MountPointsExclude: "^/boot",

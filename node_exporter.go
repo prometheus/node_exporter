@@ -278,6 +278,19 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 	hwmonChipExclude := app.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
 	hwmonSensorInclude := app.Flag("collector.hwmon.sensor-include", "Regexp of hwmon sensor to include (mutually exclusive to sensor-exclude).").String()
 	hwmonSensorExclude := app.Flag("collector.hwmon.sensor-exclude", "Regexp of hwmon sensor to exclude (mutually exclusive to sensor-include).").String()
+	cpufreqPrefix := app.Flag("collector.cpufreq.enable-cpufreq-prefix", "Expose cpufreq metrics with the node_cpufreq_ prefix instead of node_cpu_. This avoids a metric name collision with the cpu collector and will be the default behavior in 2.x.").Bool()
+	interruptsInclude := app.Flag("collector.interrupts.name-include", "Regexp of interrupts name to include (mutually exclusive to --collector.interrupts.name-exclude).").String()
+	interruptsExclude := app.Flag("collector.interrupts.name-exclude", "Regexp of interrupts name to exclude (mutually exclusive to --collector.interrupts.name-include).").String()
+	interruptsIncludeZeros := app.Flag("collector.interrupts.include-zeros", "Include interrupts that have a zero value").Default(strconv.FormatBool(config.DefaultInterruptsIncludeZeros)).Bool()
+	pciIDsFile := app.Flag("collector.pcidevice.idsfile", "Path to pci.ids file to use for PCI device identification.").String()
+	pciNames := app.Flag("collector.pcidevice.names", "Enable PCI device name resolution (requires pci.ids file).").Default("false").Bool()
+	powerSupplyIgnored := app.Flag("collector.powersupply.ignored-supplies", "Regexp of power supplies to ignore for powersupplyclass collector.").Default(config.DefaultPowerSupplyIgnoredSupplies).String()
+	resctrlPath := app.Flag("collector.resctrl.path", "resctrl filesystem mountpoint.").Default(config.DefaultResctrlPath).String()
+	runitServiceDir := app.Flag("collector.runit.servicedir", "Path to runit service directory.").Default(config.DefaultRunitServiceDir).String()
+	supervisordURL := app.Flag("collector.supervisord.url", "XML RPC endpoint.").Default(config.DefaultSupervisordURL).Envar("SUPERVISORD_URL").String()
+	slabsInclude := app.Flag("collector.slabinfo.slabs-include", "Regexp of slabs to include in slabinfo collector.").Default(config.DefaultSlabinfoSlabsInclude).String()
+	slabsExclude := app.Flag("collector.slabinfo.slabs-exclude", "Regexp of slabs to exclude in slabinfo collector.").Default("").String()
+	tapestatsIgnored := app.Flag("collector.tapestats.ignored-devices", "Regexp of devices to ignore for tapestats.").Default(config.DefaultTapestatsIgnoredDevices).String()
 	wifiFixtures := app.Flag("collector.wifi.fixtures", "test fixtures to use for wifi collector metrics").Default("").String()
 
 	return func(logger *slog.Logger) (config.Config, error) {
@@ -412,6 +425,19 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 			SensorInclude: *hwmonSensorInclude,
 			SensorExclude: *hwmonSensorExclude,
 		}
+		cfg.CPUFreq = config.CPUFreqConfig{EnablePrefix: *cpufreqPrefix}
+		cfg.Interrupts = config.InterruptsConfig{
+			NameInclude:  *interruptsInclude,
+			NameExclude:  *interruptsExclude,
+			IncludeZeros: *interruptsIncludeZeros,
+		}
+		cfg.PCIDevice = config.PCIDeviceConfig{IDsFile: *pciIDsFile, Names: *pciNames}
+		cfg.PowerSupply = config.PowerSupplyConfig{IgnoredSupplies: *powerSupplyIgnored}
+		cfg.Resctrl = config.ResctrlConfig{Path: *resctrlPath}
+		cfg.Runit = config.RunitConfig{ServiceDir: *runitServiceDir}
+		cfg.Supervisord = config.SupervisordConfig{URL: *supervisordURL}
+		cfg.Slabinfo = config.SlabinfoConfig{SlabsInclude: *slabsInclude, SlabsExclude: *slabsExclude}
+		cfg.Tapestats = config.TapestatsConfig{IgnoredDevices: *tapestatsIgnored}
 		cfg.Diskstats = config.DiskstatsConfig{
 			DeviceExclude: excludeFlag(diskstatsExclude, diskstatsExcludeSet, *diskstatsDeviceInclude),
 			DeviceInclude: *diskstatsDeviceInclude,

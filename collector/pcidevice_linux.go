@@ -23,7 +23,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 
@@ -39,8 +38,6 @@ var (
 		"/usr/share/misc/pci.ids",
 		"/usr/share/hwdata/pci.ids",
 	}
-	pciIDsFile = kingpin.Flag("collector.pcidevice.idsfile", "Path to pci.ids file to use for PCI device identification.").String()
-	pciNames   = kingpin.Flag("collector.pcidevice.names", "Enable PCI device name resolution (requires pci.ids file).").Default("false").Bool()
 
 	pcideviceLabelNames = []string{"segment", "bus", "device", "function"}
 
@@ -154,6 +151,7 @@ type pcideviceCollector struct {
 	pciSubclasses map[string]string
 	pciProgIfs    map[string]string
 	pciNames      bool
+	pciIDsFile    string
 }
 
 func init() {
@@ -161,7 +159,7 @@ func init() {
 }
 
 // NewPcideviceCollector returns a new Collector exposing PCI devices stats.
-func NewPcideviceCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewPcideviceCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -169,9 +167,10 @@ func NewPcideviceCollector(_ config.Config, logger *slog.Logger) (Collector, err
 
 	// Initialize PCI ID maps
 	c := &pcideviceCollector{
-		fs:       fs,
-		logger:   logger,
-		pciNames: *pciNames,
+		fs:         fs,
+		logger:     logger,
+		pciNames:   cfg.PCIDevice.Names,
+		pciIDsFile: cfg.PCIDevice.IDsFile,
 	}
 
 	// Build label names based on whether name resolution is enabled
@@ -378,13 +377,13 @@ func (c *pcideviceCollector) loadPCIIds() {
 	c.pciProgIfs = make(map[string]string)
 
 	// Use custom pci.ids file if specified
-	if *pciIDsFile != "" {
-		file, err = os.Open(*pciIDsFile)
+	if c.pciIDsFile != "" {
+		file, err = os.Open(c.pciIDsFile)
 		if err != nil {
-			c.logger.Debug("Failed to open PCI IDs file", "file", *pciIDsFile, "error", err)
+			c.logger.Debug("Failed to open PCI IDs file", "file", c.pciIDsFile, "error", err)
 			return
 		}
-		c.logger.Debug("Loading PCI IDs from", "file", *pciIDsFile)
+		c.logger.Debug("Loading PCI IDs from", "file", c.pciIDsFile)
 	} else {
 		// Try each possible default path
 		for _, path := range pciIDsPaths {

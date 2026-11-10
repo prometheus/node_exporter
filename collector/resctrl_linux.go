@@ -20,7 +20,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/resctrlfs"
 
@@ -38,9 +37,10 @@ const resctrlSubsystem = "resctrl"
 // Mount it with:
 //
 //	mount -t resctrl resctrl /sys/fs/resctrl
-var resctrlPath = kingpin.Flag("collector.resctrl.path", "resctrl filesystem mountpoint.").Default(resctrlfs.DefaultMountPoint).String()
 
-type resctrlCollector struct{}
+type resctrlCollector struct {
+	path string
+}
 
 func init() {
 	registerCollector("resctrl", defaultDisabled, NewResctrlCollector)
@@ -60,14 +60,14 @@ var (
 )
 
 // NewResctrlCollector returns a new Collector exposing resctrl monitoring counters.
-func NewResctrlCollector(_ config.Config, _ *slog.Logger) (Collector, error) {
-	return &resctrlCollector{}, nil
+func NewResctrlCollector(cfg config.Config, _ *slog.Logger) (Collector, error) {
+	return &resctrlCollector{path: cfg.Resctrl.Path}, nil
 }
 
 func (c *resctrlCollector) Update(ch chan<- prometheus.Metric) error {
 	// The filesystem is opened on every scrape because it can be mounted and
 	// unmounted while node_exporter runs.
-	fs, err := resctrlfs.NewFS(*resctrlPath)
+	fs, err := resctrlfs.NewFS(c.path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return ErrNoData

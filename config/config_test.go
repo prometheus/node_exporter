@@ -52,6 +52,12 @@ func TestValidateRejectsInvalidRegexps(t *testing.T) {
 		{name: "hwmon chipexclude", modify: func(c *Config) { c.Hwmon.ChipExclude = "(" }, wantField: "Hwmon.ChipExclude"},
 		{name: "hwmon sensorinclude", modify: func(c *Config) { c.Hwmon.SensorInclude = "(" }, wantField: "Hwmon.SensorInclude"},
 		{name: "hwmon sensorexclude", modify: func(c *Config) { c.Hwmon.SensorExclude = "(" }, wantField: "Hwmon.SensorExclude"},
+		{name: "interrupts nameinclude", modify: func(c *Config) { c.Interrupts.NameInclude = "(" }, wantField: "Interrupts.NameInclude"},
+		{name: "interrupts nameexclude", modify: func(c *Config) { c.Interrupts.NameExclude = "(" }, wantField: "Interrupts.NameExclude"},
+		{name: "powersupply ignoredsupplies", modify: func(c *Config) { c.PowerSupply.IgnoredSupplies = "(" }, wantField: "PowerSupply.IgnoredSupplies"},
+		{name: "slabinfo slabsinclude", modify: func(c *Config) { c.Slabinfo.SlabsInclude = "(" }, wantField: "Slabinfo.SlabsInclude"},
+		{name: "slabinfo slabsexclude", modify: func(c *Config) { c.Slabinfo.SlabsExclude = "(" }, wantField: "Slabinfo.SlabsExclude"},
+		{name: "tapestats ignoreddevices", modify: func(c *Config) { c.Tapestats.IgnoredDevices = "(" }, wantField: "Tapestats.IgnoredDevices"},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			cfg := NewConfigWithDefaults()

@@ -16,14 +16,10 @@
 package collector
 
 import (
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 const cpuFreqCollectorSubsystem = "cpufreq"
-
-var useCPUFreqPrefix = kingpin.Flag("collector.cpufreq.enable-cpufreq-prefix",
-	"Expose cpufreq metrics with the node_cpufreq_ prefix instead of node_cpu_. This avoids a metric name collision with the cpu collector and will be the default behavior in 2.x.").Bool()
 
 type cpuFreqDescs struct {
 	hertz           *prometheus.Desc
@@ -36,12 +32,11 @@ type cpuFreqDescs struct {
 	scalingGovernor *prometheus.Desc
 }
 
-// newCPUFreqDescs builds the cpufreq metric descriptions. It must run after
-// flag parsing because the metric prefix depends on
-// --collector.cpufreq.enable-cpufreq-prefix.
-func newCPUFreqDescs() cpuFreqDescs {
+// newCPUFreqDescs builds the cpufreq metric descriptions, with the
+// node_cpufreq_ prefix when prefix is true.
+func newCPUFreqDescs(prefix bool) cpuFreqDescs {
 	subsystem := cpuCollectorSubsystem
-	if *useCPUFreqPrefix {
+	if prefix {
 		subsystem = cpuFreqCollectorSubsystem
 	}
 	return cpuFreqDescs{

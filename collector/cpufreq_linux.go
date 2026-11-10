@@ -37,7 +37,7 @@ func init() {
 }
 
 // NewCPUFreqCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUFreqCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
+func NewCPUFreqCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
@@ -45,7 +45,7 @@ func NewCPUFreqCollector(_ config.Config, logger *slog.Logger) (Collector, error
 
 	return &cpuFreqCollector{
 		fs:     fs,
-		descs:  newCPUFreqDescs(),
+		descs:  newCPUFreqDescs(cfg.CPUFreq.EnablePrefix),
 		logger: logger,
 	}, nil
 }
