@@ -4,6 +4,8 @@ github.com/alecthomas/kingpin/v2 v2.4.0 h1:f48lwail6p8zpO1bC4TxtqACaGqHYA22qkHjH
 github.com/alecthomas/kingpin/v2 v2.4.0/go.mod h1:0gyi0zQnjuFk8xrkNKamJoyUo382HRL7ATRpFZCw6tE=
 github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b h1:mimo19zliBX/vSQ6PWWSL9lK8qwHozUj03+zLoEB8O0=
 github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b/go.mod h1:fvzegU4vN3H1qMT+8wDmzjAcDONcgo2/SZ/TyfdUOFs=
+github.com/baozhuoran/procfs v0.23.1-0.20261110194208-36d5d5d3a556 h1:J1IWGnw+Q5km970i7kCMU29pqT20s3M45lvHE02UD9I=
+github.com/baozhuoran/procfs v0.23.1-0.20261110194208-36d5d5d3a556/go.mod h1:3AVXO0FqLafyYFU/V/IQRZlC8Rgqz8Dm/x6pKLK+RIk=
 github.com/beevik/ntp v1.6.0 h1:bW359Vvw6bicGhKsVi+ZDLMsMYzb2ohUpLaF/Juv0k8=
 github.com/beevik/ntp v1.6.0/go.mod h1:VTAbDFySkuc8cQiAYHhXslAHjJdenICebskhYqBWC4k=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
@@ -84,8 +86,6 @@ github.com/prometheus/common v0.73.1 h1:SZWh/j4AvhCdhX8jvYSnxvPxhWlC9QZkjJ+tOrEr
 github.com/prometheus/common v0.73.1/go.mod h1:I9aA/Ukz9s1olOobh8KtCkU7B1mQPQsB9UvQPsUQ1Dk=
 github.com/prometheus/exporter-toolkit v0.20.0 h1:hz3g2aPcq3mXlQSt1MGjj2rwVk1wtRalF+/FjYxFRkI=
 github.com/prometheus/exporter-toolkit v0.20.0/go.mod h1:gIIY0Mw0ci1wgYscdeMqVh6FUPYJca549eOkE39nU64=
-github.com/prometheus/procfs v0.23.0 h1:ad+S6FTkzwaMgacKLM5h6bNKExS+DMH0YiUwXItH/o4=
-github.com/prometheus/procfs v0.23.0/go.mod h1:3AVXO0FqLafyYFU/V/IQRZlC8Rgqz8Dm/x6pKLK+RIk=
 github.com/safchain/ethtool v0.7.0 h1:rlJzfDetsVvT61uz8x1YIcFn12akMfuPulHtZjtb7Is=
 github.com/safchain/ethtool v0.7.0/go.mod h1:MenQKEjXdfkjD3mp2QdCk8B/hwvkrlOTm/FD4gTpFxQ=
 github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 h1:GfSdC6wKfTGcgCS7BtzF5694Amne1pGCSTY252WhlEY=
