@@ -24,11 +24,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/promslog"
-	"github.com/prometheus/common/promslog/flag"
 )
 
 type collectorAdapter struct {
@@ -129,14 +126,6 @@ func TestTextfileCollector(t *testing.T) {
 			paths:  test.paths,
 			mtime:  &mtime,
 			logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
-		}
-
-		// Suppress a log message about `nonexistent_path` not existing, this is
-		// expected and clutters the test output.
-		promslogConfig := &promslog.Config{}
-		flag.AddFlags(kingpin.CommandLine, promslogConfig)
-		if _, err := kingpin.CommandLine.Parse([]string{"--log.level", "debug"}); err != nil {
-			t.Fatal(err)
 		}
 
 		registry := prometheus.NewRegistry()

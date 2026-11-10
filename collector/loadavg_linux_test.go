@@ -19,7 +19,7 @@ import "testing"
 
 func TestLoad(t *testing.T) {
 	want := []float64{0.21, 0.37, 0.39}
-	loads, err := parseLoad("0.21 0.37 0.39 1/719 19737")
+	loads, err := parseLoad("loadavg", "0.21 0.37 0.39 1/719 19737")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -28,5 +28,12 @@ func TestLoad(t *testing.T) {
 		if want[i] != load {
 			t.Fatalf("want load %f, got %f", want[i], load)
 		}
+	}
+}
+
+func TestLoadErrorNamesFile(t *testing.T) {
+	_, err := parseLoad("/host/proc/loadavg", "0.21 0.37")
+	if err == nil || err.Error() != "unexpected content in /host/proc/loadavg" {
+		t.Fatalf("want error naming /host/proc/loadavg, got %v", err)
 	}
 }
