@@ -115,7 +115,7 @@ type NVMeConfig struct {
 
 // RAPLConfig contains the options for the rapl collector.
 type RAPLConfig struct {
-	// EnableZoneLabel is --collector.rapl.enable-zone-label: Enables service unit metric unit_start_time_seconds.
+	// EnableZoneLabel is --collector.rapl.enable-zone-label: adds a zone label to the RAPL metrics.
 	EnableZoneLabel bool
 }
 

@@ -264,8 +264,9 @@ func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	if stat, err := os.Stat(cfg.Path.UdevData); err != nil || !stat.IsDir() {
 		logger.Error("Failed to open directory, disabling udev device properties", "path", cfg.Path.UdevData)
 	} else {
+		paths := pathConfig(cfg.Path)
 		collector.getUdevDeviceProperties = func(major, minor uint32) (udevInfo, error) {
-			return getUdevDeviceProperties(pathConfig(cfg.Path), major, minor)
+			return getUdevDeviceProperties(paths, major, minor)
 		}
 	}
 

@@ -16,6 +16,8 @@ package config
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/prometheus/procfs"
 )
 
 // Config contains every option of a node_exporter runtime. Each field has a
@@ -26,7 +28,7 @@ type Config struct {
 	CollectorDisableDefaults bool
 	// Collectors enables or disables collectors by name, like
 	// --collector.<name> and --no-collector.<name>. It takes precedence
-	// over the command-line flags.
+	// over CollectorDisableDefaults and the collector defaults.
 	Collectors map[string]bool
 
 	Path PathConfig
@@ -66,7 +68,7 @@ type Config struct {
 }
 
 const (
-	DefaultPathProcFS   = "/proc"
+	DefaultPathProcFS   = procfs.DefaultMountPoint
 	DefaultPathSysFS    = "/sys"
 	DefaultPathRootFS   = "/"
 	DefaultPathUdevData = "/run/udev/data"
