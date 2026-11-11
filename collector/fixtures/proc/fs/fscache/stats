@@ -1,0 +1,29 @@
+FS-Cache statistics
+Cookies: idx=16 dat=31970 spc=0
+Objects: alc=0 nal=0 avl=0 ded=0
+ChkAux : non=0 ok=0 upd=0 obs=0
+Pages  : mrk=0 unc=0
+Acquire: n=31998 nul=0 noc=0 ok=31986 nbf=0 oom=0
+Lookups: n=0 neg=0 pos=0 crt=0 tmo=0
+Invals : n=409 run=0
+Updates: n=0 nul=0 run=0
+Relinqs: n=31939 nul=0 wcr=0 rtr=0
+AttrChg: n=0 ok=0 nbf=0 oom=0 run=0
+Allocs : n=0 ok=0 wt=0 nbf=0 int=0
+Allocs : ops=0 owt=0 abt=0
+Retrvls: n=2551742 ok=0 wt=0 nod=0 nbf=2551742 int=0 oom=0
+Retrvls: ops=0 owt=0 abt=0
+Stores : n=0 ok=0 agn=0 nbf=0 oom=0
+Stores : ops=0 run=0 pgs=0 rxd=0 olm=0
+VmScan : nos=0 gon=0 bsy=0 can=0 wt=0
+Ops    : pend=0 run=0 enq=0 can=0 rej=0
+Ops    : ini=0 dfr=0 rel=0 gc=0
+CacheOp: alo=0 luo=0 luc=0 gro=0
+CacheOp: inv=0 upo=0 dro=0 pto=0 atc=0 syn=0
+CacheOp: rap=0 ras=0 alp=0 als=0 wrp=0 ucp=0 dsp=0
+CacheEv: nsp=0 stl=0 rtr=0 cul=0
+RdHelp : RA=0 RP=0 WB=0 WBZ=0 rr=0 sr=0
+RdHelp : ZR=0 sh=0 sk=0
+RdHelp : DL=0 ds=0 df=0 di=0
+RdHelp : RD=0 rs=0 rf=0
+RdHelp : WR=0 ws=0 wf=0
