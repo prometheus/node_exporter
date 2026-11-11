@@ -315,7 +315,14 @@ func (c *zfsCollector) parsePoolObjsetFile(reader io.Reader, zpoolPath string, h
 			zpoolPathElements := strings.Split(zpoolPath, "/")
 			pathLen := len(zpoolPathElements)
 			zpoolName = zpoolPathElements[pathLen-2]
-			datasetName = line[strings.Index(line, parts[2]):]
+			// The dataset name is the remainder of the line after the field name
+			// and type columns. Searching for it from the start of the line
+			// matches inside the "dataset_name" prefix instead when the value
+			// occurs there too, such as a dataset called "data". Keeping the
+			// remainder verbatim preserves dataset names containing spaces.
+			_, afterFieldName, _ := strings.Cut(line, parts[0])
+			_, afterType, _ := strings.Cut(afterFieldName, parts[1])
+			datasetName = strings.TrimLeft(afterType, " \t")
 			continue
 		}
 
