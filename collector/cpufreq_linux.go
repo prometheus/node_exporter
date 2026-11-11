@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strings"
@@ -51,7 +52,7 @@ func NewCPUFreqCollector(cfg config.Config, logger *slog.Logger) (Collector, err
 }
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
-func (c *cpuFreqCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *cpuFreqCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	cpuFreqs, err := c.fs.SystemCpufreq()
 	if err != nil {
 		return err

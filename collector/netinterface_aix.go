@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/power-devops/perfstat"
@@ -68,7 +69,7 @@ func NewNetinterfaceCollector(_ config.Config, logger *slog.Logger) (Collector, 
 	}, nil
 }
 
-func (c *netinterfaceCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *netinterfaceCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	stats, err := perfstat.NetIfaceStat()
 	if err != nil {
 		return err

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -65,7 +66,7 @@ func NewRaplCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 }
 
 // Update implements Collector and exposes RAPL related metrics.
-func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *raplCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	// nil zones are fine when platform doesn't have powercap files present.
 	zones, err := sysfs.GetRaplZones(c.fs)
 	if err != nil {

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"os"
@@ -31,7 +32,7 @@ type testDMMultipathCollector struct {
 }
 
 func (c testDMMultipathCollector) Collect(ch chan<- prometheus.Metric) {
-	c.mc.Update(ch)
+	c.mc.Update(context.Background(), ch)
 }
 
 func (c testDMMultipathCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -109,7 +110,7 @@ func TestDMMultipathNoDevices(t *testing.T) {
 	c := coll.(*dmMultipathCollector)
 
 	ch := make(chan prometheus.Metric, 200)
-	err = c.Update(ch)
+	err = c.Update(t.Context(), ch)
 	close(ch)
 
 	if err != ErrNoData {

@@ -20,6 +20,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -367,7 +368,7 @@ func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix, dev
 	}
 }
 
-func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *ethtoolCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	netClass, err := c.fs.NetClassDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {

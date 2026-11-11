@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 	"strconv"
 
@@ -44,7 +45,7 @@ func NewCpuCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *cpuCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	ncpus := C.sysconf(C._SC_NPROCESSORS_ONLN)
 
 	tok, err := kstat.Open()

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -49,7 +50,7 @@ func NewXFSCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 }
 
 // Update implements Collector.
-func (c *xfsCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *xfsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.SysStats()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve XFS stats: %w", err)

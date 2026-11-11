@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -87,7 +88,7 @@ func NewProcessStatCollector(cfg config.Config, logger *slog.Logger) (Collector,
 	}, nil
 }
 
-func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *processCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	pids, states, threads, threadStates, err := c.getAllocatedThreads()
 	if err != nil {
 		return fmt.Errorf("unable to retrieve number of allocated threads: %w", err)

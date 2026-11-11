@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -95,7 +96,7 @@ func NewSoftnetCollector(cfg config.Config, logger *slog.Logger) (Collector, err
 }
 
 // Update gets parsed softnet statistics using procfs.
-func (c *softnetCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *softnetCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	var cpu string
 
 	stats, err := c.fs.NetSoftnetStat()

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -98,7 +99,7 @@ func NewPressureStatsCollector(cfg config.Config, logger *slog.Logger) (Collecto
 }
 
 // Update calls procfs.NewPSIStatsForResource for the different resources and updates the values
-func (c *pressureStatsCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *pressureStatsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	foundResources := 0
 	for _, res := range psiResources {
 		c.logger.Debug("collecting statistics for resource", "resource", res)

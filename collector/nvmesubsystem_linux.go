@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -113,7 +114,7 @@ func NewNVMeSubsystemCollector(cfg config.Config, logger *slog.Logger) (Collecto
 	}, nil
 }
 
-func (c *nvmeSubsystemCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *nvmeSubsystemCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	subsystems, err := c.fs.NVMeSubsystemClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {

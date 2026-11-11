@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -525,7 +526,7 @@ func NewMountStatsCollector(cfg config.Config, logger *slog.Logger) (Collector, 
 	}, nil
 }
 
-func (c *mountStatsCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *mountStatsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	mounts, err := c.proc.MountStats()
 	if err != nil {
 		return fmt.Errorf("failed to parse mountstats: %w", err)

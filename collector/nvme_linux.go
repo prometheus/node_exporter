@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -88,7 +89,7 @@ func NewNVMeCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 	}, nil
 }
 
-func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *nvmeCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.NVMeClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

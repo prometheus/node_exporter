@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"math"
@@ -238,7 +239,7 @@ func NewStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 }
 
 // Expose CPU stats using sysctl.
-func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *statCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	// We want time spent per-cpu per CPUSTATE.
 	// CPUSTATES (number of CPUSTATES) is defined as 5U.
 	// Order: CP_USER | CP_NICE | CP_SYS | CP_IDLE | CP_INTR

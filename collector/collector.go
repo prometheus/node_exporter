@@ -15,6 +15,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -56,6 +57,7 @@ var (
 )
 
 type collectorRuntimeState struct {
+	ctx        context.Context
 	config     config.Config
 	enabled    map[string]bool
 	collectors map[string]Collector
@@ -81,9 +83,10 @@ func AvailableCollectors() map[string]bool {
 type NodeCollector struct {
 	Collectors map[string]Collector
 	logger     *slog.Logger
+	ctx        context.Context
 }
 
-func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error) {
+func newCollectorRuntimeState(ctx context.Context, cfg config.Config) (*collectorRuntimeState, error) {
 	for collector := range cfg.Collectors {
 		if _, ok := defaultState[collector]; !ok {
 			return nil, fmt.Errorf("unknown collector: %s", collector)
@@ -104,6 +107,7 @@ func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error)
 	}
 
 	return &collectorRuntimeState{
+		ctx:        ctx,
 		config:     cfg,
 		enabled:    enabled,
 		collectors: make(map[string]Collector),
@@ -142,7 +146,7 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 			s.collectors[key] = collector
 		}
 	}
-	return &NodeCollector{Collectors: collectors, logger: logger}, nil
+	return &NodeCollector{Collectors: collectors, logger: logger, ctx: s.ctx}, nil
 }
 
 func (s *collectorRuntimeState) configureCollector(collector Collector) {
@@ -163,16 +167,16 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Add(len(n.Collectors))
 	for name, c := range n.Collectors {
 		go func(name string, c Collector) {
-			execute(name, c, ch, n.logger)
+			execute(n.ctx, name, c, ch, n.logger)
 			wg.Done()
 		}(name, c)
 	}
 	wg.Wait()
 }
 
-func execute(name string, c Collector, ch chan<- prometheus.Metric, logger *slog.Logger) {
+func execute(ctx context.Context, name string, c Collector, ch chan<- prometheus.Metric, logger *slog.Logger) {
 	begin := time.Now()
-	err := c.Update(ch)
+	err := c.Update(ctx, ch)
 	duration := time.Since(begin)
 	var success float64
 
@@ -193,8 +197,9 @@ func execute(name string, c Collector, ch chan<- prometheus.Metric, logger *slog
 
 // Collector is the interface a collector has to implement.
 type Collector interface {
-	// Get new metrics and expose them via prometheus registry.
-	Update(ch chan<- prometheus.Metric) error
+	// Get new metrics and expose them via prometheus registry. ctx is
+	// canceled when the Runtime that owns the collector shuts down.
+	Update(ctx context.Context, ch chan<- prometheus.Metric) error
 }
 
 type typedDesc struct {

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -56,7 +57,7 @@ func NewUDPqueuesCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	}, nil
 }
 
-func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *udpQueuesCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	s4, errIPv4 := c.fs.NetUDPSummary()
 	if errIPv4 == nil {
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.TxQueueLength), "tx", "v4")

@@ -181,13 +181,14 @@ void releasePowerSupply(struct macos_powersupply *ps) {
 import "C"
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *powerSupplyClassCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	psList, err := getPowerSourceList()
 	if err != nil {
 		return fmt.Errorf("couldn't get IOPPowerSourcesList: %w", err)

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -178,7 +179,7 @@ func (c *textFileCollector) exportMTimes(mtimes map[string]time.Time, ch chan<- 
 }
 
 // Update implements the Collector interface.
-func (c *textFileCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *textFileCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	// Iterate over files and accumulate their metrics, but also track any
 	// parsing errors so an error metric can be reported.
 	var errored bool

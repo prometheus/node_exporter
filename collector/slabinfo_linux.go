@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -52,7 +53,7 @@ func NewSlabinfoCollector(cfg config.Config, logger *slog.Logger) (Collector, er
 	}, nil
 }
 
-func (c *slabinfoCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *slabinfoCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	slabinfo, err := c.fs.SlabInfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get %s: %w", c.subsystem, err)

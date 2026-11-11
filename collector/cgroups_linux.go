@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -62,7 +63,7 @@ func NewCgroupSummaryCollector(cfg config.Config, logger *slog.Logger) (Collecto
 }
 
 // Update implements Collector and exposes cgroup statistics.
-func (c *cgroupSummaryCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *cgroupSummaryCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	cgroupSummarys, err := c.fs.CgroupSummarys()
 	if err != nil {
 		return err

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -131,7 +132,7 @@ func parseInetDiagMsg(b []byte) *InetDiagMsg {
 	return (*InetDiagMsg)(unsafe.Pointer(&b[0]))
 }
 
-func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *tcpStatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	tcpStats, err := getTCPStats(syscall.AF_INET)
 	if err != nil {
 		return fmt.Errorf("couldn't get tcpstats: %w", err)

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -179,7 +180,7 @@ func (c *cpuCollector) compileIncludeFlags() error {
 }
 
 // Update implements Collector and exposes cpu related metrics from /proc/stat and /sys/.../cpu/.
-func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *cpuCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	if c.config.EnableInfo {
 		if err := c.updateInfo(ch); err != nil {
 			return err

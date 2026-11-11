@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -153,7 +154,7 @@ func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name stri
 	}
 }
 
-func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *infinibandCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	deviceNames, err := c.fs.InfiniBandClassDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

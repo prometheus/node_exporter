@@ -44,6 +44,7 @@ struct ref_with_ret FetchThermal() {
 import "C"
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -115,7 +116,7 @@ func NewThermCollector(_ config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *thermCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	cpuPowerStatus, err := fetchCPUPowerStatus()
 	switch {
 	case err == nil:

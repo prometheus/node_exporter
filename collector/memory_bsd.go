@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -146,7 +147,7 @@ func NewMemoryCollector(_ config.Config, logger *slog.Logger) (Collector, error)
 
 // Update checks relevant sysctls for current memory usage, and kvm for swap
 // usage.
-func (c *memoryCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *memoryCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {

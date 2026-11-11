@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/power-devops/perfstat"
@@ -90,7 +91,7 @@ func NewPartitionCollector(_ config.Config, logger *slog.Logger) (Collector, err
 	}, nil
 }
 
-func (c *partitionCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *partitionCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	stats, err := perfstat.PartitionStat()
 	if err != nil {
 		return err

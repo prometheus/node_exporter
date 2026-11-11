@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -184,7 +185,7 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	return nil
 }
 
-func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *osReleaseCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	for i, path := range c.osReleaseFilenames {
 		err := c.UpdateStruct(c.paths.RootFS + path)
 		if err == nil {
@@ -200,6 +201,9 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	// A concurrent Update can rewrite the struct, so read it under the lock.
+	c.osMutex.RLock()
+	defer c.osMutex.RUnlock()
 	ch <- prometheus.MustNewConstMetric(osInfoDesc, prometheus.GaugeValue, 1.0,
 		c.os.BuildID, c.os.ID, c.os.IDLike, c.os.ImageID, c.os.ImageVersion, c.os.Name, c.os.PrettyName,
 		c.os.Variant, c.os.VariantID, c.os.Version, c.os.VersionCodename, c.os.VersionID)

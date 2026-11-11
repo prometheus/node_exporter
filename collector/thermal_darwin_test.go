@@ -39,7 +39,7 @@ func TestThermalUpdateWithoutCPUPowerStatus(t *testing.T) {
 	}
 
 	ch := make(chan prometheus.Metric, 1024)
-	err = c.Update(ch)
+	err = c.Update(t.Context(), ch)
 	close(ch)
 
 	if errors.Is(err, errNoCPUPowerStatus) {
@@ -62,7 +62,7 @@ func TestThermalTemperaturesAreUnique(t *testing.T) {
 	}
 
 	ch := make(chan prometheus.Metric, 4096)
-	if err := c.Update(ch); err != nil {
+	if err := c.Update(t.Context(), ch); err != nil {
 		t.Fatalf("Update failed: %v", err)
 	}
 	close(ch)

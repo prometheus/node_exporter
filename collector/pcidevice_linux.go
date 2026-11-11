@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -207,7 +208,7 @@ func NewPcideviceCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	return c, nil
 }
 
-func (c *pcideviceCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *pcideviceCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.PciDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

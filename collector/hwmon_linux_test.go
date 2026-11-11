@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"slices"
@@ -61,7 +62,7 @@ func (t testHwmonCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (t testHwmonCollector) Collect(ch chan<- prometheus.Metric) {
-	if err := t.c.Update(ch); err != nil {
+	if err := t.c.Update(context.Background(), ch); err != nil {
 		panic(err)
 	}
 }

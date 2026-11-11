@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 	"time"
 
@@ -67,7 +68,7 @@ func NewTimeCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 	}, nil
 }
 
-func (c *timeCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *timeCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	now := time.Now()
 	nowSec := float64(now.UnixNano()) / 1e9
 	zone, zoneOffset := now.Zone()

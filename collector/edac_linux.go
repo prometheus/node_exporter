@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -101,7 +102,7 @@ func edacDimmLabel(csrow, channel string) string {
 	return label
 }
 
-func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *edacCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	memControllers, err := filepath.Glob(c.paths.sysFilePath("devices/system/edac/mc/mc[0-9]*"))
 	if err != nil {
 		return err

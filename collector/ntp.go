@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -33,18 +34,14 @@ const (
 	ntpSubsystem = "ntp"
 )
 
-var (
-	// 3.46608s ~ 1.5s + PHI * (1 << maxPoll), where 1.5s is MAXDIST from ntp.org, it is 1.0 in RFC5905
-	// max-distance option is used as-is without phi*(1<<poll)
-
-	leapMidnight      time.Time
-	leapMidnightMutex = &sync.Mutex{}
-)
-
 type ntpCollector struct {
 	stratum, leap, rtt, offset, reftime, rootDelay, rootDispersion, sanity typedDesc
 	logger                                                                 *slog.Logger
 	config                                                                 config.NTPConfig
+
+	// leapMidnight is cached because the leap flag is dropped right after midnight.
+	leapMidnightMutex sync.Mutex
+	leapMidnight      time.Time
 }
 
 func init() {
@@ -120,7 +117,7 @@ func NewNtpCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *ntpCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	resp, err := ntp.QueryWithOptions(c.config.Server, ntp.QueryOptions{
 		Version: c.config.ProtocolVersion,
 		TTL:     c.config.IPTTL,
@@ -151,16 +148,16 @@ func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	// configuration from node_exporter user to the developer.
 
 	maxerr := c.config.LocalOffsetTolerance
-	leapMidnightMutex.Lock()
+	c.leapMidnightMutex.Lock()
 	if resp.Leap == ntp.LeapAddSecond || resp.Leap == ntp.LeapDelSecond {
 		// state of leapMidnight is cached as leap flag is dropped right after midnight
-		leapMidnight = resp.Time.Truncate(hour24).Add(hour24)
+		c.leapMidnight = resp.Time.Truncate(hour24).Add(hour24)
 	}
-	if leapMidnight.Add(-hour24).Before(resp.Time) && resp.Time.Before(leapMidnight.Add(hour24)) {
+	if c.leapMidnight.Add(-hour24).Before(resp.Time) && resp.Time.Before(c.leapMidnight.Add(hour24)) {
 		// tolerate leap smearing
 		maxerr += time.Second
 	}
-	leapMidnightMutex.Unlock()
+	c.leapMidnightMutex.Unlock()
 
 	if resp.Validate() == nil && resp.RootDistance <= c.config.MaxDistance && resp.MinError <= maxerr {
 		ch <- c.sanity.mustNewConstMetric(1)

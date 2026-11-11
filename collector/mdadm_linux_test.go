@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"strings"
@@ -30,7 +31,7 @@ type testMdadmCollector struct {
 }
 
 func (c testMdadmCollector) Collect(ch chan<- prometheus.Metric) {
-	c.mc.Update(ch)
+	c.mc.Update(context.Background(), ch)
 }
 
 func (c testMdadmCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -277,7 +278,7 @@ func TestMdadmStats(t *testing.T) {
 
 	sink := make(chan prometheus.Metric)
 	go func() {
-		err := collector.Update(sink)
+		err := collector.Update(t.Context(), sink)
 		if err != nil {
 			panic(err)
 		}

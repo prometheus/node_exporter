@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -47,7 +48,7 @@ func NewLoadavgCollector(cfg config.Config, logger *slog.Logger) (Collector, err
 	}, nil
 }
 
-func (c *loadavgCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *loadavgCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	loads, err := getLoad(c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get load: %w", err)

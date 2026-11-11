@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -82,7 +83,7 @@ func NewExecCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 }
 
 // Update pushes exec statistics onto ch
-func (c *execCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *execCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {

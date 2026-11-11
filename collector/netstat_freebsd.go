@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"encoding/binary"
 	"errors"
 	"fmt"
@@ -293,10 +294,10 @@ func (c *netStatCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (c *netStatCollector) Collect(ch chan<- prometheus.Metric) {
-	_ = c.Update(ch)
+	_ = c.Update(context.Background(), ch)
 }
 
-func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *netStatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	tcpStats, err := NewTCPStat().GetData()
 	if err != nil {
 		return err

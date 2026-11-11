@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/illumos/go-kstat"
@@ -48,7 +49,7 @@ func newBootTimeCollector(_ config.Config, logger *slog.Logger) (Collector, erro
 
 // newBootTimeCollector returns a new Collector exposing system boot time on Solaris systems.
 // Update pushes boot time onto ch
-func (c *bootTimeCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *bootTimeCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	tok, err := kstat.Open()
 	if err != nil {
 		return err

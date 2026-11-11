@@ -22,6 +22,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -61,6 +63,47 @@ func parseConfigFlags(t *testing.T, args ...string) config.Config {
 func TestFlagDefaultsMatchConfigDefaults(t *testing.T) {
 	if got, want := parseConfigFlags(t), config.NewConfigWithDefaults(); !reflect.DeepEqual(got, want) {
 		t.Fatalf("flag defaults differ from config defaults:\nflags:  %+v\nconfig: %+v", got, want)
+	}
+}
+
+// TestEveryFlagChangesConfig sets each collector and path flag to a value
+// other than its default, and checks that the Config changes, so a new flag
+// cannot be left out of configFromFlags.
+func TestEveryFlagChangesConfig(t *testing.T) {
+	app := kingpin.New("node_exporter", "")
+	addFlags(app)
+	defaults := config.NewConfigWithDefaults()
+	for _, flag := range app.Model().Flags {
+		if !strings.HasPrefix(flag.Name, "collector.") && !strings.HasPrefix(flag.Name, "path.") {
+			continue
+		}
+		var def string
+		if len(flag.Default) > 0 {
+			def = flag.Default[0]
+		}
+		var arg string
+		switch {
+		case flag.IsBoolFlag() && def == "true":
+			arg = "--no-" + flag.Name
+		case flag.IsBoolFlag():
+			arg = "--" + flag.Name
+		default:
+			value := "other"
+			if _, err := time.ParseDuration(def); err == nil {
+				value = "7s"
+			} else if _, err := strconv.Atoi(def); err == nil {
+				value = "7"
+			}
+			arg = "--" + flag.Name + "=" + value
+		}
+		cfg, err := configFromArgs(t, arg)
+		if err != nil {
+			t.Errorf("%s: %v", arg, err)
+			continue
+		}
+		if reflect.DeepEqual(cfg, defaults) {
+			t.Errorf("%s does not change the Config", arg)
+		}
 	}
 }
 

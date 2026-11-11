@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -58,7 +59,7 @@ func NewBondingCollector(cfg config.Config, logger *slog.Logger) (Collector, err
 }
 
 // Update reads and exposes bonding states, implements Collector interface. Caution: This works only on linux.
-func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *bondingCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	statusfile := c.paths.sysFilePath("class/net")
 	bondingStats, err := readBondingStats(statusfile)
 	if err != nil {

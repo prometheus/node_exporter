@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -118,7 +119,7 @@ var (
 	)
 )
 
-func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *mdadmCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	procFS, err := procfs.NewFS(c.paths.ProcFS)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)

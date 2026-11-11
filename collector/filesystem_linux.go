@@ -31,11 +31,6 @@ import (
 	"github.com/prometheus/procfs"
 )
 
-var (
-	stuckMounts    = make(map[string]struct{})
-	stuckMountsMtx = &sync.Mutex{}
-)
-
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	mps, err := mountPointDetails(c.paths, c.logger)
@@ -68,19 +63,19 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				continue
 			}
 
-			stuckMountsMtx.Lock()
-			if _, ok := stuckMounts[labels.mountPoint]; ok {
+			c.stuckMounts.Lock()
+			if _, ok := c.stuckMounts.mounts[labels.mountPoint]; ok {
 				labels.deviceError = "mountpoint timeout"
 				stats = append(stats, filesystemStats{
 					labels:      labels,
 					deviceError: 1,
 				})
 				c.logger.Debug("Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
-				stuckMountsMtx.Unlock()
+				c.stuckMounts.Unlock()
 				continue
 			}
 
-			stuckMountsMtx.Unlock()
+			c.stuckMounts.Unlock()
 			labelChan <- labels
 		}
 		close(labelChan)
@@ -101,19 +96,19 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	}
 
 	success := make(chan struct{})
-	go stuckMountWatcher(labels.mountPoint, success, c.config.MountTimeout, c.logger)
+	go c.stuckMountWatcher(labels.mountPoint, success)
 
 	buf := new(unix.Statfs_t)
 	err := unix.Statfs(c.paths.rootfsFilePath(labels.mountPoint), buf)
-	stuckMountsMtx.Lock()
+	c.stuckMounts.Lock()
 	close(success)
 
 	// If the mount has been marked as stuck, unmark it and log it's recovery.
-	if _, ok := stuckMounts[labels.mountPoint]; ok {
+	if _, ok := c.stuckMounts.mounts[labels.mountPoint]; ok {
 		c.logger.Debug("Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
-		delete(stuckMounts, labels.mountPoint)
+		delete(c.stuckMounts.mounts, labels.mountPoint)
 	}
-	stuckMountsMtx.Unlock()
+	c.stuckMounts.Unlock()
 
 	// Remove options from labels because options will not be used from this point forward
 	// and keeping them can lead to errors when the same device is mounted to the same mountpoint
@@ -145,23 +140,23 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, timeout time.Duration, logger *slog.Logger) {
-	mountCheckTimer := time.NewTimer(timeout)
+func (c *filesystemCollector) stuckMountWatcher(mountPoint string, success chan struct{}) {
+	mountCheckTimer := time.NewTimer(c.config.MountTimeout)
 	defer mountCheckTimer.Stop()
 	select {
 	case <-success:
 		// Success
 	case <-mountCheckTimer.C:
 		// Timed out, mark mount as stuck
-		stuckMountsMtx.Lock()
+		c.stuckMounts.Lock()
 		select {
 		case <-success:
 			// Success came in just after the timeout was reached, don't label the mount as stuck
 		default:
-			logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
-			stuckMounts[mountPoint] = struct{}{}
+			c.logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
+			c.stuckMounts.mounts[mountPoint] = struct{}{}
 		}
-		stuckMountsMtx.Unlock()
+		c.stuckMounts.Unlock()
 	}
 }
 

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -96,7 +97,7 @@ func NewNfsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *nfsCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *nfsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.ClientRPCStats()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

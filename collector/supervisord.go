@@ -30,14 +30,13 @@ import (
 	"github.com/prometheus/node_exporter/config"
 )
 
-var xrpc *xmlrpc.Client
-
 type supervisordCollector struct {
 	upDesc         *prometheus.Desc
 	stateDesc      *prometheus.Desc
 	exitStatusDesc *prometheus.Desc
 	startTimeDesc  *prometheus.Desc
 	logger         *slog.Logger
+	xrpc           *xmlrpc.Client
 }
 
 func init() {
@@ -49,6 +48,7 @@ func NewSupervisordCollector(cfg config.Config, logger *slog.Logger) (Collector,
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
+		xrpc       *xmlrpc.Client
 	)
 
 	if u, err := url.Parse(cfg.Supervisord.URL); err == nil && u.Scheme == "unix" {
@@ -93,6 +93,7 @@ func NewSupervisordCollector(cfg config.Config, logger *slog.Logger) (Collector,
 			nil,
 		),
 		logger: logger,
+		xrpc:   xrpc,
 	}, nil
 }
 
@@ -115,7 +116,7 @@ func (c *supervisordCollector) isRunning(state int) bool {
 	return false
 }
 
-func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *supervisordCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	var info struct {
 		Name          string `xmlrpc:"name"`
 		Group         string `xmlrpc:"group"`
@@ -131,7 +132,7 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 		PID           int    `xmlrpc:"pid"`
 	}
 
-	res, err := xrpc.Call("supervisor.getAllProcessInfo")
+	res, err := c.xrpc.Call("supervisor.getAllProcessInfo")
 	if err != nil {
 		return fmt.Errorf("unable to call supervisord: %w", err)
 	}

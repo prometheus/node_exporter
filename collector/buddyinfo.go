@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -56,7 +57,7 @@ func NewBuddyinfoCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 
 // Update calls (*buddyinfoCollector).getBuddyInfo to get the platform specific
 // buddyinfo metrics.
-func (c *buddyinfoCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *buddyinfoCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	buddyInfo, err := c.fs.BuddyInfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get buddyinfo: %w", err)

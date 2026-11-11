@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -31,7 +32,7 @@ type testCPUFreqCollector struct {
 }
 
 func (c testCPUFreqCollector) Collect(ch chan<- prometheus.Metric) {
-	c.mc.Update(ch)
+	c.mc.Update(context.Background(), ch)
 }
 
 func (c testCPUFreqCollector) Describe(ch chan<- *prometheus.Desc) {

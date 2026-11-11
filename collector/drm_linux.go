@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -94,7 +95,7 @@ func NewDrmCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *drmCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *drmCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	return c.updateAMDCards(ch)
 }
 

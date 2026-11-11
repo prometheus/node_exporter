@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -58,7 +59,7 @@ func NewNetworkRouteCollector(_ config.Config, logger *slog.Logger) (Collector, 
 	}, nil
 }
 
-func (n networkRouteCollector) Update(ch chan<- prometheus.Metric) error {
+func (n networkRouteCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	deviceRoutes := make(map[string]int)
 
 	conn, err := rtnetlink.Dial(nil)

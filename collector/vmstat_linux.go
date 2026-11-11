@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -53,7 +54,7 @@ func NewvmStatCollector(cfg config.Config, logger *slog.Logger) (Collector, erro
 	}, nil
 }
 
-func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *vmStatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	file, err := os.Open(c.paths.procFilePath("vmstat"))
 	if err != nil {
 		return err

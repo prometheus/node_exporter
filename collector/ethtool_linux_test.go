@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -42,7 +43,7 @@ type testEthtoolCollector struct {
 }
 
 func (c testEthtoolCollector) Collect(ch chan<- prometheus.Metric) {
-	c.dsc.Update(ch)
+	c.dsc.Update(context.Background(), ch)
 }
 
 func (c testEthtoolCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -389,7 +390,7 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 
 	sink := make(chan prometheus.Metric)
 	go func() {
-		err = collector.Update(sink)
+		err = collector.Update(t.Context(), sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
 		}

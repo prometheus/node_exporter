@@ -16,9 +16,11 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
+	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -42,6 +44,13 @@ type filesystemCollector struct {
 	logger                        *slog.Logger
 	config                        config.FilesystemConfig
 	paths                         pathConfig
+	stuckMounts                   stuckMountSet
+}
+
+// stuckMountSet holds the mount points whose stat call timed out.
+type stuckMountSet struct {
+	sync.Mutex
+	mounts map[string]struct{}
 }
 
 type filesystemLabels struct {
@@ -144,10 +153,11 @@ func NewFilesystemCollector(cfg config.Config, logger *slog.Logger) (Collector, 
 		mountInfoDesc:    mountInfoDesc,
 		logger:           logger,
 		config:           cfg.Filesystem,
+		stuckMounts:      stuckMountSet{mounts: make(map[string]struct{})},
 	}, nil
 }
 
-func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *filesystemCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	stats, err := c.GetStats()
 	if err != nil {
 		return err

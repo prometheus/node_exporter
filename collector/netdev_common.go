@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -84,7 +85,7 @@ func (c *netDevCollector) metricDesc(key string, labels []string) *prometheus.De
 	return c.metricDescs[key]
 }
 
-func (c *netDevCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *netDevCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	netDev, err := getNetDevStats(c.config, c.paths, &c.deviceFilter, c.logger)
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)

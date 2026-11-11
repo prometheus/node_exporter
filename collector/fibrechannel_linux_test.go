@@ -38,7 +38,7 @@ func TestFibreChannelCollector(t *testing.T) {
 
 	// This should not panic even with missing statistics files
 	ch := make(chan prometheus.Metric, 100)
-	err = collector.Update(ch)
+	err = collector.Update(t.Context(), ch)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

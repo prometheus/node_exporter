@@ -17,6 +17,7 @@ package collector
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -63,7 +64,7 @@ func NewMeminfoNumaCollector(cfg config.Config, logger *slog.Logger) (Collector,
 	}, nil
 }
 
-func (c *meminfoNumaCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *meminfoNumaCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	metrics, err := getMemInfoNuma(c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get NUMA meminfo: %w", err)

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"runtime"
@@ -716,7 +717,7 @@ func NewPerfCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 }
 
 // Update implements the Collector interface and will collect metrics per CPU.
-func (c *perfCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *perfCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	if err := c.updateHardwareStats(ch); err != nil {
 		return err
 	}

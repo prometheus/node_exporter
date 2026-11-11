@@ -20,6 +20,7 @@ package collector
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"fmt"
 	"log/slog"
@@ -69,7 +70,7 @@ func NewCPUCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *statCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	var (
 		count   C.mach_msg_type_number_t
 		cpuload *C.processor_cpu_load_info_data_t

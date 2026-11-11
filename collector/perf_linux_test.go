@@ -58,7 +58,7 @@ func TestPerfCollector(t *testing.T) {
 			i++
 		}
 	}()
-	if err := collector.Update(metrics); err != nil {
+	if err := collector.Update(t.Context(), metrics); err != nil {
 		t.Fatal(err)
 	}
 }

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 	"strconv"
 	"unsafe"
@@ -61,7 +62,7 @@ func NewCPUCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *cpuCollector) Update(ch chan<- prometheus.Metric) (err error) {
+func (c *cpuCollector) Update(_ context.Context, ch chan<- prometheus.Metric) (err error) {
 	clockb, err := unix.SysctlRaw("kern.clockrate")
 	if err != nil {
 		return err

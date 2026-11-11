@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"os"
@@ -64,7 +65,7 @@ func NewResctrlCollector(cfg config.Config, _ *slog.Logger) (Collector, error) {
 	return &resctrlCollector{path: cfg.Resctrl.Path}, nil
 }
 
-func (c *resctrlCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *resctrlCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	// The filesystem is opened on every scrape because it can be mounted and
 	// unmounted while node_exporter runs.
 	fs, err := resctrlfs.NewFS(c.path)

@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -134,7 +135,7 @@ func newIPVSCollector(cfg config.Config, logger *slog.Logger) (*ipvsCollector, e
 	return &c, nil
 }
 
-func (c *ipvsCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *ipvsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	ipvsStats, err := c.fs.IPVSStats()
 	if err != nil {
 		// Cannot access ipvs metrics, report no error.

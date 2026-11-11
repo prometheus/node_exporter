@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"strconv"
@@ -123,7 +124,7 @@ func getDragonFlyCPUTimes() ([]float64, error) {
 }
 
 // Expose CPU stats using sysctl.
-func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *statCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	fieldsCount := 5
 	cpuTimes, err := getDragonFlyCPUTimes()
 	if err != nil {

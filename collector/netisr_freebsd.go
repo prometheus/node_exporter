@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -87,7 +88,7 @@ func NewNetisrCollector(_ config.Config, logger *slog.Logger) (Collector, error)
 	}, nil
 }
 
-func (c *netisrCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *netisrCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {

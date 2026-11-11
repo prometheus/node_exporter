@@ -44,6 +44,8 @@ type TextfileConfig struct {
 	Directories []string
 }
 
+// DefaultNTPMaxDistance is 3.46608s ~ 1.5s + PHI * (1 << maxPoll), where 1.5s is MAXDIST
+// from ntp.org, it is 1.0 in RFC5905. The max-distance option is used as-is without phi*(1<<poll).
 const (
 	DefaultNTPServer               = "127.0.0.1"
 	DefaultNTPServerPort           = 123

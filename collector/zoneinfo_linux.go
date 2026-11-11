@@ -14,6 +14,7 @@
 package collector
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"reflect"
@@ -51,7 +52,7 @@ func NewZoneinfoCollector(cfg config.Config, logger *slog.Logger) (Collector, er
 	}, nil
 }
 
-func (c *zoneinfoCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *zoneinfoCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	metrics, err := c.fs.Zoneinfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get zoneinfo: %w", err)

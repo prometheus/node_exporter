@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/opencontainers/selinux/go-selinux"
@@ -59,7 +60,7 @@ func NewSelinuxCollector(_ config.Config, logger *slog.Logger) (Collector, error
 	}, nil
 }
 
-func (c *selinuxCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *selinuxCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	if !selinux.GetEnabled() {
 		ch <- prometheus.MustNewConstMetric(
 			c.enabled, prometheus.GaugeValue, 0)

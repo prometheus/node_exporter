@@ -14,6 +14,8 @@
 package collector
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"maps"
@@ -30,19 +32,37 @@ type Runtime struct {
 	state     *collectorRuntimeState
 	collector *NodeCollector
 	logger    *slog.Logger
+	cancel    context.CancelFunc
 }
 
 func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
+	return NewRuntimeWithContext(context.Background(), cfg, logger)
+}
+
+// NewRuntimeWithContext creates a Runtime whose lifetime is also bounded by ctx.
+// Long-lived embedded consumers should use NewRuntime and call Runtime.Shutdown.
+func NewRuntimeWithContext(ctx context.Context, cfg config.Config, logger *slog.Logger) (*Runtime, error) {
+	if ctx == nil {
+		return nil, errors.New("context is required")
+	}
 	if err := cfg.Validate(); err != nil {
 		return nil, err
 	}
 
-	state, err := newCollectorRuntimeState(cfg)
+	runtimeCtx, cancel := context.WithCancel(ctx)
+	state, err := newCollectorRuntimeState(runtimeCtx, cfg)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
-	return newRuntime(state, logger)
+	r, err := newRuntime(state, logger)
+	if err != nil {
+		cancel()
+		return nil, err
+	}
+	r.cancel = cancel
+	return r, nil
 }
 
 func newRuntime(state *collectorRuntimeState, logger *slog.Logger, filters ...string) (*Runtime, error) {
@@ -54,6 +74,8 @@ func newRuntime(state *collectorRuntimeState, logger *slog.Logger, filters ...st
 	return &Runtime{state: state, collector: nodeCollector, logger: logger}, nil
 }
 
+// Filtered returns a Runtime with a subset of the enabled collectors. It
+// shares the collectors and the lifetime of r, so only r needs Shutdown.
 func (r *Runtime) Filtered(enabledCollectors ...string) (*Runtime, error) {
 	for _, name := range enabledCollectors {
 		if _, ok := r.collector.Collectors[name]; !ok {
@@ -61,6 +83,14 @@ func (r *Runtime) Filtered(enabledCollectors ...string) (*Runtime, error) {
 		}
 	}
 	return newRuntime(r.state, r.logger, enabledCollectors...)
+}
+
+// Shutdown cancels in-flight collection work owned by the Runtime.
+func (r *Runtime) Shutdown(context.Context) error {
+	if r.cancel != nil {
+		r.cancel()
+	}
+	return nil
 }
 
 func (r *Runtime) Collectors() []prometheus.Collector {

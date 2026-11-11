@@ -16,6 +16,7 @@
 package collector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -96,7 +97,7 @@ func NewDMMultipathCollector(cfg config.Config, logger *slog.Logger) (Collector,
 	}, nil
 }
 
-func (c *dmMultipathCollector) Update(ch chan<- prometheus.Metric) error {
+func (c *dmMultipathCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
 	devices, err := c.fs.DMMultipathDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {
