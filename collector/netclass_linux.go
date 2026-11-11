@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -62,7 +61,7 @@ func NewNetClassCollector(cfg config.Config, logger *slog.Logger) (Collector, er
 	}, nil
 }
 
-func (c *netClassCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *netClassCollector) Update(ch chan<- prometheus.Metric) error {
 	if c.config.Netlink {
 		return c.netClassRTNLUpdate(ch)
 	}

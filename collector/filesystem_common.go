@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -156,7 +155,7 @@ func NewFilesystemCollector(cfg config.Config, logger *slog.Logger) (Collector, 
 	}, nil
 }
 
-func (c *filesystemCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *filesystemCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.GetStats()
 	if err != nil {
 		return err

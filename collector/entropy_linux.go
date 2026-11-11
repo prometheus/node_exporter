@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -61,7 +60,7 @@ func NewEntropyCollector(cfg config.Config, logger *slog.Logger) (Collector, err
 	}, nil
 }
 
-func (c *entropyCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *entropyCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.KernelRandom()
 	if err != nil {
 		return fmt.Errorf("failed to get kernel random stats: %w", err)

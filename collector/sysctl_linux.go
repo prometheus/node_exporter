@@ -14,7 +14,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -67,7 +66,7 @@ func NewSysctlCollector(cfg config.Config, logger *slog.Logger) (Collector, erro
 	return c, nil
 }
 
-func (c *sysctlCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *sysctlCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, sysctl := range c.sysctls {
 		metrics, err := c.newMetrics(sysctl)
 		if err != nil {

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -266,7 +265,7 @@ func NewZFSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *zfsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, m := range c.sysctls {
 		v, err := m.Value()
 		if err != nil {

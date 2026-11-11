@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -109,7 +108,7 @@ func NewConntrackCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	}, nil
 }
 
-func (c *conntrackCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
 	value, err := readUintFromFile(c.paths.procFilePath("sys/net/netfilter/nf_conntrack_count"))
 	if err != nil {
 		return c.handleErr(err)

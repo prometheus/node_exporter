@@ -146,9 +146,9 @@ func NewSystemdCollector(cfg config.Config, logger *slog.Logger) (Collector, err
 
 // Update gathers metrics from systemd.  Dbus collection is done in parallel
 // to reduce wait time for responses.
-func (c *systemdCollector) Update(ctx context.Context, ch chan<- prometheus.Metric) error {
+func (c *systemdCollector) Update(ch chan<- prometheus.Metric) error {
 	begin := time.Now()
-	conn, err := newSystemdDbusConn(ctx, c.config.Private)
+	conn, err := newSystemdDbusConn(c.config.Private)
 	if err != nil {
 		return fmt.Errorf("couldn't get dbus connection: %w", err)
 	}
@@ -173,7 +173,7 @@ func (c *systemdCollector) Update(ctx context.Context, ch chan<- prometheus.Metr
 		systemdVirtualization,
 	)
 
-	allUnits, err := c.getAllUnits(ctx, conn)
+	allUnits, err := c.getAllUnits(conn)
 	if err != nil {
 		return fmt.Errorf("couldn't get units: %w", err)
 	}
@@ -193,14 +193,14 @@ func (c *systemdCollector) Update(ctx context.Context, ch chan<- prometheus.Metr
 
 	wg.Go(func() {
 		begin := time.Now()
-		c.collectUnitStatusMetrics(ctx, conn, ch, units)
+		c.collectUnitStatusMetrics(conn, ch, units)
 		c.logger.Debug("collectUnitStatusMetrics took", "duration_seconds", time.Since(begin).Seconds())
 	})
 
 	if c.config.EnableStartTimeMetrics {
 		wg.Go(func() {
 			begin := time.Now()
-			c.collectUnitStartTimeMetrics(ctx, conn, ch, units)
+			c.collectUnitStartTimeMetrics(conn, ch, units)
 			c.logger.Debug("collectUnitStartTimeMetrics took", "duration_seconds", time.Since(begin).Seconds())
 		})
 	}
@@ -208,7 +208,7 @@ func (c *systemdCollector) Update(ctx context.Context, ch chan<- prometheus.Metr
 	if c.config.EnableTaskMetrics {
 		wg.Go(func() {
 			begin := time.Now()
-			c.collectUnitTasksMetrics(ctx, conn, ch, units)
+			c.collectUnitTasksMetrics(conn, ch, units)
 			c.logger.Debug("collectUnitTasksMetrics took", "duration_seconds", time.Since(begin).Seconds())
 		})
 	}
@@ -216,14 +216,14 @@ func (c *systemdCollector) Update(ctx context.Context, ch chan<- prometheus.Metr
 	if systemdVersion >= minSystemdVersionSystemState {
 		wg.Go(func() {
 			begin := time.Now()
-			c.collectTimers(ctx, conn, ch, units)
+			c.collectTimers(conn, ch, units)
 			c.logger.Debug("collectTimers took", "duration_seconds", time.Since(begin).Seconds())
 		})
 	}
 
 	wg.Go(func() {
 		begin := time.Now()
-		c.collectSockets(ctx, conn, ch, units)
+		c.collectSockets(conn, ch, units)
 		c.logger.Debug("collectSockets took", "duration_seconds", time.Since(begin).Seconds())
 	})
 
@@ -236,18 +236,18 @@ func (c *systemdCollector) Update(ctx context.Context, ch chan<- prometheus.Metr
 	return err
 }
 
-func (c *systemdCollector) collectUnitStatusMetrics(ctx context.Context, conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+func (c *systemdCollector) collectUnitStatusMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		serviceType := ""
 		if strings.HasSuffix(unit.Name, ".service") {
-			serviceTypeProperty, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Service", "Type")
+			serviceTypeProperty, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "Type")
 			if err != nil {
 				c.logger.Debug("couldn't get unit type", "unit", unit.Name, "err", err)
 			} else {
 				serviceType = serviceTypeProperty.Value.Value().(string)
 			}
 		} else if strings.HasSuffix(unit.Name, ".mount") {
-			serviceTypeProperty, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Mount", "Type")
+			serviceTypeProperty, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Mount", "Type")
 			if err != nil {
 				c.logger.Debug("couldn't get unit type", "unit", unit.Name, "err", err)
 			} else {
@@ -265,7 +265,7 @@ func (c *systemdCollector) collectUnitStatusMetrics(ctx context.Context, conn *d
 		}
 		if c.config.EnableRestartsMetrics && strings.HasSuffix(unit.Name, ".service") {
 			// NRestarts wasn't added until systemd 235.
-			restartsCount, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Service", "NRestarts")
+			restartsCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "NRestarts")
 			if err != nil {
 				c.logger.Debug("couldn't get unit NRestarts", "unit", unit.Name, "err", err)
 			} else {
@@ -277,13 +277,13 @@ func (c *systemdCollector) collectUnitStatusMetrics(ctx context.Context, conn *d
 	}
 }
 
-func (c *systemdCollector) collectSockets(ctx context.Context, conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+func (c *systemdCollector) collectSockets(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		if !strings.HasSuffix(unit.Name, ".socket") {
 			continue
 		}
 
-		acceptedConnectionCount, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Socket", "NAccepted")
+		acceptedConnectionCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Socket", "NAccepted")
 		if err != nil {
 			c.logger.Debug("couldn't get unit NAccepted", "unit", unit.Name, "err", err)
 			continue
@@ -292,7 +292,7 @@ func (c *systemdCollector) collectSockets(ctx context.Context, conn *dbus.Conn, 
 			c.socketAcceptedConnectionsDesc, prometheus.CounterValue,
 			float64(acceptedConnectionCount.Value.Value().(uint32)), unit.Name)
 
-		currentConnectionCount, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Socket", "NConnections")
+		currentConnectionCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Socket", "NConnections")
 		if err != nil {
 			c.logger.Debug("couldn't get unit NConnections", "unit", unit.Name, "err", err)
 			continue
@@ -302,7 +302,7 @@ func (c *systemdCollector) collectSockets(ctx context.Context, conn *dbus.Conn, 
 			float64(currentConnectionCount.Value.Value().(uint32)), unit.Name)
 
 		// NRefused wasn't added until systemd 239.
-		refusedConnectionCount, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Socket", "NRefused")
+		refusedConnectionCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Socket", "NRefused")
 		if err == nil {
 			ch <- prometheus.MustNewConstMetric(
 				c.socketRefusedConnectionsDesc, prometheus.GaugeValue,
@@ -311,14 +311,14 @@ func (c *systemdCollector) collectSockets(ctx context.Context, conn *dbus.Conn, 
 	}
 }
 
-func (c *systemdCollector) collectUnitStartTimeMetrics(ctx context.Context, conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+func (c *systemdCollector) collectUnitStartTimeMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
 	var startTimeUsec uint64
 
 	for _, unit := range units {
 		if unit.ActiveState != "active" {
 			startTimeUsec = 0
 		} else {
-			timestampValue, err := conn.GetUnitPropertyContext(ctx, unit.Name, "ActiveEnterTimestamp")
+			timestampValue, err := conn.GetUnitPropertyContext(context.TODO(), unit.Name, "ActiveEnterTimestamp")
 			if err != nil {
 				c.logger.Debug("couldn't get unit StartTimeUsec", "unit", unit.Name, "err", err)
 				continue
@@ -332,11 +332,11 @@ func (c *systemdCollector) collectUnitStartTimeMetrics(ctx context.Context, conn
 	}
 }
 
-func (c *systemdCollector) collectUnitTasksMetrics(ctx context.Context, conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+func (c *systemdCollector) collectUnitTasksMetrics(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
 	var val uint64
 	for _, unit := range units {
 		if strings.HasSuffix(unit.Name, ".service") {
-			tasksCurrentCount, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Service", "TasksCurrent")
+			tasksCurrentCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "TasksCurrent")
 			if err != nil {
 				c.logger.Debug("couldn't get unit TasksCurrent", "unit", unit.Name, "err", err)
 			} else {
@@ -348,7 +348,7 @@ func (c *systemdCollector) collectUnitTasksMetrics(ctx context.Context, conn *db
 						float64(val), unit.Name)
 				}
 			}
-			tasksMaxCount, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Service", "TasksMax")
+			tasksMaxCount, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Service", "TasksMax")
 			if err != nil {
 				c.logger.Debug("couldn't get unit TasksMax", "unit", unit.Name, "err", err)
 			} else {
@@ -364,13 +364,13 @@ func (c *systemdCollector) collectUnitTasksMetrics(ctx context.Context, conn *db
 	}
 }
 
-func (c *systemdCollector) collectTimers(ctx context.Context, conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
+func (c *systemdCollector) collectTimers(conn *dbus.Conn, ch chan<- prometheus.Metric, units []unit) {
 	for _, unit := range units {
 		if !strings.HasSuffix(unit.Name, ".timer") {
 			continue
 		}
 
-		lastTriggerValue, err := conn.GetUnitTypePropertyContext(ctx, unit.Name, "Timer", "LastTriggerUSec")
+		lastTriggerValue, err := conn.GetUnitTypePropertyContext(context.TODO(), unit.Name, "Timer", "LastTriggerUSec")
 		if err != nil {
 			c.logger.Debug("couldn't get unit LastTriggerUSec", "unit", unit.Name, "err", err)
 			continue
@@ -402,19 +402,19 @@ func (c *systemdCollector) collectSystemState(conn *dbus.Conn, ch chan<- prometh
 	return nil
 }
 
-func newSystemdDbusConn(ctx context.Context, private bool) (*dbus.Conn, error) {
+func newSystemdDbusConn(private bool) (*dbus.Conn, error) {
 	if private {
-		return dbus.NewSystemdConnectionContext(ctx)
+		return dbus.NewSystemdConnectionContext(context.TODO())
 	}
-	return dbus.NewWithContext(ctx)
+	return dbus.NewWithContext(context.TODO())
 }
 
 type unit struct {
 	dbus.UnitStatus
 }
 
-func (c *systemdCollector) getAllUnits(ctx context.Context, conn *dbus.Conn) ([]unit, error) {
-	allUnits, err := conn.ListUnitsContext(ctx)
+func (c *systemdCollector) getAllUnits(conn *dbus.Conn) ([]unit, error) {
+	allUnits, err := conn.ListUnitsContext(context.TODO())
 	if err != nil {
 		return nil, err
 	}

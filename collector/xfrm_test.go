@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -32,7 +31,7 @@ type testXfrmCollector struct {
 }
 
 func (c testXfrmCollector) Collect(ch chan<- prometheus.Metric) {
-	c.xc.Update(context.Background(), ch)
+	c.xc.Update(ch)
 }
 
 func (c testXfrmCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -136,7 +135,7 @@ func TestXfrmStats(t *testing.T) {
 
 	sink := make(chan prometheus.Metric)
 	go func() {
-		err = c.Update(t.Context(), sink)
+		err = c.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
 		}

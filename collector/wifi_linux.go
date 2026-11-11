@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -150,7 +149,7 @@ func NewWifiCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 	}, nil
 }
 
-func (c *wifiCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *wifiCollector) Update(ch chan<- prometheus.Metric) error {
 	stat, err := newWifiStater(c.config.Fixtures)
 	if err != nil {
 		// Cannot access wifi metrics, report no error.

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -88,7 +87,7 @@ func NewStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 }
 
 // Update implements Collector and exposes kernel and system statistics.
-func (c *statCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Stat()
 	if err != nil {
 		return err

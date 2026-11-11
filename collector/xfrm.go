@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -191,7 +190,7 @@ var (
 	)
 )
 
-func (c *xfrmCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *xfrmCollector) Update(ch chan<- prometheus.Metric) error {
 	stat, err := c.fs.NewXfrmStat()
 	if err != nil {
 		return err

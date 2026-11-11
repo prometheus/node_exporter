@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -42,7 +41,7 @@ func (a collectorAdapter) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements the prometheus.Collector interface.
 func (a collectorAdapter) Collect(ch chan<- prometheus.Metric) {
-	if err := a.Update(context.Background(), ch); err != nil {
+	if err := a.Update(ch); err != nil {
 		panic(fmt.Sprintf("failed to update collector: %v", err))
 	}
 }

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -74,7 +73,7 @@ func NewThermalZoneCollector(cfg config.Config, logger *slog.Logger) (Collector,
 	}, nil
 }
 
-func (c *thermalZoneCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *thermalZoneCollector) Update(ch chan<- prometheus.Metric) error {
 	thermalZones, err := c.fs.ClassThermalZoneStats()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) || errors.Is(err, os.ErrInvalid) || errors.Is(err, syscall.EINVAL) {

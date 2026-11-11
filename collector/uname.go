@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -59,7 +58,7 @@ func NewUnameCollector(_ config.Config, logger *slog.Logger) (Collector, error) 
 	return &unameCollector{logger}, nil
 }
 
-func (c *unameCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *unameCollector) Update(ch chan<- prometheus.Metric) error {
 	uname, err := getUname()
 	if err != nil {
 		return err

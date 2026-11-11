@@ -51,19 +51,21 @@ func NewSupervisordCollector(cfg config.Config, logger *slog.Logger) (Collector,
 		xrpc       *xmlrpc.Client
 	)
 
+	// Each collector gets its own transport, so Close does not touch the
+	// connections of other HTTP clients in the process.
+	transport := http.DefaultTransport.(*http.Transport).Clone()
 	if u, err := url.Parse(cfg.Supervisord.URL); err == nil && u.Scheme == "unix" {
 		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
 		// about a non-http(s) transport.
 		xrpc = xmlrpc.NewClient("http://unix/RPC2")
-		xrpc.HttpClient.Transport = &http.Transport{
-			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
-				d := net.Dialer{Timeout: 10 * time.Second}
-				return d.DialContext(ctx, "unix", u.Path)
-			},
+		transport.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
+			d := net.Dialer{Timeout: 10 * time.Second}
+			return d.DialContext(ctx, "unix", u.Path)
 		}
 	} else {
 		xrpc = xmlrpc.NewClient(cfg.Supervisord.URL)
 	}
+	xrpc.HttpClient.Transport = transport
 
 	logger.Warn("This collector is deprecated and will be removed in the next major version release.")
 
@@ -116,7 +118,13 @@ func (c *supervisordCollector) isRunning(state int) bool {
 	return false
 }
 
-func (c *supervisordCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+// Close closes the idle connections to supervisord.
+func (c *supervisordCollector) Close() error {
+	c.xrpc.HttpClient.CloseIdleConnections()
+	return nil
+}
+
+func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 	var info struct {
 		Name          string `xmlrpc:"name"`
 		Group         string `xmlrpc:"group"`

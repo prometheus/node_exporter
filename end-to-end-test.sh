@@ -230,7 +230,7 @@ for flag in ${_filtered_collector_flags}; do
       if [[ $trimmed_flag =~ ^no- ]]; then
         trimmed_flag=$(echo $trimmed_flag | cut -c 4-)
       fi
-      if grep -h -E -o -- "(kingpin|app).Flag\(\"${trimmed_flag}\"" ${file} node_exporter.go > /dev/null 2>&1; then
+      if grep -h -E -o -- "app.Flag\(\"${trimmed_flag}\"" ${file} node_exporter.go > /dev/null 2>&1; then
         filtered_collector_flags="${filtered_collector_flags} ${flag}"
         break
       else

@@ -17,7 +17,6 @@ package collector
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -86,7 +85,7 @@ func NewZFSCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *zfsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	if _, err := c.openProcFile(c.linuxProcpathBase); err != nil {
 		if err == errZFSNotAvailable {
 			c.logger.Debug(err.Error())

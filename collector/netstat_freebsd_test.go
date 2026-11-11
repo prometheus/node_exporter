@@ -168,7 +168,7 @@ func TestNetStatCollectorUpdate(t *testing.T) {
 
 	ch := make(chan prometheus.Metric, totalMetrics)
 
-	err := collector.Update(t.Context(), ch)
+	err := collector.Update(ch)
 	if err != nil {
 		t.Fatal("unexpected error:", err)
 	}

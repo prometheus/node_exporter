@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -85,7 +84,7 @@ func NewDevstatCollector(_ config.Config, logger *slog.Logger) (Collector, error
 	}, nil
 }
 
-func (c *devstatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 

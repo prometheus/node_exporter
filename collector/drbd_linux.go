@@ -17,7 +17,6 @@ package collector
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -189,7 +188,7 @@ func newDRBDCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 	}, nil
 }
 
-func (c *drbdCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
 	statsFile := c.paths.procFilePath("drbd")
 	file, err := os.Open(statsFile)
 	if err != nil {

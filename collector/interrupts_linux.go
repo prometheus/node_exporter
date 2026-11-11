@@ -17,7 +17,6 @@ package collector
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -30,7 +29,7 @@ import (
 
 var interruptLabelNames = []string{"cpu", "type", "info", "devices"}
 
-func (c *interruptsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) (err error) {
+func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	interrupts, err := getInterrupts(c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get interrupts: %w", err)

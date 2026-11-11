@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -163,7 +162,7 @@ func NewTimexCollector(_ config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *timexCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	var syncStatus float64
 	var divisor float64
 	timex := new(unix.Timex)

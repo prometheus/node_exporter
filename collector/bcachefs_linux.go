@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -136,7 +135,7 @@ func NewBcachefsCollector(cfg config.Config, logger *slog.Logger) (Collector, er
 }
 
 // Update retrieves and exports bcachefs statistics.
-func (c *bcachefsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *bcachefsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Stats()
 	if err != nil {
 		if os.IsNotExist(err) {

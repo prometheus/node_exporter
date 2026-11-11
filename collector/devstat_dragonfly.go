@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -129,7 +128,7 @@ func NewDevstatCollector(_ config.Config, logger *slog.Logger) (Collector, error
 	}, nil
 }
 
-func (c *devstatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
 	count := C._get_ndevs()
 	if count == -1 {
 		return errors.New("getdevs() failed")

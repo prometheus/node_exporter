@@ -165,7 +165,7 @@ func TestOSReleaseConcurrentUpdate(t *testing.T) {
 	for range 4 {
 		wg.Go(func() {
 			ch := make(chan prometheus.Metric, 8)
-			if err := c.Update(t.Context(), ch); err != nil {
+			if err := c.Update(ch); err != nil {
 				t.Error(err)
 			}
 		})

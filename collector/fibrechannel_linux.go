@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -95,7 +94,7 @@ func (c *fibrechannelCollector) pushCounter(ch chan<- prometheus.Metric, name st
 	}
 }
 
-func (c *fibrechannelCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *fibrechannelCollector) Update(ch chan<- prometheus.Metric) error {
 	hosts, err := c.fs.FibreChannelClass()
 	if err != nil {
 		if os.IsNotExist(err) {

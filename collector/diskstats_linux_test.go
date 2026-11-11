@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -33,7 +32,7 @@ type testDiskStatsCollector struct {
 }
 
 func (c testDiskStatsCollector) Collect(ch chan<- prometheus.Metric) {
-	c.dsc.Update(context.Background(), ch)
+	c.dsc.Update(ch)
 }
 
 func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -339,7 +338,7 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 
 	sink := make(chan prometheus.Metric)
 	go func() {
-		err = collector.Update(t.Context(), sink)
+		err = collector.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
 		}
@@ -409,7 +408,7 @@ func BenchmarkDiskstatsUpdate(b *testing.B) {
 	b.ResetTimer()
 	for b.Loop() {
 		ch := make(chan prometheus.Metric, 512)
-		if err := collector.Update(context.Background(), ch); err != nil {
+		if err := collector.Update(ch); err != nil {
 			b.Fatal(err)
 		}
 		// Drain channel so goroutine doesn't block.

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -63,7 +62,7 @@ func NewNFSdCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 }
 
 // Update implements Collector.
-func (c *nfsdCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *nfsdCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.ServerRPCStats()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

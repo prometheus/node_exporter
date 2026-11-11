@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"unsafe"
@@ -78,7 +77,7 @@ func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	}, nil
 }
 
-func (c *diskstatsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) (err error) {
+func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	diskstatsb, err := unix.SysctlRaw("hw.diskstats")
 	if err != nil {
 		return err

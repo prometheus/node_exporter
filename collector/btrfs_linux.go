@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"path"
@@ -57,7 +56,7 @@ func NewBtrfsCollector(cfg config.Config, logger *slog.Logger) (Collector, error
 
 // Update retrieves and exports Btrfs statistics.
 // It implements Collector.
-func (c *btrfsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *btrfsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Stats()
 	if err != nil {
 		return fmt.Errorf("failed to retrieve Btrfs stats from procfs: %w", err)

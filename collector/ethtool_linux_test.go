@@ -17,7 +17,6 @@ package collector
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -43,7 +42,7 @@ type testEthtoolCollector struct {
 }
 
 func (c testEthtoolCollector) Collect(ch chan<- prometheus.Metric) {
-	c.dsc.Update(context.Background(), ch)
+	c.dsc.Update(ch)
 }
 
 func (c testEthtoolCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -390,7 +389,7 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 
 	sink := make(chan prometheus.Metric)
 	go func() {
-		err = collector.Update(t.Context(), sink)
+		err = collector.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
 		}
@@ -400,5 +399,33 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestEthtoolRuntimeShutdownClosesSocket(t *testing.T) {
+	openFDs := func() int {
+		fds, err := os.ReadDir("/proc/self/fd")
+		if err != nil {
+			t.Skipf("cannot count file descriptors: %v", err)
+		}
+		return len(fds)
+	}
+	cfg := fixtureConfig()
+	cfg.CollectorDisableDefaults = true
+	cfg.Collectors = map[string]bool{"ethtool": true}
+
+	before := openFDs()
+	r, err := NewRuntime(cfg, slog.New(slog.DiscardHandler))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if opened := openFDs(); opened <= before {
+		t.Fatalf("want the ethtool socket open, got %d file descriptors before and %d after NewRuntime", before, opened)
+	}
+	if err := r.Shutdown(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	if after := openFDs(); after != before {
+		t.Fatalf("want %d file descriptors after Shutdown, got %d", before, after)
 	}
 }

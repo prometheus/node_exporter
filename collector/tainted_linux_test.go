@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"io"
 	"log/slog"
 	"testing"
@@ -98,5 +97,5 @@ func (w *taintedCollectorWrapper) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (w *taintedCollectorWrapper) Collect(ch chan<- prometheus.Metric) {
-	_ = w.c.Update(context.Background(), ch)
+	_ = w.c.Update(ch)
 }

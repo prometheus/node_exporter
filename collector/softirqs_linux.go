@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -25,7 +24,7 @@ import (
 
 var softirqLabelNames = []string{"cpu", "type"}
 
-func (c *softirqsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) (err error) {
+func (c *softirqsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	softirqs, err := c.fs.Softirqs()
 	if err != nil {
 		return fmt.Errorf("couldn't get softirqs: %w", err)

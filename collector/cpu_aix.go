@@ -22,7 +22,6 @@ package collector
 import "C"
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -102,7 +101,7 @@ func NewCpuCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func (c *cpuCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := perfstat.CpuStat()
 	if err != nil {
 		return err

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -118,7 +117,7 @@ func NewTapestatsCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	}, nil
 }
 
-func (c *tapestatsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *tapestatsCollector) Update(ch chan<- prometheus.Metric) error {
 	tapes, err := c.fs.SCSITapeClass()
 	if err != nil {
 		if os.IsNotExist(err) {

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -32,7 +31,7 @@ type testWatchdogCollector struct {
 }
 
 func (c testWatchdogCollector) Collect(ch chan<- prometheus.Metric) {
-	c.wc.Update(context.Background(), ch)
+	c.wc.Update(ch)
 }
 
 func (c testWatchdogCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -77,7 +76,7 @@ func TestWatchdogStats(t *testing.T) {
 
 	sink := make(chan prometheus.Metric)
 	go func() {
-		err = c.Update(t.Context(), sink)
+		err = c.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
 		}

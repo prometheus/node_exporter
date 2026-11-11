@@ -20,9 +20,9 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"regexp"
@@ -52,6 +52,11 @@ type Ethtool interface {
 
 type ethtoolLibrary struct {
 	ethtool *ethtool.Ethtool
+}
+
+func (e *ethtoolLibrary) Close() error {
+	e.ethtool.Close()
+	return nil
 }
 
 func (e *ethtoolLibrary) DriverInfo(intf string) (ethtool.DrvInfo, error) {
@@ -219,6 +224,14 @@ func buildEthtoolFQName(metric string) string {
 	return prometheus.BuildFQName(namespace, "ethtool", metricName)
 }
 
+// Close closes the ethtool socket.
+func (c *ethtoolCollector) Close() error {
+	if closer, ok := c.ethtool.(io.Closer); ok {
+		return closer.Close()
+	}
+	return nil
+}
+
 // NewEthtoolCollector returns a new Collector exposing ethtool stats.
 func NewEthtoolCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return makeEthtoolCollector(cfg, logger)
@@ -368,7 +381,7 @@ func (c *ethtoolCollector) updateSpeeds(ch chan<- prometheus.Metric, prefix, dev
 	}
 }
 
-func (c *ethtoolCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *ethtoolCollector) Update(ch chan<- prometheus.Metric) error {
 	netClass, err := c.fs.NetClassDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) {

@@ -22,6 +22,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
@@ -29,7 +30,7 @@ import (
 )
 
 // supervisordServer answers getAllProcessInfo with one running process.
-func supervisordServer(t *testing.T, process string) string {
+func supervisordServer(t *testing.T, process string, connState func(net.Conn, http.ConnState)) string {
 	t.Helper()
 	// The 32-bit CI job runs without sockets.
 	l, err := net.Listen("tcp", "127.0.0.1:0")
@@ -45,6 +46,7 @@ func supervisordServer(t *testing.T, process string) string {
 <member><name>start</name><value><int>100</int></value></member>
 </struct></value></data></array></value></param></params></methodResponse>`, process)
 	}))
+	srv.Config.ConnState = connState
 	srv.Listener.Close()
 	srv.Listener = l
 	srv.Start()
@@ -52,21 +54,23 @@ func supervisordServer(t *testing.T, process string) string {
 	return srv.URL + "/RPC2"
 }
 
-func TestSupervisordRuntimesKeepTheirOwnURL(t *testing.T) {
-	newRuntime := func(url string) *Runtime {
-		cfg := config.NewConfigWithDefaults()
-		cfg.CollectorDisableDefaults = true
-		cfg.Collectors = map[string]bool{"supervisord": true}
-		cfg.Supervisord.URL = url
-		r, err := NewRuntime(cfg, testLogger())
-		if err != nil {
-			t.Fatal(err)
-		}
-		return r
+func supervisordRuntime(t *testing.T, url string) *Runtime {
+	t.Helper()
+	cfg := config.NewConfigWithDefaults()
+	cfg.CollectorDisableDefaults = true
+	cfg.Collectors = map[string]bool{"supervisord": true}
+	cfg.Supervisord.URL = url
+	r, err := NewRuntime(cfg, testLogger())
+	if err != nil {
+		t.Fatal(err)
 	}
+	return r
+}
+
+func TestSupervisordRuntimesKeepTheirOwnURL(t *testing.T) {
 	runtimes := map[string]*Runtime{
-		"a": newRuntime(supervisordServer(t, "a")),
-		"b": newRuntime(supervisordServer(t, "b")),
+		"a": supervisordRuntime(t, supervisordServer(t, "a", nil)),
+		"b": supervisordRuntime(t, supervisordServer(t, "b", nil)),
 	}
 
 	for name, r := range runtimes {
@@ -81,5 +85,34 @@ node_supervisord_up{group=%[1]q,name=%[1]q} 1
 		if err := testutil.GatherAndCompare(registry, strings.NewReader(want), "node_supervisord_up"); err != nil {
 			t.Errorf("runtime %s: %v", name, err)
 		}
+	}
+}
+
+func TestSupervisordShutdownClosesConnections(t *testing.T) {
+	closed := make(chan struct{}, 1)
+	url := supervisordServer(t, "a", func(_ net.Conn, state http.ConnState) {
+		if state == http.StateClosed {
+			select {
+			case closed <- struct{}{}:
+			default:
+			}
+		}
+	})
+	r := supervisordRuntime(t, url)
+	registry, err := r.Registry()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := registry.Gather(); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := r.Shutdown(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-closed:
+	case <-time.After(5 * time.Second):
+		t.Fatal("the connection to supervisord is still open after Shutdown")
 	}
 }

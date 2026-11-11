@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -106,7 +105,7 @@ func testQdiscGet(fixtures string) ([]qdisc.QdiscInfo, error) {
 	return res, err
 }
 
-func (c *qdiscStatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 	var msgs []qdisc.QdiscInfo
 	var err error
 

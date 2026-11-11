@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -27,7 +26,7 @@ import (
 	"github.com/prometheus/procfs/sysfs"
 )
 
-func (c *powerSupplyClassCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
 	powerSupplyClass, err := getPowerSupplyClassInfo(c.paths, c.ignoredPattern)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

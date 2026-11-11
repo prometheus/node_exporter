@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"io"
 	"log/slog"
 	"strings"
@@ -31,7 +30,7 @@ type testNetStatCollector struct {
 }
 
 func (c testNetStatCollector) Collect(ch chan<- prometheus.Metric) {
-	c.c.Update(context.Background(), ch)
+	c.c.Update(ch)
 }
 
 func (c testNetStatCollector) Describe(ch chan<- *prometheus.Desc) {

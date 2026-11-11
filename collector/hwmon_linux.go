@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -430,7 +429,7 @@ func (c *hwMonCollector) hwmonHumanReadableChipName(dir string) (string, error) 
 	return "", errors.New("Could not derive a human-readable chip type for " + dir)
 }
 
-func (c *hwMonCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updateHwmon for each folder.
 

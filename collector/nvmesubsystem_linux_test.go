@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"io"
 	"log/slog"
 	"os"
@@ -32,7 +31,7 @@ type testNVMeSubsystemCollector struct {
 }
 
 func (c testNVMeSubsystemCollector) Collect(ch chan<- prometheus.Metric) {
-	c.mc.Update(context.Background(), ch)
+	c.mc.Update(ch)
 }
 
 func (c testNVMeSubsystemCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -120,7 +119,7 @@ func TestNVMeSubsystemNoDevices(t *testing.T) {
 	c := coll.(*nvmeSubsystemCollector)
 
 	ch := make(chan prometheus.Metric, 200)
-	err = c.Update(t.Context(), ch)
+	err = c.Update(ch)
 	close(ch)
 
 	if err != ErrNoData {

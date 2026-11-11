@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"log/slog"
 	"os"
@@ -111,7 +110,7 @@ func NewKsmdCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 }
 
 // Update implements Collector and exposes kernel and system statistics.
-func (c *ksmdCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
 		val, err := readUintFromFile(c.paths.sysFilePath(filepath.Join("kernel/mm/ksm", n)))
 		if err != nil {

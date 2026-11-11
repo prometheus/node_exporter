@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -41,7 +40,7 @@ func newBootTimeCollector(_ config.Config, logger *slog.Logger) (Collector, erro
 }
 
 // Update pushes boot time onto ch
-func (c *bootTimeCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *bootTimeCollector) Update(ch chan<- prometheus.Metric) error {
 	tv, err := unix.SysctlTimeval("kern.boottime")
 	if err != nil {
 		return err

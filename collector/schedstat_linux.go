@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -72,7 +71,7 @@ func init() {
 	registerCollector("schedstat", defaultEnabled, NewSchedstatCollector)
 }
 
-func (c *schedstatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *schedstatCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Schedstat()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

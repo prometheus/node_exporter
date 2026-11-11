@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -117,7 +116,7 @@ func NewNtpCollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *ntpCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *ntpCollector) Update(ch chan<- prometheus.Metric) error {
 	resp, err := ntp.QueryWithOptions(c.config.Server, ntp.QueryOptions{
 		Version: c.config.ProtocolVersion,
 		TTL:     c.config.IPTTL,

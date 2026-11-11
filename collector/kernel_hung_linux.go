@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -54,7 +53,7 @@ var kernelHungTasks = prometheus.NewDesc(
 	nil, nil,
 )
 
-func (c *kernelHungCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *kernelHungCollector) Update(ch chan<- prometheus.Metric) error {
 	kernelHung, err := c.fs.KernelHung()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

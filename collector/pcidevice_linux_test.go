@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log/slog"
@@ -63,7 +62,7 @@ type testPCICollector struct {
 func (tc *testPCICollector) Collect(ch chan<- prometheus.Metric) {
 	sink := make(chan prometheus.Metric)
 	go func() {
-		err := tc.pc.Update(context.Background(), sink)
+		err := tc.pc.Update(sink)
 		if err != nil {
 			panic(fmt.Errorf("failed to update collector: %s", err))
 		}

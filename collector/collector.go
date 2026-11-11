@@ -15,9 +15,9 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"maps"
 	"sync"
@@ -57,7 +57,6 @@ var (
 )
 
 type collectorRuntimeState struct {
-	ctx        context.Context
 	config     config.Config
 	enabled    map[string]bool
 	collectors map[string]Collector
@@ -83,10 +82,9 @@ func AvailableCollectors() map[string]bool {
 type NodeCollector struct {
 	Collectors map[string]Collector
 	logger     *slog.Logger
-	ctx        context.Context
 }
 
-func newCollectorRuntimeState(ctx context.Context, cfg config.Config) (*collectorRuntimeState, error) {
+func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error) {
 	for collector := range cfg.Collectors {
 		if _, ok := defaultState[collector]; !ok {
 			return nil, fmt.Errorf("unknown collector: %s", collector)
@@ -107,7 +105,6 @@ func newCollectorRuntimeState(ctx context.Context, cfg config.Config) (*collecto
 	}
 
 	return &collectorRuntimeState{
-		ctx:        ctx,
 		config:     cfg,
 		enabled:    enabled,
 		collectors: make(map[string]Collector),
@@ -115,6 +112,21 @@ func newCollectorRuntimeState(ctx context.Context, cfg config.Config) (*collecto
 }
 
 // NewNodeCollector creates a new NodeCollector.
+// close closes every collector that holds resources and implements io.Closer.
+func (s *collectorRuntimeState) close() error {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+	var errs []error
+	for name, c := range s.collectors {
+		if closer, ok := c.(io.Closer); ok {
+			if err := closer.Close(); err != nil {
+				errs = append(errs, fmt.Errorf("close %s collector: %w", name, err))
+			}
+		}
+	}
+	return errors.Join(errs...)
+}
+
 func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
 	s.mtx.Lock()
 	defer s.mtx.Unlock()
@@ -146,7 +158,7 @@ func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ..
 			s.collectors[key] = collector
 		}
 	}
-	return &NodeCollector{Collectors: collectors, logger: logger, ctx: s.ctx}, nil
+	return &NodeCollector{Collectors: collectors, logger: logger}, nil
 }
 
 func (s *collectorRuntimeState) configureCollector(collector Collector) {
@@ -167,16 +179,16 @@ func (n NodeCollector) Collect(ch chan<- prometheus.Metric) {
 	wg.Add(len(n.Collectors))
 	for name, c := range n.Collectors {
 		go func(name string, c Collector) {
-			execute(n.ctx, name, c, ch, n.logger)
+			execute(name, c, ch, n.logger)
 			wg.Done()
 		}(name, c)
 	}
 	wg.Wait()
 }
 
-func execute(ctx context.Context, name string, c Collector, ch chan<- prometheus.Metric, logger *slog.Logger) {
+func execute(name string, c Collector, ch chan<- prometheus.Metric, logger *slog.Logger) {
 	begin := time.Now()
-	err := c.Update(ctx, ch)
+	err := c.Update(ch)
 	duration := time.Since(begin)
 	var success float64
 
@@ -197,9 +209,8 @@ func execute(ctx context.Context, name string, c Collector, ch chan<- prometheus
 
 // Collector is the interface a collector has to implement.
 type Collector interface {
-	// Get new metrics and expose them via prometheus registry. ctx is
-	// canceled when the Runtime that owns the collector shuts down.
-	Update(ctx context.Context, ch chan<- prometheus.Metric) error
+	// Get new metrics and expose them via prometheus registry.
+	Update(ch chan<- prometheus.Metric) error
 }
 
 type typedDesc struct {

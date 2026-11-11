@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"io"
 	"log/slog"
 	"strings"
@@ -34,7 +33,7 @@ type testResctrlCollector struct {
 }
 
 func (c testResctrlCollector) Collect(ch chan<- prometheus.Metric) {
-	c.rc.Update(context.Background(), ch)
+	c.rc.Update(ch)
 }
 
 func (c testResctrlCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -86,7 +85,7 @@ func TestResctrlNotMounted(t *testing.T) {
 	}
 
 	ch := make(chan prometheus.Metric, 16)
-	err = c.Update(t.Context(), ch)
+	err = c.Update(ch)
 	close(ch)
 
 	if err != ErrNoData {

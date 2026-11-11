@@ -17,7 +17,6 @@ package collector
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -274,7 +273,7 @@ func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, e
 	return &collector, nil
 }
 
-func (c *diskstatsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 	diskStats, err := c.fs.ProcDiskstats()
 	if err != nil {
 		return fmt.Errorf("couldn't get diskstats: %w", err)

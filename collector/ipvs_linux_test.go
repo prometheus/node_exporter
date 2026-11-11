@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -126,7 +125,7 @@ func TestIPVSCollector(t *testing.T) {
 
 			sink := make(chan prometheus.Metric)
 			go func() {
-				err = collector.Update(t.Context(), sink)
+				err = collector.Update(sink)
 				if err != nil {
 					panic(fmt.Sprintf("failed to update collector: %v", err))
 				}
@@ -147,7 +146,7 @@ type miniCollector struct {
 }
 
 func (c miniCollector) Collect(ch chan<- prometheus.Metric) {
-	c.c.Update(context.Background(), ch)
+	c.c.Update(ch)
 }
 
 func (c miniCollector) Describe(ch chan<- *prometheus.Desc) {

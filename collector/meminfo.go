@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"strings"
 
@@ -33,7 +32,7 @@ func init() {
 
 // Update calls (*meminfoCollector).getMemInfo to get the platform specific
 // memory metrics.
-func (c *meminfoCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *meminfoCollector) Update(ch chan<- prometheus.Metric) error {
 	var metricType prometheus.ValueType
 	memInfo, err := c.getMemInfo()
 	if err != nil {

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -40,7 +39,7 @@ func NewLnstatCollector(cfg config.Config, logger *slog.Logger) (Collector, erro
 	return &lnstatCollector{logger: logger, paths: pathConfig(cfg.Path)}, nil
 }
 
-func (c *lnstatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
 	const (
 		subsystem = "lnstat"
 	)

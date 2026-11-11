@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -185,7 +184,7 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 	return nil
 }
 
-func (c *osReleaseCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 	for i, path := range c.osReleaseFilenames {
 		err := c.UpdateStruct(c.paths.RootFS + path)
 		if err == nil {

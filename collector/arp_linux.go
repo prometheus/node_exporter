@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -97,7 +96,7 @@ func getTotalArpEntriesRTNL() (map[string]uint32, error) {
 	return entries, nil
 }
 
-func (c *arpCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 	var enumeratedEntry map[string]uint32
 
 	if c.config.Netlink {

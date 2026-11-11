@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -54,7 +53,7 @@ func NewBcacheCollector(cfg config.Config, logger *slog.Logger) (Collector, erro
 
 // Update reads and exposes bcache stats.
 // It implements the Collector interface.
-func (c *bcacheCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
 	var stats []*bcache.Stats
 	var err error
 	if c.config.PriorityStats {

@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -93,7 +92,7 @@ func NewLogindCollector(_ config.Config, logger *slog.Logger) (Collector, error)
 	return &logindCollector{logger}, nil
 }
 
-func (lc *logindCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (lc *logindCollector) Update(ch chan<- prometheus.Metric) error {
 	c, err := newDbus()
 	if err != nil {
 		return fmt.Errorf("unable to connect to dbus: %w", err)

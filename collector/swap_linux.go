@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 
@@ -80,7 +79,7 @@ func (c *swapCollector) getSwapInfo() ([]SwapsEntry, error) {
 	return metrics, nil
 }
 
-func (c *swapCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *swapCollector) Update(ch chan<- prometheus.Metric) error {
 	swaps, err := c.getSwapInfo()
 	if err != nil {
 		return fmt.Errorf("couldn't get swap information: %w", err)

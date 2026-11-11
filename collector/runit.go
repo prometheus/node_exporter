@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/prometheus-community/go-runit/runit"
@@ -74,7 +73,7 @@ func NewRunitCollector(cfg config.Config, logger *slog.Logger) (Collector, error
 	}, nil
 }
 
-func (c *runitCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
 	services, err := runit.GetServices(c.serviceDir)
 	if err != nil {
 		return err

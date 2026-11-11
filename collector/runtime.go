@@ -20,6 +20,7 @@ import (
 	"log/slog"
 	"maps"
 	"slices"
+	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
 
@@ -32,36 +33,24 @@ type Runtime struct {
 	state     *collectorRuntimeState
 	collector *NodeCollector
 	logger    *slog.Logger
-	cancel    context.CancelFunc
+	shutdown  func() error
 }
 
 func NewRuntime(cfg config.Config, logger *slog.Logger) (*Runtime, error) {
-	return NewRuntimeWithContext(context.Background(), cfg, logger)
-}
-
-// NewRuntimeWithContext creates a Runtime whose lifetime is also bounded by ctx.
-// Long-lived embedded consumers should use NewRuntime and call Runtime.Shutdown.
-func NewRuntimeWithContext(ctx context.Context, cfg config.Config, logger *slog.Logger) (*Runtime, error) {
-	if ctx == nil {
-		return nil, errors.New("context is required")
-	}
 	if err := cfg.Validate(); err != nil {
 		return nil, err
 	}
 
-	runtimeCtx, cancel := context.WithCancel(ctx)
-	state, err := newCollectorRuntimeState(runtimeCtx, cfg)
+	state, err := newCollectorRuntimeState(cfg)
 	if err != nil {
-		cancel()
 		return nil, err
 	}
 
 	r, err := newRuntime(state, logger)
 	if err != nil {
-		cancel()
-		return nil, err
+		return nil, errors.Join(err, state.close())
 	}
-	r.cancel = cancel
+	r.shutdown = sync.OnceValue(state.close)
 	return r, nil
 }
 
@@ -75,7 +64,7 @@ func newRuntime(state *collectorRuntimeState, logger *slog.Logger, filters ...st
 }
 
 // Filtered returns a Runtime with a subset of the enabled collectors. It
-// shares the collectors and the lifetime of r, so only r needs Shutdown.
+// shares the collectors of r, so only r needs Shutdown.
 func (r *Runtime) Filtered(enabledCollectors ...string) (*Runtime, error) {
 	for _, name := range enabledCollectors {
 		if _, ok := r.collector.Collectors[name]; !ok {
@@ -85,12 +74,13 @@ func (r *Runtime) Filtered(enabledCollectors ...string) (*Runtime, error) {
 	return newRuntime(r.state, r.logger, enabledCollectors...)
 }
 
-// Shutdown cancels in-flight collection work owned by the Runtime.
+// Shutdown releases the resources that the collectors hold, such as sockets
+// and perf profilers. The Runtime must not be used after Shutdown.
 func (r *Runtime) Shutdown(context.Context) error {
-	if r.cancel != nil {
-		r.cancel()
+	if r.shutdown == nil {
+		return nil
 	}
-	return nil
+	return r.shutdown()
 }
 
 func (r *Runtime) Collectors() []prometheus.Collector {

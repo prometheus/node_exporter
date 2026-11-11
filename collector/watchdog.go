@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -100,7 +99,7 @@ func toLabelValue(ptr *string) string {
 	return *ptr
 }
 
-func (c *watchdogCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *watchdogCollector) Update(ch chan<- prometheus.Metric) error {
 	watchdogClass, err := c.fs.WatchdogClass()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission) || errors.Is(err, os.ErrInvalid) {

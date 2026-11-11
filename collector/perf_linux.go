@@ -16,7 +16,7 @@
 package collector
 
 import (
-	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"runtime"
@@ -286,6 +286,36 @@ func newPerfTracepointCollector(
 		}
 	}
 	return c, nil
+}
+
+// stopCloser is what every perf profiler type implements.
+type stopCloser interface {
+	Stop() error
+	Close() error
+}
+
+// Close stops and closes the profilers.
+func (c *perfCollector) Close() error {
+	var profilers []stopCloser
+	for _, p := range c.perfHwProfilers {
+		profilers = append(profilers, *p)
+	}
+	for _, p := range c.perfSwProfilers {
+		profilers = append(profilers, *p)
+	}
+	for _, p := range c.perfCacheProfilers {
+		profilers = append(profilers, *p)
+	}
+	if c.tracepointCollector != nil {
+		for _, p := range c.tracepointCollector.profilers {
+			profilers = append(profilers, p)
+		}
+	}
+	var errs []error
+	for _, p := range profilers {
+		errs = append(errs, p.Stop(), p.Close())
+	}
+	return errors.Join(errs...)
 }
 
 // NewPerfCollector returns a new perf based collector, it creates a profiler
@@ -717,7 +747,7 @@ func NewPerfCollector(cfg config.Config, logger *slog.Logger) (Collector, error)
 }
 
 // Update implements the Collector interface and will collect metrics per CPU.
-func (c *perfCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *perfCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateHardwareStats(ch); err != nil {
 		return err
 	}

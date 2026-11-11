@@ -19,7 +19,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"reflect"
@@ -74,7 +73,7 @@ func NewNetStatCollector(cfg config.Config, logger *slog.Logger) (Collector, err
 	}, nil
 }
 
-func (c *netStatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *netStatCollector) Update(ch chan<- prometheus.Metric) error {
 	netStats, err := c.proc.Netstat()
 	if err != nil {
 		return fmt.Errorf("couldn't get netstats: %w", err)

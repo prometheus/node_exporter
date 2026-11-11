@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -49,7 +48,7 @@ func NewSockStatCollector(cfg config.Config, logger *slog.Logger) (Collector, er
 	return &sockStatCollector{logger: logger, paths: pathConfig(cfg.Path)}, nil
 }
 
-func (c *sockStatCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
 	fs, err := procfs.NewFS(c.paths.ProcFS)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)

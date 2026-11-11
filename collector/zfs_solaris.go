@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"log/slog"
 	"strings"
 
@@ -320,7 +319,7 @@ func (c *zfsCollector) updateZfsFetchStats(ch chan<- prometheus.Metric) error {
 	return nil
 }
 
-func (c *zfsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *zfsCollector) Update(ch chan<- prometheus.Metric) error {
 	if err := c.updateZfsAbdStats(ch); err != nil {
 		return err
 	}

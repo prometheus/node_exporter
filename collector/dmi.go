@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -98,7 +97,7 @@ func NewDMICollector(cfg config.Config, logger *slog.Logger) (Collector, error) 
 	}, nil
 }
 
-func (c *dmiCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *dmiCollector) Update(ch chan<- prometheus.Metric) error {
 	if len(c.values) == 0 {
 		return ErrNoData
 	}

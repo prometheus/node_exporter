@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"unsafe"
@@ -70,7 +69,7 @@ func intr(idx _C_int) (itr interrupt, err error) {
 
 var interruptLabelNames = []string{"cpu", "type", "devices"}
 
-func (c *interruptsCollector) Update(_ context.Context, ch chan<- prometheus.Metric) error {
+func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	interrupts, err := getInterrupts(c.paths)
 	if err != nil {
 		return fmt.Errorf("couldn't get interrupts: %s", err)
