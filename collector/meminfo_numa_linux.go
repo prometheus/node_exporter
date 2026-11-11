@@ -132,17 +132,16 @@ func parseMemInfoNuma(r io.Reader) ([]meminfoMetric, error) {
 			continue
 		}
 		parts := strings.Fields(line)
+		if l := len(parts); l != 4 && (l != 5 || parts[4] != "kB") {
+			return nil, fmt.Errorf("invalid line in meminfo: %s", line)
+		}
 
 		fv, err := strconv.ParseFloat(parts[3], 64)
 		if err != nil {
 			return nil, fmt.Errorf("invalid value in meminfo: %w", err)
 		}
-		switch l := len(parts); {
-		case l == 4: // no unit
-		case l == 5 && parts[4] == "kB": // has unit
+		if len(parts) == 5 { // has unit
 			fv *= 1024
-		default:
-			return nil, fmt.Errorf("invalid line in meminfo: %s", line)
 		}
 		metric := strings.TrimRight(parts[2], ":")
 
