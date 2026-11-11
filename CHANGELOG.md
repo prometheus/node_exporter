@@ -1,6 +1,7 @@
 ## master / unreleased
 
 * [CHANGE] edac: Fix no data results #3863
+* [CHANGE] nvme: Remove metric nvme_namespace_capacity_bytes #3899
 
 ## 1.12.1 / 2026-07-14
 
