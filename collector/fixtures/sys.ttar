@@ -9318,6 +9318,16 @@ Lines: 1
 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/energy_performance_available_preferences
+Lines: 1
+performance balance_performance balance_power power
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference
+Lines: 1
+balance_power
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
 Lines: 1
 performance powersave
@@ -9395,6 +9405,16 @@ Lines: 1
 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/energy_performance_available_preferences
+Lines: 1
+performance balance_performance balance_power power
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu1/cpufreq/energy_performance_preference
+Lines: 1
+performance
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu1/cpufreq/scaling_available_governors
 Lines: 1
 performance powersave
@@ -9470,6 +9490,11 @@ Mode: 664
 Path: sys/devices/system/cpu/cpu2/cpufreq/related_cpus
 Lines: 1
 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: sys/devices/system/cpu/cpu2/cpufreq/energy_performance_preference
+Lines: 1
+balance_performance
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/devices/system/cpu/cpu2/cpufreq/scaling_available_governors

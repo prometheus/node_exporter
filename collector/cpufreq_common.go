@@ -26,14 +26,15 @@ var useCPUFreqPrefix = kingpin.Flag("collector.cpufreq.enable-cpufreq-prefix",
 	"Expose cpufreq metrics with the node_cpufreq_ prefix instead of node_cpu_. This avoids a metric name collision with the cpu collector and will be the default behavior in 2.x.").Bool()
 
 type cpuFreqDescs struct {
-	hertz           *prometheus.Desc
-	avgHertz        *prometheus.Desc
-	minHertz        *prometheus.Desc
-	maxHertz        *prometheus.Desc
-	scalingHertz    *prometheus.Desc
-	scalingMinHertz *prometheus.Desc
-	scalingMaxHertz *prometheus.Desc
-	scalingGovernor *prometheus.Desc
+	hertz                       *prometheus.Desc
+	avgHertz                    *prometheus.Desc
+	minHertz                    *prometheus.Desc
+	maxHertz                    *prometheus.Desc
+	scalingHertz                *prometheus.Desc
+	scalingMinHertz             *prometheus.Desc
+	scalingMaxHertz             *prometheus.Desc
+	scalingGovernor             *prometheus.Desc
+	energyPerformancePreference *prometheus.Desc
 }
 
 // newCPUFreqDescs builds the cpufreq metric descriptions. It must run after
@@ -84,6 +85,11 @@ func newCPUFreqDescs() cpuFreqDescs {
 			prometheus.BuildFQName(namespace, subsystem, "scaling_governor"),
 			"Current enabled CPU frequency governor.",
 			[]string{"cpu", "governor"}, nil,
+		),
+		energyPerformancePreference: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "energy_performance_preference"),
+			"Current CPU energy performance preference.",
+			[]string{"cpu", "preference"}, nil,
 		),
 	}
 }
