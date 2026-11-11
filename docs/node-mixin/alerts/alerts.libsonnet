@@ -362,8 +362,22 @@
           },
           {
             alert: 'NodeMemoryHighUtilization',
+            // MemAvailable doesn't include the ZFS ARC, which shrinks under
+            // memory pressure down to c_min, so count the ARC above c_min
+            // as available. Hosts without ZFS add 0.
             expr: |||
-              100 - (node_memory_MemAvailable_bytes{%(nodeExporterSelector)s} / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100) > %(memoryHighUtilizationThreshold)d
+              100 - (
+                (
+                  node_memory_MemAvailable_bytes{%(nodeExporterSelector)s}
+                  +
+                  (
+                    (node_zfs_arc_size{%(nodeExporterSelector)s} - node_zfs_arc_c_min{%(nodeExporterSelector)s})
+                    or
+                    node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 0
+                  )
+                )
+                / node_memory_MemTotal_bytes{%(nodeExporterSelector)s} * 100
+              ) > %(memoryHighUtilizationThreshold)d
             ||| % $._config,
             'for': '15m',
             labels: {
