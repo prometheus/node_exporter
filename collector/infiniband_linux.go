@@ -35,6 +35,7 @@ var (
 type infinibandCollector struct {
 	fs           sysfs.FS
 	metricDescs  map[string]*prometheus.Desc
+	portInfoDesc *prometheus.Desc
 	logger       *slog.Logger
 	subsystem    string
 	deviceFilter deviceFilter
@@ -136,6 +137,13 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 		)
 	}
 
+	i.portInfoDesc = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, i.subsystem, "port_info"),
+		"Non-numeric data from /sys/class/infiniband/<device>/ports/<port>, value is always 1.",
+		[]string{"device", "port", "link_layer"},
+		nil,
+	)
+
 	if *infinibandDeviceInclude != "" {
 		i.logger.Info("Parsed flag --collector.infiniband.device-include", "flag", *infinibandDeviceInclude)
 	}
@@ -188,6 +196,8 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 
 		for _, port := range device.Ports {
 			portStr := strconv.FormatUint(uint64(port.Port), 10)
+
+			ch <- prometheus.MustNewConstMetric(c.portInfoDesc, prometheus.GaugeValue, 1, port.Name, portStr, port.LinkLayer)
 
 			c.pushMetric(ch, "state_id", uint64(port.StateID), port.Name, portStr, prometheus.GaugeValue)
 			c.pushMetric(ch, "physical_state_id", uint64(port.PhysStateID), port.Name, portStr, prometheus.GaugeValue)
