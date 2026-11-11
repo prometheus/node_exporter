@@ -50,12 +50,6 @@ var (
 		[]string{"device", "nsid", "ana_state"}, nil,
 	)
 
-	nvmeNamespaceCapacityBytes = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "nvme", "namespace_capacity_bytes"),
-		"Capacity of the NVMe namespace in bytes.",
-		[]string{"device", "nsid"}, nil,
-	)
-
 	nvmeNamespaceSizeBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "nvme", "namespace_size_bytes"),
 		"Size of the NVMe namespace in bytes. Available in /sys/class/nvme/<device>/<namespace>/size",
@@ -121,15 +115,6 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 				device.Name,
 				namespace.ID,
 				namespace.ANAState,
-			)
-
-			// Namespace capacity in bytes
-			ch <- prometheus.MustNewConstMetric(
-				nvmeNamespaceCapacityBytes,
-				prometheus.GaugeValue,
-				float64(namespace.CapacityBytes),
-				device.Name,
-				namespace.ID,
 			)
 
 			// Namespace size in bytes
