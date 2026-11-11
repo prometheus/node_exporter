@@ -17,6 +17,7 @@ package collector
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -30,7 +31,12 @@ import (
 // supervisordServer answers getAllProcessInfo with one running process.
 func supervisordServer(t *testing.T, process string) string {
 	t.Helper()
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	// The 32-bit CI job runs without sockets.
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Skipf("cannot listen: %v", err)
+	}
+	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		fmt.Fprintf(w, `<?xml version="1.0"?>
 <methodResponse><params><param><value><array><data><value><struct>
 <member><name>name</name><value><string>%[1]s</string></value></member>
@@ -39,6 +45,9 @@ func supervisordServer(t *testing.T, process string) string {
 <member><name>start</name><value><int>100</int></value></member>
 </struct></value></data></array></value></param></params></methodResponse>`, process)
 	}))
+	srv.Listener.Close()
+	srv.Listener = l
+	srv.Start()
 	t.Cleanup(srv.Close)
 	return srv.URL + "/RPC2"
 }
