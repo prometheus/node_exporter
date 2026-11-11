@@ -15,15 +15,15 @@ require (
 	github.com/jsimonetti/rtnetlink/v2 v2.2.0
 	github.com/lufia/iostat v1.2.1
 	github.com/mattn/go-xmlrpc v0.0.3
-	github.com/mdlayher/ethtool v0.6.1
+	github.com/mdlayher/ethtool v0.7.0
 	github.com/mdlayher/netlink v1.11.2
-	github.com/mdlayher/wifi v0.9.0
+	github.com/mdlayher/wifi v0.10.0
 	github.com/opencontainers/selinux v1.15.1
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55
 	github.com/prometheus-community/go-runit v0.1.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/prometheus/client_model v0.6.3
-	github.com/prometheus/common v0.72.1
+	github.com/prometheus/common v0.73.1
 	github.com/prometheus/exporter-toolkit v0.20.0
 	github.com/prometheus/procfs v0.23.0
 	github.com/safchain/ethtool v0.7.0
@@ -48,6 +48,7 @@ require (
 	github.com/mdlayher/vsock v1.3.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
+	github.com/pandatix/go-abnf v0.5.3 // indirect
 	github.com/siebenmann/go-kstat v0.0.0-20210513183136-173c9b0a9973 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
