@@ -444,13 +444,13 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 		cfg.Slabinfo = config.SlabinfoConfig{SlabsInclude: *slabsInclude, SlabsExclude: *slabsExclude}
 		cfg.Tapestats = config.TapestatsConfig{IgnoredDevices: *tapestatsIgnored}
 		cfg.Diskstats = config.DiskstatsConfig{
-			DeviceExclude: excludeFlag(logger, "device-exclude", diskstatsExclude, diskstatsExcludeSet, "device-include", *diskstatsDeviceInclude),
+			DeviceExclude: diskstatsExclude,
 			DeviceInclude: *diskstatsDeviceInclude,
 		}
 		cfg.Filesystem = config.FilesystemConfig{
-			MountPointsExclude: excludeFlag(logger, "mount-points-exclude", mountPointsExcl, mountPointsExcludeSet, "mount-points-include", *mountPointsInclude),
+			MountPointsExclude: mountPointsExcl,
 			MountPointsInclude: *mountPointsInclude,
-			FSTypesExclude:     excludeFlag(logger, "fs-types-exclude", fsTypesExcl, fsTypesExcludeSet, "fs-types-include", *fsTypesInclude),
+			FSTypesExclude:     fsTypesExcl,
 			FSTypesInclude:     *fsTypesInclude,
 			MountTimeout:       *mountTimeout,
 			StatWorkerCount:    *statWorkerCount,
@@ -462,14 +462,6 @@ func addFlags(app *kingpin.Application) func(*slog.Logger) (config.Config, error
 // excludeFlag returns the value of an exclude flag that has a default. An
 // include flag replaces that default, unless the command line also sets the
 // exclude flag.
-func excludeFlag(logger *slog.Logger, excludeName, exclude string, set bool, includeName, include string) string {
-	if include != "" && !set {
-		logger.Debug(fmt.Sprintf("%s flag not set when %s flag is set, assuming include is desired", excludeName, includeName))
-		return ""
-	}
-	return exclude
-}
-
 // deprecatedFlag returns the value of the flag newName, or the value of the
 // deprecated flag oldName when the command line sets only that one.
 func deprecatedFlag(logger *slog.Logger, oldName, oldValue, newName, value string, set bool) (string, error) {

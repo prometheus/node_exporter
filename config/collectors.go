@@ -14,6 +14,7 @@
 package config
 
 import (
+	"fmt"
 	"runtime"
 	"time"
 )
@@ -230,7 +231,7 @@ var DefaultDiskstatsDeviceExclude = func() string {
 // DiskstatsConfig contains the options for the diskstats collector.
 type DiskstatsConfig struct {
 	// DeviceExclude is --collector.diskstats.device-exclude: Regexp of diskstats devices to exclude (mutually exclusive to device-include).
-	// Set it to "" to use DeviceInclude.
+	// It is ignored when it has the default value and DeviceInclude is set.
 	DeviceExclude string
 	// DeviceInclude is --collector.diskstats.device-include: Regexp of diskstats devices to include (mutually exclusive to device-exclude).
 	DeviceInclude string
@@ -270,12 +271,12 @@ const (
 // FilesystemConfig contains the options for the filesystem collector.
 type FilesystemConfig struct {
 	// MountPointsExclude is --collector.filesystem.mount-points-exclude: Regexp of mount points to exclude for filesystem collector. (mutually exclusive to mount-points-include)
-	// Set it to "" to use MountPointsInclude.
+	// It is ignored when it has the default value and MountPointsInclude is set.
 	MountPointsExclude string
 	// MountPointsInclude is --collector.filesystem.mount-points-include: Regexp of mount points to include for filesystem collector. (mutually exclusive to mount-points-exclude)
 	MountPointsInclude string
 	// FSTypesExclude is --collector.filesystem.fs-types-exclude: Regexp of filesystem types to exclude for filesystem collector. (mutually exclusive to fs-types-include)
-	// Set it to "" to use FSTypesInclude.
+	// It is ignored when it has the default value and FSTypesInclude is set.
 	FSTypesExclude string
 	// FSTypesInclude is --collector.filesystem.fs-types-include: Regexp of filesystem types to include for filesystem collector. (mutually exclusive to fs-types-exclude)
 	FSTypesInclude string
@@ -436,4 +437,37 @@ const (
 type TapestatsConfig struct {
 	// IgnoredDevices is --collector.tapestats.ignored-devices: Regexp of devices to ignore for tapestats.
 	IgnoredDevices string
+}
+
+// includeExclude returns the exclude and include patterns a collector uses.
+// An exclude that still has its default value gives way to an include, like
+// the command line does when only the include flag is set.
+func includeExclude(name, flag, exclude, defaultExclude, include string) (string, string, error) {
+	if include != "" && exclude == defaultExclude {
+		exclude = ""
+	}
+	if exclude != "" && include != "" {
+		return "", "", fmt.Errorf("%[1]sExclude (--%[2]s-exclude) and %[1]sInclude (--%[2]s-include) are mutually exclusive", name, flag)
+	}
+	return exclude, include, nil
+}
+
+// DeviceFilter returns the device exclude and include patterns.
+func (c DiskstatsConfig) DeviceFilter() (exclude, include string, err error) {
+	return includeExclude("Diskstats.Device", "collector.diskstats.device", c.DeviceExclude, DefaultDiskstatsDeviceExclude, c.DeviceInclude)
+}
+
+// DeviceFilter returns the device exclude and include patterns.
+func (c NetDevConfig) DeviceFilter() (exclude, include string, err error) {
+	return includeExclude("NetDev.Device", "collector.netdev.device", c.DeviceExclude, "", c.DeviceInclude)
+}
+
+// MountPointsFilter returns the mount point exclude and include patterns.
+func (c FilesystemConfig) MountPointsFilter() (exclude, include string, err error) {
+	return includeExclude("Filesystem.MountPoints", "collector.filesystem.mount-points", c.MountPointsExclude, DefaultFilesystemMountPointsExclude, c.MountPointsInclude)
+}
+
+// FSTypesFilter returns the filesystem type exclude and include patterns.
+func (c FilesystemConfig) FSTypesFilter() (exclude, include string, err error) {
+	return includeExclude("Filesystem.FSTypes", "collector.filesystem.fs-types", c.FSTypesExclude, DefaultFilesystemFSTypesExclude, c.FSTypesInclude)
 }

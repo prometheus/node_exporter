@@ -169,6 +169,16 @@ func NewConfigWithDefaults() Config {
 
 // Validate returns an error if the Config is invalid.
 func (c Config) Validate() error {
+	for _, filter := range []func() (string, string, error){
+		c.Diskstats.DeviceFilter,
+		c.NetDev.DeviceFilter,
+		c.Filesystem.MountPointsFilter,
+		c.Filesystem.FSTypesFilter,
+	} {
+		if _, _, err := filter(); err != nil {
+			return err
+		}
+	}
 	for _, r := range []struct{ name, expr string }{
 		{"CPU.FlagsInclude", c.CPU.FlagsInclude},
 		{"CPU.BugsInclude", c.CPU.BugsInclude},

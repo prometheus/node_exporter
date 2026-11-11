@@ -33,32 +33,33 @@ func TestNewRuntimeIncludeAndExcludeFilters(t *testing.T) {
 			name:      "diskstats include with the default exclude",
 			collector: "diskstats",
 			modify:    func(c *config.Config) { c.Diskstats.DeviceInclude = "^sd" },
-			wantErr:   "mutually exclusive",
 		},
 		{
-			name:      "diskstats include with an empty exclude",
+			name:      "diskstats include with another exclude",
 			collector: "diskstats",
-			modify:    func(c *config.Config) { c.Diskstats = config.DiskstatsConfig{DeviceInclude: "^sd"} },
+			modify:    func(c *config.Config) { c.Diskstats.DeviceInclude, c.Diskstats.DeviceExclude = "^sd", "^sdb" },
+			wantErr:   "Diskstats.DeviceExclude (--collector.diskstats.device-exclude) and Diskstats.DeviceInclude (--collector.diskstats.device-include) are mutually exclusive",
 		},
 		{
-			name:      "filesystem mount points include with the default exclude",
-			collector: "filesystem",
-			modify:    func(c *config.Config) { c.Filesystem.MountPointsInclude = "^/data" },
-			wantErr:   "mount-points-exclude and --collector.filesystem.mount-points-include are mutually exclusive",
-		},
-		{
-			name:      "filesystem fs types include with the default exclude",
-			collector: "filesystem",
-			modify:    func(c *config.Config) { c.Filesystem.FSTypesInclude = "^ext4$" },
-			wantErr:   "fs-types-exclude and --collector.filesystem.fs-types-include are mutually exclusive",
-		},
-		{
-			name:      "filesystem includes with empty excludes",
+			name:      "filesystem includes with the default excludes",
 			collector: "filesystem",
 			modify: func(c *config.Config) {
-				c.Filesystem.MountPointsExclude, c.Filesystem.MountPointsInclude = "", "^/data"
-				c.Filesystem.FSTypesExclude, c.Filesystem.FSTypesInclude = "", "^ext4$"
+				c.Filesystem.MountPointsInclude, c.Filesystem.FSTypesInclude = "^/data", "^ext4$"
 			},
+		},
+		{
+			name:      "filesystem mount points include with another exclude",
+			collector: "filesystem",
+			modify: func(c *config.Config) {
+				c.Filesystem.MountPointsInclude, c.Filesystem.MountPointsExclude = "^/data", "^/data/tmp"
+			},
+			wantErr: "Filesystem.MountPointsExclude (--collector.filesystem.mount-points-exclude) and Filesystem.MountPointsInclude (--collector.filesystem.mount-points-include) are mutually exclusive",
+		},
+		{
+			name:      "filesystem fs types include with another exclude",
+			collector: "filesystem",
+			modify:    func(c *config.Config) { c.Filesystem.FSTypesInclude, c.Filesystem.FSTypesExclude = "^ext4$", "^tmpfs$" },
+			wantErr:   "Filesystem.FSTypesExclude (--collector.filesystem.fs-types-exclude) and Filesystem.FSTypesInclude (--collector.filesystem.fs-types-include) are mutually exclusive",
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {

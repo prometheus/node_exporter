@@ -16,7 +16,6 @@
 package collector
 
 import (
-	"errors"
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -77,17 +76,18 @@ var (
 )
 
 func newDiskstatsDeviceFilter(cfg config.DiskstatsConfig, logger *slog.Logger) (deviceFilter, error) {
-	if cfg.DeviceExclude != "" && cfg.DeviceInclude != "" {
-		return deviceFilter{}, errors.New("device-exclude & device-include are mutually exclusive")
+	exclude, include, err := cfg.DeviceFilter()
+	if err != nil {
+		return deviceFilter{}, err
 	}
 
-	if cfg.DeviceExclude != "" {
-		logger.Info("Parsed flag --collector.diskstats.device-exclude", "flag", cfg.DeviceExclude)
+	if exclude != "" {
+		logger.Info("Parsed flag --collector.diskstats.device-exclude", "flag", exclude)
 	}
 
-	if cfg.DeviceInclude != "" {
-		logger.Info("Parsed Flag --collector.diskstats.device-include", "flag", cfg.DeviceInclude)
+	if include != "" {
+		logger.Info("Parsed Flag --collector.diskstats.device-include", "flag", include)
 	}
 
-	return newDeviceFilter(cfg.DeviceExclude, cfg.DeviceInclude), nil
+	return newDeviceFilter(exclude, include), nil
 }

@@ -17,7 +17,6 @@ package collector
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -47,8 +46,8 @@ func init() {
 
 // NewNetDevCollector returns a new Collector exposing network device stats.
 func NewNetDevCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
-	if cfg.NetDev.DeviceExclude != "" && cfg.NetDev.DeviceInclude != "" {
-		return nil, errors.New("device-exclude & device-include are mutually exclusive")
+	if _, _, err := cfg.NetDev.DeviceFilter(); err != nil {
+		return nil, err
 	}
 
 	if cfg.NetDev.DeviceExclude != "" {

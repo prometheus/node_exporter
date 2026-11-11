@@ -17,7 +17,6 @@ package collector
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -218,31 +217,33 @@ func (c *filesystemCollector) Update(_ context.Context, ch chan<- prometheus.Met
 }
 
 func newMountPointsFilter(cfg config.FilesystemConfig, logger *slog.Logger) (deviceFilter, error) {
-	if cfg.MountPointsExclude != "" && cfg.MountPointsInclude != "" {
-		return deviceFilter{}, errors.New("--collector.filesystem.mount-points-exclude and --collector.filesystem.mount-points-include are mutually exclusive")
+	exclude, include, err := cfg.MountPointsFilter()
+	if err != nil {
+		return deviceFilter{}, err
 	}
 
-	if cfg.MountPointsExclude != "" {
-		logger.Info("Parsed flag --collector.filesystem.mount-points-exclude", "flag", cfg.MountPointsExclude)
+	if exclude != "" {
+		logger.Info("Parsed flag --collector.filesystem.mount-points-exclude", "flag", exclude)
 	}
-	if cfg.MountPointsInclude != "" {
-		logger.Info("Parsed flag --collector.filesystem.mount-points-include", "flag", cfg.MountPointsInclude)
+	if include != "" {
+		logger.Info("Parsed flag --collector.filesystem.mount-points-include", "flag", include)
 	}
 
-	return newDeviceFilter(cfg.MountPointsExclude, cfg.MountPointsInclude), nil
+	return newDeviceFilter(exclude, include), nil
 }
 
 func newFSTypeFilter(cfg config.FilesystemConfig, logger *slog.Logger) (deviceFilter, error) {
-	if cfg.FSTypesExclude != "" && cfg.FSTypesInclude != "" {
-		return deviceFilter{}, errors.New("--collector.filesystem.fs-types-exclude and --collector.filesystem.fs-types-include are mutually exclusive")
+	exclude, include, err := cfg.FSTypesFilter()
+	if err != nil {
+		return deviceFilter{}, err
 	}
 
-	if cfg.FSTypesExclude != "" {
-		logger.Info("Parsed flag --collector.filesystem.fs-types-exclude", "flag", cfg.FSTypesExclude)
+	if exclude != "" {
+		logger.Info("Parsed flag --collector.filesystem.fs-types-exclude", "flag", exclude)
 	}
-	if cfg.FSTypesInclude != "" {
-		logger.Info("Parsed flag --collector.filesystem.fs-types-include", "flag", cfg.FSTypesInclude)
+	if include != "" {
+		logger.Info("Parsed flag --collector.filesystem.fs-types-include", "flag", include)
 	}
 
-	return newDeviceFilter(cfg.FSTypesExclude, cfg.FSTypesInclude), nil
+	return newDeviceFilter(exclude, include), nil
 }

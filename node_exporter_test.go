@@ -348,37 +348,44 @@ func TestDeprecatedFlags(t *testing.T) {
 }
 
 func TestIncludeFlagReplacesDefaultExclude(t *testing.T) {
+	diskstats := func(c config.Config) (string, string, error) { return c.Diskstats.DeviceFilter() }
 	for _, test := range []struct {
-		args []string
-		want func(*config.Config)
+		args             []string
+		filter           func(config.Config) (string, string, error)
+		exclude, include string
+		err              string
 	}{
+		{args: []string{"--collector.diskstats.device-include=^sd"}, filter: diskstats, include: "^sd"},
 		{
-			args: []string{"--collector.diskstats.device-include=^sd"},
-			want: func(c *config.Config) { c.Diskstats = config.DiskstatsConfig{DeviceInclude: "^sd"} },
+			args:    []string{"--collector.filesystem.mount-points-include=^/data"},
+			filter:  func(c config.Config) (string, string, error) { return c.Filesystem.MountPointsFilter() },
+			include: "^/data",
 		},
 		{
-			args: []string{"--collector.filesystem.mount-points-include=^/data"},
-			want: func(c *config.Config) {
-				c.Filesystem.MountPointsExclude, c.Filesystem.MountPointsInclude = "", "^/data"
-			},
+			args:    []string{"--collector.filesystem.fs-types-include=^ext4$"},
+			filter:  func(c config.Config) (string, string, error) { return c.Filesystem.FSTypesFilter() },
+			include: "^ext4$",
 		},
 		{
-			args: []string{"--collector.filesystem.fs-types-include=^ext4$"},
-			want: func(c *config.Config) { c.Filesystem.FSTypesExclude, c.Filesystem.FSTypesInclude = "", "^ext4$" },
-		},
-		{
-			// Both flags on the command line: the collector rejects the pair.
-			args: []string{"--collector.diskstats.device-include=^sd", "--collector.diskstats.device-exclude=^sdb"},
-			want: func(c *config.Config) {
-				c.Diskstats = config.DiskstatsConfig{DeviceInclude: "^sd", DeviceExclude: "^sdb"}
-			},
+			args:   []string{"--collector.diskstats.device-include=^sd", "--collector.diskstats.device-exclude=^sdb"},
+			filter: diskstats,
+			err:    "--collector.diskstats.device-exclude) and Diskstats.DeviceInclude (--collector.diskstats.device-include) are mutually exclusive",
 		},
 	} {
-		t.Run(test.args[0], func(t *testing.T) {
-			want := config.NewConfigWithDefaults()
-			test.want(&want)
-			if got := parseConfigFlags(t, test.args...); !reflect.DeepEqual(got, want) {
-				t.Fatalf("got:  %+v\nwant: %+v", got, want)
+		t.Run(strings.Join(test.args, " "), func(t *testing.T) {
+			cfg := parseConfigFlags(t, test.args...)
+			exclude, include, err := test.filter(cfg)
+			if test.err != "" {
+				if err == nil || !strings.Contains(err.Error(), test.err) {
+					t.Fatalf("want error containing %q, got %v", test.err, err)
+				}
+				if verr := cfg.Validate(); verr == nil || verr.Error() != err.Error() {
+					t.Fatalf("Validate must report %v, got %v", err, verr)
+				}
+				return
+			}
+			if err != nil || exclude != test.exclude || include != test.include {
+				t.Fatalf("got exclude %q include %q err %v, want exclude %q include %q", exclude, include, err, test.exclude, test.include)
 			}
 		})
 	}

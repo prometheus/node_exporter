@@ -68,3 +68,39 @@ func TestValidateRejectsInvalidRegexps(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateIncludeAndExclude(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		modify  func(*Config)
+		wantErr string
+	}{
+		{name: "diskstats include with the default exclude", modify: func(c *Config) { c.Diskstats.DeviceInclude = "^sd" }},
+		{name: "filesystem includes with the default excludes", modify: func(c *Config) {
+			c.Filesystem.MountPointsInclude, c.Filesystem.FSTypesInclude = "^/data", "^ext4$"
+		}},
+		{name: "diskstats", modify: func(c *Config) { c.Diskstats.DeviceInclude, c.Diskstats.DeviceExclude = "^sd", "^sdb" }, wantErr: "Diskstats.DeviceExclude"},
+		{name: "netdev", modify: func(c *Config) { c.NetDev.DeviceInclude, c.NetDev.DeviceExclude = "^eth", "^lo" }, wantErr: "NetDev.DeviceExclude"},
+		{name: "mount points", modify: func(c *Config) {
+			c.Filesystem.MountPointsInclude, c.Filesystem.MountPointsExclude = "^/data", "^/tmp"
+		}, wantErr: "Filesystem.MountPointsExclude"},
+		{name: "fs types", modify: func(c *Config) {
+			c.Filesystem.FSTypesInclude, c.Filesystem.FSTypesExclude = "^ext4$", "^tmpfs$"
+		}, wantErr: "Filesystem.FSTypesExclude"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			cfg := NewConfigWithDefaults()
+			test.modify(&cfg)
+			err := cfg.Validate()
+			if test.wantErr == "" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				return
+			}
+			if err == nil || !strings.Contains(err.Error(), test.wantErr) || !strings.Contains(err.Error(), "mutually exclusive") {
+				t.Fatalf("want mutually exclusive error naming %s, got %v", test.wantErr, err)
+			}
+		})
+	}
+}
