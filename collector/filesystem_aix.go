@@ -19,11 +19,6 @@ import (
 	"github.com/power-devops/perfstat"
 )
 
-const (
-	defMountPointsExcluded = "^/(dev|aha)($|/)"
-	defFSTypesExcluded     = "^procfs$"
-)
-
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	fsStat, err := perfstat.FileSystemStat()

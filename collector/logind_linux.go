@@ -24,6 +24,8 @@ import (
 
 	"github.com/godbus/dbus/v5"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -86,7 +88,7 @@ func init() {
 }
 
 // NewLogindCollector returns a new Collector exposing logind statistics.
-func NewLogindCollector(logger *slog.Logger) (Collector, error) {
+func NewLogindCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &logindCollector{logger}, nil
 }
 

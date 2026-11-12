@@ -40,7 +40,7 @@ func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func NewTestDiskStatsCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	dsc, err := NewDiskstatsCollector(logger)
+	dsc, err := NewDiskstatsCollector(fixtureConfig(), logger)
 	if err != nil {
 		return testDiskStatsCollector{}, err
 	}
@@ -50,10 +50,6 @@ func NewTestDiskStatsCollector(logger *slog.Logger) (prometheus.Collector, error
 }
 
 func TestDiskStats(t *testing.T) {
-	*sysPath = "fixtures/sys"
-	*procPath = "fixtures/proc"
-	*udevDataPath = "fixtures/udev/data"
-	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 	testcase := `# HELP node_disk_ata_rotation_rate_rpm ATA disk rotation rate in RPMs (0 for SSDs).
 # TYPE node_disk_ata_rotation_rate_rpm gauge
 node_disk_ata_rotation_rate_rpm{device="sda"} 7200
@@ -329,7 +325,7 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	collector, err := NewDiskstatsCollector(logger)
+	collector, err := NewDiskstatsCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -403,13 +399,8 @@ func TestRotationalLabel(t *testing.T) {
 // introducing per-device sysfs I/O regressions are detectable before merge.
 // Run with: go test -bench=BenchmarkDiskstatsUpdate -benchtime=5s ./collector/
 func BenchmarkDiskstatsUpdate(b *testing.B) {
-	*sysPath = "fixtures/sys"
-	*procPath = "fixtures/proc"
-	*udevDataPath = "fixtures/udev/data"
-	*diskstatsDeviceExclude = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	collector, err := NewDiskstatsCollector(logger)
+	collector, err := NewDiskstatsCollector(fixtureConfig(), logger)
 	if err != nil {
 		b.Fatal(err)
 	}

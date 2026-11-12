@@ -23,6 +23,8 @@ import (
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // #cgo LDFLAGS: -ldevstat -lkvm -lelf
@@ -50,7 +52,7 @@ func init() {
 }
 
 // NewDevstatCollector returns a new Collector exposing Device stats.
-func NewDevstatCollector(logger *slog.Logger) (Collector, error) {
+func NewDevstatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &devstatCollector{
 		devinfo: &C.struct_devinfo{},
 		bytes: typedDesc{prometheus.NewDesc(
@@ -80,6 +82,15 @@ func NewDevstatCollector(logger *slog.Logger) (Collector, error) {
 		), prometheus.CounterValue},
 		logger: logger,
 	}, nil
+}
+
+// Close frees the device list that devstat_getdevs allocates in devinfo.
+func (c *devstatCollector) Close() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	C.free(unsafe.Pointer(c.devinfo.mem_ptr))
+	*c.devinfo = C.struct_devinfo{}
+	return nil
 }
 
 func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {

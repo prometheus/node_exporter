@@ -23,10 +23,13 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type conntrackCollector struct {
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 type conntrackStatistics struct {
@@ -98,28 +101,29 @@ var (
 )
 
 // NewConntrackCollector returns a new Collector exposing conntrack stats.
-func NewConntrackCollector(logger *slog.Logger) (Collector, error) {
+func NewConntrackCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &conntrackCollector{
+		paths:  pathConfig(cfg.Path),
 		logger: logger,
 	}, nil
 }
 
 func (c *conntrackCollector) Update(ch chan<- prometheus.Metric) error {
-	value, err := readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_count"))
+	value, err := readUintFromFile(c.paths.procFilePath("sys/net/netfilter/nf_conntrack_count"))
 	if err != nil {
 		return c.handleErr(err)
 	}
 	ch <- prometheus.MustNewConstMetric(
 		conntrackCurrent, prometheus.GaugeValue, float64(value))
 
-	value, err = readUintFromFile(procFilePath("sys/net/netfilter/nf_conntrack_max"))
+	value, err = readUintFromFile(c.paths.procFilePath("sys/net/netfilter/nf_conntrack_max"))
 	if err != nil {
 		return c.handleErr(err)
 	}
 	ch <- prometheus.MustNewConstMetric(
 		conntrackLimit, prometheus.GaugeValue, float64(value))
 
-	conntrackStats, err := getConntrackStatistics()
+	conntrackStats, err := getConntrackStatistics(c.paths)
 	if err != nil {
 		return c.handleErr(err)
 	}
@@ -151,10 +155,10 @@ func (c *conntrackCollector) handleErr(err error) error {
 	return fmt.Errorf("failed to retrieve conntrack stats: %w", err)
 }
 
-func getConntrackStatistics() (*conntrackStatistics, error) {
+func getConntrackStatistics(paths pathConfig) (*conntrackStatistics, error) {
 	s := conntrackStatistics{}
 
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(paths.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

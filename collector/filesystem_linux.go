@@ -26,33 +26,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"golang.org/x/sys/unix"
 
 	"github.com/prometheus/procfs"
 )
 
-const (
-	defMountPointsExcluded = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($|/)"
-	defFSTypesExcluded     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|erofs|sysfs|tracefs)$"
-)
-
-var mountTimeout = kingpin.Flag("collector.filesystem.mount-timeout",
-	"how long to wait for a mount to respond before marking it as stale").
-	Hidden().Default("5s").Duration()
-
-var statWorkerCount = kingpin.Flag("collector.filesystem.stat-workers",
-	"how many stat calls to process simultaneously").
-	Hidden().Default("4").Int()
-
-var (
-	stuckMounts    = make(map[string]struct{})
-	stuckMountsMtx = &sync.Mutex{}
-)
-
 // GetStats returns filesystem stats.
 func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
-	mps, err := mountPointDetails(c.logger)
+	mps, err := mountPointDetails(c.paths, c.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +42,7 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 	statChan := make(chan filesystemStats)
 	wg := sync.WaitGroup{}
 
-	workerCount := max(*statWorkerCount, 1)
+	workerCount := max(c.config.StatWorkerCount, 1)
 
 	for range workerCount {
 		wg.Go(func() {
@@ -82,19 +63,19 @@ func (c *filesystemCollector) GetStats() ([]filesystemStats, error) {
 				continue
 			}
 
-			stuckMountsMtx.Lock()
-			if _, ok := stuckMounts[labels.mountPoint]; ok {
+			c.stuckMounts.Lock()
+			if _, ok := c.stuckMounts.mounts[labels.mountPoint]; ok {
 				labels.deviceError = "mountpoint timeout"
 				stats = append(stats, filesystemStats{
 					labels:      labels,
 					deviceError: 1,
 				})
 				c.logger.Debug("Mount point is in an unresponsive state", "mountpoint", labels.mountPoint)
-				stuckMountsMtx.Unlock()
+				c.stuckMounts.Unlock()
 				continue
 			}
 
-			stuckMountsMtx.Unlock()
+			c.stuckMounts.Unlock()
 			labelChan <- labels
 		}
 		close(labelChan)
@@ -115,19 +96,19 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 	}
 
 	success := make(chan struct{})
-	go stuckMountWatcher(labels.mountPoint, success, c.logger)
+	go c.stuckMountWatcher(labels.mountPoint, success)
 
 	buf := new(unix.Statfs_t)
-	err := unix.Statfs(rootfsFilePath(labels.mountPoint), buf)
-	stuckMountsMtx.Lock()
+	err := unix.Statfs(c.paths.rootfsFilePath(labels.mountPoint), buf)
+	c.stuckMounts.Lock()
 	close(success)
 
 	// If the mount has been marked as stuck, unmark it and log it's recovery.
-	if _, ok := stuckMounts[labels.mountPoint]; ok {
+	if _, ok := c.stuckMounts.mounts[labels.mountPoint]; ok {
 		c.logger.Debug("Mount point has recovered, monitoring will resume", "mountpoint", labels.mountPoint)
-		delete(stuckMounts, labels.mountPoint)
+		delete(c.stuckMounts.mounts, labels.mountPoint)
 	}
-	stuckMountsMtx.Unlock()
+	c.stuckMounts.Unlock()
 
 	// Remove options from labels because options will not be used from this point forward
 	// and keeping them can lead to errors when the same device is mounted to the same mountpoint
@@ -137,7 +118,7 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 
 	if err != nil {
 		labels.deviceError = err.Error()
-		c.logger.Debug("Error on statfs() system call", "rootfs", rootfsFilePath(labels.mountPoint), "err", err)
+		c.logger.Debug("Error on statfs() system call", "rootfs", c.paths.rootfsFilePath(labels.mountPoint), "err", err)
 		return filesystemStats{
 			labels:      labels,
 			deviceError: 1,
@@ -159,28 +140,28 @@ func (c *filesystemCollector) processStat(labels filesystemLabels) filesystemSta
 // stuckMountWatcher listens on the given success channel and if the channel closes
 // then the watcher does nothing. If instead the timeout is reached, the
 // mount point that is being watched is marked as stuck.
-func stuckMountWatcher(mountPoint string, success chan struct{}, logger *slog.Logger) {
-	mountCheckTimer := time.NewTimer(*mountTimeout)
+func (c *filesystemCollector) stuckMountWatcher(mountPoint string, success chan struct{}) {
+	mountCheckTimer := time.NewTimer(c.config.MountTimeout)
 	defer mountCheckTimer.Stop()
 	select {
 	case <-success:
 		// Success
 	case <-mountCheckTimer.C:
 		// Timed out, mark mount as stuck
-		stuckMountsMtx.Lock()
+		c.stuckMounts.Lock()
 		select {
 		case <-success:
 			// Success came in just after the timeout was reached, don't label the mount as stuck
 		default:
-			logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
-			stuckMounts[mountPoint] = struct{}{}
+			c.logger.Debug("Mount point timed out, it is being labeled as stuck and will not be monitored", "mountpoint", mountPoint)
+			c.stuckMounts.mounts[mountPoint] = struct{}{}
 		}
-		stuckMountsMtx.Unlock()
+		c.stuckMounts.Unlock()
 	}
 }
 
-func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
-	fs, err := procfs.NewFS(*procPath)
+func mountPointDetails(paths pathConfig, logger *slog.Logger) ([]filesystemLabels, error) {
+	fs, err := procfs.NewFS(paths.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
@@ -194,10 +175,10 @@ func mountPointDetails(logger *slog.Logger) ([]filesystemLabels, error) {
 		return nil, err
 	}
 
-	return parseFilesystemLabels(mountInfo)
+	return parseFilesystemLabels(paths, mountInfo)
 }
 
-func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, error) {
+func parseFilesystemLabels(paths pathConfig, mountInfo []*procfs.MountInfo) ([]filesystemLabels, error) {
 	var filesystems []filesystemLabels
 
 	for _, mount := range mountInfo {
@@ -214,7 +195,7 @@ func parseFilesystemLabels(mountInfo []*procfs.MountInfo) ([]filesystemLabels, e
 
 		filesystems = append(filesystems, filesystemLabels{
 			device:       strings.ToValidUTF8(mount.Source, "�"),
-			mountPoint:   strings.ToValidUTF8(rootfsStripPrefix(mount.MountPoint), "�"),
+			mountPoint:   strings.ToValidUTF8(paths.rootfsStripPrefix(mount.MountPoint), "�"),
 			fsType:       strings.ToValidUTF8(mount.FSType, "�"),
 			mountOptions: mountOptionsString(mount.Options),
 			superOptions: mountOptionsString(mount.SuperOptions),

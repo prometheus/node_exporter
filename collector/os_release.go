@@ -29,6 +29,8 @@ import (
 
 	envparse "github.com/hashicorp/go-envparse"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -62,6 +64,7 @@ type osReleaseCollector struct {
 	osReleaseFilenames []string // all os-release file names to check
 	version            float64
 	supportEnd         time.Time
+	paths              pathConfig
 }
 
 type Plist struct {
@@ -110,8 +113,9 @@ var (
 )
 
 // NewOSCollector returns a new Collector exposing os-release information.
-func NewOSCollector(logger *slog.Logger) (Collector, error) {
+func NewOSCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &osReleaseCollector{
+		paths:              pathConfig(cfg.Path),
 		logger:             logger,
 		osReleaseFilenames: []string{etcOSRelease, usrLibOSRelease, systemVersionPlist},
 	}, nil
@@ -182,7 +186,7 @@ func (c *osReleaseCollector) UpdateStruct(path string) error {
 
 func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 	for i, path := range c.osReleaseFilenames {
-		err := c.UpdateStruct(*rootfsPath + path)
+		err := c.UpdateStruct(c.paths.RootFS + path)
 		if err == nil {
 			break
 		}
@@ -196,6 +200,9 @@ func (c *osReleaseCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
+	// A concurrent Update can rewrite the struct, so read it under the lock.
+	c.osMutex.RLock()
+	defer c.osMutex.RUnlock()
 	ch <- prometheus.MustNewConstMetric(osInfoDesc, prometheus.GaugeValue, 1.0,
 		c.os.BuildID, c.os.ID, c.os.IDLike, c.os.ImageID, c.os.ImageVersion, c.os.Name, c.os.PrettyName,
 		c.os.Variant, c.os.VariantID, c.os.Version, c.os.VersionCodename, c.os.VersionID)

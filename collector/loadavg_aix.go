@@ -19,7 +19,7 @@ import (
 	"github.com/power-devops/perfstat"
 )
 
-func getLoad() ([]float64, error) {
+func getLoad(_ pathConfig) ([]float64, error) {
 	stat, err := perfstat.CpuTotalStat()
 	if err != nil {
 		return nil, err

@@ -19,11 +19,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-const (
-	defMountPointsExcluded = "^/(dev)($|/)"
-	defFSTypesExcluded     = "^devfs$"
-)
-
 // Expose filesystem fullness.
 func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 	var mnt []unix.Statfs_t

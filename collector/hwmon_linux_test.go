@@ -66,19 +66,15 @@ func (t testHwmonCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func newTestHwmonCollector() *hwMonCollector {
-	return &hwMonCollector{logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
+func newTestHwmonCollector(sysFS string) *hwMonCollector {
+	return &hwMonCollector{logger: slog.New(slog.NewTextHandler(io.Discard, nil)), paths: pathConfig{SysFS: sysFS}}
 }
 
 // Two hwmon entries sharing the same parent device — the configuration
 // that triggered #3637 on ASUS WMI laptops — must produce distinct chip
 // labels and not error during gather.
 func TestHwmonDuplicateChipNamesAreDisambiguated(t *testing.T) {
-	prev := *sysPath
-	t.Cleanup(func() { *sysPath = prev })
-	*sysPath = "fixtures/sys/hwmon/duplicate_chip_names"
-
-	chips, err := gatherChipLabels(t, newTestHwmonCollector())
+	chips, err := gatherChipLabels(t, newTestHwmonCollector("fixtures/sys/hwmon/duplicate_chip_names"))
 	if err != nil {
 		t.Fatalf("gather: %v", err)
 	}
@@ -99,11 +95,7 @@ func TestHwmonDuplicateChipNamesAreDisambiguated(t *testing.T) {
 // When chip names are already unique, the collector must leave them alone
 // — no surprise suffixes for unaffected users.
 func TestHwmonUniqueChipNamesAreUnchanged(t *testing.T) {
-	prev := *sysPath
-	t.Cleanup(func() { *sysPath = prev })
-	*sysPath = "fixtures/sys/hwmon/unique_chip_names"
-
-	chips, err := gatherChipLabels(t, newTestHwmonCollector())
+	chips, err := gatherChipLabels(t, newTestHwmonCollector("fixtures/sys/hwmon/unique_chip_names"))
 	if err != nil {
 		t.Fatalf("gather: %v", err)
 	}
@@ -119,11 +111,7 @@ func TestHwmonUniqueChipNamesAreUnchanged(t *testing.T) {
 // disambiguator collapses too. We must still emit unique chip labels by
 // falling back to the hwmonX basename.
 func TestHwmonDuplicateChipNamesWithSameNameFile(t *testing.T) {
-	prev := *sysPath
-	t.Cleanup(func() { *sysPath = prev })
-	*sysPath = "fixtures/sys/hwmon/same_name_file"
-
-	chips, err := gatherChipLabels(t, newTestHwmonCollector())
+	chips, err := gatherChipLabels(t, newTestHwmonCollector("fixtures/sys/hwmon/same_name_file"))
 	if err != nil {
 		t.Fatalf("gather: %v", err)
 	}

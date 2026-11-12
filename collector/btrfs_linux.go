@@ -25,12 +25,15 @@ import (
 	dennwc "github.com/dennwc/btrfs"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/btrfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // A btrfsCollector is a Collector which gathers metrics from Btrfs filesystems.
 type btrfsCollector struct {
 	fs     btrfs.FS
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -38,13 +41,14 @@ func init() {
 }
 
 // NewBtrfsCollector returns a new Collector exposing Btrfs statistics.
-func NewBtrfsCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := btrfs.NewFS(*sysPath)
+func NewBtrfsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := btrfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &btrfsCollector{
+		paths:  pathConfig(cfg.Path),
 		fs:     fs,
 		logger: logger,
 	}, nil
@@ -101,7 +105,7 @@ type btrfsIoctlFsStats struct {
 func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) {
 	// Instead of introducing more ioctl calls to scan for all btrfs
 	// filesystems re-use our mount point utils to find known mounts
-	mountsList, err := mountPointDetails(c.logger)
+	mountsList, err := mountPointDetails(c.paths, c.logger)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +125,7 @@ func (c *btrfsCollector) getIoctlStats() (map[string]*btrfsIoctlFsStats, error) 
 			continue
 		}
 
-		mountPath := rootfsFilePath(mount.mountPoint)
+		mountPath := c.paths.rootfsFilePath(mount.mountPoint)
 
 		fs, err := dennwc.Open(mountPath, true)
 		if err != nil {

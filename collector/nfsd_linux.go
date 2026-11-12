@@ -23,6 +23,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/nfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // A nfsdCollector is a Collector which gathers metrics from /proc/net/rpc/nfsd.
@@ -42,8 +44,8 @@ const (
 )
 
 // NewNFSdCollector returns a new Collector exposing /proc/net/rpc/nfsd statistics.
-func NewNFSdCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := nfs.NewFS(*procPath)
+func NewNFSdCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := nfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

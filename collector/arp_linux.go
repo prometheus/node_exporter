@@ -19,23 +19,19 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/jsimonetti/rtnetlink/v2/rtnl"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
 	"golang.org/x/sys/unix"
-)
 
-var (
-	arpDeviceInclude = kingpin.Flag("collector.arp.device-include", "Regexp of arp devices to include (mutually exclusive to device-exclude).").String()
-	arpDeviceExclude = kingpin.Flag("collector.arp.device-exclude", "Regexp of arp devices to exclude (mutually exclusive to device-include).").String()
-	arpNetlink       = kingpin.Flag("collector.arp.netlink", "Use netlink to gather stats instead of /proc/net/arp.").Default("true").Bool()
+	"github.com/prometheus/node_exporter/config"
 )
 
 type arpCollector struct {
 	fs           procfs.FS
 	deviceFilter deviceFilter
 	logger       *slog.Logger
+	config       config.ARPConfig
 }
 
 func init() {
@@ -49,16 +45,17 @@ var arpEntries = prometheus.NewDesc(
 )
 
 // NewARPCollector returns a new Collector exposing ARP stats.
-func NewARPCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewARPCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}
 
 	return &arpCollector{
 		fs:           fs,
-		deviceFilter: newDeviceFilter(*arpDeviceExclude, *arpDeviceInclude),
+		deviceFilter: newDeviceFilter(cfg.ARP.DeviceExclude, cfg.ARP.DeviceInclude),
 		logger:       logger,
+		config:       cfg.ARP,
 	}, nil
 }
 
@@ -102,7 +99,7 @@ func getTotalArpEntriesRTNL() (map[string]uint32, error) {
 func (c *arpCollector) Update(ch chan<- prometheus.Metric) error {
 	var enumeratedEntry map[string]uint32
 
-	if *arpNetlink {
+	if c.config.Netlink {
 		var err error
 
 		enumeratedEntry, err = getTotalArpEntriesRTNL()

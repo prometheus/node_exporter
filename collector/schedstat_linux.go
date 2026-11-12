@@ -23,6 +23,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const nsPerSec = 1e9
@@ -51,8 +53,8 @@ var (
 )
 
 // NewSchedstatCollector returns a new Collector exposing task scheduler statistics
-func NewSchedstatCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewSchedstatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

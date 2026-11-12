@@ -24,6 +24,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type dmiCollector struct {
@@ -36,8 +38,8 @@ func init() {
 }
 
 // NewDMICollector returns a new Collector exposing DMI information.
-func NewDMICollector(logger *slog.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewDMICollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

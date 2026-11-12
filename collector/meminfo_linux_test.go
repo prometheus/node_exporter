@@ -22,10 +22,9 @@ import (
 )
 
 func TestMemInfo(t *testing.T) {
-	*procPath = "fixtures/proc"
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-	collector, err := NewMeminfoCollector(logger)
+	collector, err := NewMeminfoCollector(fixtureConfig(), logger)
 	if err != nil {
 		panic(err)
 	}

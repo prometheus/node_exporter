@@ -20,6 +20,8 @@ import (
 	"log/slog"
 
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type meminfoCollector struct {
@@ -28,8 +30,8 @@ type meminfoCollector struct {
 }
 
 // NewMeminfoCollector returns a new Collector exposing memory stats.
-func NewMeminfoCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := procfs.NewFS(*procPath)
+func NewMeminfoCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := procfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

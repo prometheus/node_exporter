@@ -22,10 +22,9 @@ import (
 )
 
 func TestSwap(t *testing.T) {
-	*procPath = "fixtures/proc"
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-	collector, err := NewSwapCollector(logger)
+	collector, err := NewSwapCollector(fixtureConfig(), logger)
 	if err != nil {
 		panic(err)
 	}

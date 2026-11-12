@@ -18,12 +18,11 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus-community/go-runit/runit"
 	"github.com/prometheus/client_golang/prometheus"
-)
 
-var runitServiceDir = kingpin.Flag("collector.runit.servicedir", "Path to runit service directory.").Default("/etc/service").String()
+	"github.com/prometheus/node_exporter/config"
+)
 
 type runitCollector struct {
 	state          typedDesc
@@ -31,6 +30,7 @@ type runitCollector struct {
 	stateNormal    typedDesc
 	stateTimestamp typedDesc
 	logger         *slog.Logger
+	serviceDir     string
 }
 
 func init() {
@@ -38,7 +38,7 @@ func init() {
 }
 
 // NewRunitCollector returns a new Collector exposing runit statistics.
-func NewRunitCollector(logger *slog.Logger) (Collector, error) {
+func NewRunitCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	var (
 		subsystem   = "service"
 		constLabels = prometheus.Labels{"supervisor": "runit"}
@@ -68,12 +68,13 @@ func NewRunitCollector(logger *slog.Logger) (Collector, error) {
 			"Unix timestamp of the last runit service state change.",
 			labelNames, constLabels,
 		), prometheus.GaugeValue},
-		logger: logger,
+		logger:     logger,
+		serviceDir: cfg.Runit.ServiceDir,
 	}, nil
 }
 
 func (c *runitCollector) Update(ch chan<- prometheus.Metric) error {
-	services, err := runit.GetServices(*runitServiceDir)
+	services, err := runit.GetServices(c.serviceDir)
 	if err != nil {
 		return err
 	}

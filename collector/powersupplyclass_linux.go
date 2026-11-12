@@ -27,7 +27,7 @@ import (
 )
 
 func (c *powerSupplyClassCollector) Update(ch chan<- prometheus.Metric) error {
-	powerSupplyClass, err := getPowerSupplyClassInfo(c.ignoredPattern)
+	powerSupplyClass, err := getPowerSupplyClassInfo(c.paths, c.ignoredPattern)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return ErrNoData
@@ -154,8 +154,8 @@ func pushPowerSupplyMetric(ch chan<- prometheus.Metric, subsystem, name string, 
 	ch <- prometheus.MustNewConstMetric(fieldDesc, valueType, value, powerSupplyName)
 }
 
-func getPowerSupplyClassInfo(ignore *regexp.Regexp) (sysfs.PowerSupplyClass, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func getPowerSupplyClassInfo(paths pathConfig, ignore *regexp.Regexp) (sysfs.PowerSupplyClass, error) {
+	fs, err := sysfs.NewFS(paths.SysFS)
 	if err != nil {
 		return nil, err
 	}

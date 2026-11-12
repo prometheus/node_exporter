@@ -38,7 +38,7 @@ func (c testMdadmCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func NewTestMdadmCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	mc, err := NewMdadmCollector(logger)
+	mc, err := NewMdadmCollector(fixtureConfig(), logger)
 	if err != nil {
 		return testMdadmCollector{}, err
 	}
@@ -46,8 +46,6 @@ func NewTestMdadmCollector(logger *slog.Logger) (prometheus.Collector, error) {
 }
 
 func TestMdadmStats(t *testing.T) {
-	*sysPath = "fixtures/sys"
-	*procPath = "fixtures/proc"
 	testcase := `# HELP node_md_blocks Total number of blocks on device.
         # TYPE node_md_blocks gauge
         node_md_blocks{device="md0"} 248896
@@ -266,7 +264,7 @@ func TestMdadmStats(t *testing.T) {
 		Level:     slog.LevelError,
 		AddSource: true,
 	}))
-	collector, err := NewMdadmCollector(logger)
+	collector, err := NewMdadmCollector(fixtureConfig(), logger)
 	if err != nil {
 		panic(err)
 	}

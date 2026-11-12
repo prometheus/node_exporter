@@ -26,17 +26,13 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 var (
-	collectorHWmonChipInclude   = kingpin.Flag("collector.hwmon.chip-include", "Regexp of hwmon chip to include (mutually exclusive to device-exclude).").String()
-	collectorHWmonChipExclude   = kingpin.Flag("collector.hwmon.chip-exclude", "Regexp of hwmon chip to exclude (mutually exclusive to device-include).").String()
-	collectorHWmonSensorInclude = kingpin.Flag("collector.hwmon.sensor-include", "Regexp of hwmon sensor to include (mutually exclusive to sensor-exclude).").String()
-	collectorHWmonSensorExclude = kingpin.Flag("collector.hwmon.sensor-exclude", "Regexp of hwmon sensor to exclude (mutually exclusive to sensor-include).").String()
-
 	hwmonFilenameFormat    = regexp.MustCompile(`^(?P<type>[^0-9]+)(?P<id>[0-9]*)?(_(?P<property>.+))?$`)
 	hwmonLabelDesc         = []string{"chip", "sensor"}
 	hwmonChipNameLabelDesc = []string{"chip", "chip_name"}
@@ -55,15 +51,17 @@ type hwMonCollector struct {
 	deviceFilter deviceFilter
 	sensorFilter deviceFilter
 	logger       *slog.Logger
+	paths        pathConfig
 }
 
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
-func NewHwMonCollector(logger *slog.Logger) (Collector, error) {
+func NewHwMonCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &hwMonCollector{
+		paths:        pathConfig(cfg.Path),
 		logger:       logger,
-		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipInclude),
-		sensorFilter: newDeviceFilter(*collectorHWmonSensorExclude, *collectorHWmonSensorInclude),
+		deviceFilter: newDeviceFilter(cfg.Hwmon.ChipExclude, cfg.Hwmon.ChipInclude),
+		sensorFilter: newDeviceFilter(cfg.Hwmon.SensorExclude, cfg.Hwmon.SensorInclude),
 	}, nil
 }
 
@@ -435,7 +433,7 @@ func (c *hwMonCollector) Update(ch chan<- prometheus.Metric) error {
 	// Step 1: scan /sys/class/hwmon, resolve all symlinks and call
 	//         updateHwmon for each folder.
 
-	hwmonPathName := filepath.Join(sysFilePath("class"), "hwmon")
+	hwmonPathName := filepath.Join(c.paths.sysFilePath("class"), "hwmon")
 
 	hwmonFiles, err := os.ReadDir(hwmonPathName)
 	if err != nil {

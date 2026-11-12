@@ -27,6 +27,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -35,8 +37,6 @@ const (
 	// Read sectors and write sectors are the "standard UNIX 512-byte sectors, not any device- or filesystem-specific block size."
 	// See also https://www.kernel.org/doc/Documentation/block/stat.txt
 	unixSectorSize = 512.0
-
-	diskstatsDefaultIgnoredDevices = "^(z?ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p)\\d+$"
 
 	// See udevadm(8).
 	udevDevicePropertyPrefix = "E:"
@@ -88,14 +88,14 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
-func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
+func NewDiskstatsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	diskLabelNames := []string{"device"}
-	fs, err := blockdevice.NewFS(*procPath, *sysPath)
+	fs, err := blockdevice.NewFS(cfg.Path.ProcFS, cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
-	deviceFilter, err := newDiskstatsDeviceFilter(logger)
+	deviceFilter, err := newDiskstatsDeviceFilter(cfg.Diskstats, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}
@@ -261,10 +261,13 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	// Only enable getting device properties from udev if the directory is readable.
-	if stat, err := os.Stat(*udevDataPath); err != nil || !stat.IsDir() {
-		logger.Error("Failed to open directory, disabling udev device properties", "path", *udevDataPath)
+	if stat, err := os.Stat(cfg.Path.UdevData); err != nil || !stat.IsDir() {
+		logger.Error("Failed to open directory, disabling udev device properties", "path", cfg.Path.UdevData)
 	} else {
-		collector.getUdevDeviceProperties = getUdevDeviceProperties
+		paths := pathConfig(cfg.Path)
+		collector.getUdevDeviceProperties = func(major, minor uint32) (udevInfo, error) {
+			return getUdevDeviceProperties(paths, major, minor)
+		}
 	}
 
 	return &collector, nil
@@ -425,8 +428,8 @@ func (c *diskstatsCollector) updateDeviceMapperBackingDevices(ch chan<- promethe
 	}
 }
 
-func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
-	filename := udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
+func getUdevDeviceProperties(paths pathConfig, major, minor uint32) (udevInfo, error) {
+	filename := paths.udevDataFilePath(fmt.Sprintf("b%d:%d", major, minor))
 
 	data, err := os.Open(filename)
 	if err != nil {

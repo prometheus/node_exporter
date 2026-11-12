@@ -24,11 +24,14 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type bondingCollector struct {
 	slaves, active typedDesc
 	logger         *slog.Logger
+	paths          pathConfig
 }
 
 func init() {
@@ -37,8 +40,9 @@ func init() {
 
 // NewBondingCollector returns a newly allocated bondingCollector.
 // It exposes the number of configured and active slave of linux bonding interfaces.
-func NewBondingCollector(logger *slog.Logger) (Collector, error) {
+func NewBondingCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &bondingCollector{
+		paths: pathConfig(cfg.Path),
 		slaves: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "bonding", "slaves"),
 			"Number of configured slaves per bonding interface.",
@@ -55,7 +59,7 @@ func NewBondingCollector(logger *slog.Logger) (Collector, error) {
 
 // Update reads and exposes bonding states, implements Collector interface. Caution: This works only on linux.
 func (c *bondingCollector) Update(ch chan<- prometheus.Metric) error {
-	statusfile := sysFilePath("class/net")
+	statusfile := c.paths.sysFilePath("class/net")
 	bondingStats, err := readBondingStats(statusfile)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

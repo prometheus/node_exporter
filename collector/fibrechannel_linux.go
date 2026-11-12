@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const maxUint64 = ^uint64(0)
@@ -38,11 +40,11 @@ func init() {
 }
 
 // NewFibreChannelCollector returns a new Collector exposing FibreChannel stats.
-func NewFibreChannelCollector(logger *slog.Logger) (Collector, error) {
+func NewFibreChannelCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	var i fibrechannelCollector
 	var err error
 
-	i.fs, err = sysfs.NewFS(*sysPath)
+	i.fs, err = sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

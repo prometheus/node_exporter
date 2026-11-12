@@ -24,6 +24,8 @@ import (
 	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -32,6 +34,7 @@ const (
 
 type fileFDStatCollector struct {
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -39,12 +42,12 @@ func init() {
 }
 
 // NewFileFDStatCollector returns a new Collector exposing file-nr stats.
-func NewFileFDStatCollector(logger *slog.Logger) (Collector, error) {
-	return &fileFDStatCollector{logger}, nil
+func NewFileFDStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	return &fileFDStatCollector{logger: logger, paths: pathConfig(cfg.Path)}, nil
 }
 
 func (c *fileFDStatCollector) Update(ch chan<- prometheus.Metric) error {
-	fileFDStat, err := parseFileFDStats(procFilePath("sys/fs/file-nr"))
+	fileFDStat, err := parseFileFDStats(c.paths.procFilePath("sys/fs/file-nr"))
 	if err != nil {
 		return fmt.Errorf("couldn't get file-nr: %w", err)
 	}

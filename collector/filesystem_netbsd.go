@@ -24,10 +24,8 @@ import (
 )
 
 const (
-	defMountPointsExcluded = "^/(dev)($|/)"
-	defFSTypesExcluded     = "^(kernfs|procfs|ptyfs|fdesc)$"
-	_VFS_NAMELEN           = 32
-	_VFS_MNAMELEN          = 1024
+	_VFS_NAMELEN  = 32
+	_VFS_MNAMELEN = 1024
 )
 
 /*

@@ -33,7 +33,7 @@ import (
 func TestThermalUpdateWithoutCPUPowerStatus(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-	c, err := NewThermCollector(logger)
+	c, err := NewThermCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatalf("failed to create collector: %v", err)
 	}
@@ -56,7 +56,7 @@ func TestThermalUpdateWithoutCPUPowerStatus(t *testing.T) {
 func TestThermalTemperaturesAreUnique(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-	c, err := NewThermCollector(logger)
+	c, err := NewThermCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatalf("failed to create collector: %v", err)
 	}

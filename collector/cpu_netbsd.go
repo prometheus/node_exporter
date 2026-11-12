@@ -29,6 +29,8 @@ import (
 	"golang.org/x/sys/unix"
 
 	"howett.net/plist"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -93,8 +95,8 @@ func ioctl(fd int, nr uint, typ byte, size uintptr, retptr unsafe.Pointer) error
 	return nil
 }
 
-func readSysmonProperties() (sysmonProperties, error) {
-	fd, err := unix.Open(rootfsFilePath("/dev/sysmon"), unix.O_RDONLY, 0)
+func readSysmonProperties(paths pathConfig) (sysmonProperties, error) {
+	fd, err := unix.Open(paths.rootfsFilePath("/dev/sysmon"), unix.O_RDONLY, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -142,11 +144,11 @@ func convertTemperatures(prop sysmonProperty, res map[int]float64) error {
 	return nil
 }
 
-func getCPUTemperatures() (map[int]float64, error) {
+func getCPUTemperatures(paths pathConfig) (map[int]float64, error) {
 	res := make(map[int]float64)
 
 	// Read all properties
-	props, err := readSysmonProperties()
+	props, err := readSysmonProperties(paths)
 	if err != nil {
 		return res, err
 	}
@@ -214,6 +216,7 @@ type statCollector struct {
 	cpu    typedDesc
 	temp   typedDesc
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -221,9 +224,10 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(logger *slog.Logger) (Collector, error) {
+func NewStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &statCollector{
-		cpu: typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
+		paths: pathConfig(cfg.Path),
+		cpu:   typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		temp: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "temperature_celsius"),
 			"CPU temperature",
@@ -252,7 +256,7 @@ func (c *statCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 
-	cpuTemperatures, err := getCPUTemperatures()
+	cpuTemperatures, err := getCPUTemperatures(c.paths)
 	if err != nil {
 		return err
 	}

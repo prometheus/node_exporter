@@ -23,6 +23,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // isPathActive returns true for device states that indicate a healthy,
@@ -82,8 +84,8 @@ type dmMultipathCollector struct {
 
 // NewDMMultipathCollector returns a new Collector exposing Device Mapper
 // multipath device metrics from /sys/block/dm-*.
-func NewDMMultipathCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := blockdevice.NewFS(*procPath, *sysPath)
+func NewDMMultipathCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := blockdevice.NewFS(cfg.Path.ProcFS, cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}

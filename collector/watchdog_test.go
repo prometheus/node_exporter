@@ -65,10 +65,9 @@ func TestWatchdogStats(t *testing.T) {
 	# TYPE node_watchdog_timeout_seconds gauge
 	node_watchdog_timeout_seconds{name="watchdog0"} 60
 	`
-	*sysPath = "fixtures/sys"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewWatchdogCollector(logger)
+	c, err := NewWatchdogCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

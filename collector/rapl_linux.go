@@ -22,9 +22,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const raplCollectorSubsystem = "rapl"
@@ -34,17 +35,16 @@ type raplCollector struct {
 	logger *slog.Logger
 
 	joulesMetricDesc *prometheus.Desc
+	config           config.RAPLConfig
 }
 
 func init() {
 	registerCollector(raplCollectorSubsystem, defaultEnabled, NewRaplCollector)
 }
 
-var raplZoneLabel = kingpin.Flag("collector.rapl.enable-zone-label", "Enables service unit metric unit_start_time_seconds").Bool()
-
 // NewRaplCollector returns a new Collector exposing RAPL metrics.
-func NewRaplCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewRaplCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +56,7 @@ func NewRaplCollector(logger *slog.Logger) (Collector, error) {
 	)
 
 	collector := raplCollector{
+		config:           cfg.RAPL,
 		fs:               fs,
 		logger:           logger,
 		joulesMetricDesc: joulesMetricDesc,
@@ -91,7 +92,7 @@ func (c *raplCollector) Update(ch chan<- prometheus.Metric) error {
 
 		joules := float64(microJoules) / 1000000.0
 
-		if *raplZoneLabel {
+		if c.config.EnableZoneLabel {
 			ch <- c.joulesMetricWithZoneLabel(rz, joules)
 		} else {
 			ch <- c.joulesMetric(rz, joules)

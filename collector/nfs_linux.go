@@ -24,6 +24,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/nfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -46,8 +48,8 @@ func init() {
 }
 
 // NewNfsCollector returns a new Collector exposing NFS statistics.
-func NewNfsCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := nfs.NewFS(*procPath)
+func NewNfsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := nfs.NewFS(cfg.Path.ProcFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open procfs: %w", err)
 	}

@@ -24,14 +24,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/mattn/go-xmlrpc"
 	"github.com/prometheus/client_golang/prometheus"
-)
 
-var (
-	supervisordURL = kingpin.Flag("collector.supervisord.url", "XML RPC endpoint.").Default("http://localhost:9001/RPC2").Envar("SUPERVISORD_URL").String()
-	xrpc           *xmlrpc.Client
+	"github.com/prometheus/node_exporter/config"
 )
 
 type supervisordCollector struct {
@@ -40,6 +36,7 @@ type supervisordCollector struct {
 	exitStatusDesc *prometheus.Desc
 	startTimeDesc  *prometheus.Desc
 	logger         *slog.Logger
+	xrpc           *xmlrpc.Client
 }
 
 func init() {
@@ -47,25 +44,28 @@ func init() {
 }
 
 // NewSupervisordCollector returns a new Collector exposing supervisord statistics.
-func NewSupervisordCollector(logger *slog.Logger) (Collector, error) {
+func NewSupervisordCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	var (
 		subsystem  = "supervisord"
 		labelNames = []string{"name", "group"}
+		xrpc       *xmlrpc.Client
 	)
 
-	if u, err := url.Parse(*supervisordURL); err == nil && u.Scheme == "unix" {
+	// Each collector gets its own transport, so Close does not touch the
+	// connections of other HTTP clients in the process.
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	if u, err := url.Parse(cfg.Supervisord.URL); err == nil && u.Scheme == "unix" {
 		// Fake the URI scheme as http, since net/http.*Transport.roundTrip will complain
 		// about a non-http(s) transport.
 		xrpc = xmlrpc.NewClient("http://unix/RPC2")
-		xrpc.HttpClient.Transport = &http.Transport{
-			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
-				d := net.Dialer{Timeout: 10 * time.Second}
-				return d.DialContext(ctx, "unix", u.Path)
-			},
+		transport.DialContext = func(ctx context.Context, _, _ string) (net.Conn, error) {
+			d := net.Dialer{Timeout: 10 * time.Second}
+			return d.DialContext(ctx, "unix", u.Path)
 		}
 	} else {
-		xrpc = xmlrpc.NewClient(*supervisordURL)
+		xrpc = xmlrpc.NewClient(cfg.Supervisord.URL)
 	}
+	xrpc.HttpClient.Transport = transport
 
 	logger.Warn("This collector is deprecated and will be removed in the next major version release.")
 
@@ -95,6 +95,7 @@ func NewSupervisordCollector(logger *slog.Logger) (Collector, error) {
 			nil,
 		),
 		logger: logger,
+		xrpc:   xrpc,
 	}, nil
 }
 
@@ -117,6 +118,12 @@ func (c *supervisordCollector) isRunning(state int) bool {
 	return false
 }
 
+// Close closes the idle connections to supervisord.
+func (c *supervisordCollector) Close() error {
+	c.xrpc.HttpClient.CloseIdleConnections()
+	return nil
+}
+
 func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 	var info struct {
 		Name          string `xmlrpc:"name"`
@@ -133,7 +140,7 @@ func (c *supervisordCollector) Update(ch chan<- prometheus.Metric) error {
 		PID           int    `xmlrpc:"pid"`
 	}
 
-	res, err := xrpc.Call("supervisor.getAllProcessInfo")
+	res, err := c.xrpc.Call("supervisor.getAllProcessInfo")
 	if err != nil {
 		return fmt.Errorf("unable to call supervisord: %w", err)
 	}

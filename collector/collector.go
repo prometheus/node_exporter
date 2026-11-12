@@ -17,12 +17,15 @@ package collector
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
+	"maps"
 	"sync"
 	"time"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // Namespace defines the common namespace to be used by all metrics.
@@ -49,29 +52,30 @@ const (
 )
 
 var (
-	factories              = make(map[string]func(logger *slog.Logger) (Collector, error))
-	initiatedCollectorsMtx = sync.Mutex{}
-	initiatedCollectors    = make(map[string]Collector)
-	collectorState         = make(map[string]*bool)
-	forcedCollectors       = map[string]bool{} // collectors which have been explicitly enabled or disabled
+	factories    = make(map[string]func(cfg config.Config, logger *slog.Logger) (Collector, error))
+	defaultState = make(map[string]bool)
 )
 
-func registerCollector(collector string, isDefaultEnabled bool, factory func(logger *slog.Logger) (Collector, error)) {
-	var helpDefaultState string
-	if isDefaultEnabled {
-		helpDefaultState = "enabled"
-	} else {
-		helpDefaultState = "disabled"
-	}
+type collectorRuntimeState struct {
+	config     config.Config
+	enabled    map[string]bool
+	collectors map[string]Collector
+	mtx        sync.Mutex
+}
 
-	flagName := fmt.Sprintf("collector.%s", collector)
-	flagHelp := fmt.Sprintf("Enable the %s collector (default: %s).", collector, helpDefaultState)
-	defaultValue := fmt.Sprintf("%v", isDefaultEnabled)
+type runtimeConfiguredCollector interface {
+	configureRuntimeState(*collectorRuntimeState)
+}
 
-	flag := kingpin.Flag(flagName, flagHelp).Default(defaultValue).Action(collectorFlagAction(collector)).Bool()
-	collectorState[collector] = flag
-
+func registerCollector(collector string, isDefaultEnabled bool, factory func(cfg config.Config, logger *slog.Logger) (Collector, error)) {
+	defaultState[collector] = isDefaultEnabled
 	factories[collector] = factory
+}
+
+// AvailableCollectors returns the name of every collector in this build and
+// whether it is enabled by default.
+func AvailableCollectors() map[string]bool {
+	return maps.Clone(defaultState)
 }
 
 // NodeCollector implements the prometheus.Collector interface.
@@ -80,60 +84,87 @@ type NodeCollector struct {
 	logger     *slog.Logger
 }
 
-// DisableDefaultCollectors sets the collector state to false for all collectors which
-// have not been explicitly enabled on the command line.
-func DisableDefaultCollectors() {
-	for c := range collectorState {
-		if _, ok := forcedCollectors[c]; !ok {
-			*collectorState[c] = false
+func newCollectorRuntimeState(cfg config.Config) (*collectorRuntimeState, error) {
+	for collector := range cfg.Collectors {
+		if _, ok := defaultState[collector]; !ok {
+			return nil, fmt.Errorf("unknown collector: %s", collector)
 		}
 	}
-}
 
-// collectorFlagAction generates a new action function for the given collector
-// to track whether it has been explicitly enabled or disabled from the command line.
-// A new action function is needed for each collector flag because the ParseContext
-// does not contain information about which flag called the action.
-// See: https://github.com/alecthomas/kingpin/issues/294
-func collectorFlagAction(collector string) func(ctx *kingpin.ParseContext) error {
-	return func(_ *kingpin.ParseContext) error {
-		forcedCollectors[collector] = true
-		return nil
+	enabled := make(map[string]bool, len(defaultState))
+	for collector, isDefaultEnabled := range defaultState {
+		override, overridden := cfg.Collectors[collector]
+		switch {
+		case overridden:
+			enabled[collector] = override
+		case cfg.CollectorDisableDefaults:
+			enabled[collector] = false
+		default:
+			enabled[collector] = isDefaultEnabled
+		}
 	}
+
+	return &collectorRuntimeState{
+		config:     cfg,
+		enabled:    enabled,
+		collectors: make(map[string]Collector),
+	}, nil
 }
 
 // NewNodeCollector creates a new NodeCollector.
-func NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
+// close closes every collector that holds resources and implements io.Closer.
+func (s *collectorRuntimeState) close() error {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
+	var errs []error
+	for name, c := range s.collectors {
+		if closer, ok := c.(io.Closer); ok {
+			if err := closer.Close(); err != nil {
+				errs = append(errs, fmt.Errorf("close %s collector: %w", name, err))
+			}
+		}
+	}
+	return errors.Join(errs...)
+}
+
+func (s *collectorRuntimeState) NewNodeCollector(logger *slog.Logger, filters ...string) (*NodeCollector, error) {
+	s.mtx.Lock()
+	defer s.mtx.Unlock()
 	f := make(map[string]bool)
 	for _, filter := range filters {
-		enabled, exist := collectorState[filter]
+		enabled, exist := s.enabled[filter]
 		if !exist {
 			return nil, fmt.Errorf("missing collector: %s", filter)
 		}
-		if !*enabled {
+		if !enabled {
 			return nil, fmt.Errorf("disabled collector: %s", filter)
 		}
 		f[filter] = true
 	}
 	collectors := make(map[string]Collector)
-	initiatedCollectorsMtx.Lock()
-	defer initiatedCollectorsMtx.Unlock()
-	for key, enabled := range collectorState {
-		if !*enabled || (len(f) > 0 && !f[key]) {
+	for key, enabled := range s.enabled {
+		if !enabled || (len(f) > 0 && !f[key]) {
 			continue
 		}
-		if collector, ok := initiatedCollectors[key]; ok {
+		if collector, ok := s.collectors[key]; ok {
 			collectors[key] = collector
 		} else {
-			collector, err := factories[key](logger.With("collector", key))
+			collector, err := factories[key](s.config, logger.With("collector", key))
 			if err != nil {
 				return nil, err
 			}
+			s.configureCollector(collector)
 			collectors[key] = collector
-			initiatedCollectors[key] = collector
+			s.collectors[key] = collector
 		}
 	}
 	return &NodeCollector{Collectors: collectors, logger: logger}, nil
+}
+
+func (s *collectorRuntimeState) configureCollector(collector Collector) {
+	if configuredCollector, ok := collector.(runtimeConfiguredCollector); ok {
+		configuredCollector.configureRuntimeState(s)
+	}
 }
 
 // Describe implements the prometheus.Collector interface.

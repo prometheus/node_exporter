@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcachefs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const subsystem = "bcachefs"
@@ -115,16 +117,18 @@ func init() {
 type bcachefsCollector struct {
 	fs     bcachefs.FS
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 // NewBcachefsCollector returns a new Collector exposing bcachefs statistics.
-func NewBcachefsCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := bcachefs.NewFS(*sysPath)
+func NewBcachefsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := bcachefs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &bcachefsCollector{
+		paths:  pathConfig(cfg.Path),
 		fs:     fs,
 		logger: logger,
 	}, nil
@@ -135,7 +139,7 @@ func (c *bcachefsCollector) Update(ch chan<- prometheus.Metric) error {
 	stats, err := c.fs.Stats()
 	if err != nil {
 		if os.IsNotExist(err) {
-			c.logger.Debug("bcachefs sysfs path does not exist", "path", sysFilePath("fs/bcachefs"))
+			c.logger.Debug("bcachefs sysfs path does not exist", "path", c.paths.sysFilePath("fs/bcachefs"))
 			return ErrNoData
 		}
 		return fmt.Errorf("failed to retrieve bcachefs stats: %w", err)

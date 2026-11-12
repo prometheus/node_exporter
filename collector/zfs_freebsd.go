@@ -19,6 +19,8 @@ import (
 	"log/slog"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type zfsCollector struct {
@@ -30,7 +32,7 @@ const (
 	zfsCollectorSubsystem = "zfs"
 )
 
-func NewZFSCollector(logger *slog.Logger) (Collector, error) {
+func NewZFSCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &zfsCollector{
 		sysctls: []bsdSysctl{
 			{

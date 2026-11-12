@@ -25,10 +25,13 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type mdadmCollector struct {
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -36,8 +39,8 @@ func init() {
 }
 
 // NewMdadmCollector returns a new Collector exposing raid statistics.
-func NewMdadmCollector(logger *slog.Logger) (Collector, error) {
-	return &mdadmCollector{logger}, nil
+func NewMdadmCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	return &mdadmCollector{logger: logger, paths: pathConfig(cfg.Path)}, nil
 }
 
 var (
@@ -116,7 +119,7 @@ var (
 )
 
 func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
-	procFS, err := procfs.NewFS(*procPath)
+	procFS, err := procfs.NewFS(c.paths.ProcFS)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}
@@ -124,7 +127,7 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 	mdStats, err := procFS.MDStat()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			c.logger.Debug("Not collecting mdstat, file does not exist", "file", *procPath)
+			c.logger.Debug("Not collecting mdstat, file does not exist", "file", c.paths.ProcFS)
 			return ErrNoData
 		}
 
@@ -214,14 +217,14 @@ func (c *mdadmCollector) Update(ch chan<- prometheus.Metric) error {
 		)
 	}
 
-	sysFS, err := sysfs.NewFS(*sysPath)
+	sysFS, err := sysfs.NewFS(c.paths.SysFS)
 	if err != nil {
 		return fmt.Errorf("failed to open sysfs: %w", err)
 	}
 	mdraids, err := sysFS.Mdraids()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			c.logger.Debug("Not collecting mdraids, file does not exist", "file", *sysPath)
+			c.logger.Debug("Not collecting mdraids, file does not exist", "file", c.paths.SysFS)
 			return ErrNoData
 		}
 

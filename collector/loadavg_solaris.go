@@ -40,7 +40,7 @@ func kstatToFloat(ks *kstat.KStat, kstatKey string) float64 {
 	return kstatLoadavg
 }
 
-func getLoad() ([]float64, error) {
+func getLoad(_ pathConfig) ([]float64, error) {
 	tok, err := kstat.Open()
 	if err != nil {
 		panic(err)

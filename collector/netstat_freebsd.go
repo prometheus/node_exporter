@@ -24,6 +24,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sys/unix"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 /*
@@ -282,7 +284,7 @@ func init() {
 	registerCollector("netstat", defaultEnabled, NewNetStatCollector)
 }
 
-func NewNetStatCollector(logger *slog.Logger) (Collector, error) {
+func NewNetStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &netStatCollector{}, nil
 }
 

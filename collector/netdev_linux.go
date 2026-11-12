@@ -19,22 +19,18 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/prometheus/procfs"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
-var (
-	netDevNetlink      = kingpin.Flag("collector.netdev.netlink", "Use netlink to gather stats instead of /proc/net/dev.").Default("true").Bool()
-	netdevLabelIfAlias = kingpin.Flag("collector.netdev.label-ifalias", "Add ifAlias label").Default("false").Bool()
-)
-
-func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
-	if *netDevNetlink {
+func getNetDevStats(cfg config.NetDevConfig, paths pathConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
+	if cfg.Netlink {
 		return netlinkStats(filter, logger)
 	}
-	return procNetDevStats(filter, logger)
+	return procNetDevStats(paths, filter, logger)
 }
 
 func netlinkStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
@@ -141,10 +137,10 @@ func parseNetlinkStats(links []rtnetlink.LinkMessage, filter *deviceFilter, logg
 	return metrics
 }
 
-func procNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
+func procNetDevStats(paths pathConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	metrics := netDevStats{}
 
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(paths.ProcFS)
 	if err != nil {
 		return metrics, fmt.Errorf("failed to open procfs: %w", err)
 	}
@@ -185,12 +181,12 @@ func procNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, er
 	return metrics, nil
 }
 
-func getNetDevLabels() (map[string]map[string]string, error) {
-	if !*netdevLabelIfAlias {
+func getNetDevLabels(cfg config.NetDevConfig, paths pathConfig) (map[string]map[string]string, error) {
+	if !cfg.LabelIfAlias {
 		return nil, nil
 	}
 
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(paths.SysFS)
 	if err != nil {
 		return nil, err
 	}

@@ -21,6 +21,8 @@ import (
 
 	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // #include <unistd.h>
@@ -35,7 +37,7 @@ func init() {
 	registerCollector("cpu", defaultEnabled, NewCpuCollector)
 }
 
-func NewCpuCollector(logger *slog.Logger) (Collector, error) {
+func NewCpuCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &cpuCollector{
 		cpu:    typedDesc{nodeCPUSecondsDesc, prometheus.CounterValue},
 		logger: logger,

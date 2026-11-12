@@ -22,6 +22,8 @@ import (
 
 	"github.com/illumos/go-kstat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // #include <unistd.h>
@@ -36,9 +38,9 @@ func init() {
 	registerCollector("cpufreq", defaultEnabled, NewCpuFreqCollector)
 }
 
-func NewCpuFreqCollector(logger *slog.Logger) (Collector, error) {
+func NewCpuFreqCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &cpuFreqCollector{
-		descs:  newCPUFreqDescs(),
+		descs:  newCPUFreqDescs(cfg.CPUFreq.EnablePrefix),
 		logger: logger,
 	}, nil
 }

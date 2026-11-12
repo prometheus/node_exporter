@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const ksmdCollectorSubsystem = "ksmd"
@@ -95,6 +97,7 @@ var (
 
 type ksmdCollector struct {
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -102,14 +105,14 @@ func init() {
 }
 
 // NewKsmdCollector returns a new Collector exposing kernel/system statistics.
-func NewKsmdCollector(logger *slog.Logger) (Collector, error) {
-	return &ksmdCollector{logger: logger}, nil
+func NewKsmdCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	return &ksmdCollector{paths: pathConfig(cfg.Path), logger: logger}, nil
 }
 
 // Update implements Collector and exposes kernel and system statistics.
 func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
-		val, err := readUintFromFile(sysFilePath(filepath.Join("kernel/mm/ksm", n)))
+		val, err := readUintFromFile(c.paths.sysFilePath(filepath.Join("kernel/mm/ksm", n)))
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				c.logger.Debug("ksmd file not found, skipping", "file", n)

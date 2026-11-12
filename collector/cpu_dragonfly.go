@@ -22,6 +22,8 @@ import (
 	"unsafe"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 /*
@@ -85,7 +87,7 @@ func init() {
 }
 
 // NewStatCollector returns a new Collector exposing CPU stats.
-func NewStatCollector(logger *slog.Logger) (Collector, error) {
+func NewStatCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	return &statCollector{
 		cpu:    nodeCPUSecondsDesc,
 		logger: logger,

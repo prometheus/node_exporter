@@ -25,6 +25,8 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 // Numerical metric provided by /proc/drbd.
@@ -78,14 +80,16 @@ type drbdCollector struct {
 	stringPair map[string]drbdStringPairMetric
 	connected  *prometheus.Desc
 	logger     *slog.Logger
+	paths      pathConfig
 }
 
 func init() {
 	registerCollector("drbd", defaultDisabled, newDRBDCollector)
 }
 
-func newDRBDCollector(logger *slog.Logger) (Collector, error) {
+func newDRBDCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &drbdCollector{
+		paths: pathConfig(cfg.Path),
 		numerical: map[string]drbdNumericalMetric{
 			"ns": newDRBDNumericalMetric(
 				"network_sent_bytes_total",
@@ -185,7 +189,7 @@ func newDRBDCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func (c *drbdCollector) Update(ch chan<- prometheus.Metric) error {
-	statsFile := procFilePath("drbd")
+	statsFile := c.paths.procFilePath("drbd")
 	file, err := os.Open(statsFile)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

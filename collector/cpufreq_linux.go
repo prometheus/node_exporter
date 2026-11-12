@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type cpuFreqCollector struct {
@@ -35,15 +37,15 @@ func init() {
 }
 
 // NewCPUFreqCollector returns a new Collector exposing kernel/system statistics.
-func NewCPUFreqCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := sysfs.NewFS(*sysPath)
+func NewCPUFreqCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := sysfs.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &cpuFreqCollector{
 		fs:     fs,
-		descs:  newCPUFreqDescs(),
+		descs:  newCPUFreqDescs(cfg.CPUFreq.EnablePrefix),
 		logger: logger,
 	}, nil
 }

@@ -36,7 +36,7 @@ func TestCPUTimes(t *testing.T) {
 }
 
 func TestCPUTemperatures(t *testing.T) {
-	_, err := getCPUTemperatures()
+	_, err := getCPUTemperatures(pathConfig{RootFS: "/"})
 	if err != nil {
 		t.Fatalf("getCPUTemperatures returned error: %v", err)
 	}

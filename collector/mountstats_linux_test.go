@@ -38,7 +38,7 @@ func (c testMountStatsCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func NewTestMountStatsCollector(logger *slog.Logger) (prometheus.Collector, error) {
-	c, err := NewMountStatsCollector(logger)
+	c, err := NewMountStatsCollector(fixtureConfig(), logger)
 	if err != nil {
 		return testMountStatsCollector{}, err
 	}
@@ -46,8 +46,6 @@ func NewTestMountStatsCollector(logger *slog.Logger) (prometheus.Collector, erro
 }
 
 func TestMountStatsMountPointInfo(t *testing.T) {
-	*procPath = "fixtures/proc"
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	c, err := NewTestMountStatsCollector(logger)
 	if err != nil {

@@ -29,9 +29,7 @@ import (
 import "C"
 
 const (
-	defMountPointsExcluded = "^/(dev)($|/)"
-	defFSTypesExcluded     = "^devfs$"
-	readOnly               = 0x1 // MNT_RDONLY
+	readOnly = 0x1 // MNT_RDONLY
 )
 
 // Expose filesystem fullness.
@@ -66,7 +64,7 @@ func (c *filesystemCollector) GetStats() (stats []filesystemStats, err error) {
 		stats = append(stats, filesystemStats{
 			labels: filesystemLabels{
 				device:     device,
-				mountPoint: rootfsStripPrefix(mountpoint),
+				mountPoint: c.paths.rootfsStripPrefix(mountpoint),
 				fsType:     fstype,
 			},
 			size:      float64(mnt[i].f_blocks) * float64(mnt[i].f_bsize),

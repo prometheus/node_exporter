@@ -22,20 +22,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/jsimonetti/rtnetlink/v2"
 	"github.com/mdlayher/ethtool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
 )
 
-var (
-	netclassRTNLWithStats = kingpin.Flag("collector.netclass_rtnl.with-stats", "Expose the statistics for each network device, replacing netdev collector.").Bool()
-	operstateStr          = []string{
-		"unknown", "notpresent", "down", "lowerlayerdown", "testing",
-		"dormant", "up",
-	}
-)
+var operstateStr = []string{
+	"unknown", "notpresent", "down", "lowerlayerdown", "testing",
+	"dormant", "up",
+}
 
 func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) error {
 	linkModes := make(map[string]*ethtool.LinkMode)
@@ -155,7 +151,7 @@ func (c *netClassCollector) netClassRTNLUpdate(ch chan<- prometheus.Metric) erro
 		pushMetric(ch, c.getFieldDesc("protocol_type"), msg.Type, prometheus.GaugeValue, msg.Attributes.Name)
 
 		// Skip statistics if argument collector.netclass_rtnl.with-stats is false or statistics are unavailable.
-		if netclassRTNLWithStats == nil || !*netclassRTNLWithStats || msg.Attributes.Stats64 == nil {
+		if !c.config.RTNLWithStats || msg.Attributes.Stats64 == nil {
 			continue
 		}
 

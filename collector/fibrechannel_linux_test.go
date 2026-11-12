@@ -31,13 +31,7 @@ func TestFibreChannelCollector(t *testing.T) {
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 
-	// Override sysPath to point to our fixtures
-	testSysPath := "fixtures/sys"
-	oldSysPath := *sysPath
-	*sysPath = testSysPath
-	defer func() { *sysPath = oldSysPath }()
-
-	collector, err := NewFibreChannelCollector(logger)
+	collector, err := NewFibreChannelCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

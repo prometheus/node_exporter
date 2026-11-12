@@ -22,18 +22,21 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type lnstatCollector struct {
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
 	registerCollector("lnstat", defaultDisabled, NewLnstatCollector)
 }
 
-func NewLnstatCollector(logger *slog.Logger) (Collector, error) {
-	return &lnstatCollector{logger}, nil
+func NewLnstatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	return &lnstatCollector{logger: logger, paths: pathConfig(cfg.Path)}, nil
 }
 
 func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
@@ -41,7 +44,7 @@ func (c *lnstatCollector) Update(ch chan<- prometheus.Metric) error {
 		subsystem = "lnstat"
 	)
 
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(c.paths.ProcFS)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}

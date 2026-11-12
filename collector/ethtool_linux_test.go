@@ -258,7 +258,7 @@ func (e *EthtoolFixture) LinkInfo(intf string) (ethtool.EthtoolCmd, error) {
 }
 
 func NewEthtoolTestCollector(logger *slog.Logger) (Collector, error) {
-	collector, err := makeEthtoolCollector(logger)
+	collector, err := makeEthtoolCollector(fixtureConfig(), logger)
 	if err != nil {
 		return nil, err
 	}
@@ -374,7 +374,6 @@ node_network_supported_speed_bytes{device="eth0",duplex="full",mode="10baseT"} 1
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="100baseT"} 1.25e+07
 node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1.25e+06
 `
-	*sysPath = "fixtures/sys"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	collector, err := NewEthtoolTestCollector(logger)
@@ -400,5 +399,41 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestEthtoolRuntimeShutdownClosesSocket(t *testing.T) {
+	// Count sockets only, so files that the GC closes during the test do
+	// not change the count.
+	openFDs := func() int {
+		fds, err := os.ReadDir("/proc/self/fd")
+		if err != nil {
+			t.Skipf("cannot count file descriptors: %v", err)
+		}
+		n := 0
+		for _, fd := range fds {
+			if target, _ := os.Readlink("/proc/self/fd/" + fd.Name()); strings.HasPrefix(target, "socket:") {
+				n++
+			}
+		}
+		return n
+	}
+	cfg := fixtureConfig()
+	cfg.CollectorDisableDefaults = true
+	cfg.Collectors = map[string]bool{"ethtool": true}
+
+	before := openFDs()
+	r, err := NewRuntime(cfg, slog.New(slog.DiscardHandler))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if opened := openFDs(); opened <= before {
+		t.Fatalf("want the ethtool socket open, got %d sockets before and %d after NewRuntime", before, opened)
+	}
+	if err := r.Shutdown(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	if after := openFDs(); after != before {
+		t.Fatalf("want %d sockets after Shutdown, got %d", before, after)
 	}
 }

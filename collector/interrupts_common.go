@@ -18,8 +18,9 @@ package collector
 import (
 	"log/slog"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type interruptsCollector struct {
@@ -27,28 +28,24 @@ type interruptsCollector struct {
 	logger       *slog.Logger
 	nameFilter   deviceFilter
 	includeZeros bool
+	paths        pathConfig
 }
 
 func init() {
 	registerCollector("interrupts", defaultDisabled, NewInterruptsCollector)
 }
 
-var (
-	interruptsInclude      = kingpin.Flag("collector.interrupts.name-include", "Regexp of interrupts name to include (mutually exclusive to --collector.interrupts.name-exclude).").String()
-	interruptsExclude      = kingpin.Flag("collector.interrupts.name-exclude", "Regexp of interrupts name to exclude (mutually exclusive to --collector.interrupts.name-include).").String()
-	interruptsIncludeZeros = kingpin.Flag("collector.interrupts.include-zeros", "Include interrupts that have a zero value").Default("true").Bool()
-)
-
 // NewInterruptsCollector returns a new Collector exposing interrupts stats.
-func NewInterruptsCollector(logger *slog.Logger) (Collector, error) {
+func NewInterruptsCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &interruptsCollector{
+		paths: pathConfig(cfg.Path),
 		desc: typedDesc{prometheus.NewDesc(
 			namespace+"_interrupts_total",
 			"Interrupt details.",
 			interruptLabelNames, nil,
 		), prometheus.CounterValue},
 		logger:       logger,
-		nameFilter:   newDeviceFilter(*interruptsExclude, *interruptsInclude),
-		includeZeros: *interruptsIncludeZeros,
+		nameFilter:   newDeviceFilter(cfg.Interrupts.NameExclude, cfg.Interrupts.NameInclude),
+		includeZeros: cfg.Interrupts.IncludeZeros,
 	}, nil
 }

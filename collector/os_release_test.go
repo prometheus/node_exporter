@@ -19,7 +19,10 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const debianBullseye string = `PRETTY_NAME="Debian GNU/Linux 11 (bullseye)"
@@ -129,7 +132,7 @@ func TestUpdateStruct(t *testing.T) {
 	}
 	wantedVersion := 20.04
 
-	collector, err := NewOSCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
+	collector, err := NewOSCollector(fixtureConfig(), slog.New(slog.NewTextHandler(io.Discard, nil)))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -146,4 +149,26 @@ func TestUpdateStruct(t *testing.T) {
 	if wantedVersion != c.version {
 		t.Errorf("Expected '%v' but got '%v'", wantedVersion, c.version)
 	}
+}
+
+// TestOSReleaseConcurrentUpdate fails under -race when Update reads the
+// cached os-release data while another Update rewrites it.
+func TestOSReleaseConcurrentUpdate(t *testing.T) {
+	cfg := fixtureConfig()
+	cfg.Path.RootFS = "fixtures"
+	c, err := NewOSCollector(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var wg sync.WaitGroup
+	for range 4 {
+		wg.Go(func() {
+			ch := make(chan prometheus.Metric, 8)
+			if err := c.Update(ch); err != nil {
+				t.Error(err)
+			}
+		})
+	}
+	wg.Wait()
 }

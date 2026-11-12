@@ -104,7 +104,7 @@ func TestSystemdIgnoreFilter(t *testing.T) {
 
 func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewSystemdCollector(logger)
+	c, err := NewSystemdCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

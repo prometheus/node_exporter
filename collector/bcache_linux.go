@@ -19,12 +19,11 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/bcache"
-)
 
-var priorityStats = kingpin.Flag("collector.bcache.priorityStats", "Expose expensive priority stats.").Bool()
+	"github.com/prometheus/node_exporter/config"
+)
 
 func init() {
 	registerCollector("bcache", defaultEnabled, NewBcacheCollector)
@@ -34,17 +33,19 @@ func init() {
 type bcacheCollector struct {
 	fs     bcache.FS
 	logger *slog.Logger
+	config config.BcacheConfig
 }
 
 // NewBcacheCollector returns a newly allocated bcacheCollector.
 // It exposes a number of Linux bcache statistics.
-func NewBcacheCollector(logger *slog.Logger) (Collector, error) {
-	fs, err := bcache.NewFS(*sysPath)
+func NewBcacheCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	fs, err := bcache.NewFS(cfg.Path.SysFS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
 	}
 
 	return &bcacheCollector{
+		config: cfg.Bcache,
 		fs:     fs,
 		logger: logger,
 	}, nil
@@ -55,7 +56,7 @@ func NewBcacheCollector(logger *slog.Logger) (Collector, error) {
 func (c *bcacheCollector) Update(ch chan<- prometheus.Metric) error {
 	var stats []*bcache.Stats
 	var err error
-	if *priorityStats {
+	if c.config.PriorityStats {
 		stats, err = c.fs.Stats()
 	} else {
 		stats, err = c.fs.StatsWithoutPriority()
@@ -313,7 +314,7 @@ func (c *bcacheCollector) updateBcacheStats(ch chan<- prometheus.Metric, s *bcac
 				extraLabelValue: cache.Name,
 			},
 		}
-		if *priorityStats {
+		if c.config.PriorityStats {
 			// metrics in /sys/fs/bcache/<uuid>/<cache>/priority_stats
 			priorityStatsMetrics := []bcacheMetric{
 				{

@@ -24,10 +24,8 @@ import (
 )
 
 func TestTaintedCollector(t *testing.T) {
-	*procPath = "fixtures/proc"
-
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewTaintedCollector(logger)
+	c, err := NewTaintedCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatalf("failed to create tainted collector: %v", err)
 	}

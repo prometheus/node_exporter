@@ -124,10 +124,9 @@ func TestXfrmStats(t *testing.T) {
 	# TYPE node_xfrm_out_state_seq_error_packets_total counter
 	node_xfrm_out_state_seq_error_packets_total 543
 	`
-	*procPath = "fixtures/proc"
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	c, err := NewXfrmCollector(logger)
+	c, err := NewXfrmCollector(fixtureConfig(), logger)
 	if err != nil {
 		t.Fatal(err)
 	}

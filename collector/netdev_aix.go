@@ -19,9 +19,11 @@ import (
 	"log/slog"
 
 	"github.com/power-devops/perfstat"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
-func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
+func getNetDevStats(_ config.NetDevConfig, _ pathConfig, filter *deviceFilter, logger *slog.Logger) (netDevStats, error) {
 	netDev := netDevStats{}
 
 	stats, err := perfstat.NetAdapterStat()
@@ -51,7 +53,7 @@ func getNetDevStats(filter *deviceFilter, logger *slog.Logger) (netDevStats, err
 	return netDev, nil
 }
 
-func getNetDevLabels() (map[string]map[string]string, error) {
+func getNetDevLabels(_ config.NetDevConfig, _ pathConfig) (map[string]map[string]string, error) {
 	// to be implemented if needed
 	return nil, nil
 }

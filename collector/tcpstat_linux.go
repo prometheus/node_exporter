@@ -24,6 +24,8 @@ import (
 
 	"github.com/mdlayher/netlink"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type tcpConnectionState int
@@ -60,6 +62,7 @@ const (
 type tcpStatCollector struct {
 	desc   typedDesc
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -67,8 +70,9 @@ func init() {
 }
 
 // NewTCPStatCollector returns a new Collector exposing network stats.
-func NewTCPStatCollector(logger *slog.Logger) (Collector, error) {
+func NewTCPStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &tcpStatCollector{
+		paths: pathConfig(cfg.Path),
 		desc: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "tcp", "connection_states"),
 			"Number of connection states.",
@@ -134,7 +138,7 @@ func (c *tcpStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	// if enabled ipv6 system
-	if _, hasIPv6 := os.Stat(procFilePath("net/tcp6")); hasIPv6 == nil {
+	if _, hasIPv6 := os.Stat(c.paths.procFilePath("net/tcp6")); hasIPv6 == nil {
 		tcp6Stats, err := getTCPStats(syscall.AF_INET6)
 		if err != nil {
 			return fmt.Errorf("couldn't get tcp6stats: %w", err)

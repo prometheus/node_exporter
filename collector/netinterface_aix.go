@@ -20,6 +20,8 @@ import (
 
 	"github.com/power-devops/perfstat"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 type netinterfaceCollector struct {
@@ -39,7 +41,7 @@ func init() {
 	registerCollector("netinterface", defaultEnabled, NewNetinterfaceCollector)
 }
 
-func NewNetinterfaceCollector(logger *slog.Logger) (Collector, error) {
+func NewNetinterfaceCollector(_ config.Config, logger *slog.Logger) (Collector, error) {
 	labels := []string{"interface"}
 	return &netinterfaceCollector{
 		logger: logger,

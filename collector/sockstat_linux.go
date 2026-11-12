@@ -23,6 +23,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -34,6 +36,7 @@ var pageSize = os.Getpagesize()
 
 type sockStatCollector struct {
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -41,12 +44,12 @@ func init() {
 }
 
 // NewSockStatCollector returns a new Collector exposing socket stats.
-func NewSockStatCollector(logger *slog.Logger) (Collector, error) {
-	return &sockStatCollector{logger}, nil
+func NewSockStatCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
+	return &sockStatCollector{logger: logger, paths: pathConfig(cfg.Path)}, nil
 }
 
 func (c *sockStatCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := procfs.NewFS(*procPath)
+	fs, err := procfs.NewFS(c.paths.ProcFS)
 	if err != nil {
 		return fmt.Errorf("failed to open procfs: %w", err)
 	}

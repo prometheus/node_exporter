@@ -24,6 +24,8 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -38,6 +40,7 @@ var (
 
 type edacCollector struct {
 	logger *slog.Logger
+	paths  pathConfig
 }
 
 func init() {
@@ -78,8 +81,9 @@ var (
 )
 
 // NewEdacCollector returns a new Collector exposing edac stats.
-func NewEdacCollector(logger *slog.Logger) (Collector, error) {
+func NewEdacCollector(cfg config.Config, logger *slog.Logger) (Collector, error) {
 	return &edacCollector{
+		paths:  pathConfig(cfg.Path),
 		logger: logger,
 	}, nil
 }
@@ -98,7 +102,7 @@ func edacDimmLabel(csrow, channel string) string {
 }
 
 func (c *edacCollector) Update(ch chan<- prometheus.Metric) error {
-	memControllers, err := filepath.Glob(sysFilePath("devices/system/edac/mc/mc[0-9]*"))
+	memControllers, err := filepath.Glob(c.paths.sysFilePath("devices/system/edac/mc/mc[0-9]*"))
 	if err != nil {
 		return err
 	}

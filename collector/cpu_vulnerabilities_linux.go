@@ -19,6 +19,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/sysfs"
+
+	"github.com/prometheus/node_exporter/config"
 )
 
 const (
@@ -32,18 +34,20 @@ var vulnerabilityDesc = prometheus.NewDesc(
 	nil,
 )
 
-type cpuVulnerabilitiesCollector struct{}
+type cpuVulnerabilitiesCollector struct {
+	paths pathConfig
+}
 
 func init() {
 	registerCollector(cpuVulnerabilitiesCollectorSubsystem, defaultDisabled, NewVulnerabilitySysfsCollector)
 }
 
-func NewVulnerabilitySysfsCollector(_ *slog.Logger) (Collector, error) {
-	return &cpuVulnerabilitiesCollector{}, nil
+func NewVulnerabilitySysfsCollector(cfg config.Config, _ *slog.Logger) (Collector, error) {
+	return &cpuVulnerabilitiesCollector{paths: pathConfig(cfg.Path)}, nil
 }
 
 func (v *cpuVulnerabilitiesCollector) Update(ch chan<- prometheus.Metric) error {
-	fs, err := sysfs.NewFS(*sysPath)
+	fs, err := sysfs.NewFS(v.paths.SysFS)
 	if err != nil {
 		return fmt.Errorf("failed to open sysfs: %w", err)
 	}
