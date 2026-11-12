@@ -84,6 +84,15 @@ func NewDevstatCollector(_ config.Config, logger *slog.Logger) (Collector, error
 	}, nil
 }
 
+// Close frees the device list that devstat_getdevs allocates in devinfo.
+func (c *devstatCollector) Close() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	C.free(unsafe.Pointer(c.devinfo.mem_ptr))
+	*c.devinfo = C.struct_devinfo{}
+	return nil
+}
+
 func (c *devstatCollector) Update(ch chan<- prometheus.Metric) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()

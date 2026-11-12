@@ -265,6 +265,17 @@ func newPerfTracepointCollector(
 	}
 
 	profilers := make(map[int]perf.GroupProfiler, len(cpus))
+	// The process can outlive a failed collector when node_exporter is
+	// embedded, so close the profilers that were already opened.
+	started := false
+	defer func() {
+		if !started {
+			for _, p := range profilers {
+				_ = p.Stop()
+				_ = p.Close()
+			}
+		}
+	}()
 	for _, cpu := range cpus {
 		profiler, err := perf.NewGroupProfiler(-1, cpu, 0, eventAttrs...)
 		if err != nil {
@@ -285,6 +296,7 @@ func newPerfTracepointCollector(
 			return nil, err
 		}
 	}
+	started = true
 	return c, nil
 }
 

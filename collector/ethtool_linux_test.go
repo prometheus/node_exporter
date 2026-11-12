@@ -403,12 +403,20 @@ node_network_supported_speed_bytes{device="eth0",duplex="half",mode="10baseT"} 1
 }
 
 func TestEthtoolRuntimeShutdownClosesSocket(t *testing.T) {
+	// Count sockets only, so files that the GC closes during the test do
+	// not change the count.
 	openFDs := func() int {
 		fds, err := os.ReadDir("/proc/self/fd")
 		if err != nil {
 			t.Skipf("cannot count file descriptors: %v", err)
 		}
-		return len(fds)
+		n := 0
+		for _, fd := range fds {
+			if target, _ := os.Readlink("/proc/self/fd/" + fd.Name()); strings.HasPrefix(target, "socket:") {
+				n++
+			}
+		}
+		return n
 	}
 	cfg := fixtureConfig()
 	cfg.CollectorDisableDefaults = true
@@ -420,12 +428,12 @@ func TestEthtoolRuntimeShutdownClosesSocket(t *testing.T) {
 		t.Fatal(err)
 	}
 	if opened := openFDs(); opened <= before {
-		t.Fatalf("want the ethtool socket open, got %d file descriptors before and %d after NewRuntime", before, opened)
+		t.Fatalf("want the ethtool socket open, got %d sockets before and %d after NewRuntime", before, opened)
 	}
 	if err := r.Shutdown(t.Context()); err != nil {
 		t.Fatal(err)
 	}
 	if after := openFDs(); after != before {
-		t.Fatalf("want %d file descriptors after Shutdown, got %d", before, after)
+		t.Fatalf("want %d sockets after Shutdown, got %d", before, after)
 	}
 }

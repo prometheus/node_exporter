@@ -257,3 +257,45 @@ func TestPerfTracepointFlagToTracepoints(t *testing.T) {
 		})
 	}
 }
+
+func TestPerfCollectorClosesProfilersOnError(t *testing.T) {
+	canTestPerf(t)
+	openPerfFDs := func() int {
+		fds, err := os.ReadDir("/proc/self/fd")
+		if err != nil {
+			t.Skipf("cannot count file descriptors: %v", err)
+		}
+		n := 0
+		for _, fd := range fds {
+			if target, _ := os.Readlink("/proc/self/fd/" + fd.Name()); target == "anon_inode:[perf_event]" {
+				n++
+			}
+		}
+		return n
+	}
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	cfg := fixtureConfig()
+	cfg.Perf.Tracepoints = []string{"sched:sched_switch"}
+	cfg.Perf.DisableHardwareProfilers = true
+	cfg.Perf.DisableSoftwareProfilers = true
+	cfg.Perf.DisableCacheProfilers = true
+	cfg.Perf.CPUs = "0"
+	c, err := NewPerfCollector(cfg, logger)
+	if err != nil {
+		t.Skipf("tracepoint not available: %v", err)
+	}
+	if err := c.(*perfCollector).Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	// CPU 0 opens its tracepoint profiler and CPU 999 fails, so the
+	// collector must close the CPU 0 profiler before it returns the error.
+	cfg.Perf.CPUs = "0,999"
+	before := openPerfFDs()
+	if _, err := NewPerfCollector(cfg, logger); err == nil {
+		t.Fatal("expected an error for CPU 999")
+	}
+	if after := openPerfFDs(); after != before {
+		t.Fatalf("expected %d perf event file descriptors, got %d", before, after)
+	}
+}
