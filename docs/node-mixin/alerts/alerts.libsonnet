@@ -435,6 +435,52 @@
               description: 'Bonding interface {{ $labels.master }} on {{ $labels.instance }} is in degraded state due to one or more slave failures.',
             },
           },
+          {
+            alert: 'NodeMultipathPathDegraded',
+            expr: |||
+              node_dmmultipath_device_paths_failed{%(nodeExporterSelector)s} > 0
+            ||| % $._config,
+            'for': '5m',
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              summary: 'Multipath device has failed paths.',
+              description: 'One or more paths for DM-multipath device {{ $labels.device }} ({{ $labels.sysfs_name }}) on {{ $labels.instance }} have been outside the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and I/O may be disrupted if no usable paths remain.',
+            },
+          },
+          {
+            alert: 'NodeMultipathPathCritical',
+            expr: |||
+              (
+                node_dmmultipath_device_paths_failed{%(nodeExporterSelector)s}
+                >= node_dmmultipath_device_paths{%(nodeExporterSelector)s} / 2
+              )
+              and node_dmmultipath_device_paths_failed{%(nodeExporterSelector)s} > 0
+            ||| % $._config,
+            'for': '2m',
+            labels: {
+              severity: 'critical',
+            },
+            annotations: {
+              summary: 'Multipath device has at least half its paths failed.',
+              description: 'Half or more of the paths for DM-multipath device {{ $labels.device }} ({{ $labels.sysfs_name }}) on {{ $labels.instance }} have been outside the active state for 2 minutes. There are {{ $value }} failed path(s). The device is at risk of, or already experiencing, total path loss.',
+            },
+          },
+          {
+            alert: 'NodeMultipathDeviceSuspended',
+            expr: |||
+              node_dmmultipath_device_active{%(nodeExporterSelector)s} == 0
+            ||| % $._config,
+            'for': '1m',
+            labels: {
+              severity: 'critical',
+            },
+            annotations: {
+              summary: 'Multipath device is suspended.',
+              description: 'DM-multipath device {{ $labels.device }} ({{ $labels.sysfs_name }}) on {{ $labels.instance }} has been suspended for 1 minute. I/O through this device is blocked, and workloads using it may hang.',
+            },
+          },
         ],
       },
     ],

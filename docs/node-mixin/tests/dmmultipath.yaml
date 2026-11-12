@@ -1,0 +1,570 @@
+# Unit tests for the DM-multipath alerting rules, covering thresholds, hold
+# durations, recovery, missing metrics, and node/device isolation.
+rule_files:
+- ../node_alerts.yaml
+evaluation_interval: 30s
+tests:
+- name: healthy devices never alert
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: '0x20'
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: missing collector metrics never alert
+  interval: 30s
+  input_series: []
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: zero paths with no failures never alert
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: '0x20'
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: '0x20'
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: one of four failed paths warns only after five minutes
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 4m30s
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 4m30s
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 4m30s
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpatha (dm-0) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: exactly half the paths triggers critical after two minutes
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 2x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 1m30s
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 1m30s
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 1m30s
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: NodeMultipathPathCritical
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device has at least half its paths failed.
+        description: Half or more of the paths for DM-multipath device mpatha (dm-0) on node1:9100 have
+          been outside the active state for 2 minutes. There are 2 failed path(s). The device is at risk
+          of, or already experiencing, total path loss.
+  - eval_time: 2m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpatha (dm-0) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device has at least half its paths failed.
+        description: Half or more of the paths for DM-multipath device mpatha (dm-0) on node1:9100 have
+          been outside the active state for 2 minutes. There are 2 failed path(s). The device is at risk
+          of, or already experiencing, total path loss.
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: one of three paths is below the critical threshold
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 3x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpatha (dm-0) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: two of three paths exceeds the critical threshold
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 2x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 3x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: NodeMultipathPathCritical
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device has at least half its paths failed.
+        description: Half or more of the paths for DM-multipath device mpatha (dm-0) on node1:9100 have
+          been outside the active state for 2 minutes. There are 2 failed path(s). The device is at risk
+          of, or already experiencing, total path loss.
+  - eval_time: 2m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: total path loss triggers critical and warning
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpatha (dm-0) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device has at least half its paths failed.
+        description: Half or more of the paths for DM-multipath device mpatha (dm-0) on node1:9100 have
+          been outside the active state for 2 minutes. There are 4 failed path(s). The device is at risk
+          of, or already experiencing, total path loss.
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: single path failure triggers critical
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: NodeMultipathPathCritical
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device has at least half its paths failed.
+        description: Half or more of the paths for DM-multipath device mpatha (dm-0) on node1:9100 have
+          been outside the active state for 2 minutes. There are 1 failed path(s). The device is at risk
+          of, or already experiencing, total path loss.
+  - eval_time: 2m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: transient path failures reset the hold duration
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 2x2 0x2 2x2 0x12
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 2m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 2m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 4m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: path alerts resolve after recovery
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 2x10 0x10
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpatha (dm-0) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device has at least half its paths failed.
+        description: Half or more of the paths for DM-multipath device mpatha (dm-0) on node1:9100 have
+          been outside the active state for 2 minutes. There are 2 failed path(s). The device is at risk
+          of, or already experiencing, total path loss.
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 5m30s
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 5m30s
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 5m30s
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: suspension triggers only after one minute then resolves
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: '0x20'
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 0x4 1x16
+  alert_rule_test:
+  - eval_time: 30s
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 30s
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 30s
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device is suspended.
+        description: DM-multipath device mpatha (dm-0) on node1:9100 has been suspended for 1 minute.
+          I/O through this device is blocked, and workloads using it may hang.
+  - eval_time: 2m30s
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 2m30s
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 2m30s
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: transient suspension never fires
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: '0x20'
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 0 1x20
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 1m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: missing total count does not fabricate a critical path alert
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpatha (dm-0) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: path joins preserve node and device identity
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node2:9100",job="node"}
+    values: '0x20'
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node2:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node2:9100",job="node"}
+    values: 1x20
+  - series: node_dmmultipath_device_paths_failed{device="mpathb",sysfs_name="dm-1",instance="node1:9100",job="node"}
+    values: 3x20
+  - series: node_dmmultipath_device_paths{device="mpathb",sysfs_name="dm-1",instance="node1:9100",job="node"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpathb",sysfs_name="dm-1",instance="node1:9100",job="node"}
+    values: 1x20
+  alert_rule_test:
+  - eval_time: 5m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts:
+    - exp_labels:
+        device: mpatha
+        sysfs_name: dm-0
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpatha (dm-0) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+    - exp_labels:
+        device: mpathb
+        sysfs_name: dm-1
+        instance: node1:9100
+        job: node
+        severity: warning
+      exp_annotations:
+        summary: Multipath device has failed paths.
+        description: One or more paths for DM-multipath device mpathb (dm-1) on node1:9100 have been outside
+          the active state (SCSI running or NVMe live) for 5 minutes. Path redundancy is degraded, and
+          I/O may be disrupted if no usable paths remain.
+  - eval_time: 5m
+    alertname: NodeMultipathPathCritical
+    exp_alerts:
+    - exp_labels:
+        device: mpathb
+        sysfs_name: dm-1
+        instance: node1:9100
+        job: node
+        severity: critical
+      exp_annotations:
+        summary: Multipath device has at least half its paths failed.
+        description: Half or more of the paths for DM-multipath device mpathb (dm-1) on node1:9100 have
+          been outside the active state for 2 minutes. There are 3 failed path(s). The device is at risk
+          of, or already experiencing, total path loss.
+  - eval_time: 5m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
+- name: metrics from other jobs never alert
+  interval: 30s
+  input_series:
+  - series: node_dmmultipath_device_paths_failed{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="other-exporter"}
+    values: 4x20
+  - series: node_dmmultipath_device_paths{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="other-exporter"}
+    values: 4x20
+  - series: node_dmmultipath_device_active{device="mpatha",sysfs_name="dm-0",instance="node1:9100",job="other-exporter"}
+    values: '0x20'
+  alert_rule_test:
+  - eval_time: 10m
+    alertname: NodeMultipathPathDegraded
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathPathCritical
+    exp_alerts: []
+  - eval_time: 10m
+    alertname: NodeMultipathDeviceSuspended
+    exp_alerts: []
