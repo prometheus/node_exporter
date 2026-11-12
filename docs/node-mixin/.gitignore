@@ -1,4 +1,5 @@
 jsonnetfile.lock.json
 vendor
 *.yaml
+!tests/*.yaml
 dashboards_out

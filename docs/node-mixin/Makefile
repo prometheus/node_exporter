@@ -1,6 +1,6 @@
 JSONNET_FMT := jsonnetfmt -n 2 --max-blank-lines 2 --string-style s --comment-style s
 
-all: fmt node_alerts.yaml node_rules.yaml dashboards_out lint
+all: fmt node_alerts.yaml node_rules.yaml dashboards_out lint test
 
 fmt:
 	find . -name 'vendor' -prune -o -name '*.libsonnet' -print -o -name '*.jsonnet' -print | \
@@ -23,6 +23,9 @@ lint: node_alerts.yaml node_rules.yaml
 		done
 
 	promtool check rules node_alerts.yaml node_rules.yaml
+
+test: node_alerts.yaml
+	promtool test rules tests/*.yaml
 
 .PHONY: jb_install
 jb_install:
