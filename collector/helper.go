@@ -32,6 +32,16 @@ func readUintFromFile(path string) (uint64, error) {
 	return value, nil
 }
 
+// readIntFromFile reads a signed integer from the given file. Use it for
+// values the kernel prints as signed (e.g. "%ld") and that can be negative.
+func readIntFromFile(path string) (int64, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return 0, err
+	}
+	return strconv.ParseInt(strings.TrimSpace(string(data)), 10, 64)
+}
+
 var metricNameRegex = regexp.MustCompile(`_*[^0-9A-Za-z_]+_*`)
 
 // SanitizeMetricName sanitize the given metric name by replacing invalid characters by underscores.
