@@ -93,6 +93,10 @@ Note that if a configured collector reads no data because it can't find a file i
 the success status will be 0. This is intentional to provide a way to detect faild drivers and similar
 problems.
 
+On Darwin, `--collector.diskstats.enable-darwin-sectors-metric` defaults to `true`,
+preserving the legacy `node_disk_read_sectors_total` and `node_disk_written_sectors_total`
+metrics. Set it to `false` to omit them. The default will change to `false` in v2.0.
+
 ### Include & Exclude flags
 
 A few collectors can be configured to include or exclude certain patterns using dedicated flags. The exclude flags are used to indicate "all except", while the include flags are used to say "none except". Note that these flags are mutually exclusive on collectors that support both.

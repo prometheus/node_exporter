@@ -1,6 +1,7 @@
 ## master / unreleased
 
 * [CHANGE] edac: Fix no data results #3863
+* [CHANGE] diskstats: Remove legacy Darwin read and written sector metrics; use the byte counters instead.
 
 ## 1.12.1 / 2026-07-14
 

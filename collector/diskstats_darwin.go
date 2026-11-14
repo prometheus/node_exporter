@@ -19,11 +19,14 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/lufia/iostat"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 const diskstatsDefaultIgnoredDevices = ""
+
+var diskstatsEnableDarwinSectorsMetric = kingpin.Flag("collector.diskstats.enable-darwin-sectors-metric", "Expose legacy Darwin disk sector metrics (default will change to false in v2.0).").Default("true").Bool()
 
 type typedDescFunc struct {
 	typedDesc
@@ -50,7 +53,7 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("failed to parse device filter flags: %w", err)
 	}
 
-	return &diskstatsCollector{
+	collector := &diskstatsCollector{
 		descs: []typedDescFunc{
 			{
 				typedDesc: typedDesc{
@@ -59,20 +62,6 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				},
 				value: func(stat *iostat.DriveStats) float64 {
 					return float64(stat.NumRead)
-				},
-			},
-			{
-				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "read_sectors_total"),
-						"The total number of sectors read successfully.",
-						diskLabelNames,
-						nil,
-					),
-					valueType: prometheus.CounterValue,
-				},
-				value: func(stat *iostat.DriveStats) float64 {
-					return float64(stat.NumRead) / float64(stat.BlockSize)
 				},
 			},
 			{
@@ -91,20 +80,6 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 				},
 				value: func(stat *iostat.DriveStats) float64 {
 					return float64(stat.NumWrite)
-				},
-			},
-			{
-				typedDesc: typedDesc{
-					desc: prometheus.NewDesc(
-						prometheus.BuildFQName(namespace, diskSubsystem, "written_sectors_total"),
-						"The total number of sectors written successfully.",
-						diskLabelNames,
-						nil,
-					),
-					valueType: prometheus.CounterValue,
-				},
-				value: func(stat *iostat.DriveStats) float64 {
-					return float64(stat.NumWrite) / float64(stat.BlockSize)
 				},
 			},
 			{
@@ -194,7 +169,43 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 
 		deviceFilter: deviceFilter,
 		logger:       logger,
-	}, nil
+	}
+
+	if *diskstatsEnableDarwinSectorsMetric {
+		logger.Warn("Legacy Darwin disk sector metrics are deprecated; --collector.diskstats.enable-darwin-sectors-metric defaults to true and will default to false in v2.0")
+		collector.descs = append(collector.descs,
+			typedDescFunc{
+				typedDesc: typedDesc{
+					desc: prometheus.NewDesc(
+						prometheus.BuildFQName(namespace, diskSubsystem, "read_sectors_total"),
+						"The total number of sectors read successfully.",
+						diskLabelNames,
+						nil,
+					),
+					valueType: prometheus.CounterValue,
+				},
+				value: func(stat *iostat.DriveStats) float64 {
+					return float64(stat.NumRead) / float64(stat.BlockSize)
+				},
+			},
+			typedDescFunc{
+				typedDesc: typedDesc{
+					desc: prometheus.NewDesc(
+						prometheus.BuildFQName(namespace, diskSubsystem, "written_sectors_total"),
+						"The total number of sectors written successfully.",
+						diskLabelNames,
+						nil,
+					),
+					valueType: prometheus.CounterValue,
+				},
+				value: func(stat *iostat.DriveStats) float64 {
+					return float64(stat.NumWrite) / float64(stat.BlockSize)
+				},
+			},
+		)
+	}
+
+	return collector, nil
 }
 
 func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
