@@ -135,9 +135,9 @@ bonding | Exposes the number of configured and active slaves of Linux bonding in
 btrfs | Exposes btrfs statistics | Linux
 boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD, Solaris
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
-cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris, OpenBSD
+cpu | Exposes CPU statistics | AIX, Darwin, Dragonfly, FreeBSD, Linux, NetBSD, Solaris, OpenBSD
 cpufreq | Exposes CPU frequency statistics | Linux, Solaris
-diskstats | Exposes disk I/O statistics. | Darwin, Linux, OpenBSD
+diskstats | Exposes disk I/O statistics. | AIX, Darwin, Linux, OpenBSD
 dmi | Expose Desktop Management Interface (DMI) info from `/sys/class/dmi/id/` | Linux
 dmmultipath | Exposes DM-multipath device and path metrics from `/sys/block/dm-*`. | Linux
 edac | Exposes error detection and correction statistics. | Linux
@@ -145,22 +145,24 @@ entropy | Exposes available entropy. | Linux
 exec | Exposes execution statistics. | Dragonfly, FreeBSD
 fibrechannel | Exposes fibre channel information and statistics from `/sys/class/fc_host/`. | Linux
 filefd | Exposes file descriptor statistics from `/proc/sys/fs/file-nr`. | Linux
-filesystem | Exposes filesystem statistics, such as disk space used. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
+filesystem | Exposes filesystem statistics, such as disk space used. | AIX, Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD
 hwmon | Expose hardware monitoring and sensor data from `/sys/class/hwmon/`. | Linux
 infiniband | Exposes network statistics specific to InfiniBand and Intel OmniPath configurations. | Linux
 ipvs | Exposes IPVS status from `/proc/net/ip_vs` and stats from `/proc/net/ip_vs_stats`. | Linux
 kernel_hung | Exposes number of tasks that have been detected as hung from `/proc/sys/kernel/hung_task_detect_count`. | Linux
-loadavg | Exposes load average. | Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
+loadavg | Exposes load average. | AIX, Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD, Solaris
 mdadm | Exposes statistics about devices in `/proc/mdstat` (does nothing if no `/proc/mdstat` present). | Linux
-meminfo | Exposes memory statistics. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
+meminfo | Exposes memory statistics. | AIX, Darwin, Dragonfly, FreeBSD, Linux, NetBSD, OpenBSD
 netclass | Exposes network interface info from `/sys/class/net/` | Linux
-netdev | Exposes network interface statistics such as bytes transferred. | Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
+netdev | Exposes network interface statistics such as bytes transferred. | AIX, Darwin, Dragonfly, FreeBSD, Linux, OpenBSD
+netinterface | Exposes network interface statistics such as bytes, packets and collisions. | AIX
 netisr | Exposes netisr statistics | FreeBSD
 netstat | Exposes network statistics from `/proc/net/netstat`. This is the same information as `netstat -s`. | Linux
 nfs | Exposes NFS client statistics from `/proc/net/rpc/nfs`. This is the same information as `nfsstat -c`. | Linux
 nfsd | Exposes NFS kernel server statistics from `/proc/net/rpc/nfsd`. This is the same information as `nfsstat -s`. | Linux
 nvme | Exposes NVMe info from `/sys/class/nvme/` | Linux
 os | Expose OS release info from `/etc/os-release` or `/usr/lib/os-release` | _any_
+partition | Exposes partition information such as entitled processor capacity, online CPUs and memory, and SMT threads. | AIX
 powersupplyclass | Exposes Power Supply statistics from `/sys/class/power_supply` | Linux
 pressure | Exposes pressure stall statistics from `/proc/pressure/`. | Linux (kernel 4.20+ and/or [CONFIG\_PSI](https://www.kernel.org/doc/html/latest/accounting/psi.html))
 rapl | Exposes various statistics from `/sys/class/powercap`. | Linux
@@ -176,7 +178,7 @@ thermal\_zone | Exposes thermal zone & cooling device statistics from `/sys/clas
 time | Exposes the current system time. | _any_
 timex | Exposes selected adjtimex(2) system call stats. | Linux
 udp_queues | Exposes UDP total lengths of the rx_queue and tx_queue from `/proc/net/udp` and `/proc/net/udp6`. | Linux
-uname | Exposes system information as provided by the uname system call. | Darwin, FreeBSD, Linux, OpenBSD
+uname | Exposes system information as provided by the uname system call. | AIX, Darwin, FreeBSD, Linux, NetBSD, OpenBSD
 vmstat | Exposes statistics from `/proc/vmstat`. | Linux
 watchdog | Exposes statistics from `/sys/class/watchdog` | Linux
 xfs | Exposes XFS runtime statistics. | Linux (kernel 4.4+)
