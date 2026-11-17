@@ -111,6 +111,7 @@ arp | device | --collector.arp.device-include | --collector.arp.device-exclude
 cpu | bugs | --collector.cpu.info.bugs-include | N/A
 cpu | flags | --collector.cpu.info.flags-include | N/A
 diskstats | device | --collector.diskstats.device-include | --collector.diskstats.device-exclude
+diskstats | multipath members (Linux) | N/A | --collector.diskstats.ignore-multipath-members
 ethtool | device | --collector.ethtool.device-include | --collector.ethtool.device-exclude
 ethtool | metrics | --collector.ethtool.metrics-include | N/A
 filesystem | fs-types | --collector.filesystem.fs-types-include | --collector.filesystem.fs-types-exclude
@@ -124,6 +125,29 @@ qdisc | device | --collector.qdisc.device-include | --collector.qdisc.device-exc
 slabinfo | slab-names | --collector.slabinfo.slabs-include | --collector.slabinfo.slabs-exclude
 sysctl | all | --collector.sysctl.include | N/A
 systemd | unit | --collector.systemd.unit-include | --collector.systemd.unit-exclude
+
+### Multipath devices (Linux)
+
+Kernel device names can change when storage paths are reattached, so name-based
+filters cannot reliably distinguish multipath member paths from ordinary disks.
+Enable `--collector.diskstats.ignore-multipath-members` to exclude a device's
+diskstats metrics when its udev entry has `DM_MULTIPATH_DEVICE_PATH=1`.
+This additional filter is disabled by default and can be combined with either
+device-name include or exclude filtering.
+
+Logical multipath maps and other devices remain eligible for collection.
+Devices with a missing marker, a value other than `1`, or unavailable udev data
+remain eligible too; existing udev diagnostics are retained. The filter reuses
+the metadata lookup already used for disk information.
+
+The database is read from `--path.udev.data` (default `/run/udev/data`). In a
+container, make the host's udev database available read-only and set this flag to
+that location, for example `--path.udev.data=/host/run/udev/data`.
+The `--path.rootfs` flag does not prefix the udev data path.
+
+This option affects only the diskstats collector. It does not disable the
+separate dmmultipath collector or remove backing-device references from retained
+device-mapper metrics.
 
 ### Enabled by default
 

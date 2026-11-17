@@ -16,11 +16,16 @@
 package collector
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
+	"maps"
+	"slices"
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
@@ -32,7 +37,9 @@ type testDiskStatsCollector struct {
 }
 
 func (c testDiskStatsCollector) Collect(ch chan<- prometheus.Metric) {
-	c.dsc.Update(ch)
+	if err := c.dsc.Update(ch); err != nil {
+		ch <- prometheus.NewInvalidMetric(prometheus.NewInvalidDesc(err), err)
+	}
 }
 
 func (c testDiskStatsCollector) Describe(ch chan<- *prometheus.Desc) {
@@ -329,10 +336,6 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 `
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	collector, err := NewDiskstatsCollector(logger)
-	if err != nil {
-		t.Fatal(err)
-	}
 	c, err := NewTestDiskStatsCollector(logger)
 	if err != nil {
 		t.Fatal(err)
@@ -340,18 +343,274 @@ node_disk_written_bytes_total{device="vda"} 1.0938236928e+11
 	reg := prometheus.NewRegistry()
 	reg.MustRegister(c)
 
-	sink := make(chan prometheus.Metric)
-	go func() {
-		err = collector.Update(sink)
-		if err != nil {
-			panic(fmt.Errorf("failed to update collector: %s", err))
-		}
-		close(sink)
-	}()
-
 	err = testutil.GatherAndCompare(reg, strings.NewReader(testcase))
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDiskStatsIgnoreMultipathMembers(t *testing.T) {
+	oldSysPath, oldProcPath, oldUdevPath := *sysPath, *procPath, *udevDataPath
+	oldExclude, oldInclude := *diskstatsDeviceExclude, *diskstatsDeviceInclude
+	oldExcludeSet, oldDeprecatedExclude := diskstatsDeviceExcludeSet, *oldDiskstatsDeviceExclude
+	oldIgnoreMultipathMembers := *diskstatsIgnoreMultipathMembers
+	t.Cleanup(func() {
+		*sysPath, *procPath, *udevDataPath = oldSysPath, oldProcPath, oldUdevPath
+		*diskstatsDeviceExclude, *diskstatsDeviceInclude = oldExclude, oldInclude
+		diskstatsDeviceExcludeSet, *oldDiskstatsDeviceExclude = oldExcludeSet, oldDeprecatedExclude
+		*diskstatsIgnoreMultipathMembers = oldIgnoreMultipathMembers
+	})
+
+	allDevices := []string{
+		"dm-0", "dm-1", "dm-2", "dm-3", "dm-4", "dm-5",
+		"mmcblk0", "mmcblk0p1", "mmcblk0p2", "nvme0n1", "sda", "sdb", "sdc", "sr0", "vda",
+	}
+	without := func(excluded ...string) []string {
+		var devices []string
+		for _, device := range allDevices {
+			if !slices.Contains(excluded, device) {
+				devices = append(devices, device)
+			}
+		}
+		return devices
+	}
+	readErr := errors.New("udev read error")
+	cases := []struct {
+		name          string
+		enabled       bool
+		udevPath      string
+		include       string
+		exclude       string
+		memberInfo    udevInfo
+		memberErr     error
+		memberChanges []string
+		wantDevices   []string
+		wantLookups   int
+		wantLog       string
+	}{
+		{
+			name:        "disabled",
+			wantDevices: allDevices, wantLookups: 15,
+		},
+		{
+			name:    "enabled",
+			enabled: true, wantDevices: without("sdb"), wantLookups: 15,
+		},
+		{
+			name:    "device_names_have_different_roles",
+			enabled: true, udevPath: "fixtures/udev/multipath-swapped",
+			wantDevices: without("sda"), wantLookups: 15,
+		},
+		{
+			name:    "name_include_does_not_override_membership",
+			enabled: true, include: "^(sda|sdb|dm-5)$",
+			wantDevices: []string{"dm-5", "sda"}, wantLookups: 3,
+		},
+		{
+			name:    "name_exclude_still_applies",
+			enabled: true, exclude: diskstatsDefaultIgnoredDevices + "|^sda$",
+			wantDevices: without("sda", "sdb"), wantLookups: 14,
+		},
+		{
+			name:    "noncanonical_marker_is_retained",
+			enabled: true, memberInfo: udevInfo{udevDMMultipathDevicePath: "true"},
+			wantDevices: allDevices, wantLookups: 15,
+		},
+		{
+			name:    "empty_marker_is_retained",
+			enabled: true, memberInfo: udevInfo{udevDMMultipathDevicePath: ""},
+			wantDevices: allDevices, wantLookups: 15,
+		},
+		{
+			name:    "membership_is_refreshed_each_scrape",
+			enabled: true, memberInfo: udevInfo{udevDMMultipathDevicePath: "1"},
+			memberChanges: []string{"0", "1", "2"},
+			wantDevices:   without("sdb"), wantLookups: 15,
+		},
+		{
+			name:       "unreadable_metadata_is_retained",
+			enabled:    true,
+			memberInfo: udevInfo{udevDMMultipathDevicePath: "1"}, memberErr: readErr,
+			wantDevices: allDevices, wantLookups: 15, wantLog: readErr.Error(),
+		},
+		{
+			name:    "unavailable_udev_directory_is_retained",
+			enabled: true, udevPath: "fixtures/udev/nonexistent",
+			wantDevices: allDevices, wantLog: "disabling udev device properties",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			*sysPath, *procPath = "fixtures/sys", "fixtures/proc"
+			*udevDataPath = "fixtures/udev/multipath"
+			if tc.udevPath != "" {
+				*udevDataPath = tc.udevPath
+			}
+			*diskstatsDeviceExclude, *diskstatsDeviceInclude = diskstatsDefaultIgnoredDevices, tc.include
+			diskstatsDeviceExcludeSet, *oldDiskstatsDeviceExclude = false, ""
+			if tc.exclude != "" {
+				*diskstatsDeviceExclude, diskstatsDeviceExcludeSet = tc.exclude, true
+			}
+			*diskstatsIgnoreMultipathMembers = tc.enabled
+
+			var logs bytes.Buffer
+			logger := slog.New(slog.NewTextHandler(&logs, &slog.HandlerOptions{Level: slog.LevelDebug}))
+			collector, err := NewDiskstatsCollector(logger)
+			if err != nil {
+				t.Fatal(err)
+			}
+			c := collector.(*diskstatsCollector)
+			calls := make(map[string]int)
+			if lookup := c.getUdevDeviceProperties; lookup != nil {
+				c.getUdevDeviceProperties = func(major, minor uint32) (udevInfo, error) {
+					calls[fmt.Sprintf("%d:%d", major, minor)]++
+					if major == 8 && minor == 16 && tc.memberInfo != nil {
+						return tc.memberInfo, tc.memberErr
+					}
+					return lookup(major, minor)
+				}
+			}
+
+			reg := prometheus.NewRegistry()
+			reg.MustRegister(testDiskStatsCollector{dsc: c})
+			clear(calls)
+			families, err := reg.Gather()
+			if err != nil {
+				t.Fatal(err)
+			}
+			devices := make(map[string]bool)
+			familyDevices := make(map[string][]string)
+			for _, family := range families {
+				for _, metric := range family.Metric {
+					for _, label := range metric.Label {
+						if label.GetName() == "device" {
+							device := label.GetValue()
+							devices[device] = true
+							familyDevices[family.GetName()] = append(familyDevices[family.GetName()], device)
+						}
+					}
+				}
+			}
+			gotDevices := make([]string, 0, len(devices))
+			for device := range devices {
+				gotDevices = append(gotDevices, device)
+			}
+			slices.Sort(gotDevices)
+			if !slices.Equal(gotDevices, tc.wantDevices) {
+				t.Errorf("collected devices: got %v, want %v", gotDevices, tc.wantDevices)
+			}
+			for _, name := range []string{"node_disk_info", "node_disk_reads_completed_total", "node_disk_writes_completed_total"} {
+				got := familyDevices[name]
+				slices.Sort(got)
+				if !slices.Equal(got, tc.wantDevices) {
+					t.Errorf("%s devices: got %v, want %v", name, got, tc.wantDevices)
+				}
+			}
+			if c.getUdevDeviceProperties != nil && slices.Contains(tc.wantDevices, "dm-5") {
+				if !slices.Contains(familyDevices["node_disk_device_mapper_info"], "dm-5") {
+					t.Error("multipath map metadata was not retained")
+				}
+				if got := len(familyDevices["node_disk_device_mapper_backing_device_info"]); got != 4 {
+					t.Errorf("backing device references: got %d, want 4", got)
+				}
+			}
+			if len(calls) != tc.wantLookups {
+				t.Errorf("udev device lookups: got %d, want %d", len(calls), tc.wantLookups)
+			}
+			for device, count := range calls {
+				if count != 1 {
+					t.Errorf("udev lookups for %s: got %d, want 1", device, count)
+				}
+			}
+			if tc.wantLog != "" && !strings.Contains(logs.String(), tc.wantLog) {
+				t.Errorf("expected diagnostic %q in %s", tc.wantLog, logs.String())
+			}
+			for _, marker := range tc.memberChanges {
+				t.Run("marker_"+marker, func(t *testing.T) {
+					tc.memberInfo[udevDMMultipathDevicePath] = marker
+					clear(calls)
+					families, err := reg.Gather()
+					if err != nil {
+						t.Fatal(err)
+					}
+					found := false
+					for _, family := range families {
+						for _, metric := range family.Metric {
+							for _, label := range metric.Label {
+								if label.GetName() == "device" && label.GetValue() == "sdb" {
+									found = true
+								}
+							}
+						}
+					}
+					if want := marker != "1"; found != want {
+						t.Errorf("member metrics with marker %q: got %t, want %t", marker, found, want)
+					}
+					if got := calls["8:16"]; got != 1 {
+						t.Errorf("member udev lookups: got %d, want 1", got)
+					}
+				})
+			}
+		})
+	}
+}
+
+func TestParseUdevDeviceProperties(t *testing.T) {
+	readErr := errors.New("udev read error")
+	cases := []struct {
+		name    string
+		input   io.Reader
+		want    udevInfo
+		wantErr error
+	}{
+		{
+			name:  "member_and_other_properties",
+			input: strings.NewReader("S:ignored\nI:123\nE:DM_MULTIPATH_DEVICE_PATH=1\nE:ID_MODEL=example=disk\n"),
+			want:  udevInfo{udevDMMultipathDevicePath: "1", udevIDModel: "example=disk"},
+		},
+		{
+			name:  "nonmember",
+			input: strings.NewReader("E:DM_MULTIPATH_DEVICE_PATH=0\n"),
+			want:  udevInfo{udevDMMultipathDevicePath: "0"},
+		},
+		{
+			name:  "tentative_member",
+			input: strings.NewReader("E:DM_MULTIPATH_DEVICE_PATH=2\n"),
+			want:  udevInfo{udevDMMultipathDevicePath: "2"},
+		},
+		{
+			name:  "empty_value",
+			input: strings.NewReader("E:DM_MULTIPATH_DEVICE_PATH=\n"),
+			want:  udevInfo{udevDMMultipathDevicePath: ""},
+		},
+		{
+			name:  "missing_marker",
+			input: strings.NewReader("E:DM_UUID=mpath-example\n"),
+			want:  udevInfo{udevDMUUID: "mpath-example"},
+		},
+		{
+			name:  "read_error",
+			input: iotest.ErrReader(readErr),
+			want:  udevInfo{}, wantErr: readErr,
+		},
+		{
+			name:  "read_error_after_member",
+			input: io.MultiReader(strings.NewReader("E:DM_MULTIPATH_DEVICE_PATH=1\n"), iotest.ErrReader(readErr)),
+			want:  udevInfo{udevDMMultipathDevicePath: "1"}, wantErr: readErr,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			info, err := parseUdevDeviceProperties(tc.input)
+			if !errors.Is(err, tc.wantErr) {
+				t.Errorf("error: got %v, want %v", err, tc.wantErr)
+			}
+			if !maps.Equal(info, tc.want) {
+				t.Errorf("properties: got %v, want %v", info, tc.want)
+			}
+		})
 	}
 }
 
