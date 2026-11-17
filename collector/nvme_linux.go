@@ -26,7 +26,10 @@ import (
 	"github.com/prometheus/procfs/sysfs"
 )
 
-var nvmeNamespaceUsage = kingpin.Flag("collector.nvme.namespace-usage", "Expose namespace used bytes (reads nuse, which makes the kernel query the controller).").Default("true").Bool()
+var (
+	nvmeNamespaceUsage    = kingpin.Flag("collector.nvme.namespace-usage", "Expose namespace used bytes (reads nuse, which makes the kernel query the controller).").Default("true").Bool()
+	nvmeNamespaceCapacity = kingpin.Flag("collector.nvme.namespace-capacity", "Export namespace size (nsze) with the incorrect metric name nvme_namespace_capacity_bytes").Default("true").Bool()
+)
 
 type nvmeCollector struct {
 	fs     sysfs.FS
@@ -52,7 +55,7 @@ var (
 
 	nvmeNamespaceCapacityBytes = prometheus.NewDesc(
 		prometheus.BuildFQName(namespace, "nvme", "namespace_capacity_bytes"),
-		"Capacity of the NVMe namespace in bytes.",
+		"Size of the NVMe namespace in bytes. DEPRECATED: please use nvme_namespace_size_bytes instead.",
 		[]string{"device", "nsid"}, nil,
 	)
 
@@ -80,6 +83,9 @@ func NewNVMeCollector(logger *slog.Logger) (Collector, error) {
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)
+	}
+	if *nvmeNamespaceCapacity {
+		logger.Warn("The metric nvme_namespace_capacity_bytes is deprecated, and is planned to be removed in the next major version release. Please use nvme_namespace_size_bytes instead.")
 	}
 	return &nvmeCollector{
 		fs:     fs,
@@ -123,14 +129,16 @@ func (c *nvmeCollector) Update(ch chan<- prometheus.Metric) error {
 				namespace.ANAState,
 			)
 
-			// Namespace capacity in bytes
-			ch <- prometheus.MustNewConstMetric(
-				nvmeNamespaceCapacityBytes,
-				prometheus.GaugeValue,
-				float64(namespace.CapacityBytes),
-				device.Name,
-				namespace.ID,
-			)
+			if *nvmeNamespaceCapacity {
+				// Namespace size in bytes
+				ch <- prometheus.MustNewConstMetric(
+					nvmeNamespaceCapacityBytes,
+					prometheus.GaugeValue,
+					float64(namespace.SizeBytes),
+					device.Name,
+					namespace.ID,
+				)
+			}
 
 			// Namespace size in bytes
 			ch <- prometheus.MustNewConstMetric(
