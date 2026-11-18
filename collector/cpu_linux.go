@@ -410,7 +410,6 @@ func (c *cpuCollector) updateStat(ch chan<- prometheus.Metric) error {
 
 // updateCPUStats updates the internal cache of CPU stats.
 func (c *cpuCollector) updateCPUStats(newStats map[int64]procfs.CPUStat) {
-
 	// Acquire a lock to update the stats.
 	c.cpuStatsMutex.Lock()
 	defer c.cpuStatsMutex.Unlock()

@@ -42,7 +42,6 @@ func TestReadProcessStatus(t *testing.T) {
 		t.Fatalf("Current threads: %d Shouldn't be less than wanted %d", threads, want)
 	}
 	if states == nil {
-
 		t.Fatalf("Process states cannot be nil %v:", states)
 	}
 	maxPid, err := readUintFromFile(procFilePath("sys/kernel/pid_max"))

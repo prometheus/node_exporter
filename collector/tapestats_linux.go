@@ -26,9 +26,7 @@ import (
 	"github.com/prometheus/procfs/sysfs"
 )
 
-var (
-	ignoredTapeDevices = kingpin.Flag("collector.tapestats.ignored-devices", "Regexp of devices to ignore for tapestats.").Default("^$").String()
-)
+var ignoredTapeDevices = kingpin.Flag("collector.tapestats.ignored-devices", "Regexp of devices to ignore for tapestats.").Default("^$").String()
 
 type tapestatsCollector struct {
 	ignoredDevicesPattern *regexp.Regexp
@@ -53,7 +51,7 @@ func init() {
 // NewTapestatsCollector returns a new Collector exposing tape device stats.
 // Docs from https://www.kernel.org/doc/html/latest/scsi/st.html#sysfs-and-statistics-for-tape-devices
 func NewTapestatsCollector(logger *slog.Logger) (Collector, error) {
-	var tapeLabelNames = []string{"device"}
+	tapeLabelNames := []string{"device"}
 
 	fs, err := sysfs.NewFS(*sysPath)
 	if err != nil {

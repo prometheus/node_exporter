@@ -53,7 +53,8 @@ func TestCPU(t *testing.T) {
 			Steal:     100.0,
 			Guest:     100.0,
 			GuestNice: 100.0,
-		}}
+		},
+	}
 
 	c := makeTestCPUCollector(firstCPUStat)
 	want := map[int64]procfs.CPUStat{
@@ -68,7 +69,8 @@ func TestCPU(t *testing.T) {
 			Steal:     101.0,
 			Guest:     101.0,
 			GuestNice: 101.0,
-		}}
+		},
+	}
 	c.updateCPUStats(want)
 	got := c.cpuStats
 	if !reflect.DeepEqual(want, got) {
@@ -88,7 +90,8 @@ func TestCPU(t *testing.T) {
 			Steal:     99.9,
 			Guest:     99.9,
 			GuestNice: 99.9,
-		}}
+		},
+	}
 	c.updateCPUStats(jumpBack)
 	got = c.cpuStats
 	if reflect.DeepEqual(jumpBack, got) {
@@ -108,7 +111,8 @@ func TestCPU(t *testing.T) {
 			Steal:     102.0,
 			Guest:     102.0,
 			GuestNice: 102.0,
-		}}
+		},
+	}
 	c.updateCPUStats(resetIdle)
 	got = c.cpuStats
 	if !reflect.DeepEqual(resetIdle, got) {
@@ -198,5 +202,4 @@ func TestCPUOffline(t *testing.T) {
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("should have %v CPU Stat: got %v", want, got)
 	}
-
 }

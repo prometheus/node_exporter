@@ -111,5 +111,4 @@ func (b bsdSysctl) getCLong() (float64, error) {
 		C.sizeof_long,
 		C.sizeof_int,
 	)
-
 }

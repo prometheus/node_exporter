@@ -147,18 +147,18 @@ func NewInfiniBandCollector(logger *slog.Logger) (Collector, error) {
 	return &i, nil
 }
 
-func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName string, port string, valueType prometheus.ValueType) {
+func (c *infinibandCollector) pushMetric(ch chan<- prometheus.Metric, name string, value uint64, deviceName, port string, valueType prometheus.ValueType) {
 	ch <- prometheus.MustNewConstMetric(c.metricDescs[name], valueType, float64(value), deviceName, port)
 }
 
-func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName string, port string) {
+func (c *infinibandCollector) pushCounter(ch chan<- prometheus.Metric, name string, value *uint64, deviceName, port string) {
 	if value != nil {
 		c.pushMetric(ch, name, *value, deviceName, port, prometheus.CounterValue)
 	}
 }
 
 func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
-	devices, err := c.fs.InfiniBandClass()
+	deviceNames, err := c.fs.InfiniBandClassDevices()
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			c.logger.Debug("infiniband statistics not found, skipping")
@@ -167,9 +167,14 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 		return fmt.Errorf("error obtaining InfiniBand class info: %w", err)
 	}
 
-	for _, device := range devices {
-		if c.deviceFilter.ignored(device.Name) {
+	for _, name := range deviceNames {
+		if c.deviceFilter.ignored(name) {
 			continue
+		}
+
+		device, err := c.fs.InfiniBandDevice(name)
+		if err != nil {
+			return fmt.Errorf("error obtaining InfiniBand device info: %w", err)
 		}
 
 		infoDesc := prometheus.NewDesc(
@@ -221,7 +226,7 @@ func (c *infinibandCollector) Update(ch chan<- prometheus.Metric) error {
 
 			// port.HwCounters
 			if port.HwCounters.Lifespan != nil {
-				c.pushMetric(ch, "lifespan_seconds", *(port.HwCounters.Lifespan)/1000, port.Name, portStr, prometheus.GaugeValue)
+				c.pushMetric(ch, "lifespan_seconds", *port.HwCounters.Lifespan/1000, port.Name, portStr, prometheus.GaugeValue)
 			}
 
 			c.pushCounter(ch, "duplicate_requests_packets_total", port.HwCounters.DuplicateRequest, port.Name, portStr)

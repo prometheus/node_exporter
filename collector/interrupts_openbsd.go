@@ -94,9 +94,7 @@ sysctl_intr(struct intr *intr, int idx)
 */
 import "C"
 
-var (
-	interruptLabelNames = []string{"cpu", "type", "devices"}
-)
+var interruptLabelNames = []string{"cpu", "type", "devices"}
 
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) error {
 	interrupts, err := getInterrupts()

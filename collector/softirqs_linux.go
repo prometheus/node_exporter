@@ -22,9 +22,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var (
-	softirqLabelNames = []string{"cpu", "type"}
-)
+var softirqLabelNames = []string{"cpu", "type"}
 
 func (c *softirqsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	softirqs, err := c.fs.Softirqs()

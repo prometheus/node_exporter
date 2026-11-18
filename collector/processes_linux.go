@@ -82,6 +82,7 @@ func NewProcessStatCollector(logger *slog.Logger) (Collector, error) {
 		logger: logger,
 	}, nil
 }
+
 func (c *processCollector) Update(ch chan<- prometheus.Metric) error {
 	pids, states, threads, threadStates, err := c.getAllocatedThreads()
 	if err != nil {

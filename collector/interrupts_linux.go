@@ -27,9 +27,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-var (
-	interruptLabelNames = []string{"cpu", "type", "info", "devices"}
-)
+var interruptLabelNames = []string{"cpu", "type", "info", "devices"}
 
 func (c *interruptsCollector) Update(ch chan<- prometheus.Metric) (err error) {
 	interrupts, err := getInterrupts()

@@ -17,6 +17,8 @@
 - Lint/format shortcuts: `make format`, `make lint`, `make lint-fix`, `make yamllint`, `make unused`.
 
 ## Fixtures And Generated Outputs
+- Tests that only read filesystem data must use checked-in fixtures instead of creating static input files with `os.WriteFile` or similar APIs. Extend existing fixture-driven test tables where possible.
+- Parser tests accepting `io.Reader` should use in-memory readers. Reserve temporary filesystem setup for tests that require isolation or exercise filesystem changes; explain why checked-in fixtures are insufficient.
 - Do not edit unpacked `collector/fixtures/sys/` or `collector/fixtures/udev/` as source of truth; update `collector/fixtures/sys.ttar` and `collector/fixtures/udev.ttar` with `make update_fixtures`.
 - To refresh e2e metric golden files, run `make build tools` first, then `./end-to-end-test.sh -u`; it writes the appropriate `collector/fixtures/e2e-output*.txt`.
 - `end-to-end-test.sh` filters collector flags by OS/build context using `tools/tools match`, so an ignored flag in e2e may mean the collector is build-tag-gated for that platform rather than broken (see `Rules`).

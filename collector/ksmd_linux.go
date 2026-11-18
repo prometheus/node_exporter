@@ -109,7 +109,21 @@ func NewKsmdCollector(logger *slog.Logger) (Collector, error) {
 // Update implements Collector and exposes kernel and system statistics.
 func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 	for _, n := range ksmdFiles {
-		val, err := readUintFromFile(sysFilePath(filepath.Join("kernel/mm/ksm", n)))
+		path := sysFilePath(filepath.Join("kernel/mm/ksm", n))
+
+		var v float64
+		var err error
+		if n == "general_profit" {
+			// The kernel prints general_profit as a signed value, which is
+			// negative when KSM costs more than it saves.
+			var val int64
+			val, err = readIntFromFile(path)
+			v = float64(val)
+		} else {
+			var val uint64
+			val, err = readUintFromFile(path)
+			v = float64(val)
+		}
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				c.logger.Debug("ksmd file not found, skipping", "file", n)
@@ -118,7 +132,6 @@ func (c *ksmdCollector) Update(ch chan<- prometheus.Metric) error {
 			return err
 		}
 
-		v := float64(val)
 		switch n {
 		case "full_scans":
 			ch <- prometheus.MustNewConstMetric(ksmdFullScansDesc, prometheus.CounterValue, v)

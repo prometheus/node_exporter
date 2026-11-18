@@ -32,9 +32,7 @@ const (
 	vmStatSubsystem = "vmstat"
 )
 
-var (
-	vmStatFields = kingpin.Flag("collector.vmstat.fields", "Regexp of fields to return for vmstat collector.").Default("^(oom_kill|pgpg|pswp|pg.*fault).*").String()
-)
+var vmStatFields = kingpin.Flag("collector.vmstat.fields", "Regexp of fields to return for vmstat collector.").Default("^(oom_kill|pgpg|pswp|pg.*fault).*").String()
 
 type vmStatCollector struct {
 	fieldPattern *regexp.Regexp

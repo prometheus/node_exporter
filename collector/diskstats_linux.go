@@ -89,7 +89,7 @@ func init() {
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 // Docs from https://www.kernel.org/doc/Documentation/iostats.txt
 func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
-	var diskLabelNames = []string{"device"}
+	diskLabelNames := []string{"device"}
 	fs, err := blockdevice.NewFS(*procPath, *sysPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open sysfs: %w", err)

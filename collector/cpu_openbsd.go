@@ -33,6 +33,7 @@ const (
 	CP_IDLE
 	CPUSTATES
 )
+
 const (
 	CP_USER_O63 = iota
 	CP_NICE_O63

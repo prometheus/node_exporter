@@ -18,75 +18,11 @@ package collector
 import (
 	"io"
 	"log/slog"
-	"os"
-	"path/filepath"
 	"slices"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
-
-// fakeHwmon describes a single hwmon node to materialize under a temporary
-// /sys layout. The collector's hwmonName function reads the parent of the
-// `device` symlink to derive a chip label, which is what produces the
-// collision we need to test.
-type fakeHwmon struct {
-	hwmonDir string            // e.g. "hwmon3"
-	device   string            // parent device dir name, e.g. "asus-nb-wmi". Empty disables the device symlink.
-	name     string            // contents of the optional `name` file
-	files    map[string]string // sensor file basename -> content
-}
-
-// buildFakeSysfs writes a minimal /sys tree containing the supplied hwmon
-// nodes and returns the path that should be passed as *sysPath. Each
-// non-empty `device` shares a common /sys/devices/platform/<device>
-// directory so two hwmon entries can collide on chip name.
-func buildFakeSysfs(t *testing.T, hwmons []fakeHwmon) string {
-	t.Helper()
-
-	sysRoot := t.TempDir()
-	classHwmon := filepath.Join(sysRoot, "class", "hwmon")
-	if err := os.MkdirAll(classHwmon, 0o755); err != nil {
-		t.Fatalf("mkdir class/hwmon: %v", err)
-	}
-
-	for _, h := range hwmons {
-		var hwmonReal string
-		if h.device != "" {
-			hwmonReal = filepath.Join(sysRoot, "devices", "platform", h.device, "hwmon", h.hwmonDir)
-		} else {
-			hwmonReal = filepath.Join(sysRoot, "devices", "virtual", "hwmon", h.hwmonDir)
-		}
-		if err := os.MkdirAll(hwmonReal, 0o755); err != nil {
-			t.Fatalf("mkdir %s: %v", hwmonReal, err)
-		}
-
-		if h.device != "" {
-			deviceTarget := filepath.Join(sysRoot, "devices", "platform", h.device)
-			if err := os.Symlink(deviceTarget, filepath.Join(hwmonReal, "device")); err != nil {
-				t.Fatalf("symlink device: %v", err)
-			}
-		}
-
-		if h.name != "" {
-			if err := os.WriteFile(filepath.Join(hwmonReal, "name"), []byte(h.name+"\n"), 0o644); err != nil {
-				t.Fatalf("write name: %v", err)
-			}
-		}
-
-		for fname, content := range h.files {
-			if err := os.WriteFile(filepath.Join(hwmonReal, fname), []byte(content+"\n"), 0o644); err != nil {
-				t.Fatalf("write %s: %v", fname, err)
-			}
-		}
-
-		if err := os.Symlink(hwmonReal, filepath.Join(classHwmon, h.hwmonDir)); err != nil {
-			t.Fatalf("symlink class/hwmon: %v", err)
-		}
-	}
-
-	return sysRoot
-}
 
 // gatherChipLabels runs the collector through a registry and returns the
 // observed `chip` label values across all metrics. It also surfaces any
@@ -138,31 +74,9 @@ func newTestHwmonCollector() *hwMonCollector {
 // that triggered #3637 on ASUS WMI laptops — must produce distinct chip
 // labels and not error during gather.
 func TestHwmonDuplicateChipNamesAreDisambiguated(t *testing.T) {
-	hwmons := []fakeHwmon{
-		{
-			hwmonDir: "hwmon6",
-			device:   "asus-nb-wmi",
-			name:     "asus",
-			files: map[string]string{
-				"pwm1":        "128",
-				"pwm1_enable": "2",
-			},
-		},
-		{
-			hwmonDir: "hwmon7",
-			device:   "asus-nb-wmi",
-			name:     "asus_wmi_sensors",
-			files: map[string]string{
-				"pwm1":        "200",
-				"pwm1_enable": "2",
-			},
-		},
-	}
-
-	sysRoot := buildFakeSysfs(t, hwmons)
 	prev := *sysPath
 	t.Cleanup(func() { *sysPath = prev })
-	*sysPath = sysRoot
+	*sysPath = "fixtures/sys/hwmon/duplicate_chip_names"
 
 	chips, err := gatherChipLabels(t, newTestHwmonCollector())
 	if err != nil {
@@ -185,25 +99,9 @@ func TestHwmonDuplicateChipNamesAreDisambiguated(t *testing.T) {
 // When chip names are already unique, the collector must leave them alone
 // — no surprise suffixes for unaffected users.
 func TestHwmonUniqueChipNamesAreUnchanged(t *testing.T) {
-	hwmons := []fakeHwmon{
-		{
-			hwmonDir: "hwmon0",
-			device:   "coretemp.0",
-			name:     "coretemp",
-			files:    map[string]string{"temp1_input": "42000"},
-		},
-		{
-			hwmonDir: "hwmon1",
-			device:   "coretemp.1",
-			name:     "coretemp",
-			files:    map[string]string{"temp1_input": "43000"},
-		},
-	}
-
-	sysRoot := buildFakeSysfs(t, hwmons)
 	prev := *sysPath
 	t.Cleanup(func() { *sysPath = prev })
-	*sysPath = sysRoot
+	*sysPath = "fixtures/sys/hwmon/unique_chip_names"
 
 	chips, err := gatherChipLabels(t, newTestHwmonCollector())
 	if err != nil {
@@ -221,25 +119,9 @@ func TestHwmonUniqueChipNamesAreUnchanged(t *testing.T) {
 // disambiguator collapses too. We must still emit unique chip labels by
 // falling back to the hwmonX basename.
 func TestHwmonDuplicateChipNamesWithSameNameFile(t *testing.T) {
-	hwmons := []fakeHwmon{
-		{
-			hwmonDir: "hwmon3",
-			device:   "asus-nb-wmi",
-			name:     "asus",
-			files:    map[string]string{"pwm1_enable": "2"},
-		},
-		{
-			hwmonDir: "hwmon4",
-			device:   "asus-nb-wmi",
-			name:     "asus",
-			files:    map[string]string{"pwm1_enable": "2"},
-		},
-	}
-
-	sysRoot := buildFakeSysfs(t, hwmons)
 	prev := *sysPath
 	t.Cleanup(func() { *sysPath = prev })
-	*sysPath = sysRoot
+	*sysPath = "fixtures/sys/hwmon/same_name_file"
 
 	chips, err := gatherChipLabels(t, newTestHwmonCollector())
 	if err != nil {

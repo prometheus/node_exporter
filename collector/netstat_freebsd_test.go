@@ -77,7 +77,6 @@ func TestGetTCPStatesMetrics(t *testing.T) {
 			t.Errorf("unexpected %s value: want %f, got %f", tcpStates[i], want, got)
 		}
 	}
-
 }
 
 func TestGetUDPMetrics(t *testing.T) {

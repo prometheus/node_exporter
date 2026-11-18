@@ -43,7 +43,7 @@ func init() {
 
 // NewDiskstatsCollector returns a new Collector exposing disk device stats.
 func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
-	var diskLabelNames = []string{"device"}
+	diskLabelNames := []string{"device"}
 
 	deviceFilter, err := newDiskstatsDeviceFilter(logger)
 	if err != nil {

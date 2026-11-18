@@ -18,9 +18,7 @@ import (
 	"strings"
 )
 
-var (
-	hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
-)
+var hwmonInvalidMetricChars = regexp.MustCompile("[^a-z0-9:_]")
 
 func cleanMetricName(name string) string {
 	lower := strings.ToLower(name)

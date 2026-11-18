@@ -55,7 +55,6 @@ func NewUDPqueuesCollector(logger *slog.Logger) (Collector, error) {
 }
 
 func (c *udpQueuesCollector) Update(ch chan<- prometheus.Metric) error {
-
 	s4, errIPv4 := c.fs.NetUDPSummary()
 	if errIPv4 == nil {
 		ch <- prometheus.MustNewConstMetric(c.desc, prometheus.GaugeValue, float64(s4.TxQueueLength), "tx", "v4")

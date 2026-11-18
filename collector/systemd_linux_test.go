@@ -101,6 +101,7 @@ func TestSystemdIgnoreFilter(t *testing.T) {
 		}
 	}
 }
+
 func TestSystemdIgnoreFilterDefaultKeepsAll(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	c, err := NewSystemdCollector(logger)
@@ -132,7 +133,7 @@ func TestSystemdSummary(t *testing.T) {
 	}
 }
 
-func testSummaryHelper(t *testing.T, state string, actual float64, expected float64) {
+func testSummaryHelper(t *testing.T, state string, actual, expected float64) {
 	if actual != expected {
 		t.Errorf("Summary mode didn't count %s jobs correctly. Actual: %f, expected: %f", state, actual, expected)
 	}

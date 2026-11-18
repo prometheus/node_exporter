@@ -31,10 +31,12 @@ linters:
         path: _test.go
 formatters:
   enable:
+    - gofumpt
     - goimports
-  exclusions:
-    generated: lax
   settings:
+    gofumpt:
+      extra:
+        group-params: true
     goimports:
       local-prefixes:
         - github.com/prometheus/node_exporter

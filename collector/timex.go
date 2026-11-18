@@ -163,7 +163,7 @@ func NewTimexCollector(logger *slog.Logger) (Collector, error) {
 func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 	var syncStatus float64
 	var divisor float64
-	var timex = new(unix.Timex)
+	timex := new(unix.Timex)
 
 	status, err := unix.Adjtimex(timex)
 	if err != nil {

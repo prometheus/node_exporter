@@ -60,7 +60,6 @@ type hwMonCollector struct {
 // NewHwMonCollector returns a new Collector exposing /sys/class/hwmon stats
 // (similar to lm-sensors).
 func NewHwMonCollector(logger *slog.Logger) (Collector, error) {
-
 	return &hwMonCollector{
 		logger:       logger,
 		deviceFilter: newDeviceFilter(*collectorHWmonChipExclude, *collectorHWmonChipInclude),
@@ -68,7 +67,7 @@ func NewHwMonCollector(logger *slog.Logger) (Collector, error) {
 	}, nil
 }
 
-func addValueFile(data map[string]map[string]string, sensor string, prop string, file string) {
+func addValueFile(data map[string]map[string]string, sensor, prop, file string) {
 	raw, err := sysReadFile(file)
 	if err != nil {
 		return

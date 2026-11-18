@@ -291,7 +291,7 @@ func getPowerSourceList() ([]*C.struct_macos_powersupply, error) {
 			return nil, err
 		}
 
-		dict, err := C.IOPSGetPowerSourceDescription(infos, (C.CFTypeRef)(ps))
+		dict, err := C.IOPSGetPowerSourceDescription(infos, C.CFTypeRef(ps))
 		if err != nil {
 			return nil, err
 		}
@@ -373,7 +373,7 @@ func convertValue(value *C.int) *float64 {
 	}
 
 	ret := new(float64)
-	*ret = (float64)(*value)
+	*ret = float64(*value)
 	return ret
 }
 

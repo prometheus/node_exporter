@@ -1,0 +1,3 @@
+# HELP "my.dotted.metric" A metric with UTF-8 compatible names.
+# TYPE "my.dotted.metric" gauge
+{"my.dotted.metric", "error.message"="Not Found"} 1

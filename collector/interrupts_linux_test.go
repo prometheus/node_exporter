@@ -47,7 +47,6 @@ func TestInterrupts(t *testing.T) {
 	if want, got := "i8042", interrupts["12"].devices; want != got {
 		t.Errorf("want interrupts devices %s, got %s", want, got)
 	}
-
 }
 
 // https://github.com/prometheus/node_exporter/issues/2557

@@ -84,5 +84,4 @@ func Test_parseTCPStats(t *testing.T) {
 	if want, got := 22, int(tcpStats[tcpRxQueuedBytes]); want != got {
 		t.Errorf("want tcpstat number of bytes in rx queue %d, got %d", want, got)
 	}
-
 }

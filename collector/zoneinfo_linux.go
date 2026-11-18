@@ -92,6 +92,7 @@ func (c *zoneinfoCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 	return nil
 }
+
 func createGaugeMetricDescriptions() map[string]*prometheus.Desc {
 	return map[string]*prometheus.Desc{
 		"NrFreePages": prometheus.NewDesc(
@@ -199,8 +200,8 @@ func createGaugeMetricDescriptions() map[string]*prometheus.Desc {
 			"Number of shmem pages (included tmpfs/GEM pages)",
 			[]string{"node", "zone"}, nil),
 	}
-
 }
+
 func createCounterMetricDescriptions() map[string]*prometheus.Desc {
 	return map[string]*prometheus.Desc{
 		"NrDirtied": prometheus.NewDesc(

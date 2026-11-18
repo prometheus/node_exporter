@@ -258,9 +258,6 @@ node_xfrm_out_state_proto_error_packets_total 4542
 # HELP node_xfrm_out_state_seq_error_packets_total Sequence error i.e. Sequence number overflow
 # TYPE node_xfrm_out_state_seq_error_packets_total counter
 node_xfrm_out_state_seq_error_packets_total 543
-# HELP node_zfs_arcstats_c_min_bytes ZFS ARC minimum size
-# TYPE node_zfs_arcstats_c_min_bytes gauge
-node_zfs_arcstats_c_min_bytes 1.99743232e+08
 # HELP node_zfs_arcstats_mfu_ghost_size ZFS ARC MFU ghost size
 # TYPE node_zfs_arcstats_mfu_ghost_size gauge
 node_zfs_arcstats_mfu_ghost_size 0

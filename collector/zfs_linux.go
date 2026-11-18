@@ -171,7 +171,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 			return errZFSNotAvailable
 		}
 
-		err = c.parsePoolObjsetFile(file, zpoolPath, func(poolName string, datasetName string, s zfsSysctl, v uint64) {
+		err = c.parsePoolObjsetFile(file, zpoolPath, func(poolName, datasetName string, s zfsSysctl, v uint64) {
 			ch <- c.constPoolObjsetMetric(poolName, datasetName, s, v)
 		})
 		file.Close()
@@ -198,7 +198,7 @@ func (c *zfsCollector) updatePoolStats(ch chan<- prometheus.Metric) error {
 			return errZFSNotAvailable
 		}
 
-		err = c.parsePoolStateFile(file, zpoolPath, func(poolName string, stateName string, isActive uint64) {
+		err = c.parsePoolStateFile(file, zpoolPath, func(poolName, stateName string, isActive uint64) {
 			ch <- c.constPoolStateMetric(poolName, stateName, isActive)
 		})
 
@@ -262,7 +262,7 @@ func (c *zfsCollector) parsePoolProcfsFile(reader io.Reader, zpoolPath string, h
 		line := strings.Fields(scanner.Text())
 
 		if !parseLine && len(line) >= 12 && line[0] == "nread" {
-			//Start parsing from here.
+			// Start parsing from here.
 			parseLine = true
 			fields = make([]string, len(line))
 			copy(fields, line)
@@ -398,7 +398,7 @@ func (c *zfsCollector) constPoolMetric(poolName string, sysctl zfsSysctl, value 
 	)
 }
 
-func (c *zfsCollector) constPoolObjsetMetric(poolName string, datasetName string, sysctl zfsSysctl, value uint64) prometheus.Metric {
+func (c *zfsCollector) constPoolObjsetMetric(poolName, datasetName string, sysctl zfsSysctl, value uint64) prometheus.Metric {
 	metricName := sysctl.metricName()
 
 	return prometheus.MustNewConstMetric(
@@ -415,7 +415,7 @@ func (c *zfsCollector) constPoolObjsetMetric(poolName string, datasetName string
 	)
 }
 
-func (c *zfsCollector) constPoolStateMetric(poolName string, stateName string, isActive uint64) prometheus.Metric {
+func (c *zfsCollector) constPoolStateMetric(poolName, stateName string, isActive uint64) prometheus.Metric {
 	return prometheus.MustNewConstMetric(
 		prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "zfs_zpool", "state"),

@@ -1,0 +1,2 @@
+# TYPE foo gauge
+foo{file="c"} 3

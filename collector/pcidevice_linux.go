@@ -174,8 +174,18 @@ func NewPcideviceCollector(logger *slog.Logger) (Collector, error) {
 
 	// Build label names based on whether name resolution is enabled
 	labelNames := append(pcideviceLabelNames,
-		[]string{"parent_segment", "parent_bus", "parent_device", "parent_function",
-			"class_id", "vendor_id", "device_id", "subsystem_vendor_id", "subsystem_device_id", "revision"}...)
+		[]string{
+			"parent_segment",
+			"parent_bus",
+			"parent_device",
+			"parent_function",
+			"class_id",
+			"vendor_id",
+			"device_id",
+			"subsystem_vendor_id",
+			"subsystem_device_id",
+			"revision",
+		}...)
 
 	if c.pciNames {
 		c.loadPCIIds()
