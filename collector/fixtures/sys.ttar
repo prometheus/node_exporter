@@ -12297,7 +12297,7 @@ Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/kernel/mm/ksm/general_profit
 Lines: 1
-1044480
+-81920
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Path: sys/kernel/mm/ksm/merge_across_nodes
