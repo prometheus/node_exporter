@@ -2040,7 +2040,7 @@ node_kernel_hung_tasks_total 42
 node_ksmd_full_scans_total 323
 # HELP node_ksmd_general_profit_bytes How effective is KSM. ksm_saved_pages * sizeof(page) - (all_rmap_items) * sizeof(rmap_item)
 # TYPE node_ksmd_general_profit_bytes gauge
-node_ksmd_general_profit_bytes 1.04448e+06
+node_ksmd_general_profit_bytes -81920
 # HELP node_ksmd_merge_across_nodes Specifies if pages from different NUMA nodes can be merged.
 # TYPE node_ksmd_merge_across_nodes gauge
 node_ksmd_merge_across_nodes 1
