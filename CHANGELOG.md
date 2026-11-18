@@ -1,7 +1,36 @@
 ## master / unreleased
 
+## 1.13.0 / 2026-11-19
+
+NOTE:
+
+The behavior of `node_cpu_frequency_hertz` has changed. There are two different sources
+of data for this metric. One from the `cpu` collector, one from the `cpufreq` collector.
+Due to historical feature migrations the `cpufreq` collector shares the same subsystem
+as the `cpu` collector. This caused conflicting data behavior. An attempt to fix this
+was introduced in #3318. This behavior has been reverted to the previous behavior in #3795.
+
+A new flag (`--collector.cpufreq.enable-cpufreq-prefix`) has been introduced that gives
+the `cpufreq` a dedicated metric name subsystem (`node_cpufreq_...`). This will likely
+be the default in v2.
+
+* [CHANGE] netstat: Use procfs parsers for netstat, snmp and snmp6 #3796
 * [CHANGE] edac: Fix no data results #3863
 * [CHANGE] nvme: Deprecate metric nvme_namespace_capacity_bytes #3899
+* [FEATURE] Add tainted collector for /proc/sys/kernel/tainted #3745
+* [FEATURE] Add resctrl collector #3797
+* [ENHANCEMENT] netstat: Add new FreeBSD metrics #3334
+* [ENHANCEMENT] Add `chip` label to DRM metrics #3572
+* [ENHANCEMENT] diskstats: add device-mapper backing device info metric #3676
+* [ENHANCEMENT] textfile: support UTF-8 metric and label names #3729
+* [ENHANCEMENT] ksmd: add general_profit metric #3778 #3894
+* [BUGFIX] edac: Fix printf-style formatting in slog call #3759
+* [BUGFIX] fibre_channel: fix crash when attempting to dereference invalid counters #3573
+* [BUGFIX] thermal: Fix collecting Darwin temperatures without CPU power status #3767
+* [BUGFIX] fibrechannel: Fix for ppc64le #3769
+* [BUGFIX] cpu: Revert dup cpu frequency, add node_cpufreq flag #3795
+* [BUGFIX] infiniband: skip sysfs reads for excluded devices #3824
+* [BUGFIX] bcache: Fix btree_read_average_duration_seconds unit #3828
 
 ## 1.12.1 / 2026-07-14
 
