@@ -2,6 +2,7 @@
 
 * [CHANGE] edac: Fix no data results #3863
 * [CHANGE] nvme: Deprecate metric nvme_namespace_capacity_bytes #3899
+* [ENHANCEMENT] diskstats: Add optional udev-based filtering of multipath member devices.
 
 ## 1.12.1 / 2026-07-14
 

@@ -527,3 +527,67 @@ E:SYSTEMD_WANTS=lvm2-pvscan@8:32.service
 G:systemd
 Mode: 644
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: udev/multipath
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath/b252:5
+Lines: 4
+E:DM_NAME=mpath-example
+E:DM_UUID=mpath-example-volume
+E:ID_FS_TYPE=xfs
+E:ID_FS_USAGE=filesystem
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath/b8:0
+Lines: 2
+E:DM_MULTIPATH_DEVICE_PATH=0
+E:ID_MODEL=Example_local_disk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath/b8:16
+Lines: 8
+E:DM_MULTIPATH_DEVICE_PATH=1
+E:ID_MODEL=Example_multipath_member
+E:ID_FS_TYPE=xfs
+E:ID_FS_USAGE=filesystem
+E:ID_ATA=1
+E:ID_ATA_WRITE_CACHE=1
+E:ID_ATA_WRITE_CACHE_ENABLED=1
+E:ID_ATA_ROTATION_RATE_RPM=0
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath/b8:32
+Lines: 2
+E:DM_MULTIPATH_DEVICE_PATH=2
+E:ID_MODEL=Example_candidate_disk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: udev/multipath-swapped
+Mode: 755
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath-swapped/b252:5
+Lines: 4
+E:DM_NAME=mpath-example
+E:DM_UUID=mpath-example-volume
+E:ID_FS_TYPE=xfs
+E:ID_FS_USAGE=filesystem
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath-swapped/b8:0
+Lines: 2
+E:DM_MULTIPATH_DEVICE_PATH=1
+E:ID_MODEL=Example_multipath_member
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath-swapped/b8:16
+Lines: 2
+E:DM_MULTIPATH_DEVICE_PATH=0
+E:ID_MODEL=Example_local_disk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: udev/multipath-swapped/b8:32
+Lines: 2
+E:DM_MULTIPATH_DEVICE_PATH=2
+E:ID_MODEL=Example_candidate_disk
+Mode: 644
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

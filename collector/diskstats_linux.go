@@ -19,12 +19,14 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/procfs/blockdevice"
 )
@@ -44,6 +46,7 @@ const (
 	// Udev device properties.
 	udevDMLVLayer               = "DM_LV_LAYER"
 	udevDMLVName                = "DM_LV_NAME"
+	udevDMMultipathDevicePath   = "DM_MULTIPATH_DEVICE_PATH"
 	udevDMName                  = "DM_NAME"
 	udevDMUUID                  = "DM_UUID"
 	udevDMVGName                = "DM_VG_NAME"
@@ -67,10 +70,15 @@ const (
 	udevSCSIIdentSerial         = "SCSI_IDENT_SERIAL"
 )
 
+var diskstatsIgnoreMultipathMembers = kingpin.Flag("collector.diskstats.ignore-multipath-members",
+	"Exclude multipath member devices marked by DM_MULTIPATH_DEVICE_PATH=1 in udev.",
+).Default("false").Bool()
+
 type udevInfo map[string]string
 
 type diskstatsCollector struct {
 	deviceFilter            deviceFilter
+	ignoreMultipathMembers  bool
 	fs                      blockdevice.FS
 	infoDesc                typedDesc
 	descs                   []typedDesc
@@ -101,8 +109,9 @@ func NewDiskstatsCollector(logger *slog.Logger) (Collector, error) {
 	}
 
 	collector := diskstatsCollector{
-		deviceFilter: deviceFilter,
-		fs:           fs,
+		deviceFilter:           deviceFilter,
+		ignoreMultipathMembers: *diskstatsIgnoreMultipathMembers,
+		fs:                     fs,
 		infoDesc: typedDesc{
 			desc: prometheus.NewDesc(prometheus.BuildFQName(namespace, diskSubsystem, "info"),
 				"Info of /sys/block/<block_device>.",
@@ -289,7 +298,9 @@ func (c *diskstatsCollector) Update(ch chan<- prometheus.Metric) error {
 			var err error
 			info, err = c.getUdevDeviceProperties(stats.MajorNumber, stats.MinorNumber)
 			if err != nil {
-				c.logger.Debug("Failed to parse udev info", "err", err)
+				c.logger.Debug("Failed to parse udev info", "device", dev, "err", err)
+			} else if c.ignoreMultipathMembers && info[udevDMMultipathDevicePath] == "1" {
+				continue
 			}
 		}
 
@@ -434,6 +445,10 @@ func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 	}
 	defer data.Close()
 
+	return parseUdevDeviceProperties(data)
+}
+
+func parseUdevDeviceProperties(data io.Reader) (udevInfo, error) {
 	info := make(udevInfo)
 
 	scanner := bufio.NewScanner(data)
@@ -452,5 +467,5 @@ func getUdevDeviceProperties(major, minor uint32) (udevInfo, error) {
 		}
 	}
 
-	return info, nil
+	return info, scanner.Err()
 }
