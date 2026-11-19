@@ -17,6 +17,7 @@ package collector
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -105,5 +106,13 @@ func TestMemInfoNumaStat(t *testing.T) {
 
 	if want, got := 59860526920.0, numaStat[5].value; want != got {
 		t.Errorf("want numa stat other_node %f, got %f", want, got)
+	}
+}
+
+func TestMemInfoNumaShortLine(t *testing.T) {
+	for _, line := range []string{"Node 0 MemTotal:", "Node 0", "MemTotal"} {
+		if _, err := parseMemInfoNuma(strings.NewReader(line + "\n")); err == nil {
+			t.Errorf("parseMemInfoNuma(%q): expected an error for a line with too few fields", line)
+		}
 	}
 }
