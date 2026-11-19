@@ -16,10 +16,101 @@
 package collector
 
 import (
+	"errors"
+	"math"
 	"os"
 	"path/filepath"
+	"runtime"
+	"runtime/debug"
 	"testing"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/promslog"
 )
+
+func TestZFSUpdateClosesDirectory(t *testing.T) {
+	previousProcPath := *procPath
+	*procPath = "fixtures/proc"
+	t.Cleanup(func() { *procPath = previousProcPath })
+	// Disable both automatic GC triggers so finalizers cannot conceal missing cleanup.
+	previousMemoryLimit := debug.SetMemoryLimit(math.MaxInt64)
+	previousGC := debug.SetGCPercent(-1)
+	t.Cleanup(func() {
+		debug.SetGCPercent(previousGC)
+		debug.SetMemoryLimit(previousMemoryLimit)
+		runtime.GC()
+	})
+
+	for _, tc := range []struct {
+		name       string
+		base       string
+		parseError bool
+		wantNoData bool
+	}{
+		{name: "successful scrape", base: "spl/kstat/zfs"},
+		{name: "missing directory", base: "spl/kstat/zfs-missing", wantNoData: true},
+		{name: "parse error", base: "spl/kstat/zfs", parseError: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			collector, err := NewZFSCollector(promslog.NewNopLogger())
+			if err != nil {
+				t.Fatal(err)
+			}
+			c := collector.(*zfsCollector)
+			c.linuxProcpathBase = tc.base
+			if tc.parseError {
+				// The checked-in state file has no statistics header.
+				c.linuxPathMap = map[string]string{"zfs_arc": "pool1/state"}
+			}
+			base, err := filepath.Abs(procFilePath(tc.base))
+			if err != nil {
+				t.Fatal(err)
+			}
+			countOpen := func() int {
+				entries, err := os.ReadDir("/proc/self/fd")
+				if err != nil {
+					t.Fatal(err)
+				}
+				count := 0
+				for _, entry := range entries {
+					target, err := os.Readlink(filepath.Join("/proc/self/fd", entry.Name()))
+					if err == nil && target == base {
+						count++
+					}
+				}
+				return count
+			}
+			metrics := make(chan prometheus.Metric)
+			done := make(chan struct{})
+			go func() {
+				for range metrics {
+				}
+				close(done)
+			}()
+			t.Cleanup(func() { close(metrics); <-done })
+
+			before := countOpen()
+			for range 10 {
+				err := c.Update(metrics)
+				switch {
+				case tc.wantNoData:
+					if !errors.Is(err, ErrNoData) {
+						t.Fatalf("expected ErrNoData, got %v", err)
+					}
+				case tc.parseError:
+					if err == nil || errors.Is(err, ErrNoData) {
+						t.Fatalf("expected a parse error, got %v", err)
+					}
+				case err != nil:
+					t.Fatal(err)
+				}
+			}
+			if after := countOpen(); after != before {
+				t.Fatalf("open ZFS directory descriptors changed from %d to %d", before, after)
+			}
+		})
+	}
+}
 
 func TestArcstatsParsing(t *testing.T) {
 	arcstatsFile, err := os.Open("fixtures/proc/spl/kstat/zfs/arcstats")
