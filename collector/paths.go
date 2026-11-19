@@ -14,6 +14,9 @@
 package collector
 
 import (
+	"fmt"
+	"log/slog"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -23,11 +26,84 @@ import (
 
 var (
 	// The path of the proc filesystem.
-	procPath     = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).String()
-	sysPath      = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").String()
-	rootfsPath   = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").String()
-	udevDataPath = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").String()
+	procPathSetByUser     bool
+	procPath              = kingpin.Flag("path.procfs", "procfs mountpoint.").Default(procfs.DefaultMountPoint).IsSetByUser(&procPathSetByUser).String()
+	sysPathSetByUser      bool
+	sysPath               = kingpin.Flag("path.sysfs", "sysfs mountpoint.").Default("/sys").IsSetByUser(&sysPathSetByUser).String()
+	rootfsPathSetByUser   bool
+	rootfsPath            = kingpin.Flag("path.rootfs", "rootfs mountpoint.").Default("/").IsSetByUser(&rootfsPathSetByUser).String()
+	udevDataPathSetByUser bool
+	udevDataPath          = kingpin.Flag("path.udev.data", "udev data path.").Default("/run/udev/data").IsSetByUser(&udevDataPathSetByUser).String()
 )
+
+// configuredPath is a filesystem path the user can override with a flag.
+type configuredPath struct {
+	name      string
+	path      *string
+	setByUser *bool
+	// markers, if non-empty, name entries that should exist for this path to
+	// look like the expected filesystem. Any one match is enough.
+	markers []string
+}
+
+func configuredPaths() []configuredPath {
+	return []configuredPath{
+		{name: "procfs", path: procPath, setByUser: &procPathSetByUser, markers: []string{"self", "stat"}},
+		{name: "sysfs", path: sysPath, setByUser: &sysPathSetByUser, markers: []string{"devices", "class"}},
+		{name: "rootfs", path: rootfsPath, setByUser: &rootfsPathSetByUser},
+		{name: "udev data", path: udevDataPath, setByUser: &udevDataPathSetByUser},
+	}
+}
+
+// WarnUnusablePaths logs a warning for filesystem paths the user explicitly
+// configured when those paths are missing, not directories, unreadable, or
+// (for procfs and sysfs) clearly not the expected filesystem. Default paths
+// are not checked. Warnings never stop startup.
+func WarnUnusablePaths(logger *slog.Logger) {
+	if logger == nil {
+		return
+	}
+	for _, cp := range configuredPaths() {
+		if cp.setByUser == nil || !*cp.setByUser || cp.path == nil {
+			continue
+		}
+		if reason := unusablePathReason(*cp.path, cp.markers); reason != "" {
+			logger.Warn(fmt.Sprintf("Configured %s path is not usable", cp.name), "path", *cp.path, "reason", reason)
+		}
+	}
+}
+
+// unusablePathReason reports why path cannot be used, or "" when it is usable.
+// markers are optional names; if set, at least one must exist in the directory.
+func unusablePathReason(path string, markers []string) string {
+	info, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "path does not exist"
+		}
+		return fmt.Sprintf("path is not accessible: %s", err)
+	}
+	if !info.IsDir() {
+		return "path is not a directory"
+	}
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return fmt.Sprintf("path is not accessible: %s", err)
+	}
+	if len(markers) == 0 {
+		return ""
+	}
+	present := make(map[string]struct{}, len(entries))
+	for _, entry := range entries {
+		present[entry.Name()] = struct{}{}
+	}
+	for _, marker := range markers {
+		if _, ok := present[marker]; ok {
+			return ""
+		}
+	}
+	return fmt.Sprintf("path is missing expected entries (%s)", strings.Join(markers, " or "))
+}
 
 func procFilePath(name string) string {
 	return filepath.Join(*procPath, name)
