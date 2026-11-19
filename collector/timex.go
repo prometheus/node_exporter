@@ -39,6 +39,11 @@ const (
 
 	// See NOTES in adjtimex(2).
 	ppm16frac = 1000000.0 * 65536.0
+
+	// offsetOverflowThresholdSec: |offset| exceeding this indicates a likely
+	// kernel adjtimex() overflow artifact (2^32 ns ≈ 4.29s on KVM/pvclock).
+	// See https://github.com/prometheus/node_exporter/issues/3764
+	offsetOverflowThresholdSec = 4.0
 )
 
 type timexCollector struct {
@@ -58,8 +63,10 @@ type timexCollector struct {
 	errcnt,
 	stbcnt,
 	tai,
-	syncStatus typedDesc
-	logger *slog.Logger
+	syncStatus,
+	overflow typedDesc
+	logger        *slog.Logger
+	overflowCount uint64
 }
 
 func init() {
@@ -156,6 +163,11 @@ func NewTimexCollector(logger *slog.Logger) (Collector, error) {
 			"Is clock synchronized to a reliable server (1 = yes, 0 = no).",
 			nil, nil,
 		), prometheus.GaugeValue},
+		overflow: typedDesc{prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, subsystem, "offset_overflow_total"),
+			"Count of adjtimex() offset readings indicating kernel overflow (|offset| > 4s). See https://github.com/prometheus/node_exporter/issues/3764",
+			nil, nil,
+		), prometheus.CounterValue},
 		logger: logger,
 	}, nil
 }
@@ -185,8 +197,14 @@ func (c *timexCollector) Update(ch chan<- prometheus.Metric) error {
 		divisor = microSeconds
 	}
 
+	offsetSec := float64(timex.Offset) / divisor
+	if offsetSec > offsetOverflowThresholdSec || offsetSec < -offsetOverflowThresholdSec {
+		c.overflowCount++
+	}
+
 	ch <- c.syncStatus.mustNewConstMetric(syncStatus)
-	ch <- c.offset.mustNewConstMetric(float64(timex.Offset) / divisor)
+	ch <- c.offset.mustNewConstMetric(offsetSec)
+	ch <- c.overflow.mustNewConstMetric(float64(c.overflowCount))
 	ch <- c.freq.mustNewConstMetric(1 + float64(timex.Freq)/ppm16frac)
 	ch <- c.maxerror.mustNewConstMetric(float64(timex.Maxerror) / microSeconds)
 	ch <- c.esterror.mustNewConstMetric(float64(timex.Esterror) / microSeconds)
