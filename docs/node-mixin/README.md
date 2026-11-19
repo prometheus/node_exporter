@@ -41,5 +41,13 @@ make dashboards_out
 Note that some of the generated dashboards require recording rules specified in
 the previously generated `node_rules.yaml`.
 
+The alerting rules come with unit tests (requires `promtool`, see the
+[Prometheus documentation](https://prometheus.io/docs/prometheus/latest/installation/))
+which you can run with:
+
+```bash
+make test
+```
+
 For more advanced uses of mixins, see
 <https://github.com/monitoring-mixins/docs>.
