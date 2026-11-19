@@ -136,7 +136,7 @@ btrfs | Exposes btrfs statistics | Linux
 boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD, Solaris
 conntrack | Shows conntrack statistics (does nothing if no `/proc/sys/net/netfilter/` present). | Linux
 cpu | Exposes CPU statistics | Darwin, Dragonfly, FreeBSD, Linux, Solaris, OpenBSD
-cpufreq | Exposes CPU frequency statistics | Linux, Solaris
+cpufreq | Exposes CPU frequency and energy performance preference statistics | Linux, Solaris
 diskstats | Exposes disk I/O statistics. | Darwin, Linux, OpenBSD
 dmi | Expose Desktop Management Interface (DMI) info from `/sys/class/dmi/id/` | Linux
 dmmultipath | Exposes DM-multipath device and path metrics from `/sys/block/dm-*`. | Linux
