@@ -262,8 +262,9 @@ func (c *hwMonCollector) updateHwmon(ch chan<- prometheus.Metric, dir, hwmonName
 				continue
 			}
 
-			// special elements, fault, alarm & beep should be handed out without units
-			if element == "fault" || element == "alarm" {
+			// special elements, fault, alarm & beep should be handed out without units.
+			// This includes limit alarms such as crit_alarm or max_alarm.
+			if element == "fault" || element == "alarm" || strings.HasSuffix(element, "_alarm") {
 				desc := prometheus.NewDesc(name, "Hardware sensor "+element+" status ("+sensorType+")", hwmonLabelDesc, nil)
 				ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, parsedValue, labels...)
 				continue
