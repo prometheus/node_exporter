@@ -131,6 +131,7 @@ Name     | Description | OS
 ---------|-------------|----
 arp | Exposes ARP statistics from `/proc/net/arp`. | Linux
 bcache | Exposes bcache statistics from `/sys/fs/bcache/`. | Linux
+bcachefs | Exposes bcachefs filesystem statistics from `/sys/fs/bcachefs/`. | Linux
 bonding | Exposes the number of configured and active slaves of Linux bonding interfaces. | Linux
 btrfs | Exposes btrfs statistics | Linux
 boottime | Exposes system boot time derived from the `kern.boottime` sysctl. | Darwin, Dragonfly, FreeBSD, NetBSD, OpenBSD, Solaris
