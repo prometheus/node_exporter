@@ -18,6 +18,8 @@ package collector
 import (
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"slices"
 	"testing"
 
@@ -132,6 +134,67 @@ func TestHwmonDuplicateChipNamesWithSameNameFile(t *testing.T) {
 	}
 	if !slices.Contains(chips, "platform_asus_nb_wmi_hwmon4") {
 		t.Errorf("expected platform_asus_nb_wmi_hwmon4, got %v", uniq(chips))
+	}
+}
+
+// Limit alarms such as temp1_crit_alarm are boolean flags according to
+// the hwmon sysfs documentation, so their value must not be scaled to a
+// unit.
+func TestHwmonLimitAlarmsAreNotScaled(t *testing.T) {
+	root := t.TempDir()
+	hwmon := filepath.Join(root, "class", "hwmon", "hwmon0")
+	if err := os.MkdirAll(hwmon, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	files := map[string]string{
+		"name":             "testchip\n",
+		"temp1_input":      "45000\n",
+		"temp1_crit_alarm": "1\n",
+		"in0_max_alarm":    "1\n",
+		"curr1_max_alarm":  "1\n",
+		"power1_cap_alarm": "1\n",
+		"fan1_min_alarm":   "1\n",
+		"temp1_fault":      "1\n",
+	}
+	for name, content := range files {
+		if err := os.WriteFile(filepath.Join(hwmon, name), []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	prev := *sysPath
+	t.Cleanup(func() { *sysPath = prev })
+	*sysPath = root
+
+	reg := prometheus.NewRegistry()
+	if err := reg.Register(testHwmonCollector{c: newTestHwmonCollector()}); err != nil {
+		t.Fatalf("register: %v", err)
+	}
+	families, err := reg.Gather()
+	if err != nil {
+		t.Fatalf("gather: %v", err)
+	}
+	got := map[string]float64{}
+	for _, fam := range families {
+		for _, m := range fam.Metric {
+			got[fam.GetName()] = m.GetGauge().GetValue()
+		}
+	}
+	for _, name := range []string{
+		"node_hwmon_temp_crit_alarm",
+		"node_hwmon_in_max_alarm",
+		"node_hwmon_curr_max_alarm",
+		"node_hwmon_power_cap_alarm",
+		"node_hwmon_fan_min_alarm",
+	} {
+		v, ok := got[name]
+		if !ok {
+			t.Errorf("metric %s not found, got %v", name, got)
+			continue
+		}
+		if v != 1 {
+			t.Errorf("%s = %v, want 1", name, v)
+		}
 	}
 }
 

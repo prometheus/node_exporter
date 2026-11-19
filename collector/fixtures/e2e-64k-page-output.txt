@@ -1693,20 +1693,20 @@ node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="temp2"} 54
 node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="temp3"} 52
 node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="temp4"} 53
 node_hwmon_temp_celsius{chip="platform_coretemp_1",sensor="temp5"} 50
-# HELP node_hwmon_temp_crit_alarm_celsius Hardware monitor for temperature (crit_alarm)
-# TYPE node_hwmon_temp_crit_alarm_celsius gauge
-node_hwmon_temp_crit_alarm_celsius{chip="hwmon4",sensor="temp1"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="hwmon4",sensor="temp2"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="temp1"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="temp2"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="temp3"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="temp4"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_0",sensor="temp5"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="temp1"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="temp2"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="temp3"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="temp4"} 0
-node_hwmon_temp_crit_alarm_celsius{chip="platform_coretemp_1",sensor="temp5"} 0
+# HELP node_hwmon_temp_crit_alarm Hardware sensor crit_alarm status (temp)
+# TYPE node_hwmon_temp_crit_alarm gauge
+node_hwmon_temp_crit_alarm{chip="hwmon4",sensor="temp1"} 0
+node_hwmon_temp_crit_alarm{chip="hwmon4",sensor="temp2"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_0",sensor="temp1"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_0",sensor="temp2"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_0",sensor="temp3"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_0",sensor="temp4"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_0",sensor="temp5"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_1",sensor="temp1"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_1",sensor="temp2"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_1",sensor="temp3"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_1",sensor="temp4"} 0
+node_hwmon_temp_crit_alarm{chip="platform_coretemp_1",sensor="temp5"} 0
 # HELP node_hwmon_temp_crit_celsius Hardware monitor for temperature (crit)
 # TYPE node_hwmon_temp_crit_celsius gauge
 node_hwmon_temp_crit_celsius{chip="hwmon4",sensor="temp1"} 100

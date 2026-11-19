@@ -1,5 +1,7 @@
 ## master / unreleased
 
+* [CHANGE] hwmon: Export limit alarms such as temp_crit_alarm as unscaled flags without a unit suffix #3914
+
 ## 1.13.1 / 2026-11-19
 
 * [BUGFIX] btrfs: Fix device_unused_bytes wrapping around during shrink #3827
