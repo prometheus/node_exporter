@@ -19,10 +19,25 @@ import (
 	"io"
 	"log/slog"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/prometheus/procfs"
 )
+
+type testCPUCollector struct {
+	mc Collector
+}
+
+func (c testCPUCollector) Collect(ch chan<- prometheus.Metric) {
+	c.mc.Update(ch)
+}
+
+func (c testCPUCollector) Describe(ch chan<- *prometheus.Desc) {
+	prometheus.DescribeByCollect(c, ch)
+}
 
 func copyStats(d, s map[int64]procfs.CPUStat) {
 	for k := range s {
@@ -201,5 +216,29 @@ func TestCPUOffline(t *testing.T) {
 	got = c.cpuStats
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("should have %v CPU Stat: got %v", want, got)
+	}
+}
+
+func TestCPUNUMAInfo(t *testing.T) {
+	origProcPath, origSysPath := *procPath, *sysPath
+	t.Cleanup(func() { *procPath, *sysPath = origProcPath, origSysPath })
+	*procPath = "fixtures/proc"
+	*sysPath = "fixtures/sys"
+
+	mc, err := NewCPUCollector(slog.New(slog.NewTextHandler(io.Discard, nil)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// node2 in the fixtures is a memory-only node and has no CPUs.
+	expected := `# HELP node_cpu_numa_info NUMA node of each online CPU, information from /sys/devices/system/node/node*/cpulist.
+# TYPE node_cpu_numa_info gauge
+node_cpu_numa_info{cpu="0",node="0"} 1
+node_cpu_numa_info{cpu="1",node="0"} 1
+node_cpu_numa_info{cpu="2",node="1"} 1
+node_cpu_numa_info{cpu="3",node="1"} 1
+`
+	if err := testutil.CollectAndCompare(testCPUCollector{mc}, strings.NewReader(expected), "node_cpu_numa_info"); err != nil {
+		t.Fatal(err)
 	}
 }

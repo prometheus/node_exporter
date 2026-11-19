@@ -937,6 +937,12 @@ node_cpu_isolated{cpu="3"} 1
 node_cpu_isolated{cpu="4"} 1
 node_cpu_isolated{cpu="5"} 1
 node_cpu_isolated{cpu="9"} 1
+# HELP node_cpu_numa_info NUMA node of each online CPU, information from /sys/devices/system/node/node*/cpulist.
+# TYPE node_cpu_numa_info gauge
+node_cpu_numa_info{cpu="0",node="0"} 1
+node_cpu_numa_info{cpu="1",node="0"} 1
+node_cpu_numa_info{cpu="2",node="1"} 1
+node_cpu_numa_info{cpu="3",node="1"} 1
 # HELP node_cpu_package_throttles_total Number of times this CPU package has been throttled.
 # TYPE node_cpu_package_throttles_total counter
 node_cpu_package_throttles_total{package="0"} 30

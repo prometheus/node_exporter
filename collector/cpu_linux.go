@@ -47,6 +47,7 @@ type cpuCollector struct {
 	cpuIsolated        *prometheus.Desc
 	logger             *slog.Logger
 	cpuOnline          *prometheus.Desc
+	cpuNUMAInfo        *prometheus.Desc
 	cpuStats           map[int64]procfs.CPUStat
 	cpuStatsMutex      sync.Mutex
 	isolatedCpus       []uint16
@@ -139,6 +140,11 @@ func NewCPUCollector(logger *slog.Logger) (Collector, error) {
 			"CPUs that are online and being scheduled.",
 			[]string{"cpu"}, nil,
 		),
+		cpuNUMAInfo: prometheus.NewDesc(
+			prometheus.BuildFQName(namespace, cpuCollectorSubsystem, "numa_info"),
+			"NUMA node of each online CPU, information from /sys/devices/system/node/node*/cpulist.",
+			[]string{"cpu", "node"}, nil,
+		),
 		logger:       logger,
 		isolatedCpus: isolcpus,
 		cpuStats:     make(map[int64]procfs.CPUStat),
@@ -190,6 +196,10 @@ func (c *cpuCollector) Update(ch chan<- prometheus.Metric) error {
 		return err
 	}
 	err = c.updateOnline(ch)
+	if err != nil {
+		return err
+	}
+	err = c.updateNUMA(ch)
 	if err != nil {
 		return err
 	}
@@ -370,6 +380,27 @@ func (c *cpuCollector) updateOnline(ch chan<- prometheus.Metric) error {
 			setOnline = 1
 		}
 		ch <- prometheus.MustNewConstMetric(c.cpuOnline, prometheus.GaugeValue, setOnline, cpu.Number())
+	}
+
+	return nil
+}
+
+// updateNUMA reads /sys/devices/system/node/node*/cpulist through sysfs and exports the NUMA node of each online CPU.
+func (c *cpuCollector) updateNUMA(ch chan<- prometheus.Metric) error {
+	// No-op if the system does not expose NUMA nodes.
+	nodes, err := c.sysfs.NUMANodeCPUList()
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			c.logger.Debug("couldn't open NUMA node cpulist file", "error", err)
+			return nil
+		}
+		return err
+	}
+	for node, cpus := range nodes {
+		nodeNum := strconv.Itoa(node)
+		for _, cpu := range cpus {
+			ch <- prometheus.MustNewConstMetric(c.cpuNUMAInfo, prometheus.GaugeValue, 1, strconv.Itoa(int(cpu)), nodeNum)
+		}
 	}
 
 	return nil
