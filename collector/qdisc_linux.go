@@ -41,6 +41,7 @@ type qdiscStatCollector struct {
 
 var (
 	collectorQdisc                 = kingpin.Flag("collector.qdisc.fixtures", "test fixtures to use for qdisc collector end-to-end testing").Default("").String()
+	collectorQdiscIncludeChild     = kingpin.Flag("collector.qdisc.include-child", "Also expose non-root qdiscs, adding 'parent' and 'handle' labels to all qdisc metrics. Note that packets traversing a child qdisc are also counted by its parents, so generic counters must not be aggregated across a device without grouping by these labels.").Bool()
 	collectorQdiscDeviceInclude    = kingpin.Flag("collector.qdisc.device-include", "Regexp of qdisc devices to include (mutually exclusive to device-exclude).").String()
 	oldCollectorQdiskDeviceInclude = kingpin.Flag("collector.qdisk.device-include", "DEPRECATED: Use collector.qdisc.device-include").Hidden().String()
 	collectorQdiscDeviceExclude    = kingpin.Flag("collector.qdisc.device-exclude", "Regexp of qdisc devices to exclude (mutually exclusive to device-include).").String()
@@ -75,45 +76,65 @@ func NewQdiscStatCollector(logger *slog.Logger) (Collector, error) {
 		return nil, fmt.Errorf("collector.qdisc.device-include and collector.qdisc.device-exclude are mutaly exclusive")
 	}
 
+	labels := []string{"device", "kind"}
+	if *collectorQdiscIncludeChild {
+		labels = append(labels, "parent", "handle")
+	}
+
 	return &qdiscStatCollector{
 		bytes: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "bytes_total"),
 			"Number of bytes sent.",
-			[]string{"device", "kind"}, nil,
+			labels, nil,
 		), prometheus.CounterValue},
 		packets: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "packets_total"),
 			"Number of packets sent.",
-			[]string{"device", "kind"}, nil,
+			labels, nil,
 		), prometheus.CounterValue},
 		drops: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "drops_total"),
 			"Number of packets dropped.",
-			[]string{"device", "kind"}, nil,
+			labels, nil,
 		), prometheus.CounterValue},
 		requeues: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "requeues_total"),
 			"Number of packets dequeued, not transmitted, and requeued.",
-			[]string{"device", "kind"}, nil,
+			labels, nil,
 		), prometheus.CounterValue},
 		overlimits: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "overlimits_total"),
 			"Number of overlimit packets.",
-			[]string{"device", "kind"}, nil,
+			labels, nil,
 		), prometheus.CounterValue},
 		qlength: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "current_queue_length"),
 			"Number of packets currently in queue to be sent.",
-			[]string{"device", "kind"}, nil,
+			labels, nil,
 		), prometheus.GaugeValue},
 		backlog: typedDesc{prometheus.NewDesc(
 			prometheus.BuildFQName(namespace, "qdisc", "backlog"),
 			"Number of bytes currently in queue to be sent.",
-			[]string{"device", "kind"}, nil,
+			labels, nil,
 		), prometheus.GaugeValue},
 		logger:       logger,
 		deviceFilter: newDeviceFilter(*collectorQdiscDeviceExclude, *collectorQdiscDeviceInclude),
 	}, nil
+}
+
+// tcHandleString renders a tc handle in the usual major:minor hex notation.
+func tcHandleString(handle uint32) string {
+	return fmt.Sprintf("%x:%x", handle>>16, handle&0xffff)
+}
+
+// tcParentString renders the parent of a qdisc for use as a label value.
+// The ema/qdisc library normalizes TC_H_ROOT to 0, which is rendered as
+// "root" to match tc's own terminology.
+func tcParentString(parent uint32) string {
+	if parent == 0 {
+		return "root"
+	}
+	return tcHandleString(parent)
 }
 
 func testQdiscGet(fixtures string) ([]qdisc.QdiscInfo, error) {
@@ -145,8 +166,10 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 	}
 
 	for _, msg := range msgs {
-		// Only report root qdisc information.
-		if msg.Parent != 0 {
+		// By default, only report root qdisc information. Packets traversing
+		// a child qdisc are also counted by its parents, so reporting only
+		// root qdiscs keeps per-device aggregations free of double counting.
+		if !*collectorQdiscIncludeChild && msg.Parent != 0 {
 			continue
 		}
 
@@ -154,13 +177,18 @@ func (c *qdiscStatCollector) Update(ch chan<- prometheus.Metric) error {
 			continue
 		}
 
-		ch <- c.bytes.mustNewConstMetric(float64(msg.Bytes), msg.IfaceName, msg.Kind)
-		ch <- c.packets.mustNewConstMetric(float64(msg.Packets), msg.IfaceName, msg.Kind)
-		ch <- c.drops.mustNewConstMetric(float64(msg.Drops), msg.IfaceName, msg.Kind)
-		ch <- c.requeues.mustNewConstMetric(float64(msg.Requeues), msg.IfaceName, msg.Kind)
-		ch <- c.overlimits.mustNewConstMetric(float64(msg.Overlimits), msg.IfaceName, msg.Kind)
-		ch <- c.qlength.mustNewConstMetric(float64(msg.Qlen), msg.IfaceName, msg.Kind)
-		ch <- c.backlog.mustNewConstMetric(float64(msg.Backlog), msg.IfaceName, msg.Kind)
+		labelValues := []string{msg.IfaceName, msg.Kind}
+		if *collectorQdiscIncludeChild {
+			labelValues = append(labelValues, tcParentString(msg.Parent), tcHandleString(msg.Handle))
+		}
+
+		ch <- c.bytes.mustNewConstMetric(float64(msg.Bytes), labelValues...)
+		ch <- c.packets.mustNewConstMetric(float64(msg.Packets), labelValues...)
+		ch <- c.drops.mustNewConstMetric(float64(msg.Drops), labelValues...)
+		ch <- c.requeues.mustNewConstMetric(float64(msg.Requeues), labelValues...)
+		ch <- c.overlimits.mustNewConstMetric(float64(msg.Overlimits), labelValues...)
+		ch <- c.qlength.mustNewConstMetric(float64(msg.Qlen), labelValues...)
+		ch <- c.backlog.mustNewConstMetric(float64(msg.Backlog), labelValues...)
 	}
 
 	return nil
