@@ -1,6 +1,11 @@
 ## master / unreleased
 
-## 1.13.0 / 2026-11-19
+## 1.13.1 / 2026-11-19
+
+* [BUGFIX] btrfs: Fix device_unused_bytes wrapping around during shrink #3827
+* [BUGFIX] textfile: fix panic on a metric without HELP after inconsistent help texts #3866
+
+## 1.13.0 / 2026-11-18
 
 NOTE:
 
