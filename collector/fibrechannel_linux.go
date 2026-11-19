@@ -86,8 +86,8 @@ func (c *fibrechannelCollector) pushMetric(ch chan<- prometheus.Metric, name str
 }
 
 func (c *fibrechannelCollector) pushCounter(ch chan<- prometheus.Metric, name string, value uint64, host string) {
-	// Don't push counters that aren't implemented (a counter equal to maxUint64 is unimplemented by the HBA firmware)
-	if value != maxUint64 {
+	// Don't push counters that are missing or aren't implemented (a counter equal to maxUint64 is unimplemented by the HBA firmware)
+	if value != nil && *value != maxUint64 {
 		c.pushMetric(ch, name, value, host, prometheus.CounterValue)
 	}
 }
