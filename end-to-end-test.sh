@@ -83,6 +83,7 @@ enabled_collectors=$(cat << COLLECTORS
   sysctl
   textfile
   thermal_zone
+  tls
   udp_queues
   vmstat
   watchdog
