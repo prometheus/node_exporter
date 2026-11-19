@@ -167,6 +167,14 @@ func (c *netClassCollector) getNetClassInfo() (sysfs.NetClass, error) {
 		}
 		interfaceClass, err := c.fs.NetClassByIface(device)
 		if err != nil {
+			// Interfaces come and go, and the listing above is not a
+			// snapshot of what is still there now. A device that vanished
+			// between the two reads is not an error worth losing every
+			// other interface's metrics over.
+			if errors.Is(err, os.ErrNotExist) {
+				c.logger.Debug("Network device vanished while reading netclass attributes", "device", device, "err", err)
+				continue
+			}
 			return netClass, err
 		}
 		netClass[device] = *interfaceClass
