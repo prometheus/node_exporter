@@ -167,7 +167,7 @@
             },
             annotations: {
               summary: 'Network interface is reporting many receive errors.',
-              description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} receive errors in the last two minutes.',
+              description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.2f" $value }} receive errors in the last two minutes.',
             },
           },
           {
@@ -181,7 +181,7 @@
             },
             annotations: {
               summary: 'Network interface is reporting many transmit errors.',
-              description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} transmit errors in the last two minutes.',
+              description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.2f" $value }} transmit errors in the last two minutes.',
             },
           },
           {
