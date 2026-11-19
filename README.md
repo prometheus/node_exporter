@@ -90,7 +90,7 @@ There are two meta-monitoring metrics available for checking the status of colle
     node_scrape_collector_duration_seconds
 
 Note that if a configured collector reads no data because it can't find a file in `/proc` or `/sys`,
-the success status will be 0. This is intentional to provide a way to detect faild drivers and similar
+the success status will be 0. This is intentional to provide a way to detect failed drivers and similar
 problems.
 
 ### Include & Exclude flags
