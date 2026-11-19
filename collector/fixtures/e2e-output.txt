@@ -2035,6 +2035,15 @@ node_ipvs_outgoing_packets_total 0
 # HELP node_kernel_hung_tasks_total Total number of tasks that have been detected as hung since the system booted.
 # TYPE node_kernel_hung_tasks_total counter
 node_kernel_hung_tasks_total 42
+# HELP node_kexec_crash_loaded Whether a crash (kdump) kernel is loaded, 1 is true, 0 is false.
+# TYPE node_kexec_crash_loaded gauge
+node_kexec_crash_loaded 1
+# HELP node_kexec_crash_size_bytes Size in bytes of the memory reserved for the crash (kdump) kernel, 0 means no reservation.
+# TYPE node_kexec_crash_size_bytes gauge
+node_kexec_crash_size_bytes 2.68435456e+08
+# HELP node_kexec_loaded Whether a kexec kernel is loaded and ready for a kexec reboot, 1 is true, 0 is false.
+# TYPE node_kexec_loaded gauge
+node_kexec_loaded 0
 # HELP node_ksmd_full_scans_total How many times all mergeable areas have been scanned.
 # TYPE node_ksmd_full_scans_total counter
 node_ksmd_full_scans_total 323
@@ -3790,6 +3799,7 @@ node_scrape_collector_success{collector="infiniband"} 1
 node_scrape_collector_success{collector="interrupts"} 1
 node_scrape_collector_success{collector="ipvs"} 1
 node_scrape_collector_success{collector="kernel_hung"} 1
+node_scrape_collector_success{collector="kexec"} 1
 node_scrape_collector_success{collector="ksmd"} 1
 node_scrape_collector_success{collector="lnstat"} 1
 node_scrape_collector_success{collector="loadavg"} 1
