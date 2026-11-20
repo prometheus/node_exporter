@@ -1357,7 +1357,7 @@ node_drbd_epochs{device="drbd1"} 1
 node_drbd_local_pending{device="drbd1"} 12345
 # HELP node_drbd_network_received_bytes_total Total number of bytes received via the network.
 # TYPE node_drbd_network_received_bytes_total counter
-node_drbd_network_received_bytes_total{device="drbd1"} 1.0961011e+07
+node_drbd_network_received_bytes_total{device="drbd1"} 1.1224075264e+10
 # HELP node_drbd_network_sent_bytes_total Total number of bytes sent via the network.
 # TYPE node_drbd_network_sent_bytes_total counter
 node_drbd_network_sent_bytes_total{device="drbd1"} 1.7740228608e+10
