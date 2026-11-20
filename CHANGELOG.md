@@ -1,5 +1,7 @@
 ## master / unreleased
 
+* [BUGFIX] drbd: Fix node_drbd_network_received_bytes_total being reported in KiB instead of bytes
+
 ## 1.13.1 / 2026-11-19
 
 * [BUGFIX] btrfs: Fix device_unused_bytes wrapping around during shrink #3827
