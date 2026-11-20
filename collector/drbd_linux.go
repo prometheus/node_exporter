@@ -97,7 +97,7 @@ func newDRBDCollector(logger *slog.Logger) (Collector, error) {
 				"network_received_bytes_total",
 				"Total number of bytes received via the network.",
 				prometheus.CounterValue,
-				1,
+				1024,
 			),
 			"dw": newDRBDNumericalMetric(
 				"disk_written_bytes_total",
