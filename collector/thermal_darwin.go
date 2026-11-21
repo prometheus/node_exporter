@@ -16,12 +16,20 @@
 package collector
 
 /*
-#cgo LDFLAGS: -framework IOKit -framework CoreFoundation
+#cgo CFLAGS: -x objective-c
+#cgo LDFLAGS: -framework IOKit -framework CoreFoundation -framework Foundation
+#import <Foundation/NSProcessInfo.h>
 #include <stdio.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <IOKit/IOKitLib.h>
 #include <IOKit/pwr_mgt/IOPMLib.h>
 #include <IOKit/pwr_mgt/IOPM.h>
+
+static NSProcessInfoThermalState systemThermalState(void) {
+    @autoreleasepool {
+        return [[NSProcessInfo processInfo] thermalState];
+    }
+}
 
 struct ref_with_ret {
     CFDictionaryRef ref;
@@ -57,10 +65,18 @@ type thermCollector struct {
 	cpuAvailableCPU   typedDesc
 	cpuSpeedLimit     typedDesc
 	temperature       typedDesc
+	state             typedDesc
 	logger            *slog.Logger
 }
 
 const thermal = "thermal"
+
+var thermalStateNames = [...]string{
+	C.NSProcessInfoThermalStateNominal:  "nominal",
+	C.NSProcessInfoThermalStateFair:     "fair",
+	C.NSProcessInfoThermalStateSerious:  "serious",
+	C.NSProcessInfoThermalStateCritical: "critical",
+}
 
 // errNoCPUPowerStatus is returned when the system does not report any CPU power
 // status. Apple Silicon does not implement IOPMCopyCPUPowerStatus, so this is an
@@ -71,7 +87,7 @@ func init() {
 	registerCollector(thermal, defaultEnabled, NewThermCollector)
 }
 
-// NewThermCollector returns a new Collector exposing current CPU power levels.
+// NewThermCollector returns a collector for macOS thermal and CPU power metrics.
 func NewThermCollector(logger *slog.Logger) (Collector, error) {
 	return &thermCollector{
 		cpuSchedulerLimit: typedDesc{
@@ -109,11 +125,30 @@ func NewThermCollector(logger *slog.Logger) (Collector, error) {
 			),
 			valueType: prometheus.GaugeValue,
 		},
+		state: typedDesc{
+			desc: prometheus.NewDesc(
+				prometheus.BuildFQName(namespace, thermal, "state"),
+				"Whether the system is in the given macOS thermal state (1 for the current state, 0 otherwise).",
+				[]string{"state"}, nil,
+			),
+			valueType: prometheus.GaugeValue,
+		},
 		logger: logger,
 	}, nil
 }
 
 func (c *thermCollector) Update(ch chan<- prometheus.Metric) error {
+	current := int(C.systemThermalState())
+	if current >= 0 && current < len(thermalStateNames) {
+		for i, state := range thermalStateNames {
+			var active float64
+			if i == current {
+				active = 1
+			}
+			ch <- c.state.mustNewConstMetric(active, state)
+		}
+	}
+
 	cpuPowerStatus, err := fetchCPUPowerStatus()
 	switch {
 	case err == nil:
