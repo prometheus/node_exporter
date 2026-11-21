@@ -393,6 +393,7 @@ non_deterministic_metrics=$(cat << METRICS
   node_network_receive_bytes_total
   node_network_receive_multicast_total
   node_network_transmit_multicast_total
+  node_thermal_state
   node_thermal_temperature_celsius
   node_zfs_abdstats_linear_count_total
   node_zfs_abdstats_linear_data_bytes

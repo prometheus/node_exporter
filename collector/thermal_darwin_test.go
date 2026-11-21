@@ -19,6 +19,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"slices"
 	"strings"
 	"testing"
 
@@ -48,6 +49,46 @@ func TestThermalUpdateWithoutCPUPowerStatus(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Update failed: %v", err)
 	}
+}
+
+func TestThermalState(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	c, err := NewThermCollector(logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(NodeCollector{Collectors: map[string]Collector{thermal: c}, logger: logger})
+	families, err := registry.Gather()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, family := range families {
+		if family.GetName() != "node_thermal_state" {
+			continue
+		}
+		var states []string
+		active := 0
+		for _, m := range family.GetMetric() {
+			if len(m.Label) != 1 || m.Label[0].GetName() != "state" || m.Gauge == nil {
+				t.Fatalf("expected a gauge with a state label, got %v", m)
+			}
+			states = append(states, m.Label[0].GetValue())
+			switch v := m.Gauge.GetValue(); v {
+			case 1:
+				active++
+			case 0:
+			default:
+				t.Errorf("expected 0 or 1, got %v", v)
+			}
+		}
+		slices.Sort(states)
+		if want := []string{"critical", "fair", "nominal", "serious"}; !slices.Equal(states, want) || active != 1 {
+			t.Errorf("got states %v (%d active), want %v with exactly one active", states, active, want)
+		}
+		return
+	}
+	t.Fatal("missing node_thermal_state")
 }
 
 // Several IOHID services report the same product name, so the collector must
