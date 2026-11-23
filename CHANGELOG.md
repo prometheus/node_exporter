@@ -1,5 +1,7 @@
 ## master / unreleased
 
+* [CHANGE] diskstats: Remove legacy Darwin read and written sector metrics; use the byte counters instead.
+
 ## 1.13.1 / 2026-11-19
 
 * [BUGFIX] btrfs: Fix device_unused_bytes wrapping around during shrink #3827
