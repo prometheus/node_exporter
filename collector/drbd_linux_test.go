@@ -25,6 +25,8 @@ import (
 )
 
 func TestDRBDNetworkAndDiskVolumes(t *testing.T) {
+	oldProcPath := *procPath
+	t.Cleanup(func() { *procPath = oldProcPath })
 	*procPath = "fixtures/proc"
 
 	c, err := newDRBDCollector(slog.New(slog.DiscardHandler))

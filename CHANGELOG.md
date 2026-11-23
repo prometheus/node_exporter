@@ -1,6 +1,6 @@
 ## master / unreleased
 
-* [BUGFIX] drbd: Fix node_drbd_network_received_bytes_total being reported in KiB instead of bytes #3918
+* [BUGFIX] drbd: Fix node_drbd_network_received_bytes_total being reported in KiB instead of bytes, so it was 1024 times too small #3918
 
 ## 1.13.1 / 2026-11-19
 
