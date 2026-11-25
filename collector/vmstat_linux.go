@@ -62,6 +62,9 @@ func (c *vmStatCollector) Update(ch chan<- prometheus.Metric) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		parts := strings.Fields(scanner.Text())
+		if len(parts) < 2 {
+			return fmt.Errorf("invalid line in vmstat: %q", scanner.Text())
+		}
 		value, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
 			return err
